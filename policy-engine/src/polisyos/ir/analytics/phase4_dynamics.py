@@ -6,12 +6,23 @@ import hashlib
 import json
 from collections.abc import Mapping
 from enum import StrEnum
-from typing import Any, Literal, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.contracts import CanonInfo
+from polisyos.ir.artifacts.io import _get_owned_json_artifact_with_bytes, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode, IRRepresentationKey
 from polisyos.ir.model_layer.canon import CanonSpec
+
+if TYPE_CHECKING:
+    from polisyos.ir.migrations.base import IRRepresentationRegistration
 from polisyos.ir.registry.refs import (
     ABMResultRef,
     ArtifactRefModel,
@@ -366,6 +377,116 @@ class ABMResult(BaseModel):
         return self
 
 
+_ABM_RESULT_OWNER_REF = "polisyos.ir.analytics.phase4_dynamics.ABMResult"
+_ABM_RESULT_WIRE_POLICY_REF = f"{_ABM_RESULT_OWNER_REF}.wire"
+_ABM_RESULT_WIRE_POLICY_REVISION = "1"
+_ABM_RESULT_POLICY_REVISION = "phase4-abm-owner-policy-r1"
+_ABM_RESULT_SCHEMA_COMPATIBILITY_NOTE = (
+    "Phase-4 ABM result 1.0 has no declared schema successors yet.",
+)
+
+
+def _validate_abm_result_canon_profile(
+    canon: CanonInfo,
+    registration: IRRepresentationRegistration,
+) -> bool:
+    """Admit only the source-observed canonical profiles for each manifest identity."""
+    if (
+        type(canon) is not CanonInfo
+        or registration.profile_ref is not None
+        or registration.schema_version != "1.0"
+        or registration.payload_version not in {"1.3", "1.4"}
+    ):
+        return False
+    core_profile = CanonInfo(forbid_floats=False, forbid_nan_inf=True)
+    if registration.schema_name == "ir.abm_result":
+        return canon == core_profile
+    if registration.schema_name == "polisyos.ir.ABMResult":
+        # Existing attractor and identifiability producers use different exact
+        # CanonInfo values under this shared manifest identity; neither implies provenance.
+        ident_profile = CanonInfo(forbid_floats=False, forbid_nan_inf=False)
+        return canon in (core_profile, ident_profile)
+    return False
+
+
+_ABM_RESULT_OWNER = declare_model_owner(
+    ABMResult,
+    contract_id=_ABM_RESULT_OWNER_REF,
+    dto_fqn=_ABM_RESULT_OWNER_REF,
+    abi_key="abm_result",
+    registry_key="abm_result",
+    kind="ir.abm_result",
+    media_type="application/json",
+    purpose="phase4_abm_result",
+    policy_revision=_ABM_RESULT_POLICY_REVISION,
+    accepted_wire_policies=((_ABM_RESULT_WIRE_POLICY_REF, _ABM_RESULT_WIRE_POLICY_REVISION),),
+    payload_version_field="schema_version",
+    validate_profile=_validate_abm_result_canon_profile,
+    representations=(
+        OwnedJSONRepresentation(
+            schema_name="ir.abm_result",
+            schema_version="1.0",
+            payload_version="1.3",
+            wire_policy_ref=_ABM_RESULT_WIRE_POLICY_REF,
+            wire_policy_revision=_ABM_RESULT_WIRE_POLICY_REVISION,
+            profile_ref=None,
+            compatibility=CompatibilityMode.FULL,
+            notes=_ABM_RESULT_SCHEMA_COMPATIBILITY_NOTE,
+            readable=True,
+            writable=True,
+            current=False,
+            default_write=False,
+            readable_from=(),
+        ),
+        OwnedJSONRepresentation(
+            schema_name="ir.abm_result",
+            schema_version="1.0",
+            payload_version="1.4",
+            wire_policy_ref=_ABM_RESULT_WIRE_POLICY_REF,
+            wire_policy_revision=_ABM_RESULT_WIRE_POLICY_REVISION,
+            profile_ref=None,
+            compatibility=CompatibilityMode.FULL,
+            notes=_ABM_RESULT_SCHEMA_COMPATIBILITY_NOTE,
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(IRRepresentationKey("ir.abm_result", "1.0", "1.3"),),
+        ),
+        OwnedJSONRepresentation(
+            schema_name="polisyos.ir.ABMResult",
+            schema_version="1.0",
+            payload_version="1.3",
+            wire_policy_ref=_ABM_RESULT_WIRE_POLICY_REF,
+            wire_policy_revision=_ABM_RESULT_WIRE_POLICY_REVISION,
+            profile_ref=None,
+            compatibility=CompatibilityMode.FULL,
+            notes=_ABM_RESULT_SCHEMA_COMPATIBILITY_NOTE,
+            readable=True,
+            writable=True,
+            current=False,
+            default_write=False,
+            readable_from=(),
+        ),
+        OwnedJSONRepresentation(
+            schema_name="polisyos.ir.ABMResult",
+            schema_version="1.0",
+            payload_version="1.4",
+            wire_policy_ref=_ABM_RESULT_WIRE_POLICY_REF,
+            wire_policy_revision=_ABM_RESULT_WIRE_POLICY_REVISION,
+            profile_ref=None,
+            compatibility=CompatibilityMode.FULL,
+            notes=_ABM_RESULT_SCHEMA_COMPATIBILITY_NOTE,
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=False,
+            readable_from=(IRRepresentationKey("polisyos.ir.ABMResult", "1.0", "1.3"),),
+        ),
+    ),
+)
+
+
 class StrangleReceipt(BaseModel):
     """Content-bound receipt proving the legacy ABM stub was not used."""
 
@@ -664,26 +785,156 @@ def build_space_time_causal_certificate(
     )
 
 
+_DYNAMIC_MICROSIM_VALIDATION_REPORT_OWNER_REF = (
+    "polisyos.ir.analytics.phase4_dynamics.DynamicMicrosimValidationReport"
+)
+_DYNAMIC_MICROSIM_VALIDATION_REPORT_WIRE_POLICY_REF = (
+    f"{_DYNAMIC_MICROSIM_VALIDATION_REPORT_OWNER_REF}.wire"
+)
+_DYNAMIC_MICROSIM_VALIDATION_REPORT_OWNER = declare_model_owner(
+    DynamicMicrosimValidationReport,
+    contract_id=_DYNAMIC_MICROSIM_VALIDATION_REPORT_OWNER_REF,
+    dto_fqn=_DYNAMIC_MICROSIM_VALIDATION_REPORT_OWNER_REF,
+    abi_key=_DYNAMIC_MICROSIM_VALIDATION_REPORT_OWNER_REF,
+    registry_key="dynamic_microsim_validation_report",
+    kind="ir.dynamic_microsim_validation_report",
+    media_type="application/json",
+    purpose="phase4_dynamic_microsim_validation_report",
+    policy_revision="phase4-dynamic-microsim-validation-report-owner-r1",
+    accepted_wire_policies=((_DYNAMIC_MICROSIM_VALIDATION_REPORT_WIRE_POLICY_REF, "1"),),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        OwnedJSONRepresentation(
+            schema_name="ir.dynamic_microsim_validation_report",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref=_DYNAMIC_MICROSIM_VALIDATION_REPORT_WIRE_POLICY_REF,
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=CompatibilityMode.FULL,
+            notes=(
+                "Dynamic microsim validation report 1.0 has no declared schema successors yet.",
+            ),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+_TEMPORAL_GRAPH_CAUSAL_CERTIFICATE_OWNER_REF = (
+    "polisyos.ir.analytics.phase4_dynamics.TemporalGraphCausalCertificate"
+)
+_TEMPORAL_GRAPH_CAUSAL_CERTIFICATE_WIRE_POLICY_REF = (
+    f"{_TEMPORAL_GRAPH_CAUSAL_CERTIFICATE_OWNER_REF}.wire"
+)
+_TEMPORAL_GRAPH_CAUSAL_CERTIFICATE_OWNER = declare_model_owner(
+    TemporalGraphCausalCertificate,
+    contract_id=_TEMPORAL_GRAPH_CAUSAL_CERTIFICATE_OWNER_REF,
+    dto_fqn=_TEMPORAL_GRAPH_CAUSAL_CERTIFICATE_OWNER_REF,
+    abi_key=_TEMPORAL_GRAPH_CAUSAL_CERTIFICATE_OWNER_REF,
+    registry_key="temporal_graph_causal_certificate",
+    kind="ir.temporal_graph_causal_certificate",
+    media_type="application/json",
+    purpose="phase4_temporal_graph_causal_certificate",
+    policy_revision="phase4-temporal-graph-causal-certificate-owner-r1",
+    accepted_wire_policies=((_TEMPORAL_GRAPH_CAUSAL_CERTIFICATE_WIRE_POLICY_REF, "1"),),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        OwnedJSONRepresentation(
+            schema_name="ir.temporal_graph_causal_certificate",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref=_TEMPORAL_GRAPH_CAUSAL_CERTIFICATE_WIRE_POLICY_REF,
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=CompatibilityMode.FULL,
+            notes=("Temporal graph causal certificate 1.0 has no declared schema successors yet.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+_SPACE_TIME_CAUSAL_CERTIFICATE_OWNER_REF = (
+    "polisyos.ir.analytics.phase4_dynamics.SpaceTimeCausalCertificate"
+)
+_SPACE_TIME_CAUSAL_CERTIFICATE_WIRE_POLICY_REF = f"{_SPACE_TIME_CAUSAL_CERTIFICATE_OWNER_REF}.wire"
+_SPACE_TIME_CAUSAL_CERTIFICATE_OWNER = declare_model_owner(
+    SpaceTimeCausalCertificate,
+    contract_id=_SPACE_TIME_CAUSAL_CERTIFICATE_OWNER_REF,
+    dto_fqn=_SPACE_TIME_CAUSAL_CERTIFICATE_OWNER_REF,
+    abi_key=_SPACE_TIME_CAUSAL_CERTIFICATE_OWNER_REF,
+    registry_key="space_time_causal_certificate",
+    kind="ir.space_time_causal_certificate",
+    media_type="application/json",
+    purpose="phase4_space_time_causal_certificate",
+    policy_revision="phase4-space-time-causal-certificate-owner-r1",
+    accepted_wire_policies=((_SPACE_TIME_CAUSAL_CERTIFICATE_WIRE_POLICY_REF, "1"),),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        OwnedJSONRepresentation(
+            schema_name="ir.space_time_causal_certificate",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref=_SPACE_TIME_CAUSAL_CERTIFICATE_WIRE_POLICY_REF,
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=CompatibilityMode.FULL,
+            notes=("Space-time causal certificate 1.0 has no declared schema successors yet.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
 def persist_abm_result(
     store: ArtifactStore,
     result: ABMResult,
     *,
     inputs: list[InputRef] | None = None,
+    schema_name: Literal["ir.abm_result", "polisyos.ir.ABMResult"] = "ir.abm_result",
+    canon_spec: CanonSpec | None = None,
 ) -> ABMResultRef:
-    ref = put_json_artifact(
+    """Persist under one source-owned manifest identity and exact registered payload version."""
+    selected_canon = CanonSpec(forbid_floats=False) if canon_spec is None else canon_spec
+    payload = result.model_dump(mode="json")
+    ref = _put_owned_json_artifact(
         store,
-        result.model_dump(mode="json"),
-        kind="ir.abm_result",
-        schema_name="ir.abm_result",
+        payload,
+        owner=_ABM_RESULT_OWNER,
+        schema_name=schema_name,
         schema_version="1.0",
         inputs=inputs,
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=selected_canon,
     )
     return ABMResultRef.model_validate(ref)
 
 
 def load_abm_result(store: ArtifactStore, ref: ABMResultRef) -> ABMResult:
-    return ABMResult.model_validate(get_json_artifact(store, ref))
+    """Read only owner-admitted exact-version ABMResult representations."""
+    return _get_owned_json_artifact_with_bytes(store, ref, owner=_ABM_RESULT_OWNER).value
 
 
 def persist_dynamic_microsim_validation_report(
@@ -692,12 +943,10 @@ def persist_dynamic_microsim_validation_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> DynamicMicrosimValidationReportRef:
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         report.model_dump(mode="json"),
-        kind="ir.dynamic_microsim_validation_report",
-        schema_name="ir.dynamic_microsim_validation_report",
-        schema_version="1.0",
+        owner=_DYNAMIC_MICROSIM_VALIDATION_REPORT_OWNER,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
@@ -708,7 +957,11 @@ def load_dynamic_microsim_validation_report(
     store: ArtifactStore,
     ref: DynamicMicrosimValidationReportRef,
 ) -> DynamicMicrosimValidationReport:
-    return DynamicMicrosimValidationReport.model_validate(get_json_artifact(store, ref))
+    return _get_owned_json_artifact_with_bytes(
+        store,
+        ref,
+        owner=_DYNAMIC_MICROSIM_VALIDATION_REPORT_OWNER,
+    ).value
 
 
 def persist_temporal_graph_causal_certificate(
@@ -717,12 +970,10 @@ def persist_temporal_graph_causal_certificate(
     *,
     inputs: list[InputRef] | None = None,
 ) -> TemporalGraphCausalCertificateRef:
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind="ir.temporal_graph_causal_certificate",
-        schema_name="ir.temporal_graph_causal_certificate",
-        schema_version="1.0",
+        owner=_TEMPORAL_GRAPH_CAUSAL_CERTIFICATE_OWNER,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
@@ -733,7 +984,11 @@ def load_temporal_graph_causal_certificate(
     store: ArtifactStore,
     ref: TemporalGraphCausalCertificateRef,
 ) -> TemporalGraphCausalCertificate:
-    return TemporalGraphCausalCertificate.model_validate(get_json_artifact(store, ref))
+    return _get_owned_json_artifact_with_bytes(
+        store,
+        ref,
+        owner=_TEMPORAL_GRAPH_CAUSAL_CERTIFICATE_OWNER,
+    ).value
 
 
 def persist_space_time_causal_certificate(
@@ -742,12 +997,10 @@ def persist_space_time_causal_certificate(
     *,
     inputs: list[InputRef] | None = None,
 ) -> SpaceTimeCausalCertificateRef:
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind="ir.space_time_causal_certificate",
-        schema_name="ir.space_time_causal_certificate",
-        schema_version="1.0",
+        owner=_SPACE_TIME_CAUSAL_CERTIFICATE_OWNER,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
@@ -758,7 +1011,11 @@ def load_space_time_causal_certificate(
     store: ArtifactStore,
     ref: SpaceTimeCausalCertificateRef,
 ) -> SpaceTimeCausalCertificate:
-    return SpaceTimeCausalCertificate.model_validate(get_json_artifact(store, ref))
+    return _get_owned_json_artifact_with_bytes(
+        store,
+        ref,
+        owner=_SPACE_TIME_CAUSAL_CERTIFICATE_OWNER,
+    ).value
 
 
 def _coerce_forecast_bundle(

@@ -1,0 +1,36 @@
+id = "2026-10-23-e02-runtime-quality-report-publication-basis"
+title = "Bind runtime quality report authority to the complete producer input"
+type = "fixed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "The actual runtime quality publisher and scorecard share exact report-owner contracts and a replayable source basis for selected CAS admission."
+evidence = [
+  "src/polisyos/runtime/quality/report_registry.py",
+  "src/polisyos/runtime/quality/authority.py",
+  "src/polisyos/runtime/quality/scorecard.py",
+  "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+  "tests/unit/runtime/quality/test_runtime_quality_report_owner_contract.py",
+  "docs/reference/runtime/runtime-quality-report-publication-basis.md",
+]
+change_class = "internal"
+surface_classification = "existing runtime job-details diagnostic map; additive internal publication-basis field"
+compatibility = "Existing top-level runtime_quality_evidence fields and the public scorecard schema remain unchanged. Owner-backed publisher output adds a nested, publisher-owned complete report-input basis with selected CAS, event, and envelope bindings; scorecard admission requires and replays that basis before accepting the selected report."
+limitations = "The basis does not confer authority. Admission still requires selected Core CAS verification and a declared profile, exact per-report kind/media/schema/producer identity, content binding, the manifest-linked envelope and existing authority predicates. Five generic registry rows without an admitted producer owner remain not_established. Prior evidence without this basis cannot gain owner authority through lossy comparison; no CAS rewrite or migration is included."
+migration = "Existing older runtime report payloads remain readable as diagnostic candidates. To establish the new owner basis, rerun the actual registered publisher; missing historical basis stays not_established."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/runtime/runtime-quality-report-publication-basis.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-quality-report-publication-basis"
+change_class = "internal"
+impact = "compatible"
+surface = "existing runtime job-details diagnostic map"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Preserve the complete publisher input beside the selected CAS binding and require exact replay for owner-backed report admission."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/reference/runtime/runtime-quality-report-publication-basis.md"]
+runbook_docs = []

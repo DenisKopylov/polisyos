@@ -17,7 +17,17 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration, CanonInfo
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import (
+    CompatibilityMode,
+    IRRepresentationKey,
+    IRRepresentationRegistration,
+    ResolvedSchemaAdmission,
+    register_ir_representation,
+    register_schema_version,
+)
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import CausalQueryResultRef
 
@@ -583,6 +593,124 @@ class CausalInterventionSpec(InterventionSpec):
     """
 
 
+def _family_payload_version(value: object) -> str | None:
+    """Return a strict embedded version, distinguishing absence from malformed null."""
+    if not isinstance(value, Mapping):
+        raise ValueError("owned family payload must be an object")
+    if "schema_version" not in value:
+        return None
+    version = value["schema_version"]
+    if type(version) is not str or not version.strip():
+        raise ValueError("owned family payload schema_version must be a nonempty string")
+    return version
+
+
+def _family_source_mapping(value: object, admission: ResolvedSchemaAdmission) -> dict[str, Any]:
+    """Bind payload bytes to the exact tuple already selected from the owner snapshot."""
+    if not isinstance(value, Mapping):
+        raise ValueError("owned family payload must be an object")
+    if _family_payload_version(value) != admission.source_registration.payload_version:
+        raise ValueError("payload version differs from exact registered tuple")
+    return dict(value)
+
+
+def _family_profile(profile: CanonInfo, row: IRRepresentationRegistration) -> bool:
+    """Require the producer's actual canonicalization profile and no profile alias."""
+    return (
+        profile == CanonInfo.from_spec(CanonSpec(forbid_floats=False)) and row.profile_ref is None
+    )
+
+
+_CAUSAL_QUERY_LEGACY_POLICY = ("causal-query-legacy-json", "1")
+_CAUSAL_QUERY_CURRENT_POLICY = ("causal-query-current-json", "1")
+_CAUSAL_QUERY_OWNER = ArtifactOwnerDeclaration(
+    contract_id="polisyos.ir.analytics.causal_queries.CausalQueryResult",
+    dto_fqn="polisyos.ir.analytics.causal_queries.CausalQueryResult",
+    abi_key="causal_query_result",
+    registry_key="causal_query_result",
+    kind="ir.causal_query_result",
+    media_type="application/json",
+    purpose="causal_query_result",
+    policy_revision="1",
+    accepted_wire_policies=(_CAUSAL_QUERY_LEGACY_POLICY, _CAUSAL_QUERY_CURRENT_POLICY),
+    payload_version_of=_family_payload_version,
+    validate_source=_family_source_mapping,
+    project_for_consumer=lambda value, admission: _project_causal_query(value, admission),
+    validate_profile=_family_profile,
+)
+
+
+def _project_causal_query(
+    value: dict[str, Any], admission: ResolvedSchemaAdmission
+) -> CausalQueryResult:
+    """Run the declared legacy adapter or preserve an admitted current-law representation."""
+    row = admission.source_registration
+    payload = dict(value)
+    if (row.wire_policy_ref, row.wire_policy_revision) == _CAUSAL_QUERY_LEGACY_POLICY:
+        metadata = dict(payload.get("metadata") or {})
+        source_version = row.schema_version
+        if metadata.get("source_schema_version") not in (None, source_version):
+            raise ValueError("legacy query provenance conflicts with CAS manifest")
+        if metadata.get("source_schema_name") not in (None, row.schema_name):
+            raise ValueError("legacy query schema name conflicts with CAS manifest")
+        metadata["source_schema_version"] = source_version
+        metadata["source_schema_name"] = row.schema_name
+        payload.update(
+            schema_version=_CAUSAL_QUERY_RESULT_SCHEMA_VERSION,
+            result_kind=CausalResultKind.OUTCOME_DISTRIBUTION.value,
+            estimator_interval=None,
+            metadata=metadata,
+        )
+    return CausalQueryResult.model_validate(payload)
+
+
+def _register_causal_query_owner() -> None:
+    """Register source-established old rows and the current result representation."""
+    for version, mode in (
+        (_LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION, CompatibilityMode.NONE),
+        ("1.1", CompatibilityMode.NONE),
+        (_CAUSAL_QUERY_RESULT_SCHEMA_VERSION, CompatibilityMode.BACKWARD),
+    ):
+        register_schema_version(
+            "causal_query_result",
+            version,
+            compatibility=mode,
+            notes=("Typed owner rows carry the exact query-result wire contract.",),
+        )
+    old_rows = tuple(
+        IRRepresentationKey("ir.causal_query_result", version, version)
+        for version in (_LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION, "1.1")
+    )
+    for version in (_LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION, "1.1"):
+        register_ir_representation(
+            registry_key="causal_query_result",
+            owner_ref=_CAUSAL_QUERY_OWNER.contract_id,
+            dto_abi=_CAUSAL_QUERY_OWNER.dto_fqn,
+            wire_policy_ref=_CAUSAL_QUERY_LEGACY_POLICY[0],
+            wire_policy_revision=_CAUSAL_QUERY_LEGACY_POLICY[1],
+            schema_name="ir.causal_query_result",
+            schema_version=version,
+            payload_version=version,
+        )
+    register_ir_representation(
+        registry_key="causal_query_result",
+        owner_ref=_CAUSAL_QUERY_OWNER.contract_id,
+        dto_abi=_CAUSAL_QUERY_OWNER.dto_fqn,
+        wire_policy_ref=_CAUSAL_QUERY_CURRENT_POLICY[0],
+        wire_policy_revision=_CAUSAL_QUERY_CURRENT_POLICY[1],
+        schema_name="ir.causal_query_result",
+        schema_version=_CAUSAL_QUERY_RESULT_SCHEMA_VERSION,
+        payload_version=_CAUSAL_QUERY_RESULT_SCHEMA_VERSION,
+        writable=True,
+        current=True,
+        default_write=True,
+        readable_from=old_rows,
+    )
+
+
+_register_causal_query_owner()
+
+
 def persist_causal_query_result(
     store: ArtifactStore,
     result: CausalQueryResult,
@@ -591,24 +719,15 @@ def persist_causal_query_result(
     schema_name: str = "ir.causal_query_result",
     schema_version: str | None = None,
 ) -> CausalQueryResultRef:
-    """Persist a causal query result and return a typed artifact reference."""
-    resolved_schema_version = schema_version or result.schema_version
+    """Persist a query result through its exact registered owner row."""
+    resolved_schema_version = result.schema_version if schema_version is None else schema_version
     if resolved_schema_version != result.schema_version:
         raise ValueError(
             "causal query result payload and CAS schema versions must match: "
             f"payload={result.schema_version}, requested={resolved_schema_version}"
         )
-    if resolved_schema_version != _CAUSAL_QUERY_RESULT_SCHEMA_VERSION:
-        raise ValueError(
-            "new causal query results must use schema version "
-            f"{_CAUSAL_QUERY_RESULT_SCHEMA_VERSION}"
-        )
     payload = result.model_dump(mode="json")
     metadata = dict(payload.get("metadata") or {})
-    # A historical reader's manifest-bound version describes the artifact it
-    # read. Re-publication has a new manifest, so retain that history under an
-    # explicitly diagnostic migration field rather than asserting two current
-    # source versions for one CAS payload.
     if metadata.get("source_schema_version") in {"1.0", "1.1"}:
         metadata["historical_schema_replay"] = {
             key: metadata.pop(key)
@@ -616,79 +735,24 @@ def persist_causal_query_result(
             if key in metadata
         }
         payload["metadata"] = metadata
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         payload,
-        kind="ir.causal_query_result",
+        owner=_CAUSAL_QUERY_OWNER,
         schema_name=schema_name,
         schema_version=resolved_schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return CausalQueryResultRef.model_validate(ref)
+    return CausalQueryResultRef.from_selected_write(ref)
 
 
 def load_causal_query_result(
     store: ArtifactStore,
     ref: CausalQueryResultRef,
 ) -> CausalQueryResult:
-    """Load a causal query result with CAS/payload version reconciliation."""
-    payload = get_json_artifact(store, ref)
-    manifest = store.get_manifest(ref)
-    schema = getattr(manifest, "artifact_schema", None)
-    if schema is None:
-        raise ValueError("causal query result CAS manifest is missing artifact schema metadata")
-    payload_version = payload.get("schema_version") if isinstance(payload, Mapping) else None
-    manifest_version = getattr(schema, "version", None)
-    if manifest_version is not None and payload_version not in (None, manifest_version):
-        raise ValueError(
-            "causal query result payload/CAS schema version mismatch: "
-            f"payload={payload_version}, manifest={manifest_version}"
-        )
-    source_version = str(
-        manifest_version or payload_version or _LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION
-    )
-    if source_version not in {
-        _LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION,
-        "1.1",
-        _CAUSAL_QUERY_RESULT_SCHEMA_VERSION,
-    }:
-        raise ValueError(f"unsupported causal query result schema version: {source_version}")
-    if not isinstance(payload, Mapping):
-        raise TypeError("causal query result payload must be a mapping")
-    normalized_payload = dict(payload)
-    normalized_payload["schema_version"] = source_version
-    metadata = dict(normalized_payload.get("metadata") or {})
-    claimed_source_version = metadata.get("source_schema_version")
-    claimed_schema_name = metadata.get("source_schema_name")
-    if schema is None and (claimed_source_version is not None or claimed_schema_name is not None):
-        raise ValueError("causal query result source provenance requires a CAS manifest")
-    authoritative_schema_name = str(getattr(schema, "name", "")) if schema is not None else None
-    if schema is not None:
-        if claimed_source_version is not None and claimed_source_version != source_version:
-            raise ValueError(
-                "causal query result provenance conflicts with CAS manifest version: "
-                f"payload={claimed_source_version}, manifest={source_version}"
-            )
-        if claimed_schema_name is not None and claimed_schema_name != authoritative_schema_name:
-            raise ValueError(
-                "causal query result provenance conflicts with CAS manifest name: "
-                f"payload={claimed_schema_name}, manifest={authoritative_schema_name}"
-            )
-        if claimed_source_version is not None:
-            metadata["source_schema_version"] = source_version
-        if claimed_schema_name is not None:
-            metadata["source_schema_name"] = authoritative_schema_name
-    if source_version in {_LEGACY_CAUSAL_QUERY_RESULT_SCHEMA_VERSION, "1.1"}:
-        metadata["source_schema_version"] = source_version
-        if authoritative_schema_name is not None:
-            metadata["source_schema_name"] = authoritative_schema_name
-        normalized_payload["schema_version"] = _CAUSAL_QUERY_RESULT_SCHEMA_VERSION
-        normalized_payload["result_kind"] = CausalResultKind.OUTCOME_DISTRIBUTION.value
-        normalized_payload["estimator_interval"] = None
-    if metadata:
-        normalized_payload["metadata"] = metadata
-    return CausalQueryResult.model_validate(normalized_payload)
+    """Load through exact manifest-to-payload owner admission and query adapter."""
+    return _get_owned_json_artifact(store, ref, owner=_CAUSAL_QUERY_OWNER)
 
 
 __all__ = [

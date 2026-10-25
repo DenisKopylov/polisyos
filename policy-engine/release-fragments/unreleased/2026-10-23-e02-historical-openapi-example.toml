@@ -1,0 +1,22 @@
+id = "2026-10-23-e02-historical-openapi-example"
+title = "Use a pinned historical sample for DS17 OpenAPI documentation"
+type = "changed"
+component = "runtime-api"
+owner = "team-runtime"
+summary = "OpenAPI generation renders the DS17 risk-spend example from a packaged, provenance-pinned historical sample instead of querying live owner availability. The real GET route keeps its request-time owner admission gate."
+evidence = [
+  "src/polisyos/runtime/http/openapi_contract.py",
+  "src/polisyos/runtime/http/_resources/confidence_ledger_risk_spend_openapi_example.json",
+  "tests/unit/runtime/http/test_confidence_ledger_risk_spend_projection.py",
+  "tests/repo_quality/tools/test_hatch_packaging.py",
+]
+compatibility = "The response DTO, route, and four availability arms are unchanged. The OpenAPI example is explicitly historical and is not an availability or freshness claim about the current source."
+change_class = "openapi-documentation-example"
+surface_classification = "public_stable: polisyos.runtime HTTP API OpenAPI documentation example semantics"
+migration = "After source adoption, regenerate the canonical OpenAPI snapshot and run the runtime API contract/client drift check; classify generated-client impact from that result before release."
+api = "OpenAPI rendering is independent of current owner-source availability; each real GET continues to validate its current owner source."
+limitations = "The historical worker receipt is retained as sample provenance and is not independently replayed by OpenAPI generation. This change does not alter runtime admission or authorize current availability."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/runtime/http/README.md", "docs/reference/generated-artifacts.md"]
+runbook_docs = []

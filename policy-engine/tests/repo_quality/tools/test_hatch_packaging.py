@@ -213,6 +213,24 @@ def test_native_backend_preserves_complete_wheel_and_sdist_contract(contexts):
     )
 
 
+def test_historical_openapi_example_is_present_in_native_wheel_and_sdist(contexts):
+    native, _legacy, _scratch = contexts
+    source = (
+        "src/polisyos/runtime/http/_resources/confidence_ledger_risk_spend_openapi_example.json"
+    )
+    wheel_target = (
+        "polisyos/runtime/http/_resources/confidence_ledger_risk_spend_openapi_example.json"
+    )
+    expected = "944918b3935fe325ac0b06ec005f71f6efe185bc5b36af808e3314132853232d"
+
+    assert hashlib.sha256((native / source).read_bytes()).hexdigest() == expected
+    _wheel_path, wheel_members = _wheel(native)
+    _sdist_path, sdist_members = _sdist(native)
+
+    assert wheel_members[wheel_target] == expected
+    assert sdist_members[source] == expected
+
+
 @pytest.mark.parametrize("mutation", ["missing", "wrong_prefix", "packages", "entrypoint"])
 def test_missing_or_wrong_native_config_is_detected_by_real_build(contexts, mutation):
     native, _legacy, scratch = contexts

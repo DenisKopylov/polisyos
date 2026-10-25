@@ -1,0 +1,40 @@
+id = "2026-10-22-e02-r15-strict-persisted-hte-json-wire"
+title = "Preserve strict JSON semantics at persisted HTE reads"
+type = "fixed"
+component = "core/runtime"
+owner = "team-polisyos"
+summary = "A shared private Core JSON-wire decoder validates selected persisted HTE DTOs under strict JSON semantics, and Runtime recomputes resource evidence through the exact selected consumer DTO before joining it to producer receipts."
+evidence = [
+  "src/polisyos/core/contracts/runtime.py",
+  "src/polisyos/runtime/http/services/control/owned_attempt_anchor.py",
+  "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+  "src/polisyos/runtime/http/services/control_plane_store.py",
+  "tests/_helpers/runtime_http.py",
+  "tests/unit/runtime/http/test_direct_method_evidence_producer_limitations.py",
+  "tests/unit/runtime/http/test_observational_method_runtime.py",
+  "tests/unit/runtime/http/test_owned_attempt_anchor_associations.py",
+]
+compatibility = "Selected persisted JSON artifacts use TypeAdapter.validate_json(strict=True), preserving JSON-array tuple semantics while refusing non-JSON Python objects and malformed DTOs. The owner-side evidence join recomputes expected fields from the selected policy and producer receipt, validates that payload under the exact consumer DTO, and compares the complete model dump; IR defaults are materialized only when declared by IR, while the distinct Core DTO retains its own shape. No DTO schema, HTTP schema, public facade export, persisted CAS format, profile version, status rule, or authority rule changes."
+change_class = "internal"
+surface_classification = "internal: internal-only"
+migration = "No migration or CAS rewrite is required. Existing manifest/profile selection remains in force; malformed present payloads and non-JSON Python objects remain refused."
+api = "The helpers polisyos.core.contracts.runtime._validate_strict_json_wire_payload and Runtime._resource_evidence_payload_for_consumer are underscored internal seams and are not added to package exports. Existing Runtime selected readers retain the selected CAS profile and validate persisted DTOs through the shared decoder; evidence comparisons still derive only from the owner anchor and real producer receipt. HTEWriterReadyV1 remains on its existing validate_hte_writer_ready_json owner decoder. This fragment classifies only the listed paths as internal."
+limitations = "The retained bounded-CAS discriminator selected artifact_id=sha256:56b8d0ecc10854c8eb86334891e2e5f580e36e208bae98c9045bac09f2ca826b, kind=ir.hte_outcome, media_type=application/json, manifest_profile_sha256=sha256:20acec10e96a2d8027cfdb666dd20df557d58b0b7e53bd818455310b8f05af2c. On that controlled retained fixture, strict Python validation reports a tuple_type error for the same decoded payload; the shared strict JSON validator accepts it, the resulting HTEOutcome branch is present in the adapter schema, and encoded JSON roundtrip preserves it. Extra-field and non-JSON-tuple controls refuse. The producer-limitations fixture covers method_input_envelope_v1 and legacy_hte_json_v1: the exact producer limitation set is accepted (the legacy protocol adds legacy_hte_json_v1_source_normalized); missing scientific_validity_not_established, adding the selection-only source_access_revalidation_not_established to the producer evidence, or duplicating a producer limitation is refused, while the selected intent retains its source-access limitation. This packet does not establish the full R18 producer-to-CAS-to-association-to-fresh-GET witness, production currentness, scientific validity, or authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-r15-strict-persisted-hte-json-wire"
+change_class = "internal"
+impact = "internal"
+surface = "internal: Core and Runtime persisted HTE readers"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Apply strict JSON-wire validation to selected persisted HTE DTOs and normalize recomputed resource evidence under the exact consumer schema, preserving profile binding, refusal behavior, and producer-owned limitation scope."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

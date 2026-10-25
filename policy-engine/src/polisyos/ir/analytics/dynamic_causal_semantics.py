@@ -13,7 +13,14 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     ForecastInterventionCertificateRef,
@@ -712,6 +719,88 @@ class DynamicSemanticsAttachment(BaseModel):
         return self
 
 
+_FORECAST_INTERVENTION_QUERY_WIRE_POLICY = (
+    "polisyos.ir.analytics.dynamic_causal_semantics.ForecastInterventionQuery.wire",
+    "1",
+)
+_FORECAST_INTERVENTION_QUERY_REPRESENTATIONS = (
+    OwnedJSONRepresentation(
+        schema_name=_FORECAST_INTERVENTION_QUERY_SCHEMA_NAME,
+        schema_version=_FORECAST_INTERVENTION_QUERY_SCHEMA_VERSION,
+        payload_version=_FORECAST_INTERVENTION_QUERY_SCHEMA_VERSION,
+        wire_policy_ref=_FORECAST_INTERVENTION_QUERY_WIRE_POLICY[0],
+        wire_policy_revision=_FORECAST_INTERVENTION_QUERY_WIRE_POLICY[1],
+        profile_ref=None,
+        compatibility=CompatibilityMode.NONE,
+        notes=(),
+        readable=True,
+        writable=True,
+        current=True,
+        default_write=True,
+        readable_from=(),
+    ),
+)
+_FORECAST_INTERVENTION_QUERY_OWNER = declare_model_owner(
+    ForecastInterventionQuery,
+    contract_id="polisyos.ir.analytics.dynamic_causal_semantics.ForecastInterventionQuery.owner",
+    dto_fqn="polisyos.ir.analytics.dynamic_causal_semantics.ForecastInterventionQuery",
+    abi_key="ir.analytics.dynamic_causal_semantics.ForecastInterventionQuery",
+    registry_key="ir.forecast_intervention_query",
+    kind="ir.forecast_intervention_query",
+    media_type="application/json",
+    purpose="forecast_intervention_query",
+    policy_revision="polisyos.ir.analytics.dynamic_causal_semantics.ForecastInterventionQuery.owner.owner-admission.r1",
+    accepted_wire_policies=(_FORECAST_INTERVENTION_QUERY_WIRE_POLICY,),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=_FORECAST_INTERVENTION_QUERY_REPRESENTATIONS,
+)
+
+
+_FORECAST_INTERVENTION_CERTIFICATE_WIRE_POLICY = (
+    "polisyos.ir.analytics.dynamic_causal_semantics.ForecastInterventionCertificate.wire",
+    "1",
+)
+_FORECAST_INTERVENTION_CERTIFICATE_REPRESENTATIONS = (
+    OwnedJSONRepresentation(
+        schema_name=_FORECAST_INTERVENTION_CERTIFICATE_SCHEMA_NAME,
+        schema_version=_FORECAST_INTERVENTION_CERTIFICATE_SCHEMA_VERSION,
+        payload_version=None,
+        wire_policy_ref=_FORECAST_INTERVENTION_CERTIFICATE_WIRE_POLICY[0],
+        wire_policy_revision=_FORECAST_INTERVENTION_CERTIFICATE_WIRE_POLICY[1],
+        profile_ref=None,
+        compatibility=CompatibilityMode.NONE,
+        notes=(),
+        readable=True,
+        writable=True,
+        current=True,
+        default_write=True,
+        readable_from=(),
+    ),
+)
+_FORECAST_INTERVENTION_CERTIFICATE_OWNER = declare_model_owner(
+    ForecastInterventionCertificate,
+    contract_id="polisyos.ir.analytics.dynamic_causal_semantics.ForecastInterventionCertificate.owner",
+    dto_fqn="polisyos.ir.analytics.dynamic_causal_semantics.ForecastInterventionCertificate",
+    abi_key="ir.analytics.dynamic_causal_semantics.ForecastInterventionCertificate",
+    registry_key="ir.forecast_intervention_certificate",
+    kind="ir.forecast_intervention_certificate",
+    media_type="application/json",
+    purpose="forecast_intervention_certificate",
+    policy_revision="polisyos.ir.analytics.dynamic_causal_semantics.ForecastInterventionCertificate.owner.owner-admission.r1",
+    accepted_wire_policies=(_FORECAST_INTERVENTION_CERTIFICATE_WIRE_POLICY,),
+    payload_version_field=None,
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=_FORECAST_INTERVENTION_CERTIFICATE_REPRESENTATIONS,
+)
+
+
 def persist_forecast_intervention_query(
     store: ArtifactStore,
     query: ForecastInterventionQuery,
@@ -722,10 +811,10 @@ def persist_forecast_intervention_query(
 ) -> ForecastInterventionQueryRef:
     """Persist a forecast intervention query and return its typed artifact ref."""
 
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         query.model_dump(mode="json"),
-        kind="ir.forecast_intervention_query",
+        owner=_FORECAST_INTERVENTION_QUERY_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -740,8 +829,7 @@ def load_forecast_intervention_query(
 ) -> ForecastInterventionQuery:
     """Load a persisted forecast intervention query."""
 
-    payload = get_json_artifact(store, ref)
-    return ForecastInterventionQuery.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_FORECAST_INTERVENTION_QUERY_OWNER)
 
 
 def persist_forecast_intervention_certificate(
@@ -759,10 +847,10 @@ def persist_forecast_intervention_certificate(
     payload.pop("query_ref", None)
     payload.pop("proof_support_fingerprints", None)
     payload = ForecastInterventionCertificate.model_validate(payload).model_dump(mode="json")
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         payload,
-        kind="ir.forecast_intervention_certificate",
+        owner=_FORECAST_INTERVENTION_CERTIFICATE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -777,8 +865,7 @@ def load_forecast_intervention_certificate(
 ) -> ForecastInterventionCertificate:
     """Load a persisted forecast intervention certificate."""
 
-    payload = get_json_artifact(store, ref)
-    return ForecastInterventionCertificate.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_FORECAST_INTERVENTION_CERTIFICATE_OWNER)
 
 
 __all__ = [

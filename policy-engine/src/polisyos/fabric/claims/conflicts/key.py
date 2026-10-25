@@ -5,12 +5,14 @@ from __future__ import annotations
 import re
 from datetime import UTC, datetime
 from decimal import Decimal
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.canon import content_hash
 from polisyos.ir.model_layer.canon import to_canonical_bytes
-from polisyos.ir.world.claim import Claim
 from polisyos.ir.world.conflict import ConflictKind
+
+if TYPE_CHECKING:
+    from polisyos.ir.world.claim import Claim
 
 _WS_RE = re.compile(r"\s+")
 

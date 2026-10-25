@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pydantic import ValidationError
 
 from .contract import DataContractCollection
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class ContractValidationError(ValueError):

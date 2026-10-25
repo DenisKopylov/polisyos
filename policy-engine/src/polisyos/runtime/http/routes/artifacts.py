@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import mimetypes
 import re
+from dataclasses import dataclass
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, cast
 
@@ -16,10 +17,10 @@ from polisyos.core.artifacts import (
     ArtifactManifest,
     ArtifactOwnershipError,
     ArtifactRef,
+    CoreJsonManifestBoundedRead,
+    CoreJsonReadBoundsRefusalError,
     artifact_manifest_profile_sha256,
-    read_core_manifest_profile,
     read_core_manifest_profile_bounded,
-    resolve_manifest_by_profile,
 )
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.contracts.runtime import (
@@ -91,6 +92,95 @@ _ARTIFACT_PROFILE_RESOLUTION_RESPONSES = {
     }
 }
 
+_ARTIFACT_BATCH_RESPONSES = {
+    409: {
+        "description": (
+            "The batch is refused when manifest-read usage cannot establish its byte budget "
+            "or composed surface admission blocks a selected artifact."
+        ),
+        "content": {
+            "application/problem+json": {
+                "schema": {"$ref": "#/components/schemas/RuntimeApiProblem"},
+                "examples": {
+                    "manifest_read_budget_exceeded": {
+                        "summary": "Measured manifest reads exceed the batch byte budget.",
+                        "value": {
+                            "type": "about:blank",
+                            "title": "Conflict",
+                            "status": 409,
+                            "detail": (
+                                "The selected artifact manifest reads exceed or cannot prove "
+                                "the batch byte budget."
+                            ),
+                            "code": "artifact_batch_manifest_read_budget_exceeded",
+                            "instance": "/api/v1/artifacts/batch",
+                            "request_id": "req_artifact_batch_budget",
+                            "error": "artifact_batch_manifest_read_budget_exceeded",
+                            "status_code": 409,
+                            "extensions": {
+                                "artifact_ref_or_route": (
+                                    "/api/v1/artifacts/sha256:"
+                                    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                                ),
+                                "requested_id_count": 1,
+                                "limit_source_bytes": 2000000,
+                                "consumed_source_bytes": 1999999,
+                                "observed_source_bytes": 2,
+                            },
+                        },
+                    },
+                    "manifest_read_usage_unavailable": {
+                        "summary": (
+                            "The Core read did not provide a trustworthy byte-usage receipt."
+                        ),
+                        "value": {
+                            "type": "about:blank",
+                            "title": "Conflict",
+                            "status": 409,
+                            "detail": (
+                                "The selected artifact manifest reads exceed or cannot prove "
+                                "the batch byte budget."
+                            ),
+                            "code": "artifact_batch_manifest_read_usage_unavailable",
+                            "instance": "/api/v1/artifacts/batch",
+                            "request_id": "req_artifact_batch_usage",
+                            "error": "artifact_batch_manifest_read_usage_unavailable",
+                            "status_code": 409,
+                            "extensions": {
+                                "artifact_ref_or_route": (
+                                    "/api/v1/artifacts/sha256:"
+                                    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                                ),
+                                "requested_id_count": 1,
+                                "limit_source_bytes": 2000000,
+                                "consumed_source_bytes": 4096,
+                                "observed_source_bytes": None,
+                            },
+                        },
+                    },
+                    "surface_admission_blocked": {
+                        "summary": "A selected artifact is blocked by surface admission.",
+                        "value": {
+                            "type": "about:blank",
+                            "title": "Conflict",
+                            "status": 409,
+                            "detail": (
+                                "Artifact surface blocked or downgraded by composed authority "
+                                "surface admission."
+                            ),
+                            "code": "authority_surface_admission_blocked",
+                            "instance": "/api/v1/artifacts/batch",
+                            "request_id": "req_artifact_batch_admission",
+                            "error": "authority_surface_admission_blocked",
+                            "status_code": 409,
+                        },
+                    },
+                },
+            }
+        },
+    }
+}
+
 _BUREAUCRATIC_OBSERVATION_TIMESTAMP = re.compile(
     r"(?<=Дата формування: )\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}"
     + r"(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})"
@@ -152,7 +242,15 @@ def _canonical_profile_conflict(
     *,
     artifact_ref_or_route: str,
 ) -> Exception:
-    """Map a non-downgradable codec-profile refusal to the HTTP conflict contract."""
+    """Map exact owner refusals and typed absence separately from profile conflicts."""
+    if isinstance(exc, CoreJsonReadBoundsRefusalError):
+        if exc.original_exception_type == "ArtifactOwnershipError":
+            return not_found(
+                "Selected artifact manifest profile is unavailable",
+                code="artifact_manifest_profile_not_found",
+            )
+        if exc.code == "selected_artifact_not_found":
+            return not_found("Artifact not found", code="artifact_not_found")
     return conflict(
         "The selected artifact canon profile is malformed or does not reproduce its bytes",
         code=exc.code,
@@ -206,6 +304,7 @@ if router is not None:
         "/batch",
         response_model=ArtifactBatchResponse,
         operation_id="get_artifact_batch",
+        responses=_ARTIFACT_BATCH_RESPONSES,
         dependencies=[Depends(_GET_ARTIFACT_BATCH_AUTHZ)],
     )
     def get_artifact_batch(
@@ -215,6 +314,7 @@ if router is not None:
     ) -> ArtifactBatchResponse:
         parsed_ids = _parse_artifact_ids(body.artifact_ids)
         views = []
+        manifest_read_budget = _new_artifact_batch_manifest_read_budget(len(parsed_ids))
         for parsed_id in parsed_ids:
             tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
             set_authz_resource(
@@ -224,7 +324,15 @@ if router is not None:
                 artifact_id=str(parsed_id),
             )
             try:
-                manifest, _declaration = read_core_manifest_profile(ctx.store, parsed_id)
+                manifest_read = _resolve_selected_artifact_manifest(
+                    ctx.store,
+                    parsed_id,
+                    None,
+                    artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}",
+                    read_budget=manifest_read_budget,
+                )
+                manifest = manifest_read.manifest
+                _require_json_artifact_profile(manifest, manifest_read.declaration)
                 _ensure_surface_admission_allowed(
                     manifest.model_dump(mode="json"),
                     artifact_ref_or_route=f"cas-manifest://{parsed_id}",
@@ -233,7 +341,7 @@ if router is not None:
                     artifact_store=ctx.store,
                     artifact_id=parsed_id,
                 )
-                view = ctx.artifacts.get_manifest_view(parsed_id)
+                view = ctx.artifacts.get_manifest_view(parsed_id, manifest=manifest)
                 _ensure_surface_admission_allowed(
                     view.model_dump(mode="json"),
                     artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}",
@@ -293,11 +401,14 @@ if router is not None:
             artifact_id=str(parsed_id),
         )
         try:
-            manifest = _resolve_artifact_manifest(
+            manifest_read = _resolve_selected_artifact_manifest(
                 ctx.store,
                 parsed_id,
                 manifest_profile_sha256,
+                artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}",
             )
+            manifest = manifest_read.manifest
+            _require_json_artifact_profile(manifest, manifest_read.declaration)
             _ensure_surface_admission_allowed(
                 manifest.model_dump(mode="json"),
                 artifact_ref_or_route=f"cas-manifest://{parsed_id}",
@@ -403,11 +514,14 @@ if router is not None:
             )
         route_ref = f"/api/v1/artifacts/{parsed_id}/predictive-coverage-diagnostic"
         try:
-            manifest = _resolve_artifact_manifest(
+            manifest_read = _resolve_selected_artifact_manifest(
                 ctx.store,
                 parsed_id,
                 manifest_profile_sha256,
+                artifact_ref_or_route=route_ref,
             )
+            manifest = manifest_read.manifest
+            _require_json_artifact_profile(manifest, manifest_read.declaration)
             projection = ctx.artifacts.get_predictive_coverage_diagnostic(
                 parsed_id,
                 manifest=manifest,
@@ -511,12 +625,11 @@ if router is not None:
         )
         route_ref = f"/api/v1/artifacts/{parsed_id}/content"
         try:
-            manifest_read = read_core_manifest_profile_bounded(
+            manifest_read = _resolve_selected_artifact_manifest(
                 ctx.store,
                 parsed_id,
-                max_manifest_bytes=INSPECTOR_MANIFEST_MAX_BYTES,
-                manifest_profile_sha256=manifest_profile_sha256,
-                allow_profile_absent=True,
+                manifest_profile_sha256,
+                artifact_ref_or_route=route_ref,
             )
             manifest = manifest_read.manifest
             declaration = manifest_read.declaration
@@ -711,11 +824,14 @@ if router is not None:
             artifact_id=str(parsed_id),
         )
         try:
-            manifest = _resolve_artifact_manifest(
+            manifest_read = _resolve_selected_artifact_manifest(
                 ctx.store,
                 parsed_id,
                 manifest_profile_sha256,
+                artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/lineage",
             )
+            manifest = manifest_read.manifest
+            _require_json_artifact_profile(manifest, manifest_read.declaration)
             lineage = ctx.artifacts.get_lineage_view(
                 parsed_id,
                 max_depth=max_depth,
@@ -821,12 +937,11 @@ if router is not None:
             artifact_id=str(parsed_id),
         )
         try:
-            manifest_read = read_core_manifest_profile_bounded(
+            manifest_read = _resolve_selected_artifact_manifest(
                 ctx.store,
                 parsed_id,
-                max_manifest_bytes=INSPECTOR_MANIFEST_MAX_BYTES,
-                manifest_profile_sha256=manifest_profile_sha256,
-                allow_profile_absent=True,
+                manifest_profile_sha256,
+                artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/schema",
             )
             manifest = manifest_read.manifest
             declaration = manifest_read.declaration
@@ -936,11 +1051,14 @@ if router is not None:
             artifact_id=str(parsed_id),
         )
         try:
-            selected_manifest = _resolve_artifact_manifest(
+            manifest_read = _resolve_selected_artifact_manifest(
                 ctx.store,
                 parsed_id,
                 body.manifest_profile_sha256,
+                artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/render",
             )
+            selected_manifest = manifest_read.manifest
+            _require_json_artifact_profile(selected_manifest, manifest_read.declaration)
             selected_ref = _artifact_ref_for_manifest(selected_manifest)
             payload = ctx.store.get_bytes(selected_ref)
             _ensure_surface_admission_allowed(
@@ -1058,11 +1176,14 @@ if router is not None:
             trust_view=trust_view,
         )
         try:
-            selected_manifest = _resolve_artifact_manifest(
+            manifest_read = _resolve_selected_artifact_manifest(
                 ctx.store,
                 parsed_id,
                 manifest_profile_sha256,
+                artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/export",
             )
+            selected_manifest = manifest_read.manifest
+            _require_json_artifact_profile(selected_manifest, manifest_read.declaration)
             selected_ref = _artifact_ref_for_manifest(selected_manifest)
             payload = ctx.store.get_bytes(selected_ref)
             _ensure_surface_admission_allowed(
@@ -1169,12 +1290,14 @@ if router is not None:
             artifact_id=str(parsed_id),
         )
         try:
-            manifest = _resolve_raw_artifact_manifest(
+            manifest_read = _resolve_selected_artifact_manifest(
                 ctx.store,
                 parsed_id,
                 manifest_profile_sha256,
+                artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/download",
             )
-            payload = ctx.store.get_bytes(parsed_id)
+            manifest = manifest_read.manifest
+            payload = ctx.store.get_bytes(_artifact_ref_for_manifest(manifest))
         except CanonicalProfileRefusalError as exc:
             raise _canonical_profile_conflict(
                 exc,
@@ -1280,127 +1403,175 @@ def _bureaucratic_replay_as_of(
     return temporal_scope.valid_at or temporal_scope.tx_at or observed_at
 
 
-def _resolve_artifact_manifest(
+@dataclass(slots=True)
+class _ArtifactBatchManifestReadBudget:
+    """Track actual Core-reported manifest transfer bytes for one batch request."""
+
+    requested_id_count: int
+    limit_source_bytes: int
+    consumed_source_bytes: int = 0
+
+
+def _new_artifact_batch_manifest_read_budget(
+    requested_id_count: int,
+) -> _ArtifactBatchManifestReadBudget:
+    """Derive the batch ceiling from request IDs and the resolver's two bounded reads."""
+    if type(requested_id_count) is not int or requested_id_count < 1:
+        raise ValueError("artifact_batch_manifest_budget_requires_nonempty_ids")
+    max_reads_per_id = 2  # profileless selection reads default metadata, then its exact view
+    return _ArtifactBatchManifestReadBudget(
+        requested_id_count=requested_id_count,
+        limit_source_bytes=(requested_id_count * max_reads_per_id * INSPECTOR_MANIFEST_MAX_BYTES),
+    )
+
+
+def _artifact_batch_manifest_budget_refusal(
+    budget: _ArtifactBatchManifestReadBudget,
+    *,
+    artifact_id: ArtifactID,
+    code: str,
+    observed_source_bytes: int | None,
+) -> Exception:
+    """Return an explicit fail-closed batch refusal without exposing a partial batch."""
+    return conflict(
+        "The selected artifact manifest reads exceed or cannot prove the batch byte budget",
+        code=code,
+        extensions={
+            "artifact_ref_or_route": f"/api/v1/artifacts/{artifact_id}",
+            "requested_id_count": budget.requested_id_count,
+            "limit_source_bytes": budget.limit_source_bytes,
+            "consumed_source_bytes": budget.consumed_source_bytes,
+            "observed_source_bytes": observed_source_bytes,
+        },
+    )
+
+
+def _consume_artifact_batch_manifest_read(
+    budget: _ArtifactBatchManifestReadBudget,
+    *,
+    artifact_id: ArtifactID,
+    observed_source_bytes: int | None,
+) -> None:
+    """Charge only the immutable physical-transfer receipt returned by Core."""
+    if type(observed_source_bytes) is not int or observed_source_bytes < 0:
+        raise _artifact_batch_manifest_budget_refusal(
+            budget,
+            artifact_id=artifact_id,
+            code="artifact_batch_manifest_read_usage_unavailable",
+            observed_source_bytes=observed_source_bytes,
+        )
+    budget.consumed_source_bytes += observed_source_bytes
+    if budget.consumed_source_bytes > budget.limit_source_bytes:
+        raise _artifact_batch_manifest_budget_refusal(
+            budget,
+            artifact_id=artifact_id,
+            code="artifact_batch_manifest_read_budget_exceeded",
+            observed_source_bytes=observed_source_bytes,
+        )
+
+
+def _read_selected_artifact_manifest_profile(
     store: ArtifactStore,
     artifact_id: ArtifactID,
     manifest_profile_sha256: str | None,
-) -> ArtifactManifest:
-    """Resolve one exact profile and admit JSON Canon only for JSON media.
-
-    A profile-less request uses the default manifest only to discover its digest. It
-    must still pass exact-view ownership and content verification before any
-    consumer receives the selected manifest. Non-JSON views may omit CanonInfo;
-    malformed-present declarations still refuse in the Core reader.
-    """
-    if manifest_profile_sha256 is None:
-        try:
-            manifest, declaration = read_core_manifest_profile(
-                store,
-                artifact_id,
-                allow_profile_absent=True,
+    *,
+    artifact_ref_or_route: str,
+    read_budget: _ArtifactBatchManifestReadBudget | None,
+) -> CoreJsonManifestBoundedRead:
+    """Read one exact metadata selection under both the per-manifest and batch bounds."""
+    max_manifest_bytes = INSPECTOR_MANIFEST_MAX_BYTES
+    if read_budget is not None:
+        remaining_source_bytes = read_budget.limit_source_bytes - read_budget.consumed_source_bytes
+        if remaining_source_bytes <= 0:
+            raise _artifact_batch_manifest_budget_refusal(
+                read_budget,
+                artifact_id=artifact_id,
+                code="artifact_batch_manifest_read_budget_exceeded",
+                observed_source_bytes=0,
             )
-        except CanonicalProfileRefusalError:
-            raise
-        except ArtifactIntegrityError as exc:
-            raise conflict(
-                "The selected artifact failed CAS integrity verification",
-                code="artifact_integrity_failed",
-            ) from exc
-        except ArtifactOwnershipError as exc:
-            raise not_found(
-                "Selected artifact manifest profile is unavailable",
-                code="artifact_manifest_profile_not_found",
-            ) from exc
-        manifest_profile_sha256 = artifact_manifest_profile_sha256(manifest)
-        try:
-            exact_manifest = resolve_manifest_by_profile(
-                store,
-                artifact_id,
-                manifest_profile_sha256,
-            )
-            if exact_manifest != manifest:
-                raise CanonicalProfileRefusalError("canon_profile_selected_manifest_changed")
-            _require_json_artifact_profile(exact_manifest, declaration)
-            return exact_manifest
-        except CanonicalProfileRefusalError:
-            raise
-        except FileNotFoundError as exc:
-            if not store.has(artifact_id):
-                raise not_found(str(exc), code="artifact_not_found") from exc
-            raise not_found(
-                "Selected artifact manifest profile is unavailable",
-                code="artifact_manifest_profile_not_found",
-            ) from exc
-        except ArtifactIntegrityError as exc:
-            raise conflict(
-                "The selected artifact failed CAS integrity verification",
-                code="artifact_integrity_failed",
-            ) from exc
-        except (ArtifactOwnershipError, TypeError, ValueError) as exc:
-            raise not_found(
-                "Selected artifact manifest profile is unavailable",
-                code="artifact_manifest_profile_not_found",
-            ) from exc
+        max_manifest_bytes = min(max_manifest_bytes, remaining_source_bytes)
 
-    try:
-        manifest, declaration = read_core_manifest_profile(
-            store,
-            artifact_id,
-            manifest_profile_sha256=manifest_profile_sha256,
-            allow_profile_absent=True,
-        )
-        exact_manifest = resolve_manifest_by_profile(
-            store,
-            artifact_id,
-            manifest_profile_sha256,
-        )
-        if exact_manifest != manifest:
-            raise CanonicalProfileRefusalError("canon_profile_selected_manifest_changed")
-        _require_json_artifact_profile(exact_manifest, declaration)
-        return exact_manifest
-    except CanonicalProfileRefusalError:
-        raise
-    except FileNotFoundError as exc:
-        if not store.has(artifact_id):
-            raise not_found(str(exc), code="artifact_not_found") from exc
-        raise not_found(
-            "Selected artifact manifest profile is unavailable",
-            code="artifact_manifest_profile_not_found",
-        ) from exc
-    except ArtifactIntegrityError as exc:
-        raise conflict(
-            "The selected artifact failed CAS integrity verification",
-            code="artifact_integrity_failed",
-        ) from exc
-    except (ArtifactOwnershipError, TypeError, ValueError) as exc:
-        raise not_found(
-            "Selected artifact manifest profile is unavailable",
-            code="artifact_manifest_profile_not_found",
-        ) from exc
-
-
-def _resolve_raw_artifact_manifest(
-    store: ArtifactStore,
-    artifact_id: ArtifactID,
-    manifest_profile_sha256: str | None,
-) -> ArtifactManifest:
-    """Resolve a strict, byte-bounded selected manifest for an exact-byte response.
-
-    The exact raw sidecar must parse and bind to its typed view under the shared
-    inspector manifest limit. Raw bytes remain content-addressed and surface-admission
-    checked; this resolver does not claim semantic payload-to-CanonInfo conformance.
-    """
     try:
         manifest_read = read_core_manifest_profile_bounded(
             store,
             artifact_id,
-            max_manifest_bytes=INSPECTOR_MANIFEST_MAX_BYTES,
+            max_manifest_bytes=max_manifest_bytes,
             manifest_profile_sha256=manifest_profile_sha256,
             allow_profile_absent=True,
         )
-        return manifest_read.manifest
-    except CanonicalProfileRefusalError:
+    except CoreJsonReadBoundsRefusalError as exc:
+        if read_budget is not None:
+            observed_source_bytes = exc.observed_source_bytes
+            if observed_source_bytes is not None:
+                _consume_artifact_batch_manifest_read(
+                    read_budget,
+                    artifact_id=artifact_id,
+                    observed_source_bytes=observed_source_bytes,
+                )
+            if not exc.source_usage_complete or observed_source_bytes is None:
+                raise _artifact_batch_manifest_budget_refusal(
+                    read_budget,
+                    artifact_id=artifact_id,
+                    code="artifact_batch_manifest_read_usage_unavailable",
+                    observed_source_bytes=observed_source_bytes,
+                ) from exc
+            if (
+                max_manifest_bytes < INSPECTOR_MANIFEST_MAX_BYTES
+                and exc.limit_name == "max_manifest_bytes"
+            ):
+                raise _artifact_batch_manifest_budget_refusal(
+                    read_budget,
+                    artifact_id=artifact_id,
+                    code="artifact_batch_manifest_read_budget_exceeded",
+                    observed_source_bytes=observed_source_bytes,
+                ) from exc
         raise
+    if read_budget is not None:
+        _consume_artifact_batch_manifest_read(
+            read_budget,
+            artifact_id=artifact_id,
+            observed_source_bytes=manifest_read.observed_source_bytes,
+        )
+    return manifest_read
+
+
+def _resolve_selected_artifact_manifest(
+    store: ArtifactStore,
+    artifact_id: ArtifactID,
+    manifest_profile_sha256: str | None,
+    *,
+    artifact_ref_or_route: str,
+    read_budget: _ArtifactBatchManifestReadBudget | None = None,
+) -> CoreJsonManifestBoundedRead:
+    """Resolve a default or exact view only through Core's owner-bound bounded reader."""
+    try:
+        default_read: CoreJsonManifestBoundedRead | None = None
+        selected_profile = manifest_profile_sha256
+        if selected_profile is None:
+            default_read = _read_selected_artifact_manifest_profile(
+                store,
+                artifact_id,
+                None,
+                artifact_ref_or_route=artifact_ref_or_route,
+                read_budget=read_budget,
+            )
+            selected_profile = artifact_manifest_profile_sha256(default_read.manifest)
+
+        selected_read = _read_selected_artifact_manifest_profile(
+            store,
+            artifact_id,
+            selected_profile,
+            artifact_ref_or_route=artifact_ref_or_route,
+            read_budget=read_budget,
+        )
+        if default_read is not None and selected_read.manifest != default_read.manifest:
+            raise CanonicalProfileRefusalError("canon_profile_selected_manifest_changed")
+        return selected_read
+    except CanonicalProfileRefusalError as exc:
+        raise _canonical_profile_conflict(
+            exc,
+            artifact_ref_or_route=artifact_ref_or_route,
+        ) from exc
     except FileNotFoundError as exc:
         if not store.has(artifact_id):
             raise not_found(str(exc), code="artifact_not_found") from exc
@@ -1413,10 +1584,15 @@ def _resolve_raw_artifact_manifest(
             "The selected artifact failed CAS integrity verification",
             code="artifact_integrity_failed",
         ) from exc
-    except (ArtifactOwnershipError, TypeError, ValueError) as exc:
+    except ArtifactOwnershipError as exc:
         raise not_found(
             "Selected artifact manifest profile is unavailable",
             code="artifact_manifest_profile_not_found",
+        ) from exc
+    except (TypeError, ValueError) as exc:
+        raise _canonical_profile_conflict(
+            CanonicalProfileRefusalError("canon_profile_selected_manifest_invalid"),
+            artifact_ref_or_route=artifact_ref_or_route,
         ) from exc
 
 

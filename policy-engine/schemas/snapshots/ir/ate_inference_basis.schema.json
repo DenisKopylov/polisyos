@@ -1,0 +1,1572 @@
+{
+  "$defs": {
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "maxLength": 71,
+      "minLength": 71,
+      "pattern": "^sha256:[0-9A-Fa-f]{64}$",
+      "title": "ArtifactID",
+      "type": "string"
+    },
+    "ArtifactRefModel": {
+      "additionalProperties": false,
+      "description": "Provide the common mapping-compatible base contract for artifact refs.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "kind",
+        "media_type"
+      ],
+      "title": "ArtifactRefModel",
+      "type": "object"
+    },
+    "HTEInputSourceRef": {
+      "additionalProperties": false,
+      "description": "Selected source-data ref retained by an HTE outcome.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "minLength": 1,
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Manifest Profile Sha256",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "kind",
+        "manifest_profile_sha256"
+      ],
+      "title": "HTEInputSourceRef",
+      "type": "object"
+    },
+    "HTEPhysicalSourceMaterializationBindingRef": {
+      "additionalProperties": false,
+      "description": "Selected-profile reference to Foundry's physical HTE input binding.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "foundry.hte.physical_source_materialization_binding",
+          "default": "foundry.hte.physical_source_materialization_binding",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Manifest Profile Sha256",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "manifest_profile_sha256"
+      ],
+      "title": "HTEPhysicalSourceMaterializationBindingRef",
+      "type": "object"
+    },
+    "HTEPointResultRef": {
+      "additionalProperties": false,
+      "description": "Selected reference to one source-bound per-row HTE point vector.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.hte_point_result",
+          "default": "ir.hte_point_result",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Manifest Profile Sha256",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "manifest_profile_sha256"
+      ],
+      "title": "HTEPointResultRef",
+      "type": "object"
+    },
+    "HTEResourceExecutionEvidenceV1": {
+      "additionalProperties": false,
+      "description": "Bind the selected Runtime policy to its method-specific observed scope.",
+      "properties": {
+        "estimator_after_class_fqn": {
+          "anyOf": [
+            {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimator After Class Fqn"
+        },
+        "estimator_after_n_jobs": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimator After N Jobs"
+        },
+        "estimator_after_params_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimator After Params Sha256"
+        },
+        "estimator_before_class_fqn": {
+          "anyOf": [
+            {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimator Before Class Fqn"
+        },
+        "estimator_before_n_jobs": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimator Before N Jobs"
+        },
+        "estimator_before_params_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimator Before Params Sha256"
+        },
+        "estimator_observation_status": {
+          "enum": [
+            "recomputed",
+            "not_applicable",
+            "not_established"
+          ],
+          "title": "Estimator Observation Status",
+          "type": "string"
+        },
+        "execution_status": {
+          "enum": [
+            "not_started",
+            "returned",
+            "raised"
+          ],
+          "title": "Execution Status",
+          "type": "string"
+        },
+        "joblib_entry_backend_fqn": {
+          "anyOf": [
+            {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Joblib Entry Backend Fqn"
+        },
+        "joblib_entry_config_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Joblib Entry Config Sha256"
+        },
+        "joblib_entry_effective_jobs": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Joblib Entry Effective Jobs"
+        },
+        "joblib_entry_implementation_version": {
+          "anyOf": [
+            {
+              "maxLength": 96,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Joblib Entry Implementation Version"
+        },
+        "joblib_exit_backend_fqn": {
+          "anyOf": [
+            {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Joblib Exit Backend Fqn"
+        },
+        "joblib_exit_config_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Joblib Exit Config Sha256"
+        },
+        "joblib_exit_effective_jobs": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Joblib Exit Effective Jobs"
+        },
+        "joblib_exit_implementation_version": {
+          "anyOf": [
+            {
+              "maxLength": 96,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Joblib Exit Implementation Version"
+        },
+        "joblib_exit_status": {
+          "enum": [
+            "not_started",
+            "returned",
+            "raised"
+          ],
+          "title": "Joblib Exit Status",
+          "type": "string"
+        },
+        "joblib_finished": {
+          "title": "Joblib Finished",
+          "type": "boolean"
+        },
+        "joblib_implementation": {
+          "anyOf": [
+            {
+              "const": "joblib.parallel_config",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Joblib Implementation"
+        },
+        "joblib_implementation_version": {
+          "anyOf": [
+            {
+              "maxLength": 96,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Joblib Implementation Version"
+        },
+        "joblib_max_jobs": {
+          "anyOf": [
+            {
+              "const": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Joblib Max Jobs"
+        },
+        "joblib_observation_status": {
+          "enum": [
+            "recomputed",
+            "not_applicable",
+            "not_established"
+          ],
+          "title": "Joblib Observation Status",
+          "type": "string"
+        },
+        "joblib_profile_id": {
+          "anyOf": [
+            {
+              "const": "joblib.parallel_config.current_thread@1.0",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Joblib Profile Id"
+        },
+        "joblib_profile_revision": {
+          "anyOf": [
+            {
+              "const": "1.0",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Joblib Profile Revision"
+        },
+        "joblib_scope": {
+          "anyOf": [
+            {
+              "const": "current_thread_joblib",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Joblib Scope"
+        },
+        "joblib_started": {
+          "title": "Joblib Started",
+          "type": "boolean"
+        },
+        "owner_policy_digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Owner Policy Digest",
+          "type": "string"
+        },
+        "owner_policy_execution_scope": {
+          "const": "producer_scoped_joblib_parallelism_one",
+          "title": "Owner Policy Execution Scope",
+          "type": "string"
+        },
+        "owner_policy_manifest_schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Owner Policy Manifest Schema Version",
+          "type": "string"
+        },
+        "owner_policy_max_jobs": {
+          "const": 1,
+          "title": "Owner Policy Max Jobs",
+          "type": "integer"
+        },
+        "owner_policy_method_fqn": {
+          "enum": [
+            "causal.hte.causal_forest@2.0.0",
+            "causal.hte.double_ml@2.0.0",
+            "causal.hte.meta_learner@2.0.0",
+            "causal.hte.forest_dr@2.0.0"
+          ],
+          "title": "Owner Policy Method Fqn",
+          "type": "string"
+        },
+        "owner_policy_method_profile_id": {
+          "enum": [
+            "econml.causal_forest_dml.native_mean@2.0",
+            "econml.dml.point_only@2.0",
+            "econml.meta_learner.point_only@2.0",
+            "econml.forest_dr.native_mean@2.0"
+          ],
+          "title": "Owner Policy Method Profile Id",
+          "type": "string"
+        },
+        "owner_policy_ref": {
+          "$ref": "#/$defs/HTEResourcePolicyRef"
+        },
+        "owner_policy_required_estimator_n_jobs": {
+          "anyOf": [
+            {
+              "const": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Owner Policy Required Estimator N Jobs"
+        },
+        "owner_policy_revision": {
+          "const": "r5",
+          "title": "Owner Policy Revision",
+          "type": "string"
+        },
+        "owner_policy_schema_version": {
+          "const": "polisyos.runtime.observational_input_resource_policy.v5",
+          "title": "Owner Policy Schema Version",
+          "type": "string"
+        },
+        "physical_thread_limit": {
+          "default": null,
+          "title": "Physical Thread Limit",
+          "type": "null"
+        },
+        "physical_thread_limit_status": {
+          "const": "not_established",
+          "default": "not_established",
+          "title": "Physical Thread Limit Status",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner_policy_ref",
+        "owner_policy_digest",
+        "owner_policy_schema_version",
+        "owner_policy_revision",
+        "owner_policy_method_fqn",
+        "owner_policy_method_profile_id",
+        "owner_policy_execution_scope",
+        "owner_policy_max_jobs",
+        "owner_policy_required_estimator_n_jobs",
+        "execution_status",
+        "estimator_observation_status",
+        "joblib_observation_status",
+        "joblib_started",
+        "joblib_finished",
+        "joblib_exit_status",
+        "joblib_profile_id",
+        "joblib_profile_revision",
+        "joblib_implementation",
+        "joblib_scope",
+        "joblib_max_jobs"
+      ],
+      "title": "HTEResourceExecutionEvidenceV1",
+      "type": "object"
+    },
+    "HTEResourcePolicyRef": {
+      "additionalProperties": false,
+      "description": "Selected Runtime resource policy reference for an HTE method execution.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "runtime.observational_input_resource_policy",
+          "default": "runtime.observational_input_resource_policy",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Manifest Profile Sha256",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "manifest_profile_sha256"
+      ],
+      "title": "HTEResourcePolicyRef",
+      "type": "object"
+    },
+    "HTEResultEvidenceRef": {
+      "additionalProperties": false,
+      "description": "Selected-profile HTEResult v1 ref used by native inference outcomes.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.hte_result",
+          "default": "ir.hte_result",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Manifest Profile Sha256",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "manifest_profile_sha256"
+      ],
+      "title": "HTEResultEvidenceRef",
+      "type": "object"
+    },
+    "HTETargetRelationV1": {
+      "additionalProperties": false,
+      "description": "Keep the requested target separate from the computed row frame and guarantee.",
+      "properties": {
+        "alpha_status": {
+          "enum": [
+            "recomputed",
+            "not_applicable",
+            "not_established"
+          ],
+          "title": "Alpha Status",
+          "type": "string"
+        },
+        "computed_guarantee": {
+          "anyOf": [
+            {
+              "enum": [
+                "candidate_point",
+                "backend_conditional_interval"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Computed Guarantee"
+        },
+        "computed_guarantee_status": {
+          "enum": [
+            "computed",
+            "not_established"
+          ],
+          "title": "Computed Guarantee Status",
+          "type": "string"
+        },
+        "computed_scope": {
+          "anyOf": [
+            {
+              "const": "selected_evaluation_rows",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Computed Scope"
+        },
+        "computed_scope_status": {
+          "enum": [
+            "recomputed",
+            "not_established"
+          ],
+          "title": "Computed Scope Status",
+          "type": "string"
+        },
+        "contrast_status": {
+          "enum": [
+            "recomputed",
+            "not_established"
+          ],
+          "title": "Contrast Status",
+          "type": "string"
+        },
+        "estimand_status": {
+          "const": "not_established",
+          "default": "not_established",
+          "title": "Estimand Status",
+          "type": "string"
+        },
+        "guarantee_disposition": {
+          "enum": [
+            "satisfied",
+            "requested_claim_not_satisfied",
+            "not_established"
+          ],
+          "title": "Guarantee Disposition",
+          "type": "string"
+        },
+        "overall_disposition": {
+          "enum": [
+            "satisfied",
+            "requested_claim_not_satisfied",
+            "not_established"
+          ],
+          "title": "Overall Disposition",
+          "type": "string"
+        },
+        "profile_status": {
+          "enum": [
+            "qualified",
+            "point_only",
+            "not_established"
+          ],
+          "title": "Profile Status",
+          "type": "string"
+        },
+        "requested_guarantee": {
+          "anyOf": [
+            {
+              "enum": [
+                "candidate_point",
+                "backend_conditional_interval",
+                "population_sampling_coverage"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Requested Guarantee"
+        },
+        "requested_guarantee_status": {
+          "enum": [
+            "declared",
+            "not_established"
+          ],
+          "title": "Requested Guarantee Status",
+          "type": "string"
+        },
+        "requested_scope": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested Scope"
+        },
+        "requested_scope_status": {
+          "enum": [
+            "declared",
+            "not_established"
+          ],
+          "title": "Requested Scope Status",
+          "type": "string"
+        },
+        "row_order_status": {
+          "enum": [
+            "recomputed",
+            "not_established"
+          ],
+          "title": "Row Order Status",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "scope_disposition": {
+          "enum": [
+            "satisfied",
+            "requested_claim_not_satisfied",
+            "not_established"
+          ],
+          "title": "Scope Disposition",
+          "type": "string"
+        },
+        "source_content_status": {
+          "enum": [
+            "content_bound",
+            "not_established"
+          ],
+          "title": "Source Content Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "requested_scope_status",
+        "requested_guarantee_status",
+        "requested_guarantee",
+        "computed_scope_status",
+        "computed_scope",
+        "computed_guarantee_status",
+        "computed_guarantee",
+        "source_content_status",
+        "row_order_status",
+        "contrast_status",
+        "alpha_status",
+        "profile_status",
+        "scope_disposition",
+        "guarantee_disposition",
+        "overall_disposition"
+      ],
+      "title": "HTETargetRelationV1",
+      "type": "object"
+    },
+    "MethodExecutionEvidenceRef": {
+      "additionalProperties": false,
+      "description": "Profile-bound Scientist method execution evidence selected by Runtime.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "scientist.method_evidence",
+          "default": "scientist.method_evidence",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Manifest Profile Sha256",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "manifest_profile_sha256"
+      ],
+      "title": "MethodExecutionEvidenceRef",
+      "type": "object"
+    },
+    "MethodResultEvidenceRef": {
+      "additionalProperties": false,
+      "description": "Profile-bound Scientist method result selected by the Runtime owner.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "scientist.method_result.causal.hte",
+          "default": "scientist.method_result.causal.hte",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Manifest Profile Sha256",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "manifest_profile_sha256"
+      ],
+      "title": "MethodResultEvidenceRef",
+      "type": "object"
+    },
+    "OwnedAttemptAnchorRef": {
+      "additionalProperties": false,
+      "description": "IR-side selected reference to the Runtime-owned HTE attempt anchor.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "runtime.owned_attempt_anchor",
+          "default": "runtime.owned_attempt_anchor",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Manifest Profile Sha256",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "manifest_profile_sha256"
+      ],
+      "title": "OwnedAttemptAnchorRef",
+      "type": "object"
+    },
+    "SearchUncertaintyTaskBindingRef": {
+      "additionalProperties": false,
+      "description": "Selected Runtime-to-Search task binding carried by an HTE outcome.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "scientist.search.uncertainty_task_binding",
+          "default": "scientist.search.uncertainty_task_binding",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Manifest Profile Sha256",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "manifest_profile_sha256"
+      ],
+      "title": "SearchUncertaintyTaskBindingRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Native EconML mean-inference record, conditional on its declared profile.",
+  "properties": {
+    "alpha": {
+      "exclusiveMaximum": 1.0,
+      "exclusiveMinimum": 0.0,
+      "title": "Alpha",
+      "type": "number"
+    },
+    "ate_inference_method": {
+      "const": "econml._cate_estimator.TreatmentExpansionMixin.ate_inference",
+      "title": "Ate Inference Method",
+      "type": "string"
+    },
+    "computed_target_scope": {
+      "const": "selected_evaluation_rows",
+      "default": "selected_evaluation_rows",
+      "title": "Computed Target Scope",
+      "type": "string"
+    },
+    "computed_target_scope_status": {
+      "const": "recomputed",
+      "default": "recomputed",
+      "title": "Computed Target Scope Status",
+      "type": "string"
+    },
+    "conditional_assumptions": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Conditional Assumptions",
+      "type": "array"
+    },
+    "conf_int_mean_method": {
+      "const": "econml.inference._inference.PopulationSummaryResults.conf_int_mean",
+      "title": "Conf Int Mean Method",
+      "type": "string"
+    },
+    "confidence_level": {
+      "exclusiveMaximum": 1.0,
+      "exclusiveMinimum": 0.0,
+      "title": "Confidence Level",
+      "type": "number"
+    },
+    "contrast_status": {
+      "enum": [
+        "established",
+        "not_established"
+      ],
+      "title": "Contrast Status",
+      "type": "string"
+    },
+    "control_value": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Control Value"
+    },
+    "econml_source_profile_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Econml Source Profile Sha256",
+      "type": "string"
+    },
+    "econml_version": {
+      "minLength": 1,
+      "title": "Econml Version",
+      "type": "string"
+    },
+    "estimator_class": {
+      "minLength": 1,
+      "title": "Estimator Class",
+      "type": "string"
+    },
+    "estimator_params": {
+      "additionalProperties": true,
+      "title": "Estimator Params",
+      "type": "object"
+    },
+    "estimator_params_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Estimator Params Sha256",
+      "type": "string"
+    },
+    "eval_rows_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Eval Rows Sha256",
+      "type": "string"
+    },
+    "fit_eval_relation": {
+      "const": "same_selected_rows",
+      "title": "Fit Eval Relation",
+      "type": "string"
+    },
+    "fit_rows_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Fit Rows Sha256",
+      "type": "string"
+    },
+    "hte_result_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/HTEResultEvidenceRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "inference_class": {
+      "minLength": 1,
+      "title": "Inference Class",
+      "type": "string"
+    },
+    "inference_profile_id": {
+      "const": "econml_native_mean_over_selected_x@1.0",
+      "title": "Inference Profile Id",
+      "type": "string"
+    },
+    "inference_route": {
+      "const": "ate_inference.conf_int_mean",
+      "title": "Inference Route",
+      "type": "string"
+    },
+    "input_profile_id": {
+      "const": "all_source_rows_in_input_order@1.0",
+      "title": "Input Profile Id",
+      "type": "string"
+    },
+    "invocation_basis_reason": {
+      "anyOf": [
+        {
+          "enum": [
+            "owner_selected_invocation_basis",
+            "no_invocation_basis_artifact_contract"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Invocation Basis Reason"
+    },
+    "invocation_basis_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ArtifactRefModel"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "invocation_basis_status": {
+      "enum": [
+        "established",
+        "not_established"
+      ],
+      "title": "Invocation Basis Status",
+      "type": "string"
+    },
+    "materialization_binding_ref": {
+      "$ref": "#/$defs/HTEPhysicalSourceMaterializationBindingRef"
+    },
+    "method_abi": {
+      "const": "2.0.0",
+      "title": "Method Abi",
+      "type": "string"
+    },
+    "method_abi_digest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Method Abi Digest",
+      "type": "string"
+    },
+    "method_evidence_ref": {
+      "$ref": "#/$defs/MethodExecutionEvidenceRef"
+    },
+    "method_fqn": {
+      "enum": [
+        "causal.hte.causal_forest@2.0.0",
+        "causal.hte.forest_dr@2.0.0"
+      ],
+      "title": "Method Fqn",
+      "type": "string"
+    },
+    "method_profile_id": {
+      "enum": [
+        "econml.causal_forest_dml.native_mean@2.0",
+        "econml.forest_dr.native_mean@2.0"
+      ],
+      "title": "Method Profile Id",
+      "type": "string"
+    },
+    "method_result_ref": {
+      "$ref": "#/$defs/MethodResultEvidenceRef"
+    },
+    "n_selected_rows": {
+      "exclusiveMinimum": 0,
+      "title": "N Selected Rows",
+      "type": "integer"
+    },
+    "native_lower_bound": {
+      "title": "Native Lower Bound",
+      "type": "number"
+    },
+    "native_mean_pred": {
+      "title": "Native Mean Pred",
+      "type": "number"
+    },
+    "native_mean_pred_stderr": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Native Mean Pred Stderr"
+    },
+    "native_point": {
+      "title": "Native Point",
+      "type": "number"
+    },
+    "native_pred_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Native Pred Sha256",
+      "type": "string"
+    },
+    "native_pred_stderr_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Native Pred Stderr Sha256",
+      "type": "string"
+    },
+    "native_pred_stderr_values": {
+      "items": {
+        "type": "number"
+      },
+      "minItems": 1,
+      "title": "Native Pred Stderr Values",
+      "type": "array"
+    },
+    "native_result_class": {
+      "const": "econml.inference._inference.PopulationSummaryResults",
+      "title": "Native Result Class",
+      "type": "string"
+    },
+    "native_result_disposition": {
+      "enum": [
+        "legacy_hte_result_admitted",
+        "legacy_hte_result_unrepresentable"
+      ],
+      "title": "Native Result Disposition",
+      "type": "string"
+    },
+    "native_result_disposition_reason": {
+      "anyOf": [
+        {
+          "enum": [
+            "point_not_contained_in_legacy_interval",
+            "native_bounds_unordered"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Native Result Disposition Reason"
+    },
+    "native_stderr_mean": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Native Stderr Mean"
+    },
+    "native_upper_bound": {
+      "title": "Native Upper Bound",
+      "type": "number"
+    },
+    "nuisance_model_classes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Nuisance Model Classes",
+      "type": "array"
+    },
+    "outcome_variable_id": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Outcome Variable Id"
+    },
+    "outcome_variable_status": {
+      "enum": [
+        "declared",
+        "not_established"
+      ],
+      "title": "Outcome Variable Status",
+      "type": "string"
+    },
+    "owned_attempt_anchor_ref": {
+      "$ref": "#/$defs/OwnedAttemptAnchorRef"
+    },
+    "point_result_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/HTEPointResultRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "request_alpha_status": {
+      "enum": [
+        "declared",
+        "not_established"
+      ],
+      "title": "Request Alpha Status",
+      "type": "string"
+    },
+    "request_estimand": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Request Estimand"
+    },
+    "request_estimand_status": {
+      "enum": [
+        "declared",
+        "not_established"
+      ],
+      "title": "Request Estimand Status",
+      "type": "string"
+    },
+    "request_target_scope": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Request Target Scope"
+    },
+    "request_target_scope_status": {
+      "enum": [
+        "declared",
+        "not_established"
+      ],
+      "title": "Request Target Scope Status",
+      "type": "string"
+    },
+    "requested_alpha": {
+      "anyOf": [
+        {
+          "exclusiveMaximum": 1.0,
+          "exclusiveMinimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Requested Alpha"
+    },
+    "requested_guarantee": {
+      "anyOf": [
+        {
+          "enum": [
+            "candidate_point",
+            "backend_conditional_interval",
+            "population_sampling_coverage"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Requested Guarantee"
+    },
+    "requested_guarantee_status": {
+      "enum": [
+        "declared",
+        "not_established"
+      ],
+      "title": "Requested Guarantee Status",
+      "type": "string"
+    },
+    "resolved_params": {
+      "additionalProperties": true,
+      "title": "Resolved Params",
+      "type": "object"
+    },
+    "resolved_params_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Resolved Params Sha256",
+      "type": "string"
+    },
+    "resource_evidence": {
+      "$ref": "#/$defs/HTEResourceExecutionEvidenceV1"
+    },
+    "sample_ids_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Sample Ids Sha256"
+    },
+    "sample_ids_status": {
+      "enum": [
+        "provided",
+        "not_established"
+      ],
+      "title": "Sample Ids Status",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "search_uncertainty_task_binding_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SearchUncertaintyTaskBindingRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "seed": {
+      "title": "Seed",
+      "type": "integer"
+    },
+    "selected_input_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Selected Input Sha256",
+      "type": "string"
+    },
+    "selected_row_order_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Selected Row Order Sha256",
+      "type": "string"
+    },
+    "selected_rows_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Selected Rows Sha256",
+      "type": "string"
+    },
+    "selected_x_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Selected X Sha256",
+      "type": "string"
+    },
+    "source_data_ref": {
+      "$ref": "#/$defs/HTEInputSourceRef"
+    },
+    "source_data_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Source Data Sha256",
+      "type": "string"
+    },
+    "standard_error_source": {
+      "enum": [
+        "mean_pred_stderr",
+        "rms_pred_stderr"
+      ],
+      "title": "Standard Error Source",
+      "type": "string"
+    },
+    "standard_error_value": {
+      "minimum": 0.0,
+      "title": "Standard Error Value",
+      "type": "number"
+    },
+    "target_relation": {
+      "$ref": "#/$defs/HTETargetRelationV1"
+    },
+    "treated_value": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Treated Value"
+    },
+    "treatment_variable_id": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Treatment Variable Id"
+    },
+    "treatment_variable_status": {
+      "enum": [
+        "declared",
+        "not_established"
+      ],
+      "title": "Treatment Variable Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "inference_profile_id",
+    "method_fqn",
+    "method_abi",
+    "method_abi_digest",
+    "method_profile_id",
+    "estimator_class",
+    "inference_class",
+    "econml_version",
+    "econml_source_profile_sha256",
+    "ate_inference_method",
+    "conf_int_mean_method",
+    "native_result_class",
+    "inference_route",
+    "resolved_params_sha256",
+    "source_data_sha256",
+    "input_profile_id",
+    "selected_input_sha256",
+    "selected_rows_sha256",
+    "resolved_params",
+    "seed",
+    "fit_rows_sha256",
+    "eval_rows_sha256",
+    "fit_eval_relation",
+    "sample_ids_status",
+    "estimator_params_sha256",
+    "estimator_params",
+    "nuisance_model_classes",
+    "alpha",
+    "confidence_level",
+    "native_point",
+    "native_lower_bound",
+    "native_upper_bound",
+    "native_mean_pred",
+    "native_mean_pred_stderr",
+    "native_stderr_mean",
+    "standard_error_source",
+    "standard_error_value",
+    "native_pred_stderr_values",
+    "selected_x_sha256",
+    "native_pred_sha256",
+    "native_pred_stderr_sha256",
+    "selected_row_order_sha256",
+    "n_selected_rows",
+    "contrast_status",
+    "control_value",
+    "treated_value",
+    "request_estimand_status",
+    "request_target_scope_status",
+    "outcome_variable_status",
+    "treatment_variable_status",
+    "request_alpha_status",
+    "requested_guarantee_status",
+    "requested_guarantee",
+    "target_relation",
+    "conditional_assumptions",
+    "source_data_ref",
+    "materialization_binding_ref",
+    "invocation_basis_ref",
+    "invocation_basis_status",
+    "invocation_basis_reason",
+    "owned_attempt_anchor_ref",
+    "resource_evidence",
+    "native_result_disposition",
+    "method_result_ref",
+    "method_evidence_ref"
+  ],
+  "title": "ATEInferenceBasis",
+  "type": "object"
+}

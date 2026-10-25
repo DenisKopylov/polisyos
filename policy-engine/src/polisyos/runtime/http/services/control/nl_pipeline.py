@@ -21,9 +21,10 @@ from polisyos.common.async_tools import run_blocking_async
 from polisyos.common.canonical_profile import (
     CanonicalProfileRefusalError,
     read_optional_selected_artifact,
+    require_declared_profile,
 )
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import read_core_json_artifact
+from polisyos.core.artifacts import ArtifactRef, read_core_json_artifact
 from polisyos.core.canon import to_canonical_bytes
 from polisyos.core.contracts.control import (
     DataNeed,
@@ -83,6 +84,23 @@ from polisyos.runtime.quality.design_problem import (
 from polisyos.runtime.quality.evidence_spine import (
     EvidenceSpineCarrier,
     EvidenceSpineValidationError,
+)
+from polisyos.runtime.quality.report_registry import (
+    QUALITY_REPORT_RUNTIME_REFS,
+    RUNTIME_QUALITY_OWNER_MARKER_SCHEMA,
+    RUNTIME_QUALITY_OWNER_PRODUCER_VERSION,
+    RUNTIME_QUALITY_PUBLICATION_CLOSURE_REFERENCE_BINDINGS,
+    RUNTIME_QUALITY_PUBLICATION_SEMANTIC_BINDING_REFERENCE_BINDING,
+    _build_runtime_quality_report_publication_basis,
+    _runtime_quality_report_publication_view,
+    _runtime_quality_report_reuse_basis,
+    _runtime_quality_report_reuse_closure_matches,
+    _runtime_quality_report_source_payload,
+    _runtime_quality_report_writer_payload,
+    _RuntimeQualityReportPublicationBasis,
+    runtime_quality_report_owner_contract,
+    runtime_quality_report_owner_identity_issues,
+    runtime_quality_report_owner_marker,
 )
 from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
 
@@ -177,7 +195,7 @@ def _cost_number(value: object) -> float | None:
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore, AsyncArtifactStore
-    from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
+    from polisyos.core.artifacts.manifest import InputRef
     from polisyos.core.contracts import CatalogRunProfile
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.retrieval import RetrievalProviders
@@ -1668,12 +1686,68 @@ def _runtime_quality_candidate_inputs_match(
     )
 
 
+def _reconcile_runtime_quality_report_reentry_inputs(
+    current_inputs: Sequence[InputRef],
+    persisted_inputs: Sequence[InputRef],
+    verified_later_report_inputs: Sequence[InputRef],
+) -> tuple[InputRef, ...]:
+    """Reconcile only exact later report inputs already verified by their owner.
+
+    Persisted manifest inputs remain the complete original writer basis. A current
+    invocation may contain additional selected report refs after that publication,
+    but every excluded ref must have been independently resolved and owner-verified
+    by the caller. This function never infers verification from a role or ID alone.
+    """
+    current = tuple(current_inputs)
+    persisted = tuple(persisted_inputs)
+    verified = tuple(verified_later_report_inputs)
+    if any(item in verified[:index] for index, item in enumerate(verified)):
+        raise RuntimeError("runtime_quality_publication_reuse_inputs_mismatch")
+    if any(
+        item not in current
+        or item in persisted
+        or any(item.artifact_id == original.artifact_id for original in persisted)
+        for item in verified
+    ):
+        raise RuntimeError("runtime_quality_publication_reuse_inputs_mismatch")
+    later = tuple(item for item in current if item not in persisted)
+    if later != verified:
+        raise RuntimeError("runtime_quality_publication_reuse_inputs_mismatch")
+    reconciled = tuple(item for item in current if item not in verified)
+    if reconciled != persisted:
+        raise RuntimeError("runtime_quality_publication_reuse_inputs_mismatch")
+    return persisted
+
+
+def _runtime_quality_reuse_ref_matches_selected(
+    selected_ref: ArtifactRef,
+    selected_id: str,
+    current_runtime_ref: object | None,
+    current_artifact_ref: object | None,
+) -> bool:
+    """Accept missing runtime caches as candidates, while rejecting conflicts.
+
+    The selected ref comes from the complete publisher view and is only a
+    locator. The caller still has to resolve its profile and pass strict owner
+    and current-identity admission before publishing it into runtime state.
+    """
+    if type(selected_ref) is not ArtifactRef or str(selected_ref.artifact_id) != selected_id:
+        return False
+    if current_runtime_ref is not None and current_runtime_ref != selected_id:
+        return False
+    return current_artifact_ref is None or (
+        type(current_artifact_ref) is ArtifactRef
+        and current_artifact_ref.model_dump(mode="json") == selected_ref.model_dump(mode="json")
+    )
+
+
 def _persisted_runtime_quality_publication_times(
     store: ArtifactStore,
     *,
     output_artifact_id: str,
     artifact_kind: str,
     expected_inputs: Sequence[InputRef],
+    selected_ref: ArtifactRef | None = None,
 ) -> _RuntimeQualityPublicationCandidate | None:
     """Read a persisted writer identity as a candidate for exact-input replay.
 
@@ -1682,7 +1756,7 @@ def _persisted_runtime_quality_publication_times(
     before reusing this candidate. Input roles and manifest-profile pins are matched
     here so a same-payload artifact with changed lineage cannot seed replay fields.
     """
-    from polisyos.core.artifacts import ArtifactID
+    from polisyos.core.artifacts import ArtifactID, read_core_manifest_profile
     from polisyos.core.canon import from_canonical_bytes
     from polisyos.runtime.quality.authority import EvidenceAuthorityEnvelope
 
@@ -1704,7 +1778,18 @@ def _persisted_runtime_quality_publication_times(
     if not store.has(output_id):
         return None
     try:
-        manifest = store.get_manifest(output_id)
+        if selected_ref is not None:
+            if str(selected_ref.artifact_id) != str(output_id):
+                return None
+            manifest, declaration = read_core_manifest_profile(
+                store,
+                selected_ref,
+                manifest_profile_sha256=selected_ref.manifest_profile_sha256,
+            )
+            if declaration.status != "declared":
+                return None
+        else:
+            manifest = store.get_manifest(output_id)
     except (AttributeError, FileNotFoundError, OSError, RuntimeError, TypeError, ValueError) as exc:
         raise ValueError("existing authority identity mismatch") from exc
     authority = manifest.authority
@@ -1801,11 +1886,380 @@ def _validated_runtime_quality_reference(value: object, *, field_name: str) -> s
     return normalized
 
 
-_RUNTIME_QUALITY_CLOSURE_REFERENCE_FIELDS = (
-    ("policy_intent_ref", "policy_intent_envelope_ref"),
-    ("production_data_manifest_ref", "production_data_quality_report_ref"),
-    ("legal_snapshot_ref", "normative_applicability_report_ref"),
-)
+def _runtime_quality_current_publisher_output_is_verified(
+    *,
+    artifact_store: ArtifactStore | None,
+    runtime_ref: object,
+    selected_ref: object,
+    write_options: object,
+    identity_context: object,
+    report_key: str,
+    ref_key: str,
+    expected_role: str,
+    expected_kind: str,
+    expected_schema_name: str,
+    expected_schema_version: str,
+    phase: str,
+    current_run_id: str,
+    current_job_id: str,
+    current_tenant_id: str,
+    current_cell_id: str | None,
+    current_trace_id: str,
+    current_parent_span_id: str | None,
+    current_requested_profile: str | None,
+    current_effective_profile: str,
+    requested_as_of_time: str | None,
+    event_summaries: Sequence[object],
+) -> bool:
+    """Re-read a current generic writer output against its current owner identity."""
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+    from polisyos.runtime.http.services.control.artifacts import (
+        AuthorityArtifactIdentityContext,
+        verify_runtime_authority_artifact_identity,
+    )
+
+    bindings = [
+        (binding[1], binding[2], binding[3], binding[4], binding[5])
+        for binding in RUNTIME_QUALITY_PUBLICATION_CLOSURE_REFERENCE_BINDINGS
+    ]
+    bindings.append(RUNTIME_QUALITY_PUBLICATION_SEMANTIC_BINDING_REFERENCE_BINDING)
+    if (
+        artifact_store is None
+        or type(selected_ref) is not ArtifactRef
+        or type(write_options) is not ArtifactWriteOptions
+        or type(identity_context) is not AuthorityArtifactIdentityContext
+        or not isinstance(runtime_ref, str)
+        or runtime_ref != str(selected_ref.artifact_id)
+        or (ref_key, expected_role, expected_kind, expected_schema_name, expected_schema_version)
+        not in bindings
+    ):
+        return False
+
+    schema = write_options.schema
+    producer = write_options.producer
+    profile = selected_ref.manifest_profile_sha256
+    if (
+        not isinstance(profile, str)
+        or not profile
+        or selected_ref.kind != expected_kind
+        or selected_ref.media_type != "application/json"
+        or write_options.kind != expected_kind
+        or write_options.media_type != "application/json"
+        or schema is None
+        or schema.name != expected_schema_name
+        or schema.version != expected_schema_version
+        or producer is None
+    ):
+        return False
+
+    contract = runtime_quality_report_owner_contract(report_key, ref_key)
+    expected_producer_component = (
+        contract.producer_component
+        if contract is not None
+        else f"polisyos.runtime.quality.{report_key}"
+    )
+    expected_producer_version = (
+        contract.producer_version
+        if contract is not None
+        else RUNTIME_QUALITY_OWNER_PRODUCER_VERSION
+    )
+    if (
+        producer.component != expected_producer_component
+        or producer.version != expected_producer_version
+    ):
+        return False
+
+    context = identity_context
+    closure = context.same_input_closure
+    expected_inputs = tuple(write_options.inputs or ())
+    expected_input_ids = tuple(str(item.artifact_id) for item in expected_inputs)
+    closure_is_closed = (
+        getattr(closure, "status", None) == "closed"
+        and bool(getattr(closure, "closure_sha256", None))
+        and bool(getattr(closure, "policy_intent_ref", None))
+        and bool(getattr(closure, "time_context_ref", None))
+    )
+    if (
+        context.evidence_id != f"runtime_quality_ref#{ref_key}"
+        or context.evidence_class != "authority_bearing"
+        or context.authority_role
+        != ("producer_authority" if closure_is_closed else "runtime_blocker")
+        or context.provenance_kind
+        != ("runtime_emitted" if closure_is_closed else "runtime_blocker")
+        or context.owner != "team-runtime"
+        or context.reader_contract != f"runtime_quality.{report_key}.v1"
+        or context.reader_contract_version != "1.0"
+        or context.run_id != current_run_id
+        or context.job_id != current_job_id
+        or context.tenant_id != current_tenant_id
+        or context.cell_id != current_cell_id
+        or context.trace_id != current_trace_id
+        or context.span_id != f"{report_key}:cas_write"
+        or context.parent_span_id != current_parent_span_id
+        or context.requested_execution_profile != current_requested_profile
+        or context.effective_execution_profile != current_effective_profile
+        or context.phase != phase
+        or (requested_as_of_time is not None and context.as_of_time != requested_as_of_time)
+        or tuple(context.manifest_inputs) != expected_inputs
+        or tuple(context.input_refs) != expected_input_ids
+        or tuple(closure.evidence_input_refs) != expected_input_ids
+        or closure.run_id != current_run_id
+        or closure.job_id != current_job_id
+        or closure.tenant_id != current_tenant_id
+        or closure.cell_id != current_cell_id
+        or closure.closure_id != f"{current_run_id}:runtime_quality"
+        or context.effective_mode_ref != f"runtime-mode:{current_effective_profile}"
+    ):
+        return False
+
+    try:
+        result = verify_runtime_authority_artifact_identity(
+            artifact_store,
+            artifact_id=selected_ref,
+            opts=write_options,
+            expected_context=context,
+        )
+        if (
+            result.cas_ref != selected_ref
+            or result.identity_context != context
+            or result.payload_sha256 != selected_ref.artifact_id.hex
+            or result.diagnostic_event_ref.manifest_profile_sha256 is None
+            or result.authority_envelope_ref.manifest_profile_sha256 is None
+        ):
+            return False
+        payload = read_core_json_artifact(
+            artifact_store,
+            selected_ref,
+            manifest_profile_sha256=profile,
+        ).value
+    except Exception:
+        return False
+    expected_marker = {
+        "schema_version": RUNTIME_QUALITY_OWNER_MARKER_SCHEMA,
+        "report_key": report_key,
+        "ref_key": ref_key,
+        "projection": False,
+    }
+    if (
+        not isinstance(payload, Mapping)
+        or payload.get("runtime_authority_payload") != expected_marker
+    ):
+        return False
+
+    runtime_event_ref = str(result.diagnostic_event_ref.artifact_id)
+    runtime_event_profile = result.diagnostic_event_ref.manifest_profile_sha256
+    authority_envelope_ref = str(result.authority_envelope_ref.artifact_id)
+    manifest_ref = result.manifest_ref
+    payload_sha256 = result.payload_sha256
+    return any(
+        isinstance(event, Mapping)
+        and event.get("event_name") == f"{report_key}.persisted"
+        and event.get("event_type") == "polisyos.runtime.diagnostic.cas_write.v1"
+        and event.get("runtime_event_ref") == runtime_event_ref
+        and event.get("runtime_event_manifest_profile_sha256") == runtime_event_profile
+        and event.get("artifact_ref") == runtime_ref
+        and event.get("runtime_cas_ref") == runtime_ref
+        and event.get("artifact_refs") == [runtime_ref]
+        and event.get("payload_ref") == runtime_ref
+        and event.get("ref_key") == ref_key
+        and event.get("report_key") == report_key
+        and event.get("authority_envelope_ref") == authority_envelope_ref
+        and event.get("manifest_ref") == manifest_ref
+        and event.get("payload_sha256") == payload_sha256
+        for event in event_summaries
+    )
+
+
+def _runtime_quality_current_reference_binding(
+    value: object,
+    *,
+    current_inputs: Sequence[object],
+    current_artifact_refs: Mapping[str, object] | None,
+    current_map_value_present: bool,
+    artifact_store: ArtifactStore | None,
+    current_ref_key: str,
+    expected_role: str,
+    expected_kind: str,
+    expected_schema_name: str,
+    expected_schema_version: str,
+    field_name: str,
+    current_report_verifier: Callable[[str, str], bool] | None = None,
+) -> str:
+    """Bind one pointer to its exact typed input or verified current publisher output."""
+    from polisyos.core.artifacts import ArtifactRef, InputRef, read_core_manifest_profile
+
+    normalized = _validated_runtime_quality_reference(value, field_name=field_name)
+    role_inputs = [
+        item for item in current_inputs if type(item) is InputRef and item.role == expected_role
+    ]
+    matches = [item for item in role_inputs if str(item.artifact_id) == normalized]
+    if role_inputs and (len(role_inputs) != 1 or len(matches) != 1):
+        raise NaturalLanguagePipelineRefusalError(
+            "runtime_quality_same_input_identity_not_established",
+            f"Runtime quality basis reference {field_name} differs from its typed input.",
+        )
+
+    selected_ref = (
+        current_artifact_refs.get(current_ref_key) if current_artifact_refs is not None else None
+    )
+    if matches:
+        input_ref = matches[0]
+        profile = input_ref.manifest_profile_sha256
+        if not isinstance(profile, str) or not profile:
+            raise NaturalLanguagePipelineRefusalError(
+                "runtime_quality_same_input_identity_not_established",
+                f"Runtime quality basis reference {field_name} has no current manifest profile.",
+            )
+        if current_map_value_present or (
+            current_artifact_refs is not None and current_ref_key in current_artifact_refs
+        ):
+            if (
+                type(selected_ref) is not ArtifactRef
+                or str(selected_ref.artifact_id) != normalized
+                or selected_ref.kind != expected_kind
+                or selected_ref.media_type != "application/json"
+                or selected_ref.manifest_profile_sha256 != profile
+            ):
+                raise NaturalLanguagePipelineRefusalError(
+                    "runtime_quality_same_input_identity_not_established",
+                    f"Runtime quality basis reference {field_name} "
+                    "differs from its current owner ref.",
+                )
+            if current_report_verifier is None or not current_report_verifier(
+                current_ref_key, normalized
+            ):
+                raise NaturalLanguagePipelineRefusalError(
+                    "runtime_quality_same_input_identity_not_established",
+                    f"Runtime quality basis reference {field_name} lacks current owner readback.",
+                )
+        elif artifact_store is not None:
+            selected_ref = ArtifactRef(
+                artifact_id=input_ref.artifact_id,
+                kind=expected_kind,
+                media_type="application/json",
+                manifest_profile_sha256=profile,
+            )
+            try:
+                manifest, declaration = read_core_manifest_profile(
+                    artifact_store,
+                    selected_ref,
+                    manifest_profile_sha256=profile,
+                )
+                verification = artifact_store.verify(selected_ref)
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                raise NaturalLanguagePipelineRefusalError(
+                    "runtime_quality_same_input_identity_not_established",
+                    f"Runtime quality basis reference {field_name} "
+                    "failed current owner verification.",
+                ) from exc
+            schema = manifest.artifact_schema
+            if (
+                declaration.status != "declared"
+                or not verification.ok
+                or manifest.kind != expected_kind
+                or manifest.media_type != "application/json"
+                or schema is None
+                or schema.name != expected_schema_name
+                or schema.version != expected_schema_version
+            ):
+                raise NaturalLanguagePipelineRefusalError(
+                    "runtime_quality_same_input_identity_not_established",
+                    f"Runtime quality basis reference {field_name} "
+                    "differs from its current owner schema.",
+                )
+        return normalized
+
+    if (
+        type(selected_ref) is not ArtifactRef
+        or str(selected_ref.artifact_id) != normalized
+        or selected_ref.kind != expected_kind
+        or selected_ref.media_type != "application/json"
+        or not selected_ref.manifest_profile_sha256
+    ):
+        raise NaturalLanguagePipelineRefusalError(
+            "runtime_quality_same_input_identity_not_established",
+            f"Runtime quality basis reference {field_name} has no selected owner ref.",
+        )
+    try:
+        owner_verified = current_report_verifier is not None and current_report_verifier(
+            current_ref_key, normalized
+        )
+    except Exception:
+        owner_verified = False
+    if not owner_verified:
+        raise NaturalLanguagePipelineRefusalError(
+            "runtime_quality_same_input_identity_not_established",
+            (
+                f"Runtime quality basis reference {field_name} is neither a typed input "
+                "nor a current owner-verified publication."
+            ),
+        )
+    return normalized
+
+
+def _runtime_quality_current_reference_value(
+    value: object,
+    *,
+    has_current_value: bool,
+    current_inputs: Sequence[object],
+    current_artifact_refs: Mapping[str, object] | None,
+    current_map_value_present: bool,
+    artifact_store: ArtifactStore | None,
+    current_ref_key: str,
+    expected_role: str,
+    expected_kind: str,
+    expected_schema_name: str,
+    expected_schema_version: str,
+    field_name: str,
+    current_report_verifier: Callable[[str, str], bool] | None = None,
+) -> str | None:
+    """Resolve one pointer from a typed edge or paired current publisher-owned ref."""
+    from polisyos.core.artifacts import ArtifactRef, InputRef
+
+    role_inputs = [
+        item for item in current_inputs if type(item) is InputRef and item.role == expected_role
+    ]
+    if has_current_value:
+        selected_value = _validated_runtime_quality_reference(value, field_name=field_name)
+    elif current_artifact_refs is not None and current_ref_key in current_artifact_refs:
+        selected_ref = current_artifact_refs[current_ref_key]
+        if type(selected_ref) is not ArtifactRef:
+            raise NaturalLanguagePipelineRefusalError(
+                "runtime_quality_same_input_identity_not_established",
+                f"Runtime quality basis reference {field_name} has an invalid current owner ref.",
+            )
+        selected_value = _validated_runtime_quality_reference(
+            str(selected_ref.artifact_id),
+            field_name=field_name,
+        )
+    else:
+        if not role_inputs:
+            return None
+        if len(role_inputs) != 1:
+            raise NaturalLanguagePipelineRefusalError(
+                "runtime_quality_same_input_identity_not_established",
+                f"Runtime quality basis reference {field_name} has ambiguous current typed inputs.",
+            )
+        selected_value = _validated_runtime_quality_reference(
+            str(role_inputs[0].artifact_id),
+            field_name=field_name,
+        )
+
+    return _runtime_quality_current_reference_binding(
+        selected_value,
+        current_inputs=current_inputs,
+        current_artifact_refs=current_artifact_refs,
+        current_map_value_present=current_map_value_present,
+        artifact_store=artifact_store,
+        current_ref_key=current_ref_key,
+        expected_role=expected_role,
+        expected_kind=expected_kind,
+        expected_schema_name=expected_schema_name,
+        expected_schema_version=expected_schema_version,
+        field_name=field_name,
+        current_report_verifier=current_report_verifier,
+    )
 
 
 def _runtime_quality_closure_reference_values(
@@ -1814,29 +2268,51 @@ def _runtime_quality_closure_reference_values(
     candidate: _RuntimeQualityPublicationCandidate | None,
     output_artifact_id: str,
     ref_key: str,
+    current_inputs: Sequence[object] = (),
+    current_artifact_refs: Mapping[str, object] | None = None,
+    artifact_store: ArtifactStore | None = None,
+    current_report_verifier: Callable[[str, str], bool] | None = None,
 ) -> dict[str, str | None]:
-    """Select fresh closure pointers or match every replay pointer to its candidate."""
+    """Build every closure pointer from typed edges or strict current owner readback."""
     selected: dict[str, str | None] = {}
-    for closure_field, current_key in _RUNTIME_QUALITY_CLOSURE_REFERENCE_FIELDS:
-        current_value = (
-            _validated_runtime_quality_reference(
-                runtime_quality_refs[current_key],
-                field_name=current_key,
-            )
-            if current_key in runtime_quality_refs
-            else None
+    for (
+        closure_field,
+        current_key,
+        expected_role,
+        expected_kind,
+        expected_schema_name,
+        expected_schema_version,
+    ) in RUNTIME_QUALITY_PUBLICATION_CLOSURE_REFERENCE_BINDINGS:
+        current_value = _runtime_quality_current_reference_value(
+            runtime_quality_refs.get(current_key),
+            has_current_value=current_key in runtime_quality_refs,
+            current_inputs=current_inputs,
+            current_artifact_refs=current_artifact_refs,
+            current_map_value_present=current_key in runtime_quality_refs,
+            artifact_store=artifact_store,
+            current_ref_key=current_key,
+            expected_role=expected_role,
+            expected_kind=expected_kind,
+            expected_schema_name=expected_schema_name,
+            expected_schema_version=expected_schema_version,
+            field_name=current_key,
+            current_report_verifier=current_report_verifier,
         )
-        if candidate is None:
-            selected[closure_field] = current_value
-            continue
-        candidate_value = getattr(candidate, closure_field)
-        is_self_republication = current_value == output_artifact_id and ref_key == current_key
-        if current_value != candidate_value and not is_self_republication:
+        candidate_value = getattr(candidate, closure_field) if candidate is not None else None
+        if candidate is not None and current_value != candidate_value:
             raise NaturalLanguagePipelineRefusalError(
                 "runtime_quality_same_input_identity_not_established",
-                f"Runtime quality closure reference {current_key} changed during replay.",
+                (
+                    f"Runtime quality closure reference {current_key} changed "
+                    f"during replay for {ref_key}."
+                ),
             )
-        selected[closure_field] = candidate_value
+        if current_value == output_artifact_id:
+            raise NaturalLanguagePipelineRefusalError(
+                "runtime_quality_same_input_identity_not_established",
+                f"Runtime quality closure reference {current_key} cannot point at its own output.",
+            )
+        selected[closure_field] = current_value
     return selected
 
 
@@ -1848,8 +2324,12 @@ def _runtime_quality_semantic_binding_reference(
     candidate: _RuntimeQualityPublicationCandidate | None,
     output_artifact_id: str,
     ref_key: str,
+    current_inputs: Sequence[object] = (),
+    current_artifact_refs: Mapping[str, object] | None = None,
+    artifact_store: ArtifactStore | None = None,
+    current_report_verifier: Callable[[str, str], bool] | None = None,
 ) -> str | None:
-    """Resolve semantic binding while retaining all current-source consistency checks."""
+    """Resolve semantic binding from current typed input or owner-verified CAS evidence."""
     current_refs: list[str] = []
     if explicit_ref is not None:
         current_refs.append(
@@ -1865,7 +2345,13 @@ def _runtime_quality_semantic_binding_reference(
                 field_name="report semantic_binding_ref",
             )
         )
-    map_key = "semantic_binding_ledger_ref"
+    (
+        map_key,
+        expected_role,
+        expected_kind,
+        expected_schema_name,
+        expected_schema_version,
+    ) = RUNTIME_QUALITY_PUBLICATION_SEMANTIC_BINDING_REFERENCE_BINDING
     if map_key in runtime_quality_refs:
         current_refs.append(
             _validated_runtime_quality_reference(
@@ -1873,23 +2359,39 @@ def _runtime_quality_semantic_binding_reference(
                 field_name=map_key,
             )
         )
-    if candidate is None:
-        return current_refs[0] if current_refs else None
-
-    candidate_ref = candidate.semantic_binding_ref
-    for current_ref in current_refs:
-        is_self_republication = current_ref == output_artifact_id and ref_key == map_key
-        if current_ref != candidate_ref and not is_self_republication:
-            raise NaturalLanguagePipelineRefusalError(
-                "runtime_quality_same_input_identity_not_established",
-                "Runtime quality semantic binding reference changed during replay.",
-            )
-    if not current_refs and candidate_ref is not None:
+    if current_refs and any(value != current_refs[0] for value in current_refs[1:]):
         raise NaturalLanguagePipelineRefusalError(
             "runtime_quality_same_input_identity_not_established",
-            "Runtime quality semantic binding reference is absent during replay.",
+            "Runtime quality semantic binding sources disagree.",
         )
-    return candidate_ref
+
+    current_value = _runtime_quality_current_reference_value(
+        current_refs[0] if current_refs else None,
+        has_current_value=bool(current_refs),
+        current_inputs=current_inputs,
+        current_artifact_refs=current_artifact_refs,
+        current_map_value_present=map_key in runtime_quality_refs,
+        artifact_store=artifact_store,
+        current_ref_key=map_key,
+        expected_role=expected_role,
+        expected_kind=expected_kind,
+        expected_schema_name=expected_schema_name,
+        expected_schema_version=expected_schema_version,
+        field_name="semantic_binding_ref",
+        current_report_verifier=current_report_verifier,
+    )
+    candidate_ref = candidate.semantic_binding_ref if candidate is not None else None
+    if candidate is not None and current_value != candidate_ref:
+        raise NaturalLanguagePipelineRefusalError(
+            "runtime_quality_same_input_identity_not_established",
+            "Runtime quality semantic binding reference changed during replay.",
+        )
+    if current_value == output_artifact_id:
+        raise NaturalLanguagePipelineRefusalError(
+            "runtime_quality_same_input_identity_not_established",
+            "Runtime quality semantic binding cannot point at its own output.",
+        )
+    return current_value
 
 
 def _final_policy_claim_extraction_failure(
@@ -2825,6 +3327,11 @@ class NaturalLanguageRunMixin:
             scientist_workflow_progress: dict[str, Any] = {"events": []}
             runtime_quality_refs: dict[str, str] = {}
             runtime_quality_artifact_refs: dict[str, ArtifactRef] = {}
+            runtime_quality_publication_report_keys: dict[str, str] = {}
+            runtime_quality_publication_phases: dict[str, str] = {}
+            runtime_quality_publication_write_options: dict[str, ArtifactWriteOptions] = {}
+            runtime_quality_publication_identity_contexts: dict[str, Any] = {}
+            runtime_quality_publication_requested_as_of_times: dict[str, str | None] = {}
             runtime_quality_evidence: dict[str, Any] = {}
             runtime_quality_cost_events: list[dict[str, Any]] = []
             selected_final_claims_refusal_codes: list[str] = []
@@ -2857,6 +3364,8 @@ class NaturalLanguageRunMixin:
                 candidate: _RuntimeQualityPublicationCandidate | None = None,
                 output_artifact_id: str,
                 ref_key: str,
+                current_inputs: Sequence[object] = (),
+                current_report_verifier: Callable[[str, str], bool] | None = None,
             ) -> str | None:
                 return _runtime_quality_semantic_binding_reference(
                     report_payload=report_payload,
@@ -2865,6 +3374,10 @@ class NaturalLanguageRunMixin:
                     candidate=candidate,
                     output_artifact_id=output_artifact_id,
                     ref_key=ref_key,
+                    current_inputs=current_inputs,
+                    current_artifact_refs=runtime_quality_artifact_refs,
+                    artifact_store=store,
+                    current_report_verifier=current_report_verifier,
                 )
 
             def _runtime_quality_run_intent_binding() -> dict[str, Any] | None:
@@ -3158,6 +3671,32 @@ class NaturalLanguageRunMixin:
                     return None
                 return dict(payload) if isinstance(payload, Mapping) else None
 
+            def _runtime_quality_selected_report_input_ref(
+                *,
+                ref_key: str,
+                role: str,
+                ref_value: object,
+                kind: str,
+            ) -> InputRef:
+                artifact_id = _validated_runtime_quality_reference(
+                    ref_value,
+                    field_name=ref_key,
+                )
+                selected_ref = runtime_quality_artifact_refs.get(ref_key)
+                if (
+                    type(selected_ref) is not ArtifactRef
+                    or str(selected_ref.artifact_id) != artifact_id
+                    or selected_ref.kind != kind
+                    or selected_ref.media_type != "application/json"
+                    or not selected_ref.manifest_profile_sha256
+                    or runtime_quality_refs.get(ref_key) != artifact_id
+                ):
+                    raise NaturalLanguagePipelineRefusalError(
+                        "runtime_quality_same_input_identity_not_established",
+                        f"Runtime quality input {ref_key} lacks its current owner reference.",
+                    )
+                return input_ref_from_artifact_ref(selected_ref, role=role)
+
             def _quality_report_input_ref(
                 *,
                 role: str,
@@ -3169,6 +3708,14 @@ class NaturalLanguageRunMixin:
                     artifact_id = ref_value.strip()
                 if not artifact_id:
                     return None
+                ref_key = f"{role}_ref"
+                if ref_key in runtime_quality_refs or ref_key in runtime_quality_artifact_refs:
+                    return _runtime_quality_selected_report_input_ref(
+                        ref_key=ref_key,
+                        role=role,
+                        ref_value=artifact_id,
+                        kind=kind,
+                    )
                 try:
                     return InputRef(
                         artifact_id=_make_artifact_ref(artifact_id, kind=kind).artifact_id,
@@ -3581,6 +4128,10 @@ class NaturalLanguageRunMixin:
                 tuple[str, str | None, str | None, str],
                 tuple[tuple[InputRef, ...], frozenset[str]],
             ] = {}
+            frozen_materialization_publication_contexts: dict[
+                tuple[str, str, str],
+                tuple[tuple[InputRef, ...], frozenset[str]],
+            ] = {}
             frozen_runtime_quality_publication_times: dict[str, tuple[str, str]] = {}
 
             def _remember_selected_materialization_ref(ref: ArtifactRef) -> None:
@@ -3716,10 +4267,43 @@ class NaturalLanguageRunMixin:
                     for key, kind in materialization_ref_kinds.items()
                     if kind in {"runtime.production_data_quality_report", "fabric.retrieval_trace"}
                 )
+
+                def _is_verified_reissuable_report_input(item: InputRef) -> bool:
+                    if item.role not in reissuable_report_roles:
+                        return False
+                    for sibling_report_key, sibling_ref_key in QUALITY_REPORT_RUNTIME_REFS.items():
+                        if item.role != sibling_ref_key.removesuffix("_ref"):
+                            continue
+                        contract = runtime_quality_report_owner_contract(
+                            sibling_report_key,
+                            sibling_ref_key,
+                        )
+                        selected_ref = runtime_quality_artifact_refs.get(sibling_ref_key)
+                        if (
+                            sibling_report_key == output_report_key
+                            or contract is None
+                            or type(selected_ref) is not ArtifactRef
+                            or item.artifact_id != selected_ref.artifact_id
+                            or item.manifest_profile_sha256 != selected_ref.manifest_profile_sha256
+                            or selected_ref.manifest_profile_sha256 is None
+                            or selected_ref.kind != contract.artifact_kind
+                            or selected_ref.media_type != contract.media_type
+                            or runtime_quality_refs.get(sibling_ref_key)
+                            != str(selected_ref.artifact_id)
+                        ):
+                            continue
+                        if _runtime_quality_report_is_current_publication(
+                            report_key=sibling_report_key,
+                            ref_key=sibling_ref_key,
+                            expected_ref=str(selected_ref.artifact_id),
+                        ):
+                            return True
+                    return False
+
                 current_reissuable_report_refs = frozenset(
                     (str(item.artifact_id), item.role)
                     for item in inputs
-                    if item.role in reissuable_report_roles
+                    if _is_verified_reissuable_report_input(item)
                 )
 
                 if basis_key is not None and output_payload is None:
@@ -3729,16 +4313,36 @@ class NaturalLanguageRunMixin:
                 if basis_key is not None:
                     if output_ref_key is None or output_report_key is None:
                         raise RuntimeError("auto_materialization_output_ref_not_established")
-                    target_payload = dict(output_payload or {})
-                    target_payload.setdefault(
-                        "runtime_authority_payload",
-                        {
-                            "schema_version": "policyos.runtime.authority_payload_marker.v1",
-                            "report_key": output_report_key,
-                            "ref_key": output_ref_key,
-                            "projection": False,
-                        },
-                    )
+                    try:
+                        target_source_payload, output_basis = (
+                            _runtime_quality_report_source_payload(
+                                output_payload or {},
+                                report_key=output_report_key,
+                                ref_key=output_ref_key,
+                            )
+                        )
+                    except ValueError as exc:
+                        raise RuntimeError(str(exc)) from exc
+                    if output_basis is not None:
+                        try:
+                            target_payload = _runtime_quality_report_writer_payload(
+                                target_source_payload,
+                                report_key=output_report_key,
+                                ref_key=output_ref_key,
+                            )
+                        except ValueError as exc:
+                            raise RuntimeError(str(exc)) from exc
+                    else:
+                        target_payload = dict(target_source_payload)
+                        target_payload.setdefault(
+                            "runtime_authority_payload",
+                            {
+                                "schema_version": "policyos.runtime.authority_payload_marker.v1",
+                                "report_key": output_report_key,
+                                "ref_key": output_ref_key,
+                                "projection": False,
+                            },
+                        )
                     target_output_id = _runtime_quality_payload_sha256(target_payload)
 
                 predecessor_output_id = None
@@ -3791,6 +4395,24 @@ class NaturalLanguageRunMixin:
                     current_reissuable_report_refs=current_reissuable_report_refs,
                 )
                 frozen_materialization_input_bases[basis_identity] = reconciled_basis
+                if output_ref_key is not None:
+                    publication_context_key = (
+                        basis_key,
+                        output_ref_key,
+                        target_output_id,
+                    )
+                    existing_publication_context = frozen_materialization_publication_contexts.get(
+                        publication_context_key
+                    )
+                    if (
+                        existing_publication_context is not None
+                        and existing_publication_context != reconciled_basis
+                    ):
+                        raise RuntimeError("auto_materialization_input_basis_changed")
+                    frozen_materialization_publication_contexts.setdefault(
+                        publication_context_key,
+                        reconciled_basis,
+                    )
                 return list(reconciled_basis[0])
 
             def _deterministic_scenario_enabled() -> bool:
@@ -4218,6 +4840,7 @@ class NaturalLanguageRunMixin:
                     artifact_kind="fabric.retrieval_trace",
                     schema_name="polisyos.fabric.SourceSelectionTrace",
                     phase="fabric_retrieval_trace",
+                    materialization_basis_key="fabric_retrieval_trace",
                     input_refs=_materialization_input_refs(
                         materialization_refs,
                         basis_key="fabric_retrieval_trace",
@@ -4257,6 +4880,7 @@ class NaturalLanguageRunMixin:
                     artifact_kind="runtime.production_data_quality_report",
                     schema_name="polisyos.runtime.ProductionDataQualityReport",
                     phase="production_data_quality",
+                    materialization_basis_key="production_data_quality_report",
                     input_refs=_materialization_input_refs(
                         materialization_refs,
                         basis_key="production_data_quality_report",
@@ -4540,12 +5164,628 @@ class NaturalLanguageRunMixin:
                     media_type=media_type,
                     schema=SchemaInfo(name=schema_name, version=schema_version),
                     producer=ProducerInfo(
-                        component=f"polisyos.runtime.quality.{report_key}",
-                        version="2026.05.15+hds-phase2.4",
+                        component=(
+                            owner_contract.producer_component
+                            if (owner_contract := runtime_quality_report_owner_contract(report_key))
+                            is not None
+                            else f"polisyos.runtime.quality.{report_key}"
+                        ),
+                        version=(
+                            owner_contract.producer_version
+                            if owner_contract is not None
+                            else RUNTIME_QUALITY_OWNER_PRODUCER_VERSION
+                        ),
                     ),
                     governance=ArtifactGovernanceInfo(classification="runtime_quality_evidence"),
                     inputs=list(input_refs or []),
                 )
+
+            def _runtime_quality_publication_context_matches(
+                *,
+                basis: _RuntimeQualityReportPublicationBasis,
+                report_key: str,
+                ref_key: str,
+                phase: str,
+                requested_as_of_time: str | None,
+            ) -> bool:
+                envelope = basis.authority_envelope
+                expected_context = {
+                    "evidence_id": f"runtime_quality_ref#{ref_key}",
+                    "tenant_id": _runtime_quality_identity_value("tenant_id"),
+                    "cell_id": _runtime_quality_identity_value("cell_id"),
+                    "run_id": run_id,
+                    "job_id": _runtime_quality_job_id(),
+                    "trace_id": _runtime_quality_trace_id(),
+                    "span_id": f"{report_key}:cas_write",
+                    "parent_span_id": _runtime_quality_parent_span_id(),
+                    "requested_execution_profile": _runtime_quality_identity_value(
+                        "requested_execution_profile"
+                    ),
+                    "effective_execution_profile": _runtime_quality_profile(),
+                    "phase": phase,
+                    "effective_mode_ref": f"runtime-mode:{_runtime_quality_profile()}",
+                }
+                if any(envelope.get(key) != value for key, value in expected_context.items()):
+                    return False
+                if requested_as_of_time is not None and envelope.get("as_of_time") != (
+                    requested_as_of_time
+                ):
+                    return False
+                closure = envelope.get("same_input_closure")
+                return (
+                    isinstance(closure, Mapping)
+                    and closure.get("run_id") == run_id
+                    and closure.get("job_id") == _runtime_quality_job_id()
+                    and closure.get("tenant_id") == _runtime_quality_identity_value("tenant_id")
+                    and closure.get("cell_id") == _runtime_quality_identity_value("cell_id")
+                    and closure.get("closure_id") == f"{run_id}:runtime_quality"
+                )
+
+            def _runtime_quality_report_is_current_publication(
+                *,
+                report_key: str,
+                ref_key: str,
+                expected_ref: str,
+            ) -> bool:
+                contract = runtime_quality_report_owner_contract(report_key, ref_key)
+                report_view = runtime_quality_evidence.get(report_key)
+                write_options = runtime_quality_publication_write_options.get(ref_key)
+                expected_identity_context = runtime_quality_publication_identity_contexts.get(
+                    ref_key
+                )
+                if (
+                    contract is None
+                    or not isinstance(report_view, Mapping)
+                    or write_options is None
+                    or expected_identity_context is None
+                ):
+                    return False
+                try:
+                    _source_payload, basis = _runtime_quality_report_source_payload(
+                        report_view,
+                        report_key=report_key,
+                        ref_key=ref_key,
+                    )
+                except ValueError:
+                    return False
+                selected_ref = runtime_quality_artifact_refs.get(ref_key)
+                if (
+                    basis is None
+                    or type(selected_ref) is not ArtifactRef
+                    or str(selected_ref.artifact_id) != expected_ref
+                    or runtime_quality_refs.get(ref_key) != expected_ref
+                    or basis.artifact_ref != selected_ref.model_dump(mode="json")
+                    or not _runtime_quality_publication_context_matches(
+                        basis=basis,
+                        report_key=report_key,
+                        ref_key=ref_key,
+                        phase=contract.phase,
+                        requested_as_of_time=runtime_quality_publication_requested_as_of_times.get(
+                            ref_key
+                        ),
+                    )
+                ):
+                    return False
+                if not any(
+                    event.get("report_key") == report_key
+                    and event.get("ref_key") == ref_key
+                    and event.get("artifact_ref") == expected_ref
+                    and event.get("runtime_event_ref") == basis.runtime_event_ref
+                    and event.get("runtime_event_manifest_profile_sha256")
+                    == basis.runtime_event_manifest_profile_sha256
+                    for event in runtime_quality_diagnostic_events
+                    if isinstance(event, Mapping)
+                ):
+                    return False
+                from polisyos.runtime.quality.authority import (
+                    runtime_quality_report_cas_admission_issues,
+                )
+
+                return not runtime_quality_report_cas_admission_issues(
+                    artifact_store=store,
+                    selected_ref=selected_ref,
+                    runtime_ref=expected_ref,
+                    report_key=report_key,
+                    ref_key=ref_key,
+                    report=report_view,
+                    envelope=basis.authority_envelope,
+                    expected_write_options=write_options,
+                    expected_identity_context=expected_identity_context,
+                )
+
+            def _runtime_quality_current_reference_is_owner_published(
+                current_ref_key: str,
+                expected_ref: str,
+            ) -> bool:
+                """Reconcile a closure pointer to a current generic writer publication."""
+                report_key = runtime_quality_publication_report_keys.get(current_ref_key)
+                phase = runtime_quality_publication_phases.get(current_ref_key)
+                write_options = runtime_quality_publication_write_options.get(current_ref_key)
+                identity_context = runtime_quality_publication_identity_contexts.get(
+                    current_ref_key
+                )
+                selected_ref = runtime_quality_artifact_refs.get(current_ref_key)
+                if (
+                    not isinstance(report_key, str)
+                    or not isinstance(phase, str)
+                    or write_options is None
+                    or identity_context is None
+                    or type(selected_ref) is not ArtifactRef
+                    or runtime_quality_refs.get(current_ref_key) != expected_ref
+                    or str(selected_ref.artifact_id) != expected_ref
+                ):
+                    return False
+
+                binding = next(
+                    (
+                        item
+                        for item in RUNTIME_QUALITY_PUBLICATION_CLOSURE_REFERENCE_BINDINGS
+                        if item[1] == current_ref_key
+                    ),
+                    None,
+                )
+                if binding is None:
+                    semantic_binding = (
+                        RUNTIME_QUALITY_PUBLICATION_SEMANTIC_BINDING_REFERENCE_BINDING
+                    )
+                    if semantic_binding[0] != current_ref_key:
+                        return False
+                    expected_role, expected_kind, expected_schema_name, expected_schema_version = (
+                        semantic_binding[1:]
+                    )
+                else:
+                    expected_role, expected_kind, expected_schema_name, expected_schema_version = (
+                        binding[2:]
+                    )
+
+                contract = runtime_quality_report_owner_contract(report_key, current_ref_key)
+                if contract is not None:
+                    if (
+                        contract.artifact_kind != expected_kind
+                        or contract.schema_name != expected_schema_name
+                        or contract.schema_version != expected_schema_version
+                    ):
+                        return False
+                    return _runtime_quality_report_is_current_publication(
+                        report_key=report_key,
+                        ref_key=current_ref_key,
+                        expected_ref=expected_ref,
+                    )
+
+                return _runtime_quality_current_publisher_output_is_verified(
+                    artifact_store=store,
+                    runtime_ref=runtime_quality_refs.get(current_ref_key),
+                    selected_ref=selected_ref,
+                    write_options=write_options,
+                    identity_context=identity_context,
+                    report_key=report_key,
+                    ref_key=current_ref_key,
+                    expected_role=expected_role,
+                    expected_kind=expected_kind,
+                    expected_schema_name=expected_schema_name,
+                    expected_schema_version=expected_schema_version,
+                    phase=phase,
+                    current_run_id=run_id,
+                    current_job_id=_runtime_quality_job_id(),
+                    current_tenant_id=_runtime_quality_identity_value("tenant_id"),
+                    current_cell_id=_runtime_quality_identity_value("cell_id"),
+                    current_trace_id=_runtime_quality_trace_id(),
+                    current_parent_span_id=_runtime_quality_parent_span_id(),
+                    current_requested_profile=_runtime_quality_identity_value(
+                        "requested_execution_profile"
+                    ),
+                    current_effective_profile=_runtime_quality_profile(),
+                    requested_as_of_time=runtime_quality_publication_requested_as_of_times.get(
+                        current_ref_key
+                    ),
+                    event_summaries=runtime_quality_diagnostic_events,
+                )
+
+            async def _reuse_runtime_quality_report_publication(
+                *,
+                basis: _RuntimeQualityReportPublicationBasis,
+                report_key: str,
+                ref_key: str,
+                ref_value: str,
+                phase: str,
+                requested_as_of_time: str | None,
+                source_report_payload: Mapping[str, Any],
+                candidate_view: Mapping[str, Any],
+                semantic_binding_ref: str | None,
+                output_artifact_id: str,
+                write_options: ArtifactWriteOptions,
+                materialization_basis_key: str | None,
+            ) -> dict[str, Any]:
+                nonlocal diagnostic_event_log_ref
+
+                from polisyos.common.canonical_profile import require_declared_profile
+                from polisyos.core.artifacts import (
+                    read_core_json_artifact,
+                    read_core_manifest_profile,
+                )
+                from polisyos.runtime.http.services.control.artifacts import (
+                    _freeze_cas_writer_attestation_identity,
+                    _identity_context_from_fields,
+                )
+                from polisyos.runtime.quality.authority import (
+                    runtime_quality_report_cas_admission_issues,
+                )
+                from polisyos.runtime.quality.authority_reconciliation import (
+                    resolve_authority_diagnostic_event_ref,
+                )
+                from polisyos.runtime.quality.diagnostic_events import (
+                    DIAGNOSTIC_EVENT_ARTIFACT_KIND,
+                )
+
+                selected_ref = ArtifactRef.model_validate(basis.artifact_ref)
+                selected_id = str(selected_ref.artifact_id)
+                if (
+                    basis.artifact_ref != selected_ref.model_dump(mode="json")
+                    or selected_id != output_artifact_id
+                    or (ref_value and ref_value != selected_id)
+                    or not _runtime_quality_reuse_ref_matches_selected(
+                        selected_ref,
+                        selected_id,
+                        runtime_quality_refs.get(ref_key),
+                        runtime_quality_artifact_refs.get(ref_key),
+                    )
+                ):
+                    raise RuntimeError("runtime_quality_publication_reuse_ref_mismatch")
+                current_view = runtime_quality_evidence.get(report_key)
+                if not isinstance(current_view, Mapping):
+                    current_view = candidate_view
+                if not isinstance(current_view, Mapping):
+                    raise RuntimeError("runtime_quality_current_publication_not_established")
+                try:
+                    current_view_bytes = to_canonical_bytes(
+                        dict(current_view),
+                        CanonSpec(forbid_floats=False),
+                    )
+                    expected_view_bytes = to_canonical_bytes(
+                        _runtime_quality_report_publication_view(basis),
+                        CanonSpec(forbid_floats=False),
+                    )
+                except Exception as exc:
+                    raise RuntimeError("runtime_quality_publication_view_not_canonical") from exc
+                if current_view_bytes != expected_view_bytes:
+                    raise RuntimeError("runtime_quality_current_publication_changed")
+                if not _runtime_quality_publication_context_matches(
+                    basis=basis,
+                    report_key=report_key,
+                    ref_key=ref_key,
+                    phase=phase,
+                    requested_as_of_time=requested_as_of_time,
+                ):
+                    raise RuntimeError("runtime_quality_publication_reuse_context_mismatch")
+
+                try:
+                    selected_manifest, declaration = read_core_manifest_profile(
+                        store,
+                        selected_ref,
+                        manifest_profile_sha256=selected_ref.manifest_profile_sha256,
+                    )
+                except Exception as exc:
+                    raise RuntimeError("runtime_quality_publication_reuse_profile_failed") from exc
+                persisted_inputs = tuple(selected_manifest.inputs)
+                current_inputs = tuple(write_options.inputs or [])
+                if declaration.status != "declared":
+                    raise RuntimeError("runtime_quality_publication_reuse_inputs_mismatch")
+                later_inputs = tuple(
+                    item for item in current_inputs if item not in persisted_inputs
+                )
+                verified_later_inputs: list[InputRef] = []
+                for later_input in later_inputs:
+                    sibling_verified = False
+                    for sibling_report_key, sibling_ref_key in QUALITY_REPORT_RUNTIME_REFS.items():
+                        sibling_contract = runtime_quality_report_owner_contract(
+                            sibling_report_key,
+                            sibling_ref_key,
+                        )
+                        sibling_ref = runtime_quality_artifact_refs.get(sibling_ref_key)
+                        if (
+                            sibling_report_key == report_key
+                            or sibling_contract is None
+                            or later_input.role != sibling_ref_key.removesuffix("_ref")
+                            or type(sibling_ref) is not ArtifactRef
+                            or later_input.artifact_id != sibling_ref.artifact_id
+                            or later_input.manifest_profile_sha256
+                            != sibling_ref.manifest_profile_sha256
+                            or sibling_ref.manifest_profile_sha256 is None
+                            or sibling_ref.kind != sibling_contract.artifact_kind
+                            or sibling_ref.media_type != sibling_contract.media_type
+                            or runtime_quality_refs.get(sibling_ref_key)
+                            != str(sibling_ref.artifact_id)
+                        ):
+                            continue
+                        if _runtime_quality_report_is_current_publication(
+                            report_key=sibling_report_key,
+                            ref_key=sibling_ref_key,
+                            expected_ref=str(sibling_ref.artifact_id),
+                        ):
+                            sibling_verified = True
+                            break
+                    if not sibling_verified:
+                        raise RuntimeError("runtime_quality_publication_reuse_inputs_mismatch")
+                    verified_later_inputs.append(later_input)
+                try:
+                    expected_inputs = _reconcile_runtime_quality_report_reentry_inputs(
+                        current_inputs,
+                        persisted_inputs,
+                        verified_later_inputs,
+                    )
+                except RuntimeError as exc:
+                    raise RuntimeError("runtime_quality_publication_reuse_inputs_mismatch") from exc
+                if write_options.schema is None:
+                    raise RuntimeError("runtime_quality_publication_reuse_schema_missing")
+                expected_write_options = _runtime_quality_write_options(
+                    report_key=report_key,
+                    artifact_kind=write_options.kind,
+                    schema_name=write_options.schema.name,
+                    schema_version=write_options.schema.version,
+                    input_refs=list(expected_inputs),
+                    media_type=write_options.media_type,
+                )
+                authority = selected_manifest.authority
+                if authority is None:
+                    raise RuntimeError("runtime_quality_publication_reuse_authority_missing")
+                try:
+                    event_ref = resolve_authority_diagnostic_event_ref(store, authority)
+                    if (
+                        str(event_ref.artifact_id) != basis.runtime_event_ref
+                        or event_ref.manifest_profile_sha256
+                        != basis.runtime_event_manifest_profile_sha256
+                        or event_ref.kind != DIAGNOSTIC_EVENT_ARTIFACT_KIND
+                        or not store.verify(event_ref).ok
+                    ):
+                        raise ValueError("selected event identity differs")
+                    event_manifest, event_declaration = read_core_manifest_profile(
+                        store,
+                        event_ref,
+                        manifest_profile_sha256=basis.runtime_event_manifest_profile_sha256,
+                    )
+                    event_payload = require_declared_profile(
+                        read_core_json_artifact(
+                            store,
+                            event_ref,
+                            manifest_profile_sha256=basis.runtime_event_manifest_profile_sha256,
+                        )
+                    )
+                except Exception as exc:
+                    raise RuntimeError(
+                        "runtime_quality_publication_reuse_event_not_verified"
+                    ) from exc
+                expected_event_context = {
+                    "event_type": "polisyos.runtime.diagnostic.cas_write.v1",
+                    "run_id": run_id,
+                    "job_id": _runtime_quality_job_id(),
+                    "tenant_id": _runtime_quality_identity_value("tenant_id"),
+                    "cell_id": _runtime_quality_identity_value("cell_id"),
+                    "trace_id": _runtime_quality_trace_id(),
+                    "span_id": f"{report_key}:cas_write",
+                    "parent_span_id": _runtime_quality_parent_span_id(),
+                    "execution_profile": _runtime_quality_profile(),
+                    "phase": phase,
+                    "producer_component": expected_write_options.producer.component
+                    if expected_write_options.producer is not None
+                    else None,
+                    "producer_version": expected_write_options.producer.version
+                    if expected_write_options.producer is not None
+                    else None,
+                    "input_refs": list(
+                        _runtime_quality_input_ref_values(expected_write_options.inputs)
+                    ),
+                    "artifact_refs": [selected_id],
+                }
+                if (
+                    event_declaration.status != "declared"
+                    or event_manifest.artifact_schema is None
+                    or event_manifest.artifact_schema.name
+                    != "polisyos.runtime.quality.diagnostic_event"
+                    or event_manifest.artifact_schema.version != "1.0"
+                    or not isinstance(event_payload, Mapping)
+                    or any(
+                        event_payload.get(key) != value
+                        for key, value in expected_event_context.items()
+                    )
+                ):
+                    raise RuntimeError("runtime_quality_publication_reuse_event_mismatch")
+
+                persisted_candidate = _persisted_runtime_quality_publication_times(
+                    store,
+                    output_artifact_id=output_artifact_id,
+                    artifact_kind=write_options.kind,
+                    expected_inputs=expected_inputs,
+                    selected_ref=selected_ref,
+                )
+                if persisted_candidate is None:
+                    raise RuntimeError("runtime_quality_publication_reuse_closure_not_established")
+                current_refs_for_closure = dict(runtime_quality_refs)
+                frozen_context: tuple[tuple[InputRef, ...], frozenset[str]] | None = None
+                if materialization_basis_key is not None:
+                    frozen_context = frozen_materialization_publication_contexts.get(
+                        (
+                            materialization_basis_key,
+                            ref_key,
+                            output_artifact_id,
+                        )
+                    )
+                    if frozen_context is not None and frozen_context[0] != expected_inputs:
+                        raise RuntimeError("auto_materialization_input_basis_not_established")
+                verified_later_input_ids = {str(item.artifact_id) for item in verified_later_inputs}
+                for closure_binding in RUNTIME_QUALITY_PUBLICATION_CLOSURE_REFERENCE_BINDINGS:
+                    closure_field, current_key = closure_binding[:2]
+                    current_value = current_refs_for_closure.get(current_key)
+                    candidate_value = getattr(persisted_candidate, closure_field)
+                    if (
+                        candidate_value is None
+                        and isinstance(current_value, str)
+                        and current_value in verified_later_input_ids
+                    ):
+                        current_refs_for_closure.pop(current_key, None)
+                closure_refs = _runtime_quality_closure_reference_values(
+                    current_refs_for_closure,
+                    candidate=persisted_candidate,
+                    output_artifact_id=output_artifact_id,
+                    ref_key=ref_key,
+                    current_inputs=expected_write_options.inputs or [],
+                    current_artifact_refs=runtime_quality_artifact_refs,
+                    artifact_store=store,
+                    current_report_verifier=(_runtime_quality_current_reference_is_owner_published),
+                )
+                semantic_binding_identity_ref = _runtime_quality_semantic_binding_ref(
+                    report_payload=source_report_payload,
+                    explicit_ref=semantic_binding_ref,
+                    candidate=persisted_candidate,
+                    output_artifact_id=output_artifact_id,
+                    ref_key=ref_key,
+                    current_inputs=expected_write_options.inputs or [],
+                    current_report_verifier=(_runtime_quality_current_reference_is_owner_published),
+                )
+                expected_closure = _runtime_quality_same_input_closure(
+                    input_refs=_runtime_quality_input_ref_values(expected_write_options.inputs),
+                    closure_refs=closure_refs,
+                )
+                if semantic_binding_identity_ref != basis.authority_envelope.get(
+                    "semantic_binding_ref"
+                ):
+                    raise RuntimeError("runtime_quality_publication_reuse_identity_mismatch")
+                if not _runtime_quality_report_reuse_closure_matches(
+                    basis,
+                    expected_closure,
+                ):
+                    raise RuntimeError("runtime_quality_publication_reuse_closure_mismatch")
+
+                closure_is_closed = (
+                    expected_closure.get("status") == "closed"
+                    and bool(expected_closure.get("closure_sha256"))
+                    and bool(expected_closure.get("policy_intent_ref"))
+                    and bool(expected_closure.get("time_context_ref"))
+                )
+                expected_authority_fields: dict[str, Any] = {
+                    "evidence_id": f"runtime_quality_ref#{ref_key}",
+                    "evidence_class": "authority_bearing",
+                    "authority_role": "producer_authority"
+                    if closure_is_closed
+                    else "runtime_blocker",
+                    "provenance_kind": "runtime_emitted"
+                    if closure_is_closed
+                    else "runtime_blocker",
+                    "owner": "team-runtime",
+                    "reader_contract": f"runtime_quality.{report_key}.v1",
+                    "reader_contract_version": "1.0",
+                    "tenant_id": _runtime_quality_identity_value("tenant_id"),
+                    "cell_id": _runtime_quality_identity_value("cell_id"),
+                    "run_id": _runtime_quality_identity_value("run_id"),
+                    "job_id": _runtime_quality_job_id(),
+                    "trace_id": _runtime_quality_trace_id(),
+                    "span_id": f"{report_key}:cas_write",
+                    "parent_span_id": _runtime_quality_parent_span_id(),
+                    "requested_execution_profile": _runtime_quality_identity_value(
+                        "requested_execution_profile"
+                    ),
+                    "effective_execution_profile": _runtime_quality_profile(),
+                    "phase": phase,
+                    "same_input_closure": expected_closure,
+                    "input_refs": list(
+                        _runtime_quality_input_ref_values(expected_write_options.inputs)
+                    ),
+                    "effective_mode_ref": f"runtime-mode:{_runtime_quality_profile()}",
+                    "validation_status": _runtime_quality_validation_status(source_report_payload),
+                    "blocking_status": (
+                        _runtime_quality_blocking_status(source_report_payload)
+                        if closure_is_closed
+                        else "blocking"
+                    ),
+                    "governance": _runtime_quality_governance_metadata(),
+                    "semantic_binding_ref": semantic_binding_identity_ref,
+                    "generated_at": persisted_candidate.generated_at,
+                    "as_of_time": persisted_candidate.as_of_time,
+                    "canon_spec": CanonSpec(forbid_floats=False),
+                }
+                expected_identity_context = _identity_context_from_fields(
+                    expected_write_options,
+                    expected_authority_fields,
+                    CanonSpec(forbid_floats=False),
+                )
+                if expected_write_options.schema is None or expected_write_options.producer is None:
+                    raise RuntimeError("runtime_quality_publication_reuse_owner_not_established")
+                expected_identity_context, _ = _freeze_cas_writer_attestation_identity(
+                    expected_identity_context,
+                    cas_ref_value=selected_id,
+                    manifest_ref=f"cas-manifest://{selected_id}",
+                    payload_sha256=selected_ref.artifact_id.hex,
+                    schema=expected_write_options.schema,
+                    producer=expected_write_options.producer,
+                )
+                admission_issues = runtime_quality_report_cas_admission_issues(
+                    artifact_store=store,
+                    selected_ref=selected_ref,
+                    runtime_ref=selected_id,
+                    report_key=report_key,
+                    ref_key=ref_key,
+                    report=current_view,
+                    envelope=basis.authority_envelope,
+                    expected_write_options=expected_write_options,
+                    expected_identity_context=expected_identity_context,
+                )
+                if admission_issues:
+                    issue_codes = ",".join(
+                        str(issue.get("code") or "unknown") for issue in admission_issues
+                    )
+                    raise RuntimeError(
+                        "runtime_quality_publication_reuse_not_established:" + issue_codes
+                    )
+
+                ref_value = selected_id
+                _remember_selected_materialization_ref(selected_ref)
+                event_summary = {
+                    "event_name": f"{report_key}.persisted",
+                    "event_type": "polisyos.runtime.diagnostic.cas_write.v1",
+                    "runtime_event_ref": basis.runtime_event_ref,
+                    "runtime_event_manifest_profile_sha256": (
+                        basis.runtime_event_manifest_profile_sha256
+                    ),
+                    "artifact_ref": selected_id,
+                    "runtime_cas_ref": selected_id,
+                    "artifact_refs": [selected_id],
+                    "payload_ref": selected_id,
+                    "ref_key": ref_key,
+                    "report_key": report_key,
+                    "sampling": {"decision": "always_record", "rate": 1.0},
+                    "authority_envelope_ref": basis.authority_envelope_ref,
+                    "manifest_ref": basis.manifest_ref,
+                    "payload_sha256": basis.payload_sha256,
+                }
+                _record_runtime_quality_diagnostic_event(event_summary)
+                log_ref = await async_store.put_json(
+                    {
+                        "schema_version": "policyos.runtime.diagnostic_event_log_projection.v1",
+                        "authority_role": "projection_only",
+                        "run_id": run_id,
+                        "job_id": _runtime_quality_job_id(),
+                        "events": list(runtime_quality_diagnostic_events),
+                    },
+                    ArtifactWriteOptions(
+                        kind="runtime.diagnostic_event_log_projection",
+                        media_type="application/json",
+                        schema=SchemaInfo(
+                            name="polisyos.runtime.quality.DiagnosticEventLogProjection",
+                            version="1.0",
+                        ),
+                    ),
+                    canon_spec=CanonSpec(forbid_floats=False),
+                )
+                diagnostic_event_log_ref = str(log_ref.artifact_id)
+                publication_view = _runtime_quality_report_publication_view(basis)
+                runtime_quality_artifact_refs[ref_key] = selected_ref
+                runtime_quality_refs[ref_key] = ref_value
+                runtime_quality_evidence[report_key] = publication_view
+                runtime_quality_publication_report_keys[ref_key] = report_key
+                runtime_quality_publication_phases[ref_key] = phase
+                runtime_quality_publication_write_options[ref_key] = expected_write_options
+                runtime_quality_publication_identity_contexts[ref_key] = expected_identity_context
+                runtime_quality_publication_requested_as_of_times[ref_key] = requested_as_of_time
+                return publication_view
 
             async def _publish_runtime_quality_report(
                 *,
@@ -4560,20 +5800,62 @@ class NaturalLanguageRunMixin:
                 input_refs: list[InputRef] | None = None,
                 semantic_binding_ref: str | None = None,
                 media_type: str = "application/json",
+                materialization_basis_key: str | None = None,
             ) -> dict[str, Any]:
                 nonlocal diagnostic_event_log_ref
 
+                try:
+                    source_report_payload, _supplied_publication_basis = (
+                        _runtime_quality_report_source_payload(
+                            report_payload,
+                            report_key=report_key,
+                            ref_key=ref_key,
+                        )
+                    )
+                except ValueError as exc:
+                    raise RuntimeError(str(exc)) from exc
                 input_ref_values = _runtime_quality_input_ref_values(input_refs)
-                authority_payload = dict(report_payload)
-                authority_payload.setdefault(
-                    "runtime_authority_payload",
-                    {
-                        "schema_version": "policyos.runtime.authority_payload_marker.v1",
-                        "report_key": report_key,
-                        "ref_key": ref_key,
-                        "projection": False,
-                    },
-                )
+                owner_contract = runtime_quality_report_owner_contract(report_key, ref_key)
+                if report_key in QUALITY_REPORT_RUNTIME_REFS:
+                    owner_issues = runtime_quality_report_owner_identity_issues(
+                        report_key=report_key,
+                        ref_key=ref_key,
+                        artifact_kind=artifact_kind,
+                        schema_name=schema_name,
+                        schema_version=schema_version,
+                        phase=phase,
+                        media_type=media_type,
+                        producer_component=f"polisyos.runtime.quality.{report_key}",
+                        producer_version=RUNTIME_QUALITY_OWNER_PRODUCER_VERSION,
+                    )
+                    if owner_issues:
+                        raise RuntimeError(
+                            "runtime_quality_owner_contract_mismatch:" + ",".join(owner_issues)
+                        )
+                owner_marker = runtime_quality_report_owner_marker(report_key, ref_key)
+                expected_marker = owner_marker or {
+                    "schema_version": RUNTIME_QUALITY_OWNER_MARKER_SCHEMA,
+                    "report_key": report_key,
+                    "ref_key": ref_key,
+                    "projection": False,
+                }
+                if (
+                    "runtime_authority_payload" in report_payload
+                    and report_payload.get("runtime_authority_payload") != expected_marker
+                ):
+                    raise RuntimeError("runtime_quality_owner_payload_marker_mismatch")
+                if owner_contract is not None:
+                    try:
+                        authority_payload = _runtime_quality_report_writer_payload(
+                            source_report_payload,
+                            report_key=report_key,
+                            ref_key=ref_key,
+                        )
+                    except ValueError as exc:
+                        raise RuntimeError(str(exc)) from exc
+                else:
+                    authority_payload = dict(report_payload)
+                    authority_payload.setdefault("runtime_authority_payload", expected_marker)
                 write_options = _runtime_quality_write_options(
                     report_key=report_key,
                     artifact_kind=artifact_kind,
@@ -4584,6 +5866,31 @@ class NaturalLanguageRunMixin:
                 )
                 requested_as_of_time = str(context.get("as_of") or "") or None
                 output_artifact_id = _runtime_quality_payload_sha256(authority_payload)
+                if owner_contract is not None:
+                    try:
+                        reuse_basis = _runtime_quality_report_reuse_basis(
+                            report_payload,
+                            current_publication_view=runtime_quality_evidence.get(report_key),
+                            report_key=report_key,
+                            ref_key=ref_key,
+                        )
+                    except ValueError as exc:
+                        raise RuntimeError(str(exc)) from exc
+                    if reuse_basis is not None:
+                        return await _reuse_runtime_quality_report_publication(
+                            basis=reuse_basis,
+                            report_key=report_key,
+                            ref_key=ref_key,
+                            ref_value=ref_value,
+                            phase=phase,
+                            requested_as_of_time=requested_as_of_time,
+                            source_report_payload=source_report_payload,
+                            candidate_view=report_payload,
+                            semantic_binding_ref=semantic_binding_ref,
+                            output_artifact_id=output_artifact_id,
+                            write_options=write_options,
+                            materialization_basis_key=materialization_basis_key,
+                        )
                 persisted_publication_candidate = _persisted_runtime_quality_publication_times(
                     store,
                     output_artifact_id=output_artifact_id,
@@ -4595,6 +5902,10 @@ class NaturalLanguageRunMixin:
                     candidate=persisted_publication_candidate,
                     output_artifact_id=output_artifact_id,
                     ref_key=ref_key,
+                    current_inputs=write_options.inputs or [],
+                    current_artifact_refs=runtime_quality_artifact_refs,
+                    artifact_store=store,
+                    current_report_verifier=(_runtime_quality_current_reference_is_owner_published),
                 )
                 same_input_closure = _runtime_quality_same_input_closure(
                     input_refs=input_ref_values,
@@ -4606,6 +5917,8 @@ class NaturalLanguageRunMixin:
                     candidate=persisted_publication_candidate,
                     output_artifact_id=output_artifact_id,
                     ref_key=ref_key,
+                    current_inputs=write_options.inputs or [],
+                    current_report_verifier=(_runtime_quality_current_reference_is_owner_published),
                 )
                 closure_is_closed = (
                     same_input_closure.get("status") == "closed"
@@ -4731,6 +6044,52 @@ class NaturalLanguageRunMixin:
                     store,
                     result.authority_envelope_ref,
                 ).value
+                publication_basis = None
+                if owner_contract is not None:
+                    selected_verification = store.verify(result.cas_ref)
+                    selected_profile = result.cas_ref.manifest_profile_sha256
+                    if not selected_verification.ok or selected_profile is None:
+                        raise RuntimeError("runtime_quality_selected_cas_readback_not_verified")
+                    selected_payload = require_declared_profile(
+                        read_core_json_artifact(
+                            store,
+                            result.cas_ref,
+                            manifest_profile_sha256=selected_profile,
+                        )
+                    )
+                    if not isinstance(selected_payload, Mapping):
+                        raise RuntimeError("runtime_quality_selected_cas_payload_not_object")
+                    try:
+                        expected_cas_bytes = to_canonical_bytes(
+                            authority_payload,
+                            CanonSpec(forbid_floats=False),
+                        )
+                        selected_cas_bytes = to_canonical_bytes(
+                            dict(selected_payload),
+                            CanonSpec(forbid_floats=False),
+                        )
+                    except Exception as exc:
+                        raise RuntimeError(
+                            "runtime_quality_selected_cas_payload_not_canonical"
+                        ) from exc
+                    if expected_cas_bytes != selected_cas_bytes:
+                        raise RuntimeError("runtime_quality_selected_cas_payload_changed")
+                    if not isinstance(authority_envelope, Mapping):
+                        raise RuntimeError("runtime_quality_selected_envelope_not_object")
+                    publication_basis = _build_runtime_quality_report_publication_basis(
+                        report_key=report_key,
+                        ref_key=ref_key,
+                        report_payload=source_report_payload,
+                        artifact_ref=result.cas_ref.model_dump(mode="json"),
+                        runtime_event_ref=runtime_event_ref,
+                        runtime_event_manifest_profile_sha256=(
+                            runtime_event_manifest_profile_sha256
+                        ),
+                        authority_envelope_ref=authority_envelope_ref,
+                        authority_envelope=authority_envelope,
+                        manifest_ref=result.manifest_ref,
+                        payload_sha256=result.payload_sha256,
+                    )
                 event_summary = {
                     "event_name": f"{report_key}.persisted",
                     "event_type": "polisyos.runtime.diagnostic.cas_write.v1",
@@ -4769,22 +6128,30 @@ class NaturalLanguageRunMixin:
                     canon_spec=CanonSpec(forbid_floats=False),
                 )
                 diagnostic_event_log_ref = str(log_ref.artifact_id)
-                evidence_payload = dict(report_payload)
-                evidence_payload[ref_key] = ref_value
+                if publication_basis is not None:
+                    evidence_payload = _runtime_quality_report_publication_view(publication_basis)
+                else:
+                    evidence_payload = dict(report_payload)
+                    evidence_payload[ref_key] = ref_value
+                    evidence_payload["runtime_quality_artifact_refs"] = {
+                        ref_key: result.cas_ref.model_dump(mode="json")
+                    }
+                    evidence_payload["runtime_event_ref"] = runtime_event_ref
+                    evidence_payload["runtime_event_manifest_profile_sha256"] = (
+                        runtime_event_manifest_profile_sha256
+                    )
+                    evidence_payload["authority_envelope_ref"] = authority_envelope_ref
+                    evidence_payload["authority_envelope"] = authority_envelope
+                    evidence_payload["manifest_ref"] = result.manifest_ref
+                    evidence_payload["payload_sha256"] = result.payload_sha256
                 runtime_quality_artifact_refs[ref_key] = result.cas_ref
-                evidence_payload["runtime_quality_artifact_refs"] = {
-                    ref_key: result.cas_ref.model_dump(mode="json")
-                }
-                evidence_payload["runtime_event_ref"] = runtime_event_ref
-                evidence_payload["runtime_event_manifest_profile_sha256"] = (
-                    runtime_event_manifest_profile_sha256
-                )
-                evidence_payload["authority_envelope_ref"] = authority_envelope_ref
-                evidence_payload["authority_envelope"] = authority_envelope
-                evidence_payload["manifest_ref"] = result.manifest_ref
-                evidence_payload["payload_sha256"] = result.payload_sha256
                 runtime_quality_refs[ref_key] = ref_value
                 runtime_quality_evidence[report_key] = evidence_payload
+                runtime_quality_publication_report_keys[ref_key] = report_key
+                runtime_quality_publication_phases[ref_key] = phase
+                runtime_quality_publication_write_options[ref_key] = write_options
+                runtime_quality_publication_identity_contexts[ref_key] = result.identity_context
+                runtime_quality_publication_requested_as_of_times[ref_key] = requested_as_of_time
                 return evidence_payload
 
             async def _persist_and_publish_runtime_quality_payload(
@@ -4799,6 +6166,7 @@ class NaturalLanguageRunMixin:
                 input_refs: list[InputRef] | None = None,
                 semantic_binding_ref: str | None = None,
                 media_type: str = "application/json",
+                materialization_basis_key: str | None = None,
             ) -> tuple[str, dict[str, Any]]:
                 evidence_payload = await _publish_runtime_quality_report(
                     report_key=report_key,
@@ -4812,6 +6180,7 @@ class NaturalLanguageRunMixin:
                     input_refs=input_refs,
                     semantic_binding_ref=semantic_binding_ref,
                     media_type=media_type,
+                    materialization_basis_key=materialization_basis_key,
                 )
                 return str(evidence_payload[ref_key]), evidence_payload
 
@@ -5014,12 +6383,11 @@ class NaturalLanguageRunMixin:
                     schema_name="polisyos.runtime.DesignProblem",
                     phase="design_problem",
                     input_refs=[
-                        InputRef(
-                            artifact_id=_make_artifact_ref(
-                                intent_ref,
-                                kind="runtime.policy_intent_envelope",
-                            ).artifact_id,
+                        _runtime_quality_selected_report_input_ref(
+                            ref_key="policy_intent_envelope_ref",
                             role="policy_intent_envelope",
+                            ref_value=intent_ref,
+                            kind="runtime.policy_intent_envelope",
                         )
                     ],
                 )
@@ -5130,12 +6498,11 @@ class NaturalLanguageRunMixin:
                     schema_name="polisyos.runtime.PolicyDesignCapabilityLedger",
                     phase="policy_design_capability_ledger",
                     input_refs=[
-                        InputRef(
-                            artifact_id=_make_artifact_ref(
-                                intent_ref,
-                                kind="runtime.policy_intent_envelope",
-                            ).artifact_id,
+                        _runtime_quality_selected_report_input_ref(
+                            ref_key="policy_intent_envelope_ref",
                             role="policy_intent_envelope",
+                            ref_value=intent_ref,
+                            kind="runtime.policy_intent_envelope",
                         )
                     ],
                 )
@@ -5236,12 +6603,11 @@ class NaturalLanguageRunMixin:
                     schema_name="polisyos.runtime.PolicyDesignConceptSpine",
                     phase="policy_design_concept_spine",
                     input_refs=[
-                        InputRef(
-                            artifact_id=_make_artifact_ref(
-                                intent_ref,
-                                kind="runtime.policy_intent_envelope",
-                            ).artifact_id,
+                        _runtime_quality_selected_report_input_ref(
+                            ref_key="policy_intent_envelope_ref",
                             role="policy_intent_envelope",
+                            ref_value=intent_ref,
+                            kind="runtime.policy_intent_envelope",
                         )
                     ],
                 )
@@ -5292,12 +6658,11 @@ class NaturalLanguageRunMixin:
                     schema_name="polisyos.runtime.PolicyDesignJurisdictionSpine",
                     phase="policy_design_jurisdiction_spine",
                     input_refs=[
-                        InputRef(
-                            artifact_id=_make_artifact_ref(
-                                intent_ref,
-                                kind="runtime.policy_intent_envelope",
-                            ).artifact_id,
+                        _runtime_quality_selected_report_input_ref(
+                            ref_key="policy_intent_envelope_ref",
                             role="policy_intent_envelope",
+                            ref_value=intent_ref,
+                            kind="runtime.policy_intent_envelope",
                         )
                     ],
                 )
@@ -5379,12 +6744,11 @@ class NaturalLanguageRunMixin:
                     schema_name="polisyos.runtime.PolicyDesignCase",
                     phase="policy_design_case_profile",
                     input_refs=[
-                        InputRef(
-                            artifact_id=_make_artifact_ref(
-                                intent_ref,
-                                kind="runtime.policy_intent_envelope",
-                            ).artifact_id,
+                        _runtime_quality_selected_report_input_ref(
+                            ref_key="policy_intent_envelope_ref",
                             role="policy_intent_envelope",
+                            ref_value=intent_ref,
+                            kind="runtime.policy_intent_envelope",
                         ),
                         InputRef(
                             artifact_id=_make_artifact_ref(
@@ -8261,6 +9625,7 @@ class NaturalLanguageRunMixin:
                                 artifact_kind="fabric.retrieval_trace",
                                 schema_name="polisyos.fabric.SourceSelectionTrace",
                                 phase="fabric_retrieval_trace",
+                                materialization_basis_key="fabric_retrieval_trace",
                                 input_refs=_materialization_input_refs(
                                     auto_refs,
                                     basis_key="fabric_retrieval_trace",
@@ -8292,6 +9657,7 @@ class NaturalLanguageRunMixin:
                                 artifact_kind="runtime.production_data_quality_report",
                                 schema_name=("polisyos.runtime.ProductionDataQualityReport"),
                                 phase="production_data_quality",
+                                materialization_basis_key="production_data_quality_report",
                                 input_refs=_materialization_input_refs(
                                     auto_refs,
                                     basis_key="production_data_quality_report",

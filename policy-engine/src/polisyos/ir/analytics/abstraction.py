@@ -14,7 +14,14 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
 
 from polisyos.ir._internal.validation import coerce_float
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     AbstractionCertificateRef,
@@ -760,6 +767,78 @@ class AbstractionCertificate(BaseModel):
             )
 
 
+_FINITE_STATE_ABSTRACTION_MAP_OWNER = declare_model_owner(
+    FiniteStateAbstractionMap,
+    contract_id="ir.analytics.ir_finite_state_abstraction_map.owner.v1",
+    dto_fqn="polisyos.ir.analytics.abstraction.FiniteStateAbstractionMap",
+    abi_key="ir.analytics.ir_finite_state_abstraction_map.owner.v1.dto-abi.v1",
+    registry_key="ir.finite_state_abstraction_map",
+    kind="ir.finite_state_abstraction_map",
+    media_type="application/json",
+    purpose="finite_state_abstraction_map",
+    policy_revision="ir.analytics.ir_finite_state_abstraction_map.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.ir_finite_state_abstraction_map.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        OwnedJSONRepresentation(
+            schema_name="ir.finite_state_abstraction_map",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.ir_finite_state_abstraction_map.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=CompatibilityMode.NONE,
+            notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
+_ABSTRACTION_CERTIFICATE_OWNER = declare_model_owner(
+    AbstractionCertificate,
+    contract_id="ir.analytics.ir_abstraction_certificate.owner.v1",
+    dto_fqn="polisyos.ir.analytics.abstraction.AbstractionCertificate",
+    abi_key="ir.analytics.ir_abstraction_certificate.owner.v1.dto-abi.v1",
+    registry_key="ir.abstraction_certificate",
+    kind="ir.abstraction_certificate",
+    media_type="application/json",
+    purpose="abstraction_certificate",
+    policy_revision="ir.analytics.ir_abstraction_certificate.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.ir_abstraction_certificate.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        OwnedJSONRepresentation(
+            schema_name="ir.abstraction_certificate",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.ir_abstraction_certificate.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=CompatibilityMode.NONE,
+            notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
 def persist_finite_state_abstraction_map(
     store: ArtifactStore,
     abstraction_map: FiniteStateAbstractionMap,
@@ -768,26 +847,25 @@ def persist_finite_state_abstraction_map(
     schema_name: str = _FINITE_STATE_ABSTRACTION_MAP_SCHEMA_NAME,
     schema_version: str = _FINITE_STATE_ABSTRACTION_MAP_SCHEMA_VERSION,
 ) -> FiniteStateAbstractionMapRef:
-    """Persist finite state abstraction map helper."""
-    ref = put_json_artifact(
+    """Persist a finite-state abstraction map through its exact owner."""
+    ref = _put_owned_json_artifact(
         store,
         abstraction_map.model_dump(mode="json"),
-        kind="ir.finite_state_abstraction_map",
+        owner=_FINITE_STATE_ABSTRACTION_MAP_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return FiniteStateAbstractionMapRef.model_validate(ref)
+    return FiniteStateAbstractionMapRef.from_selected_write(ref)
 
 
 def load_finite_state_abstraction_map(
     store: ArtifactStore,
     ref: FiniteStateAbstractionMapRef,
 ) -> FiniteStateAbstractionMap:
-    """Load finite state abstraction map."""
-    payload = get_json_artifact(store, ref)
-    return FiniteStateAbstractionMap.model_validate(payload)
+    """Load a finite-state abstraction map after owner and profile admission."""
+    return _get_owned_json_artifact(store, ref, owner=_FINITE_STATE_ABSTRACTION_MAP_OWNER)
 
 
 def persist_abstraction_certificate(
@@ -798,26 +876,25 @@ def persist_abstraction_certificate(
     schema_name: str = _ABSTRACTION_CERTIFICATE_SCHEMA_NAME,
     schema_version: str = _ABSTRACTION_CERTIFICATE_SCHEMA_VERSION,
 ) -> AbstractionCertificateRef:
-    """Persist abstraction certificate helper."""
-    ref = put_json_artifact(
+    """Persist an abstraction certificate through its exact owner."""
+    ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind="ir.abstraction_certificate",
+        owner=_ABSTRACTION_CERTIFICATE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return AbstractionCertificateRef.model_validate(ref)
+    return AbstractionCertificateRef.from_selected_write(ref)
 
 
 def load_abstraction_certificate(
     store: ArtifactStore,
     ref: AbstractionCertificateRef,
 ) -> AbstractionCertificate:
-    """Load abstraction certificate."""
-    payload = get_json_artifact(store, ref)
-    return AbstractionCertificate.model_validate(payload)
+    """Load an abstraction certificate after owner and profile admission."""
+    return _get_owned_json_artifact(store, ref, owner=_ABSTRACTION_CERTIFICATE_OWNER)
 
 
 def _mechanism_by_variable(spec: StructuralCausalModelSpec) -> dict[str, NodeMechanism]:

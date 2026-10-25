@@ -2,8 +2,13 @@
 
 import pytest
 
+import polisyos.foundry.methods.catalog.causal.transport_check as transport_check_module
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.foundry.methods.catalog.causal.transport_check import CheckTransportability
+from polisyos.foundry.methods.catalog.causal.transport_engine import _run_bounds_only
+from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
+from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.negative_certificate import (
     BlockingType,
     ModelClassCompatibilityReport,
@@ -12,6 +17,7 @@ from polisyos.ir.analytics.negative_certificate import (
     NegativeCertificate,
     SuggestedExperiment,
     load_negative_certificate,
+    negative_certificate_from_transport_result,
     persist_negative_certificate,
 )
 from polisyos.ir.analytics.partial_identification import (
@@ -20,6 +26,15 @@ from polisyos.ir.analytics.partial_identification import (
     PartialIdentificationResult,
     TighteningStatus,
     TighteningStopReason,
+)
+from polisyos.ir.analytics.transportability import (
+    SelectionDiagram,
+    SNode,
+    SNodeOrigin,
+    SNodeRole,
+    TransportabilityResult,
+    TransportabilityStatus,
+    TransportMode,
 )
 
 
@@ -398,3 +413,114 @@ class TestTrack6Additions:
         restored = load_negative_certificate(_ensure_ir_artifact_store(store), ref)
 
         assert restored == cert
+
+
+def test_negative_certificate_omits_bounds_from_unsupported_history(tmp_path) -> None:
+    bounds = _make_bounds()
+    unsupported = TransportabilityResult(
+        query="P*(Y|do(X))",
+        status=TransportabilityStatus.UNSUPPORTED,
+        transport_mode=TransportMode.NONE,
+        feasible=False,
+        unsupported_reason="target_basis_not_transportable",
+        unsupported_cases=["manski_target_basis_missing"],
+        warnings=["partial_identification_unavailable:manski_target_basis_missing"],
+        partial_identification_result=bounds,
+    )
+    historical_payload = unsupported.model_dump(mode="json")
+
+    assert unsupported.unsupported_cases == ["manski_target_basis_missing"]
+    assert unsupported.warnings == [
+        "partial_identification_unavailable:manski_target_basis_missing"
+    ]
+    certificate = negative_certificate_from_transport_result(
+        result=unsupported,
+        treatment="X",
+        outcome="Y",
+    )
+    assert unsupported.partial_identification_result == bounds
+    assert unsupported.model_dump(mode="json") == historical_payload
+    assert certificate.partial_bounds is None
+    assert certificate.bounds_bundle is None
+    assert certificate.has_partial_bounds() is False
+    assert certificate.technical_detail == "target_basis_not_transportable"
+
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = persist_negative_certificate(_ensure_ir_artifact_store(store), certificate)
+    restored = load_negative_certificate(_ensure_ir_artifact_store(store), ref)
+
+    assert restored == certificate
+    assert restored.partial_bounds is None
+    assert restored.technical_detail == "target_basis_not_transportable"
+
+
+def test_foundry_transport_check_persists_owner_declared_bounds_certificate(
+    tmp_path, monkeypatch
+) -> None:
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y")],
+    )
+    diagram = SelectionDiagram(
+        base_graph=graph,
+        s_nodes=[
+            SNode(
+                target_variable="X",
+                context_dimension="pre_treatment",
+                source_value=0.0,
+                target_value=1.0,
+                delta=1.0,
+                severity="medium",
+                origin=SNodeOrigin.CONTEXT_DELTA,
+                role=SNodeRole.PRE_TREATMENT_COVARIATE,
+            ),
+            SNode(
+                target_variable="Y",
+                context_dimension="outcome",
+                source_value=0.0,
+                target_value=1.0,
+                delta=1.0,
+                severity="medium",
+                origin=SNodeOrigin.CONTEXT_DELTA,
+                role=SNodeRole.MEDIATOR,
+            ),
+        ],
+        source_context=ContextProfile(context_id="source-fixture"),
+        target_context=ContextProfile(context_id="target-fixture"),
+        context_distance=0.3,
+    )
+
+    def existing_bounds_owner(**kwargs):
+        return _run_bounds_only(
+            diagram=kwargs["selection_diagram"],
+            treatment=kwargs["query_treatment"],
+            outcome=kwargs["query_outcome"],
+            trace=["test:existing_transport_bounds_owner"],
+        )
+
+    monkeypatch.setattr(transport_check_module, "solve_transportability", existing_bounds_owner)
+    payload = CheckTransportability.pure_step(
+        {
+            "selection_diagram": diagram.model_dump(mode="json"),
+            "query_treatment": "X",
+            "query_outcome": "Y",
+        },
+        {},
+    )
+    result = TransportabilityResult.model_validate(payload["transport_result"])
+    assert result.status is TransportabilityStatus.BOUNDED_NON_IDENTIFIED
+    assert result.transport_mode is TransportMode.BOUNDS_ONLY
+    assert result.transport_formula is None
+    assert result.partial_identification_result is not None
+    certificate = NegativeCertificate.model_validate(payload["negative_certificate"])
+    assert certificate.partial_bounds == result.partial_identification_result
+    assert certificate.bounds_bundle is not None
+
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = persist_negative_certificate(_ensure_ir_artifact_store(store), certificate)
+    restored = load_negative_certificate(_ensure_ir_artifact_store(store), ref)
+
+    assert restored == certificate
+    assert restored.partial_bounds == result.partial_identification_result
+    assert restored.bounds_bundle is not None

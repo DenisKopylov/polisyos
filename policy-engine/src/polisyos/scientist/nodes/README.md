@@ -76,6 +76,18 @@ fresh IR reader reconciles that roster and the selected CAS byte identities;
 it does not recompute the Foundry matrix or verify successful draw identities.
 The output and projection remain candidate-only and gate-ineligible.
 
+The Science-owned bridge module at
+[simulate/uncertainty_source_projection.py](builtins/simulate/uncertainty_source_projection.py)
+exposes fixed Science-owned metric-admission and subject-projection entrypoints.
+Each takes only a store, the selected SimulationResult ref, and the requested
+subject; it hardwires Core's selected-profile SimulationResult validator and the
+full strict Science PropagationReport 1.1 DTO validator before calling generic
+IR inspection on the exact profile-bound ref. Generic IR APIs accept no source
+carrier and retain source_owner_validation_not_performed. The Science bridge
+reconciles only that IR-stage limitation after both validators succeed.
+Uncertainty remains limited because successful-draw identities and trusted
+response-basis revalidation are not established.
+
 `simulate/run_distributional_analysis.py` retains the registered node and
 orchestration contract. Adjacent `distributional_analysis_*` modules group its
 ordinal, justification, bounds, artifact, and subgroup helpers. Existing helper
@@ -114,6 +126,11 @@ validity preparation. `enrichment` retains compatibility re-exports and
 facade. Its re-export surface is assembled dynamically in
 `src/polisyos/scientist/nodes/builtins/decide/decision_packet/api.py`, so this
 guide does not pin an exported-name count.
+
+The node returns the CAS writer's selected manifest profile in its
+`DecisionPacketRef`. Run outputs should forward that complete reference rather
+than rebuilding it from an artifact ID, so profile-bound readers can select the
+same persisted view.
 
 ## Extension Points
 

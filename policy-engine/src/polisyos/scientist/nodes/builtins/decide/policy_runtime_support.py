@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Buffer, Mapping
+from collections.abc import Buffer, Iterable, Mapping
 from dataclasses import dataclass, fields, is_dataclass, replace
 from enum import Enum
 from pathlib import Path
@@ -112,7 +112,10 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
+from polisyos.scientist.orchestration.engine.state_branching import (
+    _direct_mutation_journal_for_state,
+    branch_state,
+)
 from polisyos.scientist.policy_design.objectives import (
     ObjectiveStack,
     PolicyEvaluationBundle,
@@ -195,15 +198,27 @@ def project_policy_promotion_state(
     preserved_artifact_refs: Mapping[str, ArtifactRef] | None = None,
     archive_prior: bool = True,
     ctx: ExecutionContext | None = None,
+    branch_write_paths: Iterable[str] | None = None,
 ) -> ExperimentState:
     """Project policy-mode promotion inputs as report-only before a direct consumer.
 
     Persisted candidate-only bundles may be supplied through the preserved-ref maps only
     after the caller has recomputed their complete candidate, run, and input binding.
+    A producer that continues writing after projection may pass its declared parent write
+    paths; the nested branch still validates that grant against the active producer scope.
+    With no explicit grant, an active enforced root journal keeps its exact path set; ordinary
+    inputs retain the narrow projection scope.
     """
     if not _is_policy_mode_state(state):
         return state
-    projected = branch_state(state, write_paths=_CURRENT_POLICY_PROJECTION_WRITE_PATHS).state
+    parent_journal = _direct_mutation_journal_for_state(state)
+    if branch_write_paths is not None:
+        projection_write_paths = branch_write_paths
+    elif parent_journal is not None and parent_journal.enforce_write_scope:
+        projection_write_paths = parent_journal.isolated_paths
+    else:
+        projection_write_paths = _CURRENT_POLICY_PROJECTION_WRITE_PATHS
+    projected = branch_state(state, write_paths=projection_write_paths).state
     previous_status = state.params.get("policy_promotion_projection_status")
     from polisyos.scientist.governance.report_currentness import (
         resolve_current_governance_report,

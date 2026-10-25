@@ -187,6 +187,60 @@ def _intercept_cas_put_bytes(
     return observed
 
 
+def test_retained_skg_replay_uses_selected_profile_and_copy_without_open_member(
+    tmp_path: Path,
+) -> None:
+    source, store, ref = _captured(tmp_path)
+
+    class ReaderWithoutOpenMember:
+        def __init__(self, target: FileSystemCAS) -> None:
+            self._target = target
+
+        def __getattr__(self, name: str) -> object:
+            if name in {"has", "open_member"}:
+                raise AttributeError(name)
+            return getattr(self._target, name)
+
+    reader = ReaderWithoutOpenMember(store)
+    assert not hasattr(reader, "has")
+    assert not hasattr(reader, "open_member")
+    selected = skg_snapshot.load_retained_skg_snapshot(reader, ref)
+    materialized = skg_snapshot.materialize_retained_skg_snapshot(
+        reader,
+        ref,
+        directory=tmp_path / "replay-without-open-member",
+    )
+    assert materialized.read_bytes() == source.read_bytes()
+    assert hashlib.sha256(materialized.read_bytes()).hexdigest() == selected.source_sha256
+
+    class ReaderWithoutMemberCopy:
+        def __init__(self, target: FileSystemCAS) -> None:
+            self._target = target
+
+        def __getattr__(self, name: str) -> object:
+            if name == "copy_member_to":
+                raise AttributeError(name)
+            return getattr(self._target, name)
+
+    with pytest.raises(
+        RetainedSKGSnapshotError,
+        match="retained_skg_member_read_store_required",
+    ):
+        skg_snapshot._require_retained_skg_read_store(ReaderWithoutMemberCopy(store))
+
+    class WriterWithoutJSON:
+        def __init__(self, target: FileSystemCAS) -> None:
+            self._target = target
+
+        def __getattr__(self, name: str) -> object:
+            if name == "put_json":
+                raise AttributeError(name)
+            return getattr(self._target, name)
+
+    with pytest.raises(RetainedSKGSnapshotError, match="retained_skg_store_required"):
+        skg_snapshot._require_retained_skg_writer_store(WriterWithoutJSON(store))
+
+
 def test_capture_selects_actual_manifest_profiles_for_descriptor_and_chunks(tmp_path: Path) -> None:
     _, store, ref = _captured(tmp_path)
     snapshot = load_retained_skg_snapshot(store, ref)

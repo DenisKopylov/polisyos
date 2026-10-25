@@ -12,14 +12,14 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1654`.
+- Total IR types: `1678`.
 - Public/root-or-package facade types: `679`.
 - ABI snapshot-backed types: `103`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
-| `polisyos.ir` | 529 |
+| `polisyos.ir` | 530 |
 | `polisyos.ir.analytics` | 320 |
 | `polisyos.ir.kernel` | 81 |
 | `polisyos.ir.loading` | 12 |
@@ -31,12 +31,12 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 1011 | 341 | 45 |
-| `artifacts` | 26 | 3 | 0 |
+| `analytics` | 1025 | 341 | 45 |
+| `artifacts` | 30 | 3 | 0 |
 | `governance` | 99 | 27 | 8 |
 | `kernel` | 66 | 54 | 0 |
 | `linker` | 7 | 0 | 0 |
-| `migrations` | 7 | 0 | 0 |
+| `migrations` | 13 | 0 | 0 |
 | `observation` | 138 | 63 | 30 |
 | `trinity` | 2 | 1 | 1 |
 | `world` | 32 | 32 | 12 |
@@ -49,6 +49,33 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `schemas` | 6 | 0 | 0 |
 
 ## Analytics
+
+### `polisyos.ir.analytics._owner_admission.OwnedJSONRepresentation` { #polisyos-ir-analytics-owner-admission-ownedjsonrepresentation }
+
+- Kind: `dataclass`
+- Public status: `internal`
+- Current version: `<member 'schema_version' of 'OwnedJSONRepresentation' objects>`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: One exact code-declared analytics JSON wire tuple.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `schema_name` | `str` | `yes` | `—` | — |
+| `schema_version` | `str` | `yes` | `—` | — |
+| `payload_version` | `str \| None` | `yes` | `—` | — |
+| `wire_policy_ref` | `str` | `yes` | `—` | — |
+| `wire_policy_revision` | `str` | `yes` | `—` | — |
+| `profile_ref` | `str \| None` | `yes` | `—` | — |
+| `compatibility` | `CompatibilityMode` | `yes` | `—` | — |
+| `notes` | `tuple[str, ...]` | `yes` | `—` | — |
+| `readable` | `bool` | `yes` | `—` | — |
+| `writable` | `bool` | `yes` | `—` | — |
+| `current` | `bool` | `yes` | `—` | — |
+| `default_write` | `bool` | `yes` | `—` | — |
+| `readable_from` | `tuple[IRRepresentationKey, ...]` | `yes` | `—` | — |
 
 ### `polisyos.ir.analytics._truthfulness.TruthfulnessReceipt` { #polisyos-ir-analytics-truthfulness-truthfulnessreceipt }
 
@@ -2058,7 +2085,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 - Kind: `pydantic_model`
 - Public status: `root_facade`
-- Current version: `1.0`
+- Current version: `1.1`
 - Exported from: `polisyos.ir.analytics:CausalEffectReport`, `polisyos.ir:CausalEffectReport`
 - ABI snapshot: `causal_effect_report` / `schemas/snapshots/ir/causal_effect_report.schema.json`
 - Compatibility mode: `—`
@@ -2092,7 +2119,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `pre_treatment_fit` | `dict[str, float]` | `no` | `—` | — |
 | `refutation_results` | `list[polisyos.ir.analytics.causal.RefutationResult]` | `no` | `—` | `polisyos.ir.analytics.causal.RefutationResult` |
 | `sample_size` | `int` | `yes` | `—` | — |
-| `schema_version` | `str` | `no` | `'1.0'` | — |
+| `schema_version` | `str` | `no` | `'1.1'` | — |
 | `standard_error` | `float \| NoneType` | `no` | `—` | — |
 | `status` | `polisyos.ir.analytics.causal.EstimationStatus` | `no` | `<EstimationStatus.SUCCESS: 'success'>` | `polisyos.ir.analytics.causal.EstimationStatus` |
 | `status_reason` | `str \| NoneType` | `no` | `—` | — |
@@ -2273,7 +2300,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 - Kind: `pydantic_model`
 - Public status: `root_facade`
-- Current version: `1.0`
+- Current version: `1.1`
 - Exported from: `polisyos.ir:ProofBundle`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
@@ -2309,7 +2336,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `proximal_certificate_ref` | `polisyos.ir.registry.refs.ProximalIdentificationCertificateRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.ProximalIdentificationCertificateRef` |
 | `query_ref` | `str \| NoneType` | `no` | `—` | — |
 | `recoverability_certificate_ref` | `polisyos.ir.registry.refs.RecoverabilityCertificateRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.RecoverabilityCertificateRef` |
-| `schema_version` | `str` | `no` | `'1.0'` | — |
+| `schema_version` | `str` | `no` | `'1.1'` | — |
 | `theorem_family` | `str` | `yes` | `—` | — |
 | `uniform_probe_class_ref` | `str \| NoneType` | `no` | `—` | — |
 | `witness_index_ref` | `polisyos.ir.registry.refs.ProofWitnessIndexRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.ProofWitnessIndexRef` |
@@ -2697,7 +2724,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Current version: `1.1`
 - Exported from: `polisyos.ir.analytics:CausalDiscoveryReport`, `polisyos.ir:CausalDiscoveryReport`
 - ABI snapshot: `causal_discovery_report` / `schemas/snapshots/ir/causal_discovery_report.schema.json`
-- Compatibility mode: `—`
+- Compatibility mode: `none`
 - References: `polisyos.ir.analytics.causal_discovery.AlgebraicConstraintReport`, `polisyos.ir.analytics.causal_discovery.LatentDiscoveryBundle`, `polisyos.ir.analytics.causal_graph.CausalGraphModel`, `polisyos.ir.analytics.causal_graph.GraphProjectionDisposition`
 - Summary: Output of a causal-discovery run, including optional latent diagnostics.
 
@@ -3180,7 +3207,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Current version: `1.0`
 - Exported from: `polisyos.ir.analytics:CausalModelEnsemble`, `polisyos.ir:CausalModelEnsemble`
 - ABI snapshot: `causal_model_ensemble` / `schemas/snapshots/ir/causal_model_ensemble.schema.json`
-- Compatibility mode: `—`
+- Compatibility mode: `none`
 - References: `polisyos.ir.analytics.causal_ensemble.EnsembleMember`
 - Summary: Ensemble of causal models capturing structural uncertainty.
 
@@ -3246,7 +3273,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Current version: `1.0`
 - Exported from: `polisyos.ir.analytics:CausalGraphModel`, `polisyos.ir:CausalGraphModel`
 - ABI snapshot: `causal_graph_model` / `schemas/snapshots/ir/causal_graph_model.schema.json`
-- Compatibility mode: `—`
+- Compatibility mode: `none`
 - References: `polisyos.ir.analytics.causal_graph.CausalEdge`, `polisyos.ir.analytics.causal_graph.GraphType`, `polisyos.ir.analytics.causal_graph.PAGIdentificationPolicy`
 - Summary: DAG / CPDAG / PAG / MGRAPH / ADMG causal graph IR contract.
 
@@ -3516,7 +3543,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Current version: `1.2`
 - Exported from: `polisyos.ir.analytics:CausalQueryResult`, `polisyos.ir:CausalQueryResult`
 - ABI snapshot: `causal_query_result` / `schemas/snapshots/ir/causal_query_result.schema.json`
-- Compatibility mode: `—`
+- Compatibility mode: `backward`
 - References: `polisyos.ir.analytics.causal_queries.CausalEstimatorInterval`, `polisyos.ir.analytics.causal_queries.CausalQuery`, `polisyos.ir.analytics.causal_queries.CausalResultKind`
 - Summary: Result payload returned for a persisted or in-memory causal query.
 
@@ -20807,15 +20834,310 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `bounds_only` |
 | `none` |
 
+### `polisyos.ir.analytics.transportability.TransportabilityCandidateAttemptBindingV1` { #polisyos-ir-analytics-transportability-transportabilitycandidateattemptbindingv1 }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.InputRef`
+- Summary: Bind candidate computation to the engine-owned workflow attempt.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `attempt_id` | `str` | `yes` | `—` | — |
+| `attempt_number` | `int` | `yes` | `—` | — |
+| `basis_ref` | `polisyos.ir.artifacts.contracts.InputRef` | `yes` | `—` | `polisyos.ir.artifacts.contracts.InputRef` |
+| `component_id` | `str` | `yes` | `—` | — |
+| `dispatch_params_sha256` | `str` | `yes` | `—` | — |
+| `input_state_ref` | `polisyos.ir.artifacts.contracts.InputRef` | `yes` | `—` | `polisyos.ir.artifacts.contracts.InputRef` |
+| `node_alias` | `Literal[run_transportability]` | `yes` | `—` | — |
+| `run_id` | `str` | `yes` | `—` | — |
+| `started_at` | `datetime` | `yes` | `—` | — |
+| `workflow_spec_ref` | `polisyos.ir.artifacts.contracts.InputRef` | `yes` | `—` | `polisyos.ir.artifacts.contracts.InputRef` |
+
+### `polisyos.ir.analytics.transportability.TransportabilityCandidateBudgetMeasureV1` { #polisyos-ir-analytics-transportability-transportabilitycandidatebudgetmeasurev1 }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Record one effective resource limit or observed consumption measurement.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `resource` | `str` | `yes` | `—` | — |
+| `unit` | `str` | `yes` | `—` | — |
+| `value` | `int \| float` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.transportability.TransportabilityCandidateDiagnosticV1` { #polisyos-ir-analytics-transportability-transportabilitycandidatediagnosticv1 }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `1.0`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.transportability.TransportabilityCandidateAttemptBindingV1`, `polisyos.ir.analytics.transportability.TransportabilityCandidateInputBindingV1`, `polisyos.ir.analytics.transportability.TransportabilityCandidateMemberEvaluationV1`, `polisyos.ir.analytics.transportability.TransportabilityCandidatePhaseBudgetV1`, `polisyos.ir.analytics.transportability.TransportabilityCandidateProfileV1`, `polisyos.ir.analytics.transportability.TransportabilityCandidateProposalV1`, `polisyos.ir.analytics.transportability.TransportabilityCandidateReasonV1`, `polisyos.ir.analytics.transportability.TransportabilityCandidateRequestV1`, `polisyos.ir.analytics.transportability.TransportabilityCandidateResourceResolutionV1`
+- Summary: Persist a source-bound candidate diagnostic that cannot promote authority.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `algorithm_id` | `str` | `yes` | `—` | — |
+| `algorithm_revision` | `str` | `yes` | `—` | — |
+| `assignment_space_size` | `str \| NoneType` | `no` | `—` | — |
+| `assumptions` | `tuple[str]` | `no` | `()` | — |
+| `attempt` | `polisyos.ir.analytics.transportability.TransportabilityCandidateAttemptBindingV1` | `yes` | `—` | `polisyos.ir.analytics.transportability.TransportabilityCandidateAttemptBindingV1` |
+| `backend_id` | `str` | `yes` | `—` | — |
+| `backend_revision` | `str` | `yes` | `—` | — |
+| `candidate_request` | `polisyos.ir.analytics.transportability.TransportabilityCandidateRequestV1` | `yes` | `—` | `polisyos.ir.analytics.transportability.TransportabilityCandidateRequestV1` |
+| `candidate_scope` | `Literal[candidate_only]` | `no` | `'candidate_only'` | — |
+| `disposition` | `Literal[not_run, completed, partial, unsupported, error]` | `yes` | `—` | — |
+| `effective_profile` | `polisyos.ir.analytics.transportability.TransportabilityCandidateProfileV1 \| NoneType` | `yes` | `—` | `polisyos.ir.analytics.transportability.TransportabilityCandidateProfileV1` |
+| `evaluated_at` | `datetime` | `yes` | `—` | — |
+| `evaluation_budget` | `polisyos.ir.analytics.transportability.TransportabilityCandidatePhaseBudgetV1` | `yes` | `—` | `polisyos.ir.analytics.transportability.TransportabilityCandidatePhaseBudgetV1` |
+| `evaluations` | `tuple[polisyos.ir.analytics.transportability.TransportabilityCandidateMemberEvaluationV1]` | `no` | `()` | `polisyos.ir.analytics.transportability.TransportabilityCandidateMemberEvaluationV1` |
+| `generation_budget` | `polisyos.ir.analytics.transportability.TransportabilityCandidatePhaseBudgetV1` | `yes` | `—` | `polisyos.ir.analytics.transportability.TransportabilityCandidatePhaseBudgetV1` |
+| `generation_coverage` | `Literal[declared_attempt_budget, finite_endpoint_assignment_space_complete, not_established]` | `yes` | `—` | — |
+| `graph_provenance` | `Literal[manual, fitted, generated, unknown]` | `yes` | `—` | — |
+| `identified_member_fraction` | `float \| NoneType` | `no` | `—` | — |
+| `implementation_revision` | `str` | `yes` | `—` | — |
+| `inputs` | `polisyos.ir.analytics.transportability.TransportabilityCandidateInputBindingV1` | `yes` | `—` | `polisyos.ir.analytics.transportability.TransportabilityCandidateInputBindingV1` |
+| `interpretation_limit` | `Literal[selected_family_member_outcomes_do_not_establish_whole_pag_class_probability_calibration_legal_applicability_or_protected_eligibility]` | `no` | `'selected_family_member_outcomes_do_not_establish_whole_pag_class_probability_calibration_legal_applicability_or_protected_eligibility'` | — |
+| `parameters` | `dict[str, Any]` | `no` | `—` | — |
+| `proposals` | `tuple[polisyos.ir.analytics.transportability.TransportabilityCandidateProposalV1]` | `no` | `()` | `polisyos.ir.analytics.transportability.TransportabilityCandidateProposalV1` |
+| `reason` | `polisyos.ir.analytics.transportability.TransportabilityCandidateReasonV1 \| NoneType` | `no` | `—` | `polisyos.ir.analytics.transportability.TransportabilityCandidateReasonV1` |
+| `resource_resolution` | `polisyos.ir.analytics.transportability.TransportabilityCandidateResourceResolutionV1` | `yes` | `—` | `polisyos.ir.analytics.transportability.TransportabilityCandidateResourceResolutionV1` |
+| `schema_version` | `Literal[1.0]` | `no` | `'1.0'` | — |
+| `seed` | `int \| NoneType` | `no` | `—` | — |
+| `source_currentness` | `Literal[unknown]` | `no` | `'unknown'` | — |
+| `unattempted_proposals` | `str \| NoneType` | `no` | `—` | — |
+| `unresolved_predicates` | `tuple[str]` | `no` | `()` | — |
+
+### `polisyos.ir.analytics.transportability.TransportabilityCandidateInputBindingV1` { #polisyos-ir-analytics-transportability-transportabilitycandidateinputbindingv1 }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.causal_graph.GraphType`, `polisyos.ir.analytics.transportability.TransportabilityCandidateModelPlanRelationV1`, `polisyos.ir.artifacts.contracts.InputRef`, `polisyos.ir.registry.refs.CausalGraphModelRef`
+- Summary: Bind the computation to exact graph, query, contexts, and persisted inputs.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `graph_ref` | `polisyos.ir.registry.refs.CausalGraphModelRef` | `yes` | `—` | `polisyos.ir.registry.refs.CausalGraphModelRef` |
+| `graph_sha256` | `str` | `yes` | `—` | — |
+| `graph_type` | `polisyos.ir.analytics.causal_graph.GraphType` | `yes` | `—` | `polisyos.ir.analytics.causal_graph.GraphType` |
+| `lineage_refs` | `tuple[polisyos.ir.artifacts.contracts.InputRef]` | `yes` | `—` | `polisyos.ir.artifacts.contracts.InputRef` |
+| `model_plan_relation` | `polisyos.ir.analytics.transportability.TransportabilityCandidateModelPlanRelationV1 \| NoneType` | `no` | `—` | `polisyos.ir.analytics.transportability.TransportabilityCandidateModelPlanRelationV1` |
+| `query_outcome` | `str` | `yes` | `—` | — |
+| `query_sha256` | `str` | `yes` | `—` | — |
+| `query_treatment` | `str` | `yes` | `—` | — |
+| `selection_diagram_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `source_context_id` | `str` | `yes` | `—` | — |
+| `source_context_sha256` | `str` | `yes` | `—` | — |
+| `target_context_id` | `str` | `yes` | `—` | — |
+| `target_context_sha256` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.transportability.TransportabilityCandidateMemberEvaluationV1` { #polisyos-ir-analytics-transportability-transportabilitycandidatememberevaluationv1 }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.transportability.TransportabilityCandidateReasonV1`, `polisyos.ir.analytics.transportability.TransportabilityCandidateSolverOutcomeV1`, `polisyos.ir.registry.refs.CausalGraphModelRef`
+- Summary: One and only one evaluation disposition for an admitted member.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `disposition` | `Literal[not_started, interrupted, completed, error]` | `yes` | `—` | — |
+| `member_graph_ref` | `polisyos.ir.registry.refs.CausalGraphModelRef` | `yes` | `—` | `polisyos.ir.registry.refs.CausalGraphModelRef` |
+| `member_sha256` | `str` | `yes` | `—` | — |
+| `outcome` | `polisyos.ir.analytics.transportability.TransportabilityCandidateSolverOutcomeV1 \| NoneType` | `no` | `—` | `polisyos.ir.analytics.transportability.TransportabilityCandidateSolverOutcomeV1` |
+| `reason` | `polisyos.ir.analytics.transportability.TransportabilityCandidateReasonV1 \| NoneType` | `no` | `—` | `polisyos.ir.analytics.transportability.TransportabilityCandidateReasonV1` |
+
+### `polisyos.ir.analytics.transportability.TransportabilityCandidateModelPlanRelationV1` { #polisyos-ir-analytics-transportability-transportabilitycandidatemodelplanrelationv1 }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Content-bound named model/plan relation used instead of a selection diagram.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `content_sha256` | `str` | `yes` | `—` | — |
+| `relation_id` | `str` | `yes` | `—` | — |
+| `revision` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.transportability.TransportabilityCandidatePhaseBudgetV1` { #polisyos-ir-analytics-transportability-transportabilitycandidatephasebudgetv1 }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.transportability.TransportabilityCandidateBudgetMeasureV1`, `polisyos.ir.analytics.transportability.TransportabilityCandidateReasonV1`, `polisyos.ir.artifacts.contracts.InputRef`
+- Summary: Record owner admission, resolved limits, use, and termination for one phase.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `admission` | `Literal[admitted, refused, not_established, not_required]` | `yes` | `—` | — |
+| `admission_policy_id` | `str \| NoneType` | `no` | `—` | — |
+| `admission_ref` | `polisyos.ir.artifacts.contracts.InputRef \| NoneType` | `no` | `—` | `polisyos.ir.artifacts.contracts.InputRef` |
+| `admission_source` | `Literal[existing_compute_permit, bounded_execution_policy, owner_refusal, not_established, not_required]` | `yes` | `—` | — |
+| `consumed` | `tuple[polisyos.ir.analytics.transportability.TransportabilityCandidateBudgetMeasureV1]` | `no` | `()` | `polisyos.ir.analytics.transportability.TransportabilityCandidateBudgetMeasureV1` |
+| `effective_limits` | `tuple[polisyos.ir.analytics.transportability.TransportabilityCandidateBudgetMeasureV1]` | `no` | `()` | `polisyos.ir.analytics.transportability.TransportabilityCandidateBudgetMeasureV1` |
+| `elapsed_seconds` | `int \| float \| NoneType` | `no` | `—` | — |
+| `phase` | `Literal[generation, evaluation]` | `yes` | `—` | — |
+| `reason` | `polisyos.ir.analytics.transportability.TransportabilityCandidateReasonV1 \| NoneType` | `no` | `—` | `polisyos.ir.analytics.transportability.TransportabilityCandidateReasonV1` |
+| `selection_identity` | `str` | `yes` | `—` | — |
+| `termination` | `Literal[not_started, completed, budget_exhausted, cancelled, error, unsupported, not_required]` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.transportability.TransportabilityCandidateProfileV1` { #polisyos-ir-analytics-transportability-transportabilitycandidateprofilev1 }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Identify the owner-resolved effective profile without a central profile allowlist.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `profile_id` | `str` | `yes` | `—` | — |
+| `profile_revision` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.transportability.TransportabilityCandidateProposalV1` { #polisyos-ir-analytics-transportability-transportabilitycandidateproposalv1 }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.transportability.TransportabilityCandidateReasonV1`
+- Summary: Final disposition of one generated finite-family proposal.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `assignment_sha256` | `str` | `yes` | `—` | — |
+| `disposition` | `Literal[admitted, duplicate, invalid, unsupported, validation_incomplete]` | `yes` | `—` | — |
+| `duplicate_of` | `int \| NoneType` | `no` | `—` | — |
+| `member_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `ordinal` | `int` | `yes` | `—` | — |
+| `reason` | `polisyos.ir.analytics.transportability.TransportabilityCandidateReasonV1 \| NoneType` | `no` | `—` | `polisyos.ir.analytics.transportability.TransportabilityCandidateReasonV1` |
+
+### `polisyos.ir.analytics.transportability.TransportabilityCandidateReasonV1` { #polisyos-ir-analytics-transportability-transportabilitycandidatereasonv1 }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Explain one candidate execution or member outcome without assigning authority.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `code` | `str` | `yes` | `—` | — |
+| `detail` | `str \| NoneType` | `no` | `—` | — |
+
+### `polisyos.ir.analytics.transportability.TransportabilityCandidateRequestV1` { #polisyos-ir-analytics-transportability-transportabilitycandidaterequestv1 }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `1.0`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Strict caller intent for one registered conditional transport profile.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `profile_id` | `str` | `yes` | `—` | — |
+| `profile_revision` | `str` | `yes` | `—` | — |
+| `schema_version` | `Literal[1.0]` | `no` | `'1.0'` | — |
+| `selection_identity` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.transportability.TransportabilityCandidateResourceResolutionV1` { #polisyos-ir-analytics-transportability-transportabilitycandidateresourceresolutionv1 }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `1.1`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Typed snapshot returned by the existing owner resource resolver.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `effective_limit_units` | `dict[str, str] \| NoneType` | `yes` | `—` | — |
+| `effective_limits` | `dict[str, int \| float] \| NoneType` | `yes` | `—` | — |
+| `policy_id` | `str` | `yes` | `—` | — |
+| `policy_revision` | `str` | `yes` | `—` | — |
+| `profile_id` | `str` | `yes` | `—` | — |
+| `profile_revision` | `str` | `yes` | `—` | — |
+| `reason_code` | `str \| NoneType` | `no` | `—` | — |
+| `schema_version` | `Literal[1.1]` | `no` | `'1.1'` | — |
+| `selection_identity` | `str` | `yes` | `—` | — |
+| `sha256` | `str` | `yes` | `—` | — |
+| `status` | `Literal[selected, refused]` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.transportability.TransportabilityCandidateSolverOutcomeV1` { #polisyos-ir-analytics-transportability-transportabilitycandidatesolveroutcomev1 }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.partial_identification.PartialIdentificationResult`, `polisyos.ir.analytics.transportability.TransportFormula`, `polisyos.ir.analytics.transportability.TransportMode`, `polisyos.ir.analytics.transportability.TransportabilityResult`, `polisyos.ir.analytics.transportability.TransportabilityStatus`
+- Summary: Retain the complete typed result returned by the existing solver.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `algorithm_version` | `str` | `yes` | `—` | — |
+| `feasible` | `bool` | `yes` | `—` | — |
+| `identification_engine` | `str` | `yes` | `—` | — |
+| `identification_trace` | `tuple[str]` | `no` | `()` | — |
+| `identified_region` | `dict[str, Any] \| NoneType` | `no` | `—` | — |
+| `partial_identification_result` | `polisyos.ir.analytics.partial_identification.PartialIdentificationResult \| NoneType` | `no` | `—` | `polisyos.ir.analytics.partial_identification.PartialIdentificationResult` |
+| `query_sha256` | `str` | `yes` | `—` | — |
+| `result` | `polisyos.ir.analytics.transportability.TransportabilityResult` | `yes` | `—` | `polisyos.ir.analytics.transportability.TransportabilityResult` |
+| `result_sha256` | `str` | `yes` | `—` | — |
+| `status` | `polisyos.ir.analytics.transportability.TransportabilityStatus` | `yes` | `—` | `polisyos.ir.analytics.transportability.TransportabilityStatus` |
+| `transport_formula` | `polisyos.ir.analytics.transportability.TransportFormula \| NoneType` | `no` | `—` | `polisyos.ir.analytics.transportability.TransportFormula` |
+| `transport_mode` | `polisyos.ir.analytics.transportability.TransportMode` | `yes` | `—` | `polisyos.ir.analytics.transportability.TransportMode` |
+| `unsupported_reason` | `str \| NoneType` | `no` | `—` | — |
+
 ### `polisyos.ir.analytics.transportability.TransportabilityResult` { #polisyos-ir-analytics-transportability-transportabilityresult }
 
 - Kind: `pydantic_model`
 - Public status: `root_facade`
-- Current version: `2.1`
+- Current version: `2.2`
 - Exported from: `polisyos.ir.analytics:TransportabilityResult`, `polisyos.ir:TransportabilityResult`
 - ABI snapshot: `transportability_result` / `schemas/snapshots/ir/transportability_result.schema.json`
-- Compatibility mode: `—`
-- References: `polisyos.ir.analytics.causal_graph.GraphType`, `polisyos.ir.analytics.causal_graph.PAGIdentificationPolicy`, `polisyos.ir.analytics.partial_identification.PartialIdentificationResult`, `polisyos.ir.analytics.transportability.DataGap`, `polisyos.ir.analytics.transportability.SNode`, `polisyos.ir.analytics.transportability.TransportFormula`, `polisyos.ir.analytics.transportability.TransportMode`, `polisyos.ir.analytics.transportability.TransportabilityStatus`
+- Compatibility mode: `none`
+- References: `polisyos.ir.analytics.causal_graph.GraphType`, `polisyos.ir.analytics.causal_graph.PAGIdentificationPolicy`, `polisyos.ir.analytics.partial_identification.PartialIdentificationResult`, `polisyos.ir.analytics.transportability.DataGap`, `polisyos.ir.analytics.transportability.SNode`, `polisyos.ir.analytics.transportability.TransportFormula`, `polisyos.ir.analytics.transportability.TransportMode`, `polisyos.ir.analytics.transportability.TransportabilityCandidateDiagnosticV1`, `polisyos.ir.analytics.transportability.TransportabilityStatus`
 - Summary: Persist the transportability decision, formula, and fallback diagnostics.
 
 | Field | Type | Required | Default | IR refs |
@@ -20824,6 +21146,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `assumes_time_stationarity` | `bool` | `no` | `True` | — |
 | `base_confidence` | `float` | `no` | `1.0` | — |
 | `blocking_s_nodes` | `list[polisyos.ir.analytics.transportability.SNode]` | `no` | `—` | `polisyos.ir.analytics.transportability.SNode` |
+| `candidate_diagnostics` | `polisyos.ir.analytics.transportability.TransportabilityCandidateDiagnosticV1 \| NoneType` | `no` | `—` | `polisyos.ir.analytics.transportability.TransportabilityCandidateDiagnosticV1` |
 | `context_distance_penalty` | `float` | `no` | `0.0` | — |
 | `data_availability_penalty` | `float` | `no` | `0.0` | — |
 | `data_gaps` | `list[polisyos.ir.analytics.transportability.DataGap]` | `no` | `—` | `polisyos.ir.analytics.transportability.DataGap` |
@@ -20855,7 +21178,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `required_target_data` | `list[str]` | `no` | `—` | — |
 | `requires_expert_review` | `bool` | `no` | `False` | — |
 | `resolution_rounds` | `int` | `no` | `1` | — |
-| `schema_version` | `str` | `no` | `'2.1'` | — |
+| `schema_version` | `str` | `no` | `'2.2'` | — |
 | `search_budget_exhausted` | `bool` | `no` | `False` | — |
 | `search_events` | `list[str]` | `no` | `—` | — |
 | `selection_diagram_ref` | `str` | `no` | `''` | — |
@@ -21921,6 +22244,17 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Artifacts
 
+### `polisyos.ir.artifacts._lineage.InputRefLike` { #polisyos-ir-artifacts-lineage-inputreflike }
+
+- Kind: `protocol`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Expose one Core or IR lineage edge without changing its selected profile.
+
 ### `polisyos.ir.artifacts.contracts.ArtifactID` { #polisyos-ir-artifacts-contracts-artifactid }
 
 - Kind: `root_model`
@@ -21935,6 +22269,33 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
 | `root` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.artifacts.contracts.ArtifactOwnerDeclaration` { #polisyos-ir-artifacts-contracts-artifactownerdeclaration }
+
+- Kind: `dataclass`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Bind a trusted consumer and DTO ABI to exact registered artifact representations.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `contract_id` | `str` | `yes` | `—` | — |
+| `dto_fqn` | `str` | `yes` | `—` | — |
+| `abi_key` | `str` | `yes` | `—` | — |
+| `registry_key` | `str` | `yes` | `—` | — |
+| `kind` | `str` | `yes` | `—` | — |
+| `media_type` | `str` | `yes` | `—` | — |
+| `purpose` | `str` | `yes` | `—` | — |
+| `policy_revision` | `str` | `yes` | `—` | — |
+| `accepted_wire_policies` | `tuple[tuple[str, str], ...]` | `yes` | `—` | — |
+| `payload_version_of` | `Callable[[object], str \| None]` | `yes` | `—` | — |
+| `validate_source` | `Callable[[object, ResolvedSchemaAdmission], OwnerSourceT]` | `yes` | `—` | — |
+| `project_for_consumer` | `Callable[[OwnerSourceT, ResolvedSchemaAdmission], OwnerConsumerT]` | `yes` | `—` | — |
+| `validate_profile` | `Callable[[CanonInfo, IRRepresentationRegistration], bool]` | `yes` | `—` | — |
 
 ### `polisyos.ir.artifacts.contracts.ArtifactStore` { #polisyos-ir-artifacts-contracts-artifactstore }
 
@@ -21997,6 +22358,41 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
 | `manifest_profile_sha256` | `str \| NoneType` | `no` | `—` | — |
 | `role` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.artifacts.contracts.OwnedArtifactRead` { #polisyos-ir-artifacts-contracts-ownedartifactread }
+
+- Kind: `dataclass`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Retain the exact shared admission context and byte witness for one typed read.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `value` | `OwnerConsumerT` | `yes` | `—` | — |
+| `raw_bytes` | `bytes` | `yes` | `—` | — |
+| `admission` | `ResolvedSchemaAdmission` | `yes` | `—` | — |
+| `contract_id` | `str` | `yes` | `—` | — |
+| `dto_fqn` | `str` | `yes` | `—` | — |
+| `abi_key` | `str` | `yes` | `—` | — |
+| `registry_key` | `str` | `yes` | `—` | — |
+| `purpose` | `str` | `yes` | `—` | — |
+| `owner_policy_revision` | `str` | `yes` | `—` | — |
+| `manifest_profile_sha256` | `str \| None` | `yes` | `—` | — |
+
+### `polisyos.ir.artifacts.contracts.OwnedWriteOptionsPreparer` { #polisyos-ir-artifacts-contracts-ownedwriteoptionspreparer }
+
+- Kind: `protocol`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Normalize a selected owner write into the neutral IR options contract.
 
 ### `polisyos.ir.artifacts.contracts.PutOptions` { #polisyos-ir-artifacts-contracts-putoptions }
 
@@ -25737,6 +26133,106 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `forward` |
 | `none` |
 
+### `polisyos.ir.migrations.base.IRCompatibilityKind` { #polisyos-ir-migrations-base-ircompatibilitykind }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Exact route selected by strict owner admission.
+
+| Enum values |
+| ----------- |
+| `exact` |
+| `direct` |
+| `migration` |
+
+### `polisyos.ir.migrations.base.IRRegistrySnapshot` { #polisyos-ir-migrations-base-irregistrysnapshot }
+
+- Kind: `dataclass`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Immutable registry view pinned for one owned artifact operation.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `revision` | `str` | `yes` | `—` | — |
+| `schema_rules` | `Mapping[tuple[str, str], SchemaCompatibilityRule]` | `yes` | `—` | — |
+| `migration_edges` | `Mapping[tuple[str, str], MigrationEdge]` | `yes` | `—` | — |
+| `representation_records` | `tuple[IRRepresentationRegistration, ...]` | `yes` | `—` | — |
+
+### `polisyos.ir.migrations.base.IRRepresentationKey` { #polisyos-ir-migrations-base-irrepresentationkey }
+
+- Kind: `dataclass`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Exact manifest and embedded-payload identity for one IR representation.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `schema_name` | `str` | `yes` | `—` | — |
+| `schema_version` | `str` | `yes` | `—` | — |
+| `payload_version` | `str \| None` | `yes` | `—` | — |
+
+### `polisyos.ir.migrations.base.IRRepresentationPreflight` { #polisyos-ir-migrations-base-irrepresentationpreflight }
+
+- Kind: `dataclass`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Non-authorizing metadata result before payload bytes are read.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `registry_key` | `str` | `yes` | `—` | — |
+| `owner_ref` | `str` | `yes` | `—` | — |
+| `schema_name` | `str` | `yes` | `—` | — |
+| `schema_version` | `str` | `yes` | `—` | — |
+| `candidates` | `tuple[IRRepresentationRegistration, ...]` | `yes` | `—` | — |
+| `snapshot_revision` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.migrations.base.IRRepresentationRegistration` { #polisyos-ir-migrations-base-irrepresentationregistration }
+
+- Kind: `dataclass`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: One explicitly registered owner, DTO ABI, and wire tuple.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `registry_key` | `str` | `yes` | `—` | — |
+| `owner_ref` | `str` | `yes` | `—` | — |
+| `dto_abi` | `str` | `yes` | `—` | — |
+| `wire_policy_ref` | `str` | `yes` | `—` | — |
+| `wire_policy_revision` | `str` | `yes` | `—` | — |
+| `schema_name` | `str` | `yes` | `—` | — |
+| `schema_version` | `str` | `yes` | `—` | — |
+| `payload_version` | `str \| None` | `yes` | `—` | — |
+| `profile_ref` | `str \| None` | `no` | `None` | — |
+| `readable` | `bool` | `no` | `True` | — |
+| `writable` | `bool` | `no` | `False` | — |
+| `current` | `bool` | `no` | `False` | — |
+| `default_write` | `bool` | `no` | `False` | — |
+| `readable_from` | `tuple[IRRepresentationKey, ...]` | `no` | `()` | — |
+
 ### `polisyos.ir.migrations.base.MigrationCompatibilityError` { #polisyos-ir-migrations-base-migrationcompatibilityerror }
 
 - Kind: `class`
@@ -25764,6 +26260,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `to_version` | `str` | `yes` | `—` | — |
 | `fn` | `MigrationFn` | `yes` | `—` | — |
 | `compatibility` | `CompatibilityMode` | `yes` | `—` | — |
+| `fingerprint` | `str` | `yes` | `—` | — |
 
 ### `polisyos.ir.migrations.base.MigrationError` { #polisyos-ir-migrations-base-migrationerror }
 
@@ -25786,6 +26283,26 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Compatibility mode: `—`
 - References: —
 - Summary: Raised when a migrator returns an incompatible schema_version.
+
+### `polisyos.ir.migrations.base.ResolvedSchemaAdmission` { #polisyos-ir-migrations-base-resolvedschemaadmission }
+
+- Kind: `dataclass`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Exact source row and current reader route selected from one snapshot.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `source_registration` | `IRRepresentationRegistration` | `yes` | `—` | — |
+| `current_registration` | `IRRepresentationRegistration` | `yes` | `—` | — |
+| `snapshot_revision` | `str` | `yes` | `—` | — |
+| `compatibility_kind` | `IRCompatibilityKind` | `yes` | `—` | — |
+| `migration_path` | `tuple[str, ...]` | `no` | `()` | — |
+| `profile_ref` | `str \| None` | `no` | `None` | — |
 
 ### `polisyos.ir.migrations.base.SchemaCompatibilityDecision` { #polisyos-ir-migrations-base-schemacompatibilitydecision }
 
@@ -25831,6 +26348,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `renamed_fields` | `frozenset[tuple[str, str]]` | `no` | `frozenset()` | — |
 | `canonical_defaults` | `frozenset[tuple[str, str]]` | `no` | `frozenset()` | — |
 | `notes` | `tuple[str, ...]` | `no` | `()` | — |
+| `representations` | `tuple[IRRepresentationRegistration, ...]` | `no` | `()` | — |
 
 ## Observation
 

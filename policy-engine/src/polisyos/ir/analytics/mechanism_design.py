@@ -5,18 +5,28 @@ from __future__ import annotations
 import math
 from collections.abc import Mapping, Sequence
 from enum import Enum
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.governance.game_design import MechanismConstraintType
+from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     IncentiveCompatibilityCertificateRef,
     MechanismFamilySpecRef,
     MechanismWelfareLossBoundRef,
 )
+
+if TYPE_CHECKING:
+    from polisyos.ir.artifacts import ArtifactStore, InputRef
+    from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration
 
 _MECHANISM_FAMILY_SPEC_SCHEMA_NAME = "ir.mechanism_family_spec"
 _MECHANISM_FAMILY_SPEC_SCHEMA_VERSION = "1.0"
@@ -699,18 +709,119 @@ def build_reserve_auction_welfare_loss_bound(
     )
 
 
+_ANALYTICS_ARTIFACT_CANON_SPEC = CanonSpec(forbid_floats=False)
+
+
+def _declare_owned_model(
+    model: type[BaseModel],
+    *,
+    contract_id: str,
+    dto_fqn: str,
+    abi_key: str,
+    registry_key: str,
+    kind: str,
+    schema_name: str,
+    schema_version: str,
+    payload_version: str,
+    purpose: str,
+    notes: tuple[str, ...],
+    compatibility: CompatibilityMode = CompatibilityMode.NONE,
+) -> ArtifactOwnerDeclaration[Any, Any]:
+    """Declare one exact source-proven DTO/artifact representation."""
+    wire_policy_ref = f"{contract_id}.wire"
+    return declare_model_owner(
+        model,
+        contract_id=contract_id,
+        dto_fqn=dto_fqn,
+        abi_key=abi_key,
+        registry_key=registry_key,
+        kind=kind,
+        media_type="application/json",
+        purpose=purpose,
+        policy_revision=f"{contract_id}.owner-admission.v1",
+        accepted_wire_policies=((wire_policy_ref, "1"),),
+        payload_version_field="schema_version",
+        validate_profile=owner_profile_for_spec(_ANALYTICS_ARTIFACT_CANON_SPEC, profile_ref=None),
+        representations=(
+            OwnedJSONRepresentation(
+                schema_name=schema_name,
+                schema_version=schema_version,
+                payload_version=payload_version,
+                wire_policy_ref=wire_policy_ref,
+                wire_policy_revision="1",
+                profile_ref=None,
+                compatibility=compatibility,
+                notes=notes,
+                readable=True,
+                writable=True,
+                current=True,
+                default_write=True,
+                readable_from=(),
+            ),
+        ),
+    )
+
+
+_MECHANISM_FAMILY_SPEC_OWNER = _declare_owned_model(
+    MechanismFamilySpec,
+    contract_id="ir.analytics.mechanism_design.mechanism_family_spec",
+    dto_fqn="polisyos.ir.analytics.mechanism_design.MechanismFamilySpec",
+    abi_key="ir.mechanism_family_spec",
+    registry_key="ir.mechanism_family_spec",
+    kind="ir.mechanism_family_spec",
+    schema_name=_MECHANISM_FAMILY_SPEC_SCHEMA_NAME,
+    schema_version=_MECHANISM_FAMILY_SPEC_SCHEMA_VERSION,
+    payload_version="1.0",
+    purpose="ir_mechanism_family_spec",
+    notes=(
+        "MechanismFamilySpec 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+    ),
+)
+
+_INCENTIVE_COMPATIBILITY_OWNER = _declare_owned_model(
+    IncentiveCompatibilityCertificate,
+    contract_id="ir.analytics.mechanism_design.incentive_compatibility_certificate",
+    dto_fqn="polisyos.ir.analytics.mechanism_design.IncentiveCompatibilityCertificate",
+    abi_key="ir.incentive_compatibility_certificate",
+    registry_key="ir.incentive_compatibility_certificate",
+    kind="ir.incentive_compatibility_certificate",
+    schema_name=_IC_CERTIFICATE_SCHEMA_NAME,
+    schema_version=_IC_CERTIFICATE_SCHEMA_VERSION,
+    payload_version="1.0",
+    purpose="ir_incentive_compatibility_certificate",
+    notes=(
+        "IncentiveCompatibilityCertificate 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+    ),
+)
+
+_MECHANISM_WELFARE_LOSS_BOUND_OWNER = _declare_owned_model(
+    MechanismWelfareLossBound,
+    contract_id="ir.analytics.mechanism_design.mechanism_welfare_loss_bound",
+    dto_fqn="polisyos.ir.analytics.mechanism_design.MechanismWelfareLossBound",
+    abi_key="ir.mechanism_welfare_loss_bound",
+    registry_key="ir.mechanism_welfare_loss_bound",
+    kind="ir.mechanism_welfare_loss_bound",
+    schema_name=_WELFARE_BOUND_SCHEMA_NAME,
+    schema_version=_WELFARE_BOUND_SCHEMA_VERSION,
+    payload_version="1.0",
+    purpose="ir_mechanism_welfare_loss_bound",
+    notes=(
+        "MechanismWelfareLossBound 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+    ),
+)
+
+
 def persist_mechanism_family_spec(
     store: ArtifactStore,
     spec: MechanismFamilySpec,
     *,
     inputs: list[InputRef] | None = None,
 ) -> MechanismFamilySpecRef:
-    """Persist a mechanism-family specification and return its typed ref."""
-
-    ref = put_json_artifact(
+    """Persist MechanismFamilySpec through its exact owner declaration."""
+    ref = _put_owned_json_artifact(
         store,
         spec.model_dump(mode="json"),
-        kind="ir.mechanism_family_spec",
+        owner=_MECHANISM_FAMILY_SPEC_OWNER,
         schema_name=_MECHANISM_FAMILY_SPEC_SCHEMA_NAME,
         schema_version=_MECHANISM_FAMILY_SPEC_SCHEMA_VERSION,
         inputs=inputs,
@@ -723,10 +834,8 @@ def load_mechanism_family_spec(
     store: ArtifactStore,
     ref: MechanismFamilySpecRef,
 ) -> MechanismFamilySpec:
-    """Load a persisted mechanism-family specification."""
-
-    payload = get_json_artifact(store, ref)
-    return MechanismFamilySpec.model_validate(payload)
+    """Load MechanismFamilySpec through its exact owner declaration."""
+    return _get_owned_json_artifact(store, ref, owner=_MECHANISM_FAMILY_SPEC_OWNER)
 
 
 def persist_incentive_compatibility_certificate(
@@ -735,12 +844,11 @@ def persist_incentive_compatibility_certificate(
     *,
     inputs: list[InputRef] | None = None,
 ) -> IncentiveCompatibilityCertificateRef:
-    """Persist an IC certificate and return its typed ref."""
-
-    ref = put_json_artifact(
+    """Persist IncentiveCompatibilityCertificate through its exact owner declaration."""
+    ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind="ir.incentive_compatibility_certificate",
+        owner=_INCENTIVE_COMPATIBILITY_OWNER,
         schema_name=_IC_CERTIFICATE_SCHEMA_NAME,
         schema_version=_IC_CERTIFICATE_SCHEMA_VERSION,
         inputs=inputs,
@@ -753,10 +861,8 @@ def load_incentive_compatibility_certificate(
     store: ArtifactStore,
     ref: IncentiveCompatibilityCertificateRef,
 ) -> IncentiveCompatibilityCertificate:
-    """Load a persisted IC certificate."""
-
-    payload = get_json_artifact(store, ref)
-    return IncentiveCompatibilityCertificate.model_validate(payload)
+    """Load IncentiveCompatibilityCertificate through its exact owner declaration."""
+    return _get_owned_json_artifact(store, ref, owner=_INCENTIVE_COMPATIBILITY_OWNER)
 
 
 def persist_mechanism_welfare_loss_bound(
@@ -765,12 +871,11 @@ def persist_mechanism_welfare_loss_bound(
     *,
     inputs: list[InputRef] | None = None,
 ) -> MechanismWelfareLossBoundRef:
-    """Persist a welfare-loss bound and return its typed ref."""
-
-    ref = put_json_artifact(
+    """Persist MechanismWelfareLossBound through its exact owner declaration."""
+    ref = _put_owned_json_artifact(
         store,
         bound.model_dump(mode="json"),
-        kind="ir.mechanism_welfare_loss_bound",
+        owner=_MECHANISM_WELFARE_LOSS_BOUND_OWNER,
         schema_name=_WELFARE_BOUND_SCHEMA_NAME,
         schema_version=_WELFARE_BOUND_SCHEMA_VERSION,
         inputs=inputs,
@@ -783,10 +888,8 @@ def load_mechanism_welfare_loss_bound(
     store: ArtifactStore,
     ref: MechanismWelfareLossBoundRef,
 ) -> MechanismWelfareLossBound:
-    """Load a persisted welfare-loss bound."""
-
-    payload = get_json_artifact(store, ref)
-    return MechanismWelfareLossBound.model_validate(payload)
+    """Load MechanismWelfareLossBound through its exact owner declaration."""
+    return _get_owned_json_artifact(store, ref, owner=_MECHANISM_WELFARE_LOSS_BOUND_OWNER)
 
 
 __all__ = [

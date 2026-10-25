@@ -8,10 +8,8 @@ claim-set artifact, and emits ``PROV_WAS_DERIVED_FROM`` edges when ids change.
 from __future__ import annotations
 
 from dataclasses import asdict
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.data_plane.quarantine import (
     QuarantineRecord,
     persist_quarantine_record,
@@ -52,6 +50,9 @@ from .world_events import build_claims_world_event, persist_claims_world_event
 
 if TYPE_CHECKING:
     from decimal import Decimal
+    from pathlib import Path
+
+    from polisyos.core.artifacts.store import FileSystemCAS
 
 
 def _warning_rows(warnings: list[tuple[str, str]]) -> list[dict[str, str]]:

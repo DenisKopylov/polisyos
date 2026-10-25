@@ -7,13 +7,24 @@ from typing import Any, ClassVar
 
 from pydantic import ConfigDict, Field, model_validator
 
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation as _OwnedJSONRepresentation,
+)
+from polisyos.ir.analytics._owner_admission import (
+    declare_model_owner as _declare_model_owner,
+)
+from polisyos.ir.analytics._owner_admission import (
+    owner_profile_for_spec as _owner_profile_for_spec,
+)
 from polisyos.ir.analytics.forecasting_uncertainty import ForecastingUncertaintyBundle
 from polisyos.ir.analytics.uncertainty import (
     OutputContractDeclaration,
     ValueUncertaintyProjectionKind,
     value_uncertainty_output_contract,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode as _CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import ArtifactRefModel, RegimeShiftForecastBundleRef
 
@@ -174,6 +185,42 @@ class RegimeShiftForecastBundle(ForecastingUncertaintyBundle):
         return max(horizons, default=0)
 
 
+_REGIME_SHIFT_FORECAST_BUNDLE_OWNER = _declare_model_owner(
+    RegimeShiftForecastBundle,
+    contract_id="ir.analytics.regime_shift_forecast_bundle.owner.v1",
+    dto_fqn="polisyos.ir.analytics.regime_shift_forecast.RegimeShiftForecastBundle",
+    abi_key="ir.analytics.regime_shift_forecast_bundle.dto-abi.v1",
+    registry_key="regime_shift_forecast_bundle",
+    kind="ir.regime_shift_forecast_bundle",
+    media_type="application/json",
+    purpose="regime_shift_forecast_bundle",
+    policy_revision="ir.analytics.regime_shift_forecast_bundle.admission.v1",
+    accepted_wire_policies=(("ir.analytics.regime_shift_forecast_bundle.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=_owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name="ir.regime_shift_forecast_bundle",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.regime_shift_forecast_bundle.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.FULL,
+            notes=("Regime-shift forecast bundle 1.0 has no declared schema successors yet.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
 def persist_regime_shift_forecast_bundle(
     store: ArtifactStore,
     bundle: RegimeShiftForecastBundle,
@@ -182,12 +229,11 @@ def persist_regime_shift_forecast_bundle(
     schema_name: str = "ir.regime_shift_forecast_bundle",
     schema_version: str = "1.0",
 ) -> RegimeShiftForecastBundleRef:
-    """Persist a regime-shift forecast bundle as a typed JSON artifact."""
-
-    ref = put_json_artifact(
+    """Persist a regime-shift forecast through its declared artifact owner."""
+    ref = _put_owned_json_artifact(
         store,
         bundle.model_dump(mode="json", round_trip=True),
-        kind="ir.regime_shift_forecast_bundle",
+        owner=_REGIME_SHIFT_FORECAST_BUNDLE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -200,10 +246,12 @@ def load_regime_shift_forecast_bundle(
     store: ArtifactStore,
     ref: RegimeShiftForecastBundleRef,
 ) -> RegimeShiftForecastBundle:
-    """Load a regime-shift forecast bundle from artifact storage."""
-
-    payload = get_json_artifact(store, ref)
-    return RegimeShiftForecastBundle.model_validate(payload)
+    """Load a regime-shift forecast after exact owner admission."""
+    return _get_owned_json_artifact(
+        store,
+        ref,
+        owner=_REGIME_SHIFT_FORECAST_BUNDLE_OWNER,
+    )
 
 
 __all__ = [

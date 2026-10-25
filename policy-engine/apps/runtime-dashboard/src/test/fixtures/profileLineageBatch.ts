@@ -4,13 +4,13 @@ import {
 } from "@/api/validators";
 import type {
   ArtifactRefProvenance,
+  LineageBatchResponsePayload,
+  LineageGraphView,
   SelectedArtifactRef,
   TemporalRef,
 } from "@/shared/ui/quantity/quantity.types";
 
-export type LineageGraphFixture = ReturnType<
-  typeof lineageGraphViewSchema.parse
->;
+export type LineageGraphFixture = LineageGraphView;
 export type LineageBatchMetaFixture = ReturnType<
   typeof lineageBatchResponseSchema.parse
 >["meta"];
@@ -137,7 +137,7 @@ export function profileTrustMetadataFixture(options: {
 
 /** Build a schema-validated batch reply from the caller's explicit request tuple. */
 export type CompleteLineageBatchFixture = Omit<
-  ParsedLineageBatch,
+  LineageBatchResponsePayload,
   "lineages" | "lineage_resolutions"
 > & {
   lineages: LineageGraphFixture[];

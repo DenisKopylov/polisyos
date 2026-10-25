@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
+import json
 from typing import Any
+
+from pydantic import BaseModel
 
 from polisyos.common import logger as common_logger
 from polisyos.core.artifacts import ArtifactRef, input_ref_from_artifact_ref
 from polisyos.core.artifacts import (
     ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
+from polisyos.core.artifacts.manifest import artifact_ref_identity_key
 from polisyos.core.contracts import (
     DataSnapshot,
     DecisionBasisSection,
@@ -61,6 +65,237 @@ from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 logger = common_logger.get_logger(__name__)
+
+
+def _model_artifact_refs(value: object) -> tuple[ArtifactRef, ...]:
+    """Derive every selected ArtifactRef from a strict HTE source DTO tree."""
+    if isinstance(value, BaseModel):
+        field_names = getattr(type(value), "model_fields", {})
+        if {"artifact_id", "kind", "media_type"}.issubset(field_names):
+            ref = ArtifactRef.model_validate(
+                {
+                    "artifact_id": value.artifact_id,
+                    "kind": value.kind,
+                    "media_type": value.media_type,
+                    "manifest_profile_sha256": getattr(
+                        value,
+                        "manifest_profile_sha256",
+                        None,
+                    ),
+                }
+            )
+            if ref.manifest_profile_sha256 is None:
+                raise ValueError("completed_hte_selected_ref_profile_missing")
+            return (ref,)
+        return tuple(
+            ref
+            for field_name in field_names
+            for ref in _model_artifact_refs(getattr(value, field_name))
+        )
+    if isinstance(value, (tuple, list)):
+        return tuple(ref for item in value for ref in _model_artifact_refs(item))
+    return ()
+
+
+def _completed_hte_basis_dependencies(
+    ctx: ExecutionContext,
+    packet_payload: dict[str, object],
+) -> tuple[list[DecisionDependencyRef], dict[str, object]]:
+    """Bind the selected Runtime HTE source in the existing validity basis."""
+    source_value = packet_payload.pop("_completed_hte_source", None)
+    source = source_value if isinstance(source_value, dict) else None
+    if source is None:
+        return [], {}
+
+    request_status = source.get("request_status")
+    selection_status = source.get("selection_status")
+    requested_source_run_id = source.get("requested_source_run_id")
+    limitation_code = source.get("limitation_code")
+    if selection_status != "selected":
+        summary: dict[str, object] = {
+            "completed_hte_source_status": "verification_missing",
+            "completed_hte_request_status": request_status,
+            "completed_hte_requested_source_run_id": requested_source_run_id,
+            "completed_hte_limitation_code": limitation_code,
+            "completed_hte_authority_purpose": "candidate_method_evidence",
+            "completed_hte_publication_authorization": "not_established",
+            "completed_hte_currentness_status": "not_established",
+            "completed_hte_limitations": source.get("limitations", []),
+        }
+        if type(requested_source_run_id) is str and requested_source_run_id:
+            key = f"hte_completed_source_run:{requested_source_run_id}"
+            dependency = _dependency_ref(
+                DecisionDependencyKind.ECONOMETRIC_EVIDENCE,
+                key,
+                label="runtime_requested_completed_hte_source",
+                metadata={
+                    "request_status": request_status,
+                    "selection_status": "verification_missing",
+                    "limitation_code": limitation_code,
+                },
+            )
+            summary["completed_hte_dependency_keys"] = [key]
+            return [dependency], summary
+        summary["completed_hte_dependency_keys"] = []
+        return [], summary
+
+    try:
+        from polisyos.core.contracts.owned_attempt_anchor import (
+            OwnedAttemptAnchorProjectionAssociation,
+        )
+        from polisyos.core.contracts.runtime import DirectMethodExecutionHTESummary
+
+        owner_source_value = source.get("owner_source")
+        owner_source = owner_source_value if isinstance(owner_source_value, dict) else {}
+        summary_payload = owner_source.get("summary")
+        association_payload = owner_source.get("association")
+        packet_hte_payload = packet_payload.get("hte")
+        if (
+            not isinstance(summary_payload, dict)
+            or not isinstance(association_payload, dict)
+            or not isinstance(packet_hte_payload, dict)
+        ):
+            raise ValueError("completed_hte_owner_source_missing")
+        summary = DirectMethodExecutionHTESummary.model_validate_json(
+            json.dumps(summary_payload),
+            strict=True,
+        )
+        packet_summary = DirectMethodExecutionHTESummary.model_validate_json(
+            json.dumps(packet_hte_payload),
+            strict=True,
+        )
+        association = OwnedAttemptAnchorProjectionAssociation.model_validate_json(
+            json.dumps(association_payload),
+            strict=True,
+        )
+        event = association.job_completed_event
+        if (
+            summary != packet_summary
+            or source.get("source_run_id") != association.run_id
+            or source.get("source_job_id") != association.job_id
+            or source.get("source_attempt") != association.attempt
+            or source.get("completed_event_id") != event.event_id
+            or source.get("completed_event_payload_sha256") != event.payload_sha256
+            or summary.kind != association.outcome_kind
+        ):
+            raise ValueError("completed_hte_owner_source_identity_mismatch")
+        refs_by_identity: dict[tuple[str, str, str, str | None], ArtifactRef] = {}
+        for ref in (*_model_artifact_refs(summary), *_model_artifact_refs(association)):
+            ctx.store.get_manifest(ref)
+            refs_by_identity[artifact_ref_identity_key(ref)] = ref
+        if not refs_by_identity:
+            raise ValueError("completed_hte_owner_source_refs_missing")
+    except (
+        AttributeError,
+        ImportError,
+        KeyError,
+        OSError,
+        RuntimeError,
+        TypeError,
+        ValueError,
+    ) as exc:
+        packet_payload["hte"] = None
+        _record_decision_packet_section_degraded(
+            packet_payload,
+            operation="resolve_completed_hte_dependency_basis",
+            reason="completed_hte_dependency_basis_not_established",
+            exc=exc,
+            artifact_key="hte",
+        )
+        return [], {
+            "completed_hte_source_status": "verification_missing",
+            "completed_hte_request_status": request_status,
+            "completed_hte_requested_source_run_id": requested_source_run_id,
+            "completed_hte_limitation_code": "completed_hte_dependency_basis_not_established",
+            "completed_hte_authority_purpose": "candidate_method_evidence",
+            "completed_hte_publication_authorization": "not_established",
+            "completed_hte_currentness_status": "not_established",
+            "completed_hte_limitations": ["completed_hte_source_not_established"],
+            "completed_hte_dependency_keys": [],
+        }
+
+    source_run_id = str(source["source_run_id"])
+    source_job_id = str(source["source_job_id"])
+    source_attempt = int(source["source_attempt"])
+    event_id = int(source["completed_event_id"])
+    event_payload_sha256 = str(source["completed_event_payload_sha256"])
+    dependencies: list[DecisionDependencyRef] = []
+    keys: list[str] = []
+    for identity, ref in sorted(refs_by_identity.items()):
+        artifact_id, kind, media_type, profile_sha256 = identity
+        assert profile_sha256 is not None
+        key = f"hte_completed_source_artifact:{artifact_id}:{profile_sha256}"
+        dependencies.append(
+            _dependency_ref(
+                DecisionDependencyKind.ECONOMETRIC_EVIDENCE,
+                key,
+                artifact_id=artifact_id,
+                label=kind,
+                metadata={
+                    "media_type": media_type,
+                    "manifest_profile_sha256": profile_sha256,
+                    "source_run_id": source_run_id,
+                    "source_job_id": source_job_id,
+                    "source_attempt": source_attempt,
+                    "completed_event_id": event_id,
+                    "completed_event_payload_sha256": event_payload_sha256,
+                },
+            )
+        )
+        keys.append(key)
+    source_run_key = f"hte_completed_source_run:{source_run_id}"
+    dependencies.append(
+        _dependency_ref(
+            DecisionDependencyKind.ECONOMETRIC_EVIDENCE,
+            source_run_key,
+            label="runtime_current_completed_hte_source",
+            metadata={
+                "source_run_id": source_run_id,
+                "source_job_id": source_job_id,
+                "source_attempt": source_attempt,
+                "completed_event_id": event_id,
+                "completed_event_payload_sha256": event_payload_sha256,
+            },
+        )
+    )
+    keys.append(source_run_key)
+    event_key = f"hte_completed_source_event:{source_job_id}:{event_id}:{event_payload_sha256}"
+    dependencies.append(
+        _dependency_ref(
+            DecisionDependencyKind.ECONOMETRIC_EVIDENCE,
+            event_key,
+            label="runtime_job_completed_event",
+            metadata={
+                "source_run_id": source_run_id,
+                "source_job_id": source_job_id,
+                "source_attempt": source_attempt,
+                "completed_event_id": event_id,
+                "completed_event_payload_sha256": event_payload_sha256,
+            },
+        )
+    )
+    keys.append(event_key)
+    return dependencies, {
+        "completed_hte_source_status": "selected",
+        "completed_hte_request_status": request_status,
+        "completed_hte_requested_source_run_id": requested_source_run_id,
+        "completed_hte_source_run_id": source_run_id,
+        "completed_hte_source_job_id": source_job_id,
+        "completed_hte_source_attempt": source_attempt,
+        "completed_hte_completion_event_id": event_id,
+        "completed_hte_completion_event_payload_sha256": event_payload_sha256,
+        "completed_hte_association_status": association.status,
+        "completed_hte_content_validation_status": association.content_validation_status,
+        "completed_hte_manifest_identity_status": association.manifest_identity_status,
+        "completed_hte_outcome_kind": summary.kind,
+        "completed_hte_method_profile_id": summary.method_profile_id,
+        "completed_hte_authority_purpose": "candidate_method_evidence",
+        "completed_hte_publication_authorization": "not_established",
+        "completed_hte_currentness_status": "reconciled_at_completed_event",
+        "completed_hte_owner_association": association.model_dump(mode="json", exclude_none=True),
+        "completed_hte_dependency_keys": sorted(keys),
+        "completed_hte_limitations": list(summary.limitations),
+    }
 
 
 def _load_normative_arbitration(
@@ -420,6 +655,12 @@ def _build_data_basis(
 ) -> DecisionBasisSection:
     dependencies: list[DecisionDependencyRef] = []
     summary: dict[str, Any] = {}
+    completed_hte_dependencies, completed_hte_summary = _completed_hte_basis_dependencies(
+        ctx,
+        packet_payload,
+    )
+    dependencies.extend(completed_hte_dependencies)
+    summary.update(completed_hte_summary)
     data_snapshot_ref = _path_get(packet_payload, ("inputs", INPUT_DATA_SNAPSHOT_REF))
     binding_report_ref = _path_get(packet_payload, ("artifacts", ARTIFACT_INPUT_BINDING_REPORT_REF))
     if isinstance(data_snapshot_ref, str):
@@ -683,6 +924,14 @@ def _build_watched_triggers(
     knowledge_basis: DecisionBasisSection,
     transportability_basis: DecisionBasisSection,
 ) -> list[DecisionTriggerSpec]:
+    data_dependency_keys = [
+        item.key
+        for item in data_basis.dependencies
+        if not item.key.startswith("hte_completed_source_")
+    ]
+    completed_hte_dependency_keys = [
+        item.key for item in data_basis.dependencies if item.key.startswith("hte_completed_source_")
+    ]
     return [
         DecisionTriggerSpec(
             trigger_type=DecisionTriggerType.LAW_CHANGE,
@@ -691,13 +940,18 @@ def _build_watched_triggers(
         ),
         DecisionTriggerSpec(
             trigger_type=DecisionTriggerType.DATASET_SUPERSEDED,
-            dependency_keys=[item.key for item in data_basis.dependencies],
+            dependency_keys=data_dependency_keys,
             description="Watch dataset supersede and cache invalidation signals.",
         ),
         DecisionTriggerSpec(
             trigger_type=DecisionTriggerType.HISTORICAL_SEMANTIC_REVISION,
-            dependency_keys=[item.key for item in data_basis.dependencies],
+            dependency_keys=data_dependency_keys,
             description="Watch schema or semantic revision of historical data.",
+        ),
+        DecisionTriggerSpec(
+            trigger_type=DecisionTriggerType.METRIC_INVALIDATION,
+            dependency_keys=completed_hte_dependency_keys,
+            description="Invalidate a packet when its selected completed HTE source changes.",
         ),
         DecisionTriggerSpec(
             trigger_type=DecisionTriggerType.CONTRADICTING_EVIDENCE,

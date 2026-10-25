@@ -1,0 +1,35 @@
+id = "2026-10-23-e02-typed-decision-input-references"
+title = "Bind decision packet lineage from typed artifact references"
+type = "fixed"
+component = "scientist/runtime"
+owner = "team-polisyos"
+summary = "Decision packet lineage collection validates complete InputRef, ArtifactRef, and DecisionDependencyRef variants at declared reference fields, validates every present schema-declared DecisionBasisSection before traversal, joins selected manifest profiles to artifact ids, refuses malformed-present records, and avoids treating profile digests in dependency metadata as payload blobs."
+evidence = [
+  "src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py",
+  "src/polisyos/scientist/nodes/builtins/decide/decision_packet/serialization.py",
+  "tests/unit/scientist/nodes/builtins/decide/test_manifest_input_reference_collection.py",
+]
+compatibility = "Existing typed artifact inputs retain profile-qualified lineage. Legacy bare input references remain supported where the packet wire declares that contract, and source-bound nested references retain ambiguity refusal. Present JSON basis sections are checked against the existing DecisionBasisSection contract before traversal; a present empty or non-object envelope refuses, while an omitted envelope remains compatible. The current builder producer writes a typed model dump. Core ownership checks and owner admission remain unchanged."
+change_class = "internal"
+surface_classification = "internal: internal-only"
+migration = "No persisted artifact rewrite or API migration is required. Existing decision packet records remain readable; only newly written lineage inputs use the typed reference identity join."
+api = "No public DTO, package export, or endpoint changes."
+limitations = "This change corrects artifact input collection semantics. It does not establish the source's currentness, scientific validity, production authority, or publication eligibility."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-typed-decision-input-references"
+change_class = "internal"
+impact = "internal"
+surface = "internal: Scientist decision-packet serialization"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Validate complete typed reference variants at declared DecisionPacket reference fields and typed DecisionValidity basis sections, preserve legacy bare input contracts, bind profiles to artifact ids, and prevent malformed records or dependency profile digests from becoming blob inputs."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

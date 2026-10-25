@@ -7,10 +7,16 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
-from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
+import pytest
+
+from polisyos.core.artifacts import ArtifactRef, WarningRecord, artifact_manifest_profile_sha256
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactManifest, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.core.contracts.control import ControlJobResponse
+from polisyos.core.contracts.runtime import RunDetailsResponse
 from polisyos.core.security.quality_gates import (
     SECURITY_ASSURANCE_ARTIFACT_KIND,
     SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE,
@@ -18,11 +24,16 @@ from polisyos.core.security.quality_gates import (
     SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION,
     SECURITY_ASSURANCE_REPORT_REF_KEY,
     SECURITY_ASSURANCE_REPORT_SCHEMA_VERSION,
+    SECURITY_REPORT_REF,
     SECURITY_SURFACES,
     build_security_assurance_report,
 )
 from polisyos.runtime.http.services.control.artifacts import write_authority_artifact
 from polisyos.runtime.quality.approval import build_production_approval_packet
+from polisyos.runtime.quality.attestation import (
+    deserialize_attestation_record,
+    evaluate_trust_boundary_attestation,
+)
 from polisyos.runtime.quality.authority import GovernanceMetadata, SameInputClosure
 from polisyos.runtime.quality.case_lifecycle import build_lifecycle_reissue_report
 from polisyos.runtime.quality.refs import RuntimeQualityAuthorityRefs
@@ -55,6 +66,8 @@ from tools.ops_runners.runtime.canary_evidence import (
     assemble_canary_evidence,
     sanitize_for_evidence,
 )
+
+pytestmark = pytest.mark.usefixtures("canary_diagnostic_output_root")
 
 _PHASE_BARRIER_OWNER_SCOPE_CODE = "phase_barrier_owner_scope_not_established"
 
@@ -92,6 +105,28 @@ def _assert_serious_phase_barrier_owner_scope_denies_approval(
     )
     assert packet.decision == "blocked"
     assert packet.eligibility.quality_passed is False
+
+
+def test_legacy_migration_diagnostic_uses_scoped_real_output_root(
+    tmp_path: Path,
+    canary_diagnostic_output_root: Path,
+) -> None:
+    output = assemble_canary_evidence(
+        output_root=tmp_path / "bundle",
+        canary_kind="production",
+        command_metadata={"argv": ["policyos-canary", "--real"]},
+        job_payload=_completed_quality_job_payload(),
+        quality_evidence={},
+    )
+
+    diagnostic_dir = (
+        canary_diagnostic_output_root / "_build" / "honest-diagnostics" / "migration-sandbox"
+    )
+    persisted_reports = list(diagnostic_dir.glob("*.json"))
+    assert len(persisted_reports) == 1
+    diagnostic = json.loads(persisted_reports[0].read_text(encoding="utf-8"))
+    assert diagnostic["canary_kind"] == "production"
+    assert (output / "migration_sandbox" / "legacy_migration_sandbox.json").is_file()
 
 
 def test_canary_scorecard_rejects_duck_context_with_matching_constructed_proof() -> None:
@@ -241,6 +276,16 @@ def _put_authority_report(
     media_type: str = "application/json",
     validation_status: str = "pass",
     blocking_status: str = "non_blocking",
+    run_id: str = "R_runtime_quality_refs",
+    job_id: str = "job-runtime-quality-refs",
+    tenant_id: str = "tenant-1",
+    phase: str = "quality_evidence",
+    evidence_id: str | None = None,
+    owner: str = "team-runtime",
+    reader_contract: str = "runtime_quality.scorecard.reader",
+    trace_id: str = "trace-canary-test",
+    typed_ref_out: list[ArtifactRef] | None = None,
+    closure_sha256: str | None = "c" * 64,
 ) -> str:
     payload_to_write = dict(payload)
     payload_to_write.pop("authority_envelope", None)
@@ -259,31 +304,31 @@ def _put_authority_report(
                 version="2026.05.15+hds-test",
             ),
         ),
-        evidence_id=f"evidence-{report_key}",
+        evidence_id=evidence_id or f"evidence-{report_key}",
         evidence_class="authority_bearing",
         authority_role="producer_authority",
         provenance_kind="runtime_emitted",
-        owner="team-runtime",
-        reader_contract="runtime_quality.scorecard.reader",
+        owner=owner,
+        reader_contract=reader_contract,
         reader_contract_version="1.0",
-        tenant_id="tenant-1",
+        tenant_id=tenant_id,
         cell_id="cell-a",
-        run_id="R_runtime_quality_refs",
-        job_id="job-runtime-quality-refs",
-        trace_id="trace-canary-test",
+        run_id=run_id,
+        job_id=job_id,
+        trace_id=trace_id,
         span_id=f"span-{report_key}",
         parent_span_id=None,
         requested_execution_profile="production",
         effective_execution_profile="production",
-        phase="quality_evidence",
+        phase=phase,
         generated_at="2026-05-15T08:30:00+00:00",
         as_of_time="2026-05-15T08:30:00+00:00",
         same_input_closure=SameInputClosure(
             closure_id="closure-canary-test",
             status="closed",
-            run_id="R_runtime_quality_refs",
-            job_id="job-runtime-quality-refs",
-            tenant_id="tenant-1",
+            run_id=run_id,
+            job_id=job_id,
+            tenant_id=tenant_id,
             cell_id="cell-a",
             policy_intent_ref=_sha("a"),
             time_context_ref=_sha("b"),
@@ -294,7 +339,7 @@ def _put_authority_report(
             effective_mode_ref=_sha("e"),
             degradation_ledger_ref=_sha("d"),
             evidence_input_refs=(_sha("a"), _sha("b")),
-            closure_sha256="c" * 64,
+            closure_sha256=closure_sha256,
         ),
         input_refs=(_sha("a"), _sha("b")),
         effective_mode_ref=_sha("e"),
@@ -314,7 +359,91 @@ def _put_authority_report(
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
+    if typed_ref_out is not None:
+        typed_ref_out.append(result.cas_ref)
     return str(result.cas_ref.artifact_id)
+
+
+def _typed_runtime_owner_payloads_for_pdc(
+    store: FileSystemCAS,
+    *,
+    evidence: dict[str, object],
+    run_id: str,
+    job_id: str,
+    tenant_id: str,
+    closure_sha256: str | None = "c" * 64,
+) -> tuple[dict[str, object], dict[str, object], dict[str, object], ArtifactRef]:
+    raw_case = evidence.get("policy_design_case")
+    assert isinstance(raw_case, dict)
+    case = deepcopy(raw_case)
+    case["run_id"] = run_id
+    case["job_id"] = job_id
+    case["tenant_id"] = tenant_id
+    intent = case.get("intent_envelope")
+    assert isinstance(intent, dict)
+    intent["run_id"] = run_id
+    intent["job_id"] = job_id
+    intent["tenant_id"] = tenant_id
+    case.pop("policy_design_case_ref", None)
+    case.pop("authority_envelope", None)
+
+    artifact_id = _put_authority_report(
+        store,
+        report_key="policy_design_case",
+        payload=case,
+        kind="runtime.policy_design_case",
+        schema_name="polisyos.runtime.PolicyDesignCase",
+        run_id=run_id,
+        job_id=job_id,
+        tenant_id=tenant_id,
+        phase="policy_design_case_profile",
+        evidence_id="runtime_quality_ref#policy_design_case_ref",
+        reader_contract="runtime_quality.policy_design_case.v1",
+        closure_sha256=closure_sha256,
+    )
+    manifest = store.get_manifest(artifact_id)
+    selector = ArtifactRef(
+        artifact_id=artifact_id,
+        kind=manifest.kind,
+        media_type=manifest.media_type,
+        manifest_profile_sha256=artifact_manifest_profile_sha256(manifest),
+    )
+    job = ControlJobResponse.model_validate(
+        {
+            "meta": {"request_id": f"request-{job_id}"},
+            "job_id": job_id,
+            "kind": "natural_language_run",
+            "state": "completed",
+            "run_id": run_id,
+            "effective_execution_profile": "production",
+            "progress": {
+                "details": {
+                    "runtime_quality_refs": {"policy_design_case_ref": artifact_id},
+                    "runtime_quality_artifact_refs": {
+                        "policy_design_case_ref": selector.model_dump(mode="json")
+                    },
+                }
+            },
+        }
+    )
+    run = RunDetailsResponse.model_validate(
+        {
+            "meta": {"request_id": f"request-{run_id}"},
+            "run": {
+                "run_id": run_id,
+                "source_kind": "core_run",
+                "status": "completed",
+                "tenant_id": tenant_id,
+                "control_job_id": job_id,
+            },
+        }
+    )
+    return (
+        job.model_dump(mode="json"),
+        run.model_dump(mode="json"),
+        case,
+        selector,
+    )
 
 
 def _put_security_report_with_manifest_for_refusal_control(
@@ -416,7 +545,10 @@ def _completed_quality_job_payload(
         runtime_refs = details.get("runtime_quality_refs")
         if isinstance(runtime_refs, dict):
             runtime_refs.clear()
-        for ref_key in (*QUALITY_REPORT_RUNTIME_REFS.values(), "prompt_tool_ledger_ref"):
+        for ref_key in (
+            *QUALITY_REPORT_RUNTIME_REFS.values(),
+            "prompt_tool_ledger_ref",
+        ):
             details.pop(ref_key, None)
     return payload
 
@@ -573,7 +705,10 @@ def _complete_quality_evidence() -> dict[str, object]:
                     "uncertainty": {"status": "pass", "interval": [0.01, 0.07]},
                     "missingness": {"status": "pass", "missing_rate": 0.02},
                     "sensitivity": {"status": "pass", "robustness": "moderate"},
-                    "input_diagnostics": {"sample_size": 240, "min_required_sample_size": 30},
+                    "input_diagnostics": {
+                        "sample_size": 240,
+                        "min_required_sample_size": 30,
+                    },
                     "result_summary": {"effect_estimate": 0.04},
                 }
             ],
@@ -1166,7 +1301,11 @@ def test_canary_evidence_redacts_local_paths_from_request_and_env(tmp_path) -> N
             "POLISYOS_PRODUCTION_DATA_ROOT": local_root,
             "POLISYOS_DASHBOARD_TRACE_PATH": "/private/var/folders/trace.zip",
         },
-        job_payload={"job_id": "job-redaction", "run_id": "R_redaction", "state": "completed"},
+        job_payload={
+            "job_id": "job-redaction",
+            "run_id": "R_redaction",
+            "state": "completed",
+        },
     )
 
     request_text = (output / "request.sanitized.json").read_text(encoding="utf-8")
@@ -1178,6 +1317,33 @@ def test_canary_evidence_redacts_local_paths_from_request_and_env(tmp_path) -> N
     assert "../" not in public_text
     assert "${REPO_ROOT}/production_data" in public_text
     assert "<redacted-local-path>" in public_text
+
+
+def test_public_export_projection_persists_the_audited_redacted_owner_output(
+    tmp_path: Path,
+) -> None:
+    sensitive_marker = "sensitive-canary-export-marker-6f3a"
+    projection = canary_evidence_module._public_export_bundle_from_quality_evidence(
+        run_id="R_public_export_writer",
+        quality_evidence_payload={
+            "decision_artifact_quality": {
+                "status": "pass",
+                "authorization": sensitive_marker,
+            },
+        },
+        quality_scorecard={
+            "quality_status": "pass",
+            "approval_state": "approval_ready",
+            "blocking_quality_failures": [],
+        },
+    )
+    output = tmp_path / "public_export_bundle.json"
+    canary_evidence_module._write_finalized_public_export_projection(output, projection)
+    persisted = json.loads(output.read_text(encoding="utf-8"))
+
+    assert persisted == projection
+    assert sensitive_marker not in json.dumps(persisted, sort_keys=True)
+    assert persisted["semantic_audit"]["artifact_keys"] == sorted(persisted["artifacts"])
 
 
 def test_assemble_canary_evidence_loads_quality_reports_from_runtime_refs(
@@ -1397,7 +1563,9 @@ def test_assemble_canary_evidence_loads_quality_reports_from_runtime_refs(
         capture_generated_projection,
     )
     monkeypatch.setattr(
-        canary_evidence_module, "_payload_without_rejected_quality_refs", capture_ref_filter
+        canary_evidence_module,
+        "_payload_without_rejected_quality_refs",
+        capture_ref_filter,
     )
     monkeypatch.setattr(
         canary_evidence_module,
@@ -1529,7 +1697,10 @@ def test_assemble_canary_evidence_loads_quality_reports_from_runtime_refs(
     assert "public_export_projection" in handoff_observation["handoff_kinds"]
     assert not handoff_observation["output_contains_generated_projection"]
     assert len(continuity_observations) == 2
-    assert [item["export_payload_present"] for item in continuity_observations] == [False, True]
+    assert [item["export_payload_present"] for item in continuity_observations] == [
+        False,
+        True,
+    ]
     assert [item["export_payload_is_generated_projection"] for item in continuity_observations] == [
         False,
         True,
@@ -1684,7 +1855,10 @@ def test_nonsecurity_ref_rejections_block_cross_source_overlay_and_remain_invali
     assert resolution["status"] == "invalid"
     assert resolution["refs"].get("normative_applicability_report_ref") is None
     rejection_pairs = {(row["key"], row["reason"]) for row in resolution["rejections"]}
-    assert ("normative_applicability_report_ref", "control_character") in rejection_pairs
+    assert (
+        "normative_applicability_report_ref",
+        "control_character",
+    ) in rejection_pairs
     assert any(
         row["key"] == "normative_applicability_report_ref"
         and row["reason"] == "conflicting_values"
@@ -1810,7 +1984,9 @@ def test_quality_evidence_ref_rejections_block_cas_overlay_and_scorecard_fallbac
     )
 
 
-def test_serious_canary_bundle_writes_provenance_manifest_for_every_file(tmp_path) -> None:
+def test_serious_canary_bundle_writes_provenance_manifest_for_every_file(
+    tmp_path,
+) -> None:
     output = assemble_canary_evidence(
         output_root=tmp_path,
         canary_kind="production",
@@ -1908,7 +2084,194 @@ def test_runtime_cas_report_cannot_be_upgraded_by_bundle_overlay(tmp_path) -> No
     assert manifest_entry["authority_role"] == "packaging_only"
 
 
-def test_runtime_cas_security_report_cannot_be_upgraded_by_clean_bundle_overlay(tmp_path) -> None:
+def test_selected_report_source_identity_binds_the_exact_manifest_profile(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    raw_evidence = _complete_quality_evidence()
+    raw_report = raw_evidence.get("normative_evidence")
+    assert isinstance(raw_report, dict)
+    runtime_ref = _put_authority_report(
+        store,
+        report_key="normative_evidence",
+        payload=dict(raw_report),
+        kind="runtime_quality.normative_applicability_report",
+    )
+    manifest = store.get_manifest(runtime_ref)
+    selector = ArtifactRef(
+        artifact_id=runtime_ref,
+        kind=manifest.kind,
+        media_type=manifest.media_type,
+        manifest_profile_sha256=artifact_manifest_profile_sha256(manifest),
+    )
+    envelope, _event, _event_ref, selected_manifest = (
+        canary_evidence_module._runtime_authority_sidecars_from_store(
+            store=store,
+            ref=selector,
+        )
+    )
+    assert selected_manifest is not None
+    assert selected_manifest.producer is not None
+    assert isinstance(envelope, dict)
+    assert (
+        canary_evidence_module._runtime_quality_report_source_identity(
+            manifest=selected_manifest,
+            ref=runtime_ref,
+            selector=selector,
+            authority_envelope=envelope,
+        )
+        is not None
+    )
+
+    alternate_profile = selector.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "9" * 64}
+    )
+    assert (
+        canary_evidence_module._runtime_quality_report_source_identity(
+            manifest=manifest,
+            ref=runtime_ref,
+            selector=alternate_profile,
+            authority_envelope=envelope,
+        )
+        is None
+    )
+    profileless_selector = selector.model_copy(update={"manifest_profile_sha256": None})
+    assert (
+        canary_evidence_module._runtime_quality_report_source_identity(
+            manifest=manifest,
+            ref=runtime_ref,
+            selector=profileless_selector,
+            authority_envelope=envelope,
+        )
+        is None
+    )
+    wrong_kind = selector.model_copy(update={"kind": "runtime_quality.other_report"})
+    assert (
+        canary_evidence_module._runtime_quality_report_source_identity(
+            manifest=manifest,
+            ref=runtime_ref,
+            selector=wrong_kind,
+            authority_envelope=envelope,
+        )
+        is None
+    )
+    mismatched_envelope = {**envelope, "artifact_kind": "runtime_quality.other_report"}
+    assert (
+        canary_evidence_module._runtime_quality_report_source_identity(
+            manifest=manifest,
+            ref=runtime_ref,
+            selector=selector,
+            authority_envelope=mismatched_envelope,
+        )
+        is None
+    )
+
+
+@pytest.mark.parametrize("profile_mode", ["matching", "alternate", "absent"])
+def test_serious_scorecard_uses_only_the_selected_manifest_profile(
+    tmp_path: Path,
+    profile_mode: str,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    evidence = _hds_complete_quality_evidence(authority_envelopes=False)
+    job_payload, run_payload, source_case, _pdc_selector = _typed_runtime_owner_payloads_for_pdc(
+        store,
+        evidence=evidence,
+        run_id="R_selected_profile",
+        job_id="job-selected-profile",
+        tenant_id="tenant-1",
+    )
+    evidence["policy_design_case"] = source_case
+    raw_report = evidence.get("normative_evidence")
+    assert isinstance(raw_report, dict)
+    cas_report = dict(raw_report)
+    cas_report.update(
+        {
+            "status": "fail",
+            "selected_profile_witness": "selected-cas-body-only",
+            "issues": [{"code": "selected_cas_report_failed", "severity": "fail"}],
+        }
+    )
+    runtime_ref = _put_authority_report(
+        store,
+        report_key="normative_evidence",
+        payload=cas_report,
+        kind="runtime_quality.normative_applicability_report",
+        run_id="R_selected_profile",
+        job_id="job-selected-profile",
+        tenant_id="tenant-1",
+    )
+    manifest = store.get_manifest(runtime_ref)
+    selected_profile = artifact_manifest_profile_sha256(manifest)
+    if profile_mode == "alternate":
+        selected_profile = "sha256:" + "8" * 64
+    elif profile_mode == "absent":
+        selected_profile = None
+    selector = ArtifactRef(
+        artifact_id=runtime_ref,
+        kind=manifest.kind,
+        media_type=manifest.media_type,
+        manifest_profile_sha256=selected_profile,
+    )
+    progress = job_payload["progress"]
+    assert isinstance(progress, dict)
+    details = progress["details"]
+    assert isinstance(details, dict)
+    runtime_refs = details["runtime_quality_refs"]
+    selected_refs = details["runtime_quality_artifact_refs"]
+    assert isinstance(runtime_refs, dict)
+    assert isinstance(selected_refs, dict)
+    runtime_refs["normative_applicability_report_ref"] = runtime_ref
+    selected_refs["normative_applicability_report_ref"] = selector.model_dump(mode="json")
+
+    output = assemble_canary_evidence(
+        output_root=tmp_path / "bundle",
+        canary_kind="production",
+        command_metadata={"argv": ["policyos-canary", "--real"]},
+        job_payload=job_payload,
+        run_payload=run_payload,
+        quality_evidence=evidence,
+        artifact_store=store,
+    )
+    scorecard = json.loads(
+        (output / "quality_evidence" / "quality_scorecard.json").read_text(encoding="utf-8")
+    )
+    artifacts = json.loads((output / "artifacts.json").read_text(encoding="utf-8"))
+    quality_ref_resolution = artifacts.get("quality_ref_resolution")
+    assert isinstance(quality_ref_resolution, dict)
+    report_path = output / "quality_evidence" / "normative_evidence.json"
+    report_text = report_path.read_text(encoding="utf-8") if report_path.exists() else ""
+
+    if profile_mode == "matching":
+        assert "selected-cas-body-only" in report_text
+        selected_report = json.loads(report_text)
+        assert selected_report["status"] == "fail"
+        assert scorecard["evidence_refs"].get("normative_applicability_report_ref") == runtime_ref
+        closeout_index = json.loads(
+            (output / "quality_evidence" / "minimum_closeout_authority_index.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        closeout_record = closeout_index["records"]["normative_applicability_report_ref"]
+        assert closeout_record["selected_source_manifest_profile_sha256"] == selected_profile
+    else:
+        assert "selected-cas-body-only" not in report_text
+        assert scorecard["evidence_refs"].get("normative_applicability_report_ref") != runtime_ref
+        expected_reason = (
+            "selected_manifest_profile_mismatch"
+            if profile_mode == "alternate"
+            else "selected_manifest_profile_not_established"
+        )
+        assert any(
+            item.get("reason") == expected_reason
+            for item in quality_ref_resolution.get("rejections", [])
+            if isinstance(item, dict)
+        )
+
+
+def test_runtime_cas_security_report_cannot_be_upgraded_by_clean_bundle_overlay(
+    tmp_path,
+) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     report = build_security_assurance_report(
         payloads={"artifact": {"rendered_content": "<script>window.__bad__=true</script>"}},
@@ -1961,6 +2324,8 @@ def test_runtime_cas_security_report_cannot_be_upgraded_by_clean_bundle_overlay(
     manifest_entry = _provenance_entries(output)["quality_evidence/security_assurance_report.json"]
 
     manifest = store.get_manifest(runtime_ref)
+    assert manifest is not None
+    assert manifest.producer is not None
     assert manifest.kind == SECURITY_ASSURANCE_ARTIFACT_KIND
     assert manifest.media_type == SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE
     assert manifest.artifact_schema is not None
@@ -1999,6 +2364,21 @@ def test_runtime_cas_security_report_cannot_be_upgraded_by_clean_bundle_overlay(
     )
     assert scorecard["evidence_refs"][SECURITY_ASSURANCE_REPORT_REF_KEY] == runtime_ref
     assert manifest_entry["source_cas_ref"] == runtime_ref
+    authority_index = json.loads(
+        (output / "quality_evidence" / "minimum_closeout_authority_index.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    closeout_record = authority_index["records"][SECURITY_ASSURANCE_REPORT_REF_KEY]
+    assert closeout_record["status"] == report["status"] == "fail"
+    assert closeout_record["authority_envelope"]["artifact_kind"] == manifest.kind
+    assert closeout_record["authority_envelope"]["schema_name"] == manifest.artifact_schema.name
+    assert (
+        closeout_record["authority_envelope"]["schema_version"] == manifest.artifact_schema.version
+    )
+    assert (
+        closeout_record["authority_envelope"]["producer_component"] == manifest.producer.component
+    )
 
 
 def test_selected_cas_report_identity_mismatch_is_refused(tmp_path) -> None:
@@ -2046,7 +2426,9 @@ def test_selected_cas_report_identity_mismatch_is_refused(tmp_path) -> None:
     )
 
 
-def test_inline_runtime_quality_projection_cannot_override_selected_cas_content(tmp_path) -> None:
+def test_inline_runtime_quality_projection_cannot_override_selected_cas_content(
+    tmp_path,
+) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     runtime_report = dict(_complete_quality_evidence()["normative_evidence"])  # type: ignore[index]
     runtime_report["status"] = "fail"
@@ -2343,7 +2725,11 @@ def test_assemble_canary_evidence_writes_agents_performance_summary(tmp_path) ->
         canary_kind="production",
         command_metadata={"argv": ["policyos-canary"]},
         request_payload={"request": "Evaluate Ukraine MSME support."},
-        job_payload={"job_id": "job-agents", "run_id": "R_agents", "state": "completed"},
+        job_payload={
+            "job_id": "job-agents",
+            "run_id": "R_agents",
+            "state": "completed",
+        },
         agents_payload={
             "pipeline": {
                 "run_id": "R_agents",
@@ -2924,13 +3310,421 @@ def test_assemble_canary_evidence_projects_wave30_run_cost_ledger(
     }
 
 
-def test_assemble_canary_evidence_writes_wave4_i4_pdc_graph_and_closeout(
-    tmp_path,
+def test_missing_runtime_run_scope_does_not_mint_i4_authority(tmp_path: Path) -> None:
+    job_payload = _hds_complete_job_payload()
+    job_payload["job_id"] = "job-missing-run-scope"
+    job_payload["run_id"] = None
+    source_mode_ref = job_payload["progress"]["details"].get("effective_mode_ledger_ref")
+    evidence = _hds_complete_quality_evidence()
+    case = evidence.get("policy_design_case")
+    assert isinstance(case, dict)
+    case["case_id"] = None
+    case["run_id"] = None
+    case_status_before_scope_marker = case.get("status")
+    case_authority_before_scope_marker = deepcopy(case.get("authority_chain"))
+    claim_registry_before_scope_marker = deepcopy(case.get("claim_registry"))
+    normative_report = evidence.get("normative_evidence")
+    assert isinstance(normative_report, dict)
+    normative_report.pop("schema_compatibility", None)
+    for report_key in (
+        "continuous_governance_stale",
+        "continuous_governance_reissue",
+        "continuous_governance_supersede",
+        "continuous_governance_withdraw",
+    ):
+        evidence.pop(report_key, None)
+
+    output = assemble_canary_evidence(
+        output_root=tmp_path,
+        canary_kind="production",
+        command_metadata={"argv": ["policyos-canary", "--real"]},
+        job_payload=job_payload,
+        quality_evidence=evidence,
+    )
+
+    persisted_case = json.loads(
+        (output / "quality_evidence" / "policy_design_case.json").read_text(encoding="utf-8")
+    )
+    assert persisted_case["run_scope_status"] == "not_established"
+    assert persisted_case["run_scope_limitation"]["status"] == "not_established"
+    assert persisted_case.get("status") == case_status_before_scope_marker
+    assert persisted_case.get("authority_chain") == case_authority_before_scope_marker
+    assert persisted_case["claim_registry"] == claim_registry_before_scope_marker
+    normative_path = output / "quality_evidence" / QUALITY_REPORT_FILES["normative_evidence"]
+    persisted_normative = json.loads(normative_path.read_text(encoding="utf-8"))
+    assert "schema_compatibility" not in persisted_normative
+    authority_index = json.loads(
+        (output / "quality_evidence" / "minimum_closeout_authority_index.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert authority_index["status"] == "not_established"
+    assert authority_index["run_id"] is None
+    assert authority_index["records"] == {}
+    assert authority_index["diagnostic_events"] == []
+    assert authority_index["cas_artifact_refs"] == {}
+    assert authority_index["issues"][0]["code"] == ("minimum_closeout_run_scope_not_established")
+    for report_key in (
+        "continuous_governance_stale",
+        "continuous_governance_reissue",
+        "continuous_governance_supersede",
+        "continuous_governance_withdraw",
+    ):
+        report_path = output / "quality_evidence" / QUALITY_REPORT_FILES[report_key]
+        assert report_path.exists()
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        assert report["status"] == "not_established"
+        assert report["run_scope_status"] == "not_established"
+        assert report["run_id"] is None
+        assert QUALITY_REPORT_RUNTIME_REFS[report_key] not in report
+        assert "runtime_event_ref" not in report
+        assert "authority_envelope" not in report
+    mode_ledger = json.loads(
+        (output / "quality_evidence" / "effective_mode_ledger.json").read_text(encoding="utf-8")
+    )
+    assert mode_ledger["run_id"] is None
+    assert mode_ledger["run_scope_status"] == "not_established"
+    if isinstance(source_mode_ref, str) and source_mode_ref.strip():
+        assert mode_ledger["mode_ledger_ref"] == source_mode_ref
+    else:
+        assert mode_ledger.get("mode_ledger_ref") is None
+    scorecard_for_mode = json.loads(
+        (output / "quality_evidence" / "quality_scorecard.json").read_text(encoding="utf-8")
+    )
+    mode_gate = next(
+        gate
+        for gate in scorecard_for_mode["quality_gates"]
+        if gate.get("name") == "effective_mode_allowed"
+    )
+    assert mode_gate["status"] == "pass"
+    attestations = json.loads(
+        (output / "quality_evidence" / "attestation_records.json").read_text(encoding="utf-8")
+    )
+    assert attestations
+    assert all(
+        isinstance(row.get("metadata"), dict) and row["metadata"].get("run_id") is None
+        for row in attestations
+    )
+    attestation = deserialize_attestation_record(attestations[0])
+    assert attestation.metadata.get("run_id") is None
+    attestation_result = evaluate_trust_boundary_attestation(
+        boundary_id=attestation.trust_boundary_id, attestations=[attestation]
+    )
+    metadata_sentinel = attestation.model_copy(
+        update={"metadata": {**attestation.metadata, "run_id": "no-run"}}
+    )
+    sentinel_result = evaluate_trust_boundary_attestation(
+        boundary_id=attestation.trust_boundary_id, attestations=[metadata_sentinel]
+    )
+    assert (
+        attestation_result.status,
+        attestation_result.production_closeout_satisfied,
+    ) == (sentinel_result.status, sentinel_result.production_closeout_satisfied)
+    _assert_draft_historical_decision_authority(output)
+
+    closeout = json.loads(
+        (output / "quality_evidence" / "can_i_closeout.json").read_text(encoding="utf-8")
+    )
+    assert closeout["run_id"] is None
+    assert closeout["authority_envelope"]["run_id"] is None
+    assert closeout["status"] == "blocked"
+    assert closeout["can_closeout"] is False
+    assert any(
+        blocker.get("upstream_issue_code") == "policy_design_case_run_scope_not_established"
+        for blocker in closeout["blockers"]
+        if isinstance(blocker, dict)
+    )
+
+    scorecard = json.loads(
+        (output / "quality_evidence" / "quality_scorecard.json").read_text(encoding="utf-8")
+    )
+    assert scorecard["run_id"] is None
+    assert scorecard["quality_status"] == "fail"
+    output_json = "\n".join(path.read_text(encoding="utf-8") for path in output.rglob("*.json"))
+    assert "pdc-no-run" not in output_json
+    assert "event://policy-design-case/pdc-no-run/" not in output_json
+
+
+def test_missing_canary_run_preserves_case_as_limited_source_context(tmp_path: Path) -> None:
+    job_payload = _hds_complete_job_payload()
+    job_payload["job_id"] = "job-missing-run-preserves-case"
+    job_payload["run_id"] = None
+    evidence = _hds_complete_quality_evidence()
+    source_case = deepcopy(evidence["policy_design_case"])
+    output = assemble_canary_evidence(
+        output_root=tmp_path,
+        canary_kind="production",
+        command_metadata={"argv": ["policyos-canary", "--real"]},
+        job_payload=job_payload,
+        quality_evidence=evidence,
+    )
+    bundle = json.loads((output / "bundle.json").read_text(encoding="utf-8"))
+    persisted_case = json.loads(
+        (output / "quality_evidence" / "policy_design_case.json").read_text(encoding="utf-8")
+    )
+    closeout = json.loads(
+        (output / "quality_evidence" / "can_i_closeout.json").read_text(encoding="utf-8")
+    )
+    output_json = "\n".join(path.read_text(encoding="utf-8") for path in output.rglob("*.json"))
+    quality_ref_resolution = json.loads((output / "artifacts.json").read_text(encoding="utf-8"))[
+        "quality_ref_resolution"
+    ]
+
+    assert any(
+        row.get("key") == "can_i_closeout_ref"
+        and row.get("reason") == "selected_manifest_profile_not_established"
+        for row in quality_ref_resolution["rejections"]
+        if isinstance(row, dict)
+    )
+    assert bundle["run_id"] is None
+    assert persisted_case["case_id"] == source_case["case_id"]
+    assert persisted_case["run_id"] == source_case["run_id"]
+    assert persisted_case["authority_chain"] == source_case["authority_chain"]
+    assert persisted_case["claim_registry"] == source_case["claim_registry"]
+    assert persisted_case["records"] == source_case["records"]
+    assert persisted_case["record_families"] == source_case["record_families"]
+    assert persisted_case.get("status") == source_case.get("status")
+    assert persisted_case["run_scope_status"] == "not_established"
+    assert persisted_case["run_scope_limitation"]["status"] == "not_established"
+    assert not (output / "quality_evidence" / "policy_design_case_i4_graph.json").exists()
+    assert not (
+        output / "quality_evidence" / "policy_design_portfolio_effective_support.json"
+    ).exists()
+    assert not (
+        output / "quality_evidence" / "policy_design_case_projection_contract_fixture.json"
+    ).exists()
+    assert "pdc-no-run" not in output_json
+    assert closeout["run_id"] is None
+    assert closeout["authority_envelope"]["run_id"] is None
+    assert closeout["status"] == "blocked"
+    assert closeout["can_closeout"] is False
+
+
+def test_missing_canary_run_does_not_emit_for_unowned_case_identity(
+    tmp_path: Path,
 ) -> None:
     job_payload = _hds_complete_job_payload()
-    job_payload["job_id"] = "job-quality-wave4-i4"
-    job_payload["run_id"] = "R_quality_wave4_i4"
+    job_payload["job_id"] = "job-missing-run-unowned-case"
+    job_payload["run_id"] = None
     evidence = _hds_complete_quality_evidence()
+    source_case = evidence.get("policy_design_case")
+    assert isinstance(source_case, dict)
+    source_case["case_id"] = "pdc-contradictory-owner"
+    authority_chain = source_case.get("authority_chain")
+    assert isinstance(authority_chain, dict)
+    authority_chain["owner"] = "team-unverified"
+    original_case_run_id = source_case["run_id"]
+    original_case_status = source_case.get("status")
+
+    output = assemble_canary_evidence(
+        output_root=tmp_path,
+        canary_kind="production",
+        command_metadata={"argv": ["policyos-canary", "--real"]},
+        job_payload=job_payload,
+        quality_evidence=evidence,
+    )
+
+    persisted_case = json.loads(
+        (output / "quality_evidence" / "policy_design_case.json").read_text(encoding="utf-8")
+    )
+    closeout = json.loads(
+        (output / "quality_evidence" / "can_i_closeout.json").read_text(encoding="utf-8")
+    )
+    assert persisted_case["case_id"] == "pdc-contradictory-owner"
+    assert persisted_case["run_id"] == original_case_run_id
+    assert persisted_case.get("status") == original_case_status
+    assert persisted_case["run_scope_status"] == "not_established"
+    assert persisted_case["run_scope_limitation"]["code"] == (
+        "policy_design_case_run_scope_not_established"
+    )
+    assert not (output / "quality_evidence" / "policy_design_case_i4_graph.json").exists()
+    assert not (output / "quality_evidence" / "claim_registry.json").exists()
+    assert closeout["run_id"] is None
+    assert closeout["authority_envelope"]["run_id"] is None
+    assert closeout["status"] == "blocked"
+
+
+@pytest.mark.parametrize(
+    ("identity_field", "conflicting_value"),
+    [
+        ("run_id", "R_conflicting_case_owner"),
+        ("job_id", "job-conflicting-case-owner"),
+        ("tenant_id", "tenant-conflicting-case-owner"),
+    ],
+)
+def test_missing_canary_run_rejects_case_identity_conflicting_with_intent(
+    tmp_path: Path,
+    identity_field: str,
+    conflicting_value: str,
+) -> None:
+    job_payload = _hds_complete_job_payload()
+    job_payload["job_id"] = "job-case-intent-conflict"
+    job_payload["run_id"] = None
+    evidence = _hds_complete_quality_evidence()
+    source_case = evidence["policy_design_case"]
+    assert isinstance(source_case, dict)
+    intent = source_case["intent_envelope"]
+    original_intent_value = intent[identity_field]
+    source_case[identity_field] = conflicting_value
+
+    output = assemble_canary_evidence(
+        output_root=tmp_path,
+        canary_kind="production",
+        command_metadata={"argv": ["policyos-canary", "--real"]},
+        job_payload=job_payload,
+        quality_evidence=evidence,
+    )
+
+    persisted_case = json.loads(
+        (output / "quality_evidence" / "policy_design_case.json").read_text(encoding="utf-8")
+    )
+    closeout = json.loads(
+        (output / "quality_evidence" / "can_i_closeout.json").read_text(encoding="utf-8")
+    )
+    assert persisted_case[identity_field] == conflicting_value
+    assert persisted_case["intent_envelope"][identity_field] == original_intent_value
+    assert persisted_case["run_scope_status"] == "not_established"
+    assert persisted_case["run_scope_limitation"]["code"] == (
+        "policy_design_case_run_scope_not_established"
+    )
+    assert not (output / "quality_evidence" / "policy_design_case_i4_graph.json").exists()
+    assert closeout["run_id"] is None
+    assert closeout["authority_envelope"]["run_id"] is None
+    assert closeout["status"] == "blocked"
+
+
+@pytest.mark.parametrize("source_status", ["blocked", "limited", "contested"])
+def test_selected_pdc_without_publication_producer_stays_incomplete(
+    source_status: str,
+    tmp_path: Path,
+) -> None:
+    evidence = _hds_complete_quality_evidence()
+    source_case_input = evidence["policy_design_case"]
+    assert isinstance(source_case_input, dict)
+    source_case_input["status"] = source_status
+    store = FileSystemCAS(tmp_path / "cas")
+    job_payload, run_payload, source_case, selected_ref = _typed_runtime_owner_payloads_for_pdc(
+        store,
+        evidence=evidence,
+        run_id="R_missing_publication_source",
+        job_id="job-missing-publication-source",
+        tenant_id="tenant-1",
+    )
+    selected_manifest = store.get_manifest(selected_ref)
+    selected_body_bytes = store.get_bytes(selected_ref)
+    closure = selected_manifest.same_input_closure
+    assert closure is not None
+    assert closure.status == "closed"
+    assert closure.closure_sha256
+    owner_scope = canary_evidence_module._verified_policy_design_case_owner_scope(
+        job_payload=job_payload,
+        run_payload=run_payload,
+        artifact_store=store,
+    )
+    assert owner_scope is not None
+    assert owner_scope["selector"] == selected_ref
+    assert source_case["status"] == source_status
+
+    claim_registry = source_case["claim_registry"]
+    assert isinstance(claim_registry, dict)
+    claim_authority = claim_registry["runtime_authority"]
+    assert isinstance(claim_authority, dict)
+    assert claim_authority["authority_role"] == "producer_authority"
+    assert claim_authority["provenance_kind"] == "runtime_emitted"
+
+    evidence["policy_design_case"] = source_case
+    generated = canary_evidence_module._with_wave4_i4_policy_design_case_outputs(
+        quality_evidence_payload=evidence,
+        owner_scope=owner_scope,
+        run_id="R_missing_publication_source",
+        job_id="job-missing-publication-source",
+        canary_kind="production",
+    )
+    assert generated["policy_design_case"] == source_case
+
+    missing_source_code = "policy_design_case_publication_source_not_established"
+    graph = generated["policy_design_case_i4_graph"]
+    projection = generated["policy_design_case_projection"]
+    projection_state = generated["projection_publication_state"]
+    projection_contract = generated["policy_design_case_projection_contract_fixture"]
+    for record in (graph, projection_state, projection_contract):
+        assert record["status"] == "incomplete"
+        assert record["capability_reality_state"] == "producer_missing"
+        assert missing_source_code in {
+            issue["code"] for issue in record["issues"] if isinstance(issue, dict)
+        }
+        assert (
+            not {
+                "runtime_event_ref",
+                "cas_ref",
+                "authority_role",
+                "provenance_kind",
+            }
+            & record.keys()
+        )
+    assert graph["source_artifact_ref"] == str(selected_ref.artifact_id)
+    assert graph["source_case_status"] == source_status
+    assert projection["source_ref"] == str(selected_ref.artifact_id)
+    assert projection["source_state"]["artifact_publishability"] == "not_established"
+    assert projection["closeout_truth"]["status"] == "incomplete"
+    assert projection["closeout_truth"]["can_closeout"] is False
+    assert "publishable" not in projection["states"]
+    assert missing_source_code in {
+        gap["gap_code"] for gap in projection["projection_gaps"] if isinstance(gap, dict)
+    }
+    for audience_projection in projection_contract["projections"].values():
+        assert "publishable" not in audience_projection["states"]
+
+    closeout_inputs = canary_evidence_module._with_wave4_i4_closeout_reader_records(
+        quality_evidence_payload=generated,
+        trust_boundary_attestation_records=[],
+        owner_scope=owner_scope,
+        run_id="R_missing_publication_source",
+        job_id="job-missing-publication-source",
+    )
+    closeout_inputs = canary_evidence_module._with_wave4_i4_closeout_verdict(
+        quality_evidence_payload=closeout_inputs,
+        closeout_compatibility={},
+        quality_scorecard={"quality_status": "passed", "blocking_quality_failures": []},
+        run_id="R_missing_publication_source",
+    )
+    closeout = closeout_inputs["can_i_closeout"]
+    assert closeout["status"] != "closed"
+    assert closeout["can_closeout"] is False
+    module_results = {row["module_id"]: row for row in closeout["module_reader_results"]}
+    assert closeout_inputs["policy_design_case_i4_graph"] == graph
+    for module_id in (
+        "i4_policy_design_case_graph",
+        "projection_consumer_contract",
+        "projection_publication_state",
+    ):
+        reader_result = module_results[module_id]
+        assert reader_result["status"] == "missing"
+        assert reader_result["source_status"] == "incomplete"
+        assert "closeout_module_evidence_incomplete" in reader_result["issue_codes"]
+        assert any(
+            issue.get("upstream_issue_code") == missing_source_code
+            for issue in reader_result["issues"]
+        )
+    assert closeout_inputs["audit_verifier_ingestion"]["status"] == "incomplete"
+    assert store.get_bytes(selected_ref) == selected_body_bytes
+
+
+def test_assemble_canary_evidence_writes_wave4_i4_pdc_graph_and_closeout(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    evidence = _hds_complete_quality_evidence()
+    store = FileSystemCAS(tmp_path / "cas")
+    job_payload, run_payload, source_case, selected_case_ref = (
+        _typed_runtime_owner_payloads_for_pdc(
+            store,
+            evidence=evidence,
+            run_id="R_quality_wave4_i4",
+            job_id="job-quality-wave4-i4",
+            tenant_id="tenant-1",
+        )
+    )
+    evidence["policy_design_case"] = source_case
 
     output = assemble_canary_evidence(
         output_root=tmp_path,
@@ -2938,8 +3732,10 @@ def test_assemble_canary_evidence_writes_wave4_i4_pdc_graph_and_closeout(
         command_metadata={"argv": ["policyos-canary", "--real"]},
         request_payload={"request": "Evaluate Ukraine MSME support."},
         job_payload=job_payload,
+        run_payload=run_payload,
         provider_preflight={"status": "passed"},
         quality_evidence=evidence,
+        artifact_store=store,
     )
 
     _assert_draft_historical_decision_authority(output)
@@ -2978,29 +3774,58 @@ def test_assemble_canary_evidence_writes_wave4_i4_pdc_graph_and_closeout(
     assert bundle["files"]["quality_evidence"]["policy_design_case_i4_graph"] == (
         "quality_evidence/policy_design_case_i4_graph.json"
     )
-    assert persisted_case["i4_integration_graph_ref"] == i4_graph["cas_ref"]
-    assert (
-        persisted_case["evidence_independence_maps"][0]["raw_evidence_line_count"]
-        > (persisted_case["evidence_independence_maps"][0]["effective_independent_evidence_count"])
-    )
+    assert persisted_case == source_case
+    assert persisted_case["run_id"] == "R_quality_wave4_i4"
+    assert persisted_case["job_id"] == "job-quality-wave4-i4"
+    assert persisted_case["tenant_id"] == "tenant-1"
+    assert i4_graph["source_artifact_ref"] == str(selected_case_ref.artifact_id)
+    assert persisted_case.get("status") == source_case.get("status")
     assert portfolio["status"] == "pass"
     assert (
         portfolio["effective_support"]["raw_evidence_line_count"]
         > (portfolio["effective_support"]["effective_independent_evidence_count"])
     )
     assert lifecycle["status"] == "pass"
-    assert projection_fixture["status"] == "pass"
-    assert i4_graph["status"] == "pass"
+    assert projection_fixture["status"] == "incomplete"
+    assert i4_graph["status"] == "incomplete"
+    assert "policy_design_case_publication_source_not_established" in {
+        issue["code"] for issue in i4_graph["issues"] if isinstance(issue, dict)
+    }
+    assert not (
+        {"runtime_event_ref", "cas_ref", "authority_role", "provenance_kind"} & i4_graph.keys()
+    )
+    assert bundle["run_id"] == "R_quality_wave4_i4"
+    assert i4_graph["run_id"] == persisted_case["run_id"] == "R_quality_wave4_i4"
     assert closeout["schema_version"] == "policyos.runtime.can_i_closeout.integration.v1"
     assert closeout["integration_slice"] == "I4"
     assert closeout["status"] == "blocked"
     module_status = {row["module_id"]: row["status"] for row in closeout["module_reader_results"]}
     assert {
-        "i4_policy_design_case_graph": "pass",
+        "i4_policy_design_case_graph": "fail",
         "portfolio_effective_support": "pass",
         "lifecycle_reissue": "pass",
-        "projection_consumer_contract": "pass",
+        "projection_consumer_contract": "fail",
     }.items() <= module_status.items()
+    projection = json.loads(
+        (output / "quality_evidence" / "policy_design_case_projection.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    publication_state = json.loads(
+        (output / "quality_evidence" / "projection_publication_state.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert projection["closeout_truth"]["status"] == "incomplete"
+    assert projection["closeout_truth"]["can_closeout"] is False
+    assert "publishable" not in projection["states"]
+    assert publication_state["status"] == "incomplete"
+    assert closeout["status"] == "blocked"
+    assert closeout["can_closeout"] is False
+    audit_verifier = json.loads(
+        (output / "quality_evidence" / "audit_verifier.json").read_text(encoding="utf-8")
+    )
+    assert audit_verifier["status"] == "incomplete"
     assert scorecard["quality_status"] == "fail"
     blocker_codes = {row["code"] for row in scorecard["blocking_quality_failures"]}
     assert "normative_claim_refs_not_applicable" in blocker_codes
@@ -3016,6 +3841,419 @@ def test_assemble_canary_evidence_writes_wave4_i4_pdc_graph_and_closeout(
         candidate_norm["legal_relation_refusal"]["code"]
         == "legal_source_relation_verification_not_established"
     )
+
+
+def test_selected_pdc_owner_scope_requires_exact_typed_cas_binding(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    evidence = _hds_complete_quality_evidence()
+    store = FileSystemCAS(tmp_path / "cas")
+    job_payload, run_payload, _source_case, _selected_case_ref = (
+        _typed_runtime_owner_payloads_for_pdc(
+            store,
+            evidence=evidence,
+            run_id="R_owner_predicate",
+            job_id="job-owner-predicate",
+            tenant_id="tenant-1",
+        )
+    )
+    owner_scope = canary_evidence_module._verified_policy_design_case_owner_scope(
+        job_payload=job_payload,
+        run_payload=run_payload,
+        artifact_store=store,
+    )
+    assert owner_scope is not None
+    selector = owner_scope["selector"]
+    run_id = owner_scope["run_id"]
+    job_id = owner_scope["job_id"]
+    assert selector.manifest_profile_sha256 is not None
+    assert owner_scope["case"]["run_id"] == run_id
+
+    missing_digest_store = FileSystemCAS(tmp_path / "cas-missing-closure-digest")
+    missing_digest_job, missing_digest_run, _missing_digest_case, missing_digest_ref = (
+        _typed_runtime_owner_payloads_for_pdc(
+            missing_digest_store,
+            evidence=evidence,
+            run_id="R_owner_missing_closure_digest",
+            job_id="job-owner-missing-closure-digest",
+            tenant_id="tenant-1",
+            closure_sha256=None,
+        )
+    )
+    missing_digest_manifest = missing_digest_store.get_manifest(missing_digest_ref)
+    assert missing_digest_manifest.same_input_closure is not None
+    assert missing_digest_manifest.same_input_closure.status == "closed"
+    assert missing_digest_manifest.same_input_closure.closure_sha256 is None
+    assert (
+        canary_evidence_module._verified_policy_design_case_owner_scope(
+            job_payload=missing_digest_job,
+            run_payload=missing_digest_run,
+            artifact_store=missing_digest_store,
+        )
+        is None
+    )
+
+    def payload_details(payload: dict[str, object]) -> dict[str, object]:
+        progress = payload.get("progress")
+        assert isinstance(progress, dict)
+        details = progress.get("details")
+        assert isinstance(details, dict)
+        return details
+
+    def selected_maps(payload: dict[str, object]) -> tuple[dict[str, object], dict[str, object]]:
+        details = payload_details(payload)
+        runtime_refs = details.get("runtime_quality_refs")
+        selected_refs = details.get("runtime_quality_artifact_refs")
+        assert isinstance(runtime_refs, dict)
+        assert isinstance(selected_refs, dict)
+        return runtime_refs, selected_refs
+
+    def assert_owner_scope_refused(
+        candidate_job: dict[str, object],
+        candidate_run: dict[str, object],
+        *,
+        candidate_store: FileSystemCAS | None = None,
+    ) -> None:
+        assert (
+            canary_evidence_module._verified_policy_design_case_owner_scope(
+                job_payload=candidate_job,
+                run_payload=candidate_run,
+                artifact_store=candidate_store or store,
+            )
+            is None
+        )
+
+    profileless_job = deepcopy(job_payload)
+    _runtime_refs, selected_refs = selected_maps(profileless_job)
+    selector_payload = selected_refs.get("policy_design_case_ref")
+    assert isinstance(selector_payload, dict)
+    profileless_selector = ArtifactRef.model_validate(selector_payload).model_copy(
+        update={"manifest_profile_sha256": None}
+    )
+    selected_refs["policy_design_case_ref"] = profileless_selector.model_dump(mode="json")
+    assert_owner_scope_refused(profileless_job, run_payload)
+
+    alternate_profile_job = deepcopy(job_payload)
+    _runtime_refs, selected_refs = selected_maps(alternate_profile_job)
+    selector_payload = selected_refs.get("policy_design_case_ref")
+    assert isinstance(selector_payload, dict)
+    alternate_selector = ArtifactRef.model_validate(selector_payload).model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "0" * 64}
+    )
+    selected_refs["policy_design_case_ref"] = alternate_selector.model_dump(mode="json")
+    assert_owner_scope_refused(alternate_profile_job, run_payload)
+
+    wrong_family_job = deepcopy(job_payload)
+    _runtime_refs, selected_refs = selected_maps(wrong_family_job)
+    selector_payload = selected_refs.get("policy_design_case_ref")
+    assert isinstance(selector_payload, dict)
+    wrong_family_selector = ArtifactRef.model_validate(selector_payload).model_copy(
+        update={"kind": "runtime.policy_intent_envelope"}
+    )
+    selected_refs["policy_design_case_ref"] = wrong_family_selector.model_dump(mode="json")
+    assert_owner_scope_refused(wrong_family_job, run_payload)
+
+    missing_selector_job = deepcopy(job_payload)
+    _runtime_refs, selected_refs = selected_maps(missing_selector_job)
+    selected_refs.pop("policy_design_case_ref")
+    assert_owner_scope_refused(missing_selector_job, run_payload)
+
+    body_bytes = store.get_bytes(selector)
+    with monkeypatch.context() as patch:
+        patch.setattr(store, "get_bytes", lambda _ref: body_bytes + b" ")
+        assert_owner_scope_refused(job_payload, run_payload)
+
+    original_manifest = store.get_manifest(selector)
+    assert original_manifest.authority is not None
+    assert original_manifest.same_input_closure is not None
+    original_body = store.get_bytes(selector)
+    mismatched_closure = original_manifest.same_input_closure.model_copy(
+        update={"closure_sha256": "d" * 64}
+    )
+    mismatched_closure_selector = store.put_bytes(
+        original_body,
+        ArtifactWriteOptions(
+            kind=original_manifest.kind,
+            media_type=original_manifest.media_type,
+            schema=original_manifest.artifact_schema,
+            canon=original_manifest.canon,
+            inputs=list(original_manifest.inputs),
+            producer=original_manifest.producer,
+            env=original_manifest.env,
+            governance=original_manifest.governance,
+            tenant_context=original_manifest.tenant_context,
+            same_input_closure=mismatched_closure,
+            authority=original_manifest.authority,
+            warnings=list(original_manifest.warnings),
+        ),
+        return_selected_profile=True,
+    )
+    mismatched_closure_manifest = store.get_manifest(mismatched_closure_selector)
+    assert mismatched_closure_selector.artifact_id == selector.artifact_id
+    assert store.get_bytes(mismatched_closure_selector) == original_body
+    assert mismatched_closure_manifest.producer == original_manifest.producer
+    assert mismatched_closure_manifest.authority == original_manifest.authority
+    assert mismatched_closure_manifest.same_input_closure == mismatched_closure
+    assert mismatched_closure_manifest.same_input_closure != original_manifest.same_input_closure
+    mismatched_closure_job = deepcopy(job_payload)
+    _runtime_refs, selected_refs = selected_maps(mismatched_closure_job)
+    selected_refs["policy_design_case_ref"] = mismatched_closure_selector.model_dump(mode="json")
+    assert_owner_scope_refused(mismatched_closure_job, run_payload)
+
+    alternate_profile_options = ArtifactWriteOptions(
+        kind=original_manifest.kind,
+        media_type=original_manifest.media_type,
+        schema=original_manifest.artifact_schema,
+        canon=original_manifest.canon,
+        inputs=list(original_manifest.inputs),
+        producer=original_manifest.producer,
+        env=original_manifest.env,
+        governance=original_manifest.governance,
+        tenant_context=original_manifest.tenant_context,
+        same_input_closure=original_manifest.same_input_closure,
+        authority=original_manifest.authority,
+        warnings=[
+            *original_manifest.warnings,
+            WarningRecord(
+                code="test_profile_variant",
+                msg="A non-authoritative warning distinguishes this valid CAS view.",
+            ),
+        ],
+    )
+    alternate_profile_selector = store.put_bytes(
+        original_body,
+        alternate_profile_options,
+        return_selected_profile=True,
+    )
+    alternate_manifest = store.get_manifest(alternate_profile_selector)
+    assert alternate_profile_selector.artifact_id == selector.artifact_id
+    assert alternate_profile_selector.manifest_profile_sha256 is not None
+    assert alternate_profile_selector.manifest_profile_sha256 != selector.manifest_profile_sha256
+    assert store.get_bytes(alternate_profile_selector) == original_body
+    assert alternate_manifest.kind == original_manifest.kind
+    assert alternate_manifest.media_type == original_manifest.media_type
+    assert alternate_manifest.artifact_schema == original_manifest.artifact_schema
+    assert alternate_manifest.producer == original_manifest.producer
+    assert alternate_manifest.authority == original_manifest.authority
+    assert alternate_manifest.same_input_closure == original_manifest.same_input_closure
+    assert alternate_manifest.warnings[:-1] == original_manifest.warnings
+    assert alternate_manifest.warnings[-1].code == "test_profile_variant"
+
+    alternate_profile_job = deepcopy(job_payload)
+    _runtime_refs, selected_refs = selected_maps(alternate_profile_job)
+    selected_refs["policy_design_case_ref"] = alternate_profile_selector.model_dump(mode="json")
+    alternate_owner_scope = canary_evidence_module._verified_policy_design_case_owner_scope(
+        job_payload=alternate_profile_job,
+        run_payload=run_payload,
+        artifact_store=store,
+    )
+    assert alternate_owner_scope is not None
+    assert alternate_owner_scope["selector"] == alternate_profile_selector
+
+    original_get_manifest = store.get_manifest
+
+    def mismatched_profile_manifest(
+        selected: ArtifactID | ArtifactRef | str,
+    ) -> ArtifactManifest:
+        if selected == alternate_profile_selector:
+            return original_manifest
+        return original_get_manifest(selected)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(store, "get_manifest", mismatched_profile_manifest)
+        assert_owner_scope_refused(alternate_profile_job, run_payload)
+
+    wrong_owner_store = FileSystemCAS(tmp_path / "cas-wrong-owner")
+    wrong_owner_refs: list[ArtifactRef] = []
+    wrong_owner_artifact = _put_authority_report(
+        wrong_owner_store,
+        report_key="policy_design_case",
+        payload=deepcopy(owner_scope["case"]),
+        kind="runtime.policy_design_case",
+        schema_name="polisyos.runtime.PolicyDesignCase",
+        run_id=run_id,
+        job_id=job_id,
+        tenant_id=owner_scope["tenant_id"],
+        phase="policy_design_case_profile",
+        evidence_id="runtime_quality_ref#policy_design_case_ref",
+        owner="team-foreign",
+        reader_contract="runtime_quality.policy_design_case.v1",
+        typed_ref_out=wrong_owner_refs,
+    )
+    assert len(wrong_owner_refs) == 1
+    wrong_owner_selector = wrong_owner_refs[0]
+    assert str(wrong_owner_selector.artifact_id) == wrong_owner_artifact
+    assert wrong_owner_selector.artifact_id == selector.artifact_id
+    assert wrong_owner_store.get_bytes(wrong_owner_selector) == store.get_bytes(selector)
+    wrong_owner_job = deepcopy(job_payload)
+    _runtime_refs, selected_refs = selected_maps(wrong_owner_job)
+    selected_refs["policy_design_case_ref"] = wrong_owner_selector.model_dump(mode="json")
+    assert_owner_scope_refused(
+        wrong_owner_job,
+        run_payload,
+        candidate_store=wrong_owner_store,
+    )
+
+    mismatched_run = deepcopy(run_payload)
+    run_record = mismatched_run.get("run")
+    assert isinstance(run_record, dict)
+    run_record["control_job_id"] = "job-not-the-selected-owner"
+    assert_owner_scope_refused(job_payload, mismatched_run)
+
+    foreign_case = deepcopy(owner_scope["case"])
+    foreign_run_id = f"{run_id}:foreign-case-owner"
+    foreign_case["run_id"] = foreign_run_id
+    intent = foreign_case.get("intent_envelope")
+    assert isinstance(intent, dict)
+    intent["run_id"] = foreign_run_id
+    foreign_case.pop("policy_design_case_ref", None)
+    foreign_ref = _put_authority_report(
+        store,
+        report_key="policy_design_case",
+        payload=foreign_case,
+        kind="runtime.policy_design_case",
+        schema_name="polisyos.runtime.PolicyDesignCase",
+        run_id=foreign_run_id,
+        job_id=job_id,
+        tenant_id=owner_scope["tenant_id"],
+        phase="policy_design_case_profile",
+        evidence_id="runtime_quality_ref#policy_design_case_ref",
+        reader_contract="runtime_quality.policy_design_case.v1",
+    )
+    foreign_manifest = store.get_manifest(foreign_ref)
+    foreign_selector = ArtifactRef(
+        artifact_id=foreign_manifest.artifact_id,
+        kind=foreign_manifest.kind,
+        media_type=foreign_manifest.media_type,
+        manifest_profile_sha256=artifact_manifest_profile_sha256(foreign_manifest),
+    )
+    foreign_job = deepcopy(job_payload)
+    runtime_refs, selected_refs = selected_maps(foreign_job)
+    runtime_refs["policy_design_case_ref"] = foreign_ref
+    selected_refs["policy_design_case_ref"] = foreign_selector.model_dump(mode="json")
+    assert_owner_scope_refused(foreign_job, run_payload)
+
+
+def test_live_runtime_get_keeps_i4_limited_when_pdc_producer_is_missing(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "1")
+
+    def _forbid_gateway(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("simulated NL run must not construct a real gateway")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.orchestration.llm.factory.GatewayLLMClient",
+        _forbid_gateway,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.orchestration.llm.factory.FallbackRouter",
+        _forbid_gateway,
+    )
+    monkeypatch.setattr(
+        "polisyos.fabric.retrieval.RetrievalService.resolve",
+        lambda *_args, **_kwargs: SimpleNamespace(
+            fetch_plans=[{"id": "plan-1"}],
+            telemetry={"lane_used": "fastlane", "metadata_docs_fetched": 1, "phases": []},
+            mode="hybrid",
+        ),
+    )
+    monkeypatch.setattr(
+        "polisyos.fabric.retrieval.RetrievalService.execute_fetch_plans",
+        lambda *_args, **_kwargs: SimpleNamespace(
+            previews=[SimpleNamespace(preview=SimpleNamespace(coverage_ok=True))],
+            fallback_triggered_count=0,
+            promoted_count=1,
+            data_context=SimpleNamespace(
+                metrics=[], metadata_docs_fetched=1, index_docs_total=1, index_size_bytes=10
+            ),
+        ),
+    )
+
+    from fastapi.testclient import TestClient
+
+    from tests._helpers.runtime_http import (
+        build_runtime_api_env,
+        close_runtime_api_env,
+        submit_ordinary_nl_post,
+    )
+
+    env = build_runtime_api_env(
+        tmp_path,
+        include_test_client=True,
+        seed_ledger_cost_events=False,
+    )
+    try:
+        owner = submit_ordinary_nl_post(
+            env,
+            request=(
+                "Design and assess a small-business liquidity support policy, then record its "
+                "policy design case and evidence claims."
+            ),
+        )
+        client_value = env.get("client")
+        assert isinstance(client_value, TestClient)
+        job_id = owner.get("job_id")
+        run_id = owner.get("run_id")
+        cas_root = env.get("cas_root")
+        assert isinstance(job_id, str) and job_id
+        assert isinstance(run_id, str) and run_id
+        assert isinstance(cas_root, Path)
+
+        job_response = client_value.get(f"/api/v1/control/jobs/{job_id}")
+        assert job_response.status_code == 200, job_response.text
+        run_response = client_value.get(f"/api/v1/runs/{run_id}")
+        assert run_response.status_code == 200, run_response.text
+        job_model = ControlJobResponse.model_validate(job_response.json())
+        run_model = RunDetailsResponse.model_validate_json(run_response.content)
+        job_payload = job_model.model_dump(mode="json")
+        run_payload = run_model.model_dump(mode="json")
+        store = FileSystemCAS(cas_root)
+
+        selected_refs = RuntimeQualityAuthorityRefs.from_runtime_payloads(
+            job_payload=job_payload,
+            run_payload=run_payload,
+        )
+        assert selected_refs.get_selected_ref("policy_design_case_ref") is None
+        assert selected_refs.selected_sources.get("policy_design_case_ref") is None
+        assert (
+            canary_evidence_module._verified_policy_design_case_owner_scope(
+                job_payload=job_payload,
+                run_payload=run_payload,
+                artifact_store=store,
+            )
+            is None
+        )
+
+        evidence = _hds_complete_quality_evidence()
+        output = assemble_canary_evidence(
+            output_root=tmp_path / "real-runtime-owner-bundle",
+            canary_kind="production",
+            command_metadata={"argv": ["policyos-canary", "--real"]},
+            job_payload=job_payload,
+            run_payload=run_payload,
+            quality_evidence=evidence,
+            artifact_store=store,
+        )
+        persisted_case = json.loads(
+            (output / "quality_evidence" / "policy_design_case.json").read_text(encoding="utf-8")
+        )
+        closeout = json.loads(
+            (output / "quality_evidence" / "can_i_closeout.json").read_text(encoding="utf-8")
+        )
+        graph_path = output / "quality_evidence" / "policy_design_case_i4_graph.json"
+        assert persisted_case["run_scope_status"] == "not_established"
+        assert persisted_case["run_scope_limitation"]["status"] == "not_established"
+        assert persisted_case["run_scope_limitation"]["code"] == (
+            "policy_design_case_run_scope_not_established"
+        )
+        assert not graph_path.exists()
+        assert closeout["status"] == "blocked"
+        assert closeout["can_closeout"] is False
+        assert closeout["run_id"] == run_model.run.run_id
+
+    finally:
+        close_runtime_api_env(env)
 
 
 def test_assemble_canary_evidence_preserves_scoped_lifecycle_reissue_as_i4_blocker(
@@ -3617,7 +4855,10 @@ def test_assemble_canary_evidence_fails_fabric_gate_for_fixture_source(
                         }
                     ],
                     "rejected_sources": [
-                        {"source_id": "production-msme-panel", "reason_code": "not_loaded"}
+                        {
+                            "source_id": "production-msme-panel",
+                            "reason_code": "not_loaded",
+                        }
                     ],
                 },
                 "foundry_method_report": {"status": "pass"},
@@ -4380,7 +5621,9 @@ def test_assemble_canary_evidence_blocks_license_conflict_before_publication(
     )
 
 
-def test_security_report_cas_reader_rejects_manifest_identity_mismatches(tmp_path) -> None:
+def test_security_report_cas_reader_rejects_manifest_identity_mismatches(
+    tmp_path,
+) -> None:
     cases = (
         (
             "runtime.other_security_report",
@@ -4458,7 +5701,9 @@ def test_security_report_cas_reader_rejects_manifest_identity_mismatches(tmp_pat
         assert observed["media_type"] == media_type
 
 
-def test_dev_security_report_intake_preserves_rejected_valid_and_absent_states(tmp_path) -> None:
+def test_dev_security_report_intake_preserves_rejected_valid_and_absent_states(
+    tmp_path,
+) -> None:
     identity_cases = (
         (
             "wrong-kind",
@@ -4569,6 +5814,45 @@ def test_dev_security_report_intake_preserves_rejected_valid_and_absent_states(t
         validation_status="pass",
         blocking_status="non_blocking",
     )
+    canonical_locator = f"quality_evidence/{QUALITY_REPORT_FILES['security_assurance_report']}"
+    assert (
+        valid_report[SECURITY_ASSURANCE_REPORT_REF_KEY] == canonical_locator == SECURITY_REPORT_REF
+    )
+    assert (
+        canary_evidence_module._cas_report_identity_rejections(
+            refs={SECURITY_ASSURANCE_REPORT_REF_KEY: valid_ref},
+            reports={"security_assurance_report": valid_report},
+        )
+        == []
+    )
+    contradictory_report = dict(valid_report)
+    contradictory_report[SECURITY_ASSURANCE_REPORT_REF_KEY] = _sha("z")
+    contradictory_rejections = canary_evidence_module._cas_report_identity_rejections(
+        refs={SECURITY_ASSURANCE_REPORT_REF_KEY: valid_ref},
+        reports={"security_assurance_report": contradictory_report},
+    )
+    assert any(
+        row["key"] == SECURITY_ASSURANCE_REPORT_REF_KEY
+        and row["reason"] == "logical_locator_mismatch"
+        for row in contradictory_rejections
+    )
+    loaded_reports, _events, _event_refs, _intake = _quality_reports_from_refs_with_authority(
+        refs={SECURITY_ASSURANCE_REPORT_REF_KEY: valid_ref},
+        store=valid_store,
+    )
+    loaded_security_report = loaded_reports["security_assurance_report"]
+    loaded_envelope = dict(loaded_security_report["authority_envelope"])
+    loaded_envelope["artifact_ref"] = _sha("z")
+    loaded_envelope["cas_ref"] = _sha("z")
+    loaded_security_report["authority_envelope"] = loaded_envelope
+    cas_identity_rejections = canary_evidence_module._cas_report_identity_rejections(
+        refs={SECURITY_ASSURANCE_REPORT_REF_KEY: valid_ref},
+        reports={"security_assurance_report": loaded_security_report},
+    )
+    assert any(
+        row["key"] == SECURITY_ASSURANCE_REPORT_REF_KEY and row["reason"] == "conflicting_values"
+        for row in cas_identity_rejections
+    )
     valid_overlay = _quality_evidence_content_only()
     valid_overlay.pop("security_assurance_report", None)
     valid_output = assemble_canary_evidence(
@@ -4593,6 +5877,8 @@ def test_dev_security_report_intake_preserves_rejected_valid_and_absent_states(t
         "quality_evidence/security_assurance_report.json"
     ]
     assert valid_written["status"] == "pass"
+    assert valid_written[SECURITY_ASSURANCE_REPORT_REF_KEY] == canonical_locator
+    assert valid_written["authority_envelope"]["artifact_ref"] == valid_ref
     assert any(
         gate["code"] == "security_assurance_passed" and gate["status"] == "pass"
         for gate in valid_scorecard["quality_gates"]
@@ -4601,6 +5887,60 @@ def test_dev_security_report_intake_preserves_rejected_valid_and_absent_states(t
     assert valid_manifest_entry["source_cas_ref"] == valid_ref
     assert SECURITY_REPORT_INTAKE_KEY not in valid_scorecard["evidence_refs"]
     assert not (valid_output / "quality_evidence" / SECURITY_REPORT_INTAKE_FILE).exists()
+
+    malformed_locator_store = FileSystemCAS(tmp_path / "cas-malformed-locator")
+    malformed_locator_report = build_security_assurance_report(payloads={})
+    malformed_locator_report[SECURITY_ASSURANCE_REPORT_REF_KEY] = (
+        "quality_evidence/other-security-report.json"
+    )
+    malformed_locator_ref = _put_authority_report(
+        malformed_locator_store,
+        report_key="security_assurance_report",
+        payload=malformed_locator_report,
+        kind=SECURITY_ASSURANCE_ARTIFACT_KIND,
+        schema_name=SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
+        schema_version=SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION,
+        media_type=SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE,
+        validation_status="pass",
+        blocking_status="non_blocking",
+    )
+    malformed_locator_output = assemble_canary_evidence(
+        output_root=tmp_path / "bundle-malformed-locator",
+        canary_kind="dev",
+        command_metadata={"argv": ["policyos-canary", "--dev"]},
+        request_payload={"request": "Inspect a report with a conflicting bundle locator."},
+        job_payload=_job_payload_with_security_report_ref(malformed_locator_ref),
+        provider_preflight={"status": "passed"},
+        quality_evidence=_quality_evidence_content_only(),
+        artifact_store=malformed_locator_store,
+    )
+    malformed_locator_intake = json.loads(
+        (malformed_locator_output / "quality_evidence" / SECURITY_REPORT_INTAKE_FILE).read_text(
+            encoding="utf-8"
+        )
+    )
+    malformed_locator_scorecard = json.loads(
+        (malformed_locator_output / "quality_evidence" / "quality_scorecard.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    malformed_locator_artifacts = json.loads(
+        (malformed_locator_output / "artifacts.json").read_text(encoding="utf-8")
+    )
+    assert malformed_locator_intake["status"] == "rejected"
+    assert malformed_locator_intake["reason_code"] == (
+        "security_report_reference_resolution_rejected"
+    )
+    assert any(
+        row["key"] == SECURITY_ASSURANCE_REPORT_REF_KEY
+        and row["reason"] == "logical_locator_mismatch"
+        for row in malformed_locator_intake["resolution_rejections"]
+    )
+    assert SECURITY_ASSURANCE_REPORT_REF_KEY not in malformed_locator_scorecard["evidence_refs"]
+    assert malformed_locator_artifacts["quality_ref_resolution"]["status"] == "invalid"
+    assert not (
+        malformed_locator_output / "quality_evidence" / "security_assurance_report.json"
+    ).exists()
 
     absent_store = FileSystemCAS(tmp_path / "cas-absent")
     absent_overlay = _quality_evidence_content_only()
@@ -4632,7 +5972,9 @@ def test_dev_security_report_intake_preserves_rejected_valid_and_absent_states(t
     assert not (absent_output / "quality_evidence" / SECURITY_REPORT_INTAKE_FILE).exists()
 
 
-def test_serious_malformed_report_ref_cannot_seed_closeout_or_bundle_body(tmp_path) -> None:
+def test_serious_malformed_report_ref_cannot_seed_closeout_or_bundle_body(
+    tmp_path,
+) -> None:
     normative_ref_key = QUALITY_REPORT_RUNTIME_REFS["normative_evidence"]
     report_ref = _sha("a")
     job_payload = _completed_quality_job_payload(include_runtime_quality_refs=False)
@@ -4700,7 +6042,8 @@ def test_dev_security_report_ref_resolution_rejection_blocks_valid_overlay_and_c
     cases = (
         ("malformed-artifact-ref", "control_character"),
         ("unsupported-runtime-ref", "unsupported_type"),
-        ("malformed-selected-map", "unsupported_type"),
+        ("explicit-null-selected-map", "explicit_null"),
+        ("unsupported-selected-map", "unsupported_type"),
         ("malformed-selected-profile", "malformed_mapping"),
     )
     for case_name, expected_reason in cases:
@@ -4715,8 +6058,10 @@ def test_dev_security_report_ref_resolution_rejection_blocks_valid_overlay_and_c
                 SECURITY_ASSURANCE_REPORT_REF_KEY: "bad\nsecurity-report-ref"
             }
             expected_rejection_key = SECURITY_ASSURANCE_REPORT_REF_KEY
-        elif case_name == "malformed-selected-map":
-            job_payload["runtime_quality_artifact_refs"] = None
+        elif case_name in {"explicit-null-selected-map", "unsupported-selected-map"}:
+            job_payload["runtime_quality_artifact_refs"] = (
+                None if case_name == "explicit-null-selected-map" else ["not-a-ref-map"]
+            )
             expected_rejection_key = "runtime_quality_artifact_refs"
         elif case_name == "malformed-selected-profile":
             job_payload["runtime_quality_artifact_refs"] = {

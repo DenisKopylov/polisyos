@@ -47,6 +47,7 @@ from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
+from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.model_layer.types import SelectorOperator
 from polisyos.ir.registry.refs import (
@@ -472,14 +473,22 @@ def test_authority_surface_loaders_reject_forged_persisted_payloads(
     mutation,
 ) -> None:
     store = FileSystemCAS(tmp_path / "cas")
+    payload = _mutate_authority_surface(surface, mutation)
+    payload["schema_version"] = "1.0"
     raw_ref = store.put_json(
-        _mutate_authority_surface(surface, mutation),
-        PutOptions(kind=kind, media_type="application/json"),
+        payload,
+        PutOptions(
+            kind=kind,
+            media_type="application/json",
+            schema=SchemaInfo(name=kind, version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
     )
     ref = ref_type.model_validate(raw_ref.model_dump(mode="json"))
 
-    with pytest.raises(ValueError, match="producer/verifier"):
+    with pytest.raises(ValueError) as refused:
         loader(_ensure_ir_artifact_store(store), ref)
+    assert "producer/verifier" in str(refused.value.__cause__)
 
 
 def test_simulation_proof_bridge_defaults_to_scenario_without_causal_context(tmp_path) -> None:

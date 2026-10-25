@@ -95,8 +95,12 @@ def test_phase1_gate_summary_passes_with_full_evidence(tmp_path) -> None:
     persist_mobility_report(
         _ensure_ir_artifact_store(store),
         MobilityReport(
+            schema_version="2.0",
+            artifact_name="mobility_report_v2.json",
             analysis_type="transition_matrix",
+            estimand_id="phase1.mobility",
             status="ok",
+            point_estimate={"transition_matrix": [[1.0]]},
             summary_metrics={"n_obs": 100},
         ),
     )

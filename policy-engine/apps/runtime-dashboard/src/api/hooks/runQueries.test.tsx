@@ -310,6 +310,171 @@ describe("run query hooks", () => {
     ).toBe(false);
   });
 
+  it("refreshes a stable selector until a current direct Core response is validated", () => {
+    const alias = "control-run-alias";
+    const options = runDetailsQueryOptions(alias, {
+      liveTransport: true,
+      resolveCurrentAlias: true,
+    });
+    const currentCoreAttempt = {
+      state: {
+        data: {
+          run: {
+            finished_at: "2026-03-09T10:05:00Z",
+            run_id: "core-attempt-1",
+            source_kind: "core_run",
+            status: "completed",
+          },
+        },
+      },
+    };
+    const directCoreRun = {
+      state: {
+        data: {
+          run: {
+            finished_at: "2026-03-09T10:05:00Z",
+            run_id: alias,
+            source_kind: "core_run",
+            status: "completed",
+          },
+        },
+      },
+    };
+    const sameIdControlRun = {
+      state: {
+        data: {
+          run: {
+            finished_at: "2026-03-09T10:05:00Z",
+            run_id: alias,
+            source_kind: "control_run",
+            status: "completed",
+          },
+        },
+      },
+    };
+    const latestGetFailure = new Error(
+      "latest run-details GET failed with 503",
+    );
+    const failedLatestSameIdCoreRun = {
+      state: {
+        data: { run: directCoreRun.state.data.run },
+        error: latestGetFailure,
+      },
+    };
+    const failedLatestRemappedCoreRun = {
+      state: {
+        data: { run: currentCoreAttempt.state.data.run },
+        error: latestGetFailure,
+      },
+    };
+
+    expect(
+      typeof options.refetchOnMount === "function"
+        ? options.refetchOnMount(currentCoreAttempt)
+        : options.refetchOnMount,
+    ).toBe("always");
+    expect(
+      typeof options.refetchOnWindowFocus === "function"
+        ? options.refetchOnWindowFocus(currentCoreAttempt)
+        : options.refetchOnWindowFocus,
+    ).toBe("always");
+    expect(
+      typeof options.refetchOnReconnect === "function"
+        ? options.refetchOnReconnect(currentCoreAttempt)
+        : options.refetchOnReconnect,
+    ).toBe("always");
+    expect(options.refetchInterval(currentCoreAttempt)).toBe(
+      RUN_ACTIVE_REFETCH_MS,
+    );
+    expect(options.staleTime(sameIdControlRun)).toBe(RUN_ACTIVE_STALE_MS);
+    expect(options.refetchInterval(sameIdControlRun)).toBe(
+      RUN_ACTIVE_REFETCH_MS,
+    );
+    expect(
+      typeof options.refetchOnMount === "function"
+        ? options.refetchOnMount(sameIdControlRun)
+        : options.refetchOnMount,
+    ).toBe("always");
+    expect(
+      typeof options.refetchOnWindowFocus === "function"
+        ? options.refetchOnWindowFocus(sameIdControlRun)
+        : options.refetchOnWindowFocus,
+    ).toBe("always");
+    expect(
+      typeof options.refetchOnReconnect === "function"
+        ? options.refetchOnReconnect(sameIdControlRun)
+        : options.refetchOnReconnect,
+    ).toBe("always");
+    expect(options.staleTime(failedLatestSameIdCoreRun)).toBe(
+      RUN_ACTIVE_STALE_MS,
+    );
+    expect(options.refetchInterval(failedLatestSameIdCoreRun)).toBe(
+      RUN_ACTIVE_REFETCH_MS,
+    );
+    expect(
+      typeof options.refetchOnMount === "function"
+        ? options.refetchOnMount(failedLatestSameIdCoreRun)
+        : options.refetchOnMount,
+    ).toBe("always");
+    expect(
+      typeof options.refetchOnWindowFocus === "function"
+        ? options.refetchOnWindowFocus(failedLatestSameIdCoreRun)
+        : options.refetchOnWindowFocus,
+    ).toBe("always");
+    expect(
+      typeof options.refetchOnReconnect === "function"
+        ? options.refetchOnReconnect(failedLatestSameIdCoreRun)
+        : options.refetchOnReconnect,
+    ).toBe("always");
+    expect(options.refetchInterval(failedLatestRemappedCoreRun)).toBe(
+      RUN_ACTIVE_REFETCH_MS,
+    );
+    expect(options.staleTime(directCoreRun)).toBe(RUN_TERMINAL_STALE_MS);
+    expect(options.refetchInterval(directCoreRun)).toBe(false);
+    expect(
+      typeof options.refetchOnMount === "function"
+        ? options.refetchOnMount(directCoreRun)
+        : options.refetchOnMount,
+    ).toBe(false);
+    expect(
+      typeof options.refetchOnWindowFocus === "function"
+        ? options.refetchOnWindowFocus(directCoreRun)
+        : options.refetchOnWindowFocus,
+    ).toBe(false);
+    expect(
+      typeof options.refetchOnReconnect === "function"
+        ? options.refetchOnReconnect(directCoreRun)
+        : options.refetchOnReconnect,
+    ).toBe(false);
+  });
+
+  it("fetches a stable route selector and accepts identity only from its validated response", async () => {
+    const alias = "control-run-alias";
+    const getSpy = mockRuntimeGetSuccess({
+      ...runDetailsPayload,
+      run: {
+        ...runDetailsPayload.run,
+        run_id: "core-attempt-1",
+      },
+    });
+    const { result } = renderHook(
+      () => useRunDetails(alias, { resolveCurrentAlias: true }),
+      { wrapper: createQueryHookWrapper() },
+    );
+
+    await waitFor(() => {
+      expect(result.current.data?.run.run_id).toBe("core-attempt-1");
+    });
+    expect(getSpy).toHaveBeenCalledWith(
+      "/api/v1/runs/{run_id}",
+      expect.objectContaining({
+        params: expect.objectContaining({
+          path: { run_id: alias },
+        }),
+      }),
+    );
+  });
+
   it("polls until producer finished_at instead of guessing terminality from status text", () => {
     const options = runDetailsQueryOptions(runId);
     const opaqueStatusOnly = {

@@ -11,12 +11,10 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Protocol
 
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.fabric.data_plane.orchestrator import IngestionResult
-
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.manifest import ArtifactManifest
+    from polisyos.core.artifacts.ids import ArtifactID
+    from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef
+    from polisyos.fabric.data_plane.orchestrator import IngestionResult
 
 
 class _ArtifactManifestReader(Protocol):
@@ -118,10 +116,11 @@ def compare_artifact_hashes(
         record_manifest = store.get_manifest(record_ref)
         replay_manifest = store.get_manifest(replay_ref)
 
-        if record_manifest.content_hash != replay_manifest.content_hash:
+        record_content_hash = record_manifest.artifact_id.hex
+        replay_content_hash = replay_manifest.artifact_id.hex
+        if record_content_hash != replay_content_hash:
             mismatches.append(
-                f"{label} content_hash: record={record_manifest.content_hash}, "
-                f"replay={replay_manifest.content_hash}"
+                f"{label} content_hash: record={record_content_hash}, replay={replay_content_hash}"
             )
     except Exception as exc:
         category = categorize_regression_exception(exc)

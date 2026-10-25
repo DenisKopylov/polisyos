@@ -5,10 +5,18 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
+from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+from polisyos.core.contracts.owned_attempt_anchor import (
+    OwnedAttemptAnchorRef,
+    OwnedHTERequestContextV1,
+    SelectedArtifactRef,
+)
 from polisyos.core.contracts.runtime import (
     DirectMethodExecutionHTEResourceEvidence,
     DirectMethodExecutionHTESummary,
     DirectMethodExecutionHTETargetRelation,
+    DirectMethodExecutionSelection,
+    _expected_content_admitted_limitations,
 )
 
 
@@ -585,3 +593,228 @@ def test_returned_refusal_preserves_non_one_effective_jobs(
 
     assert admitted.execution_status == "returned"
     assert admitted.joblib_entry_effective_jobs == 2
+
+
+def _identity_ref(kind: str, artifact_char: str, profile_char: str = "b") -> ArtifactRef:
+    return ArtifactRef(
+        artifact_id="sha256:" + artifact_char * 64,
+        kind=kind,
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + profile_char * 64,
+    )
+
+
+def _direct_selection_with_search_binding(
+    *,
+    summary_binding_updates: dict[str, object] | None = None,
+    context_binding_updates: dict[str, object] | None = None,
+    summary_source_ref: ArtifactRef | None = None,
+    summary_schema_version: str = "1.0",
+) -> DirectMethodExecutionSelection:
+    method_fqn = "causal.hte.causal_forest@2.0.0"
+    binding_ref = _identity_ref("scientist.search.uncertainty_task_binding", "a")
+    context_binding_payload = {
+        **binding_ref.model_dump(mode="json"),
+        **(context_binding_updates or {}),
+    }
+    context_binding_ref = SelectedArtifactRef.model_validate(
+        context_binding_payload,
+        strict=True,
+    )
+    context = OwnedHTERequestContextV1(
+        request_estimand_status="declared",
+        request_estimand="mean_effect_over_selected_x",
+        request_target_scope_status="declared",
+        request_target_scope="selected_evaluation_rows",
+        outcome_variable_status="declared",
+        outcome_variable_id="outcome.effect",
+        treatment_variable_status="declared",
+        treatment_variable_id="treatment.policy",
+        contrast_status="declared",
+        control_value=0.0,
+        treated_value=1.0,
+        request_alpha_status="declared",
+        requested_alpha=0.05,
+        requested_guarantee_status="not_established",
+        search_uncertainty_task_binding_ref=context_binding_ref,
+    )
+    input_ref = _identity_ref("ir.observation_method_input", "7")
+    anchor_ref = OwnedAttemptAnchorRef.model_validate(
+        _identity_ref("runtime.owned_attempt_anchor", "c").model_dump(mode="python"),
+        strict=True,
+    )
+    hte_outcome_ref = _identity_ref("ir.hte_outcome", "d")
+    point_result_ref = _identity_ref("ir.hte_point_result", "e")
+    policy_ref = _identity_ref("runtime.observational_input_resource_policy", "9")
+    method_result_ref = _identity_ref("scientist.method_result.causal.hte", "1")
+    method_evidence_ref = _identity_ref("scientist.method_evidence", "2")
+    resource = _resource_evidence(
+        method_fqn=method_fqn,
+        execution_scope="producer_scoped_joblib_parallelism_one",
+        execution_status="returned",
+    )
+    resource["owner_policy_ref"] = policy_ref.model_dump(mode="json")
+    summary_payload = _numeric_summary_payload(resource)
+    summary_payload.update(
+        {
+            "schema_version": summary_schema_version,
+            "owned_attempt_anchor_ref": anchor_ref.model_dump(mode="json"),
+            "hte_outcome_ref": hte_outcome_ref.model_dump(mode="json"),
+            "point_result_ref": point_result_ref.model_dump(mode="json"),
+            "method_result_ref": method_result_ref.model_dump(mode="json"),
+            "method_evidence_ref": method_evidence_ref.model_dump(mode="json"),
+            "source_data_ref": (summary_source_ref or input_ref).model_dump(mode="json"),
+            "search_uncertainty_task_binding_ref": {
+                **binding_ref.model_dump(mode="json"),
+                **(summary_binding_updates or {}),
+            },
+            "request_estimand_status": "declared",
+            "request_estimand": context.request_estimand,
+            "request_target_scope_status": "declared",
+            "request_target_scope": context.request_target_scope,
+            "outcome_variable_status": "declared",
+            "outcome_variable_id": context.outcome_variable_id,
+            "treatment_variable_status": "declared",
+            "treatment_variable_id": context.treatment_variable_id,
+            "request_contrast_status": "declared",
+            "control_value": context.control_value,
+            "treated_value": context.treated_value,
+            "request_alpha_status": "declared",
+            "requested_alpha": context.requested_alpha,
+            "target_relation": {
+                "requested_scope_status": "declared",
+                "requested_scope": "selected_evaluation_rows",
+                "requested_guarantee_status": "not_established",
+                "requested_guarantee": None,
+                "computed_scope_status": "recomputed",
+                "computed_scope": "selected_evaluation_rows",
+                "computed_guarantee_status": "computed",
+                "computed_guarantee": "candidate_point",
+                "source_content_status": "content_bound",
+                "row_order_status": "recomputed",
+                "contrast_status": "not_established",
+                "estimand_status": "not_established",
+                "alpha_status": "not_established",
+                "profile_status": "qualified",
+                "scope_disposition": "satisfied",
+                "guarantee_disposition": "not_established",
+                "overall_disposition": "not_established",
+            },
+        }
+    )
+    summary = DirectMethodExecutionHTESummary.model_validate(
+        summary_payload,
+        strict=True,
+    )
+    return DirectMethodExecutionSelection(
+        job_id="job-identity",
+        run_id="run-identity",
+        attempt=1,
+        requested_source_ref=input_ref,
+        observational_run_intent_ref=_identity_ref("runtime.observational_run_intent", "3"),
+        content_admitted_intent_ref=_identity_ref(
+            "runtime.content_admitted_observational_run_intent", "4"
+        ),
+        resource_policy_ref=policy_ref,
+        submitted_input_ref=input_ref,
+        effective_input_ref=input_ref,
+        method_result_ref=method_result_ref,
+        method_evidence_ref=method_evidence_ref,
+        owned_attempt_anchor_ref=anchor_ref,
+        hte_outcome_ref=hte_outcome_ref,
+        point_result_ref=point_result_ref,
+        contract_target_id="foundry.causal.hte_observational_data.v1",
+        contract_target=("polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"),
+        method_fqn=method_fqn,
+        method_version="2.0.0",
+        method_abi_digest="a" * 64,
+        method_build_digest="b" * 64,
+        method_build_digest_scope="class_source_only",
+        resource_policy_digest="c" * 64,
+        source_protocol="method_input_envelope_v1",
+        normalization="canonical_passthrough",
+        limitations=_expected_content_admitted_limitations(
+            "method_input_envelope_v1",
+            source_access_revalidation_status=None,
+        ),
+        method_dispatch_binding_status="recomputed",
+        owned_hte_request_context=context,
+        hte=summary,
+    )
+
+
+def test_direct_selection_search_binding_join_uses_complete_identity_across_ref_types() -> None:
+    selection = _direct_selection_with_search_binding()
+
+    assert selection.hte is not None
+    assert selection.owned_hte_request_context is not None
+    summary_ref = selection.hte.search_uncertainty_task_binding_ref
+    context_ref = selection.owned_hte_request_context.search_uncertainty_task_binding_ref
+    assert type(summary_ref) is ArtifactRef
+    assert type(context_ref) is SelectedArtifactRef
+    assert artifact_ref_identity_key(summary_ref) == artifact_ref_identity_key(context_ref)
+
+
+@pytest.mark.parametrize(
+    ("summary_binding_updates", "expected_error"),
+    [
+        (
+            {"artifact_id": "sha256:" + "0" * 64},
+            "direct_method_execution_hte_summary_request_context_mismatch",
+        ),
+        (
+            {"manifest_profile_sha256": "sha256:" + "f" * 64},
+            "direct_method_execution_hte_summary_request_context_mismatch",
+        ),
+        (
+            {"kind": "scientist.search.other_binding"},
+            "direct_method_hte_summary_search_binding_ref_invalid",
+        ),
+        (
+            {"media_type": "application/octet-stream"},
+            "direct_method_hte_summary_search_binding_ref_invalid",
+        ),
+    ],
+)
+def test_direct_selection_search_binding_join_rejects_nonidentical_or_invalid_summary_ref(
+    summary_binding_updates: dict[str, object],
+    expected_error: str,
+) -> None:
+    with pytest.raises(ValidationError, match=expected_error):
+        _direct_selection_with_search_binding(summary_binding_updates=summary_binding_updates)
+
+
+@pytest.mark.parametrize(
+    "context_binding_updates",
+    [
+        {"manifest_profile_sha256": "sha256:" + "f" * 64},
+        {"artifact_id": "sha256:" + "0" * 64},
+        {"kind": "scientist.search.other_binding"},
+        {"media_type": "application/octet-stream"},
+    ],
+)
+def test_direct_selection_search_binding_join_rejects_invalid_context_ref(
+    context_binding_updates: dict[str, object],
+) -> None:
+    expected_error = (
+        "owned_attempt_search_binding_ref_kind_mismatch"
+        if "kind" in context_binding_updates or "media_type" in context_binding_updates
+        else "direct_method_execution_hte_summary_request_context_mismatch"
+    )
+    with pytest.raises(ValidationError, match=expected_error):
+        _direct_selection_with_search_binding(context_binding_updates=context_binding_updates)
+
+
+def test_direct_selection_search_binding_join_keeps_summary_schema_gate() -> None:
+    with pytest.raises(ValidationError):
+        _direct_selection_with_search_binding(summary_schema_version="2.0")
+
+
+def test_direct_selection_search_binding_join_keeps_caller_source_ref_gate() -> None:
+    with pytest.raises(
+        ValidationError,
+        match="direct_method_execution_hte_summary_selection_mismatch",
+    ):
+        _direct_selection_with_search_binding(
+            summary_source_ref=_identity_ref("ir.observation_method_input", "8")
+        )

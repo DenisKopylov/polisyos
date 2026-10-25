@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.world.events import (
     build_deterministic_world_event,
     persist_world_event_with_facts,
@@ -16,6 +15,9 @@ from polisyos.ir.world.event import (
     WorldEvent,
     WorldObjectRef,
 )
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.store import FileSystemCAS
 
 __all__ = ["build_claims_world_event", "persist_claims_world_event"]
 

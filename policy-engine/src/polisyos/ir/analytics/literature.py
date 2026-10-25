@@ -19,25 +19,33 @@ from polisyos.ir._internal.validation import (
     ensure_finite_numeric,
     ensure_unique_ids,
 )
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
     CausalGraphModel,
     EdgeSource,
     GraphType,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.artifacts.contracts import (
     ArtifactID,
+    ArtifactOwnerDeclaration,
     ArtifactSelector,
     _is_string_root_model,
     _normalize_scalar_artifact_id,
     normalize_artifact_ref,
 )
-from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode, IRRepresentationKey
+from polisyos.ir.model_layer.canon import CanonSpec, CanonViolation
 from polisyos.ir.registry.refs import LiteratureCausalPriorRef
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.context import ContextProfile
+    from polisyos.ir.artifacts import ArtifactStore, InputRef
 else:
     from polisyos.ir.analytics.context import ContextProfile
 
@@ -2164,39 +2172,159 @@ def _require_literature_artifact_abi(
         raise ValueError("Literature artifact manifest is incompatible")
 
 
+_ANALYTICS_ARTIFACT_CANON_SPEC = CanonSpec(forbid_floats=False)
+
+
+def _declare_owned_model(
+    model: type[BaseModel],
+    *,
+    contract_id: str,
+    dto_fqn: str,
+    abi_key: str,
+    registry_key: str,
+    kind: str,
+    schema_name: str,
+    schema_version: str,
+    payload_version: str,
+    purpose: str,
+    notes: tuple[str, ...],
+    compatibility: CompatibilityMode = CompatibilityMode.NONE,
+) -> ArtifactOwnerDeclaration[Any, Any]:
+    """Declare one exact source-proven DTO/artifact representation."""
+    wire_policy_ref = f"{contract_id}.wire"
+    return declare_model_owner(
+        model,
+        contract_id=contract_id,
+        dto_fqn=dto_fqn,
+        abi_key=abi_key,
+        registry_key=registry_key,
+        kind=kind,
+        media_type="application/json",
+        purpose=purpose,
+        policy_revision=f"{contract_id}.owner-admission.v1",
+        accepted_wire_policies=((wire_policy_ref, "1"),),
+        payload_version_field="schema_version",
+        validate_profile=owner_profile_for_spec(_ANALYTICS_ARTIFACT_CANON_SPEC, profile_ref=None),
+        representations=(
+            OwnedJSONRepresentation(
+                schema_name=schema_name,
+                schema_version=schema_version,
+                payload_version=payload_version,
+                wire_policy_ref=wire_policy_ref,
+                wire_policy_revision="1",
+                profile_ref=None,
+                compatibility=compatibility,
+                notes=notes,
+                readable=True,
+                writable=True,
+                current=True,
+                default_write=True,
+                readable_from=(),
+            ),
+        ),
+    )
+
+
+_ARTICLE_EXTRACTION_OWNER_REF = "ir.analytics.literature.article_extraction_result"
+_ARTICLE_EXTRACTION_LEGACY_WIRE = (_ARTICLE_EXTRACTION_OWNER_REF + ".wire.legacy", "1")
+_ARTICLE_EXTRACTION_CURRENT_WIRE = (_ARTICLE_EXTRACTION_OWNER_REF + ".wire.current", "1")
+_ARTICLE_EXTRACTION_NOTES = (
+    "ArticleExtractionResult producer stamps manifest 1.2; legacy payload 1.0 remains explicit and versioned.",
+)
+_ARTICLE_EXTRACTION_REPRESENTATIONS = (
+    OwnedJSONRepresentation(
+        schema_name=_SCHEMA_NAME,
+        schema_version=_SCHEMA_VERSION,
+        payload_version="1.0",
+        wire_policy_ref=_ARTICLE_EXTRACTION_LEGACY_WIRE[0],
+        wire_policy_revision="1",
+        profile_ref=None,
+        compatibility=CompatibilityMode.NONE,
+        notes=_ARTICLE_EXTRACTION_NOTES,
+        readable=True,
+        writable=True,
+        current=False,
+        default_write=False,
+        readable_from=(),
+    ),
+    OwnedJSONRepresentation(
+        schema_name=_SCHEMA_NAME,
+        schema_version=_SCHEMA_VERSION,
+        payload_version="1.5",
+        wire_policy_ref=_ARTICLE_EXTRACTION_CURRENT_WIRE[0],
+        wire_policy_revision="1",
+        profile_ref=None,
+        compatibility=CompatibilityMode.NONE,
+        notes=_ARTICLE_EXTRACTION_NOTES,
+        readable=True,
+        writable=True,
+        current=True,
+        default_write=True,
+        readable_from=(IRRepresentationKey(_SCHEMA_NAME, _SCHEMA_VERSION, "1.0"),),
+    ),
+)
+_ARTICLE_EXTRACTION_OWNER: ArtifactOwnerDeclaration[
+    ArticleExtractionResult, ArticleExtractionResult
+] = declare_model_owner(
+    ArticleExtractionResult,
+    contract_id=_ARTICLE_EXTRACTION_OWNER_REF,
+    dto_fqn="polisyos.ir.analytics.literature.ArticleExtractionResult",
+    abi_key="article_extraction_result",
+    registry_key="article_extraction_result",
+    kind=_SCHEMA_NAME,
+    media_type="application/json",
+    purpose="ir_article_extraction_result",
+    policy_revision=_ARTICLE_EXTRACTION_OWNER_REF + ".owner-admission.v1",
+    accepted_wire_policies=(_ARTICLE_EXTRACTION_LEGACY_WIRE, _ARTICLE_EXTRACTION_CURRENT_WIRE),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(_ANALYTICS_ARTIFACT_CANON_SPEC, profile_ref=None),
+    representations=_ARTICLE_EXTRACTION_REPRESENTATIONS,
+)
+_LITERATURE_PRIOR_OWNER = _declare_owned_model(
+    LiteratureCausalPrior,
+    contract_id="ir.analytics.literature.literature_causal_prior",
+    dto_fqn="polisyos.ir.analytics.literature.LiteratureCausalPrior",
+    abi_key="literature_causal_prior",
+    registry_key="literature_causal_prior",
+    kind=_LITERATURE_PRIOR_SCHEMA_NAME,
+    schema_name=_LITERATURE_PRIOR_SCHEMA_NAME,
+    schema_version=_LITERATURE_PRIOR_SCHEMA_VERSION,
+    payload_version="1.0",
+    purpose="ir_literature_causal_prior",
+    compatibility=CompatibilityMode.FULL,
+    notes=("Literature causal prior 1.0 has no declared schema successors yet.",),
+)
+
+
 def persist_article_extraction_result(
     store: ArtifactStore,
     result: ArticleExtractionResult,
     *,
     inputs: list[InputRef] | None = None,
 ) -> dict[str, str]:
-    """Persist article extraction result helper."""
-    return put_json_artifact(
+    """Persist article extraction result through its exact owner declaration."""
+    return _put_owned_json_artifact(
         store,
         result.model_dump(mode="json"),
-        kind=_SCHEMA_NAME,
+        owner=_ARTICLE_EXTRACTION_OWNER,
         schema_name=_SCHEMA_NAME,
         schema_version=_SCHEMA_VERSION,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=True,
     )
 
 
 def load_article_extraction_result(
     store: ArtifactStore, ref: ArtifactSelector
 ) -> ArticleExtractionResult:
-    """Load article extraction result."""
+    """Load article extraction result through its exact owner declaration."""
     selector = _literature_artifact_selector(ref)
-    _require_literature_artifact_abi(
-        store,
-        selector,
-        kind=_SCHEMA_NAME,
-        schema_name=_SCHEMA_NAME,
-        schema_version=_SCHEMA_VERSION,
-    )
-    payload = get_json_artifact(store, selector)
-    return ArticleExtractionResult.model_validate(payload)
+    try:
+        return _get_owned_json_artifact(store, selector, owner=_ARTICLE_EXTRACTION_OWNER)
+    except CanonViolation as exc:
+        if str(exc) != "ir_owned_artifact_manifest_identity_mismatch":
+            raise
+        raise CanonViolation("Literature artifact manifest is incompatible") from exc
 
 
 def persist_literature_causal_prior(
@@ -2205,16 +2333,15 @@ def persist_literature_causal_prior(
     *,
     inputs: list[InputRef] | None = None,
 ) -> LiteratureCausalPriorRef:
-    """Persist literature causal prior helper."""
-    ref = put_json_artifact(
+    """Persist literature causal prior through its exact owner declaration."""
+    ref = _put_owned_json_artifact(
         store,
         prior.model_dump(mode="json"),
-        kind=_LITERATURE_PRIOR_SCHEMA_NAME,
+        owner=_LITERATURE_PRIOR_OWNER,
         schema_name=_LITERATURE_PRIOR_SCHEMA_NAME,
         schema_version=_LITERATURE_PRIOR_SCHEMA_VERSION,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=True,
     )
     return LiteratureCausalPriorRef.model_validate(ref)
 
@@ -2223,17 +2350,14 @@ def load_literature_causal_prior(
     store: ArtifactStore,
     ref: ArtifactSelector,
 ) -> LiteratureCausalPrior:
-    """Load literature causal prior."""
+    """Load literature causal prior through its exact owner declaration."""
     selector = _literature_artifact_selector(ref)
-    _require_literature_artifact_abi(
-        store,
-        selector,
-        kind=_LITERATURE_PRIOR_SCHEMA_NAME,
-        schema_name=_LITERATURE_PRIOR_SCHEMA_NAME,
-        schema_version=_LITERATURE_PRIOR_SCHEMA_VERSION,
-    )
-    payload = get_json_artifact(store, selector)
-    return LiteratureCausalPrior.model_validate(payload)
+    try:
+        return _get_owned_json_artifact(store, selector, owner=_LITERATURE_PRIOR_OWNER)
+    except CanonViolation as exc:
+        if str(exc) != "ir_owned_artifact_manifest_identity_mismatch":
+            raise
+        raise CanonViolation("Literature artifact manifest is incompatible") from exc
 
 
 __all__ = [

@@ -1,0 +1,35 @@
+id = "2026-10-23-e02-fabric-stream-row-typing"
+title = "Align stream adapters with their row and result owners"
+type = "fixed"
+component = "fabric-data-plane"
+owner = "team-polisyos"
+summary = "The streaming manifest consumer reads a shared summary protocol across registered and legacy producers. Tabular admission uses typed, runtime-checked frame surfaces, and record batches truthfully expose object rows so malformed values continue to the per-row quarantine consumer."
+evidence = [
+  "src/polisyos/fabric/data_plane/modes.py",
+  "src/polisyos/fabric/data_plane/streaming.py",
+  "tests/unit/fabric/data_plane/test_modes.py",
+  "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+]
+compatibility = "Runtime row ordering, batching, registered/legacy summary values, and quarantine serialization are preserved. Clean input stores remain usable without a local quarantine index; only an actual quarantine emission requires the IndexedArtifactStore capability."
+change_class = "internal"
+surface_classification = "public: polisyos.fabric.data_plane.streaming.iter_record_batches return type"
+migration = "No data migration or serialized artifact migration is required. Statically typed consumers that assume every row is a dictionary must narrow rows before dictionary access; malformed values could already reach this iterator at runtime."
+api = "Public exports and runtime behavior are unchanged. The return annotation now reports object rows honestly; no DTO, schema, route, artifact ID, or serialization shape changed."
+limitations = "The frame-like protocols cover only the operations consumed by the two current streaming adapters. This does not claim that arbitrary objects are tabular frames or change source allocation limits."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "fabric-stream-rows-object-output-annotation"
+change_class = "internal"
+impact = "static typing"
+surface = "polisyos.fabric.data_plane.streaming.iter_record_batches return annotation"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "The iterator now states that batches may contain object rows, matching its existing behavior of preserving non-dictionary values for downstream row-level quarantine."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

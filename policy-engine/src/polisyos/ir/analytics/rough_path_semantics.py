@@ -17,7 +17,18 @@ from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation as _OwnedJSONRepresentation,
+)
+from polisyos.ir.analytics._owner_admission import (
+    declare_model_owner as _declare_model_owner,
+)
+from polisyos.ir.analytics._owner_admission import (
+    owner_profile_for_spec as _owner_profile_for_spec,
+)
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode as _CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import ArtifactRefModel, RoughPathInterventionCertificateRef
 
@@ -204,6 +215,44 @@ class TemporalPathSemanticsAttachment(BaseModel):
         return self
 
 
+_ROUGH_PATH_INTERVENTION_CERTIFICATE_OWNER = _declare_model_owner(
+    RoughPathInterventionCertificate,
+    contract_id="ir.analytics.rough_path_intervention_certificate.owner.v1",
+    dto_fqn="polisyos.ir.analytics.rough_path_semantics.RoughPathInterventionCertificate",
+    abi_key="ir.analytics.rough_path_intervention_certificate.dto-abi.v1",
+    registry_key="ir.rough_path_intervention_certificate",
+    kind="ir.rough_path_intervention_certificate",
+    media_type="application/json",
+    purpose="rough_path_intervention_certificate",
+    policy_revision="ir.analytics.rough_path_intervention_certificate.admission.v1",
+    accepted_wire_policies=(("ir.analytics.rough_path_intervention_certificate.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=_owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name=_ROUGH_PATH_INTERVENTION_CERTIFICATE_SCHEMA_NAME,
+            schema_version=_ROUGH_PATH_INTERVENTION_CERTIFICATE_SCHEMA_VERSION,
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.rough_path_intervention_certificate.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=(
+                "Exact owner-bound rough path intervention certificate tuple; unknown history remains opaque.",
+            ),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
 def persist_rough_path_intervention_certificate(
     store: ArtifactStore,
     certificate: RoughPathInterventionCertificate,
@@ -212,29 +261,29 @@ def persist_rough_path_intervention_certificate(
     schema_name: str = _ROUGH_PATH_INTERVENTION_CERTIFICATE_SCHEMA_NAME,
     schema_version: str = _ROUGH_PATH_INTERVENTION_CERTIFICATE_SCHEMA_VERSION,
 ) -> RoughPathInterventionCertificateRef:
-    """Persist a rough-path intervention certificate as a JSON artifact."""
-
-    return RoughPathInterventionCertificateRef.model_validate(
-        put_json_artifact(
-            store,
-            certificate.model_dump(mode="json"),
-            kind="ir.rough_path_intervention_certificate",
-            schema_name=schema_name,
-            schema_version=schema_version,
-            inputs=inputs,
-            canon_spec=CanonSpec(forbid_floats=False),
-        )
+    """Persist a rough-path certificate through its declared artifact owner."""
+    ref = _put_owned_json_artifact(
+        store,
+        certificate.model_dump(mode="json"),
+        owner=_ROUGH_PATH_INTERVENTION_CERTIFICATE_OWNER,
+        schema_name=schema_name,
+        schema_version=schema_version,
+        inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
     )
+    return RoughPathInterventionCertificateRef.model_validate(ref)
 
 
 def load_rough_path_intervention_certificate(
     store: ArtifactStore,
     ref: RoughPathInterventionCertificateRef,
 ) -> RoughPathInterventionCertificate:
-    """Load a previously persisted rough-path intervention certificate."""
-
-    payload = get_json_artifact(store, ref)
-    return RoughPathInterventionCertificate.model_validate(payload)
+    """Load a rough-path certificate after exact owner admission."""
+    return _get_owned_json_artifact(
+        store,
+        ref,
+        owner=_ROUGH_PATH_INTERVENTION_CERTIFICATE_OWNER,
+    )
 
 
 __all__ = [

@@ -7,20 +7,20 @@ import json
 import math
 import re
 from collections import defaultdict
-from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
-from .contract import DataContract
 from .providers import resolve_catalog_providers
-from .source_bindings import SourceBinding
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Mapping, Sequence
 
     from polisyos.fabric.connectors.profiles import SourceProfileRegistry
+
+    from .contract import DataContract
+    from .source_bindings import SourceBinding
 
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+")

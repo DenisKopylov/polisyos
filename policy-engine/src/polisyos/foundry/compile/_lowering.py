@@ -11,7 +11,8 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.protocol import ArtifactStore
+from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.contracts.foundry import (
     LoweredConstraint,
     LoweredIR,
@@ -24,7 +25,9 @@ from polisyos.foundry.methods.catalog.mechanism.runtime_registry import (
 )
 from polisyos.ir.governance.policy_spec import InterventionSpec, MechanismBinding, ParameterSpec
 from polisyos.ir.governance.policy_spec import PolicySpec as PolicySpecModel
+from polisyos.ir.governance.problem_frame import ConstraintSpec, ProblemFrame
 from polisyos.ir.governance.problem_frame import ProblemFrame as ProblemFrameModel
+from polisyos.ir.kernel.constraints import ConstraintRegistry
 from polisyos.ir.kernel.mechanisms import MechanismTypeSpec
 from polisyos.ir.model_layer.model_spec import ModelSpec as ModelSpecModel
 from polisyos.ir.trinity import TrinityBundle
@@ -161,7 +164,7 @@ def audit_trinity_field_coverage(*, strict: bool = True) -> list[str]:
 
 
 def lower_trinity(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     *,
     policy_ref: ArtifactRef,
     registry_bundle_ref: ArtifactRef,
@@ -377,16 +380,17 @@ def _validate_parameter_specs(
 
 
 def _lower_constraints(
-    problem_frame: Any,
-    constraint_registry: Any,
+    problem_frame: ProblemFrame,
+    constraint_registry: ConstraintRegistry,
 ) -> tuple[list[LoweredConstraint], list[str]]:
     lowered: list[LoweredConstraint] = []
     notes: list[str] = []
-    registry_constraints = getattr(constraint_registry, "constraints", {})
-    for severity, items in (
+    registry_constraints = constraint_registry.constraints
+    constraint_groups: tuple[tuple[Literal["hard", "soft"], list[ConstraintSpec]], ...] = (
         ("hard", problem_frame.hard_constraints),
         ("soft", problem_frame.soft_constraints),
-    ):
+    )
+    for severity, items in constraint_groups:
         for constraint in items:
             registry_spec = registry_constraints.get(constraint.constraint_id)
             slot_id = constraint.slot_id or getattr(registry_spec, "slot_id", None)

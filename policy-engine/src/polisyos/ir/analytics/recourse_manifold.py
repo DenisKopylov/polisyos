@@ -27,7 +27,18 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation as _OwnedJSONRepresentation,
+)
+from polisyos.ir.analytics._owner_admission import (
+    declare_model_owner as _declare_model_owner,
+)
+from polisyos.ir.analytics._owner_admission import (
+    owner_profile_for_spec as _owner_profile_for_spec,
+)
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode as _CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     InterventionCostManifoldRef,
@@ -859,6 +870,192 @@ def render_recourse_query(query: OptimalRecourseInterventionQuery) -> str:
     )
 
 
+_INTERVENTION_COST_MANIFOLD_OWNER = _declare_model_owner(
+    InterventionCostManifold,
+    contract_id="ir.analytics.intervention_cost_manifold.owner.v1",
+    dto_fqn="polisyos.ir.analytics.recourse_manifold.InterventionCostManifold",
+    abi_key="ir.analytics.intervention_cost_manifold.dto-abi.v1",
+    registry_key=_MANIFOLD_SCHEMA_NAME,
+    kind=_MANIFOLD_SCHEMA_NAME,
+    media_type="application/json",
+    purpose="intervention_cost_manifold",
+    policy_revision="ir.analytics.intervention_cost_manifold.admission.v1",
+    accepted_wire_policies=(("ir.analytics.intervention_cost_manifold.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=_owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name=_MANIFOLD_SCHEMA_NAME,
+            schema_version=_MANIFOLD_SCHEMA_VERSION,
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.intervention_cost_manifold.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=(
+                "Exact owner-bound intervention cost manifold tuple; unknown history remains opaque.",
+            ),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+_OPTIMAL_RECOURSE_QUERY_OWNER = _declare_model_owner(
+    OptimalRecourseInterventionQuery,
+    contract_id="ir.analytics.optimal_recourse_intervention_query.owner.v1",
+    dto_fqn="polisyos.ir.analytics.recourse_manifold.OptimalRecourseInterventionQuery",
+    abi_key="ir.analytics.optimal_recourse_intervention_query.dto-abi.v1",
+    registry_key=_QUERY_SCHEMA_NAME,
+    kind=_QUERY_SCHEMA_NAME,
+    media_type="application/json",
+    purpose="optimal_recourse_intervention_query",
+    policy_revision="ir.analytics.optimal_recourse_intervention_query.admission.v1",
+    accepted_wire_policies=(("ir.analytics.optimal_recourse_intervention_query.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=_owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name=_QUERY_SCHEMA_NAME,
+            schema_version=_QUERY_SCHEMA_VERSION,
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.optimal_recourse_intervention_query.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=(
+                "Exact owner-bound optimal recourse intervention query tuple; unknown history remains opaque.",
+            ),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+_RECOURSE_PROOF_BUNDLE_OWNER = _declare_model_owner(
+    RecourseProofBundle,
+    contract_id="ir.analytics.recourse_proof_bundle.owner.v1",
+    dto_fqn="polisyos.ir.analytics.recourse_manifold.RecourseProofBundle",
+    abi_key="ir.analytics.recourse_proof_bundle.dto-abi.v1",
+    registry_key=_PROOF_SCHEMA_NAME,
+    kind=_PROOF_SCHEMA_NAME,
+    media_type="application/json",
+    purpose="recourse_proof_bundle",
+    policy_revision="ir.analytics.recourse_proof_bundle.admission.v1",
+    accepted_wire_policies=(("ir.analytics.recourse_proof_bundle.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=_owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name=_PROOF_SCHEMA_NAME,
+            schema_version=_PROOF_SCHEMA_VERSION,
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.recourse_proof_bundle.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=(
+                "Exact owner-bound recourse proof bundle tuple; unknown history remains opaque.",
+            ),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+_RECOURSE_FEASIBILITY_CERTIFICATE_OWNER = _declare_model_owner(
+    RecourseFeasibilityCertificate,
+    contract_id="ir.analytics.recourse_feasibility_certificate.owner.v1",
+    dto_fqn="polisyos.ir.analytics.recourse_manifold.RecourseFeasibilityCertificate",
+    abi_key="ir.analytics.recourse_feasibility_certificate.dto-abi.v1",
+    registry_key=_FEASIBILITY_SCHEMA_NAME,
+    kind=_FEASIBILITY_SCHEMA_NAME,
+    media_type="application/json",
+    purpose="recourse_feasibility_certificate",
+    policy_revision="ir.analytics.recourse_feasibility_certificate.admission.v1",
+    accepted_wire_policies=(("ir.analytics.recourse_feasibility_certificate.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=_owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name=_FEASIBILITY_SCHEMA_NAME,
+            schema_version=_FEASIBILITY_SCHEMA_VERSION,
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.recourse_feasibility_certificate.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=(
+                "Exact owner-bound recourse feasibility certificate tuple; unknown history remains opaque.",
+            ),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+_OPTIMAL_RECOURSE_BUNDLE_OWNER = _declare_model_owner(
+    OptimalRecourseInterventionBundle,
+    contract_id="ir.analytics.optimal_recourse_intervention_bundle.owner.v1",
+    dto_fqn="polisyos.ir.analytics.recourse_manifold.OptimalRecourseInterventionBundle",
+    abi_key="ir.analytics.optimal_recourse_intervention_bundle.dto-abi.v1",
+    registry_key=_BUNDLE_SCHEMA_NAME,
+    kind=_BUNDLE_SCHEMA_NAME,
+    media_type="application/json",
+    purpose="optimal_recourse_intervention_bundle",
+    policy_revision="ir.analytics.optimal_recourse_intervention_bundle.admission.v1",
+    accepted_wire_policies=(("ir.analytics.optimal_recourse_intervention_bundle.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=_owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name=_BUNDLE_SCHEMA_NAME,
+            schema_version=_BUNDLE_SCHEMA_VERSION,
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.optimal_recourse_intervention_bundle.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=(
+                "Exact owner-bound optimal recourse intervention bundle tuple; unknown history remains opaque.",
+            ),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
 def persist_intervention_cost_manifold(
     store: ArtifactStore,
     manifold: InterventionCostManifold,
@@ -867,11 +1064,11 @@ def persist_intervention_cost_manifold(
     schema_name: str = _MANIFOLD_SCHEMA_NAME,
     schema_version: str = _MANIFOLD_SCHEMA_VERSION,
 ) -> InterventionCostManifoldRef:
-    """Persist a manifold and return its typed ref."""
-    ref = put_json_artifact(
+    """Persist through the code-declared artifact owner."""
+    ref = _put_owned_json_artifact(
         store,
         manifold.model_dump(mode="json"),
-        kind="ir.intervention_cost_manifold",
+        owner=_INTERVENTION_COST_MANIFOLD_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -884,9 +1081,12 @@ def load_intervention_cost_manifold(
     store: ArtifactStore,
     ref: InterventionCostManifoldRef,
 ) -> InterventionCostManifold:
-    """Load a persisted manifold."""
-    payload = get_json_artifact(store, ref)
-    return InterventionCostManifold.model_validate(payload)
+    """Load through the code-declared artifact owner."""
+    return _get_owned_json_artifact(
+        store,
+        ref,
+        owner=_INTERVENTION_COST_MANIFOLD_OWNER,
+    )
 
 
 def persist_optimal_recourse_query(
@@ -897,11 +1097,11 @@ def persist_optimal_recourse_query(
     schema_name: str = _QUERY_SCHEMA_NAME,
     schema_version: str = _QUERY_SCHEMA_VERSION,
 ) -> OptimalRecourseInterventionQueryRef:
-    """Persist an optimal-recourse query and return its typed ref."""
-    ref = put_json_artifact(
+    """Persist through the code-declared artifact owner."""
+    ref = _put_owned_json_artifact(
         store,
         query.model_dump(mode="json"),
-        kind="ir.optimal_recourse_intervention_query",
+        owner=_OPTIMAL_RECOURSE_QUERY_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -914,9 +1114,12 @@ def load_optimal_recourse_query(
     store: ArtifactStore,
     ref: OptimalRecourseInterventionQueryRef,
 ) -> OptimalRecourseInterventionQuery:
-    """Load a persisted optimal-recourse query."""
-    payload = get_json_artifact(store, ref)
-    return OptimalRecourseInterventionQuery.model_validate(payload)
+    """Load through the code-declared artifact owner."""
+    return _get_owned_json_artifact(
+        store,
+        ref,
+        owner=_OPTIMAL_RECOURSE_QUERY_OWNER,
+    )
 
 
 def persist_recourse_proof_bundle(
@@ -927,11 +1130,11 @@ def persist_recourse_proof_bundle(
     schema_name: str = _PROOF_SCHEMA_NAME,
     schema_version: str = _PROOF_SCHEMA_VERSION,
 ) -> RecourseProofBundleRef:
-    """Persist a recourse proof bundle."""
-    ref = put_json_artifact(
+    """Persist through the code-declared artifact owner."""
+    ref = _put_owned_json_artifact(
         store,
         bundle.model_dump(mode="json"),
-        kind="ir.recourse_proof_bundle",
+        owner=_RECOURSE_PROOF_BUNDLE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -944,9 +1147,12 @@ def load_recourse_proof_bundle(
     store: ArtifactStore,
     ref: RecourseProofBundleRef,
 ) -> RecourseProofBundle:
-    """Load a persisted recourse proof bundle."""
-    payload = get_json_artifact(store, ref)
-    return RecourseProofBundle.model_validate(payload)
+    """Load through the code-declared artifact owner."""
+    return _get_owned_json_artifact(
+        store,
+        ref,
+        owner=_RECOURSE_PROOF_BUNDLE_OWNER,
+    )
 
 
 def persist_feasibility_certificate(
@@ -957,11 +1163,11 @@ def persist_feasibility_certificate(
     schema_name: str = _FEASIBILITY_SCHEMA_NAME,
     schema_version: str = _FEASIBILITY_SCHEMA_VERSION,
 ) -> RecourseFeasibilityCertificateRef:
-    """Persist a feasibility certificate."""
-    ref = put_json_artifact(
+    """Persist through the code-declared artifact owner."""
+    ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind="ir.recourse_feasibility_certificate",
+        owner=_RECOURSE_FEASIBILITY_CERTIFICATE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -974,9 +1180,12 @@ def load_feasibility_certificate(
     store: ArtifactStore,
     ref: RecourseFeasibilityCertificateRef,
 ) -> RecourseFeasibilityCertificate:
-    """Load a persisted feasibility certificate."""
-    payload = get_json_artifact(store, ref)
-    return RecourseFeasibilityCertificate.model_validate(payload)
+    """Load through the code-declared artifact owner."""
+    return _get_owned_json_artifact(
+        store,
+        ref,
+        owner=_RECOURSE_FEASIBILITY_CERTIFICATE_OWNER,
+    )
 
 
 def persist_recourse_bundle(
@@ -987,11 +1196,11 @@ def persist_recourse_bundle(
     schema_name: str = _BUNDLE_SCHEMA_NAME,
     schema_version: str = _BUNDLE_SCHEMA_VERSION,
 ) -> OptimalRecourseInterventionBundleRef:
-    """Persist an optimal-recourse planning bundle."""
-    ref = put_json_artifact(
+    """Persist through the code-declared artifact owner."""
+    ref = _put_owned_json_artifact(
         store,
         bundle.model_dump(mode="json"),
-        kind="ir.optimal_recourse_intervention_bundle",
+        owner=_OPTIMAL_RECOURSE_BUNDLE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -1004,9 +1213,12 @@ def load_recourse_bundle(
     store: ArtifactStore,
     ref: OptimalRecourseInterventionBundleRef,
 ) -> OptimalRecourseInterventionBundle:
-    """Load a persisted optimal-recourse planning bundle."""
-    payload = get_json_artifact(store, ref)
-    return OptimalRecourseInterventionBundle.model_validate(payload)
+    """Load through the code-declared artifact owner."""
+    return _get_owned_json_artifact(
+        store,
+        ref,
+        owner=_OPTIMAL_RECOURSE_BUNDLE_OWNER,
+    )
 
 
 __all__ = [

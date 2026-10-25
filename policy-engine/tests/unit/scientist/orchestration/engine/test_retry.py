@@ -79,6 +79,72 @@ def _select_timeout_test_route(monkeypatch, route: str) -> None:
         monkeypatch.setattr(retry_module, "_timeout_worker_start_method", lambda: None)
 
 
+class _ControlledThreadDeadline:
+    """Control one timeout test's worker-start and deadline phases."""
+
+    def __init__(self, monkeypatch):
+        self._monkeypatch = monkeypatch
+        self.current = 0.0
+        self.deadline = None
+        self.expired_deadline = None
+        self.future = None
+        self.completed = None
+        self.worker_completed_at = None
+        self.started_observed = False
+        self.sleep_calls = []
+        self.backoff_requests = []
+        self._submission_count = 0
+
+    def monotonic(self):
+        return self.current
+
+    def sleep(self, delay):
+        self.sleep_calls.append(delay)
+        self.current += delay
+        if self.deadline is not None and self.current >= self.deadline:
+            self.expired_deadline = self.deadline
+
+    def observe_first_attempt(
+        self, started, *, expire_after_start=False, wait_for_completion=False
+    ):
+        """Install one real worker-start barrier and a controlled retry clock."""
+        self._monkeypatch.setattr(retry_module, "time", self)
+        submit = retry_module._submit_thread_attempt
+
+        def submit_and_observe(*args, **kwargs):
+            result = submit(*args, **kwargs)
+            self._submission_count += 1
+            if self._submission_count != 1:
+                return result
+            self.future = result[0]
+            self.completed = result[2]
+            self.deadline = args[3] if len(args) > 3 else kwargs["deadline"]
+            assert started.wait(timeout=2.0), "timeout worker did not pass its start barrier"
+            self.started_observed = True
+            if expire_after_start:
+                self.current = self.deadline
+                self.expired_deadline = self.deadline
+            if wait_for_completion:
+                self.future.result(timeout=2.0)
+                self.worker_completed_at = self.completed[0]
+            return result
+
+        self._monkeypatch.setattr(retry_module, "_submit_thread_attempt", submit_and_observe)
+        retry_delay = retry_module._retry_delay_sync
+
+        def record_backoff(delay, deadline):
+            self.backoff_requests.append((delay, deadline))
+            return retry_delay(delay, deadline)
+
+        self._monkeypatch.setattr(retry_module, "_retry_delay_sync", record_backoff)
+
+
+@pytest.fixture
+def controlled_thread_deadline(monkeypatch):
+    """Provide deterministic start and backoff phases for timeout-thread tests."""
+    return _ControlledThreadDeadline(monkeypatch)
+
+
 # ---------------------------------------------------------------------------
 # RetryPolicy model
 # ---------------------------------------------------------------------------
@@ -254,6 +320,24 @@ class TestExecuteWithRetrySync:
         assert isinstance(facade, ExperimentState)
         with pytest.raises(AttributeError):
             facade.__class__ = dict
+
+    def test_attempt_model_facade_normalizes_typed_artifact_refs(self) -> None:
+        from polisyos.ir.artifacts import normalize_artifact_ref
+
+        target = ArtifactRef(
+            artifact_id="sha256:" + "1" * 64,
+            kind="ir.context_adaptive_parameter_bundle",
+            media_type="application/json",
+        )
+        authority = retry_module._AttemptAuthority()
+
+        for facade_type in (
+            retry_module._AttemptModelFacade,
+            retry_module._AttemptManifestFacade,
+        ):
+            facade = facade_type(target, authority)
+            assert isinstance(facade, ArtifactRef)
+            assert normalize_artifact_ref(facade) == normalize_artifact_ref(target)
 
     def test_execution_context_store_views_preserve_profile_kwargs_and_authority(self):
         from types import SimpleNamespace
@@ -495,7 +579,357 @@ class TestExecuteWithRetrySync:
         attempt.claim_ledger_owner.persist_candidate_ledger(ledger="late")
         target.claim_ledger_owner.persist_candidate_ledger.assert_not_called()
 
-    def test_claim_capable_execute_preserves_type_and_manifest_authority(self, state, monkeypatch):
+    def test_engine_node_manifest_snapshot_detaches_class_owned_mutable_values(self):
+        from types import SimpleNamespace
+
+        class _Manifest:
+            status = "running"
+            errors = [{"nested": {"events": []}}]
+
+        manifest = _Manifest()
+        target = SimpleNamespace(run_manifest=manifest)
+        view = retry_module._EngineNodeRunView(
+            target, _token=retry_module._ENGINE_NODE_RUN_VIEW_TOKEN
+        )
+
+        snapshot = view.run_manifest
+        assert type(snapshot) is type(manifest)
+        snapshot.errors[0]["nested"]["events"].append("snapshot")
+
+        assert manifest.errors == [{"nested": {"events": []}}]
+
+    def test_engine_node_manifest_snapshot_preserves_typed_model_and_detaches_data(self):
+        from types import SimpleNamespace
+
+        from polisyos.core.artifacts.manifest import EnvInfo, GitInfo, ProducerInfo
+        from polisyos.core.components.ids import ComponentId
+
+        manifest = RunManifest(
+            run_id="run",
+            registry_bundle=ArtifactRef(
+                artifact_id="sha256:" + "0" * 64,
+                kind="registry",
+                media_type="application/json",
+            ),
+            producer=ProducerInfo(
+                component=ComponentId("scientist.test@1.0.0"),
+                version="1",
+                git=GitInfo(commit="1" * 40),
+            ),
+            env=EnvInfo(
+                python="3.14",
+                platform="test",
+                deps_lock_hash="sha256:" + "0" * 64,
+            ),
+            errors=[{"nested": {"events": []}}],
+        )
+        target = SimpleNamespace(run_manifest=manifest)
+        view = retry_module._EngineNodeRunView(
+            target, _token=retry_module._ENGINE_NODE_RUN_VIEW_TOKEN
+        )
+
+        snapshot = view.run_manifest
+        assert type(snapshot) is RunManifest
+        assert type(snapshot.registry_bundle) is type(manifest.registry_bundle)
+        assert type(snapshot.registry_bundle.artifact_id) is type(
+            manifest.registry_bundle.artifact_id
+        )
+        assert type(snapshot.producer) is type(manifest.producer)
+        assert type(snapshot.producer.component) is type(manifest.producer.component)
+        assert type(snapshot.producer.git) is type(manifest.producer.git)
+        assert type(snapshot.env) is type(manifest.env)
+        assert snapshot == manifest
+        assert snapshot.model_fields_set == manifest.model_fields_set
+        snapshot.status = "snapshot-only"
+        snapshot.errors[0]["nested"]["events"].append("snapshot")
+
+        assert manifest.status == "running"
+        assert manifest.errors == [{"nested": {"events": []}}]
+
+    def test_engine_node_manifest_snapshot_peels_bounded_exact_attempt_facades(self):
+        from types import SimpleNamespace
+
+        for depth in (1, 2, 5, 8):
+            manifest = RunManifest(
+                run_id=f"run-{depth}",
+                registry_bundle=ArtifactRef(
+                    artifact_id="sha256:" + "0" * 64,
+                    kind="registry",
+                    media_type="application/json",
+                ),
+                errors=[{"nested": {"events": []}}],
+            )
+            authority = retry_module._AttemptAuthority()
+            target = SimpleNamespace(run_manifest=manifest)
+            for _ in range(depth):
+                target = retry_module._AttemptRunFacade(
+                    target,
+                    authority,
+                    store=object(),
+                )
+            view = retry_module._EngineNodeRunView(
+                target,
+                _token=retry_module._ENGINE_NODE_RUN_VIEW_TOKEN,
+            )
+
+            snapshot = view.run_manifest
+            assert type(snapshot) is RunManifest
+            assert snapshot is not manifest
+            assert snapshot == manifest
+            snapshot.errors[0]["nested"]["events"].append("detached")
+            assert manifest.errors == [{"nested": {"events": []}}]
+
+    def test_engine_node_manifest_snapshot_rejects_bad_attempt_facade_chains(self):
+        from types import SimpleNamespace
+
+        manifest = RunManifest(
+            run_id="run",
+            registry_bundle=ArtifactRef(
+                artifact_id="sha256:" + "0" * 64,
+                kind="registry",
+                media_type="application/json",
+            ),
+        )
+        authority = retry_module._AttemptAuthority()
+
+        cyclic = retry_module._AttemptManifestFacade(manifest, authority)
+        object.__setattr__(cyclic, "_target", cyclic)
+        cyclic_view = retry_module._EngineNodeRunView(
+            SimpleNamespace(run_manifest=cyclic),
+            _token=retry_module._ENGINE_NODE_RUN_VIEW_TOKEN,
+        )
+        with pytest.raises(
+            TypeError,
+            match="run_manifest_snapshot_attempt_facade_cycle",
+        ):
+            _ = cyclic_view.run_manifest
+
+        overdepth: object = manifest
+        for _ in range(retry_module._MAX_EXACT_WORKER_RUN_FACADE_DEPTH + 1):
+            overdepth = retry_module._AttemptManifestFacade(overdepth, authority)
+        overdepth_view = retry_module._EngineNodeRunView(
+            SimpleNamespace(run_manifest=overdepth),
+            _token=retry_module._ENGINE_NODE_RUN_VIEW_TOKEN,
+        )
+        with pytest.raises(
+            TypeError,
+            match="run_manifest_snapshot_attempt_facade_depth_exceeded",
+        ):
+            _ = overdepth_view.run_manifest
+
+        spoof_reads: list[str] = []
+
+        class _SpoofManifestFacade(retry_module._AttemptManifestFacade):
+            def __getattribute__(self, name: str):
+                spoof_reads.append(name)
+                return super().__getattribute__(name)
+
+        spoofed = _SpoofManifestFacade(manifest, authority)
+        spoofed_view = retry_module._EngineNodeRunView(
+            SimpleNamespace(run_manifest=spoofed),
+            _token=retry_module._ENGINE_NODE_RUN_VIEW_TOKEN,
+        )
+        with pytest.raises(
+            TypeError,
+            match="run_manifest_snapshot_record_type_unsupported",
+        ):
+            _ = spoofed_view.run_manifest
+        assert spoof_reads == []
+
+    def test_engine_node_manifest_snapshot_rejects_cycles_and_copy_hooks(self):
+        from types import SimpleNamespace
+
+        cyclic: list[object] = []
+        cyclic.append(cyclic)
+
+        class _CyclicManifest:
+            errors = [{"cycle": cyclic}]
+
+        cyclic_target = SimpleNamespace(run_manifest=_CyclicManifest())
+        cyclic_view = retry_module._EngineNodeRunView(
+            cyclic_target, _token=retry_module._ENGINE_NODE_RUN_VIEW_TOKEN
+        )
+        with pytest.raises(TypeError, match="run_manifest_snapshot_cycle"):
+            _ = cyclic_view.run_manifest
+        assert cyclic[0] is cyclic
+
+        hook_calls: list[str] = []
+
+        class _UnsafeValue:
+            def __deepcopy__(self, memo):
+                del memo
+                hook_calls.append("called")
+                return self
+
+        class _HookManifest:
+            errors = [{"value": _UnsafeValue()}]
+
+        hook_target = SimpleNamespace(run_manifest=_HookManifest())
+        hook_view = retry_module._EngineNodeRunView(
+            hook_target, _token=retry_module._ENGINE_NODE_RUN_VIEW_TOKEN
+        )
+        with pytest.raises(TypeError, match="run_manifest_snapshot_record_type_unsupported"):
+            _ = hook_view.run_manifest
+        assert hook_calls == []
+
+        typed_manifest = RunManifest(
+            run_id="run",
+            registry_bundle=ArtifactRef(
+                artifact_id="sha256:" + "0" * 64,
+                kind="registry",
+                media_type="application/json",
+            ),
+            errors=[{"value": _UnsafeValue()}],
+        )
+        typed_view = retry_module._EngineNodeRunView(
+            SimpleNamespace(run_manifest=typed_manifest),
+            _token=retry_module._ENGINE_NODE_RUN_VIEW_TOKEN,
+        )
+        with pytest.raises(TypeError):
+            _ = typed_view.run_manifest
+        assert hook_calls == []
+
+        typed_cycle: list[object] = []
+        typed_cycle.append(typed_cycle)
+        cyclic_manifest = RunManifest(
+            run_id="run",
+            registry_bundle=ArtifactRef(
+                artifact_id="sha256:" + "0" * 64,
+                kind="registry",
+                media_type="application/json",
+            ),
+            errors=[{"cycle": typed_cycle}],
+        )
+        cyclic_model_view = retry_module._EngineNodeRunView(
+            SimpleNamespace(run_manifest=cyclic_manifest),
+            _token=retry_module._ENGINE_NODE_RUN_VIEW_TOKEN,
+        )
+        with pytest.raises(TypeError):
+            _ = cyclic_model_view.run_manifest
+        assert typed_cycle[0] is typed_cycle
+
+        from pydantic import BaseModel, model_serializer
+
+        serializer_calls: list[str] = []
+
+        class _MutatingSerializer(BaseModel):
+            value: int = 0
+
+            @model_serializer
+            def serialize(self) -> dict[str, int]:
+                serializer_calls.append("called")
+                self.value += 1
+                return {"value": self.value}
+
+        serializer_value = _MutatingSerializer()
+        serialized_manifest = RunManifest(
+            run_id="run",
+            registry_bundle=ArtifactRef(
+                artifact_id="sha256:" + "0" * 64,
+                kind="registry",
+                media_type="application/json",
+            ),
+            errors=[{"nested": serializer_value}],
+        )
+        serializer_view = retry_module._EngineNodeRunView(
+            SimpleNamespace(run_manifest=serialized_manifest),
+            _token=retry_module._ENGINE_NODE_RUN_VIEW_TOKEN,
+        )
+        with pytest.raises(TypeError, match="run_manifest_snapshot_model_type_unsupported"):
+            _ = serializer_view.run_manifest
+        assert serializer_calls == []
+        assert serializer_value.value == 0
+
+        class_spoof_calls: list[str] = []
+
+        class _ClassSpoof:
+            @property
+            def __class__(self):
+                class_spoof_calls.append("called")
+                return BaseModel
+
+        spoof_manifest = RunManifest(
+            run_id="run",
+            registry_bundle=ArtifactRef(
+                artifact_id="sha256:" + "0" * 64,
+                kind="registry",
+                media_type="application/json",
+            ),
+            errors=[{"nested": _ClassSpoof()}],
+        )
+        spoof_view = retry_module._EngineNodeRunView(
+            SimpleNamespace(run_manifest=spoof_manifest),
+            _token=retry_module._ENGINE_NODE_RUN_VIEW_TOKEN,
+        )
+        with pytest.raises(TypeError):
+            _ = spoof_view.run_manifest
+        assert class_spoof_calls == []
+
+        storage_calls: list[str] = []
+
+        class _DictSpoof:
+            @property
+            def __dict__(self) -> dict[str, object] | None:
+                storage_calls.append("called")
+                return None
+
+        storage_manifest = RunManifest(
+            run_id="run",
+            registry_bundle=ArtifactRef(
+                artifact_id="sha256:" + "0" * 64,
+                kind="registry",
+                media_type="application/json",
+            ),
+            errors=[{"nested": _DictSpoof()}],
+        )
+        storage_view = retry_module._EngineNodeRunView(
+            SimpleNamespace(run_manifest=storage_manifest),
+            _token=retry_module._ENGINE_NODE_RUN_VIEW_TOKEN,
+        )
+        with pytest.raises(TypeError):
+            _ = storage_view.run_manifest
+        assert storage_calls == []
+
+        metaclass_calls: list[str] = []
+
+        class _MutatingMeta(type):
+            def __getattribute__(cls, name: str):
+                if name in {"__dict__", "__mro__"}:
+                    metaclass_calls.append(name)
+                return type.__getattribute__(cls, name)
+
+            def __eq__(cls, other: object) -> bool:
+                metaclass_calls.append("eq")
+                return False
+
+            def __hash__(cls) -> int:
+                metaclass_calls.append("hash")
+                return type.__hash__(cls)
+
+        class _CustomMetaRecord(metaclass=_MutatingMeta):
+            pass
+
+        meta_manifest = RunManifest(
+            run_id="run",
+            registry_bundle=ArtifactRef(
+                artifact_id="sha256:" + "0" * 64,
+                kind="registry",
+                media_type="application/json",
+            ),
+            errors=[{"nested": _CustomMetaRecord()}],
+        )
+        metaclass_calls.clear()
+        meta_view = retry_module._EngineNodeRunView(
+            SimpleNamespace(run_manifest=meta_manifest),
+            _token=retry_module._ENGINE_NODE_RUN_VIEW_TOKEN,
+        )
+        with pytest.raises(TypeError, match="run_manifest_snapshot_model_type_unsupported"):
+            _ = meta_view.run_manifest
+        assert metaclass_calls == []
+
+    def test_claim_capable_execute_preserves_type_and_manifest_authority(
+        self, state, monkeypatch, controlled_thread_deadline
+    ):
         class _RecordingStore:
             def __init__(self) -> None:
                 self.put_json_calls: list[tuple[object, object]] = []
@@ -589,6 +1023,7 @@ class TestExecuteWithRetrySync:
             "polisyos.scientist.orchestration.engine.retry.get_shared_executor",
             lambda: executor,
         )
+        controlled_thread_deadline.observe_first_attempt(started, expire_after_start=True)
         try:
             with pytest.raises(NodeTimeoutError):
                 execute_with_retry_sync(
@@ -642,11 +1077,11 @@ class TestExecuteWithRetrySync:
             executor.shutdown(wait=True, cancel_futures=True)
 
         assert result.status == "ok"
-        assert run.run_manifest.status == "on_time"
-        assert run.run_manifest.errors == [{"nested": {"events": ["on_time"]}}]
+        assert run.run_manifest.status == "running"
+        assert run.run_manifest.errors == [{"nested": {"events": []}}]
         assert store.put_json_calls
         assert run.emit_calls
-        assert run_audit.emit_calls
+        assert run_audit.emit_calls == []
         assert audit.append_calls
         assert claim_owner.persist_calls == [{"ledger": "on_time"}]
 
@@ -885,7 +1320,7 @@ class TestExecuteWithRetrySync:
             )
 
     def test_thread_timeout_helper_revokes_late_state_and_owner_writes(
-        self, ctx, state, monkeypatch
+        self, ctx, state, monkeypatch, controlled_thread_deadline
     ):
         """The explicit thread helper revokes writes after its deadline."""
 
@@ -963,6 +1398,7 @@ class TestExecuteWithRetrySync:
             "polisyos.scientist.orchestration.engine.retry.get_shared_executor",
             lambda: executor,
         )
+        controlled_thread_deadline.observe_first_attempt(started, expire_after_start=True)
 
         try:
             with pytest.raises(NodeTimeoutError):
@@ -2451,11 +2887,12 @@ except BaseException as exc:
 
 
 def test_expired_retry_budget_preserves_spend_without_failed_branch(
-    tmp_path, ctx, state, monkeypatch
+    tmp_path, ctx, state, monkeypatch, controlled_thread_deadline
 ):
     from decimal import Decimal
     from types import SimpleNamespace
 
+    started = threading.Event()
     effects = tmp_path / "attempts"
 
     class Node:
@@ -2465,6 +2902,7 @@ def test_expired_retry_budget_preserves_spend_without_failed_branch(
         )
 
         def execute(self, passed_ctx, passed_state):
+            started.set()
             with effects.open("a") as stream:
                 stream.write("attempt\n")
             passed_state.params["failed_change"] = True
@@ -2472,6 +2910,7 @@ def test_expired_retry_budget_preserves_spend_without_failed_branch(
             return _fail_outcome(passed_state)
 
     _select_timeout_test_route(monkeypatch, "thread")
+    controlled_thread_deadline.observe_first_attempt(started, wait_for_completion=True)
     with pytest.raises(NodeTimeoutError):
         execute_with_retry_sync(
             Node(),
@@ -2481,6 +2920,18 @@ def test_expired_retry_budget_preserves_spend_without_failed_branch(
             timeout_s=0.03,
             alias="spent-without-continuation",
         )
+
+    clock = controlled_thread_deadline
+    assert clock.started_observed
+    assert clock.deadline is not None
+    assert clock.worker_completed_at is not None
+    assert clock.worker_completed_at < clock.deadline
+    assert len(clock.backoff_requests) == 1
+    requested_delay, backoff_deadline = clock.backoff_requests[0]
+    assert requested_delay == pytest.approx(0.1)
+    assert backoff_deadline == clock.deadline
+    assert clock.sleep_calls == [pytest.approx(0.03)]
+    assert clock.expired_deadline == clock.deadline
     assert effects.read_text().splitlines() == ["attempt"]
     assert state.params == {}
     assert state.budgets["run_spent_usd"] == Decimal("0.25")
@@ -2789,12 +3240,15 @@ def test_real_framed_failed_spend_wire_rejects_corrupt_projection(corruption):
 
 
 @pytest.mark.parametrize("route", ["thread", "async"])
-def test_late_failed_spend_stays_unknown_after_owner_timeout(route, tmp_path, ctx, monkeypatch):
+def test_late_failed_spend_stays_unknown_after_owner_timeout(
+    route, tmp_path, ctx, monkeypatch, controlled_thread_deadline
+):
     from decimal import Decimal
 
     initial = ExperimentState(run_id="R_late_spend", budgets={"llm_spent_usd": Decimal(5)})
     release, started, finished = threading.Event(), threading.Event(), threading.Event()
     effects = tmp_path / "late-spend"
+    started_at: list[float] = []
 
     class Node:
         def body(self, passed_state):
@@ -2804,6 +3258,8 @@ def test_late_failed_spend_stays_unknown_after_owner_timeout(route, tmp_path, ct
             raise TimeoutError("late completed failure")
 
         def execute(self, passed_ctx, passed_state):
+            if route == "thread":
+                started_at.append(retry_module.time.monotonic())
             started.set()
             release.wait(timeout=2)
             return self.body(passed_state)
@@ -2817,6 +3273,7 @@ def test_late_failed_spend_stays_unknown_after_owner_timeout(route, tmp_path, ct
 
     if route == "thread":
         _select_timeout_test_route(monkeypatch, route)
+        controlled_thread_deadline.observe_first_attempt(started, expire_after_start=True)
 
     async def invoke():
         with pytest.raises(NodeTimeoutError):
@@ -2829,6 +3286,15 @@ def test_late_failed_spend_stays_unknown_after_owner_timeout(route, tmp_path, ct
                 alias="late-spend",
             )
         assert started.is_set()
+        assert not finished.is_set()
+        assert not effects.exists()
+        if route == "thread":
+            assert len(started_at) == 1
+            assert controlled_thread_deadline.expired_deadline is not None
+            assert started_at[0] < controlled_thread_deadline.expired_deadline
+            assert controlled_thread_deadline.current >= controlled_thread_deadline.expired_deadline
+            assert controlled_thread_deadline.future is not None
+            assert not controlled_thread_deadline.future.done()
         assert initial.budgets["llm_spent_usd"] == Decimal(5)
         release.set()
         for _ in range(100):
@@ -2836,7 +3302,15 @@ def test_late_failed_spend_stays_unknown_after_owner_timeout(route, tmp_path, ct
                 break
             await asyncio.sleep(0.001)
         assert finished.is_set()
-        await asyncio.sleep(0)
+        if route == "thread":
+            assert controlled_thread_deadline.future is not None
+            for _ in range(100):
+                if controlled_thread_deadline.future.done():
+                    break
+                await asyncio.sleep(0.001)
+            assert controlled_thread_deadline.future.done()
+        else:
+            await asyncio.sleep(0)
         assert effects.read_text() == "7"
         assert initial.budgets["llm_spent_usd"] == Decimal(5)
 
@@ -2924,9 +3398,19 @@ def test_attempt_view_stages_only_typed_worker_receipt_run_writes(tmp_path):
         run=worker_view,
         logger=logging.getLogger("test.attempt_worker_receipt_composition"),
     )
-    authority = retry_module._AttemptAuthority(deadline_monotonic=_time.monotonic() + 5.0)
-    attempt_context = retry_module._build_attempt_context(worker_context, authority)
-    node_context = retry_module._node_facing_context(attempt_context)
+    inner_authority = retry_module._AttemptAuthority(deadline_monotonic=_time.monotonic() + 5.0)
+    attempt_context = retry_module._build_attempt_context(
+        worker_context,
+        inner_authority,
+    )
+    outer_authority = retry_module._AttemptAuthority(deadline_monotonic=_time.monotonic() + 5.0)
+    nested_attempt_context = retry_module._AttemptContext(
+        attempt_context,
+        outer_authority,
+    )
+    node_context = retry_module._node_facing_context(nested_attempt_context)
+    assert retry_module._resolve_exact_worker_run_view(nested_attempt_context.run) is worker_view
+    assert retry_module._resolve_exact_worker_run_view(worker_view) is worker_view
 
     input_ref = store.put_json(
         {"input": "staged"},
@@ -2987,7 +3471,10 @@ def test_attempt_view_stages_only_typed_worker_receipt_run_writes(tmp_path):
     assert parent_run.read_runtime_owner_output_refs() == (output_ref,)
 
     before_revocation = len(staged.records)
-    authority.revoke()
+    inner_authority.revoke()
+    node_context.run.add_input(input_ref)
+    node_context.run.add_output(output_ref)
+    outer_authority.revoke()
     node_context.run.add_input(input_ref)
     node_context.run.add_output(output_ref)
     expired = retry_module._AttemptAuthority(deadline_monotonic=_time.monotonic() - 1.0)
@@ -2997,6 +3484,37 @@ def test_attempt_view_stages_only_typed_worker_receipt_run_writes(tmp_path):
     expired_context.run.add_input(input_ref)
     expired_context.run.add_output(output_ref)
     assert len(staged.records) == before_revocation
+
+    class SiblingAttemptRunFacade(retry_module._AttemptRunFacade):
+        pass
+
+    sibling = SiblingAttemptRunFacade(
+        worker_view,
+        retry_module._AttemptAuthority(deadline_monotonic=_time.monotonic() + 5.0),
+        store,
+    )
+    assert retry_module._resolve_exact_worker_run_view(sibling) is None
+    forged = retry_module._AttemptRunFacade(
+        object(),
+        retry_module._AttemptAuthority(deadline_monotonic=_time.monotonic() + 5.0),
+        store,
+    )
+    assert retry_module._resolve_exact_worker_run_view(forged) is None
+    cyclic = retry_module._AttemptRunFacade(
+        worker_view,
+        retry_module._AttemptAuthority(deadline_monotonic=_time.monotonic() + 5.0),
+        store,
+    )
+    object.__setattr__(cyclic, "_target", cyclic)
+    assert retry_module._resolve_exact_worker_run_view(cyclic) is None
+    deep: object = worker_view
+    for _ in range(retry_module._MAX_EXACT_WORKER_RUN_FACADE_DEPTH + 1):
+        deep = retry_module._AttemptRunFacade(
+            deep,
+            retry_module._AttemptAuthority(deadline_monotonic=_time.monotonic() + 5.0),
+            store,
+        )
+    assert retry_module._resolve_exact_worker_run_view(deep) is None
 
     ordinary_attempt = retry_module._build_attempt_context(
         ExecutionContext(

@@ -1,0 +1,56 @@
+{
+  "job_id": "dto-fixture-job",
+  "run_id": "dto-fixture-run",
+  "attempt": 2,
+  "authority_status": "candidate_only",
+  "emissions": [
+    {
+      "emission_index": 0,
+      "execute_result_status": "ok",
+      "output_ref_status": "complete",
+      "simulation_result_ref": {
+        "artifact_id": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "kind": "foundry.simulation_result",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+      },
+      "method_execution_bundle_refs": [
+        {
+          "artifact_id": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+          "kind": "foundry.method_execution_bundle",
+          "media_type": "application/json",
+          "manifest_profile_sha256": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+        }
+      ],
+      "method_metric_binding_set_refs": [
+        {
+          "artifact_id": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+          "kind": "foundry.method_metric_binding_set",
+          "media_type": "application/json",
+          "manifest_profile_sha256": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+        }
+      ]
+    },
+    {
+      "emission_index": 1,
+      "execute_result_status": "failed",
+      "output_ref_status": "partial",
+      "simulation_result_ref": null,
+      "method_execution_bundle_refs": [
+        {
+          "artifact_id": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+          "kind": "foundry.method_execution_bundle",
+          "media_type": "application/json",
+          "manifest_profile_sha256": "sha256:8888888888888888888888888888888888888888888888888888888888888888"
+        }
+      ],
+      "method_metric_binding_set_refs": []
+    }
+  ],
+  "inventory_truncated": false,
+  "limitations": [
+    "producer_diagnostic_only",
+    "workflow_authority_not_established",
+    "scientific_validity_not_established"
+  ]
+}

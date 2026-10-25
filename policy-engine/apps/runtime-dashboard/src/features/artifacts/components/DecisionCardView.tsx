@@ -11,6 +11,9 @@ import {
 } from "recharts";
 
 import MetricValidationComparisonTable from "@/features/artifacts/components/MetricValidationComparisonTable";
+import HTEOutcomeView, {
+  InvalidHTEOutcomeView,
+} from "@/features/artifacts/components/HTEOutcomeView";
 import type { ArtifactView } from "@/features/artifacts/domain/searchParams";
 import {
   MonographLayout,
@@ -28,6 +31,7 @@ import {
   parseDecisionCardPayload,
   type DecisionCardViewModel,
 } from "@/shared/lib/domain/decision";
+import { parseDecisionPacketHTEProjection } from "../domain/decisionPacketHte";
 import { useGlobalShortcut } from "@/shared/lib/hooks/useKeyboardShortcuts";
 import { formatDate, formatDuration } from "@/shared/lib/utils";
 import { triggerPrint } from "@/shared/export/printExport";
@@ -99,6 +103,19 @@ export default function DecisionCardView({
   const { t } = useI18n();
   const narrativeViewEnabled = useFeatureFlag("enableNarrativeView");
   const card = useMemo(() => parseDecisionCardPayload(payload), [payload]);
+  const hteProjection = useMemo(
+    () =>
+      artifactKind === "scientist.decision_packet"
+        ? parseDecisionPacketHTEProjection(payload)
+        : { status: "absent" as const },
+    [artifactKind, payload],
+  );
+  const htePanel =
+    hteProjection.status === "valid" ? (
+      <HTEOutcomeView outcome={hteProjection.outcome} />
+    ) : hteProjection.status === "invalid" ? (
+      <InvalidHTEOutcomeView />
+    ) : null;
   const readingDocument = useMemo(
     () => buildDecisionPacketDocument(payload),
     [payload],
@@ -214,7 +231,11 @@ export default function DecisionCardView({
 
   if (canUseReadingView && isReadingView && readingDocument) {
     return (
-      <div className="space-y-4" id={printTargetId}>
+      <div
+        className="space-y-4"
+        id={printTargetId}
+        data-testid="decision-packet-print-target"
+      >
         {actions}
         <MonographLayout document={readingDocument} />
       </div>
@@ -222,7 +243,11 @@ export default function DecisionCardView({
   }
 
   return (
-    <div className="space-y-3" id={printTargetId}>
+    <div
+      className="space-y-3"
+      id={printTargetId}
+      data-testid="decision-packet-print-target"
+    >
       {actions}
       <DecisionCard
         title={t("pages.artifacts.decisionCard.runTitle", {
@@ -349,6 +374,8 @@ export default function DecisionCardView({
           </p>
         )}
       </section>
+
+      {htePanel}
 
       <MetricValidationComparisonTable
         title={t("pages.artifacts.decisionCard.metricValidation")}

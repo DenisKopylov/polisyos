@@ -3170,7 +3170,9 @@ def test_search_hte_receiver_normalizes_core_owner_outcome_ref_and_rejects_drift
     wrong_profile = core_selected_ref.model_copy(
         update={"manifest_profile_sha256": "sha256:" + "0" * 64}
     )
-    with pytest.raises(FileNotFoundError):
+    from polisyos.ir.model_layer.canon import CanonViolation
+
+    with pytest.raises(CanonViolation, match="ir_owned_artifact_read_refused"):
         receive(wrong_profile)
 
     malformed = SelectedArtifactRef.model_construct(

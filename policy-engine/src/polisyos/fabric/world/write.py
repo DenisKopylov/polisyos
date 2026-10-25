@@ -103,7 +103,9 @@ class WorldSnapshotWriteRequest(_WorldSnapshotWriteModel):
 
 # AD-E02-FABRIC-N818-01 v1: preserve only the selected existing exception identities.
 # this is an N818 compatibility rationale, not an exception-class or waiver framework.
-# Decision path: `policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-21/09-fabric-exception-identities.md`.
+# Decision path (split at the directory boundary):
+# `policy-engine/docs/research/e02-cloud-test-plan/integration/`
+# `architecture-decisions-2026-10-21/09-fabric-exception-identities.md`.
 class WorldSnapshotBackendUnavailable(RuntimeError):  # noqa: N818 -- world writer consumers distinguish backend absence
     """Raised when the exact DuckDB backend required by the write waist is absent."""
 

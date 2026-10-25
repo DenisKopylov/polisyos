@@ -3,6 +3,7 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.cross_graph import (
     CrossGraphEvidenceProfile,
     CrossGraphEvidenceSummary,
+    load_cross_graph_evidence_profile,
     persist_cross_graph_evidence_profile,
 )
 from tests._helpers.mirror_contracts import assert_source_stem_has_static_contract
@@ -35,3 +36,4 @@ def test_cross_graph_writer_returns_exact_selected_profile_on_same_bytes(tmp_pat
     assert selected_manifest.artifact_schema.version == "2.2"
     assert legacy_manifest.artifact_schema is not None
     assert legacy_manifest.artifact_schema.version == "2.1"
+    assert load_cross_graph_evidence_profile(fresh_reader, selected_ref) == profile

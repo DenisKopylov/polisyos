@@ -26,6 +26,9 @@ from polisyos.ir.analytics.forecasting_uncertainty import (
     load_forecasting_uncertainty_bundle,
     persist_forecasting_uncertainty_bundle,
 )
+from polisyos.ir.artifacts.io import put_json_artifact
+from polisyos.ir.model_layer.canon import CanonSpec, CanonViolation
+from polisyos.ir.registry.refs import ForecastingUncertaintyBundleRef
 from polisyos.ir.schemas import get_ir_type
 
 
@@ -246,12 +249,7 @@ def test_forecasting_uncertainty_bundle_v2_preserves_base_ordering_validation() 
 
 def test_forecasting_uncertainty_bundle_v2_cas_roundtrip(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
-    payload = _sample_bundle().model_dump(mode="python", round_trip=True)
-    payload["schema_version"] = "2.0"
-    payload["reconciliation_certificate"] = _sample_reconciliation_certificate().model_dump(
-        mode="python"
-    )
-    bundle = ForecastingUncertaintyBundleV2.model_validate(payload)
+    bundle = _sample_bundle_v2()
 
     ref = persist_forecasting_uncertainty_bundle(_ensure_ir_artifact_store(store), bundle)
     loaded = load_forecasting_uncertainty_bundle(_ensure_ir_artifact_store(store), ref)
@@ -277,3 +275,129 @@ def test_forecasting_uncertainty_bundle_emits_truthfulness_receipt() -> None:
     assert receipt.runtime_truthfulness_tier.value == "approximate_calibrated"
     assert receipt.truthfulness_scope.value == "marginal_coverage"
     assert receipt.diagnostics["mean_interval_width_by_horizon"][1] == pytest.approx(2.0)
+
+
+class _CountingPayloadReader:
+    def __init__(self, store) -> None:
+        self.store = store
+        self.payload_reads = 0
+
+    def __getattr__(self, name: str):
+        return getattr(self.store, name)
+
+    def get_bytes(self, selector) -> bytes:
+        self.payload_reads += 1
+        return self.store.get_bytes(selector)
+
+
+def test_forecasting_wrong_profile_refuses_before_v1_to_v2_fallback(tmp_path) -> None:
+    store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "cas"))
+    bundle = _sample_bundle()
+    raw_ref = put_json_artifact(
+        store,
+        bundle.model_dump(mode="json", round_trip=True),
+        kind="ir.forecasting_uncertainty_bundle",
+        schema_name="ir.forecasting_uncertainty_bundle",
+        schema_version="1.0",
+        canon_spec=CanonSpec(forbid_floats=False, sort_keys=False),
+    )
+    reader = _CountingPayloadReader(store)
+    ref = ForecastingUncertaintyBundleRef.model_validate(raw_ref)
+
+    with pytest.raises(CanonViolation, match="ir_owned_artifact_profile_refused"):
+        load_forecasting_uncertainty_bundle(reader, ref)
+
+    assert reader.payload_reads == 0
+
+
+def test_forecasting_payload_version_mismatch_does_not_fall_back_to_v2(
+    tmp_path,
+) -> None:
+    store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "cas"))
+    payload = _sample_bundle().model_dump(mode="json", round_trip=True)
+    payload["schema_version"] = "2.0"
+    raw_ref = put_json_artifact(
+        store,
+        payload,
+        kind="ir.forecasting_uncertainty_bundle",
+        schema_name="ir.forecasting_uncertainty_bundle",
+        schema_version="1.0",
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    reader = _CountingPayloadReader(store)
+    ref = ForecastingUncertaintyBundleRef.model_validate(raw_ref)
+
+    with pytest.raises(CanonViolation, match="ir_owned_artifact_representation_unreadable"):
+        load_forecasting_uncertainty_bundle(reader, ref)
+
+    assert reader.payload_reads == 1
+
+
+class _CountingWriteStore:
+    def __init__(self, store) -> None:
+        self.store = store
+        self.put_calls = 0
+
+    def __getattr__(self, name: str):
+        return getattr(self.store, name)
+
+    def put_json(self, *args, **kwargs):
+        self.put_calls += 1
+        return self.store.put_json(*args, **kwargs)
+
+
+def _sample_bundle_v2() -> ForecastingUncertaintyBundleV2:
+    payload = _sample_bundle().model_dump(mode="python", round_trip=True)
+    payload["schema_version"] = "2.0"
+    payload["calibration_method"] = ForecastCalibrationMethod.CONFORMAL_AFTER_RECONCILIATION
+    payload["horizon_policy"]["default_method"] = (
+        ForecastCalibrationMethod.CONFORMAL_AFTER_RECONCILIATION
+    )
+    for interval in payload["prediction_interval"]:
+        interval["constructor"] = ForecastCalibrationMethod.CONFORMAL_AFTER_RECONCILIATION
+    for rule in payload["horizon_policy"]["rules"]:
+        rule["allowed_methods"] = (ForecastCalibrationMethod.CONFORMAL_AFTER_RECONCILIATION,)
+    payload["reconciliation_certificate"] = _sample_reconciliation_certificate().model_dump(
+        mode="python"
+    )
+    return ForecastingUncertaintyBundleV2.model_validate(payload)
+
+
+@pytest.mark.parametrize("invalid_flag", [None, 0, 1, "true"])
+def test_forecast_writer_rejects_nonbool_selected_profile_before_cas(
+    tmp_path,
+    invalid_flag: object,
+) -> None:
+    store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "cas"))
+    probe = _CountingWriteStore(store)
+
+    with pytest.raises(TypeError, match="return_selected_profile must be a bool"):
+        persist_forecasting_uncertainty_bundle(
+            probe,
+            _sample_bundle(),
+            return_selected_profile=invalid_flag,
+        )
+
+    assert probe.put_calls == 0
+
+
+def test_v2_explicit_legacy_schema_selection_refuses_before_cas(tmp_path) -> None:
+    default_schema_version = persist_forecasting_uncertainty_bundle.__kwdefaults__["schema_version"]
+    assert isinstance(default_schema_version, str)
+    assert default_schema_version == "1.0"
+
+    store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "cas"))
+    probe = _CountingWriteStore(store)
+    bundle = _sample_bundle_v2()
+
+    with pytest.raises(
+        CanonViolation,
+        match="ir_owned_artifact_write_override_unregistered",
+    ):
+        persist_forecasting_uncertainty_bundle(
+            probe,
+            bundle,
+            schema_version="1.0",
+        )
+
+    assert probe.put_calls == 0

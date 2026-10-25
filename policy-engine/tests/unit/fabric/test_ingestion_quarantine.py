@@ -7,7 +7,11 @@ import pandas as pd
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.data_plane.quarantine import list_quarantine_records
-from polisyos.fabric.ingestion import _apply_transform_pipeline, _sanitize_fetch_result
+from polisyos.fabric.ingestion import (
+    _apply_transform_pipeline,
+    _load_transform_pipeline,
+    _sanitize_fetch_result,
+)
 from polisyos.ir.connectors import DataVersion, FetchResult, QualityTier, VersionStrategy
 
 
@@ -28,6 +32,25 @@ def _fetch_result(data) -> FetchResult:
         completeness=1.0,
         quality_tier=QualityTier.SILVER,
     )
+
+
+def test_registered_identity_pipeline_preserves_rows_without_quarantine() -> None:
+    source = pd.DataFrame({"value": [1, 2]})
+    pipeline = _load_transform_pipeline("identity")
+
+    assert pipeline is not None
+    result, _graph, warnings, quarantined = _apply_transform_pipeline(
+        _fetch_result(source),
+        pipeline,
+        connector_id="test.conn",
+        dataset_id="identity",
+    )
+
+    assert isinstance(result.data, pd.DataFrame)
+    assert result.data.equals(source)
+    assert result.row_count == len(source)
+    assert warnings == []
+    assert quarantined == 0
 
 
 def test_row_isolation_quarantines_bad_transform_rows_without_losing_batch(tmp_path):

@@ -40,11 +40,12 @@ from polisyos.fabric.connectors.base import (
     SourceConnector,
 )
 from polisyos.fabric.connectors.capabilities import validate_protocol_compliance
-from polisyos.fabric.connectors.contracts.schema import DataSchema
 from polisyos.fabric.connectors.testing.contracts import assert_schema_compliance
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Hashable
+
+    from polisyos.fabric.connectors.contracts.schema import DataSchema
 
 
 from polisyos.ir.connectors import (

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 from types import SimpleNamespace
+from typing import TYPE_CHECKING
 
 import pytest
 from pydantic import ValidationError
@@ -45,6 +46,9 @@ from polisyos.ir.kernel.trust import TrustPolicySpec
 from polisyos.ir.model_layer.canon import CanonSpec, to_canonical_bytes
 from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
 
 def test_uncertainty_envelope_basic_creation() -> None:
     env = UncertaintyEnvelope(
@@ -54,7 +58,7 @@ def test_uncertainty_envelope_basic_creation() -> None:
         distribution_family=DistributionFamily.NORMAL,
         propagation_method=PropagationMethod.DELTA_METHOD,
     )
-    assert env.schema_version == "1.1"
+    assert env.schema_version == UncertaintyEnvelope.SCHEMA_VERSION == "1.1"
     assert env.confidence_level == 0.95
     assert env.interval_semantics == IntervalSemantics.CONFIDENCE_INTERVAL
     assert env.ci_width == pytest.approx(0.86)
@@ -106,7 +110,7 @@ def test_uncertainty_envelope_relative_uncertainty_near_zero() -> None:
     assert env.relative_uncertainty is None
 
 
-def test_uncertainty_envelope_cas_roundtrip(tmp_path) -> None:
+def test_uncertainty_envelope_cas_roundtrip(tmp_path: Path) -> None:
     store = FileSystemCAS(tmp_path)
     env = UncertaintyEnvelope(
         point_estimate=42.0,
@@ -126,7 +130,7 @@ def test_uncertainty_envelope_cas_roundtrip(tmp_path) -> None:
     assert loaded == env
 
 
-def test_uncertainty_loader_preserves_selected_manifest_profile(tmp_path) -> None:
+def test_uncertainty_loader_preserves_selected_manifest_profile(tmp_path: Path) -> None:
     root = tmp_path / "cas"
     producer = FileSystemCAS(root)
     env = UncertaintyEnvelope(
@@ -241,6 +245,7 @@ def test_combine_envelopes_conservative_union() -> None:
         method=EnvelopeCombinationMethod.CONSERVATIVE_UNION,
     )
 
+    assert combined.schema_version == UncertaintyEnvelope.SCHEMA_VERSION == "1.1"
     assert combined.source is UncertaintySource.ENSEMBLE
     assert combined.confidence_interval == (0.8, 1.3)
     assert combined.metadata["combination_method"] == "conservative_union"
@@ -266,7 +271,7 @@ def test_combine_envelopes_rejects_incompatible_interval_semantics() -> None:
         combine_envelopes([left, right])
 
 
-def test_distribution_carriers_validate_and_roundtrip(tmp_path) -> None:
+def test_distribution_carriers_validate_and_roundtrip(tmp_path: Path) -> None:
     store = FileSystemCAS(tmp_path)
     env = UncertaintyEnvelope(
         point_estimate=0.4,
@@ -330,6 +335,7 @@ def test_join_envelopes_builds_outer_hull_with_history() -> None:
 
     joined = join_envelopes((left, right))
 
+    assert joined.schema_version == UncertaintyEnvelope.SCHEMA_VERSION == "1.1"
     assert joined.confidence_interval == (0.8, 1.6)
     assert isinstance(joined.distribution_payload, PosteriorSamplesCarrier)
     assert joined.composition_provenance is not None
@@ -351,6 +357,7 @@ def test_push_forward_particles_preserves_law_object() -> None:
 
     pushed = push_forward_envelope(lambda value: value * value, env, map_name="square")
 
+    assert pushed.schema_version == UncertaintyEnvelope.SCHEMA_VERSION == "1.1"
     assert isinstance(pushed.distribution_payload, PosteriorSamplesCarrier)
     assert pushed.distribution_payload.samples == (1.0, 4.0, 9.0)
     assert pushed.composition_provenance is not None
@@ -428,6 +435,7 @@ def test_pull_back_with_local_inverse_returns_constraint_envelope() -> None:
         map_name="square",
     )
 
+    assert pulled.schema_version == UncertaintyEnvelope.SCHEMA_VERSION == "1.1"
     assert pulled.interval_semantics == IntervalSemantics.DETERMINISTIC_BOUNDS
     assert pulled.confidence_level is None
     assert pulled.gate_eligible is False

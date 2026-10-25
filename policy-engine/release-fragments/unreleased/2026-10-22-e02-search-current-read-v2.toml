@@ -1,0 +1,21 @@
+id = "2026-10-22-e02-search-current-read-v2"
+title = "Resolve selected Search current uncertainty content on fresh read"
+type = "fixed"
+component = "scientist/search"
+owner = "team-policyos-runtime"
+summary = "A fresh Search current read now returns typed current observation, basis, same-basis relation, and profile payloads resolved from the selected CAS projection. The persisted projection remains ref-based, historical maximum remains separate, and task-epoch reads retain live_currentness_status=not_established."
+evidence = [
+  "src/polisyos/scientist/methods/search/uncertainty.py",
+  "tests/unit/scientist/methods/search/funnel/test_configured_observations.py",
+  "src/polisyos/scientist/methods/search/README.md",
+]
+compatibility = "Persisted Search ticket projection and CAS artifact schemas remain unchanged. The transient serialized SearchUncertaintyCurrentRead moves from schema 1.0 to 2.0 and adds resolved_projection. Consumers that explicitly require schema 1.0 must update."
+change_class = "internal"
+surface_classification = "Internal Search current-read and runtime-reporting surface. The public RunDetails DTO, OpenAPI client, and dashboard do not yet expose this projection."
+migration = "No CAS rewrite or backfill is performed. Fresh readers resolve only the current projection selected by the existing ticket owner; malformed or missing selected content returns not_established. Existing v1 observations remain routing history."
+api = "The internal typed current-read serializer includes selected current payloads. No public RunDetails/API/browser mapping is included in this slice."
+limitations = "The test demonstrates a real pre-dispatch producer, persisted numeric-free unassessed observation, selected projection, and cold read. It does not establish an assessed positive, the Runtime selected-row AnchorV2 hook, a public consumer, external authority, or live currentness. Dependency-inventory ArtifactID normalization and unknown-unit optional ref handling are repaired only for this path."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

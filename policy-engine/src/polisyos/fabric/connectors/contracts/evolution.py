@@ -17,11 +17,10 @@ from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.fabric.connectors.contracts.schema import DataSchema
 from polisyos.fabric.quality.safety import validate_sql_identifier
 
 if TYPE_CHECKING:
-    from polisyos.fabric.connectors.contracts.schema import FieldSpec
+    from polisyos.fabric.connectors.contracts.schema import DataSchema, FieldSpec
 
 
 class ChangeType(str, Enum):

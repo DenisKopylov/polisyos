@@ -22,12 +22,13 @@ import threading
 import time
 import uuid
 from collections import Counter
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import ExitStack
 from decimal import Decimal
 from enum import Enum
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import numpy as np
@@ -42,7 +43,12 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes
+from polisyos.core.canon import (
+    CanonSpec,
+    content_hash,
+    from_canonical_bytes,
+    to_canonical_bytes,
+)
 from polisyos.core.contracts.control import PolicyFlags
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.core.contracts.foundry import StateSnapshotRef
@@ -171,6 +177,185 @@ def _require_all_r4_profiles_passed(attempts: list[dict[str, Any]]) -> None:
             "R4 profile driver attempted all three fresh children before aggregate failure; "
             f"expected={expected_case_ids}, observed={observed_case_ids}, outcomes={summaries}"
         )
+
+
+def _r4_running_source_events(store: Any, job_id: str) -> tuple[Any, ...]:
+    """Read every persisted running event for one job through its source store."""
+    raw_store = getattr(store, "_target", store)
+    rows = raw_store._fetchall(
+        """
+        SELECT event_id, job_id, event_type, payload_json, created_at
+        FROM control_job_events
+        WHERE job_id = ? AND event_type = ?
+        ORDER BY event_id ASC
+        """,
+        (job_id, "job_running"),
+    )
+    return tuple(
+        raw_store._control_job_lifecycle_event_record_from_row(
+            row,
+            expected_job_id=job_id,
+            expected_event_type="job_running",
+        )
+        for row in rows
+    )
+
+
+def _r4_running_event_worker_id(
+    *,
+    job_id: str,
+    attempt: int,
+    running_events: Sequence[Any],
+    registered_worker_ids: set[str],
+    live_job: Any | None = None,
+) -> str:
+    """Resolve one unique persisted running-event owner and optionally bind its live row."""
+    if len(running_events) != 1:
+        raise AssertionError("R4 job must have exactly one running source event")
+    event = running_events[0]
+    payload = getattr(event, "payload", None)
+    worker_id = payload.get("lease_owner") if isinstance(payload, Mapping) else None
+    if (
+        getattr(event, "job_id", None) != job_id
+        or getattr(event, "event_type", None) != "job_running"
+        or type(getattr(event, "event_id", None)) is not int
+        or event.event_id < 1
+        or not isinstance(payload, Mapping)
+        or payload.get("state") != "running"
+        or type(payload.get("attempt")) is not int
+        or payload.get("attempt") != attempt
+        or not isinstance(worker_id, str)
+        or worker_id not in registered_worker_ids
+    ):
+        raise AssertionError("R4 running source event does not bind a registered worker")
+    if live_job is not None and (
+        getattr(live_job, "job_id", None) != job_id
+        or getattr(live_job, "state", None) != "running"
+        or type(getattr(live_job, "attempt", None)) is not int
+        or live_job.attempt != attempt
+        or getattr(live_job, "lease_owner", None) != worker_id
+        or getattr(live_job, "lease_expires_at", None) is None
+    ):
+        raise AssertionError("R4 live job lease does not match its running source event")
+    return worker_id
+
+
+def _r4_terminal_event_worker_id(
+    *,
+    job_id: str,
+    attempt: int,
+    expected_state: str,
+    running_events: Sequence[Any],
+    terminal_event: Any,
+    registered_worker_ids: set[str],
+) -> str:
+    """Require terminal ownership to continue the unique persisted running-event owner."""
+    worker_id = _r4_running_event_worker_id(
+        job_id=job_id,
+        attempt=attempt,
+        running_events=running_events,
+        registered_worker_ids=registered_worker_ids,
+    )
+    expected_event_type = "job_failed" if expected_state == "failed" else "job_completed"
+    payload = getattr(terminal_event, "payload", None)
+    if (
+        getattr(terminal_event, "job_id", None) != job_id
+        or getattr(terminal_event, "event_type", None) != expected_event_type
+        or type(getattr(terminal_event, "event_id", None)) is not int
+        or terminal_event.event_id < 1
+        or not isinstance(payload, Mapping)
+        or payload.get("state") != expected_state
+        or type(payload.get("attempt")) is not int
+        or payload.get("attempt") != attempt
+        or payload.get("lease_owner") != worker_id
+    ):
+        raise AssertionError("R4 terminal event does not preserve its running-event owner")
+    return worker_id
+
+
+def test_r4_worker_owner_oracle_rejects_swaps_and_ambiguous_running_sources() -> None:
+    """Keep worker/job ownership linked by event identity rather than list position."""
+    registered_worker_ids = {"worker-a", "worker-b"}
+    running_event = SimpleNamespace(
+        event_id=1,
+        job_id="job-a",
+        event_type="job_running",
+        payload={"state": "running", "lease_owner": "worker-a", "attempt": 1},
+    )
+    terminal_event = SimpleNamespace(
+        event_id=2,
+        job_id="job-a",
+        event_type="job_completed",
+        payload={"state": "completed", "lease_owner": "worker-a", "attempt": 1},
+    )
+    live_job = SimpleNamespace(
+        job_id="job-a",
+        state="running",
+        attempt=1,
+        lease_owner="worker-a",
+        lease_expires_at=object(),
+    )
+    assert (
+        _r4_running_event_worker_id(
+            job_id="job-a",
+            attempt=1,
+            running_events=(running_event,),
+            registered_worker_ids=registered_worker_ids,
+            live_job=live_job,
+        )
+        == "worker-a"
+    )
+    assert (
+        _r4_terminal_event_worker_id(
+            job_id="job-a",
+            attempt=1,
+            expected_state="completed",
+            running_events=(running_event,),
+            terminal_event=terminal_event,
+            registered_worker_ids=registered_worker_ids,
+        )
+        == "worker-a"
+    )
+
+    swapped_live_job = SimpleNamespace(
+        job_id="job-a",
+        state="running",
+        attempt=1,
+        lease_owner="worker-b",
+        lease_expires_at=object(),
+    )
+    with pytest.raises(AssertionError, match="live job lease"):
+        _r4_running_event_worker_id(
+            job_id="job-a",
+            attempt=1,
+            running_events=(running_event,),
+            registered_worker_ids=registered_worker_ids,
+            live_job=swapped_live_job,
+        )
+
+    swapped_terminal_event = SimpleNamespace(
+        event_id=2,
+        job_id="job-a",
+        event_type="job_completed",
+        payload={"state": "completed", "lease_owner": "worker-b", "attempt": 1},
+    )
+    with pytest.raises(AssertionError, match="terminal event"):
+        _r4_terminal_event_worker_id(
+            job_id="job-a",
+            attempt=1,
+            expected_state="completed",
+            running_events=(running_event,),
+            terminal_event=swapped_terminal_event,
+            registered_worker_ids=registered_worker_ids,
+        )
+    for ambiguous_events in ((), (running_event, running_event)):
+        with pytest.raises(AssertionError, match="exactly one running"):
+            _r4_running_event_worker_id(
+                job_id="job-a",
+                attempt=1,
+                running_events=ambiguous_events,
+                registered_worker_ids=registered_worker_ids,
+            )
 
 
 def _r4_profile_receipt_root() -> Path:
@@ -358,15 +543,27 @@ def _run_child(
     *,
     temp_root: Path,
     bypass: bool = False,
+    fail_after_run_experiment_study: int | None = None,
 ) -> dict[str, Any]:
     """Run the two-study native witness in one isolated Runtime process."""
+    failure_profile = fail_after_run_experiment_study is not None
+    if failure_profile and (
+        capacity != 2 or bypass or fail_after_run_experiment_study not in {0, 1}
+    ):
+        raise ValueError("post-producer sibling-failure profile requires native capacity two")
     import importlib
 
     import tests._helpers.runtime_http as runtime_http_module
+    from polisyos.foundry.methods.backends.dispatch import (
+        estimate_method_execution_cost_usd,
+    )
+    from polisyos.foundry.methods.backends.protocol import MethodTiming
+    from polisyos.foundry.methods.base import ComputeBackend
     from polisyos.runtime.http.resilience import (
         BlockingDependencyGuard,
         GuardedDependencyProxy,
     )
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
     from polisyos.runtime.quality.workspace.foundry_consumption import (
         _method_evidence_semantics,
     )
@@ -420,7 +617,11 @@ def _run_child(
     ) -> Any:
         active_operation = active_guard_operation.get()
         captured: dict[str, Any] | None = None
-        if active_operation is not None and active_operation.get("is_put_json"):
+        if (
+            active_operation is not None
+            and active_operation.get("is_put_json")
+            and not failure_profile
+        ):
             try:
                 options = _json_safe_metadata(opts)
                 json.dumps(options, sort_keys=True, allow_nan=False)
@@ -781,6 +982,10 @@ def _run_child(
                 default=None,
             )
             final_states: dict[int, dict[str, Any]] = {}
+            post_run_arrival_lock = threading.Lock()
+            post_run_studies: set[int] = set()
+            both_post_run_results_ready = threading.Event()
+            release_post_run_results = threading.Event()
             causal_node_outcomes: dict[int, Any] = {}
             method_results: dict[int, dict[str, Any]] = {}
             producer_lock = threading.Lock()
@@ -858,6 +1063,19 @@ def _run_child(
                     with producer_lock:
                         producer_active -= 1
                 final_states[study_index] = result
+                if failure_profile:
+                    with post_run_arrival_lock:
+                        post_run_studies.add(study_index)
+                        if post_run_studies == {0, 1}:
+                            both_post_run_results_ready.set()
+                    assert both_post_run_results_ready.wait(timeout=barrier_timeout_seconds), (
+                        "both real run_experiment producers did not return before the bounded post-producer barrier"
+                    )
+                    assert release_post_run_results.wait(timeout=barrier_timeout_seconds), (
+                        "post-producer sibling-failure barrier was not released after lease observation"
+                    )
+                    if study_index == fail_after_run_experiment_study:
+                        raise RuntimeError("r4_test_injected_post_run_lifecycle_failure")
                 return result
 
             scientist_api.run_experiment = observed_run_experiment
@@ -1135,6 +1353,34 @@ def _run_child(
                     method_queue_submissions = [dict(row) for row in queue_wait_rows]
                 with cas_guard_lock:
                     pending_guard_operations = active_guard_operations
+                if failure_profile:
+                    pending_executor_submissions = observed_work_queue.pending_observations()
+                    return {
+                        "capacity": capacity,
+                        "bypass": bypass,
+                        "shared_executor_object_id": id(physical_executor),
+                        "guard_bindings": sorted(
+                            [dict(binding) for binding in guard_owner_by_id.values()],
+                            key=lambda binding: (
+                                int(binding["runtime_index"]),
+                                str(binding["dependency_name"]),
+                            ),
+                        ),
+                        "active_guard_operations_at_snapshot": pending_guard_operations,
+                        "guard_count_by_dependency": dict(
+                            Counter(str(row["dependency_name"]) for row in guard_calls)
+                        ),
+                        "guard_call_count": len(guard_calls),
+                        "guard_executor_queue_submission_count": len(guard_queue_submissions),
+                        "other_executor_queue_submission_count": len(other_queue_submissions),
+                        "method_executor_queue_submission_count": len(method_queue_submissions),
+                        "pending_executor_queue_submission_count": len(
+                            pending_executor_submissions
+                        ),
+                        "slow_canonical_put_json_payloads": [],
+                        "instrumentation_errors": list(cas_instrumentation_errors),
+                        "detail_retention": "count_only_for_bounded_failure_profile",
+                    }
                 return {
                     "capacity": capacity,
                     "bypass": bypass,
@@ -1384,6 +1630,7 @@ def _run_child(
 
             BlockingDependencyGuard.run = observed_guard_run
 
+            original_renew_job_lease: Any | None = None
             try:
                 launches: dict[int, Any] = {}
                 study_profiles: dict[int, dict[str, Any]] = {}
@@ -1560,6 +1807,88 @@ def _run_child(
                             )
                         event.wait(timeout=min(0.05, remaining))
 
+                lease_renewal_condition = threading.Condition()
+                lease_renewal_rows: list[dict[str, Any]] = []
+                registered_worker_ids = {
+                    worker.worker_id for worker in workers if worker is not None
+                }
+                assert len(registered_worker_ids) == 2
+                expected_lease_job_ids = {launch.job_id for launch in launches.values()}
+                assert len(expected_lease_job_ids) == 2
+                expected_lease_workers: dict[str, str] = {}
+                original_renew_job_lease = ControlPlaneStore.renew_job_lease
+
+                def observed_renew_job_lease(
+                    store: ControlPlaneStore,
+                    *,
+                    job_id: str,
+                    worker_id: str,
+                    lease_seconds: int = 60,
+                    expected_attempt: int | None = None,
+                ) -> bool:
+                    before = store.get_job(job_id)
+                    renewed = original_renew_job_lease(
+                        store,
+                        job_id=job_id,
+                        worker_id=worker_id,
+                        lease_seconds=lease_seconds,
+                        expected_attempt=expected_attempt,
+                    )
+                    after = store.get_job(job_id)
+                    expected_worker = expected_lease_workers.get(job_id)
+                    if (
+                        failure_profile
+                        and renewed is True
+                        and expected_worker == worker_id
+                        and before is not None
+                        and after is not None
+                        and type(expected_attempt) is int
+                        and before.state == after.state == "running"
+                        and before.attempt == after.attempt == expected_attempt
+                        and before.lease_owner == after.lease_owner == worker_id
+                        and before.lease_expires_at is not None
+                        and after.lease_expires_at is not None
+                        and after.lease_expires_at > before.lease_expires_at
+                    ):
+                        with lease_renewal_condition:
+                            lease_renewal_rows.append(
+                                {
+                                    "job_id": job_id,
+                                    "worker_id": worker_id,
+                                    "attempt": expected_attempt,
+                                    "lease_seconds": lease_seconds,
+                                    "before_expires_at": before.lease_expires_at.isoformat(),
+                                    "after_expires_at": after.lease_expires_at.isoformat(),
+                                    "renewed": renewed,
+                                }
+                            )
+                            lease_renewal_condition.notify_all()
+                    return renewed
+
+                if failure_profile:
+                    ControlPlaneStore.renew_job_lease = observed_renew_job_lease
+
+                def wait_for_both_job_lease_renewals() -> list[dict[str, Any]]:
+                    expected_job_ids = set(expected_lease_job_ids)
+                    deadline = time.monotonic() + barrier_timeout_seconds
+                    timed_out = False
+                    with lease_renewal_condition:
+                        while not expected_job_ids.issubset(
+                            {str(row["job_id"]) for row in lease_renewal_rows}
+                        ):
+                            remaining = deadline - time.monotonic()
+                            if remaining <= 0:
+                                timed_out = True
+                                break
+                            lease_renewal_condition.wait(timeout=remaining)
+                        observed = [dict(row) for row in lease_renewal_rows]
+                    if timed_out:
+                        fail_r4_barrier(
+                            "both post-producer job lease renewals",
+                            f"bounded wait expired after {barrier_timeout_seconds:.1f}s",
+                        )
+                    return observed
+
                 with ThreadPoolExecutor(max_workers=2) as control_threads:
                     pre_dispatch_release: dict[str, Any] | None = None
                     try:
@@ -1588,6 +1917,7 @@ def _run_child(
                                 observed_dispatches = len(dispatch_rows)
                                 observed_dispatch_active = dispatch_active
                             pre_dispatch_release = {
+                                "executor_state": executor_state(),
                                 "run_experiment_entries": observed_producers,
                                 "method_backend_entries": observed_methods,
                                 "submit_count": observed_submissions,
@@ -1602,7 +1932,94 @@ def _run_child(
                                 False,
                                 False,
                             ]
+                            if failure_profile:
+                                assert (
+                                    pre_dispatch_release["executor_state"][
+                                        "physical_workers_active"
+                                    ]
+                                    == 2
+                                )
+                                assert (
+                                    pre_dispatch_release["executor_state"]["outstanding_jobs"] >= 2
+                                )
                             release_dispatches.set()
+                            if failure_profile:
+                                wait_for_r4_barrier(
+                                    both_post_run_results_ready,
+                                    boundary_name="both real run_experiment results before the named lifecycle fault",
+                                )
+                                for study_index, launch in sorted(launches.items()):
+                                    with tenant_scope(
+                                        None,
+                                        tenant_id=_TENANT_IDS[study_index],
+                                        cell_id=_CELL_IDS[study_index],
+                                    ):
+                                        current_job = services[study_index]._control_store.get_job(
+                                            launch.job_id
+                                        )
+                                        running_events = _r4_running_source_events(
+                                            services[study_index]._control_store,
+                                            launch.job_id,
+                                        )
+                                    assert current_job is not None
+                                    expected_lease_workers[launch.job_id] = (
+                                        _r4_running_event_worker_id(
+                                            job_id=launch.job_id,
+                                            attempt=current_job.attempt,
+                                            running_events=running_events,
+                                            registered_worker_ids=registered_worker_ids,
+                                            live_job=current_job,
+                                        )
+                                    )
+                                assert set(expected_lease_workers) == expected_lease_job_ids
+                                assert set(expected_lease_workers.values()) == registered_worker_ids
+                                observed_lease_renewals = wait_for_both_job_lease_renewals()
+                                renewed_worker_by_job: dict[str, str] = {}
+                                for row in observed_lease_renewals:
+                                    job_id = str(row["job_id"])
+                                    worker_id = str(row["worker_id"])
+                                    prior_worker = renewed_worker_by_job.setdefault(
+                                        job_id,
+                                        worker_id,
+                                    )
+                                    assert prior_worker == worker_id
+                                assert renewed_worker_by_job == expected_lease_workers
+                                held_job_rows: list[dict[str, Any]] = []
+                                for study_index, launch in sorted(launches.items()):
+                                    with tenant_scope(
+                                        None,
+                                        tenant_id=_TENANT_IDS[study_index],
+                                        cell_id=_CELL_IDS[study_index],
+                                    ):
+                                        held_job = services[study_index]._control_store.get_job(
+                                            launch.job_id
+                                        )
+                                    assert held_job is not None
+                                    assert held_job.state == "running"
+                                    assert held_job.attempt == 1
+                                    assert (
+                                        held_job.lease_owner
+                                        == expected_lease_workers[launch.job_id]
+                                    )
+                                    assert held_job.lease_expires_at is not None
+                                    held_job_rows.append(
+                                        {
+                                            "job_id": held_job.job_id,
+                                            "state": held_job.state,
+                                            "attempt": held_job.attempt,
+                                            "lease_owner": held_job.lease_owner,
+                                            "lease_expires_at": held_job.lease_expires_at.isoformat(),
+                                        }
+                                    )
+                                post_run_release = {
+                                    "boundary": "after_both_real_run_experiment_returns_before_injected_RunLifecycle_exception",
+                                    "run_experiment_returned_studies": sorted(post_run_studies),
+                                    "held_job_rows": held_job_rows,
+                                    "lease_renewals": observed_lease_renewals,
+                                    "executor_state": executor_state(),
+                                }
+                                assert post_run_release["run_experiment_returned_studies"] == [0, 1]
+                                release_post_run_results.set()
                         dispatched = [
                             futures_by_study[study_index].result(timeout=120)
                             for study_index in range(2)
@@ -1611,6 +2028,7 @@ def _run_child(
                         # One cleanup boundary releases a sibling after either
                         # wait, any post-wait assertion, or partial submission.
                         release_dispatches.set()
+                        release_post_run_results.set()
                 assert dispatched == [True, True]
 
                 terminal_jobs = []
@@ -1623,13 +2041,25 @@ def _run_child(
                         terminal_jobs.append(
                             services[study_index]._control_store.get_job(launch.job_id)
                         )
-                jobs_completed = all(
-                    job is not None and job.state == "completed" for job in terminal_jobs
+                expected_terminal_states = (
+                    [
+                        "failed" if study_index == fail_after_run_experiment_study else "completed"
+                        for study_index in range(2)
+                    ]
+                    if failure_profile
+                    else ["completed", "completed"]
                 )
-                if not jobs_completed:
+                actual_terminal_states = [
+                    None if job is None else job.state for job in terminal_jobs
+                ]
+                jobs_reached_expected_terminal_states = (
+                    actual_terminal_states == expected_terminal_states
+                )
+                if not jobs_reached_expected_terminal_states:
                     emit_cas_diagnostic()
-                assert jobs_completed, (
-                    "control jobs failed before complete result readback; "
+                assert jobs_reached_expected_terminal_states, (
+                    "control jobs did not reach the expected sibling lifecycle outcomes; "
+                    f"expected={expected_terminal_states}, "
                     f"jobs={[None if job is None else (job.job_id, job.state, job.error_message) for job in terminal_jobs]}, "
                     f"producer_entries={producer_entries}, "
                     f"method_backend_entries={method_backend_entries}, "
@@ -1637,7 +2067,132 @@ def _run_child(
                     f"{[(study, outcome.status, getattr(outcome.error, 'message', None)) for study, outcome in causal_node_outcomes.items()]}"
                 )
 
+                terminal_job_lifecycle: dict[str, dict[str, Any]] = {}
+                terminal_event_worker_ids: set[str] = set()
+                for study_index, (_launch, job) in enumerate(
+                    zip(launches.values(), terminal_jobs, strict=True)
+                ):
+                    assert job is not None
+                    expected_state = expected_terminal_states[study_index]
+                    assert job.attempt == 1
+                    assert job.lease_owner is None
+                    assert job.lease_expires_at is None
+                    event = services[
+                        study_index
+                    ]._control_store.get_job_terminal_source_event_record(job.job_id)
+                    with tenant_scope(
+                        None,
+                        tenant_id=_TENANT_IDS[study_index],
+                        cell_id=_CELL_IDS[study_index],
+                    ):
+                        running_events = _r4_running_source_events(
+                            services[study_index]._control_store,
+                            job.job_id,
+                        )
+                    terminal_worker_id = _r4_terminal_event_worker_id(
+                        job_id=job.job_id,
+                        attempt=job.attempt,
+                        expected_state=expected_state,
+                        running_events=running_events,
+                        terminal_event=event,
+                        registered_worker_ids=registered_worker_ids,
+                    )
+                    if failure_profile:
+                        assert terminal_worker_id == expected_lease_workers[job.job_id]
+                    terminal_event_worker_ids.add(terminal_worker_id)
+                    assert "owned_attempt_failure_disposition" not in event.payload
+                    transitions = services[study_index]._control_store.list_job_state_transitions(
+                        job.job_id
+                    )
+                    assert transitions[-1] == expected_state
+                    assert "running" in transitions
+                    progress = job.progress
+                    if expected_state == "failed":
+                        failure = progress.get("failure")
+                        assert isinstance(failure, Mapping)
+                        assert progress.get("state") == "failed"
+                        assert progress.get("phase") == "legacy_workflow_failed"
+                        assert progress.get("authority_path") == "workflow_failure"
+                        assert progress.get("authority_result") == "repair_required"
+                        assert failure.get("code") == "legacy_workflow_failed_non_authority"
+                        assert failure.get("layer") == "scientist_workflow"
+                        assert failure.get("phase") == "legacy_workflow_failed"
+                        assert "r4_test_injected_post_run_lifecycle_failure" in str(
+                            failure.get("message", "")
+                        )
+                    else:
+                        assert progress.get("state") == "completed"
+                        assert progress.get("authority_path") == "legacy_shadow"
+                        assert progress.get("authority_result") == "candidate_only"
+                        assert progress.get("legacy_path_disposition") == (
+                            "candidate_only_ring2_withheld"
+                        )
+                    terminal_job_lifecycle[str(study_index)] = {
+                        "job_id": job.job_id,
+                        "state": job.state,
+                        "attempt": job.attempt,
+                        "lease_cleared": job.lease_owner is None and job.lease_expires_at is None,
+                        "progress": {
+                            "state": progress.get("state"),
+                            "phase": progress.get("phase"),
+                            "authority_path": progress.get("authority_path"),
+                            "authority_result": progress.get("authority_result"),
+                            "failure": dict(progress.get("failure", {})),
+                        },
+                        "state_transitions": transitions,
+                        "terminal_event": {
+                            "event_id": event.event_id,
+                            "event_type": event.event_type,
+                            "payload_sha256": event.payload_sha256,
+                            "payload": dict(event.payload),
+                        },
+                    }
+
+                assert terminal_event_worker_ids == registered_worker_ids
+                for worker in workers:
+                    worker.stop()
+                worker_lease_rows = services[0]._control_store.list_worker_leases(active_only=False)
+                worker_lease_by_id = {row.worker_id: row for row in worker_lease_rows}
+                worker_lease_cleanup = []
+                for worker in workers:
+                    lease = worker_lease_by_id.get(worker.worker_id)
+                    assert lease is not None
+                    assert lease.state == "stopped"
+                    assert lease.active_job_id is None
+                    worker_lease_cleanup.append(
+                        {
+                            "worker_id": lease.worker_id,
+                            "state": lease.state,
+                            "active_job_id": lease.active_job_id,
+                        }
+                    )
+
+                fresh_job_status_gets: dict[str, dict[str, Any]] = {}
+                if failure_profile:
+                    for study_index, job in enumerate(terminal_jobs):
+                        assert job is not None
+                        status_response = clients[study_index].get(
+                            f"/api/v1/control/jobs/{job.job_id}",
+                            headers={"X-Tenant-ID": _TENANT_IDS[study_index]},
+                        )
+                        assert status_response.status_code == 200, status_response.text
+                        status_payload = status_response.json()
+                        assert status_payload["job_id"] == job.job_id
+                        assert status_payload["state"] == expected_terminal_states[study_index]
+                        fresh_job_status_gets[str(study_index)] = {
+                            "method": "GET /api/v1/control/jobs/{job_id}",
+                            "status_code": status_response.status_code,
+                            "job_id": status_payload["job_id"],
+                            "state": status_payload["state"],
+                            "failure_code": (
+                                (status_payload.get("failure") or {}).get("code")
+                                if isinstance(status_payload.get("failure"), Mapping)
+                                else None
+                            ),
+                        }
+
                 study_outputs: dict[str, Any] = {}
+                evidence_semantic_projection_controls: dict[str, bool] = {}
                 input_receipts: dict[str, dict[str, Any]] = {}
                 input_run_bindings: dict[str, dict[str, Any]] = {}
                 for study_index, state in final_states.items():
@@ -1663,7 +2218,9 @@ def _run_child(
                             )
                             ref_payload = method_results[study_index]["result_ref"]
                         ref = ArtifactRef.model_validate(ref_payload)
-                        saved = from_canonical_bytes(fresh_store.get_bytes(ref))
+                        result_raw = fresh_store.get_bytes(ref)
+                        result_content_sha256 = hashlib.sha256(result_raw).hexdigest()
+                        saved = from_canonical_bytes(result_raw)
                         assert isinstance(saved, dict)
                         result_manifest = fresh_store.get_manifest(ref)
                         input_data_ref = runtime_inputs[study_index]["data_ref"]
@@ -1680,6 +2237,10 @@ def _run_child(
                         )
                         evidence_ref = method_results[study_index]["evidence_ref"]
                         evidence_raw = fresh_store.get_bytes(evidence_ref)
+                        evidence_content_sha256 = hashlib.sha256(evidence_raw).hexdigest()
+                        assert str(evidence_ref.artifact_id) == (
+                            f"sha256:{evidence_content_sha256}"
+                        )
                         evidence = from_canonical_bytes(evidence_raw)
                         assert isinstance(evidence, dict)
                         assert (
@@ -1703,6 +2264,52 @@ def _run_child(
                         semantic_evidence = _method_evidence_semantics(evidence_raw)
                         cost_attribution = evidence["artifacts"]["cost_attribution"]
                         assert isinstance(cost_attribution, dict)
+                        if capacity == 1 and not bypass and study_index == 0:
+                            # Falsify the projection boundary: a valid cost/time-only
+                            # edit changes raw CAS identity but not the consumer semantics.
+                            cost_only_payload = from_canonical_bytes(evidence_raw)
+                            cost_only = cost_only_payload["artifacts"]["cost_attribution"]
+                            assert isinstance(cost_only, dict)
+                            cost_only_timing = MethodTiming(
+                                wall_time_ms=cost_only["wall_time_ms"] + 1.0,
+                                cpu_time_ms=cost_only["cpu_time_ms"],
+                                compile_time_ms=cost_only["compile_time_ms"],
+                            )
+                            cost_only["wall_time_ms"] = cost_only_timing.wall_time_ms
+                            cost_only["estimated_cost_usd"] = estimate_method_execution_cost_usd(
+                                backend=ComputeBackend(cost_only["backend"]),
+                                timing=cost_only_timing,
+                            )
+                            cost_only_raw = to_canonical_bytes(
+                                cost_only_payload,
+                                CanonSpec(forbid_floats=False),
+                            )
+                            assert hashlib.sha256(cost_only_raw).hexdigest() != (
+                                evidence_content_sha256
+                            )
+                            assert _method_evidence_semantics(cost_only_raw) == semantic_evidence
+
+                            # A reproducibility-seed change is semantic and must remain
+                            # visible to that same projection. This mutation is a sensitivity
+                            # probe, not a candidate artifact or admitted execution.
+                            scientific_change = from_canonical_bytes(evidence_raw)
+                            changed_reproducibility = scientific_change["reproducibility"]
+                            seed = changed_reproducibility["seed"]
+                            assert type(seed) is int
+                            changed_reproducibility["seed"] = seed + 1
+                            scientific_change_raw = to_canonical_bytes(
+                                scientific_change,
+                                CanonSpec(forbid_floats=False),
+                            )
+                            assert (
+                                _method_evidence_semantics(scientific_change_raw)
+                                != semantic_evidence
+                            )
+                            evidence_semantic_projection_controls = {
+                                "cost_time_only_changes_raw_identity": True,
+                                "cost_time_only_preserves_consumer_semantics": True,
+                                "reproducibility_seed_change_changes_consumer_semantics": True,
+                            }
 
                         input_owner_scope = _owner_scope_observation(
                             fresh_store,
@@ -1758,15 +2365,24 @@ def _run_child(
                         ]
                         assert set(observed_study_folds) == expected_study_folds
                         assert len(observed_study_folds) == len(expected_study_folds)
-                        numerical = {
-                            "result": result,
-                            "report": saved["report"],
-                            "envelope": saved["envelope"],
-                            "executed_folds": [
-                                {"seed": fold_seed, "fold": fold}
-                                for fold_seed, fold in sorted(observed_study_folds)
-                            ],
-                        }
+                        executed_fold_receipts = [
+                            {"seed": fold_seed, "fold": fold}
+                            for fold_seed, fold in sorted(observed_study_folds)
+                        ]
+                        numerical = (
+                            {
+                                "result_sha256": result_content_sha256,
+                                "evidence_sha256": evidence_content_sha256,
+                                "executed_folds": executed_fold_receipts,
+                            }
+                            if failure_profile
+                            else {
+                                "result": result,
+                                "report": saved["report"],
+                                "envelope": saved["envelope"],
+                                "executed_folds": executed_fold_receipts,
+                            }
+                        )
                         evidence_state_payload = artifacts_index.get(
                             state_keys.ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF
                         )
@@ -1777,6 +2393,8 @@ def _run_child(
                             "semantic_evidence_sha256": hashlib.sha256(
                                 semantic_evidence
                             ).hexdigest(),
+                            "result_content_sha256": result_content_sha256,
+                            "evidence_content_sha256": evidence_content_sha256,
                             "attempt_cost_attribution": dict(cost_attribution),
                             "input_owner_scope": input_owner_scope,
                             "result_owner_scope": result_owner_scope,
@@ -1858,6 +2476,7 @@ def _run_child(
                     "profile_revision": revision,
                     "source": "candidate_configured_runtime_profile",
                     "dispatch_peak": dispatch_peak,
+                    "dispatch_active_at_release": dispatch_active,
                     "physical_active_workers_peak": physical_active_workers_peak,
                     "physical_active_workers_basis": (
                         "maximum distinct SharedExecutor worker threads simultaneously inside the real TMLE MethodDispatcher body; excludes ControlWorker threads and idle executor capacity"
@@ -1881,15 +2500,46 @@ def _run_child(
                     "submit_peak_active": submit_peak,
                     "expected_fold_count": len(expected_folds),
                     "observed_fold_count": len(fold_rows),
-                    "completed_jobs": len(terminal_jobs),
+                    "completed_jobs": actual_terminal_states.count("completed"),
+                    "failed_jobs": actual_terminal_states.count("failed"),
+                    "terminal_jobs": sum(
+                        state in {"completed", "failed"} for state in actual_terminal_states
+                    ),
                     "control_worker_results": dispatched,
                     "worker_runtime_bindings": worker_runtime_bindings,
                     "pre_dispatch_release": pre_dispatch_release,
                     "study_outputs": study_outputs,
+                    "evidence_semantic_projection_controls": (
+                        evidence_semantic_projection_controls
+                    ),
                     "input_receipts": input_receipts,
                     "input_run_bindings": input_run_bindings,
                     "bypass": bypass,
                 }
+                if failure_profile:
+                    results.update(
+                        {
+                            "failure_boundary": (
+                                "post-producer RunLifecycle/control-attempt fault after both actual run_experiment returns"
+                            ),
+                            "terminal_job_lifecycle": terminal_job_lifecycle,
+                            "fresh_job_status_gets": fresh_job_status_gets,
+                            "worker_lease_cleanup": worker_lease_cleanup,
+                            "post_run_release": post_run_release,
+                            "executor_state_after_release": executor_state(),
+                            "fresh_result_readback_basis": (
+                                "separate FileSystemCAS object over each Runtime CAS root; get_bytes(ArtifactRef) then canonical decode; not an HTTP artifact-result GET"
+                            ),
+                        }
+                    )
+                    assert all(
+                        results["executor_state_after_release"][name] == 0
+                        for name in (
+                            "physical_workers_active",
+                            "outstanding_jobs",
+                            "queue_depth",
+                        )
+                    )
             finally:
                 emit_cas_diagnostic()
                 BlockingDependencyGuard.run = original_guard_run
@@ -1898,6 +2548,8 @@ def _run_child(
                 dispatcher.dispatch = original_dispatch
                 tmle_core._fit_crossfit_fold = original_fold
                 scientist_api.run_experiment = original_run_experiment
+                if failure_profile and original_renew_job_lease is not None:
+                    ControlPlaneStore.renew_job_lease = original_renew_job_lease
                 causal_node.RunCausalEvaluationNode.execute = original_causal_execute
                 causal_node._causal_evaluation_safety_blockers = causal_gate
 
@@ -1914,10 +2566,17 @@ def test_r4_native_child(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Non
         pytest.skip("invoked only by the R4 profile parent")
     capacity = int(os.environ["POLISYOS_R4_CAPACITY"])
     bypass = os.environ.get("POLISYOS_R4_BYPASS") == "1"
+    failure_study_raw = os.environ.get("POLISYOS_R4_FAIL_AFTER_RUN_EXPERIMENT_STUDY")
+    failure_study_index = int(failure_study_raw) if failure_study_raw is not None else None
     monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
     monkeypatch.setenv("POLISYOS_RUNNER_BACKEND", "local")
     profile_started_ns = time.perf_counter_ns()
-    result = _run_child(capacity, temp_root=tmp_path, bypass=bypass)
+    result = _run_child(
+        capacity,
+        temp_root=tmp_path,
+        bypass=bypass,
+        fail_after_run_experiment_study=failure_study_index,
+    )
     result["profile_elapsed_ns"] = time.perf_counter_ns() - profile_started_ns
     result["profile_elapsed_basis"] = (
         "monotonic_ns from _run_child entry through its return after CAS readback and Runtime environment teardown; excludes interpreter/pytest startup"
@@ -1958,6 +2617,7 @@ def _invoke_child(
     bypass: bool = False,
     case_id: str | None = None,
     receipt_directory: Path | None = None,
+    failure_study_index: int | None = None,
 ) -> dict[str, Any]:
     profile = "removal" if bypass else "configured"
     case_id = case_id or f"cap-{capacity}-{profile}"
@@ -1966,6 +2626,7 @@ def _invoke_child(
         raise ValueError("R4 profile child outputs must be retained under ignored LOCAL/raw")
     receipt_directory.mkdir(parents=True, exist_ok=True)
     child_env = dict(os.environ)
+    child_env.pop("POLISYOS_R4_FAIL_AFTER_RUN_EXPERIMENT_STUDY", None)
     child_env.update(
         {
             "POLISYOS_R4_CHILD": "1",
@@ -1982,6 +2643,10 @@ def _invoke_child(
             "POLISYOS_R4_RECEIPT_DIR": str(receipt_directory),
         }
     )
+    if failure_study_index is not None:
+        if failure_study_index not in {0, 1} or capacity != 2 or bypass:
+            raise ValueError("post-producer failure child requires configured capacity two")
+        child_env["POLISYOS_R4_FAIL_AFTER_RUN_EXPERIMENT_STUDY"] = str(failure_study_index)
     child_benchmark_storage = receipt_directory / "benchmark-storage"
     command = [
         sys.executable,
@@ -2222,6 +2887,85 @@ def test_r4_profile_driver_attempts_all_cases_before_aggregate_failure() -> None
         _require_all_r4_profiles_passed(attempts)
 
 
+@pytest.mark.parametrize(
+    "failure_study_index",
+    [0, 1],
+    ids=("fail-study-0", "fail-study-1"),
+)
+def test_runtime_control_worker_native_sibling_failure_cleanup(
+    failure_study_index: int,
+) -> None:
+    """Hold two real jobs through producer completion, then fail each side in turn."""
+    survivor_study_index = 1 - failure_study_index
+    case_id = f"cap-2-post-producer-sibling-failure-{failure_study_index}"
+    receipt_directory = _r4_profile_receipt_root() / case_id
+    attempt = _invoke_child(
+        capacity=2,
+        bypass=False,
+        case_id=case_id,
+        receipt_directory=receipt_directory,
+        failure_study_index=failure_study_index,
+    )
+    assert attempt["status"] == "passed", attempt
+    assert attempt["child_returncode"] == 0, attempt
+    profile = attempt["profile_result"]
+    assert isinstance(profile, dict)
+    assert profile["failure_boundary"].startswith("post-producer RunLifecycle")
+    assert profile["completed_jobs"] == 1
+    assert profile["failed_jobs"] == 1
+    assert profile["terminal_jobs"] == 2
+    assert profile["pre_dispatch_release"]["dispatch_active"] == 2
+    held_executor = profile["pre_dispatch_release"]["executor_state"]
+    assert held_executor["capacity"] == 2
+    assert held_executor["physical_workers_active"] == 2
+    assert held_executor["outstanding_jobs"] >= 2
+    assert profile["post_run_release"]["run_experiment_returned_studies"] == [0, 1]
+    lease_renewals = profile["post_run_release"]["lease_renewals"]
+    assert {row["job_id"] for row in lease_renewals} == {
+        row["job_id"] for row in profile["post_run_release"]["held_job_rows"]
+    }
+    assert all(
+        row["renewed"] is True
+        and row["attempt"] == 1
+        and row["lease_seconds"] == 60
+        and row["after_expires_at"] > row["before_expires_at"]
+        for row in lease_renewals
+    )
+    assert profile["control_worker_results"] == [True, True]
+    assert profile["dispatch_active_at_release"] == 0
+
+    failed = profile["terminal_job_lifecycle"][str(failure_study_index)]
+    survivor = profile["terminal_job_lifecycle"][str(survivor_study_index)]
+    assert failed["state"] == "failed"
+    assert failed["lease_cleared"] is True
+    assert failed["terminal_event"]["event_type"] == "job_failed"
+    assert failed["terminal_event"]["payload"]["attempt"] == 1
+    assert failed["progress"]["failure"]["code"] == ("legacy_workflow_failed_non_authority")
+    assert survivor["state"] == "completed"
+    assert survivor["lease_cleared"] is True
+    assert survivor["terminal_event"]["event_type"] == "job_completed"
+    assert survivor["terminal_event"]["payload"]["attempt"] == 1
+    assert survivor["progress"]["authority_result"] == "candidate_only"
+    assert profile["fresh_job_status_gets"][str(failure_study_index)]["state"] == "failed"
+    assert profile["fresh_job_status_gets"][str(survivor_study_index)]["state"] == "completed"
+
+    survivor_output = profile["study_outputs"][str(survivor_study_index)]
+    assert survivor_output["result_content_sha256"]
+    assert survivor_output["evidence_content_sha256"]
+    assert survivor_output["result_owner_scope"]["matches_admitted_scope"] is True
+    assert survivor_output["evidence_owner_scope"]["matches_admitted_scope"] is True
+    assert survivor_output["numerical"]["executed_folds"]
+    assert len(profile["worker_lease_cleanup"]) == 2
+    assert all(
+        row["state"] == "stopped" and row["active_job_id"] is None
+        for row in profile["worker_lease_cleanup"]
+    )
+    assert all(
+        profile["executor_state_after_release"][name] == 0
+        for name in ("physical_workers_active", "outstanding_jobs", "queue_depth")
+    )
+
+
 def test_runtime_control_worker_shared_method_admission_and_removal_probe() -> None:
     """Measure cap 1/2, preserve results, and prove bridge removal escapes the cap."""
     receipt_root = _r4_profile_receipt_root()
@@ -2294,6 +3038,11 @@ def test_runtime_control_worker_shared_method_admission_and_removal_probe() -> N
     assert cap_one["dispatch_count"] == 2
     assert cap_one["dispatches_on_shared_workers"] == 2
     assert set(cap_one["study_outputs"]) == {"0", "1"}
+    assert cap_one["evidence_semantic_projection_controls"] == {
+        "cost_time_only_changes_raw_identity": True,
+        "cost_time_only_preserves_consumer_semantics": True,
+        "reproducibility_seed_change_changes_consumer_semantics": True,
+    }
 
     assert cap_one["dispatch_peak"] == 1
     assert cap_two["dispatch_peak"] == 2
@@ -2315,6 +3064,8 @@ def test_runtime_control_worker_shared_method_admission_and_removal_probe() -> N
         }
         assert diagnostic["executor_queue_submissions"]
     assert cap_one["completed_jobs"] == cap_two["completed_jobs"] == 2
+    assert cap_one["failed_jobs"] == cap_two["failed_jobs"] == 0
+    assert cap_one["terminal_jobs"] == cap_two["terminal_jobs"] == 2
     expected_fold_policy = {
         "effective_fold_workers": 1,
         "requested_parallel_folds": True,
@@ -2365,7 +3116,15 @@ def test_runtime_control_worker_shared_method_admission_and_removal_probe() -> N
             cap_one_output["evidence_manifest_profile_sha256"]
             == cap_two_output["evidence_manifest_profile_sha256"]
         )
-        attempt_specific_fields = {"evidence_ref", "attempt_cost_attribution"}
+        # The exact evidence ref and raw byte digest stay in each profile and are
+        # checked against the fresh CAS read above. The consumer-owned normalizer
+        # separately proves that only its validated MethodTiming and derived cost
+        # differ; compare that semantic digest while preserving each raw identity.
+        attempt_specific_fields = {
+            "evidence_ref",
+            "evidence_content_sha256",
+            "attempt_cost_attribution",
+        }
         cap_one_semantic_output = {
             key: value
             for key, value in cap_one_output.items()
@@ -2396,3 +3155,5 @@ def test_runtime_control_worker_shared_method_admission_and_removal_probe() -> N
     assert no_bridge["executor_queue_wait_observations"] == []
     assert no_bridge["expected_fold_count"] == no_bridge["observed_fold_count"] == 12
     assert no_bridge["completed_jobs"] == 2
+    assert no_bridge["failed_jobs"] == 0
+    assert no_bridge["terminal_jobs"] == 2

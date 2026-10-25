@@ -9,7 +9,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from collections.abc import Sequence
+import math
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any, cast
 
@@ -17,7 +18,12 @@ from pydantic import ValidationError
 
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.runner.serialization import (
+    _TIMEOUT_CONTEXT_ENGINE_INVOCATION_NODE_ID,
+    _TIMEOUT_CONTEXT_WIRE_SCHEMA,
+    _TIMEOUT_CONTEXT_WIRE_SCHEMA_V3,
     _timeout_access_scope_from_wire,
+    _timeout_worker_params_match,
+    _timeout_worker_states_match,
     deserialize_outcome,
     deserialize_state,
     serialize_outcome,
@@ -32,7 +38,6 @@ _TRACE_IMPORT_ERRORS = (ImportError, ModuleNotFoundError, AttributeError)
 _TRACE_RUNTIME_ERRORS = (RuntimeError, TypeError, ValueError)
 _REGISTRY_REF_ERRORS = (ValidationError, TypeError, ValueError)
 _METRICS_INIT_ERRORS = (AttributeError, OSError, RuntimeError, TypeError, ValueError)
-_TIMEOUT_CONTEXT_WIRE_SCHEMA = "polisyos.scientist.timeout_context.v2"
 
 
 class _StagedWorkerTraceSink:
@@ -164,6 +169,13 @@ async def run_node_in_worker(
                 context_meta,
                 invocation_id=receipt_invocation_id,
                 dispatch_sha256=receipt_dispatch_sha256,
+                expected_component_id=node_id,
+                expected_alias=alias,
+                expected_params=params,
+                expected_supervisor_deadline_monotonic=(
+                    timeout_authority[1] if timeout_authority is not None else None
+                ),
+                state=state,
             )
             staged_trace = ctx.run.trace
             worker_binding = ctx.run.dispatch_binding
@@ -289,7 +301,9 @@ async def run_node_in_worker(
         except Exception as exc:
             if not receipt_requested:
                 raise
-            from polisyos.scientist.orchestration.engine.retry import _worker_error_payload
+            from polisyos.scientist.orchestration.engine.retry import (
+                _worker_error_payload,
+            )
 
             if (
                 receipt_invocation_id is None
@@ -730,16 +744,30 @@ def _build_timeout_worker_context(
     *,
     invocation_id: str | None = None,
     dispatch_sha256: str | None = None,
+    expected_component_id: str | None = None,
+    expected_alias: str | None = None,
+    expected_params: Mapping[str, Any] | None = None,
+    expected_supervisor_deadline_monotonic: float | None = None,
+    state: Any | None = None,
 ) -> Any:
     """Reconstruct only the exact filesystem/run context admitted for timeout work."""
     from polisyos.core import run as core_run
     from polisyos.core.artifacts import FileSystemCAS, SigningConfig
     from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.canon import from_canonical_bytes
     from polisyos.core.observability import is_hpc_observability_enabled
     from polisyos.core.run.worker_lifecycle import WorkerLifecycleCapability
-    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.context import (
+        ExecutionContext,
+        _EngineInvocationBinding,
+        _load_engine_owned_invocation_input_state,
+    )
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
 
-    if set(meta) != {
+    if not isinstance(meta, dict):
+        raise ValueError("timeout_worker_context_fields_invalid")
+    common_fields = {
         "schema",
         "depth",
         "logger_name",
@@ -748,9 +776,21 @@ def _build_timeout_worker_context(
         "store",
         "run",
         "tenant_scope",
-    }:
-        raise ValueError("timeout_worker_context_fields_invalid")
-    if meta.get("schema") != _TIMEOUT_CONTEXT_WIRE_SCHEMA:
+    }
+    schema = meta.get("schema")
+    engine_invocation_meta = None
+    if schema == _TIMEOUT_CONTEXT_WIRE_SCHEMA:
+        if expected_component_id == _TIMEOUT_CONTEXT_ENGINE_INVOCATION_NODE_ID:
+            raise ValueError("timeout_worker_engine_invocation_required")
+        if set(meta) != common_fields:
+            raise ValueError("timeout_worker_context_fields_invalid")
+    elif schema == _TIMEOUT_CONTEXT_WIRE_SCHEMA_V3:
+        if set(meta) != common_fields | {"engine_invocation"}:
+            raise ValueError("timeout_worker_context_fields_invalid")
+        engine_invocation_meta = meta.get("engine_invocation")
+        if type(engine_invocation_meta) is not dict:
+            raise ValueError("timeout_worker_engine_invocation_fields_invalid")
+    else:
         raise ValueError("timeout_worker_context_schema_unsupported")
     depth = meta.get("depth")
     logger_name = meta.get("logger_name")
@@ -875,6 +915,119 @@ def _build_timeout_worker_context(
     if not isinstance(meta.get("workflow_id"), str):
         raise ValueError("timeout_worker_workflow_id_invalid")
 
+    engine_binding = None
+    declared_timeout_s = None
+    effective_timeout_s = None
+    supervisor_deadline_monotonic = None
+    if engine_invocation_meta is not None:
+        fields = {
+            "attempt_id",
+            "basis_ref",
+            "workflow_spec_ref",
+            "input_state_ref",
+            "node_alias",
+            "component_id",
+            "declared_timeout_s_hex",
+            "effective_timeout_s_hex",
+            "supervisor_deadline_monotonic_hex",
+        }
+        if type(engine_invocation_meta) is not dict or set(engine_invocation_meta) != fields:
+            raise ValueError("timeout_worker_engine_invocation_fields_invalid")
+        if (
+            type(engine_invocation_meta["attempt_id"]) is not str
+            or type(engine_invocation_meta["node_alias"]) is not str
+            or type(engine_invocation_meta["component_id"]) is not str
+        ):
+            raise ValueError("timeout_worker_engine_invocation_identity_invalid")
+
+        def selected_ref(raw: Any, reason: str) -> ArtifactRef:
+            ref_fields = {
+                "artifact_id",
+                "kind",
+                "media_type",
+                "manifest_profile_sha256",
+            }
+            if type(raw) is not dict or set(raw) != ref_fields:
+                raise ValueError(reason)
+            try:
+                ref = ArtifactRef.model_validate(raw)
+            except (TypeError, ValueError, ValidationError) as exc:
+                raise ValueError(reason) from exc
+            if (
+                ref.manifest_profile_sha256 is None
+                or ref.model_dump(mode="json", by_alias=True, exclude_none=False) != raw
+            ):
+                raise ValueError(reason)
+            return ref
+
+        def canonical_timeout(raw: Any, reason: str) -> float:
+            if type(raw) is not str:
+                raise ValueError(reason)
+            try:
+                value = float.fromhex(raw)
+            except ValueError as exc:
+                raise ValueError(reason) from exc
+            if not math.isfinite(value) or value <= 0.0 or value.hex() != raw:
+                raise ValueError(reason)
+            return value
+
+        basis_ref = selected_ref(
+            engine_invocation_meta["basis_ref"],
+            "timeout_worker_engine_basis_ref_invalid",
+        )
+        workflow_spec_ref = selected_ref(
+            engine_invocation_meta["workflow_spec_ref"],
+            "timeout_worker_engine_workflow_ref_invalid",
+        )
+        input_state_ref = selected_ref(
+            engine_invocation_meta["input_state_ref"],
+            "timeout_worker_engine_input_state_ref_invalid",
+        )
+        declared_timeout_s = canonical_timeout(
+            engine_invocation_meta["declared_timeout_s_hex"],
+            "timeout_worker_engine_declared_timeout_invalid",
+        )
+        effective_timeout_s = canonical_timeout(
+            engine_invocation_meta["effective_timeout_s_hex"],
+            "timeout_worker_engine_effective_timeout_invalid",
+        )
+        supervisor_deadline_monotonic = canonical_timeout(
+            engine_invocation_meta["supervisor_deadline_monotonic_hex"],
+            "timeout_worker_engine_supervisor_deadline_invalid",
+        )
+        if (
+            type(expected_supervisor_deadline_monotonic) is not float
+            or not math.isfinite(expected_supervisor_deadline_monotonic)
+            or supervisor_deadline_monotonic.hex() != expected_supervisor_deadline_monotonic.hex()
+        ):
+            raise ValueError("timeout_worker_engine_supervisor_deadline_mismatch")
+        if effective_timeout_s > declared_timeout_s:
+            raise ValueError("timeout_worker_engine_effective_timeout_exceeds_node")
+        if (
+            type(expected_component_id) is not str
+            or type(expected_alias) is not str
+            or not isinstance(expected_params, Mapping)
+            or type(state) is not ExperimentState
+            or engine_invocation_meta["component_id"] != expected_component_id
+            or engine_invocation_meta["node_alias"] != expected_alias
+        ):
+            raise ValueError("timeout_worker_engine_task_identity_mismatch")
+        engine_binding = _EngineInvocationBinding(
+            run_id=meta["run_id"],
+            attempt_id=engine_invocation_meta["attempt_id"],
+            basis_ref=basis_ref,
+            effective_timeout_s=effective_timeout_s,
+            supervisor_deadline_monotonic=supervisor_deadline_monotonic,
+        )
+        if (
+            workflow_spec_ref.kind != "scientist.workflow_spec"
+            or workflow_spec_ref.media_type != "application/json"
+            or input_state_ref.kind != "scientist.experiment_state"
+            or input_state_ref.media_type != "application/json"
+            or state.run_id != meta["run_id"]
+        ):
+            raise ValueError("timeout_worker_engine_invocation_refs_invalid")
+
     store = FileSystemCAS(
         root,
         signing_config=signing_config,
@@ -898,12 +1051,65 @@ def _build_timeout_worker_context(
         cell_id=cell_id,
         access_scope=access_scope,
     )
-    return ExecutionContext(
+    worker_context = ExecutionContext(
         store=store,
         run=lifecycle.worker_view(),
         logger=logging.getLogger(logger_name),
         depth=depth,
+        _engine_invocation=engine_binding,
     )
+    if engine_invocation_meta is not None:
+        attempts = worker_context.run.read_runtime_invocation_attempts()
+        matches = [
+            item
+            for item in attempts
+            if item.basis.attempt_id == engine_binding.attempt_id
+            and item.basis_ref == engine_binding.basis_ref
+        ]
+        if len(matches) != 1 or matches[0].outcome is not None:
+            raise ValueError("timeout_worker_engine_attempt_not_current")
+        basis = matches[0].basis
+        if (
+            basis.run_id != meta["run_id"]
+            or basis.workflow_spec_ref
+            != ArtifactRef.model_validate(engine_invocation_meta["workflow_spec_ref"])
+            or basis.input_state_ref
+            != ArtifactRef.model_validate(engine_invocation_meta["input_state_ref"])
+            or basis.node_alias != engine_invocation_meta["node_alias"]
+            or basis.component_id != engine_invocation_meta["component_id"]
+        ):
+            raise ValueError("timeout_worker_engine_attempt_basis_mismatch")
+        workflow_manifest = store.get_manifest(basis.workflow_spec_ref)
+        if (
+            workflow_manifest.kind != "scientist.workflow_spec"
+            or workflow_manifest.artifact_schema is None
+            or workflow_manifest.artifact_schema.name
+            != "polisyos.scientist.orchestration.engine.WorkflowSpec"
+            or workflow_manifest.artifact_schema.version != "1.0"
+        ):
+            raise ValueError("timeout_worker_engine_workflow_contract_invalid")
+        workflow = WorkflowSpec.model_validate(
+            from_canonical_bytes(store.get_bytes(basis.workflow_spec_ref))
+        )
+        node_matches = [
+            item for item in workflow.nodes if item.alias == engine_invocation_meta["node_alias"]
+        ]
+        if len(node_matches) != 1:
+            raise ValueError("timeout_worker_engine_workflow_node_ambiguous")
+        invocation = node_matches[0]
+        if (
+            str(invocation.node_id) != expected_component_id
+            or not _timeout_worker_params_match(invocation.params, expected_params)
+            or invocation.timeout_s is None
+            or not math.isfinite(invocation.timeout_s)
+            or invocation.timeout_s.hex() != engine_invocation_meta["declared_timeout_s_hex"]
+            or effective_timeout_s > invocation.timeout_s
+        ):
+            raise ValueError("timeout_worker_engine_workflow_node_mismatch")
+        basis_state = _load_engine_owned_invocation_input_state(worker_context, state)
+        if basis_state is None or not _timeout_worker_states_match(basis_state, state):
+            raise ValueError("timeout_worker_engine_input_state_mismatch")
+    return worker_context
 
 
 def _restore_parent_trace_context(

@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Any, Protocol, cast
 
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
-from polisyos.core import artifacts as core_artifacts
 from polisyos.core.artifacts import ArtifactStore, ArtifactStoreConfig, build_artifact_store
 from polisyos.core.contracts.control import (
     DataContextMetric,
@@ -28,6 +27,7 @@ from .providers import RetrievalProviders, resolve_retrieval_providers
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from polisyos.core import artifacts as core_artifacts
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.connectors._registry_models import _ConnectorRegistrationBinding
     from polisyos.fabric.connectors.base import ConnectionConfig

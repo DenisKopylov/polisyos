@@ -8,12 +8,19 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
 from polisyos.ir.analytics.partial_identification import (
     BoundMethod,
     BoundsBundle,
     BoundsMethodSummary,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import DPRobustnessCertificateRef
 
@@ -772,6 +779,47 @@ def attach_dp_robustness_to_proof_bundle(
     return bundle.model_copy(update={"dp_robustness_ref": ref, "metadata": metadata})
 
 
+_DP_ROBUSTNESS_WIRE_POLICY = (
+    "polisyos.ir.analytics.dp_robustness.DPRobustnessCertificate.wire",
+    "1",
+)
+_DP_ROBUSTNESS_REPRESENTATIONS = (
+    OwnedJSONRepresentation(
+        schema_name="ir.dp_robustness_certificate",
+        schema_version="1.0",
+        payload_version="1.0",
+        wire_policy_ref=_DP_ROBUSTNESS_WIRE_POLICY[0],
+        wire_policy_revision=_DP_ROBUSTNESS_WIRE_POLICY[1],
+        profile_ref=None,
+        compatibility=CompatibilityMode.NONE,
+        notes=(),
+        readable=True,
+        writable=True,
+        current=True,
+        default_write=True,
+        readable_from=(),
+    ),
+)
+_DP_ROBUSTNESS_OWNER = declare_model_owner(
+    DPRobustnessCertificate,
+    contract_id="polisyos.ir.analytics.dp_robustness.DPRobustnessCertificate.owner",
+    dto_fqn="polisyos.ir.analytics.dp_robustness.DPRobustnessCertificate",
+    abi_key="ir.analytics.dp_robustness.DPRobustnessCertificate",
+    registry_key="ir.dp_robustness_certificate",
+    kind="ir.dp_robustness_certificate",
+    media_type="application/json",
+    purpose="differential_privacy_robustness_evidence",
+    policy_revision="polisyos.ir.analytics.dp_robustness.DPRobustnessCertificate.owner.owner-admission.r1",
+    accepted_wire_policies=(_DP_ROBUSTNESS_WIRE_POLICY,),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=_DP_ROBUSTNESS_REPRESENTATIONS,
+)
+
+
 def persist_dp_robustness_certificate(
     store: ArtifactStore,
     certificate: DPRobustnessCertificate,
@@ -782,10 +830,10 @@ def persist_dp_robustness_certificate(
 ) -> DPRobustnessCertificateRef:
     """Persist a DP robustness certificate and return its typed artifact reference."""
 
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind="ir.dp_robustness_certificate",
+        owner=_DP_ROBUSTNESS_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -800,8 +848,7 @@ def load_dp_robustness_certificate(
 ) -> DPRobustnessCertificate:
     """Load a persisted DP robustness certificate."""
 
-    payload = get_json_artifact(store, ref)
-    return DPRobustnessCertificate.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_DP_ROBUSTNESS_OWNER)
 
 
 def _rho_star(local_stability: DPLocalStability) -> float | None:

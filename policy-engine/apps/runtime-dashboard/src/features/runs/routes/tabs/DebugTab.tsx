@@ -12,6 +12,7 @@ import { AuditTimeline } from "@/features/runs/components/AuditTimeline";
 import { buildAuditTrail } from "@/features/runs/domain/compare";
 import { MetricCard } from "@/features/runs/components/MetricCard";
 import { useRunInspector } from "@/features/runs/context/RunInspectorContext";
+import { coreRunIdFromDetails } from "@/features/runs/routes/useRunDetailSummary";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatDate, formatNumber } from "@/shared/lib/utils";
 import { FeatureErrorBoundary } from "@/shared/components/ErrorBoundary";
@@ -109,7 +110,7 @@ function DebugTimelineContent({ runId }: { runId: string }) {
                 ),
             },
           ]}
-          estimateRowHeight={58}
+          estimateRowHeight={/* policyos-quantity: layout */ 58}
           rowKey={(event) => `${event.index}-${event.event}`}
           rows={timelineEvents}
         />
@@ -147,9 +148,10 @@ export default function DebugTab() {
   const { t } = useI18n();
   const { runId } = useParams();
   const summary = useRunInspector();
-  const nodesQuery = useRunNodes(runId, Boolean(summary.run));
-  const timelineQuery = useRunTimeline(runId, Boolean(summary.run));
-  const errorsQuery = useRunErrors(runId, Boolean(summary.run));
+  const coreRunId = coreRunIdFromDetails(summary.run);
+  const nodesQuery = useRunNodes(coreRunId, Boolean(coreRunId));
+  const timelineQuery = useRunTimeline(coreRunId, Boolean(coreRunId));
+  const errorsQuery = useRunErrors(coreRunId, Boolean(coreRunId));
   const nodeRecords = nodesQuery.data?.nodes ?? [];
   const timelineEvents = timelineQuery.data?.timeline.events ?? [];
   const runErrors = errorsQuery.data?.errors ?? [];
@@ -181,12 +183,12 @@ export default function DebugTab() {
   }, [nodeRecords]);
 
   const nodeDebugQuery = useNodeDebug(
-    runId,
+    coreRunId,
     selectedAlias,
-    Boolean(summary.run) && Boolean(selectedAlias),
+    Boolean(coreRunId) && Boolean(selectedAlias),
   );
 
-  if (!runId) {
+  if (!runId || !coreRunId) {
     return null;
   }
 
@@ -228,7 +230,7 @@ export default function DebugTab() {
         loading={<PanelSkeleton rows={4} />}
         resetKeys={[runId]}
       >
-        <DebugTimelineContent runId={runId} />
+        <DebugTimelineContent runId={coreRunId} />
       </FeatureAsyncBoundary>
 
       <FeatureErrorBoundary
@@ -260,7 +262,7 @@ export default function DebugTab() {
         loading={<PanelSkeleton rows={5} />}
         resetKeys={[runId]}
       >
-        <DebugErrorsContent runId={runId} />
+        <DebugErrorsContent runId={coreRunId} />
       </FeatureAsyncBoundary>
     </div>
   );

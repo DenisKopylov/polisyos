@@ -9,6 +9,19 @@ const CLIENT_OPTIONS_NAME = "RuntimeApiClientOptions";
 const COMPONENTS_MODULE = "./types.js";
 const COMPONENTS_IMPORT_BASE = "RuntimeApiComponents";
 const IDENTIFIER = /^[A-Za-z_][A-Za-z0-9_]*$/;
+const LEGACY_TYPE_EXPORT_COMPATIBILITY = Object.freeze([
+  Object.freeze({
+    exportName: "polisyos__core__artifacts__ids__ArtifactID",
+    targetSchemaName: "polisyos__core__artifacts__ids__ArtifactID-Output",
+    expectedSchema: Object.freeze({
+      type: "string",
+      pattern: "^sha256:[0-9a-f]{64}$",
+      minLength: 71,
+      maxLength: 71,
+    }),
+  }),
+]);
+const SERIALIZED_SCHEMA_METADATA_KEYS = new Set(["description", "title"]);
 
 export class RuntimeApiClientGenerationError extends Error {
   constructor(code, message, details = {}) {
@@ -74,6 +87,44 @@ function schemaNamesByGeneratedAlias(schemaNames) {
       );
     }
     aliases.set(alias, schemaName);
+  }
+  return aliases;
+}
+
+function compatibilityTypeExports(schemaNames, componentSchemas) {
+  const names = new Set(schemaNames);
+  const aliases = [];
+  for (const compatibility of LEGACY_TYPE_EXPORT_COMPATIBILITY) {
+    if (
+      names.has(compatibility.exportName) ||
+      !names.has(compatibility.targetSchemaName)
+    ) {
+      continue;
+    }
+    const schema = componentSchemas?.[compatibility.targetSchemaName];
+    const expectedSchema = compatibility.expectedSchema;
+    const matchesExactSerializedSchema =
+      schema !== null &&
+      typeof schema === "object" &&
+      !Array.isArray(schema) &&
+      Object.entries(expectedSchema).every(([key, value]) => schema[key] === value) &&
+      Object.keys(schema).every(
+        (key) =>
+          Object.hasOwn(expectedSchema, key) ||
+          SERIALIZED_SCHEMA_METADATA_KEYS.has(key),
+      );
+    if (!matchesExactSerializedSchema) {
+      throw new RuntimeApiClientGenerationError(
+        "compatibility_export_schema_changed",
+        `Compatibility export ${compatibility.exportName} requires its exact serialized component schema`,
+        {
+          exportName: compatibility.exportName,
+          targetSchemaName: compatibility.targetSchemaName,
+          actualSchema: schema,
+        },
+      );
+    }
+    aliases.push(compatibility);
   }
   return aliases;
 }
@@ -408,10 +459,20 @@ function applyEdits(source, edits) {
  *
  * @param {string} source Raw or previously canonicalized runtime client TypeScript.
  * @param {Iterable<string>} schemaNames OpenAPI component schema names.
+ * @param {Record<string, unknown>} [componentSchemas] OpenAPI component schemas used by guarded compatibility exports.
  * @returns {string} Canonicalized client TypeScript.
  */
-export function canonicalizeRuntimeClientSource(source, schemaNames) {
-  const canonicalSchemas = schemaNamesByGeneratedAlias(schemaNames);
+export function canonicalizeRuntimeClientSource(
+  source,
+  schemaNames,
+  componentSchemas = undefined,
+) {
+  const schemaNameList = [...schemaNames];
+  const canonicalSchemas = schemaNamesByGeneratedAlias(schemaNameList);
+  const compatibilityExports = compatibilityTypeExports(
+    schemaNameList,
+    componentSchemas,
+  );
   const sourceFile = parseSource(source);
   const { optionsIndex } = findRequiredStatements(sourceFile);
   const schemaDeclarations = findSchemaTypeBlock(
@@ -433,6 +494,42 @@ export function canonicalizeRuntimeClientSource(source, schemaNames) {
     importBinding.localName,
   ]);
   const edits = [];
+  const compatibilityAdditions = [];
+  for (const compatibility of compatibilityExports) {
+    const declarations = sourceFile.statements.filter(
+      (statement) => namedStatementName(statement) === compatibility.exportName,
+    );
+    if (declarations.length > 1) {
+      throw new RuntimeApiClientGenerationError(
+        "compatibility_export_ambiguous",
+        `Compatibility export ${compatibility.exportName} is declared more than once`,
+        { exportName: compatibility.exportName, count: declarations.length },
+      );
+    }
+    const existing = declarations[0];
+    if (existing) {
+      if (
+        !ts.isTypeAliasDeclaration(existing) ||
+        !isExported(existing) ||
+        !isComponentType(
+          existing.type,
+          importBinding.localName,
+          compatibility.targetSchemaName,
+        )
+      ) {
+        throw new RuntimeApiClientGenerationError(
+          "compatibility_export_changed",
+          `Compatibility export ${compatibility.exportName} no longer binds the exact output component`,
+          {
+            exportName: compatibility.exportName,
+            targetSchemaName: compatibility.targetSchemaName,
+          },
+        );
+      }
+    } else {
+      compatibilityAdditions.push(compatibility);
+    }
+  }
 
   for (const [index, declaration] of schemaDeclarations.entries()) {
     const [alias, schemaName] = [...canonicalSchemas.entries()].sort(
@@ -557,6 +654,13 @@ export function canonicalizeRuntimeClientSource(source, schemaNames) {
     const insertionPoint = firstStatement.getStart(sourceFile);
     canonicalized = `${canonicalized.slice(0, insertionPoint)}${importText}${canonicalized.slice(insertionPoint)}`;
   }
+  if (compatibilityAdditions.length > 0) {
+    const compatibilityLines = compatibilityAdditions.map(
+      ({ exportName, targetSchemaName }) =>
+        `/** Compatibility export retained for established package-root imports. */\nexport type ${exportName} = ${importBinding.localName}["schemas"][${JSON.stringify(targetSchemaName)}];`,
+    );
+    canonicalized = `${canonicalized.trimEnd()}\n\n${compatibilityLines.join("\n\n")}\n`;
+  }
   return canonicalized;
 }
 
@@ -580,8 +684,13 @@ async function main() {
     fs.readFile(clientPath, "utf8"),
   ]);
   const openapi = JSON.parse(openapiText);
-  const schemaNames = Object.keys(openapi.components?.schemas ?? {});
-  const canonicalized = canonicalizeRuntimeClientSource(source, schemaNames);
+  const componentSchemas = openapi.components?.schemas ?? {};
+  const schemaNames = Object.keys(componentSchemas);
+  const canonicalized = canonicalizeRuntimeClientSource(
+    source,
+    schemaNames,
+    componentSchemas,
+  );
   const runtimeJavaScript = await fs.readFile(runtimeJavaScriptPath, "utf8");
   const [formattedTypeScript, formattedJavaScript] = await Promise.all([
     prettier.format(canonicalized, { parser: "typescript" }),

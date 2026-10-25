@@ -736,6 +736,7 @@ class RuntimeServiceContainer:
                     metrics=self.runtime_metrics,
                     tracer=self.runtime_tracer,
                     artifact_store=self.runtime_api_context.store,
+                    signature_verifier=self.runtime_api_context.signature_verifier,
                     async_artifact_store=self.runtime_api_context.async_store,
                     registry_providers=self.control_registry_providers,
                     decision_validity_service=self.decision_validity_service,

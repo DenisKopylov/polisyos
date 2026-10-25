@@ -22,6 +22,7 @@ projections. Route handlers should stay thin and delegate behavior here.
 - **Artifact inspection** - renders CAS manifest/content/schema/lineage views with redaction hooks.
 - **Lineage traversal** - builds lineage graphs and completeness summaries.
 - **Control-plane orchestration** - launches or reissues runs and bridges into `scientist`, `fabric`, and `lex`.
+- **Search HTE completion delivery** - persists a Search-specific outbox event after a completed HTE job and retries pending rows through embedded-worker maintenance. A delivery left pending while the worker holds the job execution fence becomes eligible at the next due maintenance iteration after the handler releases that fence, while the worker remains active. The default 60-second maintenance cadence is not a delivery deadline. An injected CAS establishes filesystem delivery only through an exact `FileSystemCAS` or the `RuntimeApiContext` verifier bound to that same store; unknown backends remain pending.
 - **Legacy/private selected NL final claims** - in the legacy `_execute_nl_pipeline` path, a
   selected CAS reference is resolved through its exact producer-selected Core profile before the
   inline report is admitted. When both are present, the private consumer requires their decoded

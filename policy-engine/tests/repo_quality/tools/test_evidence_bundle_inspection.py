@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from tests._helpers.hds_quality import complete_job_payload, complete_quality_evidence
 from tools.ops_runners.runtime.canary_evidence import assemble_canary_evidence
 from tools.quality.validation.inspect_evidence_bundles import (
@@ -62,6 +64,7 @@ def _failure_codes(report: dict[str, object]) -> set[str]:
     }
 
 
+@pytest.mark.usefixtures("canary_diagnostic_output_root")
 def test_phase64_inspection_accepts_complete_selected_serious_bundle(
     tmp_path: Path,
 ) -> None:
@@ -134,6 +137,7 @@ def test_phase64_inspection_accepts_complete_selected_serious_bundle(
     }
 
 
+@pytest.mark.usefixtures("canary_diagnostic_output_root")
 def test_w4a_inspection_flags_missing_runtime_orchestration_continuity(
     tmp_path: Path,
 ) -> None:
@@ -151,6 +155,7 @@ def test_w4a_inspection_flags_missing_runtime_orchestration_continuity(
     assert report["bundle_inspections"][0]["closeout_ready"] is False
 
 
+@pytest.mark.usefixtures("canary_diagnostic_output_root")
 def test_phase64_inspection_flags_missing_data_forge_snapshot_boundary(
     tmp_path: Path,
 ) -> None:
@@ -169,6 +174,7 @@ def test_phase64_inspection_flags_missing_data_forge_snapshot_boundary(
     assert report["bundle_inspections"][0]["closeout_ready"] is False
 
 
+@pytest.mark.usefixtures("canary_diagnostic_output_root")
 def test_phase64_inspection_flags_missing_scholar_academic_boundary(
     tmp_path: Path,
 ) -> None:
@@ -186,6 +192,7 @@ def test_phase64_inspection_flags_missing_scholar_academic_boundary(
     assert report["bundle_inspections"][0]["closeout_ready"] is False
 
 
+@pytest.mark.usefixtures("canary_diagnostic_output_root")
 def test_phase64_inspection_flags_borrowed_report_authority_envelope(
     tmp_path: Path,
 ) -> None:
@@ -214,6 +221,7 @@ def test_phase64_inspection_flags_borrowed_report_authority_envelope(
     assert report["bundle_inspections"][0]["closeout_ready"] is False
 
 
+@pytest.mark.usefixtures("canary_diagnostic_output_root")
 def test_phase64_inspection_blocks_missing_required_component_and_public_leak(
     tmp_path: Path,
 ) -> None:
@@ -237,6 +245,7 @@ def test_phase64_inspection_blocks_missing_required_component_and_public_leak(
     assert report["bundle_inspections"][0]["closeout_ready"] is False
 
 
+@pytest.mark.usefixtures("canary_diagnostic_output_root")
 def test_phase64_matrix_non_ready_governed_production_uses_typed_setup_evidence(
     tmp_path: Path,
 ) -> None:
@@ -357,6 +366,7 @@ def test_phase64_matrix_failed_research_lane_preserves_typed_failure_envelope(
     assert finding["owner"] == "team-fabric"
 
 
+@pytest.mark.usefixtures("canary_diagnostic_output_root")
 def test_phase64_inspection_rejects_public_export_scorecard_promotion(
     tmp_path: Path,
 ) -> None:
@@ -379,6 +389,7 @@ def test_phase64_inspection_rejects_public_export_scorecard_promotion(
     assert _failure_codes(report) >= {"phase64_public_export_truth_mismatch"}
 
 
+@pytest.mark.usefixtures("canary_diagnostic_output_root")
 def test_phase64_inspection_preserves_operator_triage_ledger_for_failed_scorecard(
     tmp_path: Path,
 ) -> None:
@@ -429,6 +440,7 @@ def test_phase64_inspection_preserves_operator_triage_ledger_for_failed_scorecar
     assert "phase64_scorecard_not_pass" in _failure_codes(report)
 
 
+@pytest.mark.usefixtures("canary_diagnostic_output_root")
 def test_phase64_cli_writes_inspection_report(tmp_path: Path) -> None:
     bundle = _fresh_serious_bundle(tmp_path, canary_kind="research")
     output = tmp_path / "phase64_inspection.json"

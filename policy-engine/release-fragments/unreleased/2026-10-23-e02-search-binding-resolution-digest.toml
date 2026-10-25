@@ -1,0 +1,33 @@
+id = "2026-10-23-e02-search-binding-resolution-digest"
+title = "Bind Search HTE admission to complete selected owner evidence"
+type = "changed"
+component = "scientist"
+owner = "team-policyos"
+summary = "Persisted Search binding resolution now reconciles the complete selected artifact identity. Numeric HTE producer and owner readers bind selected result refs, an optional point inference basis, and physical-source then Search owner refs in the same order. Source-pinned EconML 0.17 estimator observation records every constructor parameter, including exact n_jobs. Injected filesystem delivery accepts only an exact FileSystemCAS or the RuntimeApiContext verifier bound to that same store; an unknown backend remains pending. Persisted intent datetimes are rehydrated through the bounded Core typed JSON reader."
+evidence = [
+  "src/polisyos/scientist/methods/search/uncertainty.py",
+  "src/polisyos/core/contracts/runtime.py",
+  "src/polisyos/foundry/methods/catalog/causal/hte_v2.py",
+  "src/polisyos/scientist/compute/hte_outcome_bridge.py",
+  "src/polisyos/runtime/http/services/control/owned_attempt_anchor.py",
+  "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+  "src/polisyos/runtime/http/container.py",
+  "tests/unit/core/contracts/test_runtime_search_binding_reference_identity.py",
+  "tests/unit/scientist/methods/search/funnel/test_task_binding_resolution_roundtrip.py",
+  "tests/unit/foundry/methods/catalog/causal/test_hte_v2_resource_capture.py",
+  "tests/unit/scientist/compute/test_hte_outcome_bridge.py",
+  "tests/unit/runtime/http/test_owned_attempt_anchor_associations.py",
+  "tests/unit/runtime/http/test_control_service_di.py",
+  "tests/unit/runtime/http/test_observational_hte_resource_summary_contract.py",
+  "tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py",
+]
+compatibility = "Internal Search binding identity comparisons only. Selected artifact refs, request schemas, and public response schemas remain unchanged."
+change_class = "internal"
+surface_classification = "internal: Search task-binding owner admission and method-selection consumers"
+migration = "No artifact rewrite or caller migration is required. Existing persisted selected bindings retain their current identity and profile requirements."
+api = "Owner validators reconcile the complete artifact ID, kind, media type, and selected manifest profile across typed reference views; Search resolution still requires recomputed digest and request context. HTE result and outcome manifests retain ordered physical-source and Search binding edges, plus a selected point inference basis when present."
+limitations = "A resolved current task binding establishes only the selected Search task epoch. It does not establish live source currentness, method-unit binding, causal validity, or publication authority. This focused packet verifies the retained native fit and the producer, reader, and runtime configuration guards; the composed HTTP completion-to-Search-outbox-to-RiskLedger path remains unverified until its post-review replay. Pending notification retries become eligible at the next due maintenance iteration after the worker handler releases its execution fence; the 60-second cadence is not a delivery bound."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

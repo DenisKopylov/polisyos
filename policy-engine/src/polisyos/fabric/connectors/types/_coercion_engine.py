@@ -10,8 +10,7 @@ Contains:
 from __future__ import annotations
 
 import warnings
-from collections.abc import Callable
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 from ._coercion_errors import CoercionError, PrecisionLossWarning
 from ._coercion_policies import (
@@ -29,6 +28,9 @@ from ._coercion_rules import (
     coerce_to_int,
     coerce_to_string,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 __all__ = [
     "TypeCoercion",

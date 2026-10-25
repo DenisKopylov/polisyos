@@ -14,9 +14,15 @@ from typing import TYPE_CHECKING, Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
 
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
 from polisyos.ir.analytics.estimand import DistributionRef, EstimandAST, SideConditionKind
 from polisyos.ir.analytics.evidence_bundle import ProofStep
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     InteractionComplexRef,
@@ -27,6 +33,8 @@ from polisyos.ir.registry.refs import (
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.causal import ProofBundle
+    from polisyos.ir.artifacts import ArtifactStore, InputRef
+    from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration
 
 _INTERVENTION_QUERY_SCHEMA_NAME = "ir.intervention_query"
 _INTERVENTION_QUERY_SCHEMA_VERSION = "1.0"
@@ -1247,6 +1255,92 @@ def render_intervention_query(query: InterventionQuery) -> str:
     )
 
 
+_ANALYTICS_ARTIFACT_CANON_SPEC = CanonSpec(forbid_floats=False)
+
+
+def _declare_owned_model(
+    model: type[BaseModel],
+    *,
+    contract_id: str,
+    dto_fqn: str,
+    abi_key: str,
+    registry_key: str,
+    kind: str,
+    schema_name: str,
+    schema_version: str,
+    payload_version: str,
+    purpose: str,
+    notes: tuple[str, ...],
+    compatibility: CompatibilityMode = CompatibilityMode.NONE,
+) -> ArtifactOwnerDeclaration[Any, Any]:
+    """Declare one exact source-proven DTO/artifact representation."""
+    wire_policy_ref = f"{contract_id}.wire"
+    return declare_model_owner(
+        model,
+        contract_id=contract_id,
+        dto_fqn=dto_fqn,
+        abi_key=abi_key,
+        registry_key=registry_key,
+        kind=kind,
+        media_type="application/json",
+        purpose=purpose,
+        policy_revision=f"{contract_id}.owner-admission.v1",
+        accepted_wire_policies=((wire_policy_ref, "1"),),
+        payload_version_field="schema_version",
+        validate_profile=owner_profile_for_spec(_ANALYTICS_ARTIFACT_CANON_SPEC, profile_ref=None),
+        representations=(
+            OwnedJSONRepresentation(
+                schema_name=schema_name,
+                schema_version=schema_version,
+                payload_version=payload_version,
+                wire_policy_ref=wire_policy_ref,
+                wire_policy_revision="1",
+                profile_ref=None,
+                compatibility=compatibility,
+                notes=notes,
+                readable=True,
+                writable=True,
+                current=True,
+                default_write=True,
+                readable_from=(),
+            ),
+        ),
+    )
+
+
+_INTERVENTION_QUERY_OWNER = _declare_owned_model(
+    InterventionQuery,
+    contract_id="ir.analytics.interventions.intervention_query",
+    dto_fqn="polisyos.ir.analytics.interventions.InterventionQuery",
+    abi_key="ir.intervention_query",
+    registry_key="ir.intervention_query",
+    kind="ir.intervention_query",
+    schema_name=_INTERVENTION_QUERY_SCHEMA_NAME,
+    schema_version=_INTERVENTION_QUERY_SCHEMA_VERSION,
+    payload_version="1.0",
+    purpose="ir_intervention_query",
+    notes=(
+        "InterventionQuery 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+    ),
+)
+
+_INTERVENTION_CERTIFICATE_OWNER = _declare_owned_model(
+    InterventionCertificate,
+    contract_id="ir.analytics.interventions.intervention_certificate",
+    dto_fqn="polisyos.ir.analytics.interventions.InterventionCertificate",
+    abi_key="ir.intervention_certificate",
+    registry_key="ir.intervention_certificate",
+    kind="ir.intervention_certificate",
+    schema_name=_INTERVENTION_CERTIFICATE_SCHEMA_NAME,
+    schema_version=_INTERVENTION_CERTIFICATE_SCHEMA_VERSION,
+    payload_version="1.0",
+    purpose="ir_intervention_certificate",
+    notes=(
+        "InterventionCertificate 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+    ),
+)
+
+
 def persist_intervention_query(
     store: ArtifactStore,
     query: InterventionQuery,
@@ -1255,12 +1349,11 @@ def persist_intervention_query(
     schema_name: str = _INTERVENTION_QUERY_SCHEMA_NAME,
     schema_version: str = _INTERVENTION_QUERY_SCHEMA_VERSION,
 ) -> InterventionQueryRef:
-    """Persist a typed intervention query and return its typed artifact ref."""
-
-    ref = put_json_artifact(
+    """Persist InterventionQuery through its exact owner declaration."""
+    ref = _put_owned_json_artifact(
         store,
         query.model_dump(mode="json"),
-        kind="ir.intervention_query",
+        owner=_INTERVENTION_QUERY_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -1273,10 +1366,8 @@ def load_intervention_query(
     store: ArtifactStore,
     ref: InterventionQueryRef,
 ) -> InterventionQuery:
-    """Load a persisted intervention query."""
-
-    payload = get_json_artifact(store, ref)
-    return InterventionQuery.model_validate(payload)
+    """Load InterventionQuery through its exact owner declaration."""
+    return _get_owned_json_artifact(store, ref, owner=_INTERVENTION_QUERY_OWNER)
 
 
 def persist_intervention_certificate(
@@ -1287,11 +1378,11 @@ def persist_intervention_certificate(
     schema_name: str = _INTERVENTION_CERTIFICATE_SCHEMA_NAME,
     schema_version: str = _INTERVENTION_CERTIFICATE_SCHEMA_VERSION,
 ) -> InterventionCertificateRef:
-    """Persist an intervention certificate and return its typed artifact ref."""
-    ref = put_json_artifact(
+    """Persist InterventionCertificate through its exact owner declaration."""
+    ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind="ir.intervention_certificate",
+        owner=_INTERVENTION_CERTIFICATE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -1304,9 +1395,8 @@ def load_intervention_certificate(
     store: ArtifactStore,
     ref: InterventionCertificateRef,
 ) -> InterventionCertificate:
-    """Load a persisted intervention certificate."""
-    payload = get_json_artifact(store, ref)
-    return InterventionCertificate.model_validate(payload)
+    """Load InterventionCertificate through its exact owner declaration."""
+    return _get_owned_json_artifact(store, ref, owner=_INTERVENTION_CERTIFICATE_OWNER)
 
 
 TransportIntervention.model_rebuild()

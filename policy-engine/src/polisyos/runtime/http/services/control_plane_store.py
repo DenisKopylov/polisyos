@@ -71,6 +71,48 @@ from polisyos.runtime.quality.evidence_spine_handoff import (
 )
 
 
+_COMPLETED_HTE_VALIDITY_OUTBOX_TOPIC = "control.decision_validity.hte_source_update"
+
+
+def _completed_hte_source_invalidation_dedupe_key(
+    *,
+    source_run_id: str,
+    source_job_id: str,
+    source_attempt: int,
+    completed_event_id: int,
+    completed_event_payload_sha256: str,
+) -> str:
+    """Return the stable key for one owner-selected HTE completion binding."""
+    if (
+        type(source_run_id) is not str
+        or not source_run_id
+        or type(source_job_id) is not str
+        or not source_job_id
+        or type(source_attempt) is not int
+        or source_attempt < 1
+        or type(completed_event_id) is not int
+        or completed_event_id < 1
+        or type(completed_event_payload_sha256) is not str
+        or not completed_event_payload_sha256.startswith("sha256:")
+        or len(completed_event_payload_sha256) != len("sha256:") + 64
+        or any(
+            character not in "0123456789abcdef"
+            for character in completed_event_payload_sha256.removeprefix("sha256:")
+        )
+    ):
+        raise ValueError("completed_hte_source_event_identity_invalid")
+    binding = {
+        "schema_version": "polisyos.runtime.completed_hte_source_invalidation.v1",
+        "source_run_id": source_run_id,
+        "source_job_id": source_job_id,
+        "source_attempt": source_attempt,
+        "completed_event_id": completed_event_id,
+        "completed_event_payload_sha256": completed_event_payload_sha256,
+    }
+    raw = json.dumps(binding, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return f"hte_completed_source_run_update:{hashlib.sha256(raw).hexdigest()}"
+
+
 def _utc_now() -> datetime:
     return datetime.now(timezone.utc).replace(microsecond=0)
 
@@ -1698,14 +1740,16 @@ class ControlPlaneStore:
                 source_event=source_event,
             )
 
-    def current_execution_job_admission(self) -> ControlJobExecutionAdmission:
-        """Resolve the leased job's creation-time tenant/cell admission envelope.
+    def _reconcile_control_job_creation_envelope(
+        self,
+        job: ControlJobRecord,
+    ) -> tuple[ControlJobExecutionScope, str | None]:
+        """Reconcile a persisted job with its unique creation event and outbox copy.
 
-        The creation event owns the admitted scope. Legacy events without the
-        typed scope remain explicitly unknown; payload, progress, ambient
-        context, and the mutable current manifest pointer cannot fill it in.
+        This is the shared durable owner predicate for live and historical reads.
+        It never derives scope from caller payload, progress, ambient context, or a
+        mutable manifest pointer.
         """
-        job = self.current_execution_job_record()
         try:
             event_payload = self.get_job_created_event_payload(job.job_id)
         except RuntimeError as exc:
@@ -1789,6 +1833,58 @@ class ControlPlaneStore:
                     raise ControlJobExecutionAdmissionError(
                         "control_job_created_stable_field_missing"
                     )
+
+        return scope, admission_manifest_ref
+
+    def historical_completed_job_execution_scope(
+        self,
+        *,
+        job_id: str,
+        expected_run_id: str,
+    ) -> ControlJobExecutionScope:
+        """Resolve a completed job's trusted creation-time tenant scope.
+
+        Historical consumers run after the worker lease and ambient tenant context
+        have been cleared. This read requires the exact completed job/run identity
+        and reuses the durable creation-envelope reconciliation used by live worker
+        admission. Unknown legacy scopes remain unusable for owner-scoped reads.
+        """
+        if (
+            type(job_id) is not str
+            or not job_id
+            or job_id != job_id.strip()
+            or type(expected_run_id) is not str
+            or not expected_run_id
+            or expected_run_id != expected_run_id.strip()
+        ):
+            raise ControlJobExecutionAdmissionError(
+                "control_job_historical_execution_identity_invalid"
+            )
+        job = self.get_job(job_id)
+        if job is None or job.job_id != job_id:
+            raise ControlJobExecutionAdmissionError(
+                "control_job_historical_execution_job_unavailable"
+            )
+        if job.state != "completed":
+            raise ControlJobExecutionAdmissionError(
+                "control_job_historical_execution_job_not_completed"
+            )
+        if job.run_id != expected_run_id:
+            raise ControlJobExecutionAdmissionError("control_job_historical_execution_run_mismatch")
+        scope, _ = self._reconcile_control_job_creation_envelope(job)
+        if scope.status != "established":
+            raise ControlJobExecutionAdmissionError("control_job_execution_scope_not_established")
+        return scope
+
+    def current_execution_job_admission(self) -> ControlJobExecutionAdmission:
+        """Resolve the leased job's creation-time tenant/cell admission envelope.
+
+        The creation event owns the admitted scope. Legacy events without the
+        typed scope remain explicitly unknown; payload, progress, ambient
+        context, and the mutable current manifest pointer cannot fill it in.
+        """
+        job = self.current_execution_job_record()
+        scope, admission_manifest_ref = self._reconcile_control_job_creation_envelope(job)
 
         if job.capability_manifest_ref is None:
             pointer_state: ManifestPointerState = "missing_current"
@@ -4315,7 +4411,12 @@ class ControlPlaneStore:
             INSERT INTO control_job_events (job_id, event_type, payload_json, created_at)
             VALUES (?, ?, ?, ?)
             """,
-            (job_id, event_type, json.dumps(payload, sort_keys=True), _iso(_utc_now())),
+            (
+                job_id,
+                event_type,
+                json.dumps(payload, sort_keys=True),
+                datetime.now(timezone.utc).isoformat(timespec="microseconds"),
+            ),
         )
 
     def get_job_created_event_payload(self, job_id: str) -> dict[str, Any]:
@@ -4491,12 +4592,101 @@ class ControlPlaneStore:
         )
         return [self._row_to_outbox_record(row) for row in rows]
 
+    def get_outbox_topic_delivery_watermark(self, *, topic: str) -> int:
+        """Return the frozen monotonic outbox sequence for one exact topic."""
+        if type(topic) is not str or not topic.strip():
+            raise ValueError("control_outbox_topic_invalid")
+        row = self._fetchone(
+            "SELECT COALESCE(MAX(delivery.sequence_id), 0) AS watermark "
+            "FROM control_search_hte_delivery_order AS delivery "
+            "JOIN control_outbox_events AS event ON event.event_id = delivery.event_id "
+            "WHERE event.topic = ?",
+            (topic,),
+        )
+        value = row["watermark"] if isinstance(row, Mapping) else row[0]
+        if type(value) is not int or value < 0:
+            raise RuntimeError("control_outbox_topic_watermark_invalid")
+        return value
+
+    def list_pending_outbox_topic_delivery_page(
+        self,
+        *,
+        topic: str,
+        limit: int = 25,
+        after_sequence_id: int = 0,
+        through_sequence_id: int,
+    ) -> list[tuple[int, ControlOutboxRecord]]:
+        """Read a pending topic page bounded by one durable sequence watermark."""
+        if (
+            type(topic) is not str
+            or not topic.strip()
+            or type(limit) is not int
+            or type(after_sequence_id) is not int
+            or type(through_sequence_id) is not int
+            or limit < 1
+            or after_sequence_id < 0
+            or through_sequence_id < after_sequence_id
+        ):
+            raise ValueError("control_outbox_topic_page_bounds_invalid")
+        rows = self._fetchall(
+            """
+            SELECT
+                event.event_id,
+                event.topic,
+                event.event_key,
+                event.state,
+                event.job_id,
+                event.run_id,
+                event.payload_json,
+                event.created_at,
+                event.published_at,
+                event.attempt,
+                event.error_message,
+                delivery.sequence_id
+            FROM control_search_hte_delivery_order AS delivery
+            JOIN control_outbox_events AS event ON event.event_id = delivery.event_id
+            WHERE event.topic = ?
+              AND event.state = ?
+              AND delivery.sequence_id > ?
+              AND delivery.sequence_id <= ?
+            ORDER BY delivery.sequence_id ASC
+            LIMIT ?
+            """,
+            (topic, "pending", after_sequence_id, through_sequence_id, min(limit, 100)),
+        )
+        return [(int(row["sequence_id"]), self._row_to_outbox_record(row)) for row in rows]
+
+    def get_outbox_topic_event(
+        self,
+        *,
+        topic: str,
+        event_key: str,
+        job_id: str,
+    ) -> ControlOutboxRecord | None:
+        """Read one outbox row by its exact topic, event key, and owning job."""
+        rows = self._fetchall(
+            """
+            SELECT
+                event_id, topic, event_key, state, job_id, run_id, payload_json,
+                created_at, published_at, attempt, error_message
+            FROM control_outbox_events
+            WHERE topic = ? AND event_key = ? AND job_id = ?
+            ORDER BY created_at ASC, event_id ASC
+            """,
+            (topic, event_key, job_id),
+        )
+        if len(rows) > 1:
+            raise RuntimeError("control_outbox_topic_event_count_invalid")
+        return self._row_to_outbox_record(rows[0]) if rows else None
+
     def get_search_hte_completion_delivery_watermark(self) -> int:
         """Return the highest durable delivery sequence at a retry-cycle boundary."""
         row = self._fetchone(
-            "SELECT COALESCE(MAX(sequence_id), 0) AS watermark "
-            "FROM control_search_hte_delivery_order",
-            (),
+            "SELECT COALESCE(MAX(delivery.sequence_id), 0) AS watermark "
+            "FROM control_search_hte_delivery_order AS delivery "
+            "JOIN control_outbox_events AS event ON event.event_id = delivery.event_id "
+            "WHERE event.topic = ?",
+            ("control.search.hte_completed",),
         )
         value = row["watermark"] if isinstance(row, Mapping) else row[0]
         if type(value) is not int or value < 0:
@@ -5447,19 +5637,15 @@ class ControlPlaneStore:
                 },
             )
         if selection_payload is not None:
-            from pydantic import TypeAdapter
-
             from polisyos.core.contracts.runtime import (
                 DirectMethodExecutionSelection,
                 MethodExecutionSelection,
                 RuntimeSearchHTECompletionDeliveryV1,
+                _validate_method_execution_selection_wire_payload,
             )
 
             try:
-                selected = TypeAdapter(MethodExecutionSelection).validate_python(
-                    selection_payload,
-                    strict=True,
-                )
+                selected = _validate_method_execution_selection_wire_payload(selection_payload)
             except (TypeError, ValueError) as exc:
                 raise ValueError("runtime_search_hte_completion_selection_invalid") from exc
             if (
@@ -5484,6 +5670,56 @@ class ControlPlaneStore:
                     job_id=job_id,
                     run_id=selected.run_id,
                     payload=delivery.model_dump(mode="json"),
+                )
+            if (
+                type(selected) is DirectMethodExecutionSelection
+                and selected.method_version == "2.0.0"
+                and selected.hte is not None
+            ):
+                from polisyos.core.contracts.control import DecisionValidityEventRequest
+                from polisyos.core.contracts.decision_validity import (
+                    DecisionTriggerType,
+                    DecisionValidityStatus,
+                )
+
+                source_run_id = selected.run_id
+                source_job_id = selected.job_id
+                source_attempt = selected.attempt
+                completed_event_id = completed_event.event_id
+                completed_event_payload_sha256 = completed_event.payload_sha256
+                dedupe_key = _completed_hte_source_invalidation_dedupe_key(
+                    source_run_id=source_run_id,
+                    source_job_id=source_job_id,
+                    source_attempt=source_attempt,
+                    completed_event_id=completed_event_id,
+                    completed_event_payload_sha256=completed_event_payload_sha256,
+                )
+                dependency_key = f"hte_completed_source_run:{source_run_id}"
+                request = DecisionValidityEventRequest(
+                    trigger_type=DecisionTriggerType.METRIC_INVALIDATION,
+                    status=DecisionValidityStatus.STALE,
+                    reason="completed_hte_source_owner_selection_updated",
+                    dependency_keys=[dependency_key],
+                    source_ref=(
+                        f"control-job-event:{source_job_id}:{completed_event_id}:"
+                        f"{completed_event_payload_sha256}"
+                    ),
+                    dedupe_key=dedupe_key,
+                    occurred_at=completed_event.created_at,
+                    payload={
+                        "source_run_id": source_run_id,
+                        "source_job_id": source_job_id,
+                        "source_attempt": source_attempt,
+                        "completed_event_id": completed_event_id,
+                        "completed_event_payload_sha256": completed_event_payload_sha256,
+                    },
+                )
+                self.enqueue_outbox_event(
+                    topic=_COMPLETED_HTE_VALIDITY_OUTBOX_TOPIC,
+                    event_key=f"{source_job_id}:job_completed:{completed_event_id}",
+                    job_id=source_job_id,
+                    run_id=source_run_id,
+                    payload=request.model_dump(mode="json"),
                 )
 
     def fail_job(
@@ -5900,8 +6136,17 @@ class ControlPlaneStore:
         if event_key:
             existing = self._get_outbox_event_by_key(topic=topic, event_key=event_key)
             if existing is not None:
-                if topic == "control.search.hte_completed":
-                    self._ensure_search_hte_delivery_order(existing)
+                if topic == _COMPLETED_HTE_VALIDITY_OUTBOX_TOPIC and (
+                    existing.job_id != job_id
+                    or existing.run_id != run_id
+                    or existing.payload != payload
+                ):
+                    raise ValueError("completed_hte_validity_outbox_immutable_conflict")
+                if topic in {
+                    "control.search.hte_completed",
+                    _COMPLETED_HTE_VALIDITY_OUTBOX_TOPIC,
+                }:
+                    self._ensure_control_outbox_delivery_order(existing)
                 return existing
         event_id = f"outbox_{uuid.uuid4().hex[:16]}"
         created_at = _utc_now()
@@ -5927,12 +6172,12 @@ class ControlPlaneStore:
         record = self.get_outbox_event(event_id)
         if record is None:
             raise RuntimeError(f"Failed to persist control outbox event {event_id}")
-        if topic == "control.search.hte_completed":
-            self._ensure_search_hte_delivery_order(record)
+        if topic in {"control.search.hte_completed", _COMPLETED_HTE_VALIDITY_OUTBOX_TOPIC}:
+            self._ensure_control_outbox_delivery_order(record)
         return record
 
-    def _ensure_search_hte_delivery_order(self, record: ControlOutboxRecord) -> None:
-        """Bind each Search delivery row to one monotonic order in the same transaction."""
+    def _ensure_control_outbox_delivery_order(self, record: ControlOutboxRecord) -> None:
+        """Bind one selected outbox topic row to a monotonic order in its transaction."""
         parameters = (record.event_id, _iso(record.created_at))
         if self.backend == "sqlite":
             self._execute(

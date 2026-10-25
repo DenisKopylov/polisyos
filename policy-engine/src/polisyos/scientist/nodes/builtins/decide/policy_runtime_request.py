@@ -32,7 +32,7 @@ from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     load_simulation_metrics,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state import ExperimentState, JsonValue
 from polisyos.scientist.policy_design.phase3 import (
     ensure_optimization_ambiguity_certificate,
     phase3_ambiguity_required,
@@ -69,6 +69,11 @@ class PolicyRuntimeRequest:
     simulation_metrics: object | None
     ambiguity_certificate: object | None
     ambiguity_certificate_ref: ArtifactRef | None
+    execution_plan_ref: ArtifactRef | None
+    method_catalog_snapshot_ref: ArtifactRef | None
+    execution_profile: str | None
+    causal_method_fqn: str | None
+    causal_method_params: dict[str, JsonValue]
     method_metric_source_run_id: str | None = None
     method_metric_source_request_status: Literal["absent", "requested", "invalid"] = "absent"
 
@@ -120,6 +125,11 @@ def resolve_policy_runtime_request(
         simulation_metrics=load_simulation_metrics(ctx, state) or None,
         ambiguity_certificate=ambiguity_certificate,
         ambiguity_certificate_ref=ambiguity_certificate_ref,
+        execution_plan_ref=state.execution_plan_ref,
+        method_catalog_snapshot_ref=state.method_catalog_snapshot_ref,
+        execution_profile=state.execution_profile,
+        causal_method_fqn=state.causal_method_fqn,
+        causal_method_params=dict(state.causal_method_params),
         method_metric_source_run_id=method_metric_source_run_id,
         method_metric_source_request_status=method_metric_source_request_status,
     )

@@ -310,10 +310,35 @@ def apply_resilience[T](
         async def _retry_call(*call_args: object, **call_kwargs: object) -> T:
             if retry_policy is None:
                 return await _rate_limited_call(*call_args, **call_kwargs)
+
+            if "request" in call_kwargs:
+                request = call_kwargs["request"]
+            else:
+                request = next(
+                    (
+                        arg
+                        for arg in call_args
+                        if hasattr(arg, "cache_key") and hasattr(arg, "dataset_id")
+                    ),
+                    None,
+                )
+            retry_handle = handle
+            if retry_handle is None:
+                retry_handle = next(
+                    (arg for arg in call_args if hasattr(arg, "connector_id")),
+                    None,
+                )
+
+            async def _run_target(
+                *_retry_args: object,
+                **_retry_kwargs: object,
+            ) -> T:
+                return await _rate_limited_call(*call_args, **call_kwargs)
+
             return await retry_policy.execute(
-                _rate_limited_call,
-                *call_args,
-                **call_kwargs,
+                _run_target,
+                request=request,
+                handle=retry_handle,
             )
 
         async def _circuit_call(*call_args: object, **call_kwargs: object) -> T:

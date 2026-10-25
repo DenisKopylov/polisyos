@@ -10,10 +10,13 @@ import {
   runPaperPacketFixture,
 } from "@/test/fixtures/runPaper";
 
-const { useAuthzDecisionMock, useRunPaperMock } = vi.hoisted(() => ({
-  useAuthzDecisionMock: vi.fn(),
-  useRunPaperMock: vi.fn(),
-}));
+const { useAuthzDecisionMock, useRunDetailsMock, useRunPaperMock } = vi.hoisted(
+  () => ({
+    useAuthzDecisionMock: vi.fn(),
+    useRunDetailsMock: vi.fn(),
+    useRunPaperMock: vi.fn(),
+  }),
+);
 
 vi.mock("@/app/authz/AuthzProvider", () => ({
   useAuthzDecision: () => useAuthzDecisionMock(),
@@ -21,6 +24,10 @@ vi.mock("@/app/authz/AuthzProvider", () => ({
 
 vi.mock("@/features/runs/api/useRunPaper", () => ({
   useRunPaper: (...args: unknown[]) => useRunPaperMock(...args),
+}));
+
+vi.mock("@/api/hooks/useRunDetails", () => ({
+  useRunDetails: (...args: unknown[]) => useRunDetailsMock(...args),
 }));
 
 vi.mock("@/shared/i18n/LocaleProvider", async (importOriginal) => ({
@@ -40,6 +47,11 @@ function renderPacket(packet = runPaperPacketFixture()) {
       packet,
       rawPacketBytes: new TextEncoder().encode(JSON.stringify(packet)),
     },
+    isError: false,
+    isLoading: false,
+  });
+  useRunDetailsMock.mockReturnValue({
+    data: { run: { run_id: packet.run.run_id, source_kind: "core_run" } },
     isError: false,
     isLoading: false,
   });
@@ -68,6 +80,7 @@ function required(container: HTMLElement, selector: string): HTMLElement {
 describe("RunReportPage MACHINE/rendered-DOM parity", () => {
   beforeEach(() => {
     useAuthzDecisionMock.mockReset();
+    useRunDetailsMock.mockReset();
     useRunPaperMock.mockReset();
   });
 

@@ -9,7 +9,8 @@ non-blocking: when optional inputs are missing, the bundle records a typed
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from typing import TYPE_CHECKING, Any
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, SupportsFloat
 
 import numpy as np
 
@@ -21,6 +22,7 @@ from polisyos.core.artifacts import (
     profile_bound_ref,
 )
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.protocol import RootedArtifactStore, matches_runtime_protocol
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.foundry.methods.catalog.causal.pag_completion import (
@@ -70,6 +72,15 @@ _GRAPH_REF_KEYS: tuple[str, ...] = (
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
     ARTIFACT_LITERATURE_PRIOR_GRAPH_REF,
 )
+
+
+def _local_cas_root(ctx: ExecutionContext) -> Path | None:
+    """Return the optional root required by local-only worker execution."""
+    store = ctx.store
+    if not matches_runtime_protocol(store, RootedArtifactStore):
+        return None
+    root = store.root
+    return root if isinstance(root, Path) else None
 
 
 def persist_causal_validity_bundle(
@@ -258,7 +269,8 @@ def _build_confidence_surface(
         lower = float(report.confidence_interval[0])
         upper = float(report.confidence_interval[1])
         confidence_interval = [lower, upper]
-        interval_valid = lower <= float(report.point_estimate) <= upper
+        if report.point_estimate is not None:
+            interval_valid = lower <= report.point_estimate <= upper
 
     honest_hte = None
     if report.method in {CausalMethod.CAUSAL_FOREST, CausalMethod.FOREST_DR}:
@@ -479,6 +491,10 @@ def _run_icp_check(
     if len(set(domain_labels)) < 2:
         return _skipped_check(_ICP_METHOD_FQN, reason="insufficient_domains")
 
+    cas_root = _local_cas_root(ctx)
+    if cas_root is None:
+        return _skipped_check(_ICP_METHOD_FQN, reason="local_cas_root_unavailable")
+
     target_col = graph_data.column_names.index(graph_data.outcome)
     icp_cfg = _mapping(settings.get("icp"))
     result = run_job(
@@ -491,7 +507,7 @@ def _run_icp_check(
             },
             seed=seed,
         ),
-        cas_root=ctx.store.root,
+        cas_root=cas_root,
         method_state={
             "data": np.asarray(graph_data.data, dtype=float),
             "domain_labels": np.asarray(domain_labels),
@@ -548,6 +564,9 @@ def _run_proximal_check(
     proximal_state = _build_proximal_state(observational_data=observational_data, settings=settings)
     if proximal_state is None:
         return _skipped_check(_PROXIMAL_METHOD_FQN, reason="missing_proxy_inputs")
+    cas_root = _local_cas_root(ctx)
+    if cas_root is None:
+        return _skipped_check(_PROXIMAL_METHOD_FQN, reason="local_cas_root_unavailable")
 
     proximal_cfg = _mapping(settings.get("proximal"))
     result = run_job(
@@ -561,7 +580,7 @@ def _run_proximal_check(
             },
             seed=seed,
         ),
-        cas_root=ctx.store.root,
+        cas_root=cas_root,
         method_state=proximal_state,
     )
     payload = _method_payload(
@@ -679,6 +698,10 @@ def _run_recoverability_check(
     if mgraph_data is None:
         return _skipped_check(_RECOVERABILITY_METHOD_FQN, reason="missing_mgraph")
 
+    cas_root = _local_cas_root(ctx)
+    if cas_root is None:
+        return _skipped_check(_RECOVERABILITY_METHOD_FQN, reason="local_cas_root_unavailable")
+
     recoverability_cfg = _mapping(settings.get("recoverability"))
     query_variables = recoverability_cfg.get("query_variables", settings.get("query_variables", []))
     result = run_job(
@@ -688,7 +711,7 @@ def _run_recoverability_check(
             method_params={"query_variables": list(query_variables or [])},
             seed=seed,
         ),
-        cas_root=ctx.store.root,
+        cas_root=cas_root,
         method_state={"mgraph_data": mgraph_data},
     )
     payload = _method_payload(
@@ -730,7 +753,7 @@ def _run_recoverability_check(
                 method_params={},
                 seed=seed,
             ),
-            cas_root=ctx.store.root,
+            cas_root=cas_root,
             method_state={"mgraph_data": mgraph_data},
         )
         ordered_payload = _method_payload(
@@ -781,7 +804,7 @@ def _run_pag_refinement_check(
     violations = validate_pag(refined)
     store = _ensure_ir_artifact_store(ctx.store)
     persisted_ref = profile_bound_ref(
-        store,
+        ctx.store,
         persist_causal_graph_model(
             store,
             refined,
@@ -795,6 +818,7 @@ def _run_pag_refinement_check(
                 if graph_ref is not None
                 else None
             ),
+            return_selected_profile=True,
         ),
     )
     bundle_inputs.append(
@@ -854,7 +878,7 @@ def _load_candidate_graph(
             continue
         try:
             selected_ref = profile_bound_ref(
-                _ensure_ir_artifact_store(ctx.store),
+                ctx.store,
                 CausalGraphModelRef.model_validate(ref.model_dump(mode="json")),
             )
             graph = load_causal_graph_model(_ensure_ir_artifact_store(ctx.store), selected_ref)
@@ -1059,7 +1083,7 @@ def _method_payload(
         payload["method_result_ref"] = str(result.method_result_ref.artifact_id)
         bundle_inputs.append(
             InputRef(
-                artifact_id=str(result.method_result_ref.artifact_id),
+                artifact_id=result.method_result_ref.artifact_id,
                 role=f"{role_prefix}_method_result",
             )
         )
@@ -1067,7 +1091,7 @@ def _method_payload(
         payload["method_evidence_ref"] = str(result.method_evidence_ref.artifact_id)
         bundle_inputs.append(
             InputRef(
-                artifact_id=str(result.method_evidence_ref.artifact_id),
+                artifact_id=result.method_evidence_ref.artifact_id,
                 role=f"{role_prefix}_method_evidence",
             )
         )
@@ -1088,7 +1112,7 @@ def _failed_check(
     reason: str,
     details: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
-    payload = {
+    payload: dict[str, object] = {
         "status": "failed",
         "method_fqn": method_fqn,
         "reason": reason,
@@ -1133,6 +1157,8 @@ def _normalize_optional_string(value: object) -> str | None:
 
 def _normalize_optional_float(value: object) -> float | None:
     if value is None:
+        return None
+    if not isinstance(value, SupportsFloat):
         return None
     try:
         scalar = float(value)

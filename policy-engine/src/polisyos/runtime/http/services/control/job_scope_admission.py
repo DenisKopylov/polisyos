@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from collections.abc import Iterator, Mapping
+from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Literal, cast
@@ -855,6 +855,7 @@ class ControlJobScopeAdmissionMixin:
         execution_scope: ControlJobExecutionScope,
         capability_manifest_ref: str,
         admission: ControlJobExecutionAdmission,
+        start_core_attempt_callback: Callable[[], tuple[str, run.RunContext]],
     ) -> None:
         """Run, scope-limit, and complete one admitted workflow job."""
         from polisyos.runtime.quality.data_forge_binding import (
@@ -866,19 +867,22 @@ class ControlJobScopeAdmissionMixin:
             job=job,
             execution_scope=execution_scope,
         )
-        state_payload = self._hydrate_state_payload(
-            payload["state_payload"],
-            job=job,
-            capability_manifest_ref=capability_manifest_ref,
-        )
         if self._is_observational_method_job(payload):
+            core_run_id, core_run_context = start_core_attempt_callback()
             self._complete_observational_method_control_job(
                 job=job,
                 payload=payload,
                 capability_manifest_ref=capability_manifest_ref,
                 execution_scope=execution_scope,
+                core_run_id=core_run_id,
+                core_run_context=core_run_context,
             )
             return
+        state_payload = self._hydrate_state_payload(
+            payload["state_payload"],
+            job=job,
+            capability_manifest_ref=capability_manifest_ref,
+        )
         evaluation_safety = self._admit_evaluation_safety_attempt(
             extension_payload=cast("Mapping[str, Any]", state_payload.get("params") or {}),
             job=job,

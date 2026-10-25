@@ -6,7 +6,17 @@ from typing import TYPE_CHECKING, Any, Literal, cast
 
 from pydantic import ConfigDict, Field
 
+from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration, CanonInfo
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.kernel.base import KernelModel
+from polisyos.ir.migrations.base import (
+    CompatibilityMode,
+    IRRepresentationRegistration,
+    ResolvedSchemaAdmission,
+    register_ir_representation,
+    register_schema_version,
+)
+from polisyos.ir.model_layer.canon import CanonSpec
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -187,6 +197,98 @@ def dependence_structure_from_graph_diagnostic(
     )
 
 
+_OWNER_SCHEMA_NAME = "ir.dependence_structure"
+_OWNER_SCHEMA_VERSION = "1.0"
+_OWNER_WIRE_POLICY = ("ir.owner.dependencestructure.wire", "1")
+
+
+def _owner_payload_version(payload: object) -> str:
+    """Require an embedded source version; a DTO default is not historical evidence."""
+    if not isinstance(payload, dict):
+        raise TypeError("Owned DependenceStructure payload must be a JSON object")
+    version = payload.get("schema_version")
+    if type(version) is not str or not version.strip():
+        raise ValueError("Owned DependenceStructure payload requires an explicit schema_version")
+    return version
+
+
+def _validate_owner_source(
+    payload: object, admission: ResolvedSchemaAdmission
+) -> DependenceStructure:
+    """Validate bytes only under this owner exact registered source representation."""
+    registration = admission.source_registration
+    if registration.schema_name != _OWNER_SCHEMA_NAME:
+        raise ValueError("Owned DependenceStructure source has the wrong schema name")
+    if registration.payload_version != _owner_payload_version(payload):
+        raise ValueError(
+            "Owned DependenceStructure payload version disagrees with its representation"
+        )
+    return DependenceStructure.model_validate(payload)
+
+
+def _project_owner_source(
+    source: DependenceStructure,
+    admission: ResolvedSchemaAdmission,
+) -> DependenceStructure:
+    """Preserve the validated source value when no semantic projection is declared."""
+    if not isinstance(source, DependenceStructure):
+        raise TypeError("Owned DependenceStructure source was not validated by its owner")
+    if admission.source_registration.payload_version != source.schema_version:
+        raise ValueError("Owned DependenceStructure projection would change the source version")
+    return source
+
+
+def _validate_owner_profile(
+    profile: CanonInfo,
+    registration: IRRepresentationRegistration,
+) -> bool:
+    """Accept only the canonical profile used by this family real writer."""
+    expected = CanonInfo.from_spec(CanonSpec(forbid_floats=False))
+    return registration.profile_ref is None and profile == expected
+
+
+_dependencestructure_owner = ArtifactOwnerDeclaration(
+    contract_id="ir.analytics.dependence_structure.v1",
+    dto_fqn="polisyos.ir.analytics.dependence_structure.DependenceStructure",
+    abi_key="ir.dependence_structure",
+    registry_key="ir.dependence_structure",
+    kind="ir.dependence_structure",
+    media_type="application/json",
+    purpose="ir.dependence_structure.typed_consumer",
+    policy_revision="ir.analytics.dependence_structure.v1.owner-admission.v1",
+    accepted_wire_policies=(_OWNER_WIRE_POLICY,),
+    payload_version_of=_owner_payload_version,
+    validate_source=_validate_owner_source,
+    project_for_consumer=_project_owner_source,
+    validate_profile=_validate_owner_profile,
+)
+
+
+register_schema_version(
+    _OWNER_SCHEMA_NAME,
+    _OWNER_SCHEMA_VERSION,
+    compatibility=CompatibilityMode.NONE,
+    notes=(
+        "DependenceStructure current owner-admitted representation; historical predecessors are not registered.",
+    ),
+)
+register_ir_representation(
+    registry_key=_dependencestructure_owner.registry_key,
+    owner_ref=_dependencestructure_owner.contract_id,
+    dto_abi=_dependencestructure_owner.dto_fqn,
+    wire_policy_ref=_OWNER_WIRE_POLICY[0],
+    wire_policy_revision=_OWNER_WIRE_POLICY[1],
+    schema_name=_OWNER_SCHEMA_NAME,
+    schema_version=_OWNER_SCHEMA_VERSION,
+    payload_version=_OWNER_SCHEMA_VERSION,
+    profile_ref=None,
+    readable=True,
+    writable=True,
+    current=True,
+    default_write=True,
+)
+
+
 def persist_dependence_structure(
     store: ArtifactStore,
     report: DependenceStructure,
@@ -195,34 +297,26 @@ def persist_dependence_structure(
     schema_name: str = "ir.dependence_structure",
     schema_version: str = "1.0",
 ) -> DependenceStructureRef:
-    """Persist a dependence structure artifact and return its typed ref."""
-
-    from polisyos.ir.artifacts.io import put_json_artifact
-    from polisyos.ir.model_layer.canon import CanonSpec
-    from polisyos.ir.registry.refs import DependenceStructureRef
-
-    ref = put_json_artifact(
+    """Persist a source-validated DependenceStructure under its exact owned representation."""
+    selected = _put_owned_json_artifact(
         store,
         report.model_dump(mode="json"),
-        kind="ir.dependence_structure",
+        owner=_dependencestructure_owner,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return DependenceStructureRef.model_validate(ref)
+    from polisyos.ir.registry.refs import DependenceStructureRef
+
+    return DependenceStructureRef.model_validate(selected)
 
 
 def load_dependence_structure(
-    store: ArtifactStore,
-    ref: DependenceStructureRef,
+    store: ArtifactStore, ref: DependenceStructureRef
 ) -> DependenceStructure:
-    """Load a persisted dependence structure."""
-
-    from polisyos.ir.artifacts.io import get_json_artifact
-
-    payload = get_json_artifact(store, ref)
-    return DependenceStructure.model_validate(payload)
+    """Read DependenceStructure only after its trusted owner admits the stored representation."""
+    return _get_owned_json_artifact(store, ref, owner=_dependencestructure_owner)
 
 
 def _enum_or_string(value: object, *, default: str) -> str:

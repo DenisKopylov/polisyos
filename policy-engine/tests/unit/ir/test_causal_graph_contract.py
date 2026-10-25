@@ -24,6 +24,7 @@ from polisyos.ir.analytics.causal_graph import (
     persist_causal_graph_model,
 )
 from polisyos.ir.artifacts import get_json_artifact, put_json_artifact
+from polisyos.ir.model_layer.canon import CanonSpec, CanonViolation
 from polisyos.ir.registry.refs import CausalGraphModelRef
 
 
@@ -709,8 +710,10 @@ def test_causal_graph_pag_artifact_reader_refuses_persisted_duplicate_adjacencie
         kind="ir.causal_graph_model",
         schema_name="ir.causal_graph_model",
         schema_version="1.0",
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
-    ref = CausalGraphModelRef.model_validate(raw_ref)
+    ref = CausalGraphModelRef.from_selected_write(raw_ref)
     fresh_reader = _ensure_ir_artifact_store(FileSystemCAS(cas_root))
     stored_payload = get_json_artifact(fresh_reader, ref)
 
@@ -719,7 +722,10 @@ def test_causal_graph_pag_artifact_reader_refuses_persisted_duplicate_adjacencie
         "persisted-row-two",
     ]
     with pytest.raises(
-        ValidationError,
-        match="PAG requires at most one edge per unordered node pair",
-    ):
+        CanonViolation,
+        match="ir_owned_artifact_projection_refused",
+    ) as refusal:
         load_causal_graph_model(fresh_reader, ref)
+    assert isinstance(refusal.value.__cause__, ValidationError)
+    cause_message = str(refusal.value.__cause__)
+    assert "PAG requires at most one edge per unordered node pair" in cause_message

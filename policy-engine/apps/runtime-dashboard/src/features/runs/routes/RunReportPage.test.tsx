@@ -13,11 +13,13 @@ const {
   downloadRunPaperPacketMock,
   useAuthzDecisionMock,
   useEpochStalenessMock,
+  useRunDetailsMock,
   useRunPaperMock,
 } = vi.hoisted(() => ({
   downloadRunPaperPacketMock: vi.fn(),
   useAuthzDecisionMock: vi.fn(),
   useEpochStalenessMock: vi.fn(),
+  useRunDetailsMock: vi.fn(),
   useRunPaperMock: vi.fn(),
 }));
 
@@ -27,6 +29,10 @@ vi.mock("@/app/authz/AuthzProvider", () => ({
 
 vi.mock("@/features/runs/api/useRunPaper", () => ({
   useRunPaper: (...args: unknown[]) => useRunPaperMock(...args),
+}));
+
+vi.mock("@/api/hooks/useRunDetails", () => ({
+  useRunDetails: (...args: unknown[]) => useRunDetailsMock(...args),
 }));
 
 vi.mock("@/features/runs/api/useEpochStaleness", () => ({
@@ -92,6 +98,7 @@ describe("RunReportPage", () => {
     window.localStorage.setItem("operator-craft", "DS8_BROWSER_LOCAL_SENTINEL");
     useAuthzDecisionMock.mockReset();
     useEpochStalenessMock.mockReset();
+    useRunDetailsMock.mockReset();
     useRunPaperMock.mockReset();
     downloadRunPaperPacketMock.mockReset();
     useAuthzDecisionMock.mockReturnValue({
@@ -99,6 +106,11 @@ describe("RunReportPage", () => {
       kind: "verified",
     });
     useEpochStalenessMock.mockReturnValue({ data: undefined });
+    useRunDetailsMock.mockReturnValue({
+      data: { run: { run_id: "run-1", source_kind: "core_run" } },
+      isError: false,
+      isLoading: false,
+    });
   });
 
   it("does not mount the paper query before verified review authorization", () => {
@@ -108,6 +120,7 @@ describe("RunReportPage", () => {
       screen.getByTestId("run-paper-access-unsettled"),
     ).toBeInTheDocument();
     expect(useRunPaperMock).not.toHaveBeenCalled();
+    expect(useRunDetailsMock).not.toHaveBeenCalled();
 
     useAuthzDecisionMock.mockReturnValue({
       can: () => false,
@@ -122,6 +135,56 @@ describe("RunReportPage", () => {
     );
     expect(screen.getByTestId("run-paper-access-denied")).toBeInTheDocument();
     expect(useRunPaperMock).not.toHaveBeenCalled();
+    expect(useRunDetailsMock).not.toHaveBeenCalled();
+  });
+
+  it("resolves the stable route selector before loading Core report consumers", () => {
+    useRunDetailsMock.mockReturnValue({
+      data: { run: { run_id: "core-attempt-9", source_kind: "core_run" } },
+      isError: false,
+      isLoading: false,
+    });
+    useRunPaperMock.mockReturnValue({ isError: false, isLoading: true });
+
+    renderReport("/runs/control-run-alias/report?paper_projection_hash=pin");
+
+    expect(useRunDetailsMock).toHaveBeenCalledWith("control-run-alias", {
+      resolveCurrentAlias: true,
+    });
+    expect(useRunPaperMock).toHaveBeenCalledWith(
+      "core-attempt-9",
+      "?paper_projection_hash=pin",
+    );
+    expect(useEpochStalenessMock).toHaveBeenCalledWith({
+      runId: "core-attempt-9",
+    });
+  });
+
+  it("withholds Core report consumers until a typed Core identity is available", () => {
+    useRunDetailsMock.mockReturnValue({
+      data: { run: { run_id: "other-owner-run", source_kind: "control_run" } },
+      isError: false,
+      isLoading: false,
+    });
+
+    renderReport("/runs/control-run-alias/report");
+
+    expect(useRunPaperMock).not.toHaveBeenCalled();
+    expect(useEpochStalenessMock).not.toHaveBeenCalled();
+  });
+
+  it("withholds cached Core report data while the stable alias is being refreshed", () => {
+    useRunDetailsMock.mockReturnValue({
+      data: { run: { run_id: "core-attempt-1", source_kind: "core_run" } },
+      isError: false,
+      isFetching: true,
+      isLoading: false,
+    });
+
+    renderReport("/runs/control-run-alias/report");
+
+    expect(useRunPaperMock).not.toHaveBeenCalled();
+    expect(useEpochStalenessMock).not.toHaveBeenCalled();
   });
 
   it("renders only packet facts and exports the exact captured bytes", async () => {

@@ -7,7 +7,12 @@ from dataclasses import replace
 import jax.numpy as jnp
 import pytest
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts import (
+    validate_core_model_json_artifact,
+)
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.contracts.foundry import (
@@ -82,6 +87,7 @@ def _state_with_income(
 
 def _simulation_result_ref(cas_store, *, simulated_ref, artifact_ref_factory):
     sim_result = SimulationResult(
+        schema_version=SimulationResult.ARTIFACT_SCHEMA_VERSION,
         exec_plan_ref=ExecPlanRef.model_validate(
             artifact_ref_factory(kind="foundry.exec_plan").model_dump()
         ),
@@ -91,10 +97,28 @@ def _simulation_result_ref(cas_store, *, simulated_ref, artifact_ref_factory):
         state_snapshot_ref=StateSnapshotRef.model_validate(simulated_ref.model_dump()),
         notes=["test"],
     )
-    return cas_store.put_json(
-        sim_result.model_dump(mode="json"),
-        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+    payload = sim_result.to_artifact_payload()
+    ref = cas_store.put_json(
+        payload,
+        PutOptions(
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                version=sim_result.schema_version,
+            ),
+        ),
+        return_selected_profile=True,
     )
+    manifest = cas_store.get_manifest(ref)
+    assert ref.manifest_profile_sha256 is not None
+    assert manifest.artifact_schema == SchemaInfo(
+        name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+        version=sim_result.schema_version,
+    )
+    # Re-read from the selected CAS profile through Core's typed artifact owner.
+    assert validate_core_model_json_artifact(SimulationResult, cas_store, ref) == sim_result
+    return ref
 
 
 def test_skip_when_no_simulation_result_ref(execution_context, minimal_state):

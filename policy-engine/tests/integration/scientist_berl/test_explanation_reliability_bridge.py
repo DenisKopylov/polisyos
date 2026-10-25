@@ -5,6 +5,7 @@ from collections.abc import Callable
 from copy import deepcopy
 from datetime import UTC, datetime
 from math import sqrt
+from pathlib import Path
 from types import SimpleNamespace
 from typing import TYPE_CHECKING, cast
 
@@ -772,3 +773,310 @@ def test_correlated_rho_08_source_bundle_keeps_conditional_refused_and_marginal_
                 "conditional_feature_law_unverified" in str(gate.get("message")) for gate in gates
             )
             assert phase5_explanation.status == "blocked"
+
+
+def test_selected_cas_method_identity_reaches_public_validator_and_canary_scorecard(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from polisyos.berl import (
+        ExplanationOrchestrator,
+        ExplanationRequest,
+        persist_explanation_bundle,
+    )
+    from polisyos.berl.contracts.schema import explanation_bundle_schema_id
+    from polisyos.core.artifacts import SchemaInfo
+    from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+    from polisyos.core.canon import CanonSpec
+    from polisyos.ir import ExplanationBundleRef
+    from polisyos.runtime.quality.claim_argument import validate_claim_argument_case_surfaces
+    from polisyos.runtime.quality.explanation_reliability import (
+        build_berl_warrant_reliability_record,
+    )
+    from tools.ops_runners.runtime.canary_evidence import assemble_canary_evidence
+
+    store_root = tmp_path / "selected-cas"
+    producer_store = FileSystemCAS(store_root)
+    producer = ExplanationOrchestrator()
+
+    def model(row: dict[str, float]) -> float:
+        return row["x1"] + 2 * row["x2"]
+
+    def produce(profile: str, method_id: str, prediction_id: str):
+        request = ExplanationRequest(
+            prediction_id=prediction_id,
+            row_id="row-la036",
+            x={"x1": 1.0, "x2": 1.0},
+            feature_names=("x1", "x2"),
+            methods=(
+                (method_id, "kernel_shap") if profile == "marginal_interventional" else (method_id,)
+            ),
+            feature_dependence_policy=profile,
+            model_hash="sha256:la036-model",
+            feature_schema_version="la036-schema-v1",
+            background_rows=(
+                {"x1": 0.0, "x2": 0.0},
+                {"x1": 1.0, "x2": 0.0},
+                {"x1": 0.0, "x2": 1.0},
+            ),
+            n_eval_perturbations=16,
+            residual_cap=0.05,
+            random_seed=11,
+            adapter_params={"max_exact_shap_features": 2},
+        )
+        return request, producer.explain(model, request)
+
+    _, marginal_bundle = produce(
+        "marginal_interventional", "kernel_shap_marginal", "prediction-la036-marginal"
+    )
+    _, conditional_bundle = produce(
+        "conditional_observational", "kernel_shap_conditional", "prediction-la036-conditional"
+    )
+    marginal_ref = persist_explanation_bundle(producer_store, marginal_bundle)
+    conditional_ref = persist_explanation_bundle(producer_store, conditional_bundle)
+
+    legacy_payload = marginal_bundle.model_dump(mode="json", round_trip=True)
+    for legacy_method in legacy_payload["methods"]:
+        for identity_field in (
+            "requested_method_id",
+            "effective_method_id",
+            "fallback",
+            "fallback_reason",
+        ):
+            legacy_method.pop(identity_field)
+    legacy_ref_payload = producer_store.put_json(
+        legacy_payload,
+        PutOptions(
+            kind="scientist.explanation_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name=explanation_bundle_schema_id(), version="1.0.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    legacy_ref = ExplanationBundleRef.model_validate(legacy_ref_payload.model_dump(mode="json"))
+
+    def record(reliability_id: str, ref: ExplanationBundleRef, bundle) -> dict[str, object]:
+        candidate = bundle.model_dump(mode="json", round_trip=True)
+        for method in candidate["methods"]:
+            method.update(
+                {
+                    "method_id": "inline-forgery",
+                    "requested_method_id": "inline-forgery",
+                    "effective_method_id": "inline-forgery",
+                    "fallback": True,
+                    "fallback_reason": "forged inline candidate",
+                    "scope": "diagnostic",
+                }
+            )
+        row = build_berl_warrant_reliability_record(
+            reliability_id=reliability_id,
+            claim_id="claim-la036",
+            warrant_id="warrant-la036",
+            explanation_bundle_ref=ref.model_dump_json(),
+            validation_thresholds={"max_p95_infidelity_upper_bound": 0.05},
+            explanation_bundle=candidate,
+            expected_explanation_subject={
+                "prediction_id": bundle.prediction.prediction_id,
+                "model_hash": bundle.model.model_hash,
+                "feature_schema_version": bundle.feature_context.feature_schema_version,
+            },
+        )
+        return row
+
+    records = [
+        record("reliability-marginal", marginal_ref, marginal_bundle),
+        record("reliability-conditional", conditional_ref, conditional_bundle),
+        record("reliability-legacy", legacy_ref, marginal_bundle),
+    ]
+
+    def case_for(rows: list[dict[str, object]]) -> dict[str, object]:
+        refs = [str(row["reliability_id"]) for row in rows]
+        return {
+            "final_major_claims": [
+                {
+                    "claim_id": "claim-la036",
+                    "major": True,
+                    "warrant_refs": ["warrant-la036"],
+                }
+            ],
+            "warrants": [
+                {
+                    "warrant_id": "warrant-la036",
+                    "claim_id": "claim-la036",
+                    "warrant_text": "Selected persisted BERL bytes support this scoped claim.",
+                    "assumptions": ["Only selected persisted bytes are considered."],
+                    "applicability_limits": ["Subject authority remains unresolved."],
+                    "requires_explanation_reliability": True,
+                    "berl_reliability_refs": refs,
+                }
+            ],
+            "warrant_reliability_records": rows,
+        }
+
+    selected_case = case_for(records)
+    public_result = validate_claim_argument_case_surfaces(
+        selected_case,
+        effective_authority_profile="production",
+        artifact_store=FileSystemCAS(store_root),
+    )
+    public_payload = public_result.as_dict()
+    normalized_rows = public_payload["major_claims"][0]["warrant_reliability_records"]
+    by_id = {row["record_id"]: row for row in normalized_rows}
+
+    marginal_row = by_id["reliability-marginal"]
+    marginal_explanation = marginal_row["explanation_bundle"]
+    assert marginal_explanation["bundle_id"] == marginal_bundle.bundle_id
+    assert marginal_explanation["schema_version"] == marginal_bundle.schema_version
+    assert marginal_explanation["display_policy"] == marginal_bundle.display_policy
+    assert marginal_explanation["faithfulness_claim"] == marginal_bundle.faithfulness_claim
+    marginal_methods = marginal_explanation["methods"]
+    assert [method["method_id"] for method in marginal_methods] == [
+        "kernel_shap_marginal",
+        "kernel_shap",
+    ]
+    marginal_method = marginal_methods[0]
+    assert marginal_method["method_id"] == "kernel_shap_marginal"
+    assert marginal_method["requested_method_id"] == "kernel_shap_marginal"
+    assert marginal_method["effective_method_id"] == "kernel_shap"
+    assert marginal_method["fallback"] is False
+    assert marginal_method["fallback_reason"] is None
+    assert marginal_methods[1]["requested_method_id"] == "kernel_shap"
+    assert marginal_methods[1]["effective_method_id"] == "kernel_shap"
+    assert marginal_methods[1]["fallback"] is False
+    assert marginal_methods[1]["field_presence"] == {
+        "method_id": True,
+        "requested_method_id": True,
+        "effective_method_id": True,
+        "fallback": True,
+        "fallback_reason": True,
+        "scope": True,
+    }
+    assert marginal_method["field_presence"] == {
+        "method_id": True,
+        "requested_method_id": True,
+        "effective_method_id": True,
+        "fallback": True,
+        "fallback_reason": True,
+        "scope": True,
+    }
+    assert marginal_row["threshold_decision"]["status"] == "fail"
+    assert (
+        "policy_design_warrant_berl_subject_context_not_established"
+        in (marginal_row["threshold_decision"]["violations"])
+    )
+
+    conditional_row = by_id["reliability-conditional"]
+    conditional_method = conditional_row["explanation_bundle"]["methods"][0]
+    assert conditional_method["method_id"] == "kernel_shap_conditional"
+    assert conditional_method["requested_method_id"] == "kernel_shap_conditional"
+    assert conditional_method["effective_method_id"] is None
+    assert conditional_method["scope"] == "diagnostic"
+    assert "conditional_feature_law_unverified" in str(
+        conditional_row["candidate_diagnostics"]["threshold_decision"]
+    )
+    assert conditional_row["threshold_decision"]["status"] == "fail"
+
+    legacy_row = by_id["reliability-legacy"]
+    legacy_methods = legacy_row["explanation_bundle"]["methods"]
+    assert [method["method_id"] for method in legacy_methods] == [
+        "kernel_shap_marginal",
+        "kernel_shap",
+    ]
+    for legacy_method in legacy_methods:
+        assert legacy_method["requested_method_id"] is None
+        assert legacy_method["effective_method_id"] is None
+        assert legacy_method["fallback"] is None
+        assert legacy_method["fallback_reason"] is None
+        assert legacy_method["field_presence"] == {
+            "method_id": True,
+            "requested_method_id": False,
+            "effective_method_id": False,
+            "fallback": False,
+            "fallback_reason": False,
+            "scope": True,
+        }
+
+    missing_ref = deepcopy(records[0])
+    missing_ref.pop("explanation_bundle_ref")
+    missing_result = validate_claim_argument_case_surfaces(
+        case_for([missing_ref]),
+        effective_authority_profile="production",
+        artifact_store=FileSystemCAS(store_root),
+    ).as_dict()
+    missing_row = missing_result["major_claims"][0]["warrant_reliability_records"][0]
+    assert missing_row["threshold_decision"]["status"] == "fail"
+    assert (
+        "policy_design_warrant_berl_bundle_ref_missing"
+        in (missing_row["threshold_decision"]["violations"])
+    )
+    assert "methods" not in missing_row["candidate_diagnostics"].get("explanation_bundle", {})
+
+    malformed_ref = deepcopy(records[0])
+    malformed_ref["explanation_bundle_ref"] = "{not-json"
+    malformed_result = validate_claim_argument_case_surfaces(
+        case_for([malformed_ref]),
+        effective_authority_profile="production",
+        artifact_store=FileSystemCAS(store_root),
+    ).as_dict()
+    malformed_row = malformed_result["major_claims"][0]["warrant_reliability_records"][0]
+    assert malformed_row["threshold_decision"]["status"] == "fail"
+    assert "methods" not in malformed_row.get("candidate_diagnostics", {}).get(
+        "explanation_bundle", {}
+    )
+
+    wrong_ref = deepcopy(records[0])
+    wrong_ref["explanation_bundle_ref"] = conditional_ref.model_dump_json()
+    wrong_result = validate_claim_argument_case_surfaces(
+        case_for([wrong_ref]),
+        effective_authority_profile="production",
+        artifact_store=FileSystemCAS(store_root),
+    ).as_dict()
+    wrong_row = wrong_result["major_claims"][0]["warrant_reliability_records"][0]
+    assert wrong_row["explanation_bundle"]["methods"][0]["method_id"] == ("kernel_shap_conditional")
+    assert wrong_row["threshold_decision"]["status"] == "fail"
+
+    import tools.ops_runners.runtime.canary_evidence as canary_evidence_module
+
+    original_persist_sandbox_report = canary_evidence_module.persist_legacy_migration_sandbox_report
+
+    def persist_sandbox_report(
+        report: dict[str, object],
+        *,
+        repo_root: str | Path | None = None,
+        validation_id: str | None = None,
+    ) -> Path:
+        return original_persist_sandbox_report(
+            report,
+            repo_root=tmp_path / "migration-sandbox",
+            validation_id=validation_id,
+        )
+
+    monkeypatch.setattr(
+        canary_evidence_module,
+        "persist_legacy_migration_sandbox_report",
+        persist_sandbox_report,
+    )
+
+    output = assemble_canary_evidence(
+        output_root=tmp_path / "canary",
+        canary_kind="production",
+        job_payload={"job_id": "job-la036", "run_id": "run-la036", "state": "completed"},
+        run_payload={"run_id": "run-la036", "status": "completed"},
+        provider_preflight={"status": "skipped"},
+        quality_evidence={"policy_design_case": selected_case},
+        artifact_store=FileSystemCAS(store_root),
+    )
+    scorecard = json.loads(
+        (output / "quality_evidence" / "quality_scorecard.json").read_text(encoding="utf-8")
+    )
+    scorecard_validation = scorecard["policy_design_claim_argument_validation_diagnostic"]
+    assert scorecard_validation == public_payload
+    scorecard_rows = scorecard_validation["major_claims"][0]["warrant_reliability_records"]
+    scorecard_by_id = {row["record_id"]: row for row in scorecard_rows}
+    assert scorecard_by_id["reliability-marginal"]["threshold_decision"]["status"] == "fail"
+    persisted_refusal = scorecard_by_id["reliability-conditional"]
+    persisted_refusal_method = persisted_refusal["explanation_bundle"]["methods"][0]
+    assert persisted_refusal_method["requested_method_id"] == "kernel_shap_conditional"
+    assert persisted_refusal_method["effective_method_id"] is None
+    assert persisted_refusal_method["scope"] == "diagnostic"
+    assert persisted_refusal["threshold_decision"]["status"] == "fail"

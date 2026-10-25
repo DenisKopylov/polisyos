@@ -384,6 +384,18 @@ def _build_decision_validity_baseline(
     governance = packet_payload.get("governance")
     governance_dict = governance if isinstance(governance, dict) else {}
 
+    from polisyos.scientist.validation.decision_validity import (
+        _completed_hte_request_selection_trigger,
+    )
+
+    completed_hte_trigger = _completed_hte_request_selection_trigger(
+        packet_payload=packet_payload,
+        envelope=envelope,
+    )
+    if completed_hte_trigger is not None:
+        triggers.append(completed_hte_trigger)
+        reasons.append(completed_hte_trigger.reason)
+
     if bool(diagnostics_dict.get("human_review_needed")) or bool(
         diagnostics_dict.get("requires_expert_review")
     ):

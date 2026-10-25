@@ -511,13 +511,6 @@ def build_source_inventory(
         raise SplitProtocolError(
             "Hatch force-include mapping differs from the content-bound freeze manifest"
         )
-    sdist_paths = {
-        _relative(value, label="Hatch sdist include").as_posix() for value in sdist_include
-    }
-    missing_sdist = sorted(set(manifest_mapping) - sdist_paths)
-    if missing_sdist:
-        raise SplitProtocolError(f"sdist omits force-include source files: {missing_sdist}")
-
     rows: list[dict[str, Any]] = []
     package_roots: set[str] = set()
     for package in packages:
@@ -592,6 +585,8 @@ def build_source_inventory(
             "bytes": len(raw),
             "sha256": sha256_bytes(raw),
         }
+    # Membership is derived from Hatchling selected files; include entries may
+    # select directories or use other selection patterns.
     required_sdist_sources = set(manifest_mapping)
     if not required_sdist_sources <= sdist_rows_by_source.keys():
         raise SplitProtocolError("sdist source inventory omits a frozen force-include source")

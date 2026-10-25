@@ -7,7 +7,14 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import FairnessAuditReportRef
 
@@ -60,6 +67,47 @@ class FairnessAuditReport(BaseModel):
         return self.model_dump(mode="json", exclude={"kind"})
 
 
+_FAIRNESS_AUDIT_REPORT_WIRE_POLICY = (
+    "polisyos.ir.analytics.fairness_audit_report.FairnessAuditReport.wire",
+    "1",
+)
+_FAIRNESS_AUDIT_REPORT_REPRESENTATIONS = (
+    OwnedJSONRepresentation(
+        schema_name="polisyos.scientist.fairness_audit_report",
+        schema_version="1.0",
+        payload_version="1.0.0",
+        wire_policy_ref=_FAIRNESS_AUDIT_REPORT_WIRE_POLICY[0],
+        wire_policy_revision=_FAIRNESS_AUDIT_REPORT_WIRE_POLICY[1],
+        profile_ref=None,
+        compatibility=CompatibilityMode.NONE,
+        notes=(),
+        readable=True,
+        writable=True,
+        current=True,
+        default_write=True,
+        readable_from=(),
+    ),
+)
+_FAIRNESS_AUDIT_REPORT_OWNER = declare_model_owner(
+    FairnessAuditReport,
+    contract_id="polisyos.ir.analytics.fairness_audit_report.FairnessAuditReport.owner",
+    dto_fqn="polisyos.ir.analytics.fairness_audit_report.FairnessAuditReport",
+    abi_key="ir.analytics.fairness_audit_report.FairnessAuditReport",
+    registry_key="polisyos.scientist.fairness_audit_report",
+    kind="scientist.fairness_audit_report",
+    media_type="application/json",
+    purpose="fairness_audit_evidence",
+    policy_revision="polisyos.ir.analytics.fairness_audit_report.FairnessAuditReport.owner.owner-admission.r1",
+    accepted_wire_policies=(_FAIRNESS_AUDIT_REPORT_WIRE_POLICY,),
+    payload_version_field="version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=_FAIRNESS_AUDIT_REPORT_REPRESENTATIONS,
+)
+
+
 def persist_fairness_audit_report(
     store: ArtifactStore,
     report: FairnessAuditReport,
@@ -70,10 +118,10 @@ def persist_fairness_audit_report(
 ) -> FairnessAuditReportRef:
     """Persist a fairness audit report and return its typed CAS reference."""
 
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         report.model_dump(mode="json"),
-        kind="scientist.fairness_audit_report",
+        owner=_FAIRNESS_AUDIT_REPORT_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -88,8 +136,7 @@ def load_fairness_audit_report(
 ) -> FairnessAuditReport:
     """Load a persisted fairness audit report from CAS."""
 
-    payload = get_json_artifact(store, ref)
-    return FairnessAuditReport.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_FAIRNESS_AUDIT_REPORT_OWNER)
 
 
 __all__ = [

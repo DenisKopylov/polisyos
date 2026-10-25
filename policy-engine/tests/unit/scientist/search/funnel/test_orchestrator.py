@@ -359,35 +359,35 @@ class TestFunnelOrchestrator:
             pytest.param(
                 {},
                 False,
-                ObjectiveScoreStatus.UNAVAILABLE,
-                ObjectiveScoreStatus.UNAVAILABLE,
+                ObjectiveScoreStatus.NOT_ESTABLISHED,
+                ObjectiveScoreStatus.NOT_ESTABLISHED,
                 "defer",
                 False,
                 "DEFER",
-                ObjectiveScoreStatus.UNAVAILABLE,
-                id="missing-unit-stays-candidate-only",
-            ),
-            pytest.param(
-                {"gdp_change": "fixture-unit", "budget_deficit": "fixture-unit"},
-                False,
-                ObjectiveScoreStatus.AVAILABLE,
-                ObjectiveScoreStatus.AVAILABLE,
-                "complete",
-                True,
-                "APPROVE",
-                ObjectiveScoreStatus.AVAILABLE,
-                id="known-zero-remains-available",
-            ),
-            pytest.param(
-                {"gdp_change": "fixture-unit", "budget_deficit": "fixture-unit"},
-                True,
-                ObjectiveScoreStatus.AVAILABLE,
                 ObjectiveScoreStatus.NOT_ESTABLISHED,
-                "reject",
+                id="missing-owner-stays-candidate-only",
+            ),
+            pytest.param(
+                {"gdp_change": "fixture-unit", "budget_deficit": "fixture-unit"},
                 False,
-                "REJECT",
-                None,
-                id="removed-assessment-keeps-markers-but-cannot-approve",
+                ObjectiveScoreStatus.NOT_ESTABLISHED,
+                ObjectiveScoreStatus.NOT_ESTABLISHED,
+                "defer",
+                False,
+                "DEFER",
+                ObjectiveScoreStatus.NOT_ESTABLISHED,
+                id="metric-unit-label-is-not-owner-evidence",
+            ),
+            pytest.param(
+                {"gdp_change": "fixture-unit", "budget_deficit": "fixture-unit"},
+                True,
+                ObjectiveScoreStatus.NOT_ESTABLISHED,
+                ObjectiveScoreStatus.NOT_ESTABLISHED,
+                "defer",
+                False,
+                "DEFER",
+                ObjectiveScoreStatus.NOT_ESTABLISHED,
+                id="self-reported-score-without-owner-basis-stays-limited",
             ),
         ],
     )
@@ -401,6 +401,7 @@ class TestFunnelOrchestrator:
         expected_promising,
         expected_verdict,
         expected_l6_status,
+        tmp_path,
     ):
         engine = MagicMock()
         engine.run.return_value = {
@@ -433,6 +434,10 @@ class TestFunnelOrchestrator:
                     feedback=feedback,
                 )
 
+        lesson_registry = LessonRegistry(
+            root=tmp_path / "registry" / "lessons",
+            store=FileSystemCAS(tmp_path / "lesson-cas"),
+        )
         orchestrator = FunnelOrchestrator(
             [
                 level3,
@@ -440,6 +445,7 @@ class TestFunnelOrchestrator:
                 Level6PromotionStage(),
             ],
             stage_a_max_level=3,
+            lesson_registry=lesson_registry,
         )
         context = {"promotion_result": {"decision": "complete", "promoted": True}}
         candidate = {"semantic": {"interventions": [], "objectives": []}}
@@ -455,11 +461,15 @@ class TestFunnelOrchestrator:
         stage_b = orchestrator.as_stage_b_callable()(candidate, context)
         outcome = stage_b["_funnel_outcome"]
         assert outcome.final_action == expected_action
+        assert outcome.final_action == "defer"
+        assert outcome.lesson_refs == []
         assert stage_b["feedback"]["verdict"] == expected_verdict
         assert stage_b["objective_value"] == (0.0 if expected_promising else None)
         assert stage_b["is_promising"] is expected_promising
         assert outcome.stage_results[4].score_status is expected_status
-        assert outcome.stage_results[4].is_promising is expected_promising
+        assert outcome.stage_results[4].is_promising is True
+        # A stage may describe candidate promise, but the terminal action still
+        # requires a source-recomputed score admission.
         if expected_l6_status is None:
             assert 6 not in outcome.stage_results
         else:
@@ -522,15 +532,14 @@ class TestFunnelOrchestrator:
 
                 def evaluate(self, candidate, context):
                     result = source_bound_level4.evaluate(candidate, context)
-                    assert result.score_assessment is not None
-                    assert result.score_status is ObjectiveScoreStatus.AVAILABLE
-                    assert result.objective_value == 0.0
+                    assert result.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+                    assert result.objective_value is None
                     assert result.feedback["verdict"] == "APPROVE"
-                    # A mutable result can lose its basis after construction. Keep the
-                    # self-reported score fields intact so the orchestrator must replay it.
+                    # Removing the explicit limitation cannot make a caller-provided
+                    # verdict into selected-source evidence.
                     result.score_assessment = None
-                    assert result.score_status is ObjectiveScoreStatus.AVAILABLE
-                    assert result.objective_value == 0.0
+                    assert result.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+                    assert result.objective_value is None
                     return result
 
             level4 = _AssessmentRemovingLevel4()
@@ -558,24 +567,22 @@ class TestFunnelOrchestrator:
 
         medium = outcome.stage_results[3]
         assert medium.objective_value is None
-        assert medium.score_status is ObjectiveScoreStatus.UNAVAILABLE
-        assert medium.score_assessment is not None
+        assert medium.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
         assert medium.is_promising is False
-        assert medium.feedback["selected_objective_admission"] == "unavailable"
+        assert medium.feedback["selected_objective_admission"] == "not_established"
 
         full = outcome.stage_results[4]
         assert full.feedback["verdict"] == "APPROVE"
+        assert full.objective_value is None
+        assert full.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+        assert full.is_promising is False
+        assert outcome.final_action != "complete"
         if remove_l4_assessment:
-            assert full.objective_value is None
-            assert full.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
             assert full.score_assessment is None
-            assert outcome.final_action == "reject"
-            assert outcome.final_action != "complete"
         else:
-            assert full.score_status is ObjectiveScoreStatus.AVAILABLE
-            assert full.score_assessment is not None
-            assert full.objective_value == 0.0
-            assert outcome.final_action == "complete"
+            assert full.score_assessment is None or (
+                full.score_assessment.status is ObjectiveScoreStatus.NOT_ESTABLISHED
+            )
 
         assert medium_workflow.calls == 1
         assert full_workflow.calls == 1
@@ -607,6 +614,10 @@ class TestFunnelOrchestrator:
         assert outcome.final_action == "defer"
         assert outcome.evaluation_status == "partial"
         assert outcome.final_result.is_promising is False
+        assert outcome.final_result.terminal_action == "defer"
+        assert outcome.final_result.score_status is ObjectiveScoreStatus.UNAVAILABLE
+        assert outcome.final_result.score_assessment == assessment
+        assert outcome.final_result.simulation_results == source
         assert compatibility.feedback["verdict"] == "DEFER"
         assert compatibility.objective_value is None
 
@@ -997,7 +1008,7 @@ class TestFunnelOrchestrator:
         assert outcome.lesson_refs
         assert lesson_registry.top_patterns(limit=5)[0].kind.value == "success"
 
-    def test_predictive_scheduler_receives_source_bound_score_without_packet(self):
+    def test_predictive_scheduler_receives_unestablished_score_without_owner_source(self):
         fixture_unit = "fixture-unit"
         source = {
             "gdp_change": 0.0,
@@ -1028,20 +1039,11 @@ class TestFunnelOrchestrator:
         result = outcome.stage_results[4]
         observations = scheduler.snapshot().observations
 
-        assert result.score_status is ObjectiveScoreStatus.AVAILABLE
-        assert result.objective_value == 0.0
+        assert result.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+        assert result.objective_value is None
         assert result.executed_work_packet_ref is None
         assert result.executed_work_packet_status == "unavailable"
-        assert len(observations) == 1
-        observation = observations[0]
-        assert observation.candidate_id == ticket.candidate_hash
-        assert observation.stage_level == 4
-        assert observation.score_status is ObjectiveScoreStatus.AVAILABLE
-        assert observation.actual_objective_value == 0.0
-        assert observation.objective_source == source
-        assert observation.compute_cost_origin == "estimated"
-        assert observation.compute_cost_usd is not None
-        assert observation.compute_cost_usd >= 0.2
+        assert observations == []
 
     @pytest.mark.parametrize("prepared", [False, True])
     def test_level5_and_level6_runtime_generalization_collects_audit_refs(self, tmp_path, prepared):

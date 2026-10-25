@@ -9,9 +9,9 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
-from polisyos.fabric.connectors.base import FetchRequest, FetchResult
-
 if TYPE_CHECKING:
+    from polisyos.fabric.connectors.base import FetchRequest, FetchResult
+
     from .store import CacheMetadata
 
 

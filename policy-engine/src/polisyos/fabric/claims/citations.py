@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from polisyos.ir.loading.citations import CitationRef, DocumentRef
-from polisyos.ir.world.doc import DocMeta
+
+if TYPE_CHECKING:
+    from polisyos.ir.world.doc import DocMeta
 
 
 def minimal_doc_citation(meta: DocMeta, *, fragment_id: str) -> CitationRef:

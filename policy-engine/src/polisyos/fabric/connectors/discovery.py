@@ -20,10 +20,8 @@ import os
 import sys
 import threading
 import warnings
-from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 from polisyos.common.logger import get_logger
@@ -34,6 +32,8 @@ from polisyos.core.discovery import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+    from pathlib import Path
     from typing import Any as _Any
 
     from polisyos.fabric.connectors.base import SourceConnector

@@ -332,6 +332,17 @@ def test_fully_populated_core_result_converts_and_persists_with_wire_equivalence
 
     assert SimulationResult not in ABMResult.__mro__
     assert loaded == result
+    manifest = store.get_manifest(ref)
+    assert manifest.kind == "ir.abm_result"
+    assert manifest.media_type == "application/json"
+    assert manifest.artifact_schema is not None
+    assert manifest.artifact_schema.name == "ir.abm_result"
+    assert manifest.artifact_schema.version == "1.0"
+    assert manifest.canon is not None
+    assert manifest.canon.forbid_floats is False
+    assert manifest.canon.forbid_nan_inf is True
+    assert ref.manifest_profile_sha256 is not None
+    assert loaded.schema_version == schema_version
     expected_wire = simulation.model_dump(mode="json")
     expected_wire["identifiability_diagnostic_ref"] = None
     assert (

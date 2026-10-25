@@ -1,0 +1,20 @@
+{
+  "result_ref": "sha256:dfdb1160a189506df696bcf236f064925b95e993dd2aaa38843a868465c48ee9",
+  "method": "causal_forest",
+  "ate": 0.25,
+  "ate_ci_lower": 0.1,
+  "ate_ci_upper": 0.4,
+  "n_samples": 40,
+  "n_features": 1,
+  "n_subgroups": 0,
+  "top_features": [
+    {
+      "feature_name": "income",
+      "importance_score": 0.8,
+      "importance_rank": 1,
+      "method": "tree_based",
+      "metadata": {}
+    }
+  ],
+  "warnings": []
+}

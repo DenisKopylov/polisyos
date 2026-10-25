@@ -7,12 +7,14 @@ import pytest
 from polisyos.core.artifacts.manifest import (
     ArtifactAuthorityInfo,
     ArtifactRef,
+    CanonInfo,
     ProducerInfo,
     SchemaInfo,
 )
 from polisyos.core.artifacts.protocol import resolve_authority_envelope_ref
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.runtime.quality.authority import (
     _surface_authority_payload,
     authority_surface_decision,
@@ -20,6 +22,15 @@ from polisyos.runtime.quality.authority import (
 
 _ENVELOPE_KIND = "runtime_quality.evidence_authority_envelope"
 _ENVELOPE_SCHEMA = "runtime_quality.evidence_authority_envelope"
+_CORE_CANON_SPEC = CanonSpec()
+_CORE_CANON_INFO = CanonInfo.from_spec(_CORE_CANON_SPEC)
+
+
+def _canonical_json_bytes(value: object) -> bytes:
+    """Encode a fixture through the Core canonical JSON profile."""
+    if isinstance(value, bytes):
+        value = json.loads(value)
+    return to_canonical_bytes(value, _CORE_CANON_SPEC)
 
 
 def _envelope_options(
@@ -34,6 +45,7 @@ def _envelope_options(
         kind=kind,
         media_type=media_type,
         schema=SchemaInfo(name=schema_name, version=schema_version),
+        canon=_CORE_CANON_INFO,
         producer=ProducerInfo(
             component="polisyos.tests.authority-envelope",
             version=producer_version,
@@ -53,7 +65,7 @@ def _authority_link(ref: ArtifactRef) -> ArtifactAuthorityInfo:
 
 def test_authority_envelope_ref_resolves_exact_profile_and_legacy_default(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "authority-envelope-views")
-    payload = b'{"authority":"same bytes, selected metadata"}'
+    payload = _canonical_json_bytes({"authority": "same bytes, selected metadata"})
     default_ref = store.put_bytes(
         payload,
         _envelope_options(producer_version="default-view"),
@@ -108,7 +120,7 @@ def test_authority_envelope_ref_resolves_exact_profile_and_legacy_default(tmp_pa
 
 def test_authority_surface_reads_the_producer_selected_envelope_view(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "authority-envelope-surface")
-    envelope_bytes = b'{"authority_boundary":{"posture":"limited"}}'
+    envelope_bytes = _canonical_json_bytes({"authority_boundary": {"posture": "limited"}})
     store.put_bytes(envelope_bytes, _envelope_options(producer_version="default-view"))
     selected_ref = store.put_bytes(
         envelope_bytes,
@@ -116,11 +128,12 @@ def test_authority_surface_reads_the_producer_selected_envelope_view(tmp_path) -
     )
     assert selected_ref.manifest_profile_sha256 is not None
     payload_ref = store.put_bytes(
-        b'{"ordinary_payload":"no authority carrier"}',
+        _canonical_json_bytes({"ordinary_payload": "no authority carrier"}),
         ArtifactWriteOptions(
             kind="runtime.test_payload",
             media_type="application/json",
             schema=SchemaInfo(name="runtime.test_payload", version="1.0.0"),
+            canon=_CORE_CANON_INFO,
             authority=_authority_link(selected_ref),
         ),
     )
@@ -161,11 +174,15 @@ def test_authority_surface_reads_the_producer_selected_envelope_view(tmp_path) -
 def test_surface_authority_uses_selected_payload_manifest_profile(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "selected-payload-authority-view")
     default_envelope = store.put_bytes(
-        b'{"authority_result":"authority","legacy_path_disposition":"authority_path","authority_boundary":{"boundary_id":"boundary://default","source_authority":"runtime_quality","posture":"authority","authoritative_for":["dashboard_display"],"may_not_use_for":["evaluation_execution"],"rule_version_refs":["rule://selected-profile-test"]}}',
+        _canonical_json_bytes(
+            b'{"authority_result":"authority","legacy_path_disposition":"authority_path","authority_boundary":{"boundary_id":"boundary://default","source_authority":"runtime_quality","posture":"authority","authoritative_for":["dashboard_display"],"may_not_use_for":["evaluation_execution"],"rule_version_refs":["rule://selected-profile-test"]}}'
+        ),
         _envelope_options(producer_version="default-envelope"),
     )
     selected_envelope = store.put_bytes(
-        b'{"authority_result":"authority","legacy_path_disposition":"authority_path","authority_boundary":{"boundary_id":"boundary://selected","source_authority":"runtime_quality","posture":"authority","authoritative_for":["dashboard_display"],"may_not_use_for":["dashboard_display"],"rule_version_refs":["rule://selected-profile-test"]}}',
+        _canonical_json_bytes(
+            b'{"authority_result":"authority","legacy_path_disposition":"authority_path","authority_boundary":{"boundary_id":"boundary://selected","source_authority":"runtime_quality","posture":"authority","authoritative_for":["dashboard_display"],"may_not_use_for":["dashboard_display"],"rule_version_refs":["rule://selected-profile-test"]}}'
+        ),
         _envelope_options(producer_version="selected-envelope"),
     )
     payload = b'{"ordinary_payload":"identical bytes"}'
@@ -175,6 +192,7 @@ def test_surface_authority_uses_selected_payload_manifest_profile(tmp_path) -> N
             kind="runtime.test_payload",
             media_type="application/json",
             schema=SchemaInfo(name="runtime.test_payload", version="1.0.0"),
+            canon=_CORE_CANON_INFO,
             authority=_authority_link(default_envelope),
         ),
     )
@@ -184,6 +202,7 @@ def test_surface_authority_uses_selected_payload_manifest_profile(tmp_path) -> N
             kind="runtime.test_payload",
             media_type="application/json",
             schema=SchemaInfo(name="runtime.test_payload", version="1.0.0"),
+            canon=_CORE_CANON_INFO,
             authority=_authority_link(selected_envelope),
         ),
     )
@@ -240,21 +259,26 @@ def test_inline_and_selected_manifest_authority_are_both_constraints(tmp_path) -
         },
     }
     envelope_allow = store.put_bytes(
-        b'{"authority_result":"authority","legacy_path_disposition":"authority_path","authority_boundary":{"boundary_id":"boundary://linked-allow","source_authority":"runtime_quality","posture":"authority","authoritative_for":["dashboard_display"],"may_not_use_for":["evaluation_execution"],"rule_version_refs":["rule://selected-profile-test"]}}',
+        _canonical_json_bytes(
+            b'{"authority_result":"authority","legacy_path_disposition":"authority_path","authority_boundary":{"boundary_id":"boundary://linked-allow","source_authority":"runtime_quality","posture":"authority","authoritative_for":["dashboard_display"],"may_not_use_for":["evaluation_execution"],"rule_version_refs":["rule://selected-profile-test"]}}'
+        ),
         _envelope_options(producer_version="linked-allow"),
     )
     envelope_deny = store.put_bytes(
-        b'{"authority_result":"authority","legacy_path_disposition":"authority_path","authority_boundary":{"boundary_id":"boundary://linked-deny","source_authority":"runtime_quality","posture":"authority","authoritative_for":["dashboard_display"],"may_not_use_for":["dashboard_display"],"rule_version_refs":["rule://selected-profile-test"]}}',
+        _canonical_json_bytes(
+            b'{"authority_result":"authority","legacy_path_disposition":"authority_path","authority_boundary":{"boundary_id":"boundary://linked-deny","source_authority":"runtime_quality","posture":"authority","authoritative_for":["dashboard_display"],"may_not_use_for":["dashboard_display"],"rule_version_refs":["rule://selected-profile-test"]}}'
+        ),
         _envelope_options(producer_version="linked-deny"),
     )
 
     def payload_ref(payload: dict[str, object], linked_envelope: ArtifactRef) -> ArtifactRef:
         return store.put_bytes(
-            json.dumps(payload, sort_keys=True, separators=(",", ":")).encode(),
+            _canonical_json_bytes(payload),
             ArtifactWriteOptions(
                 kind="runtime.test_payload",
                 media_type="application/json",
                 schema=SchemaInfo(name="runtime.test_payload", version="1.0.0"),
+                canon=_CORE_CANON_INFO,
                 authority=_authority_link(linked_envelope),
             ),
         )

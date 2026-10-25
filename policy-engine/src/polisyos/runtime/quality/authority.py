@@ -7,7 +7,7 @@ import re
 from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Final, Literal, Protocol, cast
+from typing import TYPE_CHECKING, Any, Final, Literal, Protocol, cast
 
 from pydantic import (
     BaseModel,
@@ -22,7 +22,7 @@ from pydantic import (
 from polisyos.common.canonical_profile import require_declared_profile
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import canon
-from polisyos.core.artifacts import read_core_json_artifact
+from polisyos.core.artifacts import read_core_json_artifact, read_core_manifest_profile
 from polisyos.core.security import (
     SECURITY_ASSURANCE_ARTIFACT_KIND,
     SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
@@ -31,6 +31,21 @@ from polisyos.runtime.quality.evaluation_safety import (
     EvalSafetyMetricsProjection,
     evaluation_safety_metrics_projection_identity,
 )
+from polisyos.runtime.quality.report_registry import (
+    _RUNTIME_QUALITY_REPORT_PUBLICATION_BASIS_KEY,
+    _parse_runtime_quality_report_publication_basis,
+    _runtime_quality_report_publication_view,
+    _runtime_quality_report_writer_payload,
+    runtime_quality_report_owner_contract,
+    runtime_quality_report_owner_marker,
+)
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+    from polisyos.runtime.http.services.control.artifacts import (
+        AuthorityArtifactIdentityContext,
+    )
+
 
 EvidenceClass = Literal[
     "authority_bearing",
@@ -2237,6 +2252,505 @@ def _selected_manifest_authority_payload(
     return True, None, "selected_manifest_authority_payload_invalid"
 
 
+def _normalize_report_payload_hash(value: str | None) -> str | None:
+    if value is None:
+        return None
+    digest = value.removeprefix("sha256:") if value.startswith("sha256:") else value
+    if len(digest) != 64 or any(character not in "0123456789abcdef" for character in digest):
+        return None
+    return f"sha256:{digest}"
+
+
+def runtime_quality_report_cas_admission_issues(
+    *,
+    artifact_store: core_artifacts.ArtifactStore | None,
+    selected_ref: core_artifacts.ArtifactRef | None,
+    runtime_ref: str | None,
+    report_key: str,
+    ref_key: str,
+    report: Mapping[str, Any],
+    envelope: Mapping[str, Any] | None,
+    expected_write_options: ArtifactWriteOptions | None = None,
+    expected_identity_context: AuthorityArtifactIdentityContext | None = None,
+) -> list[dict[str, Any]]:
+    """Resolve, content-bind, and verify one selected runtime quality report.
+
+    When the current publisher invocation is known, verify its complete typed
+    write options and freshly rebuilt authority identity through the shared
+    writer owner. A valid historical publication cannot stand in for a
+    different current invocation.
+    """
+    contract = runtime_quality_report_owner_contract(report_key, ref_key)
+    if contract is None:
+        return [
+            _ownership_issue(
+                "runtime_quality_owner_contract_not_established",
+                "No producer-owned runtime quality report contract is registered for this role.",
+                expected=report_key,
+                observed=ref_key,
+                field="owner_contract",
+            )
+        ]
+    if artifact_store is None:
+        return [
+            _ownership_issue(
+                "runtime_quality_cas_store_not_available",
+                "A selected Core CAS store is required to admit runtime report authority.",
+                expected="selected Core CAS reader",
+                observed=None,
+                field="artifact_store",
+            )
+        ]
+    if type(selected_ref) is not core_artifacts.ArtifactRef:
+        return [
+            _ownership_issue(
+                "runtime_quality_selected_ref_not_established",
+                "A typed selected artifact ref is required for runtime report authority.",
+                expected="Core ArtifactRef",
+                observed=type(selected_ref).__name__ if selected_ref is not None else None,
+                field="selected_ref",
+            )
+        ]
+    profile = selected_ref.manifest_profile_sha256
+    if profile is None:
+        return [
+            _ownership_issue(
+                "runtime_quality_selected_profile_not_established",
+                "The report ref has no selected manifest profile.",
+                expected="sha256:<64 lowercase hex>",
+                observed=None,
+                field="manifest_profile_sha256",
+            )
+        ]
+    selected_id = str(selected_ref.artifact_id)
+    if runtime_ref != selected_id:
+        return [
+            _ownership_issue(
+                "runtime_quality_selected_ref_mismatch",
+                "Selected report ref does not match the runtime-owned report ref.",
+                expected=runtime_ref,
+                observed=selected_id,
+                field="artifact_id",
+            )
+        ]
+    if selected_ref.kind != contract.artifact_kind:
+        return [
+            _ownership_issue(
+                "runtime_quality_selected_kind_mismatch",
+                "Selected report ref kind does not match its registered producer owner.",
+                expected=contract.artifact_kind,
+                observed=selected_ref.kind,
+                field="kind",
+            )
+        ]
+    if selected_ref.media_type != contract.media_type:
+        return [
+            _ownership_issue(
+                "runtime_quality_selected_media_type_mismatch",
+                "Selected report ref media type does not match its registered producer owner.",
+                expected=contract.media_type,
+                observed=selected_ref.media_type,
+                field="media_type",
+            )
+        ]
+
+    try:
+        store = artifact_store
+        verification = store.verify(selected_ref)
+        if not verification.ok:
+            raise ValueError("selected_runtime_report_integrity_failed")
+        manifest, declaration = read_core_manifest_profile(
+            store,
+            selected_ref,
+            manifest_profile_sha256=profile,
+        )
+    except Exception:
+        return [
+            _ownership_issue(
+                "runtime_quality_selected_cas_resolution_failed",
+                "Selected report manifest could not be verified through the Core reader.",
+                expected="verified selected manifest",
+                observed=None,
+                field="manifest",
+            )
+        ]
+
+    manifest_schema = manifest.artifact_schema
+    manifest_producer = manifest.producer
+    manifest_profile = core_artifacts.artifact_manifest_profile_sha256(manifest)
+    manifest_identity = (
+        manifest.artifact_id == selected_ref.artifact_id
+        and manifest.kind == contract.artifact_kind
+        and manifest.media_type == contract.media_type
+        and manifest_schema is not None
+        and manifest_schema.name == contract.schema_name
+        and manifest_schema.version == contract.schema_version
+        and manifest_producer is not None
+        and manifest_producer.component == contract.producer_component
+        and manifest_producer.version == contract.producer_version
+        and manifest_profile == profile
+        and declaration.status == "declared"
+    )
+    if not manifest_identity:
+        return [
+            _ownership_issue(
+                "runtime_quality_manifest_owner_mismatch",
+                "Selected report manifest does not match its exact registered producer owner.",
+                expected={
+                    "kind": contract.artifact_kind,
+                    "media_type": contract.media_type,
+                    "schema_name": contract.schema_name,
+                    "schema_version": contract.schema_version,
+                    "producer_component": contract.producer_component,
+                    "producer_version": contract.producer_version,
+                    "manifest_profile_sha256": profile,
+                },
+                observed=None,
+                field="manifest_identity",
+            )
+        ]
+
+    try:
+        payload_read = read_core_json_artifact(
+            store,
+            selected_ref,
+            manifest_profile_sha256=profile,
+        )
+        payload = require_declared_profile(payload_read)
+    except Exception:
+        return [
+            _ownership_issue(
+                "runtime_quality_selected_payload_resolution_failed",
+                "Selected report payload could not be read under its declared Core profile.",
+                expected="declared profile-bound JSON",
+                observed=None,
+                field="payload",
+            )
+        ]
+    if not isinstance(payload, Mapping):
+        return [
+            _ownership_issue(
+                "runtime_quality_selected_payload_invalid",
+                "Selected report payload is not a JSON object.",
+                expected="mapping",
+                observed=type(payload).__name__,
+                field="payload",
+            )
+        ]
+
+    marker = runtime_quality_report_owner_marker(report_key, ref_key)
+    if marker is None or payload.get("runtime_authority_payload") != marker:
+        return [
+            _ownership_issue(
+                "runtime_quality_payload_owner_marker_mismatch",
+                "Selected report payload lacks the exact publisher owner marker.",
+                expected=marker,
+                observed=payload.get("runtime_authority_payload"),
+                field="runtime_authority_payload",
+            )
+        ]
+    if "runtime_authority_payload" in report and report.get("runtime_authority_payload") != marker:
+        return [
+            _ownership_issue(
+                "runtime_quality_report_basis_mismatch",
+                "Scored report carries a different owner marker from its selected payload.",
+                expected=marker,
+                observed=report.get("runtime_authority_payload"),
+                field="runtime_authority_payload",
+            )
+        ]
+    publication_basis = _parse_runtime_quality_report_publication_basis(
+        report.get(_RUNTIME_QUALITY_REPORT_PUBLICATION_BASIS_KEY),
+        expected_report_key=report_key,
+        expected_ref_key=ref_key,
+    )
+    if publication_basis is None:
+        return [
+            _ownership_issue(
+                "runtime_quality_report_publication_basis_not_established",
+                "The scored report lacks the exact publisher-owned source and selected-ref basis.",
+                expected="typed publisher publication basis",
+                observed=None,
+                field=_RUNTIME_QUALITY_REPORT_PUBLICATION_BASIS_KEY,
+            )
+        ]
+    if publication_basis.artifact_ref != selected_ref.model_dump(mode="json"):
+        return [
+            _ownership_issue(
+                "runtime_quality_report_basis_mismatch",
+                "Publisher basis selected ref/profile differs from the verified Core ref.",
+                expected=selected_ref.model_dump(mode="json"),
+                observed=publication_basis.artifact_ref,
+                field="runtime_quality_artifact_refs",
+            )
+        ]
+    try:
+        expected_cas_payload = _runtime_quality_report_writer_payload(
+            publication_basis.report_payload,
+            report_key=report_key,
+            ref_key=ref_key,
+        )
+        expected_view = _runtime_quality_report_publication_view(publication_basis)
+        expected_cas_bytes = canon.to_canonical_bytes(
+            expected_cas_payload,
+            canon.CanonSpec(forbid_floats=False),
+        )
+        payload_bytes = canon.to_canonical_bytes(
+            dict(payload),
+            canon.CanonSpec(forbid_floats=False),
+        )
+        expected_view_bytes = canon.to_canonical_bytes(
+            expected_view,
+            canon.CanonSpec(forbid_floats=False),
+        )
+        report_bytes = canon.to_canonical_bytes(
+            dict(report),
+            canon.CanonSpec(forbid_floats=False),
+        )
+    except Exception:
+        expected_cas_bytes = b""
+        payload_bytes = b""
+        expected_view_bytes = b""
+        report_bytes = b""
+    if (
+        not expected_cas_bytes
+        or expected_cas_bytes != payload_bytes
+        or not expected_view_bytes
+        or expected_view_bytes != report_bytes
+    ):
+        return [
+            _ownership_issue(
+                "runtime_quality_report_basis_mismatch",
+                "The complete publisher input or its selected compatibility view differs from CAS.",
+                expected="complete source payload plus exact selected publication projection",
+                observed="different, missing, or noncanonical report basis",
+                field="report_payload",
+            )
+        ]
+
+    manifest_authority = manifest.authority
+    if manifest_authority is None:
+        return [
+            _ownership_issue(
+                "runtime_quality_manifest_authority_missing",
+                "Selected report manifest has no linked runtime authority envelope.",
+                expected="manifest authority link",
+                observed=None,
+                field="manifest.authority",
+            )
+        ]
+    expected_manifest_ref = f"cas-manifest://{selected_id}"
+    if (
+        manifest_authority.payload_sha256 != selected_ref.artifact_id.hex
+        or manifest_authority.manifest_ref != expected_manifest_ref
+        or manifest_authority.authority_envelope_manifest_profile_sha256 is None
+        or manifest_authority.diagnostic_event_manifest_profile_sha256 is None
+        or _normalize_report_payload_hash(_authority_payload_text(report, "payload_sha256"))
+        != selected_id
+        or _authority_payload_text(report, "manifest_ref") != expected_manifest_ref
+        or _authority_payload_text(report, "authority_envelope_ref")
+        != manifest_authority.authority_envelope_ref
+        or _authority_payload_text(report, "runtime_event_ref")
+        != manifest_authority.diagnostic_event_ref
+        or report.get("runtime_event_manifest_profile_sha256")
+        != manifest_authority.diagnostic_event_manifest_profile_sha256
+    ):
+        return [
+            _ownership_issue(
+                "runtime_quality_manifest_authority_link_mismatch",
+                "Runtime report authority links do not match the selected CAS manifest.",
+                expected="selected manifest authority links",
+                observed=None,
+                field="manifest.authority",
+            )
+        ]
+
+    try:
+        envelope_ref = core_artifacts.resolve_authority_envelope_ref(
+            store,
+            manifest_authority,
+        )
+        envelope_profile = manifest_authority.authority_envelope_manifest_profile_sha256
+        if envelope_profile is None or envelope_ref.manifest_profile_sha256 != envelope_profile:
+            raise ValueError("runtime_quality_envelope_profile_not_selected")
+        envelope_verification = store.verify(envelope_ref)
+        if not envelope_verification.ok:
+            raise ValueError("runtime_quality_envelope_integrity_failed")
+        envelope_manifest, envelope_declaration = read_core_manifest_profile(
+            store,
+            envelope_ref,
+            manifest_profile_sha256=envelope_profile,
+        )
+        envelope_bytes = store.get_bytes(envelope_ref)
+        envelope_payload = require_declared_profile(
+            read_core_json_artifact(
+                store,
+                envelope_ref,
+                raw_payload_bytes=envelope_bytes,
+                manifest_profile_sha256=envelope_profile,
+            )
+        )
+        if not isinstance(envelope_payload, Mapping):
+            raise ValueError("runtime_quality_envelope_payload_invalid")
+        selected_envelope = EvidenceAuthorityEnvelope.model_validate_json(
+            envelope_bytes,
+            strict=True,
+        )
+    except Exception:
+        return [
+            _ownership_issue(
+                "runtime_quality_manifest_envelope_not_verified",
+                "Selected manifest-linked authority envelope could not be verified.",
+                expected="verified selected envelope",
+                observed=None,
+                field="manifest.authority_envelope_ref",
+            )
+        ]
+
+    envelope_manifest_producer = envelope_manifest.producer
+    report_tenant = manifest.tenant_context
+    report_closure = manifest.same_input_closure
+    selected_closure = selected_envelope.same_input_closure
+    envelope_context_matches = (
+        report_tenant is not None
+        and report_closure is not None
+        and envelope_manifest.producer == manifest.producer
+        and envelope_manifest.inputs == manifest.inputs
+        and envelope_manifest.tenant_context == report_tenant
+        and envelope_manifest.same_input_closure == report_closure
+        and envelope_manifest.governance == manifest.governance
+        and envelope_manifest.canon == manifest.canon
+        and envelope_manifest.authority is None
+        and selected_envelope.tenant_id == report_tenant.tenant_id
+        and selected_envelope.cell_id == report_tenant.cell_id
+        and selected_envelope.run_id == report_closure.run_id
+        and selected_envelope.job_id == report_closure.job_id
+        and selected_envelope.same_input_closure.closure_id == report_closure.closure_id
+        and selected_closure.status == report_closure.status
+        and selected_closure.closure_sha256 == report_closure.closure_sha256
+        and selected_closure.run_id == report_closure.run_id
+        and selected_closure.job_id == report_closure.job_id
+        and selected_closure.tenant_id == report_closure.tenant_id
+        and selected_closure.cell_id == report_closure.cell_id
+        and selected_closure.evidence_input_refs == report_closure.evidence_input_refs
+    )
+    envelope_manifest_profile = core_artifacts.artifact_manifest_profile_sha256(envelope_manifest)
+    envelope_schema = envelope_manifest.artifact_schema
+    envelope_manifest_identity = (
+        envelope_declaration.status == "declared"
+        and envelope_manifest.artifact_id == envelope_ref.artifact_id
+        and envelope_manifest.kind == envelope_ref.kind
+        and envelope_manifest.media_type == envelope_ref.media_type
+        and envelope_manifest_profile == envelope_profile
+        and envelope_schema is not None
+        and envelope_manifest_producer is not None
+        and envelope_manifest_producer.component == contract.producer_component
+        and envelope_manifest_producer.version == contract.producer_version
+        and envelope_context_matches
+    )
+    selected_envelope_identity = (
+        selected_envelope.artifact_ref == selected_id
+        and selected_envelope.cas_ref == selected_id
+        and selected_envelope.payload_sha256 == selected_ref.artifact_id.hex
+        and selected_envelope.artifact_kind == contract.artifact_kind
+        and selected_envelope.schema_name == contract.schema_name
+        and selected_envelope.schema_version == contract.schema_version
+        and selected_envelope.producer_component == contract.producer_component
+        and selected_envelope.producer_version == contract.producer_version
+        and selected_envelope.phase == contract.phase
+        and selected_envelope.runtime_event_ref == manifest_authority.diagnostic_event_ref
+        and selected_envelope.runtime_event_manifest_profile_sha256
+        == manifest_authority.diagnostic_event_manifest_profile_sha256
+    )
+    if not envelope_manifest_identity or not selected_envelope_identity:
+        return [
+            _ownership_issue(
+                "runtime_quality_manifest_envelope_owner_mismatch",
+                "Selected manifest-linked envelope does not match the report owner and context.",
+                expected={
+                    "artifact_id": selected_id,
+                    "artifact_kind": contract.artifact_kind,
+                    "schema_name": contract.schema_name,
+                    "schema_version": contract.schema_version,
+                    "producer_component": contract.producer_component,
+                    "producer_version": contract.producer_version,
+                    "phase": contract.phase,
+                },
+                observed=None,
+                field="manifest.authority_envelope_ref",
+            )
+        ]
+    if not isinstance(envelope, Mapping) or dict(envelope) != dict(envelope_payload):
+        return [
+            _ownership_issue(
+                "runtime_quality_inline_envelope_mismatch",
+                "Inline authority envelope differs from the selected manifest-linked envelope.",
+                expected="selected manifest-linked envelope",
+                observed="missing or different inline envelope",
+                field="authority_envelope",
+            )
+        ]
+    if (expected_write_options is None) != (expected_identity_context is None):
+        return [
+            _ownership_issue(
+                "runtime_quality_current_identity_not_established",
+                (
+                    "Current invocation admission requires typed write options and a rebuilt "
+                    "identity context."
+                ),
+                expected="write options plus current authority identity context",
+                observed="one current identity component is missing",
+                field="current_identity",
+            )
+        ]
+    if expected_write_options is not None and expected_identity_context is not None:
+        expected_inputs = tuple(expected_write_options.inputs or ())
+        expected_input_refs = tuple(str(item.artifact_id) for item in expected_inputs)
+        if (
+            expected_inputs != expected_identity_context.manifest_inputs
+            or expected_input_refs != expected_identity_context.input_refs
+            or expected_input_refs
+            != expected_identity_context.same_input_closure.evidence_input_refs
+        ):
+            return [
+                _ownership_issue(
+                    "runtime_quality_current_identity_mismatch",
+                    (
+                        "Current typed write inputs, rebuilt manifest inputs, input refs, and "
+                        "closure inputs must agree exactly."
+                    ),
+                    expected="one complete typed input basis across the current identity",
+                    observed="current write options or identity input edges differ",
+                    field="current_identity.inputs",
+                )
+            ]
+        try:
+            from polisyos.runtime.http.services.control.artifacts import (
+                verify_runtime_authority_artifact_identity,
+            )
+
+            verify_runtime_authority_artifact_identity(
+                store,
+                artifact_id=selected_ref,
+                opts=expected_write_options,
+                expected_context=expected_identity_context,
+            )
+        except Exception:
+            return [
+                _ownership_issue(
+                    "runtime_quality_current_identity_mismatch",
+                    (
+                        "Selected report does not match the independently rebuilt current "
+                        "publisher identity."
+                    ),
+                    expected="strict authority artifact identity for the current invocation",
+                    observed="selected CAS identity differs or could not be verified",
+                    field="current_identity",
+                )
+            ]
+    return []
+
+
 def _surface_authority_payload(
     payload: Mapping[str, Any] | AuthorityEnvelopeInput | None,
     *,
@@ -2421,9 +2935,14 @@ def authority_envelope_ownership_issues(
         return []
 
     normalized_report_key = _normalize_report_key(report_key)
-    expected_artifact_kinds = _expected_artifact_kinds(
-        report_key=normalized_report_key,
-        ref_key=ref_key,
+    owner_contract = runtime_quality_report_owner_contract(normalized_report_key, ref_key)
+    expected_artifact_kinds = (
+        {owner_contract.artifact_kind}
+        if owner_contract is not None
+        else _expected_artifact_kinds(
+            report_key=normalized_report_key,
+            ref_key=ref_key,
+        )
     )
     issues: list[dict[str, Any]] = []
 
@@ -2441,12 +2960,18 @@ def authority_envelope_ownership_issues(
 
     schema_name = _authority_payload_text(envelope, "schema_name")
     report_schema = _authority_payload_text(report or {}, "schema_version")
-    if not _schema_matches_report(
-        schema_name=schema_name,
-        report_schema=report_schema,
-        report_key=normalized_report_key,
-        expected_artifact_kinds=expected_artifact_kinds,
-    ):
+    schema_matches = (
+        schema_name == owner_contract.schema_name
+        and _authority_payload_text(envelope, "schema_version") == owner_contract.schema_version
+        if owner_contract is not None
+        else _schema_matches_report(
+            schema_name=schema_name,
+            report_schema=report_schema,
+            report_key=normalized_report_key,
+            expected_artifact_kinds=expected_artifact_kinds,
+        )
+    )
+    if not schema_matches:
         issues.append(
             _ownership_issue(
                 "authority_envelope_schema_mismatch",
@@ -2458,11 +2983,17 @@ def authority_envelope_ownership_issues(
         )
 
     phase = _authority_payload_text(envelope, "phase")
-    if phase is not None and not _phase_matches_report(
-        phase=phase,
-        report_key=normalized_report_key,
-        expected_artifact_kinds=expected_artifact_kinds,
-    ):
+    phase_matches = (
+        phase == owner_contract.phase
+        if owner_contract is not None
+        else phase is None
+        or _phase_matches_report(
+            phase=phase,
+            report_key=normalized_report_key,
+            expected_artifact_kinds=expected_artifact_kinds,
+        )
+    )
+    if not phase_matches:
         issues.append(
             _ownership_issue(
                 "authority_envelope_phase_mismatch",
@@ -2472,6 +3003,23 @@ def authority_envelope_ownership_issues(
                 field="phase",
             )
         )
+
+    if owner_contract is not None:
+        for field_name, expected_value in (
+            ("producer_component", owner_contract.producer_component),
+            ("producer_version", owner_contract.producer_version),
+        ):
+            observed = _authority_payload_text(envelope, field_name)
+            if observed != expected_value:
+                issues.append(
+                    _ownership_issue(
+                        "authority_envelope_producer_mismatch",
+                        "Authority envelope producer identity does not match the registered owner.",
+                        expected=expected_value,
+                        observed=observed,
+                        field=field_name,
+                    )
+                )
 
     expected_validation_status = _validation_status_from_report(report)
     observed_validation_status = _authority_payload_text(envelope, "validation_status")

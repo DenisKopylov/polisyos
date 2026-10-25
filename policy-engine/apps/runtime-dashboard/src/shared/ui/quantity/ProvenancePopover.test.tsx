@@ -17,6 +17,7 @@ import {
 } from "@/test/fixtures/profileLineageBatch";
 
 import { ProvenancePopover } from "./ProvenancePopover";
+import { projectSelectedArtifactRef } from "./selected-artifact-ref";
 import { boundLineageQueryKey } from "./useLineageBatch";
 import type {
   LineageBatchResponsePayload,
@@ -127,6 +128,9 @@ describe("ProvenancePopover", () => {
   it("uses explicit null time and shows trust only for an exact profile/run/origin tuple", async () => {
     const user = userEvent.setup();
     const profileQuantity = profileBoundQuantity({ temporalScope: null });
+    const selectedRef = requireSelectedArtifactRef(
+      profileQuantity.lineage.artifact_ref,
+    );
     const postSpy = mockRuntimePostSuccess(
       profileBatch(profileQuantity, {
         status: "verified",
@@ -159,9 +163,7 @@ describe("ProvenancePopover", () => {
     );
     expect(
       screen.getByTestId("popover-selected-artifact-ref"),
-    ).toHaveTextContent(
-      profileQuantity.lineage.artifact_ref!.manifest_profile_sha256,
-    );
+    ).toHaveTextContent(selectedRef.manifest_profile_sha256);
     expect(screen.getByTestId("popover-profile-origin")).toHaveTextContent(
       "reader_materialized",
     );
@@ -171,7 +173,7 @@ describe("ProvenancePopover", () => {
     expect(postSpy).toHaveBeenCalledWith("/api/v1/lineage/batch", {
       body: {
         lineage_ids: [profileQuantity.lineage.id],
-        selected_artifact_refs: [profileQuantity.lineage.artifact_ref],
+        selected_artifact_refs: [selectedRef],
         run_id: "run-popover",
       },
       params: {
@@ -196,9 +198,7 @@ describe("ProvenancePopover", () => {
     );
     expect(
       screen.getByTestId("provenance-profile-selected-artifact-ref"),
-    ).toHaveTextContent(
-      profileQuantity.lineage.artifact_ref!.manifest_profile_sha256,
-    );
+    ).toHaveTextContent(selectedRef.manifest_profile_sha256);
     expect(screen.getByTestId("provenance-profile-origin")).toHaveTextContent(
       "reader_materialized",
     );
@@ -219,8 +219,7 @@ describe("ProvenancePopover", () => {
     } as never);
     const selector = {
       lineageId: profileQuantity.lineage.id,
-      selectedArtifactRef: profileQuantity.lineage
-        .artifact_ref as SelectedArtifactRef,
+      selectedArtifactRef: selectedRef,
       artifactRefProvenance: profileQuantity.lineage.artifact_ref_provenance,
       sourceRunId: profileQuantity.lineage.source_run_id,
     };
@@ -245,6 +244,9 @@ describe("ProvenancePopover", () => {
       embeddedTrust: true,
       temporalScope,
     });
+    const selectedRef = requireSelectedArtifactRef(
+      profileQuantity.lineage.artifact_ref,
+    );
     const response = profileBatch(profileQuantity, {
       status: "verified",
       temporal_scope: temporalScope,
@@ -256,8 +258,7 @@ describe("ProvenancePopover", () => {
 
     const selector = {
       lineageId: profileQuantity.lineage.id,
-      selectedArtifactRef: profileQuantity.lineage
-        .artifact_ref as SelectedArtifactRef,
+      selectedArtifactRef: selectedRef,
       artifactRefProvenance: profileQuantity.lineage.artifact_ref_provenance,
       sourceRunId: profileQuantity.lineage.source_run_id,
     };
@@ -278,7 +279,7 @@ describe("ProvenancePopover", () => {
     expect(postSpy).toHaveBeenCalledWith("/api/v1/lineage/batch", {
       body: {
         lineage_ids: [profileQuantity.lineage.id],
-        selected_artifact_refs: [profileQuantity.lineage.artifact_ref],
+        selected_artifact_refs: [selectedRef],
         run_id: "run-popover",
       },
       params: {
@@ -452,6 +453,16 @@ const temporalScope: TemporalRef = {
   scenario_id: null,
 };
 
+function requireSelectedArtifactRef(value: unknown): SelectedArtifactRef {
+  const projection = projectSelectedArtifactRef(value);
+  if (projection.status !== "candidate") {
+    throw new Error(
+      "Profile fixtures require a schema-validated profile-selected artifact reference",
+    );
+  }
+  return projection.selectedArtifactRef;
+}
+
 function profileBatch(
   value: QuantityValue,
   options: {
@@ -461,9 +472,9 @@ function profileBatch(
     response_origin?: "run_output_ref" | "reader_materialized";
   },
 ): LineageBatchResponsePayload {
-  const selectedRef = value.lineage.artifact_ref;
+  const selectedRef = requireSelectedArtifactRef(value.lineage.artifact_ref);
   const sourceRunId = value.lineage.source_run_id;
-  if (!selectedRef || !sourceRunId) {
+  if (!sourceRunId) {
     throw new Error("Profile batch fixture requires its selected ref and run");
   }
   const graph = profileBoundLineageGraphFixture({

@@ -62,6 +62,8 @@ from polisyos.fabric.provenance.lineage import FabricLineageTracker
 from polisyos.ir.connectors import FetchRequest, FetchResult
 
 if TYPE_CHECKING:
+    from pandas import DataFrame
+
     from polisyos.core.artifacts import RootedArtifactStore
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.contracts.fabric import EvidenceBundleRef
@@ -69,37 +71,26 @@ if TYPE_CHECKING:
     from polisyos.fabric.connectors import RawHTTPResponseObserver
     from polisyos.fabric.connectors.base import SourceConnectorInstance
     from polisyos.fabric.connectors.cache import CacheFetchReceipt
+    from polisyos.fabric.connectors.transform.pipeline import (
+        CompiledPipeline,
+        TransformContext,
+        TransformResult,
+    )
     from polisyos.fabric.storage.tenant_cas import TenantSidecarScope
 
 logger = get_logger(__name__)
 
 
-class _TransformResult(Protocol):
-    """Output attributes consumed from an allowlisted transform pipeline."""
-
-    data: object
-    warnings: list[str]
-
-
-class _TransformStage(Protocol):
-    """Stage metadata consumed when a pipeline supports isolated retries."""
-
-    name: str
-    transform: object
-
-
-class _CompiledTransformPipeline(Protocol):
-    """Compiled stage inventory consumed by the ingestion safety check."""
-
-    stages: list[_TransformStage]
-
-
 class _TransformPipeline(Protocol):
-    """Minimum pipeline behavior used by connector ingestion."""
+    """Minimum allowlisted pipeline behavior used by connector ingestion."""
 
-    def compile(self) -> _CompiledTransformPipeline: ...
+    def compile(self) -> CompiledPipeline: ...
 
-    def apply(self, data: object, context: object | None = None) -> _TransformResult: ...
+    def apply(
+        self,
+        data: DataFrame,
+        context: TransformContext | None = None,
+    ) -> TransformResult: ...
 
 
 TransformPipelineFactory = Callable[[], _TransformPipeline]
@@ -377,7 +368,7 @@ def _validate_transform_pipeline_instance(pipeline: object) -> _TransformPipelin
 
     if not isinstance(pipeline, TransformPipeline):
         raise TypeError("transform_dag must produce a TransformPipeline instance")
-    return cast("_TransformPipeline", pipeline)
+    return pipeline
 
 
 def _load_local_transform_pipeline(transform_dag: str) -> _TransformPipeline:
@@ -730,7 +721,7 @@ def _apply_transform_pipeline(
 def _parse_optional_datetime(value: str | None) -> datetime | None:
     if value is None:
         return None
-    return cast("datetime", parse_datetime_utc(value, what="manifest datetime"))
+    return parse_datetime_utc(value, what="manifest datetime")
 
 
 def _sync_fetch(
@@ -1054,6 +1045,8 @@ def run_connectors_ingestion(
             bounded response bytes before HTTP-status or JSON interpretation.
         cache_namespace: Optional index namespace, independent of the CAS blob root.
     """
+    if connection_config is not None and not isinstance(connection_config, ConnectionConfig):
+        raise TypeError("connector_ingestion_selected_connection_config_invalid")
     spec = _normalize_connector_manifest(connector_manifest)
     if not spec.datasets:
         logger.warning("connector_ingestion: manifest.datasets is empty — nothing to fetch.")
@@ -1157,15 +1150,15 @@ def run_connectors_ingestion(
             )
 
             connector = resolved_dependencies.registry.get(connector_id)
-            from polisyos.fabric.connectors.base import ConnectionConfig
-
             selected_connection_config = connection_config
             if selected_connection_config is None:
                 registry_entry = resolved_dependencies.registry.get_entry(connector_id)
                 selected_connection_config = registry_entry.default_config
                 if selected_connection_config is None:
                     raise ValueError(f"No default_config registered for connector '{connector_id}'")
-            if not isinstance(selected_connection_config, ConnectionConfig):
+            if connection_config is None and not isinstance(
+                selected_connection_config, ConnectionConfig
+            ):
                 raise TypeError("connector_ingestion_selected_connection_config_invalid")
 
             filter_tuple = tuple((k, tuple(v)) for k, v in sorted(filters.items()))

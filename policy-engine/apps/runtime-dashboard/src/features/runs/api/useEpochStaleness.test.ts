@@ -1,3 +1,4 @@
+import { renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import {
@@ -5,8 +6,13 @@ import {
   epochStalenessSixClassFixture,
   withServerSemanticHash,
 } from "@/test/fixtures/epochStaleness";
+import { createQueryHookHarness } from "@/test/queryHook";
 
-import { createEpochStalenessClient } from "./useEpochStaleness";
+import {
+  createEpochStalenessClient,
+  type EpochStalenessClient,
+  useEpochStaleness,
+} from "./useEpochStaleness";
 
 function reorderedWire(candidate: Record<string, unknown>): string {
   return `{
@@ -16,6 +22,23 @@ function reorderedWire(candidate: Record<string, unknown>): string {
 }
 
 describe("epoch staleness exact-byte client", () => {
+  it("keeps the Core-only request disabled before identity resolution", () => {
+    const getRunEpochStaleness = vi.fn();
+    const client = {
+      getRunEpochStaleness,
+    } as unknown as EpochStalenessClient;
+    const harness = createQueryHookHarness();
+
+    const { result } = renderHook(
+      () => useEpochStaleness({ enabled: false, runId: "" }, client),
+      { wrapper: harness.wrapper },
+    );
+
+    expect(getRunEpochStaleness).not.toHaveBeenCalled();
+    expect(result.current.fetchStatus).toBe("idle");
+    expect(result.current.isPending).toBe(true);
+  });
+
   it("captures reordered response bytes before generated-client parsing", async () => {
     const candidate = epochStalenessSixClassFixture();
     const wire = reorderedWire(candidate);

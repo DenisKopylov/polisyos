@@ -677,6 +677,14 @@ export class RuntimeApiClient {
     return this.request("GET", path, query, undefined, undefined);
   }
 
+  async getRunCandidateHtePacket(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/decision-packets/${encodeURIComponent(String(params.packet_id))}/candidate-hte`;
+    const query = this.buildQuery({
+      manifest_profile_sha256: params?.manifest_profile_sha256,
+    });
+    return this.request("GET", path, query, undefined, undefined);
+  }
+
   async getRunEvidenceContext(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/evidence-context`;
     const query = this.buildQuery({
@@ -776,6 +784,12 @@ export class RuntimeApiClient {
       snapshot_id: params?.snapshot_id,
       scenario_id: params?.scenario_id,
     });
+    return this.request("GET", path, query, undefined, undefined);
+  }
+
+  async getRunMethodMetrics(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/method-metrics`;
+    const query = undefined;
     return this.request("GET", path, query, undefined, undefined);
   }
 

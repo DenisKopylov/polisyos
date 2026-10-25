@@ -727,18 +727,18 @@ uv run python tools/ci/check_fabric_schema_registry.py --update
 
 - Family id: `runtime-openapi-snapshot`
 - Lifecycle: `generated_committed`
-- Source of truth: src/polisyos/runtime/http/** FastAPI app factory and DTO contracts, including the owner-validator consulted dependency basis embedded in governed projection examples
+- Source of truth: src/polisyos/runtime/http/** FastAPI app factory and DTO contracts. The DS17 OpenAPI example is a package-bound historical fixture at src/polisyos/runtime/http/_resources/confidence_ledger_risk_spend_openapi_example.json, validated against the strict response DTO and its pinned source, dependency, receipt, and time provenance; schema rendering does not query current owner availability
 - Generator: canonical generator declared in regenerate_commands
 - Verifier: verifier declared by check_command, drift_gate, workflow, or manual review policy
 - Promotion target: registered committed outputs listed in outputs
 - Commit policy: `committed`
-- Freshness rule: Regenerate and commit whenever runtime routes, request/response DTOs, OpenAPI examples, or an owner-validator consulted dependency basis changes.
+- Freshness rule: Regenerate and commit whenever runtime routes, request/response DTOs, or the reviewed historical OpenAPI example bytes/provenance change. A live owner dependency-basis change does not silently rewrite the historical example; the runtime GET still evaluates current owner admission independently.
 - Stale output behavior: `fail`
 - Drift gate: `automated`
 - Owner: `team-polisyos`
 - Approval owner: `team-polisyos`
 - Native probe input roots: `src`, `tools`, `architecture`, `schemas`
-- Native probe required inputs: `pyproject.toml`, `uv.lock`, `architecture/generated_artifacts.toml`, `architecture/policies/directory_contracts.toml`, `schemas/runtime_api_v1.openapi.json`
+- Native probe required inputs: `pyproject.toml`, `uv.lock`, `architecture/generated_artifacts.toml`, `architecture/policies/directory_contracts.toml`, `schemas/runtime_api_v1.openapi.json`, `hatch.toml`, `src/polisyos/runtime/http/openapi_contract.py`, `src/polisyos/runtime/http/_resources/confidence_ledger_risk_spend_openapi_example.json`
 - Related workflow/config: `ops/ci/templates/workflows/arch.yml`
 - Required in default freshness check: `true`
 - Generator-observed output probe: `env PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 PYTHONHASHSEED=0 JAX_PLATFORMS=cpu PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output '{output_root}/schemas/runtime_api_v1.openapi.json'`

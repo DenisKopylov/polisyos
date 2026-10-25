@@ -8,13 +8,23 @@ reweighting.
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import LocalIndependenceWeightingCertificateRef
+
+if TYPE_CHECKING:
+    from polisyos.ir.artifacts import ArtifactStore, InputRef
+    from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration
 
 
 def _clean_string(value: object, *, field_name: str) -> str:
@@ -386,6 +396,76 @@ class LocalIndependenceWeightingCertificate(BaseModel):
         }
 
 
+_ANALYTICS_ARTIFACT_CANON_SPEC = CanonSpec(forbid_floats=False)
+
+
+def _declare_owned_model(
+    model: type[BaseModel],
+    *,
+    contract_id: str,
+    dto_fqn: str,
+    abi_key: str,
+    registry_key: str,
+    kind: str,
+    schema_name: str,
+    schema_version: str,
+    payload_version: str,
+    purpose: str,
+    notes: tuple[str, ...],
+    compatibility: CompatibilityMode = CompatibilityMode.NONE,
+) -> ArtifactOwnerDeclaration[Any, Any]:
+    """Declare one exact source-proven DTO/artifact representation."""
+    wire_policy_ref = f"{contract_id}.wire"
+    return declare_model_owner(
+        model,
+        contract_id=contract_id,
+        dto_fqn=dto_fqn,
+        abi_key=abi_key,
+        registry_key=registry_key,
+        kind=kind,
+        media_type="application/json",
+        purpose=purpose,
+        policy_revision=f"{contract_id}.owner-admission.v1",
+        accepted_wire_policies=((wire_policy_ref, "1"),),
+        payload_version_field="schema_version",
+        validate_profile=owner_profile_for_spec(_ANALYTICS_ARTIFACT_CANON_SPEC, profile_ref=None),
+        representations=(
+            OwnedJSONRepresentation(
+                schema_name=schema_name,
+                schema_version=schema_version,
+                payload_version=payload_version,
+                wire_policy_ref=wire_policy_ref,
+                wire_policy_revision="1",
+                profile_ref=None,
+                compatibility=compatibility,
+                notes=notes,
+                readable=True,
+                writable=True,
+                current=True,
+                default_write=True,
+                readable_from=(),
+            ),
+        ),
+    )
+
+
+_LOCAL_INDEPENDENCE_OWNER = _declare_owned_model(
+    LocalIndependenceWeightingCertificate,
+    contract_id="ir.analytics.local_independence.local_independence_weighting_certificate",
+    dto_fqn="polisyos.ir.analytics.local_independence.LocalIndependenceWeightingCertificate",
+    abi_key="ir.local_independence_weighting_certificate",
+    registry_key="ir.local_independence_weighting_certificate",
+    kind="ir.local_independence_weighting_certificate",
+    schema_name="ir.local_independence_weighting_certificate",
+    schema_version="1.0",
+    payload_version="1.0",
+    purpose="ir_local_independence_weighting_certificate",
+    notes=(
+        "LocalIndependenceWeightingCertificate 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+    ),
+)
+
+
 def persist_local_independence_weighting_certificate(
     store: ArtifactStore,
     certificate: LocalIndependenceWeightingCertificate,
@@ -394,12 +474,11 @@ def persist_local_independence_weighting_certificate(
     schema_name: str = "ir.local_independence_weighting_certificate",
     schema_version: str = "1.0",
 ) -> LocalIndependenceWeightingCertificateRef:
-    """Persist a local-independence weighting certificate."""
-
-    ref = put_json_artifact(
+    """Persist LocalIndependenceWeightingCertificate through its exact owner declaration."""
+    ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind="ir.local_independence_weighting_certificate",
+        owner=_LOCAL_INDEPENDENCE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -412,10 +491,8 @@ def load_local_independence_weighting_certificate(
     store: ArtifactStore,
     ref: LocalIndependenceWeightingCertificateRef,
 ) -> LocalIndependenceWeightingCertificate:
-    """Load a persisted local-independence weighting certificate."""
-
-    payload = get_json_artifact(store, ref)
-    return LocalIndependenceWeightingCertificate.model_validate(payload)
+    """Load LocalIndependenceWeightingCertificate through its exact owner declaration."""
+    return _get_owned_json_artifact(store, ref, owner=_LOCAL_INDEPENDENCE_OWNER)
 
 
 __all__ = [

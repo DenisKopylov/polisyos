@@ -1357,7 +1357,11 @@ def _rows_equivalent(left: Mapping[Hashable, Any], right: Mapping[Hashable, Any]
 
 
 def _normalize_row_value(value: object) -> object:
-    if pd.isna(value):
+    if not pd.api.types.is_scalar(value):
+        raise ValueError("world snapshot row values must be scalar")
+    if value is None or value is pd.NA or value is pd.NaT:
+        return None
+    if bool(pd.isna([value])[0]):
         return None
     if isinstance(value, pd.Timestamp):
         return value.isoformat()

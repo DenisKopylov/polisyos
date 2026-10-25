@@ -21,6 +21,9 @@ by domain family and registered into the shared `MethodRegistry`.
 - **Domain families** - causal, econometrics, optimization, simulation, survey, ml, and more.
 - **Bootstrap registration** - each family exposes `ensure_*_methods_registered()`.
 - **Catalog snapshots** - `snapshot.py` captures immutable registry inventories for docs, CI, and release evidence.
+  `persist_method_catalog_snapshot()` retains the exact profile selected by that CAS write so
+  callers can carry the producer-selected manifest view through source graphs. It does not infer
+  a selected HTE method or supply missing request semantics.
   The ordinary Foundry builtin discovery path binds its existing loader target to
   the public Core `DeclaredBuiltinLoader`, so candidate provenance carries the producer-bound
   name, target, and group in v2. Discovery and catalog admission use the same helper to

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Mapping
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -29,7 +30,6 @@ from polisyos.fabric.evidence.non_data_acquisition import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
     from pathlib import Path
 
 WIRE_FIELDS = (
@@ -86,9 +86,16 @@ class AcquisitionObservation(BaseModel):
 def decode_case_inputs(path: Path) -> dict[str, Any]:
     """Read the immutable JSON subject inputs, never the oracle's TSV format."""
     value = json.loads(path.read_bytes())
-    if value.get("schema_version") != "gy.acquisition_assurance.corpus.v1":
+    if not isinstance(value, dict):
+        raise ValueError("corpus_shape")
+    payload: dict[str, Any] = {}
+    for key, item in value.items():
+        if not isinstance(key, str):
+            raise ValueError("corpus_key_shape")
+        payload[key] = item
+    if payload.get("schema_version") != "gy.acquisition_assurance.corpus.v1":
         raise ValueError("corpus_schema")
-    return value
+    return payload
 
 
 def _time(value: str) -> datetime:
@@ -111,16 +118,19 @@ class _ReferenceVerifier:
         context: AcquisitionEvaluationContext,
     ) -> bool:
         """Compare resolved observations against separately bound owner demands."""
-        body = candidate.get("body", {})
-        observations = body.get("facts", {})
-        required = self.case["required_facts"]
+        body_value = candidate.get("body")
+        if not isinstance(body_value, Mapping):
+            return False
+        observations = body_value.get("facts")
+        required = self.case.get("required_facts")
+        if not isinstance(observations, Mapping) or not isinstance(required, Mapping):
+            return False
         return (
-            isinstance(observations, dict)
-            and len(observations) == len(required)
+            len(observations) == len(required)
             and all(observations.get(key) == value for key, value in required.items())
-            and body.get("producer") == "synthetic:producer"
-            and body.get("subject") == context.claim_ref == "synthetic:claim"
-            and body.get("rule") == context.requested_use.rule_version_ref
+            and body_value.get("producer") == "synthetic:producer"
+            and body_value.get("subject") == context.claim_ref == "synthetic:claim"
+            and body_value.get("rule") == context.requested_use.rule_version_ref
             and context.demand_hash == demand_hash(demand)
             and context.evaluated_at == _time(self.case["evaluated_at"])
         )
@@ -465,21 +475,34 @@ def execute_case(
         requested_use=case["requested_use"],
     )
     receipt = runtime.acquire(request, at=at, row_count=case["row_count"])
-    consumed = runtime.verify_receipt(receipt.artifact_ref)
-    if consumed != receipt or not store.get_bytes(receipt.artifact_ref):
+    receipt_ref = receipt.artifact_ref
+    if receipt_ref is None:
+        raise ValueError("persisted_receipt_missing_artifact_ref")
+    consumed = runtime.verify_receipt(receipt_ref)
+    if consumed != receipt or not store.get_bytes(receipt_ref):
         raise ValueError("persisted_consumer_assertion_failed")
+    requested_use = request.requested_use
+    if requested_use is None:
+        raise ValueError("persisted_request_missing_requested_use")
     journal_path = scratch / "events.jsonl"
-    new_rules = {
-        event["rule"]
-        for event in case["events"]
-        if event["rule"] != request.requested_use.rule_version_ref
-        and event["producer"] == "synthetic:producer"
-        and event["claim"] == request.claim_ref
-    }
+    if case["events"] and requested_use is None:
+        raise ValueError("persisted_request_missing_requested_use")
+    new_rules = (
+        {
+            event["rule"]
+            for event in case["events"]
+            if requested_use is not None
+            and event["rule"] != requested_use.rule_version_ref
+            and event["producer"] == "synthetic:producer"
+            and event["claim"] == request.claim_ref
+        }
+        if requested_use is not None
+        else set()
+    )
     if len(new_rules) == 1:
-        historical_ref = receipt.artifact_ref
+        historical_ref = receipt_ref
         next_rule = next(iter(new_rules))
-        current_use = request.requested_use.model_copy(update={"rule_version_ref": next_rule})
+        current_use = requested_use.model_copy(update={"rule_version_ref": next_rule})
         current_request = request.model_copy(
             update={
                 "request_id": request.request_id + ":current",
@@ -495,7 +518,11 @@ def execute_case(
         )
         current_runtime.mutant = mutant
         receipt = current_runtime.acquire(current_request, at=at)
-        if current_runtime.verify_receipt(receipt.artifact_ref) != receipt:
+        current_receipt_ref = receipt.artifact_ref
+        if current_receipt_ref is None:
+            raise ValueError("current_rule_receipt_missing_artifact_ref")
+        receipt_ref = current_receipt_ref
+        if current_runtime.verify_receipt(current_receipt_ref) != receipt:
             raise ValueError("current_rule_consumer_recomputation_failed")
         if runtime.verify_receipt(historical_ref).artifact_ref != historical_ref:
             raise ValueError("old_rule_history_rewritten")
@@ -504,7 +531,7 @@ def execute_case(
         journal_path = scratch / "current-events.jsonl"
         ceiling_fact = "refused:exact_controls"
     events = [json.loads(line) for line in journal_path.read_text().splitlines()]
-    if events[-1]["artifact_ref"] != receipt.artifact_ref:
+    if events[-1]["artifact_ref"] != receipt_ref:
         raise ValueError("persisted_event_artifact_binding_failed")
     if len(events) not in (1, 2) or (
         len(events) == 2 and events[0]["resolution_state"] != "admitted_reentry_required"
@@ -528,7 +555,7 @@ def execute_case(
         reentry="performed" if owner.reentry_calls else "absent",
         event=event_effect,
         reason=",".join(receipt.reason_codes) or "-",
-        receipt_ref=receipt.artifact_ref,
+        receipt_ref=receipt_ref,
         consumer_recomputed=True,
     )
 
@@ -582,12 +609,15 @@ def data_availability_positive_control(scratch: Path) -> tuple[bool, bool]:
             {"assignment": 1, "outcome": 2},
         ],
     }
-    ref = store.put_bytes(
-        json.dumps(payload, sort_keys=True).encode(),
+    ref = store.put_json(
+        payload,
         opts=PutOptions(
             kind="gy.as1.synthetic_observations",
             media_type="application/json",
             schema=SchemaInfo(name="gy.as1.synthetic_observations", version="1"),
         ),
+        return_selected_profile=True,
     )
+    if ref.manifest_profile_sha256 is None:
+        raise ValueError("synthetic_observation_profile_unverified")
     return before, available(str(ref.artifact_id))

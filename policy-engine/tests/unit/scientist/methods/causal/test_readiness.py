@@ -3,6 +3,8 @@ from __future__ import annotations
 import hashlib
 from unittest.mock import patch
 
+import pytest
+
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
@@ -287,11 +289,14 @@ def test_transportability_checker_short_circuits_same_regime_and_persists_cross_
     assert entries[1].result_ref is not None
 
 
+@pytest.mark.parametrize("pre_adapted", [False, True], ids=["raw-core", "already-adapted-ir"])
 def test_transportability_checker_applies_privacy_bounds_gate_and_persists_certificate(
-    tmp_path,
+    tmp_path, pre_adapted: bool
 ) -> None:
-    store = FileSystemCAS(tmp_path)
+    core_store = FileSystemCAS(tmp_path)
+    store = _ensure_ir_artifact_store(core_store) if pre_adapted else core_store
     checker = TransportabilityChecker(graph=_simple_graph(), store=store)
+    assert checker.store is store
     bundle = TransportabilityCheckBundle(
         checks=[
             {
@@ -318,16 +323,16 @@ def test_transportability_checker_applies_privacy_bounds_gate_and_persists_certi
     )
 
     entries = checker.run(bundle)
-    result = load_transportability_result(
-        _ensure_ir_artifact_store(store),
-        TransportabilityResultRef.model_validate(entries[0].result_ref.model_dump(mode="json")),
+    assert checker.store is store
+    fresh_reader = _ensure_ir_artifact_store(FileSystemCAS(tmp_path))
+    result_ref = TransportabilityResultRef.model_validate(
+        entries[0].result_ref.model_dump(mode="json")
     )
+    result = load_transportability_result(fresh_reader, result_ref)
     privacy_ref = PrivacyAwareTransportCertificateRef.model_validate(
         result.metadata["privacy_certificate_ref"]
     )
-    certificate = load_privacy_aware_transport_certificate(
-        _ensure_ir_artifact_store(store), privacy_ref
-    )
+    certificate = load_privacy_aware_transport_certificate(fresh_reader, privacy_ref)
 
     assert entries[0].status == "partially_identified"
     assert result.status is TransportabilityStatus.PARTIALLY_IDENTIFIED
@@ -335,6 +340,23 @@ def test_transportability_checker_applies_privacy_bounds_gate_and_persists_certi
     assert result.metadata["privacy_observed_mode"] == "bounds_only"
     assert "tolerance_exceeded:source_kernel" in result.metadata["privacy_blocking_reasons"]
     assert certificate.privacy_observed_mode is PrivacyObservedMode.BOUNDS_ONLY
+    for artifact_ref in (result_ref, privacy_ref):
+        manifest = fresh_reader.get_manifest(artifact_ref)
+        assert manifest.canon is not None
+        assert manifest.canon.forbid_floats is False
+        exact_bytes = fresh_reader.get_bytes(artifact_ref)
+        assert hashlib.sha256(exact_bytes).hexdigest() == artifact_ref.artifact_id.hex
+        assert core_store.get_bytes(artifact_ref.artifact_id) == exact_bytes
+
+
+def test_transportability_checker_none_bundle_leaves_store_unchanged(tmp_path) -> None:
+    core_store = FileSystemCAS(tmp_path)
+    checker = TransportabilityChecker(graph=_simple_graph(), store=core_store)
+
+    assert checker.store is core_store
+    assert checker.run(None) == []
+    assert checker.store is core_store
+    assert core_store.iter_artifact_ids() == []
 
 
 def test_transportability_checker_marks_privacy_mismatch_as_privacy_s_node(tmp_path) -> None:

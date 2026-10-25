@@ -19,7 +19,15 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation as _OwnedJSONRepresentation,
+)
+from polisyos.ir.analytics._owner_admission import declare_model_owner as _declare_model_owner
+from polisyos.ir.analytics._owner_admission import owner_profile_for_spec as _owner_profile_for_spec
+from polisyos.ir.artifacts import get_json_artifact as get_json_artifact
+from polisyos.ir.artifacts import put_json_artifact as put_json_artifact
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode as _CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     EvidenceBundleRef,
@@ -29,6 +37,7 @@ from polisyos.ir.registry.refs import (
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.causal import ProofBundle
+    from polisyos.ir.artifacts import ArtifactStore, InputRef
 
 
 class ProofObligationKind(str, Enum):
@@ -227,6 +236,77 @@ class ProofComposabilityCertificate(BaseModel):
         return self
 
 
+_PROOF_WITNESS_INDEX_OWNER = _declare_model_owner(
+    ProofWitnessIndex,
+    contract_id="ir.analytics.ir.proof_witness_index.owner.v1",
+    dto_fqn="polisyos.ir.analytics.proof_composability.ProofWitnessIndex",
+    abi_key="ir.analytics.ir.proof_witness_index.owner.v1.dto-abi.v1",
+    registry_key="ir.proof_witness_index",
+    kind="ir.proof_witness_index",
+    media_type="application/json",
+    purpose="proof_witness_index",
+    policy_revision="ir.analytics.ir.proof_witness_index.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.proof_witness_index.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=_owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name="ir.proof_witness_index",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.proof_witness_index.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+_PROOF_COMPOSABILITY_CERTIFICATE_OWNER = _declare_model_owner(
+    ProofComposabilityCertificate,
+    contract_id="ir.analytics.ir.proof_composability_certificate.owner.v1",
+    dto_fqn="polisyos.ir.analytics.proof_composability.ProofComposabilityCertificate",
+    abi_key="ir.analytics.ir.proof_composability_certificate.owner.v1.dto-abi.v1",
+    registry_key="ir.proof_composability_certificate",
+    kind="ir.proof_composability_certificate",
+    media_type="application/json",
+    purpose="proof_composability_certificate",
+    policy_revision="ir.analytics.ir.proof_composability_certificate.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.proof_composability_certificate.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=_owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name="ir.proof_composability_certificate",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.proof_composability_certificate.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
 def infer_proof_composability_status(
     *,
     step_statuses: dict[str, ProofReplayStepStatus] | None = None,
@@ -404,10 +484,10 @@ def persist_proof_witness_index(
 ) -> ProofWitnessIndexRef:
     """Persist a proof-witness index and return its typed artifact reference."""
 
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         witness_index.model_dump(mode="json"),
-        kind="ir.proof_witness_index",
+        owner=_PROOF_WITNESS_INDEX_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -422,8 +502,7 @@ def load_proof_witness_index(
 ) -> ProofWitnessIndex:
     """Load a proof-witness index."""
 
-    payload = get_json_artifact(store, ref)
-    return ProofWitnessIndex.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_PROOF_WITNESS_INDEX_OWNER)
 
 
 def persist_proof_composability_certificate(
@@ -436,10 +515,10 @@ def persist_proof_composability_certificate(
 ) -> ProofComposabilityCertificateRef:
     """Persist a proof-composability certificate and return its typed ref."""
 
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind="ir.proof_composability_certificate",
+        owner=_PROOF_COMPOSABILITY_CERTIFICATE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -454,8 +533,7 @@ def load_proof_composability_certificate(
 ) -> ProofComposabilityCertificate:
     """Load a proof-composability certificate."""
 
-    payload = get_json_artifact(store, ref)
-    return ProofComposabilityCertificate.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_PROOF_COMPOSABILITY_CERTIFICATE_OWNER)
 
 
 __all__ = [

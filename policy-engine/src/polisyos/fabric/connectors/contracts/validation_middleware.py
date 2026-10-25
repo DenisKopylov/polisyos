@@ -7,37 +7,38 @@ from __future__ import annotations
 import threading
 import time
 from collections import OrderedDict
-from collections.abc import AsyncIterator
-from typing import TYPE_CHECKING, Any, ClassVar, Generic, Literal, TypeVar
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, TypeVar
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.common.logger import get_logger
 from polisyos.fabric.connectors._async_iterators import resolve_async_iterator
-from polisyos.fabric.connectors.base import (
-    AsyncFetchLease,
-    ConnectionConfig,
-    ConnectionHandle,
-    DatasetCapabilitySnapshot,
-    FetchRequest,
-    FetchResult,
-    HealthStatus,
-    SourceConnectorValue,
-)
 from polisyos.fabric.connectors.types import SchemaError, ValidationResult
 from polisyos.fabric.data_plane.temporal import FutureTimestampError, ensure_aware_utc, utc_age
-from polisyos.ir.connectors import ConnectorCapability, ConnectorMetadataSpec, DataVersion
+from polisyos.ir.connectors import DataVersion
 
-from .contract import ConnectorSchemaContract
-from .contract_registry import ContractRegistry
 from .inference import validate_dataframe_against_schema
 
 if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
     from datetime import datetime
 
+    from polisyos.fabric.connectors.base import (
+        AsyncFetchLease,
+        ConnectionConfig,
+        ConnectionHandle,
+        DatasetCapabilitySnapshot,
+        FetchRequest,
+        FetchResult,
+        HealthStatus,
+        SourceConnectorValue,
+    )
     from polisyos.fabric.connectors.types import DataChunk, DatasetDescriptor, FreshnessResult
-    from polisyos.ir.connectors import DataVersion
+    from polisyos.ir.connectors import ConnectorCapability, ConnectorMetadataSpec, DataVersion
+
+    from .contract import ConnectorSchemaContract
+    from .contract_registry import ContractRegistry
 
 
 logger = get_logger(__name__)
@@ -73,10 +74,11 @@ class FetchResultContractValidation(BaseModel):
         return self
 
 
+# Retain the module binding for runtime evaluation of deferred method annotations.
 DataT = TypeVar("DataT")
 
 
-class ContractValidatingProxy(Generic[DataT]):
+class ContractValidatingProxy[DataT]:
     """Transparent wrapper that validates fetch() results against registered contracts."""
 
     def __init__(

@@ -143,3 +143,15 @@ Issuance packet binding retains its existing required-view subset rule over `com
 These checks enforce Core serialization/profile and existing owner input contracts. They do not apply an IR law, validate owner-denominator evidence by themselves, make a receipt a native history/currentness/authority claim, or rewrite stored manifests. Existing producer options and public DTO/API exports remain unchanged. Historical records that do not satisfy their owner's existing declared contract require the existing owner lifecycle to reissue them; readers do not restamp them.
 
 The Core chronology writers also declare exact selected-input closures for the full-prefix verification sidecar and native projection. The opaque full-prefix bundle's owner-input basis is carried by the persisted native projection reconciliation, not copied into the bundle bytes; the epoch graph replay compares bundle inputs to that basis and then requires fresh native-owner requalification before returning a positive graph result. Reading the bundle alone does not establish its owner closure.
+
+
+## Decision-packet HTE legacy inspection
+
+The decision_packet_hte module defines a strict read projection for the older
+result_ref/ate decision-packet shape. It preserves the ID as an opaque string
+and carries no manifest profile or clickable artifact reference. The
+projection marks target scope, bound meaning, conditional coverage, population
+coverage, and authority as not established. A parse-failure payload carries no
+numeric values. Current owner summaries continue through the strict
+DirectMethodExecutionHTESummary JSON parser; malformed modern payloads do not
+fall back to the legacy decoder.

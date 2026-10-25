@@ -3,7 +3,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from polisyos.runtime.quality.semantic_binding import deserialize_semantic_binding_ledger
+import pytest
+
+from polisyos.runtime.quality.semantic_binding import (
+    deserialize_semantic_binding_ledger,
+)
 from tests._helpers.hds_quality import (
     bundle_local_runtime_refs,
     complete_job_payload,
@@ -12,6 +16,8 @@ from tests._helpers.hds_quality import (
 )
 from tools.ops_runners.runtime import canary_evidence
 from tools.ops_runners.runtime.canary_evidence import assemble_canary_evidence
+
+pytestmark = pytest.mark.usefixtures("canary_diagnostic_output_root")
 
 
 def test_generic_scorecard_refs_do_not_generate_passed_phase_barriers() -> None:
@@ -189,7 +195,9 @@ def test_minimum_closeout_authority_events_name_runtime_ref_key(tmp_path: Path) 
         assert ref_key in event["event_name"]
 
 
-def test_serious_canary_job_events_cover_aggregate_closeout_refs(tmp_path: Path) -> None:
+def test_serious_canary_job_events_cover_aggregate_closeout_refs(
+    tmp_path: Path,
+) -> None:
     output = assemble_canary_evidence(
         output_root=tmp_path,
         canary_kind="production",

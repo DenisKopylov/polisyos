@@ -1,0 +1,21 @@
+id = "2026-10-23-e02-observational-source-owner-refusal"
+title = "Preserve observational source owner refusals at admission"
+type = "fixed"
+component = "runtime-http"
+owner = "team-polisyos"
+summary = "Run admission preserves typed source-owner refusals and reconciles the complete method-job marker with the immutable creation-event selection and CAS intent before method work is constructed or submitted."
+evidence = [
+  "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+  "tests/unit/runtime/http/test_observational_method_runtime.py",
+  "src/polisyos/runtime/http/README.md",
+]
+compatibility = "The existing 403 observational_source_current_access_not_established response now also covers a typed CAS owner denial. Malformed, integrity-failing, and over-bound selected manifests retain the existing 422 response."
+change_class = "internal"
+surface_classification = "public_stable: polisyos.runtime HTTP control-runs admission behavior"
+migration = "No stored artifact, request, response schema, or generated-client migration is required."
+api = "The POST request and response schemas are unchanged. A typed current-tenant CAS owner refusal uses the existing 403 code; other bounded manifest refusals continue to use the existing 422 code. Worker-side marker absence, malformed selection, or drift from the created-event selection, including source-profile changes or redirection to a different valid CAS intent, fails before method work is constructed or submitted."
+limitations = "The route continues to admit only explicitly public, unscoped candidate inputs. This correction does not provide an owner-issued authorization receipt or establish scientific admissibility."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

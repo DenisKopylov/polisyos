@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 import pytest
 from pydantic import ValidationError
 
+from polisyos.core.artifacts.backends.caching_store import CachingArtifactStore
 from polisyos.core.artifacts.backends.config import (
     ArtifactStoreConfig,
     build_artifact_store,
@@ -14,6 +15,8 @@ from polisyos.core.artifacts.backends.config import (
     infer_artifact_store_config,
     infer_async_artifact_store_config,
 )
+from polisyos.core.artifacts.backends.gcs_store import GCSArtifactStore
+from polisyos.core.artifacts.backends.s3_store import S3ArtifactStore
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -149,10 +152,59 @@ class TestBuildArtifactStore:
         with pytest.raises(ValueError, match="bucket"):
             build_artifact_store(cfg)
 
-    def test_cached_s3_requires_bucket(self):
-        cfg = ArtifactStoreConfig(backend="cached_s3")
-        with pytest.raises(ValueError, match="bucket"):
-            build_artifact_store(cfg)
+    @pytest.mark.parametrize("backend", [pytest.param("cached_s3"), pytest.param("cached_gcs")])
+    def test_cached_remote_backend_requires_bucket_before_cache_initialization(
+        self,
+        backend: str,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        local_cache = tmp_path / "cache"
+        config = ArtifactStoreConfig(
+            backend=backend,
+            local_cache_dir=str(local_cache),
+        )
+        constructor_calls: list[tuple[tuple[object, ...], dict[str, object]]] = []
+
+        def unexpected_cache_construction(*args: object, **kwargs: object) -> None:
+            constructor_calls.append((args, kwargs))
+            raise AssertionError("invalid cached backend must not construct a local CAS")
+
+        monkeypatch.setattr(
+            "polisyos.core.artifacts.store.FileSystemCAS",
+            unexpected_cache_construction,
+        )
+
+        with pytest.raises(ValueError, match=f"bucket is required for {backend} backend"):
+            build_artifact_store(config)
+
+        assert constructor_calls == []
+        assert not local_cache.exists()
+
+    @pytest.mark.parametrize("backend", [pytest.param("cached_s3"), pytest.param("cached_gcs")])
+    def test_cached_remote_backend_builds_real_cache_wrapper(
+        self,
+        backend: str,
+        tmp_path: Path,
+    ) -> None:
+        local_cache = tmp_path / "cache"
+        config = ArtifactStoreConfig(
+            backend=backend,
+            bucket="fixture-bucket",
+            local_cache_dir=str(local_cache),
+        )
+
+        store = build_artifact_store(config)
+
+        assert isinstance(store, CachingArtifactStore)
+        assert isinstance(store._local, FileSystemCAS)
+        assert local_cache.is_dir()
+        if backend == "cached_s3":
+            assert type(store._remote) is S3ArtifactStore
+            assert store._remote._bucket == "fixture-bucket"
+        else:
+            assert type(store._remote) is GCSArtifactStore
+            assert store._remote._bucket_name == "fixture-bucket"
 
     def test_unknown_backend_raises(self):
         cfg = ArtifactStoreConfig.__new__(ArtifactStoreConfig)

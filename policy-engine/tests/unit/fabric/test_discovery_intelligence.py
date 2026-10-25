@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import assert_type
 
 from polisyos.fabric.catalog import (
     DatasetDiscoveryBenchmarkPack,
@@ -35,6 +36,20 @@ def test_dataset_semantic_search_returns_contract_profile_quality_and_access_evi
     assert candidate.evidence.vector_metadata.embedding_model == "hashing-bow-dataset-v1"
     assert candidate.evidence.supporting_tokens
     assert plan.plan_steps[0]["llm_calls"] == 0
+
+
+def test_dataset_resolution_plan_preserves_all_explainability_steps() -> None:
+    plan = _catalog().resolve("world bank development indicators gdp macro data")
+
+    assert_type(plan.plan_steps, tuple[dict[str, object], ...])
+    assert [step["step"] for step in plan.plan_steps] == [
+        "offline_embedding_rank",
+        "lexical_fallback",
+        "stale_filter",
+    ]
+    assert plan.plan_steps[0]["llm_calls"] == 0
+    assert plan.plan_steps[1]["status"] == "available"
+    assert plan.plan_steps[2]["status"] == "clear"
 
 
 def test_stale_dataset_vectors_are_not_used_silently() -> None:

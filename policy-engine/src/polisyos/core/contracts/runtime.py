@@ -6,22 +6,27 @@ import hashlib
 import itertools
 import json
 import math
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any, Generic, Literal, TypeVar, get_args, get_origin
 
 from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
     JsonValue,
+    PrivateAttr,
+    TypeAdapter,
     ValidationInfo,
     field_validator,
     model_validator,
 )
 
-from polisyos.ir import governance, observation
+from polisyos.ir.governance.policy_composition import PolicyLayerLevel
+from polisyos.ir.governance.problem_frame import NormativeOutcomeChannel
+from polisyos.ir.observation.contracts import IdentificationMode
 
 from ..artifacts.manifest import (
     ArtifactGovernanceInfo,
@@ -32,6 +37,10 @@ from ..artifacts.manifest import (
 )
 from ..trace import RunTerminality
 from .bounded_liveness import BoundedLivenessResolution
+from .decision_packet_hte import (
+    DecisionPacketLegacyHTEFeaturePreview,
+    DecisionPacketLegacyHTEPreview,
+)
 from .decision_validity import DecisionValidityStatus
 from .execution_plan import (
     EvaluatorVerdict,
@@ -46,15 +55,12 @@ from .feedback import (
 )
 from .foundry import EquilibriumMultiplicityReport, SimulationResult
 from .owned_attempt_anchor import (
+    OwnedAttemptAnchorProjectionAssociation,
     OwnedAttemptAnchorRef,
     OwnedAttemptAnchorRefusalAssociation,
     OwnedHTERequestContextV1,
 )
 from .policy_design_case_projection import PolicyDesignCaseProjection
-
-PolicyLayerLevel = governance.PolicyLayerLevel
-NormativeOutcomeChannel = governance.NormativeOutcomeChannel
-IdentificationMode = observation.IdentificationMode
 
 SourceKind = Literal["core_run"]
 NodeStatus = Literal["ok", "skip", "fail", "unknown"]
@@ -467,7 +473,9 @@ class UniversalPolicyGrammarAuthorityEnvelope(BaseModel):
     rule_version_ref: str = Field(min_length=1)
 
     @model_validator(mode="after")
-    def _validate_llm_authority_boundary(self) -> UniversalPolicyGrammarAuthorityEnvelope:
+    def _validate_llm_authority_boundary(
+        self,
+    ) -> UniversalPolicyGrammarAuthorityEnvelope:
         if self.source_classification.startswith("llm_"):
             illegal = sorted(set(self.authoritative_for) & _AUTHORITY_PROTECTED_PURPOSES)
             if illegal:
@@ -478,88 +486,95 @@ class UniversalPolicyGrammarAuthorityEnvelope(BaseModel):
         return self
 
 
-class UniversalPolicyFacetBase(BaseModel):
+FacetNameT = TypeVar("FacetNameT", bound=UniversalPolicyFacetName)
+
+
+class UniversalPolicyFacetBase(BaseModel, Generic[FacetNameT]):
     """Common semantic grounding carried by every universal policy grammar facet."""
 
     model_config = ConfigDict(extra="forbid")
 
-    facet_name: UniversalPolicyFacetName
+    facet_name: FacetNameT
     concept_spine_refs: tuple[str, ...] = Field(min_length=1)
     source_vocabulary_refs: tuple[str, ...] = Field(min_length=1)
     derivation_rule_ref: str = Field(min_length=1)
 
 
-class UniversalPolicyInstrumentTypeFacet(UniversalPolicyFacetBase):
+class UniversalPolicyInstrumentTypeFacet(UniversalPolicyFacetBase[Literal["instrument_type"]]):
     """Controlled policy instrument facet."""
 
     facet_name: Literal["instrument_type"] = "instrument_type"
     value: UniversalPolicyInstrumentType
 
 
-class UniversalPolicyTargetingTypeFacet(UniversalPolicyFacetBase):
+class UniversalPolicyTargetingTypeFacet(UniversalPolicyFacetBase[Literal["targeting_type"]]):
     """Controlled policy targeting facet."""
 
     facet_name: Literal["targeting_type"] = "targeting_type"
     value: UniversalPolicyTargetingType
 
 
-class UniversalPolicyDeliveryChannelFacet(UniversalPolicyFacetBase):
+class UniversalPolicyDeliveryChannelFacet(UniversalPolicyFacetBase[Literal["delivery_channel"]]):
     """Controlled delivery-channel facet."""
 
     facet_name: Literal["delivery_channel"] = "delivery_channel"
     value: UniversalPolicyDeliveryChannel
 
 
-class UniversalPolicyFundingChannelFacet(UniversalPolicyFacetBase):
+class UniversalPolicyFundingChannelFacet(UniversalPolicyFacetBase[Literal["funding_channel"]]):
     """Controlled funding-channel facet."""
 
     facet_name: Literal["funding_channel"] = "funding_channel"
     value: UniversalPolicyFundingChannel
 
 
-class UniversalPolicyAuthorityTypeFacet(UniversalPolicyFacetBase):
+class UniversalPolicyAuthorityTypeFacet(UniversalPolicyFacetBase[Literal["authority_type"]]):
     """Authority-layer facet reusing the IR governance policy-layer enum."""
 
     facet_name: Literal["authority_type"] = "authority_type"
     value: PolicyLayerLevel
 
 
-class UniversalPolicyOutcomeChannelFacet(UniversalPolicyFacetBase):
+class UniversalPolicyOutcomeChannelFacet(UniversalPolicyFacetBase[Literal["outcome_channel"]]):
     """Outcome-channel facet reusing the IR normative outcome enum."""
 
     facet_name: Literal["outcome_channel"] = "outcome_channel"
     value: NormativeOutcomeChannel
 
 
-class UniversalPolicyRiskFacetRecord(UniversalPolicyFacetBase):
+class UniversalPolicyRiskFacetRecord(UniversalPolicyFacetBase[Literal["risk_facet"]]):
     """Controlled risk facet reconciled with deterministic critic/challenge vocabularies."""
 
     facet_name: Literal["risk_facet"] = "risk_facet"
     value: UniversalPolicyRiskFacet
 
 
-class UniversalPolicyMethodNeedFacet(UniversalPolicyFacetBase):
+class UniversalPolicyMethodNeedFacet(UniversalPolicyFacetBase[Literal["method_need"]]):
     """Method-need facet reusing the IR observation identification-mode enum."""
 
     facet_name: Literal["method_need"] = "method_need"
     value: IdentificationMode
 
 
-class UniversalPolicyPopulationPredicateFacet(UniversalPolicyFacetBase):
+class UniversalPolicyPopulationPredicateFacet(
+    UniversalPolicyFacetBase[Literal["population_predicate"]]
+):
     """Controlled population predicate facet grounded in the concept spine."""
 
     facet_name: Literal["population_predicate"] = "population_predicate"
     value: UniversalPopulationPredicate
 
 
-class UniversalPolicyGeographyPredicateFacet(UniversalPolicyFacetBase):
+class UniversalPolicyGeographyPredicateFacet(
+    UniversalPolicyFacetBase[Literal["geography_predicate"]]
+):
     """Controlled geography predicate facet grounded in the concept spine."""
 
     facet_name: Literal["geography_predicate"] = "geography_predicate"
     value: UniversalGeographyPredicate
 
 
-class UniversalPolicyTimePredicateFacet(UniversalPolicyFacetBase):
+class UniversalPolicyTimePredicateFacet(UniversalPolicyFacetBase[Literal["time_predicate"]]):
     """Controlled time predicate facet grounded in temporal policy semantics."""
 
     facet_name: Literal["time_predicate"] = "time_predicate"
@@ -945,7 +960,9 @@ class EpochProjectionDenominatorView(BaseModel):
     target_count: int = Field(default=0, ge=0)
 
     @model_validator(mode="after")
-    def _positive_denominator_requires_owner_evidence(self) -> EpochProjectionDenominatorView:
+    def _positive_denominator_requires_owner_evidence(
+        self,
+    ) -> EpochProjectionDenominatorView:
         established = self.predicate_provenance in {
             "recomputed",
             "independently_reconciled",
@@ -2820,7 +2837,9 @@ class RunCandidateSimulationAcquisitionContinuationProjection(BaseModel):
     publication_authority: Literal[False] = False
 
     @model_validator(mode="after")
-    def _bind_n9_current_front(self) -> RunCandidateSimulationAcquisitionContinuationProjection:
+    def _bind_n9_current_front(
+        self,
+    ) -> RunCandidateSimulationAcquisitionContinuationProjection:
         current_ids = {row.candidate_id for row in self.current_candidate_occurrences}
         front_ids = (
             *self.current_fronts.decision_candidate_ids,
@@ -3549,8 +3568,14 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
                 self.child_profile_family_ref,
                 "runtime.quality.generic_cycle_simulation_child_profile_family",
             ),
-            (self.child_profile_set_ref, "runtime.quality.recursive_n4_child_profile_set"),
-            (self.n5_execution_ref, "runtime.quality.generic_cycle_simulation_n5_execution"),
+            (
+                self.child_profile_set_ref,
+                "runtime.quality.recursive_n4_child_profile_set",
+            ),
+            (
+                self.n5_execution_ref,
+                "runtime.quality.generic_cycle_simulation_n5_execution",
+            ),
             (self.simulation_result_ref, "polisyos.runtime.joint_simulation_result"),
         ):
             if ref is not None and (ref.kind != kind or ref.media_type != "application/json"):
@@ -3593,14 +3618,11 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
         if self.n8_lineage_status == "resolved" and (self.n5_request_binding_status != "resolved"):
             raise ValueError("run_generic_n8_request_binding_not_established")
         if self.n8_status == "value_conditional":
-            if any(
-                value is None
-                for value in (
-                    self.n5_interaction_evidence,
-                    self.n8_numeric_interaction,
-                    self.n8_numeric_interaction_basis,
-                    self.n8_interaction_sampling_status,
-                )
+            if (
+                self.n5_interaction_evidence is None
+                or self.n8_numeric_interaction is None
+                or self.n8_numeric_interaction_basis is None
+                or self.n8_interaction_sampling_status is None
             ):
                 raise ValueError("run_generic_n8_interaction_qualification_missing")
             if (
@@ -3931,6 +3953,15 @@ class ObservationalInputResourcePolicy(BaseModel):
     ) = None
     max_jobs: Literal[1] | None = None
 
+    @field_validator("required_estimator_n_jobs", mode="before")
+    @classmethod
+    def _reject_boolean_required_estimator_n_jobs(cls, value: object) -> object:
+        if type(value) is bool:
+            raise ValueError(
+                "observational_input_resource_policy_required_estimator_n_jobs_must_be_integer"
+            )
+        return value
+
     @model_validator(mode="after")
     def _require_coherent_profile_revision(self) -> ObservationalInputResourcePolicy:
         if self.revision == "r1":
@@ -4066,7 +4097,21 @@ class ObservationalInputResourcePolicy(BaseModel):
         return hashlib.sha256(encoded).hexdigest()
 
 
-_OBSERVATIONAL_RUN_BASE_LIMITATIONS = (
+_ObservationalRunLimitation = Literal[
+    "candidate_input_not_external_truth",
+    "scientific_validity_not_established",
+    "units_and_context_not_established",
+    "source_access_revalidation_not_established",
+]
+_ContentAdmittedObservationalLimitation = Literal[
+    "candidate_input_not_external_truth",
+    "scientific_validity_not_established",
+    "units_and_context_not_established",
+    "source_access_revalidation_not_established",
+    "legacy_hte_json_v1_source_normalized",
+]
+
+_OBSERVATIONAL_RUN_BASE_LIMITATIONS: tuple[_ObservationalRunLimitation, ...] = (
     "candidate_input_not_external_truth",
     "scientific_validity_not_established",
     "units_and_context_not_established",
@@ -4085,14 +4130,142 @@ _OBSERVATIONAL_HTE_LEGACY_METHODS = frozenset(
 )
 
 
+def _literal_json_schema_values(annotation: Any) -> tuple[str, ...]:
+    """Return string arms from a literal annotation, including optional unions."""
+    if get_origin(annotation) is Literal:
+        return tuple(value for value in get_args(annotation) if isinstance(value, str))
+    return tuple(
+        value
+        for argument in get_args(annotation)
+        for value in _literal_json_schema_values(argument)
+    )
+
+
+def _append_expected_limitations_json_schema(
+    schema: dict[str, Any],
+    *,
+    model: type[BaseModel],
+    protocol_field: str,
+    status_field: str,
+    limitations_field: str,
+    expected_limitations: Callable[[str, str | None], tuple[str, ...]],
+) -> None:
+    """Project each runtime protocol/status caveat tuple into its wire schema."""
+    protocol_values = _literal_json_schema_values(model.model_fields[protocol_field].annotation)
+    status_field_info = model.model_fields[status_field]
+    statuses: list[str | None] = []
+    if status_field_info.default is None and not status_field_info.is_required():
+        statuses.append(None)
+    statuses.extend(_literal_json_schema_values(status_field_info.annotation))
+
+    conditions: list[dict[str, Any]] = []
+    for protocol in protocol_values:
+        for status in statuses:
+            if status is None:
+                status_condition: dict[str, Any] = {
+                    "anyOf": [
+                        {"not": {"required": [status_field]}},
+                        {
+                            "properties": {status_field: {"type": "null"}},
+                            "required": [status_field],
+                        },
+                    ]
+                }
+            else:
+                status_condition = {
+                    "properties": {status_field: {"const": status}},
+                    "required": [status_field],
+                }
+            limitations = expected_limitations(protocol, status)
+            conditions.append(
+                {
+                    "if": {
+                        "allOf": [
+                            {
+                                "properties": {protocol_field: {"const": protocol}},
+                                "required": [protocol_field],
+                            },
+                            status_condition,
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            limitations_field: {
+                                "minItems": len(limitations),
+                                "maxItems": len(limitations),
+                                "prefixItems": [{"const": value} for value in limitations],
+                                "items": False,
+                            }
+                        }
+                    },
+                }
+            )
+    schema["allOf"] = [*schema.get("allOf", []), *conditions]
+
+
+def _observational_intent_manifest_identity(schema_version: str) -> tuple[str, str, str]:
+    """Resolve one exact semantic intent version to its CAS manifest identity."""
+    identities = {
+        "polisyos.runtime.observational_run_intent.v1": (
+            "runtime.observational_run_intent",
+            "polisyos.runtime.ObservationalRunIntent",
+            "1.0",
+        ),
+        "polisyos.runtime.observational_run_intent.v2": (
+            "runtime.observational_run_intent",
+            "polisyos.runtime.ObservationalRunIntent",
+            "2.0",
+        ),
+        "polisyos.runtime.observational_run_intent.v3": (
+            "runtime.observational_run_intent",
+            "polisyos.runtime.ObservationalRunIntent",
+            "3.0",
+        ),
+        "polisyos.runtime.content_admitted_observational_run_intent.v1": (
+            "runtime.content_admitted_observational_run_intent",
+            "polisyos.runtime.ContentAdmittedObservationalRunIntent",
+            "1.0",
+        ),
+        "polisyos.runtime.content_admitted_observational_run_intent.v2": (
+            "runtime.content_admitted_observational_run_intent",
+            "polisyos.runtime.ContentAdmittedObservationalRunIntent",
+            "2.0",
+        ),
+        "polisyos.runtime.content_admitted_observational_run_intent.v3": (
+            "runtime.content_admitted_observational_run_intent",
+            "polisyos.runtime.ContentAdmittedObservationalRunIntent",
+            "3.0",
+        ),
+    }
+    try:
+        return identities[schema_version]
+    except KeyError as exc:
+        raise ValueError("observational_intent_semantic_schema_version_unsupported") from exc
+
+
 class ObservationalRunIntent(BaseModel):
     """Persist submitted and resolved pins before a direct observational run is queued."""
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(
+        extra="forbid",
+        frozen=True,
+        json_schema_extra=lambda schema: _append_expected_limitations_json_schema(
+            schema,
+            model=ObservationalRunIntent,
+            protocol_field="protocol",
+            status_field="source_access_revalidation_status",
+            limitations_field="limitations",
+            expected_limitations=lambda protocol, status: _expected_observational_limitations(
+                protocol,
+                source_access_revalidation_status=status,
+            ),
+        ),
+    )
 
     schema_version: Literal[
         "polisyos.runtime.observational_run_intent.v1",
         "polisyos.runtime.observational_run_intent.v2",
+        "polisyos.runtime.observational_run_intent.v3",
     ] = "polisyos.runtime.observational_run_intent.v1"
     job_id: str = Field(min_length=1, max_length=128)
     run_id: str = Field(min_length=1, max_length=128)
@@ -4102,6 +4275,10 @@ class ObservationalRunIntent(BaseModel):
     method_fqn: str = Field(min_length=1, max_length=256)
     method_version: str = Field(min_length=1, max_length=64)
     owned_hte_request_context: OwnedHTERequestContextV1 | None = None
+    search_binding_admission: SearchUncertaintyTaskAdmissionSnapshot | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
     search_binding_tenant_id: str | None = Field(
         default=None,
         min_length=1,
@@ -4135,12 +4312,11 @@ class ObservationalRunIntent(BaseModel):
     source_tenant_context: ArtifactTenantContextInfo | None = None
     purpose: Literal["candidate_method_execution"] = "candidate_method_execution"
     source_access_revalidation_status: Literal["not_established"] | None = None
-    limitations: tuple[
-        Literal["candidate_input_not_external_truth"],
-        Literal["scientific_validity_not_established"],
-        Literal["units_and_context_not_established"],
-        Literal["source_access_revalidation_not_established"],
-    ] = _OBSERVATIONAL_RUN_BASE_LIMITATIONS
+    limitations: tuple[_ObservationalRunLimitation, ...] = Field(
+        default=_OBSERVATIONAL_RUN_BASE_LIMITATIONS,
+        min_length=3,
+        max_length=4,
+    )
     created_at: datetime = Field(default_factory=_utc_now)
 
     def selection_digest(self) -> str:
@@ -4188,9 +4364,47 @@ class ObservationalRunIntent(BaseModel):
             raise ValueError("observational_run_intent_search_tenant_scope_mismatch")
         if not search_binding_present and self.search_binding_cell_id is not None:
             raise ValueError("observational_run_intent_search_cell_without_binding")
+        if self.schema_version == "polisyos.runtime.observational_run_intent.v3":
+            snapshot = self.search_binding_admission
+            if (
+                not is_successor
+                or not search_binding_present
+                or type(snapshot) is not SearchUncertaintyTaskAdmissionSnapshot
+                or self.search_binding_tenant_id is None
+                or artifact_ref_identity_key(snapshot.binding_ref)
+                != artifact_ref_identity_key(search_binding_ref)
+                or snapshot.tenant_id != self.search_binding_tenant_id
+                or snapshot.cell_id != self.search_binding_cell_id
+                or snapshot.selected_method_fqn != self.method_fqn
+                or snapshot.selected_method_abi_version != self.method_version
+                or snapshot.selected_method_abi_digest != self.method_abi_digest
+                or snapshot.selected_method_params != self.resolved_params
+                or snapshot.selected_method_seed != self.seed
+                or snapshot.selected_inference_profile_id != self.resource_policy.method_profile_id
+                or artifact_ref_identity_key(snapshot.selected_method_input_ref)
+                != artifact_ref_identity_key(self.requested_source_ref)
+                or snapshot.selected_method_input_content_sha256
+                != self.requested_source_ref.artifact_id.hex
+            ):
+                raise ValueError("observational_run_intent_search_snapshot_mismatch")
+            params_bytes = json.dumps(
+                self.resolved_params,
+                ensure_ascii=False,
+                allow_nan=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+            if hashlib.sha256(params_bytes).hexdigest() != snapshot.selected_method_params_sha256:
+                raise ValueError("observational_run_intent_search_snapshot_params_mismatch")
+        elif self.search_binding_admission is not None:
+            raise ValueError("observational_run_intent_search_snapshot_version_mismatch")
         if is_successor:
             if (
-                self.schema_version != "polisyos.runtime.observational_run_intent.v2"
+                self.schema_version
+                not in {
+                    "polisyos.runtime.observational_run_intent.v2",
+                    "polisyos.runtime.observational_run_intent.v3",
+                }
                 or type(request_context) is not OwnedHTERequestContextV1
                 or request_context.request_estimand_status != "declared"
                 or request_context.request_target_scope_status != "declared"
@@ -4263,6 +4477,11 @@ class ObservationalRunIntent(BaseModel):
                 raise ValueError("observational_run_intent_successor_resource_profile_invalid")
         elif self.method_version != "1.0.0":
             raise ValueError("observational_run_intent_historical_profile_version_invalid")
+        elif (
+            self.method_fqn == "causal.hte.forest_dr@1.0.0"
+            and self.resource_policy.required_estimator_n_jobs is not None
+        ):
+            raise ValueError("observational_run_intent_method_resource_profile_invalid")
         return self
 
     def artifact_payload(self) -> dict[str, JsonValue]:
@@ -4286,11 +4505,11 @@ def _expected_observational_limitations(
     source_protocol: str,
     *,
     source_access_revalidation_status: str | None = None,
-) -> tuple[str, ...]:
+) -> tuple[_ObservationalRunLimitation, ...]:
     """Return immutable caveats, preserving old history and recording current access limits."""
     if source_protocol not in {"method_input_envelope_v1", "legacy_hte_json_v1"}:
         raise ValueError("observational_source_protocol_invalid")
-    limitations = list(_OBSERVATIONAL_RUN_BASE_LIMITATIONS)
+    limitations: list[_ObservationalRunLimitation] = list(_OBSERVATIONAL_RUN_BASE_LIMITATIONS)
     if source_access_revalidation_status == "not_established":
         limitations.append("source_access_revalidation_not_established")
     elif source_access_revalidation_status is not None:
@@ -4302,9 +4521,9 @@ def _expected_content_admitted_limitations(
     source_protocol: str,
     *,
     source_access_revalidation_status: str | None = None,
-) -> tuple[str, ...]:
+) -> tuple[_ContentAdmittedObservationalLimitation, ...]:
     """Return requested caveats plus producer-proven normalization caveats."""
-    limitations = list(
+    limitations: list[_ContentAdmittedObservationalLimitation] = list(
         _expected_observational_limitations(
             source_protocol,
             source_access_revalidation_status=source_access_revalidation_status,
@@ -4361,7 +4580,9 @@ class SearchUncertaintyTaskAdmissionSnapshot(BaseModel):
     closure_status: Literal["recomputed"] = "recomputed"
 
     @model_validator(mode="after")
-    def _require_recomputed_binding_identity(self) -> SearchUncertaintyTaskAdmissionSnapshot:
+    def _require_recomputed_binding_identity(
+        self,
+    ) -> SearchUncertaintyTaskAdmissionSnapshot:
         """Bind the current Search proof to exact refs, owner values, and input bytes."""
         expected_refs = (
             (self.binding_ref, "scientist.search.uncertainty_task_binding"),
@@ -4370,8 +4591,14 @@ class SearchUncertaintyTaskAdmissionSnapshot(BaseModel):
             (self.task_epoch_ref, "scientist.search.uncertainty_task_epoch"),
             (self.owner_context_ref, "scientist.search.uncertainty_owner_task_context"),
             (self.basis_ref, "scientist.search.uncertainty_basis"),
-            (self.dependency_inventory_ref, "scientist.search.uncertainty_input_inventory"),
-            (self.source_projection_ref, "scientist.search.uncertainty_ticket_projection"),
+            (
+                self.dependency_inventory_ref,
+                "scientist.search.uncertainty_input_inventory",
+            ),
+            (
+                self.source_projection_ref,
+                "scientist.search.uncertainty_ticket_projection",
+            ),
         )
         for ref, expected_kind in expected_refs:
             if (
@@ -4402,14 +4629,32 @@ class SearchUncertaintyTaskAdmissionSnapshot(BaseModel):
         return self
 
 
+ObservationalRunIntent.model_rebuild()
+
+
 class ContentAdmittedObservationalRunIntent(BaseModel):
     """Bind worker-admitted bounded content to the prequeued method and source pins."""
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(
+        extra="forbid",
+        frozen=True,
+        json_schema_extra=lambda schema: _append_expected_limitations_json_schema(
+            schema,
+            model=ContentAdmittedObservationalRunIntent,
+            protocol_field="source_protocol",
+            status_field="source_access_revalidation_status",
+            limitations_field="limitations",
+            expected_limitations=lambda protocol, status: _expected_content_admitted_limitations(
+                protocol,
+                source_access_revalidation_status=status,
+            ),
+        ),
+    )
 
     schema_version: Literal[
         "polisyos.runtime.content_admitted_observational_run_intent.v1",
         "polisyos.runtime.content_admitted_observational_run_intent.v2",
+        "polisyos.runtime.content_admitted_observational_run_intent.v3",
     ] = "polisyos.runtime.content_admitted_observational_run_intent.v1"
     job_id: str = Field(min_length=1, max_length=128)
     run_id: str = Field(min_length=1, max_length=128)
@@ -4465,7 +4710,7 @@ class ContentAdmittedObservationalRunIntent(BaseModel):
             "legacy_hte_json_v1_source_normalized",
         ],
         ...,
-    ]
+    ] = Field(min_length=3, max_length=5)
     source_governance: ArtifactGovernanceInfo
     source_tenant_context: ArtifactTenantContextInfo | None = None
     observed_manifest_bytes: int = Field(ge=0, strict=True)
@@ -4501,7 +4746,8 @@ class ContentAdmittedObservationalRunIntent(BaseModel):
                 raise ValueError("content_admitted_search_snapshot_without_binding")
         elif (
             type(self.search_binding_admission) is not SearchUncertaintyTaskAdmissionSnapshot
-            or self.search_binding_admission.binding_ref != search_binding_ref
+            or artifact_ref_identity_key(self.search_binding_admission.binding_ref)
+            != artifact_ref_identity_key(search_binding_ref)
             or self.search_binding_tenant_id is None
             or self.search_binding_admission.tenant_id != self.search_binding_tenant_id
             or self.search_binding_admission.cell_id != self.search_binding_cell_id
@@ -4509,10 +4755,18 @@ class ContentAdmittedObservationalRunIntent(BaseModel):
             or self.search_binding_admission.selected_method_input_ref != self.effective_input_ref
         ):
             raise ValueError("content_admitted_search_snapshot_selection_mismatch")
+        if (
+            self.schema_version == "polisyos.runtime.content_admitted_observational_run_intent.v3"
+            and (search_binding_ref is None or self.search_binding_admission is None)
+        ):
+            raise ValueError("content_admitted_search_snapshot_required_for_v3")
         if is_successor:
             if (
                 self.schema_version
-                != "polisyos.runtime.content_admitted_observational_run_intent.v2"
+                not in {
+                    "polisyos.runtime.content_admitted_observational_run_intent.v2",
+                    "polisyos.runtime.content_admitted_observational_run_intent.v3",
+                }
                 or type(request_context) is not OwnedHTERequestContextV1
                 or request_context.request_estimand_status != "declared"
                 or request_context.request_target_scope_status != "declared"
@@ -4878,7 +5132,9 @@ class DirectMethodExecutionHTEResourceEvidence(BaseModel):
     physical_thread_limit: None = None
 
     @model_validator(mode="after")
-    def _require_coherent_resource_evidence(self) -> DirectMethodExecutionHTEResourceEvidence:
+    def _require_coherent_resource_evidence(
+        self,
+    ) -> DirectMethodExecutionHTEResourceEvidence:
         historical_method_profile = {
             "causal.hte.causal_forest@2.0.0": (
                 "econml.causal_forest_dml.native_mean@2.0",
@@ -5333,7 +5589,10 @@ class DirectMethodExecutionHTESummary(BaseModel):
             (self.request_contrast_status == "declared", self.treated_value),
             (self.request_alpha_status == "declared", self.requested_alpha),
             (self.requested_guarantee_status == "declared", self.requested_guarantee),
-            (self.computed_target_scope_status == "recomputed", self.computed_target_scope),
+            (
+                self.computed_target_scope_status == "recomputed",
+                self.computed_target_scope,
+            ),
             (self.computed_estimand_status == "recomputed", self.computed_estimand),
             (self.computed_guarantee_status == "computed", self.computed_guarantee),
             (self.selected_rows_status == "recomputed", self.n_selected_rows),
@@ -5370,7 +5629,13 @@ class DirectMethodExecutionHTESummary(BaseModel):
                 or self.selected_rows_status != "recomputed"
                 or self.source_data_ref is None
                 or self.inference_status
-                not in {"not_requested", "unavailable", "unsupported", "not_qualified", "failed"}
+                not in {
+                    "not_requested",
+                    "unavailable",
+                    "unsupported",
+                    "not_qualified",
+                    "failed",
+                }
                 or self.inference_reason is None
                 or self.refusal_diagnostic_ref is not None
             ):
@@ -5449,7 +5714,11 @@ class DirectMethodExecutionHTESummary(BaseModel):
                 raise ValueError("direct_method_hte_refusal_detail_missing")
         elif any(
             value is not None
-            for value in (self.refusal_stage, self.refusal_reason, self.refusal_diagnostic_code)
+            for value in (
+                self.refusal_stage,
+                self.refusal_reason,
+                self.refusal_diagnostic_code,
+            )
         ):
             raise ValueError("direct_method_hte_success_carries_refusal_details")
         if (
@@ -5526,6 +5795,25 @@ class DirectMethodExecutionHTESummary(BaseModel):
         ):
             raise ValueError("direct_method_hte_point_only_profile_relation_invalid")
         return self
+
+
+@dataclass(frozen=True, slots=True)
+class CompletedMethodHTESource:
+    """Owner-resolved HTE summary bound to one completed Runtime event.
+
+    The selected summary is the worker-admitted projection. Its accompanying
+    association binds that summary to the exact completed owner event and
+    profiled artifact manifests; it does not grant publication or causal
+    authority.
+    """
+
+    source_run_id: str
+    source_job_id: str
+    source_attempt: int
+    completed_event_id: int
+    completed_event_payload_sha256: str
+    summary: DirectMethodExecutionHTESummary
+    association: OwnedAttemptAnchorProjectionAssociation
 
 
 class RuntimeSearchHTECompletionDeliveryV1(BaseModel):
@@ -5730,8 +6018,14 @@ class DirectMethodExecutionSelection(BaseModel):
                 or self.hte.requested_alpha != context.requested_alpha
                 or self.hte.requested_guarantee_status != context.requested_guarantee_status
                 or self.hte.requested_guarantee != context.requested_guarantee
-                or self.hte.search_uncertainty_task_binding_ref
-                != context.search_uncertainty_task_binding_ref
+                or (self.hte.search_uncertainty_task_binding_ref is None)
+                != (context.search_uncertainty_task_binding_ref is None)
+                or (
+                    self.hte.search_uncertainty_task_binding_ref is not None
+                    and context.search_uncertainty_task_binding_ref is not None
+                    and artifact_ref_identity_key(self.hte.search_uncertainty_task_binding_ref)
+                    != artifact_ref_identity_key(context.search_uncertainty_task_binding_ref)
+                )
             ):
                 raise ValueError("direct_method_execution_hte_summary_request_context_mismatch")
         elif (
@@ -6109,6 +6403,65 @@ MethodExecutionSelection = Annotated[
 ]
 
 
+def _is_json_wire_value(value: object) -> bool:
+    """Return whether a decoded value consists only of JSON wire primitives."""
+    if value is None or type(value) in (bool, int, str):
+        return True
+    if type(value) is float:
+        return math.isfinite(value)
+    if type(value) is list:
+        return all(_is_json_wire_value(item) for item in value)
+    if type(value) is dict:
+        return all(type(key) is str and _is_json_wire_value(item) for key, item in value.items())
+    return False
+
+
+_StrictJsonWirePayloadT = TypeVar("_StrictJsonWirePayloadT")
+
+
+def _validate_strict_json_wire_payload(
+    payload: object,
+    adapter: TypeAdapter[_StrictJsonWirePayloadT],
+    *,
+    invalid_code: str,
+) -> _StrictJsonWirePayloadT:
+    """Strictly validate one persisted JSON object using JSON wire semantics.
+
+    Owner stores decode persisted JSON before typed admission. This boundary
+    preserves JSON arrays as tuple-compatible wire values while refusing
+    non-JSON Python objects, non-string keys, and non-finite numbers before
+    serialization. The adapter still applies strict model validation.
+    """
+    if type(payload) is not dict or not _is_json_wire_value(payload):
+        raise ValueError(invalid_code)
+    serialized = json.dumps(
+        payload,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    )
+    return adapter.validate_json(serialized, strict=True)
+
+
+def _validate_method_execution_selection_wire_payload(
+    payload: object,
+) -> MethodExecutionSelection:
+    """Strictly decode one JSON-shaped persisted method selection.
+
+    Persisted rows and lifecycle events are decoded JSON objects, so strict
+    Python validation would reject JSON arrays for tuple fields. The shared
+    wire admission helper preserves Pydantic's strict JSON semantics, including
+    extra-field refusal, without accepting Python model objects, tuples, or
+    custom JSON coercions.
+    """
+    return _validate_strict_json_wire_payload(
+        payload,
+        TypeAdapter(MethodExecutionSelection),
+        invalid_code="method_execution_selection_wire_payload_invalid",
+    )
+
+
 class MethodExecutionProducerEmissionDiagnostic(BaseModel):
     """One bounded actual ExecuteResult output inventory, without authority claims."""
 
@@ -6128,7 +6481,9 @@ class MethodExecutionProducerEmissionDiagnostic(BaseModel):
     )
 
     @model_validator(mode="after")
-    def validate_selected_output_refs(self) -> MethodExecutionProducerEmissionDiagnostic:
+    def validate_selected_output_refs(
+        self,
+    ) -> MethodExecutionProducerEmissionDiagnostic:
         """Require every exposed reference to be selected and kind-correct."""
         expected = (
             (self.simulation_result_ref, "foundry.simulation_result"),
@@ -6206,6 +6561,40 @@ class MethodExecutionProducerDiagnostic(BaseModel):
         return self
 
 
+class RunConditionalTransportCandidateProjection(BaseModel):
+    """Audience-safe candidate summary derived from a verified persisted result."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    candidate_scope: Literal["candidate_only"]
+    candidate_disposition: Literal["not_run", "completed", "partial", "unsupported", "error"]
+    requested_profile_id: str = Field(min_length=1, max_length=160)
+    requested_profile_revision: str = Field(min_length=1, max_length=80)
+    selection_identity: str = Field(min_length=1, max_length=240)
+    reason_code: str | None = Field(default=None, pattern=r"^[a-z][a-z0-9_]{1,95}$")
+    proposal_count: int = Field(ge=0)
+    member_evaluation_count: int = Field(ge=0)
+    completed_valid_member_count: int = Field(ge=0)
+    identified_member_fraction: float | None = Field(default=None, ge=0, le=1)
+    identified_member_fraction_basis: Literal["selected_completed_valid_members"]
+    source_currentness: Literal["unknown"]
+    interpretation_limit: Literal[
+        "selected_family_member_outcomes_do_not_establish_whole_pag_class_probability_calibration_legal_applicability_or_protected_eligibility"
+    ]
+
+    @model_validator(mode="after")
+    def validate_candidate_counts_and_fraction(self) -> RunConditionalTransportCandidateProjection:
+        """Keep the denominator explicit and fraction semantics truthful."""
+        if self.completed_valid_member_count > self.member_evaluation_count:
+            raise ValueError("conditional_transport_candidate_valid_count_exceeds_evaluated")
+        if self.completed_valid_member_count == 0:
+            if self.identified_member_fraction is not None:
+                raise ValueError("conditional_transport_candidate_fraction_requires_denominator")
+        elif self.identified_member_fraction is None:
+            raise ValueError("conditional_transport_candidate_fraction_missing")
+        return self
+
+
 class RunDetails(RunRecordV1):
     """Run details public type."""
 
@@ -6227,6 +6616,9 @@ class RunDetails(RunRecordV1):
     generic_cycle_simulation: RunGenericCycleSimulationProjection | None = None
     method_execution_producer_diagnostic: MethodExecutionProducerDiagnostic | None = None
     method_execution_selection: DirectMethodExecutionRunProjection | None = None
+    conditional_transport_candidate: RunConditionalTransportCandidateProjection | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
 
 class RunTimelineEvent(BaseModel):
@@ -6482,6 +6874,14 @@ _AGENT_PIPELINE_COST_SCALAR_FIELDS = (
     "estimated_cost_usd",
 )
 _AGENT_PIPELINE_OWNER_CONTEXT_KEY = "verified_control_job_attempt"
+_AGENT_PIPELINE_RESPONSE_REPORT_CONTEXT_KEY = "agent_pipeline_response_report"
+
+
+def _is_agent_pipeline_response_report_context(context: object) -> bool:
+    return (
+        isinstance(context, Mapping)
+        and context.get(_AGENT_PIPELINE_RESPONSE_REPORT_CONTEXT_KEY) is True
+    )
 
 
 def _owner_attempt_from_validation_context(context: object) -> int | None:
@@ -6785,6 +7185,8 @@ class AgentPipelineStep(BaseModel):
     def _derive_cost_summary_from_events(cls, value: object, info: ValidationInfo) -> object:
         if not isinstance(value, Mapping):
             return value
+        if _is_agent_pipeline_response_report_context(info.context):
+            return dict(value)
         raw_events = value.get("cost_events")
         events = (
             [AgentPipelineCostEvent.model_validate(row) for row in raw_events]
@@ -6839,8 +7241,12 @@ class AgentPipelineAttempt(BaseModel):
     def _derive_cost_summary_from_steps(cls, value: object, info: ValidationInfo) -> object:
         if not isinstance(value, Mapping):
             return value
-        events = _cost_events_from_pipeline_steps(value.get("steps"))
         normalized = dict(value)
+        if _is_agent_pipeline_response_report_context(info.context):
+            normalized.pop("cost_origin", None)
+            normalized.pop("settlement_event_ids", None)
+            return normalized
+        events = _cost_events_from_pipeline_steps(value.get("steps"))
         projection = _agent_pipeline_cost_projection(
             events, _owner_attempt_from_validation_context(info.context)
         )
@@ -6858,6 +7264,8 @@ class AgentPipelineAttempt(BaseModel):
     def _reconcile_cost_projection_and_unattributed_scalars(
         self, info: ValidationInfo
     ) -> AgentPipelineAttempt:
+        if _is_agent_pipeline_response_report_context(info.context):
+            return self
         events = _cost_events_from_pipeline_steps(self.steps)
         projection = _agent_pipeline_cost_projection(
             events, _owner_attempt_from_validation_context(info.context)
@@ -7073,7 +7481,10 @@ class RunEvidenceContextView(BaseModel):
     data_snapshot_ref: ArtifactRef | None = None
     data_view_request_ref: ArtifactRef | None = None
     data_view_request_profile_status: Literal[
-        "caller_selected_profile", "worker_default_limited", "not_requested", "not_established"
+        "caller_selected_profile",
+        "worker_default_limited",
+        "not_requested",
+        "not_established",
     ] = Field(
         default="not_established",
         description=(
@@ -7090,10 +7501,26 @@ class RunEvidenceContextView(BaseModel):
     warnings: list[str] = Field(default_factory=list)
 
 
+def _agent_pipeline_verified_event_basis_sha256(
+    events: list[AgentPipelineCostEvent], owner_attempt: int
+) -> str:
+    """Bind private owner admission to the complete typed event basis."""
+    payload = {
+        "owner_control_job_attempt": owner_attempt,
+        "cost_events": [event.model_dump(mode="json") for event in events],
+    }
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
 class AgentPipelineView(BaseModel):
     """Composite runtime view of agent attempts, retrieval, evaluation, and iteration state."""
 
     model_config = ConfigDict(extra="forbid")
+
+    _verified_owner_control_job_attempt: int | None = PrivateAttr(default=None)
+    _verified_cost_event_basis_sha256: str | None = PrivateAttr(default=None)
+    _response_report_observations: bool = PrivateAttr(default=False)
 
     run_id: str
     source_kind: SourceKind
@@ -7136,6 +7563,23 @@ class AgentPipelineView(BaseModel):
     def _derive_cost_summary_from_attempts(cls, value: object, info: ValidationInfo) -> object:
         if not isinstance(value, Mapping):
             return value
+        if _is_agent_pipeline_response_report_context(info.context):
+            normalized = dict(value)
+            normalized.pop("cost_origin", None)
+            normalized.pop("settlement_event_ids", None)
+            performance_summary, performance_scalars = (
+                _performance_summary_without_unattributed_cost_scalars(
+                    normalized.get("performance_summary")
+                )
+            )
+            normalized["performance_summary"] = performance_summary
+            scalar_claims = normalized.get("unattributed_cost_scalars")
+            if isinstance(scalar_claims, (list, tuple)):
+                normalized["unattributed_cost_scalars"] = [
+                    *scalar_claims,
+                    *performance_scalars,
+                ]
+            return normalized
         events: list[AgentPipelineCostEvent] = []
         raw_attempts = value.get("attempts")
         if isinstance(raw_attempts, (list, tuple)):
@@ -7169,6 +7613,14 @@ class AgentPipelineView(BaseModel):
         return normalized
 
     @classmethod
+    def _from_response_report(cls, values: Mapping[str, object]) -> AgentPipelineView:
+        """Parse endpoint fields as read observations without owner admission."""
+        return cls.model_validate(
+            values,
+            context={_AGENT_PIPELINE_RESPONSE_REPORT_CONTEXT_KEY: True},
+        )
+
+    @classmethod
     def _from_verified_owner_context(
         cls,
         *,
@@ -7186,11 +7638,40 @@ class AgentPipelineView(BaseModel):
     def _reconcile_cost_projection_and_unattributed_sources(
         self, info: ValidationInfo
     ) -> AgentPipelineView:
-        owner_attempt = _owner_attempt_from_validation_context(info.context)
-        if owner_attempt is None:
-            self.owner_control_job_attempt = None
-        elif self.owner_control_job_attempt != owner_attempt:
-            raise ValueError("agent_pipeline_owner_context_mismatch")
+        if (
+            _is_agent_pipeline_response_report_context(info.context)
+            or self._response_report_observations
+        ):
+            if any(
+                event.control_job_attempt is not None for event in self.unattributed_cost_events
+            ):
+                raise ValueError("unattributed_cost_event_claims_control_job_attempt")
+            event_ids = [event.event_id for event in self.unattributed_cost_events]
+            if len(event_ids) != len(set(event_ids)):
+                raise ValueError("duplicate_unattributed_cost_event")
+            return self
+        context_owner_attempt = _owner_attempt_from_validation_context(info.context)
+        prior_owner_attempt = getattr(self, "_verified_owner_control_job_attempt", None)
+        if context_owner_attempt is None and prior_owner_attempt is not None:
+            if self.owner_control_job_attempt != prior_owner_attempt:
+                raise ValueError("agent_pipeline_owner_context_mismatch")
+            prior_events = _cost_events_from_pipeline_steps(
+                [step for attempt in self.attempts for step in attempt.steps]
+            )
+            prior_basis = _agent_pipeline_verified_event_basis_sha256(
+                prior_events, prior_owner_attempt
+            )
+            if getattr(self, "_verified_cost_event_basis_sha256", None) != prior_basis:
+                raise ValueError("agent_pipeline_verified_owner_cost_event_basis_changed")
+            owner_attempt = prior_owner_attempt
+        else:
+            owner_attempt = context_owner_attempt
+            if owner_attempt is None:
+                self.owner_control_job_attempt = None
+            elif self.owner_control_job_attempt != owner_attempt or (
+                prior_owner_attempt is not None and prior_owner_attempt != owner_attempt
+            ):
+                raise ValueError("agent_pipeline_owner_context_mismatch")
 
         context = {_AGENT_PIPELINE_OWNER_CONTEXT_KEY: owner_attempt}
         self.attempts = [
@@ -7234,6 +7715,22 @@ class AgentPipelineView(BaseModel):
         if len(event_ids) != len(set(event_ids)):
             raise ValueError("duplicate_unattributed_cost_event")
         return self
+
+    def model_post_init(self, context: object) -> None:
+        """Remember route-verified ownership only on the admitted typed instance."""
+        if _is_agent_pipeline_response_report_context(context):
+            self._response_report_observations = True
+            return
+        owner_attempt = _owner_attempt_from_validation_context(context)
+        if owner_attempt is None:
+            return
+        events = _cost_events_from_pipeline_steps(
+            [step for attempt in self.attempts for step in attempt.steps]
+        )
+        self._verified_owner_control_job_attempt = owner_attempt
+        self._verified_cost_event_basis_sha256 = _agent_pipeline_verified_event_basis_sha256(
+            events, owner_attempt
+        )
 
 
 class RunWorkflowNodeView(BaseModel):
@@ -7423,6 +7920,20 @@ class DecisionPacketPreview(BaseModel):
     narrative_blocks: list[DecisionPacketAuthoredBlock] = Field(default_factory=list)
     evidence_summary_blocks: list[DecisionPacketAuthoredBlock] = Field(default_factory=list)
     hte: DirectMethodExecutionHTESummary | None = None
+    hte_projection_status: Literal["absent", "typed", "legacy_limited", "invalid"] = "absent"
+    hte_legacy_limited: DecisionPacketLegacyHTEPreview | None = None
+
+    @model_validator(mode="after")
+    def _require_hte_projection_shape(self) -> DecisionPacketPreview:
+        if self.hte_projection_status == "typed":
+            if self.hte is None or self.hte_legacy_limited is not None:
+                raise ValueError("decision_packet_hte_typed_projection_invalid")
+        elif self.hte_projection_status == "legacy_limited":
+            if self.hte is not None or self.hte_legacy_limited is None:
+                raise ValueError("decision_packet_hte_legacy_projection_invalid")
+        elif self.hte is not None or self.hte_legacy_limited is not None:
+            raise ValueError("decision_packet_hte_nonprojected_value_present")
+        return self
 
 
 class PredictiveCoverageScenarioPreview(BaseModel):
@@ -7711,12 +8222,25 @@ class RunErrorsResponse(BaseModel):
 
 
 class AgentPipelineResponse(BaseModel):
-    """Response envelope returned by the agent-pipeline endpoint."""
+    """Response/report envelope returned by the agent-pipeline endpoint."""
 
     model_config = ConfigDict(extra="forbid")
 
     meta: ApiMeta
     pipeline: AgentPipelineView
+
+    @model_validator(mode="before")
+    @classmethod
+    def _parse_pipeline_report_observations(cls, value: object) -> object:
+        """Preserve endpoint report fields without creating verified owner context."""
+        if not isinstance(value, Mapping):
+            return value
+        raw_pipeline = value.get("pipeline")
+        if not isinstance(raw_pipeline, Mapping):
+            return value
+        normalized = dict(value)
+        normalized["pipeline"] = AgentPipelineView._from_response_report(raw_pipeline)
+        return normalized
 
 
 class RunWorkflowResponse(BaseModel):
@@ -7957,6 +8481,7 @@ __all__ = [
     "CompareResponseStatus",
     "CompareRunResponse",
     "ComparisonFrame",
+    "CompletedMethodHTESource",
     "ContentAdmittedObservationalRunIntent",
     "CounterfactualMetric",
     "CounterfactualMetricsResponse",
@@ -7967,6 +8492,8 @@ __all__ = [
     "DecisionMonitoringReport",
     "DecisionPacketAuthoredBlock",
     "DecisionPacketEffectSize",
+    "DecisionPacketLegacyHTEFeaturePreview",
+    "DecisionPacketLegacyHTEPreview",
     "DecisionPacketMetricComparisonRow",
     "DecisionPacketMetricSignificance",
     "DecisionPacketOutlineEntry",

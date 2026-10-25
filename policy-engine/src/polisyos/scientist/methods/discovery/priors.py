@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts import ArtifactStore
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
+from polisyos.core.artifacts.protocol import CoreJSONArtifactProfileReader
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.scientist import (
@@ -15,8 +16,8 @@ from polisyos.core.contracts.scientist import (
     PriorKnowledgeBundleRef,
 )
 from polisyos.ir import AlgebraicAssumptionStatus, AlgebraicFalsificationScope
-from polisyos.ir.analytics import ClaimVocabularyAxisStatus
 from polisyos.ir.analytics.cross_graph import EvidenceSourceStatus
+from polisyos.ir.analytics.literature import ClaimVocabularyAxisStatus
 from polisyos.scientist.methods.discovery.aggregator import (
     EdgeConfidenceEntry,
     EdgeConfidenceMatrix,
@@ -354,7 +355,7 @@ def persist_graph_prior_bundle(
 
 
 def load_graph_prior_bundle(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactProfileReader,
     ref: GraphPriorBundleRef,
 ) -> GraphPriorBundle:
     """Load a manifest-bound current bundle or exact bounded historical input."""

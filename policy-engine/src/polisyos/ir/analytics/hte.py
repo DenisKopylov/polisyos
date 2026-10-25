@@ -9,15 +9,44 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, RootModel, TypeAdapter, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    RootModel,
+    TypeAdapter,
+    ValidationError,
+    model_validator,
+)
 
 from polisyos.ir._internal.validation import (
     ensure_confidence_interval,
     ensure_finite_numeric,
     ensure_unique_ids,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation as _OwnedJSONRepresentation,
+)
+from polisyos.ir.analytics._owner_admission import (
+    declared_payload_version as _declared_payload_version,
+)
+from polisyos.ir.analytics._owner_admission import (
+    owner_profile_for_spec as _owner_profile_for_spec,
+)
+from polisyos.ir.analytics._owner_admission import (
+    project_owner_source as _project_owner_source,
+)
+from polisyos.ir.analytics._owner_admission import (
+    register_owner_representations as _register_owner_representations,
+)
+from polisyos.ir.analytics._owner_admission import (
+    validate_owner_payload as _validate_owner_payload,
+)
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode as _CompatibilityMode
+from polisyos.ir.model_layer.canon import CanonSpec, CanonViolation
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     ATEInferenceBasisRef,
@@ -1651,6 +1680,119 @@ class HTEFinalizedArtifactRefs(BaseModel):
         return self
 
 
+def _declare_hte_json_owner(
+    model: type[BaseModel],
+    *,
+    family: str,
+    kind: str,
+    schema_name: str,
+) -> object:
+    """Register one exact HTE DTO/schema tuple with JSON-mode model semantics."""
+    contract_id = f"ir.analytics.{kind}.owner.v1"
+    wire_policy_ref = f"ir.analytics.{family}.wire-law"
+    representations = (
+        _OwnedJSONRepresentation(
+            schema_name=schema_name,
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref=wire_policy_ref,
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    )
+    owner: object | None = None
+
+    def payload_version_of(payload: object) -> str | None:
+        return _declared_payload_version(payload, field_name="schema_version")
+
+    def source_parser(payload: Mapping[str, Any]) -> BaseModel:
+        encoded = json.dumps(
+            payload,
+            ensure_ascii=False,
+            allow_nan=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        strict = model.model_config.get("strict") is True
+        return model.model_validate_json(encoded, strict=strict)
+
+    def validate_source(payload: object, admission: object) -> BaseModel:
+        if owner is None:
+            raise RuntimeError("HTE owner callback ran before declaration completion")
+        return _validate_owner_payload(
+            payload,
+            admission,
+            payload_version_field="schema_version",
+            source_parser=source_parser,
+            expected_types=(model,),
+            owner=owner,
+        )
+
+    declaration = ArtifactOwnerDeclaration(
+        contract_id=contract_id,
+        dto_fqn=f"{model.__module__}.{model.__qualname__}",
+        abi_key=f"{contract_id}.dto-abi.v1",
+        registry_key=kind,
+        kind=kind,
+        media_type="application/json",
+        purpose=family,
+        policy_revision=f"{contract_id}.admission.v1",
+        accepted_wire_policies=((wire_policy_ref, "1"),),
+        payload_version_of=payload_version_of,
+        validate_source=validate_source,
+        project_for_consumer=lambda source, _admission: _project_owner_source(
+            (model,),
+            source,
+        ),
+        validate_profile=_owner_profile_for_spec(
+            CanonSpec(forbid_floats=False),
+            profile_ref=None,
+        ),
+    )
+    owner = declaration
+    _register_owner_representations(declaration, representations)
+    return declaration
+
+
+_HTE_OUTCOME_OWNER = _declare_hte_json_owner(
+    HTEOutcome,
+    family="hte_outcome",
+    kind="ir.hte_outcome",
+    schema_name=HTEOutcomeRef.ARTIFACT_SCHEMA_NAME,
+)
+_ATE_INFERENCE_BASIS_OWNER = _declare_hte_json_owner(
+    ATEInferenceBasis,
+    family="ate_inference_basis",
+    kind="ir.ate_inference_basis",
+    schema_name=ATEInferenceBasisRef.ARTIFACT_SCHEMA_NAME,
+)
+_HTE_POINT_RESULT_OWNER = _declare_hte_json_owner(
+    HTEPointResult,
+    family="hte_point_result",
+    kind="ir.hte_point_result",
+    schema_name=HTEPointResultRef.ARTIFACT_SCHEMA_NAME,
+)
+_HTE_REFUSAL_DIAGNOSTIC_OWNER = _declare_hte_json_owner(
+    HTERefusalDiagnostic,
+    family="hte_refusal_diagnostic",
+    kind="ir.hte_refusal_diagnostic",
+    schema_name=HTERefusalDiagnosticRef.ARTIFACT_SCHEMA_NAME,
+)
+_HTE_RESULT_OWNER = _declare_hte_json_owner(
+    HTEResult,
+    family="hte_result",
+    kind="ir.hte_result",
+    schema_name=HTEResultEvidenceRef.ARTIFACT_SCHEMA_NAME,
+)
+
+
 def _assert_hte_artifact_manifest(
     store: ArtifactStore,
     ref: _ProfiledArtifactRef,
@@ -1658,10 +1800,7 @@ def _assert_hte_artifact_manifest(
     schema_name: str,
     schema_version: str,
 ) -> None:
-    """Check selected CAS manifest identity before validating a typed payload."""
-    # Resolve by the Core selector value, then compare the typed IR descriptor
-    # below. Passing the IR ref object itself makes the Core adapter inspect
-    # its schema ClassVars as if they were selector fields.
+    """Retain HTE's prior selected-manifest identity check before owner intake."""
     manifest = store.get_manifest(ref.artifact_id)
     dump = getattr(manifest, "model_dump", None)
     if callable(dump):
@@ -1686,53 +1825,44 @@ def _assert_hte_artifact_manifest(
         raise ValueError("hte_selected_manifest_identity_mismatch")
 
 
-def _artifact_view_selector(ref: _ProfiledArtifactRef) -> dict[str, str]:
-    """Project an HTE ref to IR's base selected-view selector fields."""
-    if ref.manifest_profile_sha256 is None:
-        raise ValueError("hte_selected_manifest_profile_missing")
-    return {
-        "artifact_id": str(ref.artifact_id),
-        "kind": ref.kind,
-        "media_type": ref.media_type,
-        "manifest_profile_sha256": ref.manifest_profile_sha256,
-    }
-
-
-def _strict_hte_json[ModelT: BaseModel](model: type[ModelT], payload: Any) -> ModelT:
-    """Validate a decoded CAS payload using strict JSON-mode container rules."""
-    encoded = json.dumps(
-        payload,
-        ensure_ascii=False,
-        allow_nan=False,
-        sort_keys=True,
-        separators=(",", ":"),
-    )
-    return model.model_validate_json(encoded, strict=True)
-
-
 def persist_hte_outcome(
     store: ArtifactStore,
     outcome: HTEOutcome,
     *,
     inputs: list[InputRef] | None = None,
 ) -> HTEOutcomeRef:
-    """Persist a finalized HTE union with its exact selected manifest profile."""
+    """Persist a finalized HTE union through exact owner admission."""
     validated = _HTE_OUTCOME_ADAPTER.validate_python(outcome, strict=True)
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         validated.model_dump(mode="json"),
-        kind="ir.hte_outcome",
+        owner=_HTE_OUTCOME_OWNER,
         schema_name=HTEOutcomeRef.ARTIFACT_SCHEMA_NAME,
         schema_version=HTEOutcomeRef.ARTIFACT_SCHEMA_VERSION,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=True,
     )
     return HTEOutcomeRef.model_validate(ref)
 
 
+def _get_hte_owned_json_artifact[OwnerSourceT, OwnerConsumerT](
+    store: ArtifactStore,
+    ref: Any,
+    *,
+    owner: ArtifactOwnerDeclaration[OwnerSourceT, OwnerConsumerT],
+) -> OwnerConsumerT:
+    """Use shared admission while preserving HTE's established Pydantic refusal detail."""
+    try:
+        return _get_owned_json_artifact(store, ref, owner=owner)
+    except CanonViolation as exc:
+        cause = exc.__cause__
+        if isinstance(cause, ValidationError):
+            raise cause from None
+        raise
+
+
 def load_hte_outcome(store: ArtifactStore, ref: HTEOutcomeRef) -> HTEOutcome:
-    """Load and strictly validate a profile-bound HTE outcome artifact."""
+    """Load an HTE outcome only after exact owner, payload, and profile admission."""
     normalized = HTEOutcomeRef.model_validate(ref, strict=True)
     _assert_hte_artifact_manifest(
         store,
@@ -1740,14 +1870,7 @@ def load_hte_outcome(store: ArtifactStore, ref: HTEOutcomeRef) -> HTEOutcome:
         schema_name=HTEOutcomeRef.ARTIFACT_SCHEMA_NAME,
         schema_version=HTEOutcomeRef.ARTIFACT_SCHEMA_VERSION,
     )
-    encoded = json.dumps(
-        get_json_artifact(store, _artifact_view_selector(normalized)),
-        ensure_ascii=False,
-        allow_nan=False,
-        sort_keys=True,
-        separators=(",", ":"),
-    )
-    return _HTE_OUTCOME_ADAPTER.validate_json(encoded, strict=True)
+    return _get_hte_owned_json_artifact(store, normalized, owner=_HTE_OUTCOME_OWNER)
 
 
 def persist_ate_inference_basis(
@@ -1756,16 +1879,15 @@ def persist_ate_inference_basis(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ATEInferenceBasisRef:
-    """Persist native inference evidence with the selected manifest profile."""
-    ref = put_json_artifact(
+    """Persist native inference evidence with owner-selected profile metadata."""
+    ref = _put_owned_json_artifact(
         store,
         basis.model_dump(mode="json"),
-        kind="ir.ate_inference_basis",
+        owner=_ATE_INFERENCE_BASIS_OWNER,
         schema_name=ATEInferenceBasisRef.ARTIFACT_SCHEMA_NAME,
         schema_version=ATEInferenceBasisRef.ARTIFACT_SCHEMA_VERSION,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=True,
     )
     return ATEInferenceBasisRef.model_validate(ref)
 
@@ -1774,7 +1896,7 @@ def load_ate_inference_basis(
     store: ArtifactStore,
     ref: ATEInferenceBasisRef,
 ) -> ATEInferenceBasis:
-    """Load and strictly validate a profile-bound native inference basis."""
+    """Load one profile-bound inference basis through its typed owner."""
     normalized = ATEInferenceBasisRef.model_validate(ref)
     _assert_hte_artifact_manifest(
         store,
@@ -1782,9 +1904,7 @@ def load_ate_inference_basis(
         schema_name=ATEInferenceBasisRef.ARTIFACT_SCHEMA_NAME,
         schema_version=ATEInferenceBasisRef.ARTIFACT_SCHEMA_VERSION,
     )
-    return _strict_hte_json(
-        ATEInferenceBasis, get_json_artifact(store, _artifact_view_selector(normalized))
-    )
+    return _get_hte_owned_json_artifact(store, normalized, owner=_ATE_INFERENCE_BASIS_OWNER)
 
 
 def persist_hte_point_result(
@@ -1793,16 +1913,15 @@ def persist_hte_point_result(
     *,
     inputs: list[InputRef] | None = None,
 ) -> HTEPointResultRef:
-    """Persist the exact selected-row point vector without CI fields."""
-    ref = put_json_artifact(
+    """Persist the exact selected-row point vector without interval semantics."""
+    ref = _put_owned_json_artifact(
         store,
         result.model_dump(mode="json"),
-        kind=HTEPointResultRef.model_fields["kind"].default,
+        owner=_HTE_POINT_RESULT_OWNER,
         schema_name=HTEPointResultRef.ARTIFACT_SCHEMA_NAME,
         schema_version=HTEPointResultRef.ARTIFACT_SCHEMA_VERSION,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=True,
     )
     return HTEPointResultRef.model_validate(ref)
 
@@ -1811,7 +1930,7 @@ def load_hte_point_result(
     store: ArtifactStore,
     ref: HTEPointResultRef,
 ) -> HTEPointResult:
-    """Load one exact profile-bound point result and validate its row vector."""
+    """Load one exact owner-bound point result and validate its row vector."""
     normalized = HTEPointResultRef.model_validate(ref)
     _assert_hte_artifact_manifest(
         store,
@@ -1819,9 +1938,7 @@ def load_hte_point_result(
         schema_name=HTEPointResultRef.ARTIFACT_SCHEMA_NAME,
         schema_version=HTEPointResultRef.ARTIFACT_SCHEMA_VERSION,
     )
-    return _strict_hte_json(
-        HTEPointResult, get_json_artifact(store, _artifact_view_selector(normalized))
-    )
+    return _get_hte_owned_json_artifact(store, normalized, owner=_HTE_POINT_RESULT_OWNER)
 
 
 def persist_hte_refusal_diagnostic(
@@ -1832,15 +1949,14 @@ def persist_hte_refusal_diagnostic(
 ) -> HTERefusalDiagnosticRef:
     """Persist one method-execution refusal bound to its selected owner refs."""
     validated = HTERefusalDiagnostic.model_validate(diagnostic, strict=True)
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         validated.model_dump(mode="json"),
-        kind="ir.hte_refusal_diagnostic",
+        owner=_HTE_REFUSAL_DIAGNOSTIC_OWNER,
         schema_name=HTERefusalDiagnosticRef.ARTIFACT_SCHEMA_NAME,
         schema_version=HTERefusalDiagnosticRef.ARTIFACT_SCHEMA_VERSION,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=True,
     )
     return HTERefusalDiagnosticRef.model_validate(ref)
 
@@ -1849,7 +1965,7 @@ def load_hte_refusal_diagnostic(
     store: ArtifactStore,
     ref: HTERefusalDiagnosticRef,
 ) -> HTERefusalDiagnostic:
-    """Load a refusal diagnostic only from its exact selected profile."""
+    """Load a refusal diagnostic only from its admitted owner view."""
     normalized = HTERefusalDiagnosticRef.model_validate(ref, strict=True)
     _assert_hte_artifact_manifest(
         store,
@@ -1857,9 +1973,7 @@ def load_hte_refusal_diagnostic(
         schema_name=HTERefusalDiagnosticRef.ARTIFACT_SCHEMA_NAME,
         schema_version=HTERefusalDiagnosticRef.ARTIFACT_SCHEMA_VERSION,
     )
-    return _strict_hte_json(
-        HTERefusalDiagnostic, get_json_artifact(store, _artifact_view_selector(normalized))
-    )
+    return _get_hte_owned_json_artifact(store, normalized, owner=_HTE_REFUSAL_DIAGNOSTIC_OWNER)
 
 
 def persist_hte_result_v2(
@@ -1868,22 +1982,21 @@ def persist_hte_result_v2(
     *,
     inputs: list[InputRef] | None = None,
 ) -> HTEResultEvidenceRef:
-    """Persist a result for the new basis chain and retain its exact profile."""
-    ref = put_json_artifact(
+    """Persist the HTE result used by the native inference basis chain."""
+    ref = _put_owned_json_artifact(
         store,
         result.model_dump(mode="json"),
-        kind="ir.hte_result",
+        owner=_HTE_RESULT_OWNER,
         schema_name=HTEResultEvidenceRef.ARTIFACT_SCHEMA_NAME,
         schema_version=HTEResultEvidenceRef.ARTIFACT_SCHEMA_VERSION,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=True,
     )
     return HTEResultEvidenceRef.model_validate(ref)
 
 
 def load_hte_result_v2(store: ArtifactStore, ref: HTEResultEvidenceRef) -> HTEResult:
-    """Load the selected result only after exact kind/schema/profile checks."""
+    """Load the selected HTE result through its exact shared owner."""
     normalized = HTEResultEvidenceRef.model_validate(ref)
     _assert_hte_artifact_manifest(
         store,
@@ -1891,7 +2004,7 @@ def load_hte_result_v2(store: ArtifactStore, ref: HTEResultEvidenceRef) -> HTERe
         schema_name=HTEResultEvidenceRef.ARTIFACT_SCHEMA_NAME,
         schema_version=HTEResultEvidenceRef.ARTIFACT_SCHEMA_VERSION,
     )
-    return HTEResult.model_validate(get_json_artifact(store, _artifact_view_selector(normalized)))
+    return _get_hte_owned_json_artifact(store, normalized, owner=_HTE_RESULT_OWNER)
 
 
 class TargetingRule(BaseModel):
@@ -2010,6 +2123,14 @@ class PolicyRecommendation(BaseModel):
         return self
 
 
+_POLICY_RECOMMENDATION_OWNER = _declare_hte_json_owner(
+    PolicyRecommendation,
+    family="policy_recommendation",
+    kind="ir.policy_recommendation",
+    schema_name="ir.policy_recommendation",
+)
+
+
 def persist_hte_result(
     store: ArtifactStore,
     result: HTEResult,
@@ -2018,11 +2139,11 @@ def persist_hte_result(
     schema_name: str = "ir.hte_result",
     schema_version: str = "1.0",
 ) -> HTEResultRef:
-    """Persist an HTE result and return its typed artifact reference."""
-    ref = put_json_artifact(
+    """Persist a heterogeneous-treatment-effect result through owner admission."""
+    ref = _put_owned_json_artifact(
         store,
         result.model_dump(mode="json"),
-        kind="ir.hte_result",
+        owner=_HTE_RESULT_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -2032,9 +2153,8 @@ def persist_hte_result(
 
 
 def load_hte_result(store: ArtifactStore, ref: HTEResultRef) -> HTEResult:
-    """Load hte result."""
-    payload = get_json_artifact(store, ref)
-    return HTEResult.model_validate(payload)
+    """Load an HTE result through exact owner, profile, and payload admission."""
+    return _get_hte_owned_json_artifact(store, ref, owner=_HTE_RESULT_OWNER)
 
 
 def persist_policy_recommendation(
@@ -2045,11 +2165,11 @@ def persist_policy_recommendation(
     schema_name: str = "ir.policy_recommendation",
     schema_version: str = "1.0",
 ) -> PolicyRecommendationRef:
-    """Persist a targeting recommendation derived from an HTE artifact."""
-    ref = put_json_artifact(
+    """Persist a targeting recommendation through owner admission."""
+    ref = _put_owned_json_artifact(
         store,
         recommendation.model_dump(mode="json"),
-        kind="ir.policy_recommendation",
+        owner=_POLICY_RECOMMENDATION_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -2062,9 +2182,8 @@ def load_policy_recommendation(
     store: ArtifactStore,
     ref: PolicyRecommendationRef,
 ) -> PolicyRecommendation:
-    """Load policy recommendation."""
-    payload = get_json_artifact(store, ref)
-    return PolicyRecommendation.model_validate(payload)
+    """Load a policy recommendation through exact owner admission."""
+    return _get_hte_owned_json_artifact(store, ref, owner=_POLICY_RECOMMENDATION_OWNER)
 
 
 __all__ = [

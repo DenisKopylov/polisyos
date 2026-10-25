@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import time
-from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, ClassVar
 
@@ -30,7 +29,7 @@ from polisyos.ir.connectors import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import AsyncIterator, Iterable
 
 
 class UKONSConnector(HTTPConnectorBase[pd.DataFrame]):

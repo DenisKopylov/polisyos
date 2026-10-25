@@ -217,10 +217,11 @@ describe("useRunDetailSummary", () => {
 
     expect(useRunDetailsMock).toHaveBeenCalledWith("run-1", {
       liveTransport: true,
+      resolveCurrentAlias: true,
     });
-    expect(useRunAgentsMock).toHaveBeenCalledWith("run-1", false);
-    expect(useGovernanceDebugMock).toHaveBeenCalledWith("run-1", false);
-    expect(useRunEvidenceContextMock).toHaveBeenCalledWith("run-1", false);
+    expect(useRunAgentsMock).toHaveBeenCalledWith(undefined, false);
+    expect(useGovernanceDebugMock).toHaveBeenCalledWith(undefined, false);
+    expect(useRunEvidenceContextMock).toHaveBeenCalledWith(undefined, false);
     expect(useArtifactContentMock).toHaveBeenCalledWith(undefined, {
       enabled: false,
       maxBytes: 262144,
@@ -241,6 +242,8 @@ describe("useRunDetailSummary", () => {
     useRunDetailsMock.mockReturnValue({
       data: {
         run: {
+          run_id: "core-run-1",
+          source_kind: "core_run",
           root_artifacts: [
             {
               artifact_id: "artifact-3",
@@ -377,6 +380,14 @@ describe("useRunDetailSummary", () => {
 
     const { result } = renderHook(() => useRunDetailSummary("run-1", t));
 
+    expect(useRunDetailsMock).toHaveBeenCalledWith("run-1", {
+      liveTransport: undefined,
+      resolveCurrentAlias: true,
+    });
+    expect(useRunAgentsMock).toHaveBeenCalledWith("core-run-1", true);
+    expect(useGovernanceDebugMock).toHaveBeenCalledWith("core-run-1", true);
+    expect(useRunEvidenceContextMock).toHaveBeenCalledWith("core-run-1", true);
+    expect(result.current.coreRunId).toBe("core-run-1");
     expect(useArtifactContentMock).toHaveBeenCalledWith(
       {
         artifact_id: "artifact-3",
@@ -441,6 +452,8 @@ describe("useRunDetailSummary", () => {
     useRunDetailsMock.mockReturnValue({
       data: {
         run: {
+          run_id: "core-run-2",
+          source_kind: "core_run",
           root_artifacts: [{ artifact_id: "artifact-root", kind: "report" }],
         },
       },
@@ -492,5 +505,147 @@ describe("useRunDetailSummary", () => {
         value: 99,
       },
     ]);
+  });
+
+  it("keeps the Core identity when it equals the stable route selector", () => {
+    useRunDetailsMock.mockReturnValue({
+      data: { run: { run_id: "run-1", source_kind: "core_run" } },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+
+    const { result } = renderHook(() => useRunDetailSummary("run-1", t));
+
+    expect(useRunDetailsMock).toHaveBeenCalledWith("run-1", {
+      liveTransport: undefined,
+      resolveCurrentAlias: true,
+    });
+    expect(useRunAgentsMock).toHaveBeenCalledWith("run-1", true);
+    expect(useGovernanceDebugMock).toHaveBeenCalledWith("run-1", true);
+    expect(useRunEvidenceContextMock).toHaveBeenCalledWith("run-1", true);
+    expect(result.current.coreRunId).toBe("run-1");
+  });
+
+  it("does not treat an untyped identifier as a Core run", () => {
+    useRunDetailsMock.mockReturnValue({
+      data: {
+        run: {
+          run_id: "other-owner-run",
+          source_kind: "control_run",
+        } as never,
+      },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+
+    const { result } = renderHook(() => useRunDetailSummary("run-1", t));
+
+    expect(useRunAgentsMock).toHaveBeenCalledWith(undefined, false);
+    expect(useGovernanceDebugMock).toHaveBeenCalledWith(undefined, false);
+    expect(useRunEvidenceContextMock).toHaveBeenCalledWith(undefined, false);
+    expect(result.current.coreRunId).toBeUndefined();
+  });
+
+  it("withholds a cached Core identity during alias refresh and switches only after the new GET succeeds", () => {
+    useRunDetailsMock.mockReturnValue({
+      data: { run: { run_id: "core-attempt-1", source_kind: "core_run" } },
+      error: null,
+      isError: false,
+      isFetching: true,
+      isLoading: false,
+    });
+
+    const { result, rerender } = renderHook(() =>
+      useRunDetailSummary("control-run-alias", t),
+    );
+
+    expect(result.current.coreRunId).toBeUndefined();
+    expect(useRunAgentsMock).toHaveBeenLastCalledWith(undefined, false);
+
+    useRunDetailsMock.mockReturnValue({
+      data: { run: { run_id: "core-attempt-2", source_kind: "core_run" } },
+      error: null,
+      isError: false,
+      isFetching: false,
+      isLoading: false,
+    });
+    rerender();
+
+    expect(result.current.coreRunId).toBe("core-attempt-2");
+    expect(useRunAgentsMock).toHaveBeenLastCalledWith("core-attempt-2", true);
+    expect(useGovernanceDebugMock).toHaveBeenLastCalledWith(
+      "core-attempt-2",
+      true,
+    );
+    expect(useRunEvidenceContextMock).toHaveBeenLastCalledWith(
+      "core-attempt-2",
+      true,
+    );
+  });
+
+  it("keeps the alias pending during a retry after a previous request error", () => {
+    useRunDetailsMock.mockReturnValue({
+      data: { run: { run_id: "core-attempt-1", source_kind: "core_run" } },
+      error: new Error("previous alias request failed"),
+      isError: true,
+      isFetching: true,
+      isLoading: false,
+    });
+
+    const { result } = renderHook(() =>
+      useRunDetailSummary("control-run-alias", t),
+    );
+
+    expect(result.current.run).toBeUndefined();
+    expect(result.current.coreRunId).toBeUndefined();
+    expect(result.current.runBootstrapPending).toBe(true);
+    expect(useRunAgentsMock).toHaveBeenLastCalledWith(undefined, false);
+    expect(useGovernanceDebugMock).toHaveBeenLastCalledWith(undefined, false);
+    expect(useRunEvidenceContextMock).toHaveBeenLastCalledWith(
+      undefined,
+      false,
+    );
+  });
+
+  it("does not keep using cached Core identity after the alias GET fails", () => {
+    useRunDetailsMock.mockReturnValue({
+      data: { run: { run_id: "core-attempt-1", source_kind: "core_run" } },
+      error: new Error("current alias lookup failed"),
+      isError: true,
+      isFetching: false,
+      isLoading: false,
+    });
+
+    const { result } = renderHook(() =>
+      useRunDetailSummary("control-run-alias", t),
+    );
+
+    expect(result.current.coreRunId).toBeUndefined();
+    expect(result.current.run).toBeUndefined();
+    expect(result.current.runBootstrapPending).toBe(false);
+    expect(useRunAgentsMock).toHaveBeenCalledWith(undefined, false);
+    expect(useGovernanceDebugMock).toHaveBeenCalledWith(undefined, false);
+    expect(useRunEvidenceContextMock).toHaveBeenCalledWith(undefined, false);
+  });
+
+  it("rejects blank Core identifiers from a malformed detail value", () => {
+    useRunDetailsMock.mockReturnValue({
+      data: {
+        run: {
+          run_id: "   ",
+          source_kind: "core_run",
+        },
+      },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+
+    const { result } = renderHook(() => useRunDetailSummary("run-1", t));
+
+    expect(result.current.coreRunId).toBeUndefined();
+    expect(useRunAgentsMock).toHaveBeenCalledWith(undefined, false);
   });
 });

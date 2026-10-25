@@ -30,7 +30,14 @@ from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
 from polisyos.ir.registry.refs import EstimandASTRef
 
@@ -2043,6 +2050,44 @@ def make_recovery_estimand(
     )
 
 
+_ESTIMAND_AST_WIRE_POLICY = ("polisyos.ir.analytics.estimand.EstimandAST.wire", "1")
+_ESTIMAND_AST_REPRESENTATIONS = (
+    OwnedJSONRepresentation(
+        schema_name=_ESTIMAND_SCHEMA_NAME,
+        schema_version=_ESTIMAND_SCHEMA_VERSION,
+        payload_version=_ESTIMAND_SCHEMA_VERSION,
+        wire_policy_ref=_ESTIMAND_AST_WIRE_POLICY[0],
+        wire_policy_revision=_ESTIMAND_AST_WIRE_POLICY[1],
+        profile_ref=None,
+        compatibility=CompatibilityMode.NONE,
+        notes=(),
+        readable=True,
+        writable=True,
+        current=True,
+        default_write=True,
+        readable_from=(),
+    ),
+)
+_ESTIMAND_AST_OWNER = declare_model_owner(
+    EstimandAST,
+    contract_id="polisyos.ir.analytics.estimand.EstimandAST.owner",
+    dto_fqn="polisyos.ir.analytics.estimand.EstimandAST",
+    abi_key="ir.analytics.estimand.EstimandAST",
+    registry_key="ir.estimand_ast",
+    kind="ir.estimand_ast",
+    media_type="application/json",
+    purpose="causal_estimand_ast",
+    policy_revision="polisyos.ir.analytics.estimand.EstimandAST.owner.owner-admission.r1",
+    accepted_wire_policies=(_ESTIMAND_AST_WIRE_POLICY,),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=_ESTIMAND_AST_REPRESENTATIONS,
+)
+
+
 def persist_estimand_ast(
     store: ArtifactStore,
     estimand: EstimandAST,
@@ -2053,10 +2098,10 @@ def persist_estimand_ast(
 ) -> EstimandASTRef:
     """Persist a normalized estimand AST through the IR CAS boundary."""
     normalized = normalize_estimand_ast(estimand)
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         normalized.model_dump(mode="python", round_trip=True),
-        kind="ir.estimand_ast",
+        owner=_ESTIMAND_AST_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -2070,8 +2115,7 @@ def load_estimand_ast(
     ref: EstimandASTRef,
 ) -> EstimandAST:
     """Load and validate a persisted estimand AST."""
-    payload = get_json_artifact(store, ref)
-    return EstimandAST.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_ESTIMAND_AST_OWNER)
 
 
 # ---------------------------------------------------------------------------

@@ -1625,6 +1625,7 @@ class GenerationSourceRepository:
             _ensure_ir_artifact_store(self.store),
             ncm_spec,
             write_options=options,
+            return_selected_profile=True,
         )
         if not isinstance(ref, ArtifactRef):
             raise ValueError("candidate_simulation_ncm_selected_ref_untyped")

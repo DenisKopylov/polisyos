@@ -728,7 +728,6 @@ def _runtime_input_binding(
     selected_value: object | None = None,
     selected_source_expected: bool = False,
     value_digest_override: str | None = None,
-    source_digest_override: str | None = None,
     resolved_by: tuple[str, ...] = (),
     limitations: set[str],
 ) -> CalibrationRuntimeInputBinding:
@@ -774,9 +773,9 @@ def _runtime_input_binding(
                 value_sha256=value_digest,
             )
         if value is None:
-            selected_digest = source_digest_override
-            if selected_digest is None and selected_value is not None:
-                selected_digest = canonical_input_sha256(selected_value)
+            selected_digest = (
+                canonical_input_sha256(selected_value) if selected_value is not None else None
+            )
             limitations.add(f"runtime_registry_member_missing_from_calibrator_inputs:{name}")
             return CalibrationRuntimeInputBinding(
                 input_name=name,
@@ -794,8 +793,8 @@ def _runtime_input_binding(
                 status="not_established",
                 source_ref=selected_ref,
             )
-        selected_digest = source_digest_override
-        if selected_digest is None and selected_value is not None:
+        selected_digest = None
+        if selected_value is not None:
             try:
                 selected_digest = canonical_input_sha256(selected_value)
             except (TypeError, ValueError, OverflowError):
@@ -867,8 +866,8 @@ def _runtime_input_binding(
             resolved_by=resolved_by,
         )
     if selected_ref is not None:
-        selected_digest = source_digest_override
-        if selected_digest is None and selected_value is not None:
+        selected_digest = None
+        if selected_value is not None:
             try:
                 selected_digest = canonical_input_sha256(selected_value)
             except (TypeError, ValueError, OverflowError):
@@ -1275,7 +1274,6 @@ def _persist_calibration_execution_basis(
         selected_ref: ArtifactRef | None = None
         selected_value: object | None = None
         selected_source_expected = False
-        source_digest_override: str | None = None
 
         if name in {"constraint_registry", "constraint_values"}:
             active = bool(inputs.config.constraint_loss.enabled)
@@ -1329,9 +1327,7 @@ def _persist_calibration_execution_basis(
         elif name == "base_state":
             selected_ref = base_state_ref
             selected_value = selected_base_state
-            source_digest_override = state_checksum
             if base_state_source_status == "selected_source_mismatch":
-                source_digest_override = None
                 value_digest_override = None
         elif source_role in {
             "selected_exec_plan_ref",
@@ -1392,7 +1388,6 @@ def _persist_calibration_execution_basis(
                 active=active,
                 selected_ref=selected_ref,
                 selected_value=selected_value,
-                source_digest_override=source_digest_override,
                 value_digest_override=value_digest_override,
                 limitations=runtime_limitations,
             )

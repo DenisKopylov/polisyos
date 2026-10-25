@@ -4,10 +4,11 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass, fields
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal, TypedDict
 
 if TYPE_CHECKING:
     from polisyos.berl import ValidationThresholds
+    from polisyos.berl.contracts.explanation_bundle import ExplanationBundle
     from polisyos.core.artifacts import ArtifactStore
 
 _REQUIRES_BERL_KEYS = (
@@ -332,8 +333,8 @@ def _normalize_reliability_record(
         },
     }
     issues: list[WarrantReliabilityIssue] = []
-    bundle_payload, selected_ref, resolution_code = _load_selected_bundle_payload(
-        row, artifact_store=artifact_store
+    bundle_payload, selected_ref, resolution_code, method_identity_projection = (
+        _load_selected_bundle_payload(row, artifact_store=artifact_store)
     )
     if selected_ref is not None:
         normalized["explanation_bundle_ref"] = selected_ref
@@ -392,6 +393,12 @@ def _normalize_reliability_record(
         }
         normalized["candidate_diagnostics_status"] = _decision_status(candidate_record)
         normalized.update(_candidate_summary_fields(candidate_record))
+        selected_explanation = _as_mapping(normalized.get("explanation_bundle"))
+        if method_identity_projection is not None and selected_explanation is not None:
+            normalized["explanation_bundle"] = {
+                **dict(selected_explanation),
+                "methods": method_identity_projection,
+            }
         issues.extend(candidate_issues)
 
         subject_context = _candidate_subject_context_resolution(
@@ -566,18 +573,65 @@ def _bundle_ref_display_value(row: Mapping[str, Any]) -> object | None:
     return dict(value) if isinstance(value, Mapping) else value
 
 
+_METHOD_IDENTITY_FIELDS = (
+    "method_id",
+    "requested_method_id",
+    "effective_method_id",
+    "fallback",
+    "fallback_reason",
+    "scope",
+)
+
+
+class _MethodIdentityProjection(TypedDict):
+    method_id: str
+    requested_method_id: str | None
+    effective_method_id: str | None
+    fallback: bool | None
+    fallback_reason: str | None
+    scope: Literal["local", "global", "local_bin", "diagnostic"] | None
+    field_presence: dict[str, bool]
+
+
+def _method_identity_projection(
+    bundle: ExplanationBundle,
+) -> list[_MethodIdentityProjection]:
+    """Project every method identity from the typed selected-CAS bundle."""
+    rows: list[_MethodIdentityProjection] = []
+    for method in bundle.methods:
+        present = method.model_fields_set
+        rows.append(
+            {
+                "method_id": method.method_id,
+                "requested_method_id": (
+                    method.requested_method_id if "requested_method_id" in present else None
+                ),
+                "effective_method_id": (
+                    method.effective_method_id if "effective_method_id" in present else None
+                ),
+                "fallback": method.fallback if "fallback" in present else None,
+                "fallback_reason": (
+                    method.fallback_reason if "fallback_reason" in present else None
+                ),
+                "scope": method.scope if "scope" in present else None,
+                "field_presence": {field: field in present for field in _METHOD_IDENTITY_FIELDS},
+            }
+        )
+    return rows
+
+
 def _load_selected_bundle_payload(
     row: Mapping[str, Any],
     *,
     artifact_store: ArtifactStore | None,
-) -> tuple[dict[str, Any] | None, str | None, str | None]:
+) -> tuple[dict[str, Any] | None, str | None, str | None, list[_MethodIdentityProjection] | None]:
     """Resolve the exact persisted BERL ref; embedded copies never rescue a supplied ref."""
 
     supplied = [(key, row[key]) for key in _BUNDLE_REF_KEYS if key in row]
     if not supplied:
-        return None, None, "policy_design_warrant_berl_bundle_ref_missing"
+        return None, None, "policy_design_warrant_berl_bundle_ref_missing", None
     if len(supplied) != 1:
-        return None, None, "policy_design_warrant_berl_bundle_ref_invalid"
+        return None, None, "policy_design_warrant_berl_bundle_ref_invalid", None
 
     from polisyos.ir import ExplanationBundleRef
 
@@ -593,7 +647,7 @@ def _load_selected_bundle_payload(
                 raise TypeError("typed BERL bundle reference required")
             selected_ref = ExplanationBundleRef.model_validate(model_dump(mode="python"))
     except (TypeError, ValueError):
-        return None, None, "policy_design_warrant_berl_bundle_ref_invalid"
+        return None, None, "policy_design_warrant_berl_bundle_ref_invalid", None
 
     selected_ref_text = selected_ref.model_dump_json()
     if artifact_store is None:
@@ -601,23 +655,37 @@ def _load_selected_bundle_payload(
             None,
             selected_ref_text,
             "policy_design_warrant_berl_bundle_store_unavailable",
+            None,
         )
     try:
         from polisyos.berl import (
             ExplanationBundleStoreReadError,
             load_explanation_bundle,
         )
-
+    except (AttributeError, ImportError, KeyError, OSError, RuntimeError, TypeError, ValueError):
+        return (
+            None,
+            selected_ref_text,
+            "policy_design_warrant_berl_bundle_store_read_unavailable",
+            None,
+        )
+    try:
         bundle = load_explanation_bundle(artifact_store, selected_ref)
     except ExplanationBundleStoreReadError:
         return (
             None,
             selected_ref_text,
             "policy_design_warrant_berl_bundle_store_read_unavailable",
+            None,
         )
     except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError):
-        return None, selected_ref_text, "policy_design_warrant_berl_bundle_unresolved"
-    return bundle.model_dump(mode="json"), selected_ref_text, None
+        return None, selected_ref_text, "policy_design_warrant_berl_bundle_unresolved", None
+    return (
+        bundle.model_dump(mode="json"),
+        selected_ref_text,
+        None,
+        _method_identity_projection(bundle),
+    )
 
 
 def _candidate_subject_context_resolution(

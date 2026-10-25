@@ -240,8 +240,12 @@ def test_small_json_inspection_records_core_policy_and_uses_bounded_owner(
     tmp_path,
 ) -> None:
     store = FileSystemCAS(tmp_path / "cas")
+    payload = {
+        "authority_boundary": _authority_boundary(),
+        "value": "selected",
+    }
     ref = store.put_bytes(
-        to_canonical_bytes({"value": "selected"}),
+        to_canonical_bytes(payload),
         PutOptions(
             kind="test.bounded_preview",
             media_type="application/json",
@@ -259,7 +263,7 @@ def test_small_json_inspection_records_core_policy_and_uses_bounded_owner(
     preview = service.get_content_preview(ref.artifact_id)
 
     assert preview.mode == "json"
-    assert preview.preview == {"value": "selected"}
+    assert preview.preview == payload
     assert preview.canon_read_status == "declared_bytes_conformant"
     bounded = read_core_json_artifact_bounded(
         store,
@@ -273,3 +277,123 @@ def test_small_json_inspection_records_core_policy_and_uses_bounded_owner(
     )
     assert bounded.profile_read.reader_policy_id == CORE_TAG_POLICY_ID
     assert ref.manifest_profile_sha256 is not None
+
+
+def _actual_hte_wire_fixture(name: str) -> dict[str, object]:
+    import json
+    from pathlib import Path
+
+    overlay_root = Path(__file__).resolve().parents[4]
+    fixture = (
+        overlay_root / "apps/runtime-dashboard/src/features/artifacts/domain/__test__/wire" / name
+    )
+    return json.loads(fixture.read_text())
+
+
+def _decision_packet_preview_with_hte(tmp_path, hte: object):
+    store = FileSystemCAS(tmp_path / "cas")
+    payload = {"authority_boundary": _authority_boundary(), "hte": hte}
+    ref = store.put_bytes(
+        to_canonical_bytes(payload, CanonSpec(forbid_floats=False)),
+        PutOptions(
+            kind="scientist.decision_packet",
+            media_type="application/json",
+            canon=CanonInfo(forbid_floats=False),
+        ),
+    )
+    service = ArtifactInspectorService(
+        store=store,
+        lineage_service=LineageService(store=store),
+    )
+    return service.get_content_preview(ref.artifact_id)
+
+
+def test_decision_packet_hte_null_is_explicitly_absent(tmp_path) -> None:
+    preview = _decision_packet_preview_with_hte(tmp_path, None)
+
+    sidecar = preview.decision_packet_preview
+    assert sidecar is not None
+    assert sidecar.hte_projection_status == "absent"
+    assert sidecar.hte is None
+    assert sidecar.hte_legacy_limited is None
+
+
+def test_decision_packet_hte_parses_actual_runtime_json_dto_with_tuple_fields(
+    tmp_path,
+) -> None:
+    summary = _actual_hte_wire_fixture("runtime-r5-point-owner-builder.json")
+
+    preview = _decision_packet_preview_with_hte(tmp_path, summary)
+
+    sidecar = preview.decision_packet_preview
+    assert sidecar is not None
+    assert sidecar.hte_projection_status == "typed"
+    assert sidecar.hte is not None
+    assert sidecar.hte.kind == "point_estimate"
+    assert sidecar.hte.hte_result_ref is None
+    assert sidecar.hte.point_result_ref is not None
+
+
+def test_decision_packet_hte_legacy_builder_wire_is_limited_and_unlinked(
+    tmp_path,
+) -> None:
+    legacy = _actual_hte_wire_fixture("legacy-builder-wire.json")
+
+    preview = _decision_packet_preview_with_hte(tmp_path, legacy)
+
+    sidecar = preview.decision_packet_preview
+    assert sidecar is not None
+    assert sidecar.hte_projection_status == "legacy_limited"
+    assert sidecar.hte is None
+    limited = sidecar.hte_legacy_limited
+    assert limited is not None
+    assert limited.kind == "legacy_limited"
+    assert limited.availability == "available"
+    assert limited.source_result_ref == legacy["result_ref"]
+    assert limited.ate == legacy["ate"]
+    assert limited.bounds_meaning_status == "not_established"
+    assert limited.conditional_coverage_status == "not_established"
+    assert limited.population_coverage_status == "not_established"
+    assert limited.authority_status == "limited_display_only"
+
+
+def test_decision_packet_hte_parse_failure_has_no_legacy_numbers(tmp_path) -> None:
+    legacy = {
+        "result_ref": "sha256:" + "d" * 64,
+        "parse_warning": "hte_result_parse_failed",
+    }
+
+    preview = _decision_packet_preview_with_hte(tmp_path, legacy)
+
+    sidecar = preview.decision_packet_preview
+    assert sidecar is not None
+    assert sidecar.hte_projection_status == "legacy_limited"
+    assert sidecar.hte is None
+    limited = sidecar.hte_legacy_limited
+    assert limited is not None
+    assert limited.availability == "unavailable"
+    assert limited.ate is None
+    assert limited.ate_ci_lower is None
+    assert limited.ate_ci_upper is None
+    assert limited.top_features == []
+    assert limited.warnings == []
+    assert limited.parse_warning == "hte_result_parse_failed"
+
+
+def test_decision_packet_hte_malformed_modern_never_falls_back_to_legacy(
+    tmp_path,
+) -> None:
+    legacy = _actual_hte_wire_fixture("legacy-builder-wire.json")
+    mixed = {
+        **legacy,
+        "kind": "point_estimate",
+        "schema_version": "1.0",
+    }
+
+    preview = _decision_packet_preview_with_hte(tmp_path, mixed)
+
+    sidecar = preview.decision_packet_preview
+    assert sidecar is not None
+    assert sidecar.hte_projection_status == "invalid"
+    assert sidecar.hte is None
+    assert sidecar.hte_legacy_limited is None

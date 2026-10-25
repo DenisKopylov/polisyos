@@ -8,8 +8,6 @@ from typing import TYPE_CHECKING, Any, TypeVar
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
 from polisyos.fabric.connectors._async_iterators import resolve_async_iterator
-from polisyos.fabric.connectors.base import ConnectionHandle
-from polisyos.ir.connectors import ConnectorMetadataSpec, DataVersion
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable
@@ -18,6 +16,7 @@ if TYPE_CHECKING:
     from polisyos.fabric.connectors.base import (
         AsyncFetchLease,
         ConnectionConfig,
+        ConnectionHandle,
         DatasetCapabilitySnapshot,
         DatasetDescriptor,
         FetchRequest,
@@ -30,7 +29,7 @@ if TYPE_CHECKING:
         FreshnessResult,
         ValidationResult,
     )
-    from polisyos.ir.connectors import ConnectorCapability
+    from polisyos.ir.connectors import ConnectorCapability, ConnectorMetadataSpec, DataVersion
 
     from .store import ConnectorCacheStore
 

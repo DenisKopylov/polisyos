@@ -69,6 +69,7 @@ describe("Clerk run status surfaces", () => {
         run: {
           duration_ms: 1_000,
           run_id: "run-summary",
+          source_kind: "core_run",
           started_at: "2026-03-10T10:00:00Z",
           status: "awaiting_external_attestation",
         },
@@ -88,5 +89,61 @@ describe("Clerk run status surfaces", () => {
       "bg-white/65",
       "text-muted",
     );
+    expect(useRunDetailsMock).toHaveBeenCalledWith("run-summary", {
+      resolveCurrentAlias: true,
+    });
+  });
+
+  it("does not show a cached run as current while its stable selector refreshes", () => {
+    useRunDetailsMock.mockReturnValue({
+      data: {
+        run: {
+          run_id: "core-attempt-1",
+          source_kind: "core_run",
+          status: "completed",
+        },
+      },
+      isError: false,
+      isFetching: true,
+      isLoading: false,
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/runs/control-run-alias"]}>
+        <Routes>
+          <Route path="/runs/:runId" element={<ClerkRunSummaryPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(useRunDetailsMock).toHaveBeenCalledWith("control-run-alias", {
+      resolveCurrentAlias: true,
+    });
+    expect(screen.queryByText("completed")).not.toBeInTheDocument();
+  });
+
+  it("withholds details without a usable Core identity", () => {
+    useRunDetailsMock.mockReturnValue({
+      data: {
+        run: {
+          run_id: "   ",
+          source_kind: "core_run",
+          status: "completed",
+        },
+      },
+      isError: false,
+      isFetching: false,
+      isLoading: false,
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/runs/control-run-alias"]}>
+        <Routes>
+          <Route path="/runs/:runId" element={<ClerkRunSummaryPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(screen.queryByText("completed")).not.toBeInTheDocument();
   });
 });

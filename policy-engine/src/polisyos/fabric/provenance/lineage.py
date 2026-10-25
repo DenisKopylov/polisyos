@@ -5,10 +5,9 @@ from __future__ import annotations
 import json
 import re
 from collections import OrderedDict
-from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.canon import truncated_hash
 from polisyos.fabric.provenance.core import (
@@ -19,6 +18,9 @@ from polisyos.fabric.provenance.core import (
     ProvenanceEntity,
     RelationType,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
 
 __all__ = [
     "FabricLineageTracker",

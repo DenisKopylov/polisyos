@@ -13,14 +13,13 @@ from polisyos.core.contracts import (
     SimulationResult,
     UncertaintyEnvelopeRef,
 )
-from polisyos.ir import (
-    load_simulation_result_uncertainty_admission,
-    load_uncertainty_envelope,
-    normalize_artifact_ref,
-)
+from polisyos.ir import load_uncertainty_envelope, normalize_artifact_ref
 from polisyos.scientist.nodes.builtins.decide.decision_packet.validation import (
     _DECISION_PACKET_LOAD_ERRORS,
     _record_decision_packet_section_degraded,
+)
+from polisyos.scientist.nodes.builtins.simulate.uncertainty_source_projection import (
+    load_science_simulation_result_uncertainty_admission,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
@@ -176,8 +175,8 @@ def _output_envelope_bounds(
             limitation_codes = ("simulation_result_ref_missing",)
             admission = None
         else:
-            admission = load_simulation_result_uncertainty_admission(
-                _ensure_ir_artifact_store(ctx.store),
+            admission = load_science_simulation_result_uncertainty_admission(
+                ctx.store,
                 simulation_result_selector,
                 metric_id,
             )

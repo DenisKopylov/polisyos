@@ -7,6 +7,7 @@ neighbouring row or a different sanitization batch cannot change membership.
 from __future__ import annotations
 
 import math
+import operator
 import re
 from datetime import date, datetime, time, timedelta
 from decimal import Decimal
@@ -25,9 +26,10 @@ def _type_member(value: object, kind: SchemaType) -> bool:
         if isinstance(value, bool) or not isinstance(value, Integral):
             return False
         bits = int(name.removeprefix("uint").removeprefix("int"))
-        low = 0 if name.startswith("uint") else -(2 ** (bits - 1))
-        high = 2**bits - 1 if name.startswith("uint") else 2 ** (bits - 1) - 1
-        return low <= value <= high
+        low = 0 if name.startswith("uint") else -(1 << (bits - 1))
+        high = (1 << bits) - 1 if name.startswith("uint") else (1 << (bits - 1)) - 1
+        integer_value = operator.index(value)
+        return low <= integer_value <= high
     if name.startswith("float"):
         return not isinstance(value, bool) and isinstance(value, Real)
     if kind == SchemaType.DECIMAL:
@@ -102,8 +104,8 @@ def field_value_violation(value: object, field: FieldSpec) -> str | None:
             return "schema_non_finite"
         if field.bounds:
             low, high = field.bounds
-            if (low is not None and numeric_value < low) or (
-                high is not None and numeric_value > high
+            if (low is not None and bool(operator.lt(numeric_value, low))) or (
+                high is not None and bool(operator.gt(numeric_value, high))
             ):
                 return "schema_bounds_violation"
     if field.data_type == SchemaType.ARRAY and field.element_type is not None:

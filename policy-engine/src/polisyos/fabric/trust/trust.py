@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.fabric import UncertaintyBounds, UncertaintyBoundsRef
 from polisyos.fabric.trust.adapter import envelope_from_trust_bounds
-from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
+
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
 
 
 def two_pass_compare(

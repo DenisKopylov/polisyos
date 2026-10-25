@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import threading
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Protocol, cast
 
 import duckdb
@@ -188,7 +189,14 @@ class SimulationDB:
     def save_run_record(self, record: object) -> None:
         self._ensure_open()
         payload = cast("_ModelDumpable", record).model_dump()
-        generator = payload.pop("generator", {})
+        generator_value = payload.pop("generator", {})
+        if not isinstance(generator_value, Mapping):
+            raise TypeError("Run record generator metadata must be a mapping")
+        generator: dict[str, object] = {}
+        for key, value in generator_value.items():
+            if not isinstance(key, str):
+                raise TypeError("Run record generator metadata keys must be strings")
+            generator[key] = value
         library_versions = json.dumps(payload.pop("library_versions", {}))
         flags = json.dumps(payload.pop("flags", {}))
         self.conn.execute(

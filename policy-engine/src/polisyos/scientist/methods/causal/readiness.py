@@ -8,7 +8,7 @@ emit normalized readiness entries that `RunCausalReadinessNode` stores in
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import asdict
 from typing import Any
 
@@ -52,7 +52,8 @@ from polisyos.ir.analytics.transportability import (
     TransportMode,
     persist_transportability_result,
 )
-from polisyos.ir.artifacts import InputRef
+from polisyos.ir.artifacts import InputRef, normalize_input_refs
+from polisyos.ir.artifacts._lineage import InputRefLike
 from polisyos.ir.observation.bundles import (
     CounterfactualCheckBundle,
     InterferenceLossSpecBundle,
@@ -374,7 +375,7 @@ class TransportabilityChecker:
         *,
         graph: CausalGraphModel,
         store: Any,
-        base_inputs: list[InputRef] | None = None,
+        base_inputs: Sequence[InputRefLike] | None = None,
     ) -> None:
         self.graph = graph
         self.store = store
@@ -392,6 +393,7 @@ class TransportabilityChecker:
 
         if bundle is None:
             return []
+        ir_store = _ensure_ir_artifact_store(self.store)
         entries: list[TransportabilityCheckEntry] = []
         for check in bundle.checks:
             source_context = _coerce_context(check.source_context)
@@ -494,8 +496,8 @@ class TransportabilityChecker:
                     result_model,
                     TransportPrivacyContext(
                         utility_manifest=dp_utility_manifest,
-                        store=self.store,
-                        inputs=tuple(self.base_inputs),
+                        store=ir_store,
+                        inputs=tuple(normalize_input_refs(self.base_inputs)),
                         certificate_id=f"{check.check_id}_privacy_transport",
                         selection_diagram_ref=(
                             result_model.selection_diagram_ref
@@ -507,7 +509,7 @@ class TransportabilityChecker:
                 if isinstance(privacy_mode_raw, str):
                     privacy_mode = PrivacyObservedMode(privacy_mode_raw)
             result_ref = persist_transportability_result(
-                _ensure_ir_artifact_store(self.store),
+                ir_store,
                 result_model,
                 inputs=self.base_inputs,
             )
@@ -544,7 +546,7 @@ class StrategicResponseRunner:
         *,
         store: Any,
         causal_component_ref: ArtifactRefModel,
-        base_inputs: list[InputRef] | None = None,
+        base_inputs: Sequence[InputRefLike] | None = None,
         run_metadata: dict[str, Any] | None = None,
     ) -> None:
         self.store = store

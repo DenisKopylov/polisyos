@@ -3,14 +3,12 @@
 from __future__ import annotations
 
 import uuid
-from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Protocol, TypedDict
 
 import pandas as pd
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.fabric.quality.safety import quote_sql_identifier
 from polisyos.fabric.world.store.validate import (
     validate_claim_id,
@@ -32,8 +30,10 @@ from polisyos.ir.world.trust import TrustAssessment
 from .errors import WorldArtifactReadError, WorldMaterializationError, WorldMergeConflict
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Iterable, Mapping, Sequence
     from datetime import datetime
+
+    from polisyos.core.artifacts.protocol import ArtifactStore
 
 
 class _ProjectionQueryResult(Protocol):

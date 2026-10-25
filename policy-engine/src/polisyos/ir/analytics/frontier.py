@@ -18,7 +18,14 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import FrontierSketchRef
 
@@ -1730,6 +1737,44 @@ def materialize_phase1_frontier_sketch(
     )
 
 
+_FRONTIER_SKETCH_WIRE_POLICY = ("polisyos.ir.analytics.frontier.FrontierSketch.wire", "1")
+_FRONTIER_SKETCH_REPRESENTATIONS = (
+    OwnedJSONRepresentation(
+        schema_name="ir.frontier_sketch",
+        schema_version="1.0",
+        payload_version="1.0",
+        wire_policy_ref=_FRONTIER_SKETCH_WIRE_POLICY[0],
+        wire_policy_revision=_FRONTIER_SKETCH_WIRE_POLICY[1],
+        profile_ref=None,
+        compatibility=CompatibilityMode.NONE,
+        notes=(),
+        readable=True,
+        writable=True,
+        current=True,
+        default_write=True,
+        readable_from=(),
+    ),
+)
+_FRONTIER_SKETCH_OWNER = declare_model_owner(
+    FrontierSketch,
+    contract_id="polisyos.ir.analytics.frontier.FrontierSketch.owner",
+    dto_fqn="polisyos.ir.analytics.frontier.FrontierSketch",
+    abi_key="ir.analytics.frontier.FrontierSketch",
+    registry_key="ir.frontier_sketch",
+    kind="ir.frontier_sketch",
+    media_type="application/json",
+    purpose="research_boundary_sketch",
+    policy_revision="polisyos.ir.analytics.frontier.FrontierSketch.owner.owner-admission.r1",
+    accepted_wire_policies=(_FRONTIER_SKETCH_WIRE_POLICY,),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=_FRONTIER_SKETCH_REPRESENTATIONS,
+)
+
+
 def persist_frontier_sketch(
     store: ArtifactStore,
     sketch: FrontierSketch,
@@ -1740,10 +1785,10 @@ def persist_frontier_sketch(
 ) -> FrontierSketchRef:
     """Persist a frontier sketch and return its typed artifact ref."""
 
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         sketch.model_dump(mode="json"),
-        kind="ir.frontier_sketch",
+        owner=_FRONTIER_SKETCH_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -1758,8 +1803,7 @@ def load_frontier_sketch(
 ) -> FrontierSketch:
     """Load a persisted frontier sketch."""
 
-    payload = get_json_artifact(store, ref)
-    return FrontierSketch.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_FRONTIER_SKETCH_OWNER)
 
 
 def parse_research_plan_stage_index(

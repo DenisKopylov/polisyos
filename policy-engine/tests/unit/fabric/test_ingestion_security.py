@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from polisyos.fabric.connectors.transform.pipeline import TransformPipeline
+from polisyos.fabric.connectors.transform.pipeline import CompiledPipeline, TransformPipeline
 from polisyos.fabric.ingestion import _load_transform_pipeline
 
 
@@ -24,6 +24,7 @@ def _write_transform_module(path: Path) -> None:
 def test_transform_dag_registry_allows_identity_pipeline() -> None:
     pipeline = _load_transform_pipeline("identity")
     assert isinstance(pipeline, TransformPipeline)
+    assert isinstance(pipeline.compile(), CompiledPipeline)
 
 
 def test_transform_dag_rejects_untrusted_local_python_by_default(tmp_path: Path) -> None:

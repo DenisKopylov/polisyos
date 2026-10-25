@@ -3,15 +3,17 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.canon import content_hash
 from polisyos.fabric.numerics.finite import ensure_probability
 from polisyos.fabric.quality.quality import QualityIndicators
 
-from .report import DataQualityReport
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from .report import DataQualityReport
 
 SCHEMA_VERSION = "fabric.quality.evidence.v1"
 

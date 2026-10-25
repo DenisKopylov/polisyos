@@ -37,17 +37,26 @@ from polisyos.fabric.quality.processing_guarantees import (
     ProcessingGuarantee,
     ProcessingGuaranteeContract,
 )
-from polisyos.fabric.storage.tenant_cas import TenantSidecarScope, tenant_scoped_cas_root
+from polisyos.fabric.storage.tenant_cas import (
+    TenantSidecarScope,
+    tenant_scoped_cas_root,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
     from datetime import datetime
     from types import ModuleType
 
-    from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
+    from polisyos.core.artifacts.protocol import AsyncArtifactStore, CoreJSONArtifactStore
     from polisyos.fabric.connectors import RawHTTPResponseObserver
-    from polisyos.fabric.ingestion import ConnectorManifestSpec, PreTransformFetchResultSink
-    from polisyos.fabric.ingestion.ingestion_providers import _BatchIngestionDependencies
+    from polisyos.fabric.connectors.base import ConnectionConfig
+    from polisyos.fabric.ingestion import (
+        ConnectorManifestSpec,
+        PreTransformFetchResultSink,
+    )
+    from polisyos.fabric.ingestion.ingestion_providers import (
+        _BatchIngestionDependencies,
+    )
 
     ConnectorManifestInput = dict[str, Any] | Path | str | ConnectorManifestSpec
 
@@ -329,9 +338,12 @@ class DistributedExecutionTrustContract:
         )
 
 
-def _build_filesystem_artifact_store(cas_root: Path) -> ArtifactStore:
-    return build_artifact_store(
-        ArtifactStoreConfig(backend="filesystem", root=str(cas_root)),
+def _build_filesystem_artifact_store(cas_root: Path) -> CoreJSONArtifactStore:
+    return cast(
+        "CoreJSONArtifactStore",
+        build_artifact_store(
+            ArtifactStoreConfig(backend="filesystem", root=str(cas_root)),
+        ),
     )
 
 
@@ -381,7 +393,7 @@ def run_partitioned_ingestion(
     source: str,
     license_name: str,
     cas_root: Path,
-    connection_config: object | None = None,
+    connection_config: ConnectionConfig | dict[str, object] | None = None,
     produce_snapshot: bool = True,
     backend: ExecutionBackend | str = "local_async",
     partition_handler: Callable[[IngestionPartition], IngestionResult] | None = None,
@@ -531,7 +543,7 @@ def run_orchestrated_ingestion(
     source: str,
     license_name: str,
     cas_root: Path,
-    connection_config: object | None = None,
+    connection_config: ConnectionConfig | dict[str, object] | None = None,
     produce_snapshot: bool = True,
     tenant_id: str | None = None,
     ingestion_dependencies: _BatchIngestionDependencies | None = None,
@@ -547,6 +559,7 @@ def run_orchestrated_ingestion(
     ingestion, cached in CAS, and the snapshot is built from cached
     artifacts. ``cache_namespace`` scopes the index without changing the CAS writer.
     """
+    from polisyos.fabric.data_plane.streaming import normalize_connection_config
     from polisyos.fabric.ingestion import (
         resolve_ingestion_dependencies,
         run_connectors_ingestion,
@@ -556,6 +569,7 @@ def run_orchestrated_ingestion(
         resolve_ingestion_store,
     )
 
+    normalized_connection_config = normalize_connection_config(connection_config)
     dependencies = ingestion_dependencies or resolve_ingestion_dependencies()
     scope = resolve_ingestion_sidecar_scope(
         Path(cas_root),
@@ -569,7 +583,7 @@ def run_orchestrated_ingestion(
         source=source,
         license_name=license_name,
         cas_root=resolved_cas_root,
-        connection_config=connection_config,
+        connection_config=normalized_connection_config,
         dependencies=dependencies,
         sidecar_scope=scope,
         raw_result_sink=raw_result_sink,

@@ -14,7 +14,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass, replace
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, TypedDict, cast
+from typing import TYPE_CHECKING, Protocol, TypedDict, TypeGuard, cast
 
 from polisyos.common.async_tools import run_blocking_async, run_coro_sync
 from polisyos.common.logger import get_logger
@@ -23,6 +23,7 @@ from polisyos.fabric.connectors._async_iterators import resolve_async_iterator
 from polisyos.fabric.connectors.base import ConnectionConfig
 from polisyos.fabric.data_plane.orchestrator import IngestionResult
 from polisyos.fabric.data_plane.quarantine import (
+    IndexedArtifactStore,
     QuarantineRecord,
     persist_quarantine_record,
 )
@@ -53,20 +54,28 @@ class _ArgumentNotProvided:
 _ARGUMENT_NOT_PROVIDED = _ArgumentNotProvided()
 
 
+def _argument_was_provided[T](value: T | _ArgumentNotProvided) -> TypeGuard[T]:
+    """Narrow a supplied proxy argument while treating every sentinel as omission."""
+    return not isinstance(value, _ArgumentNotProvided)
+
+
 class _RegistryGetKwargs(TypedDict, total=False):
     enable_cache: bool
-    _registration_binding: object | None
+    _registration_binding: _ConnectorRegistrationBinding | None
 
 
 class _RegistryConnectionKwargs(TypedDict, total=False):
-    _registration_binding: object | None
+    _registration_binding: _ConnectorRegistrationBinding | None
 
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Sequence
 
     from polisyos.core.artifacts import ArtifactRef, ArtifactStore
     from polisyos.core.contracts.fabric import EvidenceBundleRef
+    from polisyos.fabric.connectors._registry_models import (
+        _ConnectorRegistrationBinding,
+    )
     from polisyos.fabric.connectors.base import ConnectionHandle, SourceConnectorValue
     from polisyos.fabric.connectors.contracts import DataSchema
     from polisyos.fabric.connectors.registry import ConnectorEntry
@@ -94,6 +103,44 @@ class _LegacyStreamDatasetResult:
     final_cursor_ref: str | None
 
 
+class _StreamDatasetResultSummary(Protocol):
+    """Read-only fields shared by registered and legacy stream result owners."""
+
+    @property
+    def chunk_refs(self) -> Sequence[ArtifactRef]: ...
+
+    @property
+    def window_refs(self) -> Sequence[ArtifactRef]: ...
+
+    @property
+    def cdc_event_refs(self) -> Sequence[ArtifactRef]: ...
+
+    @property
+    def warnings(self) -> Sequence[str]: ...
+
+    @property
+    def rows_emitted(self) -> int: ...
+
+    @property
+    def chunks_processed(self) -> int: ...
+
+    @property
+    def quarantined_rows(self) -> int: ...
+
+    @property
+    def final_cursor_ref(self) -> str | None: ...
+
+
+class _LegacyStreamChunk(TypedDict):
+    """Fields emitted by the typed streaming connector before legacy persistence."""
+
+    chunk_index: int
+    row_count: int
+    is_first: bool
+    is_last: bool
+    data: list[object]
+
+
 _VERSION_STRATEGY_BY_WATERMARK: dict[WatermarkType, VersionStrategy] = {
     WatermarkType.TIMESTAMP: VersionStrategy.TIMESTAMP,
     WatermarkType.ETAG: VersionStrategy.ETAG,
@@ -112,12 +159,25 @@ def _resolve_ingestion_dependencies(
     return resolve_ingestion_dependencies()
 
 
+def _orchestrator_manifest_input(
+    connector_manifest: ConnectorManifestInput,
+) -> ConnectorManifestSpec | Path | str:
+    """Normalize mapping inputs to the existing typed ingestion manifest owner."""
+    if isinstance(connector_manifest, (ConnectorManifestSpec, Path, str)):
+        return connector_manifest
+    from polisyos.fabric.ingestion.ingestion import _normalize_connector_manifest
+
+    return _normalize_connector_manifest(connector_manifest)
+
+
 def _resolve_mode_sidecar_scope(
     cas_root: Path,
     sidecar_scope: TenantSidecarScope | None,
 ) -> TenantSidecarScope:
     """Resolve tenant-local sidecar paths as invocation context, not provider state."""
-    from polisyos.fabric.ingestion.ingestion_providers import resolve_ingestion_sidecar_scope
+    from polisyos.fabric.ingestion.ingestion_providers import (
+        resolve_ingestion_sidecar_scope,
+    )
 
     if sidecar_scope is not None and not isinstance(sidecar_scope, TenantSidecarScope):
         raise TypeError("sidecar_scope must be a TenantSidecarScope")
@@ -261,19 +321,21 @@ class _CursorAwareRegistry:
         version: str | None | _ArgumentNotProvided = _ARGUMENT_NOT_PROVIDED,
         *,
         enable_cache: bool | _ArgumentNotProvided = _ARGUMENT_NOT_PROVIDED,
-        _registration_binding: object | None | _ArgumentNotProvided = _ARGUMENT_NOT_PROVIDED,
+        _registration_binding: _ConnectorRegistrationBinding
+        | None
+        | _ArgumentNotProvided = _ARGUMENT_NOT_PROVIDED,
     ) -> SourceConnectorValue[object]:
         """Resolve and wrap one connector, preserving supplied argument presence."""
         kwargs: _RegistryGetKwargs = {}
-        if enable_cache is not _ARGUMENT_NOT_PROVIDED:
-            kwargs["enable_cache"] = cast("bool", enable_cache)
-        if _registration_binding is not _ARGUMENT_NOT_PROVIDED:
-            kwargs["_registration_binding"] = cast("object | None", _registration_binding)
+        if _argument_was_provided(enable_cache):
+            kwargs["enable_cache"] = enable_cache
+        if _argument_was_provided(_registration_binding):
+            kwargs["_registration_binding"] = _registration_binding
 
-        if version is _ARGUMENT_NOT_PROVIDED:
-            connector = self._registry.get(connector_id, **kwargs)
+        if _argument_was_provided(version):
+            connector = self._registry.get(connector_id, version, **kwargs)
         else:
-            connector = self._registry.get(connector_id, cast("str | None", version), **kwargs)
+            connector = self._registry.get(connector_id, **kwargs)
         wrapped = _CursorAwareConnector(
             connector,
             connector_id,
@@ -290,20 +352,18 @@ class _CursorAwareRegistry:
         connector_id: str,
         config: ConnectionConfig | None | _ArgumentNotProvided = _ARGUMENT_NOT_PROVIDED,
         *,
-        _registration_binding: object | None | _ArgumentNotProvided = _ARGUMENT_NOT_PROVIDED,
+        _registration_binding: _ConnectorRegistrationBinding
+        | None
+        | _ArgumentNotProvided = _ARGUMENT_NOT_PROVIDED,
     ) -> ConnectionHandle:
         """Forward acquisition while preserving explicit default-valued arguments."""
         kwargs: _RegistryConnectionKwargs = {}
-        if _registration_binding is not _ARGUMENT_NOT_PROVIDED:
-            kwargs["_registration_binding"] = cast("object | None", _registration_binding)
+        if _argument_was_provided(_registration_binding):
+            kwargs["_registration_binding"] = _registration_binding
 
-        if config is _ARGUMENT_NOT_PROVIDED:
-            return await self._registry.get_connection(connector_id, **kwargs)
-        return await self._registry.get_connection(
-            connector_id,
-            cast("ConnectionConfig | None", config),
-            **kwargs,
-        )
+        if _argument_was_provided(config):
+            return await self._registry.get_connection(connector_id, config, **kwargs)
+        return await self._registry.get_connection(connector_id, **kwargs)
 
     async def _get_connection_with_live_permit(
         self,
@@ -588,7 +648,7 @@ def run_batch_incremental(
 
     # Run normal orchestrated ingestion
     result = run_orchestrated_ingestion(
-        connector_manifest=connector_manifest,
+        connector_manifest=_orchestrator_manifest_input(connector_manifest),
         source=source,
         license_name=license_name,
         cas_root=cas_root,
@@ -644,7 +704,9 @@ def run_record_mode(
         ReplayStore,
         make_record_session,
     )
+    from polisyos.fabric.data_plane.streaming import normalize_connection_config
 
+    connection_config = normalize_connection_config(connection_config)
     datasets = _extract_datasets(connector_manifest)
     effective_dependencies = _resolve_ingestion_dependencies(ingestion_dependencies)
     invocation_scope = _resolve_mode_sidecar_scope(Path(cas_root), sidecar_scope)
@@ -750,7 +812,9 @@ def run_replay_mode(
 
     from polisyos.core.artifacts import ArtifactID
     from polisyos.fabric.data_plane.replay_store import ReplayStore
+    from polisyos.fabric.data_plane.streaming import normalize_connection_config
 
+    connection_config = normalize_connection_config(connection_config)
     datasets = _extract_datasets(connector_manifest)
     effective_dependencies = _resolve_ingestion_dependencies(ingestion_dependencies)
     invocation_scope = _resolve_mode_sidecar_scope(Path(cas_root), sidecar_scope)
@@ -761,7 +825,7 @@ def run_replay_mode(
 
     # Load session from CAS
     artifact_id = ArtifactID.model_validate(replay_ref)
-    session = replay_store.load_record_session(artifact_id)
+    session = replay_store.load_record_session(artifact_id.root)
 
     with tempfile.TemporaryDirectory(prefix="polisyos_replay_") as tmpdir:
         fixture_dir = Path(tmpdir)
@@ -906,6 +970,10 @@ def _sanitize_stream_rows(
             f"quarantined stream row {row_index} from {connector_id}:{dataset_id} "
             f"chunk {chunk_index} because of {reason}"
         )
+        if not isinstance(store, IndexedArtifactStore):
+            raise TypeError(
+                "stream row quarantine requires an IndexedArtifactStore with a local Path root"
+            )
         persist_quarantine_record(
             store,
             record=QuarantineRecord.new(
@@ -1038,6 +1106,7 @@ async def _run_streaming_windowed_async(
             dataset_id=ds_dataset_id,
         )
         bound_sanitizer = _bind_stream_sanitizer(schema_binding)
+        dataset_result: _StreamDatasetResultSummary
         if _connector_is_registered(ds_connector_id, registry=connector_registry):
             dataset_result = await process_stream_dataset(
                 connector_id=ds_connector_id,
@@ -1240,7 +1309,7 @@ def _run_legacy_stream_dataset(
     store: ArtifactStore,
     connector_id: str,
     dataset_id: str,
-    chunks: list[dict[str, object]],
+    chunks: list[_LegacyStreamChunk],
     schema_binding: StreamSchemaBinding | None = None,
 ) -> _LegacyStreamDatasetResult:
     from polisyos.fabric.connectors.types import DataChunk
@@ -1252,12 +1321,13 @@ def _run_legacy_stream_dataset(
     quarantined_rows = 0
 
     for chunk_data in chunks:
+        chunk_index = int(chunk_data.get("chunk_index", 0))
         clean_rows, chunk_warnings, chunk_quarantined = _sanitize_stream_rows(
             chunk_data.get("data", []),
             connector_id=connector_id,
             dataset_id=dataset_id,
             store=store,
-            chunk_index=int(chunk_data.get("chunk_index", 0)),
+            chunk_index=chunk_index,
             schema=getattr(schema_binding, "schema", None),
             schema_binding=schema_binding,
         )
@@ -1272,7 +1342,7 @@ def _run_legacy_stream_dataset(
                 partition_key="default",
                 chunk=DataChunk(
                     data=clean_rows,
-                    chunk_index=int(chunk_data.get("chunk_index", 0)),
+                    chunk_index=chunk_index,
                     row_count=len(clean_rows),
                     bytes_size=0,
                     is_first=bool(chunk_data.get("is_first", False)),
@@ -1302,7 +1372,7 @@ async def _run_legacy_stream_dataset_async(
     store: ArtifactStore,
     connector_id: str,
     dataset_id: str,
-    chunks: list[dict[str, object]],
+    chunks: list[_LegacyStreamChunk],
     schema_binding: StreamSchemaBinding | None = None,
 ) -> _LegacyStreamDatasetResult:
     from polisyos.core.artifacts.async_store import ensure_async_artifact_store
@@ -1318,12 +1388,13 @@ async def _run_legacy_stream_dataset_async(
     quarantined_rows = 0
 
     for chunk_data in chunks:
+        chunk_index = int(chunk_data.get("chunk_index", 0))
         clean_rows, chunk_warnings, chunk_quarantined = _sanitize_stream_rows(
             chunk_data.get("data", []),
             connector_id=connector_id,
             dataset_id=dataset_id,
             store=store,
-            chunk_index=int(chunk_data.get("chunk_index", 0)),
+            chunk_index=chunk_index,
             schema=getattr(schema_binding, "schema", None),
             schema_binding=schema_binding,
         )
@@ -1332,7 +1403,7 @@ async def _run_legacy_stream_dataset_async(
         rows_emitted += len(clean_rows)
         chunk = DataChunk(
             data=clean_rows,
-            chunk_index=int(chunk_data.get("chunk_index", 0)),
+            chunk_index=chunk_index,
             row_count=len(clean_rows),
             bytes_size=0,
             is_first=bool(chunk_data.get("is_first", False)),
@@ -1446,7 +1517,9 @@ def _normalize_mode_manifest(
     return [(dataset.connector_id, dataset.dataset_id) for dataset in spec.datasets], raw_manifest
 
 
-def _extract_datasets(connector_manifest: ConnectorManifestInput) -> list[tuple[str, str]]:
+def _extract_datasets(
+    connector_manifest: ConnectorManifestInput,
+) -> list[tuple[str, str]]:
     """Extract dataset pairs through the shared manifest intake validator."""
     datasets, _ = _normalize_mode_manifest(connector_manifest)
     return datasets
@@ -1474,7 +1547,7 @@ async def _fetch_stream_for_dataset_async(
     connector_manifest: ConnectorManifestInput,
     connection_config: ConnectionConfig | dict[str, object] | None,
     registry: _BatchConnectorRegistry | None = None,
-) -> list[dict[str, object]]:
+) -> list[_LegacyStreamChunk]:
     """Fetch stream chunks for a single dataset without nesting a sync bridge."""
     del connector_manifest
     try:
@@ -1497,12 +1570,14 @@ async def _fetch_stream_for_dataset_async(
 
         from polisyos.fabric.data_plane.streaming import normalize_connection_config
 
-        handle = await connector.connect(normalize_connection_config(connection_config))
+        handle = await resolved_registry.get_connection(
+            connector_id, normalize_connection_config(connection_config)
+        )
         try:
             from polisyos.ir.connectors import FetchRequest
 
             request = FetchRequest(dataset_id=dataset_id)
-            chunks: list[dict[str, object]] = []
+            chunks: list[_LegacyStreamChunk] = []
             stream = await resolve_async_iterator(connector.fetch_stream(handle, request))
             async for chunk in stream:
                 data = chunk.data
@@ -1526,7 +1601,7 @@ async def _fetch_stream_for_dataset_async(
                 )
             return chunks
         finally:
-            await connector.disconnect(handle)
+            await resolved_registry.release_connection(connector_id, handle)
     except Exception as exc:
         logger.warning(
             "streaming_windowed: failed to stream %s:%s: %s",
@@ -1544,13 +1619,13 @@ def _fetch_stream_for_dataset(
     connector_manifest: ConnectorManifestInput,
     connection_config: ConnectionConfig | dict[str, object] | None,
     registry: _BatchConnectorRegistry | None = None,
-) -> list[dict[str, object]]:
+) -> list[_LegacyStreamChunk]:
     """Fetch stream chunks for a single dataset.
 
     Returns a list of chunk dicts with keys: chunk_index, row_count,
     is_first, is_last, data (list of row dicts).
     """
-    result: list[dict[str, object]] = run_coro_sync(
+    result: list[_LegacyStreamChunk] = run_coro_sync(
         _fetch_stream_for_dataset_async(
             connector_id=connector_id,
             dataset_id=dataset_id,

@@ -2,6 +2,7 @@
 
 import json
 import os
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -142,6 +143,10 @@ def test_new_manual_model_cas_envelope_uses_current_version(tmp_path):
     assert loaded == model and loaded.fit_provenance is None
 
 
+@pytest.mark.skipif(
+    sys.platform != "linux",
+    reason="selected DoWhy GCM worker requires Linux",
+)
 def test_actual_selected_gcm_producer_manifest_and_fresh_reader(monkeypatch, tmp_path):
     interpreter = Path(
         os.environ.get(

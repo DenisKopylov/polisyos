@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import hashlib
 from collections.abc import Iterable, Mapping
 from enum import Enum
 from types import UnionType
-from typing import Any, Literal, Union, get_args, get_origin
+from typing import Annotated, Any, Literal, Union, get_args, get_origin
 
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, RootModel, ValidationError
 
 from polisyos.ir import ProofBundle
 from polisyos.ir.analytics.causal_capabilities import (
@@ -24,6 +25,7 @@ from polisyos.ir.analytics.causal_graph import (
     _FrozenList,
     graph_content_sha256,
 )
+from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.privacy_transportability import (
     TransportPrivacyContext,
     apply_transport_privacy_context,
@@ -33,16 +35,37 @@ from polisyos.ir.analytics.transportability import (
     SelectionDiagram,
     SNodeRole,
     StratificationVariable,
+    TransportabilityCandidateInputBindingV1,
+    TransportabilityCandidateMemberEvaluationV1,
+    TransportabilityCandidateReasonV1,
+    TransportabilityCandidateSolverOutcomeV1,
     TransportabilityResult,
     TransportabilityStatus,
     TransportFormula,
     TransportMode,
+    build_selection_diagram,
+    transportability_candidate_query_sha256,
 )
+from polisyos.ir.model_layer.canon import CanonSpec, to_canonical_bytes
+from polisyos.ir.registry.refs import CausalGraphModelRef
 
 from .capabilities import build_causal_capability_contract
 from .full_transport_bridge import (
     Y0_SURROGATE_DATA_PROFILE_ABSENT,
     normalize_transport_formula,
+)
+from .pag_member_family import (
+    PROFILE_ID as PAG_MEMBER_PROFILE_ID,
+)
+from .pag_member_family import (
+    PROFILE_REVISION as PAG_MEMBER_PROFILE_REVISION,
+)
+from .pag_member_family import (
+    PAGAdmittedMember,
+    PAGMemberFamilyCoverage,
+    PAGMemberFamilyResult,
+    PAGMemberFamilyStatus,
+    PAGProposalDisposition,
 )
 from .transport_bounds import transport_bounds
 
@@ -162,6 +185,45 @@ def solve_transportability(
                 )
             continue
         if backend_id is CausalBackendId.SIMPLIFIED_LEGACY:
+            if selection_diagram.s_nodes:
+                source_law = _s_admissibility_source_law_result(
+                    diagram=selection_diagram,
+                    treatment=query_treatment,
+                    outcome=query_outcome,
+                    trace=trace,
+                )
+                if source_law is not None:
+                    return _finalize_transport_result(
+                        source_law,
+                        privacy_context=privacy_context,
+                    )
+                selected_variables = {node.target_variable for node in selection_diagram.s_nodes}
+                if selection_diagram.base_graph.graph_type is GraphType.ADMG:
+                    refusal = _s_admissibility_refusal(
+                        diagram=selection_diagram,
+                        treatment=query_treatment,
+                        outcome=query_outcome,
+                        reason="admg_selection_fallback_requires_s_admissibility",
+                        trace=trace,
+                        s_admissibility="recomputed_false",
+                    )
+                    return _finalize_transport_result(
+                        refusal,
+                        privacy_context=privacy_context,
+                    )
+                if {query_treatment, query_outcome} & selected_variables:
+                    refusal = _s_admissibility_refusal(
+                        diagram=selection_diagram,
+                        treatment=query_treatment,
+                        outcome=query_outcome,
+                        reason="query_variable_is_selection_target",
+                        trace=trace,
+                        s_admissibility="recomputed_false",
+                    )
+                    return _finalize_transport_result(
+                        refusal,
+                        privacy_context=privacy_context,
+                    )
             result = _run_simplified_legacy(
                 diagram=selection_diagram,
                 treatment=query_treatment,
@@ -247,6 +309,316 @@ def solve_transportability(
         ),
         privacy_context=privacy_context,
     )
+
+
+class TransportCandidateMemberBindingError(ValueError):
+    """Reject a PAG member whose fresh inputs or selected refs do not bind exactly."""
+
+    def __init__(self, reason_code: str) -> None:
+        self.reason_code = reason_code
+        super().__init__(reason_code)
+
+
+_CANDIDATE_MEMBER_RELATION_ID = "transportability.pag.no_selection.member_selection_diagrams"
+_CANDIDATE_MEMBER_RELATION_REVISION = "1"
+_CANDIDATE_MEMBER_CANON = CanonSpec(forbid_floats=False, sort_keys=True, exclude_none=False)
+
+
+def _candidate_member_sha256(value: object) -> str:
+    """Hash a snapshotted candidate binding with the shared IR canonical profile."""
+    return hashlib.sha256(to_canonical_bytes(value, _CANDIDATE_MEMBER_CANON)).hexdigest()
+
+
+def _candidate_member_snapshot(value: object, model_type: type[Any], reason: str) -> Any:
+    """Revalidate an exact live model through its declared fields and detach it."""
+    if type(value) is not model_type:
+        raise TransportCandidateMemberBindingError(reason)
+    try:
+        return _snapshot_typed_model(value, model_type)
+    except (TypeError, ValueError, ValidationError):
+        raise TransportCandidateMemberBindingError(reason) from None
+
+
+def _candidate_member_require(condition: bool, reason: str) -> None:
+    """Raise a typed refusal when a recomputed input binding is false."""
+    if not condition:
+        raise TransportCandidateMemberBindingError(reason)
+
+
+def _candidate_member_error(
+    member: PAGAdmittedMember,
+    member_graph_ref: CausalGraphModelRef,
+    reason_code: str,
+    error_type: str,
+) -> TransportabilityCandidateMemberEvaluationV1:
+    """Retain a solver failure without claiming a completed result."""
+    return TransportabilityCandidateMemberEvaluationV1(
+        member_sha256=member.member_sha256,
+        member_graph_ref=member_graph_ref,
+        disposition="error",
+        reason=TransportabilityCandidateReasonV1(
+            code=reason_code,
+            detail=f"Existing transport solver did not produce a bound result ({error_type}).",
+        ),
+    )
+
+
+def evaluate_pag_member_candidate(
+    *,
+    family: PAGMemberFamilyResult,
+    member: PAGAdmittedMember,
+    source_graph: CausalGraphModel,
+    source_context: ContextProfile,
+    target_context: ContextProfile,
+    selection_diagram: SelectionDiagram,
+    member_graph_ref: CausalGraphModelRef,
+    persisted_member_graph: CausalGraphModel,
+    inputs: TransportabilityCandidateInputBindingV1,
+    solver_mode: str,
+    allow_degraded_transport: bool,
+    capability_contract: CausalCapabilityContract,
+    privacy_context: TransportPrivacyContext | None = None,
+) -> TransportabilityCandidateMemberEvaluationV1:
+    """Evaluate one validated no-selection PAG member through the existing solver.
+
+    The caller owns bounded generation, fresh selected-profile CAS reads, lineage,
+    and persistence. This helper rechecks the bindings and rebuilds the member
+    diagram from fresh contexts before retaining the complete solver outcome.
+    """
+    try:
+        family = _candidate_member_snapshot(
+            family, PAGMemberFamilyResult, "candidate_member_family_not_canonical"
+        )
+        member = _candidate_member_snapshot(
+            member, PAGAdmittedMember, "candidate_member_not_canonical"
+        )
+        source_graph = _candidate_member_snapshot(
+            source_graph, CausalGraphModel, "candidate_member_source_graph_not_canonical"
+        )
+        source_context = _candidate_member_snapshot(
+            source_context, ContextProfile, "candidate_member_source_context_not_canonical"
+        )
+        target_context = _candidate_member_snapshot(
+            target_context, ContextProfile, "candidate_member_target_context_not_canonical"
+        )
+        selection_diagram = _candidate_member_snapshot(
+            selection_diagram, SelectionDiagram, "candidate_member_diagram_not_canonical"
+        )
+        member_graph_ref = _candidate_member_snapshot(
+            member_graph_ref, CausalGraphModelRef, "candidate_member_ref_not_canonical"
+        )
+        persisted_member_graph = _candidate_member_snapshot(
+            persisted_member_graph,
+            CausalGraphModel,
+            "candidate_member_persisted_graph_not_canonical",
+        )
+        inputs = _candidate_member_snapshot(
+            inputs, TransportabilityCandidateInputBindingV1, "candidate_member_inputs_not_canonical"
+        )
+        capability_contract = _candidate_member_snapshot(
+            capability_contract,
+            CausalCapabilityContract,
+            "candidate_member_capability_contract_not_canonical",
+        )
+        if privacy_context is not None:
+            privacy_context = _candidate_member_snapshot(
+                privacy_context,
+                TransportPrivacyContext,
+                "candidate_member_privacy_context_not_canonical",
+            )
+
+        family_is_complete = (
+            family.status is PAGMemberFamilyStatus.COMPLETED
+            and family.coverage is PAGMemberFamilyCoverage.FINITE_ENDPOINT_ASSIGNMENT_SPACE_COMPLETE
+            and family.counts.unattempted_proposals == "0"
+        )
+        proposal_ordinals_are_prefix = tuple(row.ordinal for row in family.proposals) == tuple(
+            range(family.counts.proposals_attempted)
+        )
+        has_admitted_member_prefix = (
+            bool(family.members)
+            and family.counts.admitted == len(family.members)
+            and family.counts.admitted > 0
+            and proposal_ordinals_are_prefix
+        )
+        family_is_budget_limited = (
+            family.status is PAGMemberFamilyStatus.BUDGET_EXHAUSTED
+            and family.coverage is PAGMemberFamilyCoverage.NOT_ESTABLISHED
+            and family.reason_code is not None
+            and family.counts.validation_incomplete == 0
+        )
+        incomplete_rows = tuple(
+            row
+            for row in family.proposals
+            if row.disposition is PAGProposalDisposition.VALIDATION_INCOMPLETE
+        )
+        family_has_incomplete_oracle_prefix = (
+            family.status is PAGMemberFamilyStatus.VALIDATION_INCOMPLETE
+            and family.coverage is PAGMemberFamilyCoverage.NOT_ESTABLISHED
+            and family.reason_code is not None
+            and len(incomplete_rows) == 1
+            and family.proposals
+            and family.proposals[-1] is incomplete_rows[0]
+            and incomplete_rows[0].reason_code == family.reason_code
+        )
+        family_is_valid_partial_prefix = has_admitted_member_prefix and (
+            family_is_budget_limited or family_has_incomplete_oracle_prefix
+        )
+        _candidate_member_require(
+            family_is_complete or family_is_valid_partial_prefix,
+            "candidate_member_family_not_complete",
+        )
+        _candidate_member_require(
+            family.profile_id == PAG_MEMBER_PROFILE_ID
+            and family.profile_revision == PAG_MEMBER_PROFILE_REVISION,
+            "candidate_member_profile_not_registered",
+        )
+        source_sha256 = graph_content_sha256(source_graph)
+        _candidate_member_require(
+            source_graph.graph_type is GraphType.PAG
+            and inputs.graph_type is GraphType.PAG
+            and family.source_graph_sha256 == source_sha256
+            and inputs.graph_sha256 == source_sha256,
+            "candidate_member_source_graph_content_mismatch",
+        )
+        _candidate_member_require(
+            inputs.graph_ref.manifest_profile_sha256 is not None,
+            "candidate_member_source_ref_profile_missing",
+        )
+        _candidate_member_require(
+            member_graph_ref.manifest_profile_sha256 is not None,
+            "candidate_member_selected_profile_missing",
+        )
+        _candidate_member_require(
+            member in family.members,
+            "candidate_member_not_in_validated_family",
+        )
+        _candidate_member_require(
+            member.graph.graph_type in {GraphType.DAG, GraphType.ADMG},
+            "candidate_member_graph_kind_not_resolved",
+        )
+        member_sha256 = graph_content_sha256(member.graph)
+        persisted_sha256 = graph_content_sha256(persisted_member_graph)
+        _candidate_member_require(
+            member_sha256 == member.member_sha256
+            and persisted_sha256 == member.member_sha256
+            and member.graph.model_dump(mode="json")
+            == persisted_member_graph.model_dump(mode="json"),
+            "candidate_member_graph_content_mismatch",
+        )
+        proposals = [row for row in family.proposals if row.ordinal == member.proposal_ordinal]
+        _candidate_member_require(
+            len(proposals) == 1
+            and proposals[0].disposition is PAGProposalDisposition.ADMITTED
+            and proposals[0].member_sha256 == member.member_sha256
+            and proposals[0].assignment_sha256 == member.assignment_sha256,
+            "candidate_member_proposal_binding_mismatch",
+        )
+        _candidate_member_require(
+            inputs.query_sha256
+            == transportability_candidate_query_sha256(inputs.query_treatment, inputs.query_outcome)
+            and inputs.query_treatment in persisted_member_graph.nodes
+            and inputs.query_outcome in persisted_member_graph.nodes,
+            "candidate_member_query_binding_mismatch",
+        )
+        _candidate_member_require(
+            source_context.context_id == inputs.source_context_id
+            and target_context.context_id == inputs.target_context_id
+            and _candidate_member_sha256(source_context.model_dump(mode="json"))
+            == inputs.source_context_sha256
+            and _candidate_member_sha256(target_context.model_dump(mode="json"))
+            == inputs.target_context_sha256,
+            "candidate_member_context_binding_mismatch",
+        )
+        relation = inputs.model_plan_relation
+        relation_payload = {
+            "relation_id": _CANDIDATE_MEMBER_RELATION_ID,
+            "revision": _CANDIDATE_MEMBER_RELATION_REVISION,
+            "graph_ref": inputs.graph_ref.model_dump(mode="json"),
+            "graph_type": inputs.graph_type.value,
+            "graph_sha256": inputs.graph_sha256,
+            "query_treatment": inputs.query_treatment,
+            "query_outcome": inputs.query_outcome,
+            "query_sha256": inputs.query_sha256,
+            "source_context_id": inputs.source_context_id,
+            "source_context_sha256": inputs.source_context_sha256,
+            "target_context_id": inputs.target_context_id,
+            "target_context_sha256": inputs.target_context_sha256,
+            "profile_id": family.profile_id,
+            "profile_revision": family.profile_revision,
+        }
+        _candidate_member_require(
+            relation is not None
+            and inputs.selection_diagram_sha256 is None
+            and relation.relation_id == _CANDIDATE_MEMBER_RELATION_ID
+            and relation.revision == _CANDIDATE_MEMBER_RELATION_REVISION
+            and relation.content_sha256 == _candidate_member_sha256(relation_payload),
+            "candidate_member_model_plan_relation_mismatch",
+        )
+        _candidate_member_require(
+            type(solver_mode) is str
+            and solver_mode in _VALID_SOLVER_MODES
+            and type(allow_degraded_transport) is bool,
+            "candidate_member_solver_options_invalid",
+        )
+        expected_diagram = build_selection_diagram(
+            source_context, target_context, persisted_member_graph
+        )
+        _candidate_member_require(
+            selection_diagram.model_dump(mode="json") == expected_diagram.model_dump(mode="json"),
+            "candidate_member_selection_diagram_mismatch",
+        )
+    except TransportCandidateMemberBindingError:
+        raise
+    except Exception:
+        raise TransportCandidateMemberBindingError(
+            "candidate_member_input_binding_invalid"
+        ) from None
+
+    expected_query = f"P*({inputs.query_outcome}|do({inputs.query_treatment}))"
+    try:
+        result = solve_transportability(
+            selection_diagram=expected_diagram,
+            query_treatment=inputs.query_treatment,
+            query_outcome=inputs.query_outcome,
+            solver_mode=solver_mode,
+            allow_degraded_transport=allow_degraded_transport,
+            pag_identification_policy=None,
+            pag_max_dag_samples=1,
+            pag_threshold=0.5,
+            pag_seed=0,
+            capability_contract=capability_contract,
+            privacy_context=privacy_context,
+            surrogate_data_profile=Y0_SURROGATE_DATA_PROFILE_ABSENT,
+        )
+    except Exception as exc:
+        return _candidate_member_error(
+            member, member_graph_ref, "candidate_member_solver_error", type(exc).__name__
+        )
+
+    if (
+        type(result) is not TransportabilityResult
+        or result.query != expected_query
+        or result.source_context_id != inputs.source_context_id
+        or result.target_context_id != inputs.target_context_id
+    ):
+        return _candidate_member_error(
+            member, member_graph_ref, "candidate_member_solver_output_invalid", "binding_or_type"
+        )
+    try:
+        outcome = TransportabilityCandidateSolverOutcomeV1.from_result(
+            result, query_sha256=inputs.query_sha256
+        )
+        return TransportabilityCandidateMemberEvaluationV1(
+            member_sha256=member.member_sha256,
+            member_graph_ref=member_graph_ref,
+            disposition="completed",
+            outcome=outcome,
+        )
+    except Exception as exc:
+        return _candidate_member_error(
+            member, member_graph_ref, "candidate_member_solver_output_invalid", type(exc).__name__
+        )
 
 
 def _finalize_transport_result(
@@ -528,6 +900,8 @@ def _snapshot_typed_value(value: Any, annotation: Any) -> Any:
 
     origin = get_origin(annotation)
     args = get_args(annotation)
+    if origin is Annotated:
+        return _snapshot_typed_value(value, args[0])
     if origin is Literal:
         if any(type(value) is type(choice) and value == choice for choice in args):
             return value
@@ -595,6 +969,17 @@ def _snapshot_typed_model(instance: Any, model_type: type[Any]) -> Any:
         raise _NoncanonicalSelectionSnapshotError("model has no canonical field storage") from exc
     if type(stored_fields) is not dict:
         raise _NoncanonicalSelectionSnapshotError("model field storage is not a plain dictionary")
+    if issubclass(model_type, RootModel):
+        if set(stored_fields) != {"root"} or "root" not in model_type.model_fields:
+            raise _NoncanonicalSelectionSnapshotError("root model storage is not canonical")
+        root_field = model_type.model_fields["root"]
+        root_value = _snapshot_typed_value(stored_fields["root"], root_field.annotation)
+        try:
+            return model_type.model_validate(root_value)
+        except (TypeError, ValueError, ValidationError) as exc:
+            raise _NoncanonicalSelectionSnapshotError(
+                "canonical root model reconstruction failed"
+            ) from exc
 
     snapshot: dict[str, Any] = {}
     for field_name, field in model_type.model_fields.items():
@@ -941,6 +1326,225 @@ def _try_tr_via_id_engine(
     )
 
     return _attach_estimand_ast(base_result, simplified_ast)
+
+
+def _s_admissibility_refusal(
+    *,
+    diagram: SelectionDiagram,
+    treatment: str,
+    outcome: str,
+    reason: str,
+    trace: list[str],
+    s_admissibility: str,
+) -> TransportabilityResult:
+    """Return an explicit limitation when the source-law route cannot be proved."""
+    graph = diagram.base_graph
+    return TransportabilityResult(
+        query=f"P*({outcome}|do({treatment}))",
+        status=TransportabilityStatus.UNSUPPORTED,
+        transport_mode=TransportMode.NONE,
+        base_confidence=0.0,
+        context_distance_penalty=0.0,
+        data_availability_penalty=0.0,
+        final_confidence=0.0,
+        algorithm_version="s_admissibility_source_id_v1",
+        identification_engine="id_engine_s_admissibility",
+        identification_trace=[*trace, f"s_admissibility:refused:{reason}"],
+        unsupported_reason=reason,
+        feasible=False,
+        required_target_data=[],
+        source_context_id=diagram.source_context.context_id,
+        target_context_id=diagram.target_context.context_id,
+        source_graph_type=graph.graph_type,
+        source_graph_sha256=graph_content_sha256(graph),
+        metadata={
+            "gate_predicates": {
+                "s_admissibility": s_admissibility,
+                "source_effect_identification": "not_established",
+            },
+            "selection_targets": sorted({node.target_variable for node in diagram.s_nodes}),
+        },
+    )
+
+
+def _s_admissibility_source_law_result(
+    *,
+    diagram: SelectionDiagram,
+    treatment: str,
+    outcome: str,
+    trace: list[str],
+) -> TransportabilityResult | None:
+    """Use do-graph m-separation and native ID for a zero-adjustment source law.
+
+    A source population-selection variable is irrelevant to the transported
+    effect when it is m-separated from the outcome after the actual treatment
+    intervention. Both graph surgery and m-separation preserve directed and
+    bidirected endpoint semantics. None means this sufficient condition did not
+    hold; it is not evidence that the effect is unidentifiable.
+    """
+    from polisyos.foundry.methods.catalog.causal.admg_ops import (
+        augment_with_s_nodes,
+        do_operator,
+        m_separation,
+    )
+    from polisyos.foundry.methods.catalog.causal.id_engine.core import (
+        IdentificationStatus,
+        ancestors,
+        id_algorithm,
+    )
+    from polisyos.ir.analytics.estimand import DistributionDomain, EstimandAST
+
+    graph = diagram.base_graph
+    if not diagram.s_nodes or graph.graph_type not in {GraphType.DAG, GraphType.ADMG}:
+        return None
+
+    selection_targets = frozenset(node.target_variable for node in diagram.s_nodes)
+    synthetic_names = frozenset(f"S_{name}" for name in selection_targets)
+    if synthetic_names & set(graph.nodes):
+        return _s_admissibility_refusal(
+            diagram=diagram,
+            treatment=treatment,
+            outcome=outcome,
+            reason="s_admissibility_selection_node_identity_collision",
+            trace=trace,
+            s_admissibility="not_established",
+        )
+
+    try:
+        augmented_graph = augment_with_s_nodes(graph, selection_targets)
+        mutilated_graph = do_operator(
+            augmented_graph,
+            frozenset({treatment}),
+        )
+        separated = m_separation(
+            mutilated_graph,
+            synthetic_names,
+            frozenset({outcome}),
+            frozenset(),
+        )
+    except Exception as exc:
+        return _s_admissibility_refusal(
+            diagram=diagram,
+            treatment=treatment,
+            outcome=outcome,
+            reason=f"s_admissibility_graph_operation_unavailable:{type(exc).__name__}",
+            trace=trace,
+            s_admissibility="not_established",
+        )
+
+    if not separated:
+        return None
+
+    try:
+        identification = id_algorithm(
+            treatment=frozenset({treatment}),
+            outcome=frozenset({outcome}),
+            graph=graph,
+            domain=DistributionDomain.SOURCE,
+        )
+    except Exception as exc:
+        return _s_admissibility_refusal(
+            diagram=diagram,
+            treatment=treatment,
+            outcome=outcome,
+            reason=f"s_admissible_source_id_unavailable:{type(exc).__name__}",
+            trace=[
+                *trace,
+                "s_admissibility:recomputed_true",
+                "source_effect_identification:not_established",
+            ],
+            s_admissibility="recomputed_true",
+        )
+
+    ast = identification.estimand_ast
+    # Native ID represents a query treatment removed by ancestral reduction as
+    # the empty set ("[]") in its AST container; accept that marginal law only
+    # when the treatment is not an ancestor of the outcome in the admitted graph.
+    treatment_is_outcome_ancestor = treatment in ancestors(
+        graph,
+        frozenset({outcome}),
+    )
+    ast_treatment_matches = type(ast) is EstimandAST and (
+        ast.treatment == treatment or (not treatment_is_outcome_ancestor and ast.treatment == "[]")
+    )
+    if (
+        identification.status is not IdentificationStatus.IDENTIFIED
+        or type(ast) is not EstimandAST
+        or not ast_treatment_matches
+        or ast.outcome != outcome
+    ):
+        status = getattr(identification.status, "value", "not_established")
+        return _s_admissibility_refusal(
+            diagram=diagram,
+            treatment=treatment,
+            outcome=outcome,
+            reason=f"s_admissible_source_effect_not_identified:{status}",
+            trace=[
+                *trace,
+                "s_admissibility:recomputed_true",
+                *getattr(identification, "trace", []),
+            ],
+            s_admissibility="recomputed_true",
+        )
+
+    distribution_refs = ast.collect_distribution_refs()
+    if not distribution_refs or any(
+        ref.domain is not DistributionDomain.SOURCE for ref in distribution_refs
+    ):
+        return _s_admissibility_refusal(
+            diagram=diagram,
+            treatment=treatment,
+            outcome=outcome,
+            reason="s_admissibility_source_estimand_not_source_law",
+            trace=[
+                *trace,
+                "s_admissibility:recomputed_true",
+                "source_effect_identification:identified_ast_domain_invalid",
+            ],
+            s_admissibility="recomputed_true",
+        )
+
+    source_quantities = [ref.to_latex().replace("P(", "P_s(", 1) for ref in distribution_refs]
+    source_law = ast.to_latex().replace("P(", "P_s(")
+    formula = TransportFormula(
+        formula_str=f"P^*({outcome}|do({treatment})) = {source_law}",
+        source_quantities=source_quantities,
+        target_quantities=[],
+        adjustment_type="s_admissibility_source_law",
+    )
+    graph_sha256 = graph_content_sha256(graph)
+    return TransportabilityResult(
+        query=f"P*({outcome}|do({treatment}))",
+        status=TransportabilityStatus.IDENTIFIED,
+        transport_mode=TransportMode.TRANSPORT_FORMULA,
+        transport_formula=formula,
+        base_confidence=1.0,
+        context_distance_penalty=0.0,
+        data_availability_penalty=0.0,
+        final_confidence=1.0,
+        algorithm_version="s_admissibility_source_id_v1",
+        identification_engine="id_engine_s_admissibility",
+        identification_trace=[
+            *trace,
+            "s_admissibility:recomputed_true_by_do_graph_m_separation",
+            *identification.trace,
+        ],
+        required_target_data=[],
+        source_context_id=diagram.source_context.context_id,
+        target_context_id=diagram.target_context.context_id,
+        source_graph_type=graph.graph_type,
+        source_graph_sha256=graph_sha256,
+        estimand_ast=ast.model_dump(mode="json"),
+        metadata={
+            "gate_predicates": {
+                "s_admissibility": "recomputed",
+                "source_effect_identification": "recomputed",
+            },
+            "s_admissibility_graph_sha256": graph_sha256,
+            "s_admissibility_selection_targets": sorted(selection_targets),
+            "source_effect_identification_status": identification.status.value,
+        },
+    )
 
 
 def _run_symbolic_backend(
@@ -1402,4 +2006,8 @@ def _normalize_solver_mode(raw: str | None) -> str:
     return token
 
 
-__all__ = ["solve_transportability"]
+__all__ = [
+    "TransportCandidateMemberBindingError",
+    "evaluate_pag_member_candidate",
+    "solve_transportability",
+]

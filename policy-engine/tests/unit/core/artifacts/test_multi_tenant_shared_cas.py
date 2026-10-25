@@ -11,13 +11,17 @@ import threading
 from copy import deepcopy
 from dataclasses import replace
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
 
 import pytest
 
 import polisyos.core.artifacts.store as store_module
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+from polisyos.core.artifacts.ownership import (
+    ArtifactOwnershipError,
+    ArtifactOwnershipIndex,
+    _OwnershipSnapshot,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 
 
@@ -35,6 +39,60 @@ def _artifact_id(data: bytes) -> ArtifactID:
 
 def _options() -> PutOptions:
     return PutOptions(kind="test.r9.cas_payload", media_type="application/octet-stream")
+
+
+class _SyncEvent(Protocol):
+    def set(self) -> None: ...
+
+    def wait(self, timeout: float | None = None) -> bool: ...
+
+
+class _ResultQueue(Protocol):
+    def put(self, value: object) -> None: ...
+
+
+def _record_owner_in_second_process(
+    root: str,
+    artifact_id: str,
+    tenant_id: str,
+    cell_id: str,
+    ready: _SyncEvent,
+    attempt: _SyncEvent,
+    owner_write_entered: _SyncEvent,
+    release_owner_write: _SyncEvent,
+    finished: _SyncEvent,
+    outcome: _ResultQueue,
+) -> None:
+    index = ArtifactOwnershipIndex(Path(root))
+    original_write_payload = index._write_payload
+
+    def pause_before_owner_generation(
+        payload: dict[str, object],
+        *,
+        previous_snapshot: _OwnershipSnapshot | None = None,
+    ) -> None:
+        owner_write_entered.set()
+        if not release_owner_write.wait(timeout=5):
+            raise TimeoutError("cross-process owner cache test gate was not released")
+        original_write_payload(payload, previous_snapshot=previous_snapshot)
+
+    index._write_payload = pause_before_owner_generation
+    ready.set()
+    if not attempt.wait(timeout=5):
+        outcome.put({"error": "attempt_timeout"})
+        finished.set()
+        return
+    try:
+        index.record_owner(
+            ArtifactID.model_validate(artifact_id),
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        outcome.put({"generation": index.evidence()["ownership_index_generation_sha256"]})
+    except BaseException as exc:
+        outcome.put({"error": f"{type(exc).__name__}:{exc}"})
+    finally:
+        finished.set()
 
 
 def _read_in_second_process(
@@ -88,7 +146,11 @@ def test_uncommitted_tenant_publication_is_unreadable_after_writer_interruption(
     artifact_id = _artifact_id(payload)
     writer = FileSystemCAS(root).for_tenant("tenant-a", cell_id="cell-a")
 
-    def interrupt_owner_generation(_payload: dict[str, object]) -> None:
+    def interrupt_owner_generation(
+        _payload: dict[str, object],
+        *,
+        previous_snapshot: _OwnershipSnapshot | None = None,
+    ) -> None:
         raise RuntimeError("simulated interruption before owner-generation publication")
 
     monkeypatch.setattr(writer._ownership_index, "_write_payload", interrupt_owner_generation)
@@ -132,11 +194,15 @@ def test_independent_cas_reader_waits_for_tenant_owner_generation(
     outcomes: dict[str, object] = {}
     original_write_payload = writer._ownership_index._write_payload
 
-    def pause_before_owner_generation(owner_payload: dict[str, object]) -> None:
+    def pause_before_owner_generation(
+        owner_payload: dict[str, object],
+        *,
+        previous_snapshot: _OwnershipSnapshot | None = None,
+    ) -> None:
         owner_write_entered.set()
         if not release_owner_write.wait(timeout=5):
             raise TimeoutError("owner-generation test gate was not released")
-        original_write_payload(owner_payload)
+        original_write_payload(owner_payload, previous_snapshot=previous_snapshot)
 
     monkeypatch.setattr(
         writer._ownership_index,
@@ -623,3 +689,199 @@ def test_exact_view_import_uses_deny_only_owner_transaction_and_exact_retry(
         source_ref.artifact_id,
         tenant_id="tenant-exact-view",
     )
+
+
+def test_cached_owner_index_observes_concurrent_second_process_commit(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = tmp_path / "cas"
+    initial_id = _artifact_id(b"initial cached owner state")
+    new_id = _artifact_id(b"second process publishes a new owner")
+    ArtifactOwnershipIndex(root).record_owner(initial_id, tenant_id="tenant-a", cell_id="cell-a")
+    reader = ArtifactOwnershipIndex(root, read_only=True)
+    assert reader.is_owned_by(initial_id, tenant_id="tenant-a", cell_id="cell-a")
+
+    context = multiprocessing.get_context("spawn")
+    ready = context.Event()
+    attempt = context.Event()
+    owner_write_entered = context.Event()
+    release_owner_write = context.Event()
+    finished = context.Event()
+    outcome = context.Queue()
+    process = context.Process(
+        target=_record_owner_in_second_process,
+        args=(
+            str(root),
+            str(new_id),
+            "tenant-b",
+            "cell-b",
+            ready,
+            attempt,
+            owner_write_entered,
+            release_owner_write,
+            finished,
+            outcome,
+        ),
+    )
+    test_import_root = str(Path(__file__).resolve().parents[2])
+    existing_pythonpath = os.environ.get("PYTHONPATH", "")
+    monkeypatch.setenv(
+        "PYTHONPATH",
+        os.pathsep.join(part for part in (test_import_root, existing_pythonpath) if part),
+    )
+    monkeypatch.setattr(
+        sys,
+        "path",
+        [test_import_root, *(part for part in sys.path if part != test_import_root)],
+    )
+    process.start()
+    precommit_read_finished = threading.Event()
+    precommit_outcome: dict[str, object] = {}
+
+    def read_while_writer_is_paused() -> None:
+        try:
+            precommit_outcome["visible"] = reader.is_owned_by(
+                new_id, tenant_id="tenant-b", cell_id="cell-b"
+            )
+        except BaseException as exc:
+            precommit_outcome["error"] = exc
+        finally:
+            precommit_read_finished.set()
+
+    precommit_reader = threading.Thread(target=read_while_writer_is_paused)
+    try:
+        assert ready.wait(timeout=10)
+        attempt.set()
+        assert owner_write_entered.wait(timeout=10)
+        precommit_reader.start()
+        assert precommit_read_finished.wait(timeout=2), (
+            "cached owner query waited on a writer that had not published its pointer"
+        )
+        assert precommit_outcome == {"visible": False}
+        release_owner_write.set()
+        assert finished.wait(timeout=10)
+        process.join(timeout=10)
+    finally:
+        release_owner_write.set()
+        attempt.set()
+        process.join(timeout=10)
+        if process.is_alive():
+            process.terminate()
+            process.join(timeout=5)
+        if precommit_reader.ident is not None:
+            precommit_reader.join(timeout=5)
+
+    assert process.exitcode == 0
+    child_result = outcome.get(timeout=1)
+    assert "error" not in child_result, child_result
+    assert isinstance(child_result.get("generation"), str)
+    assert reader.is_owned_by(new_id, tenant_id="tenant-b", cell_id="cell-b")
+    assert reader.is_owned_by(initial_id, tenant_id="tenant-a", cell_id="cell-a")
+
+
+def test_cached_owner_index_preserves_two_concurrent_process_writes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = tmp_path / "cas"
+    initial_id = _artifact_id(b"initial owner before two process writes")
+    first_id = _artifact_id(b"first process owner claim")
+    second_id = _artifact_id(b"second process owner claim")
+    ArtifactOwnershipIndex(root).record_owner(initial_id, tenant_id="tenant-a", cell_id="cell-a")
+    reader = ArtifactOwnershipIndex(root, read_only=True)
+    assert reader.is_owned_by(initial_id, tenant_id="tenant-a", cell_id="cell-a")
+
+    context = multiprocessing.get_context("spawn")
+    writers = []
+    for artifact_id, tenant_id, cell_id in (
+        (first_id, "tenant-b", "cell-b"),
+        (second_id, "tenant-c", "cell-c"),
+    ):
+        ready = context.Event()
+        attempt = context.Event()
+        entered = context.Event()
+        release = context.Event()
+        finished = context.Event()
+        outcome = context.Queue()
+        process = context.Process(
+            target=_record_owner_in_second_process,
+            args=(
+                str(root),
+                str(artifact_id),
+                tenant_id,
+                cell_id,
+                ready,
+                attempt,
+                entered,
+                release,
+                finished,
+                outcome,
+            ),
+        )
+        writers.append(
+            {
+                "attempt": attempt,
+                "entered": entered,
+                "finished": finished,
+                "outcome": outcome,
+                "process": process,
+                "ready": ready,
+                "release": release,
+            }
+        )
+
+    test_import_root = str(Path(__file__).resolve().parents[2])
+    existing_pythonpath = os.environ.get("PYTHONPATH", "")
+    monkeypatch.setenv(
+        "PYTHONPATH",
+        os.pathsep.join(part for part in (test_import_root, existing_pythonpath) if part),
+    )
+    monkeypatch.setattr(
+        sys,
+        "path",
+        [test_import_root, *(part for part in sys.path if part != test_import_root)],
+    )
+    for writer in writers:
+        writer["process"].start()
+
+    try:
+        for writer in writers:
+            assert writer["ready"].wait(timeout=10)
+            writer["attempt"].set()
+        first_entered = writers[0]["entered"].wait(timeout=2)
+        if first_entered:
+            leader_index = 0
+        else:
+            assert writers[1]["entered"].wait(timeout=10), (
+                "neither process reached the serialized owner write"
+            )
+            leader_index = 1
+        follower_index = 1 - leader_index
+        assert not writers[follower_index]["entered"].wait(timeout=0.2), (
+            "two processes entered owner publication outside the cross-instance write lock"
+        )
+        writers[leader_index]["release"].set()
+        assert writers[follower_index]["entered"].wait(timeout=10)
+        writers[follower_index]["release"].set()
+        for writer in writers:
+            assert writer["finished"].wait(timeout=10)
+            writer["process"].join(timeout=10)
+    finally:
+        for writer in writers:
+            writer["release"].set()
+            writer["attempt"].set()
+            writer["process"].join(timeout=10)
+            if writer["process"].is_alive():
+                writer["process"].terminate()
+                writer["process"].join(timeout=5)
+
+    for writer in writers:
+        assert writer["process"].exitcode == 0
+        result = writer["outcome"].get(timeout=1)
+        assert "error" not in result, result
+        assert isinstance(result.get("generation"), str)
+
+    assert reader.is_owned_by(first_id, tenant_id="tenant-b", cell_id="cell-b")
+    assert reader.is_owned_by(second_id, tenant_id="tenant-c", cell_id="cell-c")
+    assert reader.is_owned_by(initial_id, tenant_id="tenant-a", cell_id="cell-a")

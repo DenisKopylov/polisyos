@@ -538,16 +538,23 @@ def _put_backtest_artifact(
     kind: str,
     *,
     include_producer: bool = True,
+    schema_name: str | None = None,
+    schema_version: str = "1.0",
+    return_selected_profile: bool = False,
 ) -> dict[str, str]:
     ref = orchestrator._store.put_json(
         payload,
         StorePutOptions(
             kind=kind,
             media_type="application/json",
-            schema={"name": kind, "version": "1.0"},
+            schema={
+                "name": kind if schema_name is None else schema_name,
+                "version": schema_version,
+            },
             producer=({"component": "test.bkt01", "version": "1.0"} if include_producer else None),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
     return normalize_artifact_ref(ref)
 
@@ -563,12 +570,14 @@ def _scientist_result_with_artifacts(
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.contracts.fabric import DataSnapshotRef
     from polisyos.core.contracts.foundry import (
+        ExecPlan,
         ExecPlanRef,
         ExecuteRequest,
         ExecuteResult,
         FoundryInputBindings,
         FoundryInputBindingsRef,
         MetricsRef,
+        ProgramGraphRef,
         SimulationResult,
         SimulationResultRef,
         StateSnapshotRef,
@@ -610,8 +619,11 @@ def _scientist_result_with_artifacts(
             )
             simulation_ref = _put_backtest_artifact(
                 orchestrator,
-                simulation.model_dump(mode="json"),
-                "foundry.simulation_result",
+                simulation.to_artifact_payload(),
+                SimulationResult.ARTIFACT_KIND,
+                schema_name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                schema_version=simulation.schema_version,
+                return_selected_profile=True,
             )
             return ExecuteResult(
                 ok=True,
@@ -639,8 +651,23 @@ def _scientist_result_with_artifacts(
             bindings.model_dump(mode="json"),
             "foundry.input_bindings",
         )
+        program_graph_ref = _put_backtest_artifact(
+            orchestrator,
+            {"schema_version": "1.0", "nodes": []},
+            "foundry.program_graph",
+        )
+        exec_plan = ExecPlan(
+            program_ref=ProgramGraphRef.model_validate(program_graph_ref),
+        )
+        exec_plan_ref = _put_backtest_artifact(
+            orchestrator,
+            exec_plan.model_dump(mode="json"),
+            ExecPlan.ARTIFACT_KIND,
+            schema_name=ExecPlan.ARTIFACT_SCHEMA_NAME,
+            schema_version=ExecPlan.ARTIFACT_SCHEMA_VERSION,
+        )
         request = ExecuteRequest(
-            exec_plan_ref=ExecPlanRef(artifact_id="sha256:" + "c" * 64),
+            exec_plan_ref=ExecPlanRef.model_validate(exec_plan_ref),
             input_bindings_ref=FoundryInputBindingsRef.model_validate(bindings_ref),
         )
         result = foundry.execute(store, request)
@@ -916,7 +943,7 @@ def test_provided_predictions_do_not_dispatch_scientist(monkeypatch, tmp_path) -
     assert result["intervals"] == {"metric": [(10.0, 11.0), (11.0, 12.0)]}
 
 
-def test_backtest_refuses_actual_simulation_result_without_draw_admission(tmp_path) -> None:
+def test_backtest_refuses_legacy_simulation_result_without_propagation_report(tmp_path) -> None:
     orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos"))
     plan = _scientist_plan(tmp_path)
     envelope = UncertaintyEnvelope(
@@ -929,28 +956,49 @@ def test_backtest_refuses_actual_simulation_result_without_draw_admission(tmp_pa
         interval_semantics="confidence_interval",
         gate_eligible=True,
     )
-    envelope_ref = orchestrator._store.put_json(
-        envelope.model_dump(mode="python", round_trip=True),
-        StorePutOptions(
-            kind="ir.uncertainty_envelope",
-            media_type="application/json",
-            schema={"name": "ir.uncertainty_envelope", "version": "1.1"},
-        ),
-        canon_spec=CanonSpec(forbid_floats=False),
+    from polisyos.core.contracts.foundry import (
+        ExecPlanRef,
+        MetricsRef,
+        SimulationResult,
+        UncertaintyEnvelopeRef,
+    )
+    from polisyos.ir.analytics.uncertainty import persist_uncertainty_envelope
+
+    envelope_ref = persist_uncertainty_envelope(
+        _ensure_ir_artifact_store(orchestrator._store),
+        envelope,
+        return_selected_profile=True,
+    )
+    exec_plan_ref = _put_backtest_artifact(
+        orchestrator,
+        {"steps": []},
+        "foundry.exec_plan",
+    )
+    metrics_ref = _put_backtest_artifact(
+        orchestrator,
+        {"values": {"metric": 7.0}},
+        "foundry.metrics",
+    )
+    simulation_result = SimulationResult(
+        schema_version=SimulationResult.LEGACY_ARTIFACT_SCHEMA_VERSION,
+        exec_plan_ref=ExecPlanRef.model_validate(exec_plan_ref),
+        metrics_ref=MetricsRef.model_validate(metrics_ref),
+        uncertainty_envelopes={
+            "metric": UncertaintyEnvelopeRef.model_validate(normalize_artifact_ref(envelope_ref)),
+        },
     )
     sim_ref = orchestrator._store.put_json(
-        {
-            "schema_version": "1.3",
-            "uncertainty_envelopes": {
-                "metric": normalize_artifact_ref(envelope_ref),
-            },
-        },
+        simulation_result.to_artifact_payload(),
         StorePutOptions(
-            kind="foundry.simulation_result",
-            media_type="application/json",
-            schema={"name": "polisyos.core.SimulationResult", "version": "1.3"},
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema={
+                "name": SimulationResult.ARTIFACT_SCHEMA_NAME,
+                "version": simulation_result.schema_version,
+            },
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
 
     intervals, metadata, errors = orchestrator._extract_intervals_from_simulation_result(
@@ -960,22 +1008,34 @@ def test_backtest_refuses_actual_simulation_result_without_draw_admission(tmp_pa
 
     assert intervals == {}
     assert metadata == {}
-    assert any(
-        error.startswith("simulation_uncertainty_admission_limited:metric:")
-        and "propagation_report_ref_missing" in error
-        for error in errors
+    assert errors == (
+        "simulation_uncertainty_admission_limited:metric:source_owner_validation_refused",
     )
 
 
-def test_simulation_result_interval_reader_preserves_selected_manifest_profile(
+def test_backtest_refuses_current_simulation_result_without_propagation_report(
     tmp_path,
-    monkeypatch,
 ) -> None:
-    from polisyos.core.artifacts.manifest import InputRef as CoreInputRef
-    from polisyos.core.contracts.foundry import SimulationResultRef
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+    from polisyos.core.artifacts.manifest import ArtifactRef as CoreArtifactRef
+    from polisyos.core.contracts.foundry import (
+        ExecPlan,
+        ExecPlanRef,
+        Metrics,
+        MetricsRef,
+        ProgramGraph,
+        ProgramGraphRef,
+        SimulationResult,
+        SimulationResultRef,
+        UncertaintyEnvelopeRef,
+    )
+    from polisyos.ir.analytics.uncertainty import (
+        load_uncertainty_envelope,
+        persist_uncertainty_envelope,
+    )
 
-    store = FileSystemCAS(tmp_path / "cas")
-    orchestrator = BacktestOrchestrator(cas=store)
+    cas_root = tmp_path / "cas"
+    orchestrator = BacktestOrchestrator(cas=FileSystemCAS(cas_root))
     plan = _scientist_plan(tmp_path)
     envelope = UncertaintyEnvelope(
         point_estimate=7.0,
@@ -985,69 +1045,282 @@ def test_simulation_result_interval_reader_preserves_selected_manifest_profile(
         source="ensemble",
         propagation_method="delta_method",
         interval_semantics="confidence_interval",
+        gate_eligible=True,
     )
-    envelope_ref = _put_backtest_artifact(
+    envelope_ref = persist_uncertainty_envelope(
+        _ensure_ir_artifact_store(orchestrator._store),
+        envelope,
+        return_selected_profile=True,
+    )
+    assert envelope_ref.manifest_profile_sha256 is not None
+
+    source_ref = _put_backtest_artifact(
         orchestrator,
-        envelope.model_dump(mode="json"),
-        "ir.uncertainty_envelope",
+        {"source": "backtest-program-input"},
+        "test.backtesting.program_input",
+        schema_name="test.backtesting.ProgramInput",
+        return_selected_profile=True,
     )
-    report_ref = _put_backtest_artifact(
+    graph = ProgramGraph(ir_ref=CoreArtifactRef.model_validate(source_ref))
+    graph_ref = _put_backtest_artifact(
         orchestrator,
-        {"schema_version": "1.1"},
-        "foundry.propagation_report",
+        graph.model_dump(mode="json"),
+        ProgramGraph.ARTIFACT_KIND,
+        schema_name=ProgramGraph.ARTIFACT_SCHEMA_NAME,
+        schema_version=ProgramGraph.ARTIFACT_SCHEMA_VERSION,
+        return_selected_profile=True,
     )
-    simulation_payload = {
-        "schema_version": "1.3",
-        "uncertainty_envelopes": {"metric": envelope_ref},
-        "propagation_report_ref": report_ref,
-    }
-    simulation_bytes = json.dumps(
+    exec_plan = ExecPlan(program_ref=ProgramGraphRef.model_validate(graph_ref))
+    exec_plan_ref = _put_backtest_artifact(
+        orchestrator,
+        exec_plan.model_dump(mode="json"),
+        ExecPlan.ARTIFACT_KIND,
+        schema_name=ExecPlan.ARTIFACT_SCHEMA_NAME,
+        schema_version=ExecPlan.ARTIFACT_SCHEMA_VERSION,
+        return_selected_profile=True,
+    )
+    metrics = Metrics(values={"metric": 7.0})
+    metrics_ref = _put_backtest_artifact(
+        orchestrator,
+        metrics.model_dump(mode="json"),
+        Metrics.ARTIFACT_KIND,
+        schema_name=Metrics.ARTIFACT_SCHEMA_NAME,
+        schema_version=Metrics.ARTIFACT_SCHEMA_VERSION,
+        return_selected_profile=True,
+    )
+    simulation_result = SimulationResult(
+        schema_version=SimulationResult.ARTIFACT_SCHEMA_VERSION,
+        exec_plan_ref=ExecPlanRef.model_validate(exec_plan_ref),
+        metrics_ref=MetricsRef.model_validate(metrics_ref),
+        uncertainty_envelopes={
+            "metric": UncertaintyEnvelopeRef.model_validate(normalize_artifact_ref(envelope_ref)),
+        },
+    )
+    assert simulation_result.schema_version == "1.4"
+    assert simulation_result.propagation_report_ref is None
+    sim_ref = orchestrator._store.put_json(
+        simulation_result.to_artifact_payload(),
+        StorePutOptions(
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema={
+                "name": SimulationResult.ARTIFACT_SCHEMA_NAME,
+                "version": simulation_result.schema_version,
+            },
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    sim_selector = SimulationResultRef.model_validate(normalize_artifact_ref(sim_ref))
+    assert sim_selector.manifest_profile_sha256 is not None
+
+    fresh_cas = FileSystemCAS(cas_root)
+    fresh_simulation = validate_core_model_json_artifact(
+        SimulationResult,
+        fresh_cas,
+        sim_selector,
+        manifest_profile_sha256=sim_selector.manifest_profile_sha256,
+    )
+    assert fresh_simulation.schema_version == "1.4"
+    assert fresh_simulation.propagation_report_ref is None
+    fresh_envelope = load_uncertainty_envelope(
+        _ensure_ir_artifact_store(fresh_cas),
+        envelope_ref,
+    )
+    assert fresh_envelope.gate_eligible is True
+
+    fresh_reader = BacktestOrchestrator(cas=fresh_cas)
+    intervals, metadata, errors = fresh_reader._extract_intervals_from_simulation_result(
+        {"simulation_result_ref": normalize_artifact_ref(sim_selector)},
+        plan,
+    )
+
+    assert intervals == {}
+    assert metadata == {}
+    assert errors == (
+        "simulation_uncertainty_admission_limited:metric:source_owner_validation_refused",
+    )
+
+
+def test_simulation_result_interval_reader_preserves_selected_manifest_profile(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    import logging
+
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.artifacts.store import PutOptions
+    from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+    from polisyos.core.contracts.foundry import (
+        ExecPlanRef,
+        MetricsRef,
+        SimulationResult,
+        SimulationResultRef,
+    )
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.core.run.context import RunContext
+    from polisyos.ir.analytics.uncertainty import (
+        DistributionFamily,
+        IntervalSemantics,
+        PropagationMethod,
+        UncertaintySource,
+        persist_uncertainty_envelope,
+    )
+    from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
+        PropagateUncertaintyNode,
+    )
+    from polisyos.scientist.nodes.builtins.state_keys import (
+        ARTIFACT_SIMULATION_RESULT_REF,
+        INPUT_DATA_SNAPSHOT_REF,
+    )
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+    store = FileSystemCAS(tmp_path / "cas")
+    registry_bundle_ref = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle_ref,
+        run_id="R_bkt_selected_profile_lineage",
+    )
+    context = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.backtesting.profile_lineage"),
+    )
+
+    input_envelope_ref = persist_uncertainty_envelope(
+        _ensure_ir_artifact_store(store),
+        UncertaintyEnvelope(
+            point_estimate=0.0,
+            confidence_interval=(-1.96, 1.96),
+            confidence_level=0.95,
+            distribution_family=DistributionFamily.NORMAL,
+            source=UncertaintySource.CALIBRATION,
+            propagation_method=PropagationMethod.NONE,
+            interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
+            gate_eligible=True,
+            metadata={"param_name": "x"},
+        ),
+    )
+    state_snapshot_ref = store.put_json(
+        {"state": {}},
+        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
+    )
+    data_snapshot_ref = store.put_json(
+        DataSnapshot(
+            data_ref=state_snapshot_ref,
+            uncertainty_envelope_ref=input_envelope_ref,
+        ),
+        PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.1.0"),
+        ),
+    )
+    exec_plan_ref = store.put_json(
+        {
+            "program_ref": {
+                "artifact_id": str(state_snapshot_ref.artifact_id),
+                "kind": "foundry.program_graph",
+                "media_type": "application/json",
+            },
+            "order": [],
+        },
+        PutOptions(kind="foundry.exec_plan", media_type="application/json"),
+    )
+    metrics_ref = store.put_json(
+        {"values": {"metric": 10.0}},
+        PutOptions(kind="foundry.metrics", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    initial_simulation_ref = store.put_json(
+        SimulationResult(
+            exec_plan_ref=ExecPlanRef(artifact_id=exec_plan_ref.artifact_id),
+            metrics_ref=MetricsRef(artifact_id=metrics_ref.artifact_id),
+        ),
+        PutOptions(
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                version=SimulationResult.LEGACY_ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    state = ExperimentState(
+        run_id=run.run_manifest.run_id,
+        inputs={
+            INPUT_DATA_SNAPSHOT_REF: DataSnapshotRef(artifact_id=data_snapshot_ref.artifact_id),
+        },
+        artifacts_index={
+            ARTIFACT_SIMULATION_RESULT_REF: SimulationResultRef.model_validate(
+                initial_simulation_ref.model_dump(mode="python")
+            ),
+        },
+        params={
+            "propagation_config": {
+                "preferred_method": "delta",
+                "compute_sensitivity": False,
+            },
+            "propagation_sensitivity": {"metric": {"x": 1.0}},
+        },
+    )
+
+    produced = PropagateUncertaintyNode().execute(context, state)
+    assert produced.status == "ok"
+    selector = produced.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF]
+    assert selector.manifest_profile_sha256 is not None
+    simulation_payload = get_json_artifact(
+        _ensure_ir_artifact_store(store),
+        selector,
+    )
+    assert isinstance(simulation_payload, dict)
+    simulation = SimulationResult.model_validate(simulation_payload)
+    assert simulation.uncertainty_envelopes is not None
+    envelope_ref = simulation.uncertainty_envelopes["metric"]
+    assert envelope_ref.manifest_profile_sha256 is not None
+    report_ref = simulation.propagation_report_ref
+    assert report_ref is not None
+
+    default_ref = store.put_json(
         simulation_payload,
-        sort_keys=True,
-        separators=(",", ":"),
-    ).encode("utf-8")
-
-    def _lineage_input(ref: dict[str, str], role: str) -> CoreInputRef:
-        return CoreInputRef(
-            artifact_id=ref["artifact_id"],
-            role=role,
-            manifest_profile_sha256=ref.get("manifest_profile_sha256"),
-        )
-
-    default_ref = store.put_bytes(
-        simulation_bytes,
-        ArtifactWriteOptions(
-            kind="foundry.simulation_result",
-            media_type="application/json",
-            schema=CoreSchemaInfo(name="polisyos.core.SimulationResult", version="1.3"),
-            canon=CoreCanonInfo(forbid_floats=False),
+        PutOptions(
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                version=simulation.schema_version,
+            ),
         ),
+        canon_spec=CanonSpec(forbid_floats=False),
     )
-    selected_ref = store.put_bytes(
-        simulation_bytes,
-        ArtifactWriteOptions(
-            kind="foundry.simulation_result",
-            media_type="application/json",
-            schema=CoreSchemaInfo(name="polisyos.core.SimulationResult", version="1.3"),
-            inputs=[
-                _lineage_input(envelope_ref, "metric_envelope.metric"),
-                _lineage_input(report_ref, "propagation_report"),
-                CoreInputRef(
-                    artifact_id="sha256:" + "b" * 64,
-                    role="base_simulation_result",
-                ),
-                CoreInputRef(
-                    artifact_id="sha256:" + "c" * 64,
-                    role="propagation_config",
-                ),
-            ],
-            canon=CoreCanonInfo(forbid_floats=False),
-        ),
-    )
-    assert default_ref.artifact_id == selected_ref.artifact_id
-    assert selected_ref.manifest_profile_sha256 is not None
+    assert default_ref.artifact_id == selector.artifact_id
+    assert default_ref.manifest_profile_sha256 != selector.manifest_profile_sha256
+    assert not store.get_manifest(default_ref).inputs
 
-    selector = SimulationResultRef.model_validate(selected_ref.model_dump(mode="json"))
+    selected_manifest = store.get_manifest(selector)
+    selected_inputs = {
+        (item.role, str(item.artifact_id), item.manifest_profile_sha256)
+        for item in selected_manifest.inputs
+    }
+    for role, ref in (
+        ("base_simulation_result", initial_simulation_ref),
+        ("metric_envelope.metric", envelope_ref),
+        ("propagation_report", report_ref),
+        ("propagation_config", simulation.propagation_config_ref),
+    ):
+        assert ref is not None
+        assert (
+            role,
+            str(ref.artifact_id),
+            ref.manifest_profile_sha256,
+        ) in selected_inputs
+
+    plan = _scientist_plan(tmp_path)
+    orchestrator = BacktestOrchestrator(cas=store)
     observed_reads: list[object] = []
     original_get_bytes = store.get_bytes
 
@@ -1058,7 +1331,7 @@ def test_simulation_result_interval_reader_preserves_selected_manifest_profile(
 
     monkeypatch.setattr(store, "get_bytes", _record_read)
     observed_admission_refs: list[object] = []
-    original_admission = orchestrator_module.load_simulation_result_uncertainty_admission
+    original_admission = orchestrator_module.load_science_simulation_result_uncertainty_admission
 
     def _record_admission(store_arg: Any, ref: object, metric_id: str):
         observed_admission_refs.append(ref)
@@ -1066,7 +1339,7 @@ def test_simulation_result_interval_reader_preserves_selected_manifest_profile(
 
     monkeypatch.setattr(
         orchestrator_module,
-        "load_simulation_result_uncertainty_admission",
+        "load_science_simulation_result_uncertainty_admission",
         _record_admission,
     )
 
@@ -1084,24 +1357,76 @@ def test_simulation_result_interval_reader_preserves_selected_manifest_profile(
     assert observed_admission_refs == [selector]
     assert intervals == {}
     assert any("simulation_uncertainty_admission_limited:metric:" in error for error in errors)
+
     selected_admission = original_admission(
-        _ensure_ir_artifact_store(orchestrator._store),
+        orchestrator._store,
         selector,
         "metric",
     )
     default_admission = original_admission(
-        _ensure_ir_artifact_store(orchestrator._store),
+        orchestrator._store,
         default_ref,
         "metric",
     )
+
+    fallback_store = _ensure_ir_artifact_store(orchestrator._store)
+    fallback_reads: list[object] = []
+
+    class _SelectedManifestFallbackStore:
+        def __init__(self, delegate: Any) -> None:
+            self._delegate = delegate
+
+        def _is_selected_simulation(self, ref: object) -> bool:
+            try:
+                normalized = normalize_artifact_ref(ref)
+            except (TypeError, ValueError):
+                return False
+            return (
+                normalized.get("artifact_id") == str(selector.artifact_id)
+                and normalized.get("manifest_profile_sha256") == selector.manifest_profile_sha256
+            )
+
+        def get_manifest(self, ref: object):
+            if self._is_selected_simulation(ref):
+                fallback_reads.append(ref)
+                return self._delegate.get_manifest(default_ref)
+            return self._delegate.get_manifest(ref)
+
+        def get_manifest_bytes(self, ref: object) -> bytes:
+            if self._is_selected_simulation(ref):
+                return self._delegate.get_manifest_bytes(default_ref)
+            return self._delegate.get_manifest_bytes(ref)
+
+        def __getattr__(self, name: str) -> Any:
+            return getattr(self._delegate, name)
+
+    fallback_admission = original_admission(
+        _SelectedManifestFallbackStore(fallback_store),
+        selector,
+        "metric",
+    )
+    assert fallback_reads
     assert not any(
         item.startswith("simulation_result_lineage_mismatch:")
         for item in selected_admission.limitation_codes
     )
-    assert any(
-        item.startswith("simulation_result_lineage_mismatch:")
+    assert {
+        item
         for item in default_admission.limitation_codes
-    )
+        if item.startswith("simulation_result_lineage_mismatch:")
+        or item
+        in {
+            "simulation_result_base_lineage_missing",
+            "simulation_result_config_lineage_missing",
+        }
+    } == {
+        "simulation_result_lineage_mismatch:metric_envelope.metric",
+        "simulation_result_lineage_mismatch:propagation_report",
+        "simulation_result_base_lineage_missing",
+        "simulation_result_config_lineage_missing",
+    }
+    assert fallback_admission.envelope is None
+    assert "source_owner_validation_refused" in fallback_admission.limitation_codes
 
 
 def test_scientist_backtest_runs_and_reads_back_each_requested_replica(

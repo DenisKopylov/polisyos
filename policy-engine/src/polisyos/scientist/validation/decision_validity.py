@@ -26,6 +26,7 @@ from polisyos.core.artifacts.manifest import (
     CanonInfo,
     InputRef,
     SchemaInfo,
+    artifact_ref_identity_key,
 )
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import (
@@ -152,6 +153,112 @@ class _EpochImpactProjection:
     owner_rows: tuple[dict[str, object], ...]
     targets: tuple[tuple[str, str, str], ...]
     decision_impact_denominator_ref: str
+
+
+def _completed_hte_basis_warning_trigger(
+    *,
+    basis: dict[str, Any],
+    reason: str,
+) -> DecisionTriggerRecord:
+    """Build the shared warning record for an unestablished completed-HTE basis."""
+
+    return DecisionTriggerRecord(
+        trigger_type=DecisionTriggerType.METRIC_INVALIDATION,
+        status=DecisionValidityStatus.WARNING,
+        reason=reason,
+        details={
+            "request_status": basis.get("completed_hte_request_status"),
+            "selection_status": basis.get("completed_hte_source_status"),
+            "requested_source_run_id": basis.get("completed_hte_requested_source_run_id"),
+            "source_run_id": basis.get("completed_hte_source_run_id")
+            or basis.get("completed_hte_requested_source_run_id"),
+            "source_job_id": basis.get("completed_hte_source_job_id"),
+            "source_attempt": basis.get("completed_hte_source_attempt"),
+            "authority_purpose": basis.get("completed_hte_authority_purpose"),
+            "publication_authorization": basis.get("completed_hte_publication_authorization"),
+        },
+    )
+
+
+def _completed_hte_request_selection_trigger(
+    *,
+    packet_payload: dict[str, Any],
+    envelope: DecisionValidityEnvelope,
+) -> DecisionTriggerRecord | None:
+    """Evaluate the typed completed-HTE request and selected-source basis."""
+
+    basis = envelope.data_basis.summary
+    hte_value = packet_payload.get("hte")
+    source_status = basis.get("completed_hte_source_status")
+    request_status = basis.get("completed_hte_request_status")
+    requested_source_run_id = basis.get("completed_hte_requested_source_run_id")
+    source_run_id = basis.get("completed_hte_source_run_id")
+
+    if source_status is None:
+        # Missing selection state is legacy only when the typed basis contains no
+        # completed-HTE request or selection evidence at all. A partial typed basis
+        # cannot erase an outstanding request by dropping its status field.
+        if any(isinstance(key, str) and key.startswith("completed_hte_") for key in basis):
+            return _completed_hte_basis_warning_trigger(
+                basis=basis,
+                reason="completed_hte_selection_status_not_established",
+            )
+        # Legacy projections remain read-limited: raw marker dictionaries do not
+        # establish a completed-source request or selection.
+        if hte_value is None or not isinstance(hte_value, dict):
+            return None
+        try:
+            from polisyos.core.contracts.runtime import DirectMethodExecutionHTESummary
+
+            DirectMethodExecutionHTESummary.model_validate_json(
+                json.dumps(hte_value),
+                strict=True,
+            )
+        except (ImportError, TypeError, ValueError):
+            return None
+        return _completed_hte_basis_warning_trigger(
+            basis=basis,
+            reason="completed_hte_dependency_basis_not_established",
+        )
+
+    if source_status == "verification_missing":
+        limitation = basis.get("completed_hte_limitation_code")
+        return _completed_hte_basis_warning_trigger(
+            basis=basis,
+            reason=(
+                limitation
+                if type(limitation) is str and limitation
+                else "completed_hte_source_not_established"
+            ),
+        )
+    if source_status != "selected":
+        return _completed_hte_basis_warning_trigger(
+            basis=basis,
+            reason="completed_hte_selection_status_not_established",
+        )
+
+    if (
+        request_status != "requested"
+        or type(requested_source_run_id) is not str
+        or not requested_source_run_id
+    ):
+        return _completed_hte_basis_warning_trigger(
+            basis=basis,
+            reason="completed_hte_selection_status_not_established",
+        )
+    if (
+        type(source_run_id) is not str
+        or not source_run_id
+        or requested_source_run_id != source_run_id
+    ):
+        return _completed_hte_basis_warning_trigger(
+            basis=basis,
+            reason="completed_hte_dependency_basis_not_established",
+        )
+
+    # Publication authorization is a separate authority boundary. A valid
+    # candidate selection remains candidate-grade when publication is unknown.
+    return None
 
 
 class _DecisionValidityStateStore:
@@ -2131,6 +2238,239 @@ class DecisionValidityService:
             )
         )
 
+    def _completed_hte_dependency_integrity_trigger(
+        self,
+        *,
+        packet_payload: dict[str, Any],
+        envelope: DecisionValidityEnvelope,
+    ) -> DecisionTriggerRecord | None:
+        """Reconcile the scalar HTE projection with its persisted owner basis."""
+        basis = envelope.data_basis.summary
+        request_selection_trigger = _completed_hte_request_selection_trigger(
+            packet_payload=packet_payload,
+            envelope=envelope,
+        )
+        if request_selection_trigger is not None:
+            return request_selection_trigger
+        if basis.get("completed_hte_source_status") != "selected":
+            return None
+
+        requested_source_run_id = basis.get("completed_hte_requested_source_run_id")
+        hte_value = packet_payload.get("hte")
+        try:
+            from polisyos.core.contracts.owned_attempt_anchor import (
+                OwnedAttemptAnchorProjectionAssociation,
+            )
+            from polisyos.core.contracts.runtime import DirectMethodExecutionHTESummary
+
+            association_payload = basis.get("completed_hte_owner_association")
+            if not isinstance(hte_value, dict) or not isinstance(association_payload, dict):
+                raise ValueError("completed_hte_owner_source_missing")
+            summary = DirectMethodExecutionHTESummary.model_validate_json(
+                json.dumps(hte_value),
+                strict=True,
+            )
+            association = OwnedAttemptAnchorProjectionAssociation.model_validate_json(
+                json.dumps(association_payload),
+                strict=True,
+            )
+            event = association.job_completed_event
+            source_run_id = basis.get("completed_hte_source_run_id")
+            source_job_id = basis.get("completed_hte_source_job_id")
+            source_attempt = basis.get("completed_hte_source_attempt")
+            event_id = basis.get("completed_hte_completion_event_id")
+            event_payload_sha256 = basis.get("completed_hte_completion_event_payload_sha256")
+            if (
+                type(source_run_id) is not str
+                or not source_run_id
+                or type(source_job_id) is not str
+                or not source_job_id
+                or type(source_attempt) is not int
+                or source_attempt < 1
+                or type(event_id) is not int
+                or event_id < 1
+                or type(event_payload_sha256) is not str
+                or not event_payload_sha256
+                or requested_source_run_id != source_run_id
+                or association.run_id != source_run_id
+                or association.job_id != source_job_id
+                or association.attempt != source_attempt
+                or association.outcome_kind != summary.kind
+                or event.job_id != source_job_id
+                or event.event_id != event_id
+                or event.payload_sha256 != event_payload_sha256
+                or event.event_type != "job_completed"
+                or basis.get("completed_hte_association_status") != association.status
+                or basis.get("completed_hte_content_validation_status")
+                != association.content_validation_status
+                or basis.get("completed_hte_manifest_identity_status")
+                != association.manifest_identity_status
+                or basis.get("completed_hte_outcome_kind") != summary.kind
+                or basis.get("completed_hte_method_profile_id") != summary.method_profile_id
+                or basis.get("completed_hte_authority_purpose") != "candidate_method_evidence"
+                or basis.get("completed_hte_publication_authorization") != "not_established"
+                or basis.get("completed_hte_currentness_status") != "reconciled_at_completed_event"
+                or basis.get("completed_hte_limitations") != list(summary.limitations)
+            ):
+                raise ValueError("completed_hte_owner_source_identity_mismatch")
+
+            summary_digest = hashlib.sha256(
+                json.dumps(
+                    summary.model_dump(mode="json"),
+                    ensure_ascii=False,
+                    allow_nan=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode("utf-8")
+            ).hexdigest()
+            if association.selected_summary_sha256 != summary_digest:
+                raise ValueError("completed_hte_owner_summary_digest_mismatch")
+
+            matching_fields = (
+                (summary.owned_attempt_anchor_ref, association.anchor_ref),
+                (summary.hte_outcome_ref, association.outcome_ref),
+                (summary.source_data_ref, association.source_data_ref),
+                (summary.method_result_ref, association.method_result_ref),
+                (summary.method_evidence_ref, association.method_evidence_ref),
+                (summary.point_result_ref, association.point_result_ref),
+                (summary.hte_result_ref, association.hte_result_ref),
+                (summary.inference_basis_ref, association.inference_basis_ref),
+                (summary.refusal_diagnostic_ref, association.refusal_diagnostic_ref),
+                (
+                    summary.materialization_binding_ref,
+                    association.materialization_binding_ref,
+                ),
+                (
+                    summary.search_uncertainty_task_binding_ref,
+                    association.search_uncertainty_task_binding_ref,
+                ),
+            )
+            for summary_ref, association_ref in matching_fields:
+                if summary_ref != association_ref:
+                    raise ValueError("completed_hte_summary_association_ref_mismatch")
+
+            def artifact_refs(value: object) -> tuple[ArtifactRef, ...]:
+                if isinstance(value, ArtifactRef):
+                    return (value,)
+                if isinstance(value, BaseModel):
+                    field_names = getattr(type(value), "model_fields", {})
+                    if {"artifact_id", "kind", "media_type"}.issubset(field_names):
+                        ref = ArtifactRef.model_validate(
+                            {
+                                "artifact_id": value.artifact_id,
+                                "kind": value.kind,
+                                "media_type": value.media_type,
+                                "manifest_profile_sha256": getattr(
+                                    value,
+                                    "manifest_profile_sha256",
+                                    None,
+                                ),
+                            }
+                        )
+                        if ref.manifest_profile_sha256 is None:
+                            raise ValueError("completed_hte_selected_ref_profile_missing")
+                        return (ref,)
+                    return tuple(
+                        ref
+                        for field_name in field_names
+                        for ref in artifact_refs(getattr(value, field_name))
+                    )
+                if isinstance(value, (tuple, list)):
+                    return tuple(ref for item in value for ref in artifact_refs(item))
+                if isinstance(value, dict):
+                    return tuple(ref for item in value.values() for ref in artifact_refs(item))
+                return ()
+
+            refs_by_identity: dict[tuple[str, str, str, str | None], ArtifactRef] = {}
+            for ref in (*artifact_refs(summary), *artifact_refs(association)):
+                self._store.get_manifest(ref)
+                refs_by_identity[artifact_ref_identity_key(ref)] = ref
+            if not refs_by_identity:
+                raise ValueError("completed_hte_selected_refs_missing")
+
+            expected: dict[
+                str,
+                tuple[str | None, DecisionDependencyKind, dict[str, Any]],
+            ] = {}
+            for identity, ref in refs_by_identity.items():
+                artifact_id, kind, media_type, profile_sha256 = identity
+                if profile_sha256 is None:
+                    raise ValueError("completed_hte_selected_ref_profile_missing")
+                key = f"hte_completed_source_artifact:{artifact_id}:{profile_sha256}"
+                expected[key] = (
+                    artifact_id,
+                    DecisionDependencyKind.ECONOMETRIC_EVIDENCE,
+                    {
+                        "media_type": media_type,
+                        "manifest_profile_sha256": profile_sha256,
+                        "source_run_id": source_run_id,
+                        "source_job_id": source_job_id,
+                        "source_attempt": source_attempt,
+                        "completed_event_id": event_id,
+                        "completed_event_payload_sha256": event_payload_sha256,
+                    },
+                )
+            source_run_key = f"hte_completed_source_run:{source_run_id}"
+            expected[source_run_key] = (
+                None,
+                DecisionDependencyKind.ECONOMETRIC_EVIDENCE,
+                {
+                    "source_run_id": source_run_id,
+                    "source_job_id": source_job_id,
+                    "source_attempt": source_attempt,
+                    "completed_event_id": event_id,
+                    "completed_event_payload_sha256": event_payload_sha256,
+                },
+            )
+            event_key = (
+                f"hte_completed_source_event:{source_job_id}:{event_id}:{event_payload_sha256}"
+            )
+            expected[event_key] = (
+                None,
+                DecisionDependencyKind.ECONOMETRIC_EVIDENCE,
+                {
+                    "source_run_id": source_run_id,
+                    "source_job_id": source_job_id,
+                    "source_attempt": source_attempt,
+                    "completed_event_id": event_id,
+                    "completed_event_payload_sha256": event_payload_sha256,
+                },
+            )
+            expected_keys = sorted(expected)
+            if basis.get("completed_hte_dependency_keys") != expected_keys:
+                raise ValueError("completed_hte_dependency_summary_mismatch")
+            actual_rows = [
+                dependency
+                for dependency in envelope.data_basis.dependencies
+                if dependency.key.startswith("hte_completed_source_")
+            ]
+            actual_keys = [dependency.key for dependency in actual_rows]
+            if len(actual_rows) != len(expected):
+                raise ValueError("completed_hte_dependency_cardinality_mismatch")
+            if len(set(actual_keys)) != len(actual_keys):
+                raise ValueError("completed_hte_duplicate_dependency_key")
+            if set(actual_keys) != set(expected):
+                raise ValueError("completed_hte_dependency_key_set_mismatch")
+            for dependency in actual_rows:
+                artifact_id, kind, metadata = expected[dependency.key]
+                if (
+                    dependency.kind != kind
+                    or dependency.artifact_id != artifact_id
+                    or dependency.metadata != metadata
+                ):
+                    raise ValueError("completed_hte_dependency_binding_mismatch")
+        except _DECISION_VALIDITY_ARTIFACT_LOAD_ERRORS:
+            return _completed_hte_basis_warning_trigger(
+                basis=basis,
+                reason="completed_hte_dependency_basis_not_established",
+            )
+        except (AttributeError, ImportError, KeyError, TypeError, ValueError):
+            return _completed_hte_basis_warning_trigger(
+                basis=basis,
+                reason="completed_hte_dependency_basis_not_established",
+            )
+        return None
+
     def _compute_evaluation(
         self,
         *,
@@ -2200,11 +2540,25 @@ class DecisionValidityService:
                 recommended_action=_recommended_action(DecisionValidityStatus.ACTIVE),
             )
 
-        triggers = _dedupe_trigger_records([*baseline.triggers, *sticky_triggers])
+        completed_hte_trigger = self._completed_hte_dependency_integrity_trigger(
+            packet_payload=packet_payload,
+            envelope=envelope,
+        )
+        integrity_triggers = (
+            [
+                completed_hte_trigger,
+            ]
+            if completed_hte_trigger is not None
+            else []
+        )
+        triggers = _dedupe_trigger_records(
+            [*baseline.triggers, *sticky_triggers, *integrity_triggers]
+        )
         reasons = _dedupe_strings(
             [
                 *baseline.reasons,
                 *(trigger.reason for trigger in sticky_triggers),
+                *(trigger.reason for trigger in integrity_triggers),
             ]
         )
         status = baseline.status

@@ -1654,6 +1654,231 @@ def test_runtime_quality_replay_candidate_requires_exact_typed_input_edges() -> 
     )
 
 
+def test_runtime_quality_reentry_reconciles_only_verified_later_report_inputs() -> None:
+    from polisyos.runtime.http.services.control.nl_pipeline import (
+        _reconcile_runtime_quality_report_reentry_inputs,
+    )
+
+    original_inputs = tuple(
+        InputRef(
+            artifact_id="sha256:" + str(index) * 64,
+            role=f"source_{index}",
+            manifest_profile_sha256="sha256:" + chr(96 + index) * 64,
+        )
+        for index in range(1, 7)
+    )
+    later_report = InputRef(
+        artifact_id="sha256:" + "7" * 64,
+        role="production_data_quality_report",
+        manifest_profile_sha256="sha256:" + "7" * 64,
+    )
+
+    assert (
+        _reconcile_runtime_quality_report_reentry_inputs(
+            (*original_inputs, later_report),
+            original_inputs,
+            (later_report,),
+        )
+        == original_inputs
+    )
+
+    unverified_fabric_ref = InputRef(
+        artifact_id="sha256:" + "8" * 64,
+        role="fabric.evidence_bundle",
+        manifest_profile_sha256="sha256:" + "8" * 64,
+    )
+    with pytest.raises(RuntimeError, match="runtime_quality_publication_reuse_inputs_mismatch"):
+        _reconcile_runtime_quality_report_reentry_inputs(
+            (*original_inputs, later_report, unverified_fabric_ref),
+            original_inputs,
+            (later_report,),
+        )
+
+    changed_original = original_inputs[0].model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "f" * 64}
+    )
+    with pytest.raises(RuntimeError, match="runtime_quality_publication_reuse_inputs_mismatch"):
+        _reconcile_runtime_quality_report_reentry_inputs(
+            (changed_original, *original_inputs[1:], later_report),
+            original_inputs,
+            (later_report,),
+        )
+
+
+def test_runtime_quality_reentry_ref_can_be_resolved_without_runtime_cache() -> None:
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.runtime.http.services.control.nl_pipeline import (
+        _runtime_quality_reuse_ref_matches_selected,
+    )
+
+    selected = ArtifactRef.model_validate(
+        {
+            "artifact_id": "sha256:" + "a" * 64,
+            "manifest_profile_sha256": "sha256:" + "b" * 64,
+            "kind": "fabric.retrieval_trace",
+            "media_type": "application/json",
+        }
+    )
+    selected_id = str(selected.artifact_id)
+    assert _runtime_quality_reuse_ref_matches_selected(selected, selected_id, None, None)
+    assert not _runtime_quality_reuse_ref_matches_selected(
+        selected,
+        selected_id,
+        "sha256:" + "c" * 64,
+        None,
+    )
+    changed_profile = selected.model_copy(update={"manifest_profile_sha256": "sha256:" + "d" * 64})
+    assert not _runtime_quality_reuse_ref_matches_selected(
+        selected,
+        selected_id,
+        None,
+        changed_profile,
+    )
+
+
+def test_runtime_quality_reentry_rejects_candidate_closure_refs_without_typed_inputs() -> None:
+    candidate = _RuntimeQualityPublicationCandidate(
+        "2026-10-19T00:00:00+00:00",
+        "2026-10-19",
+        "sha256:" + "1" * 64,
+        "sha256:" + "2" * 64,
+        "sha256:" + "3" * 64,
+        None,
+    )
+    current = {
+        "policy_intent_envelope_ref": candidate.policy_intent_ref,
+        "production_data_quality_report_ref": candidate.production_data_manifest_ref,
+        "normative_applicability_report_ref": candidate.legal_snapshot_ref,
+    }
+    with pytest.raises(
+        NaturalLanguagePipelineRefusalError,
+        match="runtime_quality_same_input_identity_not_established",
+    ):
+        _runtime_quality_closure_reference_values(
+            current,
+            candidate=candidate,
+            output_artifact_id="sha256:" + "f" * 64,
+            ref_key="decision_artifact_quality_report_ref",
+        )
+
+
+def test_runtime_quality_closure_refs_accept_current_owner_publications_without_direct_inputs() -> (
+    None
+):
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.runtime.http.services.control.nl_pipeline import (
+        _runtime_quality_closure_reference_values,
+    )
+
+    values = {
+        "policy_intent_envelope_ref": "sha256:" + "1" * 64,
+        "production_data_quality_report_ref": "sha256:" + "2" * 64,
+        "normative_applicability_report_ref": "sha256:" + "3" * 64,
+    }
+    candidate = _RuntimeQualityPublicationCandidate(
+        "2026-10-19T00:00:00+00:00",
+        "2026-10-19",
+        values["policy_intent_envelope_ref"],
+        values["production_data_quality_report_ref"],
+        values["normative_applicability_report_ref"],
+        None,
+    )
+    refs = {
+        "policy_intent_envelope_ref": ArtifactRef.model_validate(
+            {
+                "artifact_id": values["policy_intent_envelope_ref"],
+                "manifest_profile_sha256": "sha256:" + "a" * 64,
+                "kind": "runtime.policy_intent_envelope",
+                "media_type": "application/json",
+            }
+        ),
+        "production_data_quality_report_ref": ArtifactRef.model_validate(
+            {
+                "artifact_id": values["production_data_quality_report_ref"],
+                "manifest_profile_sha256": "sha256:" + "b" * 64,
+                "kind": "runtime.production_data_quality_report",
+                "media_type": "application/json",
+            }
+        ),
+        "normative_applicability_report_ref": ArtifactRef.model_validate(
+            {
+                "artifact_id": values["normative_applicability_report_ref"],
+                "manifest_profile_sha256": "sha256:" + "c" * 64,
+                "kind": "lex.normative_applicability_report",
+                "media_type": "application/json",
+            }
+        ),
+    }
+    verified: list[tuple[str, str]] = []
+
+    def verify_owner(ref_key: str, artifact_id: str) -> bool:
+        verified.append((ref_key, artifact_id))
+        return refs.get(ref_key) is not None and str(refs[ref_key].artifact_id) == artifact_id
+
+    assert _runtime_quality_closure_reference_values(
+        values,
+        candidate=candidate,
+        output_artifact_id="sha256:" + "f" * 64,
+        ref_key="decision_artifact_quality_report_ref",
+        current_inputs=(),
+        current_artifact_refs=refs,
+        current_report_verifier=verify_owner,
+    ) == {
+        "policy_intent_ref": values["policy_intent_envelope_ref"],
+        "production_data_manifest_ref": values["production_data_quality_report_ref"],
+        "legal_snapshot_ref": values["normative_applicability_report_ref"],
+    }
+    assert set(verified) == {
+        ("policy_intent_envelope_ref", values["policy_intent_envelope_ref"]),
+        ("production_data_quality_report_ref", values["production_data_quality_report_ref"]),
+        ("normative_applicability_report_ref", values["normative_applicability_report_ref"]),
+    }
+
+    semantic_ref = "sha256:" + "4" * 64
+    semantic_candidate = candidate._replace(semantic_binding_ref=semantic_ref)
+    semantic_selected_ref = ArtifactRef.model_validate(
+        {
+            "artifact_id": semantic_ref,
+            "manifest_profile_sha256": "sha256:" + "d" * 64,
+            "kind": "runtime.semantic_binding_ledger",
+            "media_type": "application/json",
+        }
+    )
+    refs["semantic_binding_ledger_ref"] = semantic_selected_ref
+    from polisyos.runtime.http.services.control.nl_pipeline import (
+        _runtime_quality_semantic_binding_reference,
+    )
+
+    assert (
+        _runtime_quality_semantic_binding_reference(
+            report_payload={},
+            explicit_ref=None,
+            runtime_quality_refs={"semantic_binding_ledger_ref": semantic_ref},
+            candidate=semantic_candidate,
+            output_artifact_id="sha256:" + "f" * 64,
+            ref_key="decision_artifact_quality_report_ref",
+            current_inputs=(),
+            current_artifact_refs=refs,
+            current_report_verifier=verify_owner,
+        )
+        == semantic_ref
+    )
+
+    with pytest.raises(
+        NaturalLanguagePipelineRefusalError,
+        match="runtime_quality_same_input_identity_not_established",
+    ):
+        _runtime_quality_closure_reference_values(
+            values,
+            candidate=candidate,
+            output_artifact_id="sha256:" + "f" * 64,
+            ref_key="decision_artifact_quality_report_ref",
+            current_inputs=(),
+            current_artifact_refs=refs,
+            current_report_verifier=lambda _ref_key, _artifact_id: False,
+        )
+
+
 def test_runtime_quality_replay_closure_pointer_families_refuse_rebinding() -> None:
     candidate = _RuntimeQualityPublicationCandidate(
         "2026-10-19T00:00:00+00:00",
@@ -1674,20 +1899,51 @@ def test_runtime_quality_replay_closure_pointer_families_refuse_rebinding() -> N
         "production_data_manifest_ref": candidate.production_data_manifest_ref,
         "legal_snapshot_ref": candidate.legal_snapshot_ref,
     }
+    typed_inputs = [
+        InputRef.model_validate(
+            {
+                "artifact_id": current[current_key],
+                "role": role,
+                "manifest_profile_sha256": "sha256:" + str(index) * 64,
+            }
+        )
+        for index, (current_key, role) in enumerate(
+            (
+                ("policy_intent_envelope_ref", "policy_intent_envelope"),
+                ("production_data_quality_report_ref", "production_data_quality_report"),
+                ("normative_applicability_report_ref", "normative_applicability_report"),
+            ),
+            start=1,
+        )
+    ]
     assert (
+        _runtime_quality_closure_reference_values(
+            {},
+            candidate=candidate,
+            output_artifact_id=output_id,
+            ref_key="decision_artifact_quality_report_ref",
+            current_inputs=typed_inputs,
+        )
+        == expected
+    )
+
+    with pytest.raises(
+        NaturalLanguagePipelineRefusalError,
+        match="runtime_quality_same_input_identity_not_established",
+    ):
         _runtime_quality_closure_reference_values(
             current,
             candidate=candidate,
             output_artifact_id=output_id,
             ref_key="decision_artifact_quality_report_ref",
+            current_inputs=typed_inputs,
+            current_artifact_refs={},
         )
-        == expected
-    )
 
-    for closure_field, current_key in (
-        ("policy_intent_ref", "policy_intent_envelope_ref"),
-        ("production_data_manifest_ref", "production_data_quality_report_ref"),
-        ("legal_snapshot_ref", "normative_applicability_report_ref"),
+    for current_key in (
+        "policy_intent_envelope_ref",
+        "production_data_quality_report_ref",
+        "normative_applicability_report_ref",
     ):
         rebound = dict(current)
         rebound[current_key] = "sha256:" + "e" * 64
@@ -1700,24 +1956,20 @@ def test_runtime_quality_replay_closure_pointer_families_refuse_rebinding() -> N
                 candidate=candidate,
                 output_artifact_id=output_id,
                 ref_key="decision_artifact_quality_report_ref",
+                current_inputs=typed_inputs,
             )
 
         self_republication = {**current, current_key: output_id}
-        assert (
+        with pytest.raises(
+            NaturalLanguagePipelineRefusalError,
+            match="runtime_quality_same_input_identity_not_established",
+        ):
             _runtime_quality_closure_reference_values(
                 self_republication,
                 candidate=candidate,
                 output_artifact_id=output_id,
                 ref_key=current_key,
-            )[closure_field]
-            == expected[closure_field]
-        )
-        with pytest.raises(NaturalLanguagePipelineRefusalError):
-            _runtime_quality_closure_reference_values(
-                self_republication,
-                candidate=candidate,
-                output_artifact_id=output_id,
-                ref_key="another_report_ref",
+                current_inputs=typed_inputs,
             )
 
     for malformed in ("", None, [], {"artifact_id": output_id}):
@@ -1726,10 +1978,11 @@ def test_runtime_quality_replay_closure_pointer_families_refuse_rebinding() -> N
             match="runtime_quality_identity_reference_invalid",
         ):
             _runtime_quality_closure_reference_values(
-                {**current, "production_data_quality_report_ref": malformed},
+                {"production_data_quality_report_ref": malformed},
                 candidate=candidate,
                 output_artifact_id=output_id,
                 ref_key="decision_artifact_quality_report_ref",
+                current_inputs=typed_inputs,
             )
     with pytest.raises(NaturalLanguagePipelineRefusalError):
         _runtime_quality_closure_reference_values(
@@ -1737,6 +1990,7 @@ def test_runtime_quality_replay_closure_pointer_families_refuse_rebinding() -> N
             candidate=candidate,
             output_artifact_id=output_id,
             ref_key="decision_artifact_quality_report_ref",
+            current_inputs=[],
         )
 
 
@@ -1751,7 +2005,30 @@ def test_runtime_quality_replay_semantic_binding_refuses_rebound_sources() -> No
         None,
         candidate_ref,
     )
+    semantic_input = InputRef.model_validate(
+        {
+            "artifact_id": candidate_ref,
+            "role": "semantic_binding_ledger",
+            "manifest_profile_sha256": "sha256:" + "5" * 64,
+        }
+    )
     assert (
+        _runtime_quality_semantic_binding_reference(
+            report_payload={},
+            explicit_ref=None,
+            runtime_quality_refs={},
+            candidate=candidate,
+            output_artifact_id=output_id,
+            ref_key="decision_artifact_quality_report_ref",
+            current_inputs=[semantic_input],
+        )
+        == candidate_ref
+    )
+
+    with pytest.raises(
+        NaturalLanguagePipelineRefusalError,
+        match="runtime_quality_same_input_identity_not_established",
+    ):
         _runtime_quality_semantic_binding_reference(
             report_payload={},
             explicit_ref=None,
@@ -1759,9 +2036,35 @@ def test_runtime_quality_replay_semantic_binding_refuses_rebound_sources() -> No
             candidate=candidate,
             output_artifact_id=output_id,
             ref_key="decision_artifact_quality_report_ref",
+            current_inputs=[semantic_input],
+            current_artifact_refs={},
+        )
+    assert (
+        _runtime_quality_semantic_binding_reference(
+            report_payload={},
+            explicit_ref=None,
+            runtime_quality_refs={},
+            candidate=candidate,
+            output_artifact_id=output_id,
+            ref_key="decision_artifact_quality_report_ref",
+            current_inputs=[semantic_input],
         )
         == candidate_ref
     )
+
+    with pytest.raises(
+        NaturalLanguagePipelineRefusalError,
+        match="runtime_quality_same_input_identity_not_established",
+    ):
+        _runtime_quality_semantic_binding_reference(
+            report_payload={},
+            explicit_ref=None,
+            runtime_quality_refs={"semantic_binding_ledger_ref": candidate_ref},
+            candidate=candidate,
+            output_artifact_id=output_id,
+            ref_key="decision_artifact_quality_report_ref",
+            current_inputs=[],
+        )
 
     for sources in (
         {"explicit_ref": "sha256:" + "5" * 64},
@@ -1779,9 +2082,13 @@ def test_runtime_quality_replay_semantic_binding_refuses_rebound_sources() -> No
                 candidate=candidate,
                 output_artifact_id=output_id,
                 ref_key="decision_artifact_quality_report_ref",
+                current_inputs=[semantic_input],
             )
 
-    assert (
+    with pytest.raises(
+        NaturalLanguagePipelineRefusalError,
+        match="runtime_quality_same_input_identity_not_established",
+    ):
         _runtime_quality_semantic_binding_reference(
             report_payload={},
             explicit_ref=None,
@@ -1789,17 +2096,7 @@ def test_runtime_quality_replay_semantic_binding_refuses_rebound_sources() -> No
             candidate=candidate,
             output_artifact_id=output_id,
             ref_key="semantic_binding_ledger_ref",
-        )
-        == candidate_ref
-    )
-    with pytest.raises(NaturalLanguagePipelineRefusalError):
-        _runtime_quality_semantic_binding_reference(
-            report_payload={},
-            explicit_ref=None,
-            runtime_quality_refs={"semantic_binding_ledger_ref": output_id},
-            candidate=candidate,
-            output_artifact_id=output_id,
-            ref_key="decision_artifact_quality_report_ref",
+            current_inputs=[semantic_input],
         )
     for malformed in ("", None, [], {"ref": candidate_ref}):
         with pytest.raises(
@@ -3574,6 +3871,7 @@ def test_serious_nl_pipeline_blocks_missing_jurisdiction_before_scientist_workfl
     assert "payload" not in captured
 
 
+@pytest.mark.usefixtures("canary_diagnostic_output_root")
 def test_canary_evidence_keeps_unverified_runtime_norms_candidate_only(
     tmp_path: Path,
 ) -> None:
@@ -3645,6 +3943,10 @@ def test_production_data_canary_materializes_local_lane_without_external_fetch(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
+    from copy import deepcopy
+
+    from polisyos.runtime.quality.scorecard import build_quality_scorecard
+
     captured: dict[str, Any] = {}
     production_data_root = tmp_path / "production_data"
     datasets_dir = production_data_root / "datasets_full_20990101"
@@ -3925,6 +4227,137 @@ def test_production_data_canary_materializes_local_lane_without_external_fetch(
                 provider_preflight_payload={"status": "skipped", "reason": "simulation_mode"},
             )
         record = service._control_store.get_job(job_id)
+        fresh_response = service.get_job_status(
+            job_id,
+            request_id="scorecard-owner-witness",
+        )
+        fresh_job_payload = fresh_response.model_dump(mode="json")
+        assert fresh_job_payload["execution_status"] == "completed"
+        fresh_details = fresh_job_payload["progress"]["details"]
+        fresh_runtime_quality_refs = fresh_details["runtime_quality_refs"]
+        fresh_quality_evidence = fresh_details["runtime_quality_evidence"]
+        fabric_report = fresh_quality_evidence["fabric_retrieval_trace"]
+        selected_fabric_ref = ArtifactRef.model_validate(
+            fresh_job_payload["runtime_quality_artifact_refs"]["fabric_retrieval_trace_ref"]
+        )
+        assert selected_fabric_ref.kind == "fabric.retrieval_trace"
+        assert selected_fabric_ref.media_type == "application/json"
+        assert selected_fabric_ref.manifest_profile_sha256 is not None
+        assert (
+            str(selected_fabric_ref.artifact_id)
+            == fresh_runtime_quality_refs["fabric_retrieval_trace_ref"]
+        )
+        assert fabric_report["runtime_quality_artifact_refs"]["fabric_retrieval_trace_ref"] == (
+            selected_fabric_ref.model_dump(mode="json")
+        )
+        publication = fabric_report["runtime_quality_publication_basis"]["publication"]
+        assert publication["artifact_ref"] == selected_fabric_ref.model_dump(mode="json")
+        assert publication["runtime_event_ref"] == fabric_report["runtime_event_ref"]
+        assert publication["authority_envelope_ref"] == fabric_report["authority_envelope_ref"]
+        assert publication["authority_envelope"] == fabric_report["authority_envelope"]
+        assert publication["manifest_ref"] == fabric_report["manifest_ref"]
+        assert publication["payload_sha256"] == fabric_report["payload_sha256"]
+
+        fresh_store = FileSystemCAS(tmp_path / "cas")
+        assert fresh_store.verify(selected_fabric_ref).ok
+        selected_manifest = fresh_store.get_manifest(selected_fabric_ref)
+        assert (
+            artifact_manifest_profile_sha256(selected_manifest)
+            == selected_fabric_ref.manifest_profile_sha256
+        )
+        assert selected_manifest.authority is not None
+        assert (
+            selected_manifest.authority.authority_envelope_ref
+            == fabric_report["authority_envelope_ref"]
+        )
+        assert (
+            selected_manifest.authority.diagnostic_event_ref == fabric_report["runtime_event_ref"]
+        )
+        assert selected_manifest.authority.authority_envelope_manifest_profile_sha256
+        assert (
+            selected_manifest.authority.diagnostic_event_manifest_profile_sha256
+            == fabric_report["runtime_event_manifest_profile_sha256"]
+        )
+
+        def _build_fresh_scorecard(
+            evidence: dict[str, Any],
+        ) -> dict[str, Any]:
+            return build_quality_scorecard(
+                canary_kind="research",
+                job_id=job_id,
+                run_id=fresh_job_payload["run_id"],
+                execution_status=fresh_job_payload["execution_status"],
+                job_payload=fresh_job_payload,
+                run_payload=None,
+                provider_preflight={"status": "skipped", "reason": "simulation_mode"},
+                quality_evidence=evidence,
+                artifact_store=fresh_store,
+            )
+
+        fabric_gate_ref = "quality_evidence/fabric_retrieval_trace.json"
+
+        def _fabric_gate_codes(scorecard: dict[str, Any]) -> set[str]:
+            return {
+                str(gate["code"])
+                for gate in scorecard["quality_gates"]
+                if gate.get("evidence_ref") == fabric_gate_ref
+            }
+
+        positive_scorecard = _build_fresh_scorecard(fresh_quality_evidence)
+        positive_fabric_gate_codes = _fabric_gate_codes(positive_scorecard)
+        assert "hds_borrowed_authority_envelope" not in positive_fabric_gate_codes
+        assert (
+            "runtime_quality_report_publication_basis_not_established"
+            not in positive_fabric_gate_codes
+        )
+
+        wrong_owner_evidence = deepcopy(fresh_quality_evidence)
+        wrong_owner_report = wrong_owner_evidence["fabric_retrieval_trace"]
+        assert (
+            wrong_owner_report["runtime_quality_artifact_refs"]
+            == (fabric_report["runtime_quality_artifact_refs"])
+        )
+        assert (
+            wrong_owner_report["runtime_authority_payload"]
+            == (fabric_report["runtime_authority_payload"])
+        )
+        assert (
+            wrong_owner_report["runtime_quality_publication_basis"]
+            == (fabric_report["runtime_quality_publication_basis"])
+        )
+        wrong_owner_report["authority_envelope"]["artifact_kind"] = (
+            "runtime.production_data_quality_report"
+        )
+        wrong_owner_scorecard = _build_fresh_scorecard(wrong_owner_evidence)
+        wrong_owner_gate = next(
+            gate
+            for gate in wrong_owner_scorecard["quality_gates"]
+            if gate.get("evidence_ref") == fabric_gate_ref
+            and gate.get("code") == "hds_borrowed_authority_envelope"
+        )
+        assert wrong_owner_gate["status"] == "fail"
+        assert wrong_owner_gate["blocking"] is True
+
+        basisless_evidence = deepcopy(fresh_quality_evidence)
+        basisless_report = basisless_evidence["fabric_retrieval_trace"]
+        assert (
+            basisless_report["runtime_quality_artifact_refs"]
+            == (fabric_report["runtime_quality_artifact_refs"])
+        )
+        assert (
+            basisless_report["runtime_authority_payload"]
+            == (fabric_report["runtime_authority_payload"])
+        )
+        del basisless_report["runtime_quality_publication_basis"]
+        basisless_scorecard = _build_fresh_scorecard(basisless_evidence)
+        basisless_gate = next(
+            gate
+            for gate in basisless_scorecard["quality_gates"]
+            if gate.get("evidence_ref") == fabric_gate_ref
+            and gate.get("code") == "runtime_quality_report_publication_basis_not_established"
+        )
+        assert basisless_gate["status"] == "fail"
+        assert basisless_gate["blocking"] is True
         production_quality_ref = captured["payload"]["params"]["auto_data_source_refs"][
             "production_data_quality_report_ref"
         ]

@@ -5,12 +5,26 @@ from __future__ import annotations
 import math
 from collections.abc import Mapping, Sequence
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
 from polisyos.ir.analytics.phase4_dynamics import EquilibriumMultiplicityWelfareAnnotation
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact
+
+if TYPE_CHECKING:
+    from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration
+from polisyos.ir.artifacts.io import (
+    _OWNER_UNSET,
+    _get_owned_json_artifact,
+    _put_owned_json_artifact,
+)
+from polisyos.ir.migrations.base import CompatibilityMode, IRRepresentationKey
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
@@ -27,7 +41,7 @@ _CHANNEL_DECOMPOSITION_ARTIFACT_SCHEMA_VERSION = "1.0"
 _GE_UNCERTAINTY_BUNDLE_SCHEMA_NAME = "ir.ge_uncertainty_bundle"
 _GE_UNCERTAINTY_BUNDLE_SCHEMA_VERSION = "1.0"
 _WELFARE_BUNDLE_SCHEMA_NAME = "ir.welfare_bundle"
-_WELFARE_BUNDLE_SCHEMA_VERSION = "1.0"
+_WELFARE_BUNDLE_SCHEMA_VERSION = "1.1"
 _WELFARE_SAMPLE_BUNDLE_SCHEMA_NAME = "ir.welfare_sample_bundle"
 _WELFARE_SAMPLE_BUNDLE_SCHEMA_VERSION = "1.1"
 _FIRST_STAGE_OK_THRESHOLD = 10.0
@@ -290,6 +304,7 @@ class WelfareBundle(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    # Preserve the public 1.0 omission default.
     welfare_measure: str = Field(min_length=1)
     model_class: str = Field(default="unspecified", min_length=1)
     ge_multiplier_semantics: str = Field(default="unspecified", min_length=1)
@@ -356,6 +371,8 @@ class WelfareBundle(BaseModel):
             self.nominal_welfare_total_components,
         )
         if any(nominal_components):
+            if self.schema_version != _WELFARE_BUNDLE_SCHEMA_VERSION:
+                raise ValueError("nominal welfare component fields require WelfareBundle 1.1")
             if (
                 not self.nominal_component_labels
                 or len(set(self.nominal_component_labels)) != len(self.nominal_component_labels)
@@ -419,6 +436,115 @@ class WelfareBundle(BaseModel):
         return self
 
 
+def _declare_welfare_owner(
+    model: type[BaseModel],
+    *,
+    schema_name: str,
+    schema_version: str,
+    purpose: str,
+    retained_schema_versions: tuple[str, ...] = (),
+) -> ArtifactOwnerDeclaration[Any, Any]:
+    contract_id = f"ir.analytics.{schema_name.replace('.', '_')}.owner.v1"
+    wire_policy_ref = f"{contract_id}.wire-law"
+    historical_rows = tuple(
+        OwnedJSONRepresentation(
+            schema_name=schema_name,
+            schema_version=historical_version,
+            payload_version=historical_version,
+            wire_policy_ref=wire_policy_ref,
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=CompatibilityMode.NONE,
+            notes=(
+                f"Retained exact {schema_name} {historical_version} tuple; "
+                "unregistered history remains opaque.",
+            ),
+            readable=True,
+            writable=True,
+            current=False,
+            default_write=False,
+            readable_from=(),
+        )
+        for historical_version in retained_schema_versions
+    )
+    current_notes = (
+        (
+            f"Current {schema_name} {schema_version} reads only the retained exact tuples "
+            "declared by this owner; unknown history remains opaque.",
+        )
+        if retained_schema_versions
+        else ("Exact owner-bound analytics tuple; unknown history remains opaque.",)
+    )
+    representations = (
+        *historical_rows,
+        OwnedJSONRepresentation(
+            schema_name=schema_name,
+            schema_version=schema_version,
+            payload_version=schema_version,
+            wire_policy_ref=wire_policy_ref,
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=(
+                CompatibilityMode.BACKWARD if retained_schema_versions else CompatibilityMode.NONE
+            ),
+            notes=current_notes,
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=tuple(
+                IRRepresentationKey(schema_name, version, version)
+                for version in retained_schema_versions
+            ),
+        ),
+    )
+    return declare_model_owner(
+        model,
+        contract_id=contract_id,
+        dto_fqn=f"{model.__module__}.{model.__qualname__}",
+        abi_key=f"{contract_id}.dto-abi.v1",
+        registry_key=schema_name,
+        kind=schema_name,
+        media_type="application/json",
+        purpose=purpose,
+        policy_revision=f"{contract_id}.admission.v1",
+        accepted_wire_policies=((wire_policy_ref, "1"),),
+        payload_version_field="schema_version",
+        validate_profile=owner_profile_for_spec(
+            CanonSpec(forbid_floats=False),
+            profile_ref=None,
+        ),
+        representations=representations,
+    )
+
+
+_CHANNEL_DECOMPOSITION_OWNER = _declare_welfare_owner(
+    ChannelDecompositionArtifact,
+    schema_name=_CHANNEL_DECOMPOSITION_ARTIFACT_SCHEMA_NAME,
+    schema_version=_CHANNEL_DECOMPOSITION_ARTIFACT_SCHEMA_VERSION,
+    purpose="channel_decomposition_artifact",
+)
+_GE_UNCERTAINTY_BUNDLE_OWNER = _declare_welfare_owner(
+    GEUncertaintyBundle,
+    schema_name=_GE_UNCERTAINTY_BUNDLE_SCHEMA_NAME,
+    schema_version=_GE_UNCERTAINTY_BUNDLE_SCHEMA_VERSION,
+    purpose="ge_uncertainty_bundle",
+)
+_WELFARE_SAMPLE_BUNDLE_OWNER = _declare_welfare_owner(
+    WelfareSampleBundle,
+    schema_name=_WELFARE_SAMPLE_BUNDLE_SCHEMA_NAME,
+    schema_version=_WELFARE_SAMPLE_BUNDLE_SCHEMA_VERSION,
+    purpose="welfare_sample_bundle",
+)
+_WELFARE_BUNDLE_OWNER = _declare_welfare_owner(
+    WelfareBundle,
+    schema_name=_WELFARE_BUNDLE_SCHEMA_NAME,
+    schema_version=_WELFARE_BUNDLE_SCHEMA_VERSION,
+    purpose="welfare_bundle",
+    retained_schema_versions=("1.0",),
+)
+
+
 def persist_channel_decomposition_artifact(
     store: ArtifactStore,
     artifact: ChannelDecompositionArtifact,
@@ -427,12 +553,11 @@ def persist_channel_decomposition_artifact(
     schema_name: str = _CHANNEL_DECOMPOSITION_ARTIFACT_SCHEMA_NAME,
     schema_version: str = _CHANNEL_DECOMPOSITION_ARTIFACT_SCHEMA_VERSION,
 ) -> ChannelDecompositionArtifactRef:
-    """Persist a channel-decomposition artifact and return its typed ref."""
-
-    ref = put_json_artifact(
+    """Persist a channel artifact through its exact owner representation."""
+    ref = _put_owned_json_artifact(
         store,
         artifact.model_dump(mode="json"),
-        kind=_CHANNEL_DECOMPOSITION_ARTIFACT_SCHEMA_NAME,
+        owner=_CHANNEL_DECOMPOSITION_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -445,10 +570,8 @@ def load_channel_decomposition_artifact(
     store: ArtifactStore,
     ref: ChannelDecompositionArtifactRef,
 ) -> ChannelDecompositionArtifact:
-    """Load a persisted channel-decomposition artifact."""
-
-    payload = get_json_artifact(store, ref)
-    return ChannelDecompositionArtifact.model_validate(payload)
+    """Load a channel artifact after exact owner admission."""
+    return _get_owned_json_artifact(store, ref, owner=_CHANNEL_DECOMPOSITION_OWNER)
 
 
 def persist_ge_uncertainty_bundle(
@@ -459,12 +582,11 @@ def persist_ge_uncertainty_bundle(
     schema_name: str = _GE_UNCERTAINTY_BUNDLE_SCHEMA_NAME,
     schema_version: str = _GE_UNCERTAINTY_BUNDLE_SCHEMA_VERSION,
 ) -> GEUncertaintyBundleRef:
-    """Persist a GE uncertainty bundle and return its typed ref."""
-
-    ref = put_json_artifact(
+    """Persist a GE uncertainty bundle through its exact owner representation."""
+    ref = _put_owned_json_artifact(
         store,
         bundle.model_dump(mode="json"),
-        kind=_GE_UNCERTAINTY_BUNDLE_SCHEMA_NAME,
+        owner=_GE_UNCERTAINTY_BUNDLE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -477,10 +599,8 @@ def load_ge_uncertainty_bundle(
     store: ArtifactStore,
     ref: GEUncertaintyBundleRef,
 ) -> GEUncertaintyBundle:
-    """Load a persisted GE uncertainty bundle."""
-
-    payload = get_json_artifact(store, ref)
-    return GEUncertaintyBundle.model_validate(payload)
+    """Load a GE uncertainty bundle after exact owner admission."""
+    return _get_owned_json_artifact(store, ref, owner=_GE_UNCERTAINTY_BUNDLE_OWNER)
 
 
 def persist_welfare_sample_bundle(
@@ -492,17 +612,21 @@ def persist_welfare_sample_bundle(
     schema_version: str = _WELFARE_SAMPLE_BUNDLE_SCHEMA_VERSION,
     return_selected_profile: bool = False,
 ) -> WelfareSampleBundleRef:
-    """Persist a welfare sample bundle and return its typed ref."""
+    """Persist a welfare sample bundle through its exact owner representation.
 
-    ref = put_json_artifact(
+    The return_selected_profile argument remains accepted for call compatibility. The owned
+    writer always requires and retains the selected profile receipt.
+    """
+    if type(return_selected_profile) is not bool:
+        raise TypeError("return_selected_profile must be a bool")
+    ref = _put_owned_json_artifact(
         store,
         bundle.model_dump(mode="json"),
-        kind=_WELFARE_SAMPLE_BUNDLE_SCHEMA_NAME,
+        owner=_WELFARE_SAMPLE_BUNDLE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=return_selected_profile,
     )
     return WelfareSampleBundleRef.model_validate(ref)
 
@@ -511,10 +635,8 @@ def load_welfare_sample_bundle(
     store: ArtifactStore,
     ref: WelfareSampleBundleRef,
 ) -> WelfareSampleBundle:
-    """Load a persisted welfare sample bundle."""
-
-    payload = get_json_artifact(store, ref)
-    return WelfareSampleBundle.model_validate(payload)
+    """Load a welfare sample bundle after exact owner admission."""
+    return _get_owned_json_artifact(store, ref, owner=_WELFARE_SAMPLE_BUNDLE_OWNER)
 
 
 def persist_welfare_bundle(
@@ -523,21 +645,45 @@ def persist_welfare_bundle(
     *,
     inputs: list[InputRef] | None = None,
     schema_name: str = _WELFARE_BUNDLE_SCHEMA_NAME,
-    schema_version: str = _WELFARE_BUNDLE_SCHEMA_VERSION,
+    schema_version: str = cast("str", _OWNER_UNSET),
     return_selected_profile: bool = False,
 ) -> WelfareBundleRef:
-    """Persist a welfare bundle and return its typed ref."""
+    """Persist a welfare bundle using its exact embedded schema tuple by default.
 
-    ref = put_json_artifact(
-        store,
-        bundle.model_dump(mode="json"),
-        kind=_WELFARE_BUNDLE_SCHEMA_NAME,
-        schema_name=schema_name,
-        schema_version=schema_version,
-        inputs=inputs,
-        canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=return_selected_profile,
-    )
+    Omission follows the DTO's embedded version: current 1.1 selects the registered default
+    writer, while the public 1.0 constructor default selects its exact retained rollback row.
+    An explicit override must select a writable owner tuple and match the payload version.
+    Explicit None is still an invalid override. The return_selected_profile argument remains
+    accepted for call compatibility; the owned writer retains its receipt.
+    """
+    if type(return_selected_profile) is not bool:
+        raise TypeError("return_selected_profile must be a bool")
+    payload = bundle.model_dump(mode="json")
+    if (
+        schema_version is _OWNER_UNSET
+        and schema_name == _WELFARE_BUNDLE_SCHEMA_NAME
+        and bundle.schema_version == _WELFARE_BUNDLE_SCHEMA_VERSION
+    ):
+        ref = _put_owned_json_artifact(
+            store,
+            payload,
+            owner=_WELFARE_BUNDLE_OWNER,
+            inputs=inputs,
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+    else:
+        resolved_schema_version = (
+            bundle.schema_version if schema_version is _OWNER_UNSET else schema_version
+        )
+        ref = _put_owned_json_artifact(
+            store,
+            payload,
+            owner=_WELFARE_BUNDLE_OWNER,
+            schema_name=schema_name,
+            schema_version=resolved_schema_version,
+            inputs=inputs,
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
     return WelfareBundleRef.model_validate(ref)
 
 
@@ -545,10 +691,8 @@ def load_welfare_bundle(
     store: ArtifactStore,
     ref: WelfareBundleRef,
 ) -> WelfareBundle:
-    """Load a persisted welfare bundle."""
-
-    payload = get_json_artifact(store, ref)
-    return WelfareBundle.model_validate(payload)
+    """Load a welfare bundle after exact owner admission."""
+    return _get_owned_json_artifact(store, ref, owner=_WELFARE_BUNDLE_OWNER)
 
 
 def build_channel_decomposition_ref(
@@ -753,14 +897,20 @@ def build_channel_decomposition_ref(
         else:
             identification_status = ChannelIdentificationStatus.BOUNDED
 
+    candidate_identification_status = identification_status
+    identification_status = ChannelIdentificationStatus.BLOCKED
+    reasons = _dedupe_strings([*reasons, "upstream_input_owner_not_established"])
+
     behavioral_vector = behavioral_candidate if behavior_point_ok else None
     fiscal_feedback_vector = fiscal_candidate if fiscal_point_ok else None
-    if identification_status is ChannelIdentificationStatus.BLOCKED:
+    if candidate_identification_status is ChannelIdentificationStatus.BLOCKED:
         behavioral_vector = None
         fiscal_feedback_vector = None
 
     diagnostic_summary = {
         "mechanical_map_ok": mechanical_vector is not None,
+        "candidate_identification_status": candidate_identification_status.value,
+        "input_owner_status": "not_established",
         "policy_rank_ok": policy_rank_ok,
         "behavior_stage_ok": behavior_stage_ok,
         "fiscal_stage_ok": fiscal_stage_ok,

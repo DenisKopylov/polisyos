@@ -13,11 +13,21 @@ from polisyos.ir.analytics.evidence_bundle import (
     EstimationStep,
     EvidenceBundle,
     ProofStep,
+    _validate_evidence_bundle_source,
     load_causal_evidence_bundle,
+    load_causal_evidence_bundle_with_admission,
     persist_causal_evidence_bundle,
 )
 from polisyos.ir.artifacts import get_json_artifact, put_json_artifact
 from polisyos.ir.migrations import negotiate_schema_version
+from polisyos.ir.migrations.base import (
+    CompatibilityMode,
+    IRCompatibilityKind,
+    ResolvedSchemaAdmission,
+    get_ir_owner_registry_snapshot,
+    register_ir_representation,
+    register_schema_version,
+)
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     BoundsBundleRef,
@@ -291,24 +301,110 @@ class TestEvidenceBundle:
         with pytest.raises(Exception):
             EvidenceBundle(run_id="r", query_str="q", secret_field="oops")
 
-    def test_persist_without_twin_keeps_exact_legacy_schema_v1_shape(self, tmp_path):
+    def test_default_no_twin_writer_uses_v1_0_and_explicit_v1_1_remains_available(self, tmp_path):
         store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "cas"))
-        bundle = EvidenceBundle(run_id="legacy", query_str="P(Y|do(X))")
+        bundle = EvidenceBundle(run_id="current", query_str="P(Y|do(X))")
 
-        with pytest.raises(ValueError, match="EvidenceBundle 1.0 is required"):
-            persist_causal_evidence_bundle(store, bundle, schema_version="1.1")
+        legacy_ref = persist_causal_evidence_bundle(store, bundle)
+        legacy_manifest = store.get_manifest(legacy_ref)
+        legacy_payload = get_json_artifact(store, legacy_ref)
 
-        ref = persist_causal_evidence_bundle(store, bundle)
-        manifest = store.get_manifest(ref)
-        payload = get_json_artifact(store, ref)
+        assert legacy_manifest.artifact_schema.name == "ir.causal_evidence_bundle"
+        assert legacy_manifest.artifact_schema.version == "1.0"
+        assert set(legacy_payload) == _LEGACY_EVIDENCE_BUNDLE_V1_FIELDS
+        legacy_admitted = load_causal_evidence_bundle_with_admission(store, legacy_ref)
+        assert legacy_admitted.value == bundle
+        assert legacy_admitted.admission.source_registration.schema_version == "1.0"
+        assert legacy_admitted.raw_bytes == store.get_bytes(legacy_ref)
+        assert legacy_admitted.manifest_profile_sha256 == legacy_ref.manifest_profile_sha256
+        assert _read_with_legacy_v1_reader(store, legacy_ref).run_id == bundle.run_id
+        assert load_causal_evidence_bundle(store, legacy_ref) == bundle
 
-        assert manifest.artifact_schema.name == "ir.causal_evidence_bundle"
-        assert manifest.artifact_schema.version == "1.0"
-        assert set(payload) == _LEGACY_EVIDENCE_BUNDLE_V1_FIELDS
-        assert load_causal_evidence_bundle(store, ref) == bundle
-        assert _read_with_legacy_v1_reader(store, ref).run_id == bundle.run_id
+        # The optional current wire law remains available by exact explicit request.
+        current_ref = persist_causal_evidence_bundle(store, bundle, schema_version="1.1")
+        current_manifest = store.get_manifest(current_ref)
+        current_payload = get_json_artifact(store, current_ref)
+        assert current_manifest.artifact_schema.version == "1.1"
+        assert set(current_payload) == _LEGACY_EVIDENCE_BUNDLE_V1_FIELDS | {
+            "twin_network_result_ref"
+        }
+        assert current_payload["twin_network_result_ref"] is None
+        assert load_causal_evidence_bundle(store, current_ref) == bundle
+        with pytest.raises(ValueError, match="Unsupported schema version '1.1'"):
+            _read_with_legacy_v1_reader(store, current_ref)
         decision = negotiate_schema_version("ir.causal_evidence_bundle", "1.0", "1.1")
         assert decision.can_read
+
+    def test_retained_v1_0_representation_is_readable_and_unmodified(self, tmp_path):
+        store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "cas"))
+        bundle = EvidenceBundle(run_id="legacy", query_str="P(Y|do(X))")
+        legacy_payload = bundle.model_dump(mode="json", exclude={"twin_network_result_ref"})
+        raw_ref = put_json_artifact(
+            store,
+            legacy_payload,
+            kind="fabric.evidence_bundle",
+            schema_name="ir.causal_evidence_bundle",
+            schema_version="1.0",
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        ref = EvidenceBundleRef.model_validate(raw_ref)
+        original_manifest = store.get_manifest(ref).model_dump(mode="json", by_alias=True)
+
+        assert load_causal_evidence_bundle(store, ref) == bundle
+        assert _read_with_legacy_v1_reader(store, ref).run_id == bundle.run_id
+        assert store.get_manifest(ref).model_dump(mode="json", by_alias=True) == original_manifest
+        assert store.get_manifest(ref).artifact_schema.version == "1.0"
+
+    @pytest.mark.parametrize("schema_version", ["9.9"])
+    def test_unregistered_writer_version_refuses_before_cas(
+        self, tmp_path, monkeypatch, schema_version
+    ):
+        store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "cas"))
+        bundle = EvidenceBundle(run_id="override", query_str="P(Y|do(X))")
+
+        def forbidden_write(*args, **kwargs):
+            pytest.fail("non-writable EvidenceBundle row reached CAS emission")
+
+        monkeypatch.setattr(FileSystemCAS, "put_json", forbidden_write)
+        with pytest.raises(ValueError):
+            persist_causal_evidence_bundle(store, bundle, schema_version=schema_version)
+
+    def test_v1_0_old_writer_recipe_after_v1_1_publication_is_readable_without_restamp(
+        self, tmp_path
+    ):
+        """Exercise the old-writer recipe after current publication in one CAS."""
+        store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "cas"))
+        bundle = EvidenceBundle(run_id="rollback", query_str="P(Y|do(X))")
+
+        current_ref = persist_causal_evidence_bundle(store, bundle, schema_version="1.1")
+        assert store.get_manifest(current_ref).artifact_schema.version == "1.1"
+        with pytest.raises(ValueError, match="Unsupported schema version '1.1'"):
+            _read_with_legacy_v1_reader(store, current_ref)
+
+        # Exact pre-upgrade writer recipe: strict v1.0 payload and manifest tuple.
+        old_writer_payload = bundle.model_dump(mode="json", exclude={"twin_network_result_ref"})
+        raw_ref = put_json_artifact(
+            store,
+            old_writer_payload,
+            kind="fabric.evidence_bundle",
+            schema_name="ir.causal_evidence_bundle",
+            schema_version="1.0",
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        legacy_ref = EvidenceBundleRef.model_validate(raw_ref)
+        original_manifest = store.get_manifest(legacy_ref).model_dump(mode="json", by_alias=True)
+
+        old_read = _read_with_legacy_v1_reader(store, legacy_ref)
+        assert old_read.run_id == bundle.run_id
+        assert old_read.query_str == bundle.query_str
+        admitted = load_causal_evidence_bundle_with_admission(store, legacy_ref)
+        assert admitted.value == bundle
+        assert admitted.admission.source_registration.schema_version == "1.0"
+        assert admitted.admission.current_registration.schema_version == "1.1"
+        assert (
+            store.get_manifest(legacy_ref).model_dump(mode="json", by_alias=True)
+            == original_manifest
+        )
 
     def test_twin_reference_uses_v1_1_and_legacy_reader_refuses_it(self, tmp_path):
         store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "cas"))
@@ -318,9 +414,6 @@ class TestEvidenceBundle:
             query_str="P(Y|do(X))",
             twin_network_result_ref=twin_ref,
         )
-
-        with pytest.raises(ValueError, match="EvidenceBundle 1.1 is required"):
-            persist_causal_evidence_bundle(store, bundle, schema_version="1.0")
 
         ref = persist_causal_evidence_bundle(store, bundle)
         manifest = store.get_manifest(ref)
@@ -347,11 +440,154 @@ class TestEvidenceBundle:
             kind="fabric.evidence_bundle",
             schema_name="ir.causal_evidence_bundle",
             schema_version="1.0",
+            canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+        )
+        ref = EvidenceBundleRef.model_validate(raw_ref)
+
+        # The DTO alone accepts null; the registered v1.0 source law forbids key presence.
+        assert EvidenceBundle.model_validate(payload).twin_network_result_ref is None
+        with pytest.raises(ValueError):
+            load_causal_evidence_bundle(store, ref)
+
+        snapshot = get_ir_owner_registry_snapshot()
+        source = next(
+            row
+            for row in snapshot.representation_records
+            if row.registry_key == "ir.causal_evidence_bundle" and row.schema_version == "1.0"
+        )
+        current = next(
+            row
+            for row in snapshot.representation_records
+            if row.registry_key == "ir.causal_evidence_bundle" and row.current
+        )
+        admission = ResolvedSchemaAdmission(
+            source_registration=source,
+            current_registration=current,
+            snapshot_revision=snapshot.revision,
+            compatibility_kind=IRCompatibilityKind.DIRECT,
+            profile_ref=source.profile_ref,
+        )
+        # The semantic no-Twin law rejects supplied key presence even when its value is null.
+        with pytest.raises(ValueError, match="no-Twin wire law"):
+            _validate_evidence_bundle_source(payload, admission)
+
+    def test_registered_nondefault_schema_reuses_current_wire_law(self, tmp_path, monkeypatch):
+        """A real registration and owner writer/reader route reuses the current law."""
+        from polisyos.ir.migrations import base as migrations_base
+
+        # Isolate this real API registration so later tests see the baseline registry.
+        monkeypatch.setattr(
+            migrations_base,
+            "_SCHEMA_REGISTRY",
+            {
+                artifact: dict(versions)
+                for artifact, versions in migrations_base._SCHEMA_REGISTRY.items()
+            },
+        )
+        store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "cas"))
+        bundle = EvidenceBundle(run_id="nondefault", query_str="P(Y|do(X))")
+        register_schema_version(
+            "ir.causal_evidence_bundle",
+            "1.2",
+            compatibility=CompatibilityMode.BACKWARD,
+            readable_versions=("1.0", "1.1"),
+            additive_optional_fields=("twin_network_result_ref",),
+            notes=("Exercise a registered nondefault family representation.",),
+        )
+        register_schema_version(
+            "ir.causal_evidence_bundle",
+            "1.2",
+            compatibility=CompatibilityMode.BACKWARD,
+            readable_versions=("1.0", "1.1"),
+            additive_optional_fields=("twin_network_result_ref",),
+            notes=("Exercise a registered nondefault family representation.",),
+        )
+        registered = register_ir_representation(
+            registry_key="ir.causal_evidence_bundle",
+            owner_ref="ir.analytics.causal_evidence_bundle",
+            dto_abi="polisyos.ir.analytics.evidence_bundle.EvidenceBundle",
+            wire_policy_ref="evidence-bundle-optional-twin-field",
+            wire_policy_revision="1",
+            schema_name="ir.causal_evidence_bundle",
+            schema_version="1.2",
+            payload_version=None,
+            profile_ref=None,
+            readable=True,
+            writable=True,
+            current=False,
+            default_write=False,
+        )
+        assert (
+            register_ir_representation(
+                registry_key="ir.causal_evidence_bundle",
+                owner_ref="ir.analytics.causal_evidence_bundle",
+                dto_abi="polisyos.ir.analytics.evidence_bundle.EvidenceBundle",
+                wire_policy_ref="evidence-bundle-optional-twin-field",
+                wire_policy_revision="1",
+                schema_name="ir.causal_evidence_bundle",
+                schema_version="1.2",
+                payload_version=None,
+                profile_ref=None,
+                readable=True,
+                writable=True,
+                current=False,
+                default_write=False,
+            )
+            == registered
+        )
+
+        ref = persist_causal_evidence_bundle(store, bundle, schema_version="1.2")
+        admitted = load_causal_evidence_bundle_with_admission(store, ref)
+
+        assert admitted.value == bundle
+        assert admitted.admission.source_registration == registered
+        assert admitted.admission.source_registration.schema_version == "1.2"
+        assert admitted.admission.current_registration.schema_version == "1.1"
+        assert (
+            admitted.admission.source_registration.wire_policy_ref,
+            admitted.admission.source_registration.wire_policy_revision,
+        ) == (
+            admitted.admission.current_registration.wire_policy_ref,
+            admitted.admission.current_registration.wire_policy_revision,
+        )
+
+    def test_owner_refuses_altered_canonical_profile_before_payload_read(
+        self, tmp_path, monkeypatch
+    ):
+        store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "cas"))
+        bundle = EvidenceBundle(run_id="profile-mismatch", query_str="P(Y|do(X))")
+        raw_ref = put_json_artifact(
+            store,
+            bundle.model_dump(mode="json"),
+            kind="fabric.evidence_bundle",
+            schema_name="ir.causal_evidence_bundle",
+            schema_version="1.1",
+            canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+        )
+        ref = EvidenceBundleRef.model_validate(raw_ref)
+
+        def payload_read_forbidden(*args, **kwargs):
+            pytest.fail("profile mismatch must be rejected before payload bytes are read")
+
+        monkeypatch.setattr(FileSystemCAS, "get_bytes", payload_read_forbidden)
+        with pytest.raises(ValueError):
+            load_causal_evidence_bundle(store, ref)
+
+    def test_generic_inspection_remains_opaque_for_unregistered_version(self, tmp_path):
+        store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "cas"))
+        payload = EvidenceBundle(run_id="opaque", query_str="P(Y|do(X))").model_dump(mode="json")
+        raw_ref = put_json_artifact(
+            store,
+            payload,
+            kind="fabric.evidence_bundle",
+            schema_name="ir.causal_evidence_bundle",
+            schema_version="9.9",
             canon_spec=CanonSpec(forbid_floats=False),
         )
         ref = EvidenceBundleRef.model_validate(raw_ref)
 
-        with pytest.raises(ValueError, match="v1.0 payload contains the v1.1 field"):
+        assert get_json_artifact(store, ref) == payload
+        with pytest.raises(ValueError):
             load_causal_evidence_bundle(store, ref)
 
     @pytest.mark.parametrize(
@@ -365,7 +601,7 @@ class TestEvidenceBundle:
             pytest.fail("noncanonical EvidenceBundle reached artifact emission")
 
         monkeypatch.setattr(
-            "polisyos.ir.analytics.evidence_bundle.put_json_artifact", forbidden_write
+            "polisyos.ir.analytics.evidence_bundle._put_owned_json_artifact", forbidden_write
         )
         with pytest.raises(ValueError, match="Unsupported causal EvidenceBundle schema name"):
             persist_causal_evidence_bundle(store, bundle, schema_name=schema_name)

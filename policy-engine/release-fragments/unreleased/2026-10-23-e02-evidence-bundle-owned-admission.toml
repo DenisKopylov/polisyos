@@ -1,0 +1,50 @@
+id = "2026-10-23-e02-evidence-bundle-owned-admission"
+title = "Admit causal evidence bundles through the registered owner"
+type = "changed"
+component = "ir"
+owner = "team-polisyos"
+summary = "Causal EvidenceBundle writes and reads use the owner registry, and the decision-packet consumer binds its projection to same-snapshot admission."
+evidence = [
+  "src/polisyos/ir/analytics/evidence_bundle.py",
+  "src/polisyos/ir/__init__.py",
+  "src/polisyos/scientist/nodes/builtins/decide/decision_packet/causal_sections.py",
+  "tests/unit/ir/analytics/test_evidence_bundle.py",
+  "tests/unit/scientist/nodes/builtins/decide/test_causal_evidence_owned_admission.py",
+  "src/polisyos/ir/migrations/schema_registry.py",
+]
+compatibility = "Breaking for consumers that only accept EvidenceBundle 1.0: the typed family producer now selects current schema 1.1 even when the optional Twin reference is omitted by the selected exclude_none canonical profile. Exact registered 1.0 remains read-only."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.ir.load_causal_evidence_bundle_with_admission; public_stable: unchanged load_causal_evidence_bundle DTO loader; internal: causal EvidenceBundle persisted representation"
+migration = "No stored manifest or payload is rewritten. Before enabling the 1.1 writer, deploy the owner-aware reader to every consuming surface. Rollback can restore the exact 1.0 current/writable registration only while retaining reader admission for exact 1.0 and 1.1 rows; the candidate verifies that the old omitted-Twin representation still reads without restamping."
+api = "The existing load_causal_evidence_bundle(store, ref) DTO return remains unchanged. Additive load_causal_evidence_bundle_with_admission(store, ref) returns the exact selected registry snapshot and byte witness for typed consumers. Public IR facade inventory is a mandatory root-owned companion and remains pending until assembled."
+limitations = "This changes only the causal EvidenceBundle family. It does not rewrite historical artifacts, infer embedded versions, or assert external scientific or legal currentness. Generic JSON inspection remains opaque. The additive public IR facade export is not complete in this family slice and must be composed before marking the public-surface inventory reviewed."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/adr/0151-evidence-schema-compatibility-and-legacy-quarantine.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-causal-evidence-bundle-writer-v1-1"
+change_class = "persisted-artifact-format"
+impact = "breaking"
+surface = "internal: ir.causal_evidence_bundle persisted representation and typed family consumer"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "The typed EvidenceBundle producer now writes current schema 1.1 for every bundle; the selected exclude_none canonical profile may omit a null Twin reference from bytes. Consumers limited to 1.0 must move to the owner-aware reader before rollout."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/adr/0151-evidence-schema-compatibility-and-legacy-quarantine.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-causal-evidence-bundle-admission-context-loader"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "public_stable: polisyos.ir.load_causal_evidence_bundle_with_admission"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Add an owner-admitted EvidenceBundle loader that returns the exact source and current registration, snapshot revision, manifest profile digest, and byte witness. The existing DTO-returning loader keeps its signature and behavior."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/adr/0151-evidence-schema-compatibility-and-legacy-quarantine.md"]
+runbook_docs = []

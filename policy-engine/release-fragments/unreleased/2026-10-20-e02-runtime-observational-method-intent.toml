@@ -27,5 +27,6 @@ details = [
   "Only explicitly classified public, unscoped sources are admitted; restricted or tenant-scoped sources are refused because current source-read authorization revalidation is not established.",
   "Graph metric selection requires the final state refs to match refs captured from an actual Foundry ExecuteResult emitted within the same leased attempt.",
   "The dedicated GET /api/v1/runs/{run_id}/method-metrics surface rechecks owned run scope and reads only the current bounded AD01 projection; generic RunDetails does not expose the selection or metric rows.",
-  "ForestDR 1.0 remains readable as historical intent, but new bounded-profile admissions refuse it because its registered signature does not declare n_jobs.",
+  "Resource policy r2 and r3 require ForestDR 1.1.0; historical 1.0.0 intents remain readable under r1 and refuse those policies because the registered 1.0.0 producer call omits n_jobs.",
+  "The required_estimator_n_jobs wire field rejects booleans because Python bool is not the exact integer 1 required by the producer ABI.",
 ]

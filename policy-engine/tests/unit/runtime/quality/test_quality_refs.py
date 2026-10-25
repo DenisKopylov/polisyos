@@ -235,6 +235,15 @@ def test_runtime_quality_refs_keep_explicit_selected_profile_and_reject_malforme
     )
     assert selected.unrejected_refs() == {"security_assurance_report_ref": _sha("c")}
     assert set(selected.unrejected_selected_refs()) == {"security_assurance_report_ref"}
+    assert selected.sources["security_assurance_report_ref"] == "job.runtime_quality_refs"
+    assert (
+        selected.selected_sources["security_assurance_report_ref"]
+        == "job.runtime_quality_artifact_refs"
+    )
+    assert (
+        selected.to_evidence()["selected_sources"]["security_assurance_report_ref"]
+        == "job.runtime_quality_artifact_refs"
+    )
     assert not selected.rejections
 
     malformed = RuntimeQualityAuthorityRefs.from_runtime_payloads(
@@ -393,7 +402,9 @@ def test_present_null_generic_report_alias_blocks_valid_runtime_ref(alias: str) 
 
 
 @pytest.mark.parametrize("alias", _ref_aliases_for("authority_envelope"))
-def test_present_null_authority_envelope_alias_blocks_valid_runtime_ref(alias: str) -> None:
+def test_present_null_authority_envelope_alias_blocks_valid_runtime_ref(
+    alias: str,
+) -> None:
     valid_ref = _sha("b")
     refs = RuntimeQualityAuthorityRefs.from_runtime_payloads(
         job_payload={
@@ -507,7 +518,9 @@ def test_unmodeled_null_alias_in_valid_authority_envelope_is_rejected() -> None:
     "null_key",
     _ref_aliases_for("nested"),
 )
-def test_present_null_nested_generic_value_blocks_wrapper_candidate(null_key: str) -> None:
+def test_present_null_nested_generic_value_blocks_wrapper_candidate(
+    null_key: str,
+) -> None:
     valid_ref = _sha("b")
     valid_key = next(key for key in _ref_aliases_for("nested") if key != null_key)
     refs = RuntimeQualityAuthorityRefs.from_runtime_payloads(
@@ -1097,6 +1110,122 @@ def test_report_body_cross_role_ref_is_candidate_data_not_runtime_authority() ->
     assert candidate_intake.get("normative_applicability_report_ref") == cross_ref
 
 
+def test_schema_owned_security_bundle_locator_is_not_a_runtime_ref(monkeypatch) -> None:
+    from polisyos.runtime.quality import report_registry
+
+    role = "security_assurance_report_ref"
+    locator = "quality_evidence/security_assurance_report.json"
+    report = {
+        "schema_version": "policyos.security_assurance_report.v1",
+        "status": "pass",
+        "issues": [],
+        role: locator,
+    }
+    payload = {"security_assurance_report": report}
+
+    runtime_intake = RuntimeQualityAuthorityRefs.from_runtime_payloads(
+        quality_evidence=payload,
+    )
+    shared_intake = RuntimeQualityAuthorityRefs.from_sources(
+        source_payloads={"quality_evidence": payload},
+    )
+    assert runtime_intake.rejections == ()
+    assert runtime_intake.get(role) is None
+    assert shared_intake.rejections == ()
+    assert shared_intake.get(role) is None
+
+    # Removing the registered semantic while retaining schema/role/field markers
+    # makes the same value visible as a ref candidate.
+    monkeypatch.setattr(report_registry, "QUALITY_REPORT_BODY_LOCATORS", ())
+    without_locator_semantics = RuntimeQualityAuthorityRefs.from_sources(
+        source_payloads={"quality_evidence": payload},
+    )
+    assert without_locator_semantics.get(role) == locator
+
+
+@pytest.mark.parametrize(
+    ("locator", "expected_reason"),
+    [
+        ("quality_evidence/other-report.json", "logical_locator_mismatch"),
+        ("attestation://report/security", "logical_locator_mismatch"),
+        (None, "explicit_null"),
+        ([], "unsupported_type"),
+    ],
+)
+def test_schema_owned_security_locator_rejects_malformed_or_conflicting_values(
+    locator: object,
+    expected_reason: str,
+) -> None:
+    role = "security_assurance_report_ref"
+    payload = {
+        "security_assurance_report": {
+            "schema_version": "policyos.security_assurance_report.v1",
+            "status": "pass",
+            "issues": [],
+            role: locator,
+        }
+    }
+    intake = RuntimeQualityAuthorityRefs.from_sources(
+        source_payloads={"quality_evidence": payload},
+    )
+    assert intake.get(role) is None
+    assert any(row.key == role and row.reason == expected_reason for row in intake.rejections)
+
+
+def test_schema_owned_locator_requires_its_declared_schema_and_preserves_cas_conflicts() -> None:
+    role = "security_assurance_report_ref"
+    selected_ref = _sha("a")
+    locator = "quality_evidence/security_assurance_report.json"
+    report = {
+        "schema_version": "policyos.security_assurance_report.v2",
+        "status": "pass",
+        "issues": [],
+        role: locator,
+    }
+    intake = RuntimeQualityAuthorityRefs.from_sources(
+        source_payloads={
+            "selected_runtime_refs": {"runtime_quality_refs": {role: selected_ref}},
+            "cas_report.security_assurance_report": report,
+        },
+    )
+    assert intake.get(role) is None
+    assert any(row.key == role and row.reason == "conflicting_values" for row in intake.rejections)
+
+
+def test_schema_owned_security_slot_accepts_only_the_selected_cas_identity() -> None:
+    role = "security_assurance_report_ref"
+    selected_ref = _sha("a")
+    selected_body = {
+        "schema_version": "policyos.security_assurance_report.v1",
+        "status": "pass",
+        "issues": [],
+        role: selected_ref,
+    }
+    selected = RuntimeQualityAuthorityRefs.from_sources(
+        source_payloads={
+            "selected_runtime_refs": {"runtime_quality_refs": {role: selected_ref}},
+            "cas_report.security_assurance_report": selected_body,
+        },
+    )
+    assert selected.rejections == ()
+    assert selected.get(role) == selected_ref
+
+    conflicting_body = {**selected_body, role: _sha("b")}
+    conflicting = RuntimeQualityAuthorityRefs.from_sources(
+        source_payloads={
+            "selected_runtime_refs": {"runtime_quality_refs": {role: selected_ref}},
+            "cas_report.security_assurance_report": conflicting_body,
+        },
+    )
+    assert conflicting.get(role) is None
+    assert any(
+        row.key == role
+        and row.reason == "conflicting_values"
+        and row.source == "cas_report.security_assurance_report"
+        for row in conflicting.rejections
+    )
+
+
 def test_runtime_report_body_explicit_refs_keep_registered_role_identity() -> None:
     ref_keys, body_ref_keys = quality_report_ref_intake_registry()
     owner_aliases: dict[str, str] = {}
@@ -1133,7 +1262,9 @@ def test_runtime_report_body_explicit_refs_keep_registered_role_identity() -> No
     "source_name",
     ["job", "run", "agents", "timeline", "lineage", "request", "quality_evidence"],
 )
-def test_role_hinted_wrappers_recurse_for_every_registered_ref_key(source_name: str) -> None:
+def test_role_hinted_wrappers_recurse_for_every_registered_ref_key(
+    source_name: str,
+) -> None:
     ref_keys, _ = quality_report_ref_intake_registry()
     expected = {key: _sha(str(index % 10)) for index, key in enumerate(ref_keys)}
     source_payloads = {

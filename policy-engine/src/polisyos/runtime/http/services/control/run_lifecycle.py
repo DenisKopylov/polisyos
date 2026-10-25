@@ -14,9 +14,9 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeVar, cast, overload
 
-from pydantic import BaseModel
+from pydantic import BaseModel, JsonValue, TypeAdapter
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.common.logger import get_logger
@@ -37,9 +37,18 @@ from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
     ArtifactRef,
     ArtifactTenantContextInfo,
+    InputRef,
     ProducerInfo,
     SchemaInfo,
     artifact_ref_identity_key,
+)
+from polisyos.core.artifacts.protocol import (
+    ArtifactStore,
+    CoreJSONArtifactBoundedInputManifestReceiptReader,
+    CoreJSONArtifactBoundedMemberReader,
+    CoreJSONArtifactProfileReader,
+    CoreJSONArtifactStore,
+    SignatureVerifyingArtifactStore,
 )
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import (
@@ -103,9 +112,10 @@ from polisyos.core.contracts.decision_validity import (
     DecisionValidityStatus,
 )
 from polisyos.core.contracts.fabric import DataSnapshotRef
+from polisyos.core.contracts.runtime import CompletedMethodHTESource
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.security import AccessScope, clear_tenant_context
-from polisyos.runtime.http.errors import conflict, forbidden, unprocessable_entity
+from polisyos.runtime.http.errors import RuntimeHTTPError, conflict, forbidden, unprocessable_entity
 from polisyos.runtime.http.execution_policy import (
     ExecutionProfileError,
     PolicyFlagForbiddenError,
@@ -114,6 +124,7 @@ from polisyos.runtime.http.execution_policy import (
     RuntimePrincipal,
 )
 from polisyos.runtime.http.resilience import (
+    _GuardedStoreSignatureVerifier,
     build_guarded_signature_verifier,
     guard_runtime_cas,
     guard_runtime_control_store,
@@ -126,6 +137,7 @@ from polisyos.runtime.http.services.control.artifacts import (
     DIAGNOSTIC_EVENT_ARTIFACT_KIND,
     AuthorityArtifactWriteResult,
     _artifact_ref_from_summary_payload,
+    _AuthorityArtifactWriteFields,
     _make_artifact_ref,
     _resolve_curated_dir,
     write_runtime_authority_artifact,
@@ -233,8 +245,6 @@ from polisyos.scientist import (
 from polisyos.scientist.governance.continuous import (
     PublicSignaturePopulationProvider,
     PublishedSignatureCustodyResult,
-    PublishedSignatureCustodyWatcher,
-    resolve_governance_monitor_event,
 )
 from polisyos.scientist.orchestration.engine import BudgetMiddleware
 from polisyos.scientist.orchestration.llm.provider_verification import (
@@ -254,6 +264,7 @@ from .._control_contracts import (
     _resolve_workflow_data_source,
 )
 from ..control_plane_store import (
+    _COMPLETED_HTE_VALIDITY_OUTBOX_TOPIC,
     AcquisitionActionHeadRecord,
     ControlJobExecutionAdmission,
     ControlJobExecutionAdmissionError,
@@ -267,6 +278,9 @@ from ..control_plane_store import (
     HumanDecisionReservationRecord,
     HumanDecisionReservationResult,
     HumanDecisionWriteFence,
+)
+from ..control_plane_store import (
+    _completed_hte_source_invalidation_dedupe_key as _control_hte_invalidation_dedupe_key,
 )
 from ..control_worker import ControlWorker
 
@@ -282,11 +296,120 @@ def _same_selected_artifact_ref(left: object, right: object) -> bool:
     return artifact_ref_identity_key(left) == artifact_ref_identity_key(right)
 
 
+def _search_binding_admission_input_edges(
+    snapshot: SearchUncertaintyTaskAdmissionSnapshot | None,
+) -> tuple[tuple[ArtifactRef, str], ...]:
+    """Return the selected CAS closure retained by a POST Search admission."""
+    if snapshot is None:
+        return ()
+    return (
+        (snapshot.binding_ref, "search_uncertainty_task_binding"),
+        (snapshot.projection_ref, "search_uncertainty_task_projection"),
+        (snapshot.task_admission_ref, "search_uncertainty_task_admission"),
+        (snapshot.task_epoch_ref, "search_uncertainty_task_epoch"),
+        (snapshot.owner_context_ref, "search_uncertainty_owner_context"),
+        (snapshot.basis_ref, "search_uncertainty_task_basis"),
+        (snapshot.dependency_inventory_ref, "search_uncertainty_dependency_inventory"),
+        (snapshot.source_projection_ref, "search_uncertainty_source_projection"),
+    )
+
+
+def _observational_run_intent_input_edges(
+    intent: _ObservationalRunIntent,
+) -> tuple[tuple[ArtifactRef, str], ...]:
+    """Return the complete producer lineage recipe for a requested intent."""
+    policy_ref = intent.resource_policy_ref
+    if policy_ref is None:
+        raise ValueError("observational_method_resource_policy_ref_missing")
+    return (
+        (intent.requested_source_ref, "requested_source"),
+        (policy_ref, "resource_policy"),
+        *_search_binding_admission_input_edges(intent.search_binding_admission),
+    )
+
+
+def _content_admitted_intent_input_edges(
+    intent: _ContentAdmittedObservationalRunIntent,
+) -> tuple[tuple[ArtifactRef, str], ...]:
+    """Return the complete producer lineage recipe for an admitted intent."""
+    edges = (
+        (intent.requested_intent_ref, "observational_run_intent"),
+        (intent.requested_source_ref, "requested_source"),
+        (intent.resource_policy_ref, "resource_policy"),
+        (intent.submitted_input_ref, "submitted_input"),
+        (intent.effective_input_ref, "effective_input"),
+    )
+    return (*edges, *_search_binding_admission_input_edges(intent.search_binding_admission))
+
+
+def _has_exact_selected_input_edges(
+    inputs: tuple[InputRef, ...] | list[InputRef],
+    expected_edges: tuple[tuple[ArtifactRef, str], ...],
+) -> bool:
+    """Match the selected ref, profile and semantic role as an exact multiset."""
+    if len(inputs) != len(expected_edges):
+        return False
+    unmatched: list[tuple[object, str, str]] = []
+    for ref, role in expected_edges:
+        profile = ref.manifest_profile_sha256
+        if profile is None:
+            return False
+        unmatched.append((ref.artifact_id, profile, role))
+    for edge in inputs:
+        profile = edge.manifest_profile_sha256
+        if profile is None:
+            return False
+        edge_key = (edge.artifact_id, profile, edge.role)
+        try:
+            unmatched.remove(edge_key)
+        except ValueError:
+            return False
+    return not unmatched
+
+
+def _same_selected_reference_or_value(left: object, right: object) -> bool:
+    """Compare Search snapshot scalars normally and CAS refs by full selected identity."""
+    if isinstance(left, ArtifactRef) or isinstance(right, ArtifactRef):
+        return (
+            isinstance(left, ArtifactRef)
+            and isinstance(right, ArtifactRef)
+            and _same_selected_artifact_ref(left, right)
+        )
+    return left == right
+
+
 def _same_optional_selected_artifact_ref(left: object, right: object) -> bool:
     """Compare optional selected refs without weakening non-null identity checks."""
     if left is None or right is None:
         return left is None and right is None
     return _same_selected_artifact_ref(left, right)
+
+
+def _same_optional_selected_artifact_ref_for_kind(
+    left: object,
+    right: object,
+    *,
+    absence_is_valid_for_selected_kind: bool,
+) -> bool:
+    """Allow matching absence only when the typed HTE outcome permits it."""
+    if left is None or right is None:
+        return absence_is_valid_for_selected_kind and left is None and right is None
+    return _same_selected_artifact_ref(left, right)
+
+
+def _same_optional_artifact_ref_payload(
+    left: ArtifactRef | None,
+    right: ArtifactRef | None,
+) -> bool:
+    """Compare the complete persisted representation of two optional artifact refs."""
+    if left is None or right is None:
+        return left is None and right is None
+    return left.model_dump(mode="json") == right.model_dump(mode="json")
+
+
+def _typed_execution_profile(value: str) -> ExecutionProfile:
+    """Narrow a runtime-resolved profile to the public response contract."""
+    return TypeAdapter(ExecutionProfile).validate_python(value, strict=True)
 
 
 def _pre_admission_producer_event_refs(
@@ -338,13 +461,16 @@ def _build_control_nl_producer_budget_reconciler(
         if type(current_state.limits) is not dict:
             raise GenerationCycleError("control_nl_budget_limits_not_established")
         run_limit = current_state.limits.get("run")
-        if type(run_limit) is not BudgetLimit or type(run_limit.max_usd) is not Decimal:
+        if run_limit is None or type(run_limit) is not BudgetLimit:
             raise GenerationCycleError("control_nl_budget_run_limit_not_established")
-        if not run_limit.max_usd.is_finite():
+        max_usd = run_limit.max_usd
+        if type(max_usd) is not Decimal:
+            raise GenerationCycleError("control_nl_budget_run_limit_not_established")
+        if not max_usd.is_finite():
             raise GenerationCycleError("control_nl_budget_run_limit_invalid")
         # A non-positive cap cannot admit the configured positive N6 stage
         # cost. Its terminal does not depend on treating missing spend as zero.
-        if run_limit.max_usd <= Decimal(0):
+        if max_usd <= Decimal(0):
             return
         try:
             records = settlement_store.list_producer_events_for_run_safe(producer_run_binding)
@@ -485,12 +611,13 @@ _MAX_GRAPH_PRODUCER_EMISSIONS = 16
 _MAX_GRAPH_ROLE_REFS_PER_EMISSION = 8
 _MAX_GRAPH_DERIVED_REF_SCAN = 256
 _GRAPH_PRODUCER_RECEIPT_SEAL = object()
+_RUN_LIFECYCLE_OWNER_SCOPE_UNSET = object()
 _BoundedArtifactModelT = TypeVar("_BoundedArtifactModelT", bound=BaseModel)
 
 
 def _read_observational_resource_policy_artifact(
     *,
-    store: _CoreJSONArtifactStreamingReader,
+    store: CoreJSONArtifactBoundedMemberReader,
     policy_ref: ArtifactRef,
     source_ref: ArtifactRef,
     source_governance: ArtifactGovernanceInfo,
@@ -503,7 +630,18 @@ def _read_observational_resource_policy_artifact(
         validate_core_model_bounded_read,
     )
     from polisyos.core.contracts.runtime import ObservationalInputResourcePolicy
+    from polisyos.runtime.http.services.control.owned_attempt_anchor import (
+        _require_full_profile_ref,
+    )
 
+    policy_ref = _require_full_profile_ref(
+        policy_ref,
+        code="observational_resource_policy_manifest_binding_mismatch",
+    )
+    source_ref = _require_full_profile_ref(
+        source_ref,
+        code="observational_resource_policy_manifest_binding_mismatch",
+    )
     bounded = read_core_json_artifact_bounded(store, policy_ref, limits=limits)
     manifest = bounded.manifest
     policy_governance, policy_tenant_context, _ = _explicit_source_manifest_metadata(
@@ -535,7 +673,7 @@ def _read_observational_resource_policy_artifact(
 
 def _validate_direct_method_execution_selection_artifacts(
     *,
-    store: _CoreJSONArtifactStreamingReader,
+    store: CoreJSONArtifactBoundedMemberReader,
     selection: _DirectMethodExecutionSelection,
     limits: CoreJsonReadLimits,
 ) -> None:
@@ -550,6 +688,10 @@ def _validate_direct_method_execution_selection_artifacts(
         MethodExecutionCandidateOutcome,
         ObservationalRunIntent,
         _expected_content_admitted_limitations,
+        _observational_intent_manifest_identity,
+    )
+    from polisyos.runtime.http.services.control.owned_attempt_anchor import (
+        _require_full_profile_ref,
     )
 
     def read_manifest(
@@ -558,6 +700,10 @@ def _validate_direct_method_execution_selection_artifacts(
         kind: str,
         schema: SchemaInfo | None,
     ) -> CoreJsonManifestBoundedRead:
+        ref = _require_full_profile_ref(
+            ref,
+            code="direct_method_execution_manifest_profile_required",
+        )
         bounded = read_core_manifest_profile_bounded(
             store,
             ref,
@@ -580,6 +726,10 @@ def _validate_direct_method_execution_selection_artifacts(
         kind: str,
         schema_name: str,
     ) -> _BoundedArtifactModelT:
+        ref = _require_full_profile_ref(
+            ref,
+            code="direct_method_execution_intent_profile_required",
+        )
         bounded = read_core_json_artifact_bounded(store, ref, limits=limits)
         manifest = bounded.manifest
         payload = bounded.value
@@ -588,16 +738,18 @@ def _validate_direct_method_execution_selection_artifacts(
         payload_version = payload.get("schema_version")
         if type(payload_version) is not str:
             raise ValueError("direct_method_execution_intent_schema_version_invalid")
-        expected_version = {
-            "polisyos.runtime.observational_run_intent.v1": "1.0",
-            "polisyos.runtime.observational_run_intent.v2": "2.0",
-            "polisyos.runtime.content_admitted_observational_run_intent.v1": "1.0",
-            "polisyos.runtime.content_admitted_observational_run_intent.v2": "2.0",
-        }.get(payload_version)
+        try:
+            expected_kind, expected_name, expected_version = (
+                _observational_intent_manifest_identity(payload_version)
+            )
+        except ValueError:
+            expected_kind = expected_name = expected_version = None
         if (
             not _same_selected_artifact_ref(bounded.effective_ref, ref)
             or manifest.kind != kind
+            or manifest.kind != expected_kind
             or manifest.media_type != "application/json"
+            or expected_name != schema_name
             or expected_version is None
             or manifest.artifact_schema != SchemaInfo(name=schema_name, version=expected_version)
         ):
@@ -656,6 +808,15 @@ def _validate_direct_method_execution_selection_artifacts(
         or admitted_intent.method_fqn != selection.method_fqn
         or requested_intent.owned_hte_request_context != selection.owned_hte_request_context
         or admitted_intent.owned_hte_request_context != selection.owned_hte_request_context
+        or (
+            requested_intent.schema_version == "polisyos.runtime.observational_run_intent.v3"
+            and (
+                admitted_intent.schema_version
+                != "polisyos.runtime.content_admitted_observational_run_intent.v3"
+                or admitted_intent.search_binding_admission
+                != requested_intent.search_binding_admission
+            )
+        )
         or admitted_intent.source_protocol != selection.source_protocol
         or admitted_intent.normalization != selection.normalization
         or admitted_intent.limitations != selection.limitations
@@ -727,11 +888,7 @@ def _validate_direct_method_execution_selection_artifacts(
         kind="runtime.observational_run_intent",
         schema=SchemaInfo(
             name="polisyos.runtime.ObservationalRunIntent",
-            version=(
-                "2.0"
-                if requested_intent.schema_version == "polisyos.runtime.observational_run_intent.v2"
-                else "1.0"
-            ),
+            version=_observational_intent_manifest_identity(requested_intent.schema_version)[2],
         ),
     ).manifest
     admitted_intent_manifest = read_manifest(
@@ -739,37 +896,9 @@ def _validate_direct_method_execution_selection_artifacts(
         kind="runtime.content_admitted_observational_run_intent",
         schema=SchemaInfo(
             name="polisyos.runtime.ContentAdmittedObservationalRunIntent",
-            version=(
-                "2.0"
-                if admitted_intent.schema_version
-                == "polisyos.runtime.content_admitted_observational_run_intent.v2"
-                else "1.0"
-            ),
+            version=_observational_intent_manifest_identity(admitted_intent.schema_version)[2],
         ),
     ).manifest
-
-    def has_exact_selected_inputs(
-        inputs: tuple[object, ...] | list[object],
-        refs: tuple[ArtifactRef, ...],
-    ) -> bool:
-        if len(inputs) != len(refs):
-            return False
-        unmatched = list(refs)
-        for edge in inputs:
-            edge_id = getattr(edge, "artifact_id", None)
-            edge_profile = getattr(edge, "manifest_profile_sha256", None)
-            match = next(
-                (
-                    index
-                    for index, ref in enumerate(unmatched)
-                    if edge_id == ref.artifact_id and edge_profile == ref.manifest_profile_sha256
-                ),
-                None,
-            )
-            if match is None:
-                return False
-            unmatched.pop(match)
-        return not unmatched
 
     if (
         source_manifest.kind != expected_source_kind
@@ -779,19 +908,13 @@ def _validate_direct_method_execution_selection_artifacts(
         or admitted_intent.source_governance != source_governance
         or admitted_intent.source_tenant_context != source_tenant_context
         or requested_intent.source_access_revalidation_status != _OBSERVATIONAL_SOURCE_ACCESS_STATUS
-        or not has_exact_selected_inputs(
-            requested_intent_manifest.inputs,
-            (selection.requested_source_ref, selection.resource_policy_ref),
+        or not _has_exact_selected_input_edges(
+            tuple(requested_intent_manifest.inputs),
+            _observational_run_intent_input_edges(requested_intent),
         )
-        or not has_exact_selected_inputs(
-            admitted_intent_manifest.inputs,
-            (
-                selection.observational_run_intent_ref,
-                selection.requested_source_ref,
-                selection.resource_policy_ref,
-                selection.submitted_input_ref,
-                selection.effective_input_ref,
-            ),
+        or not _has_exact_selected_input_edges(
+            tuple(admitted_intent_manifest.inputs),
+            _content_admitted_intent_input_edges(admitted_intent),
         )
     ):
         raise ValueError("direct_method_execution_source_manifest_lineage_mismatch")
@@ -924,9 +1047,13 @@ def _validate_direct_method_execution_selection_artifacts(
     result_manifest = result_read.manifest
     evidence_manifest = evidence_manifest_read.manifest
 
+    evidence_ref = _require_full_profile_ref(
+        selection.method_evidence_ref,
+        code="direct_method_execution_evidence_profile_required",
+    )
     evidence_read = read_core_json_artifact_bounded(
         store,
-        selection.method_evidence_ref,
+        evidence_ref,
         limits=limits,
     )
     evidence_payload = evidence_read.value
@@ -949,6 +1076,21 @@ def _validate_direct_method_execution_selection_artifacts(
         evidence_result_ref = ArtifactRef.model_validate(evidence_payload.get("method_result_ref"))
     except (TypeError, ValueError) as exc:
         raise ValueError("direct_method_execution_evidence_content_invalid") from exc
+    owned_attempt_anchor_ref = selection.owned_attempt_anchor_ref
+    if selection.method_fqn in _OBSERVATIONAL_METHOD_FQN_V2:
+        if owned_attempt_anchor_ref is None:
+            raise ValueError("direct_method_execution_owned_anchor_missing")
+        selected_owned_attempt_anchor_ref = owned_attempt_anchor_ref
+    else:
+        selected_owned_attempt_anchor_ref = None
+    effective_input_ref = selection.effective_input_ref
+    if effective_input_ref is None:
+        raise ValueError("direct_method_execution_effective_input_missing")
+    expected_producer_limitations = _expected_content_admitted_limitations(
+        selection.source_protocol,
+        source_access_revalidation_status=None,
+    )
+
     if (
         evidence_payload.get("authority_purpose") != "method_execution"
         or evidence_payload.get("method_fqn") != selection.method_fqn
@@ -960,7 +1102,7 @@ def _validate_direct_method_execution_selection_artifacts(
         != selection.resource_policy_ref.model_dump(mode="json")
         or evidence_payload.get("source_protocol") != selection.source_protocol
         or evidence_payload.get("normalization") != selection.normalization
-        or evidence_payload.get("limitations") != list(selection.limitations)
+        or evidence_payload.get("limitations") != list(expected_producer_limitations)
         or evidence_payload.get("requested_source_ref")
         != selection.requested_source_ref.model_dump(mode="json")
         or evidence_payload.get("observational_run_intent_ref")
@@ -970,14 +1112,14 @@ def _validate_direct_method_execution_selection_artifacts(
         or evidence_payload.get("submitted_input_ref")
         != selection.submitted_input_ref.model_dump(mode="json")
         or evidence_payload.get("effective_input_ref")
-        != selection.effective_input_ref.model_dump(mode="json")
+        != effective_input_ref.model_dump(mode="json")
         or evidence_payload.get("method_result_ref")
         != selection.method_result_ref.model_dump(mode="json")
         or evidence_result_ref != selection.method_result_ref
         or (
-            selection.method_fqn in _OBSERVATIONAL_METHOD_FQN_V2
+            selected_owned_attempt_anchor_ref is not None
             and evidence_payload.get("owned_attempt_anchor_ref")
-            != selection.owned_attempt_anchor_ref.model_dump(mode="json")
+            != selected_owned_attempt_anchor_ref.model_dump(mode="json")
         )
         or (
             selection.method_fqn in _OBSERVATIONAL_METHOD_FQN_V2
@@ -1046,9 +1188,9 @@ def _validate_direct_method_execution_selection_artifacts(
         return not remaining
 
     evidence_lineage = (("method_result", selection.method_result_ref), *expected_lineage)
-    if not has_exact_inputs(result_manifest.inputs, expected_lineage) or not has_exact_inputs(
-        evidence_manifest.inputs, evidence_lineage
-    ):
+    if not has_exact_inputs(
+        tuple(result_manifest.inputs), expected_lineage
+    ) or not has_exact_inputs(tuple(evidence_manifest.inputs), evidence_lineage):
         raise ValueError("direct_method_execution_output_lineage_mismatch")
 
 
@@ -1201,40 +1343,20 @@ class CompletedMethodMetricSource:
     selection: _GraphMethodExecutionSelection
 
 
-@dataclass(frozen=True, slots=True)
-class CompletedMethodHTESource:
-    """Owner-resolved scalar HTE result for a later policy-design workflow.
-
-    The selected summary is the worker-admitted projection. Its accompanying
-    association binds that summary to the exact completed owner event and
-    profiled artifact manifests; it does not grant publication or causal
-    authority.
-    """
-
-    source_run_id: str
-    source_job_id: str
-    source_attempt: int
-    completed_event_id: int
-    completed_event_payload_sha256: str
-    summary: _DirectMethodExecutionHTESummary
-    association: _OwnedAttemptAnchorProjectionAssociation
-
-
-class _FoundryPortProtocol(Protocol):
-    """The exact small Foundry boundary needed by the Runtime origin collector."""
-
-    def compile(self, store: object, request: object) -> object: ...
-
-    def execute(self, store: object, request: object) -> object: ...
-
-
 class _CurrentMethodMetricProjectionReadResult(Protocol):
-    """Small result returned by the bounded current AD01 projection reader."""
+    """Small read-only result from the bounded current AD01 projection reader."""
 
-    status: Literal["selected", "verification_missing", "invalid"]
-    vector_ref: object | None
-    observations: tuple[object, ...]
-    limitations: tuple[str, ...]
+    @property
+    def status(self) -> Literal["selected", "verification_missing", "invalid"]: ...
+
+    @property
+    def vector_ref(self) -> object | None: ...
+
+    @property
+    def observations(self) -> tuple[object, ...]: ...
+
+    @property
+    def limitations(self) -> tuple[str, ...]: ...
 
 
 class _MethodParameterSpecProtocol(Protocol):
@@ -1280,6 +1402,15 @@ class _MethodMetricSourceTupleProtocol(Protocol):
     method_metric_binding_set_ref: ArtifactRef
 
 
+class _RuntimeMethodMetricProjectionArtifactStore(
+    CoreJSONArtifactStore,
+    CoreJSONArtifactBoundedInputManifestReceiptReader,
+    CoreJSONArtifactBoundedMemberReader,
+    Protocol,
+):
+    """Runtime-checkable composite surface required for AD01 metric projection."""
+
+
 class _VerifiedMethodMetricProjectionAdmissionProtocol(Protocol):
     """The sealed AD01 receipt fields that Runtime must reconcile before commit."""
 
@@ -1313,11 +1444,11 @@ class _RuntimeOriginCapturingFoundryPort:
         self._diagnostics: list[_RuntimeGraphProducerEmission] = []
         self._inventory_truncated = False
 
-    def compile(self, store: object, request: object) -> object:
+    def compile(self, store: ArtifactStore, request: CompileRequest) -> CompileResult:
         """Forward compilation to the server-selected Foundry port."""
         return self._delegate.compile(store, request)
 
-    def execute(self, store: object, request: object) -> object:
+    def execute(self, store: ArtifactStore, request: ExecuteRequest) -> ExecuteResult:
         """Capture actual ExecuteResult refs without retaining payloads or arrays."""
         result = self._delegate.execute(store, request)
         self._capture_execute_result(result)
@@ -1435,7 +1566,7 @@ class _RuntimeOriginCapturingFoundryPort:
         )
         if derived_scan_truncated:
             self._inventory_truncated = True
-        if complete:
+        if complete and simulation_ref is not None and bundle_refs and binding_refs:
             selected_refs = (simulation_ref, bundle_refs[0], binding_refs[0])
             if selected_refs not in self._emissions:
                 self._emissions.append(selected_refs)
@@ -1505,7 +1636,7 @@ def _scientist_graph_output_refs(state: Mapping[str, Any]) -> _ScientistGraphOut
     ):
         try:
             ref = ArtifactRef.model_validate(artifacts_index[key])
-        except (KeyError, TypeError, ValueError):
+        except KeyError, TypeError, ValueError:
             selected.append(None)
             continue
         if (
@@ -1520,6 +1651,51 @@ def _scientist_graph_output_refs(state: Mapping[str, Any]) -> _ScientistGraphOut
         simulation_result_ref=selected[0],
         method_execution_bundle_ref=selected[1],
         method_metric_binding_set_ref=selected[2],
+    )
+
+
+def _configured_core_read_owner(store: object) -> object:
+    """Resolve only the known Core-to-IR writer adapter to its configured CAS owner.
+
+    The exact repository adapter forwards bounded Core reads to ``store``. Its
+    configured owner can be a ``GuardedDependencyProxy``; retain that owner so its
+    existing guarded-operation policy remains active. Arbitrary wrappers and
+    subclasses must implement their own bounded-reader surface.
+    """
+    from polisyos.core.artifacts.ir_adapter import CoreToIRArtifactStoreAdapter
+
+    if type(store) is CoreToIRArtifactStoreAdapter:
+        return store.store
+    return store
+
+
+def _require_bounded_store_protocol[BoundedStoreProtocolT](
+    store: object,
+    protocol: type[BoundedStoreProtocolT],
+    *,
+    limits: CoreJsonReadLimits,
+    refusal_code: str,
+    failure_stage: str,
+) -> BoundedStoreProtocolT:
+    """Narrow the configured CAS owner only at a bounded-read use boundary."""
+    from polisyos.core.artifacts.canonical_profile import CoreJsonReadBoundsRefusalError
+    from polisyos.core.artifacts.protocol import matches_runtime_protocol
+
+    protocol_owner = _configured_core_read_owner(store)
+    if matches_runtime_protocol(protocol_owner, protocol):
+        return protocol_owner
+    raise CoreJsonReadBoundsRefusalError(
+        refusal_code,
+        limits=limits,
+        max_manifest_bytes=limits.max_manifest_bytes,
+        observed_manifest_bytes=0,
+        observed_manifest_selection_bytes=0,
+        observed_manifest_verification_bytes=0,
+        observed_bytes=0,
+        observed_depth=0,
+        observed_elements=0,
+        source_usage_complete=True,
+        failure_stage=failure_stage,
     )
 
 
@@ -1541,6 +1717,7 @@ class _RuntimeMethodExecutionAdmission:
     owned_hte_request_context: _OwnedHTERequestContextV1 | None
     search_binding_tenant_id: str | None
     search_binding_cell_id: str | None
+    search_binding_admission: SearchUncertaintyTaskAdmissionSnapshot | None
     effective_params: dict[str, Any]
     submitted_params: dict[str, Any]
     submitted_params_present: bool
@@ -1723,20 +1900,23 @@ class PublishedSignatureCustodyLifecyclePublication:
 if TYPE_CHECKING:
     from collections.abc import Callable
     from contextlib import AbstractContextManager
-    from typing import Literal
 
     from polisyos.core import contracts as core_contracts
     from polisyos.core.artifacts.canonical_profile import (
+        CoreJsonArtifactBoundedRead,
         CoreJsonManifestBoundedRead,
         CoreJsonReadLimits,
     )
     from polisyos.core.artifacts.protocol import (
-        ArtifactStore,
         AsyncArtifactStore,
+        CoreJSONArtifactBoundedManifestReceiptReader,
         RootedArtifactStore,
     )
-    from polisyos.core.artifacts.protocol import (
-        CoreJSONArtifactStreamingReader as _CoreJSONArtifactStreamingReader,
+    from polisyos.core.contracts.foundry import (
+        CompileRequest,
+        CompileResult,
+        ExecuteRequest,
+        ExecuteResult,
     )
     from polisyos.core.contracts.owned_attempt_anchor import (
         OwnedAttemptAnchorAssociation,
@@ -1751,7 +1931,7 @@ if TYPE_CHECKING:
         OwnedHTERequestContextV1 as _OwnedHTERequestContextV1,
     )
     from polisyos.core.contracts.runtime import (
-        DirectMethodExecutionHTESummary as _DirectMethodExecutionHTESummary,
+        ContentAdmittedObservationalRunIntent as _ContentAdmittedObservationalRunIntent,
     )
     from polisyos.core.contracts.runtime import (
         DirectMethodExecutionRunProjection as _DirectMethodExecutionRunProjection,
@@ -1765,9 +1945,13 @@ if TYPE_CHECKING:
     from polisyos.core.contracts.runtime import (
         MethodExecutionProducerDiagnostic,
         MethodExecutionSelection,
+        SearchUncertaintyTaskAdmissionSnapshot,
     )
     from polisyos.core.contracts.runtime import (
         ObservationalInputResourcePolicy as _ObservationalInputResourcePolicy,
+    )
+    from polisyos.core.contracts.runtime import (
+        ObservationalRunIntent as _ObservationalRunIntent,
     )
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
@@ -1796,6 +1980,9 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.control.nl_pipeline import (
         _DesignProblemGatewayClient,
     )
+    from polisyos.runtime.http.services.control.owned_attempt_anchor import (
+        _OwnedAttemptAnchorArtifactStore,
+    )
     from polisyos.runtime.quality.cycle_substrate import VerifiedNLJobScope
     from polisyos.runtime.quality.data_forge_binding import (
         MeasurementRootExecutionBinding,
@@ -1819,10 +2006,25 @@ if TYPE_CHECKING:
     from polisyos.scientist.compute.runner import (
         MethodExecutionAdmission,
         MethodExecutionWork,
-        MethodMetricProjectionWork,
         _MethodExecutionArtifactStore,
     )
+    from polisyos.scientist.governance.continuous import (
+        PublicSignaturePopulationProvider,
+        PublishedSignatureCustodyResult,
+    )
+    from polisyos.scientist.methods.search.uncertainty import (
+        SearchOwnedAttemptAssociation,
+        SearchUncertaintyStore,
+        SearchUncertaintyTaskBindingResolution,
+    )
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+        MethodMetricProjectionWorkLike,
+        _MethodMetricProjectionArtifactStore,
+    )
     from polisyos.scientist.orchestration.engine import BudgetLedgerProducerRunBinding
+    from polisyos.scientist.orchestration.engine.context import (
+        FoundryPort as _FoundryPortProtocol,
+    )
 
     from ...step_up import StepUpReplayStore
     from ..control_registry_providers import ControlRegistryProviders
@@ -1893,6 +2095,15 @@ class VerifiedAcquisitionActionOutcome:
     phase_chain: tuple[VerifiedAcquisitionActionPhase, ...]
 
 
+def _require_action_phase_receipt(
+    receipt: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt,
+) -> AcquisitionRoutePhaseReceipt:
+    """Refuse any durable replay whose receipt is not a phase record."""
+    if not isinstance(receipt, AcquisitionRoutePhaseReceipt):
+        raise ValueError("acquisition_action_phase_replay_conflict")
+    return receipt
+
+
 def _require_action_selection_phase_receipt(
     receipt: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt,
 ) -> AcquisitionRoutePhaseReceipt:
@@ -1902,10 +2113,24 @@ def _require_action_selection_phase_receipt(
     return receipt
 
 
+class _AcquisitionRouteLoopArtifactStore(ArtifactStore, CoreJSONArtifactProfileReader, Protocol):
+    """Exact configured CAS capabilities used by the acquisition receipt owner."""
+
+    def put_json(
+        self,
+        obj: object,
+        opts: ArtifactWriteOptions,
+        canon_spec: CanonSpec | None = None,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef: ...
+
+
 class AcquisitionRouteLoopAuthoritySink:
     """Persist and advance verified acquisition route phase heads."""
 
     __slots__ = ("_artifact_store", "_control_store", "_event_log")
+    _artifact_store: _AcquisitionRouteLoopArtifactStore
 
     def __init__(
         self,
@@ -1914,9 +2139,10 @@ class AcquisitionRouteLoopAuthoritySink:
         event_log: RuntimeDiagnosticEventLog,
         control_store: ControlPlaneStore,
     ) -> None:
-        for capability in ("has", "get_bytes", "get_manifest", "put_json"):
-            if not callable(getattr(artifact_store, capability, None)):
-                raise TypeError("acquisition sink requires guarded CAS capabilities")
+        from polisyos.core.artifacts.protocol import matches_runtime_protocol
+
+        if not matches_runtime_protocol(artifact_store, _AcquisitionRouteLoopArtifactStore):
+            raise TypeError("acquisition sink requires guarded CAS capabilities")
         self._artifact_store = artifact_store
         self._event_log = event_log
         self._control_store = control_store
@@ -2184,8 +2410,9 @@ class AcquisitionRouteLoopAuthoritySink:
                 for item in later_phases
             ):
                 raise ValueError("acquisition_action_selection_owner_chain_mismatch")
+            executing_phase = _require_action_phase_receipt(executing.receipt)
             self._verified_current_action_outcome_ref(
-                executing.receipt,
+                executing_phase,
                 executing.receipt_ref,
                 selection.receipt.owner_receipt_refs,
             )
@@ -2234,10 +2461,11 @@ class AcquisitionRouteLoopAuthoritySink:
             or any(character not in "0123456789abcdef" for character in receipt_ref[7:])
         ):
             raise ValueError("acquisition_action_head_receipt_ref_invalid")
-        payload = self._artifact_store.get_bytes(receipt_ref)
+        artifact_id = artifacts.ArtifactID.model_validate(receipt_ref)
+        payload = self._artifact_store.get_bytes(artifact_id)
         if "sha256:" + hashlib.sha256(payload).hexdigest() != receipt_ref:
             raise ValueError("acquisition_action_head_receipt_hash_mismatch")
-        manifest = read_core_manifest_profile(self._artifact_store, receipt_ref)[0]
+        manifest = read_core_manifest_profile(self._artifact_store, artifact_id)[0]
         if manifest.kind == "runtime_quality.acquisition_route_loop_receipt":
             receipt_type = AcquisitionRouteLoopReceipt
             schema_name = "polisyos.runtime.AcquisitionRouteLoopReceipt"
@@ -2416,12 +2644,13 @@ class AcquisitionRouteLoopAuthoritySink:
                 or any(character not in "0123456789abcdef" for character in ref[7:])
             ):
                 raise ValueError("acquisition_action_owner_receipt_ref_invalid")
-            manifest = read_core_manifest_profile(self._artifact_store, ref)[0]
+            artifact_id = artifacts.ArtifactID.model_validate(ref)
+            manifest = read_core_manifest_profile(self._artifact_store, artifact_id)[0]
             expected = kinds.get(manifest.kind)
             if expected is None:
                 continue
             receipt_type, schema_name = expected
-            payload = self._artifact_store.get_bytes(ref)
+            payload = self._artifact_store.get_bytes(artifact_id)
             if "sha256:" + hashlib.sha256(payload).hexdigest() != ref:
                 raise ValueError("acquisition_action_owner_receipt_hash_mismatch")
             receipt = receipt_type.model_validate(
@@ -2696,13 +2925,21 @@ class AcquisitionRouteLoopAuthoritySink:
         )
         if current != head:
             raise ValueError("acquisition_action_generation_head_changed")
+        executing_phase = (
+            None if executing is None else _require_action_phase_receipt(executing.receipt)
+        )
+        selection_phase = (
+            None
+            if selection is None
+            else _require_action_selection_phase_receipt(selection.receipt)
+        )
         return VerifiedAcquisitionActionOutcome(
             head=head,
             latest_receipt=latest.receipt,
             executing_phase_ref=None if executing is None else executing.receipt_ref,
-            executing_phase=None if executing is None else executing.receipt,
+            executing_phase=executing_phase,
             selection_phase_ref=None if selection is None else selection.receipt_ref,
-            selection_phase=None if selection is None else selection.receipt,
+            selection_phase=selection_phase,
             phase_chain=phase_chain,
         )
 
@@ -3347,16 +3584,20 @@ class HumanDecisionAuthoritySink:
         payload: object,
         options: ArtifactWriteOptions,
         *,
-        authority_fields: Mapping[str, object],
+        authority_fields: _AuthorityArtifactWriteFields,
     ) -> AuthorityArtifactWriteResult:
         """Persist through the existing CAS plus durable diagnostic event chain."""
 
+        typed_authority_fields = TypeAdapter(_AuthorityArtifactWriteFields).validate_python(
+            authority_fields,
+            strict=True,
+        )
         return write_runtime_authority_artifact(
             self._artifact_store,
             self._event_log,
             payload,
             options,
-            **dict(authority_fields),
+            **typed_authority_fields,
         )
 
     def reconcile_authority_artifact(
@@ -3497,6 +3738,30 @@ class HumanDecisionAuthoritySink:
         )
 
 
+def _injected_artifact_store_backend(
+    *,
+    artifact_store: ArtifactStore,
+    signature_verifier: SignatureVerifyingArtifactStore | None,
+) -> tuple[str | None, SignatureVerifyingArtifactStore | None]:
+    """Select a filesystem backend only from a concrete store or bound verifier."""
+    from polisyos.core.artifacts.store import FileSystemCAS
+
+    if signature_verifier is not None and (
+        not callable(getattr(signature_verifier, "verify_signature", None))
+        or getattr(signature_verifier, "guarded_store", None) is not artifact_store
+    ):
+        raise ValueError("control_signature_verifier_store_mismatch")
+    if type(artifact_store) is FileSystemCAS:
+        selected_verifier = signature_verifier or build_guarded_signature_verifier(
+            backend="filesystem",
+            guarded_store=artifact_store,
+        )
+        return "filesystem", selected_verifier
+    if type(signature_verifier) is _GuardedStoreSignatureVerifier:
+        return "filesystem", signature_verifier
+    return None, signature_verifier
+
+
 class ControlPlaneService(
     ControlJobAttemptPublicationMixin,
     ControlJobScopeAdmissionMixin,
@@ -3534,6 +3799,7 @@ class ControlPlaneService(
         metrics: MetricsRegistry | None = None,
         tracer: PolicyOSTracer | None = None,
         artifact_store: ArtifactStore | None = None,
+        signature_verifier: SignatureVerifyingArtifactStore | None = None,
         async_artifact_store: AsyncArtifactStore | None = None,
         control_store: ControlPlaneStore | None = None,
         retrieval_service: RetrievalService | None = None,
@@ -3648,8 +3914,11 @@ class ControlPlaneService(
         )
         self._catalog_run_profile = self._catalog_serving_source.catalog_run_profile
         self._owns_artifact_store = artifact_store is None
+        supplied_signature_verifier = signature_verifier
         signature_verifier = None
         if artifact_store is None:
+            if supplied_signature_verifier is not None:
+                raise ValueError("control_signature_verifier_requires_injected_store")
             store_config = ArtifactStoreConfig.from_env().model_copy(update={"root": str(cas_root)})
             self._artifact_store_backend: str | None = store_config.backend
             self._artifact_store = cast(
@@ -3667,10 +3936,12 @@ class ControlPlaneService(
             )
         else:
             self._artifact_store = artifact_store
-            from polisyos.core.artifacts.store import FileSystemCAS
-
-            self._artifact_store_backend = (
-                "filesystem" if isinstance(artifact_store, FileSystemCAS) else None
+            (
+                self._artifact_store_backend,
+                signature_verifier,
+            ) = _injected_artifact_store_backend(
+                artifact_store=artifact_store,
+                signature_verifier=supplied_signature_verifier,
             )
         if generic_cycle_simulation_admission_owner is not None:
             if generic_cycle_simulation_admission_owner.store is not self._artifact_store:
@@ -3840,6 +4111,10 @@ class ControlPlaneService(
                 raise ValueError("epoch_claim_lifecycle_bridge_owner_store_mismatch")
             self._epoch_claim_lifecycle_bridge = epoch_claim_lifecycle_bridge
 
+        from polisyos.scientist.governance.continuous.published_signature_custody import (
+            PublishedSignatureCustodyWatcher,
+        )
+
         self._published_signature_custody_watcher = PublishedSignatureCustodyWatcher(
             store=self._artifact_store,
             population_provider=published_signature_population_provider,
@@ -3894,6 +4169,8 @@ class ControlPlaneService(
         self._worker: ControlWorker | None = None
         self._search_hte_outbox_cursor: int | None = None
         self._search_hte_outbox_watermark: int | None = None
+        self._completed_hte_validity_outbox_cursor: int | None = None
+        self._completed_hte_validity_outbox_watermark: int | None = None
         if self._policy_resolver.worker_backend == "embedded":
             self._worker = ControlWorker(
                 store=self._control_store,
@@ -3968,8 +4245,9 @@ class ControlPlaneService(
         return self._published_signature_custody_watcher.scan_once()
 
     def _run_control_worker_maintenance(self) -> PublishedSignatureCustodyResult:
-        """Run existing custody maintenance and retry owned Search HTE deliveries."""
+        """Run custody maintenance and retry durable HTE validity deliveries."""
         result = self.run_published_signature_custody_maintenance()
+        self.reconcile_pending_completed_hte_source_validity_events()
         self.reconcile_pending_search_hte_completion_events()
         return result
 
@@ -4032,7 +4310,10 @@ class ControlPlaneService(
         """Content-reconcile and acknowledge only the Search-specific outbox row."""
         from pydantic import TypeAdapter
 
-        from polisyos.core.contracts.runtime import RuntimeSearchHTECompletionDeliveryV1
+        from polisyos.core.contracts.runtime import (
+            RuntimeSearchHTECompletionDeliveryV1,
+            _validate_strict_json_wire_payload,
+        )
 
         def leave_pending(reason_code: str) -> bool:
             try:
@@ -4054,9 +4335,10 @@ class ControlPlaneService(
         ):
             return leave_pending("search_hte_outbox_identity_not_established")
         try:
-            payload = TypeAdapter(RuntimeSearchHTECompletionDeliveryV1).validate_python(
+            payload = _validate_strict_json_wire_payload(
                 delivery_record.payload,
-                strict=True,
+                TypeAdapter(RuntimeSearchHTECompletionDeliveryV1),
+                invalid_code="search_hte_outbox_payload_invalid",
             )
         except Exception:
             return leave_pending("search_hte_outbox_payload_invalid")
@@ -4071,54 +4353,62 @@ class ControlPlaneService(
             return leave_pending("search_hte_backend_not_established")
 
         try:
-            created_event = self._control_store._get_job_created_source_event_record(payload.job_id)
-            from polisyos.runtime.http.services.control_plane_store import (
-                _control_job_execution_scope_from_event,
+            scope = self._control_store.historical_completed_job_execution_scope(
+                job_id=payload.job_id,
+                expected_run_id=payload.run_id,
             )
-
-            scope = _control_job_execution_scope_from_event(created_event.payload)
             if scope.status != "established" or not scope.tenant_id:
                 return leave_pending("search_hte_execution_scope_not_established")
             from polisyos.core.artifacts.manifest import artifact_ref_identity_key
             from polisyos.core.contracts.owned_attempt_anchor import (
                 OwnedAttemptAnchorAssociation,
             )
-
-            owner_association = self.resolve_historical_completed_method_execution(
-                job_id=payload.job_id,
-                completed_event_id=payload.completed_event_id,
-                tenant_id=scope.tenant_id,
-                cell_id=scope.cell_id,
-            )
-            if (
-                type(owner_association) is not OwnedAttemptAnchorAssociation
-                or owner_association.status != "owner_selection_reconciled"
-                or owner_association.job_id != payload.job_id
-                or owner_association.run_id != payload.run_id
-                or owner_association.attempt != payload.attempt
-                or owner_association.job_completed_event.event_id != payload.completed_event_id
-                or owner_association.job_completed_event.event_type != "job_completed"
-                or owner_association.job_completed_event.payload_sha256
-                != payload.completed_event_payload_sha256
-            ):
-                return leave_pending("search_hte_owner_completion_not_established")
-            binding_ref = owner_association.search_uncertainty_task_binding_ref
-            if binding_ref is None or artifact_ref_identity_key(
-                binding_ref
-            ) != artifact_ref_identity_key(payload.search_uncertainty_task_binding_ref):
-                return leave_pending("search_hte_owner_binding_not_established")
-
+            from polisyos.core.security import tenant_scope
             from polisyos.scientist.methods.search.uncertainty import (
                 SearchUncertaintyCompletionReceipt,
                 consume_owned_hte_completion,
             )
 
-            receipt = consume_owned_hte_completion(
-                store=self._artifact_store,
-                owner=self,
-                binding_ref=binding_ref,
-                owner_association=owner_association,
-            )
+            owner_failure_reason: str | None = None
+            receipt: SearchUncertaintyCompletionReceipt | None = None
+            with tenant_scope(
+                None,
+                tenant_id=scope.tenant_id,
+                cell_id=scope.cell_id,
+            ):
+                owner_association = self.resolve_historical_completed_method_execution(
+                    job_id=payload.job_id,
+                    completed_event_id=payload.completed_event_id,
+                    tenant_id=scope.tenant_id,
+                    cell_id=scope.cell_id,
+                )
+                if (
+                    type(owner_association) is not OwnedAttemptAnchorAssociation
+                    or owner_association.status != "owner_selection_reconciled"
+                    or owner_association.job_id != payload.job_id
+                    or owner_association.run_id != payload.run_id
+                    or owner_association.attempt != payload.attempt
+                    or owner_association.job_completed_event.event_id != payload.completed_event_id
+                    or owner_association.job_completed_event.event_type != "job_completed"
+                    or owner_association.job_completed_event.payload_sha256
+                    != payload.completed_event_payload_sha256
+                ):
+                    owner_failure_reason = "search_hte_owner_completion_not_established"
+                else:
+                    binding_ref = owner_association.search_uncertainty_task_binding_ref
+                    if binding_ref is None or artifact_ref_identity_key(
+                        binding_ref
+                    ) != artifact_ref_identity_key(payload.search_uncertainty_task_binding_ref):
+                        owner_failure_reason = "search_hte_owner_binding_not_established"
+                    else:
+                        receipt = consume_owned_hte_completion(
+                            store=self._require_search_uncertainty_store(),
+                            owner=self,
+                            binding_ref=binding_ref,
+                            owner_association=owner_association,
+                        )
+            if owner_failure_reason is not None:
+                return leave_pending(owner_failure_reason)
         except Exception:
             logger.exception(
                 "Search HTE completion receiver failed for job %s event %s",
@@ -5064,17 +5354,6 @@ class ControlPlaneService(
                     or resolved_params.get("n_jobs") != 1
                 ):
                     raise ValueError("observational_method_resource_profile_not_supported")
-            elif registration.signature.fqn == "causal.hte.meta_learner@2.0.0":
-                parameter = parameters.get("bootstrap_n_jobs")
-                if (
-                    parameter is None
-                    or type(parameter.default) is not int
-                    or parameter.default != 1
-                    or parameter.bounds != (1, 1)
-                    or type(resolved_params.get("bootstrap_n_jobs")) is not int
-                    or resolved_params.get("bootstrap_n_jobs") != 1
-                ):
-                    raise ValueError("observational_method_resource_profile_not_supported")
             return
         if (
             policy.revision not in {"r2", "r3"}
@@ -5118,16 +5397,19 @@ class ControlPlaneService(
         wait_policy = self._observational_resource_policy.method_execution_wait_policy
         if wait_policy is None:
             raise ValueError("observational_method_wait_policy_not_established")
-        return ObservationalInputResourcePolicy(
-            schema_version="polisyos.runtime.observational_input_resource_policy.v5",
-            revision="r5",
-            method_contract_target=registration.contract_target,
-            required_estimator_n_jobs=profile[2],
-            method_execution_wait_policy=wait_policy,
-            method_fqn=registration.signature.fqn,
-            method_profile_id=profile[0],
-            execution_scope=profile[1],
-            max_jobs=1,
+        return ObservationalInputResourcePolicy.model_validate(
+            {
+                "schema_version": "polisyos.runtime.observational_input_resource_policy.v5",
+                "revision": "r5",
+                "method_contract_target": registration.contract_target,
+                "required_estimator_n_jobs": profile[2],
+                "method_execution_wait_policy": wait_policy,
+                "method_fqn": registration.signature.fqn,
+                "method_profile_id": profile[0],
+                "execution_scope": profile[1],
+                "max_jobs": 1,
+            },
+            strict=True,
         )
 
     def _observational_read_limits(self) -> CoreJsonReadLimits:
@@ -5142,18 +5424,156 @@ class ControlPlaneService(
             max_manifest_bytes=policy.max_manifest_bytes,
         )
 
+    def _require_core_bounded_member_reader(
+        self, *, limits: CoreJsonReadLimits
+    ) -> CoreJSONArtifactBoundedMemberReader:
+        """Require the configured handle's exact bounded selected-member read port."""
+        from polisyos.core.artifacts.protocol import CoreJSONArtifactBoundedMemberReader
+
+        return _require_bounded_store_protocol(
+            self._artifact_store,
+            CoreJSONArtifactBoundedMemberReader,
+            limits=limits,
+            refusal_code="canon_profile_bounded_stream_unavailable",
+            failure_stage="bounded_member_open_preflight",
+        )
+
+    def _require_core_bounded_manifest_reader(
+        self, *, limits: CoreJsonReadLimits
+    ) -> CoreJSONArtifactBoundedManifestReceiptReader:
+        """Require the configured handle's exact bounded manifest-receipt port."""
+        from polisyos.core.artifacts.protocol import (
+            CoreJSONArtifactBoundedManifestReceiptReader,
+        )
+
+        return _require_bounded_store_protocol(
+            self._artifact_store,
+            CoreJSONArtifactBoundedManifestReceiptReader,
+            limits=limits,
+            refusal_code="canon_profile_bounded_manifest_unavailable",
+            failure_stage="selected_manifest_reader_preflight",
+        )
+
+    def _require_search_uncertainty_store(self) -> SearchUncertaintyStore:
+        """Narrow the actual configured CAS owner for Search's live ticket reads."""
+        from polisyos.core.artifacts.protocol import matches_runtime_protocol
+        from polisyos.scientist.methods.search.uncertainty import SearchUncertaintyStore
+
+        store = _configured_core_read_owner(self._artifact_store)
+        if matches_runtime_protocol(store, SearchUncertaintyStore):
+            return store
+        raise TypeError("search_uncertainty_store_contract_unavailable")
+
+    def _require_owned_attempt_anchor_bounded_store(
+        self, *, limits: CoreJsonReadLimits
+    ) -> _OwnedAttemptAnchorArtifactStore:
+        """Require the configured owner implementing the bounded Core read ports.
+
+        The constructor remains open to the supported ArtifactStore family. This
+        accessor narrows only the owned-attempt Core read path after the caller has
+        validated its selected reference. Only the exact known Core-to-IR forwarding
+        adapter is resolved to its configured owner; a guarded owner inside it stays
+        intact, and arbitrary facades or subclasses must provide the read ports.
+        """
+        from polisyos.core.artifacts.canonical_profile import (
+            CoreJsonReadBoundsRefusalError,
+        )
+        from polisyos.core.artifacts.protocol import (
+            CoreJSONArtifactBoundedManifestReader,
+            CoreJSONArtifactBoundedManifestReceiptReader,
+            CoreJSONArtifactBoundedMemberReader,
+            CoreJSONArtifactStreamingReader,
+            matches_runtime_protocol,
+            runtime_protocol_requirements,
+        )
+        from polisyos.runtime.http.services.control.owned_attempt_anchor import (
+            _OwnedAttemptAnchorArtifactStore,
+        )
+
+        def refuse(code: str, *, stage: str) -> CoreJsonReadBoundsRefusalError:
+            return CoreJsonReadBoundsRefusalError(
+                code,
+                limits=limits,
+                max_manifest_bytes=limits.max_manifest_bytes,
+                observed_manifest_bytes=0,
+                observed_manifest_selection_bytes=0,
+                observed_manifest_verification_bytes=0,
+                observed_bytes=0,
+                observed_depth=0,
+                observed_elements=0,
+                source_usage_complete=True,
+                failure_stage=stage,
+            )
+
+        protocol_owner = _configured_core_read_owner(self._artifact_store)
+        if matches_runtime_protocol(protocol_owner, _OwnedAttemptAnchorArtifactStore):
+            return protocol_owner
+
+        def missing_protocol_members(protocol: type[Any]) -> list[str]:
+            missing: list[str] = []
+            for name, callable_required in runtime_protocol_requirements(protocol).items():
+                try:
+                    member = getattr(protocol_owner, name)
+                except AttributeError:
+                    missing.append(name)
+                    continue
+                if callable_required and not callable(member):
+                    missing.append(name)
+            return sorted(missing)
+
+        missing_manifest_members = sorted(
+            set(missing_protocol_members(CoreJSONArtifactBoundedManifestReceiptReader))
+            | set(missing_protocol_members(CoreJSONArtifactBoundedManifestReader))
+        )
+        if missing_manifest_members:
+            raise refuse(
+                "canon_profile_bounded_manifest_unavailable",
+                stage="selected_manifest_reader_preflight",
+            )
+
+        bounded_member_protocol = CoreJSONArtifactBoundedMemberReader
+        bounded_member_members = set(runtime_protocol_requirements(bounded_member_protocol))
+        streaming_members = set(runtime_protocol_requirements(CoreJSONArtifactStreamingReader))
+        receipt_members = set(
+            runtime_protocol_requirements(CoreJSONArtifactBoundedManifestReceiptReader)
+        )
+        bounded_member_open_members = bounded_member_members - streaming_members - receipt_members
+        missing_member_members = set(missing_protocol_members(bounded_member_protocol))
+        if bounded_member_open_members & missing_member_members:
+            raise refuse(
+                "canon_profile_bounded_stream_unavailable",
+                stage="bounded_member_open_preflight",
+            )
+
+        missing_members = missing_protocol_members(_OwnedAttemptAnchorArtifactStore)
+        mismatch_detail = ",".join(missing_members) or "composite_protocol_unmatched"
+        mismatch = TypeError("owned_attempt_store_protocol_missing_members:" + mismatch_detail)
+        raise refuse(
+            "owned_attempt_store_contract_unavailable",
+            stage="bounded_store_protocol_preflight",
+        ) from mismatch
+
     def _read_observational_source_manifest(
         self,
         source_ref: ArtifactRef,
         *,
         expected_sha256: str | None = None,
-    ) -> tuple[object, ArtifactGovernanceInfo, ArtifactTenantContextInfo | None, str]:
+    ) -> tuple[
+        CoreJsonManifestBoundedRead, ArtifactGovernanceInfo, ArtifactTenantContextInfo | None, str
+    ]:
         """Bound-read one selected source manifest and require raw explicit governance."""
         from polisyos.core.artifacts import read_core_manifest_profile_bounded
+        from polisyos.runtime.http.services.control.owned_attempt_anchor import (
+            _require_full_profile_ref,
+        )
 
+        source_ref = _require_full_profile_ref(
+            source_ref,
+            code="observational_source_selected_profile_required",
+        )
         limits = self._observational_read_limits()
         bounded = read_core_manifest_profile_bounded(
-            self._artifact_store,
+            self._require_core_bounded_manifest_reader(limits=limits),
             source_ref,
             max_manifest_bytes=limits.max_manifest_bytes,
         )
@@ -5175,7 +5595,7 @@ class ControlPlaneService(
         )
         return bounded, typed_governance, tenant_context, manifest_sha256
 
-    def _resolve_current_search_uncertainty_binding(
+    def _resolve_search_uncertainty_binding(
         self,
         *,
         binding_ref: ArtifactRef,
@@ -5190,20 +5610,35 @@ class ControlPlaneService(
         inference_profile_id: str,
         selected_method_input_ref: ArtifactRef,
         selected_method_input_content_sha256: str,
-    ) -> object:
-        """Resolve one Search binding against Runtime's frozen request and source pins."""
-        from polisyos.core.artifacts import ensure_ir_artifact_store
+        admitted_snapshot: SearchUncertaintyTaskAdmissionSnapshot | None = None,
+    ) -> SearchUncertaintyTaskAdmissionSnapshot:
+        """Reconcile the POST snapshot with Runtime request and worker pins."""
         from polisyos.core.contracts.runtime import SearchUncertaintyTaskAdmissionSnapshot
+        from polisyos.runtime.http.services.control.owned_attempt_anchor import (
+            _require_full_profile_ref,
+        )
         from polisyos.scientist.methods.search.uncertainty import (
             SearchUncertaintyHTERequestProjection,
             SearchUncertaintyTaskBindingResolution,
+            resolve_admitted_search_uncertainty_task_binding,
             resolve_current_search_uncertainty_task_binding,
         )
 
+        binding_ref = _require_full_profile_ref(
+            binding_ref,
+            code="search_task_binding_runtime_selection_invalid",
+        )
+        selected_method_input_ref = _require_full_profile_ref(
+            selected_method_input_ref,
+            code="search_task_binding_runtime_selection_invalid",
+        )
+        request_binding_ref = request_context.search_uncertainty_task_binding_ref
         if (
             binding_ref.kind != "scientist.search.uncertainty_task_binding"
             or binding_ref.media_type != "application/json"
             or binding_ref.manifest_profile_sha256 is None
+            or request_binding_ref is None
+            or not _same_selected_artifact_ref(binding_ref, request_binding_ref)
             or not tenant_id
             or type(method_fqn) is not str
             or not method_fqn.endswith("@" + method_version)
@@ -5245,32 +5680,80 @@ class ControlPlaneService(
             separators=(",", ":"),
         ).encode("utf-8")
         params_sha256 = hashlib.sha256(params_bytes).hexdigest()
-        ir_store = ensure_ir_artifact_store(self._artifact_store)
-        resolution = resolve_current_search_uncertainty_task_binding(
-            store=ir_store,
-            binding_ref=binding_ref,
-            tenant_id=tenant_id,
-            cell_id=cell_id,
-            request_projection=request_projection,
-            selected_method_fqn=method_fqn,
-            selected_method_abi_version=method_version,
-            selected_method_abi_digest=method_abi_digest,
-            selected_method_params=dict(resolved_params),
-            selected_method_params_sha256=params_sha256,
-            selected_method_seed=seed,
-            selected_inference_profile_id=inference_profile_id,
-            selected_input_ref=selected_method_input_ref,
-            selected_input_sha256=selected_method_input_content_sha256,
+        selected_method_fqn = TypeAdapter(
+            Literal[
+                "causal.hte.causal_forest@2.0.0",
+                "causal.hte.double_ml@2.0.0",
+                "causal.hte.meta_learner@2.0.0",
+                "causal.hte.forest_dr@2.0.0",
+            ]
+        ).validate_python(method_fqn, strict=True)
+        selected_method_abi_version = TypeAdapter(Literal["2.0.0"]).validate_python(
+            method_version,
+            strict=True,
         )
-
+        selected_inference_profile_id = TypeAdapter(
+            Literal[
+                "econml.causal_forest_dml.native_mean@2.0",
+                "econml.dml.point_only@2.0",
+                "econml.meta_learner.point_only@2.0",
+                "econml.forest_dr.native_mean@2.0",
+            ]
+        ).validate_python(inference_profile_id, strict=True)
+        selected_method_params = TypeAdapter(dict[str, JsonValue]).validate_python(
+            dict(resolved_params),
+            strict=True,
+        )
+        search_store = self._require_search_uncertainty_store()
+        if admitted_snapshot is None:
+            resolution = resolve_current_search_uncertainty_task_binding(
+                store=search_store,
+                binding_ref=binding_ref,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                request_projection=request_projection,
+                selected_method_fqn=selected_method_fqn,
+                selected_method_abi_version=selected_method_abi_version,
+                selected_method_abi_digest=method_abi_digest,
+                selected_method_params=selected_method_params,
+                selected_method_params_sha256=params_sha256,
+                selected_method_seed=seed,
+                selected_inference_profile_id=selected_inference_profile_id,
+                selected_input_ref=selected_method_input_ref,
+                selected_input_sha256=selected_method_input_content_sha256,
+            )
+        else:
+            if type(
+                admitted_snapshot
+            ) is not SearchUncertaintyTaskAdmissionSnapshot or not _same_selected_artifact_ref(
+                admitted_snapshot.binding_ref, binding_ref
+            ):
+                raise ValueError("search_task_binding_admitted_snapshot_ref_mismatch")
+            resolution = resolve_admitted_search_uncertainty_task_binding(
+                store=search_store,
+                binding_ref=binding_ref,
+                expected_ticket_id=admitted_snapshot.ticket_id,
+                expected_ticket_generation=admitted_snapshot.ticket_generation,
+                expected_owner_revision=admitted_snapshot.owner_revision,
+                expected_projection_revision=admitted_snapshot.projection_revision,
+                expected_projection_ref=admitted_snapshot.source_projection_ref,
+                expected_task_admission_ref=admitted_snapshot.task_admission_ref,
+                expected_task_epoch_ref=admitted_snapshot.task_epoch_ref,
+                expected_owner_context_ref=admitted_snapshot.owner_context_ref,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+            )
         if type(resolution) is not SearchUncertaintyTaskBindingResolution:
             raise TypeError("search_task_binding_resolution_type_invalid")
         binding = resolution.binding
+        allowed_resolution_statuses = (
+            {"current"} if admitted_snapshot is None else {"current", "historical"}
+        )
         if (
             resolution.schema_version != "1.0"
-            or resolution.resolution_status != "current"
+            or resolution.resolution_status not in allowed_resolution_statuses
             or resolution.closure_status != "recomputed"
-            or resolution.binding_ref != binding_ref
+            or not _same_selected_artifact_ref(resolution.binding_ref, binding_ref)
             or resolution.tenant_id != tenant_id
             or resolution.cell_id != cell_id
             or binding.request_projection != request_projection
@@ -5281,11 +5764,14 @@ class ControlPlaneService(
             or binding.selected_method_params_sha256 != params_sha256
             or binding.selected_method_seed != seed
             or binding.selected_inference_profile_id != inference_profile_id
-            or binding.selected_method_input_ref != selected_method_input_ref
+            or not _same_selected_artifact_ref(
+                binding.selected_method_input_ref,
+                selected_method_input_ref,
+            )
             or binding.selected_method_input_content_sha256 != selected_method_input_content_sha256
         ):
             raise ValueError("search_task_binding_runtime_reconciliation_mismatch")
-        return SearchUncertaintyTaskAdmissionSnapshot(
+        resolved_snapshot = SearchUncertaintyTaskAdmissionSnapshot(
             binding_ref=ArtifactRef.model_validate(binding_ref.model_dump(mode="json")),
             binding_content_sha256=resolution.binding_content_sha256,
             ticket_id=resolution.ticket_id,
@@ -5312,13 +5798,13 @@ class ControlPlaneService(
             source_projection_ref=ArtifactRef.model_validate(
                 resolution.source_projection_ref.model_dump(mode="json")
             ),
-            selected_method_fqn=method_fqn,
-            selected_method_abi_version=method_version,
+            selected_method_fqn=selected_method_fqn,
+            selected_method_abi_version=selected_method_abi_version,
             selected_method_abi_digest=method_abi_digest,
-            selected_method_params=dict(resolved_params),
+            selected_method_params=selected_method_params,
             selected_method_params_sha256=params_sha256,
             selected_method_seed=seed,
-            selected_inference_profile_id=inference_profile_id,
+            selected_inference_profile_id=selected_inference_profile_id,
             selected_method_input_ref=ArtifactRef.model_validate(
                 selected_method_input_ref.model_dump(mode="json")
             ),
@@ -5329,12 +5815,19 @@ class ControlPlaneService(
             resolution_status="current",
             closure_status="recomputed",
         )
+        if admitted_snapshot is None:
+            return resolved_snapshot
+        if resolved_snapshot.model_dump(mode="python", exclude={"resolved_at"}) != (
+            admitted_snapshot.model_dump(mode="python", exclude={"resolved_at"})
+        ):
+            raise ValueError("search_task_binding_admitted_snapshot_drift")
+        return admitted_snapshot
 
     @staticmethod
     def _resolve_observational_method_params(
         signature: _MethodSignatureProtocol,
         submitted: Mapping[str, object],
-    ) -> dict[str, object]:
+    ) -> dict[str, JsonValue]:
         """Resolve only declared parameter names and defaults from the pinned signature."""
         specs = {spec.name: spec for spec in signature.parameters}
         if len(specs) != len(signature.parameters) or any(
@@ -5357,7 +5850,13 @@ class ControlPlaneService(
                 if type(value) is not int:
                     raise ValueError(f"observational_method_parameter_type_invalid:{name}")
             elif type(default) is float:
-                if type(value) not in {int, float} or not math.isfinite(float(value)):
+                if type(value) is int:
+                    numeric_value: int | float = value
+                elif type(value) is float:
+                    numeric_value = value
+                else:
+                    raise ValueError(f"observational_method_parameter_type_invalid:{name}")
+                if not math.isfinite(float(numeric_value)):
                     raise ValueError(f"observational_method_parameter_type_invalid:{name}")
             elif type(default) is str:
                 if type(value) is not str:
@@ -5368,16 +5867,29 @@ class ControlPlaneService(
                 raise ValueError(f"observational_method_parameter_type_not_established:{name}")
             lower, upper = spec.bounds
             if lower is not None or upper is not None:
-                if type(value) not in {int, float} or not math.isfinite(float(value)):
+                if type(value) is int:
+                    bounded_value: int | float = value
+                elif type(value) is float:
+                    bounded_value = value
+                else:
                     raise ValueError(f"observational_method_parameter_bounds_invalid:{name}")
-                if (lower is not None and value < lower) or (upper is not None and value > upper):
+                if not math.isfinite(float(bounded_value)):
+                    raise ValueError(f"observational_method_parameter_bounds_invalid:{name}")
+                if (lower is not None and bounded_value < lower) or (
+                    upper is not None and bounded_value > upper
+                ):
                     raise ValueError(f"observational_method_parameter_bounds_invalid:{name}")
             resolved[name] = value
         try:
-            json.dumps(resolved, ensure_ascii=False, allow_nan=False, sort_keys=True)
+            resolved_json = json.dumps(
+                resolved, ensure_ascii=False, allow_nan=False, sort_keys=True
+            )
+            normalized = json.loads(resolved_json)
         except (TypeError, ValueError) as exc:
             raise ValueError("observational_method_parameters_not_json") from exc
-        return resolved
+        if not isinstance(normalized, dict):
+            raise ValueError("observational_method_parameters_not_json")
+        return TypeAdapter(dict[str, JsonValue]).validate_python(normalized, strict=True)
 
     def _launch_observational_workflow_run(
         self,
@@ -5390,7 +5902,10 @@ class ControlPlaneService(
         principal: RuntimePrincipal | None,
     ) -> RunLaunchResponse:
         """Persist selected source/method pins, then enqueue a refs-only direct job."""
-        from polisyos.core.contracts.runtime import ObservationalRunIntent
+        from polisyos.core.contracts.runtime import (
+            ObservationalRunIntent,
+            _observational_intent_manifest_identity,
+        )
         from polisyos.ir.observation.bundles import ContractCompatibilityTarget
 
         selection = request.observational_input
@@ -5404,10 +5919,37 @@ class ControlPlaneService(
                 "Top-level workflow parameters cannot accompany observational_input.",
                 code="observational_input_top_level_params_conflict",
             )
+        from polisyos.core.artifacts.canonical_profile import (
+            CoreJsonReadBoundsRefusalError,
+        )
+
         try:
-            bounded_manifest, source_governance, source_tenant, source_manifest_sha256 = (
-                self._read_observational_source_manifest(selection.source_ref)
+            (
+                bounded_manifest,
+                source_governance,
+                source_tenant,
+                source_manifest_sha256,
+            ) = self._read_observational_source_manifest(selection.source_ref)
+        except CoreJsonReadBoundsRefusalError as exc:
+            # Core wraps an exact owner-access denial in its bounded-read refusal. Preserve
+            # that typed access boundary; other bounded, integrity, and profile refusals
+            # keep the established 422 admission response.
+            bounded_read_error = exc.__cause__
+            owner_error = (
+                bounded_read_error.original_exception
+                if isinstance(bounded_read_error, artifacts.ArtifactBoundedManifestReadError)
+                else bounded_read_error
             )
+            if type(owner_error) is artifacts.ArtifactOwnershipError:
+                raise forbidden(
+                    "Current tenant access to the selected observation manifest "
+                    "is not established.",
+                    code="observational_source_current_access_not_established",
+                ) from exc
+            raise unprocessable_entity(
+                "Selected observation manifest is not admissible for bounded method input.",
+                code="observational_source_manifest_not_admitted",
+            ) from exc
         except Exception as exc:
             raise unprocessable_entity(
                 "Selected observation manifest is not admissible for bounded method input.",
@@ -5463,6 +6005,34 @@ class ControlPlaneService(
                 "Submitted method parameters do not resolve against the selected method contract.",
                 code="observational_method_parameters_invalid",
             ) from exc
+        is_successor = registration.signature.fqn in _OBSERVATIONAL_METHOD_FQN_V2
+        if is_successor:
+            from polisyos.core.contracts.control import ObservationalHTERequestV2
+
+            hte_request = selection.hte_request
+            if type(hte_request) is not ObservationalHTERequestV2:
+                raise unprocessable_entity(
+                    "Version-two HTE methods require an immutable version-two estimand request.",
+                    code="observational_hte_request_v2_required",
+                )
+            if "alpha" in submitted_params:
+                if resolved_params.get("alpha") != hte_request.alpha:
+                    raise unprocessable_entity(
+                        "Submitted method alpha conflicts with immutable HTE request alpha.",
+                        code="observational_hte_method_alpha_conflict",
+                    )
+            else:
+                try:
+                    request_params = self._resolve_observational_method_params(
+                        signature,
+                        {"alpha": hte_request.alpha},
+                    )
+                except (TypeError, ValueError) as exc:
+                    raise unprocessable_entity(
+                        "The selected HTE method does not admit the immutable request alpha.",
+                        code="observational_hte_request_alpha_not_admitted",
+                    ) from exc
+                resolved_params["alpha"] = request_params["alpha"]
         resource_policy = self._resource_policy_for_registration(registration)
         try:
             self._require_observational_method_resource_profile(
@@ -5497,7 +6067,9 @@ class ControlPlaneService(
         if resource_policy_ref.manifest_profile_sha256 is None:
             raise RuntimeError("observational_resource_policy_profile_not_established")
         selected_resource_policy = _read_observational_resource_policy_artifact(
-            store=self._artifact_store,
+            store=self._require_core_bounded_member_reader(
+                limits=self._observational_read_limits()
+            ),
             policy_ref=resource_policy_ref,
             source_ref=selection.source_ref,
             source_governance=source_governance,
@@ -5513,10 +6085,16 @@ class ControlPlaneService(
             contract_id=_OBSERVATIONAL_METHOD_CONTRACT_TARGET_ID,
             contract_fqn=_OBSERVATIONAL_METHOD_CONTRACT_TARGET,
         )
-        is_successor = registration.signature.fqn in _OBSERVATIONAL_METHOD_FQN_V2
+        contract_target_id = TypeAdapter(
+            Literal["foundry.causal.hte_observational_data.v1"]
+        ).validate_python(contract_target.contract_id, strict=True)
+        contract_target_fqn = TypeAdapter(
+            Literal["polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"]
+        ).validate_python(contract_target.contract_fqn, strict=True)
         owned_hte_request_context = None
         search_binding_tenant_id = None
         search_binding_cell_id = None
+        search_binding_admission = None
         if is_successor:
             from polisyos.core.contracts.control import ObservationalHTERequestV2
             from polisyos.core.contracts.owned_attempt_anchor import OwnedHTERequestContextV1
@@ -5526,6 +6104,20 @@ class ControlPlaneService(
                 raise unprocessable_entity(
                     "Version-two HTE methods require an immutable version-two estimand request.",
                     code="observational_hte_request_v2_required",
+                )
+            binding_ref = hte_request.search_uncertainty_task_binding_ref
+            selected_binding_ref = None
+            if binding_ref is not None:
+                from polisyos.core.contracts.owned_attempt_anchor import SelectedArtifactRef
+
+                if binding_ref.manifest_profile_sha256 is None:
+                    raise unprocessable_entity(
+                        "The Search-owned HTE binding must select its manifest profile.",
+                        code="search_task_binding_profile_not_established",
+                    )
+                selected_binding_ref = SelectedArtifactRef.model_validate(
+                    binding_ref.model_dump(mode="json"),
+                    strict=True,
                 )
             owned_hte_request_context = OwnedHTERequestContextV1(
                 request_estimand_status="declared",
@@ -5545,9 +6137,7 @@ class ControlPlaneService(
                     "declared" if hte_request.requested_guarantee is not None else "not_established"
                 ),
                 requested_guarantee=hte_request.requested_guarantee,
-                search_uncertainty_task_binding_ref=(
-                    hte_request.search_uncertainty_task_binding_ref
-                ),
+                search_uncertainty_task_binding_ref=selected_binding_ref,
             )
             if hte_request.search_uncertainty_task_binding_ref is not None:
                 if (
@@ -5565,8 +6155,14 @@ class ControlPlaneService(
                     )
                 search_binding_tenant_id = principal.tenant_id
                 search_binding_cell_id = principal.cell_id
+                inference_profile_id = resource_policy.method_profile_id
+                if inference_profile_id is None:
+                    raise unprocessable_entity(
+                        "The exact selected method has no admitted inference profile.",
+                        code="search_task_binding_inference_profile_not_established",
+                    )
                 try:
-                    self._resolve_current_search_uncertainty_binding(
+                    search_binding_admission = self._resolve_search_uncertainty_binding(
                         binding_ref=hte_request.search_uncertainty_task_binding_ref,
                         tenant_id=search_binding_tenant_id,
                         cell_id=search_binding_cell_id,
@@ -5576,7 +6172,7 @@ class ControlPlaneService(
                         method_abi_digest=registration.signature.abi_digest(),
                         resolved_params=resolved_params,
                         seed=0,
-                        inference_profile_id=resource_policy.method_profile_id,
+                        inference_profile_id=inference_profile_id,
                         selected_method_input_ref=selection.source_ref,
                         selected_method_input_content_sha256=selection.source_ref.artifact_id.hex,
                     )
@@ -5588,9 +6184,13 @@ class ControlPlaneService(
                     ) from exc
         intent = ObservationalRunIntent(
             schema_version=(
-                "polisyos.runtime.observational_run_intent.v2"
-                if is_successor
-                else "polisyos.runtime.observational_run_intent.v1"
+                "polisyos.runtime.observational_run_intent.v3"
+                if search_binding_admission is not None
+                else (
+                    "polisyos.runtime.observational_run_intent.v2"
+                    if is_successor
+                    else "polisyos.runtime.observational_run_intent.v1"
+                )
             ),
             job_id=job_id,
             run_id=run_id,
@@ -5600,6 +6200,7 @@ class ControlPlaneService(
             method_fqn=registration.signature.fqn,
             method_version=registration.signature.version,
             owned_hte_request_context=owned_hte_request_context,
+            search_binding_admission=search_binding_admission,
             search_binding_tenant_id=search_binding_tenant_id,
             search_binding_cell_id=search_binding_cell_id,
             method_abi_digest=registration.signature.abi_digest(),
@@ -5612,8 +6213,8 @@ class ControlPlaneService(
             seed_policy_revision="server_seed_zero_v1",
             resource_policy=resource_policy,
             resource_policy_ref=resource_policy_ref,
-            contract_target_id=contract_target.contract_id,
-            contract_target_fqn=contract_target.contract_fqn,
+            contract_target_id=contract_target_id,
+            contract_target_fqn=contract_target_fqn,
             resource_policy_digest=resource_policy_digest,
             source_governance=source_governance,
             source_tenant_context=source_tenant,
@@ -5625,15 +6226,16 @@ class ControlPlaneService(
                 "source_access_revalidation_not_established",
             ),
         )
+        intent_input_edges = _observational_run_intent_input_edges(intent)
         intent_ref = self._put_json_artifact_ref(
             intent.artifact_payload(),
             kind="runtime.observational_run_intent",
             schema_name="polisyos.runtime.ObservationalRunIntent",
-            schema_version="2.0" if is_successor else "1.0",
+            schema_version=_observational_intent_manifest_identity(intent.schema_version)[2],
             governance=source_governance,
             tenant_context=source_tenant,
-            inputs=[selection.source_ref, resource_policy_ref],
-            input_roles=("requested_source", "resource_policy"),
+            inputs=[ref for ref, _role in intent_input_edges],
+            input_roles=tuple(role for _ref, role in intent_input_edges),
         )
         if intent_ref.manifest_profile_sha256 is None:
             raise RuntimeError("observational_run_intent_profile_not_established")
@@ -5666,59 +6268,95 @@ class ControlPlaneService(
             status="accepted",
             run_id=run_id,
             job_id=job_id,
-            effective_execution_profile=policy.effective_profile,
+            effective_execution_profile=_typed_execution_profile(policy.effective_profile),
             message=f"Workflow run {run_id} accepted and queued for durable execution.",
             observational_run_intent_ref=intent_ref,
             observational_selection_digest=selection_digest,
-            observational_method_fqn=registration.signature.fqn,
-            observational_contract_target_id=contract_target.contract_id,
-            observational_contract_target_fqn=contract_target.contract_fqn,
+            observational_method_fqn=TypeAdapter(
+                Literal[
+                    "causal.hte.forest_dr@1.0.0",
+                    "causal.hte.forest_dr@1.1.0",
+                    "causal.hte.causal_forest@2.0.0",
+                    "causal.hte.double_ml@2.0.0",
+                    "causal.hte.meta_learner@2.0.0",
+                    "causal.hte.forest_dr@2.0.0",
+                ]
+            ).validate_python(registration.signature.fqn, strict=True),
+            observational_contract_target_id=contract_target_id,
+            observational_contract_target_fqn=contract_target_fqn,
         )
 
-    def _read_bounded_intent_artifact(self, intent_ref: ArtifactRef) -> object:
-        """Resolve one full-profile intent using Core's bounded selected JSON reader."""
+    def _read_bounded_intent_artifact_read(
+        self, intent_ref: ArtifactRef
+    ) -> CoreJsonArtifactBoundedRead:
+        """Resolve and retain one full-profile bounded Core intent read."""
         from polisyos.core.artifacts import read_core_json_artifact_bounded
+        from polisyos.core.contracts.runtime import _observational_intent_manifest_identity
+        from polisyos.runtime.http.services.control.owned_attempt_anchor import (
+            _require_full_profile_ref,
+        )
 
-        result = read_core_json_artifact_bounded(
-            self._artifact_store,
+        intent_ref = _require_full_profile_ref(
             intent_ref,
-            limits=self._observational_read_limits(),
+            code="observational_run_intent_selected_profile_required",
+        )
+        limits = self._observational_read_limits()
+        result = read_core_json_artifact_bounded(
+            self._require_core_bounded_member_reader(limits=limits),
+            intent_ref,
+            limits=limits,
         )
         if not _same_selected_artifact_ref(result.effective_ref, intent_ref):
             raise ValueError("observational_run_intent_selected_profile_drift")
         value = result.value
         if not isinstance(value, Mapping):
             raise ValueError("observational_run_intent_payload_not_object")
+        try:
+            payload = TypeAdapter(dict[str, JsonValue]).validate_python(value, strict=True)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("observational_run_intent_payload_not_json_object") from exc
         manifest = result.manifest
-        payload_schema_version = value.get("schema_version")
-        schema_versions = {
-            (
-                "polisyos.runtime.observational_run_intent.v1",
-                "runtime.observational_run_intent",
-            ): ("polisyos.runtime.ObservationalRunIntent", "1.0"),
-            (
-                "polisyos.runtime.observational_run_intent.v2",
-                "runtime.observational_run_intent",
-            ): ("polisyos.runtime.ObservationalRunIntent", "2.0"),
-            (
-                "polisyos.runtime.content_admitted_observational_run_intent.v1",
-                "runtime.content_admitted_observational_run_intent",
-            ): ("polisyos.runtime.ContentAdmittedObservationalRunIntent", "1.0"),
-            (
-                "polisyos.runtime.content_admitted_observational_run_intent.v2",
-                "runtime.content_admitted_observational_run_intent",
-            ): ("polisyos.runtime.ContentAdmittedObservationalRunIntent", "2.0"),
-        }
-        expected_schema = schema_versions.get((payload_schema_version, intent_ref.kind))
+        payload_schema_version = payload.get("schema_version")
+        if type(payload_schema_version) is not str:
+            raise ValueError("observational_run_intent_schema_version_invalid")
+        try:
+            expected_kind, expected_name, expected_version = (
+                _observational_intent_manifest_identity(payload_schema_version)
+            )
+        except ValueError:
+            expected_kind = expected_name = expected_version = None
         if (
-            expected_schema is None
+            expected_kind != intent_ref.kind
             or manifest.kind != intent_ref.kind
             or manifest.media_type != "application/json"
-            or manifest.artifact_schema
-            != SchemaInfo(name=expected_schema[0], version=expected_schema[1])
+            or expected_name is None
+            or expected_version is None
+            or manifest.artifact_schema != SchemaInfo(name=expected_name, version=expected_version)
         ):
             raise ValueError("observational_intent_payload_manifest_version_mismatch")
-        return value
+        return result
+
+    def _read_bounded_intent_artifact(self, intent_ref: ArtifactRef) -> dict[str, JsonValue]:
+        """Return the JSON mapping view for callers that inspect generic intent fields."""
+        bounded = self._read_bounded_intent_artifact_read(intent_ref)
+        try:
+            return TypeAdapter(dict[str, JsonValue]).validate_python(bounded.value, strict=True)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("observational_run_intent_payload_not_json_object") from exc
+
+    def _read_bounded_intent_model(
+        self,
+        intent_ref: ArtifactRef,
+        *,
+        model: type[_BoundedArtifactModelT],
+    ) -> _BoundedArtifactModelT:
+        """Hydrate one persisted intent through Core's typed bounded JSON reader."""
+        from polisyos.core.artifacts import validate_core_model_bounded_read
+
+        return validate_core_model_bounded_read(
+            model,
+            self._read_bounded_intent_artifact_read(intent_ref),
+        )
 
     def resolve_method_execution_admission(
         self, *, work: MethodExecutionWork
@@ -5727,6 +6365,7 @@ class ControlPlaneService(
         from polisyos.core.contracts.runtime import (
             ObservationalInputResourcePolicy,
             ObservationalRunIntent,
+            SearchUncertaintyTaskAdmissionSnapshot,
         )
 
         current = self._control_store.current_execution_job_admission()
@@ -5755,13 +6394,18 @@ class ControlPlaneService(
             persisted_selection_digest = marker["observational_selection_digest"]
         except (KeyError, TypeError, ValueError) as exc:
             raise ValueError("observational_method_job_intent_malformed") from exc
-        if (
-            persisted_source_ref != work.requested_source_ref
-            or persisted_intent_ref != work.observational_run_intent_ref
+        if not _same_selected_artifact_ref(
+            persisted_source_ref,
+            work.requested_source_ref,
+        ) or not _same_selected_artifact_ref(
+            persisted_intent_ref,
+            work.observational_run_intent_ref,
         ):
             raise ValueError("observational_method_work_refs_not_job_bound")
-        raw_intent = self._read_bounded_intent_artifact(persisted_intent_ref)
-        intent = ObservationalRunIntent.model_validate(raw_intent)
+        intent = self._read_bounded_intent_model(
+            persisted_intent_ref,
+            model=ObservationalRunIntent,
+        )
         if (
             type(persisted_selection_digest) is not str
             or persisted_selection_digest != intent.selection_digest()
@@ -5780,7 +6424,9 @@ class ControlPlaneService(
             raise ValueError("observational_method_registration_not_supported")
         expected_resource_policy = self._resource_policy_for_registration(registration)
         selected_resource_policy = _read_observational_resource_policy_artifact(
-            store=self._artifact_store,
+            store=self._require_core_bounded_member_reader(
+                limits=self._observational_read_limits()
+            ),
             policy_ref=intent.resource_policy_ref,
             source_ref=persisted_source_ref,
             source_governance=source_governance,
@@ -5820,7 +6466,10 @@ class ControlPlaneService(
             or source_manifest_sha256 != intent.source_manifest_sha256
             or intent.job_id != job.job_id
             or intent.run_id != str(job.run_id or "")
-            or intent.requested_source_ref != persisted_source_ref
+            or not _same_selected_artifact_ref(
+                intent.requested_source_ref,
+                persisted_source_ref,
+            )
             or intent.resource_policy_ref is None
             or intent.resource_policy_digest != expected_resource_policy.digest()
             or intent.resource_policy != expected_resource_policy
@@ -5851,6 +6500,43 @@ class ControlPlaneService(
             )
         except ValueError as exc:
             raise ValueError("observational_method_intent_resource_profile_drift") from exc
+        search_binding_admission = None
+        if intent.schema_version == "polisyos.runtime.observational_run_intent.v3":
+            snapshot = intent.search_binding_admission
+            request_context = intent.owned_hte_request_context
+            if (
+                type(snapshot) is not SearchUncertaintyTaskAdmissionSnapshot
+                or request_context is None
+                or request_context.search_uncertainty_task_binding_ref is None
+                or intent.search_binding_tenant_id is None
+                or intent.search_binding_cell_id is None
+                or current.scope.status != "established"
+                or current.scope.actor_authenticated is not True
+                or current.scope.tenant_id != intent.search_binding_tenant_id
+                or current.scope.cell_id != intent.search_binding_cell_id
+                or type(expected_resource_policy.method_profile_id) is not str
+                or expected_resource_policy.method_profile_id
+                != snapshot.selected_inference_profile_id
+            ):
+                raise ValueError("observational_method_search_admission_scope_not_established")
+            try:
+                search_binding_admission = self._resolve_search_uncertainty_binding(
+                    binding_ref=request_context.search_uncertainty_task_binding_ref,
+                    tenant_id=intent.search_binding_tenant_id,
+                    cell_id=intent.search_binding_cell_id,
+                    request_context=request_context,
+                    method_fqn=intent.method_fqn,
+                    method_version=intent.method_version,
+                    method_abi_digest=intent.method_abi_digest,
+                    resolved_params=intent.resolved_params,
+                    seed=intent.seed,
+                    inference_profile_id=expected_resource_policy.method_profile_id,
+                    selected_method_input_ref=persisted_source_ref,
+                    selected_method_input_content_sha256=persisted_source_ref.artifact_id.hex,
+                    admitted_snapshot=snapshot,
+                )
+            except (TypeError, ValueError) as exc:
+                raise ValueError("observational_method_search_admission_not_reconciled") from exc
         return _RuntimeMethodExecutionAdmission(
             store=cast("_MethodExecutionArtifactStore", self._artifact_store),
             requested_source_ref=persisted_source_ref,
@@ -5866,6 +6552,7 @@ class ControlPlaneService(
             owned_hte_request_context=intent.owned_hte_request_context,
             search_binding_tenant_id=intent.search_binding_tenant_id,
             search_binding_cell_id=intent.search_binding_cell_id,
+            search_binding_admission=search_binding_admission,
             effective_params=dict(intent.resolved_params),
             submitted_params=dict(intent.submitted_params),
             submitted_params_present=intent.submitted_params_present,
@@ -5948,6 +6635,7 @@ class ControlPlaneService(
             _expected_content_admitted_limitations,
             _expected_observational_limitations,
             _expected_observational_normalization,
+            _observational_intent_manifest_identity,
         )
         from polisyos.ir.observation.bundles import ContractCompatibilityTarget
 
@@ -5967,8 +6655,14 @@ class ControlPlaneService(
             or job.attempt != work.attempt
             or job.state != "running"
             or job.lease_owner != admission.lease_owner
-            or admission.requested_source_ref != work.requested_source_ref
-            or admission.observational_run_intent_ref != work.observational_run_intent_ref
+            or not _same_selected_artifact_ref(
+                admission.requested_source_ref,
+                work.requested_source_ref,
+            )
+            or not _same_selected_artifact_ref(
+                admission.observational_run_intent_ref,
+                work.observational_run_intent_ref,
+            )
         ):
             raise ControlJobLeaseLostError("content_admitted_intent_live_lease_mismatch")
         _, current_governance, current_tenant_context, current_manifest_sha256 = (
@@ -5984,8 +6678,9 @@ class ControlPlaneService(
         ):
             raise ValueError("content_admitted_intent_source_manifest_pin_drift")
         _require_public_candidate_source(current_governance, current_tenant_context)
-        requested_intent = ObservationalRunIntent.model_validate(
-            self._read_bounded_intent_artifact(admission.observational_run_intent_ref)
+        requested_intent = self._read_bounded_intent_model(
+            admission.observational_run_intent_ref,
+            model=ObservationalRunIntent,
         )
         expected_normalization = _expected_observational_normalization(source_protocol)
         expected_request_limitations = _expected_observational_limitations(
@@ -6004,17 +6699,24 @@ class ControlPlaneService(
         if (
             requested_intent.job_id != work.job_id
             or requested_intent.run_id != work.run_id
-            or requested_intent.requested_source_ref != admission.requested_source_ref
+            or not _same_selected_artifact_ref(
+                requested_intent.requested_source_ref,
+                admission.requested_source_ref,
+            )
             or requested_intent.protocol != admission.protocol
             or requested_intent.source_manifest_sha256 != admission.source_manifest_sha256
             or requested_intent.method_fqn != admission.method_fqn
             or requested_intent.method_version != admission.method_version
             or requested_intent.method_abi_digest != admission.method_abi_digest
             or requested_intent.method_build_digest != admission.method_build_digest
-            or requested_intent.resource_policy_ref != admission.resource_policy_ref
+            or not _same_selected_artifact_ref(
+                requested_intent.resource_policy_ref,
+                admission.resource_policy_ref,
+            )
             or requested_intent.resource_policy_digest != admission.resource_policy_digest
             or requested_intent.resource_policy != admission.resource_policy
             or requested_intent.owned_hte_request_context != admission.owned_hte_request_context
+            or requested_intent.search_binding_admission != admission.search_binding_admission
             or requested_intent.search_binding_tenant_id != admission.search_binding_tenant_id
             or requested_intent.search_binding_cell_id != admission.search_binding_cell_id
             or requested_intent.contract_target_id != contract_target_id
@@ -6025,7 +6727,10 @@ class ControlPlaneService(
             or requested_intent.source_access_revalidation_status
             != admission.source_access_revalidation_status
             or admission.source_access_revalidation_status != _OBSERVATIONAL_SOURCE_ACCESS_STATUS
-            or submitted_ref != admission.requested_source_ref
+            or not _same_selected_artifact_ref(
+                submitted_ref,
+                admission.requested_source_ref,
+            )
             or method_fqn != admission.method_fqn
             or source_protocol != admission.protocol
             or normalization != expected_normalization
@@ -6094,7 +6799,7 @@ class ControlPlaneService(
             selected_profile_id = admission.resource_policy.method_profile_id
             if type(selected_profile_id) is not str:
                 raise ValueError("content_admitted_search_method_profile_not_established")
-            search_binding_admission = self._resolve_current_search_uncertainty_binding(
+            search_binding_admission = self._resolve_search_uncertainty_binding(
                 binding_ref=search_binding_ref,
                 tenant_id=admission.search_binding_tenant_id,
                 cell_id=admission.search_binding_cell_id,
@@ -6107,12 +6812,17 @@ class ControlPlaneService(
                 inference_profile_id=selected_profile_id,
                 selected_method_input_ref=effective_ref,
                 selected_method_input_content_sha256=effective_ref.artifact_id.hex,
+                admitted_snapshot=admission.search_binding_admission,
             )
         intent = ContentAdmittedObservationalRunIntent(
             schema_version=(
-                "polisyos.runtime.content_admitted_observational_run_intent.v2"
-                if admission.method_fqn in _OBSERVATIONAL_METHOD_FQN_V2
-                else "polisyos.runtime.content_admitted_observational_run_intent.v1"
+                "polisyos.runtime.content_admitted_observational_run_intent.v3"
+                if admission.search_binding_admission is not None
+                else (
+                    "polisyos.runtime.content_admitted_observational_run_intent.v2"
+                    if admission.method_fqn in _OBSERVATIONAL_METHOD_FQN_V2
+                    else "polisyos.runtime.content_admitted_observational_run_intent.v1"
+                )
             ),
             job_id=job.job_id,
             run_id=str(job.run_id or ""),
@@ -6148,64 +6858,24 @@ class ControlPlaneService(
             observed_elements=observed_elements,
             resource_policy_digest=admission.resource_policy_digest,
         )
-        intent_inputs = [
-            admission.observational_run_intent_ref,
-            admission.requested_source_ref,
-            admission.resource_policy_ref,
-            submitted_ref,
-            effective_ref,
-        ]
-        intent_input_roles = [
-            "observational_run_intent",
-            "requested_source",
-            "resource_policy",
-            "submitted_input",
-            "effective_input",
-        ]
-        if search_binding_admission is not None:
-            intent_inputs.extend(
-                [
-                    search_binding_admission.binding_ref,
-                    search_binding_admission.projection_ref,
-                    search_binding_admission.task_admission_ref,
-                    search_binding_admission.task_epoch_ref,
-                    search_binding_admission.owner_context_ref,
-                    search_binding_admission.basis_ref,
-                    search_binding_admission.dependency_inventory_ref,
-                    search_binding_admission.source_projection_ref,
-                ]
-            )
-            intent_input_roles.extend(
-                [
-                    "search_uncertainty_task_binding",
-                    "search_uncertainty_task_projection",
-                    "search_uncertainty_task_admission",
-                    "search_uncertainty_task_epoch",
-                    "search_uncertainty_owner_context",
-                    "search_uncertainty_task_basis",
-                    "search_uncertainty_dependency_inventory",
-                    "search_uncertainty_source_projection",
-                ]
-            )
+        intent_input_edges = _content_admitted_intent_input_edges(intent)
         ref = self._put_json_artifact_ref(
             intent.artifact_payload(),
             kind="runtime.content_admitted_observational_run_intent",
             schema_name="polisyos.runtime.ContentAdmittedObservationalRunIntent",
-            schema_version=(
-                "2.0" if admission.method_fqn in _OBSERVATIONAL_METHOD_FQN_V2 else "1.0"
-            ),
+            schema_version=_observational_intent_manifest_identity(intent.schema_version)[2],
             governance=source_governance,
             tenant_context=source_tenant_context,
-            inputs=intent_inputs,
-            input_roles=tuple(intent_input_roles),
+            inputs=[ref for ref, _role in intent_input_edges],
+            input_roles=tuple(role for _ref, role in intent_input_edges),
         )
         if ref.manifest_profile_sha256 is None:
             raise RuntimeError("content_admitted_intent_profile_not_established")
         return ref
 
     def resolve_method_metric_projection_store(
-        self, *, work: MethodMetricProjectionWork
-    ) -> _MethodExecutionArtifactStore:
+        self, *, work: MethodMetricProjectionWorkLike
+    ) -> _MethodMetricProjectionArtifactStore | None:
         """Resolve AD01 CAS only for the exact raw graph refs returned by this workflow."""
         source = _RUNTIME_GRAPH_METRIC_SOURCE.get()
         if source is None or (
@@ -6229,7 +6899,14 @@ class ControlPlaneService(
             or job.state != "running"
         ):
             raise ControlJobLeaseLostError("method_metric_projection_live_lease_mismatch")
-        return cast("_MethodExecutionArtifactStore", self._artifact_store)
+        from polisyos.core.artifacts.protocol import matches_runtime_protocol
+
+        protocol_owner = _configured_core_read_owner(self._artifact_store)
+        if not matches_runtime_protocol(
+            protocol_owner, _RuntimeMethodMetricProjectionArtifactStore
+        ):
+            return None
+        return protocol_owner
 
     def persist_pre_output_owned_attempt_anchor(
         self,
@@ -6282,8 +6959,12 @@ class ControlPlaneService(
         self,
         *,
         anchor_ref: OwnedAttemptAnchorRef,
+        expected_completed_event_id: int | None = None,
+        expected_job_id: str | None = None,
+        expected_tenant_id: str | None = None,
+        expected_cell_id: str | None | object = _RUN_LIFECYCLE_OWNER_SCOPE_UNSET,
     ) -> OwnedAttemptAnchorAssociation:
-        """Resolve a Core anchor to the current completed owner-selected output tuple."""
+        """Resolve an anchor to a current or exact historical completed selection."""
         from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorRef
         from polisyos.runtime.http.services.control.owned_attempt_anchor import (
             resolve_owned_attempt_anchor_association,
@@ -6291,14 +6972,42 @@ class ControlPlaneService(
 
         if type(anchor_ref) is not OwnedAttemptAnchorRef:
             raise TypeError("method_execution_owned_anchor_ref_invalid")
-        return resolve_owned_attempt_anchor_association(service=self, anchor_ref=anchor_ref)
+        if (
+            expected_cell_id is not _RUN_LIFECYCLE_OWNER_SCOPE_UNSET
+            and expected_cell_id is not None
+            and type(expected_cell_id) is not str
+        ):
+            raise TypeError("method_execution_expected_cell_id_invalid")
+        if (
+            expected_completed_event_id is None
+            and expected_job_id is None
+            and expected_tenant_id is None
+            and expected_cell_id is _RUN_LIFECYCLE_OWNER_SCOPE_UNSET
+        ):
+            return resolve_owned_attempt_anchor_association(service=self, anchor_ref=anchor_ref)
+        if expected_cell_id is _RUN_LIFECYCLE_OWNER_SCOPE_UNSET:
+            return resolve_owned_attempt_anchor_association(
+                service=self,
+                anchor_ref=anchor_ref,
+                expected_completed_event_id=expected_completed_event_id,
+                expected_job_id=expected_job_id,
+                expected_tenant_id=expected_tenant_id,
+            )
+        return resolve_owned_attempt_anchor_association(
+            service=self,
+            anchor_ref=anchor_ref,
+            expected_completed_event_id=expected_completed_event_id,
+            expected_job_id=expected_job_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+        )
 
     def resolve_historical_search_uncertainty_task_binding(
         self,
         *,
         binding_ref: ArtifactRef,
-        owner_association: OwnedAttemptAnchorAssociation,
-    ) -> object:
+        owner_association: SearchOwnedAttemptAssociation,
+    ) -> SearchUncertaintyTaskBindingResolution:
         """Reconcile an admitted Search binding to its immutable Runtime attempt.
 
         The Search owner proves the binding's own ticket history and dependency
@@ -6307,8 +7016,8 @@ class ControlPlaneService(
         and the Search admission snapshot written before dispatch.
         """
         from polisyos.core.artifacts import (
-            ensure_ir_artifact_store,
             read_core_json_artifact_bounded,
+            validate_core_model_bounded_read,
         )
         from polisyos.core.contracts.owned_attempt_anchor import (
             OwnedAttemptAnchor,
@@ -6320,6 +7029,7 @@ class ControlPlaneService(
             SearchUncertaintyTaskAdmissionSnapshot,
         )
         from polisyos.runtime.http.services.control.owned_attempt_anchor import (
+            _require_full_profile_ref,
             _same_request_context,
         )
         from polisyos.scientist.methods.search.uncertainty import (
@@ -6329,19 +7039,25 @@ class ControlPlaneService(
             resolve_historical_search_uncertainty_task_binding,
         )
 
+        binding_ref = _require_full_profile_ref(
+            binding_ref,
+            code="runtime_historical_search_binding_owner_selection_invalid",
+        )
         if (
-            type(binding_ref) is not ArtifactRef
-            or binding_ref.kind != "scientist.search.uncertainty_task_binding"
+            binding_ref.kind != "scientist.search.uncertainty_task_binding"
             or binding_ref.media_type != "application/json"
             or binding_ref.manifest_profile_sha256 is None
             or type(owner_association) is not OwnedAttemptAnchorAssociation
-            or owner_association.search_uncertainty_task_binding_ref != binding_ref
+            or not _same_selected_artifact_ref(
+                owner_association.search_uncertainty_task_binding_ref,
+                binding_ref,
+            )
             or owner_association.anchor_ref.manifest_profile_sha256 is None
         ):
             raise ValueError("runtime_historical_search_binding_owner_selection_invalid")
 
         resolution = resolve_historical_search_uncertainty_task_binding(
-            store=ensure_ir_artifact_store(self._artifact_store),
+            store=self._require_search_uncertainty_store(),
             binding_ref=binding_ref,
             owner_association=owner_association,
         )
@@ -6350,7 +7066,7 @@ class ControlPlaneService(
             or resolution.schema_version != "1.0"
             or resolution.resolution_status != "historical"
             or resolution.closure_status != "recomputed"
-            or resolution.binding_ref != binding_ref
+            or not _same_selected_artifact_ref(resolution.binding_ref, binding_ref)
             or type(resolution.binding) is not SearchUncertaintyTaskBinding
             or resolution.binding_content_sha256 != binding_ref.artifact_id.hex
             or not resolution.tenant_id
@@ -6358,15 +7074,20 @@ class ControlPlaneService(
         ):
             raise ValueError("runtime_historical_search_binding_resolution_invalid")
 
-        bounded_anchor = read_core_json_artifact_bounded(
-            self._artifact_store,
+        limits = self._observational_read_limits()
+        selected_anchor_ref = _require_full_profile_ref(
             owner_association.anchor_ref,
-            limits=self._observational_read_limits(),
+            code="runtime_historical_search_anchor_profile_invalid",
+        )
+        bounded_anchor = read_core_json_artifact_bounded(
+            self._require_core_bounded_member_reader(limits=limits),
+            selected_anchor_ref,
+            limits=limits,
         )
         if (
             not _same_selected_artifact_ref(
                 bounded_anchor.effective_ref,
-                owner_association.anchor_ref,
+                selected_anchor_ref,
             )
             or bounded_anchor.manifest.kind != "runtime.owned_attempt_anchor"
             or bounded_anchor.manifest.media_type != "application/json"
@@ -6375,11 +7096,17 @@ class ControlPlaneService(
         ):
             raise ValueError("runtime_historical_search_anchor_profile_invalid")
         try:
-            anchor = OwnedAttemptAnchor.model_validate(bounded_anchor.value, strict=True)
+            anchor = validate_core_model_bounded_read(
+                OwnedAttemptAnchor,
+                bounded_anchor,
+            )
         except (TypeError, ValueError) as exc:
             raise ValueError("runtime_historical_search_anchor_payload_invalid") from exc
         if (
-            anchor.request_context.search_uncertainty_task_binding_ref != binding_ref
+            not _same_selected_artifact_ref(
+                anchor.request_context.search_uncertainty_task_binding_ref,
+                binding_ref,
+            )
             or anchor.job_id != owner_association.job_id
             or anchor.run_id != owner_association.run_id
             or anchor.attempt != owner_association.attempt
@@ -6387,23 +7114,22 @@ class ControlPlaneService(
             or anchor.tenant_id != resolution.tenant_id
             or anchor.cell_id != resolution.cell_id
             or anchor.input_admission.admission_status != "input_admitted"
-            or anchor.effective_input_ref != owner_association.source_data_ref
+            or not _same_selected_artifact_ref(
+                anchor.effective_input_ref,
+                owner_association.source_data_ref,
+            )
         ):
             raise ValueError("runtime_historical_search_anchor_binding_mismatch")
 
         content_intent_ref = anchor.content_admitted_intent_ref
-        raw_content_intent = self._read_bounded_intent_artifact(content_intent_ref)
         try:
-            content_intent = ContentAdmittedObservationalRunIntent.model_validate(
-                raw_content_intent,
-                strict=True,
+            content_intent = self._read_bounded_intent_model(
+                content_intent_ref,
+                model=ContentAdmittedObservationalRunIntent,
             )
-            raw_requested_intent = self._read_bounded_intent_artifact(
-                content_intent.requested_intent_ref
-            )
-            requested_intent = ObservationalRunIntent.model_validate(
-                raw_requested_intent,
-                strict=True,
+            requested_intent = self._read_bounded_intent_model(
+                content_intent.requested_intent_ref,
+                model=ObservationalRunIntent,
             )
         except (TypeError, ValueError) as exc:
             raise ValueError("runtime_historical_search_intents_invalid") from exc
@@ -6438,7 +7164,10 @@ class ControlPlaneService(
         if (
             resolution.owner_revision != binding.owner_revision
             or resolution.projection_revision != binding.projection_revision
-            or resolution.projection_ref != binding.source_projection_ref
+            or not _same_selected_artifact_ref(
+                resolution.projection_ref,
+                binding.source_projection_ref,
+            )
         ):
             raise ValueError("runtime_historical_search_binding_revision_mismatch")
         expected_snapshot_values = (
@@ -6476,13 +7205,22 @@ class ControlPlaneService(
             or content_intent.run_id != anchor.run_id
             or content_intent.attempt != anchor.attempt
             or content_intent.method_fqn != anchor.method_fqn
-            or content_intent.resource_policy_ref != anchor.resource_policy_ref
+            or not _same_selected_artifact_ref(
+                content_intent.resource_policy_ref,
+                anchor.resource_policy_ref,
+            )
             or not _same_request_context(
                 content_intent.owned_hte_request_context,
                 requested_intent.owned_hte_request_context,
             )
-            or content_intent.requested_intent_ref != anchor.observational_run_intent_ref
-            or content_intent.effective_input_ref != anchor.effective_input_ref
+            or not _same_selected_artifact_ref(
+                content_intent.requested_intent_ref,
+                anchor.observational_run_intent_ref,
+            )
+            or not _same_selected_artifact_ref(
+                content_intent.effective_input_ref,
+                anchor.effective_input_ref,
+            )
             or content_intent.search_binding_tenant_id != anchor.tenant_id
             or content_intent.search_binding_cell_id != anchor.cell_id
             or not _same_request_context(
@@ -6497,7 +7235,10 @@ class ControlPlaneService(
             or binding.selected_method_params_sha256 != params_sha256
             or binding.selected_method_seed != requested_intent.seed
             or binding.selected_inference_profile_id != anchor.resource_policy_method_profile_id
-            or binding.selected_method_input_ref != anchor.effective_input_ref
+            or not _same_selected_artifact_ref(
+                binding.selected_method_input_ref,
+                anchor.effective_input_ref,
+            )
             or binding.selected_method_input_content_sha256
             != anchor.effective_input_ref.artifact_id.hex
             or resolution.selected_method_fqn != anchor.method_fqn
@@ -6507,9 +7248,16 @@ class ControlPlaneService(
             or resolution.selected_method_params_sha256 != params_sha256
             or resolution.selected_method_seed != requested_intent.seed
             or resolution.selected_inference_profile_id != anchor.resource_policy_method_profile_id
-            or resolution.selected_method_input_ref != anchor.effective_input_ref
-            or resolution.selected_method_input_sha256 != anchor.effective_input_ref.artifact_id.hex
-            or any(left != right for left, right in expected_snapshot_values)
+            or not _same_selected_artifact_ref(
+                resolution.selected_method_input_ref,
+                anchor.effective_input_ref,
+            )
+            or resolution.selected_method_input_content_sha256
+            != anchor.effective_input_ref.artifact_id.hex
+            or any(
+                not _same_selected_reference_or_value(left, right)
+                for left, right in expected_snapshot_values
+            )
         ):
             raise ValueError("runtime_historical_search_snapshot_binding_mismatch")
         return resolution
@@ -6531,15 +7279,15 @@ class ControlPlaneService(
         """
         from pydantic import TypeAdapter
 
-        from polisyos.core.artifacts.manifest import artifact_ref_identity_key
         from polisyos.core.contracts.owned_attempt_anchor import (
             OwnedAttemptAnchorAssociation,
             OwnedAttemptAnchorRef,
         )
         from polisyos.core.contracts.runtime import (
             DirectMethodExecutionSelection,
-            MethodExecutionSelection,
             RuntimeSearchHTECompletionDeliveryV1,
+            _validate_method_execution_selection_wire_payload,
+            _validate_strict_json_wire_payload,
         )
         from polisyos.runtime.http.services.control.owned_attempt_anchor import (
             resolve_owned_attempt_anchor_association,
@@ -6569,7 +7317,7 @@ class ControlPlaneService(
                 job_id=job_id,
                 completed_event_id=completed_event_id,
             )
-        except (OSError, RuntimeError, TypeError, ValueError):
+        except OSError, RuntimeError, TypeError, ValueError:
             return None
         if (
             record is None
@@ -6588,25 +7336,32 @@ class ControlPlaneService(
         ):
             return None
         try:
-            delivery = TypeAdapter(RuntimeSearchHTECompletionDeliveryV1).validate_python(
+            delivery = _validate_strict_json_wire_payload(
                 delivery_record.payload,
-                strict=True,
+                TypeAdapter(RuntimeSearchHTECompletionDeliveryV1),
+                invalid_code="search_hte_outbox_payload_invalid",
             )
             selection_payload = event.payload.get("method_execution_selection")
-            selection = TypeAdapter(MethodExecutionSelection).validate_python(
-                selection_payload,
-                strict=True,
-            )
-        except (TypeError, ValueError):
+            selection = _validate_method_execution_selection_wire_payload(selection_payload)
+        except TypeError, ValueError:
             return None
 
         def same_selected_ref(left: object, right: object) -> bool:
             """Compare complete selected ArtifactRef identity across DTO subclasses."""
-            if not isinstance(left, ArtifactRef) or not isinstance(right, ArtifactRef):
-                return False
-            if left.manifest_profile_sha256 is None or right.manifest_profile_sha256 is None:
-                return False
-            return artifact_ref_identity_key(left) == artifact_ref_identity_key(right)
+            return _same_selected_artifact_ref(left, right)
+
+        def same_optional_selected_ref(
+            left: object,
+            right: object,
+            *,
+            absence_is_valid_for_selected_kind: bool,
+        ) -> bool:
+            """Compare a typed optional ref, permitting only valid selected-kind absence."""
+            return _same_optional_selected_artifact_ref_for_kind(
+                left,
+                right,
+                absence_is_valid_for_selected_kind=absence_is_valid_for_selected_kind,
+            )
 
         if (
             type(selection) is not DirectMethodExecutionSelection
@@ -6654,7 +7409,7 @@ class ControlPlaneService(
                 expected_tenant_id=tenant_id,
                 expected_cell_id=cell_id,
             )
-        except (OSError, RuntimeError, TypeError, ValueError):
+        except OSError, RuntimeError, TypeError, ValueError:
             return None
         if (
             type(association) is not OwnedAttemptAnchorAssociation
@@ -6669,24 +7424,41 @@ class ControlPlaneService(
             or not same_selected_ref(association.source_data_ref, selection.hte.source_data_ref)
             or not same_selected_ref(association.method_result_ref, selection.method_result_ref)
             or not same_selected_ref(association.method_evidence_ref, selection.method_evidence_ref)
-            or not same_selected_ref(association.point_result_ref, selection.hte.point_result_ref)
-            or not same_selected_ref(association.hte_result_ref, selection.hte.hte_result_ref)
-            or not same_selected_ref(
-                association.inference_basis_ref, selection.hte.inference_basis_ref
+            or not same_optional_selected_ref(
+                association.point_result_ref,
+                selection.hte.point_result_ref,
+                absence_is_valid_for_selected_kind=selection.hte.kind != "point_estimate",
             )
-            or not same_selected_ref(
-                association.refusal_diagnostic_ref, selection.hte.refusal_diagnostic_ref
+            or not same_optional_selected_ref(
+                association.hte_result_ref,
+                selection.hte.hte_result_ref,
+                absence_is_valid_for_selected_kind=selection.hte.kind != "interval_estimate",
             )
-            or not same_selected_ref(
-                association.invocation_basis_ref, selection.invocation_basis_ref
+            or not same_optional_selected_ref(
+                association.inference_basis_ref,
+                selection.hte.inference_basis_ref,
+                absence_is_valid_for_selected_kind=selection.hte.kind != "interval_estimate",
+            )
+            or not same_optional_selected_ref(
+                association.refusal_diagnostic_ref,
+                selection.hte.refusal_diagnostic_ref,
+                absence_is_valid_for_selected_kind=selection.hte.kind != "refusal",
+            )
+            or not same_optional_selected_ref(
+                association.invocation_basis_ref,
+                selection.invocation_basis_ref,
+                absence_is_valid_for_selected_kind=selection.invocation_basis_ref is None,
             )
             or not same_selected_ref(
                 association.search_uncertainty_task_binding_ref,
                 selection.hte.search_uncertainty_task_binding_ref,
             )
-            or not same_selected_ref(
+            or not same_optional_selected_ref(
                 association.materialization_binding_ref,
                 selection.hte.materialization_binding_ref,
+                absence_is_valid_for_selected_kind=(
+                    selection.hte.resource_evidence.owner_policy_revision != "r5"
+                ),
             )
         ):
             return None
@@ -6741,7 +7513,9 @@ class ControlPlaneService(
     ) -> None:
         """Bind the selected refs to their exact bounded producer manifests."""
         _validate_direct_method_execution_selection_artifacts(
-            store=self._artifact_store,
+            store=self._require_core_bounded_member_reader(
+                limits=self._observational_read_limits()
+            ),
             selection=selection,
             limits=self._observational_read_limits(),
         )
@@ -6750,34 +7524,74 @@ class ControlPlaneService(
         """Return whether this persisted job payload selected the direct method path."""
         return _OBSERVATIONAL_METHOD_INTENT_PAYLOAD_KEY in payload
 
-    def _complete_observational_method_control_job(
+    def _has_observational_method_job_selection(
         self,
         *,
         job: ControlJobRecord,
         payload: Mapping[str, Any],
-        capability_manifest_ref: str,
-        execution_scope: ControlJobExecutionScope,
-    ) -> None:
-        """Dispatch one refs-only method work item and atomically publish its selection."""
-        from polisyos.core.contracts.runtime import (
-            ContentAdmittedObservationalRunIntent,
-            DirectMethodExecutionSelection,
-            MethodExecutionCandidateOutcome,
-            ObservationalRunIntent,
-            _expected_content_admitted_limitations,
-        )
-        from polisyos.scientist.compute.runner import (
-            MethodExecutionInputRefusalOutcome,
-            MethodExecutionWork,
-        )
+    ) -> bool:
+        """Check both immutable creation selection and the current payload marker."""
+        if job.kind != "workflow_run":
+            return False
+        created_event = self._control_store.get_job_created_event_payload(job.job_id)
+        return (
+            isinstance(created_event, Mapping)
+            and _OBSERVATIONAL_METHOD_INTENT_PAYLOAD_KEY in created_event
+        ) or self._is_observational_method_job(payload)
+
+    def _read_validated_observational_method_job_intent(
+        self,
+        *,
+        job: ControlJobRecord,
+        payload: Mapping[str, Any],
+    ) -> tuple[ArtifactRef, ArtifactRef, str, _ObservationalRunIntent]:
+        """Resolve the immutable creation-time selection before selecting work refs."""
+        from polisyos.core.contracts.runtime import ObservationalRunIntent
 
         marker = payload.get(_OBSERVATIONAL_METHOD_INTENT_PAYLOAD_KEY)
         if not isinstance(marker, Mapping):
             raise ValueError("observational_method_job_marker_invalid")
         try:
-            requested_source_ref = ArtifactRef.model_validate(marker["requested_source_ref"])
-            intent_ref = ArtifactRef.model_validate(marker["observational_run_intent_ref"])
-            selection_digest = marker["observational_selection_digest"]
+            created_event = self._control_store.get_job_created_event_payload(job.job_id)
+        except (RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("observational_method_job_creation_event_unavailable") from exc
+        if (
+            created_event.get("job_id") != job.job_id
+            or created_event.get("run_id") != job.run_id
+            or created_event.get("job_kind") != "workflow_run"
+            or created_event.get("payload_ref") != job.payload_ref
+        ):
+            raise ValueError("observational_method_job_creation_event_binding_mismatch")
+        created_marker = created_event.get(_OBSERVATIONAL_METHOD_INTENT_PAYLOAD_KEY)
+        if not isinstance(created_marker, Mapping):
+            raise ValueError("observational_method_job_creation_marker_missing")
+        try:
+            payload_projection = json.dumps(
+                dict(marker),
+                ensure_ascii=False,
+                allow_nan=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+            created_projection = json.dumps(
+                dict(created_marker),
+                ensure_ascii=False,
+                allow_nan=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("observational_method_job_marker_malformed") from exc
+        if payload_projection != created_projection:
+            raise ValueError("observational_method_job_payload_selection_not_creation_bound")
+        try:
+            requested_source_ref = ArtifactRef.model_validate(
+                created_marker["requested_source_ref"], strict=True
+            )
+            intent_ref = ArtifactRef.model_validate(
+                created_marker["observational_run_intent_ref"], strict=True
+            )
+            selection_digest = created_marker["observational_selection_digest"]
         except (KeyError, TypeError, ValueError) as exc:
             raise ValueError("observational_method_job_marker_invalid") from exc
         if (
@@ -6785,14 +7599,61 @@ class ControlPlaneService(
             or intent_ref.manifest_profile_sha256 is None
         ):
             raise ValueError("observational_method_job_marker_profile_missing")
-        requested_intent = ObservationalRunIntent.model_validate(
-            self._read_bounded_intent_artifact(intent_ref)
+
+        requested_intent = self._read_bounded_intent_model(
+            intent_ref,
+            model=ObservationalRunIntent,
         )
+        if (
+            requested_intent.job_id != job.job_id
+            or requested_intent.run_id != str(job.run_id or "")
+            or not _same_selected_artifact_ref(
+                requested_source_ref,
+                requested_intent.requested_source_ref,
+            )
+            or type(selection_digest) is not str
+            or selection_digest != requested_intent.selection_digest()
+        ):
+            raise ValueError("observational_method_job_selection_or_intent_binding_mismatch")
+        return (
+            requested_intent.requested_source_ref,
+            intent_ref,
+            selection_digest,
+            requested_intent,
+        )
+
+    def _complete_observational_method_control_job(
+        self,
+        *,
+        job: ControlJobRecord,
+        payload: Mapping[str, Any],
+        capability_manifest_ref: str,
+        execution_scope: ControlJobExecutionScope,
+        core_run_id: str,
+        core_run_context: run.RunContext,
+    ) -> None:
+        """Dispatch one refs-only method work item and atomically publish its selection."""
+        from polisyos.core.contracts.runtime import (
+            ContentAdmittedObservationalRunIntent,
+            DirectMethodExecutionSelection,
+            MethodExecutionCandidateOutcome,
+            MethodExecutionPosteriorSummaryRef,
+            _expected_content_admitted_limitations,
+        )
+        from polisyos.scientist.compute.runner import (
+            MethodExecutionInputRefusalOutcome,
+            MethodExecutionWork,
+        )
+
+        (
+            requested_source_ref,
+            intent_ref,
+            selection_digest,
+            requested_intent,
+        ) = self._read_validated_observational_method_job_intent(job=job, payload=payload)
         wait_policy = requested_intent.resource_policy.method_execution_wait_policy
         if (
-            type(selection_digest) is not str
-            or selection_digest != requested_intent.selection_digest()
-            or wait_policy is None
+            wait_policy is None
             or wait_policy.producer_key != "runtime.observational_method_execution"
             or wait_policy.retry_ceiling != 0
         ):
@@ -6818,8 +7679,9 @@ class ControlPlaneService(
                 retryable=False,
                 input_refusal_anchor_ref=outcome.anchor_ref,
             ) from None
-        admitted_intent = ContentAdmittedObservationalRunIntent.model_validate(
-            self._read_bounded_intent_artifact(outcome.content_admitted_intent_ref)
+        admitted_intent = self._read_bounded_intent_model(
+            outcome.content_admitted_intent_ref,
+            model=ContentAdmittedObservationalRunIntent,
         )
         producer_limitations = _expected_content_admitted_limitations(
             outcome.source_protocol,
@@ -6831,15 +7693,27 @@ class ControlPlaneService(
             or outcome.job_id != job.job_id
             or outcome.run_id != str(job.run_id or "")
             or outcome.attempt != job.attempt
-            or outcome.requested_source_ref != requested_source_ref
-            or outcome.observational_run_intent_ref != intent_ref
+            or not _same_selected_artifact_ref(
+                outcome.requested_source_ref,
+                requested_source_ref,
+            )
+            or not _same_selected_artifact_ref(
+                outcome.observational_run_intent_ref,
+                intent_ref,
+            )
             or outcome.method_fqn != registration.signature.fqn
             or outcome.method_version != registration.signature.version
             or outcome.method_abi_digest != registration.signature.abi_digest()
             or outcome.method_build_digest != registration.build_digest
-            or outcome.resource_policy_ref != requested_intent.resource_policy_ref
-            or outcome.resource_policy_ref != admitted_intent.resource_policy_ref
-            or outcome.resource_policy_digest != self._observational_resource_policy.digest()
+            or not _same_selected_artifact_ref(
+                outcome.resource_policy_ref,
+                requested_intent.resource_policy_ref,
+            )
+            or not _same_selected_artifact_ref(
+                outcome.resource_policy_ref,
+                admitted_intent.resource_policy_ref,
+            )
+            or outcome.resource_policy_digest != admitted_intent.resource_policy_digest
             or (
                 outcome.method_version == "2.0.0"
                 and (
@@ -6856,10 +7730,22 @@ class ControlPlaneService(
             or admitted_intent.job_id != outcome.job_id
             or admitted_intent.run_id != outcome.run_id
             or admitted_intent.attempt != outcome.attempt
-            or admitted_intent.requested_intent_ref != outcome.observational_run_intent_ref
-            or admitted_intent.requested_source_ref != outcome.requested_source_ref
-            or admitted_intent.submitted_input_ref != outcome.submitted_input_ref
-            or admitted_intent.effective_input_ref != outcome.effective_input_ref
+            or not _same_selected_artifact_ref(
+                admitted_intent.requested_intent_ref,
+                outcome.observational_run_intent_ref,
+            )
+            or not _same_selected_artifact_ref(
+                admitted_intent.requested_source_ref,
+                outcome.requested_source_ref,
+            )
+            or not _same_optional_selected_artifact_ref(
+                admitted_intent.submitted_input_ref,
+                outcome.submitted_input_ref,
+            )
+            or not _same_optional_selected_artifact_ref(
+                admitted_intent.effective_input_ref,
+                outcome.effective_input_ref,
+            )
             or admitted_intent.selection_digest != selection_digest
             or admitted_intent.contract_target_id != _OBSERVATIONAL_METHOD_CONTRACT_TARGET_ID
             or admitted_intent.contract_target != _OBSERVATIONAL_METHOD_CONTRACT_TARGET
@@ -6868,7 +7754,7 @@ class ControlPlaneService(
             != requested_intent.owned_hte_request_context
             or admitted_intent.source_protocol != outcome.source_protocol
             or admitted_intent.normalization != outcome.normalization
-            or set(outcome.limitations) != set(producer_limitations)
+            or outcome.limitations != producer_limitations
             or admitted_intent.limitations
             != _expected_content_admitted_limitations(
                 outcome.source_protocol,
@@ -6879,10 +7765,10 @@ class ControlPlaneService(
         ):
             raise ValueError("observational_method_execution_outcome_binding_mismatch")
         posterior_refs = tuple(
-            {
-                "point_role": summary.point_role,
-                "ref": summary.ref,
-            }
+            MethodExecutionPosteriorSummaryRef(
+                point_role=summary.point_role,
+                ref=summary.ref,
+            )
             for summary in outcome.posterior_summary_refs
         )
         selection = DirectMethodExecutionSelection(
@@ -6928,6 +7814,38 @@ class ControlPlaneService(
             hte=outcome.hte_summary,
         )
         self._validate_direct_method_execution_selection_artifacts(selection)
+        core_output_candidates = [
+            selection.method_result_ref,
+            selection.method_evidence_ref,
+            selection.hte_outcome_ref,
+            selection.point_result_ref,
+            selection.hte_result_ref,
+            selection.inference_basis_ref,
+            selection.refusal_diagnostic_ref,
+            selection.invocation_basis_ref,
+            *(summary.ref for summary in selection.posterior_summary_refs),
+        ]
+        core_outputs: list[ArtifactRef] = []
+        seen_output_keys: set[tuple[str, str, str, str | None]] = set()
+        for reference in core_output_candidates:
+            if reference is None:
+                continue
+            if not isinstance(reference, ArtifactRef):
+                raise ValueError("observational_method_core_output_ref_invalid")
+            identity_key = artifact_ref_identity_key(reference)
+            if identity_key not in seen_output_keys:
+                seen_output_keys.add(identity_key)
+                core_outputs.append(reference)
+        if not core_outputs:
+            raise ValueError("observational_method_core_outputs_not_established")
+        core_manifest_ref = self._finish_generation_run_context(
+            job=job,
+            execution_scope=execution_scope,
+            core_run_id=core_run_id,
+            context=core_run_context,
+            outputs=core_outputs,
+            status="ok",
+        )
         progress = {
             "state": "completed",
             "phase": "direct_method_execution",
@@ -6935,11 +7853,19 @@ class ControlPlaneService(
             "authority_path": "direct_method_candidate",
             "authority_result": "candidate_only",
             "run_id": job.run_id,
+            "job_id": job.job_id,
+            "attempt": job.attempt,
             "method_fqn": outcome.method_fqn,
             "method_version": outcome.method_version,
             "observational_selection_digest": selection.selection_digest,
             "method_execution_wait_policy": wait_policy.model_dump(mode="json"),
             "limitations": list(selection.limitations),
+            "core_terminal_status": "ok",
+            **self._core_run_progress_fields(
+                job=job,
+                core_run_id=core_run_id,
+                manifest_ref=core_manifest_ref,
+            ),
         }
         self._control_store.complete_job(
             job_id=job.job_id,
@@ -6950,7 +7876,6 @@ class ControlPlaneService(
             expected_lease_owner=job.lease_owner,
             expected_attempt=job.attempt,
         )
-        self._dispatch_search_hte_completion_for_job(job_id=job.job_id)
         terminal_record = self._control_store.get_job(job.job_id)
         terminal_state = terminal_record.state if terminal_record is not None else "completed"
         self._emit_runtime_diagnostic_event(
@@ -7062,7 +7987,7 @@ class ControlPlaneService(
 
             if not is_verified_method_metric_projection_admission(admission):
                 return None, {"code": "method_metric_projection_receipt_invalid"}
-        except (ImportError, AttributeError):
+        except ImportError, AttributeError:
             return None, {"code": "method_metric_projection_verifier_unavailable"}
         source_tuple = admission.source_tuple
         source_candidate_ref = getattr(admission, "source_candidate_ref", None)
@@ -7164,12 +8089,10 @@ class ControlPlaneService(
         only the fenced control-job row and immutable creation event; it never reads
         method payloads, vectors, simulation arrays, or compute state.
         """
-        from pydantic import TypeAdapter
-
         from polisyos.core.contracts.runtime import (
             DirectMethodExecutionSelection,
             GraphMethodExecutionSelection,
-            MethodExecutionSelection,
+            _validate_method_execution_selection_wire_payload,
         )
 
         if not run_id or not tenant_id:
@@ -7182,7 +8105,7 @@ class ControlPlaneService(
             if record is None or record.method_execution_selection is None:
                 return None
             created = self._control_store.get_job_created_event_payload(record.job_id)
-        except (RuntimeError, ValueError):
+        except RuntimeError, ValueError:
             return None
         if (
             created.get("job_id") != record.job_id
@@ -7199,10 +8122,10 @@ class ControlPlaneService(
         ):
             return None
         try:
-            selection = TypeAdapter(MethodExecutionSelection).validate_python(
+            selection = _validate_method_execution_selection_wire_payload(
                 record.method_execution_selection
             )
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return None
         if (
             selection.job_id != record.job_id
@@ -7213,7 +8136,7 @@ class ControlPlaneService(
         if isinstance(selection, DirectMethodExecutionSelection):
             try:
                 self._validate_direct_method_execution_selection_artifacts(selection)
-            except (OSError, RuntimeError, TypeError, ValueError):
+            except OSError, RuntimeError, TypeError, ValueError:
                 return None
         if isinstance(selection, GraphMethodExecutionSelection):
             terminal_state_ref = self._terminal_experiment_state_ref_for_control_job(
@@ -7225,6 +8148,266 @@ class ControlPlaneService(
             if terminal_state_ref != selection.source_experiment_state_ref:
                 return None
         return selection
+
+    def _resolve_observational_method_core_run_binding(
+        self,
+        *,
+        control_run_id: str,
+        tenant_id: str,
+        cell_id: str,
+    ) -> tuple[str, str] | None:
+        """Resolve only a current scoped direct-method job to its actual Core attempt.
+
+        Pending requests stay on the control-jobs surface. Active attempts bind the
+        current lease row to the running event's owner and attempt; the event expiry
+        is the initial lease and may differ after a renewal. Terminal attempts require
+        the released owner row, exact terminal event, selected Core manifest, and
+        persisted attempt pointer to agree. The returned identity is the Core run ID,
+        never a relabelled stable control-run ID.
+        """
+        from polisyos.runtime.http.services.adapters.core_run import (
+            derive_control_job_core_run_id,
+            load_terminal_core_run_source,
+        )
+        from polisyos.runtime.http.services.control_plane_store import (
+            _control_job_execution_scope_from_event,
+            _iso,
+            _parse_dt,
+        )
+
+        if (
+            type(control_run_id) is not str
+            or not control_run_id.strip()
+            or type(tenant_id) is not str
+            or not tenant_id.strip()
+            or type(cell_id) is not str
+            or not cell_id.strip()
+        ):
+            return None
+        control_store = self._control_store
+        try:
+            record = control_store.get_latest_job_by_run(control_run_id)
+        except (RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("observational_method_core_owner_read_failed") from exc
+        if record is None or record.run_id != control_run_id or record.kind != "workflow_run":
+            return None
+        if record.state not in {"running", "completed", "failed"}:
+            return None
+        try:
+            created_event = control_store._get_job_created_source_event_record(record.job_id)
+            scope = _control_job_execution_scope_from_event(created_event.payload)
+        except (RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("observational_method_core_creation_owner_invalid") from exc
+        creation = created_event.payload
+        if (
+            created_event.event_type != "job_created"
+            or created_event.job_id != record.job_id
+            or creation.get("job_id") != record.job_id
+            or creation.get("run_id") != control_run_id
+            or creation.get("job_kind") != "workflow_run"
+        ):
+            raise ValueError("observational_method_core_creation_identity_mismatch")
+        marker = creation.get(_OBSERVATIONAL_METHOD_INTENT_PAYLOAD_KEY)
+        if not isinstance(marker, Mapping):
+            return None
+        try:
+            requested_source_ref = ArtifactRef.model_validate(
+                marker["requested_source_ref"], strict=True
+            )
+            intent_ref = ArtifactRef.model_validate(
+                marker["observational_run_intent_ref"], strict=True
+            )
+            selection_digest = marker["observational_selection_digest"]
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("observational_method_core_creation_marker_invalid") from exc
+        if (
+            requested_source_ref.manifest_profile_sha256 is None
+            or intent_ref.manifest_profile_sha256 is None
+            or type(selection_digest) is not str
+            or len(selection_digest) != 64
+            or any(character not in "0123456789abcdef" for character in selection_digest)
+            or scope.status != "established"
+            or scope.tenant_id != tenant_id
+            or scope.cell_id != cell_id
+        ):
+            raise ValueError("observational_method_core_creation_scope_or_marker_invalid")
+        if type(record.attempt) is not int or record.attempt < 1:
+            raise ValueError("observational_method_core_attempt_invalid")
+        core_run_id = derive_control_job_core_run_id(
+            job_id=record.job_id,
+            control_run_id=control_run_id,
+            attempt=record.attempt,
+        )
+        try:
+            running_event = control_store._latest_control_job_lifecycle_event_record(
+                job_id=record.job_id,
+                event_type="job_running",
+            )
+        except (RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("observational_method_core_running_event_unavailable") from exc
+        running_payload = running_event.payload
+        running_owner = running_payload.get("lease_owner")
+        running_lease_expires_at_raw = running_payload.get("lease_expires_at")
+        try:
+            running_lease_expires_at = _parse_dt(running_lease_expires_at_raw)
+        except (OverflowError, TypeError, ValueError) as exc:
+            raise ValueError("observational_method_core_running_fence_mismatch") from exc
+        if (
+            running_event.event_type != "job_running"
+            or running_event.job_id != record.job_id
+            or running_payload.get("state") != "running"
+            or type(running_payload.get("attempt")) is not int
+            or running_payload.get("attempt") != record.attempt
+            or type(running_lease_expires_at_raw) is not str
+            or running_lease_expires_at is None
+            or running_lease_expires_at.tzinfo is None
+            or running_lease_expires_at_raw != _iso(running_lease_expires_at)
+            or running_event.created_at >= running_lease_expires_at
+            or type(running_owner) is not str
+            or not running_owner.strip()
+            or record.started_at is None
+            or running_event.event_id <= created_event.event_id
+            or running_event.created_at < created_event.created_at
+            or running_event.created_at < record.started_at
+        ):
+            raise ValueError("observational_method_core_running_fence_mismatch")
+
+        terminal_event = None
+        if record.state == "running":
+            if (
+                record.lease_owner != running_owner
+                or record.lease_expires_at is None
+                or record.lease_expires_at.tzinfo is None
+                or record.lease_expires_at <= datetime.now(UTC)
+                or record.finished_at is not None
+            ):
+                raise ValueError("observational_method_core_live_lease_unavailable")
+        else:
+            expected_event_type = "job_completed" if record.state == "completed" else "job_failed"
+            try:
+                terminal_event = control_store.get_job_terminal_source_event_record(record.job_id)
+            except (RuntimeError, TypeError, ValueError) as exc:
+                raise ValueError("observational_method_core_terminal_event_unavailable") from exc
+            terminal_payload = terminal_event.payload
+            if (
+                record.lease_owner is not None
+                or record.lease_expires_at is not None
+                or record.finished_at is None
+                or terminal_event.event_type != expected_event_type
+                or terminal_event.job_id != record.job_id
+                or terminal_payload.get("state") != record.state
+                or terminal_payload.get("lease_owner") != running_owner
+                or type(terminal_payload.get("attempt")) is not int
+                or terminal_payload.get("attempt") != record.attempt
+                or terminal_event.event_id <= running_event.event_id
+                or terminal_event.created_at < running_event.created_at
+                or terminal_event.created_at < record.finished_at
+            ):
+                raise ValueError("observational_method_core_terminal_fence_mismatch")
+            progress = record.progress
+            if (
+                not isinstance(progress, Mapping)
+                or progress.get("state") != record.state
+                or progress.get("job_id") != record.job_id
+                or progress.get("run_id") != control_run_id
+                or type(progress.get("attempt")) is not int
+                or progress.get("attempt") != record.attempt
+                or progress.get("phase") != "direct_method_execution"
+                or progress.get("core_run_id") != core_run_id
+                or type(progress.get("core_run_attempt")) is not int
+                or progress.get("core_run_attempt") != record.attempt
+                or progress.get("core_terminal_status")
+                != ("ok" if record.state == "completed" else "error")
+            ):
+                raise ValueError("observational_method_core_terminal_pointer_mismatch")
+            try:
+                manifest_ref = ArtifactRef.model_validate(
+                    progress.get("core_manifest_artifact_ref"), strict=True
+                )
+                terminal = load_terminal_core_run_source(
+                    store=self._artifact_store,
+                    core_runs_root=self._core_runs_root,
+                    run_id=core_run_id,
+                )
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                raise ValueError("observational_method_core_terminal_source_unavailable") from exc
+            expected_status = "ok" if record.state == "completed" else "error"
+            if (
+                manifest_ref.manifest_profile_sha256 is None
+                or not _same_selected_artifact_ref(terminal.manifest_ref, manifest_ref)
+                or progress.get("manifest_ref") != str(manifest_ref.artifact_id)
+                or terminal.run_id != core_run_id
+                or terminal.manifest.run_id != core_run_id
+                or terminal.manifest.control_job_id != record.job_id
+                or terminal.manifest.status != expected_status
+                or terminal.manifest.tenant_id != tenant_id
+                or terminal.manifest.cell_id != cell_id
+                or terminal.manifest.execution_profile != record.effective_execution_profile
+            ):
+                raise ValueError("observational_method_core_terminal_source_mismatch")
+
+        # Re-read the owner row and the decisive event after any Core read. A retry,
+        # lease turnover, or new terminal event invalidates this alias.
+        try:
+            latest = control_store.get_latest_job_by_run(control_run_id)
+            latest_created = control_store._get_job_created_source_event_record(record.job_id)
+            latest_running = control_store._latest_control_job_lifecycle_event_record(
+                job_id=record.job_id,
+                event_type="job_running",
+            )
+            latest_terminal = (
+                control_store.get_job_terminal_source_event_record(record.job_id)
+                if terminal_event is not None
+                else None
+            )
+        except (RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("observational_method_core_owner_readback_failed") from exc
+        if (
+            latest is None
+            or latest.job_id != record.job_id
+            or latest.run_id != control_run_id
+            or latest.kind != "workflow_run"
+            or latest.state != record.state
+            or latest.attempt != record.attempt
+            or latest.lease_owner != record.lease_owner
+            or latest.lease_expires_at != record.lease_expires_at
+            or latest.started_at != record.started_at
+            or latest.finished_at != record.finished_at
+            or latest.progress != record.progress
+            or latest.effective_execution_profile != record.effective_execution_profile
+            or latest.capability_manifest_ref != record.capability_manifest_ref
+            or latest_created.event_type != "job_created"
+            or latest_created.job_id != created_event.job_id
+            or latest_created.event_id != created_event.event_id
+            or latest_created.created_at != created_event.created_at
+            or latest_created.payload_sha256 != created_event.payload_sha256
+            or latest_running.event_id != running_event.event_id
+            or latest_running.event_type != running_event.event_type
+            or latest_running.job_id != running_event.job_id
+            or latest_running.created_at != running_event.created_at
+            or latest_running.payload_sha256 != running_event.payload_sha256
+            or (
+                record.state == "running"
+                and (
+                    latest.lease_expires_at is None
+                    or latest.lease_expires_at.tzinfo is None
+                    or latest.lease_expires_at <= datetime.now(UTC)
+                )
+            )
+            or (
+                terminal_event is not None
+                and (
+                    latest_terminal is None
+                    or latest_terminal.event_id != terminal_event.event_id
+                    or latest_terminal.event_type != terminal_event.event_type
+                    or latest_terminal.job_id != terminal_event.job_id
+                    or latest_terminal.created_at != terminal_event.created_at
+                    or latest_terminal.payload_sha256 != terminal_event.payload_sha256
+                )
+            )
+        ):
+            raise ValueError("observational_method_core_owner_changed_during_resolution")
+        return core_run_id, record.job_id
 
     def get_observational_method_run_projection(
         self,
@@ -7240,7 +8423,6 @@ class ControlPlaneService(
         durable job row, the small direct-run payload marker, and bounded intent and
         evidence artifacts. It never materializes method result arrays.
         """
-        from pydantic import TypeAdapter
 
         from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorRef
         from polisyos.core.contracts.runtime import (
@@ -7250,8 +8432,8 @@ class ControlPlaneService(
             DirectMethodExecutionSelection,
             DirectMethodExecutionTimeRoles,
             MethodExecutionCandidateOutcome,
-            MethodExecutionSelection,
             ObservationalRunIntent,
+            _validate_method_execution_selection_wire_payload,
         )
 
         reader_at = datetime.now(UTC)
@@ -7292,7 +8474,7 @@ class ControlPlaneService(
             if record is None:
                 return unavailable("execution_outcome_not_established")
             created = self._control_store.get_job_created_event_payload(record.job_id)
-        except (OSError, RuntimeError, TypeError, ValueError):
+        except OSError, RuntimeError, TypeError, ValueError:
             return unavailable("execution_outcome_not_established")
         if (
             record.job_id != expected_job_id
@@ -7337,8 +8519,9 @@ class ControlPlaneService(
                 or type(selection_digest) is not str
             ):
                 return unavailable("execution_outcome_not_established", record=record)
-            intent = ObservationalRunIntent.model_validate(
-                self._read_bounded_intent_artifact(intent_ref)
+            intent = self._read_bounded_intent_model(
+                intent_ref,
+                model=ObservationalRunIntent,
             )
             if (
                 intent.job_id != record.job_id
@@ -7386,7 +8569,7 @@ class ControlPlaneService(
                 max_elements=intent.resource_policy.max_elements,
                 requested_at=intent.created_at,
             )
-        except (OSError, RuntimeError, TypeError, ValueError):
+        except OSError, RuntimeError, TypeError, ValueError:
             return unavailable("execution_outcome_not_established", record=record)
 
         def time_roles(
@@ -7430,9 +8613,18 @@ class ControlPlaneService(
                         refusal_association.job_id != record.job_id
                         or refusal_association.run_id != run_id
                         or refusal_association.attempt != record.attempt
-                        or refusal_association.requested_source_ref != requested_source_ref
-                        or refusal_association.observational_run_intent_ref != intent_ref
-                        or refusal_association.resource_policy_ref != intent.resource_policy_ref
+                        or not _same_selected_artifact_ref(
+                            refusal_association.requested_source_ref,
+                            requested_source_ref,
+                        )
+                        or not _same_selected_artifact_ref(
+                            refusal_association.observational_run_intent_ref,
+                            intent_ref,
+                        )
+                        or not _same_selected_artifact_ref(
+                            refusal_association.resource_policy_ref,
+                            intent.resource_policy_ref,
+                        )
                         or refusal_association.job_failed_event.event_id != terminal_event.event_id
                         or refusal_association.job_failed_event.payload_sha256
                         != terminal_event.payload_sha256
@@ -7450,7 +8642,7 @@ class ControlPlaneService(
                         refusal_code="observational_input_refused",
                         limitations=("input_refused_before_dispatch",),
                     )
-            except (OSError, RuntimeError, TypeError, ValueError):
+            except OSError, RuntimeError, TypeError, ValueError:
                 return unavailable(
                     "execution_outcome_not_established",
                     request=request_summary,
@@ -7469,7 +8661,7 @@ class ControlPlaneService(
                 record=record,
             )
         try:
-            selection = TypeAdapter(MethodExecutionSelection).validate_python(
+            selection = _validate_method_execution_selection_wire_payload(
                 record.method_execution_selection
             )
             if type(selection) is not DirectMethodExecutionSelection:
@@ -7512,8 +8704,9 @@ class ControlPlaneService(
                     request=request_summary,
                     record=record,
                 )
-            admitted_intent = ContentAdmittedObservationalRunIntent.model_validate(
-                self._read_bounded_intent_artifact(selection.content_admitted_intent_ref)
+            admitted_intent = self._read_bounded_intent_model(
+                selection.content_admitted_intent_ref,
+                model=ContentAdmittedObservationalRunIntent,
             )
             if (
                 admitted_intent.job_id != record.job_id
@@ -7594,7 +8787,7 @@ class ControlPlaneService(
                     or projection_association.job_completed_event.job_id != record.job_id
                     or projection_association.invocation_basis_ref is not None
                     or any(
-                        proof_ref.model_dump(mode="json") != summary_ref.model_dump(mode="json")
+                        not _same_optional_artifact_ref_payload(proof_ref, summary_ref)
                         for proof_ref, summary_ref in summary_ref_pairs
                     )
                 ):
@@ -7603,7 +8796,7 @@ class ControlPlaneService(
                         request=request_summary,
                         record=record,
                     )
-        except (OSError, RuntimeError, TypeError, ValueError):
+        except OSError, RuntimeError, TypeError, ValueError:
             return unavailable(
                 "selection_persistence_not_established",
                 request=request_summary,
@@ -7626,11 +8819,19 @@ class ControlPlaneService(
     ) -> _CurrentMethodMetricProjectionReadResult:
         """Read the current owner-selected AD01 projection with bounded CAS reads."""
         from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+            _MethodMetricProjectionArtifactReader,
             read_current_admitted_method_metric_projection,
         )
 
-        return read_current_admitted_method_metric_projection(
+        store = _require_bounded_store_protocol(
             self._artifact_store,
+            _MethodMetricProjectionArtifactReader,
+            limits=self._observational_read_limits(),
+            refusal_code="canon_profile_bounded_stream_unavailable",
+            failure_stage="method_metric_projection_reader_preflight",
+        )
+        return read_current_admitted_method_metric_projection(
+            store,
             owner=self,
             run_id=run_id,
             tenant_id=tenant_id,
@@ -7672,6 +8873,8 @@ class ControlPlaneService(
             not isinstance(selection, GraphMethodExecutionSelection)
             or selection.metric_verification_status != "verified"
             or selection.method_metric_projection is None
+            or selection.source_candidate_ref is None
+            or selection.source_experiment_state_ref is None
             or selection.source_candidate_ref != candidate_ref
         ):
             return None
@@ -7681,6 +8884,237 @@ class ControlPlaneService(
             source_experiment_state_ref=selection.source_experiment_state_ref,
             selection=selection,
         )
+
+    @staticmethod
+    def _completed_hte_source_invalidation_dedupe_key(
+        *,
+        source_run_id: str,
+        source_job_id: str,
+        source_attempt: int,
+        completed_event_id: int,
+        completed_event_payload_sha256: str,
+    ) -> str:
+        """Bind idempotency to the exact owner-selected completion event."""
+        return _control_hte_invalidation_dedupe_key(
+            source_run_id=source_run_id,
+            source_job_id=source_job_id,
+            source_attempt=source_attempt,
+            completed_event_id=completed_event_id,
+            completed_event_payload_sha256=completed_event_payload_sha256,
+        )
+
+    def _completed_hte_source_validity_request(
+        self,
+        *,
+        job_id: str,
+    ) -> DecisionValidityEventRequest | None:
+        """Recompute the sole admitted invalidation from persisted owner state."""
+        from polisyos.core.contracts.runtime import (
+            DirectMethodExecutionHTESummary,
+            DirectMethodExecutionSelection,
+            _validate_method_execution_selection_wire_payload,
+        )
+
+        record = self._control_store.get_job(job_id)
+        if (
+            record is None
+            or record.kind != "workflow_run"
+            or record.state != "completed"
+            or type(record.job_id) is not str
+            or record.job_id != job_id
+            or type(record.run_id) is not str
+            or not record.run_id
+            or type(record.attempt) is not int
+            or record.attempt < 1
+            or not isinstance(record.method_execution_selection, Mapping)
+        ):
+            return None
+        event = self._control_store.get_job_terminal_source_event_record(job_id)
+        if (
+            event is None
+            or event.job_id != record.job_id
+            or event.event_type != "job_completed"
+            or type(event.event_id) is not int
+            or event.event_id < 1
+            or event.payload.get("state") != "completed"
+            or type(event.payload.get("attempt")) is not int
+            or event.payload.get("attempt") != record.attempt
+            or event.payload.get("method_execution_selection") != record.method_execution_selection
+        ):
+            return None
+        try:
+            selected = _validate_method_execution_selection_wire_payload(
+                record.method_execution_selection
+            )
+        except TypeError, ValueError:
+            return None
+        if (
+            type(selected) is not DirectMethodExecutionSelection
+            or selected.method_version != "2.0.0"
+            or type(selected.hte) is not DirectMethodExecutionHTESummary
+            or selected.job_id != record.job_id
+            or selected.run_id != record.run_id
+            or selected.attempt != record.attempt
+        ):
+            return None
+
+        dependency_key = f"hte_completed_source_run:{record.run_id}"
+        try:
+            dedupe_key = self._completed_hte_source_invalidation_dedupe_key(
+                source_run_id=record.run_id,
+                source_job_id=record.job_id,
+                source_attempt=record.attempt,
+                completed_event_id=event.event_id,
+                completed_event_payload_sha256=event.payload_sha256,
+            )
+        except ValueError:
+            return None
+        return DecisionValidityEventRequest(
+            trigger_type=DecisionTriggerType.METRIC_INVALIDATION,
+            status=DecisionValidityStatus.STALE,
+            reason="completed_hte_source_owner_selection_updated",
+            dependency_keys=[dependency_key],
+            source_ref=(
+                f"control-job-event:{record.job_id}:{event.event_id}:{event.payload_sha256}"
+            ),
+            dedupe_key=dedupe_key,
+            occurred_at=event.created_at,
+            payload={
+                "source_run_id": record.run_id,
+                "source_job_id": record.job_id,
+                "source_attempt": record.attempt,
+                "completed_event_id": event.event_id,
+                "completed_event_payload_sha256": event.payload_sha256,
+            },
+        )
+
+    @staticmethod
+    def _completed_hte_source_validity_event_id(*, dedupe_key: str) -> str:
+        """Derive one stable event ID so a retry can finish its notification row."""
+        if type(dedupe_key) is not str or not dedupe_key:
+            raise ValueError("completed_hte_source_dedupe_key_invalid")
+        digest = hashlib.sha256(dedupe_key.encode("utf-8")).hexdigest()
+        return f"decision_evt_{digest}"
+
+    def _dispatch_completed_hte_source_validity_for_job(self, *, job_id: str) -> None:
+        """Try the exact durable completion intent once after its transaction commits."""
+        try:
+            event = self._control_store.get_job_terminal_source_event_record(job_id)
+            if event is None or event.event_type != "job_completed":
+                return
+            delivery = self._control_store.get_outbox_topic_event(
+                topic=_COMPLETED_HTE_VALIDITY_OUTBOX_TOPIC,
+                event_key=f"{job_id}:job_completed:{event.event_id}",
+                job_id=job_id,
+            )
+            if delivery is not None and delivery.state == "pending":
+                self._deliver_completed_hte_source_validity_outbox(delivery)
+        except Exception:
+            logger.exception("Completed HTE DecisionValidity dispatch read failed for %s", job_id)
+
+    def reconcile_pending_completed_hte_source_validity_events(self) -> int:
+        """Retry a bounded page of durable completion intents from one frozen watermark."""
+        page_size = 25
+        cursor = self._completed_hte_validity_outbox_cursor
+        watermark = self._completed_hte_validity_outbox_watermark
+        try:
+            if watermark is None:
+                watermark = self._control_store.get_outbox_topic_delivery_watermark(
+                    topic=_COMPLETED_HTE_VALIDITY_OUTBOX_TOPIC
+                )
+                cursor = 0
+            if watermark == 0:
+                self._completed_hte_validity_outbox_cursor = None
+                self._completed_hte_validity_outbox_watermark = None
+                return 0
+            page = self._control_store.list_pending_outbox_topic_delivery_page(
+                topic=_COMPLETED_HTE_VALIDITY_OUTBOX_TOPIC,
+                limit=page_size,
+                after_sequence_id=cursor if cursor is not None else 0,
+                through_sequence_id=watermark,
+            )
+        except Exception:
+            logger.exception("Completed HTE DecisionValidity outbox page read failed")
+            self._completed_hte_validity_outbox_cursor = None
+            self._completed_hte_validity_outbox_watermark = None
+            return 0
+        if not page:
+            self._completed_hte_validity_outbox_cursor = None
+            self._completed_hte_validity_outbox_watermark = None
+            return 0
+        acknowledged = 0
+        for _, delivery in page:
+            if self._deliver_completed_hte_source_validity_outbox(delivery):
+                acknowledged += 1
+        if len(page) == page_size:
+            self._completed_hte_validity_outbox_cursor = page[-1][0]
+            self._completed_hte_validity_outbox_watermark = watermark
+        else:
+            self._completed_hte_validity_outbox_cursor = None
+            self._completed_hte_validity_outbox_watermark = None
+        return acknowledged
+
+    def _deliver_completed_hte_source_validity_outbox(
+        self,
+        delivery: ControlOutboxRecord,
+    ) -> bool:
+        """Publish only a request that exactly matches current persisted source custody."""
+
+        from pydantic import TypeAdapter
+
+        from polisyos.core.contracts.runtime import _validate_strict_json_wire_payload
+
+        def leave_pending(reason_code: str) -> bool:
+            try:
+                self._control_store.record_outbox_delivery_failure(
+                    event_id=delivery.event_id,
+                    reason_code=reason_code,
+                )
+            except Exception:
+                logger.exception(
+                    "Completed HTE DecisionValidity failure receipt was not retained for %s",
+                    delivery.event_id,
+                )
+            return False
+
+        if (
+            delivery.topic != _COMPLETED_HTE_VALIDITY_OUTBOX_TOPIC
+            or delivery.state != "pending"
+            or not delivery.job_id
+            or not delivery.run_id
+        ):
+            return leave_pending("completed_hte_validity_outbox_identity_not_established")
+        expected = self._completed_hte_source_validity_request(job_id=delivery.job_id)
+        if expected is None or expected.payload.get("source_run_id") != delivery.run_id:
+            return leave_pending("completed_hte_validity_source_not_established")
+        try:
+            queued = _validate_strict_json_wire_payload(
+                delivery.payload,
+                TypeAdapter(DecisionValidityEventRequest),
+                invalid_code="completed_hte_validity_outbox_payload_invalid",
+            )
+        except Exception:
+            return leave_pending("completed_hte_validity_outbox_payload_invalid")
+        if (
+            queued != expected
+            or delivery.event_key
+            != f"{delivery.job_id}:job_completed:{expected.payload.get('completed_event_id')}"
+        ):
+            return leave_pending("completed_hte_validity_outbox_payload_owner_mismatch")
+        try:
+            self.publish_decision_validity_event(
+                expected,
+                event_id=self._completed_hte_source_validity_event_id(
+                    dedupe_key=expected.dedupe_key or ""
+                ),
+            )
+            self._control_store.mark_outbox_published(event_id=delivery.event_id)
+        except Exception:
+            logger.exception(
+                "Completed HTE DecisionValidity delivery failed for %s", delivery.event_id
+            )
+            return leave_pending("completed_hte_validity_delivery_failed")
+        return True
 
     def resolve_completed_method_hte_selection(
         self,
@@ -7706,7 +9140,6 @@ class ControlPlaneService(
             A frozen scalar HTE summary with exact owner-event provenance, or
             ``None`` when the requested source cannot be established.
         """
-        from pydantic import TypeAdapter
 
         from polisyos.core.contracts.owned_attempt_anchor import (
             OwnedAttemptAnchorProjectionAssociation,
@@ -7714,7 +9147,7 @@ class ControlPlaneService(
         from polisyos.core.contracts.runtime import (
             DirectMethodExecutionHTESummary,
             DirectMethodExecutionSelection,
-            MethodExecutionSelection,
+            _validate_method_execution_selection_wire_payload,
         )
 
         if (
@@ -7829,9 +9262,8 @@ class ControlPlaneService(
                 event_id=event_ref.event_id,
                 expected_event_type="job_completed",
             )
-            event_selection = TypeAdapter(MethodExecutionSelection).validate_python(
-                event.payload.get("method_execution_selection"),
-                strict=True,
+            event_selection = _validate_method_execution_selection_wire_payload(
+                event.payload.get("method_execution_selection")
             )
             if (
                 event.event_id != event_ref.event_id
@@ -7871,7 +9303,7 @@ class ControlPlaneService(
                 summary=selection.hte,
                 association=association,
             )
-        except (OSError, RuntimeError, TypeError, ValueError):
+        except OSError, RuntimeError, TypeError, ValueError:
             return None
 
     def _terminal_experiment_state_ref_for_control_job(
@@ -7909,7 +9341,7 @@ class ControlPlaneService(
             )
             manifest = terminal.manifest
             finalization_ref = terminal.workflow_finalization_ref
-        except (OSError, RuntimeError, TypeError, ValueError):
+        except OSError, RuntimeError, TypeError, ValueError:
             return None
         if (
             terminal.run_id != run_id
@@ -7933,7 +9365,7 @@ class ControlPlaneService(
         )
         try:
             bounded = read_core_json_artifact_bounded(
-                self._artifact_store,
+                self._require_core_bounded_member_reader(limits=limits),
                 finalization_ref,
                 limits=limits,
             )
@@ -7952,7 +9384,7 @@ class ControlPlaneService(
                 WorkflowStateFinalization,
                 bounded,
             )
-        except (OSError, RuntimeError, TypeError, ValueError):
+        except OSError, RuntimeError, TypeError, ValueError:
             return None
         selected_state = finalization.final_state_ref
         if (
@@ -7989,7 +9421,7 @@ class ControlPlaneService(
             ):
                 return None
             created = self._control_store.get_job_created_event_payload(record.job_id)
-        except (RuntimeError, ValueError):
+        except RuntimeError, ValueError:
             return None
         if (
             created.get("job_id") != record.job_id
@@ -8008,7 +9440,7 @@ class ControlPlaneService(
             return None
         try:
             diagnostic = MethodExecutionProducerDiagnostic.model_validate(raw_diagnostic)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return None
         if (
             diagnostic.job_id != record.job_id
@@ -8067,10 +9499,22 @@ class ControlPlaneService(
                 "Pre-admission recovery requires an authenticated actor, tenant, and cell scope.",
                 code="control_pre_admission_scope_not_established",
             )
+        tenant_id = principal.tenant_id
+        cell_id = principal.cell_id
+        if (
+            not isinstance(tenant_id, str)
+            or not tenant_id
+            or not isinstance(cell_id, str)
+            or not cell_id
+        ):
+            raise forbidden(
+                "Pre-admission recovery requires an authenticated actor, tenant, and cell scope.",
+                code="control_pre_admission_scope_not_established",
+            )
         digest = hashlib.sha256(idempotency_key.encode("ascii")).hexdigest()
         record = self._control_store.get_pre_admission_attempt_by_idempotency_key(
-            tenant_id=principal.tenant_id,
-            cell_id=principal.cell_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
             actor_subject=principal.subject,
             idempotency_key_sha256=digest,
         )
@@ -8111,10 +9555,23 @@ class ControlPlaneService(
         if not isinstance(intent_content_sha256, str):
             raise RuntimeError("pre-admission request content binding is not established")
         owner = record.shared_owner
+        purpose = TypeAdapter(Literal["control.nl_pre_admission.v1"]).validate_python(
+            owner.purpose,
+            strict=True,
+        )
+        scope_kind = TypeAdapter(Literal["route"]).validate_python(owner.scope_kind, strict=True)
+        scope_id = TypeAdapter(Literal["control.runs.nl"]).validate_python(
+            owner.scope_id,
+            strict=True,
+        )
+        effective_execution_profile = TypeAdapter(ExecutionProfile).validate_python(
+            record.effective_execution_profile,
+            strict=True,
+        )
         owner_binding = ControlPreAdmissionOwnerBinding(
-            purpose=owner.purpose,
-            scope_kind=owner.scope_kind,
-            scope_id=owner.scope_id,
+            purpose=purpose,
+            scope_kind=scope_kind,
+            scope_id=scope_id,
             tenant_id=owner.tenant_id,
             cell_id=owner.cell_id,
             actor_subject_sha256=owner.actor_subject_sha256,
@@ -8122,7 +9579,7 @@ class ControlPlaneService(
             intent_id=owner.intent_id,
             body_sha256=owner.body_sha256,
             request_content_sha256=intent_content_sha256,
-            effective_execution_profile=record.effective_execution_profile,
+            effective_execution_profile=effective_execution_profile,
         )
         return ControlPreAdmissionAttemptResponse(
             meta=_build_api_meta(request_id),
@@ -8132,7 +9589,7 @@ class ControlPlaneService(
             status=record.status,
             run_id=record.run_id,
             job_id=record.job_id,
-            effective_execution_profile=record.effective_execution_profile,
+            effective_execution_profile=effective_execution_profile,
             producer_event_ids=list(record.producer_event_ids),
             producer_event_observation=record.producer_event_observation,
             producer_no_call_reason=record.producer_no_call_reason,
@@ -8531,6 +9988,30 @@ class ControlPlaneService(
             profile_ref: ArtifactRef | None = None
             snapshot_ref: DataSnapshotRef | None = None
             predictive_refs: list[ArtifactRef] = []
+            observational_refs: list[ArtifactRef] = []
+            if job.kind == "workflow_run" and (_OBSERVATIONAL_METHOD_INTENT_PAYLOAD_KEY in payload):
+                marker = payload.get(_OBSERVATIONAL_METHOD_INTENT_PAYLOAD_KEY)
+                if not isinstance(marker, Mapping):
+                    raise ValueError("observational_method_job_marker_invalid")
+                try:
+                    source_ref = ArtifactRef.model_validate(
+                        marker["requested_source_ref"], strict=True
+                    )
+                    intent_ref = ArtifactRef.model_validate(
+                        marker["observational_run_intent_ref"], strict=True
+                    )
+                    selection_digest = marker["observational_selection_digest"]
+                except (KeyError, TypeError, ValueError) as exc:
+                    raise ValueError("observational_method_job_marker_invalid") from exc
+                if (
+                    source_ref.manifest_profile_sha256 is None
+                    or intent_ref.manifest_profile_sha256 is None
+                    or type(selection_digest) is not str
+                    or len(selection_digest) != 64
+                    or any(character not in "0123456789abcdef" for character in selection_digest)
+                ):
+                    raise ValueError("observational_method_job_marker_invalid")
+                observational_refs.extend((source_ref, intent_ref))
             if job.kind == "natural_language_run" and "data_source" in payload:
                 raw_data_source = payload["data_source"]
                 if isinstance(raw_data_source, Mapping):
@@ -8584,6 +10065,8 @@ class ControlPlaneService(
                 core_run_context.add_input(profile_ref)
             for reference in predictive_refs:
                 core_run_context.add_input(reference)
+            for reference in observational_refs:
+                core_run_context.add_input(reference)
             return core_run_id, core_run_context
 
         try:
@@ -8592,11 +10075,18 @@ class ControlPlaneService(
                 payload_ref,
                 kind=f"runtime.control_job_payload.{job.kind}",
             )
+            if self._has_observational_method_job_selection(job=job, payload=payload):
+                self._read_validated_observational_method_job_intent(
+                    job=job,
+                    payload=payload,
+                )
             payload = self._payload_for_execution_scope(
                 payload,
                 job=job,
                 execution_scope=execution_scope,
             )
+            if self._has_observational_method_job_selection(job=job, payload=payload):
+                self._read_validated_observational_method_job_intent(job=job, payload=payload)
             capability_manifest_ref, capability_manifest = (
                 self._resolve_capability_manifest_for_execution(
                     job=job,
@@ -8628,6 +10118,7 @@ class ControlPlaneService(
                         execution_scope=execution_scope,
                         capability_manifest_ref=capability_manifest_ref,
                         admission=admission,
+                        start_core_attempt_callback=start_core_attempt,
                     )
                     return
                 if job.kind == "natural_language_run":
@@ -8740,8 +10231,11 @@ class ControlPlaneService(
         inputs: dict[str, Any] = {}
 
         # Data source (required)
+        workflow_data_source = request.data_source
+        if workflow_data_source is None:
+            raise ValueError("workflow_data_source_required_without_observational_input")
         ds_key, ds_ref, data_view_request_intent = _resolve_workflow_data_source(
-            request.data_source
+            workflow_data_source
         )
         inputs[ds_key] = ds_ref
 
@@ -8787,7 +10281,7 @@ class ControlPlaneService(
             status="accepted",
             run_id=run_id,
             job_id=job_id,
-            effective_execution_profile=policy.effective_profile,
+            effective_execution_profile=_typed_execution_profile(policy.effective_profile),
             message=f"Workflow run {run_id} accepted and queued for durable execution.",
         )
 
@@ -8796,9 +10290,12 @@ class ControlPlaneService(
         request: DecisionValidityEventRequest,
         *,
         request_id: str | None = None,
+        event_id: str | None = None,
     ) -> DecisionValidityEventResponse:
         """Record a decision-dependency event and enqueue one deduplicated outbox notification."""
         if request.monitor_event_ref is not None:
+            if event_id is not None:
+                raise ValueError("monitor_event_decision_validity_event_id_not_supported")
             return self._publish_monitor_decision_validity_event(
                 request.monitor_event_ref,
                 request_id=request_id,
@@ -8808,13 +10305,18 @@ class ControlPlaneService(
             request,
             dependency_keys=dependency_keys,
         )
+        trigger_type = request.trigger_type
+        status = request.status
+        reason = request.reason
+        if trigger_type is None or status is None or reason is None:
+            raise ValueError("decision_validity_legacy_event_fields_not_established")
         event = DecisionDependencyEvent(
-            event_id=f"decision_evt_{uuid.uuid4().hex[:16]}",
+            event_id=event_id or f"decision_evt_{uuid.uuid4().hex[:16]}",
             dedupe_key=dedupe_key,
             occurred_at=request.occurred_at or datetime.now(UTC).replace(microsecond=0),
-            trigger_type=request.trigger_type,
-            status=request.status,
-            reason=request.reason,
+            trigger_type=trigger_type,
+            status=status,
+            reason=reason,
             dependency_keys=dependency_keys,
             source_ref=request.source_ref,
             payload=dict(request.payload),
@@ -8865,6 +10367,24 @@ class ControlPlaneService(
             ),
         )
 
+    @overload
+    def _publish_monitor_decision_validity_event(
+        self,
+        monitor_event_ref: ArtifactRef,
+        *,
+        request_id: str | None,
+        published_signature_custody: Literal[False] = False,
+    ) -> DecisionValidityEventResponse: ...
+
+    @overload
+    def _publish_monitor_decision_validity_event(
+        self,
+        monitor_event_ref: ArtifactRef,
+        *,
+        request_id: str | None,
+        published_signature_custody: Literal[True],
+    ) -> PublishedSignatureCustodyLifecyclePublication: ...
+
     def _publish_monitor_decision_validity_event(
         self,
         monitor_event_ref: ArtifactRef,
@@ -8875,6 +10395,10 @@ class ControlPlaneService(
         """Content-bind the monitor arm before deriving any lifecycle consequence."""
 
         try:
+            from polisyos.scientist.governance.continuous.monitors import (
+                resolve_governance_monitor_event,
+            )
+
             persisted = resolve_governance_monitor_event(
                 self._artifact_store,
                 monitor_event_ref,
@@ -8934,11 +10458,15 @@ class ControlPlaneService(
                     code="monitor_event_epoch_advisory_rejected",
                 ) from exc
 
-        source_class = (
-            "published_signature_custody"
-            if published_signature_custody
-            else perturbation.source_class
-        )
+        if published_signature_custody:
+            source_class = "published_signature_custody"
+        else:
+            if perturbation is None:
+                raise unprocessable_entity(
+                    "The monitor event does not carry a typed epoch perturbation.",
+                    code="monitor_event_perturbation_missing",
+                )
+            source_class = perturbation.source_class
         trigger = DecisionTriggerRecord(
             trigger_type=(
                 DecisionTriggerType.POST_DEPLOYMENT_REFUTATION
@@ -9071,7 +10599,8 @@ class ControlPlaneService(
         )
         claim_bridge_result_refs: list[ArtifactRef] = []
         for packet_id in receipt.affected_packet_refs:
-            packet_manifest = self._artifact_store.get_manifest(packet_id)
+            packet_artifact_id = artifacts.ArtifactID.model_validate(packet_id)
+            packet_manifest = self._artifact_store.get_manifest(packet_artifact_id)
             bridge_result = self._epoch_claim_lifecycle_bridge.bridge_completed_batch(
                 batch_receipt_ref=completed_evidence.batch_receipt_ref,
                 decision_packet_ref=ArtifactRef(
@@ -9253,6 +10782,7 @@ class ControlPlaneService(
                     else None
                 ),
                 method_metric_selection_owner=self if job is not None else None,
+                completed_method_hte_selection_owner=self if job is not None else None,
             )
             if not isinstance(final_state, dict):
                 raise TypeError("legacy_scientist_workflow_final_state_not_mapping")
@@ -9289,7 +10819,7 @@ class ControlPlaneService(
             return None
         try:
             created = self._control_store.get_job_created_event_payload(job.job_id)
-        except (RuntimeError, ValueError):
+        except RuntimeError, ValueError:
             return None
         if (
             created.get("job_id") != job.job_id
@@ -9460,8 +10990,12 @@ class ControlPlaneService(
                 self._validate_control_nl_data_snapshot(request.data_source.data_snapshot_ref)
             except Exception as exc:
                 reason = getattr(exc, "code", None)
-                raise unprocessable_entity(
-                    "Selected data snapshot is not an exact typed profile in this run scope.",
+                raise RuntimeHTTPError(
+                    status_code=422,
+                    error="request_validation_failed",
+                    detail=(
+                        "Selected data snapshot is not an exact typed profile in this run scope."
+                    ),
                     code="nl_data_snapshot_not_admitted",
                     extensions={"reason": reason or type(exc).__name__},
                 ) from exc
@@ -9487,7 +11021,10 @@ class ControlPlaneService(
                         reference,
                         expected_kind=expected_kind,
                     )
-                snapshot_ref = request.data_source.data_snapshot_ref
+                data_source = request.data_source
+                if data_source is None:
+                    raise ValueError("nl_predictive_input_data_source_not_established")
+                snapshot_ref = data_source.data_snapshot_ref
                 if type(snapshot_ref) is not DataSnapshotRef:
                     raise ValueError("selected_predictive_snapshot_not_typed")
                 self._validate_control_nl_predictive_basis(
@@ -9498,8 +11035,13 @@ class ControlPlaneService(
                 )
             except Exception as exc:
                 reason = getattr(exc, "code", None)
-                raise unprocessable_entity(
-                    "The selected predictive input set does not join to this run's exact source.",
+                raise RuntimeHTTPError(
+                    status_code=422,
+                    error="request_validation_failed",
+                    detail=(
+                        "The selected predictive input set does not join to this run's exact "
+                        "source."
+                    ),
                     code="nl_predictive_input_basis_not_admitted",
                     extensions={"reason": reason or type(exc).__name__},
                 ) from exc
@@ -9707,7 +11249,9 @@ class ControlPlaneService(
                         status="accepted",
                         run_id=attempt_record.run_id,
                         job_id=attempt_record.job_id,
-                        effective_execution_profile=attempt_record.effective_execution_profile,
+                        effective_execution_profile=_typed_execution_profile(
+                            attempt_record.effective_execution_profile
+                        ),
                         message=(
                             "This idempotent launch was already admitted; "
                             "no duplicate job was created."
@@ -9719,7 +11263,9 @@ class ControlPlaneService(
                         status="rejected",
                         run_id=attempt_record.run_id,
                         job_id=attempt_record.job_id,
-                        effective_execution_profile=attempt_record.effective_execution_profile,
+                        effective_execution_profile=_typed_execution_profile(
+                            attempt_record.effective_execution_profile
+                        ),
                         message=(
                             "This idempotent launch was already refused; "
                             "no duplicate job was created."
@@ -9878,7 +11424,9 @@ class ControlPlaneService(
                         run_id=run_id,
                         pipeline_id=None,
                         requested_execution_profile=policy.requested_profile,
-                        effective_execution_profile=policy.effective_profile,
+                        effective_execution_profile=_typed_execution_profile(
+                            policy.effective_profile
+                        ),
                         policy_flags=policy.policy_flags.model_dump(mode="json"),
                         capability_manifest_ref=capability_manifest_ref,
                         payload_ref=None,
@@ -9891,7 +11439,9 @@ class ControlPlaneService(
                             payload_ref=None,
                             submitted_by=submitted_by,
                             requested_execution_profile=policy.requested_profile,
-                            effective_execution_profile=policy.effective_profile,
+                            effective_execution_profile=_typed_execution_profile(
+                                policy.effective_profile
+                            ),
                             policy_flags=policy.policy_flags.model_dump(mode="json"),
                             capability_manifest_ref=capability_manifest_ref,
                             execution_scope=execution_scope,
@@ -9954,7 +11504,9 @@ class ControlPlaneService(
                         status="rejected",
                         run_id=run_id,
                         job_id=job_id,
-                        effective_execution_profile=policy.effective_profile,
+                        effective_execution_profile=_typed_execution_profile(
+                            policy.effective_profile
+                        ),
                         message=(
                             f"Natural-language run {run_id} was rejected by LLM provider "
                             "preflight. Inspect the control job failure envelope."
@@ -10036,7 +11588,7 @@ class ControlPlaneService(
                         bound = BudgetLedgerProducerRunBinding.model_validate(
                             current_attempt.producer_run_binding
                         )
-                    except (TypeError, ValueError):
+                    except TypeError, ValueError:
                         observation = "unavailable"
                     else:
                         refs, observation = _pre_admission_producer_event_refs(
@@ -10049,7 +11601,7 @@ class ControlPlaneService(
                 )
                 try:
                     self._control_store.observe_pre_admission_attempt(
-                        attempt_id=pre_admission_attempt_id,
+                        attempt_id=current_attempt.attempt_id,
                         event_type=(
                             "admitted"
                             if linked
@@ -10077,7 +11629,7 @@ class ControlPlaneService(
                 status="rejected",
                 run_id=run_id,
                 job_id=job_id,
-                effective_execution_profile=policy.effective_profile,
+                effective_execution_profile=_typed_execution_profile(policy.effective_profile),
                 message=(
                     "Natural-language run was refused because its execution intent "
                     "or route authorization could not be established."
@@ -10100,7 +11652,7 @@ class ControlPlaneService(
             status="accepted",
             run_id=run_id,
             job_id=job_id,
-            effective_execution_profile=policy.effective_profile,
+            effective_execution_profile=_typed_execution_profile(policy.effective_profile),
             message=(
                 f"Natural-language run {run_id} accepted. "
                 f"Agent circuit was queued in {mode_label}: {models_label}."
@@ -10117,15 +11669,13 @@ class ControlPlaneService(
     ) -> IngestResponse:
         """Execute connector ingestion and return refs/status for produced artifacts."""
         from polisyos.core.artifacts import ArtifactOwnershipError
-        from polisyos.fabric import (
-            IngestionStoreBindingError,
-            TenantSidecarScope,
-        )
         from polisyos.fabric.ingestion import (
             ConnectorManifestSpec,
             DatasetFetchSpec,
             IngestionDependencies,
         )
+        from polisyos.fabric.ingestion.ingestion_providers import IngestionStoreBindingError
+        from polisyos.fabric.storage.tenant_cas import TenantSidecarScope
         from polisyos.runtime.http.errors import forbidden
 
         datasets = [

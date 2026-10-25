@@ -129,22 +129,92 @@ uv run pytest tests/unit/scientist/search/test_controller_api.py tests/unit/scie
 
 ## Last Updated
 
-- Last updated: 2026-10-20
+- Last updated: 2026-10-22
 
-## Configured uncertainty observation intake
+## Search uncertainty current-state lifecycle (AD06 / B161)
 
-`uncertainty.py` defines routing-only `SearchUncertaintyBasis` and
-`SearchUncertaintyObservation` artifacts. The funnel resolves native producer
-observation refs from CAS, binds the full configured basis and candidate, checks
-that the supplied envelope equals the stage envelope, and preserves exact selected
-manifest views in input lineage. Missing, foreign, corrupted, or substituted inputs
-leave current uncertainty `not_established`; historical maxima remain available.
+The historical SearchUncertaintyBasis / SearchUncertaintyObservation v1 artifacts
+remain available for routing history. They cannot populate the current uncertainty
+projection, even when their bytes and stage envelope match. The ordinary
+uncertainty_envelope remains the conservative historical maximum; the typed
+search_uncertainty_current_read surface carries any separately admitted task-scoped
+record. Current-read schema 2.0 also resolves the selected current observation,
+basis, refinement and scoring profile bodies from their exact profiled CAS refs. It
+preserves the historical refs and states only the pinned task epoch; live
+currentness remains not_established.
 
-Current observations are aggregated conservatively across every supplied risk.
-No observation supersedes another: producer provenance, current scientific
-refinement law and publication authority are not supplied by CAS identity.
-B161 lowering remains held until the actual producer-owned refinement contract
-is admitted. L3/L4 forward native producer observation refs without minting them.
+The pre-dispatch Scientist owner reads the selected method FQN and canonical
+parameters from `ExperimentState`, records every selected state artifact ref,
+input, produced artifact and report ref, and captures the instantiated L0-L6
+stage configuration in a strict Search task context. Profile-qualified refs are
+included in the source graph; profileless refs are named individually as missing
+source selections and are not rebound through the artifact ID. Execution-plan
+and method-catalog snapshot persistence retain the exact manifest profiles
+returned by their same-write CAS operations, allowing the source graph to bind
+the producer-selected plan and catalog views. Existing profileless plan or
+catalog refs remain missing; Search does not retrofit their historical views.
+The plan/catalog content join also compares any declared `run_id` in those
+selected artifacts with the active Search run. A cross-run plan or catalog
+snapshot remains an explicit unresolved slice; a matching method name and
+parameters do not repair that owner-scope mismatch. It also requires a unique
+catalog entry and an exact method-version match: either the plan node's explicit
+version or a version embedded in the selected FQN must agree with the catalog;
+an unversioned plan node and FQN remain unresolved.
+This policy-runtime owner context does not convert that plan/catalog identity into
+an HTE method ABI/profile/rule/procedure binding. It also
+has no typed bridge from a selected `CausalQuery` or `EstimandAST` to the HTE
+request and source-column roles, population, and unit. A workflow
+`execution_profile` is not an inference profile, and the free-text
+`CausalEffectReport.estimand` is not a typed estimand or variable binding. Those
+unresolved slices remain `not_established`; candidate evaluation continues. If a
+complete owner-selected task basis is supplied, Search may persist only a
+numeric-free `unassessed` obligation before execution.
+
+The per-ticket current pointer is stored beside the existing CAS owner state with
+an atomic durable write and process lock. It binds ticket generation and projection
+revision to immutable history. Reissue advances the generation and retains earlier
+records as history. A successor can replace only the explicit unassessed record for
+the same basis and ticket generation. A second distinct same-generation successor
+is preserved as a contested state. Cold reads recompute the selected basis inventory
+from CAS. The Runtime owner candidate resolves the exact immutable
+`job_completed` event, its Search outbox envelope, the event-embedded selection and
+owned attempt anchor; this also works for a completed historical attempt after a
+later attempt becomes current. The Search consumer is called with the configured
+CAS and owner API plus the exact job/event identity; it reloads the owner-selected
+Search binding and HTE content, then records a first assessment through the
+existing ticket CAS. In the composed path, Runtime may acknowledge only after the
+CAS result is read back as admitted or already admitted; an unresolved typed
+receipt remains pending for retry. A fresh Search read returns the bounded
+persisted projection plus typed payloads resolved from its selected refs; it does
+not fit, assess arrays, or write authority. The returned as-of view is not a live
+currentness claim. The public RunDetails/API/dashboard consumer is not part of this
+Search-owned read and remains a separate surface gap. This Search source packet
+defines the receiver API; its Runtime dispatch callsite must be present in the
+composed source freeze before the end-to-end route can be called complete.
+
+The receiver content-joins the immutable HTE physical materialization binding to
+the same selected source bytes and row order before it can admit a first
+assessment. That binding attests physical input materialization, not which causal
+variable a source field represents, the unit, or population coverage. A
+physically joined point or conditional-native interval can therefore be retained
+as a same-basis candidate assessment with those dimensions explicitly
+`not_established`; it does not establish population coverage or justify a
+unit-normalized routing score. Caller-copied point or interval values cannot
+become a Search observation or routing score.
+
+The selected refinement relation is `unassessed_to_assessed_same_basis@1.0`, and the
+proposed derived quantity is `relative_interval_halfwidth_routing@1.0`, for candidate
+ordering only. Assessment admission resolves the exact typed HTE outcome and
+inference basis, then uses a single selected-profile HTEResult v1 as the interval
+value carrier; point-only outcomes keep the point artifact, and an unrepresentable
+native capture may remain as a typed diagnostic basis. It reconciles those bytes,
+source, method, profile, request, selected rows and owner attempt against the
+frozen Search task basis. The score remains unavailable whenever unit or scope
+comparison is not established. It is not a probability, calibrated risk, pruning
+rule, evidence-strength claim, or publication authority. Independent constraints
+and unknown dimensions remain separate. Live validity is not inferred from a
+task-epoch read. L3/L4 stage envelopes and legacy v1 CAS refs do not mint a native
+HTE outcome or Runtime attempt association.
 
 ## Monetary evidence and VOI
 

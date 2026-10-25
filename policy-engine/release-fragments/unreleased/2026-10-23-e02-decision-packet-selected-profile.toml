@@ -1,0 +1,22 @@
+id = "2026-10-23-e02-decision-packet-selected-profile"
+title = "Preserve the selected CAS profile on emitted decision packets"
+type = "changed"
+component = "runtime"
+owner = "team-policyos-runtime"
+summary = "BuildDecisionPacketNode now retains the exact selected manifest profile from the CAS writer in its typed output reference. The candidate-only packet GET can resolve the packet through the owning run index and bind its bounded read to that exact profile."
+evidence = [
+  "src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py",
+  "src/polisyos/scientist/nodes/README.md",
+  "tests/unit/scientist/nodes/builtins/decide/test_build_decision_packet_metric_validation.py",
+  "tests/unit/runtime/http/test_owned_attempt_anchor_associations.py",
+]
+compatibility = "New DecisionPacket outputs carry their selected manifest profile through NodeOutcome, RunContext, and RunIndex. Existing profileless run-output references remain unestablished on the candidate packet route and fail closed before packet payload reads."
+change_class = "python-runtime-behavior"
+surface_classification = "Runtime API v1 candidate-only DecisionPacket HTE projection; no response-schema change."
+migration = "No persisted artifact or response-schema migration is required. Consumers of new DecisionPacket outputs should forward the returned ArtifactRef instead of reconstructing it from the artifact ID. Profileless legacy run-output references remain unavailable to this exact-profile candidate route."
+api = "The existing GET /api/v1/runs/{run_id}/decision-packets/{packet_id}/candidate-hte selector now receives the selected manifest profile already stored in the owning run index. The route still checks exact packet/profile equality, required RUNS_REVIEW permission, run scope, and bounded schema/profile identity."
+limitations = "The projection remains candidate-only. This change grants no authority, publication authorization, lifecycle closure, source currentness, or cross-run packet selection. Generic artifact content behavior is unchanged."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

@@ -253,17 +253,9 @@ def test_policy_output_candidate_resolution_refuses_foreign_trinity_schema(tmp_p
         run=run,
         logger=logging.getLogger("test.policy-output.schema"),
     )
-    valid_ref = store.put_json(
-        _bundle(),
-        PutOptions(
-            kind=TrinityBundle.ARTIFACT_KIND,
-            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
-            schema=SchemaInfo(
-                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
-                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
-            ),
-        ),
-    )
+    from polisyos.ir.trinity.loaders import persist_trinity_bundle_artifact
+
+    valid_ref = persist_trinity_bundle_artifact(_ensure_ir_artifact_store(store), _bundle())
     foreign_schema_ref = store.put_json(
         _bundle(),
         PutOptions(
@@ -271,6 +263,7 @@ def test_policy_output_candidate_resolution_refuses_foreign_trinity_schema(tmp_p
             media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
             schema=SchemaInfo(name=TrinityBundle.ARTIFACT_SCHEMA_NAME, version="9.0"),
         ),
+        return_selected_profile=True,
     )
 
     valid_candidate, selected_ref = _resolve_candidate(
@@ -282,8 +275,9 @@ def test_policy_output_candidate_resolution_refuses_foreign_trinity_schema(tmp_p
         ),
     )
     assert valid_candidate is not None
-    assert selected_ref == valid_ref
-    with pytest.raises(ValueError, match="manifest does not match its IR owner"):
+    assert str(selected_ref.artifact_id) == str(valid_ref.artifact_id)
+    assert selected_ref.manifest_profile_sha256 == valid_ref.manifest_profile_sha256
+    with pytest.raises(ValueError, match="does not match its IR owner"):
         _resolve_candidate(
             ctx,
             ExperimentState(
@@ -583,6 +577,7 @@ def _evaluation_vector(candidate: PolicyCandidateSchema) -> PolicyEvaluationVect
                 kind=ObjectiveKind.PRIMARY,
                 value=1.2,
                 direction=ObjectiveDirection.MAXIMIZE,
+                expected_unit="fixture-score-unit",
             )
         },
         hard_constraints={
@@ -604,20 +599,68 @@ def _hierarchical_search_result_with_unknown(
     known: PolicyCandidateSchema,
     unknown: PolicyCandidateSchema,
 ) -> SimpleNamespace:
-    """Build the hierarchy owner's real result shape with one missing evaluation."""
+    """Build owner-shaped hierarchy output with one bound score and one missing score."""
+    from polisyos.scientist.methods.search.objective import ObjectiveScoreStatus
+
     known_id = "known"
     unknown_id = "unknown"
+    evaluation = _evaluation_vector(known)
+    runtime_binding = {
+        "evaluation_attempt_id": "run-local-frontier-known-attempt",
+        "requested_draw_count": None,
+        "requested_draw_source": "unavailable",
+        "effective_estimation_config_sha256": None,
+    }
+    simulation_results = {
+        "objective_channels": {
+            channel.name: channel.value for channel in evaluation.all_channels().values()
+        },
+        "metric_units": {
+            f"channel:primary:{name}": channel.expected_unit
+            for name, channel in evaluation.primary.items()
+            if channel.expected_unit is not None
+        },
+        "feasible": evaluation.feasible,
+        "blocking_reasons": list(evaluation.blocking_reasons),
+        "bootstrap": runtime_binding,
+    }
+    evaluation = evaluation.with_runtime_score_assessment(
+        runtime_binding
+    ).with_score_source_results(simulation_results)
+    objective_value, score_status = evaluation.legacy_scalar_proxy_for_search(simulation_results)
+    if score_status is not ObjectiveScoreStatus.AVAILABLE or objective_value is None:
+        raise AssertionError("known candidate fixture must carry a bound available score")
 
-    def _history(candidate: PolicyCandidateSchema, evaluation: PolicyEvaluationVector | None):
+    def _history(
+        candidate: PolicyCandidateSchema,
+        objective: PolicyEvaluationVector | None,
+        *,
+        score: float | None,
+        status: ObjectiveScoreStatus,
+        source: dict[str, object] | None,
+    ):
+        stage_b_result = (
+            {
+                "status": "ok",
+                "simulation_results": source,
+                "policy_evaluation": objective.model_dump(mode="json"),
+            }
+            if objective is not None and source is not None
+            else {"status": "not_evaluated"}
+        )
         return SimpleNamespace(
             history=[
                 SimpleNamespace(
                     candidate=candidate.model_dump(mode="json"),
                     best_candidate=None,
-                    policy_evaluation=evaluation,
-                    objective_value=0.0,
-                    is_promising=evaluation is not None and evaluation.feasible,
-                    stage_b_result={},
+                    policy_evaluation=objective,
+                    objective_value=score,
+                    score_status=status,
+                    score_assessment=(
+                        objective.score_assessment if objective is not None else None
+                    ),
+                    is_promising=objective is not None and objective.feasible,
+                    stage_b_result=stage_b_result,
                 )
             ]
         )
@@ -629,8 +672,20 @@ def _hierarchical_search_result_with_unknown(
                 SimpleNamespace(structure_id=unknown_id, candidate=unknown, accepted=True),
             ],
             parameter_search_results={
-                known_id: _history(known, _evaluation_vector(known)),
-                unknown_id: _history(unknown, None),
+                known_id: _history(
+                    known,
+                    evaluation,
+                    score=objective_value,
+                    status=score_status,
+                    source=simulation_results,
+                ),
+                unknown_id: _history(
+                    unknown,
+                    None,
+                    score=None,
+                    status=ObjectiveScoreStatus.NOT_ESTABLISHED,
+                    source=None,
+                ),
             },
         ),
         pareto_projection=None,
@@ -833,10 +888,11 @@ def test_build_policy_output_bundle_writes_refs(
         outcome.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF],
     )
     assert bundle.policy_brief_ref is not None
-    assert bundle.promotion_result is None
+    assert "promotion_result" not in bundle.model_dump(mode="json")
     assert bundle.metadata["judge_composite_decision"] is None
+    audit = load_replayable_audit_bundle(cas_store, bundle.replayable_audit_bundle_ref)
     assert all(
-        key not in bundle.runtime_params_snapshot
+        key not in audit.runtime_params_snapshot
         for key in (
             "policy_promotion_result",
             "judge_verdict",
@@ -847,7 +903,7 @@ def test_build_policy_output_bundle_writes_refs(
             "translator_compliance",
         )
     )
-    assert ARTIFACT_POLICY_FRONTIER_REPORT_REF not in bundle.runtime_artifacts_index
+    assert ARTIFACT_POLICY_FRONTIER_REPORT_REF not in audit.runtime_artifacts_index
     brief = load_policy_brief(cas_store, bundle.policy_brief_ref)
     assert brief.title != stale_brief.title
     governance = load_governance_gate_packet(cas_store, bundle.governance_gate_packet_ref)
@@ -1417,54 +1473,7 @@ def test_build_policy_output_bundle_uses_branch_state_for_declared_outputs(
         )
 
     assert outcome.status == "ok"
-    assert observed["write_paths"] == (
-        "policy_output_bundle_ref",
-        "policy_brief_ref",
-        "champion_policy_dossier_ref",
-        "artifacts_index.policy_output_bundle_ref",
-        "artifacts_index.policy_frontier_report_ref",
-        "artifacts_index.champion_policy_dossier_ref",
-        "artifacts_index.claims_ref",
-        "artifacts_index.policy_brief_ref",
-        "artifacts_index.constraint_satisfaction_report_ref",
-        "artifacts_index.subgroup_impact_report_ref",
-        "artifacts_index.policy_uncertainty_report_ref",
-        "artifacts_index.policy_transportability_report_ref",
-        "artifacts_index.governance_gate_packet_ref",
-        "artifacts_index.implementation_plan_ref",
-        "artifacts_index.rejected_alternatives_summary_ref",
-        "artifacts_index.replayable_audit_bundle_ref",
-        "artifacts_index.decision_readiness_contract_ref",
-        "artifacts_index.validation_report_ref",
-        "artifacts_index.judge_verdict_ref",
-        "params.policy_promotion_result",
-        "params.judge_verdict",
-        "params.decision_readiness_contract",
-        "params.promotion_decision",
-        "params.policy_promotion_projection_status",
-        "params.policy_brief",
-        "params.translator_compliance",
-        "params.reported_policy_promotion_history",
-        "policy_output_bundle_ref",
-        "policy_brief_ref",
-        "champion_policy_dossier_ref",
-        "artifacts_index.champion_policy_dossier_ref",
-        "artifacts_index.claims_ref",
-        "artifacts_index.constraint_satisfaction_report_ref",
-        "artifacts_index.decision_readiness_contract_ref",
-        "artifacts_index.governance_gate_packet_ref",
-        "artifacts_index.implementation_plan_ref",
-        "artifacts_index.judge_verdict_ref",
-        "artifacts_index.policy_brief_ref",
-        "artifacts_index.policy_frontier_report_ref",
-        "artifacts_index.policy_output_bundle_ref",
-        "artifacts_index.policy_transportability_report_ref",
-        "artifacts_index.policy_uncertainty_report_ref",
-        "artifacts_index.rejected_alternatives_summary_ref",
-        "artifacts_index.replayable_audit_bundle_ref",
-        "artifacts_index.subgroup_impact_report_ref",
-        "artifacts_index.validation_report_ref",
-    )
+    assert observed["write_paths"] == tuple(BuildPolicyOutputBundleNode().spec.state_writes)
     assert state.params["nested"] == {"baseline": True}
     assert state.policy_output_bundle_ref is None
     assert ARTIFACT_POLICY_OUTPUT_BUNDLE_REF not in state.artifacts_index
@@ -1629,17 +1638,9 @@ def test_owner_basis_covers_inline_and_trinity_sources_across_resolver_routes(
     candidate_a = _candidate().model_copy(update={"candidate_id": "inline_candidate_a"})
     candidate_b = _candidate().model_copy(update={"candidate_id": "inline_candidate_b"})
     ref_b = persist_policy_candidate_schema(store, candidate_b, return_selected_profile=True)
-    trinity_ref = store.put_json(
-        _bundle(),
-        PutOptions(
-            kind=TrinityBundle.ARTIFACT_KIND,
-            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
-            schema=SchemaInfo(
-                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
-                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
-            ),
-        ),
-    )
+    from polisyos.ir.trinity.loaders import persist_trinity_bundle_artifact
+
+    trinity_ref = persist_trinity_bundle_artifact(_ensure_ir_artifact_store(store), _bundle())
     component_id = ComponentId.parse("scientist.node_candidate_origin_branches@1.0.0")
     selected: list[tuple[str | None, ArtifactRef | None]] = []
     route_selections: list[tuple[str, ArtifactRef | None]] = []
@@ -1711,7 +1712,10 @@ def test_owner_basis_covers_inline_and_trinity_sources_across_resolver_routes(
             "trinity",
             {"policy_candidate_id": "candidate_from_trinity"},
             {INPUT_TRINITY_BUNDLE_REF: trinity_ref},
-            ("candidate_from_trinity", trinity_ref),
+            (
+                "candidate_from_trinity",
+                ArtifactRef.model_validate(trinity_ref.model_dump(mode="json")),
+            ),
             f"/inputs/{INPUT_TRINITY_BUNDLE_REF}",
             True,
         ),
@@ -1850,9 +1854,13 @@ def test_owner_basis_covers_inline_and_trinity_sources_across_resolver_routes(
                 route_probe.setattr(caller_module, "_brief_required", _always_brief_required)
                 route_probe.setattr(caller_module, "_parse_model", _parsed_runner_model)
                 route_probe.setattr(caller_module, "_policy_build_input", _capture_candidate)
-                with pytest.raises(_CandidateResolverReached):
-                    caller_node.execute(fresh_ctx, route_state)
-            assert route_selections.pop() == expected
+                outcome = caller_node.execute(fresh_ctx, route_state)
+            assert outcome.status == "skip"
+            assert any(
+                event.attrs.get("reason") == "policy_promotion_result_absent"
+                for event in outcome.events
+            )
+            assert not route_selections
         phase3_candidate = phase3_resolve_candidate(fresh_ctx, source_state)
         assert phase3_candidate is not None
         assert phase3_candidate.candidate_id == expected[0]
@@ -2103,6 +2111,7 @@ def test_translator_cache_key_includes_the_candidate_source_before_reuse(
         judge_verdict=None,
     )
     evaluated_candidates: list[str] = []
+    prior_translator_projection: dict[str, object] = {}
     builder = SimpleNamespace(
         _build_constraint_report=lambda _source: object(),
         _build_subgroup_report=lambda _source: object(),
@@ -2135,18 +2144,70 @@ def test_translator_cache_key_includes_the_candidate_source_before_reuse(
             return self._spec
 
         def execute(self, _ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-            next_state = branch_state(
-                state,
-                write_paths=self._spec.state_writes,
-            ).state
+            prior_translator_projection["had_compliance"] = "translator_compliance" in state.params
+            if "translator_compliance" in state.params:
+                prior_translator_projection["compliance"] = state.params["translator_compliance"]
+            prior_translator_projection["had_history"] = (
+                "reported_policy_promotion_history" in state.params
+            )
+            if "reported_policy_promotion_history" in state.params:
+                prior_translator_projection["history"] = state.params[
+                    "reported_policy_promotion_history"
+                ]
+            next_state = branch_state(state, write_paths=self._spec.state_writes).state
             next_state.params["policy_candidate_ref"] = ref_b.model_dump(mode="json")
             return NodeOutcome(status="ok", state=next_state)
 
+    class RestoreTranslatorProjectionNode:
+        def __init__(self) -> None:
+            self._spec = NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse(
+                        "scientist.node_restore_translator_projection@1.0.0"
+                    ),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    abi_targets={"world_abi": "1.x"},
+                    display_name="Restore Translator Projection",
+                    description="Restores the exact input projection for a bounded cache replay.",
+                    capabilities=Capability.SCIENTIST_NODE,
+                ),
+                state_reads=[
+                    "params.translator_compliance",
+                    "params.reported_policy_promotion_history",
+                ],
+                state_writes=[
+                    "params.translator_compliance",
+                    "params.reported_policy_promotion_history",
+                ],
+            )
+
+        @property
+        def spec(self) -> NodeSpec:
+            return self._spec
+
+        def execute(self, _ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+            next_state = branch_state(state, write_paths=self._spec.state_writes).state
+            if prior_translator_projection.get("had_compliance"):
+                next_state.params["translator_compliance"] = prior_translator_projection[
+                    "compliance"
+                ]
+            else:
+                next_state.params.pop("translator_compliance", None)
+            if prior_translator_projection.get("had_history"):
+                next_state.params["reported_policy_promotion_history"] = (
+                    prior_translator_projection["history"]
+                )
+            else:
+                next_state.params.pop("reported_policy_promotion_history", None)
+            return NodeOutcome(status="ok", state=next_state)
+
     compliance_node = RunTranslatorComplianceNode()
+    restore_node = RestoreTranslatorProjectionNode()
     switch_node = CandidateSourceSwitchNode()
     registry = NodeRegistry()
     registry.register(compliance_node)
     registry.register(switch_node)
+    registry.register(restore_node)
     state = ExperimentState(
         run_id=run.run_manifest.run_id,
         inputs={"registry_bundle_ref": registry_bundle_ref},
@@ -2176,9 +2237,14 @@ def test_translator_cache_key_includes_the_candidate_source_before_reuse(
                 depends_on=["switch_candidate"],
             ),
             NodeInvocation(
+                alias="restore_translator_projection",
+                node_id=restore_node.spec.metadata.component_id,
+                depends_on=["compliance_b"],
+            ),
+            NodeInvocation(
                 alias="compliance_b_cached",
                 node_id=compliance_node.spec.metadata.component_id,
-                depends_on=["compliance_b"],
+                depends_on=["restore_translator_projection"],
             ),
         ],
     )
@@ -2559,15 +2625,50 @@ def test_direct_policy_cache_and_packet_intake_reproject_stale_current_state(
         {"data_ref": None},
         PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
     )
-    first = BuildPolicyOutputBundleNode().execute(
-        _claim_capable_context(execution_context), source_state
+    claim_context = _claim_capable_context(execution_context)
+    projected_source = _bundle_module.project_policy_promotion_state(
+        source_state,
+        ctx=claim_context,
+        branch_write_paths=_bundle_module._SPEC.state_writes,
     )
-    assert first.status == "ok", first.error
-    cached_ref = first.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF]
+    from polisyos.scientist.policy_design.phase3 import resolve_phase3_gate
+
+    phase3_gate = resolve_phase3_gate(claim_context, projected_source, candidate=candidate)
+    assert phase3_gate.gate_passed
+    cached_ref = PolicyArtifactBuilder().build(
+        cas_store,
+        PolicyArtifactBuildInput(
+            loop_id=projected_source.run_id,
+            run_id=projected_source.run_id,
+            candidate=candidate,
+            candidate_hash=candidate.candidate_hash(),
+            evaluation_vector=_evaluation_vector(candidate),
+            phase3_gate=phase3_gate,
+            runtime_input_refs=dict(projected_source.inputs),
+            runtime_artifacts_index=_bundle_module._snapshot_policy_runtime_artifacts_index(
+                projected_source.artifacts_index,
+                current_promotion_result=None,
+            ),
+            runtime_reports_index=dict(projected_source.reports_index),
+            runtime_params_snapshot=_bundle_module._snapshot_policy_runtime_params(
+                projected_source.params,
+                current_promotion_result=None,
+            ),
+            execution_profile=projected_source.execution_profile,
+            metadata={
+                "workflow_id": "scientist_policy_design",
+                "research_dag_status": "legacy_missing",
+            },
+        ),
+        claim_owner=claim_context.claim_ledger_owner,
+    )
+    cached_ref = ArtifactRef.model_validate(cached_ref.model_dump(mode="json"))
+    source_state.policy_output_bundle_ref = cached_ref
+    source_state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF] = cached_ref
     cached_bundle = load_policy_artifact_bundle(cas_store, cached_ref)
     assert cached_bundle.decision_readiness_contract_ref is None
 
-    stale_state = first.state.model_copy(deep=True)
+    stale_state = source_state.model_copy(deep=True)
     stale_result = PolicyPromotionResult(
         judge_verdict=JudgeVerdict.model_validate(_passing_judge_verdict()),
         readiness_contract=_readiness_contract(),
@@ -2587,7 +2688,7 @@ def test_direct_policy_cache_and_packet_intake_reproject_stale_current_state(
             "policy_promotion_projection_status": {
                 "status": "available",
                 "authority_status": "verified",
-                "owner_receipt_ref": {"artifact_id": "caller-controlled"},
+                "owner_receipt_ref": stale_judge_ref.model_dump(mode="json"),
             },
             "judge_verdict": _passing_judge_verdict(),
             "decision_readiness_contract": _readiness_contract().model_dump(mode="json"),
@@ -2614,16 +2715,8 @@ def test_direct_policy_cache_and_packet_intake_reproject_stale_current_state(
         _claim_capable_context(execution_context), stale_state
     )
     assert rebuilt.status == "ok", rebuilt.error
-    assert len(phase5_inputs) == 1
-    phase5_params, phase5_artifacts, _ = phase5_inputs[0]
-    assert not {
-        "policy_promotion_result",
-        "judge_verdict",
-        "decision_readiness_contract",
-        "promotion_decision",
-    }.intersection(phase5_params)
-    assert ARTIFACT_DECISION_READINESS_CONTRACT_REF not in phase5_artifacts
-    assert ARTIFACT_JUDGE_VERDICT_REF not in phase5_artifacts
+    assert phase5_inputs == []
+    assert rebuilt.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF] == cached_ref
     assert ARTIFACT_DECISION_READINESS_CONTRACT_REF not in rebuilt.state.artifacts_index
     assert rebuilt.state.params["policy_promotion_projection_status"]["status"] == ("reported_only")
     assert any(
@@ -2762,3 +2855,221 @@ def test_direct_policy_cache_and_packet_intake_reproject_stale_current_state(
         cas_store.get_bytes(changed_packet.artifacts[0].artifact_id)
     )
     assert "policy_output_bundle" not in changed_payload
+
+
+def test_direct_policy_cache_reconciles_run_local_frontier_input_identity(
+    execution_context: ExecutionContext,
+    minimal_state: ExperimentState,
+    cas_store: FileSystemCAS,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Candidate cache identity includes the typed source frontier role and profile."""
+    from polisyos.scientist.nodes.builtins.state_keys import (
+        ARTIFACT_POLICY_FRONTIER_REPORT_REF,
+        ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
+    )
+    from polisyos.scientist.policy_design.phase3 import resolve_phase3_gate
+
+    candidate = _candidate()
+    welfare_ref, ambiguity_ref = _phase3_ready_refs(cas_store)
+    source_state = minimal_state.model_copy(deep=True)
+    source_state.params.update(
+        {
+            "workflow_id": "scientist_policy_design",
+            "policy_mode": True,
+            "policy_candidate_schema": candidate.model_dump(mode="json"),
+            "policy_evaluation": _evaluation_vector(candidate).model_dump(mode="json"),
+            "decision_readiness_contract": _readiness_contract().model_dump(mode="json"),
+            "policy_brief": _policy_brief().model_dump(mode="json"),
+            "translator_compliance": _translator_compliance().model_dump(mode="json"),
+            "judge_verdict": _passing_judge_verdict(),
+        }
+    )
+    source_state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF] = welfare_ref
+    source_state.artifacts_index[ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF] = ambiguity_ref
+    source_state.inputs[INPUT_TRINITY_BUNDLE_REF] = cas_store.put_json(
+        _bundle(),
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    source_state.inputs[INPUT_DATA_SNAPSHOT_REF] = cas_store.put_json(
+        {"data_ref": None},
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    claim_context = _claim_capable_context(execution_context)
+    bundle_module = importlib.import_module(
+        "polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle"
+    )
+    from polisyos.scientist.orchestration.engine.state_branching import (
+        _completed_producer_state,
+    )
+
+    def _execute_scoped(node, state):
+        completed_input = _completed_producer_state(state)
+        scoped_state = real_branch_state(
+            completed_input,
+            write_paths=node.spec.state_writes,
+            enforce_write_scope=True,
+        ).state
+        return node.execute(claim_context, scoped_state)
+
+    projected_source = bundle_module.project_policy_promotion_state(
+        source_state,
+        ctx=claim_context,
+        branch_write_paths=bundle_module._SPEC.state_writes,
+    )
+    phase3_gate = resolve_phase3_gate(claim_context, projected_source, candidate=candidate)
+    assert phase3_gate.gate_passed
+    initial_bundle_ref = PolicyArtifactBuilder().build(
+        cas_store,
+        PolicyArtifactBuildInput(
+            loop_id=projected_source.run_id,
+            run_id=projected_source.run_id,
+            candidate=candidate,
+            candidate_hash=candidate.candidate_hash(),
+            evaluation_vector=_evaluation_vector(candidate),
+            phase3_gate=phase3_gate,
+            runtime_input_refs=dict(projected_source.inputs),
+            runtime_artifacts_index=bundle_module._snapshot_policy_runtime_artifacts_index(
+                projected_source.artifacts_index,
+                current_promotion_result=None,
+            ),
+            runtime_reports_index=dict(projected_source.reports_index),
+            runtime_params_snapshot=bundle_module._snapshot_policy_runtime_params(
+                projected_source.params,
+                current_promotion_result=None,
+            ),
+            execution_profile=projected_source.execution_profile,
+            metadata={
+                "workflow_id": "scientist_policy_design",
+                "research_dag_status": "legacy_missing",
+            },
+        ),
+        claim_owner=claim_context.claim_ledger_owner,
+    )
+    source_state.policy_output_bundle_ref = initial_bundle_ref
+    source_state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF] = initial_bundle_ref
+    cached_initial = load_policy_artifact_bundle(cas_store, initial_bundle_ref)
+    initial_frontier_report = load_policy_frontier_report(
+        cas_store, cached_initial.policy_frontier_report_ref
+    )
+    assert initial_frontier_report.metadata.get("source") != "c6c_hierarchical_policy_search"
+
+    def persist_source_frontier(suffix: str) -> ArtifactRef:
+        unknown = candidate.model_copy(
+            update={"candidate_id": f"candidate_without_evaluation_{suffix}"}
+        )
+        return _persist_frontier_report(
+            execution_context,
+            state=source_state,
+            loop_id=f"{source_state.run_id}:policy_search",
+            search_result=_hierarchical_search_result_with_unknown(candidate, unknown),
+        )
+
+    source_a = persist_source_frontier("a")
+    assert source_a is not None and source_a.manifest_profile_sha256 is not None
+    source_a_report = load_policy_frontier_report(cas_store, source_a)
+    assert source_a_report.metadata["source"] == "c6c_hierarchical_policy_search"
+
+    state_a = source_state.model_copy(deep=True)
+    state_a.artifacts_index[ARTIFACT_POLICY_FRONTIER_REPORT_REF] = source_a
+    first = _execute_scoped(BuildPolicyOutputBundleNode(), state_a)
+    assert first.status == "ok", first.error
+    first_bundle_ref = first.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF]
+    first_bundle = load_policy_artifact_bundle(cas_store, first_bundle_ref)
+    assert first_bundle_ref != initial_bundle_ref
+    assert first_bundle.policy_frontier_report_ref == source_a
+    assert first.state.artifacts_index[ARTIFACT_POLICY_FRONTIER_REPORT_REF] == source_a
+
+    packet_module = importlib.import_module(
+        "polisyos.scientist.nodes.builtins.decide.decision_packet.builder"
+    )
+    real_packet_request = packet_module._build_decision_packet_request
+    packet_intakes: list[ExperimentState] = []
+
+    def _capture_packet_request(ctx, state):
+        packet_intakes.append(state)
+        return real_packet_request(ctx, state)
+
+    monkeypatch.setattr(packet_module, "_build_decision_packet_request", _capture_packet_request)
+    packet = _execute_scoped(
+        BuildDecisionPacketNode(),
+        first.state.model_copy(deep=True),
+    )
+    assert packet.status == "ok", packet.error
+    assert len(packet_intakes) == 1
+    packet_intake = packet_intakes[0]
+    assert packet_intake.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF] == first_bundle_ref
+    assert packet_intake.artifacts_index[ARTIFACT_POLICY_FRONTIER_REPORT_REF] == source_a
+    consumed_bundle = load_policy_artifact_bundle(
+        cas_store,
+        packet_intake.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF],
+    )
+    assert consumed_bundle.policy_frontier_report_ref == source_a
+    assert load_policy_frontier_report(cas_store, consumed_bundle.policy_frontier_report_ref) == (
+        source_a_report
+    )
+
+    from polisyos.scientist.nodes.builtins.decide.run_policy_translation import (
+        RunPolicyTranslationNode,
+    )
+    from polisyos.scientist.nodes.builtins.decide.run_translator_compliance import (
+        RunTranslatorComplianceNode,
+    )
+
+    for sibling in (RunPolicyTranslationNode(), RunTranslatorComplianceNode()):
+        sibling_outcome = _execute_scoped(sibling, first.state.model_copy(deep=True))
+        assert sibling_outcome.status == "skip"
+        assert sibling_outcome.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF] == (
+            first_bundle_ref
+        )
+        assert sibling_outcome.state.artifacts_index[ARTIFACT_POLICY_FRONTIER_REPORT_REF] == (
+            source_a
+        )
+
+    unchanged = _execute_scoped(
+        BuildPolicyOutputBundleNode(),
+        first.state.model_copy(deep=True),
+    )
+    assert unchanged.status == "ok", unchanged.error
+    assert unchanged.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF] == first_bundle_ref
+    assert unchanged.state.artifacts_index[ARTIFACT_POLICY_FRONTIER_REPORT_REF] == source_a
+
+    source_b = persist_source_frontier("b")
+    assert source_b is not None and source_b.manifest_profile_sha256 is not None
+    assert source_b.artifact_id != source_a.artifact_id
+    source_b_report = load_policy_frontier_report(cas_store, source_b)
+    assert source_b_report.candidate_frontier != source_a_report.candidate_frontier
+    state_b = unchanged.state.model_copy(deep=True)
+    state_b.artifacts_index[ARTIFACT_POLICY_FRONTIER_REPORT_REF] = source_b
+    changed = _execute_scoped(BuildPolicyOutputBundleNode(), state_b)
+    assert changed.status == "ok", changed.error
+    changed_bundle_ref = changed.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF]
+    changed_bundle = load_policy_artifact_bundle(cas_store, changed_bundle_ref)
+    assert changed_bundle_ref != first_bundle_ref
+    assert changed_bundle.policy_frontier_report_ref == source_b
+    assert changed.state.artifacts_index[ARTIFACT_POLICY_FRONTIER_REPORT_REF] == source_b
+
+    removed_state = changed.state.model_copy(deep=True)
+    removed_state.artifacts_index.pop(ARTIFACT_POLICY_FRONTIER_REPORT_REF)
+    removed = _execute_scoped(BuildPolicyOutputBundleNode(), removed_state)
+    assert removed.status == "ok", removed.error
+    removed_bundle_ref = removed.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF]
+    removed_bundle = load_policy_artifact_bundle(cas_store, removed_bundle_ref)
+    assert removed_bundle_ref != changed_bundle_ref
+    removed_frontier = load_policy_frontier_report(
+        cas_store, removed_bundle.policy_frontier_report_ref
+    )
+    assert removed_frontier.metadata.get("source") != "c6c_hierarchical_policy_search"
+
+    no_source_reuse = _execute_scoped(
+        BuildPolicyOutputBundleNode(),
+        removed.state.model_copy(deep=True),
+    )
+    assert no_source_reuse.status == "ok", no_source_reuse.error
+    assert no_source_reuse.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF] == (
+        removed_bundle_ref
+    )

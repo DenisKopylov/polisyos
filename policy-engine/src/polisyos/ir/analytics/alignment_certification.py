@@ -21,6 +21,11 @@ from polisyos.data_forge.read_api.catalog import (
     load_seed_alignments,
     score_variable_pair,
 )
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
 from polisyos.ir.analytics.cross_graph import (
     InterfaceMapping,
     InterfaceMappingEntry,
@@ -37,7 +42,9 @@ from polisyos.ir.analytics.latent_bridge_synthesis import (
     LatentBridgeSynthesisPolicy,
     synthesize_latent_bridge,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec, to_canonical_bytes
 from polisyos.ir.registry.refs import AlignmentReportRef, VariableAlignmentCertificateRef
 
@@ -2505,6 +2512,78 @@ def _default_policy() -> AlignmentCertificationPolicy:
     return AlignmentCertificationPolicy()
 
 
+_VARIABLE_ALIGNMENT_CERTIFICATE_OWNER = declare_model_owner(
+    VariableAlignmentCertificate,
+    contract_id="ir.analytics.ir_variable_alignment_certificate.owner.v1",
+    dto_fqn="polisyos.ir.analytics.alignment_certification.VariableAlignmentCertificate",
+    abi_key="ir.analytics.ir_variable_alignment_certificate.owner.v1.dto-abi.v1",
+    registry_key="ir.variable_alignment_certificate",
+    kind="ir.variable_alignment_certificate",
+    media_type="application/json",
+    purpose="variable_alignment_certificate",
+    policy_revision="ir.analytics.ir_variable_alignment_certificate.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.ir_variable_alignment_certificate.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        OwnedJSONRepresentation(
+            schema_name="ir.variable_alignment_certificate",
+            schema_version="1.2",
+            payload_version="1.2",
+            wire_policy_ref="ir.analytics.ir_variable_alignment_certificate.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=CompatibilityMode.NONE,
+            notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
+_ALIGNMENT_REPORT_OWNER = declare_model_owner(
+    AlignmentReport,
+    contract_id="ir.analytics.ir_alignment_report.owner.v1",
+    dto_fqn="polisyos.ir.analytics.alignment_certification.AlignmentReport",
+    abi_key="ir.analytics.ir_alignment_report.owner.v1.dto-abi.v1",
+    registry_key="ir.alignment_report",
+    kind="ir.alignment_report",
+    media_type="application/json",
+    purpose="alignment_report",
+    policy_revision="ir.analytics.ir_alignment_report.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.ir_alignment_report.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        OwnedJSONRepresentation(
+            schema_name="ir.alignment_report",
+            schema_version="1.2",
+            payload_version="1.2",
+            wire_policy_ref="ir.analytics.ir_alignment_report.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=CompatibilityMode.NONE,
+            notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
 def persist_variable_alignment_certificate(
     store: ArtifactStore,
     certificate: VariableAlignmentCertificate,
@@ -2513,26 +2592,25 @@ def persist_variable_alignment_certificate(
     schema_name: str = _VARIABLE_ALIGNMENT_CERTIFICATE_SCHEMA_NAME,
     schema_version: str = _VARIABLE_ALIGNMENT_CERTIFICATE_SCHEMA_VERSION,
 ) -> VariableAlignmentCertificateRef:
-    """Persist variable alignment certificate helper."""
-    ref = put_json_artifact(
+    """Persist a variable-alignment certificate through its exact owner."""
+    ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind=_VARIABLE_ALIGNMENT_CERTIFICATE_SCHEMA_NAME,
+        owner=_VARIABLE_ALIGNMENT_CERTIFICATE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return VariableAlignmentCertificateRef.model_validate(ref)
+    return VariableAlignmentCertificateRef.from_selected_write(ref)
 
 
 def load_variable_alignment_certificate(
     store: ArtifactStore,
     ref: VariableAlignmentCertificateRef,
 ) -> VariableAlignmentCertificate:
-    """Load variable alignment certificate."""
-    payload = get_json_artifact(store, ref)
-    return VariableAlignmentCertificate.model_validate(payload)
+    """Load a variable-alignment certificate after owner and profile admission."""
+    return _get_owned_json_artifact(store, ref, owner=_VARIABLE_ALIGNMENT_CERTIFICATE_OWNER)
 
 
 def persist_alignment_report(
@@ -2543,26 +2621,25 @@ def persist_alignment_report(
     schema_name: str = _ALIGNMENT_REPORT_SCHEMA_NAME,
     schema_version: str = _ALIGNMENT_REPORT_SCHEMA_VERSION,
 ) -> AlignmentReportRef:
-    """Persist alignment report helper."""
-    ref = put_json_artifact(
+    """Persist an alignment report through its exact owner."""
+    ref = _put_owned_json_artifact(
         store,
         report.model_dump(mode="json"),
-        kind=_ALIGNMENT_REPORT_SCHEMA_NAME,
+        owner=_ALIGNMENT_REPORT_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return AlignmentReportRef.model_validate(ref)
+    return AlignmentReportRef.from_selected_write(ref)
 
 
 def load_alignment_report(
     store: ArtifactStore,
     ref: AlignmentReportRef,
 ) -> AlignmentReport:
-    """Load alignment report."""
-    payload = get_json_artifact(store, ref)
-    return AlignmentReport.model_validate(payload)
+    """Load an alignment report after owner and profile admission."""
+    return _get_owned_json_artifact(store, ref, owner=_ALIGNMENT_REPORT_OWNER)
 
 
 def _measurement_grade_rank(grade: MeasurementComparabilityGrade) -> int:

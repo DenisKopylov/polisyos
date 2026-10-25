@@ -13,12 +13,24 @@ from collections.abc import Mapping
 from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Literal, TypedDict
+from typing import Any, Literal, NotRequired, TypedDict
 from urllib.parse import urlsplit
 
+from polisyos.core.artifacts import (
+    ArtifactID,
+    ArtifactManifest,
+    ArtifactReader,
+    ArtifactRef,
+    ArtifactSameInputClosureInfo,
+    ArtifactStore,
+    artifact_manifest_profile_sha256,
+    resolve_authority_envelope_ref,
+)
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.contracts.control import policy_authority_profile_mapping
+from polisyos.core.components.ids import ComponentId
+from polisyos.core.contracts.control import ControlJobResponse, policy_authority_profile_mapping
+from polisyos.core.contracts.runtime import RunDetailsResponse
 from polisyos.core.security.quality_gates import (
     SECURITY_ASSURANCE_ARTIFACT_KIND,
     SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE,
@@ -36,10 +48,17 @@ from polisyos.foundry.validation.causal_validity import (
 from polisyos.runtime.http.services.control.artifacts import (
     _runtime_quality_evidence_from_payloads,
 )
-from polisyos.runtime.quality.assurance_case import build_assurance_case_for_scorecard
+from polisyos.runtime.quality.assurance_case import (
+    build_assurance_case_for_scorecard,
+    validate_policy_design_case_profile,
+)
 from polisyos.runtime.quality.attestation import (
     build_required_production_attestations,
     serialize_attestation_record,
+)
+from polisyos.runtime.quality.authority import (
+    assert_same_input_closure,
+    deserialize_authority_envelope,
 )
 from polisyos.runtime.quality.case_lifecycle import build_lifecycle_reissue_report
 from polisyos.runtime.quality.closeout_compatibility import (
@@ -110,6 +129,7 @@ from polisyos.runtime.quality.projection_semantics import (
 )
 from polisyos.runtime.quality.public_export import build_public_export_bundle
 from polisyos.runtime.quality.refs import (
+    QualityRefResolution,
     RuntimeQualityAuthorityRefs,
     resolve_quality_refs,
 )
@@ -162,6 +182,40 @@ class _SecurityReportManifestIdentity(TypedDict):
     media_type: str | None
     schema_name: str | None
     schema_version: str | None
+
+
+class _RuntimeOwnedPolicyDesignCaseScope(TypedDict):
+    """CAS-selected PDC case joined to its typed runtime job and run owner."""
+
+    case: dict[str, Any]
+    case_id: str
+    run_id: str
+    job_id: str
+    tenant_id: str
+    selector: ArtifactRef
+    authority_envelope: dict[str, Any]
+
+
+class _RuntimeQualityReportSourceIdentity(TypedDict):
+    """Manifest and sidecar identity qualified for one selected report body."""
+
+    artifact_id: str
+    kind: str
+    media_type: str
+    schema_name: str
+    schema_version: str
+    producer_component: str
+    payload_sha256: str
+    manifest_profile_sha256: str
+
+
+class _Wave4I4Issue(TypedDict):
+    """Typed issue emitted by Wave 4/I4 and closeout owner gates."""
+
+    code: str
+    message: str
+    severity: str
+    blocking: NotRequired[bool]
 
 
 class _QualityRefResolutionRejection(TypedDict):
@@ -357,7 +411,7 @@ def _fingerprint(value: Any) -> str | None:
 def _optional_float(value: Any) -> float | None:
     try:
         number = float(value)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return None
     return number if number == number else None
 
@@ -546,7 +600,7 @@ def _load_dashboard_timing_payload(env: dict[str, str]) -> dict[str, Any]:
         return {}
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+    except OSError, json.JSONDecodeError:
         return {}
     return payload if isinstance(payload, dict) else {}
 
@@ -620,6 +674,15 @@ def _write_json(path: Path, payload: Any) -> None:
     )
 
 
+def _write_finalized_public_export_projection(path: Path, payload: dict[str, Any]) -> None:
+    """Persist the public-export owner's already-redacted and audited projection unchanged."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2, default=_json_default) + "\n",
+        encoding="utf-8",
+    )
+
+
 def _serious_canary(canary_kind: str) -> bool:
     return canary_kind.casefold() in SERIOUS_CANARY_KINDS
 
@@ -639,6 +702,37 @@ def _stable_authority_ref(*parts: Any) -> str:
     return _payload_sha256({"authority_ref_parts": [str(part) for part in parts]})
 
 
+def _runtime_run_scope_established(run_id: str | None) -> bool:
+    return isinstance(run_id, str) and bool(run_id.strip())
+
+
+def _verified_policy_design_case_scope(case: Any) -> tuple[str, str] | None:
+    if not isinstance(case, dict):
+        return None
+    try:
+        validated_case = validate_policy_design_case_profile(case)
+    except TypeError, ValueError:
+        return None
+    case_id = _first_text(validated_case.get("case_id"))
+    case_run_id = _first_text(validated_case.get("run_id"))
+    case_job_id = _first_text(validated_case.get("job_id"))
+    case_tenant_id = _first_text(validated_case.get("tenant_id"))
+    intent = validated_case.get("intent_envelope")
+    if not isinstance(intent, dict):
+        return None
+    if (
+        case_id is None
+        or case_run_id is None
+        or case_job_id is None
+        or case_tenant_id is None
+        or case_run_id != _first_text(intent.get("run_id"))
+        or case_job_id != _first_text(intent.get("job_id"))
+        or case_tenant_id != _first_text(intent.get("tenant_id"))
+    ):
+        return None
+    return case_id, case_run_id
+
+
 def _authority_bearing_or_stable(value: Any, *, ref_key: str, field: str) -> str:
     existing = _cas_like_ref(value)
     if existing is not None:
@@ -649,7 +743,7 @@ def _authority_bearing_or_stable(value: Any, *, ref_key: str, field: str) -> str
 def _load_written_json(path: Path) -> Any:
     try:
         return json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+    except OSError, json.JSONDecodeError:
         return None
 
 
@@ -765,6 +859,25 @@ def _preserve_runtime_report_failures(
                     updated[key] = runtime_report[key]
             updated.setdefault("runtime_report_status", runtime_report.get("status"))
         preserved[report_key] = updated
+    return preserved
+
+
+def _preserve_selected_runtime_report_bodies(
+    quality_evidence_payload: dict[str, Any],
+    selected_reports: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Keep selected CAS body fields authoritative over inline projections."""
+    preserved = dict(quality_evidence_payload)
+    for report_key, selected_report in selected_reports.items():
+        if not isinstance(selected_report, dict):
+            continue
+        current_report = preserved.get(report_key)
+        if isinstance(current_report, dict):
+            merged_report = dict(current_report)
+            merged_report.update(deepcopy(selected_report))
+            preserved[report_key] = merged_report
+        else:
+            preserved[report_key] = deepcopy(selected_report)
     return preserved
 
 
@@ -1092,23 +1205,22 @@ def _public_export_bundle_from_quality_evidence(
             "blocking_failure_count": len(scorecard.get("blocking_quality_failures") or []),
         },
     }
-    public_bundle = build_public_export_bundle(
+    return build_public_export_bundle(
         run_id=str(run_id or "unknown"),
         title="PolicyOS Wave 4 public audit projection",
         artifacts=artifacts,
         authority_envelopes=_authority_envelopes_from_quality_evidence(quality_evidence_payload),
+        runtime_truth_preservation={
+            "schema_version": "policyos.runtime.public_export_truth_preservation.v1",
+            "source_quality_status": scorecard.get("quality_status"),
+            "source_approval_state": scorecard.get("approval_state"),
+            "blocking_failure_count": len(scorecard.get("blocking_quality_failures") or []),
+            "can_promote_failed_claim": False,
+            "can_satisfy_record_family": False,
+            "can_satisfy_authority_gate": False,
+            "truth_source": "quality_evidence/quality_scorecard.json",
+        },
     )
-    public_bundle["runtime_truth_preservation"] = {
-        "schema_version": "policyos.runtime.public_export_truth_preservation.v1",
-        "source_quality_status": scorecard.get("quality_status"),
-        "source_approval_state": scorecard.get("approval_state"),
-        "blocking_failure_count": len(scorecard.get("blocking_quality_failures") or []),
-        "can_promote_failed_claim": False,
-        "can_satisfy_record_family": False,
-        "can_satisfy_authority_gate": False,
-        "truth_source": "quality_evidence/quality_scorecard.json",
-    }
-    return public_bundle
 
 
 def _authority_ref_from_report(report: dict[str, Any], ref_key: str) -> str | None:
@@ -1733,9 +1845,12 @@ def _authority_record_for_ref(
     report: dict[str, Any] | None,
     base_authority_envelope: dict[str, Any] | None,
     canary_kind: str,
-    run_id: Any,
+    run_id: str,
     job_id: str,
+    source_identity: _RuntimeQualityReportSourceIdentity | None = None,
 ) -> dict[str, Any]:
+    if not _runtime_run_scope_established(run_id):
+        raise ValueError("minimum closeout authority records require an established run_id")
     report_key = QUALITY_REPORT_KEY_BY_RUNTIME_REF.get(ref_key)
     envelope = report.get("authority_envelope") if isinstance(report, dict) else None
     envelope = (
@@ -1760,19 +1875,32 @@ def _authority_record_for_ref(
         ref_key=ref_key,
         field=f"runtime_event_ref:{runtime_ref}",
     )
-    artifact_kind = _authority_artifact_kind_for_report_key(
-        report_key=report_key,
-        ref_key=ref_key,
+    artifact_kind = (
+        source_identity["kind"]
+        if source_identity is not None
+        else _authority_artifact_kind_for_report_key(
+            report_key=report_key,
+            ref_key=ref_key,
+        )
     )
-    schema_name = _authority_schema_name_for_report(
-        report=report,
-        report_key=report_key,
-        artifact_kind=artifact_kind,
+    schema_name = (
+        source_identity["schema_name"]
+        if source_identity is not None
+        else _authority_schema_name_for_report(
+            report=report,
+            report_key=report_key,
+            artifact_kind=artifact_kind,
+        )
     )
-    schema_version = str(
-        (report or {}).get("schema_version") or envelope.get("schema_version") or "1.0"
+    schema_version = (
+        source_identity["schema_version"]
+        if source_identity is not None
+        else str((report or {}).get("schema_version") or envelope.get("schema_version") or "1.0")
     )
-    gate_name = QUALITY_REPORT_GATE_METADATA.get(report_key, (report_key or ref_key, "", ""))[0]
+    gate_name = QUALITY_REPORT_GATE_METADATA.get(
+        report_key or "",
+        (report_key or ref_key or "quality_report", "", ""),
+    )[0]
     reader_gate_version = f"runtime.scorecard.{gate_name}.v1"
     schema_compatibility_ref = _stable_authority_ref(
         ref_key,
@@ -1782,14 +1910,27 @@ def _authority_record_for_ref(
         canary_kind,
     )
     validation_status = _authority_validation_status_for_report(report)
-    producer_component = _authority_producer_component_for_report_key(
-        report_key=report_key,
-        fallback=envelope.get("producer_component"),
+    producer_component = (
+        source_identity["producer_component"]
+        if source_identity is not None
+        else _authority_producer_component_for_report_key(
+            report_key=report_key,
+            fallback=envelope.get("producer_component"),
+        )
     )
     phase = _authority_phase_for_report_key(report_key=report_key, fallback=envelope.get("phase"))
-    status = str((report or {}).get("status") or "pass").casefold()
-    if status not in {"pass", "passed", "ok", "success"}:
-        status = "pass"
+    raw_status = (
+        report.get("status")
+        if isinstance(report, dict) and "status" in report
+        else (report or {}).get("quality_status")
+    )
+    status = (
+        raw_status.strip()
+        if isinstance(raw_status, str) and raw_status.strip()
+        else "pass"
+        if report is None
+        else "not_established"
+    )
     same_input_payload = envelope.get("same_input_closure")
     common_same_input_refs = {
         "policy_intent_ref": _stable_authority_ref(
@@ -1852,9 +1993,9 @@ def _authority_record_for_ref(
     if isinstance(same_input_payload, dict):
         same_input_payload = {
             **same_input_payload,
-            "closure_id": f"{run_id or 'unknown'}:minimum_closeout",
+            "closure_id": f"{run_id}:minimum_closeout",
             "status": "closed",
-            "run_id": str(run_id or "unknown"),
+            "run_id": run_id,
             "job_id": None if job_id == "no-job" else job_id,
             **common_same_input_refs,
             "closure_sha256": _stable_authority_ref(
@@ -1866,9 +2007,9 @@ def _authority_record_for_ref(
         }
     else:
         same_input_payload = {
-            "closure_id": f"{run_id or 'unknown'}:minimum_closeout",
+            "closure_id": f"{run_id}:minimum_closeout",
             "status": "closed",
-            "run_id": str(run_id or "unknown"),
+            "run_id": run_id,
             "job_id": None if job_id == "no-job" else job_id,
             "tenant_id": envelope.get("tenant_id") or "tenant-default",
             "cell_id": envelope.get("cell_id") or "cell-default",
@@ -1891,11 +2032,18 @@ def _authority_record_for_ref(
         ref_key=ref_key,
         field="no_degradation_ledger_ref",
     )
-    payload_sha256 = runtime_ref.removeprefix("sha256:")
+    payload_sha256 = (
+        source_identity["payload_sha256"]
+        if source_identity is not None
+        else runtime_ref.removeprefix("sha256:")
+    )
     record = {
         "schema_version": "policyos.minimum_closeout_authority_record.v1",
         "status": status,
         "ref_key": ref_key,
+        "selected_source_manifest_profile_sha256": (
+            source_identity["manifest_profile_sha256"] if source_identity is not None else None
+        ),
         ref_key: runtime_ref,
         "runtime_ref": runtime_ref,
         "runtime_event_ref": runtime_event_ref,
@@ -1925,7 +2073,7 @@ def _authority_record_for_ref(
             "payload_sha256": payload_sha256,
             "schema_name": schema_name,
             "schema_version": schema_version,
-            "run_id": str(run_id or "unknown"),
+            "run_id": run_id,
             "job_id": None if job_id == "no-job" else job_id,
             "owner": envelope.get("owner") or "team-runtime-quality",
             "reader_contract": envelope.get("reader_contract")
@@ -1933,7 +2081,7 @@ def _authority_record_for_ref(
             "reader_contract_version": envelope.get("reader_contract_version") or "1.0",
             "tenant_id": envelope.get("tenant_id") or "tenant-default",
             "cell_id": envelope.get("cell_id") or "cell-default",
-            "trace_id": envelope.get("trace_id") or f"{run_id or 'unknown'}:wave6-closeout",
+            "trace_id": envelope.get("trace_id") or f"{run_id}:wave6-closeout",
             "span_id": f"{ref_key}:minimum_closeout",
             "requested_execution_profile": envelope.get("requested_execution_profile")
             or canary_kind,
@@ -1997,14 +2145,42 @@ def _with_closeout_authority_metadata(
     *,
     runtime_refs: dict[str, str],
     canary_kind: str,
-    run_id: Any,
+    run_id: str | None,
     job_id: str,
     base_authority_envelope: dict[str, Any] | None,
+    selected_source_identities: Mapping[
+        str,
+        _RuntimeQualityReportSourceIdentity | None,
+    ]
+    | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     enriched = dict(quality_evidence_payload)
+    if run_id is None or not run_id.strip():
+        issue = {
+            **_wave4_i4_issue(
+                code="minimum_closeout_run_scope_not_established",
+                message=("Minimum closeout authority records require a runtime-owned run_id."),
+                severity="fail",
+            ),
+            "blocking": True,
+        }
+        index = {
+            "schema_version": "policyos.minimum_closeout_authority_index.v1",
+            "status": "not_established",
+            "canary_kind": canary_kind,
+            "run_id": None,
+            "job_id": None if job_id == "no-job" else job_id,
+            "records": {},
+            "diagnostic_events": [],
+            "cas_artifact_refs": {},
+            "issues": [issue],
+        }
+        enriched["minimum_closeout_authority_index"] = index
+        return enriched, index
     records: dict[str, dict[str, Any]] = {}
     diagnostic_events: list[dict[str, Any]] = []
     cas_artifact_refs: dict[str, str] = {}
+    issues: list[_Wave4I4Issue] = []
     for ref_key in MINIMUM_CLOSEOUT_REQUIRED_REF_KEYS:
         runtime_ref = runtime_refs.get(ref_key)
         if not isinstance(runtime_ref, str) or not runtime_ref.strip():
@@ -2012,6 +2188,25 @@ def _with_closeout_authority_metadata(
         report_key = QUALITY_REPORT_KEY_BY_RUNTIME_REF.get(ref_key)
         report = enriched.get(report_key) if report_key else None
         report = report if isinstance(report, dict) else None
+        source_identity = (
+            selected_source_identities.get(report_key)
+            if selected_source_identities is not None and report_key is not None
+            else None
+        )
+        if (
+            selected_source_identities is not None
+            and report_key is not None
+            and report_key in selected_source_identities
+            and source_identity is None
+        ):
+            issue = _wave4_i4_issue(
+                code="minimum_closeout_source_provenance_not_established",
+                message=("Selected runtime report manifest and authority sidecar did not agree."),
+                severity="fail",
+            )
+            issue["blocking"] = True
+            issues.append(issue)
+            continue
         record = _authority_record_for_ref(
             ref_key=ref_key,
             runtime_ref=runtime_ref,
@@ -2020,6 +2215,7 @@ def _with_closeout_authority_metadata(
             canary_kind=canary_kind,
             run_id=run_id,
             job_id=job_id,
+            source_identity=source_identity,
         )
         records[ref_key] = record
         diagnostic_events.append(record["diagnostic_event"])
@@ -2041,14 +2237,16 @@ def _with_closeout_authority_metadata(
             enriched[report_key] = updated
     index = {
         "schema_version": "policyos.minimum_closeout_authority_index.v1",
-        "status": "pass",
+        "status": "not_established" if issues else "pass",
         "canary_kind": canary_kind,
-        "run_id": str(run_id or "unknown"),
+        "run_id": run_id,
         "job_id": None if job_id == "no-job" else job_id,
         "records": records,
         "diagnostic_events": diagnostic_events,
         "cas_artifact_refs": cas_artifact_refs,
     }
+    if issues:
+        index["issues"] = issues
     enriched["minimum_closeout_authority_index"] = index
     return enriched, index
 
@@ -2143,19 +2341,63 @@ def _payload_with_runtime_quality_evidence_reports(
 def _continuous_governance_report(
     *,
     report_key: str,
-    runtime_ref: str,
-    authority_record: dict[str, Any],
-    run_id: Any,
+    runtime_ref: str | None,
+    authority_record: dict[str, Any] | None,
+    run_id: str | None,
     job_id: str,
 ) -> dict[str, Any]:
     action = report_key.removeprefix("continuous_governance_")
+    if not _runtime_run_scope_established(run_id):
+        return {
+            "schema_version": "policyos.runtime.governance_lifecycle_report.v1",
+            "status": "not_established",
+            "run_scope_status": "not_established",
+            "lifecycle_decision": action,
+            "decision_status": "not_established",
+            "published_decision_lifecycle_in_scope": False,
+            "run_id": None,
+            "job_id": None if job_id == "no-job" else job_id,
+            "issues": [
+                _wave4_i4_issue(
+                    code="continuous_governance_run_scope_not_established",
+                    message=("Continuous governance evidence requires a runtime-owned run_id."),
+                    severity="fail",
+                )
+            ],
+        }
+    if (
+        not isinstance(runtime_ref, str)
+        or not runtime_ref.strip()
+        or not isinstance(authority_record, dict)
+    ):
+        return {
+            "schema_version": "policyos.runtime.governance_lifecycle_report.v1",
+            "status": "not_established",
+            "run_scope_status": "not_established",
+            "lifecycle_decision": action,
+            "decision_status": "not_established",
+            "published_decision_lifecycle_in_scope": False,
+            "run_id": run_id,
+            "job_id": None if job_id == "no-job" else job_id,
+            "issues": [
+                _wave4_i4_issue(
+                    code="continuous_governance_authority_scope_not_established",
+                    message=(
+                        "Continuous governance evidence requires an admitted runtime "
+                        "reference and closeout authority record."
+                    ),
+                    severity="fail",
+                )
+            ],
+        }
+
     return {
         "schema_version": "policyos.runtime.governance_lifecycle_report.v1",
         "status": "pass",
         "lifecycle_decision": action,
         "decision_status": "no_published_decision_mutation_required",
         "published_decision_lifecycle_in_scope": True,
-        "run_id": str(run_id or "unknown"),
+        "run_id": run_id,
         "job_id": None if job_id == "no-job" else job_id,
         QUALITY_REPORT_RUNTIME_REFS[report_key]: runtime_ref,
         "reason": (
@@ -2184,9 +2426,9 @@ def _continuous_governance_report(
 def _effective_mode_ledger_payload(
     *,
     canary_kind: str,
-    run_id: Any,
+    run_id: str | None,
     job_id: str,
-    mode_ledger_ref: str,
+    mode_ledger_ref: str | None,
 ) -> dict[str, Any]:
     try:
         authority_mapping = policy_authority_profile_mapping(canary_kind)
@@ -2218,11 +2460,15 @@ def _effective_mode_ledger_payload(
     payload = {
         "schema_version": "policyos.runtime.effective_mode_ledger.v1",
         "status": "pass",
-        "mode_ledger_id": mode_ledger_ref,
-        "mode_ledger_ref": mode_ledger_ref,
-        "run_id": str(run_id or "unknown"),
+        "run_id": run_id,
+        "run_scope_status": (
+            "established" if _runtime_run_scope_established(run_id) else "not_established"
+        ),
         "job_id": None if job_id == "no-job" else job_id,
     }
+    if isinstance(mode_ledger_ref, str) and mode_ledger_ref.strip():
+        payload["mode_ledger_id"] = mode_ledger_ref
+        payload["mode_ledger_ref"] = mode_ledger_ref
     for key, value in requested.items():
         payload[f"requested_{key}"] = value
         payload[f"effective_{key}"] = value
@@ -2232,7 +2478,7 @@ def _effective_mode_ledger_payload(
 def _generated_trust_boundary_attestations(
     *,
     scorecard_runtime_refs: dict[str, str],
-    run_id: Any,
+    run_id: str | None,
     job_id: str,
     bundle_dir: Path,
 ) -> list[dict[str, Any]]:
@@ -2312,7 +2558,7 @@ def _generated_trust_boundary_attestations(
                 "prompt_tool_parser_executor",
             )
         },
-        metadata={"job_id": job_id, "run_id": str(run_id or "no-run")},
+        metadata={"job_id": job_id, "run_id": run_id},
     )
     return [serialize_attestation_record(record) for record in records]
 
@@ -3004,7 +3250,7 @@ def _with_run_cost_gate(
             run_payload=run_payload,
             canary_kind=canary_kind,
         )
-    except (RunCostGateError, CostDegradationTelemetryError):
+    except RunCostGateError, CostDegradationTelemetryError:
         return quality_evidence_payload
     enriched = dict(quality_evidence_payload)
     enriched["run_cost_gate"] = report
@@ -3028,30 +3274,238 @@ def _policy_design_case_has_run_cost_record(case: dict[str, Any]) -> bool:
     return False
 
 
+def _verified_policy_design_case_owner_scope(
+    *,
+    job_payload: dict[str, Any] | None,
+    run_payload: dict[str, Any] | None,
+    artifact_store: ArtifactStore | None,
+) -> _RuntimeOwnedPolicyDesignCaseScope | None:
+    """Join a selected PDC artifact to the typed run and control-job owner."""
+    if not isinstance(job_payload, dict) or not isinstance(run_payload, dict):
+        return None
+    try:
+        job = ControlJobResponse.model_validate(job_payload)
+        run_response = RunDetailsResponse.model_validate_json(json.dumps(run_payload))
+    except (TypeError, ValueError):
+        return None
+
+    run = run_response.run
+    run_id = run.run_id.strip()
+    job_id = job.job_id.strip()
+    tenant_id = run.tenant_id.strip() if isinstance(run.tenant_id, str) else ""
+    if (
+        not run_id
+        or not job_id
+        or not tenant_id
+        or not isinstance(job.run_id, str)
+        or job.run_id.strip() != run_id
+        or run.control_job_id != job_id
+        or not isinstance(artifact_store, ArtifactStore)
+    ):
+        return None
+
+    selected_refs = RuntimeQualityAuthorityRefs.from_runtime_payloads(
+        job_payload=job_payload,
+        run_payload=run_payload,
+    )
+    selector = selected_refs.get_selected_ref("policy_design_case_ref")
+    if (
+        selector is None
+        or selected_refs.selected_sources.get("policy_design_case_ref")
+        != "job.progress.details.runtime_quality_artifact_refs"
+        or selector.kind != "runtime.policy_design_case"
+        or selector.media_type != "application/json"
+        or selector.manifest_profile_sha256 is None
+    ):
+        return None
+
+    try:
+        manifest = artifact_store.get_manifest(selector)
+        body_bytes = artifact_store.get_bytes(selector)
+    except (OSError, TypeError, ValueError):
+        return None
+    schema = manifest.artifact_schema
+    producer = manifest.producer
+    if producer is None:
+        return None
+    producer_component = (
+        producer.component.root
+        if isinstance(producer.component, ComponentId)
+        else producer.component
+    )
+    if (
+        manifest.artifact_id != selector.artifact_id
+        or manifest.kind != selector.kind
+        or manifest.media_type != selector.media_type
+        or schema is None
+        or schema.name != "polisyos.runtime.PolicyDesignCase"
+        or schema.version != "1.0"
+        or manifest.integrity.sha256 != selector.artifact_id.hex
+        or hashlib.sha256(body_bytes).hexdigest() != manifest.integrity.sha256
+        or artifact_manifest_profile_sha256(manifest) != selector.manifest_profile_sha256
+        or producer_component != "polisyos.runtime.quality.policy_design_case"
+    ):
+        return None
+    try:
+        loaded_case = from_canonical_bytes(body_bytes)
+    except (TypeError, ValueError):
+        return None
+    if not isinstance(loaded_case, Mapping):
+        return None
+    case = dict(loaded_case)
+    case_scope = _verified_policy_design_case_scope(case)
+    if case_scope is None:
+        return None
+    case_id, case_run_id = case_scope
+    if (
+        case_run_id != run_id
+        or case.get("job_id") != job_id
+        or case.get("tenant_id") != tenant_id
+        or (
+            case.get("policy_design_case_ref") is not None
+            and case.get("policy_design_case_ref") != str(selector.artifact_id)
+        )
+    ):
+        return None
+
+    authority = manifest.authority
+    if authority is None:
+        return None
+    try:
+        envelope_ref = resolve_authority_envelope_ref(artifact_store, authority)
+        if envelope_ref.manifest_profile_sha256 is None:
+            return None
+        envelope_manifest = artifact_store.get_manifest(envelope_ref)
+        envelope_bytes = artifact_store.get_bytes(envelope_ref)
+        if (
+            hashlib.sha256(envelope_bytes).hexdigest() != envelope_manifest.integrity.sha256
+            or artifact_manifest_profile_sha256(envelope_manifest)
+            != envelope_ref.manifest_profile_sha256
+        ):
+            return None
+        envelope_payload = from_canonical_bytes(envelope_bytes)
+        envelope = deserialize_authority_envelope(envelope_payload)
+        same_input_closure = assert_same_input_closure((envelope,))
+    except (OSError, TypeError, ValueError):
+        return None
+    manifest_same_input_closure = manifest.same_input_closure
+    if manifest_same_input_closure is None:
+        return None
+    expected_manifest_same_input_closure = ArtifactSameInputClosureInfo(
+        closure_id=same_input_closure.closure_id,
+        status=same_input_closure.status,
+        closure_sha256=same_input_closure.closure_sha256,
+        run_id=same_input_closure.run_id,
+        job_id=same_input_closure.job_id,
+        tenant_id=same_input_closure.tenant_id,
+        cell_id=same_input_closure.cell_id,
+        evidence_input_refs=same_input_closure.evidence_input_refs,
+    )
+    if manifest_same_input_closure != expected_manifest_same_input_closure:
+        return None
+    envelope_dict = envelope.model_dump(mode="json")
+    # This is a selected CAS artifact, so bind its authority to the producer's
+    # declared CAS identity above and to the same runtime owner below. The generic
+    # quality report-family validator compares a logical report key/schema_version;
+    # that is a different identity plane from this CAS manifest's kind/schema.
+    if (
+        envelope.evidence_id != "runtime_quality_ref#policy_design_case_ref"
+        or envelope.artifact_ref != str(selector.artifact_id)
+        or envelope.cas_ref != str(selector.artifact_id)
+        or envelope.artifact_kind != selector.kind
+        or envelope.schema_name != schema.name
+        or envelope.schema_version != schema.version
+        or envelope.producer_component != producer_component
+        or envelope.owner != "team-runtime"
+        or envelope.reader_contract != "runtime_quality.policy_design_case.v1"
+        or envelope.reader_contract_version != "1.0"
+        or envelope.phase != "policy_design_case_profile"
+        or envelope.evidence_class != "authority_bearing"
+        or envelope.authority_role != "producer_authority"
+        or envelope.provenance_kind != "runtime_emitted"
+        or envelope.validation_status != "pass"
+        or envelope.blocking_status != "non_blocking"
+        or envelope.run_id != run_id
+        or envelope.job_id != job_id
+        or envelope.tenant_id != tenant_id
+        or envelope.payload_sha256 != manifest.integrity.sha256
+        or same_input_closure.run_id != run_id
+        or same_input_closure.job_id != job_id
+        or same_input_closure.tenant_id != tenant_id
+    ):
+        return None
+
+    return {
+        "case": case,
+        "case_id": case_id,
+        "run_id": run_id,
+        "job_id": job_id,
+        "tenant_id": tenant_id,
+        "selector": selector,
+        "authority_envelope": envelope_dict,
+    }
+
+
+def _with_policy_design_case_run_scope_not_established(
+    quality_evidence_payload: dict[str, Any],
+) -> dict[str, Any]:
+    """Record that protected Policy Design Case emissions lack runtime scope."""
+    enriched = dict(quality_evidence_payload)
+    case = enriched.get("policy_design_case")
+    if not isinstance(case, dict):
+        return enriched
+
+    issue = _wave4_i4_issue(
+        code="policy_design_case_run_scope_not_established",
+        message=(
+            "Protected I4 emissions require a typed selected Policy Design Case CAS view, "
+            "its producer authority envelope, and a verified run-to-control-job owner join."
+        ),
+        severity="fail",
+    )
+    scoped_case = dict(case)
+    scoped_case["run_scope_status"] = "not_established"
+    scoped_case["run_scope_limitation"] = {
+        **issue,
+        "status": "not_established",
+    }
+    enriched["policy_design_case"] = scoped_case
+    return enriched
+
+
 def _with_wave4_i4_policy_design_case_outputs(
     *,
     quality_evidence_payload: dict[str, Any],
-    run_id: str,
+    owner_scope: _RuntimeOwnedPolicyDesignCaseScope | None,
+    run_id: str | None,
     job_id: str,
     canary_kind: str,
 ) -> dict[str, Any]:
     case = quality_evidence_payload.get("policy_design_case")
     if not isinstance(case, dict):
         return quality_evidence_payload
-    claims = _wave4_i4_claim_rows(case)
+    if owner_scope is None:
+        return _with_policy_design_case_run_scope_not_established(quality_evidence_payload)
+
+    # The selected CAS body remains the source record. The join proves source identity and
+    # ownership; it does not supply a publication or final-closeout decision.
+    source_case = deepcopy(owner_scope["case"])
+    run_id = owner_scope["run_id"]
+    job_id = owner_scope["job_id"]
+    case_id = owner_scope["case_id"]
+    selected_source_ref = str(owner_scope["selector"].artifact_id)
+    claims = _wave4_i4_claim_rows(source_case)
     if not claims:
         return quality_evidence_payload
 
     enriched = dict(quality_evidence_payload)
-    enriched_case = dict(case)
-    case_id = str(enriched_case.get("case_id") or f"pdc-{run_id}")
     portfolio_designs = _wave4_i4_portfolio_designs(
-        enriched_case,
+        source_case,
         claims=claims,
         canary_kind=canary_kind,
     )
     evidence_lines = _wave4_i4_evidence_lines(
-        enriched_case,
+        source_case,
         claims=claims,
         portfolio_designs=portfolio_designs,
         run_id=run_id,
@@ -3059,53 +3513,81 @@ def _with_wave4_i4_policy_design_case_outputs(
     )
     try:
         independence_map = _wave4_i4_independence_map(
-            enriched_case,
+            source_case,
             portfolio_designs=portfolio_designs,
             evidence_lines=evidence_lines,
             run_id=run_id,
         )
         synthesis_report = _wave4_i4_synthesis_report(
-            enriched_case,
+            source_case,
             portfolio_designs=portfolio_designs,
             evidence_lines=evidence_lines,
             independence_map=independence_map,
             run_id=run_id,
         )
     except (EvidenceIndependenceError, EvidenceSynthesisReportError) as exc:
-        enriched_case["wave4_i4_blocker"] = _wave4_i4_issue(
-            code=getattr(exc, "code", "policy_design_wave4_i4_portfolio_failed"),
-            message=str(exc),
-            severity="fail",
+        enriched["policy_design_case"] = source_case
+        enriched["policy_design_case_i4_graph"] = _wave4_i4_not_established_record(
+            {
+                "schema_version": "policyos.runtime.policy_design_case.wave4_i4_graph.v1",
+                "case_id": case_id,
+                "run_id": run_id,
+                "job_id": job_id,
+                "source_artifact_ref": selected_source_ref,
+                "issues": [
+                    _wave4_i4_issue(
+                        code=getattr(exc, "code", "policy_design_wave4_i4_portfolio_failed"),
+                        message=str(exc),
+                        severity="fail",
+                    )
+                ],
+            },
+            issue=_wave4_i4_publication_source_missing_issue(),
         )
-        enriched["policy_design_case"] = enriched_case
         return enriched
 
     lifecycle_report = _wave4_i4_lifecycle_reissue_report(
-        enriched_case,
+        source_case,
         claims=claims,
         case_id=case_id,
     )
+    publication_issue = _wave4_i4_publication_source_missing_issue()
+    publication_gap = {
+        "gap_code": publication_issue["code"],
+        "gap_family": "publication_source",
+        "severity": "incomplete",
+        "message": publication_issue["message"],
+        "source": "runtime.quality.policy_design_case",
+        "owner": "team-policyos-runtime",
+        "next_action": (
+            "Wire a non-circular verified publication producer before emitting "
+            "a publishable projection or passing I4 graph."
+        ),
+        "publication_effect": "publication_not_established",
+        "closeout_effect": "closeout_not_established",
+    }
     closeout_truth = {
-        "status": "closed",
-        "verdict": "can_closeout",
-        "can_closeout": True,
-        "issues": [],
+        "status": "incomplete",
+        "verdict": "cannot_closeout",
+        "can_closeout": False,
+        "issues": [publication_issue],
     }
     source_payload = {
-        "authority_role": "final_decision_artifact",
-        "publishability": "publishable",
-        "deficit_register": [],
-        "invariant_summary": {"status": "pass", "blocker_codes": []},
+        "authority_role": "projection_only",
+        "publishability": "not_established",
+        "projection_gaps": [publication_gap],
     }
     try:
         projection = build_policy_design_case_projection_semantics(
-            policy_design_case=enriched_case,
+            policy_design_case=source_case,
             surface="runtime.api",
             source_payload=source_payload,
+            source_ref=selected_source_ref,
             closeout_verdict=closeout_truth,
         )
+        projection["capability_reality_state"] = "producer_missing"
         projection_contract = build_policy_design_case_projection_contract_fixture(
-            policy_design_case=enriched_case,
+            policy_design_case=source_case,
             closeout_verdict=closeout_truth,
             source_payload=source_payload,
         )
@@ -3125,22 +3607,14 @@ def _with_wave4_i4_policy_design_case_outputs(
         }
         projection = {}
 
-    projection_contract = _wave4_i4_runtime_reader_record(
+    projection_contract = _wave4_i4_not_established_record(
         projection_contract,
-        producer="polisyos.runtime.quality.projection_semantics",
-        runtime_event_ref=f"event://policy-design-case/{case_id}/projection-contract",
+        issue=publication_issue,
     )
-    projection_ref = _payload_sha256(projection) if projection else None
-    if projection:
-        projection = {
-            **projection,
-            "cas_ref": projection_ref,
-            "runtime_event_ref": f"event://policy-design-case/{case_id}/projection",
-        }
     projection_publication_state = _wave4_i4_projection_publication_state(
         projection=projection,
         projection_contract=projection_contract,
-        case_id=case_id,
+        issue=publication_issue,
     )
     portfolio_effective_support = _wave4_i4_portfolio_effective_support(
         independence_map=independence_map,
@@ -3148,37 +3622,20 @@ def _with_wave4_i4_policy_design_case_outputs(
         run_id=run_id,
     )
     i4_graph = _wave4_i4_graph(
-        case=enriched_case,
+        case=source_case,
+        case_id=case_id,
+        selected_source_ref=selected_source_ref,
         portfolio_effective_support=portfolio_effective_support,
         lifecycle_report=lifecycle_report,
         projection_contract=projection_contract,
         projection_publication_state=projection_publication_state,
         run_id=run_id,
         job_id=job_id,
+        issue=publication_issue,
     )
 
-    enriched_case["status"] = "pass"
-    enriched_case["authority_role"] = "runtime_reader"
-    enriched_case["provenance_kind"] = "runtime_emitted"
-    enriched_case["evidence_portfolios"] = portfolio_designs
-    enriched_case["evidence_lines"] = evidence_lines
-    enriched_case["evidence_independence_maps"] = [independence_map]
-    enriched_case["synthesis_reports"] = [synthesis_report]
-    enriched_case["lifecycle_reissue_report"] = lifecycle_report
-    enriched_case["policy_design_case_projection_ref"] = projection_ref
-    enriched_case["projection_contract_fixture_ref"] = projection_contract["cas_ref"]
-    enriched_case["i4_integration_graph_ref"] = i4_graph["cas_ref"]
-    enriched_case["cas_ref"] = (
-        str(enriched_case.get("policy_design_case_ref"))
-        if enriched_case.get("policy_design_case_ref")
-        else _payload_sha256(enriched_case)
-    )
-    enriched_case.setdefault(
-        "runtime_event_ref",
-        f"event://policy-design-case/{case_id}/wave4-i4",
-    )
-
-    enriched["policy_design_case"] = enriched_case
+    # Do not enrich or restamp the selected source case with derived I4 claims.
+    enriched["policy_design_case"] = source_case
     enriched["policy_design_case_i4_graph"] = i4_graph
     enriched["policy_design_portfolio_effective_support"] = portfolio_effective_support
     enriched["lifecycle_reissue_report"] = lifecycle_report
@@ -3193,12 +3650,18 @@ def _with_wave4_i4_closeout_reader_records(
     *,
     quality_evidence_payload: dict[str, Any],
     trust_boundary_attestation_records: list[dict[str, Any]],
-    run_id: str,
+    owner_scope: _RuntimeOwnedPolicyDesignCaseScope | None,
+    run_id: str | None,
     job_id: str,
 ) -> dict[str, Any]:
+    if owner_scope is None:
+        return quality_evidence_payload
     enriched = dict(quality_evidence_payload)
-    case = enriched.get("policy_design_case")
-    case_id = str(case.get("case_id") if isinstance(case, dict) else f"pdc-{run_id}")
+    case = owner_scope["case"]
+    case_id = owner_scope["case_id"]
+    run_id = owner_scope["run_id"]
+    job_id = owner_scope["job_id"]
+    enriched["policy_design_case"] = dict(case)
     if isinstance(case, dict):
         claim_registry = case.get("claim_registry")
         if isinstance(claim_registry, dict):
@@ -3268,20 +3731,12 @@ def _with_wave4_i4_closeout_reader_records(
         producer="polisyos.runtime.quality.attestation",
         runtime_event_ref=f"event://policy-design-case/{case_id}/attestation",
     )
-    enriched["audit_verifier_ingestion"] = _wave4_i4_runtime_reader_record(
+    publication_issue = _wave4_i4_publication_source_missing_issue()
+    enriched["audit_verifier_ingestion"] = _wave4_i4_not_established_record(
         {
             "schema_version": "policyos.runtime.audit_verifier.v1",
-            "status": "pass",
-            "ingested_record_refs": [
-                "quality_evidence/policy_design_case_i4_graph.json",
-                "quality_evidence/policy_design_portfolio_effective_support.json",
-                "quality_evidence/lifecycle_reissue_report.json",
-                "quality_evidence/policy_design_case_projection_contract_fixture.json",
-            ],
-            "issues": [],
         },
-        producer="polisyos.core.audit.verifier",
-        runtime_event_ref=f"event://policy-design-case/{case_id}/audit-verifier",
+        issue=publication_issue,
     )
     enriched.setdefault(
         "run_cost_proportionality",
@@ -3303,8 +3758,15 @@ def _with_wave4_i4_closeout_verdict(
     quality_evidence_payload: dict[str, Any],
     closeout_compatibility: dict[str, Any],
     quality_scorecard: dict[str, Any],
-    run_id: str,
+    run_id: str | None,
 ) -> dict[str, Any]:
+    case_scope = _verified_policy_design_case_scope(
+        quality_evidence_payload.get("policy_design_case")
+    )
+    if case_scope is None:
+        quality_evidence_payload = _with_policy_design_case_run_scope_not_established(
+            quality_evidence_payload
+        )
     module_records = {
         "i4_policy_design_case_graph": quality_evidence_payload.get("policy_design_case_i4_graph"),
         "portfolio_effective_support": quality_evidence_payload.get(
@@ -3328,6 +3790,29 @@ def _with_wave4_i4_closeout_verdict(
         "complexity_self_fmea": quality_evidence_payload.get("run_cost_proportionality"),
         "audit_verifier_ingestion": quality_evidence_payload.get("audit_verifier_ingestion"),
     }
+    if case_scope is None:
+        pdc_record = module_records.get("pdc_record_family_status")
+        if not isinstance(pdc_record, dict):
+            pdc_record = {}
+        pdc_record = dict(pdc_record)
+        pdc_record["run_scope_status"] = "not_established"
+        pdc_record["status"] = "incomplete"
+        existing_issues = pdc_record.get("issues")
+        issues = list(existing_issues) if isinstance(existing_issues, list) else []
+        if not any(
+            isinstance(row, dict)
+            and row.get("code") == "policy_design_case_run_scope_not_established"
+            for row in issues
+        ):
+            issues.append(
+                {
+                    "code": "policy_design_case_run_scope_not_established",
+                    "message": "Protected closeout emissions require a runtime-owned run_id.",
+                    "severity": "fail",
+                }
+            )
+        pdc_record["issues"] = issues
+        module_records["pdc_record_family_status"] = pdc_record
     verdict = build_can_i_closeout_verdict(
         run_id=run_id,
         module_records={
@@ -3344,11 +3829,13 @@ def _with_wave4_i4_closeout_verdict(
 def _with_schema_compatibility_for_closeout(
     *,
     quality_evidence_payload: dict[str, Any],
-    run_id: str,
+    run_id: str | None,
     job_id: str,
     canary_kind: str,
 ) -> dict[str, Any]:
     enriched = dict(quality_evidence_payload)
+    if run_id is None or not run_id.strip():
+        return enriched
     for report_key, ref_key in QUALITY_REPORT_RUNTIME_REFS.items():
         report = enriched.get(report_key)
         if not isinstance(report, dict) or isinstance(report.get("schema_compatibility"), dict):
@@ -3792,113 +4279,115 @@ def _wave4_i4_portfolio_effective_support(
     )
 
 
+def _wave4_i4_publication_source_missing_issue() -> _Wave4I4Issue:
+    return _wave4_i4_issue(
+        code="policy_design_case_publication_source_not_established",
+        message=(
+            "No non-circular verified publication producer is available before the "
+            "final closeout reader; publication state remains not_established."
+        ),
+        severity="incomplete",
+    )
+
+
+def _wave4_i4_not_established_record(
+    payload: dict[str, Any],
+    *,
+    issue: _Wave4I4Issue,
+) -> dict[str, Any]:
+    record = dict(payload)
+    existing = record.get("issues")
+    issues = (
+        [dict(row) for row in existing if isinstance(row, dict)]
+        if isinstance(existing, list)
+        else []
+    )
+    if not any(row.get("code") == issue["code"] for row in issues):
+        issues.append(dict(issue))
+    has_failure = str(record.get("status") or "").casefold() in {
+        "blocked",
+        "fail",
+        "failed",
+    } or any(
+        str(row.get("severity") or "").casefold() in {"critical", "error", "fail", "failed"}
+        for row in issues
+    )
+    record["status"] = "fail" if has_failure else "incomplete"
+    record["capability_reality_state"] = "producer_missing"
+    record["issues"] = issues
+    for field in ("authority_role", "provenance_kind", "runtime_event_ref", "cas_ref"):
+        record.pop(field, None)
+    return record
+
+
 def _wave4_i4_projection_publication_state(
     *,
     projection: dict[str, Any],
     projection_contract: dict[str, Any],
-    case_id: str,
+    issue: _Wave4I4Issue,
 ) -> dict[str, Any]:
-    status = "pass" if projection and projection_contract.get("status") == "pass" else "fail"
-    payload = {
-        "schema_version": ("policyos.runtime.policy_design_case.projection_publication_state.v1"),
+    contract_status = str(projection_contract.get("status") or "").casefold()
+    status = "fail" if contract_status in {"blocked", "fail", "failed"} else "incomplete"
+    payload: dict[str, Any] = {
+        "schema_version": "policyos.runtime.policy_design_case.projection_publication_state.v1",
         "status": status,
-        "projection_ref": projection.get("cas_ref"),
-        "projection_contract_ref": projection_contract.get("cas_ref"),
         "projection_primary_state": projection.get("primary_state"),
-        "authority_role": "runtime_reader",
-        "provenance_kind": "runtime_emitted",
-        "issues": [] if status == "pass" else projection_contract.get("issues", []),
+        "issues": (
+            [dict(row) for row in projection_contract.get("issues", []) if isinstance(row, dict)]
+            if isinstance(projection_contract.get("issues"), list)
+            else []
+        ),
     }
-    return _wave4_i4_runtime_reader_record(
-        payload,
-        producer="polisyos.runtime.quality.projection_semantics",
-        runtime_event_ref=f"event://policy-design-case/{case_id}/projection-publication-state",
-    )
+    return _wave4_i4_not_established_record(payload, issue=issue)
 
 
 def _wave4_i4_graph(
     *,
     case: dict[str, Any],
+    case_id: str,
+    selected_source_ref: str,
     portfolio_effective_support: dict[str, Any],
     lifecycle_report: dict[str, Any],
     projection_contract: dict[str, Any],
     projection_publication_state: dict[str, Any],
     run_id: str,
     job_id: str,
+    issue: _Wave4I4Issue,
 ) -> dict[str, Any]:
-    case_id = str(case.get("case_id") or f"pdc-{run_id}")
-    issues = []
-    for record, code in (
-        (portfolio_effective_support, "policy_design_wave4_portfolio_missing"),
-        (lifecycle_report, "policy_design_wave4_lifecycle_missing"),
-        (projection_contract, "policy_design_wave4_projection_contract_missing"),
-        (projection_publication_state, "policy_design_wave4_projection_state_missing"),
-    ):
-        if not isinstance(record, dict) or str(record.get("status")) not in {"pass", "closed"}:
-            issues.append(
-                _wave4_i4_issue(
-                    code=code,
-                    message="Wave 4 I4 graph input is missing or failing.",
-                    severity="fail",
-                )
+    sibling_records = (
+        portfolio_effective_support,
+        lifecycle_report,
+        projection_contract,
+        projection_publication_state,
+    )
+    issues = [issue]
+    for record in sibling_records:
+        existing = record.get("issues")
+        if isinstance(existing, list):
+            issues.extend(
+                dict(row)
+                for row in existing
+                if isinstance(row, dict)
+                and str(row.get("severity") or "").casefold()
+                in {"critical", "error", "fail", "failed"}
             )
-    payload = {
-        "schema_version": "policyos.runtime.policy_design_case.wave4_i4_graph.v1",
-        "status": "fail" if issues else "pass",
-        "graph_id": f"wave4-i4-{run_id}",
-        "case_id": case_id,
-        "run_id": run_id,
-        "job_id": job_id,
-        "producer_output_refs": {
-            "claim_registry": _case_ref(case.get("claim_registry")),
-            "portfolio_effective_support": portfolio_effective_support.get("cas_ref"),
-            "lifecycle_reissue": lifecycle_report.get("cas_ref"),
-            "projection_consumer_contract": projection_contract.get("cas_ref"),
-            "projection_publication_state": projection_publication_state.get("cas_ref"),
-            "closeout_verdict": "quality_evidence/can_i_closeout.json",
+    return _wave4_i4_not_established_record(
+        {
+            "schema_version": "policyos.runtime.policy_design_case.wave4_i4_graph.v1",
+            "case_id": case_id,
+            "run_id": run_id,
+            "job_id": job_id,
+            "source_artifact_ref": selected_source_ref,
+            "source_case_status": case.get("status"),
+            "diagnostic_sibling_statuses": {
+                "portfolio_effective_support": portfolio_effective_support.get("status"),
+                "lifecycle_reissue": lifecycle_report.get("status"),
+                "projection_consumer_contract": projection_contract.get("status"),
+                "projection_publication_state": projection_publication_state.get("status"),
+            },
+            "issues": issues,
         },
-        "nodes": [
-            {"node_type": "policy_design_case", "ref": _case_ref(case)},
-            {
-                "node_type": "portfolio_effective_support",
-                "ref": portfolio_effective_support.get("cas_ref"),
-            },
-            {"node_type": "lifecycle_reissue", "ref": lifecycle_report.get("cas_ref")},
-            {
-                "node_type": "projection_consumer_contract",
-                "ref": projection_contract.get("cas_ref"),
-            },
-            {"node_type": "closeout_verdict", "ref": "quality_evidence/can_i_closeout.json"},
-        ],
-        "edges": [
-            {
-                "from": "policy_design_case",
-                "to": "portfolio_effective_support",
-                "relation": "claim_bound_effective_support",
-            },
-            {
-                "from": "policy_design_case",
-                "to": "lifecycle_reissue",
-                "relation": "claim_scoped_lifecycle",
-            },
-            {
-                "from": "policy_design_case",
-                "to": "projection_consumer_contract",
-                "relation": "truth_preserving_projection",
-            },
-            {
-                "from": "i4_graph",
-                "to": "closeout_verdict",
-                "relation": "closeout_reader_input",
-            },
-        ],
-        "capability_reality_state": "implemented" if not issues else "bridge_missing",
-        "issues": issues,
-    }
-    return _wave4_i4_runtime_reader_record(
-        payload,
-        producer="polisyos.runtime.quality.policy_design_case",
-        runtime_event_ref=f"event://policy-design-case/{case_id}/wave4-i4-graph",
+        issue=issue,
     )
 
 
@@ -3919,7 +4408,7 @@ def _wave4_i4_runtime_reader_record(
     return record
 
 
-def _wave4_i4_issue(*, code: str, message: str, severity: str) -> dict[str, str]:
+def _wave4_i4_issue(*, code: str, message: str, severity: str) -> _Wave4I4Issue:
     return {"code": code, "message": message, "severity": severity}
 
 
@@ -4095,7 +4584,7 @@ def _artifact_store_from_context(
 
 def _security_assurance_manifest_identity(
     store: Any | None,
-    ref: str,
+    ref: ArtifactRef | str,
 ) -> tuple[_SecurityReportManifestIdentity | None, str | None]:
     """Read and compare the current manifest identity for a supplied security report ref."""
 
@@ -4122,7 +4611,7 @@ def _security_assurance_manifest_identity(
     else:
         schema_name = getattr(schema, "name", None)
         schema_version = getattr(schema, "version", None)
-    identity = {
+    identity: _SecurityReportManifestIdentity = {
         "kind": kind if isinstance(kind, str) else None,
         "media_type": media_type if isinstance(media_type, str) else None,
         "schema_name": schema_name if isinstance(schema_name, str) else None,
@@ -4140,33 +4629,31 @@ def _security_assurance_manifest_identity(
 
 
 def _quality_ref_resolution_rejections(
-    *resolutions: Any,
+    *resolutions: QualityRefResolution | RuntimeQualityAuthorityRefs,
 ) -> list[_QualityRefResolutionRejection]:
-    """Keep recognized typed ref rejections without copying supplied values."""
+    """Keep typed ref rejections without copying supplied values."""
 
-    rows: dict[tuple[Any, ...], _QualityRefResolutionRejection] = {}
-    string_fields = ("key", "source", "path", "reason", "input_type", "value_sha256")
+    rows: dict[tuple[str, str, str, str, str, str, int | None], _QualityRefResolutionRejection] = {}
     for resolution in resolutions:
-        candidates = getattr(resolution, "rejections", ())
-        if not isinstance(candidates, (list, tuple)):
-            continue
-        for candidate in candidates:
-
-            def field_value(name: str, candidate_value: Any = candidate) -> Any:
-                if isinstance(candidate_value, Mapping):
-                    return candidate_value.get(name)
-                return getattr(candidate_value, name, None)
-
-            values = {
-                name: field_value(name) if isinstance(field_value(name), str) else "not_established"
-                for name in string_fields
-            }
-            raw_length = field_value("value_length")
+        for candidate in resolution.rejections:
             row: _QualityRefResolutionRejection = {
-                **values,
-                "value_length": raw_length if type(raw_length) is int else None,
+                "key": candidate.key,
+                "source": candidate.source,
+                "path": candidate.path,
+                "reason": candidate.reason,
+                "input_type": candidate.input_type,
+                "value_sha256": candidate.value_sha256,
+                "value_length": candidate.value_length,
             }
-            identity = (*tuple(row[name] for name in string_fields), row["value_length"])
+            identity = (
+                candidate.key,
+                candidate.source,
+                candidate.path,
+                candidate.reason,
+                candidate.input_type,
+                candidate.value_sha256,
+                candidate.value_length,
+            )
             rows.setdefault(identity, row)
     return list(rows.values())
 
@@ -4241,26 +4728,123 @@ def _cas_report_identity_rejections(
     refs: Mapping[str, str],
     reports: Mapping[str, Any],
 ) -> list[_QualityRefResolutionRejection]:
-    """Reject selected refs contradicted by the owner ref inside loaded CAS bytes.
+    """Reject selected refs contradicted by each complete selected report body.
 
-    The CAS object is the selected content basis. A report body may omit its own ref,
-    but if it supplies that identity it must match the selected object exactly.
+    Shared typed intake recognizes the one schema-owned logical bundle locator
+    and compares every canonical CAS ref in selected bodies against the chosen
+    runtime identity. The loaded bodies remain unchanged for scorecard use.
     """
-    selected_payload = {"runtime_quality_refs": dict(refs)}
-    cas_payloads: dict[str, dict[str, str]] = {}
-    for report_key, ref_key in QUALITY_REPORT_RUNTIME_REFS.items():
-        report = reports.get(report_key)
-        selected = refs.get(ref_key)
-        if not isinstance(report, Mapping) or selected is None or ref_key not in report:
+    source_payloads: dict[str, dict[str, Any]] = {
+        "selected_runtime_refs": {"runtime_quality_refs": dict(refs)}
+    }
+    for report_key, report in reports.items():
+        ref_key = QUALITY_REPORT_RUNTIME_REFS.get(report_key)
+        if ref_key is None or ref_key not in refs or not isinstance(report, Mapping):
             continue
-        cas_payloads[report_key] = {ref_key: report[ref_key]}
-    intake = RuntimeQualityAuthorityRefs.from_sources(
-        source_payloads={
-            "selected_runtime_refs": selected_payload,
-            **{f"cas_report.{key}": value for key, value in cas_payloads.items()},
-        }
-    )
+        source_payloads[f"cas_report.{report_key}"] = dict(report)
+    intake = RuntimeQualityAuthorityRefs.from_sources(source_payloads=source_payloads)
     return _quality_ref_resolution_rejections(intake)
+
+
+def _selected_runtime_quality_profile_rejections(
+    *,
+    resolution: RuntimeQualityAuthorityRefs,
+    store: Any | None,
+) -> list[_QualityRefResolutionRejection]:
+    """Reject serious source selections without an exact selected CAS manifest view."""
+    refs = resolution.unrejected_refs()
+    selected_refs = resolution.unrejected_selected_refs()
+    rejections: list[_QualityRefResolutionRejection] = []
+
+    for ref_key in QUALITY_REPORT_RUNTIME_REFS.values():
+        raw_ref = refs.get(ref_key)
+        selector = selected_refs.get(ref_key)
+        if raw_ref is None and selector is None:
+            continue
+        ref = str(selector.artifact_id) if selector is not None else raw_ref
+        if not isinstance(ref, str) or not ref.strip():
+            continue
+        source = (
+            resolution.selected_sources.get(ref_key)
+            or resolution.sources.get(ref_key)
+            or "runtime_quality_artifact_refs"
+        )
+        path = f"$.{source}.{ref_key}"
+        value: object = selector.model_dump(mode="json") if selector is not None else raw_ref
+        encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), default=str).encode(
+            "utf-8"
+        )
+
+        def reject(
+            reason: str,
+            *,
+            ref_key: str = ref_key,
+            source: str = source,
+            path: str = path,
+            selector: ArtifactRef | None = selector,
+            encoded: bytes = encoded,
+        ) -> None:
+            rejections.append(
+                {
+                    "key": ref_key,
+                    "source": source,
+                    "path": path,
+                    "reason": reason,
+                    "input_type": (
+                        "polisyos.core.artifacts.ArtifactRef" if selector is not None else "str"
+                    ),
+                    "value_sha256": hashlib.sha256(encoded).hexdigest(),
+                    "value_length": len(encoded),
+                }
+            )
+
+        if selector is None or selector.manifest_profile_sha256 is None:
+            reject("selected_manifest_profile_not_established")
+            continue
+        if raw_ref is not None and raw_ref != str(selector.artifact_id):
+            reject("selected_artifact_identity_mismatch")
+            continue
+        if not isinstance(store, ArtifactReader):
+            reject("selected_manifest_profile_not_established")
+            continue
+        try:
+            manifest = store.get_manifest(selector)
+        except Exception:
+            try:
+                default_manifest = store.get_manifest(selector.artifact_id)
+            except Exception:
+                reject("selected_manifest_profile_not_established")
+                continue
+            try:
+                default_profile = artifact_manifest_profile_sha256(default_manifest)
+            except (TypeError, ValueError):
+                reject("selected_manifest_profile_not_established")
+                continue
+            if (
+                selector.kind != default_manifest.kind
+                or selector.media_type != default_manifest.media_type
+            ):
+                reject("selected_manifest_identity_mismatch")
+            elif default_profile != selector.manifest_profile_sha256:
+                reject("selected_manifest_profile_mismatch")
+            else:
+                reject("selected_manifest_profile_not_established")
+            continue
+        try:
+            actual_profile = artifact_manifest_profile_sha256(manifest)
+        except (TypeError, ValueError):
+            reject("selected_manifest_profile_not_established")
+            continue
+        if (
+            str(manifest.artifact_id) != str(selector.artifact_id)
+            or manifest.kind != selector.kind
+            or manifest.media_type != selector.media_type
+        ):
+            reject("selected_manifest_identity_mismatch")
+        elif actual_profile != selector.manifest_profile_sha256:
+            reject("selected_manifest_profile_mismatch")
+
+    return rejections
 
 
 def _security_report_resolution_rejections(
@@ -4301,12 +4885,18 @@ def _security_report_intake_failure(
     }
 
 
-def _load_json_report_from_store(store: Any, ref: str) -> dict[str, Any] | None:
+def _load_json_report_from_store(
+    store: Any,
+    ref: ArtifactRef | str,
+) -> dict[str, Any] | None:
     get_bytes = getattr(store, "get_bytes", None)
     if not callable(get_bytes):
         return None
     try:
-        payload = from_canonical_bytes(get_bytes(ref))
+        encoded = get_bytes(ref)
+        if not isinstance(encoded, bytes):
+            return None
+        payload = from_canonical_bytes(encoded)
     except Exception:
         return None
     if isinstance(payload, dict):
@@ -4328,18 +4918,117 @@ def _manifest_authority_ref(manifest: Any, field: str) -> str | None:
     return None
 
 
+def _manifest_field(value: Any, *names: str) -> Any:
+    if isinstance(value, Mapping):
+        for name in names:
+            if name in value:
+                return value[name]
+        return None
+    for name in names:
+        field_value = getattr(value, name, None)
+        if field_value is not None:
+            return field_value
+    return None
+
+
+def _runtime_quality_report_source_identity(
+    *,
+    manifest: Any,
+    ref: str,
+    selector: ArtifactRef | None,
+    authority_envelope: Mapping[str, Any] | None,
+) -> _RuntimeQualityReportSourceIdentity | None:
+    """Qualify the exact selected manifest view and its producer sidecar."""
+    if (
+        manifest is None
+        or selector is None
+        or selector.manifest_profile_sha256 is None
+        or not isinstance(authority_envelope, Mapping)
+    ):
+        return None
+    try:
+        typed_manifest = ArtifactManifest.model_validate(manifest)
+        artifact_id = ArtifactID.model_validate(str(_manifest_field(manifest, "artifact_id")))
+        selected_id = ArtifactID.model_validate(ref)
+        actual_profile = artifact_manifest_profile_sha256(typed_manifest)
+    except (TypeError, ValueError):
+        return None
+    if (
+        str(artifact_id) != ref
+        or artifact_id != selected_id
+        or selector.artifact_id != selected_id
+        or selector.kind != typed_manifest.kind
+        or selector.media_type != typed_manifest.media_type
+        or selector.manifest_profile_sha256 != actual_profile
+    ):
+        return None
+
+    integrity = _manifest_field(manifest, "integrity")
+    payload_sha256 = _manifest_field(integrity, "sha256")
+    if not isinstance(payload_sha256, str) or payload_sha256 != artifact_id.hex:
+        return None
+    schema = _manifest_field(manifest, "artifact_schema", "schema")
+    producer = _manifest_field(manifest, "producer")
+    kind = _manifest_field(manifest, "kind")
+    media_type = _manifest_field(manifest, "media_type")
+    schema_name = _manifest_field(schema, "name")
+    schema_version = _manifest_field(schema, "version")
+    producer_component = _manifest_field(producer, "component")
+    if (
+        not isinstance(kind, str)
+        or not kind.strip()
+        or not isinstance(media_type, str)
+        or not media_type.strip()
+        or not isinstance(schema_name, str)
+        or not schema_name.strip()
+        or not isinstance(schema_version, str)
+        or not schema_version.strip()
+        or not isinstance(producer_component, str)
+        or not producer_component.strip()
+    ):
+        return None
+
+    if authority_envelope.get("artifact_kind") != kind:
+        return None
+    bound_refs = [
+        authority_envelope.get(field)
+        for field in ("artifact_ref", "cas_ref")
+        if authority_envelope.get(field) is not None
+    ]
+    if not bound_refs or any(value != ref for value in bound_refs):
+        return None
+    if authority_envelope.get("payload_sha256") != payload_sha256:
+        return None
+    if (
+        authority_envelope.get("schema_name") != schema_name
+        or authority_envelope.get("schema_version") != schema_version
+        or authority_envelope.get("producer_component") != producer_component
+    ):
+        return None
+    return {
+        "artifact_id": str(artifact_id),
+        "kind": kind,
+        "media_type": media_type,
+        "schema_name": schema_name,
+        "schema_version": schema_version,
+        "producer_component": producer_component,
+        "payload_sha256": payload_sha256,
+        "manifest_profile_sha256": actual_profile,
+    }
+
+
 def _runtime_authority_sidecars_from_store(
     *,
     store: Any,
-    ref: str,
-) -> tuple[dict[str, Any] | None, dict[str, Any] | None, str | None]:
+    ref: ArtifactRef | str,
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None, str | None, Any | None]:
     get_manifest = getattr(store, "get_manifest", None)
     if not callable(get_manifest):
-        return None, None, None
+        return None, None, None, None
     try:
         manifest = get_manifest(ref)
     except Exception:
-        return None, None, None
+        return None, None, None, None
 
     envelope_ref = _manifest_authority_ref(manifest, "authority_envelope_ref")
     event_ref = _manifest_authority_ref(manifest, "diagnostic_event_ref")
@@ -4349,7 +5038,7 @@ def _runtime_authority_sidecars_from_store(
     diagnostic_event = (
         _load_json_report_from_store(store, event_ref) if event_ref is not None else None
     )
-    return envelope, diagnostic_event, event_ref
+    return envelope, diagnostic_event, event_ref, manifest
 
 
 def _dedupe_diagnostic_events(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -4382,13 +5071,78 @@ def _quality_reports_from_refs_with_authority(
     *,
     refs: dict[str, str],
     store: Any | None,
+    source_manifest_identities: dict[
+        str,
+        _RuntimeQualityReportSourceIdentity | None,
+    ]
+    | None = None,
+    selected_refs: Mapping[str, ArtifactRef] | None = None,
+    ref_sources: Mapping[str, str] | None = None,
+    selected_ref_sources: Mapping[str, str] | None = None,
+    require_selected_profile: bool = False,
+    source_identity_rejections: list[_QualityRefResolutionRejection] | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]], list[str], _SecurityReportIntakeRefusal | None]:
     reports: dict[str, Any] = {}
     diagnostic_events: list[dict[str, Any]] = []
     diagnostic_event_log_refs: list[str] = []
     security_report_intake: _SecurityReportIntakeRefusal | None = None
+    selected_refs = selected_refs or {}
+    ref_sources = ref_sources or {}
+    selected_ref_sources = selected_ref_sources or {}
+
+    if source_manifest_identities is not None:
+        source_manifest_identities.update(
+            {
+                report_key: None
+                for report_key, ref_key in QUALITY_REPORT_RUNTIME_REFS.items()
+                if isinstance(refs.get(ref_key), str) and refs[ref_key].strip()
+            }
+        )
+
+    def reject_source(
+        *,
+        ref_key: str,
+        ref: str,
+        selector: ArtifactRef | None,
+        reason: str,
+    ) -> None:
+        if source_identity_rejections is None:
+            return
+        selected_source = selected_ref_sources.get(ref_key) or ref_sources.get(ref_key)
+        source = selected_source or "runtime_quality_artifact_refs"
+        path = f"$.{source}.{ref_key}"
+        value: object = selector.model_dump(mode="json") if selector is not None else ref
+        encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), default=str).encode(
+            "utf-8"
+        )
+        source_identity_rejections.append(
+            {
+                "key": ref_key,
+                "source": source,
+                "path": path,
+                "reason": reason,
+                "input_type": (
+                    "polisyos.core.artifacts.ArtifactRef" if selector is not None else "str"
+                ),
+                "value_sha256": hashlib.sha256(encoded).hexdigest(),
+                "value_length": len(encoded),
+            }
+        )
+
     security_ref = refs.get(SECURITY_ASSURANCE_REPORT_REF_KEY)
     if store is None:
+        for ref_key in QUALITY_REPORT_RUNTIME_REFS.values():
+            ref = refs.get(ref_key)
+            if not isinstance(ref, str) or not ref.strip():
+                continue
+            selector = selected_refs.get(ref_key)
+            if require_selected_profile:
+                reject_source(
+                    ref_key=ref_key,
+                    ref=ref,
+                    selector=selector,
+                    reason="selected_manifest_profile_not_established",
+                )
         if isinstance(security_ref, str) and security_ref.strip():
             security_report_intake = _security_report_intake_failure(
                 source_ref=security_ref.strip(),
@@ -4396,43 +5150,134 @@ def _quality_reports_from_refs_with_authority(
                 observed_manifest=None,
             )
         return {}, [], [], security_report_intake
+
     for report_key, ref_key in QUALITY_REPORT_RUNTIME_REFS.items():
         ref = refs.get(ref_key)
         if not isinstance(ref, str) or not ref.strip():
             continue
+        selector = selected_refs.get(ref_key)
+        if require_selected_profile and (
+            selector is None or selector.manifest_profile_sha256 is None
+        ):
+            reject_source(
+                ref_key=ref_key,
+                ref=ref,
+                selector=selector,
+                reason="selected_manifest_profile_not_established",
+            )
+            continue
+        if selector is not None and str(selector.artifact_id) != ref:
+            reject_source(
+                ref_key=ref_key,
+                ref=ref,
+                selector=selector,
+                reason="selected_artifact_identity_mismatch",
+            )
+            continue
+        selected_view: ArtifactRef | str = selector or ref
         observed_manifest: _SecurityReportManifestIdentity | None = None
         if report_key == "security_assurance_report":
             observed_manifest, manifest_error = _security_assurance_manifest_identity(
                 store,
-                ref,
+                selected_view,
             )
             if manifest_error is not None:
+                if require_selected_profile:
+                    reject_source(
+                        ref_key=ref_key,
+                        ref=ref,
+                        selector=selector,
+                        reason=(
+                            "selected_manifest_profile_mismatch"
+                            if manifest_error == "security_report_manifest_unavailable"
+                            else "selected_manifest_identity_mismatch"
+                        ),
+                    )
                 security_report_intake = _security_report_intake_failure(
-                    source_ref=ref.strip(),
+                    source_ref=ref,
                     reason_code=manifest_error,
                     observed_manifest=observed_manifest,
                 )
                 continue
-        report = _load_json_report_from_store(store, ref)
-        if report is None:
+
+        envelope, diagnostic_event, event_ref, manifest = _runtime_authority_sidecars_from_store(
+            store=store,
+            ref=selected_view,
+        )
+        source_identity = _runtime_quality_report_source_identity(
+            manifest=manifest,
+            ref=ref,
+            selector=selector,
+            authority_envelope=envelope,
+        )
+        if source_manifest_identities is not None:
+            source_manifest_identities[report_key] = source_identity
+        if require_selected_profile and source_identity is None:
+            reject_source(
+                ref_key=ref_key,
+                ref=ref,
+                selector=selector,
+                reason="selected_source_identity_not_established",
+            )
             if report_key == "security_assurance_report":
                 security_report_intake = _security_report_intake_failure(
-                    source_ref=ref.strip(),
+                    source_ref=ref,
+                    reason_code="security_report_source_identity_not_established",
+                    observed_manifest=observed_manifest,
+                )
+            continue
+
+        try:
+            encoded = store.get_bytes(selected_view)
+        except Exception:
+            encoded = None
+        if not isinstance(encoded, bytes) or (
+            source_identity is not None
+            and hashlib.sha256(encoded).hexdigest() != source_identity["payload_sha256"]
+        ):
+            if require_selected_profile:
+                reject_source(
+                    ref_key=ref_key,
+                    ref=ref,
+                    selector=selector,
+                    reason="selected_payload_integrity_not_established",
+                )
+            if report_key == "security_assurance_report":
+                security_report_intake = _security_report_intake_failure(
+                    source_ref=ref,
                     reason_code="security_report_payload_unreadable_or_non_mapping",
                     observed_manifest=observed_manifest,
                 )
             continue
-        envelope, diagnostic_event, event_ref = _runtime_authority_sidecars_from_store(
-            store=store,
-            ref=ref,
-        )
-        if envelope is not None and "authority_envelope" not in report:
+        try:
+            payload = from_canonical_bytes(encoded)
+        except Exception:
+            payload = None
+        if not isinstance(payload, dict):
+            if require_selected_profile:
+                reject_source(
+                    ref_key=ref_key,
+                    ref=ref,
+                    selector=selector,
+                    reason="selected_report_payload_not_established",
+                )
+            if report_key == "security_assurance_report":
+                security_report_intake = _security_report_intake_failure(
+                    source_ref=ref,
+                    reason_code="security_report_payload_unreadable_or_non_mapping",
+                    observed_manifest=observed_manifest,
+                )
+            continue
+
+        report = dict(payload)
+        if envelope is not None:
             report["authority_envelope"] = envelope
-        if diagnostic_event is not None:
+        if diagnostic_event is not None and source_identity is not None:
             diagnostic_events.append(diagnostic_event)
-        if event_ref is not None:
+        if event_ref is not None and source_identity is not None:
             diagnostic_event_log_refs.append(event_ref)
         reports[report_key] = report
+
     return (
         reports,
         _dedupe_diagnostic_events(diagnostic_events),
@@ -4593,7 +5438,7 @@ def _production_data_quality_report_from_payloads(
 def _load_causal_validity_cases() -> list[dict[str, Any]]:
     try:
         payload = json.loads(CAUSAL_VALIDITY_FIXTURE.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+    except OSError, json.JSONDecodeError:
         payload = {}
     cases = payload.get("cases") if isinstance(payload, dict) else None
     if isinstance(cases, list):
@@ -4659,7 +5504,7 @@ def _replay_reports_from_payloads(
     env: dict[str, str] | None,
     job_payload: dict[str, Any] | None,
     run_payload: dict[str, Any] | None,
-    quality_ref_resolution: Any,
+    quality_ref_resolution: QualityRefResolution,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     existing_manifest = raw_quality_evidence.get("replay_manifest")
     existing_drift = raw_quality_evidence.get("drift_explanation")
@@ -4671,8 +5516,7 @@ def _replay_reports_from_payloads(
             ),
             dict(existing_drift),
         )
-    unrejected_refs = getattr(quality_ref_resolution, "unrejected_refs", None)
-    refs = dict(unrejected_refs()) if callable(unrejected_refs) else {}
+    refs = quality_ref_resolution.unrejected_refs()
     manifest = (
         dict(existing_manifest)
         if isinstance(existing_manifest, dict)
@@ -4893,7 +5737,9 @@ def _provider_model_metadata_from_payloads(
     }
 
 
-def _prompt_template_fingerprints(command_metadata: dict[str, Any] | None) -> dict[str, Any]:
+def _prompt_template_fingerprints(
+    command_metadata: dict[str, Any] | None,
+) -> dict[str, Any]:
     raw = _nested_get(command_metadata, "prompt_template_fingerprints")
     if isinstance(raw, dict):
         return dict(raw)
@@ -4939,7 +5785,9 @@ def _claims_from_report(report: Any) -> list[dict[str, Any]]:
     return []
 
 
-def _generated_runtime_quality_refs(quality_evidence_payload: dict[str, Any]) -> dict[str, str]:
+def _generated_runtime_quality_refs(
+    quality_evidence_payload: dict[str, Any],
+) -> dict[str, str]:
     return {
         ref_key: f"quality_evidence/{QUALITY_REPORT_FILES[report_key]}"
         for report_key, ref_key in QUALITY_REPORT_RUNTIME_REFS.items()
@@ -5005,7 +5853,7 @@ def _fresh_job_payload_for_scorecard(client: Any, job_id: str) -> dict[str, Any]
         if response.status_code >= 400:
             return None
         payload = response.json()
-    except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
+    except AttributeError, OSError, RuntimeError, TypeError, ValueError:
         return None
     return payload if isinstance(payload, dict) else None
 
@@ -5023,6 +5871,7 @@ def _build_canary_scorecard(
     quality_evidence: dict[str, Any],
     quality_scorecard_ref: str,
     quality_evidence_bundle_path: str,
+    artifact_store: Any | None = None,
 ) -> dict[str, Any]:
     """Build one mapping-only or source-recomputed canary scorecard."""
     if owner_source_context is None:
@@ -5037,6 +5886,7 @@ def _build_canary_scorecard(
             quality_evidence=quality_evidence,
             quality_scorecard_ref=quality_scorecard_ref,
             quality_evidence_bundle_path=quality_evidence_bundle_path,
+            artifact_store=artifact_store,
         )
     runtime_app, client = owner_source_context
     return _build_quality_scorecard_with_runtime_owner_source(
@@ -5050,6 +5900,7 @@ def _build_canary_scorecard(
         quality_evidence=quality_evidence,
         quality_scorecard_ref=quality_scorecard_ref,
         quality_evidence_bundle_path=quality_evidence_bundle_path,
+        artifact_store=artifact_store,
         runtime_app=runtime_app,
         runtime_client=client,
     )
@@ -5112,6 +5963,19 @@ def assemble_canary_evidence(
         run_payload=run_payload,
         quality_evidence=raw_input_quality_evidence,
     )
+    resolved_artifact_store = _artifact_store_from_context(
+        artifact_store=artifact_store,
+        cas_root=cas_root,
+        command_metadata=command_metadata,
+    )
+    selected_profile_rejections = (
+        _selected_runtime_quality_profile_rejections(
+            resolution=runtime_quality_authority_refs,
+            store=resolved_artifact_store,
+        )
+        if serious_bundle
+        else []
+    )
     whole_source_ref_intake = RuntimeQualityAuthorityRefs.from_sources(
         source_payloads=raw_source_payloads,
     )
@@ -5120,6 +5984,7 @@ def assemble_canary_evidence(
         runtime_quality_authority_refs,
         whole_source_ref_intake,
     )
+    quality_ref_resolution_rejections.extend(selected_profile_rejections)
     rejected_quality_ref_keys, has_unscoped_ref_rejection = _rejected_quality_ref_keys(
         quality_ref_resolution_rejections
     )
@@ -5140,7 +6005,8 @@ def assemble_canary_evidence(
     admitted_input_quality_evidence = admitted_source_payloads["quality_evidence"] or {}
     quality_evidence = admitted_input_quality_evidence
     job_id = str((job_payload or {}).get("job_id") or "no-job")
-    run_id = (job_payload or {}).get("run_id") or (run_payload or {}).get("run_id")
+    raw_run_id = (job_payload or {}).get("run_id") or (run_payload or {}).get("run_id")
+    run_id = raw_run_id if isinstance(raw_run_id, str) and raw_run_id.strip() else None
     status = str((job_payload or {}).get("state") or (run_payload or {}).get("status") or "unknown")
     root = Path(output_root)
     bundle_dir = Path(output_dir) if output_dir else root / f"{_utc_stamp()}_{job_id}"
@@ -5200,12 +6066,21 @@ def assemble_canary_evidence(
     security_ref_resolution_rejections = _security_report_resolution_rejections(
         quality_ref_resolution_rejections
     )
-    report_refs_for_loading = dict(admitted_quality_ref_refs)
-    resolved_artifact_store = _artifact_store_from_context(
-        artifact_store=artifact_store,
-        cas_root=cas_root,
-        command_metadata=command_metadata,
+    report_refs_for_loading = dict(
+        admitted_runtime_quality_refs if serious_bundle else admitted_quality_ref_refs
     )
+    selected_refs_for_loading = {
+        key: selected_ref
+        for key, selected_ref in runtime_quality_authority_refs.unrejected_selected_refs().items()
+        if not _quality_ref_key_is_rejected(
+            key, rejected_quality_ref_keys, has_unscoped_ref_rejection
+        )
+    }
+    source_identity_rejections: list[_QualityRefResolutionRejection] = []
+    loaded_quality_source_identities: dict[
+        str,
+        _RuntimeQualityReportSourceIdentity | None,
+    ] = {}
     (
         loaded_quality_reports,
         loaded_diagnostic_events,
@@ -5214,7 +6089,20 @@ def assemble_canary_evidence(
     ) = _quality_reports_from_refs_with_authority(
         refs=report_refs_for_loading,
         store=resolved_artifact_store,
+        source_manifest_identities=loaded_quality_source_identities,
+        selected_refs=selected_refs_for_loading,
+        ref_sources=runtime_quality_authority_refs.sources,
+        selected_ref_sources=runtime_quality_authority_refs.selected_sources,
+        require_selected_profile=serious_bundle,
+        source_identity_rejections=source_identity_rejections,
     )
+    if source_identity_rejections:
+        quality_ref_resolution_rejections.extend(source_identity_rejections)
+        source_rejected_keys, source_unscoped_rejection = _rejected_quality_ref_keys(
+            source_identity_rejections
+        )
+        rejected_quality_ref_keys.update(source_rejected_keys)
+        has_unscoped_ref_rejection = has_unscoped_ref_rejection or source_unscoped_rejection
     cas_identity_rejections = _cas_report_identity_rejections(
         refs=report_refs_for_loading,
         reports=loaded_quality_reports,
@@ -5235,6 +6123,39 @@ def assemble_canary_evidence(
                 )
                 if report_key is not None:
                     loaded_quality_reports.pop(report_key, None)
+                    loaded_quality_source_identities[report_key] = None
+    if source_identity_rejections or cas_identity_rejections:
+        admitted_source_payloads = {
+            source_name: _payload_without_rejected_quality_refs(
+                payload,
+                rejected_keys=rejected_quality_ref_keys,
+                has_unscoped_container_rejection=has_unscoped_ref_rejection,
+            )
+            for source_name, payload in raw_source_payloads.items()
+        }
+        job_payload = admitted_source_payloads["job"]
+        run_payload = admitted_source_payloads["run"]
+        agents_payload = admitted_source_payloads["agents"]
+        timeline_payload = admitted_source_payloads["timeline"]
+        lineage_payload = admitted_source_payloads["lineage"]
+        request_payload = admitted_source_payloads["request"]
+        admitted_input_quality_evidence = admitted_source_payloads["quality_evidence"] or {}
+        quality_evidence = admitted_input_quality_evidence
+        runtime_quality_evidence = _runtime_quality_evidence_from_payloads(
+            job_payload,
+            run_payload,
+            agents_payload,
+        )
+        admitted_quality_ref_refs = _unrejected_quality_refs(
+            quality_ref_resolution,
+            rejected_keys=rejected_quality_ref_keys,
+            has_unscoped_container_rejection=has_unscoped_ref_rejection,
+        )
+        admitted_runtime_quality_refs = _unrejected_runtime_quality_refs(
+            runtime_quality_authority_refs,
+            rejected_keys=rejected_quality_ref_keys,
+            has_unscoped_container_rejection=has_unscoped_ref_rejection,
+        )
     security_ref_resolution_rejections = _security_report_resolution_rejections(
         quality_ref_resolution_rejections
     )
@@ -5562,6 +6483,11 @@ def assemble_canary_evidence(
         run_payload=run_payload,
     )
     quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
+    quality_evidence_payload = _preserve_selected_runtime_report_bodies(
+        quality_evidence_payload,
+        loaded_quality_reports,
+    )
+    quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
     generated_quality_refs = _generated_runtime_quality_refs(quality_evidence_payload)
     runtime_source_refs = {
         **admitted_quality_ref_refs,
@@ -5610,44 +6536,45 @@ def assemble_canary_evidence(
         _first_valid_authority_envelope(quality_evidence_payload) if serious_bundle else None
     )
     if serious_bundle and base_closeout_authority_envelope is not None:
-        scorecard_runtime_refs.update(
-            {
-                ref_key: _stable_authority_ref(ref_key, run_id, job_id, str(bundle_dir))
-                for ref_key in AGGREGATE_CLOSEOUT_REF_KEYS
-                if ref_key not in scorecard_runtime_refs
-                and not _quality_ref_key_is_rejected(
-                    ref_key, rejected_quality_ref_keys, has_unscoped_ref_rejection
-                )
-            }
-        )
-        for report_key, ref_key in QUALITY_REPORT_RUNTIME_REFS.items():
-            if (
-                report_key in CANARY_GENERATED_RUNTIME_REF_REPORTS
-                and report_key in quality_evidence_payload
-                and not _quality_ref_key_is_rejected(
-                    ref_key, rejected_quality_ref_keys, has_unscoped_ref_rejection
-                )
-                and (
-                    ref_key not in scorecard_runtime_refs
-                    or _cas_like_ref(scorecard_runtime_refs.get(ref_key)) is None
-                )
-            ):
-                scorecard_runtime_refs[ref_key] = _stable_authority_ref(
-                    ref_key,
-                    run_id,
-                    job_id,
-                    str(bundle_dir),
-                )
-        for report_key in CONTINUOUS_GOVERNANCE_REPORT_KEYS:
-            ref_key = QUALITY_REPORT_RUNTIME_REFS[report_key]
-            if _quality_ref_key_is_rejected(
-                ref_key, rejected_quality_ref_keys, has_unscoped_ref_rejection
-            ):
-                continue
-            scorecard_runtime_refs.setdefault(
-                ref_key,
-                _stable_authority_ref(ref_key, run_id, job_id, str(bundle_dir)),
+        if _runtime_run_scope_established(run_id):
+            scorecard_runtime_refs.update(
+                {
+                    ref_key: _stable_authority_ref(ref_key, run_id, job_id, str(bundle_dir))
+                    for ref_key in AGGREGATE_CLOSEOUT_REF_KEYS
+                    if ref_key not in scorecard_runtime_refs
+                    and not _quality_ref_key_is_rejected(
+                        ref_key, rejected_quality_ref_keys, has_unscoped_ref_rejection
+                    )
+                }
             )
+            for report_key, ref_key in QUALITY_REPORT_RUNTIME_REFS.items():
+                if (
+                    report_key in CANARY_GENERATED_RUNTIME_REF_REPORTS
+                    and report_key in quality_evidence_payload
+                    and not _quality_ref_key_is_rejected(
+                        ref_key, rejected_quality_ref_keys, has_unscoped_ref_rejection
+                    )
+                    and (
+                        ref_key not in scorecard_runtime_refs
+                        or _cas_like_ref(scorecard_runtime_refs.get(ref_key)) is None
+                    )
+                ):
+                    scorecard_runtime_refs[ref_key] = _stable_authority_ref(
+                        ref_key,
+                        run_id,
+                        job_id,
+                        str(bundle_dir),
+                    )
+            for report_key in CONTINUOUS_GOVERNANCE_REPORT_KEYS:
+                ref_key = QUALITY_REPORT_RUNTIME_REFS[report_key]
+                if _quality_ref_key_is_rejected(
+                    ref_key, rejected_quality_ref_keys, has_unscoped_ref_rejection
+                ):
+                    continue
+                scorecard_runtime_refs.setdefault(
+                    ref_key,
+                    _stable_authority_ref(ref_key, run_id, job_id, str(bundle_dir)),
+                )
         preliminary_payload, preliminary_index = _with_closeout_authority_metadata(
             quality_evidence_payload,
             runtime_refs=scorecard_runtime_refs,
@@ -5655,6 +6582,7 @@ def assemble_canary_evidence(
             run_id=run_id,
             job_id=job_id,
             base_authority_envelope=base_closeout_authority_envelope,
+            selected_source_identities=loaded_quality_source_identities,
         )
         for report_key in CONTINUOUS_GOVERNANCE_REPORT_KEYS:
             ref_key = QUALITY_REPORT_RUNTIME_REFS[report_key]
@@ -5663,16 +6591,26 @@ def assemble_canary_evidence(
             ):
                 continue
             record = preliminary_index["records"].get(ref_key)
-            if not isinstance(record, dict):
-                continue
-            preliminary_payload[report_key] = _continuous_governance_report(
-                report_key=report_key,
-                runtime_ref=scorecard_runtime_refs[ref_key],
-                authority_record=record,
-                run_id=run_id,
-                job_id=job_id,
-            )
-        effective_mode_ref = scorecard_runtime_refs["effective_mode_ledger_ref"]
+            if isinstance(record, dict):
+                preliminary_payload[report_key] = _continuous_governance_report(
+                    report_key=report_key,
+                    runtime_ref=scorecard_runtime_refs.get(ref_key),
+                    authority_record=record,
+                    run_id=run_id,
+                    job_id=job_id,
+                )
+            elif not _runtime_run_scope_established(run_id):
+                preliminary_payload.setdefault(
+                    report_key,
+                    _continuous_governance_report(
+                        report_key=report_key,
+                        runtime_ref=None,
+                        authority_record=None,
+                        run_id=run_id,
+                        job_id=job_id,
+                    ),
+                )
+        effective_mode_ref = scorecard_runtime_refs.get("effective_mode_ledger_ref")
         preliminary_payload["effective_mode_ledger"] = _effective_mode_ledger_payload(
             canary_kind=canary_kind,
             run_id=run_id,
@@ -5686,6 +6624,7 @@ def assemble_canary_evidence(
             run_id=run_id,
             job_id=job_id,
             base_authority_envelope=base_closeout_authority_envelope,
+            selected_source_identities=loaded_quality_source_identities,
         )
         quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
         quality_evidence_payload = _quality_evidence_with_closeout_authority_refs(
@@ -5807,7 +6746,10 @@ def assemble_canary_evidence(
         if scorecard_job_payload is None:
             scorecard_run_payload = _payload_with_runtime_authority_diagnostics(
                 scorecard_run_payload,
-                diagnostic_events=[*loaded_diagnostic_events, *closeout_diagnostic_events],
+                diagnostic_events=[
+                    *loaded_diagnostic_events,
+                    *closeout_diagnostic_events,
+                ],
                 diagnostic_event_log_refs=[
                     *loaded_diagnostic_event_log_refs,
                     *closeout_diagnostic_event_log_refs,
@@ -5865,6 +6807,7 @@ def assemble_canary_evidence(
     scorecard_job_payload = _payload_with_authoritative_progress_state(
         scorecard_job_payload,
     )
+    policy_design_case_owner_scope: _RuntimeOwnedPolicyDesignCaseScope | None = None
     if serious_bundle:
         quality_evidence_payload = _with_run_cost_proportionality_ledger(
             quality_evidence_payload=quality_evidence_payload,
@@ -5873,8 +6816,19 @@ def assemble_canary_evidence(
             canary_kind=canary_kind,
         )
         quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
+        policy_design_case_owner_scope = _verified_policy_design_case_owner_scope(
+            job_payload=job_payload,
+            run_payload=run_payload,
+            artifact_store=resolved_artifact_store,
+        )
+        if policy_design_case_owner_scope is not None:
+            quality_evidence_payload = {
+                **quality_evidence_payload,
+                "policy_design_case": policy_design_case_owner_scope["case"],
+            }
         quality_evidence_payload = _with_wave4_i4_policy_design_case_outputs(
             quality_evidence_payload=quality_evidence_payload,
+            owner_scope=policy_design_case_owner_scope,
             run_id=run_id,
             job_id=job_id,
             canary_kind=canary_kind,
@@ -5985,6 +6939,7 @@ def assemble_canary_evidence(
         quality_evidence=scorecard_quality_evidence_payload or {},
         quality_scorecard_ref="quality_evidence/quality_scorecard.json",
         quality_evidence_bundle_path=str(bundle_dir),
+        artifact_store=resolved_artifact_store,
     )
     if serious_bundle:
         quality_evidence_payload["decision_artifact_quality"] = (
@@ -6009,6 +6964,7 @@ def assemble_canary_evidence(
                 run_id=run_id,
                 job_id=job_id,
                 base_authority_envelope=base_closeout_authority_envelope,
+                selected_source_identities=loaded_quality_source_identities,
             )
             quality_evidence_payload = _quality_evidence_with_closeout_authority_refs(
                 quality_evidence_payload,
@@ -6053,6 +7009,7 @@ def assemble_canary_evidence(
             quality_evidence=scorecard_quality_evidence_payload or {},
             quality_scorecard_ref="quality_evidence/quality_scorecard.json",
             quality_evidence_bundle_path=str(bundle_dir),
+            artifact_store=resolved_artifact_store,
         )
     quality_evidence_payload["source_truth_conflicts"] = _source_truth_conflict_records_payload(
         quality_scorecard=quality_scorecard,
@@ -6069,6 +7026,7 @@ def assemble_canary_evidence(
         quality_evidence_payload = _with_wave4_i4_closeout_reader_records(
             quality_evidence_payload=quality_evidence_payload,
             trust_boundary_attestation_records=trust_boundary_attestation_records,
+            owner_scope=policy_design_case_owner_scope,
             run_id=run_id,
             job_id=job_id,
         )
@@ -6161,10 +7119,10 @@ def assemble_canary_evidence(
             )
         )
         if not replay_manifest_ref_rejected:
+            current_manifest = quality_evidence_payload.get("replay_manifest")
+            baseline_manifest = current_manifest if isinstance(current_manifest, dict) else {}
             quality_evidence_payload["replay_manifest"] = attach_replay_orchestration_continuity(
-                quality_evidence_payload.get("replay_manifest")
-                if isinstance(quality_evidence_payload.get("replay_manifest"), dict)
-                else {},
+                baseline_manifest,
                 quality_evidence_payload[NL_REPLAY_ORCHESTRATION_RECORD_KEY],
             )
             quality_evidence_payload["drift_explanation"] = explain_replay_drift(
@@ -6199,10 +7157,10 @@ def assemble_canary_evidence(
             )
         )
         if not replay_manifest_ref_rejected:
+            current_manifest = quality_evidence_payload.get("replay_manifest")
+            baseline_manifest = current_manifest if isinstance(current_manifest, dict) else {}
             quality_evidence_payload["replay_manifest"] = attach_replay_orchestration_continuity(
-                quality_evidence_payload.get("replay_manifest")
-                if isinstance(quality_evidence_payload.get("replay_manifest"), dict)
-                else {},
+                baseline_manifest,
                 quality_evidence_payload[NL_REPLAY_ORCHESTRATION_RECORD_KEY],
             )
             quality_evidence_payload["drift_explanation"] = explain_replay_drift(
@@ -6263,7 +7221,11 @@ def assemble_canary_evidence(
             for key, value in (
                 (key, _nested_get(payload, key))
                 for key in REQUIRED_MATERIALIZATION_REFS
-                for payload in (scorecard_job_payload, scorecard_run_payload, agents_payload)
+                for payload in (
+                    scorecard_job_payload,
+                    scorecard_run_payload,
+                    agents_payload,
+                )
             )
             if isinstance(value, str) and value
         }
@@ -6372,13 +7334,15 @@ def assemble_canary_evidence(
         authority_profile_version=canary_kind,
     )
     if serious_bundle:
+        admitted_closeout_inputs = admit_quality_evidence_payload(quality_evidence_payload)
         quality_evidence_payload = _with_wave4_i4_closeout_verdict(
-            quality_evidence_payload=admit_quality_evidence_payload(quality_evidence_payload),
+            quality_evidence_payload=admitted_closeout_inputs,
             closeout_compatibility=closeout_compatibility,
             quality_scorecard=quality_scorecard,
             run_id=run_id,
         )
-        quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
+        # The closeout verdict is derived from this admitted input snapshot.
+        # Emit the derived reader record without re-running caller-source admission.
         bundle["files"]["quality_evidence"]["can_i_closeout"] = (
             "quality_evidence/can_i_closeout.json"
         )
@@ -6389,7 +7353,10 @@ def assemble_canary_evidence(
     _write_json(quality_dir / COMPATIBILITY_FILENAME, closeout_compatibility)
     _write_json(quality_dir / "attestation_records.json", trust_boundary_attestation_records)
     if "assurance_case" in quality_evidence_payload:
-        _write_json(quality_dir / "assurance_case.json", quality_evidence_payload["assurance_case"])
+        _write_json(
+            quality_dir / "assurance_case.json",
+            quality_evidence_payload["assurance_case"],
+        )
     if "diagnostic_slo_report" in quality_evidence_payload:
         _write_json(
             quality_dir / "diagnostic_slo_report.json",
@@ -6399,7 +7366,7 @@ def assemble_canary_evidence(
         "public_export_bundle"
     )
     if generated_public_export_bundle is not None:
-        _write_json(
+        _write_finalized_public_export_projection(
             bundle_dir / PUBLIC_EXPORT_BUNDLE_FILE,
             generated_public_export_bundle,
         )

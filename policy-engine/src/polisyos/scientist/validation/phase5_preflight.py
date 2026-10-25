@@ -15,6 +15,7 @@ from polisyos.ir.analytics import ExplanationBundleRef
 from polisyos.ir.governance.validation import (
     Phase5GateComponent,
     ValidationReport,
+    load_validation_report,
     persist_validation_report,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -348,17 +349,22 @@ def run_phase5_artifact_preflight(
         generated_for=preflight_input.generated_for or preflight_input.artifact_kind,
         analyst_facing=preflight_input.analyst_facing,
     )
+    ir_store = _ensure_ir_artifact_store(ctx.store)
     validation_ref = persist_validation_report(
-        _ensure_ir_artifact_store(ctx.store),
+        ir_store,
         report,
         inputs=_input_refs_for_publication(preflight_input.artifact_ref, judge_verdict_ref),
     )
-    publishable = report.verdict not in {"fail", "blocked"} and report.readiness not in {
+    validation_report = load_validation_report(ir_store, validation_ref)
+    publishable = validation_report.verdict not in {
+        "fail",
+        "blocked",
+    } and validation_report.readiness not in {
         "restricted",
         "blocked",
     }
     return Phase5PublicationResult(
-        validation_report=report,
+        validation_report=validation_report,
         validation_ref=validation_ref,
         judge_verdict=judge_verdict,
         judge_verdict_ref=judge_verdict_ref,

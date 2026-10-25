@@ -7,15 +7,19 @@ the ranked search plan that led to each candidate.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from polisyos.common.logger import logger
 
 from .binding import MetricBinding
-from .contract import DataContract
 from .semantic import SemanticCatalogIndex, SemanticSearchMatch
-from .source_bindings import SourceBinding
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from .contract import DataContract
+    from .source_bindings import SourceBinding
 
 
 @dataclass

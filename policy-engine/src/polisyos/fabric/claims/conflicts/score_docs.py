@@ -4,14 +4,17 @@ from __future__ import annotations
 
 from datetime import UTC
 from decimal import ROUND_HALF_UP, Decimal
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.claims.persist import load_doc_meta
 from polisyos.ir.world.ids import trust_assessment_id_from_payload
 from polisyos.ir.world.trust import TrustAssessment, TrustTier
 
-from .policies import ConflictPolicy
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.store import FileSystemCAS
+
+    from .policies import ConflictPolicy
 
 _Q4 = Decimal("0.0001")
 

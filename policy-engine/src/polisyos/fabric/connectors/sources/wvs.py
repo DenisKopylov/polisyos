@@ -4,11 +4,10 @@ from __future__ import annotations
 
 import logging
 import time
-from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from pathlib import Path
 from types import MappingProxyType
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import pandas as pd
 
@@ -47,6 +46,9 @@ from polisyos.ir.connectors import (
     TrustLevel,
     capabilities_from_flags,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
 
 _log = logging.getLogger(__name__)
 

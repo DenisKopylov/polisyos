@@ -5,11 +5,12 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir.connectors import ConnectorCapability
+if TYPE_CHECKING:
+    from polisyos.ir.connectors import ConnectorCapability
 
 # ============================================================================
 # Exception Hierarchy
@@ -276,11 +277,12 @@ class DatasetDescriptor:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
+# Retain the module binding for runtime evaluation of deferred class annotations.
 DataT = TypeVar("DataT")
 
 
 @dataclass(frozen=True, slots=True)
-class DataChunk(Generic[DataT]):
+class DataChunk[DataT]:
     """A chunk of data from streaming fetch."""
 
     data: DataT

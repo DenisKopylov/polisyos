@@ -20,6 +20,11 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
 
 from polisyos.ir._internal.validation import coerce_float
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
 from polisyos.ir.analytics.rough_path_semantics import (
     PathLiftMethod,
     RoughPathIdentificationStatus,
@@ -28,7 +33,9 @@ from polisyos.ir.analytics.rough_path_semantics import (
     TemporalPathSemanticsAttachment,
     TemporalPathSemanticsScope,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
@@ -1408,6 +1415,211 @@ class BanditResult(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+_CONTINUOUS_TIME_QUERY_WIRE_POLICY = (
+    "polisyos.ir.analytics.dynamic_regime.ContinuousTimeQuery.wire",
+    "1",
+)
+_CONTINUOUS_TIME_QUERY_REPRESENTATIONS = (
+    OwnedJSONRepresentation(
+        schema_name=_CONTINUOUS_TIME_QUERY_SCHEMA_NAME,
+        schema_version=_CONTINUOUS_TIME_QUERY_SCHEMA_VERSION,
+        payload_version=_CONTINUOUS_TIME_QUERY_SCHEMA_VERSION,
+        wire_policy_ref=_CONTINUOUS_TIME_QUERY_WIRE_POLICY[0],
+        wire_policy_revision=_CONTINUOUS_TIME_QUERY_WIRE_POLICY[1],
+        profile_ref=None,
+        compatibility=CompatibilityMode.NONE,
+        notes=(),
+        readable=True,
+        writable=True,
+        current=True,
+        default_write=True,
+        readable_from=(),
+    ),
+)
+_CONTINUOUS_TIME_QUERY_OWNER = declare_model_owner(
+    ContinuousTimeQuery,
+    contract_id="polisyos.ir.analytics.dynamic_regime.ContinuousTimeQuery.owner",
+    dto_fqn="polisyos.ir.analytics.dynamic_regime.ContinuousTimeQuery",
+    abi_key="ir.analytics.dynamic_regime.ContinuousTimeQuery",
+    registry_key="ir.continuous_time_query",
+    kind="ir.continuous_time_query",
+    media_type="application/json",
+    purpose="continuous_time_causal_query",
+    policy_revision="polisyos.ir.analytics.dynamic_regime.ContinuousTimeQuery.owner.owner-admission.r1",
+    accepted_wire_policies=(_CONTINUOUS_TIME_QUERY_WIRE_POLICY,),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=_CONTINUOUS_TIME_QUERY_REPRESENTATIONS,
+)
+
+
+_TEMPORAL_INTERVENTION_TRAJECTORY_WIRE_POLICY = (
+    "polisyos.ir.analytics.dynamic_regime.TemporalInterventionTrajectory.wire",
+    "1",
+)
+_TEMPORAL_INTERVENTION_TRAJECTORY_REPRESENTATIONS = (
+    OwnedJSONRepresentation(
+        schema_name=_TEMPORAL_INTERVENTION_TRAJECTORY_SCHEMA_NAME,
+        schema_version=_TEMPORAL_INTERVENTION_TRAJECTORY_SCHEMA_VERSION,
+        payload_version=_TEMPORAL_INTERVENTION_TRAJECTORY_SCHEMA_VERSION,
+        wire_policy_ref=_TEMPORAL_INTERVENTION_TRAJECTORY_WIRE_POLICY[0],
+        wire_policy_revision=_TEMPORAL_INTERVENTION_TRAJECTORY_WIRE_POLICY[1],
+        profile_ref=None,
+        compatibility=CompatibilityMode.NONE,
+        notes=(),
+        readable=True,
+        writable=True,
+        current=True,
+        default_write=True,
+        readable_from=(),
+    ),
+)
+_TEMPORAL_INTERVENTION_TRAJECTORY_OWNER = declare_model_owner(
+    TemporalInterventionTrajectory,
+    contract_id="polisyos.ir.analytics.dynamic_regime.TemporalInterventionTrajectory.owner",
+    dto_fqn="polisyos.ir.analytics.dynamic_regime.TemporalInterventionTrajectory",
+    abi_key="ir.analytics.dynamic_regime.TemporalInterventionTrajectory",
+    registry_key="ir.temporal_intervention_trajectory",
+    kind="ir.temporal_intervention_trajectory",
+    media_type="application/json",
+    purpose="temporal_intervention_trajectory",
+    policy_revision="polisyos.ir.analytics.dynamic_regime.TemporalInterventionTrajectory.owner.owner-admission.r1",
+    accepted_wire_policies=(_TEMPORAL_INTERVENTION_TRAJECTORY_WIRE_POLICY,),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=_TEMPORAL_INTERVENTION_TRAJECTORY_REPRESENTATIONS,
+)
+
+
+_TEMPORAL_IDENTIFICATION_CERTIFICATE_WIRE_POLICY = (
+    "polisyos.ir.analytics.dynamic_regime.TemporalIdentificationCertificate.wire",
+    "1",
+)
+_TEMPORAL_IDENTIFICATION_CERTIFICATE_REPRESENTATIONS = (
+    OwnedJSONRepresentation(
+        schema_name=_TEMPORAL_IDENTIFICATION_CERTIFICATE_SCHEMA_NAME,
+        schema_version=_TEMPORAL_IDENTIFICATION_CERTIFICATE_SCHEMA_VERSION,
+        payload_version=_TEMPORAL_IDENTIFICATION_CERTIFICATE_SCHEMA_VERSION,
+        wire_policy_ref=_TEMPORAL_IDENTIFICATION_CERTIFICATE_WIRE_POLICY[0],
+        wire_policy_revision=_TEMPORAL_IDENTIFICATION_CERTIFICATE_WIRE_POLICY[1],
+        profile_ref=None,
+        compatibility=CompatibilityMode.NONE,
+        notes=(),
+        readable=True,
+        writable=True,
+        current=True,
+        default_write=True,
+        readable_from=(),
+    ),
+)
+_TEMPORAL_IDENTIFICATION_CERTIFICATE_OWNER = declare_model_owner(
+    TemporalIdentificationCertificate,
+    contract_id="polisyos.ir.analytics.dynamic_regime.TemporalIdentificationCertificate.owner",
+    dto_fqn="polisyos.ir.analytics.dynamic_regime.TemporalIdentificationCertificate",
+    abi_key="ir.analytics.dynamic_regime.TemporalIdentificationCertificate",
+    registry_key="ir.temporal_identification_certificate",
+    kind="ir.temporal_identification_certificate",
+    media_type="application/json",
+    purpose="temporal_identification_certificate",
+    policy_revision="polisyos.ir.analytics.dynamic_regime.TemporalIdentificationCertificate.owner.owner-admission.r1",
+    accepted_wire_policies=(_TEMPORAL_IDENTIFICATION_CERTIFICATE_WIRE_POLICY,),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=_TEMPORAL_IDENTIFICATION_CERTIFICATE_REPRESENTATIONS,
+)
+
+
+_DYNAMIC_TREATMENT_REGIME_WIRE_POLICY = (
+    "polisyos.ir.analytics.dynamic_regime.DynamicTreatmentRegime.wire",
+    "1",
+)
+_DYNAMIC_TREATMENT_REGIME_REPRESENTATIONS = (
+    OwnedJSONRepresentation(
+        schema_name=_DYNAMIC_TREATMENT_REGIME_SCHEMA_NAME,
+        schema_version=_DYNAMIC_TREATMENT_REGIME_SCHEMA_VERSION,
+        payload_version=None,
+        wire_policy_ref=_DYNAMIC_TREATMENT_REGIME_WIRE_POLICY[0],
+        wire_policy_revision=_DYNAMIC_TREATMENT_REGIME_WIRE_POLICY[1],
+        profile_ref=None,
+        compatibility=CompatibilityMode.NONE,
+        notes=(),
+        readable=True,
+        writable=True,
+        current=True,
+        default_write=True,
+        readable_from=(),
+    ),
+)
+_DYNAMIC_TREATMENT_REGIME_OWNER = declare_model_owner(
+    DynamicTreatmentRegime,
+    contract_id="polisyos.ir.analytics.dynamic_regime.DynamicTreatmentRegime.owner",
+    dto_fqn="polisyos.ir.analytics.dynamic_regime.DynamicTreatmentRegime",
+    abi_key="ir.analytics.dynamic_regime.DynamicTreatmentRegime",
+    registry_key="ir.dynamic_treatment_regime",
+    kind="ir.dynamic_treatment_regime",
+    media_type="application/json",
+    purpose="dynamic_treatment_regime",
+    policy_revision="polisyos.ir.analytics.dynamic_regime.DynamicTreatmentRegime.owner.owner-admission.r1",
+    accepted_wire_policies=(_DYNAMIC_TREATMENT_REGIME_WIRE_POLICY,),
+    payload_version_field=None,
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=_DYNAMIC_TREATMENT_REGIME_REPRESENTATIONS,
+)
+
+
+_EFFECT_TRAJECTORY_BUNDLE_WIRE_POLICY = (
+    "polisyos.ir.analytics.dynamic_regime.EffectTrajectoryBundle.wire",
+    "1",
+)
+_EFFECT_TRAJECTORY_BUNDLE_REPRESENTATIONS = (
+    OwnedJSONRepresentation(
+        schema_name=_EFFECT_TRAJECTORY_BUNDLE_SCHEMA_NAME,
+        schema_version=_EFFECT_TRAJECTORY_BUNDLE_SCHEMA_VERSION,
+        payload_version=_EFFECT_TRAJECTORY_BUNDLE_SCHEMA_VERSION,
+        wire_policy_ref=_EFFECT_TRAJECTORY_BUNDLE_WIRE_POLICY[0],
+        wire_policy_revision=_EFFECT_TRAJECTORY_BUNDLE_WIRE_POLICY[1],
+        profile_ref=None,
+        compatibility=CompatibilityMode.NONE,
+        notes=(),
+        readable=True,
+        writable=True,
+        current=True,
+        default_write=True,
+        readable_from=(),
+    ),
+)
+_EFFECT_TRAJECTORY_BUNDLE_OWNER = declare_model_owner(
+    EffectTrajectoryBundle,
+    contract_id="polisyos.ir.analytics.dynamic_regime.EffectTrajectoryBundle.owner",
+    dto_fqn="polisyos.ir.analytics.dynamic_regime.EffectTrajectoryBundle",
+    abi_key="ir.analytics.dynamic_regime.EffectTrajectoryBundle",
+    registry_key="ir.effect_trajectory_bundle",
+    kind="ir.effect_trajectory_bundle",
+    media_type="application/json",
+    purpose="effect_trajectory_bundle",
+    policy_revision="polisyos.ir.analytics.dynamic_regime.EffectTrajectoryBundle.owner.owner-admission.r1",
+    accepted_wire_policies=(_EFFECT_TRAJECTORY_BUNDLE_WIRE_POLICY,),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=_EFFECT_TRAJECTORY_BUNDLE_REPRESENTATIONS,
+)
+
+
 def persist_continuous_time_query(
     store: ArtifactStore,
     query: ContinuousTimeQuery,
@@ -1417,10 +1629,10 @@ def persist_continuous_time_query(
     schema_version: str = _CONTINUOUS_TIME_QUERY_SCHEMA_VERSION,
 ) -> ContinuousTimeQueryRef:
     """Persist continuous time query helper."""
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         query.model_dump(mode="json"),
-        kind="ir.continuous_time_query",
+        owner=_CONTINUOUS_TIME_QUERY_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -1434,8 +1646,7 @@ def load_continuous_time_query(
     ref: ContinuousTimeQueryRef,
 ) -> ContinuousTimeQuery:
     """Load continuous time query."""
-    payload = get_json_artifact(store, ref)
-    return ContinuousTimeQuery.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_CONTINUOUS_TIME_QUERY_OWNER)
 
 
 def persist_temporal_intervention_trajectory(
@@ -1447,10 +1658,10 @@ def persist_temporal_intervention_trajectory(
     schema_version: str = _TEMPORAL_INTERVENTION_TRAJECTORY_SCHEMA_VERSION,
 ) -> TemporalInterventionTrajectoryRef:
     """Persist temporal intervention trajectory helper."""
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         trajectory.model_dump(mode="json"),
-        kind="ir.temporal_intervention_trajectory",
+        owner=_TEMPORAL_INTERVENTION_TRAJECTORY_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -1464,8 +1675,7 @@ def load_temporal_intervention_trajectory(
     ref: TemporalInterventionTrajectoryRef,
 ) -> TemporalInterventionTrajectory:
     """Load temporal intervention trajectory."""
-    payload = get_json_artifact(store, ref)
-    return TemporalInterventionTrajectory.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_TEMPORAL_INTERVENTION_TRAJECTORY_OWNER)
 
 
 def persist_temporal_identification_certificate(
@@ -1477,10 +1687,10 @@ def persist_temporal_identification_certificate(
     schema_version: str = _TEMPORAL_IDENTIFICATION_CERTIFICATE_SCHEMA_VERSION,
 ) -> TemporalIdentificationCertificateRef:
     """Persist temporal identification certificate helper."""
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind="ir.temporal_identification_certificate",
+        owner=_TEMPORAL_IDENTIFICATION_CERTIFICATE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -1494,8 +1704,7 @@ def load_temporal_identification_certificate(
     ref: TemporalIdentificationCertificateRef,
 ) -> TemporalIdentificationCertificate:
     """Load temporal identification certificate."""
-    payload = get_json_artifact(store, ref)
-    return TemporalIdentificationCertificate.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_TEMPORAL_IDENTIFICATION_CERTIFICATE_OWNER)
 
 
 def persist_dynamic_treatment_regime(
@@ -1507,10 +1716,10 @@ def persist_dynamic_treatment_regime(
     schema_version: str = _DYNAMIC_TREATMENT_REGIME_SCHEMA_VERSION,
 ) -> DynamicTreatmentRegimeRef:
     """Persist dynamic treatment regime helper."""
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         regime.model_dump(mode="json"),
-        kind="ir.dynamic_treatment_regime",
+        owner=_DYNAMIC_TREATMENT_REGIME_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -1524,8 +1733,7 @@ def load_dynamic_treatment_regime(
     ref: DynamicTreatmentRegimeRef,
 ) -> DynamicTreatmentRegime:
     """Load dynamic treatment regime."""
-    payload = get_json_artifact(store, ref)
-    return DynamicTreatmentRegime.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_DYNAMIC_TREATMENT_REGIME_OWNER)
 
 
 def persist_effect_trajectory_bundle(
@@ -1537,10 +1745,10 @@ def persist_effect_trajectory_bundle(
     schema_version: str = _EFFECT_TRAJECTORY_BUNDLE_SCHEMA_VERSION,
 ) -> EffectTrajectoryBundleRef:
     """Persist effect trajectory bundle helper."""
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         bundle.model_dump(mode="json"),
-        kind="ir.effect_trajectory_bundle",
+        owner=_EFFECT_TRAJECTORY_BUNDLE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -1554,8 +1762,7 @@ def load_effect_trajectory_bundle(
     ref: EffectTrajectoryBundleRef,
 ) -> EffectTrajectoryBundle:
     """Load effect trajectory bundle."""
-    payload = get_json_artifact(store, ref)
-    return EffectTrajectoryBundle.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_EFFECT_TRAJECTORY_BUNDLE_OWNER)
 
 
 __all__ = [

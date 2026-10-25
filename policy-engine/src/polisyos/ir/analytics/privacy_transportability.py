@@ -17,6 +17,11 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation as _OwnedJSONRepresentation,
+)
+from polisyos.ir.analytics._owner_admission import declare_model_owner as _declare_model_owner
+from polisyos.ir.analytics._owner_admission import owner_profile_for_spec as _owner_profile_for_spec
 from polisyos.ir.analytics.transportability import (
     TransportabilityResult,
     TransportabilityStatus,
@@ -30,7 +35,11 @@ from polisyos.ir.analytics.uncertainty import (
     combine_envelopes,
     persist_uncertainty_envelope,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts import get_json_artifact as get_json_artifact
+from polisyos.ir.artifacts import put_json_artifact as put_json_artifact
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode as _CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import PrivacyAwareTransportCertificateRef, UncertaintyEnvelopeRef
 
@@ -305,6 +314,42 @@ class PrivacyAwareTransportCertificate(BaseModel):
                 for scope in self.dp_scope
             ],
         }
+
+
+_PRIVACY_TRANSPORT_CERTIFICATE_OWNER = _declare_model_owner(
+    PrivacyAwareTransportCertificate,
+    contract_id="ir.analytics.ir.privacy_aware_transport_certificate.owner.v1",
+    dto_fqn="polisyos.ir.analytics.privacy_transportability.PrivacyAwareTransportCertificate",
+    abi_key="ir.analytics.ir.privacy_aware_transport_certificate.owner.v1.dto-abi.v1",
+    registry_key="ir.privacy_aware_transport_certificate",
+    kind="ir.privacy_aware_transport_certificate",
+    media_type="application/json",
+    purpose="privacy_aware_transport_certificate",
+    policy_revision="ir.analytics.ir.privacy_aware_transport_certificate.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.privacy_aware_transport_certificate.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=_owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name="ir.privacy_aware_transport_certificate",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.privacy_aware_transport_certificate.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
 
 
 class TransportPrivacyContext(BaseModel):
@@ -839,10 +884,10 @@ def persist_privacy_aware_transport_certificate(
 ) -> PrivacyAwareTransportCertificateRef:
     """Persist a privacy-aware transport certificate and return its typed artifact ref."""
 
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind="ir.privacy_aware_transport_certificate",
+        owner=_PRIVACY_TRANSPORT_CERTIFICATE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -857,8 +902,7 @@ def load_privacy_aware_transport_certificate(
 ) -> PrivacyAwareTransportCertificate:
     """Load a persisted privacy-aware transport certificate."""
 
-    payload = get_json_artifact(store, ref)
-    return PrivacyAwareTransportCertificate.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_PRIVACY_TRANSPORT_CERTIFICATE_OWNER)
 
 
 __all__ = [

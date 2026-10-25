@@ -85,6 +85,7 @@ from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.model_layer.types import SelectorOperator
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir.trinity.loaders import persist_trinity_bundle_artifact
 from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
 from polisyos.scientist.methods.search.funnel.types import FunnelStageResult
 from polisyos.scientist.methods.search.uncertainty import (
@@ -362,22 +363,17 @@ def _build_foundry_source(root: Path) -> _FoundrySource:
         ],
         return_selected_profile=True,
     )
-    raw_trinity_bundle_ref = store.put_json(
+    selected_trinity_bundle_ref = persist_trinity_bundle_artifact(
+        ensure_ir_artifact_store(store),
         trinity_bundle,
-        PutOptions(
-            kind=TrinityBundle.ARTIFACT_KIND,
-            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
-            schema=SchemaInfo(
-                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
-                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
-            ),
-            inputs=[
-                _input_edge(candidate_ref, role="policy_candidate"),
-                _input_edge(data_snapshot_ref, role="world_model_data_snapshot"),
-                _input_edge(registry_bundle_ref, role="world_model_registry"),
-            ],
-        ),
-        return_selected_profile=True,
+        inputs=[
+            _input_edge(candidate_ref, role="policy_candidate"),
+            _input_edge(data_snapshot_ref, role="world_model_data_snapshot"),
+            _input_edge(registry_bundle_ref, role="world_model_registry"),
+        ],
+    )
+    raw_trinity_bundle_ref = ArtifactRef.model_validate(
+        selected_trinity_bundle_ref.model_dump(mode="python")
     )
 
     compile_result = compile_foundry(
@@ -742,7 +738,9 @@ def _assert_actual_source_lineage(
     assert execution_basis.request.return_selected_profile is True
 
     assert candidate.candidate_id == "candidate_b161"
-    assert candidate.trinity_bundle == trinity
+    # Compare the complete owner wire payload; JSON writers may materialize Any values
+    # differently in Python while preserving the same admitted quantity.
+    assert candidate.trinity_bundle.model_dump(mode="json") == trinity.model_dump(mode="json")
     assert candidate.trinity_bundle.model_spec.data_snapshot_ref == str(
         source.candidate_data_snapshot_ref.artifact_id
     )
@@ -1397,6 +1395,9 @@ def _benchmark_funnel_context(
     from polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_benchmarks import (
         build_runtime_funnel_context,
     )
+    from polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_engine import (
+        _RuntimeSession,
+    )
 
     run_id = "R_b161_benchmark_bridge"
     scheduler = _NoopPredictiveVoi()
@@ -1409,38 +1410,37 @@ def _benchmark_funnel_context(
         load_predictive_voi_scheduler=lambda ctx, *, transfer_context: scheduler,
         persist_promotion_evidence_bundle=lambda store, evidence_bundle, *, inputs: candidate_ref,
     )
-    session = SimpleNamespace(
+    state = SimpleNamespace(
+        params={},
+        run_id=run_id,
+        artifacts_index={ARTIFACT_WELFARE_BUNDLE_REF: welfare_ref},
+    )
+    assert "method_metric_source_run_id" not in state.params
+    session = _RuntimeSession(
         owner=owner,
         ctx=SimpleNamespace(store=store),
-        state=SimpleNamespace(
-            params={},
-            run_id=run_id,
-            artifacts_index={ARTIFACT_WELFARE_BUNDLE_REF: welfare_ref},
-        ),
+        state=state,
+        runtime_request=None,
         candidate=SimpleNamespace(metadata={}),
         candidate_ref=candidate_ref,
+        uncertainty_envelope=SearchUncertaintyEnvelope.unknown(),
+        governance_report=None,
+        causal_report=None,
+        distributional_report=None,
+        cross_graph_profile=None,
+        evidence_sources=None,
+        runtime_source_statuses={},
+        simulation_metrics=None,
+        ambiguity_certificate=None,
+        ambiguity_certificate_ref=None,
+        runtime_backend=SimpleNamespace(),
+        input_signature="b161-test-input-signature",
         evidence_bundle=PromotionEvidenceBundle(
             run_id=run_id,
             produced_by_run_id=run_id,
             candidate_ref=candidate_ref,
         ),
         evidence_ref=candidate_ref,
-        calibration_report=None,
-        simulation_metrics=None,
-        uncertainty_envelope=SearchUncertaintyEnvelope.unknown(),
-        uncertainty_basis_ref=None,
-        selection_evaluation=None,
-        hidden_holdout=None,
-        benchmark_registry=None,
-        platform_meta_ref=None,
-        governance_report=None,
-        stress_report_ref=None,
-        causal_report=None,
-        distributional_report=None,
-        cross_graph_profile=None,
-        degradation_mode="normal",
-        calibration_ref=None,
-        input_signature="b161-test-input-signature",
         selection_vector_ref=candidate_ref,
         selection_ref=candidate_ref,
     )
@@ -1519,6 +1519,18 @@ def test_actual_foundry_basis_ref_survives_abm_ir_cas_roundtrip(
     )
     fresh_abm_result = load_abm_result(ir_store, abm_ref)
     assert fresh_abm_result == abm_result
+    assert fresh_abm_result.schema_version == "1.4"
+    abm_core_ref = ArtifactRef.model_validate(abm_ref.model_dump(mode="python"))
+    abm_manifest = source.store.get_manifest(abm_core_ref)
+    assert abm_manifest.kind == "ir.abm_result"
+    assert abm_manifest.media_type == "application/json"
+    assert abm_manifest.artifact_schema is not None
+    assert abm_manifest.artifact_schema.name == "ir.abm_result"
+    assert abm_manifest.artifact_schema.version == "1.0"
+    assert abm_manifest.canon is not None
+    assert abm_manifest.canon.forbid_floats is False
+    assert abm_manifest.canon.forbid_nan_inf is True
+    assert abm_ref.manifest_profile_sha256 is not None
     assert fresh_abm_result.execution_input_basis_ref is not None
     fresh_basis_ref = ArtifactRef.model_validate(
         fresh_abm_result.execution_input_basis_ref.model_dump(mode="python")

@@ -10,6 +10,7 @@ from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestr
 from polisyos.scientist.methods.search.funnel.types import FunnelStage, FunnelStageResult
 from polisyos.scientist.methods.search.objective import (
     GDPGrowthObjective,
+    InequalityObjective,
     ObjectiveScoreStatus,
 )
 from polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_reporting import (
@@ -118,7 +119,16 @@ def test_terminal_completion_uses_source_recomputed_score_state(
     assert outcome.final_action == expected_action
     assert outcome.final_result is not None
     assert outcome.final_result.score_status is expected_replayed_status
+    assert outcome.final_result.score_assessment == assessment
+    assert outcome.final_result.simulation_results == source
     assert outcome.trace[-1].score_status is expected_replayed_status
+    if expected_action == "complete":
+        assert outcome.final_result.is_promising is True
+        assert outcome.final_result.terminal_action == ("complete" if explicit_complete else None)
+    else:
+        assert outcome.final_result.is_promising is False
+        if explicit_complete or expected_replayed_status is not ObjectiveScoreStatus.INVALID:
+            assert outcome.final_result.terminal_action == expected_action
     surface = _serialize_funnel_outcome(outcome)
     assert surface["final_action"] == expected_action
     assert surface["trace"][-1]["score_admission"]["status"] == expected_replayed_status.value
@@ -140,3 +150,61 @@ def test_terminal_completion_uses_source_recomputed_score_state(
             )
     else:
         assert outcome.final_result.objective_value is None
+
+
+@pytest.mark.parametrize(
+    ("source", "expected_status", "expected_action", "expected_promising"),
+    [
+        (
+            {"gini_coefficient": 0.0, "metric_units": {"gini_coefficient": "fixture-unit"}},
+            ObjectiveScoreStatus.AVAILABLE,
+            "complete",
+            True,
+        ),
+        (
+            {"gini_coefficient": 0.0, "metric_units": {}},
+            ObjectiveScoreStatus.UNAVAILABLE,
+            "defer",
+            False,
+        ),
+    ],
+    ids=["non-gdp-selected-basis-completes", "non-gdp-unavailable-basis-defers"],
+)
+def test_terminal_completion_composes_non_gdp_selected_method_basis(
+    source: dict[str, object],
+    expected_status: ObjectiveScoreStatus,
+    expected_action: str,
+    expected_promising: bool,
+) -> None:
+    assessment = InequalityObjective(expected_unit="fixture-unit").evaluate(source).score_assessment
+    assert assessment is not None
+    assert assessment.status is expected_status
+
+    stage = MagicMock(spec=FunnelStage)
+    stage.fidelity_level = 6
+    stage.stage_name = "selected-inequality-terminal"
+    stage.estimated_cost_usd = 0.0
+    stage.evaluate.return_value = FunnelStageResult(
+        policy_candidate={"candidate": "inequality"},
+        objective_value=assessment.value,
+        is_promising=True,
+        stage_name="selected-inequality-terminal",
+        score_status=assessment.status,
+        score_assessment=assessment,
+        simulation_results=source,
+        feedback={"verdict": "APPROVE"},
+        terminal_action="complete",
+    )
+    orchestrator = FunnelOrchestrator([stage])
+    outcome = orchestrator.advance(orchestrator.submit({"candidate": "inequality"}, {}))
+
+    assert outcome.final_action == expected_action
+    assert outcome.final_result is not None
+    assert outcome.final_result.score_status is expected_status
+    assert outcome.final_result.score_assessment == assessment
+    assert outcome.final_result.simulation_results == source
+    assert outcome.final_result.is_promising is expected_promising
+    assert outcome.final_result.terminal_action == expected_action
+    assert outcome.final_result.objective_value == (
+        0.0 if expected_status is ObjectiveScoreStatus.AVAILABLE else None
+    )

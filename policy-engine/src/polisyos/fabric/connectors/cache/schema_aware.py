@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from polisyos.fabric.connectors.base import FetchRequest, FetchResult
-from polisyos.fabric.connectors.contracts import ContractRegistry
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from polisyos.fabric.connectors.base import FetchRequest, FetchResult
+    from polisyos.fabric.connectors.contracts import ContractRegistry
 
 
 def make_schema_hash_provider(

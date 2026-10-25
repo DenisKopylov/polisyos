@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import uuid
-from collections.abc import Iterable
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -13,23 +12,23 @@ from typing import TYPE_CHECKING
 import pandas as pd
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.canon import content_hash
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.data_plane.temporal import parse_datetime_utc, utc_now
-from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.quality.safety import quote_sql_identifier
 from polisyos.fabric.world.providers import resolve_world_observability
 from polisyos.fabric.world.store.segments import load_world_fact_manifests
-from polisyos.ir.loading.fact_log import FactSegmentManifest
 from polisyos.ir.world.predicates import WORLD_REL_PREFIX
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterable, Sequence
 
     import duckdb
 
+    from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
+    from polisyos.fabric.io.db import SimulationDB
+    from polisyos.ir.loading.fact_log import FactSegmentManifest
 
 from .errors import (
     WorldMaterializationError,
@@ -805,8 +804,8 @@ def _time_partition_for_manifest(
     *,
     granularity: str,
 ) -> str:
-    raw_value = manifest.time_end or manifest.time_start
-    if raw_value is None:
+    raw_value = manifest.time_end if manifest.time_end is not None else manifest.time_start
+    if raw_value is None or isinstance(raw_value, int):
         return "unbounded"
     try:
         parsed = parse_datetime_utc(raw_value, what="world shard time partition")

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
@@ -181,3 +182,26 @@ def test_fabric_fact_event_and_claim_mapping_helpers() -> None:
     assert quantity.unit.code == "[USD]"
     assert claim_text.semantic_type == "finding"
     assert event_text.text == "Snapshot materialized"
+
+
+def test_quantity_mapping_preserves_structural_fact_payload_compatibility() -> None:
+    """Legacy structural objects are normalized without generic reflection authority."""
+
+    @dataclass(frozen=True)
+    class StructuralFact:
+        fact_id: str
+        value: str
+        unit: dict[str, str]
+        semantic_type: str
+
+    value = fabric_fact_to_quantity_value(
+        StructuralFact(
+            fact_id="world.fact.gdp",
+            value="123.4",
+            unit={"code": "[USD]", "system": "ucum", "display": "USD"},
+            semantic_type="gdp",
+        )
+    )
+    assert value.point == 123.4
+    assert value.metric_id == "world.fact.gdp"
+    assert value.unit.code == "[USD]"

@@ -12,17 +12,18 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
-from polisyos.fabric.connectors.base import (
-    ConnectionConfig,
-    ConnectionHandle,
-    HealthStatus,
-    SourceConnector,
-)
-from polisyos.ir.connectors import FetchRequest, FetchResult
+if TYPE_CHECKING:
+    from polisyos.fabric.connectors.base import (
+        ConnectionConfig,
+        ConnectionHandle,
+        HealthStatus,
+        SourceConnector,
+    )
+    from polisyos.ir.connectors import FetchRequest, FetchResult
 
 # ---------------------------------------------------------------------------
 # Fault descriptors

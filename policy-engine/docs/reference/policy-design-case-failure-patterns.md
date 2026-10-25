@@ -502,3 +502,44 @@ A property-removed control must demonstrate the escaping writes. Keep canonical
 application with its declared writer and source readback; scratch confinement
 does not establish semantic correctness or publication authority. See the
 [bounded recovery and local confinement receipt](../research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw-write-confinement-incident-20261022.json).
+
+
+### P38/P40 instance: raw model fields are not serialization semantics (2026-10-24)
+
+**Diagnostic question.** Does a selected-owner write preserve the existing Core
+serializer's observable bytes and exclusions for every accepted option carrier,
+including native values and Pydantic models nested under `Any`? Copying a model's
+raw fields is not an equivalent JSON projection: aliases, excluded fields,
+registered serializers, extras, and private state can change the result.
+
+**Divergent case.** A nested model in warning data uses a serialization alias and
+an excluded field. Core's JSON projection emits the alias and omits the excluded
+value; flattening its raw dictionary emits the internal name and the excluded
+value instead. A shape-valid snapshot can therefore change manifest identity
+and disclose data while its marker and field-presence checks remain green.
+
+**Closure move.** Revalidate typed option fields against their existing owner
+contract before JSON conversion. Preserve accepted native carrier semantics
+until the trusted Core projection, then freeze that projection before callbacks
+or store emission. Do not substitute caller duck-typed dump/copy methods or an
+enumerated list of leaf exceptions. Compare direct and selected Core writes
+through real CAS and fresh reads, including aliases/exclusions, registered model
+serializers, legitimate extras/private state, supported sequences, and malformed
+typed fields that must cause zero writes. Classify further variants as the same
+context-fidelity class; widen the shared mechanism rather than patching each
+warning or DTO. This pattern supplies no authority fact or finding closure.
+
+### P38 instance: a digest is compared with a different output layer
+
+**Diagnostic question.** Does the digest identify the exact file and producer
+output being verified? A launcher receipt's `stdout_sha256` does not name a
+nested command's separately captured stdout, even when both records use the
+same field name. A neighboring receipt's hash does not identify its manifest.
+
+**Closure move.** Retain the full path, producer layer, and stream for each
+digest, and recompute it against that exact file. Verify launcher and child
+streams independently: different hashes of different streams establish neither
+a mutation nor a broken custody chain. When a hash was misattributed, preserve
+both actual artifacts and append a precise correction. A mismatch against the
+correct file remains `not_established`; never replace deciding output or infer
+missing historical bytes from the neighboring artifact.

@@ -41,6 +41,23 @@ broader `polisyos.foundry.methods` facade.
   refusal does not prove non-identification. A compiler-injected effective PAG policy value records
   `origin:not_established`; direct pure-step omission and a present null remain distinct.
 
+### Resolved selection diagrams and S-admissibility
+
+The simplified transport route first checks the generic zero-adjustment
+S-admissibility condition on the full resolved DAG/ADMG: augment the graph with
+the declared population-selection nodes, apply the actual treatment intervention,
+and recompute m-separation from those nodes to the outcome. When separated, the
+existing source-domain ID algorithm must identify the effect before the result
+is emitted as a source-law transport formula. This preserves bidirected endpoint
+semantics through surgery and identification. A hedge, graph-operation failure,
+or synthetic selection-node collision is a typed limitation. Non-admissible
+ADMG inputs do not reach the endpoint-insensitive legacy heuristic; they remain
+unsupported unless this source-law condition proves the bounded case. The
+existing DAG mediator route remains available when selection affects the
+outcome mechanism, while selected treatment/outcome variables are never reused
+as covariates. The direct scalar PAG/CPDAG admission gate remains in front of
+this route.
+
 ### Locked Y0 ID and TRSO adapter
 
 `SymbolicIdentify`, `SymbolicIdentifyV2`, the shared transport solver, and the registered `CheckTransportability` route call the locked Y0 0.2.11 algorithm APIs when Y0 is selected. Direct queries consume the expression returned by `identify_outcomes`; transport queries with selection nodes call `identify_target_outcomes` only when the caller supplies `surrogate_data_profile`. The registered `RunTransportabilityNode` carries that same caller input through its resolution loop. Local front-door, do-calculus, and c-component heuristics no longer emit results carrying Y0 or R backend identities.
@@ -143,7 +160,9 @@ EconML `ForestDRLearner` producer. It requires the integer parameter
 `n_jobs=1`, passes that value to the estimator, and records the effective
 setting in both `HTEResult.econml_params` and the method report. The existing
 `causal.hte.forest_dr@1.0.0` signature and its historical EconML defaults
-remain available unchanged.
+remain available unchanged. Historical 1.0.0 intents remain readable under resource-policy
+`r1`. A policy that requires estimator `n_jobs` (currently revisions `r2` and `r3`)
+requires ForestDR 1.1.0 because the historical 1.0.0 producer call omits that parameter.
 
 The `causal-core` and `causal-full` profiles resolve EconML 0.17 on the
 supported Python 3.14 baseline. Provision the selected profile before the
@@ -306,6 +325,23 @@ controls still exercise the historical facade aliases. The repository public
 surface manifest determines which broader entrypoints are `public_stable`;
 retained test helpers are not promoted to that classification. A future removal
 requires the existing owner/deprecation process and its supported caller basis.
+
+Graph-based interference identification runs ordinary ID on the original graph only
+when an explicitly declared complete unit partition is reconciled and no cross-unit
+edge is observed. Cross-unit topology, missing or partial partitions, and graph
+metadata labels do not define a policy-specific exposure law; those queries return
+oracle_needed under result schema 1.1, without an estimand, hedge certificate, or
+synthetic exposure nodes. Unknown partition indicators are null in 1.1; false is
+reserved for a complete partition with no observed cross-unit edge. Traces and
+pairwise, cluster, and full-complex adapter assumptions project both indicators
+as explicit true/false/unknown values with the identification status. Benchmark
+case rows and JSON retain null; aggregate reports count unknown topology cases
+and keep spillover detection null unless a positive is established or every
+topology case is known false. The scorecard fails closed when that check is null.
+The topology adapter remains a diagnostic candidate surface and records when
+interference identification was not established. The legacy result schema 1.0
+remains readable; expanded status values require 1.1.
+
 
 Use qualified package imports and canonical owner FQNs for loader/config/docs
 consumers. The former `id_engine.py`, `causal_engine.py`, and `interference.py`
@@ -518,3 +554,17 @@ artifacts itself. The Scientist bridge validates it against the owner anchor,
 actual MethodResult and MethodExecutionEvidence, then persists the selected IR
 chain. Failed input preparation follows the Runtime's separate typed refusal
 path; no success result, row count, or evidence ref is fabricated for that path.
+
+### Conditional PAG member candidates
+
+The finite no-selection PAG sensitivity route keeps generation and persistence in the
+resolver, then evaluates each admitted, content-bound DAG or ADMG member with
+evaluate_pag_member_candidate. The helper rechecks source graph, member, query and
+context bindings, rebuilds the selection diagram from fresh source and target contexts,
+and delegates to the existing solve_transportability path. Completed rows retain the
+solver's typed status and full result; solver failures and binding refusals remain distinct.
+
+This is candidate sensitivity over the explicitly selected finite member family. It
+does not turn a PAG or CPDAG into a direct scalar graph, assign probabilities to members,
+or promote candidate outcomes into transport authority. A caller verifies selected-profile
+CAS references and persists admitted members before invoking the helper.

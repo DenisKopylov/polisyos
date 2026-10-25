@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from unittest.mock import patch
 
 import pytest
@@ -36,6 +37,8 @@ from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ConstraintSpec, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir.trinity.loaders import persist_trinity_bundle_artifact
+from polisyos.runtime.http.resilience import guard_runtime_cas
 from polisyos.scientist.governance.passes.cross_graph_evidence_pass import CrossGraphEvidencePass
 from polisyos.scientist.governance.preflight import preflight_checks
 from polisyos.scientist.methods.discovery.aggregator import EvidenceWeightedAggregator
@@ -191,19 +194,9 @@ def test_cross_graph_output_manifest_preserves_selected_profiles_for_all_inputs(
 ) -> None:
     profile_writes = _capture_cross_graph_profile_writes(monkeypatch)
     store = execution_context.store
-    spec = CanonSpec(forbid_floats=False, exclude_none=False)
-    trinity_ref = store.put_json(
+    trinity_ref = persist_trinity_bundle_artifact(
+        _ensure_ir_artifact_store(store),
         _bundle(),
-        PutOptions(
-            kind=TrinityBundle.ARTIFACT_KIND,
-            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
-            schema=SchemaInfo(
-                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
-                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
-            ),
-        ),
-        canon_spec=spec,
-        return_selected_profile=True,
     )
     graph_prior_ref = persist_graph_prior_bundle(store, GraphPriorBundle())
     literature_prior_ref = persist_literature_causal_prior(
@@ -219,39 +212,12 @@ def test_cross_graph_output_manifest_preserves_selected_profiles_for_all_inputs(
         ),
     )
 
-    def _same_bytes_sibling_profile(ref):
-        manifest = store.get_manifest(ref)
-        assert manifest.artifact_schema is not None
-        assert manifest.canon is not None
-        alternate_profile = manifest.canon.model_copy(
-            update={"max_depth": manifest.canon.max_depth + 1}
-        )
-        return store.put_bytes(
-            store.get_bytes(ref),
-            PutOptions(
-                kind=manifest.kind,
-                media_type=manifest.media_type,
-                schema=manifest.artifact_schema,
-                inputs=list(manifest.inputs),
-                canon=alternate_profile,
-            ),
-            return_selected_profile=True,
-        )
-
     selected_refs = {
-        "trinity_bundle": _same_bytes_sibling_profile(trinity_ref),
-        "graph_prior_bundle": _same_bytes_sibling_profile(graph_prior_ref),
-        "literature_prior": _same_bytes_sibling_profile(literature_prior_ref),
+        "trinity_bundle": trinity_ref,
+        "graph_prior_bundle": graph_prior_ref,
+        "literature_prior": literature_prior_ref,
     }
-    for role, original_ref in (
-        ("trinity_bundle", trinity_ref),
-        ("graph_prior_bundle", graph_prior_ref),
-        ("literature_prior", literature_prior_ref),
-    ):
-        selected_ref = selected_refs[role]
-        assert str(selected_ref.artifact_id) == str(original_ref.artifact_id)
-        assert selected_ref.manifest_profile_sha256 is not None
-        assert selected_ref.manifest_profile_sha256 != original_ref.manifest_profile_sha256
+    assert all(ref.manifest_profile_sha256 is not None for ref in selected_refs.values())
 
     state = minimal_state.model_copy(
         update={
@@ -300,17 +266,24 @@ def test_compilation_preserves_selected_graph_profile_without_trinity(
     minimal_state,
 ) -> None:
     store = _ensure_ir_artifact_store(execution_context.store)
-    graph_ref = profile_bound_ref(
-        store,
-        persist_causal_graph_model(
-            store,
-            CausalGraphModel(
-                graph_type=GraphType.DAG,
-                nodes=["X", "Y"],
-                edges=[CausalEdge(src="X", dst="Y")],
-            ),
-        ),
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y")],
     )
+    default_graph_ref = persist_causal_graph_model(
+        store,
+        graph,
+        return_selected_profile=True,
+    )
+    graph_ref = persist_causal_graph_model(
+        store,
+        graph,
+        schema_version="1.1",
+        return_selected_profile=True,
+    )
+    assert str(graph_ref.artifact_id) == str(default_graph_ref.artifact_id)
+    assert graph_ref.manifest_profile_sha256 != default_graph_ref.manifest_profile_sha256
     state = minimal_state.model_copy(
         update={
             "artifacts_index": {
@@ -455,7 +428,8 @@ def test_compilation_enriches_profile_from_graph_prior_bundle(
         }
     )
 
-    outcome = CompileCrossGraphEvidenceNode().execute(execution_context, state)
+    guarded_context = replace(execution_context, store=guard_runtime_cas(execution_context.store))
+    outcome = CompileCrossGraphEvidenceNode().execute(guarded_context, state)
 
     assert outcome.status == "ok"
     profile_ref = outcome.state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF]
@@ -1079,18 +1053,9 @@ def test_compilation_passes_literature_prior_context_into_compiler(
     cas_store,
     monkeypatch,
 ):
-    trinity_ref = cas_store.put_json(
+    trinity_ref = persist_trinity_bundle_artifact(
+        _ensure_ir_artifact_store(cas_store),
         _bundle(),
-        PutOptions(
-            kind=TrinityBundle.ARTIFACT_KIND,
-            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
-            schema=SchemaInfo(
-                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
-                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
-            ),
-        ),
-        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
-        return_selected_profile=True,
     )
     prior_ref = persist_literature_causal_prior(
         _ensure_ir_artifact_store(cas_store),

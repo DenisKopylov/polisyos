@@ -1,0 +1,32 @@
+id = "2026-10-22-e02-fabric-evidence-native-boundaries"
+title = "Validate Fabric evidence payload boundaries"
+type = "fixed"
+component = "Fabric evidence and scorecard source-selection intake"
+owner = "team-polisyos"
+summary = "Fabric source-selection and acquisition consumers now reject malformed present report shapes, including malformed outer scenario family intent and required reference facets with no recognized textual ref, while preserving legacy fallbacks for absent aliases and treating present-empty or malformed source-reference aliases as missing evidence, without promotion from a lower-priority alias/default. Non-data artifacts are written and consumed through exact Core profile and DTO owners; decision-data projection retains structural object compatibility; the ceiling registry uses its complete strict owner DTO. Fabric run-bound lineage now requires both a selected artifact profile and provenance when source_run_id is supplied, while legacy rows with no optional profile/run context remain valid."
+evidence = [
+  "src/polisyos/fabric/catalog/source_selection_audit.py",
+  "src/polisyos/runtime/quality/scorecard.py",
+  "src/polisyos/fabric/evidence/acquisition_assurance.py",
+  "src/polisyos/fabric/evidence/ceiling_relations.py",
+  "src/polisyos/fabric/evidence/decision_data.py",
+  "src/polisyos/fabric/evidence/non_data_acquisition.py",
+  "tests/unit/fabric/test_source_selection_audit.py",
+  "tests/unit/fabric/test_source_ref_alias_presence.py",
+  "tests/unit/runtime/quality/test_scorecard.py",
+  "tests/unit/tools/test_canary_fabric_reference_admission.py",
+  "tests/unit/fabric/test_acquisition_assurance.py",
+  "tests/unit/fabric/test_ceiling_relations.py",
+  "tests/unit/fabric/test_decision_data_envelope.py",
+  "tests/unit/fabric/test_lineage_ref_profile_context.py",
+]
+compatibility = "Existing absent optional report fields and valid producer outputs retain their prior projection. Within source-reference alias chains, an absent key may use the existing lower-priority alias/default; a present empty or malformed value cannot fall through and is retained as missing evidence. Present malformed report fields raise a bounded ValueError; a malformed present outer scenario family expectation produces a blocking issue and cannot fall back to report self-expectation. Valid empty outer intent still leaves the report expectation candidate-only for consistency checks. Required reference facets accept existing symbolic field and CAS text refs, but reject non-text scalar or recognized-map values instead of stringifying them as references. Structural decision-data inputs and supported serialized values remain available. New non-data writes carry a selected Core canonical profile and exact owner DTO; legacy profileless non-data artifacts fail closed and must be regenerated. A supplied source_run_id is rejected unless the lineage ref selects a manifest profile and states its provenance; source_run_id, provenance, and artifact_ref remain optional together for legacy rows."
+change_class = "internal"
+surface_classification = "internal: existing Fabric evidence and quality normalization surfaces"
+migration = "Non-data candidate, vocabulary and receipt writers now emit Core-profiled JSON. Existing profileless non-data artifacts are not upgraded or relabeled; the owning runtime must regenerate them before consumption. Run-bound lineage producers must supply a selected manifest profile and provenance together with source_run_id; legacy rows with all three optional fields absent remain readable. See docs/reference/api/migration-guide.md for the existing run-bound selected-profile rollout contract. No institutional authority migration is asserted. Contract-index reports continue using their existing JSON mapping surface."
+api = "No public exports or request signatures change. The Python Fabric DTO continues to model artifact_ref, artifact_ref_provenance, and source_run_id; OpenAPI/generated-client parity for these existing fields requires source regeneration and remains pending the separate DS17 admission."
+limitations = "The source-selection producer does not yet publish a shared strict whole-report DTO; this slice validates known reader fields and checked map/list boundaries. Non-data request references remain digest-only, so the receiver reselects and checks the current exact owner profile and fails closed on a mismatched view; the ref itself does not transport the writer-selected profile digest. The lineage validator checks structural presence only and does not establish that a run exists or that the referenced artifact belongs to it. OpenAPI/generated-client parity for the lineage fields remains pending source admission and regeneration. These mechanisms do not establish source authority, institutional currentness, or qualify a production workload."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/api/migration-guide.md"]
+runbook_docs = []

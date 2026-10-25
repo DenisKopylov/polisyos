@@ -5,12 +5,24 @@ from __future__ import annotations
 import hashlib
 import json
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
 from polisyos.ir.analytics.transportability import TransportMode
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import ArtifactStore
+from polisyos.ir.artifacts._lineage import InputRefLike
+from polisyos.ir.artifacts.io import (
+    _get_owned_json_artifact,
+    _put_owned_json_artifact,
+    _validate_return_selected_profile_flag,
+)
+from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     CompositionCertificateRef,
@@ -954,7 +966,8 @@ class CrossGraphEvidenceProfile(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field("2.1", pattern=r"^\d+\.\d+$")
+    SCHEMA_VERSION: ClassVar[str] = _SCHEMA_VERSION
+    schema_version: str = Field(SCHEMA_VERSION, pattern=r"^\d+\.\d+$")
     summary: CrossGraphEvidenceSummary
     needs: list[EvidenceNeedAssessment] = Field(default_factory=list)
     diagnostics: list[CrossGraphDiagnostic] = Field(default_factory=list)
@@ -988,126 +1001,295 @@ def build_evidence_need_id(
     return f"{need_type.value}:{digest}"
 
 
+_SCM_FRAGMENT_OWNER = declare_model_owner(
+    SCMFragment,
+    contract_id="ir.analytics.ir_scm_fragment.owner.v1",
+    dto_fqn="polisyos.ir.analytics.cross_graph.SCMFragment",
+    abi_key="ir.analytics.ir_scm_fragment.owner.v1.dto-abi.v1",
+    registry_key="ir.scm_fragment",
+    kind="ir.scm_fragment",
+    media_type="application/json",
+    purpose="scm_fragment",
+    policy_revision="ir.analytics.ir_scm_fragment.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.ir_scm_fragment.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        OwnedJSONRepresentation(
+            schema_name="ir.scm_fragment",
+            schema_version="1.2",
+            payload_version="1.2",
+            wire_policy_ref="ir.analytics.ir_scm_fragment.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=CompatibilityMode.NONE,
+            notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
+_INTERFACE_MAPPING_OWNER = declare_model_owner(
+    InterfaceMapping,
+    contract_id="ir.analytics.ir_interface_mapping.owner.v1",
+    dto_fqn="polisyos.ir.analytics.cross_graph.InterfaceMapping",
+    abi_key="ir.analytics.ir_interface_mapping.owner.v1.dto-abi.v1",
+    registry_key="ir.interface_mapping",
+    kind="ir.interface_mapping",
+    media_type="application/json",
+    purpose="interface_mapping",
+    policy_revision="ir.analytics.ir_interface_mapping.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.ir_interface_mapping.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        OwnedJSONRepresentation(
+            schema_name="ir.interface_mapping",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.ir_interface_mapping.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=CompatibilityMode.NONE,
+            notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
+_COMPOSITION_CERTIFICATE_OWNER = declare_model_owner(
+    CompositionCertificate,
+    contract_id="ir.analytics.ir_composition_certificate.owner.v1",
+    dto_fqn="polisyos.ir.analytics.cross_graph.CompositionCertificate",
+    abi_key="ir.analytics.ir_composition_certificate.owner.v1.dto-abi.v1",
+    registry_key="ir.composition_certificate",
+    kind="ir.composition_certificate",
+    media_type="application/json",
+    purpose="composition_certificate",
+    policy_revision="ir.analytics.ir_composition_certificate.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.ir_composition_certificate.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        OwnedJSONRepresentation(
+            schema_name="ir.composition_certificate",
+            schema_version="1.2",
+            payload_version="1.2",
+            wire_policy_ref="ir.analytics.ir_composition_certificate.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=CompatibilityMode.NONE,
+            notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
+_CROSS_GRAPH_EVIDENCE_PROFILE_OWNER = declare_model_owner(
+    CrossGraphEvidenceProfile,
+    contract_id="ir.analytics.ir_cross_graph_evidence_profile.owner.v1",
+    dto_fqn="polisyos.ir.analytics.cross_graph.CrossGraphEvidenceProfile",
+    abi_key="ir.analytics.ir_cross_graph_evidence_profile.owner.v1.dto-abi.v1",
+    registry_key="ir.cross_graph_evidence_profile",
+    kind="ir.cross_graph_evidence_profile",
+    media_type="application/json",
+    purpose="cross_graph_evidence_profile",
+    policy_revision="ir.analytics.ir_cross_graph_evidence_profile.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.ir_cross_graph_evidence_profile.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        OwnedJSONRepresentation(
+            schema_name="ir.cross_graph_evidence_profile",
+            schema_version="2.1",
+            payload_version="2.1",
+            wire_policy_ref="ir.analytics.ir_cross_graph_evidence_profile.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=CompatibilityMode.NONE,
+            notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+        OwnedJSONRepresentation(
+            schema_name="ir.cross_graph_evidence_profile",
+            schema_version="2.2",
+            payload_version="2.1",
+            wire_policy_ref="ir.analytics.ir_cross_graph_evidence_profile.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=CompatibilityMode.NONE,
+            notes=(
+                "Source-pinned manifest/payload alias retained for selected-profile writer behavior.",
+            ),
+            readable=True,
+            writable=True,
+            current=False,
+            default_write=False,
+            readable_from=(),
+        ),
+    ),
+)
+
+
 def persist_scm_fragment(
     store: ArtifactStore,
     fragment: SCMFragment,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
     schema_name: str = _SCM_FRAGMENT_SCHEMA_NAME,
     schema_version: str = _SCM_FRAGMENT_SCHEMA_VERSION,
 ) -> SCMFragmentRef:
-    """Persist scm fragment helper."""
-    ref = put_json_artifact(
+    """Persist an SCM fragment through its exact typed owner."""
+    ref = _put_owned_json_artifact(
         store,
         fragment.model_dump(mode="json"),
-        kind=_SCM_FRAGMENT_SCHEMA_NAME,
+        owner=_SCM_FRAGMENT_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return SCMFragmentRef.model_validate(ref)
+    return SCMFragmentRef.from_selected_write(ref)
 
 
 def load_scm_fragment(
     store: ArtifactStore,
     ref: SCMFragmentRef,
 ) -> SCMFragment:
-    """Load scm fragment."""
-    payload = get_json_artifact(store, ref)
-    return SCMFragment.model_validate(payload)
+    """Load an SCM fragment after owner and profile admission."""
+    return _get_owned_json_artifact(store, ref, owner=_SCM_FRAGMENT_OWNER)
 
 
 def persist_interface_mapping(
     store: ArtifactStore,
     mapping: InterfaceMapping,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
     schema_name: str = _INTERFACE_MAPPING_SCHEMA_NAME,
     schema_version: str = _INTERFACE_MAPPING_SCHEMA_VERSION,
 ) -> InterfaceMappingRef:
-    """Persist interface mapping helper."""
-    ref = put_json_artifact(
+    """Persist an interface mapping through its exact typed owner."""
+    ref = _put_owned_json_artifact(
         store,
         mapping.model_dump(mode="json"),
-        kind=_INTERFACE_MAPPING_SCHEMA_NAME,
+        owner=_INTERFACE_MAPPING_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return InterfaceMappingRef.model_validate(ref)
+    return InterfaceMappingRef.from_selected_write(ref)
 
 
 def load_interface_mapping(
     store: ArtifactStore,
     ref: InterfaceMappingRef,
 ) -> InterfaceMapping:
-    """Load interface mapping."""
-    payload = get_json_artifact(store, ref)
-    return InterfaceMapping.model_validate(payload)
+    """Load an interface mapping after owner and profile admission."""
+    return _get_owned_json_artifact(store, ref, owner=_INTERFACE_MAPPING_OWNER)
 
 
 def persist_composition_certificate(
     store: ArtifactStore,
     certificate: CompositionCertificate,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
     schema_name: str = _COMPOSITION_CERTIFICATE_SCHEMA_NAME,
     schema_version: str = _COMPOSITION_CERTIFICATE_SCHEMA_VERSION,
 ) -> CompositionCertificateRef:
-    """Persist composition certificate helper."""
-    ref = put_json_artifact(
+    """Persist a composition certificate through its exact typed owner."""
+    ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind=_COMPOSITION_CERTIFICATE_SCHEMA_NAME,
+        owner=_COMPOSITION_CERTIFICATE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return CompositionCertificateRef.model_validate(ref)
+    return CompositionCertificateRef.from_selected_write(ref)
 
 
 def load_composition_certificate(
     store: ArtifactStore,
     ref: CompositionCertificateRef,
 ) -> CompositionCertificate:
-    """Load composition certificate."""
-    payload = get_json_artifact(store, ref)
-    return CompositionCertificate.model_validate(payload)
+    """Load a composition certificate after owner and profile admission."""
+    return _get_owned_json_artifact(store, ref, owner=_COMPOSITION_CERTIFICATE_OWNER)
 
 
 def persist_cross_graph_evidence_profile(
     store: ArtifactStore,
     profile: CrossGraphEvidenceProfile,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
     schema_name: str = _SCHEMA_NAME,
     schema_version: str = _SCHEMA_VERSION,
     return_selected_profile: bool = False,
 ) -> CrossGraphEvidenceProfileRef:
-    """Persist a profile and optionally return the exact profile selected by this write."""
-    ref = put_json_artifact(
+    """Persist a cross-graph profile through its exact typed owner.
+
+    The default retains the historical profileless inspection result. A caller
+    carrying the ref as evidence must request the selected profile explicitly.
+    """
+    return_selected_profile = _validate_return_selected_profile_flag(return_selected_profile)
+
+    ref = _put_owned_json_artifact(
         store,
         profile.model_dump(mode="json"),
-        kind=_SCHEMA_NAME,
+        owner=_CROSS_GRAPH_EVIDENCE_PROFILE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=return_selected_profile,
     )
-    return CrossGraphEvidenceProfileRef.model_validate(ref)
+    selected_ref = CrossGraphEvidenceProfileRef.from_selected_write(ref)
+    if not return_selected_profile:
+        return selected_ref.model_copy(update={"manifest_profile_sha256": None})
+    return selected_ref
 
 
 def load_cross_graph_evidence_profile(
     store: ArtifactStore,
     ref: CrossGraphEvidenceProfileRef,
 ) -> CrossGraphEvidenceProfile:
-    """Load cross graph evidence profile."""
-    payload = get_json_artifact(store, ref)
-    return CrossGraphEvidenceProfile.model_validate(payload)
+    """Load a cross-graph evidence profile after owner and profile admission."""
+    return _get_owned_json_artifact(
+        store,
+        ref,
+        owner=_CROSS_GRAPH_EVIDENCE_PROFILE_OWNER,
+    )
 
 
 __all__ = [

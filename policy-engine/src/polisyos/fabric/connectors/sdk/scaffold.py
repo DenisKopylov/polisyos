@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -24,9 +24,11 @@ from polisyos.fabric.connectors.contracts import (
     SourceContractTrust,
     default_source_field_access_policies,
 )
-from polisyos.fabric.connectors.profiles.models import SourceProfile
 from polisyos.fabric.quality.processing_guarantees import default_processing_contract_for_connector
-from polisyos.ir.connectors import ConnectorMetadataSpec
+
+if TYPE_CHECKING:
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.ir.connectors import ConnectorMetadataSpec
 
 PROFILE_ID_BY_CONNECTOR_ID: dict[str, str] = {
     "worldbank.wdi": "worldbank_wdi",
@@ -209,7 +211,7 @@ def build_source_contract_scaffold(
             source_organization=metadata.source_organization,
             source_url=metadata.source_url,
         ),
-        schema=SourceContractSchema(
+        schema_contract=SourceContractSchema(
             schema_id=schema_id,
             schema_version="1.0.0" if schema_id else None,
             schema_contract_ref=schema_ref,
@@ -221,7 +223,7 @@ def build_source_contract_scaffold(
         ),
         semantics=SourceContractSemantics(domain=resolved.domain),
         security=SourceContractSecurity(
-            classification=metadata.data_classification,  # type: ignore[arg-type]
+            classification=metadata.data_classification,
             field_policies=default_source_field_access_policies(
                 (),
                 classification=metadata.data_classification,  # type: ignore[arg-type]
@@ -250,7 +252,7 @@ def build_source_contract_scaffold(
         ),
         lineage=SourceContractLineage(seed_node_kind="source_dataset"),
         source_trust=SourceContractTrust(
-            tier=_SOURCE_TRUST_BY_NAMESPACE.get(metadata.namespace, "institutional"),  # type: ignore[arg-type]
+            tier=_SOURCE_TRUST_BY_NAMESPACE.get(metadata.namespace, "institutional"),
             calibration_status="heuristic",
             rationale="Scaffolded from connector metadata.",
         ),

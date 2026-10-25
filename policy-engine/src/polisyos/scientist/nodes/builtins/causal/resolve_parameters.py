@@ -61,6 +61,7 @@ from polisyos.scientist.orchestration.engine.protocol import (
 from polisyos.scientist.orchestration.engine.skg_snapshot import (
     SNAPSHOT_INPUT_KEY,
     RetainedSKGSnapshotError,
+    _require_retained_skg_writer_store,
     prepare_or_validate_retained_skg_read,
     retain_prepared_skg_read,
     retained_skg_snapshot_directory,
@@ -220,7 +221,7 @@ class ResolveParametersNode:
             return _invalid_causal_graph_reference(state, exc)
         if graph_ref is not None:
             try:
-                graph_ref = profile_bound_ref(_ensure_ir_artifact_store(ctx.store), graph_ref)
+                graph_ref = profile_bound_ref(ctx.store, graph_ref)
             except _RESOLVE_PARAMETERS_LOAD_ERRORS as exc:
                 return _invalid_causal_graph_reference(state, exc)
         try:
@@ -346,7 +347,8 @@ class ResolveParametersNode:
             ):
                 raise RetainedSKGSnapshotError("retained_skg_prepared_source_changed_during_read")
             if selected_snapshot_ref is None:
-                retained_ref = retain_prepared_skg_read(ctx.store, prepared_read)
+                retained_store = _require_retained_skg_writer_store(ctx.store)
+                retained_ref = retain_prepared_skg_read(retained_store, prepared_read)
             else:
                 # Replay keeps its selected descriptor; its source path is the
                 # original logical path, unlike this worker materialization.
@@ -388,30 +390,32 @@ class ResolveParametersNode:
             selected_skg_source=source_binding,
         )
 
-        input_refs = [
+        core_input_refs = [
             input_ref_from_artifact_ref(
                 ArtifactRef.model_validate(graph_ref.model_dump(mode="json")),
                 role="causal_graph",
             )
         ]
         if cross_graph_profile_ref is not None:
-            input_refs.append(
+            core_input_refs.append(
                 input_ref_from_artifact_ref(
                     ArtifactRef.model_validate(cross_graph_profile_ref.model_dump(mode="json")),
                     role="cross_graph_evidence_profile",
                 )
             )
-        input_refs.append(
+        core_input_refs.append(
             input_ref_from_artifact_ref(
                 source_binding.descriptor_ref,
                 role="skg_source_snapshot",
             )
         )
-        bundle_ref = persist_context_adaptive_parameter_bundle_v1_2(
+        input_refs = core_input_refs
+        ir_bundle_ref = persist_context_adaptive_parameter_bundle_v1_2(
             _ensure_ir_artifact_store(ctx.store),
             bundle,
             inputs=input_refs,
         )
+        bundle_ref = ArtifactRef.model_validate(ir_bundle_ref.model_dump(mode="json"))
         bridge_payload = ParameterTransfer.pure_step(
             ParameterTransferData(parameter_bundle=bundle),
             params={
@@ -506,18 +510,6 @@ def _bundle_matches_request(
     ):
         return False
 
-    # With no new request, preserve the historical replay path only after
-    # validating that the stored artifact itself is real and well-typed.
-    if (
-        target_context is None
-        and not required_parameters
-        and graph_ref is None
-        and cross_graph_profile_ref is None
-    ):
-        return True
-
-    if target_context is None or not required_parameters or graph_ref is None:
-        return False
     source_scoped_request = prepared_read is not None or selected_source_ref is not None
     if source_scoped_request:
         if manifest.artifact_schema.version != "1.2" or not isinstance(
@@ -544,8 +536,23 @@ def _bundle_matches_request(
                 and source_binding.source_reference != prepared_read.source_snapshot_ref
             ):
                 return False
-    elif manifest.artifact_schema.version not in {"1.1", "1.2"} or not isinstance(
-        bundle, ContextAdaptiveParameterBundleV11
+
+    # A selected source is part of the cache request even when this is a
+    # historical replay without the context, graph, or parameter selectors.
+    # Validate its exact v1.2 binding before preserving the no-request path.
+    if (
+        target_context is None
+        and not required_parameters
+        and graph_ref is None
+        and cross_graph_profile_ref is None
+    ):
+        return True
+
+    if target_context is None or not required_parameters or graph_ref is None:
+        return False
+    if not source_scoped_request and (
+        manifest.artifact_schema.version not in {"1.1", "1.2"}
+        or not isinstance(bundle, ContextAdaptiveParameterBundleV11)
     ):
         # Historical source-unbound bundles remain readable when no current source is selected.
         return False
@@ -559,16 +566,18 @@ def _bundle_matches_request(
         return False
 
     try:
-        selected_graph_ref = profile_bound_ref(store, graph_ref)
+        selected_graph_ref = profile_bound_ref(ctx.store, graph_ref)
     except _RESOLVE_PARAMETERS_LOAD_ERRORS:
         return False
     graph_inputs = [entry for entry in manifest.inputs if entry.role == "causal_graph"]
     selected_profile_ref = None
     if cross_graph_profile_ref is not None:
         try:
-            selected_profile_ref = profile_bound_ref(store, cross_graph_profile_ref)
+            selected_profile_ref = profile_bound_ref(ctx.store, cross_graph_profile_ref)
         except _RESOLVE_PARAMETERS_LOAD_ERRORS:
             return False
+    if not isinstance(bundle, ContextAdaptiveParameterBundleV11):
+        return False
     if bundle.selected_cross_graph_profile_ref != selected_profile_ref:
         return False
     profile_inputs = [
@@ -602,7 +611,7 @@ def _resolve_causal_graph_ref(state: ExperimentState) -> CausalGraphModelRef | N
     if raw is None:
         raise _InvalidCausalGraphReference(f"supplied {source} is explicitly null")
 
-    if hasattr(raw, "model_dump"):
+    if isinstance(raw, ArtifactRef):
         payload = raw.model_dump(mode="json")
     else:
         payload = raw
@@ -630,7 +639,7 @@ def _resolve_cross_graph_profile(
             payload = raw
         ref = CrossGraphEvidenceProfileRef.model_validate(payload)
         store = _ensure_ir_artifact_store(ctx.store)
-        selected_ref = profile_bound_ref(store, ref)
+        selected_ref = profile_bound_ref(ctx.store, ref)
         manifest = store.get_manifest(selected_ref)
         if (
             manifest.artifact_schema is None

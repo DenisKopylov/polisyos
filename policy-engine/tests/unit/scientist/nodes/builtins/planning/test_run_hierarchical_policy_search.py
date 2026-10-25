@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from polisyos.core.artifacts import CanonInfo, PutOptions, SchemaInfo
+from polisyos.core.artifacts import CanonInfo, FileSystemCAS, PutOptions, SchemaInfo
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.ir.governance.policy_spec import (
     InterventionSpec,
@@ -375,6 +375,10 @@ def test_no_registry_hierarchy_persists_candidates_without_global_frontier_claim
         _bundle(), candidate_id="candidate_without_registry"
     )
     candidate_hash = candidate.candidate_hash()
+    rejected_candidate = candidate.model_copy(
+        update={"candidate_id": "candidate_rejected_without_registry"}
+    )
+    rejected_candidate_hash = rejected_candidate.candidate_hash()
     search_result = SimpleNamespace(
         state=SimpleNamespace(
             structure_candidates=[
@@ -384,7 +388,14 @@ def test_no_registry_hierarchy_persists_candidates_without_global_frontier_claim
                     accepted=True,
                     candidate_hash=candidate_hash,
                     metadata={},
-                )
+                ),
+                SimpleNamespace(
+                    structure_id="rejected_structure_without_registry",
+                    candidate=rejected_candidate,
+                    accepted=False,
+                    candidate_hash=rejected_candidate_hash,
+                    metadata={},
+                ),
             ],
             parameter_search_results={},
         ),
@@ -401,10 +412,6 @@ def test_no_registry_hierarchy_persists_candidates_without_global_frontier_claim
             return_value=search_result,
         ),
         patch(
-            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._select_champion_candidate",
-            return_value=candidate,
-        ),
-        patch(
             "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._persist_trinity_bundle",
             return_value=artifact_ref_factory(kind="ir.trinity_bundle"),
         ),
@@ -412,10 +419,17 @@ def test_no_registry_hierarchy_persists_candidates_without_global_frontier_claim
         outcome = RunHierarchicalPolicySearchNode().execute(execution_context, minimal_state)
 
     assert outcome.status == "ok"
+    assert outcome.state.params["policy_search_result"]["champion_status"] == "not_established"
     report_ref = outcome.state.artifacts_index[ARTIFACT_POLICY_FRONTIER_REPORT_REF]
-    report = load_policy_frontier_report(execution_context.store, report_ref)
+    fresh_store = FileSystemCAS(execution_context.store.root)
+    assert fresh_store is not execution_context.store
+    report = load_policy_frontier_report(fresh_store, report_ref)
     assert report.global_frontier == []
     assert [item.candidate_hash for item in report.candidate_frontier] == [candidate_hash]
+    assert rejected_candidate_hash not in {
+        item.candidate_hash for item in report.candidate_frontier
+    }
+    assert rejected_candidate_hash not in report.eligibility_unknown_candidate_hashes
     projection = report.view_projections["global_feasible"]
     assert projection.assessment.status == "denominator_limited"
     assert projection.assessment.basis_scope.scope == "not_established"
@@ -907,8 +921,12 @@ def test_hierarchical_candidate_ranking_omits_no_score_records_and_empty_fallbac
 
     records = _iter_candidate_records(search_result)
 
-    assert [record.candidate.candidate_id for record in records] == ["available_candidate"]
+    assert [record.candidate.candidate_id for record in records] == [
+        "available_candidate",
+        "unavailable_candidate",
+    ]
     assert records[0].objective_value == 0.0
+    assert records[1].objective_value is None
     assert _select_champion_candidate(search_result).candidate_id == "available_candidate"
 
     all_unavailable = SimpleNamespace(
@@ -919,5 +937,9 @@ def test_hierarchical_candidate_ranking_omits_no_score_records_and_empty_fallbac
             structure_candidates=[accepted_unscored_structure],
         )
     )
-    assert _iter_candidate_records(all_unavailable) == []
+    unavailable_records = _iter_candidate_records(all_unavailable)
+    assert [record.candidate.candidate_id for record in unavailable_records] == [
+        "unavailable_candidate"
+    ]
+    assert unavailable_records[0].objective_value is None
     assert _select_champion_candidate(all_unavailable) is None

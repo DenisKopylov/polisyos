@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from collections.abc import Iterable
-from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from polisyos.fabric._internal.numeric_parsing import parse_decimal_text
 from polisyos.ir.kernel.base import ID_PATTERN
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from decimal import Decimal
 
 _ID_RE = re.compile(ID_PATTERN)
 

@@ -40,6 +40,7 @@ from polisyos.ir.analytics.parameters import (
 )
 from polisyos.ir.analytics.transportability import TransportabilityStatus, TransportMode
 from polisyos.ir.artifacts import ArtifactID, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.model_layer.canon import CanonSpec, CanonViolation
 from polisyos.ir.registry.refs import ArtifactRefModel, ContextAdaptiveParameterBundleRef
 
 
@@ -81,6 +82,25 @@ def test_context_adaptive_parameter_bundle_artifact_roundtrip(tmp_path) -> None:
     assert ref.kind == "ir.context_adaptive_parameter_bundle"
     assert loaded == bundle
     assert _ensure_ir_artifact_store(store).get_manifest(ref).artifact_schema.version == "1.0"
+
+
+def test_context_adaptive_parameter_loader_accepts_core_selected_ref_on_fresh_store(
+    tmp_path,
+) -> None:
+    cas_root = tmp_path / "cas"
+    store = FileSystemCAS(cas_root)
+    ir_store = _ensure_ir_artifact_store(store)
+    bundle = ContextAdaptiveParameterBundle(
+        target_context=ContextProfile(context_id="UA"),
+        simulation_domain="fiscal",
+    )
+
+    selected_ref = persist_context_adaptive_parameter_bundle(ir_store, bundle)
+    core_ref = ArtifactRef.model_validate(selected_ref.model_dump(mode="python"))
+    assert core_ref.manifest_profile_sha256 == selected_ref.manifest_profile_sha256
+
+    reopened_store = _ensure_ir_artifact_store(FileSystemCAS(cas_root))
+    assert load_context_adaptive_parameter_bundle(reopened_store, core_ref) == bundle
 
 
 def _graph_input() -> InputRef:
@@ -299,6 +319,7 @@ def test_context_adaptive_parameter_bundle_v1_1_loader_rechecks_source_manifest(
         schema_name="ir.context_adaptive_parameter_bundle",
         schema_version="1.1",
         inputs=[_graph_input(), wrong_source],
+        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
     )
 
     with pytest.raises(ValueError, match="incompatible manifest"):
@@ -353,12 +374,15 @@ def test_context_adaptive_parameter_bundle_v1_1_missing_selection_field_is_rejec
         schema_name="ir.context_adaptive_parameter_bundle",
         schema_version="1.1",
         inputs=[_graph_input()],
+        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
     )
 
-    with pytest.raises(ValidationError) as exc_info:
+    with pytest.raises(CanonViolation, match="ir_owned_artifact_source_invalid") as exc_info:
         load_context_adaptive_parameter_bundle(ir_store, ref)
+    assert isinstance(exc_info.value.__cause__, ValidationError)
     assert any(
-        error["loc"] == ("selected_cross_graph_profile_ref",) for error in exc_info.value.errors()
+        error["loc"] == ("selected_cross_graph_profile_ref",)
+        for error in exc_info.value.__cause__.errors()
     )
 
 
@@ -509,8 +533,13 @@ def test_context_adaptive_parameter_bundle_v1_2_rejects_unjoined_or_changed_sour
         schema_name="ir.context_adaptive_parameter_bundle",
         schema_version="1.2",
         inputs=[_graph_input(), source_input],
+        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
     )
-    with pytest.raises(ValidationError):
+    with pytest.raises(CanonViolation, match="ir_owned_artifact_source_invalid") as exc_info:
         load_context_adaptive_parameter_bundle(
             ir_store, ContextAdaptiveParameterBundleRef.model_validate(unbound_ref)
         )
+    assert isinstance(exc_info.value.__cause__, ValidationError)
+    assert any(
+        error["loc"] == ("selected_skg_source",) for error in exc_info.value.__cause__.errors()
+    )

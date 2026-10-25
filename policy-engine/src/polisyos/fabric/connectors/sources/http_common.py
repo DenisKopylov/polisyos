@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime
 from email.utils import parsedate_to_datetime
-
-import pandas as pd
+from typing import TYPE_CHECKING, SupportsFloat, SupportsIndex, SupportsInt
 
 from polisyos.common.logger import get_logger
 from polisyos.fabric.connectors.http_limits import (
@@ -16,14 +14,24 @@ from polisyos.fabric.connectors.http_limits import (
 from polisyos.fabric.connectors.resilience.rate_limiter import parse_retry_after_header
 from polisyos.ir.connectors import DataVersion, VersionStrategy
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping
+
+    import pandas as pd
+
 logger = get_logger(__name__)
 
 FRESHNESS_SOURCE_TIMESTAMP_MISSING = "freshness:source_timestamp_missing"
 
 
 def safe_int(value: object) -> int | None:
-    """Safe int helper."""
-    if value is None:
+    """Safely convert supported integer-like values without guessing at objects."""
+    if isinstance(value, memoryview):
+        value = value.tobytes()
+    if value is None or not isinstance(
+        value,
+        (str, bytes, bytearray, SupportsInt, SupportsIndex),
+    ):
         return None
     try:
         return int(value)
@@ -32,8 +40,13 @@ def safe_int(value: object) -> int | None:
 
 
 def safe_float(value: object) -> float | None:
-    """Safe float helper."""
-    if value is None:
+    """Safely convert supported float-like values without guessing at objects."""
+    if isinstance(value, memoryview):
+        value = value.tobytes()
+    if value is None or not isinstance(
+        value,
+        (str, bytes, bytearray, SupportsFloat, SupportsIndex),
+    ):
         return None
     try:
         return float(value)

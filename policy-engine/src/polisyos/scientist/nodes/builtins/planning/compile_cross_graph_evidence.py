@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -17,6 +18,10 @@ from polisyos.core.artifacts import (
     profile_bound_ref,
 )
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
+from polisyos.core.artifacts.protocol import (
+    CoreJSONArtifactProfileReader,
+    matches_runtime_protocol,
+)
 from polisyos.core.components import (
     Capability,
     ComponentId,
@@ -46,7 +51,6 @@ from polisyos.ir.analytics.cross_graph import (
     persist_cross_graph_evidence_profile,
 )
 from polisyos.ir.analytics.literature import load_literature_causal_prior
-from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.cross_graph.feedback import (
     append_need_backlog,
     build_need_backlog,
@@ -134,6 +138,21 @@ _CROSS_GRAPH_IMPORT_RUNTIME_ERRORS = (
 _DISCOVERY_IDENTIFICATION_LIMITATION_REASON = "discovery_hypothesis_identification_limited"
 
 
+def _cross_graph_config_payload(params: Mapping[str, object]) -> Mapping[str, object] | None:
+    """Return a supplied config mapping or reject malformed present input."""
+    key = "cross_graph_evidence_config"
+    if key not in params:
+        return None
+    raw = params[key]
+    if not isinstance(raw, Mapping) or any(not isinstance(name, str) for name in raw):
+        raise ValueError("params.cross_graph_evidence_config must be a string-keyed mapping")
+    payload = dict(raw)
+    enabled = payload.get("enabled", True)
+    if type(enabled) is not bool:
+        raise ValueError("params.cross_graph_evidence_config.enabled must be bool")
+    return payload
+
+
 @dataclass(frozen=True)
 class CompileCrossGraphEvidenceNode:
     """Compile cross graph evidence node implementation."""
@@ -149,12 +168,15 @@ class CompileCrossGraphEvidenceNode:
     ) -> PreparedSKGRead | None:
         """Bind cache lookup to the source database selected by cross-graph config."""
         del ctx
-        config_payload = state.params.get("cross_graph_evidence_config")
+        try:
+            config_payload = _cross_graph_config_payload(state.params)
+        except ValueError:
+            return None
         if (
             state.inputs.get(INPUT_TRINITY_BUNDLE_REF) is None
             or str(state.params.get("governance_profile", "")).strip().lower() == "fast"
-            or not isinstance(config_payload, dict)
-            or not bool(config_payload.get("enabled", True))
+            or config_payload is None
+            or config_payload.get("enabled", True) is False
         ):
             return None
         try:
@@ -179,11 +201,21 @@ class CompileCrossGraphEvidenceNode:
         from polisyos.ir.trinity import load_trinity_bundle_artifact
 
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state
-        config_payload = state.params.get("cross_graph_evidence_config")
+        try:
+            config_payload = _cross_graph_config_payload(state.params)
+        except ValueError as exc:
+            return NodeOutcome(
+                status="fail",
+                state=new_state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=str(exc),
+                ),
+            )
         evidence_sources = normalize_evidence_sources_config(state.params, config_payload)
         governance_profile = str(state.params.get("governance_profile", "")).strip().lower()
-        expected = isinstance(config_payload, dict) and bool(config_payload.get("enabled", True))
-        new_state.params["cross_graph_evidence_expected"] = bool(expected)
+        expected = config_payload is not None and config_payload.get("enabled", True) is True
+        new_state.params["cross_graph_evidence_expected"] = expected
 
         if governance_profile == "fast":
             new_state.params["cross_graph_evidence_expected"] = False
@@ -261,6 +293,7 @@ class CompileCrossGraphEvidenceNode:
             )
         except _CROSS_GRAPH_VALIDATION_ERRORS as exc:
             profile = CrossGraphEvidenceProfile(
+                schema_version=CrossGraphEvidenceProfile.SCHEMA_VERSION,
                 summary=CrossGraphEvidenceSummary(status="degraded", total_needs=0),
                 diagnostics=[
                     CrossGraphDiagnostic(
@@ -284,11 +317,12 @@ class CompileCrossGraphEvidenceNode:
                 target_context=target_context,
                 notes=["cross_graph_invalid_config"],
             )
-            profile_ref = persist_cross_graph_evidence_profile(
+            selected_profile_ref = persist_cross_graph_evidence_profile(
                 _ensure_ir_artifact_store(ctx.store),
                 profile,
                 return_selected_profile=True,
             )
+            profile_ref = ArtifactRef.model_validate(selected_profile_ref.model_dump(mode="json"))
             new_state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF] = profile_ref
             new_state.params["cross_graph_evidence_summary"] = profile.summary.model_dump(
                 mode="json"
@@ -344,6 +378,7 @@ class CompileCrossGraphEvidenceNode:
         try:
             if trinity_ref is None:
                 profile = CrossGraphEvidenceProfile(
+                    schema_version=CrossGraphEvidenceProfile.SCHEMA_VERSION,
                     summary=CrossGraphEvidenceSummary(status="ok", total_needs=0),
                     diagnostics=[
                         CrossGraphDiagnostic(
@@ -396,6 +431,7 @@ class CompileCrossGraphEvidenceNode:
                 )
         except _CROSS_GRAPH_RUNTIME_ERRORS as exc:
             profile = CrossGraphEvidenceProfile(
+                schema_version=CrossGraphEvidenceProfile.SCHEMA_VERSION,
                 summary=CrossGraphEvidenceSummary(status="warning", total_needs=0),
                 diagnostics=[
                     CrossGraphDiagnostic(
@@ -448,12 +484,13 @@ class CompileCrossGraphEvidenceNode:
                 "benchmark_summary": dict(benchmark_summary),
             }
         )
-        profile_ref = persist_cross_graph_evidence_profile(
+        selected_profile_ref = persist_cross_graph_evidence_profile(
             _ensure_ir_artifact_store(ctx.store),
             profile,
             inputs=inputs,
             return_selected_profile=True,
         )
+        profile_ref = ArtifactRef.model_validate(selected_profile_ref.model_dump(mode="json"))
         new_state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF] = profile_ref
         new_state.params["cross_graph_evidence_summary"] = profile.summary.model_dump(mode="json")
         new_state.params["cross_graph_benchmark_summary"] = dict(benchmark_summary)
@@ -499,7 +536,7 @@ def _resolve_causal_graph(
     store = _ensure_ir_artifact_store(ctx.store)
     try:
         payload = ref.model_dump(mode="json") if hasattr(ref, "model_dump") else ref
-        selected_ref = profile_bound_ref(store, CausalGraphModelRef.model_validate(payload))
+        selected_ref = profile_bound_ref(ctx.store, CausalGraphModelRef.model_validate(payload))
         graph = load_causal_graph_model(store, selected_ref)
     except _CROSS_GRAPH_RUNTIME_ERRORS as exc:
         raise _InvalidCausalGraphReference(
@@ -522,10 +559,11 @@ def _augment_with_graph_prior(
         from polisyos.scientist.methods.discovery.priors import load_graph_prior_bundle
 
         graph_prior_ref = GraphPriorBundleRef.model_validate(ref.model_dump(mode="json"))
-        bundle = load_graph_prior_bundle(ctx.store, graph_prior_ref)
-        source_identification = _source_verified_identification_rows(
-            ctx.store, graph_prior_ref, bundle
-        )
+        store = ctx.store
+        if not matches_runtime_protocol(store, CoreJSONArtifactProfileReader):
+            raise TypeError("graph_prior_selected_profile_reader_required")
+        bundle = load_graph_prior_bundle(store, graph_prior_ref)
+        source_identification = _source_verified_identification_rows(store, graph_prior_ref, bundle)
     except _CROSS_GRAPH_IMPORT_RUNTIME_ERRORS:
         raise
 

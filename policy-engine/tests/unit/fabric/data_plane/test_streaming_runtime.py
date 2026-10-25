@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import gc
 import json
+from collections.abc import Iterator
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
@@ -69,17 +70,19 @@ class _Net01StreamingConnector(EventStreamConnector):
     def __init__(
         self,
         *,
+        connector_id: str = EventStreamConnector.connector_id,
         fail_subscribe: bool = False,
         close_failures: int = 0,
         disconnect_failures: int = 0,
     ) -> None:
+        self.connector_id = connector_id
         self.fail_subscribe = fail_subscribe
         self.close_failures = close_failures
         self.disconnect_failures = disconnect_failures
         self.disconnect_calls: list[str] = []
 
     async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
-        return ConnectionHandle(connector_id="net01-stream", config=config)
+        return ConnectionHandle(connector_id=self.connector_id, config=config)
 
     async def disconnect(self, handle: ConnectionHandle) -> None:
         self.disconnect_calls.append(handle.session_id)
@@ -161,7 +164,10 @@ def _collect_state_refs(value: Any) -> set[str]:
 async def test_net01_subscribe_failure_releases_acquired_handle() -> None:
     """A failed subscription must hand its acquired permit back to the pool."""
 
-    connector = _Net01StreamingConnector(fail_subscribe=True)
+    connector = _Net01StreamingConnector(
+        connector_id="net01-stream",
+        fail_subscribe=True,
+    )
     pool = ConnectionPool[SourceConnectorValue[object]](
         connector_factory=lambda: connector,
         config=ConnectionConfig(url="https://stream.example"),
@@ -192,7 +198,10 @@ async def test_net01_subscribe_failure_releases_acquired_handle() -> None:
 async def test_net01_close_failure_can_finish_cleanup_on_retry() -> None:
     """A stream close failure must not make a later close a no-op."""
 
-    connector = _Net01StreamingConnector(close_failures=1)
+    connector = _Net01StreamingConnector(
+        connector_id="net01-stream",
+        close_failures=1,
+    )
     pool = ConnectionPool[SourceConnectorValue[object]](
         connector_factory=lambda: connector,
         config=ConnectionConfig(url="https://stream.example"),
@@ -224,6 +233,7 @@ async def test_net01_subscribe_failure_retains_handle_when_release_cleanup_fails
     """A failed release remains retryable without losing the subscription handle."""
 
     connector = _Net01StreamingConnector(
+        connector_id="net01-stream",
         fail_subscribe=True,
         disconnect_failures=2,
     )
@@ -342,7 +352,7 @@ async def test_net01_checkpoint_lookup_failure_closes_owned_session(
 ) -> None:
     """Checkpoint preparation errors still finalize an acquired stream session."""
 
-    connector = _Net01StreamingConnector()
+    connector = _Net01StreamingConnector(connector_id="net01-stream")
     pool = ConnectionPool[SourceConnectorValue[object]](
         connector_factory=lambda: connector,
         config=ConnectionConfig(url="https://stream.example"),
@@ -393,7 +403,7 @@ async def test_net01_rewind_failure_closes_owned_session(
 ) -> None:
     """Rewind preparation errors cannot bypass the session finalizer."""
 
-    connector = _Net01StreamingConnector()
+    connector = _Net01StreamingConnector(connector_id="net01-stream")
     pool = ConnectionPool[SourceConnectorValue[object]](
         connector_factory=lambda: connector,
         config=ConnectionConfig(url="https://stream.example"),
@@ -456,7 +466,7 @@ async def test_net01_stream_cleanup_does_not_mask_primary_failure(
 ) -> None:
     """A finalizer failure is evidence on, not a replacement for, the run error."""
 
-    connector = _Net01StreamingConnector()
+    connector = _Net01StreamingConnector(connector_id="net01-stream")
     pool = ConnectionPool[SourceConnectorValue[object]](
         connector_factory=lambda: connector,
         config=ConnectionConfig(url="https://stream.example"),
@@ -2895,3 +2905,38 @@ async def test_process_stream_dataset_quarantines_incompatible_cdc_breaking_chan
     )
     assert len(records) == 1
     assert records[0][1].context["cdc_event_ref"] == str(result.cdc_event_refs[0].artifact_id)
+
+
+def test_stream_input_frame_guard_counts_dataframe_rows_and_keeps_other_payloads(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Only a complete tabular admission surface is counted as a frame."""
+    from polisyos.fabric.data_plane import streaming as streaming_mod
+
+    observations: list[tuple[str, int]] = []
+
+    def _capture_capacity(**kwargs: object) -> None:
+        observations.append((str(kwargs["stage"]), int(kwargs["rows"])))
+
+    monkeypatch.setattr(streaming_mod, "_admit_stream_capacity", _capture_capacity)
+    options = StreamRuntimeOptions()
+
+    frame = pd.DataFrame([{"id": "first"}, {"id": "second"}])
+    streaming_mod._admit_stream_input(frame, options)
+    frame_observations = observations.copy()
+    assert frame_observations[0] == ("input", 2)
+    assert frame_observations[-1] == ("input", 2)
+    assert all(stage == "input" for stage, _rows in frame_observations)
+
+    observations.clear()
+
+    class PartialFrame:
+        columns = ("id",)
+
+        def itertuples(
+            self, *, index: bool = True, name: str | None = "Pandas"
+        ) -> Iterator[tuple[object, ...]]:
+            return iter((("one",),))
+
+    streaming_mod._admit_stream_input(PartialFrame(), options)
+    assert observations == [("input", 1)]

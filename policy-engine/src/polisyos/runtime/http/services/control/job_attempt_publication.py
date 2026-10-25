@@ -685,6 +685,8 @@ class _ControlJobAttemptPublicationHost(Protocol):
         errors: list[dict[str, object]] | None = None,
     ) -> ArtifactRef: ...
 
+    def _is_observational_method_job(self, payload: Mapping[str, Any]) -> bool: ...
+
     def _core_run_progress_fields(
         self, *, job: ControlJobRecord, core_run_id: str, manifest_ref: ArtifactRef
     ) -> dict[str, object]: ...
@@ -1146,6 +1148,7 @@ class ControlJobAttemptPublicationMixin:
                 "authority_result": "candidate_only",
                 "run_id": job.run_id,
                 "job_id": job.job_id,
+                "attempt": job.attempt,
                 "method_execution_wait": exc.diagnostic(),
                 "failure": {
                     "code": "bounded_producer_wait_deadline_exceeded",
@@ -1174,6 +1177,22 @@ class ControlJobAttemptPublicationMixin:
             }
         else:
             progress = None
+        if (
+            core_run_context is not None
+            and core_run_id is not None
+            and job.kind == "workflow_run"
+            and self._is_observational_method_job(payload)
+        ):
+            progress = dict(progress or {})
+            progress.update(
+                {
+                    "state": "failed",
+                    "phase": "direct_method_execution",
+                    "run_id": job.run_id,
+                    "job_id": job.job_id,
+                    "attempt": job.attempt,
+                }
+            )
         if failure_core_progress:
             progress = dict(progress or {})
             progress.update(

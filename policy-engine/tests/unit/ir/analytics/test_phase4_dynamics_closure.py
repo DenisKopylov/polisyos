@@ -2,13 +2,14 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from types import SimpleNamespace
+from typing import TYPE_CHECKING
 
 import pytest
 from pydantic import ValidationError
 
 import polisyos.foundry.methods.catalog.simulation.dynamics as simulation_dynamics
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.foundry import (
@@ -52,6 +53,7 @@ from polisyos.ir.analytics.microsim_calibration import (
 from polisyos.ir.analytics.phase4_dynamics import (
     ABMResult,
     DynamicMicrosimValidationError,
+    DynamicMicrosimValidationReport,
     Phase4DynamicsGate,
     Phase4DynamicsGateError,
     SpaceTimeCausalCertificate,
@@ -72,11 +74,28 @@ from polisyos.ir.analytics.phase4_dynamics import (
     persist_temporal_graph_causal_certificate,
     verify_strangle_receipt,
 )
+from polisyos.ir.artifacts import get_json_artifact
+from polisyos.ir.migrations.base import (
+    CompatibilityMode,
+    IRRepresentationKey,
+    get_ir_owner_registry_snapshot,
+    get_schema_rule,
+)
+from polisyos.ir.model_layer.canon import CanonViolation as IRCanonViolation
 from polisyos.ir.registry.refs import (
+    ABMResultRef,
+    ArtifactRefModel,
     DynamicMicrosimValidationReportRef,
     MicrosimCalibrationReportRef,
+    SpaceTimeCausalCertificateRef,
+    TemporalGraphCausalCertificateRef,
 )
 from polisyos.ir.schemas import get_ir_type
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.core.artifacts.ids import ArtifactID
 
 
 def _artifact_id(char: str) -> str:
@@ -183,8 +202,13 @@ def test_phase4_storeless_abm_conversion_does_not_promote_unresolved_refs() -> N
     )
 
 
-def test_phase4_abm_result_is_an_independent_strict_ir_round_trip(tmp_path) -> None:
+@pytest.mark.parametrize("payload_version", ["1.3", "1.4"])
+def test_phase4_abm_result_is_an_independent_strict_ir_round_trip(
+    tmp_path: Path,
+    payload_version: str,
+) -> None:
     payload = {
+        "schema_version": payload_version,
         "exec_plan_ref": {"artifact_id": _artifact_id("a")},
         "metrics_ref": {"artifact_id": _artifact_id("b")},
         "metric_observation_bundle_ref": {"artifact_id": _artifact_id("c")},
@@ -236,6 +260,15 @@ def test_phase4_abm_result_is_an_independent_strict_ir_round_trip(tmp_path) -> N
 
     assert SimulationResult not in ABMResult.__mro__
     assert loaded == result
+    manifest = store.get_manifest(ref)
+    assert manifest.artifact_schema == SchemaInfo(name="ir.abm_result", version="1.0")
+    assert manifest.kind == "ir.abm_result"
+    assert manifest.media_type == "application/json"
+    assert manifest.canon is not None
+    assert manifest.canon.forbid_floats is False
+    assert manifest.canon.forbid_nan_inf is True
+    assert ref.manifest_profile_sha256 is not None
+    assert loaded.schema_version == payload_version
     assert loaded.model_dump(mode="json") == wire_payload
     for field_name, kind in expected_kinds.items():
         assert getattr(loaded, field_name).kind == kind
@@ -389,6 +422,15 @@ def test_phase4_abm_attachment_helpers_persist_exact_fields(tmp_path) -> None:
         ident_abm.identifiability_diagnostic_ref.manifest_profile_sha256
         == diagnostic_ref.manifest_profile_sha256
     )
+    ident_manifest = fresh_store.get_manifest(ident_abm_ref)
+    assert ident_manifest.artifact_schema is not None
+    assert ident_manifest.artifact_schema.name == "polisyos.ir.ABMResult"
+    assert ident_manifest.artifact_schema.version == "1.0"
+    assert ident_manifest.canon is not None
+    assert ident_manifest.canon.forbid_floats is False
+    assert ident_manifest.canon.forbid_nan_inf is False
+    assert ident_abm_ref.manifest_profile_sha256 is not None
+    assert ident_abm.schema_version == simulation.schema_version
     assert ident_abm.identifiability_certificate is not None
     assert ident_abm.identifiability_certificate.status == "diagnostic_attached"
     assert ident_abm.identifiability_certificate.identified is None
@@ -580,6 +622,15 @@ def test_phase4_abm_attachment_helpers_persist_exact_fields(tmp_path) -> None:
         attractor_analysis_ref=attractor_ref,
     )
     bifurcation_abm = load_abm_result(_ensure_ir_artifact_store(fresh_store), bifurcation_abm_ref)
+    bifurcation_manifest = fresh_store.get_manifest(bifurcation_abm_ref)
+    assert bifurcation_manifest.artifact_schema is not None
+    assert bifurcation_manifest.artifact_schema.name == "polisyos.ir.ABMResult"
+    assert bifurcation_manifest.artifact_schema.version == "1.0"
+    assert bifurcation_manifest.canon is not None
+    assert bifurcation_manifest.canon.forbid_floats is False
+    assert bifurcation_manifest.canon.forbid_nan_inf is True
+    assert bifurcation_abm_ref.manifest_profile_sha256 is not None
+    assert bifurcation_abm.schema_version == simulation.schema_version
     assert bifurcation_abm.bifurcation_report is not None
     assert bifurcation_abm.bifurcation_report.status == "available"
     assert bifurcation_abm.bifurcation_report.attractor_analysis_ref is not None
@@ -690,3 +741,496 @@ def test_phase4_exact_public_symbols_and_fields_are_registered() -> None:
     assert MicrosimCalibrationReportRef.model_fields["kind"].default == (
         "ir.microsim_calibration_report"
     )
+
+
+def test_abm_owner_registers_exact_versions_and_one_default_writer() -> None:
+    snapshot = get_ir_owner_registry_snapshot()
+    rows = tuple(
+        row
+        for row in snapshot.representations
+        if row.registry_key == "abm_result"
+        and row.owner_ref == "polisyos.ir.analytics.phase4_dynamics.ABMResult"
+    )
+    assert len(rows) == 4
+    assert {(row.schema_name, row.schema_version, row.payload_version) for row in rows} == {
+        ("ir.abm_result", "1.0", "1.3"),
+        ("ir.abm_result", "1.0", "1.4"),
+        ("polisyos.ir.ABMResult", "1.0", "1.3"),
+        ("polisyos.ir.ABMResult", "1.0", "1.4"),
+    }
+    assert all(row.owner_ref == "polisyos.ir.analytics.phase4_dynamics.ABMResult" for row in rows)
+    assert all(row.dto_abi == "polisyos.ir.analytics.phase4_dynamics.ABMResult" for row in rows)
+    assert all(
+        (row.wire_policy_ref, row.wire_policy_revision)
+        == ("polisyos.ir.analytics.phase4_dynamics.ABMResult.wire", "1")
+        for row in rows
+    )
+    assert all(row.profile_ref is None and row.readable and row.writable for row in rows)
+    current_by_manifest = {row.schema_name: row for row in rows if row.current}
+    assert set(current_by_manifest) == {"ir.abm_result", "polisyos.ir.ABMResult"}
+    assert all(row.payload_version == "1.4" for row in current_by_manifest.values())
+    defaults = [row for row in rows if row.default_write]
+    assert len(defaults) == 1
+    assert (defaults[0].schema_name, defaults[0].payload_version) == ("ir.abm_result", "1.4")
+    for manifest_name in ("ir.abm_result", "polisyos.ir.ABMResult"):
+        assert current_by_manifest[manifest_name].readable_from == (
+            IRRepresentationKey(manifest_name, "1.0", "1.3"),
+        )
+
+
+def test_abm_owner_refuses_unregistered_writer_version_before_cas_write(tmp_path: Path) -> None:
+    class CountingCAS(FileSystemCAS):
+        def __init__(self, root: Path) -> None:
+            super().__init__(root)
+            self.put_calls = 0
+
+        def put_bytes(
+            self,
+            data: bytes,
+            opts: PutOptions,
+            *,
+            return_selected_profile: bool = False,
+        ) -> ArtifactRef:
+            self.put_calls += 1
+            return super().put_bytes(data, opts, return_selected_profile=return_selected_profile)
+
+    store = CountingCAS(tmp_path)
+    result = ABMResult.model_validate(
+        {
+            "schema_version": "1.5",
+            "exec_plan_ref": {"artifact_id": _artifact_id("a")},
+            "metrics_ref": {"artifact_id": _artifact_id("b")},
+        }
+    )
+    with pytest.raises(IRCanonViolation, match="ir_owned_artifact_write_override_unregistered"):
+        persist_abm_result(_ensure_ir_artifact_store(store), result)
+    assert store.put_calls == 0
+
+
+def test_abm_owner_rejects_malformed_embedded_version_before_cas_write(tmp_path: Path) -> None:
+    class CountingCAS(FileSystemCAS):
+        def __init__(self, root: Path) -> None:
+            super().__init__(root)
+            self.put_calls = 0
+
+        def put_bytes(
+            self,
+            data: bytes,
+            opts: PutOptions,
+            *,
+            return_selected_profile: bool = False,
+        ) -> ArtifactRef:
+            self.put_calls += 1
+            return super().put_bytes(data, opts, return_selected_profile=return_selected_profile)
+
+    store = CountingCAS(tmp_path)
+    malformed = ABMResult.model_validate(
+        {
+            "schema_version": "1.4",
+            "exec_plan_ref": {"artifact_id": _artifact_id("a")},
+            "metrics_ref": {"artifact_id": _artifact_id("b")},
+        }
+    ).model_copy(update={"schema_version": 1.5})
+    with pytest.raises(IRCanonViolation, match="ir_owned_artifact_payload_version_invalid"):
+        persist_abm_result(_ensure_ir_artifact_store(store), malformed)
+    assert store.put_calls == 0
+
+
+def test_abm_owner_refuses_unknown_same_major_schema_version_despite_full_rule(
+    tmp_path: Path,
+) -> None:
+    class CountingCAS(FileSystemCAS):
+        def __init__(self, root: Path) -> None:
+            super().__init__(root)
+            self.payload_reads = 0
+
+        def get_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
+            self.payload_reads += 1
+            return super().get_bytes(artifact_id)
+
+    rule = get_schema_rule("abm_result", "1.0")
+    assert rule is not None
+    assert rule.mode is CompatibilityMode.FULL
+    assert rule.notes == ("Phase-4 ABM result 1.0 has no declared schema successors yet.",)
+
+    store = CountingCAS(tmp_path)
+    payload = {
+        "schema_version": "1.4",
+        "exec_plan_ref": {"artifact_id": _artifact_id("a")},
+        "metrics_ref": {"artifact_id": _artifact_id("b")},
+    }
+    raw_ref = store.put_json(
+        payload,
+        PutOptions(
+            kind="ir.abm_result",
+            media_type="application/json",
+            schema=SchemaInfo(name="ir.abm_result", version="1.5"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    selected_ref = ABMResultRef.model_validate(raw_ref.model_dump(mode="python"))
+    assert get_json_artifact(_ensure_ir_artifact_store(store), selected_ref) == payload
+    store.payload_reads = 0
+
+    with pytest.raises(IRCanonViolation, match="ir_owned_artifact_representation_unregistered"):
+        load_abm_result(_ensure_ir_artifact_store(store), selected_ref)
+    assert store.payload_reads == 0
+
+
+def test_abm_owner_rejects_unknown_manifest_before_payload_read(tmp_path: Path) -> None:
+    class CountingCAS(FileSystemCAS):
+        def __init__(self, root: Path) -> None:
+            super().__init__(root)
+            self.payload_reads = 0
+
+        def get_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
+            self.payload_reads += 1
+            return super().get_bytes(artifact_id)
+
+    store = CountingCAS(tmp_path)
+    payload = {
+        "schema_version": "1.4",
+        "exec_plan_ref": {"artifact_id": _artifact_id("a")},
+        "metrics_ref": {"artifact_id": _artifact_id("b")},
+    }
+    raw_ref = store.put_json(
+        payload,
+        PutOptions(
+            kind="ir.abm_result",
+            media_type="application/json",
+            schema=SchemaInfo(name="unregistered.abm.result", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    selected_ref = ABMResultRef.model_validate(raw_ref.model_dump(mode="python"))
+    generic_payload = get_json_artifact(_ensure_ir_artifact_store(store), selected_ref)
+    assert ABMResult.model_validate(generic_payload).schema_version == "1.4"
+    store.payload_reads = 0
+
+    with pytest.raises(IRCanonViolation, match="ir_owned_artifact_representation_unregistered"):
+        load_abm_result(_ensure_ir_artifact_store(store), selected_ref)
+    assert store.payload_reads == 0
+    registered_payload = {
+        "schema_version": "1.5",
+        "exec_plan_ref": {"artifact_id": _artifact_id("a")},
+        "metrics_ref": {"artifact_id": _artifact_id("b")},
+    }
+    registered_ref = store.put_json(
+        registered_payload,
+        PutOptions(
+            kind="ir.abm_result",
+            media_type="application/json",
+            schema=SchemaInfo(name="ir.abm_result", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    invalid_typed_ref = ABMResultRef.model_validate(registered_ref.model_dump(mode="python"))
+    generic_payload = get_json_artifact(_ensure_ir_artifact_store(store), invalid_typed_ref)
+    assert generic_payload["schema_version"] == "1.5"
+    store.payload_reads = 0
+
+    with pytest.raises(IRCanonViolation, match="ir_owned_artifact_representation_unreadable"):
+        load_abm_result(_ensure_ir_artifact_store(store), invalid_typed_ref)
+    assert store.payload_reads == 1
+
+
+def test_foundry_attractor_bridge_preserves_explicit_alias_for_v14(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path)
+    exec_plan_ref = store.put_json(
+        {
+            "program_ref": {
+                "artifact_id": _artifact_id("a"),
+                "kind": "foundry.program_graph",
+                "media_type": "application/json",
+            },
+            "order": [],
+        },
+        PutOptions(kind="foundry.exec_plan", media_type="application/json"),
+    )
+    metrics_ref = store.put_json(
+        {"values": {"welfare": 1}},
+        PutOptions(kind="foundry.metrics", media_type="application/json"),
+    )
+    simulation = SimulationResult(
+        schema_version="1.4",
+        exec_plan_ref=ExecPlanRef(artifact_id=exec_plan_ref.artifact_id),
+        metrics_ref=MetricsRef(artifact_id=metrics_ref.artifact_id),
+    )
+    raw_simulation_ref = store.put_json(
+        simulation,
+        PutOptions(
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name=SimulationResult.ARTIFACT_SCHEMA_NAME, version="1.4"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    simulation_ref = SimulationResultRef.model_validate(
+        raw_simulation_ref.model_dump(mode="python")
+    )
+    attractor_ref = persist_attractor_analysis_result(
+        store,
+        AttractorAnalysisResult(
+            analysis_id="phase4-v14-attractor",
+            simulation_result_ref=simulation_ref,
+            state_projection=AttractorStateProjection(
+                variables=["welfare"],
+                reduced_dimension=1,
+            ),
+        ),
+    )
+    abm_ref = attach_abm_bifurcation_report_ref(
+        store,
+        simulation_result_ref=simulation_ref,
+        attractor_analysis_ref=attractor_ref,
+    )
+    manifest = store.get_manifest(abm_ref)
+    assert manifest.artifact_schema == SchemaInfo(
+        name="polisyos.ir.ABMResult",
+        version="1.0",
+    )
+    assert manifest.kind == "ir.abm_result"
+    assert manifest.canon is not None
+    assert manifest.canon.forbid_nan_inf is True
+    assert abm_ref.manifest_profile_sha256 is not None
+    fresh_abm = load_abm_result(
+        _ensure_ir_artifact_store(FileSystemCAS(tmp_path)),
+        abm_ref,
+    )
+    assert fresh_abm.schema_version == "1.4"
+    assert fresh_abm.bifurcation_report is not None
+    assert fresh_abm.bifurcation_report.status == "available"
+
+
+def _phase4_dynamic_report_with_unseen_resource(
+    resource_id: str,
+) -> DynamicMicrosimValidationReport:
+    return DynamicMicrosimValidationReport(
+        validation_status="amber",
+        source_status="warn",
+        can_run_dynamic_microsim=True,
+        diagnostic_ref=ArtifactRefModel(
+            artifact_id=resource_id,
+            kind="fixture.dynamic_microsim_diagnostic",
+            media_type="application/json",
+        ),
+    )
+
+
+def _phase4_temporal_certificate_with_unseen_resource(
+    resource_id: str,
+) -> TemporalGraphCausalCertificate:
+    return TemporalGraphCausalCertificate(
+        status="identified",
+        temporal_identification_certificate_ref=ArtifactRefModel(
+            artifact_id=resource_id,
+            kind="fixture.temporal_identification_certificate",
+            media_type="application/json",
+        ),
+    )
+
+
+def _phase4_space_time_certificate_with_unseen_resource(
+    resource_id: str,
+) -> SpaceTimeCausalCertificate:
+    return SpaceTimeCausalCertificate(
+        status="model_extrapolation",
+        identification_certificate={"evidence_resource_id": resource_id},
+    )
+
+
+_PHASE4_GENERIC_OWNER_CASES = (
+    pytest.param(
+        "dynamic_microsim_validation_report",
+        "polisyos.ir.analytics.phase4_dynamics.DynamicMicrosimValidationReport",
+        "ir.dynamic_microsim_validation_report",
+        "ir.dynamic_microsim_validation_report",
+        "Dynamic microsim validation report 1.0 has no declared schema successors yet.",
+        _phase4_dynamic_report_with_unseen_resource,
+        DynamicMicrosimValidationReportRef,
+        persist_dynamic_microsim_validation_report,
+        load_dynamic_microsim_validation_report,
+        id="dynamic-microsim-report",
+    ),
+    pytest.param(
+        "temporal_graph_causal_certificate",
+        "polisyos.ir.analytics.phase4_dynamics.TemporalGraphCausalCertificate",
+        "ir.temporal_graph_causal_certificate",
+        "ir.temporal_graph_causal_certificate",
+        "Temporal graph causal certificate 1.0 has no declared schema successors yet.",
+        _phase4_temporal_certificate_with_unseen_resource,
+        TemporalGraphCausalCertificateRef,
+        persist_temporal_graph_causal_certificate,
+        load_temporal_graph_causal_certificate,
+        id="temporal-graph-certificate",
+    ),
+    pytest.param(
+        "space_time_causal_certificate",
+        "polisyos.ir.analytics.phase4_dynamics.SpaceTimeCausalCertificate",
+        "ir.space_time_causal_certificate",
+        "ir.space_time_causal_certificate",
+        "Space-time causal certificate 1.0 has no declared schema successors yet.",
+        _phase4_space_time_certificate_with_unseen_resource,
+        SpaceTimeCausalCertificateRef,
+        persist_space_time_causal_certificate,
+        load_space_time_causal_certificate,
+        id="space-time-certificate",
+    ),
+)
+
+
+@pytest.mark.parametrize(
+    (
+        "registry_key",
+        "owner_ref",
+        "schema_name",
+        "_kind",
+        "rule_note",
+        "_make_model",
+        "_ref_model",
+        "_persist",
+        "_load",
+    ),
+    _PHASE4_GENERIC_OWNER_CASES,
+)
+def test_phase4_generic_owner_registers_exact_current_wire_row(
+    registry_key,
+    owner_ref,
+    schema_name,
+    _kind,
+    rule_note,
+    _make_model,
+    _ref_model,
+    _persist,
+    _load,
+) -> None:
+    rows = tuple(
+        row
+        for row in get_ir_owner_registry_snapshot().representations
+        if row.registry_key == registry_key and row.owner_ref == owner_ref
+    )
+    assert len(rows) == 1
+    row = rows[0]
+    assert row.dto_abi == owner_ref
+    assert row.key == IRRepresentationKey(schema_name, "1.0", "1.0")
+    assert row.readable and row.writable and row.current and row.default_write
+    assert row.readable_from == ()
+    rule = get_schema_rule(registry_key, "1.0")
+    assert rule is not None
+    assert rule.mode.value == "full"
+    assert rule.notes == (rule_note,)
+
+
+@pytest.mark.parametrize(
+    (
+        "_registry_key",
+        "_owner_ref",
+        "schema_name",
+        "kind",
+        "_rule_note",
+        "make_model",
+        "ref_model",
+        "persist",
+        "load",
+    ),
+    _PHASE4_GENERIC_OWNER_CASES,
+)
+def test_phase4_generic_owner_rejects_bad_and_unknown_versions_but_keeps_opaque_history(
+    tmp_path: Path,
+    _registry_key,
+    _owner_ref,
+    schema_name,
+    kind,
+    _rule_note,
+    make_model,
+    ref_model,
+    persist,
+    load,
+) -> None:
+    class CountingCAS(FileSystemCAS):
+        def __init__(self, root: Path) -> None:
+            super().__init__(root)
+            self.put_calls = 0
+            self.payload_reads = 0
+
+        def put_bytes(
+            self,
+            data: bytes,
+            opts: PutOptions,
+            *,
+            return_selected_profile: bool = False,
+        ) -> ArtifactRef:
+            self.put_calls += 1
+            return super().put_bytes(data, opts, return_selected_profile=return_selected_profile)
+
+        def get_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
+            self.payload_reads += 1
+            return super().get_bytes(artifact_id)
+
+    store = CountingCAS(tmp_path)
+    unseen_resource_id = _artifact_id("d")
+    model = make_model(unseen_resource_id)
+
+    malformed = model.model_copy(update={"schema_version": []})
+    with pytest.raises(IRCanonViolation, match="ir_owned_artifact_payload_version_invalid"):
+        persist(_ensure_ir_artifact_store(store), malformed)
+    assert store.put_calls == 0
+
+    unsupported = model.model_copy(update={"schema_version": "1.5"})
+    with pytest.raises(IRCanonViolation, match="ir_owned_artifact_write_payload_version_mismatch"):
+        persist(_ensure_ir_artifact_store(store), unsupported)
+    assert store.put_calls == 0
+
+    ref = persist(_ensure_ir_artifact_store(store), model)
+    assert load(_ensure_ir_artifact_store(store), ref) == model
+
+    unknown_manifest_ref = store.put_json(
+        model.model_dump(mode="json"),
+        PutOptions(
+            kind=kind,
+            media_type="application/json",
+            schema=SchemaInfo(name=schema_name, version="1.5"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    unknown_manifest_ref = ref_model.model_validate(unknown_manifest_ref.model_dump(mode="python"))
+    assert (
+        get_json_artifact(_ensure_ir_artifact_store(store), unknown_manifest_ref)["schema_version"]
+        == "1.0"
+    )
+    store.payload_reads = 0
+    with pytest.raises(
+        IRCanonViolation,
+        match="ir_owned_artifact_representation_unregistered",
+    ):
+        load(_ensure_ir_artifact_store(store), unknown_manifest_ref)
+    assert store.payload_reads == 0
+
+    unknown_payload = model.model_copy(update={"schema_version": "1.5"})
+    unknown_payload_ref = store.put_json(
+        unknown_payload.model_dump(mode="json"),
+        PutOptions(
+            kind=kind,
+            media_type="application/json",
+            schema=SchemaInfo(name=schema_name, version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    unknown_payload_ref = ref_model.model_validate(unknown_payload_ref.model_dump(mode="python"))
+    assert (
+        get_json_artifact(_ensure_ir_artifact_store(store), unknown_payload_ref)["schema_version"]
+        == "1.5"
+    )
+    store.payload_reads = 0
+    with pytest.raises(
+        IRCanonViolation,
+        match="ir_owned_artifact_representation_unreadable",
+    ):
+        load(_ensure_ir_artifact_store(store), unknown_payload_ref)
+    assert store.payload_reads == 1

@@ -60,6 +60,20 @@ def _project(destination, assets):
     return destination
 
 
+def _selected_sdist_sources(project):
+    builder = SdistBuilder(str(project))
+    build_data = builder.get_default_build_data()
+    builder.set_build_data_defaults(build_data)
+    root = project.resolve(strict=True)
+    with builder.config.set_build_data(build_data):
+        selected = builder.recurse_included_files()
+        return {
+            Path(item.path).resolve(strict=True).relative_to(root).as_posix()
+            for item in selected
+            if Path(item.path).resolve(strict=True).is_relative_to(root)
+        }
+
+
 def _assert_projection(wheel, assets):
     expected = {row["wheel"]: (PRODUCT / row["source"]).read_bytes() for row in assets}
     target_roots = {target.rsplit("/", 1)[0] + "/" for target in expected}
@@ -92,9 +106,8 @@ def _assert_sdist(sdist, assets):
 def test_native_hatch_preserves_runtime_owned_resources_in_source_and_rebuilt_wheels(tmp_path):
     assets = _runtime_resources()
     project = _project(tmp_path / "native", assets)
-    config = tomllib.loads((project / "hatch.toml").read_text())
     source_paths = {row["source"] for row in assets}
-    assert source_paths <= set(config["build"]["targets"]["sdist"]["include"])
+    assert source_paths <= _selected_sdist_sources(project)
     wheel = Path(next(WheelBuilder(str(project)).build(versions=["standard"])))
     _assert_projection(wheel, assets)
     sdist = Path(next(SdistBuilder(str(project)).build()))
@@ -107,7 +120,7 @@ def test_native_hatch_preserves_runtime_owned_resources_in_source_and_rebuilt_wh
     _assert_projection(rebuilt_wheel, assets)
 
 
-def test_removing_each_runtime_owned_projection_retains_sdist_markers_but_fails_the_oracle(
+def test_removing_each_runtime_owned_wheel_mapping_keeps_sdist_source_and_fails_projection(
     tmp_path,
 ):
     inventory = _runtime_inventory()
@@ -122,7 +135,7 @@ def test_removing_each_runtime_owned_projection_retains_sdist_markers_but_fails_
         body = path.read_text()
         assert line in body
         path.write_text(body.replace(line, ""))
-        assert f'  "{source}",' in path.read_text()  # The sdist declaration remains.
+        assert source in _selected_sdist_sources(project)
         wheel = Path(next(WheelBuilder(str(project)).build(versions=["standard"])))
         with pytest.raises(AssertionError):
             _assert_projection(wheel, assets)
@@ -140,8 +153,10 @@ def test_changed_resource_bytes_fail_admission_even_with_all_paths(tmp_path):
 
 def test_sdist_omission_retains_wheel_projection_but_fails_runtime_owner_oracle(tmp_path):
     assets = _runtime_resources()
-    row = assets[0]
     project = _project(tmp_path / "missing-sdist-source", assets)
+    config = tomllib.loads((project / "hatch.toml").read_text())
+    exact_sdist_sources = set(config["build"]["targets"]["sdist"]["include"])
+    row = next(row for row in assets if row["source"] in exact_sdist_sources)
     path = project / "hatch.toml"
     body = path.read_text()
     marker = f'  "{row["source"]}",\n'

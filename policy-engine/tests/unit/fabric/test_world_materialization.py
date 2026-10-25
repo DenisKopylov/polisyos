@@ -23,7 +23,10 @@ from polisyos.fabric.world.materialize import (
     ensure_world_schema,
     materialize_world_duckdb_from_fact_log,
 )
-from polisyos.fabric.world.materialize.duckdb import _load_applied_segments
+from polisyos.fabric.world.materialize.duckdb import (
+    _load_applied_segments,
+    plan_world_materialization_shards,
+)
 from polisyos.fabric.world.materialize.errors import WorldArtifactReadError
 from polisyos.fabric.world.materialize.projections import (
     _load_json_artifact,
@@ -37,6 +40,7 @@ from polisyos.fabric.world.store import (
     emit_claim_facts,
     emit_doc_meta_facts,
     emit_world_event_facts,
+    load_world_fact_manifests,
     persist_claim,
     persist_doc_meta,
     persist_world_event,
@@ -204,6 +208,89 @@ def test_persist_doc_meta_records_governance_manifest(tmp_path: Path) -> None:
     assert manifest.governance.encryption is not None
     assert manifest.governance.encryption.mode == "envelope"
     assert manifest.governance.encryption.verified is True
+
+
+def test_world_shard_planning_preserves_raw_integer_time_and_uses_utc_iso_strings(
+    tmp_path: Path,
+) -> None:
+    raw_valid_time = 1_700_000_000
+    fact = emit_attr_fact(
+        subject_id="node.integer-time",
+        predicate_id=WORLD_KIND,
+        object_value=NodeKind.DOC_SOURCE.value,
+        provenance=stable_world_provenance_v1(),
+        valid_time=raw_valid_time,
+    )
+    manifest = write_world_fact_segment(
+        [fact],
+        fact_log_root=tmp_path,
+        segment_name="integer-time",
+    )
+    append_world_segment_index(manifest, fact_log_root=tmp_path)
+    loaded = load_world_fact_manifests(tmp_path)
+
+    assert len(loaded) == 1
+    assert type(loaded[0].time_start) is int
+    assert loaded[0].time_start == raw_valid_time
+    assert loaded[0].time_end == raw_valid_time
+    integer_shards = plan_world_materialization_shards(loaded, time_granularity="day")
+    assert integer_shards[0].time_partition == "unbounded"
+    assert integer_shards[0].segment_ids == (manifest.segment_id,)
+
+    offset_timestamp = FactSegmentManifest(
+        segment_id="segment.offset-time",
+        path="unused.parquet",
+        row_count=1,
+        sha256="0" * 64,
+        time_end="2026-01-01T00:30:00+01:00",
+    )
+    malformed_timestamp = FactSegmentManifest(
+        segment_id="segment.invalid-time",
+        path="unused.parquet",
+        row_count=1,
+        sha256="0" * 64,
+        time_end="not-a-time",
+    )
+    zero_end_with_dated_start = FactSegmentManifest(
+        segment_id="segment.zero-end-dated-start",
+        path="unused.parquet",
+        row_count=1,
+        sha256="0" * 64,
+        time_start="2020-01-01T00:00:00Z",
+        time_end=0,
+    )
+    dated_end_with_zero_start = FactSegmentManifest(
+        segment_id="segment.dated-end-zero-start",
+        path="unused.parquet",
+        row_count=1,
+        sha256="0" * 64,
+        time_start=0,
+        time_end="2026-01-01T00:30:00+01:00",
+    )
+    offset_shard = plan_world_materialization_shards(
+        [offset_timestamp],
+        time_granularity="day",
+    )[0]
+    malformed_shard = plan_world_materialization_shards(
+        [malformed_timestamp],
+        time_granularity="day",
+    )[0]
+    zero_end_shard = plan_world_materialization_shards(
+        [zero_end_with_dated_start],
+        time_granularity="day",
+    )[0]
+    dated_end_shard = plan_world_materialization_shards(
+        [dated_end_with_zero_start],
+        time_granularity="day",
+    )[0]
+    assert offset_shard.time_partition == "2025-12-31"
+    assert malformed_shard.time_partition == "unbounded"
+    assert type(zero_end_with_dated_start.time_end) is int
+    assert zero_end_with_dated_start.time_end == 0
+    assert zero_end_shard.time_partition == "unbounded", (
+        f"zero integer end must remain unbounded, got {zero_end_shard.time_partition!r}"
+    )
+    assert dated_end_shard.time_partition == "2025-12-31"
 
 
 def test_materialize_single_segment_creates_nodes_edges_projections(tmp_path: Path) -> None:

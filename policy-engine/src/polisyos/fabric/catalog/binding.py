@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING, cast
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.canon import truncated_hash
-from polisyos.fabric.connectors.contracts.registry import SchemaRegistry
 from polisyos.fabric.connectors.contracts.schema import (
     DataSchema,
     SchemaType,
@@ -25,6 +24,8 @@ from polisyos.fabric.connectors.contracts.schema import (
 from .contract import DataContract
 
 if TYPE_CHECKING:
+    from polisyos.fabric.connectors.contracts.registry import SchemaRegistry
+
     from .contract import DataType as ContractDataType
 
 

@@ -2,14 +2,22 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from typing import Literal
+
+from pydantic import BaseModel
 
 import polisyos.scientist.nodes.builtins.errors as node_errors
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    SchemaInfo,
+    artifact_ref_identity_key,
+)
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -112,6 +120,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CLAIMS_REF,
     ARTIFACT_CONTINUOUS_GOVERNANCE_REPORT_REF,
     ARTIFACT_DECISION_PACKET_REF,
+    ARTIFACT_HTE_RESULT_REF,
     ARTIFACT_JUDGE_VERDICT_REF,
     ARTIFACT_METRIC_VALIDATION_REPORT_REF,
     ARTIFACT_METRICS_REF,
@@ -170,6 +179,240 @@ class _GovernanceReportIntakeRefusal:
     reason_code: str
 
 
+def _parse_completed_hte_source_request(
+    params: Mapping[str, object],
+) -> tuple[str | None, Literal["absent", "requested", "invalid"]]:
+    """Preserve absent, requested, and malformed HTE selector states."""
+    key = "completed_hte_source_run_id"
+    if key not in params:
+        return None, "absent"
+    value = params[key]
+    if type(value) is str and value.strip() and len(value) <= 256:
+        return value, "requested"
+    return None, "invalid"
+
+
+def _selected_ref_identity(value: object) -> tuple[str, str, str, str | None] | None:
+    if not isinstance(value, BaseModel):
+        return None
+    field_names = type(value).model_fields
+    if not {"artifact_id", "kind", "media_type"}.issubset(field_names):
+        return None
+    payload = value.model_dump(mode="python")
+    try:
+        ref = ArtifactRef.model_validate(
+            {
+                "artifact_id": payload["artifact_id"],
+                "kind": payload["kind"],
+                "media_type": payload["media_type"],
+                "manifest_profile_sha256": payload.get("manifest_profile_sha256"),
+            }
+        )
+    except (TypeError, ValueError):
+        return None
+    return artifact_ref_identity_key(ref)
+
+
+def _model_artifact_refs(value: object) -> tuple[ArtifactRef, ...]:
+    """Collect selected ArtifactRefs recursively from strict Runtime DTO models."""
+    if isinstance(value, ArtifactRef):
+        return (value,)
+    if isinstance(value, BaseModel):
+        field_names = getattr(type(value), "model_fields", {})
+        if {"artifact_id", "kind", "media_type"}.issubset(field_names):
+            identity = _selected_ref_identity(value)
+            if identity is None:
+                raise ValueError("completed_hte_selected_artifact_ref_invalid")
+            return (
+                ArtifactRef.model_validate(
+                    {
+                        "artifact_id": identity[0],
+                        "kind": identity[1],
+                        "media_type": identity[2],
+                        "manifest_profile_sha256": identity[3],
+                    }
+                ),
+            )
+        refs: list[ArtifactRef] = []
+        for field_name in field_names:
+            refs.extend(_model_artifact_refs(getattr(value, field_name)))
+        return tuple(refs)
+    if isinstance(value, (tuple, list)):
+        return tuple(ref for item in value for ref in _model_artifact_refs(item))
+    if isinstance(value, dict):
+        return tuple(ref for item in value.values() for ref in _model_artifact_refs(item))
+    return ()
+
+
+def _completed_hte_source_not_established(
+    *,
+    request_status: Literal["requested", "invalid"],
+    source_run_id: str | None,
+    reason_code: str,
+) -> dict[str, object]:
+    return {
+        "schema_version": "1.0",
+        "selection_status": "verification_missing",
+        "request_status": request_status,
+        "requested_source_run_id": source_run_id,
+        "limitation_code": reason_code,
+        "authority_purpose": "candidate_method_evidence",
+        "publication_authorization": "not_established",
+        "currentness_status": "not_established",
+        "limitations": ["completed_hte_source_not_established"],
+    }
+
+
+def _build_completed_hte_source_section(
+    ctx: ExecutionContext,
+    *,
+    source_run_id: str | None,
+    request_status: Literal["requested", "invalid"],
+) -> dict[str, object]:
+    """Project one Runtime-owned completed HTE selection into a new packet."""
+    if request_status == "invalid":
+        return _completed_hte_source_not_established(
+            request_status="invalid",
+            source_run_id=None,
+            reason_code="completed_hte_source_selector_invalid",
+        )
+    if not isinstance(source_run_id, str) or not source_run_id:
+        return _completed_hte_source_not_established(
+            request_status="requested",
+            source_run_id=None,
+            reason_code="completed_hte_source_selector_not_established",
+        )
+    tenant_id = ctx.run.tenant_id
+    cell_id = ctx.run.cell_id
+    owner = ctx.completed_method_hte_selection_owner
+    if not tenant_id or owner is None:
+        return _completed_hte_source_not_established(
+            request_status="requested",
+            source_run_id=source_run_id,
+            reason_code="completed_hte_selection_owner_not_established",
+        )
+    try:
+        source = owner.resolve_completed_method_hte_selection(
+            source_run_id=source_run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+    except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError):
+        source = None
+    if source is None:
+        return _completed_hte_source_not_established(
+            request_status="requested",
+            source_run_id=source_run_id,
+            reason_code="completed_hte_source_not_established",
+        )
+
+    try:
+        from polisyos.core.contracts.owned_attempt_anchor import (
+            OwnedAttemptAnchorProjectionAssociation,
+        )
+        from polisyos.core.contracts.runtime import (
+            CompletedMethodHTESource,
+            DirectMethodExecutionHTESummary,
+        )
+
+        if type(source) is not CompletedMethodHTESource:
+            raise ValueError("completed_hte_runtime_source_type_invalid")
+        summary = source.summary
+        association = source.association
+        if (
+            type(summary) is not DirectMethodExecutionHTESummary
+            or type(association) is not OwnedAttemptAnchorProjectionAssociation
+        ):
+            raise ValueError("completed_hte_runtime_projection_type_invalid")
+        event = association.job_completed_event
+        if (
+            source.source_run_id != source_run_id
+            or type(source.source_attempt) is not int
+            or source.source_attempt < 1
+            or type(source.completed_event_id) is not int
+            or source.completed_event_id < 1
+            or association.run_id != source_run_id
+            or association.job_id != source.source_job_id
+            or association.attempt != source.source_attempt
+            or association.tenant_id != tenant_id
+            or association.cell_id != cell_id
+            or association.outcome_kind != summary.kind
+            or event.job_id != source.source_job_id
+            or event.event_id != source.completed_event_id
+            or event.payload_sha256 != source.completed_event_payload_sha256
+            or event.event_type != "job_completed"
+        ):
+            raise ValueError("completed_hte_owner_association_mismatch")
+        matching_fields = (
+            (summary.owned_attempt_anchor_ref, association.anchor_ref),
+            (summary.hte_outcome_ref, association.outcome_ref),
+            (summary.source_data_ref, association.source_data_ref),
+            (summary.method_result_ref, association.method_result_ref),
+            (summary.method_evidence_ref, association.method_evidence_ref),
+            (summary.point_result_ref, association.point_result_ref),
+            (summary.hte_result_ref, association.hte_result_ref),
+            (summary.inference_basis_ref, association.inference_basis_ref),
+            (summary.refusal_diagnostic_ref, association.refusal_diagnostic_ref),
+            (
+                summary.materialization_binding_ref,
+                association.materialization_binding_ref,
+            ),
+            (
+                summary.search_uncertainty_task_binding_ref,
+                association.search_uncertainty_task_binding_ref,
+            ),
+        )
+        if any(
+            _selected_ref_identity(summary_ref) != _selected_ref_identity(association_ref)
+            for summary_ref, association_ref in matching_fields
+        ):
+            raise ValueError("completed_hte_summary_association_ref_mismatch")
+
+        refs = _model_artifact_refs(summary) + _model_artifact_refs(association)
+        unique_refs: dict[tuple[str, str, str, str | None], ArtifactRef] = {}
+        for ref in refs:
+            identity = artifact_ref_identity_key(ref)
+            if ref.manifest_profile_sha256 is None:
+                raise ValueError("completed_hte_manifest_profile_missing")
+            unique_refs[identity] = ref
+        if not unique_refs:
+            raise ValueError("completed_hte_selected_refs_missing")
+        # Resolve each exact selected manifest view without reading method or HTE arrays.
+        for ref in unique_refs.values():
+            ctx.store.get_manifest(ref)
+    except (AttributeError, ImportError, KeyError, OSError, RuntimeError, TypeError, ValueError):
+        return _completed_hte_source_not_established(
+            request_status="requested",
+            source_run_id=source_run_id,
+            reason_code="completed_hte_source_verification_missing",
+        )
+
+    limitations = list(summary.limitations)
+    limitations.append("hte_summary_does_not_establish_publication_authority")
+    return {
+        "schema_version": "1.0",
+        "selection_status": "selected",
+        "request_status": "requested",
+        "requested_source_run_id": source_run_id,
+        "source_run_id": source.source_run_id,
+        "source_job_id": source.source_job_id,
+        "source_attempt": source.source_attempt,
+        "completed_event_id": source.completed_event_id,
+        "completed_event_payload_sha256": source.completed_event_payload_sha256,
+        "outcome_kind": summary.kind,
+        "method_profile_id": summary.method_profile_id,
+        "authority_purpose": "candidate_method_evidence",
+        "publication_authorization": "not_established",
+        "currentness_status": "reconciled_at_completed_event",
+        "manifest_resolution_status": "selected_profiles_resolved",
+        "owner_source": {
+            "summary": summary.model_dump(mode="json"),
+            "association": association.model_dump(mode="json", exclude_none=True),
+        },
+        "limitations": sorted(set(limitations)),
+    }
+
+
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_build_decision_packet@1.5.0"),
     kind=ComponentKind.SCIENTIST_NODE,
@@ -188,6 +431,7 @@ _SPEC = NodeSpec(
         "params.determinism_tier",
         "params.workflow_id",
         "params.policy_mode",
+        "params.completed_hte_source_run_id",
         *(f"params.{key}" for key in _CURRENT_POLICY_PROMOTION_PARAM_KEYS),
         "params.reported_policy_promotion_history",
         "execution_profile",
@@ -340,8 +584,9 @@ class BuildDecisionPacketNode:
                 inputs=inputs or None,
             ),
             canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
         )
-        packet_ref = DecisionPacketRef(artifact_id=packet_ref_payload.artifact_id)
+        packet_ref = DecisionPacketRef.model_validate(packet_ref_payload.model_dump(mode="json"))
         if claim_attachment.authority_status == "prepared":
             if (
                 not isinstance(ctx, ClaimCapableExecutionContext)
@@ -575,11 +820,31 @@ def _build_packet_payload(
         packet_payload=packet_payload,
     )
 
-    packet_payload["hte"] = _build_hte_section(
-        ctx,
-        state.artifacts_index,
-        packet_payload=packet_payload,
+    completed_hte_source_run_id, completed_hte_source_request_status = (
+        _parse_completed_hte_source_request(state.params)
     )
+    if completed_hte_source_request_status == "absent":
+        packet_payload["hte"] = _build_hte_section(
+            ctx,
+            state.artifacts_index,
+            packet_payload=packet_payload,
+        )
+    else:
+        completed_hte_source = _build_completed_hte_source_section(
+            ctx,
+            source_run_id=completed_hte_source_run_id,
+            request_status=completed_hte_source_request_status,
+        )
+        owner_source = completed_hte_source.get("owner_source")
+        owner_summary = owner_source.get("summary") if isinstance(owner_source, dict) else None
+        packet_payload["hte"] = owner_summary if isinstance(owner_summary, dict) else None
+        # Consumed by the existing validity-basis builder. The persisted HTE
+        # slot keeps the public scalar-summary shape; status and ownership are
+        # emitted into its typed basis and manifest dependencies.
+        packet_payload["_completed_hte_source"] = completed_hte_source
+        artifacts_payload = packet_payload.get("artifacts")
+        if isinstance(artifacts_payload, dict):
+            artifacts_payload.pop(ARTIFACT_HTE_RESULT_REF, None)
 
     packet_payload["targeting"] = _build_targeting_section(
         ctx,

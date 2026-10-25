@@ -156,8 +156,15 @@ def test_compile_consumer_retains_persisted_failure_for_malformed_trinity(tmp_pa
     """A supplied invalid artifact cannot produce successful compile-derived state."""
     context, initial = _context_and_state(tmp_path / "cas")
     malformed_ref: ArtifactRef = context.store.put_json(
-        {"schema_version": "0.1", "policy_spec": {}},
-        PutOptions(kind="ir.trinity_bundle", media_type="application/json"),
+        {"schema_version": TrinityBundle.ARTIFACT_SCHEMA_VERSION, "policy_spec": {}},
+        PutOptions(
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
     )
     initial.inputs["trinity_bundle_ref"] = malformed_ref
     outcome = CompileFoundryNode().execute(context, initial)

@@ -45,11 +45,7 @@ from polisyos.ir.analytics.mechanism_design import (
 from polisyos.ir.analytics.mechanism_design import (
     load_mechanism_welfare_loss_bound,
 )
-from polisyos.ir.analytics.welfare import (
-    WelfareStatus,
-    load_channel_decomposition_artifact,
-    load_welfare_bundle,
-)
+from polisyos.ir.analytics.welfare import WelfareStatus, load_welfare_bundle
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     FiscalFeedbackLinkRef,
@@ -79,6 +75,9 @@ from polisyos.scientist.policy_design.schema import (
 
 _PHASE3_BLOCK_WELFARE_MISSING = "phase3.welfare_missing"
 _PHASE3_BLOCK_WELFARE_NOT_OK = "phase3.welfare_not_ok"
+_PHASE3_BLOCK_WELFARE_CHANNEL_OWNER_NOT_ESTABLISHED = (
+    "phase3.welfare_channel_input_owner_not_established"
+)
 _PHASE3_BLOCK_GE_UNCERTAINTY_MISSING = "phase3.ge_uncertainty_missing"
 _PHASE3_BLOCK_SOCIAL_WEIGHT_MISSING = "phase3.social_weight_missing"
 _PHASE3_BLOCK_AMBIGUITY_MISSING = "phase3.ambiguity_missing"
@@ -232,6 +231,8 @@ def resolve_phase3_gate(
                 or welfare_bundle.social_weight_ref.kind != "ir.social_weight_manifest"
             ):
                 blocking_reasons.append(_PHASE3_BLOCK_SOCIAL_WEIGHT_MISSING)
+            if welfare_bundle.channel_decomposition_ref is not None:
+                blocking_reasons.append(_PHASE3_BLOCK_WELFARE_CHANNEL_OWNER_NOT_ESTABLISHED)
             fiscal_feedback_required = _phase3_fiscal_feedback_required(
                 ctx,
                 state,
@@ -414,19 +415,19 @@ def ensure_fiscal_feedback_link(
     if microsim is None:
         return None
 
-    behavior_model_ref = _resolve_behavior_model_ref(state)
     channel_ref = getattr(welfare_bundle, "channel_decomposition_ref", None)
-    if behavior_model_ref is None and channel_ref is None:
+    if channel_ref is not None:
+        return None
+    behavior_model_ref = _resolve_behavior_model_ref(state)
+    if behavior_model_ref is None:
         return None
 
     link = FiscalFeedbackLink(
         linkage_mode="behavioral_dro",
-        behavior_model_ref=None
-        if behavior_model_ref is None
-        else ArtifactRefModel.model_validate(behavior_model_ref.model_dump(mode="json")),
-        channel_decomposition_ref=None
-        if channel_ref is None
-        else ArtifactRefModel.model_validate(channel_ref.model_dump(mode="json")),
+        behavior_model_ref=ArtifactRefModel.model_validate(
+            behavior_model_ref.model_dump(mode="json")
+        ),
+        channel_decomposition_ref=None,
         ambiguity_certificate_ref=ambiguity_certificate_ref,
         metadata={"source": "phase3_gate_resolver"},
     )
@@ -479,6 +480,8 @@ def phase3_gate_reference_blockers(
                 blockers.append(_PHASE3_BLOCK_GE_UNCERTAINTY_MISSING)
             if welfare.social_weight_ref is None:
                 blockers.append(_PHASE3_BLOCK_SOCIAL_WEIGHT_MISSING)
+            if welfare.channel_decomposition_ref is not None:
+                blockers.append(_PHASE3_BLOCK_WELFARE_CHANNEL_OWNER_NOT_ESTABLISHED)
 
     if status.ambiguity_certificate_ref is None:
         blockers.append(_PHASE3_BLOCK_AMBIGUITY_MISSING)
@@ -642,12 +645,20 @@ def _resolve_candidate(
     trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
     if trinity_ref is None:
         return None
+
+    def resolve_trinity_candidate(selected: ArtifactRef) -> PolicyCandidateSchema:
+        bundle = TrinityBundle.model_validate(load_core_json_artifact(ctx.store, selected))
+        if "policy_candidate_id" not in state.params:
+            candidate_id = bundle.policy_spec.policy_id
+        else:
+            candidate_id = state.params["policy_candidate_id"]
+            if not isinstance(candidate_id, str) or not candidate_id:
+                raise ValueError("policy_candidate_id_invalid")
+        return PolicyCandidateSchema.from_trinity_bundle(bundle, candidate_id=candidate_id)
+
     return read_optional_selected_artifact(
         trinity_ref,
-        lambda selected: PolicyCandidateSchema.from_trinity_bundle(
-            TrinityBundle.model_validate(load_core_json_artifact(ctx.store, selected)),
-            candidate_id=str(state.params.get("policy_candidate_id") or state.run_id),
-        ),
+        resolve_trinity_candidate,
         refusal_code="phase3_selected_trinity_candidate_unreadable",
         expected_errors=(AttributeError, OSError, RuntimeError, TypeError, ValueError),
     )
@@ -1081,19 +1092,9 @@ def _phase3_fiscal_feedback_required(
         state.params.get("behavioral_microsim")
     ):
         return True
-    if welfare_bundle.channel_decomposition_ref is None:
-        return False
-    try:
-        decomposition = load_channel_decomposition_artifact(
-            _ensure_ir_artifact_store(ctx.store),
-            welfare_bundle.channel_decomposition_ref,
-        )
-    except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
-        return False
-    return (
-        decomposition.behavioral_vector is not None
-        or decomposition.fiscal_feedback_vector is not None
-    )
+    # Candidate vectors from unowned channel-role inputs cannot create a protected
+    # fiscal-feedback requirement or qualify a Phase 3 link.
+    return False
 
 
 def _resolve_social_weight_manifest_candidate(

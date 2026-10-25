@@ -99,6 +99,9 @@ def build_artifact_store(
         )
 
     if config.backend in ("cached_s3", "cached_gcs"):
+        if not config.bucket:
+            raise ValueError(f"ArtifactStoreConfig.bucket is required for {config.backend} backend")
+
         from ..store import FileSystemCAS
         from .caching_store import CachingArtifactStore
 
@@ -112,8 +115,6 @@ def build_artifact_store(
         if config.backend == "cached_s3":
             from .s3_store import S3ArtifactStore
 
-            if not config.bucket:
-                raise ValueError("ArtifactStoreConfig.bucket is required for cached_s3 backend")
             remote: ArtifactStore = S3ArtifactStore(
                 bucket=config.bucket,
                 prefix=config.prefix,
@@ -123,8 +124,6 @@ def build_artifact_store(
         else:
             from .gcs_store import GCSArtifactStore
 
-            if not config.bucket:
-                raise ValueError("ArtifactStoreConfig.bucket is required for cached_gcs backend")
             remote = GCSArtifactStore(
                 bucket=config.bucket,
                 prefix=config.prefix,

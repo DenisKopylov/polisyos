@@ -7,6 +7,7 @@ import json
 
 import pytest
 
+from polisyos.runtime.quality import scorecard as scorecard_module
 from polisyos.runtime.quality.approval import build_production_approval_packet
 from polisyos.runtime.quality.assurance_case import (
     build_policy_design_case_profile,
@@ -141,10 +142,18 @@ def _runtime_worker_attestation() -> dict[str, object]:
         "trust_boundary_id": "runtime_worker",
         "generated_at": "2026-05-15T08:30:00+00:00",
         "expected_materials": [
-            {"key": "run_request", "ref": "cas://sha256/" + "1" * 64, "sha256": "1" * 64}
+            {
+                "key": "run_request",
+                "ref": "cas://sha256/" + "1" * 64,
+                "sha256": "1" * 64,
+            }
         ],
         "observed_materials": [
-            {"key": "run_request", "ref": "cas://sha256/" + "1" * 64, "sha256": "1" * 64}
+            {
+                "key": "run_request",
+                "ref": "cas://sha256/" + "1" * 64,
+                "sha256": "1" * 64,
+            }
         ],
         "expected_products": [
             {
@@ -650,7 +659,10 @@ def _complete_quality_evidence() -> dict[str, object]:
                     "validity_surfaces": {
                         "identification": {"status": "present", "ref": _sha("1")},
                         "transportability": {"status": "present", "ref": _sha("2")},
-                        "partial_identification": {"status": "present", "ref": _sha("3")},
+                        "partial_identification": {
+                            "status": "present",
+                            "ref": _sha("3"),
+                        },
                         "recoverability": {"status": "present", "ref": _sha("4")},
                         "causal_ensemble": {"status": "present", "ref": _sha("5")},
                         "falsification": {"status": "present", "ref": _sha("6")},
@@ -659,7 +671,10 @@ def _complete_quality_evidence() -> dict[str, object]:
                     "uncertainty": {"status": "pass", "interval": [0.01, 0.07]},
                     "missingness": {"status": "pass", "missing_rate": 0.02},
                     "sensitivity": {"status": "pass", "robustness": "moderate"},
-                    "input_diagnostics": {"sample_size": 240, "min_required_sample_size": 30},
+                    "input_diagnostics": {
+                        "sample_size": 240,
+                        "min_required_sample_size": 30,
+                    },
                     "result_summary": {"effect_estimate": 0.04},
                 }
             ],
@@ -1097,6 +1112,70 @@ def test_scorecard_rejects_malformed_aliases_for_the_complete_report_registry() 
     assert "privacy_compliance_report_missing" in eligibility["reasons"]
 
 
+def test_quality_report_registry_composes_runtime_refs_with_typed_consumers() -> None:
+    assert scorecard_module._quality_report_registry_issues() == ()
+    assert "can_i_closeout" in scorecard_module._DEDICATED_QUALITY_REPORT_CONSUMER_KEYS
+    assert "can_i_closeout" not in scorecard_module.QUALITY_REPORT_GATE_METADATA
+
+
+def test_quality_report_registry_rejects_missing_metadata_file_and_ref(
+    monkeypatch,
+) -> None:
+    metadata = dict(scorecard_module.QUALITY_REPORT_GATE_METADATA)
+    metadata.pop("normative_evidence")
+    runtime_refs = dict(scorecard_module.QUALITY_REPORT_RUNTIME_REFS)
+    runtime_refs.pop("production_data_quality")
+    files = dict(scorecard_module.QUALITY_REPORT_FILES)
+    files.pop("can_i_closeout")
+    monkeypatch.setattr(scorecard_module, "QUALITY_REPORT_GATE_METADATA", metadata)
+    monkeypatch.setattr(scorecard_module, "QUALITY_REPORT_RUNTIME_REFS", runtime_refs)
+    monkeypatch.setattr(scorecard_module, "QUALITY_REPORT_FILES", files)
+
+    issues = scorecard_module._quality_report_registry_issues()
+    issue_text = " ".join(issues)
+
+    assert "normative_evidence" in issue_text
+    assert "production_data_quality" in issue_text
+    assert "can_i_closeout" in issue_text
+
+
+def test_authority_contract_gate_rejects_unclassified_runtime_ref(monkeypatch) -> None:
+    report_key = "future_quality_report"
+    runtime_refs = {
+        **scorecard_module.QUALITY_REPORT_RUNTIME_REFS,
+        report_key: "future_quality_report_ref",
+    }
+    files = {
+        **scorecard_module.QUALITY_REPORT_FILES,
+        report_key: "future_quality_report.json",
+    }
+    monkeypatch.setattr(scorecard_module, "QUALITY_REPORT_RUNTIME_REFS", runtime_refs)
+    monkeypatch.setattr(scorecard_module, "QUALITY_REPORT_FILES", files)
+    assert scorecard_module.QUALITY_REPORT_RUNTIME_REFS[report_key] == "future_quality_report_ref"
+    assert scorecard_module.QUALITY_REPORT_FILES[report_key] == "future_quality_report.json"
+    assert report_key not in scorecard_module.QUALITY_REPORT_GATE_METADATA
+    monkeypatch.setattr(
+        scorecard_module,
+        "_scorecard_invariant_ref_keys",
+        lambda: frozenset(),
+    )
+
+    gates = scorecard_module._authority_contract_gates(
+        {},
+        canary_kind="production",
+        job_payload=None,
+        run_payload=None,
+        quality_evidence_bundle_path=None,
+    )
+
+    registry_gate = next(
+        gate for gate in gates if gate["code"] == "quality_report_registry_incomplete"
+    )
+    assert registry_gate["status"] == "fail"
+    assert registry_gate["blocking"] is True
+    assert report_key in registry_gate["message"]
+
+
 def test_scorecard_ingests_can_i_closeout_blockers_without_minting_closeout() -> None:
     closeout_ref = f"sha256:{hashlib.sha256(b'can-i-closeout-scorecard-test').hexdigest()}"
     job_payload = _complete_job_payload()
@@ -1166,6 +1245,7 @@ def test_scorecard_ingests_can_i_closeout_blockers_without_minting_closeout() ->
     assert gate["layer"] == "closeout_reader"
     assert gate["source_module_id"] == "semantic_binding"
     assert gate["source_reader_contract"] == "polisyos.runtime.quality.semantic_binding"
+    assert not any(item["code"] == "can_i_closeout_passed" for item in scorecard["quality_gates"])
     assert scorecard["warnings"] == []
 
 
@@ -1369,7 +1449,10 @@ def test_continuous_governance_noop_rejects_borrowed_production_data_authority()
     for report_key, ref_key in (
         ("continuous_governance_stale", "continuous_governance_stale_report_ref"),
         ("continuous_governance_reissue", "continuous_governance_reissue_report_ref"),
-        ("continuous_governance_supersede", "continuous_governance_supersede_report_ref"),
+        (
+            "continuous_governance_supersede",
+            "continuous_governance_supersede_report_ref",
+        ),
         ("continuous_governance_withdraw", "continuous_governance_withdraw_report_ref"),
     ):
         report = quality_evidence[report_key]
@@ -2717,7 +2800,10 @@ def test_runtime_quality_scorecard_keeps_raw_override_markers_candidate_only() -
         assert scorecard["approval_state"] == absent_scorecard["approval_state"] == "quality_failed"
         assert scorecard["approval_eligibility"]["override_accepted"] is False
         assert scorecard["approval_eligibility"]["eligible"] is False
-        assert scorecard["override_evidence"] == {"status": "candidate", "accepted": False}
+        assert scorecard["override_evidence"] == {
+            "status": "candidate",
+            "accepted": False,
+        }
         assert packet.decision == absent_packet.decision == "blocked"
         assert packet.eligibility.eligible is absent_packet.eligibility.eligible is False
         assert packet.eligibility.performance_blocking is True
@@ -3122,3 +3208,109 @@ def test_serious_scorecard_reports_candidate_scope_mismatch_before_latest_select
 
     assert "phase_barrier_scope_mismatch" in _blocking_codes(scorecard)
     assert "phase_barrier_owner_scope_not_established" in _blocking_codes(scorecard)
+
+
+def _fabric_trace_with_report_expectation(expected: list[str]) -> dict[str, object]:
+    trace = copy.deepcopy(_complete_quality_evidence()["fabric_retrieval_trace"])
+    assert isinstance(trace, dict)
+    trace["expected_source_families"] = expected
+    return trace
+
+
+def test_scorecard_refuses_malformed_present_top_level_fabric_trace() -> None:
+    """A malformed supplied trace is refused, while absent/null remains optional."""
+    assert normalize_quality_evidence({}, canary_kind="production") == {}
+    assert (
+        normalize_quality_evidence({"fabric_retrieval_trace": None}, canary_kind="production")[
+            "fabric_retrieval_trace"
+        ]
+        is None
+    )
+    with pytest.raises(ValueError, match="fabric_source_selection_report_must_be_mapping"):
+        normalize_quality_evidence(
+            {"fabric_retrieval_trace": "present-but-malformed"},
+            canary_kind="production",
+        )
+
+
+def test_scorecard_preserves_report_expectation_when_outer_contract_is_absent_null_or_empty() -> (
+    None
+):
+    """Missing or valid-empty external input cannot erase the report candidate expectation."""
+    report_expectation = ["candidate-required-but-unmatched"]
+    trace = _fabric_trace_with_report_expectation(report_expectation)
+
+    for quality_evidence in (
+        {"fabric_retrieval_trace": trace},
+        {"fabric_retrieval_trace": trace, "golden_scenario_contract": None},
+        {
+            "fabric_retrieval_trace": trace,
+            "golden_scenario_contract": {
+                "expected_evidence_contract": {"admissible_data_source_families": []}
+            },
+        },
+    ):
+        normalized = normalize_quality_evidence(
+            quality_evidence,
+            canary_kind="production",
+        )["fabric_retrieval_trace"]
+        assert normalized["expected_source_families"] == report_expectation
+        assert normalized["status"] == "fail"
+        assert "selected_source_family_not_admissible" in {
+            issue["code"] for issue in normalized["issues"]
+        }
+
+
+@pytest.mark.parametrize(
+    "scenario_contract",
+    [
+        "not-a-map",
+        {"expected_evidence_contract": "not-a-map"},
+        {"expected_evidence_contract": {"admissible_data_source_families": "not-a-list"}},
+        {
+            "expected_evidence_contract": {
+                "admissible_data_source_families": ["production_msme_panel", 17]
+            }
+        },
+    ],
+)
+def test_scorecard_blocks_malformed_present_outer_family_expectation(
+    scenario_contract: object,
+) -> None:
+    """Malformed external intent cannot fall back to matching report self-expectation."""
+    normalized = normalize_quality_evidence(
+        {
+            "fabric_retrieval_trace": _fabric_trace_with_report_expectation(
+                ["production_msme_panel"]
+            ),
+            "golden_scenario_contract": scenario_contract,
+        },
+        canary_kind="production",
+    )["fabric_retrieval_trace"]
+
+    assert normalized["expected_source_families"] == ["production_msme_panel"]
+    assert normalized["status"] == "fail"
+    assert "scenario_source_family_expectation_invalid" in {
+        issue["code"] for issue in normalized["issues"]
+    }
+
+
+def test_scorecard_uses_nonempty_outer_scenario_expectation() -> None:
+    """A supplied outer scenario contract remains the independent expectation."""
+    trace = _fabric_trace_with_report_expectation(["candidate-other-family"])
+    normalized = normalize_quality_evidence(
+        {
+            "fabric_retrieval_trace": trace,
+            "golden_scenario_contract": {
+                "expected_evidence_contract": {
+                    "admissible_data_source_families": ["production_msme_panel"]
+                }
+            },
+        },
+        canary_kind="production",
+    )["fabric_retrieval_trace"]
+
+    assert normalized["expected_source_families"] == ["production_msme_panel"]
+    assert "selected_source_family_not_admissible" not in {
+        issue["code"] for issue in normalized["issues"]
+    }

@@ -10,6 +10,7 @@ import {
   RunInspectorProvider,
   useRunInspector,
 } from "@/features/runs/context/RunInspectorContext";
+import { coreRunIdFromDetails } from "@/features/runs/routes/useRunDetailSummary";
 import { RunBreadcrumbs } from "@/features/runs/components/RunBreadcrumbs";
 import { epochSemanticsFromProjection } from "@/features/runs/components/EpochStalenessView";
 import {
@@ -32,7 +33,7 @@ import {
   exportElementAsImage,
   triggerPrint,
 } from "@/shared/export/printExport";
-import { Button, Card, EmptyState } from "@polisyos/atlas-ui";
+import { Button, Card, EmptyState, PanelSkeleton } from "@polisyos/atlas-ui";
 import { ApiErrorAlert, copyShareLink, exportJson } from "@/shared/ui";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 import {
@@ -43,13 +44,17 @@ import {
 function RunDeckContent({ runId }: { runId: string }) {
   const { t } = useI18n();
   const summary = useRunInspector();
-  const epochQuery = useEpochStaleness({ runId });
+  const coreRunId = coreRunIdFromDetails(summary.run);
+  const epochQuery = useEpochStaleness({
+    enabled: Boolean(coreRunId),
+    runId: coreRunId ?? "",
+  });
   const epochProjection = epochQuery.data?.projection;
   const epochSemantics = epochProjection
     ? epochSemanticsFromProjection(epochProjection)
     : epochNonreceipt();
-  const timelineQuery = useRunTimeline(runId, Boolean(summary.run));
-  const errorsQuery = useRunErrors(runId, Boolean(summary.run));
+  const timelineQuery = useRunTimeline(coreRunId, Boolean(coreRunId));
+  const errorsQuery = useRunErrors(coreRunId, Boolean(coreRunId));
   const deckRef = useRef<HTMLDivElement | null>(null);
   const auditTrail = useMemo(
     () =>
@@ -109,6 +114,19 @@ function RunDeckContent({ runId }: { runId: string }) {
     await exportElementAsImage(element, `run-${runId}-${id}.png`);
   }
 
+  if (summary.runBootstrapPending) {
+    return (
+      <div
+        aria-busy="true"
+        aria-label={t("common.loading")}
+        data-testid="run-deck-bootstrap"
+        role="status"
+      >
+        <PanelSkeleton rows={8} />
+      </div>
+    );
+  }
+
   if (summary.runDetailsQuery.isError) {
     return (
       <ApiErrorAlert
@@ -118,7 +136,7 @@ function RunDeckContent({ runId }: { runId: string }) {
     );
   }
 
-  if (!summary.run) {
+  if (!summary.run || !coreRunId) {
     return (
       <EmptyState
         title={t("pages.runs.unavailableRun")}

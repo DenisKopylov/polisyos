@@ -3,11 +3,17 @@ from __future__ import annotations
 # ruff: noqa: ANN001, S101
 import json
 
+import pytest
+
 from tests._helpers.hds_quality import complete_job_payload, complete_quality_evidence
 from tools.ops_runners.runtime.canary_evidence import assemble_canary_evidence
 
+pytestmark = pytest.mark.usefixtures("canary_diagnostic_output_root")
 
-def test_serious_canary_bundle_writes_assurance_case_and_diagnostic_slos(tmp_path) -> None:
+
+def test_serious_canary_bundle_writes_assurance_case_and_diagnostic_slos(
+    tmp_path,
+) -> None:
     output = assemble_canary_evidence(
         output_root=tmp_path,
         canary_kind="production",

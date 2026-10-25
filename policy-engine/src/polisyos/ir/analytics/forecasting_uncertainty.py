@@ -9,6 +9,11 @@ from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
 from polisyos.ir.analytics._truthfulness import (
     TruthfulnessReceipt,
     TruthfulnessScope,
@@ -26,8 +31,14 @@ from polisyos.ir.analytics.uncertainty import (
     ValueUncertaintyProjectionKind,
     value_uncertainty_output_contract,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.io import (
+    _get_owned_json_artifact,
+    _put_owned_json_artifact,
+    _validate_return_selected_profile_flag,
+)
+from polisyos.ir.migrations.base import CompatibilityMode
+from polisyos.ir.model_layer.canon import CanonSpec, CanonViolation
 from polisyos.ir.registry.refs import ArtifactRefModel, ForecastingUncertaintyBundleRef
 
 if TYPE_CHECKING:
@@ -738,13 +749,102 @@ class ForecastingUncertaintyBundleV2(ForecastingUncertaintyBundle):
         )
 
 
+_FORECASTING_UNCERTAINTY_V1_WIRE_POLICY = (
+    "polisyos.ir.analytics.forecasting_uncertainty.ForecastingUncertaintyBundle.wire",
+    "1",
+)
+_FORECASTING_UNCERTAINTY_V1_REPRESENTATIONS = (
+    OwnedJSONRepresentation(
+        schema_name="ir.forecasting_uncertainty_bundle",
+        schema_version="1.0",
+        payload_version="1.0",
+        wire_policy_ref=_FORECASTING_UNCERTAINTY_V1_WIRE_POLICY[0],
+        wire_policy_revision=_FORECASTING_UNCERTAINTY_V1_WIRE_POLICY[1],
+        profile_ref=None,
+        compatibility=CompatibilityMode.NONE,
+        notes=(),
+        readable=True,
+        writable=True,
+        current=True,
+        default_write=True,
+        readable_from=(),
+    ),
+)
+_FORECASTING_UNCERTAINTY_V1_OWNER = declare_model_owner(
+    ForecastingUncertaintyBundle,
+    contract_id="ir.analytics.forecasting_uncertainty_bundle.v1",
+    dto_fqn="polisyos.ir.analytics.forecasting_uncertainty.ForecastingUncertaintyBundle",
+    abi_key="ir.forecasting_uncertainty_bundle.v1",
+    registry_key="ir.forecasting_uncertainty_bundle",
+    kind="ir.forecasting_uncertainty_bundle",
+    media_type="application/json",
+    purpose="forecasting_uncertainty_bundle",
+    policy_revision="ir.analytics.forecasting_uncertainty_bundle.v1.owner-admission.r1",
+    accepted_wire_policies=(_FORECASTING_UNCERTAINTY_V1_WIRE_POLICY,),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=_FORECASTING_UNCERTAINTY_V1_REPRESENTATIONS,
+)
+
+
+_FORECASTING_UNCERTAINTY_V2_WIRE_POLICY = (
+    "polisyos.ir.analytics.forecasting_uncertainty.ForecastingUncertaintyBundleV2.wire",
+    "1",
+)
+_FORECASTING_UNCERTAINTY_V2_REPRESENTATIONS = (
+    OwnedJSONRepresentation(
+        schema_name="ir.forecasting_uncertainty_bundle",
+        schema_version="2.0",
+        payload_version="2.0",
+        wire_policy_ref=_FORECASTING_UNCERTAINTY_V2_WIRE_POLICY[0],
+        wire_policy_revision=_FORECASTING_UNCERTAINTY_V2_WIRE_POLICY[1],
+        profile_ref=None,
+        compatibility=CompatibilityMode.NONE,
+        notes=(),
+        readable=True,
+        writable=True,
+        current=True,
+        default_write=True,
+        readable_from=(),
+    ),
+)
+_FORECASTING_UNCERTAINTY_V2_OWNER = declare_model_owner(
+    ForecastingUncertaintyBundleV2,
+    contract_id="ir.analytics.forecasting_uncertainty_bundle.v2",
+    dto_fqn="polisyos.ir.analytics.forecasting_uncertainty.ForecastingUncertaintyBundleV2",
+    abi_key="ir.forecasting_uncertainty_bundle.v2",
+    registry_key="ir.forecasting_uncertainty_bundle",
+    kind="ir.forecasting_uncertainty_bundle",
+    media_type="application/json",
+    purpose="forecasting_uncertainty_bundle",
+    policy_revision="ir.analytics.forecasting_uncertainty_bundle.v2.owner-admission.r1",
+    accepted_wire_policies=(_FORECASTING_UNCERTAINTY_V2_WIRE_POLICY,),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=_FORECASTING_UNCERTAINTY_V2_REPRESENTATIONS,
+)
+
+
+class _DefaultForecastSchemaVersion(str):
+    """Distinguish an omitted schema version from an explicit wire selection."""
+
+
+_DEFAULT_FORECAST_SCHEMA_VERSION = _DefaultForecastSchemaVersion("1.0")
+
+
 def persist_forecasting_uncertainty_bundle(
     store: ArtifactStore,
     bundle: ForecastingUncertaintyBundle,
     *,
     inputs: list[InputRef] | None = None,
     schema_name: str = "ir.forecasting_uncertainty_bundle",
-    schema_version: str = "1.0",
+    schema_version: str = _DEFAULT_FORECAST_SCHEMA_VERSION,
     return_selected_profile: bool = False,
 ) -> ForecastingUncertaintyBundleRef:
     """Persist a forecasting uncertainty bundle as a typed JSON artifact.
@@ -761,20 +861,29 @@ def persist_forecasting_uncertainty_bundle(
         The typed bundle reference, including its selected write profile when requested.
     """
 
-    if isinstance(bundle, ForecastingUncertaintyBundleV2) and schema_version == "1.0":
-        schema_version = "2.0"
+    return_selected_profile = _validate_return_selected_profile_flag(return_selected_profile)
 
-    ref = put_json_artifact(
+    if schema_version is _DEFAULT_FORECAST_SCHEMA_VERSION:
+        schema_version = "2.0" if isinstance(bundle, ForecastingUncertaintyBundleV2) else "1.0"
+
+    selected_owner = (
+        _FORECASTING_UNCERTAINTY_V2_OWNER
+        if isinstance(bundle, ForecastingUncertaintyBundleV2)
+        else _FORECASTING_UNCERTAINTY_V1_OWNER
+    )
+    ref = _put_owned_json_artifact(
         store,
         bundle.model_dump(mode="json", round_trip=True),
-        kind="ir.forecasting_uncertainty_bundle",
+        owner=selected_owner,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=return_selected_profile,
     )
-    return ForecastingUncertaintyBundleRef.model_validate(ref)
+    selected_ref = ForecastingUncertaintyBundleRef.from_selected_write(ref)
+    if not return_selected_profile:
+        return selected_ref.model_copy(update={"manifest_profile_sha256": None})
+    return selected_ref
 
 
 def load_forecasting_uncertainty_bundle(
@@ -783,13 +892,20 @@ def load_forecasting_uncertainty_bundle(
 ) -> ForecastingUncertaintyBundle | ForecastingUncertaintyBundleV2:
     """Load a forecasting uncertainty bundle from artifact storage."""
 
-    payload = get_json_artifact(store, ref)
-    if isinstance(payload, dict) and (
-        payload.get("schema_version") == "2.0"
-        or payload.get("reconciliation_certificate") is not None
-    ):
-        return ForecastingUncertaintyBundleV2.model_validate(payload)
-    return ForecastingUncertaintyBundle.model_validate(payload)
+    try:
+        return _get_owned_json_artifact(
+            store,
+            ref,
+            owner=_FORECASTING_UNCERTAINTY_V1_OWNER,
+        )
+    except CanonViolation as exc:
+        if str(exc) != "ir_owned_artifact_representation_unregistered":
+            raise
+    return _get_owned_json_artifact(
+        store,
+        ref,
+        owner=_FORECASTING_UNCERTAINTY_V2_OWNER,
+    )
 
 
 __all__ = [

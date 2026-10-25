@@ -49,3 +49,5 @@ fixture tests use `src/test/contracts/`.
 Generated client compatibility follows `architecture/extension_points.toml`
 deprecation windows for JS package API. Old hook names need wrappers or release
 notes before removal.
+
+- The strict Runtime Run Details response validator and its candidate-only method-execution producer diagnostic are documented in [Run Details producer diagnostic](./run-details-producer-diagnostic.md).

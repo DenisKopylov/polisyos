@@ -14,10 +14,9 @@ import io
 import json as _json
 import time
 import zipfile
-from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from pathlib import PurePosixPath
-from typing import Any, ClassVar, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 from urllib.parse import urlparse
 
 import aiohttp
@@ -46,6 +45,9 @@ from polisyos.ir.connectors import (
     TrustLevel,
     capabilities_from_flags,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
 
 
 class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):

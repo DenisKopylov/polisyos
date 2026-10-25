@@ -698,6 +698,28 @@ def test_reference_facets_accept_symbolic_and_cas_reference_forms() -> None:
     assert selected["source_facets"]["field_refs"] == {"field_ref": "field:prod-msme-panel.income"}
 
 
+def test_reference_mapping_skips_null_optional_value_and_keeps_qualified_ref() -> None:
+    qualified_ref = "field:prod-msme-panel.income"
+    facet_value = {"field_ref": None, "source_ref": qualified_ref}
+    source = _source(
+        field_refs=facet_value,
+        schema_compatibility={"status": "pass", "required_fields": []},
+    )
+    source.pop("source_facets", None)
+
+    trace = build_fabric_source_selection_trace(
+        query_intent={"policy_domain": "wartime_msme_support"},
+        candidate_sources=[source],
+        selected_source_ids=["prod-msme-panel"],
+        rejected_sources=[],
+        expected_source_families=["production_msme_panel"],
+        canary_kind="production",
+    )
+
+    selected = trace["selected_sources"][0]
+    assert selected["source_facets"]["field_refs"] == [qualified_ref]
+
+
 def test_normalize_trace_refuses_raw_pass_for_fixture_source() -> None:
     normalized = normalize_fabric_retrieval_trace(
         {

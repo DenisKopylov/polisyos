@@ -645,6 +645,11 @@ def _serialize_funnel_outcome(outcome: FunnelOutcome) -> dict[str, Any]:
             ref.model_dump(mode="json") for ref in outcome.uncertainty_observation_refs
         ],
         "uncertainty_intake_failures": list(outcome.uncertainty_intake_failures),
+        "search_uncertainty_current_read": (
+            None
+            if outcome.search_uncertainty_current_read is None
+            else outcome.search_uncertainty_current_read.model_dump(mode="json", exclude_none=False)
+        ),
         "audit_refs": [ref.model_dump(mode="json") for ref in outcome.audit_refs],
         "actionable_side_information_refs": [
             ref.model_dump(mode="json") for ref in outcome.actionable_side_information_refs

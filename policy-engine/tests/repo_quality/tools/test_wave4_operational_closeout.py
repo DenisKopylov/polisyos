@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from tests._helpers.hds_quality import complete_job_payload, complete_quality_evidence
 from tools.ops_runners.runtime.canary_evidence import assemble_canary_evidence
 from tools.quality.validation.check_wave4_operational_closeout import (
@@ -10,6 +12,8 @@ from tools.quality.validation.check_wave4_operational_closeout import (
     build_wave4_operational_closeout_report,
     main,
 )
+
+pytestmark = pytest.mark.usefixtures("canary_diagnostic_output_root")
 
 
 def _fresh_serious_bundle(tmp_path: Path) -> Path:

@@ -56,14 +56,24 @@ import WorkflowDagPanel from "@/features/runs/components/WorkflowDagPanel";
 
 describe("pipeline surfaces", () => {
   const containerWithText = (role: "listitem" | "group", text: string) => {
-    const container = screen
+    const matches = screen
       .getAllByRole(role)
-      .find((candidate) => within(candidate).queryByText(text) !== null);
-    if (!container) {
-      throw new Error(`expected a ${role} containing ${text}`);
+      .filter((candidate) => within(candidate).queryByText(text) !== null);
+    if (matches.length !== 1) {
+      throw new Error("expected exactly one " + role + " containing " + text);
     }
-    return container;
+    return matches[0];
   };
+
+  const variantRow = (variantId: string) =>
+    screen.getByRole("group", {
+      name: "panels.agentPipeline.variant: " + variantId,
+    });
+
+  const costBreakdownIn = (row: HTMLElement) =>
+    within(row).getByRole("group", {
+      name: "panels.agentPipeline.cost",
+    });
 
   beforeEach(() => {
     normalizeAgentPipelineMock.mockReset();
@@ -515,8 +525,12 @@ describe("pipeline surfaces", () => {
     expect(
       screen.getByText('panels.agentPipeline.ownerAttemptScope:{"attempt":2}'),
     ).toBeInTheDocument();
-    expect(screen.getByText("$0.01")).toBeInTheDocument();
-    expect(screen.getByText("$0.05")).toBeInTheDocument();
+    expect(
+      screen.getByText("panels.agentPipeline.reportedCost: $0.01"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("panels.agentPipeline.reportedCost: $0.05"),
+    ).toBeInTheDocument();
     expect(screen.queryByText("$0.12")).not.toBeInTheDocument();
     expect(screen.queryByText("$0.41")).not.toBeInTheDocument();
 
@@ -702,5 +716,368 @@ describe("pipeline surfaces", () => {
     expect(
       screen.getByText("panels.governance.emptyIssues"),
     ).toBeInTheDocument();
+  });
+
+  it("renders model comparison cost by origin and keeps unknown or reused spend open", async () => {
+    const actual = await vi.importActual<
+      typeof import("@/shared/lib/domain/agents")
+    >("@/shared/lib/domain/agents");
+    normalizeAgentPipelineMock.mockImplementation(
+      actual.normalizeAgentPipeline,
+    );
+    renderWithProviders(
+      <AgentPipelinePanel
+        payload={{
+          owner_control_job_attempt: 1,
+          attempts: [
+            {
+              attempt: 1,
+              steps: [
+                {
+                  agent: "model_variant",
+                  action: "completed",
+                  timestamp: "2026-10-23T00:00:01Z",
+                  model: "model-a",
+                  model_variant_id: "estimate-v1",
+                  cost_events: [
+                    {
+                      event_id: "estimate:one",
+                      cost_origin: "estimated",
+                      amount: "0.05",
+                      cost_usd: 0.05,
+                      settlement_status: "committed",
+                      durability: "ledger",
+                      control_job_attempt: 1,
+                    },
+                  ],
+                },
+                {
+                  agent: "model_variant",
+                  action: "completed",
+                  timestamp: "2026-10-23T00:00:02Z",
+                  model: "model-b",
+                  model_variant_id: "mixed-v1",
+                  cost_events: [
+                    {
+                      event_id: "reported:one",
+                      cost_origin: "reported",
+                      amount: "0.02",
+                      cost_usd: 0.02,
+                      settlement_status: "committed",
+                      durability: "ledger",
+                      control_job_attempt: 1,
+                    },
+                    {
+                      event_id: "estimate:two",
+                      cost_origin: "estimated",
+                      amount: "0.03",
+                      cost_usd: 0.03,
+                      settlement_status: "committed",
+                      durability: "ledger",
+                      control_job_attempt: 1,
+                    },
+                    {
+                      event_id: "unknown:one",
+                      cost_origin: "unknown",
+                      amount: null,
+                      cost_usd: null,
+                      settlement_status: "unknown",
+                      durability: "ledger",
+                      control_job_attempt: 1,
+                    },
+                  ],
+                },
+                {
+                  agent: "model_variant",
+                  action: "completed",
+                  timestamp: "2026-10-23T00:00:03Z",
+                  model: "model-c",
+                  model_variant_id: "reuse-v1",
+                  cost_events: [
+                    {
+                      event_id: "reuse:one",
+                      origin_event_id: "reported:original",
+                      cost_origin: "reuse",
+                      amount: "0.09",
+                      cost_usd: 0.09,
+                      settlement_status: "committed",
+                      durability: "ledger",
+                      control_job_attempt: 1,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        }}
+      />,
+    );
+
+    const estimateRow = variantRow("estimate-v1");
+    const mixedRow = variantRow("mixed-v1");
+    const reuseRow = variantRow("reuse-v1");
+    expect(costBreakdownIn(estimateRow)).toHaveAttribute(
+      "data-cost-completeness",
+      "complete",
+    );
+    expect(estimateRow).toHaveTextContent(
+      "panels.agentPipeline.estimatedCost: $0.05",
+    );
+    expect(costBreakdownIn(mixedRow)).toHaveAttribute(
+      "data-cost-completeness",
+      "partial_unknown",
+    );
+    expect(mixedRow).toHaveTextContent(
+      "panels.agentPipeline.reportedCost: $0.02",
+    );
+    expect(mixedRow).toHaveTextContent(
+      "panels.agentPipeline.estimatedCost: $0.03",
+    );
+    expect(mixedRow).toHaveTextContent("panels.agentPipeline.costUnknown");
+    expect(costBreakdownIn(reuseRow)).toHaveAttribute(
+      "data-cost-completeness",
+      "unknown",
+    );
+    expect(reuseRow).toHaveTextContent("panels.agentPipeline.reuseEvents: 1");
+    expect(reuseRow).toHaveTextContent("panels.agentPipeline.costUnknown");
+    expect(reuseRow).not.toHaveTextContent("$0.09");
+  });
+
+  it("keeps the current owner model subtotal complete when same-key stale and unowned non-ledger rows are present", async () => {
+    const actual = await vi.importActual<
+      typeof import("@/shared/lib/domain/agents")
+    >("@/shared/lib/domain/agents");
+    normalizeAgentPipelineMock.mockImplementation(
+      actual.normalizeAgentPipeline,
+    );
+    const currentOwnerEvent = {
+      event_id: "provider:owner-current",
+      cost_origin: "reported",
+      amount: "0.25",
+      cost_usd: 0.25,
+      settlement_status: "committed",
+      durability: "ledger",
+      control_job_attempt: 2,
+      pre_admission_attempt_id: null,
+      payload_digest: "sha256:owner-current",
+    };
+    const staleSameIdentity = {
+      ...currentOwnerEvent,
+      amount: "9.00",
+      cost_usd: 9,
+      control_job_attempt: 1,
+      payload_digest: "sha256:stale-owner",
+    };
+    const unownedMemoryClaim = {
+      event_id: "provider:unowned-memory",
+      cost_origin: "unknown",
+      amount: null,
+      cost_usd: null,
+      settlement_status: "unknown",
+      durability: "memory",
+      control_job_attempt: null,
+      pre_admission_attempt_id: null,
+    };
+    renderWithProviders(
+      <AgentPipelinePanel
+        payload={{
+          owner_control_job_attempt: 2,
+          attempts: [
+            {
+              attempt: 1,
+              steps: [
+                {
+                  agent: "model_variant",
+                  action: "stale attempt same key",
+                  model: "shared",
+                  model_variant_id: "shared-v",
+                  cost_events: [staleSameIdentity],
+                },
+              ],
+            },
+            {
+              attempt: 2,
+              steps: [
+                {
+                  agent: "model_variant",
+                  action: "current owner projection",
+                  model: "shared",
+                  model_variant_id: "shared-v",
+                  cost_usd: 0.25,
+                  reported_cost_usd: 0.25,
+                  cost_events: [currentOwnerEvent],
+                },
+                {
+                  agent: "model_variant",
+                  action: "unowned memory observation",
+                  model: "shared",
+                  model_variant_id: "shared-v",
+                  cost_events: [unownedMemoryClaim],
+                },
+                {
+                  agent: "model_variant",
+                  action: "unscoped legacy scalar",
+                  model: "shared",
+                  model_variant_id: "shared-v",
+                  cost_usd: 0.8,
+                },
+              ],
+            },
+          ],
+        }}
+      />,
+    );
+
+    const sharedRow = variantRow("shared-v");
+    expect(costBreakdownIn(sharedRow)).toHaveAttribute(
+      "data-cost-completeness",
+      "complete",
+    );
+    expect(sharedRow).toHaveTextContent(
+      "panels.agentPipeline.reportedCost: $0.25",
+    );
+    expect(sharedRow).not.toHaveTextContent("panels.agentPipeline.costUnknown");
+    expect(sharedRow).not.toHaveTextContent("$9.00");
+    expect(
+      screen.getByText("panels.agentPipeline.unattributedCostScalars"),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/\$0\.80/)).toBeInTheDocument();
+  });
+
+  it("deduplicates one identity within a model and leaves cross-model attribution unresolved", async () => {
+    const actual = await vi.importActual<
+      typeof import("@/shared/lib/domain/agents")
+    >("@/shared/lib/domain/agents");
+    normalizeAgentPipelineMock.mockImplementation(
+      actual.normalizeAgentPipeline,
+    );
+    const sharedWithinModel = {
+      event_id: "provider:same-model",
+      cost_origin: "reported",
+      amount: "0.25",
+      cost_usd: 0.25,
+      settlement_status: "committed",
+      durability: "ledger",
+      control_job_attempt: 1,
+      pre_admission_attempt_id: null,
+      payload_digest: "sha256:same-model",
+    };
+    const staleAcrossBuckets = {
+      ...sharedWithinModel,
+      cost_usd: 9,
+      amount: "9.00",
+      control_job_attempt: 2,
+      payload_digest: "sha256:stale",
+    };
+    const acrossModels = {
+      event_id: "provider:ambiguous-model",
+      cost_origin: "reported",
+      amount: "0.25",
+      cost_usd: 0.25,
+      settlement_status: "committed",
+      durability: "ledger",
+      control_job_attempt: 1,
+      pre_admission_attempt_id: null,
+      payload_digest: "sha256:ambiguous-model",
+    };
+    renderWithProviders(
+      <AgentPipelinePanel
+        payload={{
+          owner_control_job_attempt: 1,
+          attempts: [
+            {
+              attempt: 1,
+              steps: [
+                {
+                  agent: "model_variant",
+                  action: "one",
+                  model: "same",
+                  model_variant_id: "same-v",
+                  cost_events: [sharedWithinModel],
+                },
+                {
+                  agent: "model_variant",
+                  action: "duplicate",
+                  model: "same",
+                  model_variant_id: "same-v",
+                  cost_events: [sharedWithinModel],
+                },
+                {
+                  agent: "model_variant",
+                  action: "stale duplicate in another bucket",
+                  model: "stale",
+                  model_variant_id: "stale-v",
+                  cost_events: [staleAcrossBuckets],
+                },
+                {
+                  agent: "model_variant",
+                  action: "left",
+                  model: "left",
+                  model_variant_id: "left-v",
+                  cost_events: [
+                    acrossModels,
+                    {
+                      event_id: "provider:left-known",
+                      cost_origin: "reported",
+                      amount: "0.10",
+                      cost_usd: 0.1,
+                      settlement_status: "committed",
+                      durability: "ledger",
+                      control_job_attempt: 1,
+                      pre_admission_attempt_id: null,
+                    },
+                  ],
+                },
+                {
+                  agent: "model_variant",
+                  action: "right",
+                  model: "right",
+                  model_variant_id: "right-v",
+                  cost_events: [
+                    acrossModels,
+                    {
+                      event_id: "provider:right-known",
+                      cost_origin: "reported",
+                      amount: "0.20",
+                      cost_usd: 0.2,
+                      settlement_status: "committed",
+                      durability: "ledger",
+                      control_job_attempt: 1,
+                      pre_admission_attempt_id: null,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        }}
+      />,
+    );
+
+    const sameRow = variantRow("same-v");
+    const leftRow = variantRow("left-v");
+    const rightRow = variantRow("right-v");
+    expect(costBreakdownIn(sameRow)).toHaveAttribute(
+      "data-cost-completeness",
+      "complete",
+    );
+    expect(sameRow).toHaveTextContent(
+      "panels.agentPipeline.reportedCost: $0.25",
+    );
+    expect(sameRow).not.toHaveTextContent("$0.50");
+    for (const [row, subtotal] of [
+      [leftRow, "$0.10"],
+      [rightRow, "$0.20"],
+    ] as const) {
+      expect(costBreakdownIn(row)).toHaveAttribute(
+        "data-cost-completeness",
+        "partial_unknown",
+      );
+      expect(row).toHaveTextContent(
+        "panels.agentPipeline.reportedCost: " + subtotal,
+      );
+      expect(row).toHaveTextContent("panels.agentPipeline.costUnknown");
+      expect(row).not.toHaveTextContent("$0.25");
+    }
   });
 });

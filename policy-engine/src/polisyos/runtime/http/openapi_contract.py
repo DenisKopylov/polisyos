@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
-import os
 from collections.abc import Callable  # noqa: TC003 - public map type is introspected
 from copy import deepcopy
 from datetime import UTC, datetime
 from functools import lru_cache
+from importlib.resources import files
 from pathlib import Path
 from typing import Any
 from urllib.parse import unquote
@@ -28,6 +29,7 @@ from polisyos.core.contracts.runtime import (
     EpochProjectionDenominatorView,
     EpochStalenessProjectionView,
     InstitutionalAuthorityAbsenceView,
+    MethodMetricProjectionResponse,
     RuntimeApiProblem,
     TemporalScope,
     epoch_staleness_semantic_hash,
@@ -41,14 +43,6 @@ from polisyos.runtime.http.security import PolicyOSRole
 from polisyos.runtime.http.services.confidence_ledger_risk_spend_contracts import (
     AvailableConfidenceLedgerRiskSpendPacket,
     ConfidenceLedgerRiskSpendPacket,
-    packet_semantic_projection,
-)
-from polisyos.runtime.http.services.confidence_ledger_risk_spend_projection import (
-    ConfidenceLedgerRiskSpendProjectionService,
-)
-from polisyos.runtime.http.services.export_replay import (
-    build_export_replay_address,
-    hash_export_projection,
 )
 from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
     HUMAN_DECISION_RECORD_V2,
@@ -68,6 +62,9 @@ _SHA_LINEAGE = "sha256:0713f136ea316c8f3e274d55012e3bf10d05b5263837187a39593ff0d
 _RUN_ID_SAMPLE = "R_core_api_001"
 _REQUEST_ID_SAMPLE = "req_0123456789abcdef"
 _TS_SAMPLE = "2026-02-11T12:00:00Z"
+_CONFIDENCE_LEDGER_RISK_SPEND_OPENAPI_EXAMPLE_SHA256 = (
+    "944918b3935fe325ac0b06ec005f71f6efe185bc5b36af808e3314132853232d"
+)
 _SCHEMA_COMPATIBILITY_ALIASES = {
     "ArtifactID": "ArtifactID-Input",
     "RunPaperDesignRecordBinding": "RunBoundDesignRecordBinding",
@@ -2513,6 +2510,9 @@ def _success_example_response_models() -> dict[str, Any]:
         LineageResponse,
         PredictiveCoverageDiagnosticPreview,
     )
+    from polisyos.runtime.http.services.candidate_hte_packet_projection import (
+        CandidateDecisionPacketHTEProjection,
+    )
     from polisyos.runtime.http.services.control.lex_search_profile import (
         LexSearchProfileResponse,
     )
@@ -2527,6 +2527,8 @@ def _success_example_response_models() -> dict[str, Any]:
         "export_lineage_prov": LineageExportResponse,
         "get_predictive_coverage_diagnostic": PredictiveCoverageDiagnosticPreview,
         "get_lex_search_profile": LexSearchProfileResponse,
+        "get_run_method_metrics": MethodMetricProjectionResponse,
+        "get_run_candidate_hte_packet": CandidateDecisionPacketHTEProjection,
         "get_control_pre_admission_attempt_by_idempotency_key": (
             ControlPreAdmissionAttemptResponse
         ),
@@ -2547,47 +2549,59 @@ def _success_example_response_adapters() -> dict[str, TypeAdapter[Any]]:
 
 @lru_cache(maxsize=1)
 def _confidence_ledger_risk_spend_example() -> dict[str, Any]:
-    """Project and strictly admit the real measured DS17 negative example."""
+    """Load and strictly admit the pinned historical DS17 documentation sample."""
 
-    configured_root = os.getenv("POLISYOS_GOVERNED_ARTIFACT_ROOT")
-    repository_root = (
-        Path(configured_root) if configured_root else Path(__file__).resolve().parents[4]
+    raw = (
+        files("polisyos.runtime.http")
+        .joinpath("_resources")
+        .joinpath("confidence_ledger_risk_spend_openapi_example.json")
+        .read_bytes()
     )
-    packet = ConfidenceLedgerRiskSpendProjectionService(repository_root).get()
-    if not isinstance(packet, AvailableConfidenceLedgerRiskSpendPacket):
-        raise ValueError("DS17 OpenAPI source is not owner-admitted")
+    if hashlib.sha256(raw).hexdigest() != _CONFIDENCE_LEDGER_RISK_SPEND_OPENAPI_EXAMPLE_SHA256:
+        raise ValueError("DS17 OpenAPI example differs from its pinned SHA-256")
+
+    admitted = TypeAdapter(ConfidenceLedgerRiskSpendPacket).validate_json(raw, strict=True)
+    if not isinstance(admitted, AvailableConfidenceLedgerRiskSpendPacket):
+        raise ValueError("DS17 historical OpenAPI example changed transport arm")
 
     sample_time = datetime(2026, 2, 11, 12, tzinfo=UTC)
-    normalized = packet.model_copy(
-        update={
-            "as_of": sample_time,
-            "freshness": packet.freshness.model_copy(
-                update={
-                    "observed_at": sample_time,
-                    "source_as_of": sample_time,
-                }
-            ),
-            "replay_pins": packet.replay_pins.model_copy(update={"source_as_of": sample_time}),
-        }
+    source = admitted.source
+    validation = source.validation
+    expected_artifact_hash = (
+        "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391"
     )
-    projection_hash = hash_export_projection(packet_semantic_projection(normalized))
-    replay_pins = normalized.replay_pins.model_copy(update={"projection_hash": projection_hash})
-    normalized = normalized.model_copy(
-        update={
-            "replay_pins": replay_pins,
-            "projection_hash": projection_hash,
-            "replay_address": build_export_replay_address(
-                normalized.stable_address,
-                replay_pins.model_dump(mode="json"),
-            ),
-        }
+    expected_dependency_hash = (
+        "sha256:4a0fd9f4e6ce949f538bbd8219afa144498fbc4bd8c1c0c2ab9ba12eea6c17aa"
     )
-    admitted = TypeAdapter(ConfidenceLedgerRiskSpendPacket).validate_json(
-        normalized.model_dump_json(),
-        strict=True,
+    expected_receipt_hash = (
+        "sha256:74d4f2214adfcc1405f4ed46ef0d320c84be3f7217e8d9b756e8dee22af1e7ee"
     )
-    if not isinstance(admitted, AvailableConfidenceLedgerRiskSpendPacket):
-        raise ValueError("DS17 OpenAPI example changed transport arm")
+    if (
+        source.relative_path
+        != "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json"
+        or source.artifact_content_hash != expected_artifact_hash
+        or source.declared_content_hash
+        != "sha256:e971664fcdad74569735873c4a65f33922f2b4cd9e09d91fa39c1beba3cdb2a4"
+        or validation.bound_artifact_content_hash != expected_artifact_hash
+        or validation.bound_dependency_aggregate_identity != expected_dependency_hash
+        or validation.bound_dependency_count != 1476
+        or validation.worker_validation_receipt_hash != expected_receipt_hash
+        or validation.status != "passed"
+        or validation.issue_codes
+        or admitted.source_dependency_hash != expected_dependency_hash
+        or admitted.worker_validation_receipt_hash != expected_receipt_hash
+        or admitted.worker_validation_receipt_ref != f"owner-validation:{expected_receipt_hash}"
+        or admitted.replay_pins.artifact_content_hash != expected_artifact_hash
+        or admitted.replay_pins.source_dependency_hash != expected_dependency_hash
+        or admitted.as_of != sample_time
+        or admitted.freshness.observed_at != sample_time
+        or admitted.freshness.source_as_of != sample_time
+        or admitted.freshness.basis != "filesystem_mtime"
+        or admitted.freshness.state != "observed"
+        or admitted.replay_pins.source_as_of != sample_time
+    ):
+        raise ValueError("DS17 historical provenance or example time pin changed")
+
     payload = admitted.payload
     measured_shape = (
         len(payload.refusal_instance_refs),
@@ -2602,6 +2616,127 @@ def _confidence_ledger_risk_spend_example() -> dict[str, Any]:
     if measured_shape != (1, 2, 15, 13, 0, 0, "open_world_unresolved", "not_promoted"):
         raise ValueError("DS17 OpenAPI measured negative shape drifted")
     return admitted.model_dump(mode="json")
+
+
+def _confidence_ledger_risk_spend_example_set() -> dict[str, Any]:
+    """Return the historical packet as an explicitly non-current documentation example."""
+
+    return {
+        "default": {
+            "summary": "Historical owner-validated documentation sample",
+            "description": (
+                "Pinned historical documentation sample from source commit "
+                "be0bdb2bd2ac8d6a7dbb5eda6dbd25aac7516bf4. Its source artifact SHA-256 is "
+                "dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391; "
+                "the recorded dependency aggregate is "
+                "sha256:4a0fd9f4e6ce949f538bbd8219afa144498fbc4bd8c1c0c2ab9ba12eea6c17aa "
+                "and recorded worker receipt is "
+                "sha256:74d4f2214adfcc1405f4ed46ef0d320c84be3f7217e8d9b756e8dee22af1e7ee. "
+                "Example time: 2026-02-11T12:00:00Z. This is a documentation fixture, not a "
+                "current availability or freshness claim; the live GET evaluates the owner "
+                "source independently for each request."
+            ),
+            "value": _confidence_ledger_risk_spend_example(),
+        }
+    }
+
+
+_SUCCESS_EXAMPLE_SETS_BY_OPERATION["get_confidence_ledger_risk_spend_projection"] = (
+    _confidence_ledger_risk_spend_example_set
+)
+
+
+def _run_method_metric_projection_success_examples() -> dict[str, Any]:
+    # Produce the owner-unavailable route fallback through its response DTO.
+    encoded = json.dumps(
+        {
+            "meta": _META_CORE_RUN,
+            "run_id": _RUN_ID_SAMPLE,
+            "status": "verification_missing",
+            "vector_ref": None,
+            "observations": [],
+            "limitations": ["current_method_metric_owner_unavailable"],
+        },
+        ensure_ascii=False,
+        allow_nan=False,
+    )
+    response = MethodMetricProjectionResponse.model_validate_json(encoded, strict=True)
+    return {
+        "owner_unavailable": {
+            "summary": "Current method-metric owner unavailable",
+            "description": (
+                "The route fallback when no current method-metric owner reader is available. "
+                "No vector or observations are asserted."
+            ),
+            "value": response.model_dump(mode="json"),
+        }
+    }
+
+
+_SUCCESS_EXAMPLE_SETS_BY_OPERATION["get_run_method_metrics"] = (
+    _run_method_metric_projection_success_examples
+)
+
+
+def _run_candidate_hte_packet_success_examples() -> dict[str, Any]:
+    """Build a controlled absence fixture through the packet projection owner."""
+    from polisyos.runtime.http.services.candidate_hte_packet_projection import (
+        CandidateDecisionPacketHTEProjection,
+        project_candidate_hte_packet,
+    )
+
+    packet_ref = core_artifacts.ArtifactRef(
+        artifact_id=_ARTIFACT_ID_SAMPLE,
+        kind="scientist.decision_packet",
+        media_type="application/json",
+        manifest_profile_sha256=_SHA_LINEAGE,
+    )
+    packet_payload: dict[str, Any] = {
+        "schema_version": "3.4",
+        "hte": None,
+        "decision_validity_envelope": {
+            "data_basis": {
+                "summary": {
+                    "completed_hte_source_status": "verification_missing",
+                    "completed_hte_request_status": "requested",
+                    "completed_hte_requested_source_run_id": _RUN_ID_SAMPLE,
+                    "completed_hte_authority_purpose": "candidate_method_evidence",
+                    "completed_hte_publication_authorization": "not_established",
+                    "completed_hte_currentness_status": "not_established",
+                    "completed_hte_limitations": ["completed_hte_source_not_established"],
+                }
+            }
+        },
+    }
+    projection = project_candidate_hte_packet(
+        packet_payload=packet_payload,
+        packet_run_id=_RUN_ID_SAMPLE,
+        packet_ref=packet_ref,
+        source_run_id_selector=_RUN_ID_SAMPLE,
+        fresh_source=None,
+        reader_at=datetime.fromisoformat(_TS_SAMPLE.replace("Z", "+00:00")),
+    )
+    response = CandidateDecisionPacketHTEProjection.model_validate_json(
+        json.dumps(projection.model_dump(mode="json"), ensure_ascii=False, allow_nan=False),
+        strict=True,
+    )
+    return {
+        "controlled_absence_fixture": {
+            "summary": "Controlled candidate-source absence fixture",
+            "description": (
+                "Documentation-only fixture for a DecisionPacket whose completed HTE source "
+                "could not be established. It contains no source candidate, does not establish "
+                "live source currentness, and grants no publication authorization. The live "
+                "route resolves the selected packet and owner source on each request."
+            ),
+            "value": response.model_dump(mode="json"),
+        }
+    }
+
+
+_SUCCESS_EXAMPLE_SETS_BY_OPERATION["get_run_candidate_hte_packet"] = (
+    _run_candidate_hte_packet_success_examples
+)
 
 
 _SUCCESS_EXAMPLES_BY_OPERATION: dict[
@@ -2737,7 +2872,6 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[
             }
         ],
     },
-    "get_confidence_ledger_risk_spend_projection": (_confidence_ledger_risk_spend_example),
     "get_governed_projection": {
         "packet_schema_version": "policyos.runtime.governed_projection_packet.v1",
         "export_replay_contract": "policyos.runtime.export_replay_binding.v1",
@@ -5701,7 +5835,7 @@ def validate_runtime_openapi_contract(schema: dict[str, Any]) -> list[str]:
                 )
                 if isinstance(json_payload, dict):
                     actual_response_schema = json_payload.get("schema")
-                    expected_model_schema = adapter.json_schema()
+                    expected_model_schema = adapter.json_schema(mode="serialization")
                     actual_projection = _success_json_schema_projection(
                         actual_response_schema,
                         document=schema,

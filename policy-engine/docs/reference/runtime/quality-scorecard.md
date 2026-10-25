@@ -16,7 +16,6 @@ not manufacture missing evidence, convert candidate output into authority, or
 sign/authorize a public policy claim; approval and custody remain separate
 consumers.
 
-
 Canary-generated public exports remain persisted at the existing bundle path and are passed to
 scorecard candidate-firewall and audit consumers through a separate projection channel. Replay
 continuity freezes selected caller/loaded input surfaces before any canary-local report or
@@ -63,6 +62,19 @@ Phase 0.3 adds only new fields:
 
 Consumers must ignore unknown fields and must not infer approval readiness from
 `quality_status` alone.
+
+The selected-BERL claim-argument path also adds the optional
+`policy_design_claim_argument_validation_diagnostic` field when the existing
+serious-canary validation applies to a case with final major claims. It serializes
+the same validation result used to produce the claim-argument gates. The selected
+CAS bundle supplies each method's requested/effective identity, fallback details,
+scope, and explicit field-presence flags; embedded copies cannot replace a supplied
+bundle reference that fails to resolve. Canary assembly persists this diagnostic
+in `quality_evidence/quality_scorecard.json`.
+
+This diagnostic does not supply missing claim/run subject resolution, conditional
+law, production currentness, or policy authority. Its presence does not establish
+that the overall canary is admissible or approval-ready.
 
 ## Stage Scores
 
@@ -205,13 +217,13 @@ reviewer deliberation, secrets, or full request bodies.
 
 `approval_state` is one of:
 
-| State | Meaning |
-| --- | --- |
-| `execution_failed` | The control job did not complete. Quality evidence cannot approve it. |
-| `quality_failed` | Execution completed but at least one blocking quality gate failed and no accepted override is present. |
-| `quality_warn` | Execution completed with warning gates and no blocking quality failure. |
+| State               | Meaning                                                                                                          |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `execution_failed`  | The control job did not complete. Quality evidence cannot approve it.                                            |
+| `quality_failed`    | Execution completed but at least one blocking quality gate failed and no accepted override is present.           |
+| `quality_warn`      | Execution completed with warning gates and no blocking quality failure.                                          |
 | `override_required` | Execution and quality are otherwise acceptable, but serious performance/readiness evidence requires an override. |
-| `approval_ready` | Execution completed and the run is eligible for approval, either cleanly or with an accepted override trail. |
+| `approval_ready`    | Execution completed and the run is eligible for approval, either cleanly or with an accepted override trail.     |
 
 `performance_status` is derived from runtime performance evidence. A
 `budget_summary.over_budget_count > 0` or any `phase_budgets[*].status` of

@@ -14,7 +14,7 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.cursor import CursorState, WatermarkType
 from polisyos.fabric.data_plane.cursor_store import CursorStore
 from polisyos.fabric.data_plane.orchestrator import IngestionResult
-from polisyos.fabric.ingestion import IngestionDependencies
+from polisyos.fabric.ingestion import ConnectorManifestSpec, IngestionDependencies
 from polisyos.ir.connectors import (
     ConnectorCapability,
     DataVersion,
@@ -1091,19 +1091,9 @@ class TestIncrementalCheckpoint:
 # ---------------------------------------------------------------------------
 
 
-def _make_manifest():
-    """Build a lightweight manifest-like object."""
-    from types import SimpleNamespace
-
-    return SimpleNamespace(
-        datasets=[
-            SimpleNamespace(
-                connector_id="worldbank.wdi",
-                dataset_id="NY.GDP.MKTP.CD",
-                filters={},
-            ),
-        ],
-    )
+def _make_manifest() -> ConnectorManifestSpec:
+    """Build a typed manifest accepted by the incremental ingestion API."""
+    return ConnectorManifestSpec.from_mapping(_make_dict_manifest())
 
 
 def _make_dict_manifest() -> dict[str, list[dict[str, str]]]:

@@ -6,6 +6,7 @@ from decimal import Decimal
 from pathlib import Path
 
 import duckdb
+import pytest
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -15,8 +16,11 @@ from polisyos.data_forge.domains.legal.corpus import (
     build_version_index,
     ingest_legal_doc_bytes,
 )
+from polisyos.data_forge.domains.legal.source_relation import (
+    LegalSourceRelationVerificationMissingError,
+)
 from polisyos.data_forge.read_api.legal import export_normative_claim_sets
-from polisyos.fabric.claims.persist import load_json_artifact
+from polisyos.fabric.claims.persist import load_doc_meta, load_json_artifact
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.world.materialize import materialize_world_duckdb_from_fact_log
 from polisyos.ir.loading.citations import CitationRef, DocumentRef
@@ -302,6 +306,11 @@ def test_norm_rule_sorting_is_deterministic() -> None:
 
 
 def test_normpack_phase17_end_to_end(tmp_path: Path) -> None:
+    """Persist and consume a candidate pack from explicitly manual seed bytes.
+
+    These test-authored inputs exercise candidate computation only; they do not
+    establish legal source-relation verification or protected legal authority.
+    """
     cas = FileSystemCAS(tmp_path / "cas")
     db = SimulationDB(db_path=str(tmp_path / "sim.duckdb"))
 
@@ -376,11 +385,46 @@ norm: roads.max_speed_kmh <= 60 [km]
         db=None,
     )
 
+    assert result_1.claim_set_artifact_ids
+    assert all(
+        load_doc_meta(cas, row.doc_meta_artifact_id).props.get("source_type") == "legal_manual_seed"
+        for row in result_1.selected_doc_versions
+    )
     assert result_1.norm_pack_artifact_id == result_2.norm_pack_artifact_id
     assert cas.has(ArtifactID.model_validate(result_1.norm_pack_artifact_id))
 
     norm_pack = _load_norm_pack(cas, result_1.norm_pack_artifact_id)
     assert norm_pack.norms
+
+    claim_set_payloads = [
+        load_json_artifact(cas, artifact_id) for artifact_id in result_1.claim_set_artifact_ids
+    ]
+    assert all(payload["claims"] for payload in claim_set_payloads)
+    candidate_request = NormPackBuildRequest(
+        jurisdiction="ua",
+        as_of="2025-06-01",
+        domain="roads",
+        claim_set_artifact_ids=result_1.claim_set_artifact_ids,
+    )
+    candidate_result = assemble_norm_pack(
+        cas=cas,
+        fact_log_root=tmp_path,
+        request=candidate_request,
+        db=None,
+        segment_name="normpack_manual_candidate_claim_set_replay",
+    )
+    assert candidate_result.claim_set_artifact_ids == result_1.claim_set_artifact_ids
+    assert len(candidate_result.selected_doc_versions) == 2
+    assert candidate_result.selected_fragment_ids
+    assert all(
+        "selected_via=claim_set_artifact_ids" in row.explanation
+        for row in candidate_result.selected_doc_versions
+    )
+    candidate_pack = _load_norm_pack(cas, candidate_result.norm_pack_artifact_id)
+    assert candidate_pack.norms
+    assert set(candidate_pack.metadata["source_doc_version_ids"]) == {
+        row.doc_version_id for row in candidate_result.selected_doc_versions
+    }
 
     materialize_world_duckdb_from_fact_log(tmp_path, db, cas)
 
@@ -388,6 +432,12 @@ norm: roads.max_speed_kmh <= 60 [km]
         "SELECT COUNT(*) FROM world.world_events WHERE event_kind = 'assemble_norm_pack'"
     ).fetchone()[0]
     assert event_count >= 1
+    candidate_event_count = db.conn.execute(
+        "SELECT COUNT(*) FROM world.world_events WHERE event_id = ? "
+        "AND event_kind = 'assemble_norm_pack'",
+        [candidate_result.world_event_id],
+    ).fetchone()[0]
+    assert candidate_event_count == 1
 
     for rule in norm_pack.norms:
         for provision_ref in rule.provision_refs:
@@ -425,47 +475,45 @@ norm: roads.max_speed_kmh <= 60 [km]
     assert winners_before == winners_after
 
 
-def test_normpack_can_build_from_exported_claim_sets(tmp_path: Path) -> None:
-    cas = FileSystemCAS(tmp_path / "cas")
+def test_normpack_export_refuses_unverified_source_relation_before_outputs(
+    tmp_path: Path,
+) -> None:
     db_path = tmp_path / "lex.duckdb"
     _seed_bridge_db(db_path)
 
-    bridge_result = export_normative_claim_sets(
-        db_path=db_path,
-        cas_root=cas.root,
-        fact_log_root=tmp_path,
-        output_dir=tmp_path / "claim_exports",
-    )
+    with duckdb.connect(str(db_path), read_only=True) as con:
+        assert con.execute("SELECT COUNT(*) FROM lex_normative_facts").fetchone()[0] == 2
 
-    request = NormPackBuildRequest(
-        jurisdiction="ua",
-        as_of="2025-06-01",
-        domain="roads",
-        claim_set_artifact_ids=bridge_result.normalized_claim_set_artifact_ids,
-    )
+    cas_root = tmp_path / "cas"
+    fact_log_root = tmp_path / "fact_log"
+    output_dir = tmp_path / "claim_exports"
+    assert not cas_root.exists()
+    assert not fact_log_root.exists()
+    assert not output_dir.exists()
 
-    result = assemble_norm_pack(
-        cas=cas,
-        fact_log_root=tmp_path,
-        request=request,
-        db=None,
-    )
+    before_entries = {path.relative_to(tmp_path) for path in tmp_path.rglob("*")}
+    before_files = {
+        path.relative_to(tmp_path): path.read_bytes()
+        for path in tmp_path.rglob("*")
+        if path.is_file()
+    }
 
-    assert result.claim_set_artifact_ids == bridge_result.normalized_claim_set_artifact_ids
-    assert len(result.selected_doc_versions) == 2
-    assert result.selected_fragment_ids
-    assert result.conflict_set_ids
+    with pytest.raises(LegalSourceRelationVerificationMissingError) as refusal:
+        export_normative_claim_sets(
+            db_path=db_path,
+            cas_root=cas_root,
+            fact_log_root=fact_log_root,
+            output_dir=output_dir,
+        )
 
-    norm_pack = _load_norm_pack(cas, result.norm_pack_artifact_id)
-    assert norm_pack.norms
-    assert any(rule.backend_metadata["operator"] == "<=" for rule in norm_pack.norms)
-
-    claim_set_payload = load_json_artifact(cas, result.claim_set_artifact_ids[0])
-    assert claim_set_payload["claims"]
-
-    sim_db = SimulationDB(db_path=str(tmp_path / "sim.duckdb"))
-    materialize_world_duckdb_from_fact_log(tmp_path, sim_db, cas)
-    assemble_events = sim_db.conn.execute(
-        "SELECT COUNT(*) FROM world.world_events WHERE event_kind = 'assemble_norm_pack'"
-    ).fetchone()[0]
-    assert assemble_events >= 1
+    assert refusal.value.refusal.code == "legal_source_relation_verification_not_established"
+    assert refusal.value.refusal.status == "verification_missing"
+    assert not cas_root.exists()
+    assert not fact_log_root.exists()
+    assert not output_dir.exists()
+    assert {path.relative_to(tmp_path) for path in tmp_path.rglob("*")} == before_entries
+    assert {
+        path.relative_to(tmp_path): path.read_bytes()
+        for path in tmp_path.rglob("*")
+        if path.is_file()
+    } == before_files

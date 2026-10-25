@@ -2,7 +2,13 @@ from __future__ import annotations
 
 import logging
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts import (
+    input_ref_from_artifact_ref,
+    profile_bound_ref,
+)
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     SchemaInfo,
@@ -14,8 +20,14 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.compiler.report import CompileReport, put_compile_report, put_link_report
 from polisyos.core.contracts.backtest import BacktestReportRef
-from polisyos.core.contracts.fabric import DataSnapshot
-from polisyos.core.contracts.foundry import ExecPlanRef, Metrics, MetricsRef, SimulationResult
+from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+from polisyos.core.contracts.foundry import (
+    ExecPlanRef,
+    Metrics,
+    MetricsRef,
+    SimulationResult,
+    StateSnapshotRef,
+)
 from polisyos.core.contracts.lex import ChangeProposalRef, LegalReportRef
 from polisyos.core.contracts.scientist import (
     GovernanceAccountabilityArtifactRef,
@@ -23,6 +35,8 @@ from polisyos.core.contracts.scientist import (
 )
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.execute.executor import put_state_snapshot
 from polisyos.ir.analytics.abm_bridge import (
     ABMAlignmentReport,
     AlignmentResult,
@@ -126,8 +140,13 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintySource,
     persist_uncertainty_envelope,
 )
+from polisyos.ir.governance.policy_spec import PolicySpec
+from polisyos.ir.governance.problem_frame import ConstraintSpec, ProblemFrame
 from polisyos.ir.linker import LinkReport
+from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.registry.refs import ArtifactRefModel, UncertaintyEnvelopeRef
+from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir.trinity.loaders import persist_trinity_bundle_artifact
 from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixResult
 from polisyos.scientist.governance.calibration_leaderboard import (
     CalibrationLeaderboardEntry,
@@ -162,7 +181,6 @@ from polisyos.scientist.governance.human_review.packets import (
     build_review_packet,
     persist_review_packet,
 )
-from polisyos.scientist.governance.report import GovernanceReport, GovernanceReportLinks
 from polisyos.scientist.governance.stress_scenarios import StressScenarioKind, StressScenarioResult
 from polisyos.scientist.methods.search.readiness import (
     DecisionReadiness,
@@ -226,49 +244,162 @@ from polisyos.scientist.validation.policy_verified.models import (
 )
 
 
+def _persist_trinity_bundle(store, payload: object | None = None):
+    """Persist a valid Trinity fixture through its declared owner."""
+    base = TrinityBundle(
+        problem_frame=ProblemFrame(
+            problem_id="decision_packet_fixture_problem",
+            domain="social",
+            hard_constraints=[
+                ConstraintSpec(
+                    constraint_id="fixture_budget_cap",
+                    value=1,
+                    slot_id="budget",
+                )
+            ],
+        ),
+        policy_spec=PolicySpec(policy_id="decision_packet_fixture_policy"),
+        model_spec=ModelSpec(
+            model_id="decision_packet_fixture_model",
+            data_snapshot_ref="sha256:" + "0" * 64,
+        ),
+    )
+    if (
+        isinstance(payload, dict)
+        and {
+            "problem_frame",
+            "policy_spec",
+            "model_spec",
+        }
+        <= payload.keys()
+    ):
+        bundle = TrinityBundle.model_validate(payload)
+    elif isinstance(payload, dict) and "policy_spec" in payload:
+        policy_payload = {
+            **base.policy_spec.model_dump(mode="python"),
+            **payload["policy_spec"],
+        }
+        bundle = base.model_copy(update={"policy_spec": PolicySpec.model_validate(policy_payload)})
+    else:
+        bundle = base
+    return persist_trinity_bundle_artifact(_ensure_ir_artifact_store(store), bundle)
+
+
+def _persist_state_snapshot(store: FileSystemCAS) -> StateSnapshotRef:
+    """Persist a real selected Foundry state snapshot for source-bound fixtures."""
+    snapshot_ref = put_state_snapshot(
+        store,
+        state=GlobalState.empty(n_agents=2, n_firms=1),
+        step=0,
+        return_selected_profile=True,
+    )
+    assert snapshot_ref.manifest_profile_sha256 is not None
+    assert store.get_manifest(snapshot_ref).artifact_schema == SchemaInfo(
+        name="polisyos.core.StateSnapshot",
+        version="2.2.0",
+    )
+    return snapshot_ref
+
+
+def _persist_data_snapshot(
+    store: FileSystemCAS,
+    *,
+    data_ref: ArtifactRef | None = None,
+    quality_report_ref: ArtifactRef | None = None,
+) -> DataSnapshotRef:
+    """Persist a selected DataSnapshot with a profile-bound source edge."""
+    source_ref = (
+        _persist_state_snapshot(store) if data_ref is None else profile_bound_ref(store, data_ref)
+    )
+    selected_quality_ref = (
+        None if quality_report_ref is None else profile_bound_ref(store, quality_report_ref)
+    )
+    inputs = [input_ref_from_artifact_ref(source_ref, role="data_ref")]
+    if selected_quality_ref is not None:
+        inputs.append(input_ref_from_artifact_ref(selected_quality_ref, role="quality_report_ref"))
+    ref = store.put_json(
+        DataSnapshot(data_ref=source_ref, quality_report_ref=selected_quality_ref),
+        PutOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    snapshot_ref = DataSnapshotRef.model_validate(ref.model_dump(mode="python"))
+    assert snapshot_ref.manifest_profile_sha256 is not None
+    assert store.get_manifest(snapshot_ref).artifact_schema == SchemaInfo(
+        name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+        version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+    )
+    return snapshot_ref
+
+
 def _artifact_id(ch: str) -> str:
     return f"sha256:{ch * 64}"
 
 
-def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_path) -> None:
+def _execute_current_governance_and_packet(ctx, state):
+    """Run the real selected governance producer into the packet consumer."""
+    from polisyos.scientist.nodes.builtins.governance.run_governance import RunGovernanceNode
+    from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
+    from polisyos.scientist.orchestration.engine.registry import NodeRegistry
+    from polisyos.scientist.orchestration.workflows.policy_design import (
+        policy_design_workflow_spec,
+    )
+
+    registry = NodeRegistry()
+    registry.register(RunGovernanceNode())
+    registry.register(BuildDecisionPacketNode())
+    selected = policy_design_workflow_spec()
+    invocations = {item.alias: item for item in selected.nodes}
+    workflow = selected.model_copy(
+        update={
+            "nodes": [
+                invocations["run_governance"].model_copy(update={"depends_on": []}),
+                invocations["build_decision_packet"].model_copy(
+                    update={"depends_on": ["run_governance"]}
+                ),
+            ],
+            "required_binds": ["run_id"],
+        }
+    )
+    return WorkflowExecutor(ctx, registry).execute(workflow, state)
+
+
+def _packet_record(workflow_result):
+    return next(
+        record for record in workflow_result.report.nodes if record.alias == "build_decision_packet"
+    )
+
+
+def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(
+    tmp_path, monkeypatch
+) -> None:
     store = FileSystemCAS(tmp_path)
-    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    registry_bundle = build_default_registry_bundle(store, return_selected_profile=True).bundle_ref
     run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_packet_v3")
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    state_snapshot_ref = store.put_json(
-        {"state": {}},
-        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
-    )
-    data_snapshot_ref = store.put_json(
-        {
-            "data_ref": {
-                "artifact_id": str(state_snapshot_ref.artifact_id),
-                "kind": "foundry.state_snapshot",
-                "media_type": "application/json",
-            }
-        },
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store)
+    state_snapshot_ref = _persist_state_snapshot(store)
+    data_snapshot_ref = _persist_data_snapshot(store, data_ref=state_snapshot_ref)
     metrics_ref = store.put_json(
         Metrics(values={"applied_nodes": 1, "status": "ok"}),
-        PutOptions(kind="foundry.metrics", media_type="application/json"),
-    )
-    governance_ref = store.put_json(
-        GovernanceReport(verdict="approve", issues=[]),
         PutOptions(
-            kind="scientist.governance_report",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.scientist.GovernanceReport", version="1.0"),
+            kind=Metrics.ARTIFACT_KIND,
+            media_type=Metrics.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=Metrics.ARTIFACT_SCHEMA_NAME,
+                version=Metrics.ARTIFACT_SCHEMA_VERSION,
+            ),
         ),
+        canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
     research_dag_ref = store.put_json(
@@ -386,22 +517,24 @@ def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_pat
             ARTIFACT_REISSUE_PACKET_REF: reissue_packet_ref,
             ARTIFACT_WITHDRAWAL_RECORD_REF: withdrawal_record_ref,
         },
-        reports_index={REPORT_GOVERNANCE_REPORT_REF: governance_ref},
         params={
             "random_seed": 123,
             "scientist.best_in_class.wave2.phase2_1.claim_ledger_v2": True,
         },
     )
 
-    outcome = BuildDecisionPacketNode().execute(ctx, state)
-    packet_ref = outcome.artifacts[0]
+    workflow_result = _execute_current_governance_and_packet(ctx, state)
+    packet_record = _packet_record(workflow_result)
+    assert packet_record.status == "ok"
+    packet_ref = workflow_result.state.artifacts_index["decision_packet_ref"]
+    governance_ref = workflow_result.state.reports_index[REPORT_GOVERNANCE_REPORT_REF]
     payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
     manifest = store.get_manifest(packet_ref.artifact_id)
     roles = {item.role for item in manifest.inputs}
 
     assert payload["schema_version"] == "3.4"
     assert payload["seed"] == 123
-    assert payload["policy_summary"] == "Policy data attached"
+    assert payload["policy_summary"] == "Policy with 0 intervention(s)"
     assert payload["replay"]["strategy_hint"] == "scientist"
     assert payload["replay"]["why_partial"] == ["missing_optional_inputs"]
     assert "input_bindings_ref" in payload["replay"]["missing_refs"]
@@ -437,7 +570,7 @@ def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_pat
     assert payload["continuous_governance"]["recommended_actions"] == ["human_review"]
     assert payload["continuous_governance"]["has_reissue_packet"] is True
     assert payload["continuous_governance"]["has_withdrawal_record"] is True
-    assert ARTIFACT_CLAIMS_REF not in outcome.state.artifacts_index
+    assert ARTIFACT_CLAIMS_REF not in workflow_result.state.artifacts_index
     assert payload["feedback_loop"]["anchor_at"] is not None
     assert payload["feedback_loop"]["monitoring_contract_ref"] is not None
     assert payload["feedback_loop"]["latest_monitoring_report_ref"] is None
@@ -456,13 +589,107 @@ def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_pat
     assert "claims" not in roles
     assert "voi.voi_run_report_ref" in roles
     assert "continuous_governance.continuous_governance_report_ref" in roles
+    from dataclasses import replace
+
+    from polisyos.scientist.governance.report_currentness import (
+        GOVERNANCE_REPORT_SOURCE_BASIS_ID,
+        resolve_current_governance_report,
+    )
+    from polisyos.scientist.orchestration.engine.context import (
+        _EngineInvocationBinding,
+        _load_engine_owned_invocation_input_state,
+    )
+
+    attempts = run.read_runtime_invocation_attempts()
+    packet_attempt = next(
+        item for item in attempts if item.basis.node_alias == "build_decision_packet"
+    )
+    packet_input_ctx = replace(
+        ctx,
+        _engine_invocation=_EngineInvocationBinding(
+            run_id=packet_attempt.basis.run_id,
+            attempt_id=packet_attempt.basis.attempt_id,
+            basis_ref=packet_attempt.basis_ref,
+            require_successful_completion=True,
+        ),
+    )
+    packet_input_state = _load_engine_owned_invocation_input_state(
+        packet_input_ctx,
+        workflow_result.state,
+    )
+    assert packet_input_state is not None
+    assert "decision_packet_ref" not in packet_input_state.artifacts_index
+
+    admission = resolve_current_governance_report(ctx, packet_input_state, governance_ref)
+    assert admission.is_current, admission.reason_code
+    assert admission.reason_code == "governance_report_source_current"
+    assert admission.report is not None
+    binding = admission.report.invocation_binding
+    assert binding is not None
+    governance_attempt = next(
+        item for item in attempts if item.basis.node_alias == "run_governance"
+    )
+    assert governance_attempt.outcome is not None
+    assert governance_attempt.outcome.status == "ok"
+    assert binding.run_id == packet_input_state.run_id
+    assert binding.node_alias == "run_governance"
+    assert binding.component_id == governance_attempt.basis.component_id
+    assert binding.attempt_basis_ref == governance_attempt.basis_ref
+    assert binding.workflow_spec_ref == governance_attempt.basis.workflow_spec_ref
+    assert binding.input_state_ref == governance_attempt.basis.input_state_ref
+    assert binding.source_basis_id == GOVERNANCE_REPORT_SOURCE_BASIS_ID
+    assert all(
+        ref.manifest_profile_sha256 is not None
+        for ref in (
+            binding.attempt_basis_ref,
+            binding.workflow_spec_ref,
+            binding.input_state_ref,
+        )
+    )
+    assert any(
+        output_ref.artifact_id == governance_ref.artifact_id
+        and output_ref.manifest_profile_sha256 == governance_ref.manifest_profile_sha256
+        for output_ref in governance_attempt.outcome.output_refs
+    )
+    assert payload["governance"]["currentness"] == "current"
+
+    # Keep the selected report and producer markers intact, but falsify the
+    # source-projected params map. Both the resolver and packet consumer must refuse.
+    changed_state = packet_input_state.model_copy(deep=True)
+    changed_state.params["random_seed"] = 124
+    changed_selector = changed_state.reports_index[REPORT_GOVERNANCE_REPORT_REF]
+    assert changed_selector.artifact_id == governance_ref.artifact_id
+    assert changed_selector.manifest_profile_sha256 == governance_ref.manifest_profile_sha256
+    changed_admission = resolve_current_governance_report(ctx, changed_state, governance_ref)
+    assert changed_admission.status == "stale"
+    assert changed_admission.reason_code == "producer_source_projection_changed"
+
+    packet_put_kinds: list[str] = []
+    original_put_json = ctx.store.put_json
+
+    def track_packet_put(obj, options, *args, **kwargs):
+        if options.kind == "scientist.decision_packet":
+            packet_put_kinds.append(options.kind)
+        return original_put_json(obj, options, *args, **kwargs)
+
+    with monkeypatch.context() as patcher:
+        patcher.setattr(ctx.store, "put_json", track_packet_put)
+        stale_packet = BuildDecisionPacketNode().execute(ctx, changed_state)
+    assert stale_packet.status == "fail"
+    assert stale_packet.error is not None
+    assert stale_packet.error.code == "governance_report_not_established"
+    assert (
+        stale_packet.error.details["governance_report_refusal_code"]
+        == "producer_source_projection_changed"
+    )
+    assert packet_put_kinds == []
 
 
 def test_build_decision_packet_blocks_naked_recommendation_when_claim_gate_enabled(
     tmp_path,
 ) -> None:
     store = FileSystemCAS(tmp_path)
-    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    registry_bundle = build_default_registry_bundle(store, return_selected_profile=True).bundle_ref
     run = RunContext.start(
         store=store,
         registry_bundle=registry_bundle,
@@ -474,18 +701,8 @@ def test_build_decision_packet_blocks_naked_recommendation_when_claim_gate_enabl
         logger=logging.getLogger("test.packet.naked_claim_gate"),
     )
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    data_snapshot_ref = store.put_json(
-        {"data_ref": None},
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store)
+    data_snapshot_ref = _persist_data_snapshot(store)
     verified_policy_ref = persist_verified_policy_report(
         store,
         VerifiedPolicyReport(
@@ -509,13 +726,14 @@ def test_build_decision_packet_blocks_naked_recommendation_when_claim_gate_enabl
         },
     )
 
-    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    workflow_result = _execute_current_governance_and_packet(ctx, state)
+    packet_record = _packet_record(workflow_result)
 
-    assert outcome.status == "fail"
-    assert outcome.error is not None
-    assert outcome.error.code == "claim_spine_validation_failed"
-    assert outcome.error.details["claim_ledger_status"] == "legacy_missing"
-    assert outcome.error.details["violations"] == [
+    assert packet_record.status == "fail"
+    assert packet_record.error is not None
+    assert packet_record.error.code == "claim_spine_validation_failed"
+    assert packet_record.error.details["claim_ledger_status"] == "legacy_missing"
+    assert packet_record.error.details["violations"] == [
         "missing_claims_ref_for_decision_bearing_payload"
     ]
 
@@ -534,28 +752,9 @@ def test_build_decision_packet_includes_metric_validation_projection(tmp_path) -
         logger=logging.getLogger("test.packet.metric_validation"),
     )
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    state_snapshot_ref = store.put_json(
-        {"state": {}},
-        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
-    )
-    data_snapshot_ref = store.put_json(
-        {
-            "data_ref": {
-                "artifact_id": str(state_snapshot_ref.artifact_id),
-                "kind": "foundry.state_snapshot",
-                "media_type": "application/json",
-            }
-        },
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    state_snapshot_ref = _persist_state_snapshot(store)
+    data_snapshot_ref = _persist_data_snapshot(store, data_ref=state_snapshot_ref)
     metrics_ref = store.put_json(
         Metrics(values={"accuracy": 0.76}),
         PutOptions(kind="foundry.metrics", media_type="application/json"),
@@ -679,14 +878,7 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_metrics(tmp_pa
     run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_packet_degraded")
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet.degraded"))
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
     data_snapshot_ref = store.put_json(
         {"data_ref": None},
         PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
@@ -738,28 +930,14 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_decision_basis
         logger=logging.getLogger("test.packet.invalid_quality_basis"),
     )
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    state_snapshot_ref = store.put_json(
-        {"state": {}},
-        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    state_snapshot_ref = _persist_state_snapshot(store)
     invalid_quality_ref = store.put_json(
         ["invalid"],
         PutOptions(kind="fabric.quality_report", media_type="application/json"),
     )
-    data_snapshot_ref = store.put_json(
-        DataSnapshot(
-            data_ref=state_snapshot_ref,
-            quality_report_ref=invalid_quality_ref,
-        ),
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    data_snapshot_ref = _persist_data_snapshot(
+        store, data_ref=state_snapshot_ref, quality_report_ref=invalid_quality_ref
     )
 
     state = ExperimentState(
@@ -786,22 +964,12 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_decision_basis
 
 def test_build_decision_packet_surfaces_legal_links_and_contract_warnings(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
-    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    registry_bundle = build_default_registry_bundle(store, return_selected_profile=True).bundle_ref
     run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_packet_diag")
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
 
-    trinity_ref = store.put_json(
-        {"policy_spec": {"interventions": []}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    data_snapshot_ref = store.put_json(
-        {"data_ref": None},
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"policy_spec": {"interventions": []}})
+    data_snapshot_ref = _persist_data_snapshot(store)
     legal_report_artifact = store.put_json(
         {"summary": {"compliance_grade": "pass"}},
         PutOptions(kind="lex.legal_report", media_type="application/json"),
@@ -812,22 +980,6 @@ def test_build_decision_packet_surfaces_legal_links_and_contract_warnings(tmp_pa
     )
     legal_report_ref = LegalReportRef(artifact_id=legal_report_artifact.artifact_id)
     change_proposal_ref = ChangeProposalRef(artifact_id=change_proposal_artifact.artifact_id)
-    governance_ref = store.put_json(
-        GovernanceReport(
-            verdict="approve",
-            issues=[],
-            links=GovernanceReportLinks(
-                legal_report_ref=legal_report_ref,
-                change_proposal_ref=change_proposal_ref,
-            ),
-        ),
-        PutOptions(
-            kind="scientist.governance_report",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.scientist.GovernanceReport", version="1.0"),
-        ),
-        return_selected_profile=True,
-    )
     link_report_ref = put_link_report(
         store,
         LinkReport(
@@ -875,7 +1027,6 @@ def test_build_decision_packet_surfaces_legal_links_and_contract_warnings(tmp_pa
             INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
         },
         reports_index={
-            REPORT_GOVERNANCE_REPORT_REF: governance_ref,
             REPORT_LEGAL_REPORT_REF: legal_report_ref,
             REPORT_CHANGE_PROPOSAL_REF: change_proposal_ref,
             REPORT_LINK_REPORT_REF: link_report_ref,
@@ -887,8 +1038,10 @@ def test_build_decision_packet_surfaces_legal_links_and_contract_warnings(tmp_pa
         },
     )
 
-    outcome = BuildDecisionPacketNode().execute(ctx, state)
-    packet_ref = outcome.artifacts[0]
+    workflow_result = _execute_current_governance_and_packet(ctx, state)
+    packet_record = _packet_record(workflow_result)
+    assert packet_record.status == "ok"
+    packet_ref = workflow_result.state.artifacts_index["decision_packet_ref"]
     payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
 
     assert payload["governance"]["links"]["legal_report_ref"]["artifact_id"] == str(
@@ -909,56 +1062,46 @@ def test_build_decision_packet_includes_tradeoff_certificate_and_normative_valid
     tmp_path,
 ) -> None:
     store = FileSystemCAS(tmp_path)
-    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    registry_bundle = build_default_registry_bundle(store, return_selected_profile=True).bundle_ref
     run = RunContext.start(
         store=store, registry_bundle=registry_bundle, run_id="R_packet_normative"
     )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet.normative"))
 
-    trinity_ref = store.put_json(
-        {
-            "schema_version": "1.0",
-            "problem_frame": {
+    trinity_ref = _persist_trinity_bundle(
+        store,
+        TrinityBundle.model_validate(
+            {
                 "schema_version": "1.0",
-                "problem_id": "normative_problem",
-                "domain": "social",
-                "normative_frame": {
-                    "comparison_mode": "proposal_vs_baseline",
-                    "default_policy": "weighted_welfare",
-                    "enabled_policies": ["weighted_welfare"],
-                    "stakeholder_bindings": [],
-                    "utility_terms": [],
-                    "rights_catalog": [],
-                    "hard_constraint_refs": [],
+                "problem_frame": {
+                    "schema_version": "1.0",
+                    "problem_id": "normative_problem",
+                    "domain": "social",
+                    "normative_frame": {
+                        "comparison_mode": "proposal_vs_baseline",
+                        "default_policy": "weighted_welfare",
+                        "enabled_policies": ["weighted_welfare"],
+                        "stakeholder_bindings": [],
+                        "utility_terms": [],
+                        "rights_catalog": [],
+                        "hard_constraint_refs": [],
+                    },
                 },
-            },
-            "policy_spec": {"schema_version": "1.0", "policy_id": "policy", "interventions": []},
-            "model_spec": {
-                "schema_version": "1.0",
-                "model_id": "model",
-                "data_snapshot_ref": "sha256:" + "0" * 64,
-                "fidelity_level": "hybrid",
-            },
-        },
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+                "policy_spec": {
+                    "schema_version": "1.0",
+                    "policy_id": "policy",
+                    "interventions": [],
+                },
+                "model_spec": {
+                    "schema_version": "1.0",
+                    "model_id": "model",
+                    "data_snapshot_ref": "sha256:" + "0" * 64,
+                    "fidelity_level": "hybrid",
+                },
+            }
         ),
     )
-    data_snapshot_ref = store.put_json(
-        {"data_ref": None},
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
-    governance_ref = store.put_json(
-        GovernanceReport(verdict="approve", issues=[]),
-        PutOptions(
-            kind="scientist.governance_report",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.scientist.GovernanceReport", version="1.0"),
-        ),
-        return_selected_profile=True,
-    )
+    data_snapshot_ref = _persist_data_snapshot(store)
     normative_ref = persist_normative_arbitration_result(
         _ensure_ir_artifact_store(store),
         NormativeArbitrationResult(
@@ -1018,11 +1161,12 @@ def test_build_decision_packet_includes_tradeoff_certificate_and_normative_valid
             INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
         },
         artifacts_index={ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF: normative_ref},
-        reports_index={REPORT_GOVERNANCE_REPORT_REF: governance_ref},
     )
 
-    outcome = BuildDecisionPacketNode().execute(ctx, state)
-    packet_ref = outcome.artifacts[0]
+    workflow_result = _execute_current_governance_and_packet(ctx, state)
+    packet_record = _packet_record(workflow_result)
+    assert packet_record.status == "ok"
+    packet_ref = workflow_result.state.artifacts_index["decision_packet_ref"]
     payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
 
     assert payload["artifacts"]["normative_arbitration_result_ref"] == str(
@@ -1042,33 +1186,14 @@ def test_build_decision_packet_includes_tradeoff_certificate_and_normative_valid
 
 def test_build_decision_packet_rejects_incomplete_serious_contract(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
-    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    registry_bundle = build_default_registry_bundle(store, return_selected_profile=True).bundle_ref
     run = RunContext.start(
         store=store, registry_bundle=registry_bundle, run_id="R_packet_serious_fail"
     )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet.serious"))
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    data_snapshot_ref = store.put_json(
-        {"data_ref": None},
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
-    governance_ref = store.put_json(
-        GovernanceReport(verdict="approve", issues=[]),
-        PutOptions(
-            kind="scientist.governance_report",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.scientist.GovernanceReport", version="1.0"),
-        ),
-        return_selected_profile=True,
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    data_snapshot_ref = _persist_data_snapshot(store)
 
     state = ExperimentState(
         run_id="R_packet_serious_fail",
@@ -1077,26 +1202,29 @@ def test_build_decision_packet_rejects_incomplete_serious_contract(tmp_path) -> 
             INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
             INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
         },
-        reports_index={REPORT_GOVERNANCE_REPORT_REF: governance_ref},
         execution_profile="governed",
     )
 
-    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    workflow_result = _execute_current_governance_and_packet(ctx, state)
+    packet_record = _packet_record(workflow_result)
 
-    assert outcome.status == "fail"
-    assert outcome.error is not None
-    assert outcome.error.code == "node.invalid_state"
-    assert "capability_manifest_ref" in outcome.error.details["missing_contracts"]
-    assert ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF in outcome.error.details["missing_contracts"]
-    assert ARTIFACT_TRANSPORTABILITY_RESULT_REF in outcome.error.details["missing_contracts"]
-    assert ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF in outcome.error.details["missing_contracts"]
+    assert packet_record.status == "fail"
+    assert packet_record.error is not None
+    assert packet_record.error.code == "node.invalid_state"
+    assert packet_record.error.details["missing_contracts"] == [
+        "capability_manifest_ref",
+        ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
+        ARTIFACT_TRANSPORTABILITY_RESULT_REF,
+        ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF,
+        "monitoring_contract_ref",
+    ]
 
 
 def test_build_decision_packet_records_degraded_paths_for_invalid_normative_arbitration(
     tmp_path,
 ) -> None:
     store = FileSystemCAS(tmp_path)
-    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    registry_bundle = build_default_registry_bundle(store, return_selected_profile=True).bundle_ref
     run = RunContext.start(
         store=store,
         registry_bundle=registry_bundle,
@@ -1108,30 +1236,17 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_normative_arbi
         logger=logging.getLogger("test.packet.invalid_normative"),
     )
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    data_snapshot_ref = store.put_json(
-        {"data_ref": None},
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
-    governance_ref = store.put_json(
-        GovernanceReport(verdict="approve", issues=[]),
-        PutOptions(
-            kind="scientist.governance_report",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.scientist.GovernanceReport", version="1.0"),
-        ),
-        return_selected_profile=True,
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    data_snapshot_ref = _persist_data_snapshot(store)
     invalid_normative_ref = store.put_json(
-        ["invalid"],
-        PutOptions(kind="ir.normative_arbitration_result", media_type="application/json"),
+        {"schema_version": "1.0"},
+        PutOptions(
+            kind="ir.normative_arbitration_result",
+            media_type="application/json",
+            schema=SchemaInfo(name="ir.normative_arbitration_result", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
 
     state = ExperimentState(
@@ -1142,11 +1257,13 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_normative_arbi
             INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
         },
         artifacts_index={ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF: invalid_normative_ref},
-        reports_index={REPORT_GOVERNANCE_REPORT_REF: governance_ref},
     )
 
-    outcome = BuildDecisionPacketNode().execute(ctx, state)
-    payload = from_canonical_bytes(store.get_bytes(outcome.artifacts[0].artifact_id))
+    workflow_result = _execute_current_governance_and_packet(ctx, state)
+    packet_record = _packet_record(workflow_result)
+    assert packet_record.status == "ok"
+    packet_ref = workflow_result.state.artifacts_index["decision_packet_ref"]
+    payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
     degraded_reasons = {item["reason"] for item in payload["degraded_paths"]}
 
     assert payload["tradeoff_certificate"] is None
@@ -1157,59 +1274,57 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_normative_arbi
 
 def test_build_decision_packet_accepts_complete_serious_contract(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
-    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    registry_bundle = build_default_registry_bundle(store, return_selected_profile=True).bundle_ref
     run = RunContext.start(
         store=store, registry_bundle=registry_bundle, run_id="R_packet_serious_ok"
     )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet.serious.ok"))
 
-    trinity_ref = store.put_json(
-        {
-            "schema_version": "1.0",
-            "problem_frame": {
+    trinity_ref = _persist_trinity_bundle(
+        store,
+        TrinityBundle.model_validate(
+            {
                 "schema_version": "1.0",
-                "problem_id": "serious_problem",
-                "domain": "social",
-                "normative_frame": {
-                    "comparison_mode": "proposal_vs_baseline",
-                    "default_policy": "weighted_welfare",
-                    "enabled_policies": ["weighted_welfare"],
-                    "stakeholder_bindings": [],
-                    "utility_terms": [],
-                    "rights_catalog": [],
-                    "hard_constraint_refs": [],
+                "problem_frame": {
+                    "schema_version": "1.0",
+                    "problem_id": "serious_problem",
+                    "domain": "social",
+                    "normative_frame": {
+                        "comparison_mode": "proposal_vs_baseline",
+                        "default_policy": "weighted_welfare",
+                        "enabled_policies": ["weighted_welfare"],
+                        "stakeholder_bindings": [],
+                        "utility_terms": [],
+                        "rights_catalog": [],
+                        "hard_constraint_refs": [],
+                    },
                 },
-            },
-            "policy_spec": {"schema_version": "1.0", "policy_id": "policy", "interventions": []},
-            "model_spec": {
-                "schema_version": "1.0",
-                "model_id": "model",
-                "data_snapshot_ref": "sha256:" + "0" * 64,
-                "fidelity_level": "hybrid",
-            },
-        },
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+                "policy_spec": {
+                    "schema_version": "1.0",
+                    "policy_id": "policy",
+                    "interventions": [],
+                },
+                "model_spec": {
+                    "schema_version": "1.0",
+                    "model_id": "model",
+                    "data_snapshot_ref": "sha256:" + "0" * 64,
+                    "fidelity_level": "hybrid",
+                },
+            }
         ),
     )
-    data_snapshot_ref = store.put_json(
-        {"data_ref": None},
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    data_snapshot_ref = _persist_data_snapshot(store)
     metrics_ref = store.put_json(
         Metrics(values={"policy_cost": 100.0, "applied_nodes": 1}),
-        PutOptions(kind="foundry.metrics", media_type="application/json"),
-        canon_spec=CanonSpec(forbid_floats=False),
-    )
-    governance_ref = store.put_json(
-        GovernanceReport(verdict="approve", issues=[]),
         PutOptions(
-            kind="scientist.governance_report",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.scientist.GovernanceReport", version="1.0"),
+            kind=Metrics.ARTIFACT_KIND,
+            media_type=Metrics.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=Metrics.ARTIFACT_SCHEMA_NAME,
+                version=Metrics.ARTIFACT_SCHEMA_VERSION,
+            ),
         ),
+        canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
     normative_ref = persist_normative_arbitration_result(
@@ -1295,15 +1410,15 @@ def test_build_decision_packet_accepts_complete_serious_contract(tmp_path) -> No
             ARTIFACT_TRANSPORTABILITY_RESULT_REF: transport_ref,
             ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF: cross_graph_ref,
         },
-        reports_index={REPORT_GOVERNANCE_REPORT_REF: governance_ref},
         execution_profile="governed",
         capability_manifest_ref=capability_manifest_ref,
     )
 
-    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    workflow_result = _execute_current_governance_and_packet(ctx, state)
+    packet_record = _packet_record(workflow_result)
+    assert packet_record.status == "ok"
+    packet_ref = workflow_result.state.artifacts_index["decision_packet_ref"]
 
-    assert outcome.status == "ok"
-    packet_ref = outcome.artifacts[0]
     payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
     assert payload["runtime_contracts"]["execution_profile"] == "governed"
     assert payload["runtime_contracts"]["capability_manifest_ref"] == str(
@@ -1322,28 +1437,9 @@ def test_build_decision_packet_node_accepts_float_uncertainty_bounds(tmp_path, m
     run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_packet_unc")
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    state_snapshot_ref = store.put_json(
-        {"state": {}},
-        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
-    )
-    data_snapshot_ref = store.put_json(
-        {
-            "data_ref": {
-                "artifact_id": str(state_snapshot_ref.artifact_id),
-                "kind": "foundry.state_snapshot",
-                "media_type": "application/json",
-            }
-        },
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    state_snapshot_ref = _persist_state_snapshot(store)
+    data_snapshot_ref = _persist_data_snapshot(store, data_ref=state_snapshot_ref)
     metrics_ref = store.put_json(
         Metrics(values={"applied_nodes": 1, "step_latency_ms": 12}),
         PutOptions(kind="foundry.metrics", media_type="application/json"),
@@ -1463,28 +1559,9 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_uncertainty_ou
         logger=logging.getLogger("test.packet.invalid_uncertainty_output"),
     )
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    state_snapshot_ref = store.put_json(
-        {"state": {}},
-        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
-    )
-    data_snapshot_ref = store.put_json(
-        {
-            "data_ref": {
-                "artifact_id": str(state_snapshot_ref.artifact_id),
-                "kind": "foundry.state_snapshot",
-                "media_type": "application/json",
-            }
-        },
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    state_snapshot_ref = _persist_state_snapshot(store)
+    data_snapshot_ref = _persist_data_snapshot(store, data_ref=state_snapshot_ref)
     metrics_ref = store.put_json(
         Metrics(values={"applied_nodes": 1, "step_latency_ms": 12}),
         PutOptions(kind="foundry.metrics", media_type="application/json"),
@@ -1547,28 +1624,9 @@ def test_build_decision_packet_includes_causal_section(tmp_path) -> None:
     run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_packet_causal")
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    state_snapshot_ref = store.put_json(
-        {"state": {}},
-        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
-    )
-    data_snapshot_ref = store.put_json(
-        {
-            "data_ref": {
-                "artifact_id": str(state_snapshot_ref.artifact_id),
-                "kind": "foundry.state_snapshot",
-                "media_type": "application/json",
-            }
-        },
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    state_snapshot_ref = _persist_state_snapshot(store)
+    data_snapshot_ref = _persist_data_snapshot(store, data_ref=state_snapshot_ref)
     report_ref = persist_causal_effect_report(
         _ensure_ir_artifact_store(store),
         CausalEffectReport(
@@ -1654,28 +1712,9 @@ def test_build_decision_packet_surfaces_dp_status_from_readiness_and_bounds(tmp_
     )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet.dp"))
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    state_snapshot_ref = store.put_json(
-        {"state": {}},
-        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
-    )
-    data_snapshot_ref = store.put_json(
-        {
-            "data_ref": {
-                "artifact_id": str(state_snapshot_ref.artifact_id),
-                "kind": "foundry.state_snapshot",
-                "media_type": "application/json",
-            }
-        },
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    state_snapshot_ref = _persist_state_snapshot(store)
+    data_snapshot_ref = _persist_data_snapshot(store, data_ref=state_snapshot_ref)
     readiness_ref = persist_decision_readiness_contract(
         store,
         DecisionReadinessContract(
@@ -1766,28 +1805,9 @@ def test_build_decision_packet_includes_abm_alignment_section(tmp_path) -> None:
     )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    state_snapshot_ref = store.put_json(
-        {"state": {}},
-        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
-    )
-    data_snapshot_ref = store.put_json(
-        {
-            "data_ref": {
-                "artifact_id": str(state_snapshot_ref.artifact_id),
-                "kind": "foundry.state_snapshot",
-                "media_type": "application/json",
-            }
-        },
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    state_snapshot_ref = _persist_state_snapshot(store)
+    data_snapshot_ref = _persist_data_snapshot(store, data_ref=state_snapshot_ref)
     abm_ref = persist_abm_alignment_report(
         _ensure_ir_artifact_store(store),
         ABMAlignmentReport(
@@ -1898,28 +1918,9 @@ def test_build_decision_packet_includes_approximate_abstraction_metadata(tmp_pat
     )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    state_snapshot_ref = store.put_json(
-        {"state": {}},
-        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
-    )
-    data_snapshot_ref = store.put_json(
-        {
-            "data_ref": {
-                "artifact_id": str(state_snapshot_ref.artifact_id),
-                "kind": "foundry.state_snapshot",
-                "media_type": "application/json",
-            }
-        },
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    state_snapshot_ref = _persist_state_snapshot(store)
+    data_snapshot_ref = _persist_data_snapshot(store, data_ref=state_snapshot_ref)
     abstraction_map_ref = persist_finite_state_abstraction_map(
         _ensure_ir_artifact_store(store),
         FiniteStateAbstractionMap(
@@ -2005,28 +2006,9 @@ def test_build_decision_packet_includes_hte_and_backtest_sections(tmp_path) -> N
     run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_packet_hte_bt")
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    state_snapshot_ref = store.put_json(
-        {"state": {}},
-        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
-    )
-    data_snapshot_ref = store.put_json(
-        {
-            "data_ref": {
-                "artifact_id": str(state_snapshot_ref.artifact_id),
-                "kind": "foundry.state_snapshot",
-                "media_type": "application/json",
-            }
-        },
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    state_snapshot_ref = _persist_state_snapshot(store)
+    data_snapshot_ref = _persist_data_snapshot(store, data_ref=state_snapshot_ref)
 
     hte_ref = persist_hte_result(
         _ensure_ir_artifact_store(store),
@@ -2102,6 +2084,67 @@ def test_build_decision_packet_includes_hte_and_backtest_sections(tmp_path) -> N
     assert payload["trust_profile"]["backtest_trust_grade"] is None
 
 
+def test_requested_completed_hte_source_never_falls_back_to_legacy_result(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_packet_hte_followup_missing",
+    )
+    ctx = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.packet.hte_followup"),
+    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    state_snapshot_ref = _persist_state_snapshot(store)
+    data_snapshot_ref = _persist_data_snapshot(store, data_ref=state_snapshot_ref)
+    legacy_hte_ref = persist_hte_result(
+        _ensure_ir_artifact_store(store),
+        HTEResult(
+            method=CausalMethod.CAUSAL_FOREST,
+            ate=0.2,
+            ate_ci_lower=0.1,
+            ate_ci_upper=0.3,
+            cate_values=[0.2, 0.2],
+            n_samples=2,
+            n_treated=1,
+            n_control=1,
+            n_features=1,
+            feature_names=["income"],
+        ),
+    )
+    state = ExperimentState(
+        run_id="R_packet_hte_followup_missing",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
+        },
+        artifacts_index={ARTIFACT_HTE_RESULT_REF: legacy_hte_ref},
+        params={"completed_hte_source_run_id": "R_unowned_or_missing"},
+    )
+
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+    packet_ref = outcome.artifacts[0]
+    payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+    roles = {item.role for item in store.get_manifest(packet_ref.artifact_id).inputs}
+
+    assert payload["hte"] is None
+    hte_basis = payload["decision_validity_envelope"]["data_basis"]["summary"]
+    assert hte_basis["completed_hte_request_status"] == "requested"
+    assert hte_basis["completed_hte_source_status"] == "verification_missing"
+    assert hte_basis["completed_hte_requested_source_run_id"] == "R_unowned_or_missing"
+    assert hte_basis["completed_hte_limitation_code"] == (
+        "completed_hte_selection_owner_not_established"
+    )
+    assert hte_basis["completed_hte_publication_authorization"] == "not_established"
+    assert ARTIFACT_HTE_RESULT_REF not in payload["artifacts"]
+    assert "artifact.hte_result_ref" not in roles
+    assert payload["decision_validity_baseline"]["status"] == "warning"
+
+
 def test_build_decision_packet_includes_calibration_validation_summary(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
@@ -2112,18 +2155,8 @@ def test_build_decision_packet_includes_calibration_validation_summary(tmp_path)
     )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    data_snapshot_ref = store.put_json(
-        {"data_ref": {"artifact_id": "sha256:" + "1" * 64}},
-        PutOptions(kind="foundry.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    data_snapshot_ref = _persist_data_snapshot(store)
     candidate_ref = ArtifactRef(
         artifact_id="sha256:" + "2" * 64,
         kind="scientist.test",
@@ -2218,28 +2251,9 @@ def test_build_decision_packet_includes_sensitivity_section(tmp_path) -> None:
     )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    state_snapshot_ref = store.put_json(
-        {"state": {}},
-        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
-    )
-    data_snapshot_ref = store.put_json(
-        {
-            "data_ref": {
-                "artifact_id": str(state_snapshot_ref.artifact_id),
-                "kind": "foundry.state_snapshot",
-                "media_type": "application/json",
-            }
-        },
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    state_snapshot_ref = _persist_state_snapshot(store)
+    data_snapshot_ref = _persist_data_snapshot(store, data_ref=state_snapshot_ref)
     sensitivity_ref = persist_sensitivity_result(
         _ensure_ir_artifact_store(store),
         SensitivityResult(
@@ -2290,18 +2304,8 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_sensitivity_ar
         logger=logging.getLogger("test.packet.invalid_sensitivity"),
     )
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    data_snapshot_ref = store.put_json(
-        {"data_ref": None},
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    data_snapshot_ref = _persist_data_snapshot(store)
     invalid_sensitivity_ref = store.put_json(
         ["invalid"],
         PutOptions(kind="ir.sensitivity_result", media_type="application/json"),
@@ -2335,28 +2339,9 @@ def test_build_decision_packet_includes_causal_validity_section(tmp_path) -> Non
     )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    state_snapshot_ref = store.put_json(
-        {"state": {}},
-        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
-    )
-    data_snapshot_ref = store.put_json(
-        {
-            "data_ref": {
-                "artifact_id": str(state_snapshot_ref.artifact_id),
-                "kind": "foundry.state_snapshot",
-                "media_type": "application/json",
-            }
-        },
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    state_snapshot_ref = _persist_state_snapshot(store)
+    data_snapshot_ref = _persist_data_snapshot(store, data_ref=state_snapshot_ref)
     validity_ref = store.put_json(
         {
             "schema_version": "1.0",
@@ -2404,28 +2389,9 @@ def test_build_decision_packet_includes_transportability_summary(tmp_path) -> No
     )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    state_snapshot_ref = store.put_json(
-        {"state": {}},
-        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
-    )
-    data_snapshot_ref = store.put_json(
-        {
-            "data_ref": {
-                "artifact_id": str(state_snapshot_ref.artifact_id),
-                "kind": "foundry.state_snapshot",
-                "media_type": "application/json",
-            }
-        },
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    state_snapshot_ref = _persist_state_snapshot(store)
+    data_snapshot_ref = _persist_data_snapshot(store, data_ref=state_snapshot_ref)
 
     report_ref = persist_causal_effect_report(
         _ensure_ir_artifact_store(store),
@@ -2493,28 +2459,9 @@ def test_build_decision_packet_includes_ensemble_summary(tmp_path) -> None:
     )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    state_snapshot_ref = store.put_json(
-        {"state": {}},
-        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
-    )
-    data_snapshot_ref = store.put_json(
-        {
-            "data_ref": {
-                "artifact_id": str(state_snapshot_ref.artifact_id),
-                "kind": "foundry.state_snapshot",
-                "media_type": "application/json",
-            }
-        },
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    state_snapshot_ref = _persist_state_snapshot(store)
+    data_snapshot_ref = _persist_data_snapshot(store, data_ref=state_snapshot_ref)
     ensemble_ref = persist_causal_model_ensemble(
         _ensure_ir_artifact_store(store),
         CausalModelEnsemble(
@@ -2569,28 +2516,9 @@ def test_build_decision_packet_uses_dual_written_ensemble_envelope_for_causal_po
     )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet"))
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    state_snapshot_ref = store.put_json(
-        {"state": {}},
-        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
-    )
-    data_snapshot_ref = store.put_json(
-        {
-            "data_ref": {
-                "artifact_id": str(state_snapshot_ref.artifact_id),
-                "kind": "foundry.state_snapshot",
-                "media_type": "application/json",
-            }
-        },
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    state_snapshot_ref = _persist_state_snapshot(store)
+    data_snapshot_ref = _persist_data_snapshot(store, data_ref=state_snapshot_ref)
 
     ensemble_ref = persist_causal_model_ensemble(
         _ensure_ir_artifact_store(store),
@@ -2647,18 +2575,8 @@ def test_build_decision_packet_surfaces_strategic_runtime_artifacts(tmp_path) ->
     )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.packet.strategic"))
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    data_snapshot_ref = store.put_json(
-        {"data_ref": None},
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    data_snapshot_ref = _persist_data_snapshot(store)
     base_graph_ref = store.put_json(
         {"graph": {}},
         PutOptions(kind="ir.causal_graph", media_type="application/json"),
@@ -2936,18 +2854,8 @@ def test_build_decision_packet_includes_blocked_decomposition_failure_card(tmp_p
         logger=logging.getLogger("test.packet.strategic.decomposition_blocked"),
     )
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="ir.trinity_bundle", version="1.0"),
-        ),
-    )
-    data_snapshot_ref = store.put_json(
-        {"rows": 1},
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    data_snapshot_ref = _persist_data_snapshot(store)
     base_graph_ref = store.put_json(
         {"graph": {}},
         PutOptions(kind="ir.causal_graph", media_type="application/json"),
@@ -3089,18 +2997,8 @@ def test_build_decision_packet_falls_back_to_blocked_strategic_summary_without_b
         logger=logging.getLogger("test.packet.strategic.blocked"),
     )
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
-    )
-    data_snapshot_ref = store.put_json(
-        {"data_ref": None},
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    data_snapshot_ref = _persist_data_snapshot(store)
     base_graph_ref = store.put_json(
         {"graph": {}},
         PutOptions(kind="ir.causal_graph", media_type="application/json"),
@@ -3178,6 +3076,8 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
     import hashlib
     import json
     from collections import Counter
+
+    import pytest
 
     from polisyos.data_forge.domains.ukraine.manifests import HouseholdDiagnosticPanelBasis
     from polisyos.data_forge.read_api.ukraine import read_ukraine_json_snapshot
@@ -3473,14 +3373,8 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
             == (section["source_json_snapshot_reads"][contract])
         )
 
-    trinity_ref = store.put_json(
-        {"trinity": {}},
-        PutOptions(kind="ir.trinity_bundle", media_type="application/json"),
-    )
-    data_snapshot_ref = store.put_json(
-        {"data_ref": {"artifact_id": str(candidate_ref.artifact_id)}},
-        PutOptions(kind="foundry.data_snapshot", media_type="application/json"),
-    )
+    trinity_ref = _persist_trinity_bundle(store, {"trinity": {}})
+    data_snapshot_ref = _persist_data_snapshot(store)
     outer_inputs = list(store_manifest.inputs)
     structural_index = next(
         i
@@ -3518,6 +3412,37 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
         packet_ref = BuildDecisionPacketNode().execute(ctx, candidate_state).artifacts[0]
         return from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
 
+    def assert_calibration_bundle_parse_refused(label, *, reads, expected_error):
+        malformed_bundle = fresh.model_copy(
+            update={
+                "run_id": f"s1-nested-{label}",
+                "source_json_snapshot_reads": reads,
+            }
+        )
+        malformed_ref = persist_calibration_validation_bundle(
+            store,
+            malformed_bundle,
+            inputs=source_inputs,
+        )
+        with pytest.raises(ValueError, match=expected_error):
+            load_calibration_validation_bundle(store, malformed_ref)
+        assert _build_calibration_validation_section(
+            ctx,
+            {ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF: malformed_ref},
+        ) == {
+            "ref": str(malformed_ref.artifact_id),
+            "parse_warning": "calibration_validation_bundle_parse_failed",
+        }
+        packet = packet_for_bundle(malformed_ref)
+        assert packet["calibration_validation"]["parse_warning"] == (
+            "calibration_validation_bundle_parse_failed"
+        )
+        assert "summary" not in packet["calibration_validation"]
+        assert packet["backtest"]["backtest_report_status"] == "available"
+        assert packet["backtest"]["metric_diagnostics_status"] == "computed"
+        assert packet["backtest"]["metric_diagnostics"]
+        assert packet["backtest"]["trust_eligible"] is False
+
     def assert_binding_refused(
         label,
         *,
@@ -3527,6 +3452,7 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
         expected_reason=None,
         candidate_report_ref=report_ref,
         candidate_ref_for_bundle=candidate_artifact_ref,
+        expected_backtest_status="available",
     ):
         candidate_bundle = fresh.model_copy(
             update={
@@ -3550,7 +3476,7 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
         assert summary["source_json_snapshot_binding_status"] == expected_status
         if expected_reason is not None:
             assert summary["source_json_snapshot_binding_reason"] == expected_reason
-        assert summary["backtest_report_status"] == "available"
+        assert summary["backtest_report_status"] == expected_backtest_status
         assert summary["backtest_report_ref"] == str(candidate_report_ref.artifact_id)
         assert summary["backtest_metric_diagnostics_status"] == "unavailable"
         assert summary["backtest_metric_diagnostics"] is None
@@ -3567,12 +3493,12 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
         direct = packet["backtest"]
         nested = packet["calibration_validation"]
         assert direct["report_ref"] == str(candidate_report_ref.artifact_id)
-        assert direct["backtest_report_status"] == "available"
+        assert direct["backtest_report_status"] == expected_backtest_status
         assert direct["metric_diagnostics_status"] == "unavailable"
         assert direct["metric_diagnostics"] is None
         assert direct["trust_eligible"] is False
         assert nested["backtest_report_ref"] == str(candidate_report_ref.artifact_id)
-        assert nested["backtest_report_status"] == "available"
+        assert nested["backtest_report_status"] == expected_backtest_status
         assert nested["backtest_metric_diagnostics_status"] == "unavailable"
         assert nested["backtest_metric_diagnostics"] is None
         assert nested["source_json_snapshot_binding_status"] == expected_status
@@ -3580,13 +3506,14 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
         assert nested["summary"]["eligible_for_promotion"] is False
 
     assert_binding_refused("provenance-removed", reads={}, expected_status="not_established")
-    assert_binding_refused(
+    assert_calibration_bundle_parse_refused(
         "provenance-partial",
         reads={
             "scientist.d3.household_candidate_basis": source_json_snapshot_reads[
                 "scientist.d3.household_candidate_basis"
             ]
         },
+        expected_error="source JSON profile reads do not match the purpose contract set",
     )
     source_basis_edge = next(
         item for item in source_inputs if item.role == "household_source_basis"
@@ -3611,10 +3538,12 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
         "candidate-edge-duplicate",
         inputs=[*source_inputs, candidate_edge],
         expected_reason="candidate_source_input_edge_mismatch:candidate",
+        expected_backtest_status="unavailable",
     )
     assert_binding_refused(
         "input-edge-removed",
         inputs=[item for item in source_inputs if item.role != "household_source_basis"],
+        expected_backtest_status="unavailable",
     )
     assert_binding_refused(
         "input-edge-mismatched",
@@ -3623,8 +3552,13 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
             source_basis_edge,
             source_basis_edge.model_copy(update={"artifact_id": panel_edge.artifact_id}),
         ),
+        expected_backtest_status="unavailable",
     )
-    assert_binding_refused("input-edge-duplicated", inputs=[*source_inputs, source_basis_edge])
+    assert_binding_refused(
+        "input-edge-duplicated",
+        inputs=[*source_inputs, source_basis_edge],
+        expected_backtest_status="unavailable",
+    )
     basis_provenance = source_json_snapshot_reads["scientist.d3.household_candidate_basis"]
     missing_source_id = "sha256:" + "f" * 64
     missing_profile_id = "sha256:" + "e" * 64
@@ -3656,6 +3590,7 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
                 }
             ),
         ),
+        expected_backtest_status="unavailable",
     )
     foreign_profile_ref = store.put_bytes(
         store.get_bytes(basis_provenance.artifact_ref),
@@ -3678,6 +3613,7 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
             source_basis_edge,
             foreign_profile_ref.manifest_profile_sha256,
         ),
+        expected_backtest_status="unavailable",
     )
     assert (
         split_edge.manifest_profile_sha256
@@ -3689,7 +3625,11 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
     foreign_contract_reads["scientist.d3.household_candidate_basis"] = basis_provenance.model_copy(
         update={"consumer_contract": "scientist.d4.governance_request"}
     )
-    assert_binding_refused("provenance-foreign-contract", reads=foreign_contract_reads)
+    assert_calibration_bundle_parse_refused(
+        "provenance-foreign-contract",
+        reads=foreign_contract_reads,
+        expected_error="source JSON profile key differs from its consumer contract",
+    )
     foreign_profile_reads = dict(source_json_snapshot_reads)
     foreign_profile_reads["scientist.d3.household_candidate_basis"] = basis_provenance.model_copy(
         update={
@@ -3706,7 +3646,11 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
             "source_materialization": "raw_only_candidate",
         }
     )
-    assert_binding_refused("provenance-unknown-profile", reads=unknown_profile_reads)
+    assert_calibration_bundle_parse_refused(
+        "provenance-unknown-profile",
+        reads=unknown_profile_reads,
+        expected_error="unknown-profile JSON remains raw-only and cannot feed C5b",
+    )
 
     candidate_b_ref = store.put_json(
         {"candidate": "test-owned-B"},
@@ -3736,6 +3680,7 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
         inputs=candidate_b_inputs,
         candidate_report_ref=report_for_candidate_b_ref,
         expected_reason="candidate_source_input_edge_mismatch:candidate",
+        expected_backtest_status="unavailable",
     )
     assert_binding_refused(
         "typed-candidate-B-both-edges-A",
@@ -3743,6 +3688,7 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
         candidate_report_ref=report_ref,
         candidate_ref_for_bundle=candidate_b_artifact_ref,
         expected_reason="candidate_source_candidate_reference_mismatch",
+        expected_backtest_status="unavailable",
     )
 
     nonexistent_candidate_profile = "sha256:" + "c" * 64
@@ -3778,6 +3724,7 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
         candidate_report_ref=report_with_nonexistent_candidate_profile_ref,
         candidate_ref_for_bundle=candidate_ref_with_nonexistent_profile,
         expected_reason="candidate_source_manifest_profile_unavailable:candidate",
+        expected_backtest_status="unavailable",
     )
 
     foreign_report_refs = []
@@ -3838,7 +3785,7 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
         assert altered_summary["source_json_snapshot_binding_reason"] == (
             f"candidate_source_input_edge_mismatch:{source_role}"
         )
-        assert altered_summary["backtest_report_status"] == "available"
+        assert altered_summary["backtest_report_status"] == "unavailable"
         assert altered_summary["backtest_report_ref"] == str(report_ref.artifact_id)
         assert altered_summary["backtest_metric_diagnostics_status"] == "unavailable"
         assert altered_summary["backtest_metric_diagnostics"] is None
@@ -3863,7 +3810,7 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
         )
         assert direct_section is not None
         assert direct_section["source_json_snapshot_binding_status"] == "unavailable"
-        assert direct_section["backtest_report_status"] == "available"
+        assert direct_section["backtest_report_status"] == "unavailable"
         assert direct_section["backtest_metric_diagnostics_status"] == "unavailable"
         assert direct_section["backtest_metric_diagnostics"] is None
         assert direct_section["summary"]["eligible_for_promotion"] is False
@@ -3872,12 +3819,12 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
         direct = packet["backtest"]
         nested = packet["calibration_validation"]
         assert direct["report_ref"] == str(report_ref.artifact_id)
-        assert direct["backtest_report_status"] == "available"
+        assert direct["backtest_report_status"] == "unavailable"
         assert direct["metric_diagnostics_status"] == "unavailable"
         assert direct["metric_diagnostics"] is None
         assert direct["source_json_snapshot_binding_status"] == "unavailable"
         assert direct["trust_eligible"] is False
-        assert nested["backtest_report_status"] == "available"
+        assert nested["backtest_report_status"] == "unavailable"
         assert nested["source_json_snapshot_binding_status"] == "unavailable"
         assert nested["backtest_metric_diagnostics_status"] == "unavailable"
         assert nested["backtest_metric_diagnostics"] is None
@@ -3950,6 +3897,7 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
         inputs=source_inputs,
         candidate_report_ref=altered_duplicate_report_ref,
         expected_reason="candidate_source_input_edge_mismatch:controlled_extension_source",
+        expected_backtest_status="unavailable",
     )
 
     # Matching profile strings on both persisted edges are still only declarations
@@ -3982,6 +3930,7 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
             "candidate_source_manifest_profile_unavailable:controlled_extension_source"
         ),
         candidate_report_ref=falsely_profiled_report_ref,
+        expected_backtest_status="unavailable",
     )
 
     direct_profile_mismatch_packet = packet_for_bundle(bundle_ref, foreign_report_refs[0])
@@ -4055,11 +4004,10 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
     unregistered_reads[unregistered_contract] = source_json_snapshot_reads[
         "scientist.d3.household_candidate_basis"
     ].model_copy(update={"consumer_contract": unregistered_contract})
-    assert_binding_refused(
+    assert_calibration_bundle_parse_refused(
         "unregistered-source-contract",
         reads=unregistered_reads,
-        expected_status="not_established",
-        expected_reason="source_json_snapshot_contract_set_unrecognized",
+        expected_error="source JSON profile reads do not match the purpose contract set",
     )
 
     legacy_report = report.model_copy(update={"report_id": "s1-nested-legacy-profileless-report"})
@@ -4259,13 +4207,8 @@ def test_s1_c5b_fresh_backtest_binding_reaches_packet_and_rejects_kept_markers(
     registry = build_default_registry_bundle(store).bundle_ref
     run = RunContext.start(store=store, registry_bundle=registry, run_id="s1-packet")
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.s1"))
-    trinity = store.put_json(
-        {"trinity": {}}, PutOptions(kind="ir.trinity_bundle", media_type="application/json")
-    )
-    data = store.put_json(
-        {"data_ref": {"artifact_id": str(candidate.artifact_id)}},
-        PutOptions(kind="foundry.data_snapshot", media_type="application/json"),
-    )
+    trinity = _persist_trinity_bundle(store, {"trinity": {}})
+    data = _persist_data_snapshot(store)
     c5b = ArtifactRef(
         artifact_id=str(result.bundle_ref.artifact_id),
         kind="scientist.calibration_validation_bundle",
@@ -4760,13 +4703,8 @@ def test_s1_exact_zero_trust_recomputes_through_cas_c5b_and_packet(tmp_path) -> 
     registry = build_default_registry_bundle(store).bundle_ref
     run = RunContext.start(store=store, registry_bundle=registry, run_id="s1-exact-zero")
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.s1"))
-    trinity = store.put_json(
-        {"trinity": {}}, PutOptions(kind="ir.trinity_bundle", media_type="application/json")
-    )
-    data = store.put_json(
-        {"data_ref": {"artifact_id": str(candidate.artifact_id)}},
-        PutOptions(kind="foundry.data_snapshot", media_type="application/json"),
-    )
+    trinity = _persist_trinity_bundle(store, {"trinity": {}})
+    data = _persist_data_snapshot(store)
     state = ExperimentState(
         run_id="s1-exact-zero",
         inputs={
@@ -4869,3 +4807,73 @@ def test_s1_exact_zero_trust_recomputes_through_cas_c5b_and_packet(tmp_path) -> 
         assert (
             changed_packet["calibration_validation"]["summary"]["eligible_for_promotion"] is False
         )
+
+
+def test_trinity_candidate_identity_is_independent_of_run_id_and_refuses_invalid_override(
+    tmp_path,
+) -> None:
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
+        _resolve_candidate as resolve_policy_output_candidate,
+    )
+    from polisyos.scientist.policy_design.phase3 import (
+        _resolve_candidate as resolve_phase3_candidate,
+    )
+
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    trinity_ref = _persist_trinity_bundle(store)
+
+    for run_id in ("R_Candidate.Case-1", "R_candidate_case-2"):
+        run = RunContext.start(
+            store=store,
+            registry_bundle=registry_bundle,
+            run_id=run_id,
+        )
+        ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger(run_id))
+        state = ExperimentState(
+            run_id=run_id,
+            inputs={INPUT_TRINITY_BUNDLE_REF: trinity_ref},
+        )
+        resolved, resolved_ref = resolve_policy_output_candidate(ctx, state)
+        phase3_resolved = resolve_phase3_candidate(ctx, state)
+        assert resolved is not None and phase3_resolved is not None
+        assert resolved.candidate_id == "decision_packet_fixture_policy"
+        assert phase3_resolved.candidate_id == resolved.candidate_id
+        assert (
+            str(resolved_ref.artifact_id),
+            resolved_ref.kind,
+            resolved_ref.media_type,
+            resolved_ref.manifest_profile_sha256,
+        ) == (
+            str(trinity_ref.artifact_id),
+            trinity_ref.kind,
+            trinity_ref.media_type,
+            trinity_ref.manifest_profile_sha256,
+        )
+
+        explicit_state = state.model_copy(
+            update={"params": {"policy_candidate_id": "explicit_candidate"}}
+        )
+        explicit, _ = resolve_policy_output_candidate(ctx, explicit_state)
+        explicit_phase3 = resolve_phase3_candidate(ctx, explicit_state)
+        assert explicit is not None and explicit_phase3 is not None
+        assert explicit.candidate_id == "explicit_candidate"
+        assert explicit_phase3.candidate_id == "explicit_candidate"
+
+        for invalid_candidate_id in (None, "", 7):
+            invalid_state = state.model_copy(
+                update={"params": {"policy_candidate_id": invalid_candidate_id}}
+            )
+            try:
+                resolve_policy_output_candidate(ctx, invalid_state)
+            except ValueError as exc:
+                assert "policy_candidate_id_invalid" in str(exc)
+            else:
+                raise AssertionError("an explicit invalid candidate ID must be refused")
+            try:
+                resolve_phase3_candidate(ctx, invalid_state)
+            except CanonicalProfileRefusalError as exc:
+                assert exc.code == "phase3_selected_trinity_candidate_unreadable"
+            else:
+                raise AssertionError("Phase 3 must preserve invalid selected candidate refusal")

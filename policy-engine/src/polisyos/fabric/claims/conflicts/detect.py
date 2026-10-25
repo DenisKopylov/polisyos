@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.claims.errors import ClaimValidationError
 from polisyos.fabric.claims.persist import (
     claim_artifact_ids_by_claim_id,
@@ -37,7 +35,9 @@ from .types import ConflictDetectOptions, ConflictDetectResult
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from decimal import Decimal
+    from pathlib import Path
 
+    from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.ir.world.claim import Claim
 
 

@@ -12,6 +12,7 @@ from pydantic import BaseModel
 
 from polisyos.core.artifacts import (
     artifact_ref_for_manifest,
+    ensure_ir_artifact_store,
     read_core_manifest_profile,
     validate_core_model_json_artifact,
 )
@@ -52,10 +53,13 @@ from polisyos.core.contracts.foundry import (
 from polisyos.foundry.methods.catalog.simulation.dynamics import (
     build_abm_result_from_simulation,
 )
-from polisyos.ir.registry.refs import ABMResultRef
+from polisyos.ir.analytics.phase4_dynamics import persist_abm_result
+from polisyos.ir.artifacts import InputRef as IRInputRef
+from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.ir.registry.refs import ABMResultRef
 
 
 AttractorKind = Literal[
@@ -733,29 +737,24 @@ def attach_abm_bifurcation_report_ref(
         "summary": "CAS-resolved attractor analysis matches the selected simulation",
     }
     abm_result = type(abm_result).model_validate(abm_payload)
-    ref = store.put_json(
+    return persist_abm_result(
+        ensure_ir_artifact_store(store),
         abm_result,
-        PutOptions(
-            kind="ir.abm_result",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.ABMResult", version="1.0"),
-            inputs=[
-                InputRef(
-                    artifact_id=selected_simulation_ref.artifact_id,
-                    role="artifact.simulation_result_ref",
-                    manifest_profile_sha256=selected_simulation_ref.manifest_profile_sha256,
-                ),
-                InputRef(
-                    artifact_id=selected_analysis_ref.artifact_id,
-                    role="artifact.attractor_analysis_result_ref",
-                    manifest_profile_sha256=selected_analysis_ref.manifest_profile_sha256,
-                ),
-            ],
-        ),
-        canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=True,
+        schema_name="polisyos.ir.ABMResult",
+        inputs=[
+            IRInputRef(
+                artifact_id=str(selected_simulation_ref.artifact_id),
+                role="artifact.simulation_result_ref",
+                manifest_profile_sha256=selected_simulation_ref.manifest_profile_sha256,
+            ),
+            IRInputRef(
+                artifact_id=str(selected_analysis_ref.artifact_id),
+                role="artifact.attractor_analysis_result_ref",
+                manifest_profile_sha256=selected_analysis_ref.manifest_profile_sha256,
+            ),
+        ],
+        canon_spec=IRCanonSpec(forbid_floats=False),
     )
-    return ABMResultRef.model_validate(ref.model_dump(mode="python"))
 
 
 def load_attractor_analysis_result(

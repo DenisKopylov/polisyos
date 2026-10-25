@@ -8,7 +8,7 @@ can replay.
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -41,6 +41,9 @@ from polisyos.ir.world.ids import (
 
 from .errors import DocValidationError
 from .types import DocIngestOptions, DocIngestResult, DocSourceSpec
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 _RAW_SCHEMA = SchemaInfo(name="fabric.doc.raw", version="1.0")
 

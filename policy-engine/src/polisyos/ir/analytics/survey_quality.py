@@ -15,13 +15,24 @@ from polisyos.ir.analytics.administrative_missingness import (
     MissingnessAssessmentReport,
     MissingnessAssessmentStatus,
 )
+from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration, CanonInfo
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
+from polisyos.ir.migrations.base import (
+    CompatibilityMode,
+    IRRepresentationRegistration,
+    ResolvedSchemaAdmission,
+    register_ir_representation,
+    register_schema_version,
+)
+from polisyos.ir.model_layer.canon import CanonSpec
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from polisyos.ir.artifacts.contracts import ArtifactStore, InputRef
     from polisyos.ir.registry.refs import SurveyQualityCertificateRef
+
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
@@ -348,6 +359,102 @@ def _stable_strings(values: Iterable[str]) -> list[str]:
     return ordered
 
 
+_OWNER_SCHEMA_NAME = "ir.survey_quality_certificate"
+_OWNER_SCHEMA_VERSION = "1.0"
+_OWNER_WIRE_POLICY = ("ir.owner.surveyqualitycertificate.wire", "1")
+
+
+def _owner_payload_version(payload: object) -> str:
+    """Require an embedded source version; a DTO default is not historical evidence."""
+    if not isinstance(payload, dict):
+        raise TypeError("Owned SurveyQualityCertificate payload must be a JSON object")
+    version = payload.get("schema_version")
+    if type(version) is not str or not version.strip():
+        raise ValueError(
+            "Owned SurveyQualityCertificate payload requires an explicit schema_version"
+        )
+    return version
+
+
+def _validate_owner_source(
+    payload: object, admission: ResolvedSchemaAdmission
+) -> SurveyQualityCertificate:
+    """Validate bytes only under this owner exact registered source representation."""
+    registration = admission.source_registration
+    if registration.schema_name != _OWNER_SCHEMA_NAME:
+        raise ValueError("Owned SurveyQualityCertificate source has the wrong schema name")
+    if registration.payload_version != _owner_payload_version(payload):
+        raise ValueError(
+            "Owned SurveyQualityCertificate payload version disagrees with its representation"
+        )
+    return SurveyQualityCertificate.model_validate(payload)
+
+
+def _project_owner_source(
+    source: SurveyQualityCertificate,
+    admission: ResolvedSchemaAdmission,
+) -> SurveyQualityCertificate:
+    """Preserve the validated source value when no semantic projection is declared."""
+    if not isinstance(source, SurveyQualityCertificate):
+        raise TypeError("Owned SurveyQualityCertificate source was not validated by its owner")
+    if admission.source_registration.payload_version != source.schema_version:
+        raise ValueError(
+            "Owned SurveyQualityCertificate projection would change the source version"
+        )
+    return source
+
+
+def _validate_owner_profile(
+    profile: CanonInfo,
+    registration: IRRepresentationRegistration,
+) -> bool:
+    """Accept only the canonical profile used by this family real writer."""
+    expected = CanonInfo.from_spec(CanonSpec(forbid_floats=False))
+    return registration.profile_ref is None and profile == expected
+
+
+_surveyqualitycertificate_owner = ArtifactOwnerDeclaration(
+    contract_id="ir.analytics.survey_quality_certificate.v1",
+    dto_fqn="polisyos.ir.analytics.survey_quality.SurveyQualityCertificate",
+    abi_key="ir.survey_quality_certificate",
+    registry_key="ir.survey_quality_certificate",
+    kind="ir.survey_quality_certificate",
+    media_type="application/json",
+    purpose="ir.survey_quality_certificate.typed_consumer",
+    policy_revision="ir.analytics.survey_quality_certificate.v1.owner-admission.v1",
+    accepted_wire_policies=(_OWNER_WIRE_POLICY,),
+    payload_version_of=_owner_payload_version,
+    validate_source=_validate_owner_source,
+    project_for_consumer=_project_owner_source,
+    validate_profile=_validate_owner_profile,
+)
+
+
+register_schema_version(
+    _OWNER_SCHEMA_NAME,
+    _OWNER_SCHEMA_VERSION,
+    compatibility=CompatibilityMode.NONE,
+    notes=(
+        "SurveyQualityCertificate current owner-admitted representation; historical predecessors are not registered.",
+    ),
+)
+register_ir_representation(
+    registry_key=_surveyqualitycertificate_owner.registry_key,
+    owner_ref=_surveyqualitycertificate_owner.contract_id,
+    dto_abi=_surveyqualitycertificate_owner.dto_fqn,
+    wire_policy_ref=_OWNER_WIRE_POLICY[0],
+    wire_policy_revision=_OWNER_WIRE_POLICY[1],
+    schema_name=_OWNER_SCHEMA_NAME,
+    schema_version=_OWNER_SCHEMA_VERSION,
+    payload_version=_OWNER_SCHEMA_VERSION,
+    profile_ref=None,
+    readable=True,
+    writable=True,
+    current=True,
+    default_write=True,
+)
+
+
 def persist_survey_quality_certificate(
     store: ArtifactStore,
     certificate: SurveyQualityCertificate,
@@ -356,34 +463,26 @@ def persist_survey_quality_certificate(
     schema_name: str = "ir.survey_quality_certificate",
     schema_version: str = "1.0",
 ) -> SurveyQualityCertificateRef:
-    """Persist a survey-quality certificate and return its typed artifact ref."""
-
-    from polisyos.ir.artifacts.io import put_json_artifact
-    from polisyos.ir.model_layer.canon import CanonSpec
-    from polisyos.ir.registry.refs import SurveyQualityCertificateRef
-
-    ref = put_json_artifact(
+    """Persist a source-validated SurveyQualityCertificate under its exact owned representation."""
+    selected = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind="ir.survey_quality_certificate",
+        owner=_surveyqualitycertificate_owner,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return SurveyQualityCertificateRef.model_validate(ref)
+    from polisyos.ir.registry.refs import SurveyQualityCertificateRef
+
+    return SurveyQualityCertificateRef.model_validate(selected)
 
 
 def load_survey_quality_certificate(
-    store: ArtifactStore,
-    ref: SurveyQualityCertificateRef,
+    store: ArtifactStore, ref: SurveyQualityCertificateRef
 ) -> SurveyQualityCertificate:
-    """Load a persisted survey-quality certificate."""
-
-    from polisyos.ir.artifacts.io import get_json_artifact
-
-    payload = get_json_artifact(store, ref)
-    return SurveyQualityCertificate.model_validate(payload)
+    """Read SurveyQualityCertificate only after its trusted owner admits the stored representation."""
+    return _get_owned_json_artifact(store, ref, owner=_surveyqualitycertificate_owner)
 
 
 __all__ = [

@@ -22,8 +22,6 @@ from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.foundry import (
     ExecPlan,
     ExecPlanRef,
-    LoweredIR,
-    LoweredIRRef,
     MethodExecutionBundle,
     MethodMetricBinding,
     MethodMetricBindingSet,
@@ -32,6 +30,7 @@ from polisyos.core.contracts.foundry import (
     ProgramGraphRef,
     ProgramNode,
 )
+from polisyos.foundry.compile._lowering import lower_trinity
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.methods import (
     ComplexityClass,
@@ -44,6 +43,8 @@ from polisyos.foundry.methods import (
     Unit,
 )
 from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.ir.governance.policy_spec import PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.kernel import (
     DEFAULT_MECHANISM_REGISTRY,
     DEFAULT_MERGE_RULE_REGISTRY,
@@ -60,6 +61,8 @@ from polisyos.ir.kernel.method_metrics import (
     resolve_registered_method_metric_unit_adapter,
 )
 from polisyos.ir.kernel.units import RateUnit
+from polisyos.ir.model_layer.model_spec import ModelSpec
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.compute.job_spec import JobKey, JobResult, JobSpec
 from polisyos.scientist.compute.runner import (
     ExecutionResult,
@@ -279,17 +282,35 @@ def _put_selected_contract_model(
 def _real_binding_graph_and_plan(
     store: FileSystemCAS,
 ) -> tuple[ProgramGraphRef, ExecPlanRef, MethodMetricBindingSetRef]:
-    policy_ref = _selected_ref(
+    data_snapshot_ref = _selected_ref(
         store,
-        kind="ir.trinity_bundle",
-        schema_name="tests.LineagePolicy",
-        value={"candidate": "legacy-lineage-capture"},
+        kind="foundry.state_snapshot",
+        schema_name="tests.StateSnapshot",
+        value={"step": 0},
     )
     registry_ref = _selected_ref(
         store,
         kind="core.registry_bundle",
         schema_name="tests.LineageRegistry",
         value={"candidate": "registry"},
+    )
+    policy_bundle = TrinityBundle(
+        problem_frame=ProblemFrame(problem_id="lineage", domain=ProblemDomain.CUSTOM),
+        policy_spec=PolicySpec(policy_id="lineage"),
+        model_spec=ModelSpec(
+            model_id="lineage",
+            data_snapshot_ref=str(data_snapshot_ref.artifact_id),
+            registry_bundle_ref=str(registry_ref.artifact_id),
+        ),
+    )
+    policy_ref = _put_selected_contract_model(
+        store,
+        policy_bundle,
+        kind=TrinityBundle.ARTIFACT_KIND,
+        inputs=[
+            input_ref_from_artifact_ref(data_snapshot_ref, role="data_snapshot"),
+            input_ref_from_artifact_ref(registry_ref, role="registry_bundle"),
+        ],
     )
     metric_registry_ref = _selected_ref(
         store,
@@ -303,15 +324,21 @@ def _real_binding_graph_and_plan(
         schema_name="tests.LineageUnitsRegistry",
         value={"candidate": "units"},
     )
-    lowered_ir_ref = _put_selected_contract_model(
+    lowered_ir_ref, _, _ = lower_trinity(
         store,
-        LoweredIR(ir_ref=policy_ref, mechanisms=[], constraints=[]),
-        kind=LoweredIRRef.model_fields["kind"].default,
+        policy_ref=policy_ref,
+        registry_bundle_ref=registry_ref,
+        bundle=policy_bundle,
+        linked_bundle=SimpleNamespace(bindings=SimpleNamespace(interventions=[])),
+        registry_content=SimpleNamespace(
+            mechanism_registry=SimpleNamespace(mechanisms={}),
+            constraint_registry=SimpleNamespace(constraints={}),
+        ),
+        return_selected_profile=True,
     )
-    lowered_ir_typed_ref = LoweredIRRef.model_validate(lowered_ir_ref.model_dump(mode="python"))
     graph = ProgramGraph(
         ir_ref=policy_ref,
-        lowered_ir_ref=lowered_ir_typed_ref,
+        lowered_ir_ref=lowered_ir_ref,
         nodes=[
             ProgramNode(
                 node_id="lineage_method",
@@ -689,6 +716,7 @@ def test_legacy_job_preserves_partial_producer_capture_as_limited_provenance(tmp
         pytest.param("wrong_schema", id="changed-schema"),
         pytest.param("missing_profile", id="missing-profile"),
         pytest.param("duplicate_role", id="duplicate-role"),
+        pytest.param("unknown_schema_version", id="unknown-schema-version"),
     ],
 )
 def test_capture_reader_rejects_malformed_selected_roles(tmp_path, invalid_edge: str) -> None:
@@ -715,6 +743,15 @@ def test_capture_reader_rejects_malformed_selected_roles(tmp_path, invalid_edge:
             schema_name="tests.OtherBundle",
             value={"occurrences": []},
             schema_version="1.0",
+        )
+        inputs = [input_ref_from_artifact_ref(edge_ref, role="method_execution_bundle")]
+    elif invalid_edge == "unknown_schema_version":
+        edge_ref = _selected_ref(
+            store,
+            kind="foundry.method_execution_bundle",
+            schema_name="polisyos.core.MethodExecutionBundle",
+            value={"occurrences": []},
+            schema_version="0.999",
         )
         inputs = [input_ref_from_artifact_ref(edge_ref, role="method_execution_bundle")]
     elif invalid_edge == "wrong_profile":
@@ -758,6 +795,43 @@ def test_capture_reader_applies_explicit_manifest_byte_bound(tmp_path) -> None:
 
     with pytest.raises(CoreJsonReadBoundsRefusalError):
         read_job_result_method_execution_capture(store, job_result, max_manifest_bytes=1)
+
+
+def test_capture_reader_requires_the_owner_input_manifest_receipt(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    bundle_ref = _selected_ref(
+        store,
+        kind="foundry.method_execution_bundle",
+        schema_name="polisyos.core.MethodExecutionBundle",
+        value={"occurrences": []},
+        schema_version="1.0",
+    )
+    selected_summary_ref = _summary_ref(
+        store,
+        inputs=[
+            input_ref_from_artifact_ref(
+                bundle_ref,
+                role="method_execution_bundle",
+            )
+        ],
+    )
+    job_result = JobResult(
+        job_key=JobKey(value="job:owner-receipt-required"),
+        simulation_results_ref=selected_summary_ref,
+    )
+    assert callable(store.get_raw_manifest_bytes_bounded_for_input)
+    assert callable(store.read_raw_manifest_bytes_bounded_for_input)
+    monkeypatch.setattr(store, "read_raw_manifest_bytes_bounded_for_input", None)
+
+    with pytest.raises(TypeError, match="artifact store lacks bounded selected-manifest readers"):
+        read_job_result_method_execution_capture(
+            store,
+            job_result,
+            max_manifest_bytes=256 * 1024,
+        )
 
 
 def test_direct_hte_result_and_evidence_preserve_exact_selected_input_edges(tmp_path) -> None:

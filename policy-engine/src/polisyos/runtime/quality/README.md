@@ -1071,6 +1071,44 @@ remains available as an audit endpoint and is not fed back into scorecard ref ad
 arbitrary markerless ref map outside a known continuity slot remains a bounded diagnostic residual;
 its origin is `consumer_asserted` or `not_established` and it cannot establish authority.
 
+## Selected quality source and public export boundaries
+
+Serious canary report admission carries the exact typed `ArtifactRef` from the authenticated job's
+selected-artifact map through manifest resolution, body loading, and source identity. The manifest
+kind, media type, and profile digest must match that selector, and the producer authority envelope
+must bind the selected artifact ID and body digest before the report can enter scorecard evidence or
+closeout records. Missing, profileless, alternate-profile, or contradictory selectors remain limited
+source context; a profile is a view identity, not freshness or currentness evidence. The closeout
+authority index retains the selected manifest profile for every admitted source record.
+
+The one registered `security_assurance_report_ref` field on schema
+`policyos.security_assurance_report.v1` may contain its declared bundle path as a logical body
+locator. This exact owner/schema/field binding does not authorize arbitrary paths or strings: a
+canonical CAS ID in that slot still has to agree with the selected CAS identity, and malformed or
+conflicting values remain refused.
+
+Wave 4/I4 source admission requires a fresh typed control-job and run response joined by the
+run's control_job_id, plus the exact selected PDC CAS profile/body and its producer envelope
+bound to that job, run, and tenant. The envelope must carry a closed same-input closure with a
+content digest, and the selected manifest's closure summary must match it before owner admission.
+That join establishes selected-source identity only. The current assembly computes I4 before the
+scorecard-backed final closeout and has no non-circular verified publication producer to supply the
+projection's publication truth. It therefore preserves the selected case body and emits the
+projection contract, publication state, I4 graph, and audit-verifier intake as
+incomplete/producer_missing with
+policy_design_case_publication_source_not_established; these records carry no synthetic CAS or
+runtime-event refs and cannot pass the later closeout reader. The projection retains the selected
+CAS source ref and declares closeout not_established; it never self-asserts publishability.
+When the owner join itself is absent, the case remains source context with
+run_scope_status=not_established and no protected I4 output. Neither path establishes
+present-day law or data currentness.
+
+`build_public_export_bundle` sanitizes the artifacts, authority projection, runtime-truth
+limitation, and every other field of the complete returned bundle before its final residual scan.
+Its scan report and redaction receipt are retained in `semantic_audit` and `redaction_summary`;
+the emitted bundle is checked again after those receipts are attached. The export remains a
+projection-only audit surface and cannot satisfy scorecard, approval, or closeout authority gates.
+
 ## Nested lineage quality refs
 
 Registered role hints on lineage nodes identify the candidate ref role; the node

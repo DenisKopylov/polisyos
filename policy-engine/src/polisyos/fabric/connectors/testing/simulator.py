@@ -49,12 +49,13 @@ from unittest.mock import patch
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from polisyos.core.canon import content_hash
-from polisyos.fabric.connectors.contracts.schema import DataSchema
 from polisyos.fabric.connectors.http_limits import read_bounded_response_body
 from polisyos.fabric.io.atomic import atomic_write_text
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+
+    from polisyos.fabric.connectors.contracts.schema import DataSchema
 
 
 _MAX_RECORDED_FIXTURE_BYTES = 50 * 1024 * 1024

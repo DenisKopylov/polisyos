@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useArtifactContent } from "@/api/hooks/useArtifactContent";
 import { useGovernanceDebug } from "@/api/hooks/useGovernanceDebug";
 import { isRuntimeApiNotFound } from "@/api/http";
+import type { RunDetailsView } from "@/api/validators";
 import { useRunAgents } from "@/api/hooks/useRunAgents";
 import { useRunDetails } from "@/api/hooks/useRunDetails";
 import { useRunEvidenceContext } from "@/api/hooks/useRunEvidenceContext";
@@ -31,6 +32,18 @@ function isDecisionArtifact(
 ): boolean {
   const kind = ref?.kind ?? "";
   return kind.includes("decision");
+}
+
+/** Resolve the typed Core identity carried by the strict run-details response. */
+export function coreRunIdFromDetails(
+  run: RunDetailsView | null | undefined,
+): string | undefined {
+  const runId = run?.run_id;
+  return run?.source_kind === "core_run" &&
+    typeof runId === "string" &&
+    runId.trim().length > 0
+    ? runId
+    : undefined;
 }
 
 export function buildEvidenceHref(
@@ -85,15 +98,25 @@ export function useRunDetailSummary(
 ) {
   const runDetailsQuery = useRunDetails(runId, {
     liveTransport: options?.liveTransport,
+    resolveCurrentAlias: true,
   });
-  const run = runDetailsQuery.data?.run;
+  const cachedRun = runDetailsQuery.data?.run;
+  const resolvingCurrentAlias =
+    typeof cachedRun?.run_id === "string" &&
+    cachedRun.run_id !== runId &&
+    runDetailsQuery.isFetching;
+  const run =
+    runDetailsQuery.isError || resolvingCurrentAlias ? undefined : cachedRun;
+  const coreRunId = coreRunIdFromDetails(run);
   const runBootstrapPending =
-    runDetailsQuery.isLoading || isRuntimeApiNotFound(runDetailsQuery.error);
-  const runReady = Boolean(run);
+    runDetailsQuery.isLoading ||
+    resolvingCurrentAlias ||
+    isRuntimeApiNotFound(runDetailsQuery.error);
+  const runReady = Boolean(coreRunId);
 
-  const agentsQuery = useRunAgents(runId, runReady);
-  const governanceQuery = useGovernanceDebug(runId, runReady);
-  const evidenceContextQuery = useRunEvidenceContext(runId, runReady);
+  const agentsQuery = useRunAgents(coreRunId, runReady);
+  const governanceQuery = useGovernanceDebug(coreRunId, runReady);
+  const evidenceContextQuery = useRunEvidenceContext(coreRunId, runReady);
 
   const pipeline = agentsQuery.data?.pipeline;
   const governance = governanceQuery.data?.debug;
@@ -181,7 +204,7 @@ export function useRunDetailSummary(
     confidence: decisionView?.confidence,
     generatedAt: decisionView?.generatedAt,
     point: decisionScoreRaw,
-    runId: runId ?? decisionView?.runId ?? "unknown-run",
+    runId: coreRunId ?? decisionView?.runId ?? "unknown-run",
   });
   const decisionScoreStyle =
     typeof decisionScore.point === "number"
@@ -225,6 +248,7 @@ export function useRunDetailSummary(
     agentsQuery,
     artifactRefs,
     blockerCount,
+    coreRunId,
     decisionArtifact,
     decisionArtifactQuery,
     decisionHeadline,

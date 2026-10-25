@@ -20,12 +20,31 @@ This module provides:
 
 from __future__ import annotations
 
-from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation as _OwnedJSONRepresentation,
+)
+from polisyos.ir.analytics._owner_admission import (
+    declare_model_owner as _declare_model_owner,
+)
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.contracts import CanonInfo as _IRCanonInfo
+from polisyos.ir.artifacts.contracts import (
+    OwnedWriteOptionsPreparer as _OwnedWriteOptionsPreparer,
+)
+from polisyos.ir.artifacts.contracts import (
+    normalize_artifact_ref,
+)
+from polisyos.ir.artifacts.io import (
+    _get_owned_json_artifact,
+    _get_owned_json_artifact_with_bytes,
+    _put_owned_json_artifact,
+    _put_owned_json_artifact_with_selected_view,
+)
+from polisyos.ir.migrations.base import CompatibilityMode as _CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import NCMSpecRef
 
@@ -218,10 +237,16 @@ class _SelectedViewReader(Protocol):
     def verify(self, artifact_id: ArtifactSelector) -> object: ...
 
 
-class _SelectedViewStore(_SelectedViewReader, Protocol):
+class _SelectedViewStore(_SelectedViewReader, _OwnedWriteOptionsPreparer, Protocol):
     """Runtime store surface for persisting an NCM with selected-view lineage."""
 
-    def put_bytes(self, data: bytes, opts: object) -> ArtifactViewRef: ...
+    def put_bytes(
+        self,
+        data: bytes,
+        opts: object,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactViewRef: ...
 
 
 class _CandidateModelDeclaration(Protocol):
@@ -351,47 +376,91 @@ def candidate_ncm_spec_from_declaration(
     )
 
 
+_NCM_SPEC_OWNER_CONTRACT_ID = "ir.analytics.ncm_spec.owner.v1"
+_NCM_DEFAULT_CANON_SPEC = CanonSpec(forbid_floats=False)
+_NCM_SELECTED_VIEW_CANON_SPEC = CanonSpec(forbid_floats=False, exclude_none=False)
+_NCM_ACCEPTED_CANON_PROFILES = (
+    _IRCanonInfo.from_spec(_NCM_DEFAULT_CANON_SPEC),
+    _IRCanonInfo.from_spec(_NCM_SELECTED_VIEW_CANON_SPEC),
+)
+
+
+def _validate_ncm_owner_profile(profile: _IRCanonInfo, registration: object) -> bool:
+    """Accept only the two source-supported exact NCM JSON profiles."""
+    return (
+        type(profile) is _IRCanonInfo
+        and getattr(registration, "profile_ref", object()) is None
+        and profile in _NCM_ACCEPTED_CANON_PROFILES
+    )
+
+
+_NCM_SPEC_OWNER = _declare_model_owner(
+    NCMSpec,
+    contract_id=_NCM_SPEC_OWNER_CONTRACT_ID,
+    dto_fqn="polisyos.ir.analytics.ncm.NCMSpec",
+    abi_key=f"{_NCM_SPEC_OWNER_CONTRACT_ID}.dto-abi.v1",
+    registry_key="ir.ncm_spec",
+    kind="ir.ncm_spec",
+    media_type="application/json",
+    purpose="ncm_spec",
+    policy_revision=f"{_NCM_SPEC_OWNER_CONTRACT_ID}.admission.v1",
+    accepted_wire_policies=(("ir.analytics.ncm_spec.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=_validate_ncm_owner_profile,
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name="ir.ncm_spec",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.ncm_spec.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
 def persist_ncm_spec_selected_view(
     store: _SelectedViewStore,
     ncm_spec: NCMSpec,
     *,
     write_options: object,
+    return_selected_profile: Literal[True] = True,
 ) -> ArtifactViewRef:
-    """Persist an NCM through the runtime store while retaining typed lineage.
+    """Persist an NCM through shared owner admission while retaining the exact selected ref.
 
-    Runtime callers construct ``write_options`` with their tenant, job, and
-    full selected ``InputRef`` values. This IR owner serializes the NCM and
-    returns the exact ref from the store without normalizing it to an ID.
+    Runtime callers construct write_options with their tenant, job, closure, and
+    full selected InputRef values. Shared owner admission freezes those values
+    before CAS and reconciles them with the selected manifest afterward.
     """
-    from polisyos.ir.artifacts.contracts import CanonInfo as IRCanonInfo
-    from polisyos.ir.artifacts.io import _validated_ir_canon_info
-    from polisyos.ir.model_layer.canon import to_canonical_bytes
-
-    canon_spec = CanonSpec(forbid_floats=False, exclude_none=False)
-    declared = (
-        write_options.get("canon")
-        if isinstance(write_options, Mapping)
-        else getattr(write_options, "canon", None)
+    if type(ncm_spec) is not NCMSpec:
+        raise TypeError("ncm_selected_view_payload_untyped")
+    if return_selected_profile is not True:
+        raise ValueError("ncm_selected_view_profile_attestation_required")
+    canon_spec = _NCM_SELECTED_VIEW_CANON_SPEC
+    payload = NCMSpec.model_dump(ncm_spec, mode="json")
+    ref = _put_owned_json_artifact_with_selected_view(
+        store,
+        payload,
+        owner=_NCM_SPEC_OWNER,
+        write_options=write_options,
+        canon_spec=canon_spec,
     )
-    model_dump = getattr(declared, "model_dump", None)
-    if callable(model_dump):
-        declared = model_dump(mode="python")
-    if not isinstance(declared, Mapping):
-        raise ValueError("ncm_selected_view_canon_profile_required")
-    profile = _validated_ir_canon_info(declared)
-    if profile != IRCanonInfo.from_spec(canon_spec):
-        raise ValueError("ncm_selected_view_canon_profile_mismatch")
-
-    checked = NCMSpec.model_validate(ncm_spec.model_dump(mode="python"))
-    body = to_canonical_bytes(
-        checked.model_dump(mode="json"),
-        canon_spec,
-    )
-    ref = store.put_bytes(body, write_options)
+    try:
+        selected_ref = normalize_artifact_ref(ref)
+    except Exception as exc:
+        raise ValueError("ncm_selected_view_owner_ref_invalid") from exc
     if (
-        ref.kind != "ir.ncm_spec"
-        or ref.media_type != "application/json"
-        or not str(ref.artifact_id).startswith("sha256:")
+        selected_ref.get("kind") != "ir.ncm_spec"
+        or selected_ref.get("media_type") != "application/json"
+        or type(selected_ref.get("manifest_profile_sha256")) is not str
     ):
         raise ValueError("ncm_selected_view_owner_ref_invalid")
     return ref
@@ -418,9 +487,9 @@ def load_ncm_spec_selected_view(
     verification = store.verify(ref)
     if getattr(verification, "ok", False) is not True:
         raise ValueError("ncm_selected_view_integrity_failed")
-    from polisyos.ir.artifacts.io import _get_json_artifact_with_bytes
-
-    payload, body = _get_json_artifact_with_bytes(store, ref)
+    owned = _get_owned_json_artifact_with_bytes(store, ref, owner=_NCM_SPEC_OWNER)
+    payload = owned.value.model_dump(mode="json")
+    body = owned.raw_bytes
     manifest = store.get_manifest(ref)
     schema = getattr(manifest, "artifact_schema", None)
     tenant_context = getattr(manifest, "tenant_context", None)
@@ -461,14 +530,14 @@ def persist_ncm_spec(
     schema_version: str = "1.0",
 ) -> NCMSpecRef:
     """Persist an ``NCMSpec`` to the artifact store and return a ref."""
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         ncm_spec.model_dump(mode="json"),
-        kind="ir.ncm_spec",
+        owner=_NCM_SPEC_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=_NCM_DEFAULT_CANON_SPEC,
     )
     return NCMSpecRef.model_validate(ref)
 
@@ -478,8 +547,7 @@ def load_ncm_spec(
     ref: NCMSpecRef,
 ) -> NCMSpec:
     """Load an ``NCMSpec`` from the artifact store."""
-    payload = get_json_artifact(store, ref)
-    return NCMSpec.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_NCM_SPEC_OWNER)
 
 
 __all__ = [

@@ -14,13 +14,20 @@ from typing import TYPE_CHECKING, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir._internal.validation import ensure_confidence_interval, ensure_finite_numeric
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
 from polisyos.ir.analytics.distributional import (
     CausalAssumptionCard,
     DistributionalBoundsBundle,
     DistributionalFunctional,
     DistributionalFunctionalParameters,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import EndogenousGroupInequalityDecompositionRef
 
@@ -215,6 +222,47 @@ class EndogenousGroupInequalityDecompositionResult(BaseModel):
         return self
 
 
+_ENDOGENOUS_INEQUALITY_WIRE_POLICY = (
+    "polisyos.ir.analytics.endogenous_inequality.EndogenousGroupInequalityDecompositionResult.wire",
+    "1",
+)
+_ENDOGENOUS_INEQUALITY_REPRESENTATIONS = (
+    OwnedJSONRepresentation(
+        schema_name=ENDOGENOUS_GROUP_INEQUALITY_DECOMPOSITION_SCHEMA,
+        schema_version=ENDOGENOUS_GROUP_INEQUALITY_DECOMPOSITION_SCHEMA_VERSION,
+        payload_version=ENDOGENOUS_GROUP_INEQUALITY_DECOMPOSITION_SCHEMA_VERSION,
+        wire_policy_ref=_ENDOGENOUS_INEQUALITY_WIRE_POLICY[0],
+        wire_policy_revision=_ENDOGENOUS_INEQUALITY_WIRE_POLICY[1],
+        profile_ref=None,
+        compatibility=CompatibilityMode.NONE,
+        notes=(),
+        readable=True,
+        writable=True,
+        current=True,
+        default_write=True,
+        readable_from=(),
+    ),
+)
+_ENDOGENOUS_INEQUALITY_OWNER = declare_model_owner(
+    EndogenousGroupInequalityDecompositionResult,
+    contract_id="polisyos.ir.analytics.endogenous_inequality.EndogenousGroupInequalityDecompositionResult.owner",
+    dto_fqn="polisyos.ir.analytics.endogenous_inequality.EndogenousGroupInequalityDecompositionResult",
+    abi_key="ir.analytics.endogenous_inequality.EndogenousGroupInequalityDecompositionResult",
+    registry_key="ir.endogenous_group_inequality_decomposition",
+    kind="ir.endogenous_group_inequality_decomposition",
+    media_type="application/json",
+    purpose="endogenous_group_inequality_decomposition",
+    policy_revision="polisyos.ir.analytics.endogenous_inequality.EndogenousGroupInequalityDecompositionResult.owner.owner-admission.r1",
+    accepted_wire_policies=(_ENDOGENOUS_INEQUALITY_WIRE_POLICY,),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=_ENDOGENOUS_INEQUALITY_REPRESENTATIONS,
+)
+
+
 def persist_endogenous_group_inequality_decomposition_result(
     store: ArtifactStore,
     result: EndogenousGroupInequalityDecompositionResult,
@@ -225,10 +273,10 @@ def persist_endogenous_group_inequality_decomposition_result(
 ) -> EndogenousGroupInequalityDecompositionRef:
     """Persist an endogenous-group inequality decomposition as a typed JSON artifact."""
 
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         result.model_dump(mode="json", round_trip=True),
-        kind=ENDOGENOUS_GROUP_INEQUALITY_DECOMPOSITION_SCHEMA,
+        owner=_ENDOGENOUS_INEQUALITY_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -243,8 +291,7 @@ def load_endogenous_group_inequality_decomposition_result(
 ) -> EndogenousGroupInequalityDecompositionResult:
     """Load an endogenous-group inequality decomposition from artifact storage."""
 
-    payload = get_json_artifact(store, ref)
-    return EndogenousGroupInequalityDecompositionResult.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_ENDOGENOUS_INEQUALITY_OWNER)
 
 
 __all__ = [

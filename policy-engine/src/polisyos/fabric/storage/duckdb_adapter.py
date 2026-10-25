@@ -4,17 +4,20 @@ from __future__ import annotations
 
 import re
 import threading
-from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
-from typing import Any
-
-import pandas as pd
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.security import CrossTenantAccessError, TenantIsolationError
-from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.world.query import WorldQueryError, query_world_table
 
 from .port import StoragePort
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Mapping, Sequence
+
+    import pandas as pd
+
+    from polisyos.fabric.io.db import SimulationDB
 
 _IDENT_RE = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
 

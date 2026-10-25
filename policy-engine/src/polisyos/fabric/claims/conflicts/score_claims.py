@@ -3,14 +3,18 @@
 from __future__ import annotations
 
 from decimal import ROUND_HALF_UP, Decimal
+from typing import TYPE_CHECKING
 
-from polisyos.ir.world.claim import Claim
-from polisyos.ir.world.conflict import ConflictSet
 from polisyos.ir.world.ids import trust_assessment_id_from_payload
 from polisyos.ir.world.trust import TrustAssessment, TrustTier
 
 from .key import value_signature_v1
-from .policies import ConflictPolicy
+
+if TYPE_CHECKING:
+    from polisyos.ir.world.claim import Claim
+    from polisyos.ir.world.conflict import ConflictSet
+
+    from .policies import ConflictPolicy
 
 _Q4 = Decimal("0.0001")
 

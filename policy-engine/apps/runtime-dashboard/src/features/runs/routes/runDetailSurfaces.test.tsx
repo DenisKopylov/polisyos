@@ -15,7 +15,9 @@ import {
   epochProjection,
   epochStalenessPositiveFixture,
 } from "@/test/fixtures/epochStaleness";
+import { ToastProvider } from "@/app/providers/ToastProvider";
 import { runPaperPacketFixture } from "@/test/fixtures/runPaper";
+import { LiveAnnouncerProvider } from "@/shared/a11y";
 
 const ownerCapabilityManifest = {
   features: [
@@ -56,6 +58,7 @@ const {
   useRunTimelineMock,
   useRunWorkflowMock,
   useTelemetryReadyMarkMock,
+  useTelemetryTrackMock,
 } = vi.hoisted(() => ({
   renderArtifactViewerMock: vi.fn(),
   useArtifactContentMock: vi.fn(),
@@ -85,6 +88,7 @@ const {
   useRunTimelineMock: vi.fn(),
   useRunWorkflowMock: vi.fn(),
   useTelemetryReadyMarkMock: vi.fn(),
+  useTelemetryTrackMock: vi.fn(),
 }));
 
 vi.mock("@/shared/i18n/LocaleProvider", () => ({
@@ -116,6 +120,7 @@ vi.mock("@/features/runs/api/useEpochStaleness", () => ({
 vi.mock("@/app/providers/TelemetryProvider", () => ({
   useTelemetryReadyMark: (...args: unknown[]) =>
     useTelemetryReadyMarkMock(...args),
+  useTelemetry: () => ({ track: useTelemetryTrackMock }),
 }));
 
 vi.mock("@/app/providers/FeatureFlagProvider", () => ({
@@ -561,6 +566,14 @@ function toEvidenceContextPayload(
   };
 }
 
+function RouteSurfaceProviders({ children }: { children: ReactNode }) {
+  return (
+    <LiveAnnouncerProvider>
+      <ToastProvider>{children}</ToastProvider>
+    </LiveAnnouncerProvider>
+  );
+}
+
 function renderRoute(
   path: string,
   routePath: string,
@@ -570,13 +583,15 @@ function renderRoute(
     defaultOptions: { queries: { retry: false } },
   });
   return render(
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={[path]}>
-        <Routes>
-          <Route path={routePath} element={element} />
-        </Routes>
-      </MemoryRouter>
-    </QueryClientProvider>,
+    <RouteSurfaceProviders>
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={[path]}>
+          <Routes>
+            <Route path={routePath} element={element} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>
+    </RouteSurfaceProviders>,
   );
 }
 
@@ -587,23 +602,25 @@ function renderNestedRunDetail(path: string) {
     defaultOptions: { queries: { retry: false } },
   });
   return render(
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={[path]}>
-        <Routes>
-          <Route path="/runs/:runId" element={<RunDetailLayout />}>
-            <Route
-              path="overview"
-              element={<div data-testid="outlet-overview" />}
-            />
-            <Route
-              path="governance"
-              element={<div data-testid="outlet-governance" />}
-            />
-          </Route>
-          <Route path="/runs" element={<RunDetailLayout />} />
-        </Routes>
-      </MemoryRouter>
-    </QueryClientProvider>,
+    <RouteSurfaceProviders>
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={[path]}>
+          <Routes>
+            <Route path="/runs/:runId" element={<RunDetailLayout />}>
+              <Route
+                path="overview"
+                element={<div data-testid="outlet-overview" />}
+              />
+              <Route
+                path="governance"
+                element={<div data-testid="outlet-governance" />}
+              />
+            </Route>
+            <Route path="/runs" element={<RunDetailLayout />} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>
+    </RouteSurfaceProviders>,
   );
 }
 
@@ -613,6 +630,7 @@ describe("run detail surfaces", () => {
 
     window.localStorage.clear();
     useTelemetryReadyMarkMock.mockReset();
+    useTelemetryTrackMock.mockReset();
     useFeatureFlagsMock.mockReset();
     useFeatureFlagsMock.mockReturnValue({
       flags: buildFeatureFlags(),
@@ -913,6 +931,80 @@ describe("run detail surfaces", () => {
 
     expect(await screen.findByTestId("outlet-overview")).toBeInTheDocument();
     expect(screen.getByTestId("run-tab-link-overview")).toBeInTheDocument();
+  });
+
+  it("keeps detail and deck surfaces pending during a current-alias retry", () => {
+    const summary = createSummary({
+      coreRunId: undefined,
+      run: null,
+      runBootstrapPending: true,
+      runDetailsQuery: {
+        error: new Error("previous current-alias request failed"),
+        isError: true,
+        isFetching: true,
+        isLoading: false,
+      },
+      runReady: false,
+    });
+    useRunInspectorMock.mockReturnValue(summary);
+
+    const detail = renderNestedRunDetail("/runs/control-run-alias/overview");
+    expect(screen.getByTestId("run-detail-page")).toBeInTheDocument();
+    expect(screen.getByText("common.pending")).toBeInTheDocument();
+    expect(
+      screen.queryByText("pages.runs.unavailableRun"),
+    ).not.toBeInTheDocument();
+    detail.unmount();
+
+    renderRoute(
+      "/runs/control-run-alias/deck",
+      "/runs/:runId/deck",
+      <RunDeckPage />,
+    );
+
+    expect(
+      screen.getByRole("status", { name: "common.loading" }),
+    ).toHaveAttribute("aria-busy", "true");
+    expect(
+      screen.queryByText("pages.runs.unavailableRun"),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("run-deck-root")).not.toBeInTheDocument();
+    expect(useEpochStalenessMock).toHaveBeenLastCalledWith({
+      enabled: false,
+      runId: "",
+    });
+    expect(useRunTimelineMock).toHaveBeenLastCalledWith(undefined, false);
+    expect(useRunErrorsMock).toHaveBeenLastCalledWith(undefined, false);
+  });
+
+  it("shows a terminal run-detail error instead of a pending deck", () => {
+    useRunInspectorMock.mockReturnValue(
+      createSummary({
+        coreRunId: undefined,
+        run: null,
+        runBootstrapPending: false,
+        runDetailsQuery: {
+          error: new Error("current alias lookup failed"),
+          isError: true,
+          isFetching: false,
+          isLoading: false,
+        },
+        runReady: false,
+      }),
+    );
+
+    renderRoute(
+      "/runs/control-run-alias/deck",
+      "/runs/:runId/deck",
+      <RunDeckPage />,
+    );
+
+    expect(
+      screen.getByText("pages.runs.loadRunDetailsError"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("status", { name: "common.loading" }),
+    ).not.toBeInTheDocument();
   });
 
   it("removes the causal tab entry when its rollout flag is false", async () => {

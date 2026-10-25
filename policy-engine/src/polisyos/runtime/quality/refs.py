@@ -9,7 +9,7 @@ from functools import lru_cache
 from hashlib import sha256
 from typing import Any, get_args
 
-from polisyos.core.artifacts import ArtifactRef
+from polisyos.core.artifacts import ArtifactID, ArtifactRef
 from polisyos.runtime.quality.report_registry import (
     KNOWN_QUALITY_REF_KEYS,
     LIFECYCLE_QUALITY_REF_KEYS,
@@ -17,6 +17,7 @@ from polisyos.runtime.quality.report_registry import (
     QUALITY_REPORT_BODY_REF_KEYS,
     QUALITY_REPORT_REF_KEYS,
     REQUIRED_QUALITY_REF_KEYS,
+    quality_report_body_locator_for_field,
     quality_report_ref_intake_registry,
 )
 from polisyos.runtime.quality.report_registry import (
@@ -86,7 +87,7 @@ class QualityRefRejection:
     value_sha256: str
     value_length: int | None
 
-    def to_evidence(self) -> dict[str, str]:
+    def to_evidence(self) -> dict[str, Any]:
         return {
             "key": self.key,
             "source": self.source,
@@ -149,6 +150,7 @@ class RuntimeQualityAuthorityRefs:
     refs: dict[str, str]
     sources: dict[str, str]
     selected_refs: dict[str, ArtifactRef] = field(default_factory=dict)
+    selected_sources: dict[str, str] = field(default_factory=dict)
     rejections: tuple[QualityRefRejection, ...] = ()
 
     @classmethod
@@ -186,6 +188,9 @@ class RuntimeQualityAuthorityRefs:
             selected_refs={
                 key: value for key, value in scoped.selected_refs.items() if key in runtime_keys
             },
+            selected_sources={
+                key: value for key, value in scoped.selected_sources.items() if key in runtime_keys
+            },
             rejections=tuple(
                 dict.fromkeys((*quality_evidence_scan.rejections, *scoped_only_rejections))
             ),
@@ -202,6 +207,7 @@ class RuntimeQualityAuthorityRefs:
         refs: dict[str, str] = {}
         sources: dict[str, str] = {}
         selected_refs: dict[str, ArtifactRef] = {}
+        selected_sources: dict[str, str] = {}
         rejections: list[QualityRefRejection] = []
 
         def add_rejections(
@@ -228,7 +234,13 @@ class RuntimeQualityAuthorityRefs:
                 add_rejections(
                     "runtime_quality_refs",
                     mapping,
-                    [("explicit_null" if mapping is None else "unsupported_type", mapping, "")],
+                    [
+                        (
+                            "explicit_null" if mapping is None else "unsupported_type",
+                            mapping,
+                            "",
+                        )
+                    ],
                     source=source,
                     path=path,
                 )
@@ -330,7 +342,7 @@ class RuntimeQualityAuthorityRefs:
                         if isinstance(raw_value, ArtifactRef)
                         else ArtifactRef.model_validate(raw_value)
                     )
-                except (TypeError, ValueError):
+                except TypeError, ValueError:
                     rejections.append(
                         _quality_ref_rejection(
                             key=raw_key,
@@ -370,6 +382,7 @@ class RuntimeQualityAuthorityRefs:
                         )
                     )
                 selected_refs.setdefault(raw_key, selected)
+                selected_sources.setdefault(raw_key, source)
                 refs.setdefault(raw_key, str(selected.artifact_id))
                 sources.setdefault(raw_key, source)
 
@@ -469,6 +482,21 @@ class RuntimeQualityAuthorityRefs:
                         if alias not in report:
                             continue
                         raw_value = report[alias]
+                        locator_issues = _report_body_locator_issues(
+                            report,
+                            ref_key=alias_ref_key,
+                            field_name=alias,
+                            raw_value=raw_value,
+                        )
+                        if locator_issues is not None:
+                            add_rejections(
+                                alias_ref_key,
+                                raw_value,
+                                locator_issues,
+                                source=f"quality_evidence.{safe_report_key}",
+                                path=f"{report_path}.{alias}",
+                            )
+                            continue
                         value, issues = _coerce_ref_value_details(raw_value)
                         add_rejections(
                             alias_ref_key,
@@ -583,6 +611,7 @@ class RuntimeQualityAuthorityRefs:
             refs=refs,
             sources=sources,
             selected_refs=selected_refs,
+            selected_sources=selected_sources,
             rejections=tuple(dict.fromkeys(rejections)),
         )
 
@@ -682,6 +711,7 @@ class RuntimeQualityAuthorityRefs:
                 key: value.model_dump(mode="json") for key, value in self.selected_refs.items()
             },
             "sources": dict(self.sources),
+            "selected_sources": dict(self.selected_sources),
             "missing": list(self.missing_required()),
             "rejections": [item.to_evidence() for item in self.rejections],
         }
@@ -941,7 +971,7 @@ def _iter_quality_ref_matches(
                             if isinstance(raw_selected, ArtifactRef)
                             else ArtifactRef.model_validate(raw_selected)
                         )
-                    except (TypeError, ValueError):
+                    except TypeError, ValueError:
                         rejections.append(
                             _quality_ref_rejection(
                                 key=raw_ref_key,
@@ -1203,6 +1233,24 @@ def _iter_report_body_ref_matches(
         if alias not in report:
             continue
         raw_value = report[alias]
+        locator_issues = _report_body_locator_issues(
+            report,
+            ref_key=alias_ref_key,
+            field_name=alias,
+            raw_value=raw_value,
+        )
+        if locator_issues is not None:
+            rejections.extend(
+                _quality_ref_rejection(
+                    key=alias_ref_key,
+                    source=source,
+                    path=f"{path}.{_safe_path_key(alias)}{suffix}",
+                    reason=reason,
+                    value=issue_value if issue_value is not None else raw_value,
+                )
+                for reason, issue_value, suffix in locator_issues
+            )
+            continue
         value, issues = _coerce_ref_value_details(raw_value)
         rejections.extend(
             _quality_ref_rejection(
@@ -1364,6 +1412,40 @@ def _validated_authority_envelope_nullable_ref_fields(
 def _ref_aliases_for(context: str) -> tuple[str, ...]:
     """Return the registered aliases accepted by one ref intake context."""
     return tuple(alias for alias, contexts in _REF_ALIAS_CONTEXTS.items() if context in contexts)
+
+
+def _report_body_locator_issues(
+    report: Mapping[Any, Any],
+    *,
+    ref_key: str,
+    field_name: str,
+    raw_value: Any,
+) -> list[tuple[str, Any, str]] | None:
+    """Validate a schema-owned logical locator without treating it as a CAS ref.
+
+    None means the field is an ordinary ref candidate, including a canonical
+    ArtifactID that must be compared with the selected identity. An empty list
+    means the exact registered locator was accepted. Any non-empty list is a
+    typed refusal visible to scoped and shared source intake.
+    """
+    locator = quality_report_body_locator_for_field(
+        schema_version=report.get("schema_version"),
+        ref_key=ref_key,
+        field_name=field_name,
+    )
+    if locator is None:
+        return None
+    if isinstance(raw_value, str) and raw_value == locator.value:
+        return []
+    if isinstance(raw_value, str):
+        try:
+            ArtifactID.model_validate(raw_value)
+        except ValueError:
+            pass
+        else:
+            return None
+    _normalized, issues = _coerce_ref_value_details(raw_value)
+    return issues or [("logical_locator_mismatch", raw_value, "")]
 
 
 def _report_body_ref_aliases(ref_key: str) -> tuple[tuple[str, str], ...]:

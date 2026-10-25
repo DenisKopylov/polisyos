@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-
-from polisyos.core.components import ComponentRegistry
+from typing import TYPE_CHECKING
 
 from ._components_bootstrap import BootstrapTarget, bootstrap_components_into_registry
 from ._registry_errors import ConnectorAlreadyRegisteredError as ConnectorAlreadyRegisteredError
 from .registry import ConnectorRegistry
+
+if TYPE_CHECKING:
+    from polisyos.core.components import ComponentRegistry
 
 
 def _default_connector_registry() -> ConnectorRegistry:

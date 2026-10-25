@@ -27,6 +27,7 @@ from polisyos.foundry.data_plane.bindings import build_input_bindings
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import put_state_snapshot
 from polisyos.ir.trinity import TrinityBundle, load_trinity_bundle_artifact
+from polisyos.ir.trinity.loaders import persist_trinity_bundle_artifact
 
 
 def _sha256_bytes(payload: bytes) -> str:
@@ -308,16 +309,11 @@ class ReleaseAcceptanceRunner:
                 )
             }
         )
-        effective_trinity_ref = self._store.put_json(
-            effective_trinity,
-            PutOptions(
-                kind=TrinityBundle.ARTIFACT_KIND,
-                media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
-                schema=SchemaInfo(
-                    name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
-                    version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
-                ),
-            ),
+        selected_effective_trinity_ref = persist_trinity_bundle_artifact(
+            ensure_ir_artifact_store(self._store), effective_trinity
+        )
+        effective_trinity_ref = ArtifactRef.model_validate(
+            selected_effective_trinity_ref.model_dump(mode="python")
         )
         compile_result = compile_foundry(
             self._store,

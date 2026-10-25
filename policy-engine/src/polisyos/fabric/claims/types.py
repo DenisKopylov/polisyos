@@ -8,10 +8,12 @@ references for conflict resolution and downstream NormPack assembly.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from decimal import Decimal
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
-from polisyos.ir.loading.fact_log import FactSegmentManifest
+if TYPE_CHECKING:
+    from decimal import Decimal
+
+    from polisyos.ir.loading.fact_log import FactSegmentManifest
 
 
 @dataclass(frozen=True)

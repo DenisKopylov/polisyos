@@ -49,6 +49,7 @@ if TYPE_CHECKING:
     from polisyos.pdc import EvalSafetyVerifierPort, EvaluationExecutionContext
     from polisyos.scientist.governance.pipeline import ValidationPipeline
     from polisyos.scientist.orchestration.engine.context import (
+        CompletedMethodHTESelectionOwnerPort,
         FoundryPort,
         MethodMetricSelectionOwnerPort,
     )
@@ -230,6 +231,7 @@ def run_experiment(
     eval_safety_verifier: EvalSafetyVerifierPort | None = None,
     epoch_certificate_issuance_owner: EpochCertificateIssuanceOwner | None = None,
     method_metric_selection_owner: MethodMetricSelectionOwnerPort | None = None,
+    completed_method_hte_selection_owner: CompletedMethodHTESelectionOwnerPort | None = None,
 ) -> dict[str, Any]:
     """Execute the Scientist workflow selected by the initial state contract.
 
@@ -247,6 +249,9 @@ def run_experiment(
             by Runtime composition; never read from or serialized into state.
         method_metric_selection_owner: Runtime-owned completed-source lookup installed
             for an authorized follow-up policy-design run; never read from workflow state.
+        completed_method_hte_selection_owner: Separate Runtime-owned completed HTE source
+            lookup installed for an authorized follow-up policy-design run; never read from
+            workflow state.
 
     Returns:
         Final `ExperimentState` serialized as a JSON-compatible dictionary with
@@ -325,6 +330,7 @@ def run_experiment(
                     eval_safety_verifier=eval_safety_verifier,
                     epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
                     method_metric_selection_owner=method_metric_selection_owner,
+                    completed_method_hte_selection_owner=(completed_method_hte_selection_owner),
                 )
             final_state = result.state
             status = "success" if result.report.status == "ok" else "error"

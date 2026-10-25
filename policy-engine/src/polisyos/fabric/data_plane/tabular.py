@@ -12,7 +12,7 @@ __all__ = ["payload_to_dataframe", "require_dataframe"]
 class _PandasConvertible(Protocol):
     """Narrow connector payloads that expose the pandas conversion contract."""
 
-    def to_pandas(self) -> object: ...
+    def to_pandas(self) -> pd.DataFrame: ...
 
 
 def payload_to_dataframe(

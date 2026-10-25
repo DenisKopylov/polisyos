@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from unittest.mock import MagicMock, patch
 
+import duckdb
 import pytest
 
 from polisyos.core.artifacts import (
@@ -19,13 +21,15 @@ from polisyos.core.artifacts.manifest import (
     ProducerInfo,
 )
 from polisyos.core.artifacts.manifest import (
-    CanonInfo as CoreCanonInfo,
-)
-from polisyos.core.artifacts.manifest import (
     SchemaInfo as CoreSchemaInfo,
 )
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.data_forge.read_api.academic import RetainedSKGSourceBinding
+from polisyos.data_forge.read_api.academic import (
+    RetainedSKGSnapshotError,
+    RetainedSKGSourceBinding,
+    SKGQuery,
+    retained_skg_source_binding,
+)
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
     CausalGraphModel,
@@ -46,8 +50,10 @@ from polisyos.ir.analytics.parameters import (
     load_context_adaptive_parameter_bundle,
     persist_context_adaptive_parameter_bundle,
     persist_context_adaptive_parameter_bundle_v1_1,
+    persist_context_adaptive_parameter_bundle_v1_2,
 )
 from polisyos.ir.analytics.transportability import TransportabilityStatus, TransportMode
+from polisyos.ir.artifacts import InputRef as IRInputRef
 from polisyos.ir.artifacts import put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
@@ -55,6 +61,7 @@ from polisyos.ir.registry.refs import (
     ContextAdaptiveParameterBundleRef,
     CrossGraphEvidenceProfileRef,
 )
+from polisyos.runtime.http.resilience import guard_runtime_cas
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.causal.resolve_parameters import (
     ResolveParametersNode,
@@ -65,6 +72,11 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
+from polisyos.scientist.orchestration.engine.skg_snapshot import (
+    SNAPSHOT_INPUT_KEY,
+    retain_prepared_skg_read,
+    retained_skg_snapshot_directory,
+)
 from polisyos.scientist.orchestration.engine.state_branching import (
     branch_state as real_branch_state,
 )
@@ -81,72 +93,47 @@ def _core_artifact_ref(
 
 
 def _graph_profile_pair(store):
-    """Persist one graph blob under two distinct manifest profiles."""
+    """Persist one graph under the current and registered predecessor views."""
     ir_store = _ensure_ir_artifact_store(store)
-    graph_ref = persist_causal_graph_model(
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y")],
+    )
+    selected_v1 = persist_causal_graph_model(
         ir_store,
-        CausalGraphModel(
-            graph_type=GraphType.DAG,
-            nodes=["X", "Y"],
-            edges=[CausalEdge(src="X", dst="Y")],
-        ),
+        graph,
+        return_selected_profile=True,
     )
-    selected_v1 = profile_bound_ref(ir_store, graph_ref)
-    original_manifest = ir_store.get_manifest(selected_v1)
-    raw = ir_store.get_bytes(selected_v1)
-    second_ref = ir_store.put_bytes(
-        raw,
-        ArtifactWriteOptions(
-            kind="ir.causal_graph_model",
-            media_type="application/json",
-            schema=CoreSchemaInfo(name="ir.causal_graph_model", version="2.0"),
-            canon=CoreCanonInfo.model_validate(original_manifest.canon.model_dump(mode="python")),
-        ),
-    )
-    selected_v2 = profile_bound_ref(
+    selected_v1_1 = persist_causal_graph_model(
         ir_store,
-        CausalGraphModelRef.model_validate(second_ref.model_dump(mode="json")),
+        graph,
+        schema_version="1.1",
+        return_selected_profile=True,
     )
-    # These refs intentionally name the same blob while selecting different manifest views.
-    assert selected_v1.artifact_id == selected_v2.artifact_id
-    assert selected_v1.manifest_profile_sha256 != selected_v2.manifest_profile_sha256
-    return selected_v1, selected_v2
+    assert selected_v1.artifact_id == selected_v1_1.artifact_id
+    assert selected_v1.manifest_profile_sha256 != selected_v1_1.manifest_profile_sha256
+    return selected_v1, selected_v1_1
 
 
 def _cross_graph_profile_pair(store):
-    """Persist one cross-graph profile blob under two manifest profiles."""
+    """Persist one cross-graph profile under its current and registered views."""
     ir_store = _ensure_ir_artifact_store(store)
-    profile_ref = persist_cross_graph_evidence_profile(
+    profile = CrossGraphEvidenceProfile(summary=CrossGraphEvidenceSummary())
+    selected_v1 = persist_cross_graph_evidence_profile(
         ir_store,
-        CrossGraphEvidenceProfile(summary=CrossGraphEvidenceSummary()),
+        profile,
+        return_selected_profile=True,
     )
-    selected_v1 = profile_bound_ref(ir_store, profile_ref)
-    original_manifest = ir_store.get_manifest(selected_v1)
-    raw = ir_store.get_bytes(selected_v1)
-    second_ref = ir_store.put_bytes(
-        raw,
-        ArtifactWriteOptions(
-            kind="ir.cross_graph_evidence_profile",
-            media_type="application/json",
-            schema=CoreSchemaInfo(
-                name="ir.cross_graph_evidence_profile",
-                version="2.1",
-            ),
-            canon=CoreCanonInfo.model_validate(
-                original_manifest.canon.model_copy(update={"exclude_none": False}).model_dump(
-                    mode="python"
-                )
-            ),
-        ),
-    )
-    selected_v2 = profile_bound_ref(
+    selected_v2_2 = persist_cross_graph_evidence_profile(
         ir_store,
-        CrossGraphEvidenceProfileRef.model_validate(second_ref.model_dump(mode="json")),
+        profile,
+        schema_version="2.2",
+        return_selected_profile=True,
     )
-    # These refs intentionally name the same blob while selecting different manifest views.
-    assert selected_v1.artifact_id == selected_v2.artifact_id
-    assert selected_v1.manifest_profile_sha256 != selected_v2.manifest_profile_sha256
-    return selected_v1, selected_v2
+    assert selected_v1.artifact_id == selected_v2_2.artifact_id
+    assert selected_v1.manifest_profile_sha256 != selected_v2_2.manifest_profile_sha256
+    return selected_v1, selected_v2_2
 
 
 def _v1_1_bundle(bundle, inputs):
@@ -218,6 +205,94 @@ def _cached_request_state(minimal_state, graph_ref, bundle_ref, *, profile_ref=N
     if profile_ref is not None:
         state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF] = profile_ref
     return state
+
+
+def _capture_cache_source(execution_context, tmp_path, name):
+    """Create one exact retained source descriptor using the production capture API."""
+    source_path = tmp_path / f"{name}.duckdb"
+    connection = duckdb.connect(str(source_path))
+    try:
+        connection.execute("CREATE TABLE ac_skg_versions (version_id INTEGER)")
+        connection.execute("INSERT INTO ac_skg_versions VALUES (1)")
+    finally:
+        connection.close()
+    prepared_read = SKGQuery.prepare_read(db_path=source_path, index_dir=tmp_path)
+    try:
+        source_ref = retain_prepared_skg_read(execution_context.store, prepared_read)
+    finally:
+        prepared_read.close()
+    return source_ref, retained_skg_source_binding(execution_context.store, source_ref)
+
+
+def test_cache_hit_binds_explicit_source_before_legacy_no_request_replay(
+    execution_context,
+    minimal_state,
+    tmp_path,
+):
+    graph_ref, _other_graph_ref = _graph_profile_pair(execution_context.store)
+    source_a, binding_a = _capture_cache_source(execution_context, tmp_path, "source-a")
+    source_b, _binding_b = _capture_cache_source(execution_context, tmp_path, "source-b")
+    ir_store = _ensure_ir_artifact_store(execution_context.store)
+    source_bundle_ref = persist_context_adaptive_parameter_bundle_v1_2(
+        ir_store,
+        ContextAdaptiveParameterBundleV12(
+            target_context=ContextProfile(context_id="control"),
+            simulation_domain="fiscal",
+            unsupported_parameters=["beta"],
+            skg_snapshot_ref=binding_a.source_reference,
+            skg_version_id=binding_a.source_version_id,
+            selected_cross_graph_profile_ref=None,
+            selected_skg_source=binding_a,
+        ),
+        inputs=[
+            input_ref_from_artifact_ref(
+                ArtifactRef.model_validate(graph_ref.model_dump(mode="json")),
+                role="causal_graph",
+            ),
+            input_ref_from_artifact_ref(source_a, role="skg_source_snapshot"),
+        ],
+    )
+    legacy_bundle_ref = persist_context_adaptive_parameter_bundle(
+        ir_store,
+        ContextAdaptiveParameterBundle(
+            target_context=ContextProfile(context_id="control"),
+            simulation_domain="fiscal",
+            unsupported_parameters=["beta"],
+        ),
+    )
+    node = ResolveParametersNode()
+
+    def cached_state(bundle_ref):
+        state = minimal_state.model_copy(deep=True)
+        state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] = bundle_ref
+        return state, NodeOutcome(status="ok", state=state)
+
+    absent_legacy_state, absent_legacy_outcome = cached_state(legacy_bundle_ref)
+    assert node.validate_cache_hit(
+        execution_context,
+        absent_legacy_state,
+        absent_legacy_outcome,
+    )
+
+    matching_state, matching_outcome = cached_state(source_bundle_ref)
+    matching_state.inputs[SNAPSHOT_INPUT_KEY] = source_a
+    assert node.validate_cache_hit(execution_context, matching_state, matching_outcome)
+
+    mismatching_state, mismatching_outcome = cached_state(source_bundle_ref)
+    mismatching_state.inputs[SNAPSHOT_INPUT_KEY] = source_b
+    assert not node.validate_cache_hit(execution_context, mismatching_state, mismatching_outcome)
+
+    legacy_selected_state, legacy_selected_outcome = cached_state(legacy_bundle_ref)
+    legacy_selected_state.inputs[SNAPSHOT_INPUT_KEY] = source_a
+    assert not node.validate_cache_hit(
+        execution_context,
+        legacy_selected_state,
+        legacy_selected_outcome,
+    )
+
+    malformed_state, malformed_outcome = cached_state(source_bundle_ref)
+    malformed_state.inputs[SNAPSHOT_INPUT_KEY] = None  # type: ignore[assignment]
+    assert not node.validate_cache_hit(execution_context, malformed_state, malformed_outcome)
 
 
 def test_skip_when_missing_target_context(execution_context, minimal_state):
@@ -480,6 +555,7 @@ def test_resolve_parameters_uses_branch_state_for_declared_outputs(
     produced_bundle_ref = outcome.state.artifacts_index[
         ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
     ]
+    assert isinstance(produced_bundle_ref, ArtifactRef)
     persisted_ir_bundle_ref = ContextAdaptiveParameterBundleRef.model_validate(
         observed["bundle_ref"].model_dump(mode="json")
     )
@@ -495,29 +571,35 @@ def test_resolve_parameters_uses_branch_state_for_declared_outputs(
     selected_profile_ref = None
     if select_profile:
         selected_profile_ref = profile_bound_ref(
-            _ensure_ir_artifact_store(execution_context.store),
+            execution_context.store,
             cross_graph_profile_ref,
         )
     ir_store = _ensure_ir_artifact_store(execution_context.store)
     persisted_manifest = ir_store.get_manifest(persisted_ir_bundle_ref)
     persisted_bundle = observed["bundle"]
     assert isinstance(persisted_bundle, ContextAdaptiveParameterBundleV12)
-    expected_inputs = [
+    expected_core_inputs = [
         input_ref_from_artifact_ref(
             _core_artifact_ref(graph_ref),
             role="causal_graph",
         )
     ]
     if selected_profile_ref is not None:
-        expected_inputs.append(
+        expected_core_inputs.append(
             input_ref_from_artifact_ref(
                 _core_artifact_ref(selected_profile_ref),
                 role="cross_graph_evidence_profile",
             )
         )
-    expected_inputs.append(input_ref_from_artifact_ref(source_ref, role="skg_source_snapshot"))
-    assert persisted_inputs == expected_inputs
-    assert persisted_manifest.inputs == expected_inputs
+    expected_core_inputs.append(input_ref_from_artifact_ref(source_ref, role="skg_source_snapshot"))
+    expected_inputs = [
+        IRInputRef.model_validate(item.model_dump(mode="json")) for item in expected_core_inputs
+    ]
+    assert persisted_inputs == expected_core_inputs
+    expected_input_payloads = [item.model_dump(mode="json") for item in expected_inputs]
+    assert [
+        item.model_dump(mode="json") for item in persisted_manifest.inputs
+    ] == expected_input_payloads
     if selected_profile_ref is None:
         assert persisted_bundle.selected_cross_graph_profile_ref is None
     else:
@@ -554,7 +636,7 @@ def test_cache_hit_requires_exact_graph_profile_and_role(
     changed_view = _cached_request_state(minimal_state, graph_v2, bundle_ref)
     assert not node.validate_cache_hit(execution_context, changed_view, cached_outcome)
     different_id_ref = profile_bound_ref(
-        _ensure_ir_artifact_store(execution_context.store),
+        execution_context.store,
         persist_causal_graph_model(
             _ensure_ir_artifact_store(execution_context.store),
             CausalGraphModel(
@@ -648,7 +730,11 @@ def test_cache_hit_requires_exact_cross_graph_profile_and_role(
         changed_view,
         NodeOutcome(status="ok", state=changed_view),
     )
-    assert node.execute(execution_context, changed_view).status == "skip"
+    refused = node.execute(execution_context, changed_view)
+    assert refused.status == "fail"
+    assert refused.error is not None
+    assert refused.error.code == "node.invalid_state"
+    assert refused.error.details["input"] == ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF
 
     absent_profile = _cached_request_state(minimal_state, graph_ref, bundle_ref)
     assert not node.validate_cache_hit(
@@ -776,19 +862,27 @@ def test_invalid_supplied_cross_graph_profile_is_not_absence_or_cache_hit(
         )
     elif corruption == "unloadable":
         supplied_profile = CrossGraphEvidenceProfileRef(artifact_id="sha256:" + "f" * 64)
-    elif corruption == "incompatible-manifest-schema":
-        supplied_profile = persist_cross_graph_evidence_profile(
-            _ensure_ir_artifact_store(execution_context.store),
-            CrossGraphEvidenceProfile(summary=CrossGraphEvidenceSummary()),
-            schema_version="9.9",
-        )
-    else:
-        supplied_profile = persist_cross_graph_evidence_profile(
-            _ensure_ir_artifact_store(execution_context.store),
-            CrossGraphEvidenceProfile(
-                schema_version="9.9",
-                summary=CrossGraphEvidenceSummary(),
-            ),
+    elif corruption in {"incompatible-manifest-schema", "incompatible-payload-schema"}:
+        # This unchecked Core/IR boundary write deliberately creates a malformed
+        # selected input so the typed consumer's refusal is exercised.
+        payload = CrossGraphEvidenceProfile(
+            summary=CrossGraphEvidenceSummary(),
+        ).model_dump(mode="json")
+        if corruption == "incompatible-manifest-schema":
+            schema_version = "9.9"
+        else:
+            payload["schema_version"] = "9.9"
+            schema_version = "2.1"
+        supplied_profile = CrossGraphEvidenceProfileRef.model_validate(
+            put_json_artifact(
+                _ensure_ir_artifact_store(execution_context.store),
+                payload,
+                kind="ir.cross_graph_evidence_profile",
+                schema_name="ir.cross_graph_evidence_profile",
+                schema_version=schema_version,
+                canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
+            )
         )
     state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF] = supplied_profile
 
@@ -920,3 +1014,196 @@ def test_legacy_v1_0_bundle_is_readable_but_not_reused_for_active_request(
     )
     assert not node.validate_cache_hit(execution_context, state, cached)
     assert node.execute(execution_context, state).status != "ok"
+
+
+class _WriteCountingStore:
+    """Count actual Core writes while forwarding the complete store contract."""
+
+    def __init__(self, store):
+        self._store = store
+        self.writes: list[tuple[str, str | None]] = []
+
+    def __getattr__(self, name):
+        return getattr(self._store, name)
+
+    def put_bytes(self, data, opts, *, return_selected_profile=False):
+        self.writes.append(("put_bytes", getattr(opts, "kind", None)))
+        return self._store.put_bytes(
+            data,
+            opts,
+            return_selected_profile=return_selected_profile,
+        )
+
+    def put_json(self, obj, opts, *, canon_spec=None, return_selected_profile=False):
+        self.writes.append(("put_json", getattr(opts, "kind", None)))
+        return self._store.put_json(
+            obj,
+            opts,
+            canon_spec=canon_spec,
+            return_selected_profile=return_selected_profile,
+        )
+
+
+class _StoreWithoutMemberCopy:
+    """Preserve all store behavior except the selected replay copy capability."""
+
+    def __init__(self, store):
+        self._store = store
+
+    def __getattr__(self, name):
+        if name == "copy_member_to":
+            raise AttributeError(name)
+        return getattr(self._store, name)
+
+
+def _retained_source_request_state(minimal_state, graph_ref, db_path, source_ref=None):
+    state = minimal_state.model_copy(deep=True)
+    state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF] = graph_ref
+    state.params.update(
+        {
+            "target_context": {
+                "context_id": "us-2025",
+                "countries": ["US"],
+                "publication_year": 2025,
+            },
+            "required_parameters": ["beta"],
+            "skg_db_path": str(db_path),
+        }
+    )
+    if source_ref is not None:
+        state.inputs[SNAPSHOT_INPUT_KEY] = source_ref
+    return state
+
+
+@pytest.mark.parametrize("selected_snapshot", [False, True])
+def test_selected_replay_and_live_capture_keep_distinct_snapshot_write_paths(
+    execution_context,
+    minimal_state,
+    tmp_path,
+    selected_snapshot: bool,
+):
+    graph_ref, _ = _graph_profile_pair(execution_context.store)
+    db_path = tmp_path / ("selected-source.duckdb" if selected_snapshot else "live-source.duckdb")
+    source_ref = None
+    if selected_snapshot:
+        source_ref, source_binding = _capture_cache_source(
+            execution_context,
+            tmp_path,
+            "selected-source",
+        )
+        db_path = (
+            retained_skg_snapshot_directory(execution_context.run.trace_path)
+            / f"{source_binding.source_sha256}.duckdb"
+        )
+    else:
+        connection = duckdb.connect(str(db_path))
+        try:
+            connection.execute("CREATE TABLE ac_skg_versions (version_id INTEGER)")
+            connection.execute("INSERT INTO ac_skg_versions VALUES (1)")
+        finally:
+            connection.close()
+
+    state = _retained_source_request_state(minimal_state, graph_ref, db_path, source_ref)
+    counted_store = _WriteCountingStore(execution_context.store)
+    guarded_context = replace(
+        execution_context,
+        store=guard_runtime_cas(counted_store),
+    )
+    applicability = ParameterApplicability(
+        parameter_id="beta",
+        target_context_id="us-2025",
+        transport_status=TransportabilityStatus.UNSUPPORTED,
+        transport_mode=TransportMode.NONE,
+        transport_confidence=0.0,
+        context_distance=0.0,
+        is_applicable=False,
+        adjustment_required=False,
+    )
+
+    with (
+        patch(
+            "polisyos.scientist.nodes.builtins.causal.resolve_parameters.ParameterSelector"
+        ) as selector_cls,
+        patch(
+            "polisyos.scientist.nodes.builtins.causal.resolve_parameters.ParameterTransferData",
+            side_effect=lambda **kwargs: kwargs,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.causal.resolve_parameters.ParameterTransfer.pure_step",
+            return_value={
+                "literature_priors": {"beta": {"mean": 1.0}},
+                "uncertainty_multipliers": {"beta": 1.1},
+                "runtime_backend_used": "numpy",
+                "runtime_parameter_intervals": {"beta": [0.8, 1.2]},
+                "runtime_ready": True,
+            },
+        ),
+    ):
+        selector_cls.return_value.select_for_context.return_value = (None, applicability)
+        outcome = ResolveParametersNode().execute(guarded_context, state)
+
+    assert outcome.status == "ok"
+    descriptor_json_writes = [
+        call
+        for call in counted_store.writes
+        if call == ("put_json", "scientist.skg_source_snapshot")
+    ]
+    assert len(descriptor_json_writes) == (0 if selected_snapshot else 1)
+    bundle_writes = [
+        call
+        for call in counted_store.writes
+        if call == ("put_bytes", "ir.context_adaptive_parameter_bundle")
+    ]
+    assert len(bundle_writes) == 1
+    chunk_writes = [
+        call for call in counted_store.writes if call == ("put_bytes", "scientist.skg_source_chunk")
+    ]
+    assert bool(chunk_writes) is (not selected_snapshot)
+
+    bundle_ref = ContextAdaptiveParameterBundleRef.model_validate(
+        outcome.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF].model_dump(
+            mode="json"
+        )
+    )
+    bundle = load_context_adaptive_parameter_bundle(
+        _ensure_ir_artifact_store(execution_context.store),
+        bundle_ref,
+    )
+    assert isinstance(bundle, ContextAdaptiveParameterBundleV12)
+    if selected_snapshot:
+        assert bundle.selected_skg_source is not None
+        assert bundle.selected_skg_source.descriptor_ref == source_ref
+        assert source_binding.descriptor_ref == source_ref
+
+
+def test_selected_replay_fails_closed_without_member_copy_before_writing(
+    execution_context,
+    minimal_state,
+    tmp_path,
+):
+    graph_ref, _ = _graph_profile_pair(execution_context.store)
+    source_ref, _binding = _capture_cache_source(
+        execution_context,
+        tmp_path,
+        "missing-copy-source",
+    )
+    state = _retained_source_request_state(
+        minimal_state,
+        graph_ref,
+        tmp_path / "missing-copy-source.duckdb",
+        source_ref,
+    )
+    counted_store = _WriteCountingStore(execution_context.store)
+    incomplete_store = _StoreWithoutMemberCopy(counted_store)
+    guarded_context = replace(
+        execution_context,
+        store=guard_runtime_cas(incomplete_store),
+    )
+
+    with pytest.raises(
+        RetainedSKGSnapshotError,
+        match="retained_skg_member_read_store_required",
+    ):
+        ResolveParametersNode().execute(guarded_context, state)
+
+    assert counted_store.writes == []

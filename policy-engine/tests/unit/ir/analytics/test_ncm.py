@@ -149,8 +149,33 @@ def test_candidate_ncm_is_derived_from_declared_baseline_and_selected_view(
         )
 
         assert selected_ref.manifest_profile_sha256 is not None
-        assert default_view_ref.manifest_profile_sha256 is None
+        assert default_view_ref.manifest_profile_sha256 is not None
         from polisyos.core.artifacts.manifest import input_ref_from_artifact_ref
+
+        # Reproduce the authentic legacy selected-view writer path: it writes
+        # the complete context but returns the default/profileless selector.
+        legacy_default_options = _candidate_simulation_write_options(
+            kind="ir.ncm_spec",
+            schema_name="ir.ncm_spec",
+            schema_version="1.0",
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            source_ref=alternate_declaration.profile_content_hash,
+            input_refs=(
+                input_ref_from_artifact_ref(
+                    alternate_ref,
+                    role="candidate_model_declaration",
+                ),
+            ),
+        )
+        legacy_default_bytes = to_canonical_bytes(
+            default_view_spec.model_dump(mode="json"),
+            CanonSpec(forbid_floats=False, exclude_none=False),
+        )
+        legacy_default_ref = store.put_bytes(legacy_default_bytes, legacy_default_options)
+        assert legacy_default_ref.manifest_profile_sha256 is None
         from polisyos.ir.model_layer.canon import CanonViolation
 
         legacy_options = replace(
@@ -208,6 +233,16 @@ def test_candidate_ncm_is_derived_from_declared_baseline_and_selected_view(
             expected_declaration_ref=alternate_ref,
         )
         assert loaded_default_view.model_dump(mode="json") == default_view_spec.model_dump(
+            mode="json"
+        )
+        loaded_legacy_default_view = load_ncm_spec_selected_view(
+            _ensure_ir_artifact_store(store),
+            legacy_default_ref,
+            expected_tenant_id=tenant_id,
+            expected_cell_id=cell_id,
+            expected_declaration_ref=alternate_ref,
+        )
+        assert loaded_legacy_default_view.model_dump(mode="json") == default_view_spec.model_dump(
             mode="json"
         )
 

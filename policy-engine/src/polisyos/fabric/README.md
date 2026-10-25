@@ -83,7 +83,11 @@ Ingestion and retrieval names remain typed operational contracts; their presence
 - [`evidence/`](evidence/) owns evidence bundles, decision-data envelopes, and
   fact writing.
   `evidence/non_data_acquisition.py` extends that plane with persisted candidate
-  object intake, independent verifier admission and re-entry receipts.
+  object intake, independent verifier admission and re-entry receipts. Candidate,
+  vocabulary and receipt writes now select one explicit Core canonical profile;
+  their reader binds the selected bytes to the exact owner kind, media type,
+  schema and strict payload DTO before recomputation. Historical profileless
+  artifacts are refused and must be regenerated through the producer.
   `evidence/ceiling_relations.py` owns the eight explicit non-data ceiling relations
   registered in `evidence/ceiling_vocabulary.json`; unknown fields and identities
   fail closed. Same-stream row growth cannot resolve a missing non-data object.
@@ -189,3 +193,20 @@ Run from the repository root (`policy-engine/`).
 - [Add data source](../../../docs/how-to/add-data-source.md)
 - [Manage generated artifacts](../../../docs/how-to/manage-generated-artifacts.md)
 - [Fabric tests map](../../../tests/unit/fabric/README.md)
+
+
+Evidence boundaries also validate present input structure before normalizing it:
+source-selection consumers refuse malformed supplied report fields and validate
+the complete consumed source-row map and record-list shape; the scorecard intake
+refuses a malformed non-null trace while preserving absent and explicit-null
+optionality. A present malformed outer source-family expectation now adds a
+blocking issue instead of falling back to the report's own expectation; missing,
+null, and valid-empty external intent still leave the report expectation as a
+candidate consistency constraint only. Required source facets are checked by
+their declared contract kind: rights require nonblank text, while every
+reference facet must yield a recognized textual ref. Symbolic field refs and
+CAS refs remain valid; an unknown-key map or scalar without a ref is missing.
+The non-data acquisition consumer requires a persisted receipt ref before
+readback, and the registered ceiling relation resource is parsed through its
+strict owner shape. These checks do not establish institutional authority or
+source currentness.

@@ -52,6 +52,7 @@ src = [".", "src"]
 extend-exclude = [
   "docs/archive/**",
   "docs/research/e02-cloud-test-plan/implementation-handoffs/**",
+  "**/docs/research/e02-cloud-test-plan/implementation-handoffs/**",
   "docs/research/e02-cloud-test-plan/integration/**",
   "docs/research/e02-cloud-test-plan/closure-decisions/**",
   "docs/research/e02-cloud-test-plan/execution-organization/**",

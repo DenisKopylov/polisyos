@@ -1,6 +1,7 @@
 import { useLocation, useParams } from "react-router-dom";
 
 import { useAuthzDecision } from "@/app/authz/AuthzProvider";
+import { useRunDetails } from "@/api/hooks/useRunDetails";
 import { useEpochStaleness } from "@/features/runs/api/useEpochStaleness";
 import {
   type RunPaperPacket,
@@ -14,6 +15,7 @@ import {
   type RunPaperSemanticNode,
 } from "@/features/runs/domain/runPaperPresentation";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { coreRunIdFromDetails } from "@/features/runs/routes/useRunDetailSummary";
 import { evidenceArtifactRefKey } from "@/shared/lib/domain/evidence";
 import {
   type EpochSemantics,
@@ -594,11 +596,16 @@ function RunPaperDocument({
   );
 }
 
-function AuthorizedRunReportPage({ runId }: { runId: string }) {
+function LoadedRunReportPage({
+  coreRunId,
+  rawSearch,
+}: {
+  coreRunId: string;
+  rawSearch: string;
+}) {
   const { t } = useI18n();
-  const location = useLocation();
-  const query = useRunPaper(runId, location.search);
-  const epochQuery = useEpochStaleness({ runId });
+  const query = useRunPaper(coreRunId, rawSearch);
+  const epochQuery = useEpochStaleness({ runId: coreRunId });
   const epochProjection = epochQuery.data?.projection;
   const epochSemantics = epochProjection
     ? epochSemanticsFromProjection(epochProjection)
@@ -622,7 +629,7 @@ function AuthorizedRunReportPage({ runId }: { runId: string }) {
           type="button"
           variant="ghost"
           onClick={() =>
-            downloadRunPaperPacket(runId, query.data.rawPacketBytes)
+            downloadRunPaperPacket(coreRunId, query.data.rawPacketBytes)
           }
         >
           {t("pages.runs.report.exportMachine")}
@@ -637,6 +644,37 @@ function AuthorizedRunReportPage({ runId }: { runId: string }) {
         packet={query.data.packet}
       />
     </div>
+  );
+}
+
+function AuthorizedRunReportPage({ runId }: { runId: string }) {
+  const { t } = useI18n();
+  const location = useLocation();
+  const runDetailsQuery = useRunDetails(runId, { resolveCurrentAlias: true });
+  const cachedRun = runDetailsQuery.data?.run;
+  const resolvingCurrentAlias =
+    typeof cachedRun?.run_id === "string" &&
+    cachedRun.run_id !== runId &&
+    runDetailsQuery.isFetching;
+  const coreRunId = coreRunIdFromDetails(
+    runDetailsQuery.isError || resolvingCurrentAlias ? undefined : cachedRun,
+  );
+
+  if (runDetailsQuery.isLoading || resolvingCurrentAlias) {
+    return <PanelSkeleton rows={8} />;
+  }
+  if (runDetailsQuery.isError || !coreRunId) {
+    return (
+      <Card>
+        <EmptyState
+          body={t("pages.runs.report.unavailableBody")}
+          title={t("pages.runs.unavailableRun")}
+        />
+      </Card>
+    );
+  }
+  return (
+    <LoadedRunReportPage coreRunId={coreRunId} rawSearch={location.search} />
   );
 }
 

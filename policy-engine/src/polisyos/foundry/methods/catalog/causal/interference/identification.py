@@ -1357,6 +1357,25 @@ def _interaction_complex_from_augmented_graph(
     )
 
 
+def _interference_indicator_state(value: bool | None) -> str:
+    if value is None:
+        return "unknown"
+    return "true" if value else "false"
+
+
+def _interference_indicator_projection(
+    result: InterferenceIdentificationResult | None,
+) -> tuple[str, ...]:
+    status = "not_supplied" if result is None else result.status
+    interference_detected = None if result is None else result.interference_detected
+    sutva_violated = None if result is None else result.sutva_violated
+    return (
+        f"interference_identification_status:{status}",
+        f"interference_detected:{_interference_indicator_state(interference_detected)}",
+        f"sutva_violated:{_interference_indicator_state(sutva_violated)}",
+    )
+
+
 def _topology_exposure_assumptions(
     augmented_graph: InterferenceAugmentedGraph,
     *,
@@ -1375,7 +1394,8 @@ def _topology_exposure_assumptions(
         assumptions.append("cross_unit_edges_detected")
     if augmented_graph.exposure_nodes:
         assumptions.append("exposure_nodes_materialized")
-    if result is not None and result.sutva_violated:
+    assumptions.extend(_interference_indicator_projection(result))
+    if result is not None and result.sutva_violated is True:
         assumptions.append("sutva_violation_detected")
     if result is not None and result.base_identification_status:
         assumptions.append(f"base_identification_status:{result.base_identification_status}")
@@ -1632,7 +1652,8 @@ def _full_complex_certificate_plan(
         assumptions.append("cross_unit_edges_detected")
     if augmented_graph.exposure_nodes:
         assumptions.append("exposure_nodes_materialized")
-    if result is not None and result.sutva_violated:
+    assumptions.extend(_interference_indicator_projection(result))
+    if result is not None and result.sutva_violated is True:
         assumptions.append("sutva_violation_detected")
     if result is not None and result.base_identification_status:
         assumptions.append(f"base_identification_status:{result.base_identification_status}")
@@ -1915,9 +1936,14 @@ def build_interference_topology_contracts(
         reduction_policy=resolved_policy,
         result=result,
     )
+    topology_assumptions = list(certificate_plan.exposure_assumptions)
+    if result is None:
+        topology_assumptions.append("interference_identification_not_supplied")
+    elif result.status != "identified":
+        topology_assumptions.append(f"interference_identification_not_established:{result.status}")
     certificate = InterferenceCertificate(
         supported_query_family=certificate_plan.supported_query_family,
-        exposure_assumptions=certificate_plan.exposure_assumptions,
+        exposure_assumptions=_dedupe_assumptions(topology_assumptions),
         reduction_error_bound=certificate_plan.reduction_error_bound,
         fallback_mode=certificate_plan.fallback_mode,
         mode_requested=certificate_plan.mode_requested,
@@ -1937,133 +1963,18 @@ def _build_interference_augmented_graph(
     exposure_mapping: ExposureMappingType,
     cluster_var: str | None = None,
 ) -> tuple[InterferenceAugmentedGraph, tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
-    """Construct an exposure-augmented graph and return metadata plus resolved nodes."""
+    """Preserve graph topology without inventing an exposure operator."""
     cluster_partition, node_to_cluster = _resolve_cluster_partition(graph, cluster_var=cluster_var)
     treatment_nodes = _resolve_graph_variables(graph, treatment)
     outcome_nodes = _resolve_graph_variables(graph, outcome)
-
-    if not cluster_partition:
-        # No explicit unit partition available. Preserve the original graph and
-        # record an empty augmentation.
-        augmented_graph = CausalGraphModel(
-            schema_version=graph.schema_version,
-            graph_type=GraphType.ADMG,
-            nodes=list(graph.nodes),
-            edges=list(graph.edges),
-            discovery_method=graph.discovery_method,
-            skg_version_id=graph.skg_version_id,
-            pag_identification_policy=graph.pag_identification_policy,
-            id_confidence_under_pag=graph.id_confidence_under_pag,
-            metadata=dict(graph.metadata),
-        )
-        return (
-            InterferenceAugmentedGraph(
-                original_graph=graph,
-                augmented_graph=augmented_graph,
-                exposure_nodes=(),
-                cluster_partition=(),
-                interference_type="none",
-                exposure_mapping=exposure_mapping,
-                cross_unit_edges=(),
-                node_to_cluster={},
-                cluster_var=cluster_var,
-            ),
-            treatment_nodes,
-            outcome_nodes,
-            (),
-        )
-
-    # Build cluster membership from the resolved partition.
-    cluster_lookup: dict[str, str] = {}
-    for cluster_idx, members in enumerate(cluster_partition):
-        for node in members:
-            cluster_lookup[node] = str(cluster_idx)
-
-    if not node_to_cluster:
-        node_to_cluster = dict(cluster_lookup)
-
     cross_unit = _cross_unit_edges(graph, node_to_cluster)
 
-    exposure_nodes: list[str] = []
-    augmented_metadata = dict(graph.metadata)
-    augmented_metadata["interference"] = {
-        "exposure_nodes": exposure_nodes,
-        "cluster_partition_size": len(cluster_partition),
-        "treatment_nodes": list(treatment_nodes),
-        "outcome_nodes": list(outcome_nodes),
-        "cross_unit_edges": [list(edge) for edge in cross_unit],
-    }
-
-    if cross_unit:
-        augmented_nodes = list(graph.nodes)
-        augmented_edges = list(graph.edges)
-        node_set = set(graph.nodes)
-
-        for cluster_idx, members in enumerate(cluster_partition):
-            cluster_name = f"u{cluster_idx}"
-            cluster_members = set(members)
-            target_treatment_nodes = [
-                node for node in treatment_nodes if node not in cluster_members
-            ]
-            target_outcome_nodes = [node for node in outcome_nodes if node in cluster_members]
-
-            if not target_outcome_nodes:
-                continue
-            exposure_node = f"E__{cluster_name}"
-            if exposure_node in node_set:
-                exposure_node = f"E__{cluster_name}_spillover"
-            exposure_nodes.append(exposure_node)
-            augmented_nodes.append(exposure_node)
-            if not target_treatment_nodes and treatment_nodes:
-                target_treatment_nodes = list(treatment_nodes)
-
-            for src in target_treatment_nodes:
-                augmented_edges.append(
-                    CausalEdge(
-                        src=src,
-                        dst=exposure_node,
-                        mark_src=EdgeMark.TAIL,
-                        mark_dst=EdgeMark.ARROW,
-                    )
-                )
-            for dst in target_outcome_nodes:
-                augmented_edges.append(
-                    CausalEdge(
-                        src=exposure_node,
-                        dst=dst,
-                        mark_src=EdgeMark.TAIL,
-                        mark_dst=EdgeMark.ARROW,
-                    )
-                )
-
-        augmented_graph = CausalGraphModel(
-            schema_version=graph.schema_version,
-            graph_type=GraphType.ADMG,
-            nodes=augmented_nodes,
-            edges=augmented_edges,
-            discovery_method=graph.discovery_method,
-            skg_version_id=graph.skg_version_id,
-            pag_identification_policy=graph.pag_identification_policy,
-            id_confidence_under_pag=graph.id_confidence_under_pag,
-            metadata=augmented_metadata,
-        )
-    else:
-        augmented_graph = CausalGraphModel(
-            schema_version=graph.schema_version,
-            graph_type=GraphType.ADMG,
-            nodes=list(graph.nodes),
-            edges=list(graph.edges),
-            discovery_method=graph.discovery_method,
-            skg_version_id=graph.skg_version_id,
-            pag_identification_policy=graph.pag_identification_policy,
-            id_confidence_under_pag=graph.id_confidence_under_pag,
-            metadata=augmented_metadata,
-        )
+    diagnostic_graph = graph.model_copy(deep=True)
     return (
         InterferenceAugmentedGraph(
             original_graph=graph,
-            augmented_graph=augmented_graph,
-            exposure_nodes=tuple(exposure_nodes),
+            augmented_graph=diagnostic_graph,
+            exposure_nodes=(),
             cluster_partition=cluster_partition,
             interference_type=(
                 "partial"
@@ -2079,6 +1990,84 @@ def _build_interference_augmented_graph(
         outcome_nodes,
         cross_unit,
     )
+
+
+def _has_complete_declared_unit_partition(
+    graph: CausalGraphModel,
+    augmented_graph: InterferenceAugmentedGraph,
+    *,
+    cluster_var: str | None,
+) -> bool:
+    """Reconcile every declared unit partition and require exact graph coverage."""
+    graph_nodes = set(graph.nodes)
+    if not graph_nodes or len(graph_nodes) != len(graph.nodes):
+        return False
+
+    def group_signature(payload: object) -> tuple[tuple[str, ...], ...] | None:
+        if not isinstance(payload, (list, tuple)) or not payload:
+            return None
+        groups: list[tuple[str, ...]] = []
+        assigned: list[str] = []
+        for group in payload:
+            if not isinstance(group, (list, tuple, set, frozenset)) or not group:
+                return None
+            members = tuple(sorted(str(node) for node in group))
+            if any(node not in graph_nodes for node in members):
+                return None
+            groups.append(members)
+            assigned.extend(members)
+        if (
+            len(assigned) != len(graph_nodes)
+            or len(set(assigned)) != len(assigned)
+            or set(assigned) != graph_nodes
+        ):
+            return None
+        return tuple(sorted(groups))
+
+    def map_signature(payload: object) -> tuple[tuple[str, ...], ...] | None:
+        if not isinstance(payload, dict) or not payload or set(payload) != graph_nodes:
+            return None
+        if any(value is None or not str(value).strip() for value in payload.values()):
+            return None
+        groups: dict[str, list[str]] = {}
+        for node, label in payload.items():
+            groups.setdefault(str(label).strip(), []).append(node)
+        return tuple(sorted(tuple(sorted(members)) for members in groups.values()))
+
+    metadata = graph.metadata or {}
+    declared_values: list[tuple[object, str]] = []
+    for key in ("cluster_partition", "unit_map", "cluster_map"):
+        value = metadata.get(key)
+        if isinstance(value, (dict, list, tuple, set, frozenset)) and value:
+            declared_values.append((value, key))
+        elif value is not None and not isinstance(value, (dict, list, tuple, set, frozenset)):
+            return False
+    if cluster_var is not None:
+        value = metadata.get(cluster_var)
+        if isinstance(value, (dict, list, tuple, set, frozenset)) and value:
+            declared_values.append((value, cluster_var))
+        elif value is not None and not isinstance(value, (dict, list, tuple, set, frozenset)):
+            return False
+
+    declared_signatures: list[tuple[tuple[str, ...], ...]] = []
+    for value, source in declared_values:
+        if source == "cluster_partition" or (
+            cluster_var is not None and source == cluster_var and isinstance(value, (list, tuple))
+        ):
+            signature = group_signature(value)
+        else:
+            signature = map_signature(value)
+        if signature is None:
+            return False
+        declared_signatures.append(signature)
+    if not declared_signatures or any(
+        signature != declared_signatures[0] for signature in declared_signatures[1:]
+    ):
+        return False
+
+    resolved_groups = group_signature(augmented_graph.cluster_partition)
+    resolved_map = map_signature(augmented_graph.node_to_cluster)
+    return resolved_groups == declared_signatures[0] and resolved_map == declared_signatures[0]
 
 
 def _convert_id_proof_steps(steps: list[Any]) -> tuple[IRProofStep, ...]:
@@ -2109,7 +2098,11 @@ def identify_interference_effect(
     exposure_mapping: ExposureMappingType = ExposureMappingType.FRACTIONAL,
     cluster_var: str | None = None,
 ) -> InterferenceIdentificationResult:
-    """Run a graph-based SUTVA check and identify the effect on an augmented graph."""
+    """Run original-graph ID only when declared units establish the ordinary profile.
+
+    Cross-unit topology does not define an exposure policy. Such queries return
+    oracle_needed until a policy-bound exposure law is supplied.
+    """
     from polisyos.foundry.methods.catalog.causal.id_engine import (
         IdentificationStatus,
         id_algorithm,
@@ -2117,7 +2110,6 @@ def identify_interference_effect(
 
     trace: list[str] = []
     proof_steps: list[IRProofStep] = []
-
     augmented_graph, treatment_nodes, outcome_nodes, cross_unit = (
         _build_interference_augmented_graph(
             graph,
@@ -2128,61 +2120,60 @@ def identify_interference_effect(
         )
     )
 
-    sutva_violated = bool(cross_unit)
-    interference_detected = sutva_violated or bool(augmented_graph.exposure_nodes)
+    partition_complete = _has_complete_declared_unit_partition(
+        graph,
+        augmented_graph,
+        cluster_var=cluster_var,
+    )
+    interference_detected: bool | None
+    sutva_violated: bool | None
+    if partition_complete and cross_unit:
+        interference_detected = True
+        sutva_violated = True
+    elif partition_complete:
+        interference_detected = False
+        sutva_violated = False
+    else:
+        interference_detected = None
+        sutva_violated = None
     trace.append(
-        "[interference] SUTVA check: "
-        f"{'violated' if sutva_violated else 'no violation'}; "
-        f"cross_unit_edges={len(cross_unit)}"
+        "[interference] cross-unit edge census: "
+        f"cross_unit_edges={len(cross_unit)}; "
+        f"declared_partition_complete={str(partition_complete).lower()}"
     )
-    proof_steps.append(
-        IRProofStep(
-            rule_name="SUTVA_CHECK",
-            description=(f"Detected {len(cross_unit)} cross-unit edge(s) in the original graph."),
-            variables_affected=tuple(sorted({treatment, outcome})),
-            graph_subset="original graph",
-            rule_formal_name="graph-based SUTVA check",
-            applicable_theorem="phase-10-interference",
-            graph_state_before=f"{len(graph.nodes)} nodes / {len(graph.edges)} edges",
-            graph_state_after=(
-                "interference detected" if sutva_violated else "no interference detected"
-            ),
-        )
+    trace.append(
+        "[interference] indicator projection: "
+        f"interference_detected={_interference_indicator_state(interference_detected)}; "
+        f"sutva_violated={_interference_indicator_state(sutva_violated)}"
     )
-
-    if augmented_graph.exposure_nodes:
-        trace.append(
-            "[interference] Exposure augmentation: "
-            f"added {len(augmented_graph.exposure_nodes)} exposure node(s)"
-        )
+    if cross_unit:
         proof_steps.append(
             IRProofStep(
-                rule_name="EXPOSURE_AUGMENTATION",
+                rule_name="INTERFERENCE_TOPOLOGY_CANDIDATE",
                 description=(
-                    f"Added {len(augmented_graph.exposure_nodes)} exposure node(s) "
-                    f"for spillover routing."
+                    f"Observed {len(cross_unit)} cross-unit edge(s); topology alone does "
+                    "not specify a policy-bound exposure law."
                 ),
                 variables_affected=tuple(sorted({treatment, outcome})),
-                graph_subset="augmented graph",
-                rule_formal_name="exposure-node augmentation",
-                applicable_theorem="phase-10-interference",
+                graph_subset="original graph",
+                rule_formal_name="cross-unit topology census",
+                applicable_theorem="not_established",
                 graph_state_before=f"{len(graph.nodes)} nodes / {len(graph.edges)} edges",
-                graph_state_after=(
-                    f"{len(augmented_graph.augmented_graph.nodes)} nodes / "
-                    f"{len(augmented_graph.augmented_graph.edges)} edges"
-                ),
+                graph_state_after="candidate cross-unit topology retained without augmentation",
             )
         )
     else:
-        trace.append("[interference] No exposure nodes were needed; using original graph.")
         proof_steps.append(
             IRProofStep(
-                rule_name="NO_INTERFERENCE",
-                description="No cross-unit interference detected; original graph is sufficient.",
+                rule_name="NO_CROSS_UNIT_EDGES_OBSERVED",
+                description=(
+                    "No cross-unit edge was observed under the resolved partition; "
+                    "this is not an admitted ordinary-ID profile by itself."
+                ),
                 variables_affected=tuple(sorted({treatment, outcome})),
                 graph_subset="original graph",
-                rule_formal_name="no-interference gate",
-                applicable_theorem="phase-10-interference",
+                rule_formal_name="cross-unit topology census",
+                applicable_theorem="not_established",
                 graph_state_before=f"{len(graph.nodes)} nodes / {len(graph.edges)} edges",
                 graph_state_after="original graph retained",
             )
@@ -2193,15 +2184,58 @@ def identify_interference_effect(
     if not resolved_treatment or not resolved_outcome:
         trace.append("[interference] input invalid: could not resolve treatment/outcome nodes")
         return InterferenceIdentificationResult(
+            schema_version="1.1",
             treatment=treatment,
             outcome=outcome,
             status="input_invalid",
             interference_detected=interference_detected,
             sutva_violated=sutva_violated,
+            identification_method="not_run_invalid_query",
             augmented_graph=augmented_graph,
             proof_steps=tuple(proof_steps),
             trace=tuple(trace),
             warnings=("Could not resolve treatment/outcome nodes in the graph.",),
+        )
+
+    if not partition_complete or cross_unit:
+        reasons: list[str] = []
+        if not partition_complete:
+            reasons.append("complete declared unit partition is not established")
+        if cross_unit:
+            reasons.append("cross-unit edges require a policy-bound exposure law")
+        reason = "; ".join(reasons)
+        trace.append(f"[interference] exposure-law admission refused: {reason}")
+        proof_steps.append(
+            IRProofStep(
+                rule_name="EXPOSURE_LAW_ORACLE_BOUNDARY",
+                description=(
+                    "No interference estimand is produced because graph metadata and "
+                    "cross-unit edges do not bind an exposure-policy law."
+                ),
+                variables_affected=tuple(sorted({treatment, outcome})),
+                graph_subset="original graph",
+                rule_formal_name="exposure-law admission boundary",
+                applicable_theorem="not_established",
+                graph_state_before=f"{len(graph.nodes)} nodes / {len(graph.edges)} edges",
+                graph_state_after="ORACLE_NEEDED; no estimand or hedge certificate",
+            )
+        )
+        return InterferenceIdentificationResult(
+            schema_version="1.1",
+            treatment=treatment,
+            outcome=outcome,
+            status="oracle_needed",
+            interference_detected=interference_detected,
+            sutva_violated=sutva_violated,
+            identification_method="unsupported_exposure_law",
+            augmented_graph=augmented_graph,
+            proof_steps=tuple(proof_steps),
+            trace=tuple(trace),
+            base_identification_status=None,
+            estimand_ast=None,
+            required_distributions=(),
+            negative_certificate=None,
+            warnings=(reason + ".",),
         )
 
     dataset_ref = None
@@ -2213,22 +2247,29 @@ def identify_interference_effect(
     base_result = id_algorithm(
         treatment=frozenset(resolved_treatment),
         outcome=frozenset(resolved_outcome),
-        graph=augmented_graph.augmented_graph if augmented_graph.exposure_nodes else graph,
+        graph=graph,
         dataset_ref=dataset_ref,
         _trace=base_trace,
     )
     trace.extend(base_trace)
-    trace.append(f"[interference] base ID status={base_result.status.value}")
-
+    trace.append(f"[interference] ordinary original-graph ID status={base_result.status.value}")
     proof_steps.extend(_convert_id_proof_steps(list(base_result.proof_steps)))
-    status = (
-        "identified" if base_result.status is IdentificationStatus.IDENTIFIED else "non_identified"
+
+    if base_result.status is IdentificationStatus.IDENTIFIED:
+        status = "identified"
+    elif base_result.status is IdentificationStatus.HEDGE_FOUND:
+        status = "non_identified"
+    else:
+        status = base_result.status.value
+
+    estimand_ast = (
+        base_result.estimand_ast.model_dump(mode="json")
+        if base_result.status is IdentificationStatus.IDENTIFIED
+        and base_result.estimand_ast is not None
+        else None
     )
     negative_certificate = None
-    estimand_ast = None
-    if base_result.estimand_ast is not None:
-        estimand_ast = base_result.estimand_ast.model_dump(mode="json")
-    if base_result.status is not IdentificationStatus.IDENTIFIED:
+    if base_result.status is IdentificationStatus.HEDGE_FOUND:
         negative_certificate = {
             "status": base_result.status.value,
             "trace": list(base_trace),
@@ -2238,11 +2279,13 @@ def identify_interference_effect(
         }
 
     return InterferenceIdentificationResult(
+        schema_version="1.1",
         treatment=treatment,
         outcome=outcome,
         status=status,
-        interference_detected=interference_detected,
-        sutva_violated=sutva_violated,
+        interference_detected=False,
+        sutva_violated=False,
+        identification_method="ordinary_original_graph_id",
         augmented_graph=augmented_graph,
         proof_steps=tuple(proof_steps),
         trace=tuple(trace),

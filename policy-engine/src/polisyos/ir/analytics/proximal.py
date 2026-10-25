@@ -13,7 +13,15 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     BridgePlausibilityReportRef,
@@ -462,6 +470,65 @@ class ProximalIdentificationCertificate(BaseModel):
         return self
 
 
+def _declare_proximal_owner(
+    model: type[BaseModel],
+    *,
+    schema_name: str,
+    schema_version: str,
+    purpose: str,
+) -> ArtifactOwnerDeclaration[Any, Any]:
+    contract_id = f"ir.analytics.{schema_name.replace('.', '_')}.owner.v1"
+    wire_policy_ref = f"{contract_id}.wire-law"
+    return declare_model_owner(
+        model,
+        contract_id=contract_id,
+        dto_fqn=f"{model.__module__}.{model.__qualname__}",
+        abi_key=f"{contract_id}.dto-abi.v1",
+        registry_key=schema_name,
+        kind=schema_name,
+        media_type="application/json",
+        purpose=purpose,
+        policy_revision=f"{contract_id}.admission.v1",
+        accepted_wire_policies=((wire_policy_ref, "1"),),
+        payload_version_field="schema_version",
+        validate_profile=owner_profile_for_spec(
+            CanonSpec(forbid_floats=False),
+            profile_ref=None,
+        ),
+        representations=(
+            OwnedJSONRepresentation(
+                schema_name=schema_name,
+                schema_version=schema_version,
+                payload_version=schema_version,
+                wire_policy_ref=wire_policy_ref,
+                wire_policy_revision="1",
+                profile_ref=None,
+                compatibility=CompatibilityMode.NONE,
+                notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+                readable=True,
+                writable=True,
+                current=True,
+                default_write=True,
+                readable_from=(),
+            ),
+        ),
+    )
+
+
+_PROXIMAL_IDENTIFICATION_CERTIFICATE_OWNER = _declare_proximal_owner(
+    ProximalIdentificationCertificate,
+    schema_name="ir.proximal_identification_certificate",
+    schema_version="1.0",
+    purpose="proximal_identification_certificate",
+)
+_BRIDGE_PLAUSIBILITY_REPORT_OWNER = _declare_proximal_owner(
+    BridgePlausibilityReport,
+    schema_name="ir.bridge_plausibility_report",
+    schema_version="1.0",
+    purpose="proximal_bridge_plausibility_report",
+)
+
+
 def persist_proximal_identification_certificate(
     store: ArtifactStore,
     certificate: ProximalIdentificationCertificate,
@@ -470,12 +537,11 @@ def persist_proximal_identification_certificate(
     schema_name: str = "ir.proximal_identification_certificate",
     schema_version: str = "1.0",
 ) -> ProximalIdentificationCertificateRef:
-    """Persist a proximal identification certificate and return its typed artifact ref."""
-
-    ref = put_json_artifact(
+    """Persist a proximal certificate through its exact owner representation."""
+    ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind="ir.proximal_identification_certificate",
+        owner=_PROXIMAL_IDENTIFICATION_CERTIFICATE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -488,10 +554,12 @@ def load_proximal_identification_certificate(
     store: ArtifactStore,
     ref: ProximalIdentificationCertificateRef,
 ) -> ProximalIdentificationCertificate:
-    """Load a persisted proximal identification certificate."""
-
-    payload = get_json_artifact(store, ref)
-    return ProximalIdentificationCertificate.model_validate(payload)
+    """Load a proximal certificate after exact owner admission."""
+    return _get_owned_json_artifact(
+        store,
+        ref,
+        owner=_PROXIMAL_IDENTIFICATION_CERTIFICATE_OWNER,
+    )
 
 
 def persist_bridge_plausibility_report(
@@ -502,12 +570,11 @@ def persist_bridge_plausibility_report(
     schema_name: str = "ir.bridge_plausibility_report",
     schema_version: str = "1.0",
 ) -> BridgePlausibilityReportRef:
-    """Persist a proximal bridge plausibility report and return its typed ref."""
-
-    ref = put_json_artifact(
+    """Persist a bridge report through its exact owner representation."""
+    ref = _put_owned_json_artifact(
         store,
         report.model_dump(mode="json"),
-        kind="ir.bridge_plausibility_report",
+        owner=_BRIDGE_PLAUSIBILITY_REPORT_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -520,10 +587,12 @@ def load_bridge_plausibility_report(
     store: ArtifactStore,
     ref: BridgePlausibilityReportRef,
 ) -> BridgePlausibilityReport:
-    """Load a persisted proximal bridge plausibility report."""
-
-    payload = get_json_artifact(store, ref)
-    return BridgePlausibilityReport.model_validate(payload)
+    """Load a bridge report after exact owner admission."""
+    return _get_owned_json_artifact(
+        store,
+        ref,
+        owner=_BRIDGE_PLAUSIBILITY_REPORT_OWNER,
+    )
 
 
 def _default_fallback_disposition(

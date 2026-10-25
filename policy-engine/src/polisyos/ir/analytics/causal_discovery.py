@@ -8,7 +8,16 @@ from typing import TYPE_CHECKING, Any, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration, CanonInfo
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import (
+    CompatibilityMode,
+    IRRepresentationRegistration,
+    ResolvedSchemaAdmission,
+    register_ir_representation,
+    register_schema_version,
+)
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import ArtifactRefModel, CausalDiscoveryReportRef
 
@@ -1037,6 +1046,165 @@ class DiscoveryPipelineReport(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+def _family_payload_version(value: object) -> str | None:
+    """Return a strict embedded version, distinguishing absence from malformed null."""
+    if not isinstance(value, Mapping):
+        raise ValueError("owned family payload must be an object")
+    if "schema_version" not in value:
+        return None
+    version = value["schema_version"]
+    if type(version) is not str or not version.strip():
+        raise ValueError("owned family payload schema_version must be a nonempty string")
+    return version
+
+
+def _family_source_mapping(value: object, admission: ResolvedSchemaAdmission) -> dict[str, Any]:
+    """Bind payload bytes to the exact tuple already selected from the owner snapshot."""
+    if not isinstance(value, Mapping):
+        raise ValueError("owned family payload must be an object")
+    if _family_payload_version(value) != admission.source_registration.payload_version:
+        raise ValueError("payload version differs from exact registered tuple")
+    return dict(value)
+
+
+def _family_profile(profile: CanonInfo, row: IRRepresentationRegistration) -> bool:
+    """Require the producer's actual canonicalization profile and no profile alias."""
+    return (
+        profile == CanonInfo.from_spec(CanonSpec(forbid_floats=False)) and row.profile_ref is None
+    )
+
+
+_DISCOVERY_POLICY = ("causal-discovery-report-json", "1")
+_DISCOVERY_OWNER = ArtifactOwnerDeclaration(
+    contract_id="polisyos.ir.analytics.causal_discovery.CausalDiscoveryReport",
+    dto_fqn="polisyos.ir.analytics.causal_discovery.CausalDiscoveryReport",
+    abi_key="causal_discovery_report",
+    registry_key="causal_discovery_report",
+    kind="ir.causal_discovery_report",
+    media_type="application/json",
+    purpose="causal_discovery_report",
+    policy_revision="1",
+    accepted_wire_policies=(_DISCOVERY_POLICY,),
+    payload_version_of=_family_payload_version,
+    validate_source=_family_source_mapping,
+    project_for_consumer=lambda value, _admission: CausalDiscoveryReport.model_validate(value),
+    validate_profile=_family_profile,
+)
+_IMPLIED_POLICY = ("algebraic-implied-constraints-json-array", "1")
+_IMPLIED_OWNER = ArtifactOwnerDeclaration(
+    contract_id="polisyos.ir.analytics.causal_discovery.ImpliedConstraintSpec[]",
+    dto_fqn="polisyos.ir.analytics.causal_discovery.ImpliedConstraintSpec[]",
+    abi_key="algebraic_implied_constraints",
+    registry_key="algebraic_implied_constraints",
+    kind=_ALGEBRAIC_IMPLIED_CONSTRAINTS_KIND,
+    media_type="application/json",
+    purpose="algebraic_implied_constraints",
+    policy_revision="1",
+    accepted_wire_policies=(_IMPLIED_POLICY,),
+    payload_version_of=lambda value: _sidecar_version(value),
+    validate_source=lambda value, admission: _sidecar_items(
+        value, admission, ImpliedConstraintSpec
+    ),
+    project_for_consumer=lambda value, _admission: value,
+    validate_profile=_family_profile,
+)
+_VIOLATED_POLICY = ("algebraic-violated-constraints-json-array", "1")
+_VIOLATED_OWNER = ArtifactOwnerDeclaration(
+    contract_id="polisyos.ir.analytics.causal_discovery.ConstraintEvaluationResult[]",
+    dto_fqn="polisyos.ir.analytics.causal_discovery.ConstraintEvaluationResult[]",
+    abi_key="algebraic_violated_constraints",
+    registry_key="algebraic_violated_constraints",
+    kind=_ALGEBRAIC_VIOLATED_CONSTRAINTS_KIND,
+    media_type="application/json",
+    purpose="algebraic_violated_constraints",
+    policy_revision="1",
+    accepted_wire_policies=(_VIOLATED_POLICY,),
+    payload_version_of=lambda value: _sidecar_version(value),
+    validate_source=lambda value, admission: _sidecar_items(
+        value, admission, ConstraintEvaluationResult
+    ),
+    project_for_consumer=lambda value, _admission: value,
+    validate_profile=_family_profile,
+)
+
+
+def _sidecar_version(value: object) -> None:
+    """Bind the existing JSON array source law to explicit discriminator absence."""
+    if type(value) is not list:
+        raise ValueError("constraint sidecar must be a JSON array")
+    return None
+
+
+def _sidecar_items(
+    value: object, admission: ResolvedSchemaAdmission, model: type[Any]
+) -> list[Any]:
+    """Validate each sidecar entry as its declared typed DTO."""
+    if type(value) is not list or admission.source_registration.payload_version is not None:
+        raise ValueError("constraint sidecar tuple is invalid")
+    return [model.model_validate(item) for item in value]
+
+
+def _register_discovery_owners() -> None:
+    """Register current report plus exact typed array sidecars without invented history."""
+    version = CausalDiscoveryReport.model_fields["schema_version"].default
+    register_schema_version(
+        "causal_discovery_report",
+        version,
+        compatibility=CompatibilityMode.NONE,
+        notes=("CausalDiscoveryReport current source-established representation.",),
+    )
+    register_ir_representation(
+        registry_key="causal_discovery_report",
+        owner_ref=_DISCOVERY_OWNER.contract_id,
+        dto_abi=_DISCOVERY_OWNER.dto_fqn,
+        wire_policy_ref=_DISCOVERY_POLICY[0],
+        wire_policy_revision=_DISCOVERY_POLICY[1],
+        schema_name="ir.causal_discovery_report",
+        schema_version=version,
+        payload_version=version,
+        writable=True,
+        current=True,
+        default_write=True,
+    )
+    sidecars = (
+        (
+            "algebraic_implied_constraints",
+            _ALGEBRAIC_IMPLIED_CONSTRAINTS_SCHEMA_NAME,
+            _IMPLIED_OWNER,
+            _IMPLIED_POLICY,
+        ),
+        (
+            "algebraic_violated_constraints",
+            _ALGEBRAIC_VIOLATED_CONSTRAINTS_SCHEMA_NAME,
+            _VIOLATED_OWNER,
+            _VIOLATED_POLICY,
+        ),
+    )
+    for registry_key, schema_name, owner, policy in sidecars:
+        register_schema_version(
+            registry_key,
+            "1.0",
+            compatibility=CompatibilityMode.NONE,
+            notes=("Typed constraint sidecar JSON array has no embedded version field.",),
+        )
+        register_ir_representation(
+            registry_key=registry_key,
+            owner_ref=owner.contract_id,
+            dto_abi=owner.dto_fqn,
+            wire_policy_ref=policy[0],
+            wire_policy_revision=policy[1],
+            schema_name=schema_name,
+            schema_version="1.0",
+            payload_version=None,
+            writable=True,
+            current=True,
+            default_write=True,
+        )
+
+
+_register_discovery_owners()
+
+
 def persist_causal_discovery_report(
     store: ArtifactStore,
     report: CausalDiscoveryReport,
@@ -1045,34 +1213,36 @@ def persist_causal_discovery_report(
     schema_name: str = "ir.causal_discovery_report",
     schema_version: str | None = None,
 ) -> CausalDiscoveryReportRef:
-    """Persist a discovery report and materialize large constraint payloads when needed."""
-    resolved_schema_version = schema_version or report.schema_version
+    """Persist the report through its owner row and materialize typed sidecars."""
+    resolved_schema_version = report.schema_version if schema_version is None else schema_version
     if resolved_schema_version != report.schema_version:
         raise ValueError("report payload and CAS schema versions must match")
-    persisted_report = _materialize_algebraic_constraint_payloads(
-        store,
-        report,
-        inputs=inputs,
-    )
-    ref = put_json_artifact(
+    try:
+        # Discovery may persist typed sidecars before its parent report. Check
+        # the source serialization first so a malformed constructed DTO cannot
+        # leave child artifacts behind.
+        CausalDiscoveryReport.model_validate(report.model_dump(mode="json"))
+    except Exception as exc:
+        raise ValueError("causal discovery report source DTO is invalid") from exc
+    persisted_report = _materialize_algebraic_constraint_payloads(store, report, inputs=inputs)
+    ref = _put_owned_json_artifact(
         store,
         persisted_report.model_dump(mode="json"),
-        kind="ir.causal_discovery_report",
+        owner=_DISCOVERY_OWNER,
         schema_name=schema_name,
         schema_version=resolved_schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return CausalDiscoveryReportRef.model_validate(ref)
+    return CausalDiscoveryReportRef.from_selected_write(ref)
 
 
 def load_causal_discovery_report(
     store: ArtifactStore,
     ref: CausalDiscoveryReportRef,
 ) -> CausalDiscoveryReport:
-    """Load causal discovery report."""
-    payload = get_json_artifact(store, ref)
-    report = CausalDiscoveryReport.model_validate(payload)
+    """Load report through owner admission and hydrate typed CAS sidecars."""
+    report = _get_owned_json_artifact(store, ref, owner=_DISCOVERY_OWNER)
     return _hydrate_algebraic_constraint_payloads(store, report)
 
 
@@ -1088,35 +1258,31 @@ def _materialize_algebraic_constraint_payloads(
 
     updated = algebraic
     if algebraic.implied_constraints_ref is None and algebraic.implied_constraints_preview:
-        ref = put_json_artifact(
+        ref = _put_owned_json_artifact(
             store,
             [item.model_dump(mode="json") for item in algebraic.implied_constraints_preview],
-            kind=_ALGEBRAIC_IMPLIED_CONSTRAINTS_KIND,
-            schema_name=_ALGEBRAIC_IMPLIED_CONSTRAINTS_SCHEMA_NAME,
-            schema_version="1.0",
+            owner=_IMPLIED_OWNER,
             inputs=inputs,
             canon_spec=CanonSpec(forbid_floats=False),
         )
         updated = updated.model_copy(
             update={
-                "implied_constraints_ref": ArtifactRefModel.model_validate(ref),
+                "implied_constraints_ref": ArtifactRefModel.from_selected_write(ref),
                 "implied_constraints_preview": [],
             }
         )
 
     if updated.violated_constraints_ref is None and updated.violated_constraints_preview:
-        ref = put_json_artifact(
+        ref = _put_owned_json_artifact(
             store,
             [item.model_dump(mode="json") for item in updated.violated_constraints_preview],
-            kind=_ALGEBRAIC_VIOLATED_CONSTRAINTS_KIND,
-            schema_name=_ALGEBRAIC_VIOLATED_CONSTRAINTS_SCHEMA_NAME,
-            schema_version="1.0",
+            owner=_VIOLATED_OWNER,
             inputs=inputs,
             canon_spec=CanonSpec(forbid_floats=False),
         )
         updated = updated.model_copy(
             update={
-                "violated_constraints_ref": ArtifactRefModel.model_validate(ref),
+                "violated_constraints_ref": ArtifactRefModel.from_selected_write(ref),
                 "violated_constraints_preview": [],
             }
         )
@@ -1136,19 +1302,17 @@ def _hydrate_algebraic_constraint_payloads(
 
     updates: dict[str, Any] = {}
     if algebraic.implied_constraints_ref is not None and not algebraic.implied_constraints_preview:
-        payload = get_json_artifact(store, algebraic.implied_constraints_ref)
-        updates["implied_constraints_preview"] = [
-            ImpliedConstraintSpec.model_validate(item) for item in payload
-        ]
+        updates["implied_constraints_preview"] = _get_owned_json_artifact(
+            store, algebraic.implied_constraints_ref, owner=_IMPLIED_OWNER
+        )
 
     if (
         algebraic.violated_constraints_ref is not None
         and not algebraic.violated_constraints_preview
     ):
-        payload = get_json_artifact(store, algebraic.violated_constraints_ref)
-        updates["violated_constraints_preview"] = [
-            ConstraintEvaluationResult.model_validate(item) for item in payload
-        ]
+        updates["violated_constraints_preview"] = _get_owned_json_artifact(
+            store, algebraic.violated_constraints_ref, owner=_VIOLATED_OWNER
+        )
 
     if not updates:
         return report

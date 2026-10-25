@@ -4,11 +4,10 @@ from __future__ import annotations
 
 import json
 import re
-from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
@@ -24,6 +23,8 @@ from polisyos.ir.kernel.base import ID_PATTERN
 from polisyos.ir.loading.fact_log import Fact, FactProvenance, FactSegmentManifest
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping
+
     import pandas as pd
 
     from polisyos.core.artifacts.protocol import ArtifactStore
@@ -38,7 +39,6 @@ SEGMENTS_INDEX_LOCK_NAME = "_segments.lock"
 
 _ID_RE = re.compile(ID_PATTERN)
 _WORLD_MUTATION_NOTE_PREFIX = "world_mutation.v1:"
-_E = TypeVar("_E", bound=Exception)
 
 
 class WorldMutationKind(str, Enum):
@@ -420,7 +420,7 @@ def load_world_facts[E: Exception](
     fact_log_root: Path,
     *,
     columns: list[str],
-    read_error_cls: type[_E] | None = None,
+    read_error_cls: type[E] | None = None,
     read_error_prefix: str = "failed to read fact segment",
 ) -> pd.DataFrame:
     """Load requested columns from every readable world fact segment."""
@@ -490,7 +490,7 @@ def gc_world_segments(
         if manifest.segment_id in explicit_retain or manifest.segment_id in latest_ids:
             keep = True
         if keep_since_dt is not None:
-            if manifest.time_end is None:
+            if manifest.time_end is None or isinstance(manifest.time_end, int):
                 keep = True
             else:
                 try:

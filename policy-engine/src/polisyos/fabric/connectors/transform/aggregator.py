@@ -6,10 +6,9 @@ This is one of the MOST CRITICAL modules in Phase 2.5.
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from types import MappingProxyType
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 
@@ -34,6 +33,9 @@ from polisyos.fabric.connectors.types.temporal import (
     TemporalType,
     infer_temporal_type,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
 
 __all__ = [
     "AggregationMethod",

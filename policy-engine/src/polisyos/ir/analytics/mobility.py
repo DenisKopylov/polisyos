@@ -7,7 +7,17 @@ from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 from pydantic import ConfigDict, Field, model_validator
 
+from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration, CanonInfo
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.kernel.base import KernelModel
+from polisyos.ir.migrations.base import (
+    CompatibilityMode,
+    IRRepresentationRegistration,
+    ResolvedSchemaAdmission,
+    register_ir_representation,
+    register_schema_version,
+)
+from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     BoundsBundleRef,
 )
@@ -155,8 +165,16 @@ class MobilityReport(KernelModel):
                 "assumptions",
             )
         )
-        schema_version = str(payload.get("schema_version") or ("2.0" if has_v2_fields else "1.0"))
-        payload.setdefault("schema_version", schema_version)
+        if "schema_version" in payload:
+            raw_schema_version = payload["schema_version"]
+            if not isinstance(raw_schema_version, str) or not raw_schema_version:
+                raise ValueError(
+                    "MobilityReport schema_version must be a non-empty string when present"
+                )
+            schema_version = raw_schema_version
+        else:
+            schema_version = "2.0" if has_v2_fields else "1.0"
+            payload["schema_version"] = schema_version
         payload.setdefault("artifact_name", _default_artifact_name(schema_version))
 
         summary_metrics = payload.get("summary_metrics")
@@ -244,6 +262,94 @@ class MobilityReport(KernelModel):
         return self
 
 
+_OWNER_SCHEMA_NAME = "ir.mobility_report"
+_OWNER_SCHEMA_VERSION = "2.0"
+_OWNER_WIRE_POLICY = ("ir.owner.mobilityreport.wire", "1")
+
+
+def _owner_payload_version(payload: object) -> str:
+    """Require an embedded source version; a DTO default is not historical evidence."""
+    if not isinstance(payload, dict):
+        raise TypeError("Owned MobilityReport payload must be a JSON object")
+    version = payload.get("schema_version")
+    if type(version) is not str or not version.strip():
+        raise ValueError("Owned MobilityReport payload requires an explicit schema_version")
+    return version
+
+
+def _validate_owner_source(payload: object, admission: ResolvedSchemaAdmission) -> MobilityReport:
+    """Validate bytes only under this owner exact registered source representation."""
+    registration = admission.source_registration
+    if registration.schema_name != _OWNER_SCHEMA_NAME:
+        raise ValueError("Owned MobilityReport source has the wrong schema name")
+    if registration.payload_version != _owner_payload_version(payload):
+        raise ValueError("Owned MobilityReport payload version disagrees with its representation")
+    return MobilityReport.model_validate(payload)
+
+
+def _project_owner_source(
+    source: MobilityReport,
+    admission: ResolvedSchemaAdmission,
+) -> MobilityReport:
+    """Preserve the validated source value when no semantic projection is declared."""
+    if not isinstance(source, MobilityReport):
+        raise TypeError("Owned MobilityReport source was not validated by its owner")
+    if admission.source_registration.payload_version != source.schema_version:
+        raise ValueError("Owned MobilityReport projection would change the source version")
+    return source
+
+
+def _validate_owner_profile(
+    profile: CanonInfo,
+    registration: IRRepresentationRegistration,
+) -> bool:
+    """Accept only the canonical profile used by this family real writer."""
+    expected = CanonInfo.from_spec(CanonSpec(forbid_floats=False))
+    return registration.profile_ref is None and profile == expected
+
+
+_mobilityreport_owner = ArtifactOwnerDeclaration(
+    contract_id="ir.mobility_report.v1",
+    dto_fqn="polisyos.ir.analytics.mobility.MobilityReport",
+    abi_key="ir.mobility_report",
+    registry_key="ir.mobility_report",
+    kind="ir.mobility_report",
+    media_type="application/json",
+    purpose="ir.mobility_report.typed_consumer",
+    policy_revision="ir.mobility_report.v1.owner-admission.v1",
+    accepted_wire_policies=(_OWNER_WIRE_POLICY,),
+    payload_version_of=_owner_payload_version,
+    validate_source=_validate_owner_source,
+    project_for_consumer=_project_owner_source,
+    validate_profile=_validate_owner_profile,
+)
+
+
+register_schema_version(
+    _OWNER_SCHEMA_NAME,
+    _OWNER_SCHEMA_VERSION,
+    compatibility=CompatibilityMode.NONE,
+    notes=(
+        "MobilityReport current owner-admitted representation; historical predecessors are not registered.",
+    ),
+)
+register_ir_representation(
+    registry_key=_mobilityreport_owner.registry_key,
+    owner_ref=_mobilityreport_owner.contract_id,
+    dto_abi=_mobilityreport_owner.dto_fqn,
+    wire_policy_ref=_OWNER_WIRE_POLICY[0],
+    wire_policy_revision=_OWNER_WIRE_POLICY[1],
+    schema_name=_OWNER_SCHEMA_NAME,
+    schema_version=_OWNER_SCHEMA_VERSION,
+    payload_version=_OWNER_SCHEMA_VERSION,
+    profile_ref=None,
+    readable=True,
+    writable=True,
+    current=True,
+    default_write=True,
+)
+
+
 def persist_mobility_report(
     store: ArtifactStore,
     report: MobilityReport,
@@ -252,34 +358,24 @@ def persist_mobility_report(
     schema_name: str = "ir.mobility_report",
     schema_version: str | None = None,
 ) -> MobilityReportRef:
-    """Persist a mobility report and return its typed ref."""
-
-    from polisyos.ir.artifacts.io import put_json_artifact
-    from polisyos.ir.model_layer.canon import CanonSpec
-    from polisyos.ir.registry.refs import MobilityReportRef
-
-    ref = put_json_artifact(
+    """Persist a source-validated MobilityReport under its exact owned representation."""
+    selected = _put_owned_json_artifact(
         store,
         report.model_dump(mode="json"),
-        kind="ir.mobility_report",
+        owner=_mobilityreport_owner,
         schema_name=schema_name,
-        schema_version=schema_version or report.schema_version,
+        schema_version=report.schema_version if schema_version is None else schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return MobilityReportRef.model_validate(ref)
+    from polisyos.ir.registry.refs import MobilityReportRef
+
+    return MobilityReportRef.model_validate(selected)
 
 
-def load_mobility_report(
-    store: ArtifactStore,
-    ref: MobilityReportRef,
-) -> MobilityReport:
-    """Load a persisted mobility report."""
-
-    from polisyos.ir.artifacts.io import get_json_artifact
-
-    payload = get_json_artifact(store, ref)
-    return MobilityReport.model_validate(payload)
+def load_mobility_report(store: ArtifactStore, ref: MobilityReportRef) -> MobilityReport:
+    """Read MobilityReport only after its trusted owner admits the stored representation."""
+    return _get_owned_json_artifact(store, ref, owner=_mobilityreport_owner)
 
 
 __all__ = [

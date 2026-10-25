@@ -14,7 +14,7 @@ from polisyos.ir import (
     EvidenceBundleRef,
     KernelEstimatorSpecRef,
     load_bounds_bundle,
-    load_causal_evidence_bundle,
+    load_causal_evidence_bundle_with_admission,
     load_causal_model_ensemble,
     load_kernel_estimator_spec,
     proof_bundle_from_transportability_result,
@@ -192,10 +192,11 @@ def _populate_causal_evidence(
 ) -> None:
     if evidence_ref is not None:
         try:
-            evidence_bundle = load_causal_evidence_bundle(
+            admitted_evidence_bundle = load_causal_evidence_bundle_with_admission(
                 _ensure_ir_artifact_store(ctx.store),
                 EvidenceBundleRef.model_validate(evidence_ref.model_dump()),
             )
+            evidence_bundle = admitted_evidence_bundle.value
             payload["proof_bundle_ref"] = (
                 str(evidence_bundle.proof_bundle_ref.artifact_id)
                 if evidence_bundle.proof_bundle_ref is not None

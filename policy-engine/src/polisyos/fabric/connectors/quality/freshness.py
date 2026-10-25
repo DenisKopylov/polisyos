@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol, TypeGuard
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
@@ -27,6 +27,27 @@ from .report import FreshnessLevel, FreshnessStatus
 
 if TYPE_CHECKING:
     from polisyos.core.observability import MetricsRegistry
+
+
+class _FreshnessAgeRecorder(Protocol):
+    """Optional metrics-provider capability for freshness-age telemetry."""
+
+    def record_fabric_freshness_age(
+        self,
+        *,
+        dataset_id: str,
+        age_seconds: float,
+    ) -> None: ...
+
+
+def _has_freshness_age_recorder(metrics: object) -> TypeGuard[_FreshnessAgeRecorder]:
+    recorder = getattr(metrics, "record_fabric_freshness_age", None)
+    if not recorder:
+        return False
+    if not callable(recorder):
+        raise TypeError("record_fabric_freshness_age must be callable")
+    return True
+
 
 logger = get_logger(__name__)
 
@@ -247,7 +268,7 @@ class FreshnessChecker:
         tracked_age_seconds = freshness.data_age_seconds
         if tracked_age_seconds is None:
             tracked_age_seconds = freshness.cache_age_seconds
-        if getattr(resolved_metrics, "record_fabric_freshness_age", None):
+        if _has_freshness_age_recorder(resolved_metrics):
             resolved_metrics.record_fabric_freshness_age(
                 dataset_id=dataset_id,
                 age_seconds=float(max(tracked_age_seconds, 0)),

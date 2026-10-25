@@ -339,6 +339,18 @@ def _ordinal_poverty_estimate() -> OrdinalPovertyEstimate:
 def test_strategic_leaf_routes_bind_owner_schema_and_profile(tmp_path) -> None:
     store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "strategic-owner-routes"))
 
+    class _PayloadReadRecordingStore:
+        def __init__(self, wrapped: ArtifactStore) -> None:
+            self._wrapped = wrapped
+            self.payload_reads = 0
+
+        def __getattr__(self, name: str) -> object:
+            return getattr(self._wrapped, name)
+
+        def get_bytes(self, selector: ArtifactSelector) -> bytes:
+            self.payload_reads += 1
+            return self._wrapped.get_bytes(selector)
+
     for index, (persist, load, payload) in enumerate(_strategic_leaf_routes()):
         ref = persist(store, payload)
         assert isinstance(ref, ArtifactRefModel)
@@ -373,10 +385,13 @@ def test_strategic_leaf_routes_bind_owner_schema_and_profile(tmp_path) -> None:
         foreign_schema_ref = ref.model_copy(
             update={"manifest_profile_sha256": foreign_schema_data["manifest_profile_sha256"]}
         )
-        assert get_json_artifact(store, foreign_schema_ref) == payload.model_dump(mode="json")
-        with pytest.raises(ValueError, match="ir_strategic_leaf_owner_mismatch"):
-            load(store, foreign_schema_ref)
+        generic_view = get_json_artifact(store, foreign_schema_ref)
+        assert generic_view == payload.model_dump(mode="json")
 
+        owner_reader = _PayloadReadRecordingStore(store)
+        with pytest.raises(ValueError, match="ir_owned_artifact_representation_unregistered"):
+            load(owner_reader, foreign_schema_ref)
+        assert owner_reader.payload_reads == 0
         assert ref.manifest_profile_sha256 is not None
 
 
@@ -407,30 +422,70 @@ def test_strategic_generic_leaf_rejects_foreign_kind_with_valid_payload(tmp_path
 
 
 def test_strategic_generic_leaf_preserves_selected_profile_on_read(tmp_path) -> None:
+    from collections.abc import Mapping
+
+    from polisyos.ir.artifacts.contracts import InputRef
+
+    class _PayloadReadRecordingStore:
+        def __init__(self, wrapped: ArtifactStore) -> None:
+            self._wrapped = wrapped
+            self.payload_reads = 0
+
+        def __getattr__(self, name: str) -> object:
+            return getattr(self._wrapped, name)
+
+        def get_bytes(self, selector: ArtifactSelector) -> bytes:
+            self.payload_reads += 1
+            return self._wrapped.get_bytes(selector)
+
     store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "strategic-owner-profile"))
     persist, load, payload = _strategic_leaf_routes()[4]
-    ref = persist(store, payload)
-    assert isinstance(ref, ArtifactRefModel)
-    assert ref.manifest_profile_sha256 is not None
-    manifest = store.get_manifest(ref)
-    schema = manifest.artifact_schema
-    assert schema is not None
+    first_support_persist, _, first_support_payload = _strategic_leaf_routes()[1]
+    second_support_persist, _, second_support_payload = _strategic_leaf_routes()[2]
 
-    alternate_profile_data = put_json_artifact(
-        store,
-        payload.model_dump(mode="json"),
-        kind=ref.kind,
-        schema_name=schema.name,
-        schema_version=schema.version,
-        canon_spec=CanonSpec(forbid_floats=False, ensure_ascii=True),
-        return_selected_profile=True,
+    first_support_ref = first_support_persist(store, first_support_payload)
+    second_support_ref = second_support_persist(store, second_support_payload)
+    assert isinstance(first_support_ref, ArtifactRefModel)
+    assert isinstance(second_support_ref, ArtifactRefModel)
+    assert first_support_ref.manifest_profile_sha256 is not None
+    assert second_support_ref.manifest_profile_sha256 is not None
+    assert first_support_ref.artifact_id != second_support_ref.artifact_id
+
+    first_input = InputRef(
+        artifact_id=first_support_ref.artifact_id,
+        role="macro_simulation_configuration",
+        manifest_profile_sha256=first_support_ref.manifest_profile_sha256,
     )
-    assert alternate_profile_data["artifact_id"] == str(ref.artifact_id)
-    assert alternate_profile_data["manifest_profile_sha256"] != ref.manifest_profile_sha256
-    alternate_profile_ref = ArtifactRefModel.model_validate(alternate_profile_data)
+    second_input = InputRef(
+        artifact_id=second_support_ref.artifact_id,
+        role="mean_field_solver_residual",
+        manifest_profile_sha256=second_support_ref.manifest_profile_sha256,
+    )
+    first_ref = persist(store, payload, inputs=(first_input,))
+    second_ref = persist(store, payload, inputs=(second_input,))
+    assert isinstance(first_ref, ArtifactRefModel)
+    assert isinstance(second_ref, ArtifactRefModel)
+    assert first_ref.artifact_id == second_ref.artifact_id
+    assert first_ref.manifest_profile_sha256 is not None
+    assert second_ref.manifest_profile_sha256 is not None
+    assert first_ref.manifest_profile_sha256 != second_ref.manifest_profile_sha256
+
+    first_manifest = store.get_manifest(first_ref)
+    second_manifest = store.get_manifest(second_ref)
+    assert first_manifest.canon == second_manifest.canon
+    assert [item.model_dump(mode="python") for item in first_manifest.inputs] == [
+        first_input.model_dump(mode="python")
+    ]
+    assert [item.model_dump(mode="python") for item in second_manifest.inputs] == [
+        second_input.model_dump(mode="python")
+    ]
+    default_manifest = store.get_manifest(first_ref.artifact_id)
+    assert [item.model_dump(mode="python") for item in default_manifest.inputs] == [
+        first_input.model_dump(mode="python")
+    ]
 
     recording_store = _ManifestRecordingStore(store)
-    loaded = load(recording_store, alternate_profile_ref)
+    loaded = load(recording_store, second_ref)
     assert isinstance(loaded, BaseModel)
     assert loaded.model_dump(mode="json") == payload.model_dump(mode="json")
     assert recording_store.selectors
@@ -440,9 +495,54 @@ def test_strategic_generic_leaf_preserves_selected_profile_on_read(tmp_path) -> 
         else getattr(selector, "manifest_profile_sha256", None)
         for selector in recording_store.selectors
     ]
-    assert all(
-        profile == alternate_profile_ref.manifest_profile_sha256 for profile in selected_profiles
+    assert all(profile == second_ref.manifest_profile_sha256 for profile in selected_profiles)
+
+    class _DefaultViewFallbackStore:
+        def __init__(self, wrapped: ArtifactStore) -> None:
+            self._wrapped = wrapped
+            self.payload_reads = 0
+
+        def __getattr__(self, name: str) -> object:
+            return getattr(self._wrapped, name)
+
+        @staticmethod
+        def _default_selector(selector: ArtifactSelector) -> object:
+            if isinstance(selector, Mapping):
+                return selector["artifact_id"]
+            return getattr(selector, "artifact_id", selector)
+
+        def get_manifest_bytes(self, selector: ArtifactSelector) -> bytes:
+            return self._wrapped.get_manifest_bytes(self._default_selector(selector))
+
+        def get_manifest(self, selector: ArtifactSelector) -> object:
+            return self._wrapped.get_manifest(self._default_selector(selector))
+
+        def get_bytes(self, selector: ArtifactSelector) -> bytes:
+            self.payload_reads += 1
+            return self._wrapped.get_bytes(self._default_selector(selector))
+
+    fallback_store = _DefaultViewFallbackStore(store)
+    with pytest.raises(ValueError, match="ir_artifact_selected_profile_mismatch"):
+        load(fallback_store, second_ref)
+    assert fallback_store.payload_reads == 0
+
+    alternate_profile_data = put_json_artifact(
+        store,
+        payload.model_dump(mode="json"),
+        kind=first_ref.kind,
+        schema_name=first_manifest.artifact_schema.name,
+        schema_version=first_manifest.artifact_schema.version,
+        inputs=(second_input,),
+        canon_spec=CanonSpec(forbid_floats=False, ensure_ascii=True),
+        return_selected_profile=True,
     )
+    assert alternate_profile_data["artifact_id"] == str(first_ref.artifact_id)
+    assert alternate_profile_data["manifest_profile_sha256"] != second_ref.manifest_profile_sha256
+    alternate_profile_ref = ArtifactRefModel.model_validate(alternate_profile_data)
+    owner_reader = _PayloadReadRecordingStore(store)
+    with pytest.raises(ValueError, match="ir_owned_artifact_profile_refused"):
+        load(owner_reader, alternate_profile_ref)
+    assert owner_reader.payload_reads == 0
 
 
 def test_distributional_effect_bundle_round_trip_via_store(tmp_path) -> None:

@@ -13,9 +13,8 @@ Key features:
 from __future__ import annotations
 
 import time
-from collections.abc import AsyncIterator
 from datetime import UTC, datetime
-from typing import Any, ClassVar, TypeGuard
+from typing import TYPE_CHECKING, Any, ClassVar, TypeGuard
 
 import pandas as pd
 
@@ -50,6 +49,9 @@ from polisyos.ir.connectors import (
     TrustLevel,
     capabilities_from_flags,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
 
 _DEFAULT_LIMIT = 10000
 _MAX_LIMIT = 50000

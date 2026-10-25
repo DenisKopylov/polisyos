@@ -130,8 +130,10 @@ def test_runtime_api_problem_keeps_nested_diagnostics_separate_from_envelope() -
     assert emitted.extensions == extensions
 
 
-def test_artifact_resolver_problem_openapi_matches_runtime_serializer() -> None:
-    """The resolver response set matches the runtime problem serializer and model."""
+def test_artifact_resolver_and_batch_problem_openapi_matches_runtime_serializer(
+    runtime_api_env, monkeypatch
+) -> None:
+    """Resolver and batch problem responses match the runtime serializer and model."""
     import ast
     import inspect
     from copy import deepcopy
@@ -185,9 +187,13 @@ def test_artifact_resolver_problem_openapi_matches_runtime_serializer() -> None:
             return False
         calls = _FunctionCalls(function)
         calls.visit(function)
-        return "_resolve_artifact_manifest" in calls.names or any(
-            callee in module_functions and reaches_resolver(callee, visited)
-            for callee in calls.names
+        return (
+            "_resolve_artifact_manifest" in calls.names
+            or "_resolve_selected_artifact_manifest" in calls.names
+            or any(
+                callee in module_functions and reaches_resolver(callee, visited)
+                for callee in calls.names
+            )
         )
 
     resolver_ids: set[str] = set()
@@ -199,14 +205,41 @@ def test_artifact_resolver_problem_openapi_matches_runtime_serializer() -> None:
             assert isinstance(operation_id, str)
             resolver_ids.add(operation_id)
     assert resolver_ids, "the router must expose at least one artifact resolver consumer"
-    schema = export_runtime_openapi_schema()
+    schema = export_runtime_openapi_schema(app=runtime_api_env["app"])
     live = {
         op.get("operationId"): op
         for _, _, op in iter_openapi_operations(schema)
         if isinstance(op.get("operationId"), str)
     }
 
-    def assert_routes(candidate: dict[str, Any]) -> None:
+    def assert_problem_response(operation_id: str, operation: dict[str, Any]) -> set[str]:
+        responses = operation.get("responses")
+        assert isinstance(responses, dict), f"{operation_id}: resolver responses are missing"
+        response = responses.get("409")
+        assert isinstance(response, dict), f"{operation_id}: missing or invalid 409 response"
+        content = response.get("content")
+        assert isinstance(content, dict), f"{operation_id}: 409 response content is missing"
+        assert content.keys() == {media}, f"{operation_id}: 409 response media mismatch"
+        payload = content.get(media)
+        assert isinstance(payload, dict), f"{operation_id}: problem response payload is invalid"
+        assert payload.get("schema") == {"$ref": ref}, (
+            f"{operation_id}: 409 response schema mismatch"
+        )
+        values = [payload["example"]] if "example" in payload else []
+        values.extend(
+            item["value"]
+            for item in payload.get("examples", {}).values()
+            if isinstance(item, dict) and "value" in item
+        )
+        assert values, f"{operation_id}: problem response example is missing"
+        codes: set[str] = set()
+        for value in values:
+            problem = RuntimeApiProblem.model_validate(value, strict=True)
+            assert problem.status == problem.status_code == 409
+            codes.add(problem.code)
+        return codes
+
+    def assert_routes(candidate: dict[str, Any]) -> set[str]:
         operations = {
             op.get("operationId"): op
             for _, _, op in iter_openapi_operations(candidate)
@@ -216,35 +249,44 @@ def test_artifact_resolver_problem_openapi_matches_runtime_serializer() -> None:
         for operation_id in resolver_ids:
             operation = operations.get(operation_id)
             assert isinstance(operation, dict), f"{operation_id}: resolver operation is invalid"
-            responses = operation.get("responses")
-            assert isinstance(responses, dict), f"{operation_id}: resolver responses are missing"
-            response = responses.get("409")
-            assert isinstance(response, dict), f"{operation_id}: missing or invalid 409 response"
-            content = response.get("content")
-            assert isinstance(content, dict), f"{operation_id}: 409 response content is missing"
-            assert content.keys() == {media}, f"{operation_id}: 409 response media mismatch"
-            payload = content.get(media)
-            assert isinstance(payload, dict), f"{operation_id}: problem response payload is invalid"
-            assert payload.get("schema") == {"$ref": ref}, (
-                f"{operation_id}: 409 response schema mismatch"
-            )
-            values = [payload["example"]] if "example" in payload else []
-            values.extend(
-                item["value"]
-                for item in payload.get("examples", {}).values()
-                if isinstance(item, dict) and "value" in item
-            )
-            assert values, f"{operation_id}: problem response example is missing"
-            for value in values:
-                problem = RuntimeApiProblem.model_validate(value, strict=True)
-                assert problem.status == problem.status_code == 409
+            assert_problem_response(operation_id, operation)
         batch = operations.get("get_artifact_batch")
         assert isinstance(batch, dict), "batch operation is missing"
-        batch_responses = batch.get("responses")
-        assert isinstance(batch_responses, dict), "batch responses are missing"
-        assert "409" not in batch_responses, "batch must not advertise 409"
+        batch_codes = assert_problem_response("get_artifact_batch", batch)
+        assert {
+            "artifact_batch_manifest_read_budget_exceeded",
+            "artifact_batch_manifest_read_usage_unavailable",
+            "authority_surface_admission_blocked",
+        } <= batch_codes, "get_artifact_batch: missing representative 409 problem examples"
+        return batch_codes
 
-    assert_routes(schema)
+    batch_codes = assert_routes(schema)
+
+    original_budget_factory = artifact_routes._new_artifact_batch_manifest_read_budget
+
+    def one_byte_budget(requested_id_count: int):
+        budget = original_budget_factory(requested_id_count)
+        budget.limit_source_bytes = 1
+        return budget
+
+    monkeypatch.setattr(
+        artifact_routes,
+        "_new_artifact_batch_manifest_read_budget",
+        one_byte_budget,
+    )
+    batch_response = runtime_api_env["client"].post(
+        "/api/v1/artifacts/batch",
+        json={"artifact_ids": [str(runtime_api_env["decision_packet_artifact_id"])]},
+    )
+    assert batch_response.status_code == 409, batch_response.text
+    assert batch_response.headers["content-type"].startswith(media)
+    actual_batch_problem = RuntimeApiProblem.model_validate(batch_response.json(), strict=True)
+    assert actual_batch_problem.code in {
+        "artifact_batch_manifest_read_budget_exceeded",
+        "artifact_batch_manifest_read_usage_unavailable",
+    }
+    assert actual_batch_problem.code in batch_codes
+
     model_schema = RuntimeApiProblem.model_json_schema(ref_template="#/components/schemas/{model}")
     model_defs = model_schema.pop("$defs", {})
     components = schema["components"]["schemas"]
@@ -334,23 +376,127 @@ def test_artifact_resolver_problem_openapi_matches_runtime_serializer() -> None:
     with pytest.raises(AssertionError, match="missing or invalid 409 response"):
         assert_routes(malformed)
 
-    batch = deepcopy(schema)
+    batch_without_problem = deepcopy(schema)
     batch_op = next(
         op
-        for _, _, op in iter_openapi_operations(batch)
+        for _, _, op in iter_openapi_operations(batch_without_problem)
         if op.get("operationId") == "get_artifact_batch"
     )
-    copied = next(
-        op["responses"]["409"]
-        for _, _, op in iter_openapi_operations(batch)
-        if op.get("operationId") in resolver_ids
+    del batch_op["responses"]["409"]
+    with pytest.raises(AssertionError, match="get_artifact_batch: missing or invalid 409 response"):
+        assert_routes(batch_without_problem)
+
+    batch_with_wrong_example_code = deepcopy(schema)
+    batch_op = next(
+        op
+        for _, _, op in iter_openapi_operations(batch_with_wrong_example_code)
+        if op.get("operationId") == "get_artifact_batch"
     )
-    batch_op["responses"]["409"] = deepcopy(copied)
-    with pytest.raises(AssertionError, match="batch must not advertise 409"):
-        assert_routes(batch)
+    batch_op["responses"]["409"]["content"][media]["examples"]["manifest_read_budget_exceeded"][
+        "value"
+    ]["code"] = "not_an_emitted_artifact_batch_code"
+    with pytest.raises(
+        AssertionError,
+        match="get_artifact_batch: missing representative 409 problem examples",
+    ):
+        assert_routes(batch_with_wrong_example_code)
 
 
-def test_model_dispatched_success_examples_match_schema_and_reject_field_drift() -> None:
+def test_artifact_batch_problem_examples_match_actual_conflict(
+    runtime_api_env, monkeypatch
+) -> None:
+    """The route emits a typed 409 represented by its declared OpenAPI examples."""
+    from copy import deepcopy
+
+    from fastapi import FastAPI
+
+    from polisyos.core.contracts.runtime import RuntimeApiProblem
+    from polisyos.runtime.http.routes import artifacts as artifact_routes
+
+    media = "application/problem+json"
+    ref = "#/components/schemas/RuntimeApiProblem"
+    required_codes = {
+        "artifact_batch_manifest_read_budget_exceeded",
+        "artifact_batch_manifest_read_usage_unavailable",
+        "authority_surface_admission_blocked",
+    }
+    app = FastAPI()
+    app.include_router(artifact_routes.router)
+    schema = app.openapi()
+
+    def assert_batch_response(candidate: dict[str, Any]) -> set[str]:
+        operation = candidate["paths"]["/api/v1/artifacts/batch"]["post"]
+        responses = operation.get("responses")
+        assert isinstance(responses, dict), "get_artifact_batch: responses are missing"
+        response = responses.get("409")
+        assert isinstance(response, dict), "get_artifact_batch: missing or invalid 409 response"
+        content = response.get("content")
+        assert isinstance(content, dict), "get_artifact_batch: 409 response content is missing"
+        assert content.keys() == {media}, "get_artifact_batch: 409 response media mismatch"
+        payload = content.get(media)
+        assert isinstance(payload, dict), "get_artifact_batch: problem payload is invalid"
+        assert payload.get("schema") == {"$ref": ref}, (
+            "get_artifact_batch: 409 response schema mismatch"
+        )
+        examples = payload.get("examples")
+        assert isinstance(examples, dict), "get_artifact_batch: 409 response examples are missing"
+        codes: set[str] = set()
+        for example in examples.values():
+            assert isinstance(example, dict) and "value" in example
+            problem = RuntimeApiProblem.model_validate(example["value"], strict=True)
+            assert problem.status == problem.status_code == 409
+            codes.add(problem.code)
+        assert required_codes <= codes, (
+            "get_artifact_batch: missing representative 409 problem examples"
+        )
+        return codes
+
+    declared_codes = assert_batch_response(schema)
+
+    removed = deepcopy(schema)
+    del removed["paths"]["/api/v1/artifacts/batch"]["post"]["responses"]["409"]
+    with pytest.raises(AssertionError, match="get_artifact_batch: missing or invalid 409 response"):
+        assert_batch_response(removed)
+
+    wrong_example = deepcopy(schema)
+    wrong_example["paths"]["/api/v1/artifacts/batch"]["post"]["responses"]["409"]["content"][media][
+        "examples"
+    ]["manifest_read_budget_exceeded"]["value"]["code"] = "not_an_emitted_artifact_batch_code"
+    with pytest.raises(
+        AssertionError,
+        match="get_artifact_batch: missing representative 409 problem examples",
+    ):
+        assert_batch_response(wrong_example)
+
+    original_budget_factory = artifact_routes._new_artifact_batch_manifest_read_budget
+
+    def one_byte_budget(requested_id_count: int):
+        budget = original_budget_factory(requested_id_count)
+        budget.limit_source_bytes = 1
+        return budget
+
+    monkeypatch.setattr(
+        artifact_routes,
+        "_new_artifact_batch_manifest_read_budget",
+        one_byte_budget,
+    )
+    response = runtime_api_env["client"].post(
+        "/api/v1/artifacts/batch",
+        json={"artifact_ids": [str(runtime_api_env["decision_packet_artifact_id"])]},
+    )
+    assert response.status_code == 409, response.text
+    assert response.headers["content-type"].startswith(media)
+    problem = RuntimeApiProblem.model_validate(response.json(), strict=True)
+    assert problem.code in {
+        "artifact_batch_manifest_read_budget_exceeded",
+        "artifact_batch_manifest_read_usage_unavailable",
+    }
+    assert problem.code in declared_codes
+
+
+def test_model_dispatched_success_examples_match_schema_and_reject_field_drift(
+    runtime_api_env,
+) -> None:
     """Registered examples agree with the actual schema and strict response DTOs."""
     from copy import deepcopy
     from typing import Annotated, get_args, get_origin
@@ -360,8 +506,9 @@ def test_model_dispatched_success_examples_match_schema_and_reject_field_drift()
     from polisyos.runtime.http import openapi_contract
     from polisyos.runtime.http._openapi_contract_helpers import iter_openapi_operations
     from polisyos.runtime.http.routes import lineage as lineage_routes
+    from polisyos.runtime.http.routes import runs as runs_routes
 
-    schema = export_runtime_openapi_schema()
+    schema = export_runtime_openapi_schema(app=runtime_api_env["app"])
     assert validate_runtime_openapi_contract(schema) == []
     response_models = openapi_contract._success_example_response_models()
     adapters = openapi_contract._success_example_response_adapters()
@@ -381,6 +528,37 @@ def test_model_dispatched_success_examples_match_schema_and_reject_field_drift()
         operation_id: response_models[operation_id] for operation_id in lineage_route_models
     } == lineage_route_models
     assert set(lineage_route_models) <= registered_example_operations
+
+    run_route_models = {
+        route.operation_id: route.response_model
+        for route in runs_routes.router.routes
+        if isinstance(getattr(route, "operation_id", None), str)
+        and getattr(route, "response_model", None) is not None
+    }
+    assert response_models["get_run_method_metrics"] is run_route_models["get_run_method_metrics"]
+    assert "get_run_method_metrics" in registered_example_operations
+    method_metric_examples = openapi_contract._SUCCESS_EXAMPLE_SETS_BY_OPERATION[
+        "get_run_method_metrics"
+    ]()
+    owner_unavailable = method_metric_examples["owner_unavailable"]["value"]
+    assert owner_unavailable["status"] == "verification_missing"
+    assert owner_unavailable["vector_ref"] is None
+    assert owner_unavailable["observations"] == []
+    assert owner_unavailable["limitations"] == ["current_method_metric_owner_unavailable"]
+    candidate_operation_id = "get_run_candidate_hte_packet"
+    assert response_models[candidate_operation_id] is run_route_models[candidate_operation_id]
+    assert candidate_operation_id in registered_example_operations
+    candidate_hte_examples = openapi_contract._SUCCESS_EXAMPLE_SETS_BY_OPERATION[
+        candidate_operation_id
+    ]()
+    assert set(candidate_hte_examples) == {"controlled_absence_fixture"}
+    candidate_absence = candidate_hte_examples["controlled_absence_fixture"]["value"]
+    assert candidate_absence["candidate_only"] is True
+    assert candidate_absence["candidate_status"] == "absent"
+    assert candidate_absence["source"] is None
+    assert candidate_absence["limitations"] == ["completed_hte_source_not_established"]
+    assert candidate_absence["publication_authorization"] == "not_established"
+    assert candidate_absence["live_source_currentness"] == "not_established"
     operations = {
         operation.get("operationId"): operation
         for _, _, operation in iter_openapi_operations(schema)
@@ -391,6 +569,18 @@ def test_model_dispatched_success_examples_match_schema_and_reject_field_drift()
         for path, method, operation in iter_openapi_operations(schema)
         if isinstance(operation.get("operationId"), str)
     }
+
+    candidate_operation = operations[candidate_operation_id]
+    assert operation_locations[candidate_operation_id] == (
+        "/api/v1/runs/{run_id}/decision-packets/{packet_id}/candidate-hte",
+        "get",
+    )
+    candidate_success_pair = openapi_contract._first_success_response(
+        candidate_operation["responses"]
+    )
+    assert candidate_success_pair is not None and candidate_success_pair[0] == "200"
+    candidate_content = candidate_success_pair[1]["content"]["application/json"]
+    assert candidate_content["examples"] == candidate_hte_examples
 
     def model_variants(response_model: Any) -> tuple[type[BaseModel], ...]:
         if get_origin(response_model) is Annotated:
@@ -421,14 +611,15 @@ def test_model_dispatched_success_examples_match_schema_and_reject_field_drift()
         actual_projection = openapi_contract._success_json_schema_projection(
             json_payload.get("schema"), document=schema
         )
-        expected_schema = adapters[operation_id].json_schema()
+        expected_schema = adapters[operation_id].json_schema(mode="serialization")
         expected_projection = openapi_contract._success_json_schema_projection(
             expected_schema, document=expected_schema
         )
         assert actual_projection == expected_projection
 
         required_sets = [
-            set(variant.model_json_schema().get("required", [])) for variant in variants
+            set(variant.model_json_schema(mode="serialization").get("required", []))
+            for variant in variants
         ]
         shared_required = set.intersection(*required_sets)
         assert shared_required
@@ -442,7 +633,10 @@ def test_model_dispatched_success_examples_match_schema_and_reject_field_drift()
         for _name, value in example_items:
             encoded = json.dumps(value, ensure_ascii=False, allow_nan=False)
             accepted = adapters[operation_id].validate_json(encoded, strict=True)
-            assert accepted.model_dump(mode="json") == value
+            assert accepted.model_dump(mode="json", exclude_unset=True) == value, (
+                operation_id,
+                _name,
+            )
 
         example_name, example_value = example_items[0]
         assert isinstance(example_value, dict)

@@ -11,7 +11,9 @@ if TYPE_CHECKING:
     from polisyos.data_forge.read_api.academic import PreparedSKGRead
     from polisyos.pdc import EvalSafetyVerifierPort, EvaluationExecutionContext
     from polisyos.scientist.evidence.claims.head_index import ClaimLedgerOwnerPort
-    from polisyos.scientist.orchestration.engine.metrics_protocol import EngineMetricsCollector
+    from polisyos.scientist.orchestration.engine.metrics_protocol import (
+        EngineMetricsCollector,
+    )
     from polisyos.scientist.orchestration.engine.state import ExperimentState
     from polisyos.scientist.validation.epoch_certificate_issuance import (
         EpochCertificateIssuanceOwner,
@@ -27,6 +29,10 @@ from polisyos.core.contracts.foundry import (
     ExecuteResult,
 )
 from polisyos.core.contracts.lex import ChangeProposalRef, LegalContext, LegalReportRef
+from polisyos.core.contracts.runtime import (
+    CompletedMethodHTESource,
+    MethodExecutionSelection,
+)
 from polisyos.core.contracts.scholar import KnowledgeBundleRef, ResearchIntent
 from polisyos.core.run.context import RunContext
 
@@ -89,17 +95,40 @@ class MethodMetricProjectionAssociation(Protocol):
 class OwnedMethodExecutionSelection(Protocol):
     """Current method selection read from the owning Runtime control record."""
 
-    selection_kind: Literal["graph_method", "direct_method"]
-    job_id: str
-    run_id: str
-    attempt: int
-    method_result_ref: ArtifactRef | None
-    simulation_result_ref: ArtifactRef | None
-    method_execution_bundle_ref: ArtifactRef | None
-    method_metric_binding_set_ref: ArtifactRef | None
-    source_candidate_ref: ArtifactRef | None
-    metric_verification_status: Literal["verified", "verification_missing"]
-    method_metric_projection: MethodMetricProjectionAssociation | None
+    @property
+    def selection_kind(self) -> Literal["graph_method", "direct_method"]: ...
+
+    @property
+    def job_id(self) -> str: ...
+
+    @property
+    def run_id(self) -> str: ...
+
+    @property
+    def attempt(self) -> int: ...
+
+    @property
+    def method_result_ref(self) -> ArtifactRef | None: ...
+
+    @property
+    def simulation_result_ref(self) -> ArtifactRef | None: ...
+
+    @property
+    def method_execution_bundle_ref(self) -> ArtifactRef | None: ...
+
+    @property
+    def method_metric_binding_set_ref(self) -> ArtifactRef | None: ...
+
+    @property
+    def source_candidate_ref(self) -> ArtifactRef | None: ...
+
+    @property
+    def metric_verification_status(
+        self,
+    ) -> Literal["verified", "verification_missing"]: ...
+
+    @property
+    def method_metric_projection(self) -> MethodMetricProjectionAssociation | None: ...
 
 
 @runtime_checkable
@@ -112,25 +141,43 @@ class MethodExecutionSelectionOwner(Protocol):
         run_id: str,
         tenant_id: str,
         cell_id: str,
-    ) -> OwnedMethodExecutionSelection | None: ...
+    ) -> MethodExecutionSelection | None: ...
 
 
 @runtime_checkable
 class CompletedOwnedMethodExecutionSelection(OwnedMethodExecutionSelection, Protocol):
     """Completed graph selection with Runtime-owned candidate and terminal-state joins."""
 
-    source_candidate_ref: ArtifactRef | None
-    source_experiment_state_ref: ArtifactRef
+    @property
+    def source_candidate_ref(self) -> ArtifactRef | None: ...
+
+    @property
+    def source_experiment_state_ref(self) -> ArtifactRef: ...
 
 
 @runtime_checkable
 class CompletedMethodMetricSource(Protocol):
     """Exact completed graph source resolved by the current Runtime owner."""
 
-    source_run_id: str
-    source_candidate_ref: ArtifactRef
-    source_experiment_state_ref: ArtifactRef
-    selection: CompletedOwnedMethodExecutionSelection
+    @property
+    def source_run_id(self) -> str:
+        """Return the exact completed source run."""
+        ...
+
+    @property
+    def source_candidate_ref(self) -> ArtifactRef:
+        """Return the owner-selected source candidate."""
+        ...
+
+    @property
+    def source_experiment_state_ref(self) -> ArtifactRef:
+        """Return the terminal Core source-state ref."""
+        ...
+
+    @property
+    def selection(self) -> CompletedOwnedMethodExecutionSelection:
+        """Return the completed graph method selection."""
+        ...
 
 
 @runtime_checkable
@@ -151,6 +198,22 @@ MethodMetricSelectionOwnerPort = CompletedMethodMetricSelectionOwner
 
 
 @runtime_checkable
+class CompletedMethodHTESelectionOwner(Protocol):
+    """Resolve completed owner-selected HTE evidence for a later decision packet."""
+
+    def resolve_completed_method_hte_selection(
+        self,
+        *,
+        source_run_id: str,
+        tenant_id: str,
+        cell_id: str | None,
+    ) -> CompletedMethodHTESource | None: ...
+
+
+CompletedMethodHTESelectionOwnerPort = CompletedMethodHTESelectionOwner
+
+
+@runtime_checkable
 class Tracer(Protocol):
     """Tracer public type."""
 
@@ -168,6 +231,8 @@ class _EngineInvocationBinding:
     attempt_id: str
     basis_ref: ArtifactRef
     require_successful_completion: bool = False
+    effective_timeout_s: float | None = None
+    supervisor_deadline_monotonic: float | None = None
 
 
 @dataclass(frozen=True)
@@ -208,6 +273,11 @@ class ExecutionContext:
         kw_only=True,
         repr=False,
     )
+    completed_method_hte_selection_owner: CompletedMethodHTESelectionOwnerPort | None = field(
+        default=None,
+        kw_only=True,
+        repr=False,
+    )
     prepared_skg_read: PreparedSKGRead | None = field(
         default=None,
         kw_only=True,
@@ -231,7 +301,9 @@ def _load_engine_owned_invocation_input_state(
     and the selected-profile input-state artifact read back from CAS.
     """
     from polisyos.core.canon import from_canonical_bytes
-    from polisyos.scientist.orchestration.engine.state import ExperimentState as _ExperimentState
+    from polisyos.scientist.orchestration.engine.state import (
+        ExperimentState as _ExperimentState,
+    )
     from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
 
     binding = ctx._engine_invocation

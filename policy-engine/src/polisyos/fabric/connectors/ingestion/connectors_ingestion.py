@@ -3,14 +3,16 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from polisyos.core.contracts.fabric import EvidenceBundleRef
 from polisyos.fabric.ingestion import (
     ConnectorManifestSpec,
     DatasetFetchSpec,
     run_connectors_ingestion,
 )
+
+if TYPE_CHECKING:
+    from polisyos.core.contracts.fabric import EvidenceBundleRef
 
 __all__ = [
     "ConnectorManifestSpec",

@@ -7,7 +7,18 @@ from typing import Any, ClassVar, Literal, Protocol
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir._internal.validation import ensure_finite_numeric, ensure_unique_ids
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation as _OwnedJSONRepresentation,
+)
+from polisyos.ir.analytics._owner_admission import (
+    declare_model_owner as _declare_model_owner,
+)
+from polisyos.ir.analytics._owner_admission import (
+    owner_profile_for_spec as _owner_profile_for_spec,
+)
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode as _CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import ShiftDiagnosticReportRef
 
@@ -521,6 +532,44 @@ def build_readiness_impact(
     )
 
 
+_SHIFT_DIAGNOSTIC_REPORT_OWNER = _declare_model_owner(
+    ShiftDiagnosticReport,
+    contract_id="ir.analytics.shift_diagnostic_report.owner.v1",
+    dto_fqn="polisyos.ir.analytics.shift_diagnostics.ShiftDiagnosticReport",
+    abi_key="ir.analytics.shift_diagnostic_report.dto-abi.v1",
+    registry_key="ir.shift_diagnostic_report",
+    kind="ir.shift_diagnostic_report",
+    media_type="application/json",
+    purpose="shift_diagnostic_report",
+    policy_revision="ir.analytics.shift_diagnostic_report.admission.v1",
+    accepted_wire_policies=(("ir.analytics.shift_diagnostic_report.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=_owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name="ir.shift_diagnostic_report",
+            schema_version="1.0",
+            payload_version="foundry.shift_diagnostic.v1",
+            wire_policy_ref="ir.analytics.shift_diagnostic_report.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=(
+                "Exact owner-bound shift diagnostic report tuple; unknown history remains opaque.",
+            ),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
 def persist_shift_diagnostic_report(
     store: ArtifactStore,
     report: ShiftDiagnosticReport,
@@ -529,12 +578,11 @@ def persist_shift_diagnostic_report(
     schema_name: str = "ir.shift_diagnostic_report",
     schema_version: str = "1.0",
 ) -> ShiftDiagnosticReportRef:
-    """Persist a shift report for audit and PredictionResult consumers."""
-
-    ref = put_json_artifact(
+    """Persist a shift report through its declared artifact owner."""
+    ref = _put_owned_json_artifact(
         store,
         report.model_dump(mode="json"),
-        kind="ir.shift_diagnostic_report",
+        owner=_SHIFT_DIAGNOSTIC_REPORT_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -547,10 +595,12 @@ def load_shift_diagnostic_report(
     store: ArtifactStore,
     ref: ShiftDiagnosticReportRef,
 ) -> ShiftDiagnosticReport:
-    """Load and validate a persisted shift diagnostic report."""
-
-    payload = get_json_artifact(store, ref)
-    return ShiftDiagnosticReport.model_validate(payload)
+    """Load a shift report after exact owner admission."""
+    return _get_owned_json_artifact(
+        store,
+        ref,
+        owner=_SHIFT_DIAGNOSTIC_REPORT_OWNER,
+    )
 
 
 __all__ = [

@@ -145,10 +145,21 @@ def test_decision_packet_includes_welfare_section(tmp_path) -> None:
     )
     assert payload["welfare"]["channel_decomposition_ref"] == str(channel_ref.artifact_id)
     assert (
-        payload["welfare"]["channel_decomposition_artifact"]["identification_status"]
-        == "identified"
+        payload["welfare"]["channel_decomposition_artifact"]["identification_status"] == "blocked"
     )
-    assert payload["welfare"]["channel_decomposition_artifact"]["mechanical_vector"] == [0.6]
+    assert payload["welfare"]["channel_decomposition_artifact"]["blocking_reasons"] == [
+        "upstream_input_owner_not_established"
+    ]
+    assert payload["welfare"]["channel_decomposition_artifact"]["authority_status"] == (
+        "not_established"
+    )
+    assert payload["welfare"]["channel_decomposition_authority_status"] == "not_established"
+    assert payload["welfare"]["channel_decomposition"] == {}
+    assert "mechanical_vector" not in payload["welfare"]["channel_decomposition_artifact"]
+    assert (
+        "phase3.welfare_channel_input_owner_not_established"
+        in payload["phase3"]["blocking_reasons"]
+    )
     assert payload["phase3"]["refusal_status"] == "blocked"
     assert payload["phase3"]["gate_passed"] is False
     assert "phase3.welfare_not_ok" in payload["phase3"]["blocking_reasons"]

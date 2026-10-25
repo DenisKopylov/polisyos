@@ -375,6 +375,159 @@ def _register_reconciliation_packet(
     return packet_ref
 
 
+def test_legacy_hte_projection_without_completed_source_basis_remains_read_limited(
+    tmp_path: Path,
+) -> None:
+    """Legacy report-shaped HTE data does not become a completed-source authority."""
+    store = FileSystemCAS(tmp_path)
+    service = DecisionValidityService(store)
+    envelope = DecisionValidityEnvelope(
+        decision_lineage_key="legacy_hte_lineage",
+        policy_fingerprint="legacy_hte_policy",
+    )
+    baseline = DecisionValidityEvaluation(
+        decision_lineage_key=envelope.decision_lineage_key,
+        status=DecisionValidityStatus.ACTIVE,
+        dependency_keys=envelope.dependency_keys(),
+    )
+    packet = _put_json(
+        store,
+        {
+            "schema_version": "3.4",
+            "hte": {"result_ref": "sha256:" + "a" * 64},
+            "decision_validity_envelope": envelope.model_dump(mode="json"),
+            "decision_validity_baseline": baseline.model_dump(mode="json"),
+        },
+        kind="scientist.decision_packet",
+    )
+
+    evaluation, _ = service.get_evaluation(str(packet.artifact_id), force=True)
+
+    assert evaluation.status == DecisionValidityStatus.ACTIVE
+    assert not any(
+        trigger.trigger_type == DecisionTriggerType.METRIC_INVALIDATION
+        and trigger.reason.startswith("completed_hte_")
+        for trigger in evaluation.triggers
+    )
+
+
+def test_requested_hte_without_selected_owner_warns_from_persisted_typed_basis(
+    tmp_path: Path,
+) -> None:
+    """The current service consumes the same typed request basis as the packet baseline."""
+    store = FileSystemCAS(tmp_path)
+    service = DecisionValidityService(store)
+    envelope = DecisionValidityEnvelope(
+        decision_lineage_key="completed_hte_missing_owner_lineage",
+        policy_fingerprint="completed_hte_missing_owner_policy",
+        data_basis=DecisionBasisSection(
+            summary={
+                "completed_hte_source_status": "verification_missing",
+                "completed_hte_request_status": "requested",
+                "completed_hte_requested_source_run_id": "R_requested_unowned",
+                "completed_hte_limitation_code": "completed_hte_selection_owner_not_established",
+                "completed_hte_authority_purpose": "candidate_method_evidence",
+                "completed_hte_publication_authorization": "not_established",
+            }
+        ),
+    )
+    baseline = DecisionValidityEvaluation(
+        decision_lineage_key=envelope.decision_lineage_key,
+        status=DecisionValidityStatus.ACTIVE,
+        dependency_keys=envelope.dependency_keys(),
+    )
+    packet = _put_json(
+        store,
+        {
+            "schema_version": "3.4",
+            "hte": None,
+            "decision_validity_envelope": envelope.model_dump(mode="json"),
+            "decision_validity_baseline": baseline.model_dump(mode="json"),
+        },
+        kind="scientist.decision_packet",
+    )
+
+    evaluation, _ = service.get_evaluation(str(packet.artifact_id), force=True)
+
+    assert evaluation.status == DecisionValidityStatus.WARNING
+    assert "completed_hte_selection_owner_not_established" in evaluation.reasons
+    trigger = next(
+        item
+        for item in evaluation.triggers
+        if item.trigger_type == DecisionTriggerType.METRIC_INVALIDATION
+    )
+    assert trigger.details["request_status"] == "requested"
+    assert trigger.details["selection_status"] == "verification_missing"
+    assert trigger.details["requested_source_run_id"] == "R_requested_unowned"
+    assert trigger.details["publication_authorization"] == "not_established"
+
+
+def test_completed_hte_dependency_event_invalidates_registered_packet(tmp_path: Path) -> None:
+    """DecisionValidity consumes a completed-HTE dependency event for its indexed packet."""
+    store = FileSystemCAS(tmp_path)
+    service = DecisionValidityService(store)
+    dependency_key = "hte_completed_source_run:source-run"
+    envelope = DecisionValidityEnvelope(
+        decision_lineage_key="hte_followup_event_lineage",
+        policy_fingerprint="hte_followup_event_policy",
+        data_basis=DecisionBasisSection(
+            dependencies=[
+                DecisionDependencyRef(
+                    kind=DecisionDependencyKind.ECONOMETRIC_EVIDENCE,
+                    key=dependency_key,
+                    label="runtime_current_completed_hte_source",
+                    metadata={
+                        "source_run_id": "source-run",
+                        "source_job_id": "source-job",
+                        "source_attempt": 1,
+                        "completed_event_id": 3,
+                        "completed_event_payload_sha256": "sha256:" + "b" * 64,
+                    },
+                )
+            ]
+        ),
+    )
+    baseline = DecisionValidityEvaluation(
+        decision_lineage_key=envelope.decision_lineage_key,
+        status=DecisionValidityStatus.ACTIVE,
+        dependency_keys=envelope.dependency_keys(),
+    )
+    packet = _put_json(
+        store,
+        {
+            "schema_version": "3.4",
+            "decision_validity_envelope": envelope.model_dump(mode="json"),
+            "decision_validity_baseline": baseline.model_dump(mode="json"),
+        },
+        kind="scientist.decision_packet",
+    )
+    packet_ref = str(packet.artifact_id)
+    service.register_decision_packet(
+        packet_ref=packet_ref,
+        envelope=envelope,
+        baseline=baseline,
+    )
+
+    evaluations = service.mark_dependency_trigger(
+        dependency_key=dependency_key,
+        trigger=DecisionTriggerRecord(
+            trigger_type=DecisionTriggerType.METRIC_INVALIDATION,
+            status=DecisionValidityStatus.STALE,
+            reason="completed_hte_source_changed",
+            dependency_key=dependency_key,
+            source_ref="source-job:3",
+            details={"payload_sha256": "sha256:" + "b" * 64},
+        ),
+    )
+
+    assert len(evaluations) == 1
+    assert evaluations[0].decision_packet_ref == packet_ref
+    assert evaluations[0].status == DecisionValidityStatus.STALE
+    assert any(
+        trigger.reason == "completed_hte_source_changed" for trigger in evaluations[0].triggers
+    )
+
+
 def _semantic_epoch_manifest(
     *,
     scope: semantic_epoch_runtime.EpochScopeIdentity,
@@ -3414,3 +3567,50 @@ def test_load_baseline_assertion_is_not_swallowed(monkeypatch: pytest.MonkeyPatc
 
     with pytest.raises(AssertionError, match="baseline-broken"):
         _load_baseline({"decision_validity_baseline": {}})
+
+
+def test_partial_typed_hte_request_without_selection_status_warns_from_persisted_basis(
+    tmp_path: Path,
+) -> None:
+    # This is the field-removal falsifier through the persisted service consumer.
+    store = FileSystemCAS(tmp_path)
+    service = DecisionValidityService(store)
+    envelope = DecisionValidityEnvelope(
+        decision_lineage_key="completed_hte_partial_request_lineage",
+        policy_fingerprint="completed_hte_partial_request_policy",
+        data_basis=DecisionBasisSection(
+            summary={
+                "completed_hte_request_status": "requested",
+                "completed_hte_requested_source_run_id": "R_requested_without_selection",
+            }
+        ),
+    )
+    baseline = DecisionValidityEvaluation(
+        decision_lineage_key=envelope.decision_lineage_key,
+        status=DecisionValidityStatus.ACTIVE,
+        dependency_keys=envelope.dependency_keys(),
+    )
+    packet = _put_json(
+        store,
+        {
+            "schema_version": "3.4",
+            "hte": None,
+            "decision_validity_envelope": envelope.model_dump(mode="json"),
+            "decision_validity_baseline": baseline.model_dump(mode="json"),
+        },
+        kind="scientist.decision_packet",
+    )
+
+    evaluation, _ = service.get_evaluation(str(packet.artifact_id), force=True)
+
+    assert evaluation.status == DecisionValidityStatus.WARNING
+    assert "completed_hte_selection_status_not_established" in evaluation.reasons
+    trigger = next(
+        item
+        for item in evaluation.triggers
+        if item.trigger_type == DecisionTriggerType.METRIC_INVALIDATION
+        and item.reason == "completed_hte_selection_status_not_established"
+    )
+    assert trigger.details["request_status"] == "requested"
+    assert trigger.details["selection_status"] is None
+    assert trigger.details["requested_source_run_id"] == "R_requested_without_selection"

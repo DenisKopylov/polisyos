@@ -6,7 +6,10 @@ contract-level compatibility rules used by migration and release-review code.
 
 from __future__ import annotations
 
-from polisyos.ir.migrations.base import CompatibilityMode, register_schema_version
+from polisyos.ir.migrations.base import (
+    CompatibilityMode,
+    register_schema_version,
+)
 
 
 def register_default_schema_rules() -> None:
@@ -49,7 +52,11 @@ def register_default_schema_rules() -> None:
         "1.2",
         compatibility=CompatibilityMode.BACKWARD,
         readable_versions=("1.0", "1.1"),
-        additive_optional_fields=("source_graph", "source_graph_ref", "graph_projection"),
+        additive_optional_fields=(
+            "source_graph",
+            "source_graph_ref",
+            "graph_projection",
+        ),
         notes=(
             (
                 "The 1.2 reader accepts and preserves exact historical 1.0/1.1 payload "
@@ -84,7 +91,8 @@ def register_default_schema_rules() -> None:
             "1.0",
             compatibility=CompatibilityMode.NONE,
             notes=(
-                f"{label} 1.0 is a distinct profile-bound artifact; it does not migrate or reinterpret legacy HTE result 1.0.",
+                f"{label} 1.0 is a distinct profile-bound artifact; it does not "
+                "migrate or reinterpret legacy HTE result 1.0.",
             ),
         )
     register_schema_version(
@@ -165,6 +173,12 @@ def register_default_schema_rules() -> None:
         renamed_fields=(("formula", "transport_formula"),),
         canonical_defaults=(("schema_version", "2.0"),),
         notes=("v2.0 dual-reads v1.0 payloads through explicit normalizers.",),
+    )
+    register_schema_version(
+        "transportability_result",
+        "2.2",
+        compatibility=CompatibilityMode.NONE,
+        notes=("TransportabilityResult 2.2 is the current owner-bound JSON representation.",),
     )
 
 

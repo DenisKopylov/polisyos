@@ -2,11 +2,21 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
+import math
+from collections.abc import Sequence
+from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, model_validator
 
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation as _OwnedJSONRepresentation,
+)
+from polisyos.ir.analytics._owner_admission import declare_model_owner as _declare_model_owner
+from polisyos.ir.analytics._owner_admission import owner_profile_for_spec as _owner_profile_for_spec
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
 from polisyos.ir.analytics.partial_identification import PartialIdentificationResult
 from polisyos.ir.analytics.uncertainty import (
@@ -20,9 +30,24 @@ from polisyos.ir.analytics.uncertainty import (
     ValueUncertaintyProjectionKind,
     value_uncertainty_output_contract,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts._lineage import InputRefLike
+from polisyos.ir.artifacts.io import (
+    _get_owned_json_artifact,
+    _put_owned_json_artifact,
+    _validate_return_selected_profile_flag,
+)
+from polisyos.ir.migrations.base import (
+    CompatibilityMode as _CompatibilityMode,
+)
+from polisyos.ir.migrations.base import (
+    IRRepresentationKey,
+)
+from polisyos.ir.migrations.base import (
+    register_ir_representation as _register_ir_representation,
+)
 from polisyos.ir.model_layer.canon import CanonSpec
-from polisyos.ir.registry.refs import TransportabilityResultRef
+from polisyos.ir.registry.refs import CausalGraphModelRef, TransportabilityResultRef
 
 if TYPE_CHECKING:
     from polisyos.data_forge.read_api.catalog import ProxyCandidate, PStarZResult
@@ -458,6 +483,985 @@ class DataGap(BaseModel):
     suggested_action: str
 
 
+class TransportabilityCandidateReasonV1(BaseModel):
+    """Explain one candidate execution or member outcome without assigning authority."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    code: str = Field(pattern=r"^[a-z][a-z0-9_]{1,95}$")
+    detail: str | None = Field(default=None, max_length=2000)
+
+
+class TransportabilityCandidateRequestV1(BaseModel):
+    """Strict caller intent for one registered conditional transport profile."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    profile_id: str = Field(min_length=1, max_length=160)
+    profile_revision: str = Field(min_length=1, max_length=80)
+    selection_identity: str = Field(min_length=1, max_length=240)
+
+    @model_validator(mode="after")
+    def _reject_blank_identity(self) -> TransportabilityCandidateRequestV1:
+        if any(
+            not value.strip()
+            for value in (
+                self.profile_id,
+                self.profile_revision,
+                self.selection_identity,
+            )
+        ):
+            raise ValueError("candidate_request_identity_must_not_be_blank")
+        return self
+
+
+class TransportabilityCandidateProfileV1(BaseModel):
+    """Identify the owner-resolved effective profile without a central profile allowlist."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    profile_id: str = Field(min_length=1, max_length=160)
+    profile_revision: str = Field(min_length=1, max_length=80)
+
+    @model_validator(mode="after")
+    def _reject_blank_identity(self) -> TransportabilityCandidateProfileV1:
+        if not self.profile_id.strip() or not self.profile_revision.strip():
+            raise ValueError("candidate_profile_identity_must_not_be_blank")
+        return self
+
+
+class TransportabilityCandidateResourceResolutionV1(BaseModel):
+    """Typed snapshot returned by the existing owner resource resolver."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.1"] = "1.1"
+    policy_id: str = Field(min_length=1, max_length=160)
+    policy_revision: str = Field(min_length=1, max_length=120)
+    profile_id: str = Field(min_length=1, max_length=160)
+    profile_revision: str = Field(min_length=1, max_length=80)
+    selection_identity: str = Field(min_length=1, max_length=240)
+    status: Literal["selected", "refused"]
+    reason_code: str | None = Field(default=None, min_length=1, max_length=160)
+    effective_limits: dict[str, StrictInt | StrictFloat] | None
+    effective_limit_units: dict[str, str] | None
+    sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+
+    @model_validator(mode="after")
+    def _validate_owner_snapshot(self) -> TransportabilityCandidateResourceResolutionV1:
+        for value in (
+            self.policy_id,
+            self.policy_revision,
+            self.profile_id,
+            self.profile_revision,
+            self.selection_identity,
+        ):
+            if not value.strip():
+                raise ValueError("candidate_resource_identity_must_not_be_blank")
+        if self.status == "selected":
+            if (
+                self.reason_code is not None
+                or not self.effective_limits
+                or not self.effective_limit_units
+                or set(self.effective_limits) != set(self.effective_limit_units)
+            ):
+                raise ValueError("selected_candidate_resource_requires_exact_limits_and_units")
+        elif (
+            self.reason_code is None
+            or self.effective_limits is not None
+            or self.effective_limit_units is not None
+        ):
+            raise ValueError("refused_candidate_resource_must_retain_reason_without_limits")
+        if self.effective_limits is not None:
+            if any(not key.strip() for key in self.effective_limits):
+                raise ValueError("candidate_resource_limit_name_must_not_be_blank")
+            if any(
+                isinstance(value, bool) or not math.isfinite(float(value)) or value < 0
+                for value in self.effective_limits.values()
+            ):
+                raise ValueError("candidate_resource_limit_must_be_finite_and_nonnegative")
+        if self.effective_limit_units is not None and any(
+            not key.strip() or not unit.strip() for key, unit in self.effective_limit_units.items()
+        ):
+            raise ValueError("candidate_resource_limit_unit_must_not_be_blank")
+        payload = self.model_dump(mode="json", exclude={"sha256"})
+        encoded = json.dumps(
+            payload,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ).encode("utf-8")
+        if hashlib.sha256(encoded).hexdigest() != self.sha256:
+            raise ValueError("candidate_resource_snapshot_digest_mismatch")
+        return self
+
+
+class TransportabilityCandidateAttemptBindingV1(BaseModel):
+    """Bind candidate computation to the engine-owned workflow attempt."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    run_id: str = Field(min_length=1, max_length=160)
+    attempt_id: str = Field(min_length=1, max_length=160)
+    attempt_number: int = Field(ge=1)
+    node_alias: Literal["run_transportability"]
+    component_id: str = Field(min_length=1, max_length=240)
+    started_at: datetime
+    dispatch_params_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    workflow_spec_ref: InputRef
+    input_state_ref: InputRef
+    basis_ref: InputRef
+
+    @model_validator(mode="after")
+    def _validate_attempt_binding(self) -> TransportabilityCandidateAttemptBindingV1:
+        if self.started_at.tzinfo is None or self.started_at.utcoffset() is None:
+            raise ValueError("candidate_attempt_started_at_must_be_timezone_aware")
+        expected = (
+            (self.basis_ref, "transportability_attempt_basis"),
+            (self.workflow_spec_ref, "transportability_workflow_spec"),
+            (self.input_state_ref, "transportability_input_state"),
+        )
+        for ref, role in expected:
+            if ref.role != role or ref.manifest_profile_sha256 is None:
+                raise ValueError("candidate_attempt_ref_role_or_selected_profile_invalid")
+        return self
+
+
+class TransportabilityCandidateModelPlanRelationV1(BaseModel):
+    """Content-bound named model/plan relation used instead of a selection diagram."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    relation_id: str = Field(min_length=1, max_length=240)
+    revision: str = Field(min_length=1, max_length=80)
+    content_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+
+
+class TransportabilityCandidateInputBindingV1(BaseModel):
+    """Bind the computation to exact graph, query, contexts, and persisted inputs."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    graph_ref: CausalGraphModelRef
+    graph_type: GraphType
+    graph_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    selection_diagram_sha256: str | None = Field(default=None, pattern=r"^[a-f0-9]{64}$")
+    model_plan_relation: TransportabilityCandidateModelPlanRelationV1 | None = None
+    query_treatment: str = Field(min_length=1, max_length=240)
+    query_outcome: str = Field(min_length=1, max_length=240)
+    query_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    source_context_id: str = Field(min_length=1, max_length=240)
+    source_context_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    target_context_id: str = Field(min_length=1, max_length=240)
+    target_context_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    lineage_refs: tuple[InputRef, ...]
+
+    @model_validator(mode="after")
+    def _validate_input_binding(self) -> TransportabilityCandidateInputBindingV1:
+        if (self.selection_diagram_sha256 is None) == (self.model_plan_relation is None):
+            raise ValueError("candidate_input_requires_exactly_one_diagram_or_model_plan_relation")
+        if self.graph_ref.manifest_profile_sha256 is None:
+            raise ValueError("candidate_graph_ref_requires_selected_manifest_profile")
+        if self.query_sha256 != transportability_candidate_query_sha256(
+            self.query_treatment, self.query_outcome
+        ):
+            raise ValueError("candidate_query_digest_mismatch")
+        expected_roles = (
+            "transportability_attempt_basis",
+            "transportability_workflow_spec",
+            "transportability_input_state",
+            "selected_causal_graph",
+            "causal_effect_report",
+        )
+        if tuple(ref.role for ref in self.lineage_refs) != expected_roles:
+            raise ValueError("candidate_lineage_roles_missing_reordered_or_unexpected")
+        if any(ref.manifest_profile_sha256 is None for ref in self.lineage_refs):
+            raise ValueError("candidate_lineage_ref_requires_selected_manifest_profile")
+        if self.lineage_refs[3].artifact_id != self.graph_ref.artifact_id:
+            raise ValueError("candidate_graph_lineage_mismatch")
+        return self
+
+
+class TransportabilityCandidateBudgetMeasureV1(BaseModel):
+    """Record one effective resource limit or observed consumption measurement."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    resource: str = Field(min_length=1, max_length=120)
+    value: StrictInt | StrictFloat = Field(ge=0.0)
+    unit: str = Field(min_length=1, max_length=80)
+
+    @model_validator(mode="after")
+    def _finite_value(self) -> TransportabilityCandidateBudgetMeasureV1:
+        if not self.resource.strip() or not self.unit.strip():
+            raise ValueError("candidate_budget_resource_and_unit_must_not_be_blank")
+        if not math.isfinite(self.value):
+            raise ValueError("candidate_budget_measure_must_be_finite")
+        return self
+
+
+class TransportabilityCandidatePhaseBudgetV1(BaseModel):
+    """Record owner admission, resolved limits, use, and termination for one phase."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    phase: Literal["generation", "evaluation"]
+    selection_identity: str = Field(min_length=1, max_length=240)
+    admission: Literal["admitted", "refused", "not_established", "not_required"]
+    admission_source: Literal[
+        "existing_compute_permit",
+        "bounded_execution_policy",
+        "owner_refusal",
+        "not_established",
+        "not_required",
+    ]
+    admission_ref: InputRef | None = None
+    admission_policy_id: str | None = Field(default=None, min_length=1, max_length=160)
+    effective_limits: tuple[TransportabilityCandidateBudgetMeasureV1, ...] = ()
+    consumed: tuple[TransportabilityCandidateBudgetMeasureV1, ...] = ()
+    termination: Literal[
+        "not_started",
+        "completed",
+        "budget_exhausted",
+        "cancelled",
+        "error",
+        "unsupported",
+        "not_required",
+    ]
+    reason: TransportabilityCandidateReasonV1 | None = None
+    elapsed_seconds: StrictInt | StrictFloat | None = Field(default=None, ge=0.0)
+
+    @model_validator(mode="after")
+    def _validate_phase_budget(self) -> TransportabilityCandidatePhaseBudgetV1:
+        if self.elapsed_seconds is not None and not math.isfinite(self.elapsed_seconds):
+            raise ValueError("candidate_budget_elapsed_must_be_finite")
+        limit_resources = [item.resource for item in self.effective_limits]
+        if len(limit_resources) != len(set(limit_resources)):
+            raise ValueError("candidate_budget_effective_resources_must_be_unique")
+        consumed_resources = [item.resource for item in self.consumed]
+        if len(consumed_resources) != len(set(consumed_resources)):
+            raise ValueError("candidate_budget_consumed_resources_must_be_unique")
+        limits_by_resource = {item.resource: item for item in self.effective_limits}
+        if not set(consumed_resources).issubset(limits_by_resource):
+            raise ValueError("candidate_budget_consumption_missing_resolved_limit")
+        if any(item.unit != limits_by_resource[item.resource].unit for item in self.consumed):
+            raise ValueError("candidate_budget_consumption_unit_must_match_resolved_limit")
+        exceeded = any(
+            item.value > limits_by_resource[item.resource].value for item in self.consumed
+        )
+        if exceeded and (
+            self.termination not in {"budget_exhausted", "error"} or self.reason is None
+        ):
+            raise ValueError("candidate_budget_overrun_requires_truthful_non_success_termination")
+        if self.elapsed_seconds is not None:
+            elapsed_limits = [
+                limit.value
+                for limit in self.effective_limits
+                if limit.resource == "max_elapsed_seconds" and limit.unit == "seconds"
+            ]
+            if elapsed_limits and self.elapsed_seconds > min(elapsed_limits):
+                if self.termination not in {"budget_exhausted", "error"} or self.reason is None:
+                    raise ValueError(
+                        "candidate_elapsed_overrun_requires_truthful_non_success_termination"
+                    )
+        if self.admission == "admitted":
+            if self.admission_source not in {
+                "existing_compute_permit",
+                "bounded_execution_policy",
+            }:
+                raise ValueError("candidate_budget_admission_source_not_authoritative")
+            if not self.effective_limits or self.termination in {
+                "not_started",
+                "not_required",
+            }:
+                raise ValueError("candidate_budget_admitted_without_effective_execution_bound")
+            if self.admission_source == "existing_compute_permit" and self.admission_ref is None:
+                raise ValueError("candidate_permit_admission_requires_selected_permit_ref")
+            if (
+                self.admission_source == "bounded_execution_policy"
+                and self.admission_policy_id is None
+            ):
+                raise ValueError("candidate_policy_admission_requires_policy_identity")
+            if self.termination == "completed" and self.reason is not None:
+                raise ValueError("completed_candidate_budget_must_not_carry_refusal_reason")
+            if self.termination != "completed" and self.reason is None:
+                raise ValueError("noncompleted_candidate_budget_requires_termination_reason")
+        elif self.admission == "not_required":
+            if (
+                self.admission_source != "not_required"
+                or self.termination != "not_required"
+                or self.effective_limits
+                or self.consumed
+                or self.reason is not None
+            ):
+                raise ValueError("candidate_budget_not_required_shape_invalid")
+        else:
+            if self.admission_source not in {"owner_refusal", "not_established"}:
+                raise ValueError("candidate_budget_nonadmission_source_invalid")
+            if self.termination != "not_started" or not self.reason:
+                raise ValueError("candidate_budget_nonadmission_must_explain_not_started")
+            if self.consumed:
+                raise ValueError("candidate_budget_nonadmission_cannot_report_consumption")
+            if self.effective_limits:
+                raise ValueError("candidate_budget_nonadmission_cannot_claim_effective_limits")
+        return self
+
+
+class TransportabilityCandidateProposalV1(BaseModel):
+    """Final disposition of one generated finite-family proposal."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    ordinal: int = Field(ge=0)
+    assignment_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    disposition: Literal[
+        "admitted",
+        "duplicate",
+        "invalid",
+        "unsupported",
+        "validation_incomplete",
+    ]
+    member_sha256: str | None = Field(default=None, pattern=r"^[a-f0-9]{64}$")
+    duplicate_of: int | None = Field(default=None, ge=0)
+    reason: TransportabilityCandidateReasonV1 | None = None
+
+    @model_validator(mode="after")
+    def _validate_proposal(self) -> TransportabilityCandidateProposalV1:
+        if self.disposition == "admitted":
+            if (
+                self.member_sha256 is None
+                or self.duplicate_of is not None
+                or self.reason is not None
+            ):
+                raise ValueError("admitted_proposal_requires_only_member_identity")
+        elif self.disposition == "duplicate":
+            if (
+                self.member_sha256 is not None
+                or self.duplicate_of is None
+                or self.reason is not None
+            ):
+                raise ValueError("duplicate_proposal_requires_only_duplicate_target")
+        elif self.member_sha256 is not None or self.duplicate_of is not None or self.reason is None:
+            raise ValueError("rejected_proposal_requires_reason_and_no_member_identity")
+        return self
+
+
+class TransportabilityCandidateSolverOutcomeV1(BaseModel):
+    """Retain the complete typed result returned by the existing solver."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    result: TransportabilityResult
+    result_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    query_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    algorithm_version: str = Field(min_length=1, max_length=160)
+    identification_engine: str = Field(min_length=1, max_length=160)
+    status: TransportabilityStatus
+    transport_mode: TransportMode
+    feasible: bool
+    transport_formula: TransportFormula | None = None
+    identified_region: dict[str, Any] | None = None
+    partial_identification_result: PartialIdentificationResult | None = None
+    identification_trace: tuple[str, ...] = ()
+    unsupported_reason: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_solver_outcome(self) -> TransportabilityCandidateSolverOutcomeV1:
+        if self.result.candidate_diagnostics is not None:
+            raise ValueError("candidate_member_solver_result_must_not_nest_candidate_diagnostic")
+        query_digest = hashlib.sha256(self.result.query.encode("utf-8")).hexdigest()
+        if not self.result.query or query_digest != self.query_sha256:
+            raise ValueError("candidate_solver_result_query_binding_mismatch")
+        encoded = json.dumps(
+            self.result.model_dump(mode="json"),
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ).encode("utf-8")
+        if hashlib.sha256(encoded).hexdigest() != self.result_sha256:
+            raise ValueError("candidate_solver_full_result_digest_mismatch")
+        if (
+            self.algorithm_version != self.result.algorithm_version
+            or self.identification_engine != self.result.identification_engine
+            or self.status is not self.result.status
+            or self.transport_mode is not self.result.transport_mode
+            or self.feasible is not self.result.feasible
+            or self.transport_formula != self.result.transport_formula
+            or self.identified_region != self.result.identified_region
+            or self.partial_identification_result != self.result.partial_identification_result
+            or self.identification_trace != tuple(self.result.identification_trace)
+            or self.unsupported_reason != self.result.unsupported_reason
+        ):
+            raise ValueError("candidate_solver_projection_must_match_full_result")
+        if self.status is TransportabilityStatus.IDENTIFIED:
+            if self.transport_mode is TransportMode.NONE:
+                raise ValueError("identified_candidate_member_cannot_have_none_mode")
+            if (
+                self.transport_mode is TransportMode.TRANSPORT_FORMULA
+                and self.transport_formula is None
+            ):
+                raise ValueError("candidate_formula_mode_requires_actual_formula")
+        elif self.status is TransportabilityStatus.PARTIALLY_IDENTIFIED:
+            if self.transport_mode is TransportMode.NONE:
+                raise ValueError("partial_candidate_member_cannot_have_none_mode")
+            if (
+                self.transport_formula is None
+                and self.identified_region is None
+                and self.partial_identification_result is None
+            ):
+                raise ValueError("partial_candidate_member_requires_actual_result_basis")
+        elif self.status is TransportabilityStatus.BOUNDED_NON_IDENTIFIED:
+            if (
+                self.transport_mode is not TransportMode.BOUNDS_ONLY
+                or self.partial_identification_result is None
+                or self.transport_formula is not None
+            ):
+                raise ValueError("bounded_candidate_member_requires_typed_bounds_only")
+        else:
+            if (
+                self.transport_mode is not TransportMode.NONE
+                or self.transport_formula is not None
+                or self.identified_region is not None
+                or self.partial_identification_result is not None
+                or not self.unsupported_reason
+            ):
+                raise ValueError("unsupported_candidate_member_must_retain_exact_refusal")
+        return self
+
+    @classmethod
+    def from_result(
+        cls,
+        result: TransportabilityResult,
+        *,
+        query_sha256: str,
+    ) -> TransportabilityCandidateSolverOutcomeV1:
+        """Bind a nested member result to the exact serialized existing solver output."""
+        if result.candidate_diagnostics is not None:
+            raise ValueError("candidate_member_solver_result_must_not_nest_candidate_diagnostic")
+        expected_query_digest = hashlib.sha256(result.query.encode("utf-8")).hexdigest()
+        if not result.query or query_sha256 != expected_query_digest:
+            raise ValueError("candidate_solver_result_query_binding_mismatch")
+        encoded = json.dumps(
+            result.model_dump(mode="json"),
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ).encode("utf-8")
+        return cls(
+            result=result,
+            result_sha256=hashlib.sha256(encoded).hexdigest(),
+            query_sha256=query_sha256,
+            algorithm_version=result.algorithm_version,
+            identification_engine=result.identification_engine,
+            status=result.status,
+            transport_mode=result.transport_mode,
+            feasible=result.feasible,
+            transport_formula=result.transport_formula,
+            identified_region=result.identified_region,
+            partial_identification_result=result.partial_identification_result,
+            identification_trace=tuple(result.identification_trace),
+            unsupported_reason=result.unsupported_reason,
+        )
+
+
+class TransportabilityCandidateMemberEvaluationV1(BaseModel):
+    """One and only one evaluation disposition for an admitted member."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    member_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    member_graph_ref: CausalGraphModelRef
+    disposition: Literal["not_started", "interrupted", "completed", "error"]
+    outcome: TransportabilityCandidateSolverOutcomeV1 | None = None
+    reason: TransportabilityCandidateReasonV1 | None = None
+
+    @model_validator(mode="after")
+    def _validate_evaluation(self) -> TransportabilityCandidateMemberEvaluationV1:
+        if self.member_graph_ref.manifest_profile_sha256 is None:
+            raise ValueError("candidate_member_graph_ref_requires_selected_manifest_profile")
+        if self.disposition == "completed":
+            if self.outcome is None or self.reason is not None:
+                raise ValueError("completed_candidate_evaluation_requires_only_solver_outcome")
+        elif self.outcome is not None or self.reason is None:
+            raise ValueError("incomplete_candidate_evaluation_requires_reason_without_outcome")
+        return self
+
+
+def _decimal_add_small(decimal_text: str, value: int) -> str:
+    """Add a bounded nonnegative count to an arbitrary-size decimal string."""
+    if value < 0:
+        raise ValueError("candidate_count_addend_must_be_nonnegative")
+    digits = list(decimal_text)
+    index = len(digits) - 1
+    carry = value
+    while index >= 0 and carry:
+        total = int(digits[index]) + carry
+        digits[index] = str(total % 10)
+        carry = total // 10
+        index -= 1
+    if carry:
+        digits.insert(0, str(carry))
+    return "".join(digits)
+
+
+class TransportabilityCandidateDiagnosticV1(BaseModel):
+    """Persist a source-bound candidate diagnostic that cannot promote authority."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    candidate_request: TransportabilityCandidateRequestV1
+    resource_resolution: TransportabilityCandidateResourceResolutionV1
+    effective_profile: TransportabilityCandidateProfileV1 | None
+    disposition: Literal["not_run", "completed", "partial", "unsupported", "error"]
+    reason: TransportabilityCandidateReasonV1 | None = None
+    attempt: TransportabilityCandidateAttemptBindingV1
+    inputs: TransportabilityCandidateInputBindingV1
+    graph_provenance: Literal["manual", "fitted", "generated", "unknown"]
+    algorithm_id: str = Field(min_length=1, max_length=160)
+    algorithm_revision: str = Field(min_length=1, max_length=120)
+    implementation_revision: str = Field(min_length=1, max_length=160)
+    backend_id: str = Field(min_length=1, max_length=160)
+    backend_revision: str = Field(min_length=1, max_length=120)
+    parameters: dict[str, Any] = Field(default_factory=dict)
+    seed: int | None = None
+    assumptions: tuple[str, ...] = ()
+    unresolved_predicates: tuple[str, ...] = ()
+    generation_budget: TransportabilityCandidatePhaseBudgetV1
+    evaluation_budget: TransportabilityCandidatePhaseBudgetV1
+    proposals: tuple[TransportabilityCandidateProposalV1, ...] = ()
+    evaluations: tuple[TransportabilityCandidateMemberEvaluationV1, ...] = ()
+    identified_member_fraction: float | None = Field(default=None, ge=0.0, le=1.0)
+    assignment_space_size: str | None = Field(default=None, pattern=r"^(0|[1-9][0-9]*)$")
+    unattempted_proposals: str | None = Field(default=None, pattern=r"^(0|[1-9][0-9]*)$")
+    generation_coverage: Literal[
+        "declared_attempt_budget",
+        "finite_endpoint_assignment_space_complete",
+        "not_established",
+    ]
+    evaluated_at: datetime
+    source_currentness: Literal["unknown"] = "unknown"
+    candidate_scope: Literal["candidate_only"] = "candidate_only"
+    interpretation_limit: Literal[
+        "selected_family_member_outcomes_do_not_establish_whole_pag_class_probability_calibration_legal_applicability_or_protected_eligibility"
+    ] = "selected_family_member_outcomes_do_not_establish_whole_pag_class_probability_calibration_legal_applicability_or_protected_eligibility"
+
+    @model_validator(mode="before")
+    @classmethod
+    def _derive_identified_fraction(cls, payload: object) -> object:
+        if not isinstance(payload, dict):
+            return payload
+        payload = dict(payload)
+        evaluations = payload.get("evaluations", ())
+        completed_statuses: list[object] = []
+        for row in evaluations:
+            if isinstance(row, dict):
+                disposition = row.get("disposition")
+                outcome = row.get("outcome")
+                status = outcome.get("status") if isinstance(outcome, dict) else None
+            else:
+                disposition = getattr(row, "disposition", None)
+                outcome = getattr(row, "outcome", None)
+                status = getattr(outcome, "status", None)
+            if disposition == "completed" and status is not None:
+                completed_statuses.append(status)
+        fraction = None
+        if completed_statuses:
+            identified_statuses = {
+                TransportabilityStatus.IDENTIFIED,
+                TransportabilityStatus.IDENTIFIED.value,
+            }
+            identified_count = sum(
+                1 for status in completed_statuses if status in identified_statuses
+            )
+            fraction = identified_count / len(completed_statuses)
+        declared = payload.get("identified_member_fraction", fraction)
+        if declared != fraction:
+            raise ValueError("candidate_identified_fraction_must_be_derived_from_member_rows")
+        payload["identified_member_fraction"] = fraction
+        return payload
+
+    def _derive_execution_disposition(
+        self,
+    ) -> Literal["not_run", "completed", "partial", "unsupported", "error"]:
+        """Reconcile execution status from admitted phases and retained source rows.
+
+        A reason explains a disposition but cannot select it. Completion requires
+        every required phase to succeed, exact assignment/member partitions, and
+        at least one complete solver result. PAG coverage is scoped to the
+        owner-selected finite family or declared attempt budget; it never implies
+        whole-class probability, calibration, or population coverage.
+        """
+        phases = (self.generation_budget, self.evaluation_budget)
+        phase_success = all(
+            (phase.admission == "not_required" and phase.termination == "not_required")
+            or (phase.admission == "admitted" and phase.termination == "completed")
+            for phase in phases
+        )
+        has_attempt_evidence = bool(self.proposals or self.evaluations)
+        pag = self.inputs.graph_type is GraphType.PAG
+        if pag:
+            assignment_partition_complete = (
+                self.assignment_space_size is not None
+                and self.unattempted_proposals is not None
+                and self.assignment_space_size
+                == _decimal_add_small(self.unattempted_proposals, len(self.proposals))
+                and self.generation_budget.admission == "admitted"
+                and self.generation_budget.termination == "completed"
+                and self.generation_coverage
+                in {"declared_attempt_budget", "finite_endpoint_assignment_space_complete"}
+                and not any(
+                    proposal.disposition == "validation_incomplete" for proposal in self.proposals
+                )
+            )
+            admitted_members = {
+                proposal.member_sha256
+                for proposal in self.proposals
+                if proposal.disposition == "admitted"
+            }
+            evaluated_members = {row.member_sha256 for row in self.evaluations}
+            member_partition_complete = evaluated_members == admitted_members
+        else:
+            assignment_partition_complete = (
+                self.assignment_space_size is None
+                and self.unattempted_proposals is None
+                and not self.proposals
+            )
+            member_partition_complete = (
+                len(self.evaluations) == 1
+                and self.evaluations[0].member_sha256 == self.inputs.graph_sha256
+                and self.evaluations[0].member_graph_ref == self.inputs.graph_ref
+            )
+        solver_outputs_complete = bool(self.evaluations) and all(
+            row.disposition == "completed" and row.outcome is not None for row in self.evaluations
+        )
+        if (
+            phase_success
+            and assignment_partition_complete
+            and member_partition_complete
+            and solver_outputs_complete
+        ):
+            return "completed"
+        if has_attempt_evidence:
+            return "partial"
+        if self.resource_resolution.status == "refused" or any(
+            phase.admission == "refused" or phase.termination == "unsupported" for phase in phases
+        ):
+            return "unsupported"
+        if any(
+            phase.admission == "admitted"
+            and phase.termination in {"budget_exhausted", "cancelled", "error"}
+            for phase in phases
+        ):
+            return "error"
+        if all(
+            phase.admission not in {"admitted", "refused"}
+            and phase.termination in {"not_started", "not_required"}
+            for phase in phases
+        ):
+            return "not_run"
+        raise ValueError("candidate_execution_state_has_no_reconciled_disposition")
+
+    @model_validator(mode="after")
+    def _validate_diagnostic(self) -> TransportabilityCandidateDiagnosticV1:
+        if self.evaluated_at.tzinfo is None or self.evaluated_at.utcoffset() is None:
+            raise ValueError("candidate_evaluated_at_must_be_timezone_aware")
+        if self.generation_budget.phase != "generation":
+            raise ValueError("candidate_generation_budget_phase_mismatch")
+        if self.evaluation_budget.phase != "evaluation":
+            raise ValueError("candidate_evaluation_budget_phase_mismatch")
+        resolution = self.resource_resolution
+        if self.effective_profile is None:
+            if resolution.status != "refused":
+                raise ValueError("unresolved_candidate_profile_requires_owner_refusal")
+            if (
+                self.generation_budget.admission == "admitted"
+                or self.evaluation_budget.admission == "admitted"
+                or self.proposals
+                or self.evaluations
+            ):
+                raise ValueError("unresolved_candidate_profile_cannot_claim_admitted_execution")
+        if (
+            self.candidate_request.profile_id != resolution.profile_id
+            or self.candidate_request.profile_revision != resolution.profile_revision
+            or self.candidate_request.selection_identity != resolution.selection_identity
+        ):
+            raise ValueError("candidate_request_must_match_owner_resource_resolution")
+        if resolution.status == "selected":
+            expected_profile = TransportabilityCandidateProfileV1(
+                profile_id=resolution.profile_id,
+                profile_revision=resolution.profile_revision,
+            )
+            if self.effective_profile != expected_profile:
+                raise ValueError("selected_candidate_profile_must_match_owner_resolution")
+        elif self.effective_profile is not None:
+            raise ValueError("refused_candidate_resource_cannot_claim_effective_profile")
+        for phase_budget in (self.generation_budget, self.evaluation_budget):
+            if phase_budget.selection_identity != resolution.selection_identity:
+                raise ValueError("candidate_budget_selection_identity_mismatch")
+            if phase_budget.admission == "admitted":
+                if resolution.status != "selected" or resolution.effective_limits is None:
+                    raise ValueError("candidate_budget_admission_lacks_selected_owner_resource")
+                if (
+                    phase_budget.admission_source == "bounded_execution_policy"
+                    and phase_budget.admission_policy_id
+                    != f"{resolution.policy_id}@{resolution.policy_revision}"
+                ):
+                    raise ValueError("candidate_budget_policy_must_match_owner_resource")
+                if resolution.effective_limit_units is None:
+                    raise ValueError("candidate_budget_owner_units_not_established")
+                for limit in phase_budget.effective_limits:
+                    resolved = resolution.effective_limits.get(limit.resource)
+                    resolved_unit = resolution.effective_limit_units.get(limit.resource)
+                    if (
+                        resolved is None
+                        or float(resolved) != limit.value
+                        or resolved_unit != limit.unit
+                    ):
+                        raise ValueError(
+                            "candidate_phase_limit_must_match_owner_resource_value_and_unit"
+                        )
+        selection_identity = self.candidate_request.selection_identity
+        if (
+            self.generation_budget.selection_identity != selection_identity
+            or self.evaluation_budget.selection_identity != selection_identity
+        ):
+            raise ValueError("candidate_budget_selection_identity_mismatch")
+        if self.inputs.query_sha256 != transportability_candidate_query_sha256(
+            self.inputs.query_treatment, self.inputs.query_outcome
+        ):
+            raise ValueError("candidate_query_binding_mismatch")
+        expected_attempt_refs = (
+            self.attempt.basis_ref,
+            self.attempt.workflow_spec_ref,
+            self.attempt.input_state_ref,
+        )
+        for lineage_ref, attempt_ref in zip(
+            self.inputs.lineage_refs[:3], expected_attempt_refs, strict=True
+        ):
+            if (
+                lineage_ref.artifact_id != attempt_ref.artifact_id
+                or lineage_ref.manifest_profile_sha256 != attempt_ref.manifest_profile_sha256
+            ):
+                raise ValueError("candidate_attempt_lineage_ref_mismatch")
+        if any(not value.strip() for value in (*self.assumptions, *self.unresolved_predicates)):
+            raise ValueError("candidate_assumptions_and_predicates_must_be_nonblank")
+        ordinals = [proposal.ordinal for proposal in self.proposals]
+        if ordinals != list(range(len(ordinals))):
+            raise ValueError("candidate_proposal_ordinals_must_be_contiguous")
+        admitted_by_member: dict[str, TransportabilityCandidateProposalV1] = {}
+        for proposal in self.proposals:
+            if proposal.disposition == "admitted":
+                member_sha256 = proposal.member_sha256
+                if member_sha256 is None:
+                    raise ValueError("candidate_admitted_proposal_requires_member_sha256")
+                if member_sha256 in admitted_by_member:
+                    raise ValueError("candidate_admitted_member_must_be_unique")
+                admitted_by_member[member_sha256] = proposal
+            elif proposal.disposition == "duplicate":
+                duplicate_of = proposal.duplicate_of
+                if duplicate_of is None:
+                    raise ValueError("candidate_duplicate_requires_target_ordinal")
+                if duplicate_of >= proposal.ordinal:
+                    raise ValueError("candidate_duplicate_must_target_prior_proposal")
+                target = self.proposals[duplicate_of]
+                if (
+                    target.disposition != "admitted"
+                    or target.assignment_sha256 != proposal.assignment_sha256
+                ):
+                    raise ValueError("candidate_duplicate_target_not_matching_admitted_proposal")
+        if self.inputs.graph_type is GraphType.PAG:
+            if self.assignment_space_size is None or self.unattempted_proposals is None:
+                raise ValueError("pag_candidate_requires_exact_assignment_accounting")
+            attempted_count = len(self.proposals)
+            reconciled_count = _decimal_add_small(
+                self.unattempted_proposals,
+                attempted_count,
+            )
+            if self.assignment_space_size != reconciled_count:
+                raise ValueError("pag_candidate_assignment_count_does_not_reconcile")
+            proposal_limit = next(
+                (
+                    measure.value
+                    for measure in self.generation_budget.consumed
+                    if measure.resource == "max_proposals" and measure.unit == "count"
+                ),
+                None,
+            )
+            if proposal_limit is not None and proposal_limit != attempted_count:
+                raise ValueError("pag_candidate_proposal_rows_must_match_actual_attempt_count")
+            if self.generation_budget.admission == "not_required":
+                raise ValueError("pag_candidate_requires_generation_budget_admission")
+            if (
+                self.generation_budget.termination != "completed"
+                and self.generation_coverage != "not_established"
+            ):
+                raise ValueError("early_stopped_pag_generation_has_unknown_family_coverage")
+            exhausted_pag_family = (
+                self.generation_budget.termination == "completed"
+                and self.generation_coverage
+                in {"not_established", "finite_endpoint_assignment_space_complete"}
+            )
+            if exhausted_pag_family:
+                if self.unattempted_proposals != "0" or self.assignment_space_size != str(
+                    attempted_count
+                ):
+                    raise ValueError("completed_pag_exhaustion_requires_exact_partition")
+                if any(
+                    proposal.disposition == "validation_incomplete" for proposal in self.proposals
+                ):
+                    raise ValueError(
+                        "completed_pag_exhaustion_cannot_include_validation_incomplete"
+                    )
+            if (
+                self.generation_budget.termination == "completed"
+                and self.generation_coverage == "not_established"
+            ):
+                zero_member_full_search = (
+                    attempted_count > 0
+                    and not any(proposal.disposition == "admitted" for proposal in self.proposals)
+                    and not self.evaluations
+                    and self.identified_member_fraction is None
+                    and self.reason is not None
+                    and self.reason.code == "zero_admitted_members_not_established"
+                )
+                if not zero_member_full_search:
+                    raise ValueError(
+                        "completed_unknown_pag_coverage_requires_zero_admitted_full_search"
+                    )
+            if self.generation_coverage == "finite_endpoint_assignment_space_complete":
+                if self.generation_budget.termination != "completed":
+                    raise ValueError("complete_pag_coverage_requires_producer_proven_exhaustion")
+                if not admitted_by_member:
+                    raise ValueError("complete_pag_coverage_requires_positive_admission")
+        else:
+            if self.assignment_space_size is not None or self.unattempted_proposals is not None:
+                raise ValueError("resolved_graph_candidate_cannot_claim_pag_assignment_accounting")
+            if self.proposals:
+                raise ValueError("resolved_graph_candidate_cannot_claim_generated_family_proposals")
+            if (
+                self.generation_budget.admission != "not_required"
+                or self.generation_coverage != "not_established"
+            ):
+                raise ValueError("resolved_graph_candidate_cannot_claim_family_generation")
+        admitted_members = set(admitted_by_member)
+        evaluation_members = [row.member_sha256 for row in self.evaluations]
+        if len(evaluation_members) != len(set(evaluation_members)):
+            raise ValueError("candidate_member_evaluation_must_be_unique")
+        if self.inputs.graph_type is GraphType.PAG:
+            if set(evaluation_members) != admitted_members:
+                raise ValueError("candidate_evaluations_must_partition_admitted_members")
+        elif self.evaluations:
+            if evaluation_members != [self.inputs.graph_sha256]:
+                raise ValueError("resolved_graph_evaluation_must_bind_selected_graph")
+            if self.evaluations[0].member_graph_ref != self.inputs.graph_ref:
+                raise ValueError("resolved_graph_evaluation_ref_must_match_selected_graph_ref")
+        if self.evaluation_budget.termination == "completed" and (
+            not self.evaluations or any(row.disposition != "completed" for row in self.evaluations)
+        ):
+            raise ValueError("completed_evaluation_phase_requires_only_completed_solver_rows")
+        if self.evaluation_budget.termination == "not_required" and self.evaluations:
+            raise ValueError("not_required_evaluation_phase_cannot_carry_member_rows")
+        for evaluation in self.evaluations:
+            if evaluation.disposition == "completed":
+                outcome = evaluation.outcome
+                if outcome is None:
+                    raise ValueError("completed_candidate_evaluation_requires_outcome")
+                if (
+                    outcome.query_sha256 != self.inputs.query_sha256
+                    or outcome.result.query
+                    != f"P*({self.inputs.query_outcome}|do({self.inputs.query_treatment}))"
+                ):
+                    raise ValueError("candidate_solver_query_binding_mismatch")
+        completed = [row for row in self.evaluations if row.disposition == "completed"]
+        denominator = len(completed)
+        derived_fraction = None
+        if denominator:
+            derived_fraction = (
+                sum(
+                    row.outcome is not None
+                    and row.outcome.status is TransportabilityStatus.IDENTIFIED
+                    for row in completed
+                )
+                / denominator
+            )
+        if self.identified_member_fraction != derived_fraction:
+            raise ValueError("candidate_identified_fraction_must_match_completed_rows")
+        started_evaluations = [
+            row
+            for row in self.evaluations
+            if row.disposition in {"interrupted", "completed", "error"}
+        ]
+        if started_evaluations and self.evaluation_budget.admission != "admitted":
+            raise ValueError("candidate_evaluation_requires_actual_budget_admission")
+        if (
+            not self.evaluations
+            and self.inputs.graph_type is GraphType.PAG
+            and not admitted_members
+            and self.evaluation_budget.admission == "admitted"
+        ):
+            raise ValueError("candidate_without_valid_members_cannot_admit_solver_execution")
+        if self.proposals and self.generation_budget.admission != "admitted":
+            raise ValueError("candidate_generation_rows_require_actual_budget_admission")
+
+        expected_disposition = self._derive_execution_disposition()
+        if self.disposition != expected_disposition:
+            raise ValueError("candidate_disposition_must_match_reconciled_execution_state")
+        if (expected_disposition == "completed") != (self.reason is None):
+            raise ValueError("candidate_disposition_reason_must_match_reconciled_execution_state")
+        return self
+
+    @property
+    def proposal_counts(self) -> dict[str, int]:
+        """Derive generation counts from the complete persisted proposal rows."""
+        counts = {
+            "admitted": 0,
+            "duplicate": 0,
+            "invalid": 0,
+            "unsupported": 0,
+            "validation_incomplete": 0,
+        }
+        for row in self.proposals:
+            counts[row.disposition] += 1
+        return counts
+
+    @property
+    def evaluation_counts(self) -> dict[str, int]:
+        """Derive visible evaluation counts from the immutable member rows."""
+        counts = {
+            "not_started": 0,
+            "interrupted": 0,
+            "completed": 0,
+            "error": 0,
+            "identified": 0,
+            "partially_identified": 0,
+            "bounded_non_identified": 0,
+            "unsupported": 0,
+        }
+        for row in self.evaluations:
+            counts[row.disposition] += 1
+            if row.outcome is not None:
+                counts[row.outcome.status.value] += 1
+        return counts
+
+
+def transportability_candidate_query_sha256(
+    query_treatment: str,
+    query_outcome: str,
+) -> str:
+    """Hash the canonical query expression used by candidate transport solvers."""
+    treatment = query_treatment.strip()
+    outcome = query_outcome.strip()
+    if not treatment or not outcome or treatment != query_treatment or outcome != query_outcome:
+        raise ValueError("candidate_query_terms_must_be_nonblank_and_canonical")
+    query = f"P*({outcome}|do({treatment}))"
+    return hashlib.sha256(query.encode("utf-8")).hexdigest()
+
+
 class TransportabilityResult(BaseModel):
     """Persist the transportability decision, formula, and fallback diagnostics.
 
@@ -478,12 +1482,15 @@ class TransportabilityResult(BaseModel):
     )
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field("2.1", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("2.2", pattern=r"^\d+\.\d+$")
     query: str = ""
 
     status: TransportabilityStatus = TransportabilityStatus.IDENTIFIED
     transport_mode: TransportMode = TransportMode.DIRECT
     transport_formula: TransportFormula | None = None
+    candidate_diagnostics: TransportabilityCandidateDiagnosticV1 | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     identified_region: dict[str, Any] | None = None
     blocking_s_nodes: list[SNode] = Field(default_factory=list)
 
@@ -583,7 +1590,8 @@ class TransportabilityResult(BaseModel):
         elif "transport_mode" not in payload:
             payload["transport_mode"] = _derive_transport_mode(payload).value
         payload["identification_engine"] = _normalize_identification_engine(payload)
-        if str(payload.get("schema_version", "")).strip() in {"", "1.0"}:
+        version = payload.get("schema_version")
+        if isinstance(version, str) and version.strip() == "1.0":
             payload["schema_version"] = "2.0"
         return _normalize_transportability_payload(payload)
 
@@ -595,6 +1603,8 @@ class TransportabilityResult(BaseModel):
 
     @model_validator(mode="after")
     def _validate_contract(self) -> TransportabilityResult:
+        if self.schema_version != "2.2" and "candidate_diagnostics" in self.model_fields_set:
+            raise ValueError("candidate_diagnostic_field_conflicts_with_historical_result_version")
         if (self.source_graph_type is None) != (self.source_graph_sha256 is None):
             raise ValueError("source graph type and content digest must be supplied together")
         if (
@@ -638,7 +1648,53 @@ class TransportabilityResult(BaseModel):
                 raise ValueError(
                     "unsupported transportability result must not include transport_formula"
                 )
+        if self.candidate_diagnostics is not None:
+            if self.schema_version != "2.2":
+                raise ValueError("candidate_diagnostic_requires_transport_result_schema_2_2")
+            if (
+                self.status is not TransportabilityStatus.UNSUPPORTED
+                or self.transport_mode is not TransportMode.NONE
+                or self.feasible
+                or not self.unsupported_reason
+                or not self.requires_expert_review
+                or self.unsupported_reason not in self.expert_review_reasons
+            ):
+                raise ValueError("candidate_diagnostic_must_preserve_exact_outer_legal_refusal")
+            expected_query = (
+                f"P*({self.candidate_diagnostics.inputs.query_outcome}|do("
+                f"{self.candidate_diagnostics.inputs.query_treatment}))"
+            )
+            if (
+                self.query != expected_query
+                or self.source_graph_type is not self.candidate_diagnostics.inputs.graph_type
+                or self.source_graph_sha256 != self.candidate_diagnostics.inputs.graph_sha256
+                or self.source_context_id != self.candidate_diagnostics.inputs.source_context_id
+                or self.target_context_id != self.candidate_diagnostics.inputs.target_context_id
+            ):
+                raise ValueError("candidate_diagnostic_outer_input_binding_mismatch")
+            if (
+                self.base_confidence != 0.0
+                or self.final_confidence != 0.0
+                or self.transport_formula is not None
+                or self.identified_region is not None
+                or self.partial_identification_result is not None
+                or self.estimand_ast is not None
+                or self.id_confidence_under_pag is not None
+                or self.pag_dag_sample_size is not None
+                or self.pag_transportable_count is not None
+            ):
+                raise ValueError("candidate_diagnostic_must_not_populate_outer_candidate_fields")
         return self
+
+    @property
+    def has_admissible_partial_bounds(self) -> bool:
+        """Return whether the declared result tuple authorizes bound projections."""
+        return (
+            self.status is TransportabilityStatus.BOUNDED_NON_IDENTIFIED
+            and self.transport_mode is TransportMode.BOUNDS_ONLY
+            and self.transport_formula is None
+            and self.partial_identification_result is not None
+        )
 
     def is_identified(self) -> bool:
         return self.status in {
@@ -661,6 +1717,8 @@ class TransportabilityResult(BaseModel):
             projection_binding.native_contract_id != self.contract_id
             or not projection_binding.matches(estimand)
         ):
+            return None
+        if not self.has_admissible_partial_bounds:
             return None
         bounds = self.partial_identification_result
         if bounds is None:
@@ -690,6 +1748,9 @@ class TransportabilityResult(BaseModel):
                 ),
             },
         )
+
+
+TransportabilityCandidateSolverOutcomeV1.model_rebuild()
 
 
 def build_selection_diagram(
@@ -755,33 +1816,112 @@ def build_selection_diagram(
     )
 
 
+_TRANSPORTABILITY_RESULT_WIRE_POLICY = "ir.analytics.transportability_result.wire-law"
+_TRANSPORTABILITY_RESULT_OWNER_REF = "ir.analytics.ir.transportability_result.owner.v2"
+_TRANSPORTABILITY_RESULT_DTO_FQN = "polisyos.ir.analytics.transportability.TransportabilityResult"
+_TRANSPORTABILITY_RESULT_REGISTRY_KEY = "transportability_result"
+
+# Register source rows before the current row so its direct-read relation can
+# name exact readable tuples in the same registry snapshot.
+_register_ir_representation(
+    registry_key=_TRANSPORTABILITY_RESULT_REGISTRY_KEY,
+    owner_ref=_TRANSPORTABILITY_RESULT_OWNER_REF,
+    dto_abi=_TRANSPORTABILITY_RESULT_DTO_FQN,
+    wire_policy_ref=_TRANSPORTABILITY_RESULT_WIRE_POLICY,
+    wire_policy_revision="1",
+    schema_name="ir.transportability_result",
+    schema_version="2.2",
+    payload_version="2.0",
+    profile_ref=None,
+    readable=True,
+    writable=False,
+    current=False,
+    default_write=False,
+)
+_register_ir_representation(
+    registry_key=_TRANSPORTABILITY_RESULT_REGISTRY_KEY,
+    owner_ref=_TRANSPORTABILITY_RESULT_OWNER_REF,
+    dto_abi=_TRANSPORTABILITY_RESULT_DTO_FQN,
+    wire_policy_ref=_TRANSPORTABILITY_RESULT_WIRE_POLICY,
+    wire_policy_revision="1",
+    schema_name="ir.transportability_result",
+    schema_version="2.0",
+    payload_version="2.0",
+    profile_ref=None,
+    readable=True,
+    writable=True,
+    current=False,
+    default_write=False,
+)
+
+_TRANSPORTABILITY_RESULT_OWNER = _declare_model_owner(
+    TransportabilityResult,
+    contract_id=_TRANSPORTABILITY_RESULT_OWNER_REF,
+    dto_fqn=_TRANSPORTABILITY_RESULT_DTO_FQN,
+    abi_key="ir.analytics.ir.transportability_result.owner.v2.dto-abi.v1",
+    registry_key=_TRANSPORTABILITY_RESULT_REGISTRY_KEY,
+    kind="ir.transportability_result",
+    media_type="application/json",
+    purpose="transportability_result",
+    policy_revision="ir.analytics.ir.transportability_result.owner.v2.admission.v1",
+    accepted_wire_policies=((_TRANSPORTABILITY_RESULT_WIRE_POLICY, "1"),),
+    payload_version_field="schema_version",
+    validate_profile=_owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name="ir.transportability_result",
+            schema_version="2.2",
+            payload_version="2.2",
+            wire_policy_ref=_TRANSPORTABILITY_RESULT_WIRE_POLICY,
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=("TransportabilityResult 2.2 is the current owner-bound JSON representation.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(
+                IRRepresentationKey("ir.transportability_result", "2.2", "2.0"),
+                IRRepresentationKey("ir.transportability_result", "2.0", "2.0"),
+            ),
+        ),
+    ),
+)
+
+
 def persist_transportability_result(
     store: ArtifactStore,
     result: TransportabilityResult,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
     schema_name: str = "ir.transportability_result",
-    schema_version: str = "1.0",
-    return_selected_profile: bool = False,
+    schema_version: str = "2.2",
+    return_selected_profile: bool = True,
 ) -> TransportabilityResultRef:
-    """Persist transportability result helper.
+    """Persist a transportability result through its exact owner representation.
 
-    ``return_selected_profile`` asks the generic CAS writer to return the exact
-    profile selected by this same write; legacy callers retain the old default.
+    The writer binds manifest and embedded versions before the CAS boundary.
+    ``return_selected_profile=False`` preserves the legacy profileless reference
+    projection while the write itself still captures its exact selected profile.
     """
-    if type(return_selected_profile) is not bool:
-        raise TypeError("return_selected_profile_must_be_bool")
-    ref = put_json_artifact(
+    return_selected_profile = _validate_return_selected_profile_flag(return_selected_profile)
+    ref = _put_owned_json_artifact(
         store,
         result.model_dump(mode="json"),
-        kind="ir.transportability_result",
+        owner=_TRANSPORTABILITY_RESULT_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=return_selected_profile,
     )
-    return TransportabilityResultRef.model_validate(ref)
+    selected_ref = TransportabilityResultRef.from_selected_write(ref)
+    if not return_selected_profile:
+        return selected_ref.model_copy(update={"manifest_profile_sha256": None})
+    return selected_ref
 
 
 def load_transportability_result(
@@ -789,8 +1929,7 @@ def load_transportability_result(
     ref: TransportabilityResultRef,
 ) -> TransportabilityResult:
     """Load transportability result."""
-    payload = get_json_artifact(store, ref)
-    return TransportabilityResult.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_TRANSPORTABILITY_RESULT_OWNER)
 
 
 def _get_context_numeric(ctx: ContextProfile, dim: str) -> float | None:
@@ -993,10 +2132,24 @@ __all__ = [
     "StratificationVariable",
     "TransportFormula",
     "TransportMode",
+    "TransportabilityCandidateAttemptBindingV1",
+    "TransportabilityCandidateBudgetMeasureV1",
+    "TransportabilityCandidateDiagnosticV1",
+    "TransportabilityCandidateInputBindingV1",
+    "TransportabilityCandidateMemberEvaluationV1",
+    "TransportabilityCandidateModelPlanRelationV1",
+    "TransportabilityCandidatePhaseBudgetV1",
+    "TransportabilityCandidateProfileV1",
+    "TransportabilityCandidateProposalV1",
+    "TransportabilityCandidateReasonV1",
+    "TransportabilityCandidateRequestV1",
+    "TransportabilityCandidateResourceResolutionV1",
+    "TransportabilityCandidateSolverOutcomeV1",
     "TransportabilityResult",
     "TransportabilityStatus",
     "build_selection_diagram",
     "load_transportability_result",
     "measured_transport_severity",
     "persist_transportability_result",
+    "transportability_candidate_query_sha256",
 ]

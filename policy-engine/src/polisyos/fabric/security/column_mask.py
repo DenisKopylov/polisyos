@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Sequence
+from typing import TYPE_CHECKING
 
-import pandas as pd
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+
+    import pandas as pd
 
 
 def _normalize_column_token(value: object) -> str:

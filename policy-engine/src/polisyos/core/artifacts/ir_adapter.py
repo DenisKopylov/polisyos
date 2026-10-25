@@ -513,11 +513,518 @@ def _refuse_unknown_core_selector_fields(
         raise TypeError(f"Invalid Core artifact selector: unexpected field(s): {unexpected}")
 
 
+def _snapshot_owned_write_options_for_ir(value: object) -> ArtifactWriteOptions:
+    """Snapshot supported write DTOs or Mapping carriers without caller model dumps."""
+    from polisyos.core.artifacts.manifest import (
+        ArtifactAuthorityInfo,
+        ArtifactEncryptionPolicyInfo,
+        ArtifactGovernanceInfo,
+        ArtifactRetentionPolicyInfo,
+        ArtifactSameInputClosureInfo,
+        ArtifactTenantContextInfo,
+        EnvInfo,
+        GitInfo,
+        ProducerInfo,
+        WarningRecord,
+    )
+    from polisyos.core.artifacts.manifest import (
+        CanonInfo as CoreCanonInfo,
+    )
+    from polisyos.core.artifacts.manifest import (
+        InputRef as CoreInputRef,
+    )
+    from polisyos.core.artifacts.manifest import (
+        SchemaInfo as CoreSchemaInfo,
+    )
+    from polisyos.ir.artifacts import StorePutOptions
+
+    model_fields = {
+        CoreSchemaInfo: {},
+        CoreCanonInfo: {},
+        ProducerInfo: {"git": GitInfo},
+        GitInfo: {},
+        EnvInfo: {},
+        CoreInputRef: {},
+        ArtifactGovernanceInfo: {
+            "retention": ArtifactRetentionPolicyInfo,
+            "encryption": ArtifactEncryptionPolicyInfo,
+        },
+        ArtifactRetentionPolicyInfo: {},
+        ArtifactEncryptionPolicyInfo: {},
+        ArtifactTenantContextInfo: {},
+        ArtifactSameInputClosureInfo: {},
+        ArtifactAuthorityInfo: {},
+        WarningRecord: {},
+    }
+    list_fields = {
+        ArtifactWriteOptions: {"inputs": CoreInputRef, "warnings": WarningRecord},
+        StorePutOptions: {"inputs": CoreInputRef, "warnings": WarningRecord},
+    }
+    option_model_fields = {
+        "schema": CoreSchemaInfo,
+        "producer": ProducerInfo,
+        "env": EnvInfo,
+        "canon": CoreCanonInfo,
+        "governance": ArtifactGovernanceInfo,
+        "tenant_context": ArtifactTenantContextInfo,
+        "same_input_closure": ArtifactSameInputClosureInfo,
+        "authority": ArtifactAuthorityInfo,
+    }
+    active_ids: set[int] = set()
+
+    def snapshot_pairs(mapping: Mapping[object, object]) -> tuple[tuple[object, object], ...]:
+        try:
+            return tuple(mapping.items())
+        except Exception as exc:
+            raise TypeError("Invalid owned artifact write options") from exc
+
+    def snapshot_sequence(item: object) -> tuple[object, ...]:
+        if isinstance(item, (str, bytes, bytearray, Mapping)) or not isinstance(item, Sequence):
+            raise TypeError("Invalid owned artifact write options")
+        try:
+            return tuple(item)
+        except Exception as exc:
+            raise TypeError("Invalid owned artifact write options") from exc
+
+    def pydantic_state_storage(
+        item: BaseModel,
+        raw: dict[str, object],
+        name: str,
+        value: object,
+    ) -> str:
+        from types import MemberDescriptorType
+
+        effective_member = next(
+            (cls.__dict__[name] for cls in type(item).__mro__ if name in cls.__dict__),
+            None,
+        )
+        if type(effective_member) is MemberDescriptorType:
+            if name in raw:
+                raise TypeError("Invalid owned artifact write options")
+            return "slot"
+        if effective_member is None:
+            if name in raw:
+                if raw[name] is not value:
+                    raise TypeError("Invalid owned artifact write options")
+                return "dict"
+            if value is None:
+                return "class"
+        raise TypeError("Invalid owned artifact write options")
+
+    def snapshot_model_state(
+        item: BaseModel,
+        *,
+        expected_type: type[object] | None = None,
+        allow_extras: bool = False,
+    ) -> tuple[
+        tuple[tuple[object, object], ...],
+        tuple[tuple[object, object], ...] | None,
+        frozenset[str],
+    ]:
+        try:
+            raw = object.__getattribute__(item, "__dict__")
+            declared_fields = getattr(type(item), "model_fields", None)
+            fields_set = object.__getattribute__(item, "__pydantic_fields_set__")
+            extras = object.__getattribute__(item, "__pydantic_extra__")
+        except AttributeError as exc:
+            raise TypeError("Invalid owned artifact write options") from exc
+        if (
+            type(raw) is not dict
+            or not isinstance(declared_fields, Mapping)
+            or not isinstance(fields_set, (set, frozenset))
+            or not all(type(name) is str for name in fields_set)
+        ):
+            raise TypeError("Invalid owned artifact write options")
+
+        declared_names = frozenset(declared_fields)
+        raw_names = frozenset(raw)
+        if not all(type(name) is str for name in declared_names | raw_names):
+            raise TypeError("Invalid owned artifact write options")
+        private = object.__getattribute__(item, "__pydantic_private__")
+        state_values = {
+            "__pydantic_fields_set__": fields_set,
+            "__pydantic_extra__": extras,
+            "__pydantic_private__": private,
+        }
+        raw_state_names = frozenset(
+            name
+            for name, state_value in state_values.items()
+            if pydantic_state_storage(item, raw, name, state_value) == "dict"
+        )
+        raw_field_names = raw_names - raw_state_names
+        if raw_state_names & declared_names or not raw_field_names <= declared_names:
+            raise TypeError("Invalid owned artifact write options")
+        if expected_type is not None:
+            expected_fields = frozenset(expected_type.model_fields)
+            if not declared_names <= expected_fields:
+                raise TypeError("Invalid owned artifact write options")
+
+        if extras is None:
+            extra_pairs = None
+            extra_names: frozenset[str] = frozenset()
+        elif isinstance(extras, Mapping):
+            extra_pairs = snapshot_pairs(extras)
+            extra_names = frozenset(key for key, _ in extra_pairs)
+            if (
+                not all(type(name) is str for name in extra_names)
+                or len(extra_names) != len(extra_pairs)
+                or raw_field_names & extra_names
+            ):
+                raise TypeError("Invalid owned artifact write options")
+        else:
+            raise TypeError("Invalid owned artifact write options")
+        if extra_pairs and not allow_extras:
+            raise TypeError("Invalid owned artifact write options")
+        if not fields_set <= raw_names | extra_names:
+            raise TypeError("Invalid owned artifact write options")
+        raw_pairs = tuple(
+            (name, nested) for name, nested in raw.items() if name not in raw_state_names
+        )
+        return raw_pairs, extra_pairs, frozenset(fields_set)
+
+    def snapshot_json_model(
+        item: BaseModel,
+        pairs: tuple[tuple[object, object], ...],
+        extra_pairs: tuple[tuple[object, object], ...] | None,
+        fields_set: frozenset[str],
+    ) -> BaseModel:
+        from types import MemberDescriptorType
+
+        raw_snapshot: dict[str, object] = {}
+        for key, nested in pairs:
+            if type(key) is not str or key in raw_snapshot:
+                raise TypeError("Invalid owned artifact write options")
+            raw_snapshot[key] = snapshot_json_value(nested)
+
+        extra_snapshot: dict[str, object] | None = None
+        if extra_pairs is not None:
+            extra_snapshot = {}
+            for key, nested in extra_pairs:
+                if type(key) is not str or key in extra_snapshot:
+                    raise TypeError("Invalid owned artifact write options")
+                extra_snapshot[key] = snapshot_json_value(nested)
+
+        private = object.__getattribute__(item, "__pydantic_private__")
+        private_snapshot: dict[str, object] | None = None
+        if private is not None:
+            if not isinstance(private, Mapping):
+                raise TypeError("Invalid owned artifact write options")
+            declared_private = getattr(type(item), "__private_attributes__", None)
+            if not isinstance(declared_private, Mapping):
+                raise TypeError("Invalid owned artifact write options")
+            private_snapshot = {}
+            for key, nested in snapshot_pairs(private):
+                if type(key) is not str or key not in declared_private or key in private_snapshot:
+                    raise TypeError("Invalid owned artifact write options")
+                private_snapshot[key] = snapshot_json_value(nested)
+
+        slot_values: list[tuple[MemberDescriptorType, object]] = []
+        for cls in type(item).__mro__:
+            if cls is BaseModel or cls is object:
+                break
+            declared_slots = cls.__dict__.get("__slots__", ())
+            if isinstance(declared_slots, str):
+                slots = (declared_slots,)
+            elif type(declared_slots) in (tuple, list, dict):
+                slots = tuple(declared_slots)
+            else:
+                raise TypeError("Invalid owned artifact write options")
+            for slot in slots:
+                if type(slot) is not str:
+                    raise TypeError("Invalid owned artifact write options")
+                if slot in {
+                    "__dict__",
+                    "__weakref__",
+                    "__pydantic_fields_set__",
+                    "__pydantic_extra__",
+                    "__pydantic_private__",
+                }:
+                    continue
+                descriptor_name = slot
+                if slot.startswith("__") and not slot.endswith("__"):
+                    descriptor_name = f"_{cls.__name__.lstrip('_')}{slot}"
+                descriptor = cls.__dict__.get(descriptor_name)
+                if type(descriptor) is not MemberDescriptorType:
+                    raise TypeError("Invalid owned artifact write options")
+                try:
+                    slot_value = descriptor.__get__(item, type(item))
+                except AttributeError:
+                    continue
+                slot_values.append((descriptor, snapshot_json_value(slot_value)))
+
+        copied = object.__new__(type(item))
+        for name, source_value, snapshot_value in (
+            (
+                "__pydantic_fields_set__",
+                object.__getattribute__(item, "__pydantic_fields_set__"),
+                set(fields_set),
+            ),
+            (
+                "__pydantic_extra__",
+                object.__getattribute__(item, "__pydantic_extra__"),
+                extra_snapshot,
+            ),
+            ("__pydantic_private__", private, private_snapshot),
+        ):
+            storage = pydantic_state_storage(
+                item, object.__getattribute__(item, "__dict__"), name, source_value
+            )
+            if storage == "slot":
+                descriptor = next(
+                    cls.__dict__[name] for cls in type(item).__mro__ if name in cls.__dict__
+                )
+                descriptor.__set__(copied, snapshot_value)
+            elif storage == "dict":
+                raw_snapshot[name] = snapshot_value
+        object.__setattr__(copied, "__dict__", raw_snapshot)
+        for descriptor, slot_value in slot_values:
+            descriptor.__set__(copied, slot_value)
+        return copied
+
+    def snapshot_json_value(item: object) -> object:
+        if item is None or type(item) in (str, bool, int, float):
+            return item
+        if isinstance(item, BaseModel):
+            identity = id(item)
+            if identity in active_ids:
+                raise TypeError("Invalid owned artifact write options")
+            active_ids.add(identity)
+            try:
+                pairs, extra_pairs, fields_set = snapshot_model_state(item, allow_extras=True)
+                return snapshot_json_model(item, pairs, extra_pairs, fields_set)
+            finally:
+                active_ids.remove(identity)
+        if isinstance(item, Mapping):
+            identity = id(item)
+            if identity in active_ids:
+                raise TypeError("Invalid owned artifact write options")
+            active_ids.add(identity)
+            try:
+                pairs = snapshot_pairs(item)
+                output: dict[object, object] = {}
+                for key, nested in pairs:
+                    output[key] = snapshot_json_value(nested)
+                if len(output) != len(pairs):
+                    raise TypeError("Invalid owned artifact write options")
+                return output
+            except Exception as exc:
+                raise TypeError("Invalid owned artifact write options") from exc
+            finally:
+                active_ids.remove(identity)
+        if isinstance(item, str):
+            text_value = _builtins.str.__str__(item)
+            if type(text_value) is not str:
+                raise TypeError("Invalid owned artifact write options")
+            return text_value
+        if isinstance(item, Sequence) and not isinstance(item, (bytes, bytearray)):
+            identity = id(item)
+            if identity in active_ids:
+                raise TypeError("Invalid owned artifact write options")
+            active_ids.add(identity)
+            try:
+                return tuple(snapshot_json_value(nested) for nested in snapshot_sequence(item))
+            finally:
+                active_ids.remove(identity)
+        return item
+
+    def snapshot_model(item: object, expected_type: type[object]) -> dict[str, object]:
+        if isinstance(item, BaseModel):
+            pairs, extra_pairs, _fields_set = snapshot_model_state(
+                item, expected_type=expected_type
+            )
+            if extra_pairs:
+                raise TypeError("Invalid owned artifact write options")
+        elif isinstance(item, Mapping):
+            pairs = snapshot_pairs(item)
+        else:
+            raise TypeError("Invalid owned artifact write options")
+        known_fields = expected_type.model_fields
+        nested_models = model_fields[expected_type]
+        output: dict[str, object] = {}
+        for name, nested in pairs:
+            if type(name) is not str or name not in known_fields or name in output:
+                raise TypeError("Invalid owned artifact write options")
+            if name in nested_models:
+                output[name] = (
+                    None if nested is None else snapshot_model(nested, nested_models[name])
+                )
+            else:
+                output[name] = snapshot_json_value(nested)
+        return output
+
+    if type(value) in (ArtifactWriteOptions, StorePutOptions):
+        option_type = type(value)
+        option_fields = option_type.__dataclass_fields__
+        raw_options = object.__getattribute__(value, "__dict__")
+        if type(raw_options) is not dict or set(raw_options) != set(option_fields):
+            raise TypeError("Invalid owned artifact write options")
+        option_pairs = tuple((name, object.__getattribute__(value, name)) for name in option_fields)
+    elif isinstance(value, Mapping):
+        option_type = ArtifactWriteOptions
+        option_fields = ArtifactWriteOptions.__dataclass_fields__
+        option_pairs = snapshot_pairs(value)
+    else:
+        raise TypeError("Invalid owned artifact write options")
+
+    raw_snapshot: dict[str, object] = {}
+    for name, item in option_pairs:
+        if type(name) is not str or name not in option_fields or name in raw_snapshot:
+            raise TypeError("Invalid owned artifact write options")
+        if name in list_fields[option_type]:
+            item_type = list_fields[option_type][name]
+            if item is None:
+                raw_snapshot[name] = None
+            elif not isinstance(item, (str, bytes, bytearray, Mapping)) and isinstance(
+                item, Sequence
+            ):
+                children = [snapshot_model(child, item_type) for child in snapshot_sequence(item)]
+                raw_snapshot[name] = tuple(children)
+            else:
+                raise TypeError("Invalid owned artifact write options")
+        elif name in option_model_fields:
+            expected_type = option_model_fields[name]
+            raw_snapshot[name] = None if item is None else snapshot_model(item, expected_type)
+        else:
+            raw_snapshot[name] = snapshot_json_value(item)
+
+    warning_values = raw_snapshot.get("warnings")
+    validation_snapshot = {**raw_snapshot, "warnings": None}
+    try:
+        normalized = _coerce_write_options(validation_snapshot)
+        if warning_values is None:
+            return normalized
+        if not isinstance(warning_values, (list, tuple)):
+            raise TypeError("Invalid owned artifact write options")
+        warnings = [WarningRecord.model_validate(item) for item in warning_values]
+        return replace(normalized, warnings=warnings)
+    except Exception as exc:
+        raise TypeError("Invalid owned artifact write options") from exc
+
+
+def _project_owned_write_options_for_ir(options: ArtifactWriteOptions) -> StorePutOptions:
+    """Project normalized Core options into the complete neutral IR contract."""
+    from polisyos.ir.artifacts.contracts import StorePutOptions
+
+    if type(options) is not ArtifactWriteOptions:
+        raise TypeError("Invalid Core owned write options")
+
+    def project(value: Any) -> Any:
+        if value is None or type(value) in (str, bool, int, float):
+            return value
+        if isinstance(value, BaseModel):
+            dumped = value.model_dump(mode="json", by_alias=True, exclude_none=True)
+            return project(dumped)
+        if isinstance(value, Mapping):
+            projected: dict[str, Any] = {}
+            for key, item in value.items():
+                if type(key) is not str or key in projected:
+                    raise TypeError("Invalid Core owned write option mapping")
+                projected[key] = project(item)
+            return projected
+        if type(value) in (list, tuple):
+            return [project(item) for item in value]
+        raise TypeError("Invalid Core owned write option value")
+
+    projected_options: dict[str, Any] = {}
+    for option_field in fields(ArtifactWriteOptions):
+        projected_options[option_field.name] = project(getattr(options, option_field.name))
+    return StorePutOptions(**projected_options)
+
+
+def _preflight_owned_write_options_for_ir(
+    options: ArtifactWriteOptions,
+) -> StorePutOptions:
+    try:
+        return _project_owned_write_options_for_ir(options)
+    except Exception as exc:
+        raise TypeError("Invalid owned artifact write options") from exc
+
+
+def _prepare_selected_core_write_options_for_ir(
+    options: ArtifactWriteOptions,
+) -> ArtifactWriteOptions:
+    """Freeze the validated Core JSON projection before selected CAS emission."""
+    projected = _preflight_owned_write_options_for_ir(options)
+    try:
+        return _coerce_write_options(projected)
+    except Exception as exc:
+        raise TypeError("Invalid owned artifact write options") from exc
+
+
+def _emit_selected_core_write(
+    store: Any,
+    data: bytes,
+    options: ArtifactWriteOptions,
+) -> CoreArtifactRef:
+    """Emit one selected write and reconcile its returned Core-owned manifest."""
+    import hashlib
+    from copy import deepcopy
+
+    from ._manifest_lifecycle import ManifestLifecycle
+
+    if type(options) is not ArtifactWriteOptions:
+        raise TypeError("Invalid Core owned write options")
+    expected_options = deepcopy(options)
+    ref = store.put_bytes(data, options, return_selected_profile=True)
+    if type(ref) is not CoreArtifactRef:
+        raise ValueError("artifact_write_selected_ref_invalid")
+    if ref.manifest_profile_sha256 is None:
+        raise ValueError("artifact_write_selected_profile_missing")
+    expected_id = "sha256:" + hashlib.sha256(data).hexdigest()
+    if (
+        str(ref.artifact_id) != expected_id
+        or ref.kind != expected_options.kind
+        or ref.media_type != expected_options.media_type
+    ):
+        raise ValueError("artifact_write_selected_ref_mismatch")
+    try:
+        manifest = store.get_manifest(ref)
+    except Exception as exc:
+        raise ValueError("artifact_write_selected_manifest_unavailable") from exc
+    if type(manifest) is not ArtifactManifest:
+        raise ValueError("artifact_write_selected_manifest_invalid")
+    if (
+        str(manifest.artifact_id) != expected_id
+        or ManifestLifecycle.profile_sha256(manifest) != ref.manifest_profile_sha256
+    ):
+        raise ValueError("artifact_write_selected_profile_mismatch")
+    for option_field in fields(ArtifactWriteOptions):
+        name = option_field.name
+        manifest_name = "artifact_schema" if name == "schema" else name
+        if manifest_name not in type(manifest).model_fields:
+            raise ValueError("artifact_write_selected_manifest_options_mismatch")
+        expected = getattr(expected_options, name)
+        actual = getattr(manifest, manifest_name)
+        if name == "inputs":
+            expected = list(expected or [])
+        elif name == "warnings":
+            expected = [
+                warning.model_dump(mode="json", by_alias=True, exclude_none=True)
+                for warning in expected or []
+            ]
+            actual = [
+                warning.model_dump(mode="json", by_alias=True, exclude_none=True)
+                for warning in actual or []
+            ]
+        if actual != expected:
+            raise ValueError("artifact_write_selected_manifest_options_mismatch")
+    return ref
+
+
 @dataclass(frozen=True, slots=True)
 class CoreToIRArtifactStoreAdapter:
     """Adapt a core CAS store so IR helpers can consume it without concrete coupling."""
 
     store: CoreArtifactStore
+
+    def prepare_owned_write_options(self, options: object) -> StorePutOptions:
+        """Return one detached, fully normalized Core write-options projection.
+
+        Mapping carriers are snapshotted by the strict Core option normalizer once;
+        concrete metadata validation and field ownership stay on the Core side.
+        """
+        normalized = _snapshot_owned_write_options_for_ir(options)
+        return _preflight_owned_write_options_for_ir(normalized)
 
     def put_json(
         self,
@@ -538,7 +1045,11 @@ class CoreToIRArtifactStoreAdapter:
             _require_return_selected_profile_writer(self.store, "put_bytes")
 
         spec = canon_spec or ir_canon.CanonSpec()
-        write_options = _coerce_write_options(opts)
+        write_options = (
+            _snapshot_owned_write_options_for_ir(opts)
+            if return_selected_profile
+            else _coerce_write_options(opts)
+        )
         canon = _canon_info_for_spec(
             spec, write_options.canon, violation_type=ir_canon.CanonViolation
         )
@@ -549,10 +1060,8 @@ class CoreToIRArtifactStoreAdapter:
             canon=canon,
         )
         if return_selected_profile:
-            ref = self.store.put_bytes(data, write_options, return_selected_profile=True)
-            if ref.manifest_profile_sha256 is None:
-                raise ValueError("artifact_write_selected_profile_missing")
-            return ref
+            write_options = _prepare_selected_core_write_options_for_ir(write_options)
+            return _emit_selected_core_write(self.store, data, write_options)
         return self.store.put_bytes(data, write_options)
 
     def put_bytes(
@@ -572,12 +1081,14 @@ class CoreToIRArtifactStoreAdapter:
             _require_return_selected_profile_writer(self.store, "put_bytes")
         if not isinstance(data, bytes):
             raise TypeError("IR artifact bytes must be bytes")
-        write_options = _coerce_write_options(opts)
+        write_options = (
+            _snapshot_owned_write_options_for_ir(opts)
+            if return_selected_profile
+            else _coerce_write_options(opts)
+        )
         if return_selected_profile:
-            ref = self.store.put_bytes(data, write_options, return_selected_profile=True)
-            if ref.manifest_profile_sha256 is None:
-                raise ValueError("artifact_write_selected_profile_missing")
-            return ref
+            write_options = _prepare_selected_core_write_options_for_ir(write_options)
+            return _emit_selected_core_write(self.store, data, write_options)
         return self.store.put_bytes(data, write_options)
 
     def get_bytes(self, artifact_id: ArtifactSelector | CoreArtifactRef) -> bytes:

@@ -32,6 +32,15 @@ _CHUNK_KIND = "scientist.skg_source_chunk"
 _CHUNK_BYTES = 1024 * 1024
 
 
+class _CoreStoreWithoutRawManifest(FileSystemCAS):
+    """A Core store handle with its optional selected-profile sidecar read hidden."""
+
+    def __getattribute__(self, name: str) -> object:
+        if name == "get_raw_manifest_bytes":
+            raise AttributeError(name)
+        return super().__getattribute__(name)
+
+
 class _SnapshotChunk(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True, frozen=True)
 
@@ -133,6 +142,15 @@ def test_retained_skg_v11_binding_recomputes_exact_content_and_local_version(
     assert binding.version_identity_kind == "content_digest"
 
 
+def test_retained_skg_source_binding_rejects_missing_profile_reader(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    ref = _descriptor(store, version="1.1")
+    incomplete_store = _CoreStoreWithoutRawManifest(tmp_path)
+
+    with pytest.raises(RetainedSKGSnapshotError, match="descriptor_read_store_required"):
+        retained_skg_source_binding(incomplete_store, ref)
+
+
 def test_retained_skg_legacy_v10_remains_readable_but_cannot_bind_new_source(
     tmp_path,
 ) -> None:
@@ -176,6 +194,34 @@ def test_retained_skg_v10_schema_matches_exact_slice_base_contract() -> None:
     ]
     assert "_SnapshotChunk" in current_schema["$defs"]
     assert "RetainedSKGSnapshotChunk" not in current_schema["$defs"]
+
+
+def test_retained_skg_schema_versions_keep_literal_identity_and_wire_order() -> None:
+    base_fields = (
+        "schema_version",
+        "source_reference",
+        "source_sha256",
+        "byte_size",
+        "source_binding_schema_version",
+        "query_version",
+        "chunks",
+    )
+    current_fields = (*base_fields, "source_version_id", "version_identity_kind")
+    assert tuple(RetainedSKGSnapshotModel.model_fields) == base_fields
+    assert tuple(RetainedSKGSnapshotV11.model_fields) == current_fields
+    assert RetainedSKGSnapshotModel.model_fields["schema_version"].annotation == Literal["1.0"]
+    assert RetainedSKGSnapshotV11.model_fields["schema_version"].annotation == Literal["1.1"]
+
+    base_schema = RetainedSKGSnapshotModel.model_json_schema()
+    current_schema = RetainedSKGSnapshotV11.model_json_schema()
+    assert tuple(base_schema["properties"]) == base_fields
+    assert tuple(current_schema["properties"]) == current_fields
+    assert base_schema["properties"]["schema_version"]["const"] == "1.0"
+    assert current_schema["properties"]["schema_version"]["const"] == "1.1"
+    assert base_schema["properties"]["chunks"]["items"]["$ref"].endswith("_SnapshotChunk")
+    assert current_schema["properties"]["chunks"]["items"]["$ref"].endswith(
+        "RetainedSKGSnapshotChunk"
+    )
 
 
 def test_retained_skg_descriptors_reject_omitted_wire_identity_fields(

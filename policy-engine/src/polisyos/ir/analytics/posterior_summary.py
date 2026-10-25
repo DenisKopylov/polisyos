@@ -17,12 +17,18 @@ from typing import Any, Final, Literal
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir.artifacts import (
-    ArtifactStore,
-    InputRef,
-    get_json_artifact,
-    put_json_artifact,
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation as _OwnedJSONRepresentation,
 )
+from polisyos.ir.analytics._owner_admission import (
+    declare_model_owner as _declare_model_owner,
+)
+from polisyos.ir.analytics._owner_admission import (
+    owner_profile_for_spec as _owner_profile_for_spec,
+)
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode as _CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
 from polisyos.ir.registry.refs import ArtifactRefModel
 
@@ -324,6 +330,42 @@ def summarize_posterior_draw_artifact(
     )
 
 
+_POSTERIOR_SUMMARY_OWNER = _declare_model_owner(
+    PosteriorSummaryV11,
+    contract_id="ir.analytics.posterior_summary.owner.v1",
+    dto_fqn="polisyos.ir.analytics.posterior_summary.PosteriorSummaryV11",
+    abi_key="ir.analytics.posterior_summary.owner.v1.dto-abi.v1",
+    registry_key="ir.PosteriorSummaryV11",
+    kind="ir.posterior_summary",
+    media_type="application/json",
+    purpose="bayesian_posterior_summary",
+    policy_revision="ir.analytics.posterior_summary.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.posterior_summary.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=_owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name="ir.PosteriorSummaryV11",
+            schema_version="1.1",
+            payload_version="1.1",
+            wire_policy_ref="ir.analytics.posterior_summary.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=("Exact candidate-only posterior summary owner tuple.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
 def persist_posterior_summary(
     store: ArtifactStore,
     summary: PosteriorSummaryV11,
@@ -338,10 +380,10 @@ def persist_posterior_summary(
             )
         }
     )
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         bound_summary.model_dump(mode="python", round_trip=True),
-        kind="ir.posterior_summary",
+        owner=_POSTERIOR_SUMMARY_OWNER,
         schema_name="ir.PosteriorSummaryV11",
         schema_version="1.1",
         inputs=[
@@ -358,7 +400,7 @@ def persist_posterior_summary(
 
 def load_posterior_summary(store: ArtifactStore, ref: PosteriorSummaryRef) -> PosteriorSummaryV11:
     """Load and recompute the v1.1 summary from its retained exact draw payload."""
-    summary = PosteriorSummaryV11.model_validate(get_json_artifact(store, ref))
+    summary = _get_owned_json_artifact(store, ref, owner=_POSTERIOR_SUMMARY_OWNER)
     recomputed = summarize_posterior_draw_artifact(
         artifact_ref=summary.source_draws_ref,
         artifact_payload=summary.source_draws_payload,

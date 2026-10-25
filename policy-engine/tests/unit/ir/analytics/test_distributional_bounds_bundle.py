@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 import pytest
 from pydantic import BaseModel
@@ -53,28 +53,18 @@ from polisyos.ir.analytics.distributional import (
     persist_subgroup_distribution_comparison,
     persist_tail_risk_delta_summary,
 )
-from polisyos.ir.artifacts import ArtifactStore, get_json_artifact, put_json_artifact
-from polisyos.ir.artifacts.contracts import ArtifactSelector
+from polisyos.ir.artifacts import get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from pathlib import Path
+
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     CausalAssumptionCardRef,
     DistributionalProofArtifactRef,
 )
-
-
-class _ManifestRecordingStore:
-    def __init__(self, store: ArtifactStore) -> None:
-        self._store = store
-        self.selectors: list[ArtifactSelector] = []
-        self._get_manifest: Callable[[ArtifactSelector], object] = store.get_manifest
-
-    def __getattr__(self, name: str) -> object:
-        return getattr(self._store, name)
-
-    def get_manifest(self, selector: ArtifactSelector) -> object:
-        self.selectors.append(selector)
-        return self._get_manifest(selector)
 
 
 def _distributional_proof_ref() -> ArtifactRefModel:
@@ -240,7 +230,7 @@ def _distributional_leaf_routes() -> list[
     ]
 
 
-def test_distributional_leaf_routes_bind_owner_schema_and_profile(tmp_path) -> None:
+def test_distributional_leaf_routes_bind_owner_schema_and_profile(tmp_path: Path) -> None:
     store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "owner-routes"))
 
     for index, (persist, load, payload) in enumerate(_distributional_leaf_routes()):
@@ -277,13 +267,15 @@ def test_distributional_leaf_routes_bind_owner_schema_and_profile(tmp_path) -> N
             update={"manifest_profile_sha256": foreign_schema_data["manifest_profile_sha256"]}
         )
         assert get_json_artifact(store, foreign_schema_ref) == payload.model_dump(mode="json")
-        with pytest.raises(ValueError, match="ir_distributional_leaf_owner_mismatch"):
+        with pytest.raises(ValueError, match="ir_owned_artifact_representation_unregistered"):
             load(store, foreign_schema_ref)
 
         assert ref.manifest_profile_sha256 is not None
 
 
-def test_distributional_generic_leaf_rejects_foreign_kind_with_valid_payload(tmp_path) -> None:
+def test_distributional_generic_leaf_rejects_foreign_kind_with_valid_payload(
+    tmp_path: Path,
+) -> None:
     store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "owner-kind"))
     persist, load, payload = _distributional_leaf_routes()[0]
     ref = persist(store, payload)
@@ -309,19 +301,19 @@ def test_distributional_generic_leaf_rejects_foreign_kind_with_valid_payload(tmp
         load(store, foreign_kind_ref)
 
 
-def test_distributional_generic_leaf_preserves_selected_profile_on_read(
-    tmp_path,
+def test_distributional_owner_refuses_alternate_profile_before_payload_read(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "owner-profile"))
     persist, load, payload = _distributional_leaf_routes()[0]
     ref = persist(store, payload)
     assert isinstance(ref, ArtifactRefModel)
     assert ref.manifest_profile_sha256 is not None
-    manifest = store.get_manifest(ref)
-    schema = manifest.artifact_schema
+    schema = store.get_manifest(ref).artifact_schema
     assert schema is not None
 
-    alternate_profile_data = put_json_artifact(
+    alternate_data = put_json_artifact(
         store,
         payload.model_dump(mode="json"),
         kind=ref.kind,
@@ -330,27 +322,19 @@ def test_distributional_generic_leaf_preserves_selected_profile_on_read(
         canon_spec=CanonSpec(forbid_floats=False, ensure_ascii=True),
         return_selected_profile=True,
     )
-    assert alternate_profile_data["artifact_id"] == str(ref.artifact_id)
-    assert alternate_profile_data["manifest_profile_sha256"] != ref.manifest_profile_sha256
-    alternate_profile_ref = ArtifactRefModel.model_validate(alternate_profile_data)
+    assert alternate_data["artifact_id"] == str(ref.artifact_id)
+    assert alternate_data["manifest_profile_sha256"] != ref.manifest_profile_sha256
+    alternate_ref = ArtifactRefModel.model_validate(alternate_data)
 
-    recording_store = _ManifestRecordingStore(store)
-    loaded = load(recording_store, alternate_profile_ref)
-    assert isinstance(loaded, BaseModel)
-    assert loaded.model_dump(mode="json") == payload.model_dump(mode="json")
-    assert recording_store.selectors
-    selected_profiles = [
-        selector.get("manifest_profile_sha256")
-        if isinstance(selector, dict)
-        else getattr(selector, "manifest_profile_sha256", None)
-        for selector in recording_store.selectors
-    ]
-    assert all(
-        profile == alternate_profile_ref.manifest_profile_sha256 for profile in selected_profiles
-    ), selected_profiles
+    def refuse_payload_read(*_args: object, **_kwargs: object) -> bytes:
+        pytest.fail("profile mismatch must refuse before payload bytes are read")
+
+    monkeypatch.setattr(FileSystemCAS, "get_bytes", refuse_payload_read)
+    with pytest.raises(ValueError, match="ir_owned_artifact_profile_refused"):
+        load(store, alternate_ref)
 
 
-def test_distributional_bounds_bundle_round_trip_via_store(tmp_path) -> None:
+def test_distributional_bounds_bundle_round_trip_via_store(tmp_path: Path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     bundle = DistributionalBoundsBundle(
         estimand_type="quantile_shift",
@@ -414,7 +398,7 @@ def test_distributional_bounds_bundle_rejects_axis_length_mismatches() -> None:
         )
 
 
-def test_distributional_effect_bundle_accepts_distributional_bounds_refs(tmp_path) -> None:
+def test_distributional_effect_bundle_accepts_distributional_bounds_refs(tmp_path: Path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     baseline_ref = persist_discrete_distribution_summary(
         _ensure_ir_artifact_store(store), _distribution_summary("income")
@@ -462,7 +446,7 @@ def test_distributional_effect_bundle_accepts_distributional_bounds_refs(tmp_pat
     assert bundle.distributional_bounds_refs == [bounds_ref]
 
 
-def test_distributional_effect_bundle_rejects_duplicate_bounds_refs(tmp_path) -> None:
+def test_distributional_effect_bundle_rejects_duplicate_bounds_refs(tmp_path: Path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     baseline_ref = persist_discrete_distribution_summary(
         _ensure_ir_artifact_store(store), _distribution_summary("income")
@@ -512,7 +496,9 @@ def test_distributional_effect_bundle_rejects_duplicate_bounds_refs(tmp_path) ->
         )
 
 
-def test_distributional_bounds_bundle_accepts_functional_parameters_and_dual_ref(tmp_path) -> None:
+def test_distributional_bounds_bundle_accepts_functional_parameters_and_dual_ref(
+    tmp_path: Path,
+) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     certificate = DistributionalDualCertificate(
         theorem_family="mtr_headcount",

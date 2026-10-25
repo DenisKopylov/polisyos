@@ -5,6 +5,8 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+import os
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -12,7 +14,11 @@ import pytest
 
 from polisyos.core.artifacts import _atomic_write as atomic_write_module
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.ownership import ArtifactOwnershipError, ArtifactOwnershipIndex
+from polisyos.core.artifacts.ownership import (
+    ArtifactOwnershipError,
+    ArtifactOwnershipIndex,
+    _OwnershipSnapshot,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon.canon_json import CanonSpec, to_canonical_bytes
 
@@ -916,3 +922,145 @@ def test_final_cas_parent_sync_failure_prevents_owner_generation_commit(
     assert json.loads(intent_path.read_bytes())["status"] == "pending"
     with pytest.raises(ArtifactOwnershipError):
         store.with_ambient_ownership_enforcement().get_bytes(artifact_id)
+
+
+def test_generation_snapshot_cache_is_detached_and_keeps_owner_profile_scopes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    index = ArtifactOwnershipIndex(tmp_path / "cas")
+    artifact_id = ArtifactID.from_sha256_hex("a" * 64)
+    profile = "sha256:" + "b" * 64
+    other_profile = "sha256:" + "c" * 64
+    index.record_owner(artifact_id, tenant_id="tenant-a", cell_id="cell-a")
+    index.record_view_owner(
+        artifact_id,
+        profile,
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+    )
+
+    parse_calls = 0
+    parse_generation = index._parse_generation
+
+    def count_parse(generation: dict[str, object]) -> _OwnershipSnapshot:
+        nonlocal parse_calls
+        parse_calls += 1
+        return parse_generation(generation)
+
+    monkeypatch.setattr(index, "_parse_generation", count_parse)
+
+    returned_rows = index.owners_for(artifact_id)
+    assert parse_calls == 1
+    returned_rows[0]["tenant_id"] = "tenant-mutated"
+    snapshot = index._load_snapshot()
+    snapshot.payload["artifacts"][str(artifact_id)][0]["tenant_id"] = "snapshot-mutated"
+    snapshot.payload["artifacts"][str(artifact_id)].append({"tenant_id": "injected"})
+
+    assert index.is_owned_by(artifact_id, tenant_id="tenant-a", cell_id="cell-a")
+    assert index.is_view_owned_by(artifact_id, profile, tenant_id="tenant-a", cell_id="cell-a")
+    assert not index.is_owned_by(artifact_id, tenant_id="tenant-b", cell_id="cell-a")
+    assert not index.is_owned_by(artifact_id, tenant_id="tenant-a", cell_id="cell-b")
+    assert not index.is_view_owned_by(
+        artifact_id, other_profile, tenant_id="tenant-a", cell_id="cell-a"
+    )
+    assert index.owners_for(artifact_id)[0]["tenant_id"] == "tenant-a"
+    assert parse_calls == 1
+
+    # Removal control: a cold owner query reparses the same validated generation.
+    index._invalidate_snapshot_cache()
+    assert index.is_view_owned_by(artifact_id, profile, tenant_id="tenant-a", cell_id="cell-a")
+    assert parse_calls == 2
+
+
+def test_generation_snapshot_cache_hash_checks_current_bytes_and_pointer(
+    tmp_path: Path,
+) -> None:
+    index = ArtifactOwnershipIndex(tmp_path / "cas")
+    artifact_id = ArtifactID.from_sha256_hex("d" * 64)
+    index.record_owner(artifact_id, tenant_id="tenant-a", cell_id="cell-a")
+    assert index.is_owned_by(artifact_id, tenant_id="tenant-a", cell_id="cell-a")
+
+    pointer = json.loads(index.path.read_bytes())
+    generation_path = index._generation_path(pointer["generation_sha256"])
+    generation_bytes = generation_path.read_bytes()
+    generation_stat = generation_path.stat()
+    tampered = bytearray(generation_bytes)
+    tampered[0] = ord(" ")
+    assert len(tampered) == len(generation_bytes)
+    generation_path.write_bytes(tampered)
+    os.utime(
+        generation_path,
+        ns=(generation_stat.st_atime_ns, generation_stat.st_mtime_ns),
+    )
+    with pytest.raises(ValueError, match="ownership_index_generation_invalid"):
+        index.is_owned_by(artifact_id, tenant_id="tenant-a", cell_id="cell-a")
+
+    generation_path.write_bytes(generation_bytes)
+    os.utime(
+        generation_path,
+        ns=(generation_stat.st_atime_ns, generation_stat.st_mtime_ns),
+    )
+    assert index.is_owned_by(artifact_id, tenant_id="tenant-a", cell_id="cell-a")
+
+    pointer["extra"] = "cached_pointer_must_not_hide_shape_failure"
+    index.path.write_text(json.dumps(pointer, sort_keys=True))
+    with pytest.raises(ValueError, match="ownership_index_pointer_invalid"):
+        index.is_owned_by(artifact_id, tenant_id="tenant-a", cell_id="cell-a")
+
+
+def test_generation_snapshot_cache_is_per_resolved_root(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    first = ArtifactOwnershipIndex(tmp_path / "root-a")
+    artifact_id = ArtifactID.from_sha256_hex("e" * 64)
+    first.record_owner(artifact_id, tenant_id="tenant-a", cell_id="cell-a")
+    second_root = tmp_path / "root-b"
+    second_root.mkdir()
+    shutil.copytree(first.directory, second_root / "artifacts" / "ownership")
+    second = ArtifactOwnershipIndex(second_root, read_only=True)
+    first_pointer = json.loads(first.path.read_bytes())
+    second_pointer = json.loads(second.path.read_bytes())
+    assert first_pointer["generation_sha256"] == second_pointer["generation_sha256"]
+
+    parse_calls = 0
+    parse_generation = ArtifactOwnershipIndex._parse_generation
+
+    def count_parse(
+        index: ArtifactOwnershipIndex,
+        generation: dict[str, object],
+    ) -> _OwnershipSnapshot:
+        nonlocal parse_calls
+        parse_calls += 1
+        return parse_generation(index, generation)
+
+    monkeypatch.setattr(ArtifactOwnershipIndex, "_parse_generation", count_parse)
+    assert first.is_owned_by(artifact_id, tenant_id="tenant-a", cell_id="cell-a")
+    assert first.is_owned_by(artifact_id, tenant_id="tenant-a", cell_id="cell-a")
+    assert second.is_owned_by(artifact_id, tenant_id="tenant-a", cell_id="cell-a")
+    assert parse_calls == 2
+    assert first._snapshot_cache is not None
+    assert second._snapshot_cache is not None
+    assert first._snapshot_cache.key[0] != second._snapshot_cache.key[0]
+
+
+def test_owner_mutation_reuses_its_loaded_snapshot_for_publication(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    index = ArtifactOwnershipIndex(tmp_path / "cas")
+    artifact_id = ArtifactID.from_sha256_hex("f" * 64)
+    load_calls = 0
+    load_snapshot = index._load_snapshot
+
+    def count_loads() -> _OwnershipSnapshot:
+        nonlocal load_calls
+        load_calls += 1
+        return load_snapshot()
+
+    monkeypatch.setattr(index, "_load_snapshot", count_loads)
+    index.record_owner(artifact_id, tenant_id="tenant-a", cell_id="cell-a")
+
+    # Removal control: omitting the prior snapshot forces a second parse in _write_payload.
+    assert load_calls == 1

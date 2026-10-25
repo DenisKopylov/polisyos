@@ -7,12 +7,7 @@ from enum import Enum
 from typing import TYPE_CHECKING
 
 from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN
-from polisyos.ir.loading.fact_log import Fact
 from polisyos.ir.world.abi import EdgeKind, NodeKind
-from polisyos.ir.world.claim import Claim
-from polisyos.ir.world.conflict import ConflictSet
-from polisyos.ir.world.doc import DocFragment, DocMeta
-from polisyos.ir.world.event import WorldEvent
 from polisyos.ir.world.ids import (
     claim_id_from_payload,
     conflict_set_id_from_key,
@@ -30,13 +25,19 @@ from polisyos.ir.world.predicates import (
     WORLD_PROPS_REF,
     WORLD_REL_PREFIX,
 )
-from polisyos.ir.world.quality import QualityReport
-from polisyos.ir.world.trust import TrustAssessment
 
 from .errors import WorldFactError, WorldIDError
 
 if TYPE_CHECKING:
     from decimal import Decimal
+
+    from polisyos.ir.loading.fact_log import Fact
+    from polisyos.ir.world.claim import Claim
+    from polisyos.ir.world.conflict import ConflictSet
+    from polisyos.ir.world.doc import DocFragment, DocMeta
+    from polisyos.ir.world.event import WorldEvent
+    from polisyos.ir.world.quality import QualityReport
+    from polisyos.ir.world.trust import TrustAssessment
 
 
 _ID_RE = re.compile(ID_PATTERN)

@@ -13,15 +13,17 @@ from typing import TYPE_CHECKING, Any, Literal
 from pydantic import Field, model_validator
 
 from polisyos.ir._internal.validation import ensure_unique_ids
-from polisyos.ir.artifacts import (
-    ArtifactStore,
-    ArtifactTaskBinding,
-    InputRef,
-    get_json_artifact,
-    put_json_artifact,
-)
-from polisyos.ir.artifacts.contracts import ArtifactID
+from polisyos.ir.artifacts import ArtifactStore, ArtifactTaskBinding, InputRef
+from polisyos.ir.artifacts.contracts import ArtifactID, ArtifactOwnerDeclaration, CanonInfo
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
+from polisyos.ir.migrations.base import (
+    CompatibilityMode,
+    IRRepresentationRegistration,
+    ResolvedSchemaAdmission,
+    register_ir_representation,
+    register_schema_version,
+)
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.observation.contracts import (
     IdentificationMode,
@@ -57,6 +59,7 @@ else:
         DTRTreatmentSequenceBundleManifest,
     )
     from polisyos.ir.observation.contract_compilers import BoundsEstimationInput
+
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 _CAUSAL_EXECUTION_SCHEMA_NAME = "ir.causal_execution_bundle"
@@ -244,55 +247,124 @@ class CausalExecutionBundle(KernelModel):
         return tuple(bindings)
 
 
+_OWNER_SCHEMA_NAME = "ir.causal_execution_bundle"
+_OWNER_SCHEMA_VERSION = _CAUSAL_EXECUTION_SCHEMA_VERSION
+_OWNER_WIRE_POLICY = ("ir.owner.causalexecutionbundle.wire", "1")
+
+
+def _owner_payload_version(payload: object) -> str:
+    """Require an embedded source version; a DTO default is not historical evidence."""
+    if not isinstance(payload, dict):
+        raise TypeError("Owned CausalExecutionBundle payload must be a JSON object")
+    version = payload.get("schema_version")
+    if type(version) is not str or not version.strip():
+        raise ValueError("Owned CausalExecutionBundle payload requires an explicit schema_version")
+    return version
+
+
+def _validate_owner_source(
+    payload: object, admission: ResolvedSchemaAdmission
+) -> CausalExecutionBundle:
+    """Validate bytes only under this owner exact registered source representation."""
+    registration = admission.source_registration
+    if registration.schema_name != _OWNER_SCHEMA_NAME:
+        raise ValueError("Owned CausalExecutionBundle source has the wrong schema name")
+    if registration.payload_version != _owner_payload_version(payload):
+        raise ValueError(
+            "Owned CausalExecutionBundle payload version disagrees with its representation"
+        )
+    return CausalExecutionBundle.model_validate(payload)
+
+
+def _project_owner_source(
+    source: CausalExecutionBundle,
+    admission: ResolvedSchemaAdmission,
+) -> CausalExecutionBundle:
+    """Preserve the validated source value when no semantic projection is declared."""
+    if not isinstance(source, CausalExecutionBundle):
+        raise TypeError("Owned CausalExecutionBundle source was not validated by its owner")
+    if admission.source_registration.payload_version != source.schema_version:
+        raise ValueError("Owned CausalExecutionBundle projection would change the source version")
+    return source
+
+
+def _validate_owner_profile(
+    profile: CanonInfo,
+    registration: IRRepresentationRegistration,
+) -> bool:
+    """Accept only the canonical profile used by this family real writer."""
+    expected = CanonInfo.from_spec(CanonSpec(forbid_floats=False))
+    return registration.profile_ref is None and profile == expected
+
+
+_causalexecutionbundle_owner = ArtifactOwnerDeclaration(
+    contract_id="ir.observation.causal_execution_bundle.v1",
+    dto_fqn="polisyos.ir.observation.causal_execution.CausalExecutionBundle",
+    abi_key="ir.causal_execution_bundle",
+    registry_key="ir.causal_execution_bundle",
+    kind="ir.causal_execution_bundle",
+    media_type="application/json",
+    purpose="ir.causal_execution_bundle.typed_consumer",
+    policy_revision="ir.observation.causal_execution_bundle.v1.owner-admission.v1",
+    accepted_wire_policies=(_OWNER_WIRE_POLICY,),
+    payload_version_of=_owner_payload_version,
+    validate_source=_validate_owner_source,
+    project_for_consumer=_project_owner_source,
+    validate_profile=_validate_owner_profile,
+)
+
+
+register_schema_version(
+    _OWNER_SCHEMA_NAME,
+    _OWNER_SCHEMA_VERSION,
+    compatibility=CompatibilityMode.NONE,
+    notes=(
+        "CausalExecutionBundle current owner-admitted representation; historical predecessors are not registered.",
+    ),
+)
+register_ir_representation(
+    registry_key=_causalexecutionbundle_owner.registry_key,
+    owner_ref=_causalexecutionbundle_owner.contract_id,
+    dto_abi=_causalexecutionbundle_owner.dto_fqn,
+    wire_policy_ref=_OWNER_WIRE_POLICY[0],
+    wire_policy_revision=_OWNER_WIRE_POLICY[1],
+    schema_name=_OWNER_SCHEMA_NAME,
+    schema_version=_OWNER_SCHEMA_VERSION,
+    payload_version=_OWNER_SCHEMA_VERSION,
+    profile_ref=None,
+    readable=True,
+    writable=True,
+    current=True,
+    default_write=True,
+)
+
+
 def persist_causal_execution_bundle(
     store: ArtifactStore,
     bundle: CausalExecutionBundle,
     *,
     inputs: list[InputRef] | None = None,
-    schema_name: str = _CAUSAL_EXECUTION_SCHEMA_NAME,
+    schema_name: str = "ir.causal_execution_bundle",
     schema_version: str = _CAUSAL_EXECUTION_SCHEMA_VERSION,
 ) -> CausalExecutionBundleRef:
-    """Persist a causal execution bundle to the artifact store.
-
-    Args:
-        store: Artifact store that owns the persisted JSON payload.
-        bundle: Execution results to serialize.
-        inputs: Optional upstream artifact references for lineage tracking.
-        schema_name: Canonical schema name attached to the artifact metadata.
-        schema_version: Canonical schema version attached to the artifact metadata.
-
-    Returns:
-        Typed artifact reference pointing at the stored execution bundle.
-    """
-
-    ref = put_json_artifact(
+    """Persist a source-validated CausalExecutionBundle under its exact owned representation."""
+    selected = _put_owned_json_artifact(
         store,
         bundle.model_dump(mode="json"),
-        kind="ir.causal_execution_bundle",
+        owner=_causalexecutionbundle_owner,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return CausalExecutionBundleRef.model_validate(ref)
+    return CausalExecutionBundleRef.model_validate(selected)
 
 
 def load_causal_execution_bundle(
-    store: ArtifactStore,
-    ref: CausalExecutionBundleRef,
+    store: ArtifactStore, ref: CausalExecutionBundleRef
 ) -> CausalExecutionBundle:
-    """Load and validate a persisted execution bundle from artifact storage.
-
-    Args:
-        store: Artifact store containing the JSON payload.
-        ref: Typed execution-bundle reference returned by the persistence helper.
-
-    Returns:
-        The validated causal execution bundle.
-    """
-
-    payload = get_json_artifact(store, ref)
-    return CausalExecutionBundle.model_validate(payload)
+    """Read CausalExecutionBundle only after its trusted owner admits the stored representation."""
+    return _get_owned_json_artifact(store, ref, owner=_causalexecutionbundle_owner)
 
 
 __all__ = [

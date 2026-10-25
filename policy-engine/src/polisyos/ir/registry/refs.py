@@ -9,7 +9,7 @@ kind/media type so callers can validate the boundary before loading payloads.
 from __future__ import annotations
 
 from collections.abc import Iterator, Mapping
-from typing import ClassVar, Literal
+from typing import ClassVar, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -29,6 +29,25 @@ class ArtifactRefModel(BaseModel, Mapping[str, object]):
         exclude_if=lambda value: value is None,
         pattern=r"^sha256:[0-9a-f]{64}$",
     )
+
+    @classmethod
+    def from_selected_write(cls, ref: Mapping[str, object]) -> Self:
+        """Build a typed ref preserving the exact profile selected by its write.
+
+        Historical profileless refs may still use model_validate for inspection.
+        New persistence paths use this constructor so missing selected identity fails
+        closed before the ref crosses a typed boundary.
+        """
+        selected = dict(ref)
+        profile = selected.get("manifest_profile_sha256")
+        if (
+            type(profile) is not str
+            or len(profile) != 71
+            or not profile.startswith("sha256:")
+            or any(character not in "0123456789abcdef" for character in profile[7:])
+        ):
+            raise ValueError("selected_write_ref_requires_profile")
+        return cls.model_validate(selected)
 
     def __iter__(self) -> Iterator[str]:
         yield "artifact_id"

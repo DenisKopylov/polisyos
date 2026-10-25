@@ -6,9 +6,10 @@ import hashlib
 import json
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, cast
 
 import pytest
+from pydantic import JsonValue
 
 from polisyos.core.artifacts.canonical_profile import (
     CoreJsonReadLimits,
@@ -22,6 +23,7 @@ from polisyos.core.artifacts.manifest import (
     ArtifactTenantContextInfo,
     InputRef,
     SchemaInfo,
+    artifact_ref_identity_key,
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
@@ -40,11 +42,15 @@ from polisyos.core.contracts.runtime import (
     MethodMetricProjectionSelection,
     ObservationalInputResourcePolicy,
     ObservationalRunIntent,
+    _expected_content_admitted_limitations,
 )
 from polisyos.runtime.http.routes import runs as runs_routes
 from polisyos.runtime.http.services.control.run_lifecycle import (
     ControlPlaneService,
+    _content_admitted_intent_input_edges,
     _explicit_source_manifest_metadata,
+    _has_exact_selected_input_edges,
+    _observational_run_intent_input_edges,
     _RuntimeOriginCapturingFoundryPort,
     _scientist_graph_output_refs,
     _selected_graph_source_refs_from_receipt,
@@ -221,15 +227,13 @@ def _direct_method_cas_case(
             for limitation in requested_payload["limitations"]
             if limitation != "scientific_validity_not_established"
         ]
+    requested_input_edges = _observational_run_intent_input_edges(requested_intent)
     requested_intent_ref = _put_selected_json(
         store,
         requested_payload,
         kind="runtime.observational_run_intent",
         schema=SchemaInfo(name="polisyos.runtime.ObservationalRunIntent", version="1.0"),
-        inputs=(
-            _input_edge(source_ref, "requested_source"),
-            _input_edge(resource_policy_ref, "resource_policy"),
-        ),
+        inputs=tuple(_input_edge(ref, role) for ref, role in requested_input_edges),
         governance=governance,
     )
 
@@ -315,6 +319,7 @@ def _direct_method_cas_case(
             for limitation in admitted_payload["limitations"]
             if limitation != "scientific_validity_not_established"
         ]
+    admitted_input_edges = _content_admitted_intent_input_edges(admitted_intent)
     content_admitted_ref = _put_selected_json(
         store,
         admitted_payload,
@@ -323,13 +328,7 @@ def _direct_method_cas_case(
             name="polisyos.runtime.ContentAdmittedObservationalRunIntent",
             version="1.0",
         ),
-        inputs=(
-            _input_edge(requested_intent_ref, "requested_intent"),
-            _input_edge(source_ref, "requested_source"),
-            _input_edge(resource_policy_ref, "resource_policy"),
-            _input_edge(source_ref, "submitted_input"),
-            _input_edge(effective_ref, "effective_input"),
-        ),
+        inputs=tuple(_input_edge(ref, role) for ref, role in admitted_input_edges),
         governance=governance,
     )
 
@@ -374,7 +373,12 @@ def _direct_method_cas_case(
         "resource_policy_ref": resource_policy_ref.model_dump(mode="json"),
         "source_protocol": protocol,
         "normalization": normalization,
-        "limitations": list(admitted_intent.limitations),
+        "limitations": list(
+            _expected_content_admitted_limitations(
+                protocol,
+                source_access_revalidation_status=None,
+            )
+        ),
         "requested_source_ref": source_ref.model_dump(mode="json"),
         "observational_run_intent_ref": requested_intent_ref.model_dump(mode="json"),
         "content_admitted_intent_ref": content_admitted_ref.model_dump(mode="json"),
@@ -529,6 +533,96 @@ def test_direct_selection_rejects_result_or_evidence_edge_profile_substitution(
             store=store,
             selection=selection,
             limits=limits,
+        )
+
+
+def test_content_admitted_lineage_recipe_checks_roles_profiles_and_multiplicity() -> None:
+    source = _selected_ref("ir.observation_method_input", "1", "a")
+    requested = _selected_ref("runtime.observational_run_intent", "2", "b")
+    policy = _selected_ref("runtime.observational_input_resource_policy", "3", "c")
+    binding = _selected_ref("runtime.search_uncertainty_task_binding", "4", "d")
+    projection = _selected_ref("runtime.search_uncertainty_task_projection", "5", "e")
+    task_admission = _selected_ref("runtime.search_uncertainty_task_admission", "6", "f")
+    task_epoch = _selected_ref("runtime.search_uncertainty_task_epoch", "7", "0")
+    owner_context = _selected_ref("runtime.search_uncertainty_owner_context", "8", "1")
+    basis = _selected_ref("runtime.search_uncertainty_task_basis", "9", "2")
+    inventory = _selected_ref("runtime.search_uncertainty_dependency_inventory", "a", "3")
+    intent = SimpleNamespace(
+        requested_intent_ref=requested,
+        requested_source_ref=source,
+        resource_policy_ref=policy,
+        submitted_input_ref=source,
+        effective_input_ref=source,
+        search_binding_admission=SimpleNamespace(
+            binding_ref=binding,
+            projection_ref=projection,
+            task_admission_ref=task_admission,
+            task_epoch_ref=task_epoch,
+            owner_context_ref=owner_context,
+            basis_ref=basis,
+            dependency_inventory_ref=inventory,
+            source_projection_ref=projection,
+        ),
+    )
+
+    expected = _content_admitted_intent_input_edges(intent)
+    roles = tuple(role for _ref, role in expected)
+    assert roles == (
+        "observational_run_intent",
+        "requested_source",
+        "resource_policy",
+        "submitted_input",
+        "effective_input",
+        "search_uncertainty_task_binding",
+        "search_uncertainty_task_projection",
+        "search_uncertainty_task_admission",
+        "search_uncertainty_task_epoch",
+        "search_uncertainty_owner_context",
+        "search_uncertainty_task_basis",
+        "search_uncertainty_dependency_inventory",
+        "search_uncertainty_source_projection",
+    )
+    source_roles = {"requested_source", "submitted_input", "effective_input"}
+    assert [ref.artifact_id for ref, role in expected if role in source_roles] == [
+        source.artifact_id,
+        source.artifact_id,
+        source.artifact_id,
+    ]
+    projection_roles = {
+        "search_uncertainty_task_projection",
+        "search_uncertainty_source_projection",
+    }
+    assert [ref.artifact_id for ref, role in expected if role in projection_roles] == [
+        projection.artifact_id,
+        projection.artifact_id,
+    ]
+
+    edges = tuple(_input_edge(ref, role) for ref, role in expected)
+    assert _has_exact_selected_input_edges(edges, expected)
+    assert _has_exact_selected_input_edges(tuple(reversed(edges)), expected)
+
+    swapped_roles = list(edges)
+    swapped_roles[1] = _input_edge(source, "resource_policy")
+    swapped_roles[2] = _input_edge(policy, "requested_source")
+    assert not _has_exact_selected_input_edges(tuple(swapped_roles), expected)
+    assert not _has_exact_selected_input_edges(edges[:-1], expected)
+    assert not _has_exact_selected_input_edges((*edges, edges[0]), expected)
+
+    wrong_id = list(edges)
+    wrong_id[1] = _input_edge(_selected_ref(source.kind, "b", "a"), "requested_source")
+    assert not _has_exact_selected_input_edges(tuple(wrong_id), expected)
+    wrong_profile = list(edges)
+    wrong_profile[1] = _input_edge(_selected_ref(source.kind, "1", "b"), "requested_source")
+    assert not _has_exact_selected_input_edges(tuple(wrong_profile), expected)
+    with pytest.raises(ValueError, match="observational_method_resource_policy_ref_missing"):
+        _observational_run_intent_input_edges(
+            cast(
+                "ObservationalRunIntent",
+                SimpleNamespace(
+                    requested_source_ref=source,
+                    resource_policy_ref=None,
+                ),
+            )
         )
 
 
@@ -835,46 +929,79 @@ def test_http_post_rejects_empty_present_observational_data_source(
     assert launch_calls == []
 
 
-def _put_runtime_observational_source(
-    service: Any,
+def _runtime_hte_source_payload(
     *,
-    classification: str = "public",
-    tenant_context: ArtifactTenantContextInfo | None = None,
     source_label: str = "synthetic_candidate",
-    contract_target_id: str = "foundry.causal.hte_observational_data.v1",
-    contract_target_fqn: str = (
-        "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
-    ),
-) -> ArtifactRef:
+    source_only_sample_id: str | None = None,
+) -> dict[str, object]:
+    """Build a source payload whose field set follows the actual HTE producer DTO."""
     n_obs = 40
-    contract_payload = {
+    sample_ids = [f"candidate-{index}" for index in range(n_obs)]
+    if source_only_sample_id is not None:
+        sample_ids[0] = source_only_sample_id
+    payload: dict[str, object] = {
         "outcome": [float(index) / 10 + (index % 2) * 0.5 for index in range(n_obs)],
         "treatment": [index % 2 for index in range(n_obs)],
         "covariates": [[float(index), float(index % 5)] for index in range(n_obs)],
         "confounders": [[float(index % 7)] for index in range(n_obs)],
         "feature_names": ["age", "baseline"],
         "confounder_names": ["risk"],
-        "sample_ids": [f"candidate-{index}" for index in range(n_obs)],
+        "sample_ids": sample_ids,
         "metadata": {"source": source_label},
     }
-    return _put_selected_json(
-        service._artifact_store,
-        {
-            "schema_version": "policyos.ir.observation.method_input_envelope.v1",
-            "contract_target": {
-                "contract_id": contract_target_id,
-                "contract_fqn": contract_target_fqn,
-            },
-            "contract_payload": contract_payload,
-        },
-        kind="ir.observation_method_input",
-        schema=SchemaInfo(
-            name="polisyos.ir.ObservationMethodInputEnvelope",
-            version="1.0",
-        ),
-        governance=ArtifactGovernanceInfo(classification=classification),
-        tenant_context=tenant_context,
+    from _helpers.hte_privacy import hte_source_data_field_names
+
+    if set(payload) != hte_source_data_field_names():
+        raise AssertionError("test_hte_source_fixture_does_not_match_producer_dto")
+    return payload
+
+
+def _put_runtime_observational_source(
+    service: Any,
+    *,
+    classification: str = "public",
+    tenant_context: ArtifactTenantContextInfo | None = None,
+    owner_scope: tuple[str, str] | None = None,
+    source_label: str = "synthetic_candidate",
+    inputs: tuple[InputRef, ...] = (),
+    source_only_sample_id: str | None = None,
+    contract_target_id: str = "foundry.causal.hte_observational_data.v1",
+    contract_target_fqn: str = (
+        "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
+    ),
+) -> ArtifactRef:
+    contract_payload = _runtime_hte_source_payload(
+        source_label=source_label,
+        source_only_sample_id=source_only_sample_id,
     )
+
+    def put_source() -> ArtifactRef:
+        return _put_selected_json(
+            service._artifact_store,
+            {
+                "schema_version": "policyos.ir.observation.method_input_envelope.v1",
+                "contract_target": {
+                    "contract_id": contract_target_id,
+                    "contract_fqn": contract_target_fqn,
+                },
+                "contract_payload": contract_payload,
+            },
+            kind="ir.observation_method_input",
+            schema=SchemaInfo(
+                name="polisyos.ir.ObservationMethodInputEnvelope",
+                version="1.0",
+            ),
+            inputs=inputs,
+            governance=ArtifactGovernanceInfo(classification=classification),
+            tenant_context=tenant_context,
+        )
+
+    if owner_scope is None:
+        return put_source()
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    with tenant_scope(None, tenant_id=owner_scope[0], cell_id=owner_scope[1]):
+        return put_source()
 
 
 def _put_runtime_legacy_observational_source(
@@ -882,26 +1009,42 @@ def _put_runtime_legacy_observational_source(
     *,
     classification: str = "public",
     tenant_context: ArtifactTenantContextInfo | None = None,
+    owner_scope: tuple[str, str] | None = None,
+    source_only_sample_id: str | None = None,
 ) -> ArtifactRef:
-    n_obs = 40
-    payload = {
-        "outcome": [float(index) / 10 + (index % 2) * 0.5 for index in range(n_obs)],
-        "treatment": [index % 2 for index in range(n_obs)],
-        "covariates": [[float(index), float(index % 5)] for index in range(n_obs)],
-        "confounders": [[float(index % 7)] for index in range(n_obs)],
-        "feature_names": ["age", "baseline"],
-        "confounder_names": ["risk"],
-        "sample_ids": [f"candidate-{index}" for index in range(n_obs)],
-        "metadata": {"source": "synthetic_candidate"},
-    }
-    return _put_selected_json(
-        service._artifact_store,
-        payload,
-        kind="ir.observational_data",
-        schema=None,
-        governance=ArtifactGovernanceInfo(classification=classification),
-        tenant_context=tenant_context,
-    )
+    payload = _runtime_hte_source_payload(source_only_sample_id=source_only_sample_id)
+
+    def put_source() -> ArtifactRef:
+        return _put_selected_json(
+            service._artifact_store,
+            payload,
+            kind="ir.observational_data",
+            schema=None,
+            governance=ArtifactGovernanceInfo(classification=classification),
+            tenant_context=tenant_context,
+        )
+
+    if owner_scope is None:
+        return put_source()
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    with tenant_scope(None, tenant_id=owner_scope[0], cell_id=owner_scope[1]):
+        return put_source()
+
+
+def _post_runtime_api_as_fixture_owner(
+    runtime_api_env: dict[str, Any],
+    *args: Any,
+    **kwargs: Any,
+) -> Any:
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    with tenant_scope(
+        None,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    ):
+        return runtime_api_env["client"].post(*args, **kwargs)
 
 
 @pytest.mark.parametrize("cancelled_before_start", [True, False])
@@ -1037,6 +1180,7 @@ def test_http_post_refuses_private_or_tenant_scoped_source_before_enqueue(
     queued: list[object] = []
     monkeypatch.setattr(service, "_enqueue_job", lambda **kwargs: queued.append(kwargs))
     classification = "restricted" if scope_kind == "restricted" else "public"
+    owner_scope = (runtime_api_env["tenant_a"], runtime_api_env["cell_a"])
     tenant_context = None
     if scope_kind == "tenant_scoped":
         tenant_context = ArtifactTenantContextInfo(
@@ -1044,6 +1188,7 @@ def test_http_post_refuses_private_or_tenant_scoped_source_before_enqueue(
             cell_id=runtime_api_env["cell_a"],
         )
     elif scope_kind == "foreign_tenant_scoped":
+        owner_scope = ("tenant-private", "cell-private")
         tenant_context = ArtifactTenantContextInfo(
             tenant_id="tenant-private",
             cell_id="cell-private",
@@ -1052,9 +1197,11 @@ def test_http_post_refuses_private_or_tenant_scoped_source_before_enqueue(
         service,
         classification=classification,
         tenant_context=tenant_context,
+        owner_scope=owner_scope,
     )
 
-    response = runtime_api_env["client"].post(
+    response = _post_runtime_api_as_fixture_owner(
+        runtime_api_env,
         "/api/v1/control/runs",
         json={
             "observational_input": {
@@ -1068,6 +1215,289 @@ def test_http_post_refuses_private_or_tenant_scoped_source_before_enqueue(
     assert response.status_code == 403
     assert response.json()["code"] == "observational_source_current_access_not_established"
     assert queued == []
+
+
+def test_http_post_refuses_source_without_owner_claim_before_enqueue(
+    runtime_api_env: dict[str, Any],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service = runtime_api_env["app"].state._control_service
+    queued: list[object] = []
+    monkeypatch.setattr(service, "_enqueue_job", lambda **kwargs: queued.append(kwargs))
+    source_ref = _put_runtime_observational_source(service)
+    assert not service._artifact_store._ownership_index.has_any_tenant_claim(source_ref.artifact_id)
+
+    response = _post_runtime_api_as_fixture_owner(
+        runtime_api_env,
+        "/api/v1/control/runs",
+        json={
+            "observational_input": {
+                "protocol": "method_input_envelope_v1",
+                "source_ref": source_ref.model_dump(mode="json"),
+                "method": {"fqn": "causal.hte.forest_dr@1.1.0"},
+            }
+        },
+    )
+
+    assert response.status_code == 403
+    assert response.json()["code"] == "observational_source_current_access_not_established"
+    assert queued == []
+
+
+def test_http_post_maps_typed_non_owner_manifest_bounds_refusal_to_422(
+    runtime_api_env: dict[str, Any],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.core.artifacts import ArtifactReadBoundsError
+    from polisyos.core.artifacts.canonical_profile import CoreJsonReadBoundsRefusalError
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    service = runtime_api_env["app"].state._control_service
+    queued: list[object] = []
+    monkeypatch.setattr(service, "_enqueue_job", lambda **kwargs: queued.append(kwargs))
+    owner_scope = (runtime_api_env["tenant_a"], runtime_api_env["cell_a"])
+    source_ref = _put_runtime_observational_source(service, owner_scope=owner_scope)
+
+    with tenant_scope(None, tenant_id=owner_scope[0], cell_id=owner_scope[1]):
+        _manifest, governance, tenant_context, _sha256 = (
+            service._read_observational_source_manifest(source_ref)
+        )
+    assert governance.classification == "public"
+    assert tenant_context is None
+    assert service._artifact_store._ownership_index.has_any_tenant_claim(source_ref.artifact_id)
+
+    manifest_path = service._artifact_store._manifest_path_for_ref(
+        source_ref.artifact_id,
+        source_ref.manifest_profile_sha256,
+    )
+    selected_manifest = manifest_path.read_bytes()
+    limits = service._observational_read_limits()
+    assert len(selected_manifest) <= limits.max_manifest_bytes
+    manifest_path.write_bytes(
+        selected_manifest + b" " * (limits.max_manifest_bytes + 1 - len(selected_manifest))
+    )
+
+    with (
+        tenant_scope(None, tenant_id=owner_scope[0], cell_id=owner_scope[1]),
+        pytest.raises(CoreJsonReadBoundsRefusalError) as caught,
+    ):
+        service._read_observational_source_manifest(source_ref)
+    read_error = caught.value.__cause__
+    assert isinstance(read_error, ArtifactReadBoundsError)
+    assert read_error.member == "manifest"
+    assert read_error.observed_bytes > read_error.max_bytes
+
+    response = _post_runtime_api_as_fixture_owner(
+        runtime_api_env,
+        "/api/v1/control/runs",
+        json={
+            "observational_input": {
+                "protocol": "method_input_envelope_v1",
+                "source_ref": source_ref.model_dump(mode="json"),
+                "method": {"fqn": "causal.hte.forest_dr@1.1.0"},
+            }
+        },
+    )
+
+    assert response.status_code == 422
+    assert response.json()["code"] == "observational_source_manifest_not_admitted"
+    assert queued == []
+
+
+def test_bounded_intent_model_hydration_reifies_serialized_search_time(
+    runtime_api_env: dict[str, Any],
+) -> None:
+    from datetime import UTC, datetime
+
+    from polisyos.core.contracts.owned_attempt_anchor import (
+        OwnedHTERequestContextV1,
+        SelectedArtifactRef,
+    )
+    from polisyos.core.contracts.runtime import SearchUncertaintyTaskAdmissionSnapshot
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    service = runtime_api_env["app"].state._control_service
+    owner_scope = (runtime_api_env["tenant_a"], runtime_api_env["cell_a"])
+    governance = ArtifactGovernanceInfo(classification="public")
+
+    def persist_selected_fixture_ref(kind: str, label: str) -> ArtifactRef:
+        return _put_selected_json(
+            service._artifact_store,
+            {"fixture": label},
+            kind=kind,
+            schema=None,
+            governance=governance,
+        )
+
+    with tenant_scope(None, tenant_id=owner_scope[0], cell_id=owner_scope[1]):
+        source_ref = _put_runtime_observational_source(service)
+        requested_ref = persist_selected_fixture_ref(
+            "runtime.observational_run_intent",
+            "requested-intent",
+        )
+        policy_ref = persist_selected_fixture_ref(
+            "runtime.observational_input_resource_policy",
+            "resource-policy",
+        )
+        binding_ref = persist_selected_fixture_ref(
+            "scientist.search.uncertainty_task_binding",
+            "task-binding",
+        )
+        projection_ref = persist_selected_fixture_ref(
+            "scientist.search.uncertainty_ticket_projection",
+            "ticket-projection",
+        )
+        task_admission_ref = persist_selected_fixture_ref(
+            "scientist.search.uncertainty_task_admission",
+            "task-admission",
+        )
+        task_epoch_ref = persist_selected_fixture_ref(
+            "scientist.search.uncertainty_task_epoch",
+            "task-epoch",
+        )
+        owner_context_ref = persist_selected_fixture_ref(
+            "scientist.search.uncertainty_owner_task_context",
+            "owner-context",
+        )
+        basis_ref = persist_selected_fixture_ref(
+            "scientist.search.uncertainty_basis",
+            "basis",
+        )
+        inventory_ref = persist_selected_fixture_ref(
+            "scientist.search.uncertainty_input_inventory",
+            "dependency-inventory",
+        )
+        _manifest, _governance, source_tenant_context, source_manifest_sha256 = (
+            service._read_observational_source_manifest(source_ref)
+        )
+    assert source_tenant_context is None
+    binding_profile_ref = SelectedArtifactRef.model_validate(binding_ref.model_dump())
+    resolved_at = datetime(2026, 10, 23, 5, 50, 1, 87389, tzinfo=UTC)
+    method_params: dict[str, JsonValue] = {}
+    method_params_sha256 = hashlib.sha256(b"{}").hexdigest()
+    snapshot = SearchUncertaintyTaskAdmissionSnapshot(
+        binding_ref=binding_ref,
+        binding_content_sha256=binding_ref.artifact_id.hex,
+        ticket_id="ticket-1",
+        ticket_generation=1,
+        owner_revision=1,
+        projection_revision=1,
+        projection_ref=projection_ref,
+        task_admission_ref=task_admission_ref,
+        task_epoch_ref=task_epoch_ref,
+        owner_context_ref=owner_context_ref,
+        basis_ref=basis_ref,
+        dependency_inventory_ref=inventory_ref,
+        dependency_inventory_sha256=hashlib.sha256(b"inventory").hexdigest(),
+        source_projection_ref=projection_ref,
+        selected_method_fqn="causal.hte.forest_dr@2.0.0",
+        selected_method_abi_version="2.0.0",
+        selected_method_abi_digest="a" * 64,
+        selected_method_params=method_params,
+        selected_method_params_sha256=method_params_sha256,
+        selected_method_seed=7,
+        selected_inference_profile_id="econml.forest_dr.native_mean@2.0",
+        selected_method_input_ref=source_ref,
+        selected_method_input_content_sha256=source_ref.artifact_id.hex,
+        tenant_id=owner_scope[0],
+        cell_id=owner_scope[1],
+        resolved_at=resolved_at,
+    )
+    request_context = OwnedHTERequestContextV1(
+        request_estimand_status="declared",
+        request_estimand="average_treatment_effect",
+        request_target_scope_status="declared",
+        request_target_scope="sample",
+        outcome_variable_status="declared",
+        outcome_variable_id="outcome",
+        treatment_variable_status="declared",
+        treatment_variable_id="treatment",
+        contrast_status="declared",
+        control_value=0.0,
+        treated_value=1.0,
+        request_alpha_status="declared",
+        requested_alpha=0.05,
+        requested_guarantee_status="not_established",
+        search_uncertainty_task_binding_ref=binding_profile_ref,
+    )
+    admitted_intent = ContentAdmittedObservationalRunIntent(
+        schema_version="polisyos.runtime.content_admitted_observational_run_intent.v2",
+        job_id="job-time-reader",
+        run_id="run-time-reader",
+        attempt=1,
+        requested_intent_ref=requested_ref,
+        requested_source_ref=source_ref,
+        source_manifest_sha256=source_manifest_sha256,
+        resource_policy_ref=policy_ref,
+        submitted_input_ref=source_ref,
+        effective_input_ref=source_ref,
+        contract_target_id="foundry.causal.hte_observational_data.v1",
+        contract_target="polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData",
+        selection_digest="c" * 64,
+        source_access_revalidation_status="not_established",
+        method_fqn="causal.hte.forest_dr@2.0.0",
+        owned_hte_request_context=request_context,
+        search_binding_admission=snapshot,
+        search_binding_tenant_id=owner_scope[0],
+        search_binding_cell_id=owner_scope[1],
+        source_protocol="method_input_envelope_v1",
+        normalization="canonical_passthrough",
+        limitations=_expected_content_admitted_limitations(
+            "method_input_envelope_v1",
+            source_access_revalidation_status="not_established",
+        ),
+        source_governance=ArtifactGovernanceInfo(classification="public"),
+        observed_manifest_bytes=0,
+        observed_manifest_selection_bytes=0,
+        observed_manifest_verification_bytes=0,
+        observed_payload_bytes=0,
+        observed_source_bytes=0,
+        payload_integrity_verified=True,
+        observed_bytes=0,
+        observed_depth=0,
+        observed_elements=0,
+        resource_policy_digest="d" * 64,
+    )
+    payload = admitted_intent.artifact_payload()
+    assert payload["search_binding_admission"]["resolved_at"] == "2026-10-23T05:50:01.087389Z"
+    with pytest.raises(ValueError):
+        ContentAdmittedObservationalRunIntent.model_validate(payload, strict=True)
+
+    input_refs = (
+        (requested_ref, "requested_intent"),
+        (source_ref, "requested_source"),
+        (policy_ref, "resource_policy"),
+        (source_ref, "submitted_input"),
+        (source_ref, "effective_input"),
+        (binding_ref, "search_uncertainty_task_binding"),
+        (projection_ref, "search_uncertainty_task_projection"),
+        (task_admission_ref, "search_uncertainty_task_admission"),
+        (task_epoch_ref, "search_uncertainty_task_epoch"),
+        (owner_context_ref, "search_uncertainty_owner_context"),
+        (basis_ref, "search_uncertainty_task_basis"),
+        (inventory_ref, "search_uncertainty_dependency_inventory"),
+        (projection_ref, "search_uncertainty_source_projection"),
+    )
+    with tenant_scope(None, tenant_id=owner_scope[0], cell_id=owner_scope[1]):
+        intent_ref = _put_selected_json(
+            service._artifact_store,
+            payload,
+            kind="runtime.content_admitted_observational_run_intent",
+            schema=SchemaInfo(
+                name="polisyos.runtime.ContentAdmittedObservationalRunIntent",
+                version="2.0",
+            ),
+            inputs=tuple(_input_edge(ref, role) for ref, role in input_refs),
+            governance=ArtifactGovernanceInfo(classification="public"),
+        )
+        hydrated = service._read_bounded_intent_model(
+            intent_ref,
+            model=ContentAdmittedObservationalRunIntent,
+        )
+
+    assert hydrated.search_binding_admission is not None
+    assert hydrated.search_binding_admission.resolved_at == resolved_at
+    assert hydrated.search_binding_admission.resolved_at.tzinfo is not None
 
 
 @pytest.mark.parametrize(
@@ -1103,12 +1533,26 @@ def test_post_worker_fenced_cas_and_fresh_run_get_preserve_candidate_limits(
         reject_successor_anchor_use,
     )
     stop_embedded_control_worker(service)
-    source_ref = (
-        _put_runtime_observational_source(service)
-        if protocol == "method_input_envelope_v1"
-        else _put_runtime_legacy_observational_source(service)
+    owner_scope = (runtime_api_env["tenant_a"], runtime_api_env["cell_a"])
+    source_only_sample_id = f"hte-source-only::post-worker-get::{protocol}"
+    source_payload = _runtime_hte_source_payload(
+        source_only_sample_id=source_only_sample_id,
     )
-    response = runtime_api_env["client"].post(
+    source_ref = (
+        _put_runtime_observational_source(
+            service,
+            owner_scope=owner_scope,
+            source_only_sample_id=source_only_sample_id,
+        )
+        if protocol == "method_input_envelope_v1"
+        else _put_runtime_legacy_observational_source(
+            service,
+            owner_scope=owner_scope,
+            source_only_sample_id=source_only_sample_id,
+        )
+    )
+    response = _post_runtime_api_as_fixture_owner(
+        runtime_api_env,
         "/api/v1/control/runs",
         json={
             "observational_input": {
@@ -1126,16 +1570,29 @@ def test_post_worker_fenced_cas_and_fresh_run_get_preserve_candidate_limits(
     accepted = response.json()
     assert accepted["status"] == "accepted"
     intent_ref = ArtifactRef.model_validate(accepted["observational_run_intent_ref"])
-    intent = ObservationalRunIntent.model_validate(
-        service._read_bounded_intent_artifact(intent_ref)
-    )
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    with tenant_scope(
+        None,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    ):
+        intent = ObservationalRunIntent.model_validate(
+            service._read_bounded_intent_artifact(intent_ref)
+        )
     assert accepted["observational_selection_digest"] == intent.selection_digest()
     job = service._control_store.get_job(accepted["job_id"])
-    assert job is not None and job.payload_ref is not None
-    payload = service._load_payload_ref(
-        job.payload_ref,
-        kind=f"runtime.control_job_payload.{job.kind}",
-    )
+    assert job is not None
+    assert job.payload_ref is not None
+    with tenant_scope(
+        None,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    ):
+        payload = service._load_payload_ref(
+            job.payload_ref,
+            kind=f"runtime.control_job_payload.{job.kind}",
+        )
     marker = payload["observational_method_execution"]
     assert ArtifactRef.model_validate(marker["observational_run_intent_ref"]) == intent_ref
     assert marker["observational_selection_digest"] == accepted["observational_selection_digest"]
@@ -1182,14 +1639,26 @@ def test_post_worker_fenced_cas_and_fresh_run_get_preserve_candidate_limits(
     altered_selection = selection.model_copy(
         update={"candidate_outcome": altered_candidate_outcome}
     )
-    with pytest.raises(
-        ValueError,
-        match="direct_method_execution_candidate_outcome_mismatch",
+    with (
+        tenant_scope(
+            None,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        ),
+        pytest.raises(
+            ValueError,
+            match="direct_method_execution_candidate_outcome_mismatch",
+        ),
     ):
         service._validate_direct_method_execution_selection_artifacts(altered_selection)
-    admitted_intent = ContentAdmittedObservationalRunIntent.model_validate(
-        service._read_bounded_intent_artifact(selection.content_admitted_intent_ref)
-    )
+    with tenant_scope(
+        None,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    ):
+        admitted_intent = ContentAdmittedObservationalRunIntent.model_validate(
+            service._read_bounded_intent_artifact(selection.content_admitted_intent_ref)
+        )
     assert admitted_intent.payload_integrity_verified is True
     assert admitted_intent.observed_manifest_bytes == (
         admitted_intent.observed_manifest_selection_bytes
@@ -1221,7 +1690,8 @@ def test_post_worker_fenced_cas_and_fresh_run_get_preserve_candidate_limits(
 
     fresh = runtime_api_env["client"].get(f"/api/v1/runs/{accepted['run_id']}")
     assert fresh.status_code == 200
-    projection = fresh.json()["run"]["method_execution_selection"]
+    response_wire = fresh.json()
+    projection = response_wire["run"]["method_execution_selection"]
     assert projection["status"] == "selected"
     request_summary = projection["request"]
     assert ArtifactRef.model_validate(request_summary["requested_source_ref"]) == source_ref
@@ -1247,10 +1717,24 @@ def test_post_worker_fenced_cas_and_fresh_run_get_preserve_candidate_limits(
     assert projection["time_roles"]["execution_finished_at"] is not None
     assert projection["time_roles"]["owner_verified_at"] is not None
     assert projection["time_roles"]["reader_at"] is not None
-    assert "observational_data" not in fresh.text
-    assert "covariates" not in fresh.text
-    assert "hte_result" not in fresh.text
-    assert "sample_ids" not in fresh.text
+    from _helpers.hte_privacy import hte_source_privacy_violations
+
+    from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
+
+    assert selected["contract_target_id"] == HTEObservationalData.contract_id
+    assert selected["contract_target"] == (
+        f"{HTEObservationalData.__module__}.{HTEObservationalData.__qualname__}"
+    )
+    assert selected["hte"] is None
+    assert selected["hte_outcome_ref"] is None
+    assert selected["point_result_ref"] is None
+    assert selected["hte_result_ref"] is None
+    privacy_violations = hte_source_privacy_violations(
+        response_wire,
+        source_payload=source_payload,
+        source_only_sample_id=source_only_sample_id,
+    )
+    assert privacy_violations == (), privacy_violations
 
     metric_projection = runtime_api_env["client"].get(
         f"/api/v1/runs/{accepted['run_id']}/method-metrics"
@@ -1263,15 +1747,20 @@ def test_post_worker_fenced_cas_and_fresh_run_get_preserve_candidate_limits(
         "direct_method_selection_has_no_graph_metric_projection"
         in (metric_projection.json()["limitations"])
     )
-    assert "observational_data" not in metric_projection.text
-    assert "covariates" not in metric_projection.text
+    metric_wire = metric_projection.json()
+    metric_privacy_violations = hte_source_privacy_violations(
+        metric_wire,
+        source_payload=source_payload,
+        source_only_sample_id=source_only_sample_id,
+    )
+    assert metric_privacy_violations == (), metric_privacy_violations
 
 
 def test_method_metric_surface_checks_owner_scope_before_selection_lookup(
     runtime_api_env: dict[str, Any],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from polisyos.core.security.tenant_context import tenant_scope
+    from _helpers.runtime_test_identity import fixture_identity_cell
 
     service = runtime_api_env["app"].state._control_service
     lookups: list[tuple[str, str, str]] = []
@@ -1286,11 +1775,7 @@ def test_method_metric_surface_checks_owner_scope_before_selection_lookup(
     assert response.status_code in {403, 404}
     assert lookups == []
 
-    with tenant_scope(
-        None,
-        tenant_id=runtime_api_env["tenant_a"],
-        cell_id="cell-not-owned-by-run",
-    ):
+    with fixture_identity_cell(monkeypatch, cell_id="cell-not-owned-by-run"):
         cell_mismatch = runtime_api_env["client"].get(
             f"/api/v1/runs/{runtime_api_env['core_run_id']}/method-metrics"
         )
@@ -1302,7 +1787,7 @@ def test_run_details_withholds_method_projection_for_wrong_cell_scope(
     runtime_api_env: dict[str, Any],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from polisyos.core.security.tenant_context import tenant_scope
+    from _helpers.runtime_test_identity import fixture_identity_cell
 
     service = runtime_api_env["app"].state._control_service
     lookups: list[str] = []
@@ -1312,13 +1797,9 @@ def test_run_details_withholds_method_projection_for_wrong_cell_scope(
         raise AssertionError("wrong-cell review reached the method execution owner")
 
     monkeypatch.setattr(service, "get_observational_method_run_projection", read_projection)
-    with tenant_scope(
-        None,
-        tenant_id=runtime_api_env["tenant_a"],
-        cell_id="cell-not-owned-by-run",
-    ):
+    with fixture_identity_cell(monkeypatch, cell_id="cell-not-owned-by-run"):
         response = runtime_api_env["client"].get(f"/api/v1/runs/{runtime_api_env['core_run_id']}")
-    assert response.status_code == 200, response.text
+    assert response.status_code == 200
     projection = response.json()["run"]["method_execution_selection"]
     assert projection["status"] == "withheld"
     assert projection["limitations"] == ["owned_run_cell_scope_required"]
@@ -1337,8 +1818,12 @@ def test_running_method_timeout_cannot_late_publish_after_fenced_failure(
 
     service = runtime_api_env["app"].state._control_service
     stop_embedded_control_worker(service)
-    source_ref = _put_runtime_observational_source(service)
-    response = runtime_api_env["client"].post(
+    source_ref = _put_runtime_observational_source(
+        service,
+        owner_scope=(runtime_api_env["tenant_a"], runtime_api_env["cell_a"]),
+    )
+    response = _post_runtime_api_as_fixture_owner(
+        runtime_api_env,
         "/api/v1/control/runs",
         json={
             "observational_input": {
@@ -1373,7 +1858,8 @@ def test_running_method_timeout_cannot_late_publish_after_fenced_failure(
     )
     assert dispatched == accepted["job_id"]
     failed = service._control_store.get_job(accepted["job_id"])
-    assert failed is not None and failed.state == "failed"
+    assert failed is not None
+    assert failed.state == "failed"
     assert failed.method_execution_selection is None
     assert failed.progress["method_execution_wait"]["wait_disposition"] == ("running_slot_retained")
 
@@ -1408,14 +1894,21 @@ def test_http_worker_refuses_same_fqn_wrong_target_id_before_dispatch(
 
     service = runtime_api_env["app"].state._control_service
     stop_embedded_control_worker(service)
+    source_only_sample_id = "hte-source-only::wrong-target-refusal::row-0"
+    source_payload = _runtime_hte_source_payload(
+        source_only_sample_id=source_only_sample_id,
+    )
     source_ref = _put_runtime_observational_source(
         service,
+        owner_scope=(runtime_api_env["tenant_a"], runtime_api_env["cell_a"]),
+        source_only_sample_id=source_only_sample_id,
         contract_target_id="foundry.causal.hte_observational_data.v0",
         contract_target_fqn=(
             "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
         ),
     )
-    response = runtime_api_env["client"].post(
+    response = _post_runtime_api_as_fixture_owner(
+        runtime_api_env,
         "/api/v1/control/runs",
         json={
             "observational_input": {
@@ -1450,16 +1943,28 @@ def test_http_worker_refuses_same_fqn_wrong_target_id_before_dispatch(
         )
         is None
     )
-    assert "covariates" not in str(record.progress)
+    from _helpers.hte_privacy import hte_source_privacy_violations
+
+    progress_privacy_violations = hte_source_privacy_violations(
+        record.progress,
+        source_payload=source_payload,
+        source_only_sample_id=source_only_sample_id,
+    )
+    assert progress_privacy_violations == (), progress_privacy_violations
     fresh = runtime_api_env["client"].get(f"/api/v1/runs/{accepted['run_id']}")
     assert fresh.status_code == 200, fresh.text
-    projection = fresh.json()["run"]["method_execution_selection"]
+    response_wire = fresh.json()
+    projection = response_wire["run"]["method_execution_selection"]
     assert projection["status"] == "input_refused"
     assert projection["refusal_code"] == "observational_input_refused"
     assert projection["request"]["requested_source_ref"] == source_ref.model_dump(mode="json")
     assert projection["selection"] is None
-    assert "covariates" not in fresh.text
-    assert "observational_data" not in fresh.text
+    refusal_privacy_violations = hte_source_privacy_violations(
+        response_wire,
+        source_payload=source_payload,
+        source_only_sample_id=source_only_sample_id,
+    )
+    assert refusal_privacy_violations == (), refusal_privacy_violations
 
 
 def test_failed_shared_method_completion_persists_bounded_failure_identity(
@@ -1470,8 +1975,17 @@ def test_failed_shared_method_completion_persists_bounded_failure_identity(
 
     service = runtime_api_env["app"].state._control_service
     stop_embedded_control_worker(service)
-    source_ref = _put_runtime_observational_source(service)
-    response = runtime_api_env["client"].post(
+    source_only_sample_id = "hte-source-only::failed-execution-redaction::row-0"
+    source_payload = _runtime_hte_source_payload(
+        source_only_sample_id=source_only_sample_id,
+    )
+    source_ref = _put_runtime_observational_source(
+        service,
+        owner_scope=(runtime_api_env["tenant_a"], runtime_api_env["cell_a"]),
+        source_only_sample_id=source_only_sample_id,
+    )
+    response = _post_runtime_api_as_fixture_owner(
+        runtime_api_env,
         "/api/v1/control/runs",
         json={
             "observational_input": {
@@ -1516,62 +2030,197 @@ def test_failed_shared_method_completion_persists_bounded_failure_identity(
     assert record.progress["failure"]["code"] == "bounded_method_input_invalid"
     assert record.progress["failure"]["retryable"] is False
     assert "candidate payload" not in str(record.progress)
+    from _helpers.hte_privacy import hte_source_privacy_violations
+
+    progress_privacy_violations = hte_source_privacy_violations(
+        record.progress,
+        source_payload=source_payload,
+        source_only_sample_id=source_only_sample_id,
+    )
+    assert progress_privacy_violations == (), progress_privacy_violations
     fresh = runtime_api_env["client"].get(f"/api/v1/runs/{accepted['run_id']}")
     assert fresh.status_code == 200, fresh.text
-    projection = fresh.json()["run"]["method_execution_selection"]
+    response_wire = fresh.json()
+    projection = response_wire["run"]["method_execution_selection"]
     assert projection["status"] == "execution_failed"
     assert projection["refusal_code"] is None
     assert projection["request"]["requested_source_ref"] == source_ref.model_dump(mode="json")
+    failure_privacy_violations = hte_source_privacy_violations(
+        response_wire,
+        source_payload=source_payload,
+        source_only_sample_id=source_only_sample_id,
+    )
+    assert failure_privacy_violations == (), failure_privacy_violations
     assert "candidate payload" not in fresh.text
 
 
+@pytest.mark.parametrize(
+    "drift_kind", ["source_ref", "source_profile", "intent_params", "marker_removed"]
+)
 def test_worker_refuses_post_to_intent_mapping_drift_before_method_dispatch(
     runtime_api_env: dict[str, Any],
     monkeypatch: pytest.MonkeyPatch,
+    drift_kind: str,
 ) -> None:
     from _helpers.control_worker import dispatch_one_control_job, stop_embedded_control_worker
 
     service = runtime_api_env["app"].state._control_service
     stop_embedded_control_worker(service)
-    source_ref = _put_runtime_observational_source(service)
-    alternate_source_ref = _put_runtime_observational_source(
-        service,
-        source_label="different_candidate_source",
-    )
-    response = runtime_api_env["client"].post(
+    owner_scope = (runtime_api_env["tenant_a"], runtime_api_env["cell_a"])
+    source_ref = _put_runtime_observational_source(service, owner_scope=owner_scope)
+    response = _post_runtime_api_as_fixture_owner(
+        runtime_api_env,
         "/api/v1/control/runs",
         json={
             "observational_input": {
                 "protocol": "method_input_envelope_v1",
                 "source_ref": source_ref.model_dump(mode="json"),
-                "method": {"fqn": "causal.hte.forest_dr@1.1.0"},
+                "method": {
+                    "fqn": "causal.hte.forest_dr@1.1.0",
+                    "params": {"n_estimators": 12, "cv_folds": 2, "subforest_size": 2},
+                },
             }
         },
     )
-    assert response.status_code == 200
+    assert response.status_code == 200, response.text
     accepted = response.json()
     job = service._control_store.get_job(accepted["job_id"])
     assert job is not None and job.payload_ref is not None
     original_loader = service._load_payload_ref
-    original_submit = service._method_backend.submit_method_execution_work
-    submit_calls: list[object] = []
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    with tenant_scope(
+        None,
+        tenant_id=owner_scope[0],
+        cell_id=owner_scope[1],
+    ):
+        original_payload = original_loader(
+            job.payload_ref,
+            kind="runtime.control_job_payload.workflow_run",
+        )
+    original_marker = original_payload["observational_method_execution"]
+    created_event = service._control_store.get_job_created_event_payload(accepted["job_id"])
+    assert created_event["observational_method_execution"] == original_marker
+    intent_ref = ArtifactRef.model_validate(original_marker["observational_run_intent_ref"])
+    with tenant_scope(
+        None,
+        tenant_id=owner_scope[0],
+        cell_id=owner_scope[1],
+    ):
+        intent = ObservationalRunIntent.model_validate(
+            service._read_bounded_intent_artifact(intent_ref)
+        )
+        selected_source, selected_intent_ref, selected_digest, selected_intent = (
+            service._read_validated_observational_method_job_intent(
+                job=job,
+                payload=original_payload,
+            )
+        )
+    assert artifact_ref_identity_key(selected_source) == artifact_ref_identity_key(source_ref)
+    assert artifact_ref_identity_key(selected_intent_ref) == artifact_ref_identity_key(intent_ref)
+    assert selected_digest == intent.selection_digest()
+    assert selected_intent.resolved_params == intent.resolved_params
+
+    altered_marker = dict(original_marker)
+    if drift_kind == "source_ref":
+        altered_source_ref = _put_runtime_observational_source(
+            service,
+            owner_scope=owner_scope,
+            source_label="different_candidate_source",
+        )
+        altered_marker["requested_source_ref"] = altered_source_ref.model_dump(mode="json")
+    elif drift_kind == "source_profile":
+        from polisyos.core.security.tenant_context import tenant_scope
+
+        with tenant_scope(
+            None,
+            tenant_id=owner_scope[0],
+            cell_id=owner_scope[1],
+        ):
+            profile_parent = _put_selected_json(
+                service._artifact_store,
+                {"profile_context": "synthetic test control"},
+                kind="runtime.test.profile_context",
+                schema=None,
+                governance=ArtifactGovernanceInfo(classification="public"),
+            )
+        altered_source_ref = _put_runtime_observational_source(
+            service,
+            owner_scope=owner_scope,
+            inputs=(_input_edge(profile_parent, "profile_context"),),
+        )
+        assert altered_source_ref.artifact_id == source_ref.artifact_id
+        assert altered_source_ref.manifest_profile_sha256 != source_ref.manifest_profile_sha256
+        altered_marker["requested_source_ref"] = altered_source_ref.model_dump(mode="json")
+    elif drift_kind == "intent_params":
+        original_n_estimators = intent.resolved_params["n_estimators"]
+        assert type(original_n_estimators) is int
+        altered_params = dict(intent.submitted_params)
+        altered_params["n_estimators"] = original_n_estimators + 1
+        altered_resolved_params = dict(intent.resolved_params)
+        altered_resolved_params["n_estimators"] = original_n_estimators + 1
+        altered_intent = intent.model_copy(
+            update={
+                "submitted_params": altered_params,
+                "resolved_params": altered_resolved_params,
+            }
+        )
+        altered_intent = ObservationalRunIntent.model_validate(altered_intent.artifact_payload())
+        assert altered_intent.job_id == intent.job_id
+        assert altered_intent.run_id == intent.run_id
+        assert artifact_ref_identity_key(altered_intent.requested_source_ref) == (
+            artifact_ref_identity_key(intent.requested_source_ref)
+        )
+        assert altered_intent.resolved_params["n_estimators"] == original_n_estimators + 1
+        assert altered_intent.selection_digest() != intent.selection_digest()
+        assert intent.resource_policy_ref is not None
+        with tenant_scope(
+            None,
+            tenant_id=owner_scope[0],
+            cell_id=owner_scope[1],
+        ):
+            altered_intent_ref = service._put_json_artifact_ref(
+                altered_intent.artifact_payload(),
+                kind="runtime.observational_run_intent",
+                schema_name="polisyos.runtime.ObservationalRunIntent",
+                schema_version="1.0",
+                tenant_context=intent.source_tenant_context,
+                governance=intent.source_governance,
+                inputs=[intent.requested_source_ref, intent.resource_policy_ref],
+                input_roles=("requested_source", "resource_policy"),
+            )
+            readback_intent = ObservationalRunIntent.model_validate(
+                service._read_bounded_intent_artifact(altered_intent_ref)
+            )
+        assert readback_intent.selection_digest() == altered_intent.selection_digest()
+        altered_marker["observational_run_intent_ref"] = altered_intent_ref.model_dump(mode="json")
+        altered_marker["observational_selection_digest"] = altered_intent.selection_digest()
 
     def tamper_accepted_payload(payload_ref: str, *, kind: str) -> dict[str, Any]:
         loaded = original_loader(payload_ref, kind=kind)
         if payload_ref != job.payload_ref:
             return loaded
         updated = dict(loaded)
-        marker = dict(updated["observational_method_execution"])
-        marker["requested_source_ref"] = alternate_source_ref.model_dump(mode="json")
-        updated["observational_method_execution"] = marker
+        if drift_kind == "marker_removed":
+            updated.pop("observational_method_execution", None)
+        else:
+            updated["observational_method_execution"] = altered_marker
         return updated
 
-    def count_submit(work: object) -> object:
+    core_attempt_calls: list[object] = []
+    submit_calls: list[object] = []
+
+    def reject_core_attempt(**kwargs: object) -> tuple[str, object]:
+        core_attempt_calls.append(kwargs)
+        raise AssertionError("Core run attempt started before frozen request check")
+
+    def reject_submit(work: object) -> object:
         submit_calls.append(work)
-        return original_submit(work)
+        raise AssertionError("method work submitted before frozen request check")
 
     monkeypatch.setattr(service, "_load_payload_ref", tamper_accepted_payload)
-    monkeypatch.setattr(service._method_backend, "submit_method_execution_work", count_submit)
+    monkeypatch.setattr(service, "_start_generation_run_context", reject_core_attempt)
+    monkeypatch.setattr(service._method_backend, "submit_method_execution_work", reject_submit)
     dispatched = dispatch_one_control_job(
         store=service._control_store,
         handler=service._process_control_job,
@@ -1581,7 +2230,14 @@ def test_worker_refuses_post_to_intent_mapping_drift_before_method_dispatch(
     assert dispatched == accepted["job_id"]
     failed = service._control_store.get_job(accepted["job_id"])
     assert failed is not None and failed.state == "failed"
+    expected_error = (
+        "observational_method_job_marker_invalid"
+        if drift_kind == "marker_removed"
+        else "observational_method_job_payload_selection_not_creation_bound"
+    )
+    assert failed.error_message == expected_error
     assert failed.method_execution_selection is None
+    assert core_attempt_calls == []
     assert submit_calls == []
 
 
@@ -1589,6 +2245,8 @@ def _post_observational_selection(
     runtime_api_env: dict[str, Any],
     monkeypatch: pytest.MonkeyPatch,
     method: dict[str, object],
+    *,
+    hte_request: dict[str, object] | None = None,
 ) -> tuple[Any, list[dict[str, Any]]]:
     service = runtime_api_env["app"].state._control_service
     queued: list[dict[str, Any]] = []
@@ -1597,28 +2255,47 @@ def _post_observational_selection(
         queued.append(kwargs)
 
     monkeypatch.setattr(service, "_enqueue_job", capture_enqueue)
-    response = runtime_api_env["client"].post(
+    observational_input: dict[str, object] = {
+        "protocol": "method_input_envelope_v1",
+        "source_ref": _put_runtime_observational_source(
+            service,
+            owner_scope=(runtime_api_env["tenant_a"], runtime_api_env["cell_a"]),
+        ).model_dump(mode="json"),
+        "method": method,
+    }
+    if hte_request is not None:
+        observational_input["hte_request"] = hte_request
+    response = _post_runtime_api_as_fixture_owner(
+        runtime_api_env,
         "/api/v1/control/runs",
-        json={
-            "observational_input": {
-                "protocol": "method_input_envelope_v1",
-                "source_ref": _put_runtime_observational_source(service).model_dump(mode="json"),
-                "method": method,
-            },
-        },
+        json={"observational_input": observational_input},
     )
     return response, queued
 
 
 @pytest.mark.parametrize(
-    ("method", "expected_fqn"),
+    ("method", "expected_fqn", "hte_request"),
     [
-        ({"fqn": "causal.hte.forest_dr"}, "causal.hte.forest_dr@1.1.0"),
+        (
+            {"fqn": "causal.hte.forest_dr@2.0.0"},
+            "causal.hte.forest_dr@2.0.0",
+            {
+                "schema_version": "polisyos.runtime.observational_hte_request.v2",
+                "estimand": "conditional_average_treatment_effect",
+                "target_scope": "synthetic_test_population",
+                "outcome_variable_id": "outcome",
+                "treatment_variable_id": "treatment",
+                "control_value": 0,
+                "treated_value": 1,
+                "alpha": 0.05,
+            },
+        ),
         (
             {"fqn": "causal.hte.forest_dr", "version": "1.1.0"},
             "causal.hte.forest_dr@1.1.0",
+            None,
         ),
-        ({"fqn": "causal.hte.forest_dr@1.1.0"}, "causal.hte.forest_dr@1.1.0"),
+        ({"fqn": "causal.hte.forest_dr@1.1.0"}, "causal.hte.forest_dr@1.1.0", None),
     ],
 )
 def test_http_post_resolves_and_persists_exact_bounded_method_version_once(
@@ -1626,19 +2303,33 @@ def test_http_post_resolves_and_persists_exact_bounded_method_version_once(
     monkeypatch: pytest.MonkeyPatch,
     method: dict[str, object],
     expected_fqn: str,
+    hte_request: dict[str, object] | None,
 ) -> None:
-    response, queued = _post_observational_selection(runtime_api_env, monkeypatch, method)
+    response, queued = _post_observational_selection(
+        runtime_api_env,
+        monkeypatch,
+        method,
+        hte_request=hte_request,
+    )
 
-    assert response.status_code == 200
+    assert response.status_code == 200, response.text
     assert response.json()["status"] == "accepted"
     assert len(queued) == 1
     marker = queued[0]["payload"]["observational_method_execution"]
     intent_ref = ArtifactRef.model_validate(marker["observational_run_intent_ref"])
-    intent = ObservationalRunIntent.model_validate(
-        runtime_api_env["app"].state._control_service._read_bounded_intent_artifact(intent_ref)
-    )
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    with tenant_scope(
+        None,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    ):
+        intent = ObservationalRunIntent.model_validate(
+            runtime_api_env["app"].state._control_service._read_bounded_intent_artifact(intent_ref)
+        )
     assert intent.method_fqn == expected_fqn
-    assert intent.method_version == "1.1.0"
+    expected_version = expected_fqn.rpartition("@")[2]
+    assert intent.method_version == expected_version
     assert ArtifactRef.model_validate(response.json()["observational_run_intent_ref"]) == intent_ref
     assert response.json()["observational_selection_digest"] == intent.selection_digest()
     assert marker["observational_selection_digest"] == intent.selection_digest()
@@ -1646,18 +2337,57 @@ def test_http_post_resolves_and_persists_exact_bounded_method_version_once(
         "app"
     ].state._control_service._observational_method_registrations[expected_fqn]
     assert intent.method_abi_digest == registration.signature.abi_digest()
-    assert intent.method_abi_digest == (
-        "c47789927627661e4eedd78368cc710181060dc1e705b8484cbf089fe50234e4"
+    expected_abi_digest = (
+        "6545daabc7f5354e020bf7a90cc64c858ade7397d249437990be0c19df98c43b"
+        if expected_version == "2.0.0"
+        else "c47789927627661e4eedd78368cc710181060dc1e705b8484cbf089fe50234e4"
     )
+    assert intent.method_abi_digest == expected_abi_digest
     assert intent.method_build_digest == registration.build_digest
     assert intent.method_build_digest_scope == "class_source_only"
-    assert intent.resource_policy.revision == "r3"
+    assert intent.resource_policy.revision == ("r5" if expected_version == "2.0.0" else "r3")
     assert intent.resource_policy.method_contract_target == (
         "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
     )
     assert intent.resource_policy.required_estimator_n_jobs == 1
     assert type(intent.resolved_params["n_jobs"]) is int
     assert intent.resolved_params["n_jobs"] == 1
+
+
+def test_http_post_omitted_version_persists_latest_available_v1_registration(
+    runtime_api_env: dict[str, Any],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service = runtime_api_env["app"].state._control_service
+    monkeypatch.setattr(
+        service._method_registry,
+        "list_versions",
+        lambda base_name: ["1.0.0", "1.1.0"],
+    )
+
+    response, queued = _post_observational_selection(
+        runtime_api_env,
+        monkeypatch,
+        {"fqn": "causal.hte.forest_dr"},
+    )
+
+    assert response.status_code == 200, response.text
+    assert len(queued) == 1
+    marker = queued[0]["payload"]["observational_method_execution"]
+    intent_ref = ArtifactRef.model_validate(marker["observational_run_intent_ref"])
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    with tenant_scope(
+        None,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    ):
+        intent = ObservationalRunIntent.model_validate(
+            service._read_bounded_intent_artifact(intent_ref)
+        )
+    assert intent.method_fqn == "causal.hte.forest_dr@1.1.0"
+    assert intent.method_version == "1.1.0"
+    assert marker["observational_selection_digest"] == intent.selection_digest()
 
 
 def test_http_post_refuses_unbounded_legacy_method_before_durable_enqueue(
@@ -3131,3 +3861,247 @@ def test_registered_public_graph_execute_reaches_runtime_owner_and_cold_metric_g
     assert revoked.json()["vector_ref"] is None
     assert revoked.json()["observations"] == []
     assert revoked.json()["limitations"] == ["current_method_metric_selection_not_established"]
+
+
+def _post_v2_hte_alpha_selection(
+    runtime_api_env: dict[str, Any],
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    method_fqn: str,
+    request_alpha: float = 0.07,
+    method_params: dict[str, object] | None = None,
+) -> tuple[Any, list[dict[str, Any]], Any]:
+    """Post one selected HTE request and retain the exact queued owner payload."""
+    service = runtime_api_env["app"].state._control_service
+    queued: list[dict[str, Any]] = []
+    monkeypatch.setattr(service, "_enqueue_job", lambda **kwargs: queued.append(kwargs))
+    method: dict[str, object] = {"fqn": method_fqn}
+    if method_params is not None:
+        method["params"] = method_params
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    # Produce the candidate under the owner that the request fixture actually uses.
+    with tenant_scope(
+        None,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    ):
+        source_ref = _put_runtime_observational_source(service)
+    payload = {
+        "observational_input": {
+            "protocol": "method_input_envelope_v1",
+            "source_ref": source_ref.model_dump(mode="json"),
+            "method": method,
+            "hte_request": {
+                "schema_version": "polisyos.runtime.observational_hte_request.v2",
+                "estimand": "mean_effect_over_selected_x",
+                "target_scope": "selected_evaluation_rows",
+                "outcome_variable_id": "outcome.effect",
+                "treatment_variable_id": "treatment.policy",
+                "control_value": 0.0,
+                "treated_value": 1.0,
+                "requested_guarantee": "candidate_point",
+                "alpha": request_alpha,
+            },
+        },
+    }
+    # HTTPX's `json=` rejects non-finite floats before the request reaches the API.
+    # Raw JSON bytes exercise the real authorization/canonicalization boundary.
+    response = _post_runtime_api_as_fixture_owner(
+        runtime_api_env,
+        "/api/v1/control/runs",
+        content=json.dumps(payload, allow_nan=True, separators=(",", ":")),
+        headers={"content-type": "application/json"},
+    )
+    return response, queued, service
+
+
+def _read_v2_hte_alpha_intent(
+    runtime_api_env: dict[str, Any],
+    service: Any,
+    response: Any,
+) -> tuple[ArtifactRef, ObservationalRunIntent]:
+    """Read the accepted intent under the exact tenant/cell fixture owner."""
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    intent_ref = ArtifactRef.model_validate(response.json()["observational_run_intent_ref"])
+    with tenant_scope(
+        None,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    ):
+        intent = ObservationalRunIntent.model_validate(
+            service._read_bounded_intent_artifact(intent_ref)
+        )
+    return intent_ref, intent
+
+
+@pytest.mark.parametrize(
+    ("method_fqn", "factory_alpha"),
+    [
+        ("causal.hte.causal_forest@2.0.0", 0.1),
+        ("causal.hte.double_ml@2.0.0", 0.05),
+        ("causal.hte.meta_learner@2.0.0", 0.05),
+        ("causal.hte.forest_dr@2.0.0", 0.05),
+    ],
+)
+def test_v2_hte_request_alpha_replaces_only_omitted_method_default(
+    runtime_api_env: dict[str, Any],
+    monkeypatch: pytest.MonkeyPatch,
+    method_fqn: str,
+    factory_alpha: float,
+) -> None:
+    """Freeze request alpha into the selected signature's effective params."""
+    response, queued, service = _post_v2_hte_alpha_selection(
+        runtime_api_env,
+        monkeypatch,
+        method_fqn=method_fqn,
+    )
+
+    assert response.status_code == 200, response.text
+    assert response.json()["status"] == "accepted"
+    assert len(queued) == 1
+    registration = service._observational_method_registrations[method_fqn]
+    signature_alpha = next(
+        spec.default for spec in registration.signature.parameters if spec.name == "alpha"
+    )
+    assert signature_alpha == factory_alpha
+    intent_ref, intent = _read_v2_hte_alpha_intent(runtime_api_env, service, response)
+    assert intent.submitted_params_present is False
+    assert intent.submitted_params == {}
+    assert intent.resolved_params["alpha"] == 0.07
+    assert intent.resolved_params["alpha"] != factory_alpha
+    if method_fqn == "causal.hte.meta_learner@2.0.0":
+        # Tuple defaults cross the typed intent boundary in their JSON array form.
+        assert intent.resolved_params["base_model_candidates"] == []
+    assert intent.owned_hte_request_context is not None
+    assert intent.owned_hte_request_context.requested_alpha == 0.07
+    assert intent.resource_policy.method_fqn == method_fqn
+    assert intent.resource_policy_digest == intent.resource_policy.digest()
+    assert response.json()["observational_selection_digest"] == intent.selection_digest()
+    marker = queued[0]["payload"]["observational_method_execution"]
+    assert ArtifactRef.model_validate(marker["observational_run_intent_ref"]) == intent_ref
+    assert marker["observational_selection_digest"] == intent.selection_digest()
+
+
+def test_v2_hte_request_alpha_accepts_matching_explicit_method_alpha(
+    runtime_api_env: dict[str, Any],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Preserve explicit caller input when it agrees with immutable request intent."""
+    response, queued, service = _post_v2_hte_alpha_selection(
+        runtime_api_env,
+        monkeypatch,
+        method_fqn="causal.hte.causal_forest@2.0.0",
+        method_params={"alpha": 0.07},
+    )
+
+    assert response.status_code == 200, response.text
+    assert len(queued) == 1
+    _intent_ref, intent = _read_v2_hte_alpha_intent(runtime_api_env, service, response)
+    assert intent.submitted_params_present is True
+    assert intent.submitted_params == {"alpha": 0.07}
+    assert intent.resolved_params["alpha"] == 0.07
+    assert intent.owned_hte_request_context is not None
+    assert intent.owned_hte_request_context.requested_alpha == 0.07
+
+
+def test_v2_hte_request_alpha_refuses_conflicting_explicit_method_alpha(
+    runtime_api_env: dict[str, Any],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Do not silently rewrite a submitted method alpha that conflicts with the request."""
+    response, queued, _service = _post_v2_hte_alpha_selection(
+        runtime_api_env,
+        monkeypatch,
+        method_fqn="causal.hte.causal_forest@2.0.0",
+        method_params={"alpha": 0.05},
+    )
+
+    assert response.status_code == 422
+    assert response.json()["code"] == "observational_hte_method_alpha_conflict"
+    assert queued == []
+
+
+@pytest.mark.parametrize("malformed_alpha", ["0.07", float("nan"), float("inf")])
+def test_v2_hte_request_alpha_does_not_treat_malformed_explicit_as_omitted(
+    runtime_api_env: dict[str, Any],
+    monkeypatch: pytest.MonkeyPatch,
+    malformed_alpha: object,
+) -> None:
+    """Malformed or non-finite explicit values remain a typed refusal."""
+    response, queued, _service = _post_v2_hte_alpha_selection(
+        runtime_api_env,
+        monkeypatch,
+        method_fqn="causal.hte.causal_forest@2.0.0",
+        method_params={"alpha": malformed_alpha},
+    )
+
+    if type(malformed_alpha) is float:
+        # NaN/Infinity are not JSON numbers; the real auth body canonicalizer
+        # refuses them before typed method-parameter resolution.
+        assert response.status_code == 400, response.text
+        assert response.json()["code"] == "authorization_binding_body_invalid"
+    else:
+        assert response.status_code == 422, response.text
+        assert response.json()["code"] == "observational_method_parameters_invalid"
+    assert queued == []
+
+
+@pytest.mark.parametrize(
+    ("policy_change", "invalid_value"),
+    [
+        ("max_jobs", 2),
+        ("method_profile_id", "econml.dml.point_only@2.0"),
+        ("execution_scope", "estimator_n_jobs_one"),
+        ("required_estimator_n_jobs", 1),
+    ],
+)
+def test_meta_learner_v2_resource_profile_rejects_policy_drift(
+    runtime_api_env: dict[str, Any],
+    policy_change: str,
+    invalid_value: object,
+) -> None:
+    """Keep producer scope and profile pins load-bearing without a foreign knob."""
+    service = runtime_api_env["app"].state._control_service
+    registration = service._resolve_observational_method_registration(
+        fqn="causal.hte.meta_learner@2.0.0",
+        version=None,
+    )
+    parameter_names = {item.name for item in registration.signature.parameters}
+    assert "bootstrap_n_jobs" not in parameter_names
+    assert "n_jobs" not in parameter_names
+    assert registration.n_jobs_parameter is None
+
+    policy = service._resource_policy_for_registration(registration)
+    assert policy.method_fqn == "causal.hte.meta_learner@2.0.0"
+    assert policy.method_profile_id == "econml.meta_learner.point_only@2.0"
+    assert policy.execution_scope == "producer_scoped_joblib_parallelism_one"
+    assert policy.required_estimator_n_jobs is None
+    assert policy.max_jobs == 1
+    service._require_observational_method_resource_profile(registration, {}, resource_policy=policy)
+
+    corrupted_policy = policy.model_copy(update={policy_change: invalid_value})
+    with pytest.raises(ValueError, match="observational_method_resource_profile_not_supported"):
+        service._require_observational_method_resource_profile(
+            registration, {}, resource_policy=corrupted_policy
+        )
+
+
+@pytest.mark.parametrize("undeclared_knob", ["bootstrap_n_jobs", "n_jobs"])
+def test_meta_learner_v2_refuses_unexposed_parallelism_knobs_before_enqueue(
+    runtime_api_env: dict[str, Any],
+    monkeypatch: pytest.MonkeyPatch,
+    undeclared_knob: str,
+) -> None:
+    """Do not accept a stale or unexposed estimator-parallelism input."""
+    response, queued, _service = _post_v2_hte_alpha_selection(
+        runtime_api_env,
+        monkeypatch,
+        method_fqn="causal.hte.meta_learner@2.0.0",
+        method_params={undeclared_knob: 1},
+    )
+
+    assert response.status_code == 422
+    assert response.json()["code"] == "observational_method_parameters_invalid"
+    assert queued == []

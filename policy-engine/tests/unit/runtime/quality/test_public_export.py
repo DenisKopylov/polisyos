@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-# ruff: noqa: S101
 import json
+from collections.abc import ItemsView, Iterator, Mapping, Sequence
 from pathlib import Path
 
 import pytest
 
+from polisyos.core import SecretPIIScanResult
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.runtime.quality import public_export as public_export_module
 from polisyos.runtime.quality.case_lifecycle import build_lifecycle_reissue_report
@@ -629,6 +630,7 @@ def test_public_export_redacts_sensitive_payloads_and_preserves_audit_semantics(
                 "hidden_benchmark_answer": "gold answer is option B",
                 "provider_credentials": {"api_key": "sk-secret-token"},
                 "tenant_id": "tenant-1",
+                "tenant_private_cas_ref": sha("4"),
                 "private_prompt": "private system prompt for internal scoring",
                 "restricted_source_material": "licensed source page text",
             }
@@ -660,7 +662,23 @@ def test_public_export_redacts_sensitive_payloads_and_preserves_audit_semantics(
     assert projection["authority_role"] == "projection_only"
     assert projection["allowed_scorecard_authority_role"] == "not_authoritative"
     assert projection["tenant_redacted"] is True
-    assert projection["tenant_fingerprint"].startswith("sha256:")
+    assert "tenant_fingerprint" not in projection
+    assert public_bundle["official_use_limits"]["official_use"] == "public_audit_only"
+    private_ref_marker = public_bundle["artifacts"]["decision_artifact"]["tenant_private_cas_ref"]
+    assert isinstance(private_ref_marker, dict)
+    assert private_ref_marker["redacted"] is True
+    assert private_ref_marker["reason"] == "tenant_private_ref"
+
+    from polisyos.runtime.http.services.public_decision_verification import _PUBLIC_DOCUMENT
+
+    verified_document = _PUBLIC_DOCUMENT.validate_python(public_bundle, strict=True)
+    assert (
+        verified_document["artifacts"]["decision_artifact"]["tenant_private_cas_ref"]
+        == private_ref_marker
+    )
+    assert (
+        "tenant_fingerprint" not in verified_document["semantic_audit"]["authority_projections"][0]
+    )
 
     assert public_bundle["evidence_class"] == "redacted_derived"
     assert public_bundle["official_use_limits"]["official_use"] == "public_audit_only"
@@ -670,17 +688,14 @@ def test_public_export_redacts_sensitive_payloads_and_preserves_audit_semantics(
 
 
 @pytest.mark.asyncio
-async def test_public_export_carries_scope_limitation_without_numeric_risk(
+async def test_public_export_refuses_source_limited_run_before_open_world_projection(
     tmp_path,
 ) -> None:
-    """Blocked runs refuse projection; positive OWR remains verification_missing.
+    """Source-limited runs stop at custody before downstream currentness checks.
 
-    Positive projection needs issuer-backed N6 currentness and a valid, naturally
-    reached stop terminal; the former test fixture forced a stop and was rejected.
+    This fixture has no preserved source store, so its truthful first refusal is
+    source custody; it cannot demonstrate open-world currentness or risk output.
     """
-    from polisyos.runtime.quality.generation_cycle import (
-        currentness_for_generation_cycle_run,
-    )
     from tests.unit.runtime.quality.test_generation_cycle import (
         _budget,
         _CgfGenerationPort,
@@ -711,12 +726,6 @@ async def test_public_export_carries_scope_limitation_without_numeric_risk(
         "generation_cycle_blocked_before_n9:voi_safety_cap_reached_without_scheduler_stop"
     )
 
-    currentness = currentness_for_generation_cycle_run(run)
-    expected_refusal = {
-        "current": "open_world_projection_not_established",
-        "stale": "strangle_receipt_stale",
-        "not_established": "strangle_receipt_currentness_not_established",
-    }[currentness.status]
     with pytest.raises(PublicExportRedactionError) as error_info:
         projector(
             run=run,
@@ -724,7 +733,293 @@ async def test_public_export_carries_scope_limitation_without_numeric_risk(
             resolver=runtime.resolver,
             repo_root=REPO_ROOT,
         )
-    assert error_info.value.code == expected_refusal
+    assert error_info.value.code == "generation_cycle_source_preservation_not_established"
+
+
+class _ItemsOmittingMapping(Mapping[str, object]):
+    def __init__(self, values: dict[str, object]) -> None:
+        self._values = values
+
+    def __getitem__(self, key: str) -> object:
+        return self._values[key]
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self._values)
+
+    def __len__(self) -> int:
+        return len(self._values)
+
+    def items(self) -> ItemsView[str, object]:
+        return {"visible": self._values["visible"]}.items()
+
+
+def test_public_mapping_copy_uses_iteration_and_getitem_not_items_override() -> None:
+    source = _ItemsOmittingMapping({"visible": "kept", "omitted": "must survive"})
+
+    assert public_export_module._copy_public_mapping(source, field="mapping probe") == {
+        "visible": "kept",
+        "omitted": "must survive",
+    }
+
+
+def test_public_export_authority_audit_enumerates_all_mapping_keys() -> None:
+    artifacts = _ItemsOmittingMapping(
+        {
+            "visible": {"status": "limited"},
+            "omitted": {"status": "limited"},
+        }
+    )
+
+    bundle = build_public_export_bundle(
+        run_id="run-mapping-completeness",
+        artifacts=artifacts,
+    )
+    decisions = bundle["semantic_audit"]["authority_surface_decisions"]
+
+    assert {item["artifact_key"] for item in decisions} == {"visible", "omitted"}
+
+
+def test_public_export_redacts_complete_authority_projection_and_runtime_truth() -> None:
+    email = "audit.fixture@example.org"
+    sensitive_value = "password=projection-secret-value"
+    envelope = authority_envelope_for(
+        report_key="policy_grounding_matrix",
+        ref_key="policy_grounding_matrix_ref",
+        ref_value=sha("c"),
+    )
+    envelope["owner"] = email
+    envelope["evidence_id"] = "authority-record@audit.fixture.example.org"
+    envelope["schema_name"] = "runtime.reader " + sensitive_value
+    envelope["producer_component"] = "runtime.reader " + sensitive_value
+    bundle = build_public_export_bundle(
+        run_id="run-public-authority-redaction",
+        artifacts={"decision": {"status": "limited"}},
+        authority_envelopes=[envelope],
+        runtime_truth_preservation={
+            "status": "not_established",
+            "limitation": email,
+        },
+    )
+
+    rendered = json.dumps(bundle, sort_keys=True)
+    projection = bundle["semantic_audit"]["authority_projections"][0]
+    reports = bundle["semantic_audit"]["secret_pii_scan_reports"]
+
+    assert email not in rendered
+    assert "authority-record@audit.fixture.example.org" not in rendered
+    assert sensitive_value not in rendered
+    assert "[POLISYOS_SECRET_EMAIL_" in rendered
+    assert "[POLISYOS_SECRET_PASSWORD_ASSIGNMENT_" in rendered
+    assert any(report["finding_kind"] == "email" for report in reports)
+    assert any(report["finding_kind"] == "password_assignment" for report in reports)
+    assert projection["authority_role"] == "projection_only"
+    assert projection["source_authority_role"] == "producer_authority"
+    assert projection["source_blocking_status"] == "non_blocking"
+    assert projection["owner"].startswith("[POLISYOS_SECRET_EMAIL_")
+    assert "[POLISYOS_SECRET_PASSWORD_ASSIGNMENT_" in projection["schema_name"]
+    assert bundle["runtime_truth_preservation"]["status"] == "not_established"
+    assert bundle["official_use_limits"]["official_use"] == "public_audit_only"
+
+
+def test_complete_export_scan_redacts_raw_projection_when_inner_scan_markers_remain(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    email = "authority.owner@audit.fixture.example.org"
+    sensitive_value = "password=untrusted-artifact-secret"
+    original_scan = public_export_module._scan_public_export_artifacts
+
+    def preserve_only_inner_scan_markers(
+        *, run_id: str, artifacts: Mapping[str, object]
+    ) -> tuple[dict[str, object], list[dict[str, object]], list[dict[str, str]], dict[str, object]]:
+        _safe_artifacts, reports, redactions, receipt = original_scan(
+            run_id=run_id, artifacts=artifacts
+        )
+        return dict(artifacts), reports, redactions, receipt
+
+    monkeypatch.setattr(
+        public_export_module,
+        "_scan_public_export_artifacts",
+        preserve_only_inner_scan_markers,
+    )
+    envelope = authority_envelope_for(
+        report_key="policy_grounding_matrix",
+        ref_key="policy_grounding_matrix_ref",
+        ref_value=sha("d"),
+    )
+    envelope["owner"] = email
+    bundle = build_public_export_bundle(
+        run_id="run-complete-redaction-probe",
+        artifacts={"decision": {"authorization": sensitive_value}},
+        authority_envelopes=[envelope],
+    )
+
+    rendered = json.dumps(bundle, sort_keys=True)
+    reports = bundle["semantic_audit"]["secret_pii_scan_reports"]
+    assert email not in rendered
+    assert sensitive_value not in rendered
+    assert "[POLISYOS_SECRET_EMAIL_" in rendered
+    assert "[POLISYOS_SECRET_KEYED_SECRET_" in rendered
+    assert any(report["finding_kind"] == "email" for report in reports)
+    assert any(report["finding_kind"] == "keyed_secret" for report in reports)
+    assert bundle["redaction_summary"]["redacted_path_count"] >= 2
+    assert bundle["semantic_audit"]["strangle_receipts"]
+
+
+def test_final_scan_rejects_same_marker_at_an_unverified_path(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original_scan = public_export_module.scan_secret_and_pii
+    generated: dict[str, str] = {}
+    run_id = "run-complete-redaction-path-control"
+
+    def relocate_verified_marker(
+        value: object,
+        *,
+        scope: str,
+        artifact_ref_or_route: str,
+        sanitizer: object = None,
+        redact: bool = True,
+        block_on_findings: bool = False,
+    ) -> SecretPIIScanResult:
+        result = original_scan(
+            value,
+            scope=scope,
+            artifact_ref_or_route=artifact_ref_or_route,
+            sanitizer=sanitizer,
+            redact=redact,
+            block_on_findings=block_on_findings,
+        )
+        if artifact_ref_or_route == "public-export://complete-bundle":
+            redacted_payload = result.redacted_payload
+            assert isinstance(redacted_payload, Mapping)
+            artifacts = redacted_payload.get("artifacts")
+            assert isinstance(artifacts, Mapping)
+            decision = artifacts.get("decision")
+            assert isinstance(decision, Mapping)
+            marker = decision.get("authorization")
+            assert isinstance(marker, str)
+            generated["marker"] = marker
+        elif artifact_ref_or_route == (f"public-export://{run_id}/complete-bundle-final"):
+            marker = generated["marker"]
+            assert isinstance(value, dict)
+            injected = json.loads(json.dumps(value))
+            runtime_truth = injected.get("runtime_truth_preservation")
+            assert isinstance(runtime_truth, dict)
+            runtime_truth["authorization"] = marker
+            return original_scan(
+                injected,
+                scope=scope,
+                artifact_ref_or_route=artifact_ref_or_route,
+                sanitizer=sanitizer,
+                redact=redact,
+                block_on_findings=block_on_findings,
+            )
+        return result
+
+    monkeypatch.setattr(
+        public_export_module,
+        "scan_secret_and_pii",
+        relocate_verified_marker,
+    )
+    with pytest.raises(PublicExportRedactionError) as error_info:
+        build_public_export_bundle(
+            run_id=run_id,
+            artifacts={
+                "decision": {
+                    "authorization": "password=real-sensitive-value",
+                }
+            },
+            runtime_truth_preservation={"status": "not_established"},
+        )
+
+    assert error_info.value.code == "public_export_complete_scan_residual"
+
+
+def test_final_scan_blocks_when_complete_redaction_is_removed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original_scan = public_export_module.scan_secret_and_pii
+    original_inner_scan = public_export_module._scan_public_export_artifacts
+
+    def preserve_raw_artifacts(
+        *,
+        run_id: str,
+        artifacts: Mapping[str, object],
+    ) -> tuple[dict[str, object], list[dict[str, object]], list[dict[str, str]], dict[str, object]]:
+        _safe_artifacts, reports, redactions, receipt = original_inner_scan(
+            run_id=run_id,
+            artifacts=artifacts,
+        )
+        return dict(artifacts), reports, redactions, receipt
+
+    def remove_complete_redaction(
+        value: object,
+        *,
+        scope: str,
+        artifact_ref_or_route: str,
+        sanitizer: object = None,
+        redact: bool = True,
+        block_on_findings: bool = False,
+    ) -> SecretPIIScanResult:
+        if artifact_ref_or_route == "public-export://complete-bundle":
+            return SecretPIIScanResult(redacted_payload=value)
+        return original_scan(
+            value,
+            scope=scope,
+            artifact_ref_or_route=artifact_ref_or_route,
+            sanitizer=sanitizer,
+            redact=redact,
+            block_on_findings=block_on_findings,
+        )
+
+    monkeypatch.setattr(
+        public_export_module,
+        "_scan_public_export_artifacts",
+        preserve_raw_artifacts,
+    )
+    monkeypatch.setattr(
+        public_export_module,
+        "scan_secret_and_pii",
+        remove_complete_redaction,
+    )
+    with pytest.raises(PublicExportRedactionError) as error_info:
+        build_public_export_bundle(
+            run_id="run-final-scan-removal-control",
+            artifacts={"decision": {"authorization": "password=raw-secret-value"}},
+        )
+
+    assert error_info.value.code == "public_export_complete_scan_residual"
+
+
+def test_public_export_still_rejects_raw_authority_source_ref(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source_ref = sha("c")
+    original_projection = public_export_module._authority_projection
+
+    def reemit_raw_source_ref(envelope: object) -> dict[str, object]:
+        projection = original_projection(envelope)
+        projection["unredacted_source_ref"] = source_ref
+        return projection
+
+    monkeypatch.setattr(
+        public_export_module,
+        "_authority_projection",
+        reemit_raw_source_ref,
+    )
+    envelope = authority_envelope_for(
+        report_key="policy_grounding_matrix",
+        ref_key="policy_grounding_matrix_ref",
+        ref_value=source_ref,
+    )
+    with pytest.raises(PublicExportRedactionError) as error_info:
+        build_public_export_bundle(
+            run_id="run-authority-private-ref-removal-control",
+            artifacts={"decision": {"status": "limited"}},
+            authority_envelopes=[envelope],
+        )
+
+    assert error_info.value.code == "public_export_tenant_private_ref_leak"
 
 
 def test_public_export_uses_canonical_secret_pii_scan_for_email_redaction() -> None:
@@ -1233,6 +1528,10 @@ def _s14_public_projection_payload(**overrides: object) -> dict[str, object]:
 
 
 def test_public_export_surfaces_limited_universality_claim_as_projection_only() -> None:
+    from polisyos.runtime.quality.projection_semantics import (
+        verify_s14_universality_projection_consumer_contract,
+    )
+
     bundle = build_public_export_bundle(
         run_id="run-public-s14-universality",
         artifacts={"public_summary": {"claim_refs": ["rec_1"]}},
@@ -1246,7 +1545,17 @@ def test_public_export_surfaces_limited_universality_claim_as_projection_only() 
     verification = semantic_audit["s14_universality_projection_contract_verification"]
     assert verification["status"] == "pass"
     projection = bundle["projection_semantics"]
-    assert projection["universality_claim_disposition"] == "universal_claim_limited"
+    universality = semantic_audit["s14_universality_projection"]
+    emitted_s14_verification = verify_s14_universality_projection_consumer_contract(
+        projections={"public": universality},
+    )
+    assert emitted_s14_verification["status"] == verification["status"] == "pass"
+    assert universality["universality_claim_disposition"] == "universal_claim_limited"
+    assert universality["sealed_battery_freeze_hash"] is None
+    assert (
+        "semantic_audit.s14_universality_projection.sealed_battery_freeze_hash"
+        in bundle["redaction_summary"]["erased_paths"]
+    )
     assert projection["authority_role"] == "projection_only"
     assert "production_recommendation" in projection["may_not_be_used_for"]
 
@@ -1380,10 +1689,11 @@ def test_s10_public_export_shows_forecast_tier_without_recommendation_authority(
     )
 
     projection = public_bundle["projection_semantics"]
-    assert projection["forecast_tier"] == "observable_calibrated"
-    assert projection["observable_subset_calibration_status"] == "pass"
-    assert projection["uncertainty_interval_refs"] == ["interval://ua-msme/credit-access/95"]
-    assert projection["limitations"]
+    forecast = public_bundle["semantic_audit"]["s10_forecast_projection"]
+    assert forecast["forecast_tier"] == "observable_calibrated"
+    assert forecast["observable_subset_calibration_status"] == "pass"
+    assert forecast["uncertainty_interval_refs"] == ["interval://ua-msme/credit-access/95"]
+    assert public_bundle["semantic_audit"]["projection_extensions"]["limitations"]
     rendered = json.dumps(public_bundle, sort_keys=True)
     assert "production_recommendation_text" not in rendered
     assert "recommendation_authority" not in rendered
@@ -1440,11 +1750,11 @@ def test_public_projection_does_not_promote_s11_to_recommendation_authority() ->
     )
 
     projection = public_bundle["projection_semantics"]
-    assert projection["s11_public_limitation"]
+    s11_projection = public_bundle["semantic_audit"]["s11_predictive_projection"]
+    assert s11_projection["s11_public_limitation"]
     assert "production_recommendation" in projection["may_not_be_used_for"]
     assert projection["authority_role"] == "projection_only"
 
-    s11_projection = public_bundle["semantic_audit"]["s11_predictive_projection"]
     assert s11_projection["effective_predictive_posture"] == "limited_by_weakest_boundary"
     assert s11_projection["proof_carrying_analytics_ref"].startswith("pdc://layer2/s11/")
 
@@ -1465,11 +1775,11 @@ def test_public_export_projects_g3_audit_refs_without_raw_proof_or_search_payloa
     projection = public_bundle["projection_semantics"]
     g3_projection = public_bundle["semantic_audit"]["layer3_g3_analytics_search_projection"]
 
-    assert projection["layer3_g3_public_export_projection_status"] == "pass"
-    assert projection["layer3_g3_certificate_resolution_report_ref"].endswith(
+    assert g3_projection["status"] == "pass"
+    assert g3_projection["certificate_resolution_report_ref"].endswith(
         "layer3_g3_certificate_resolution_report.json"
     )
-    assert projection["layer3_g3_resolved_certificate_count"] == 1
+    assert g3_projection["resolved_certificate_count"] == 1
     assert "claim_authority" in projection["may_not_be_used_for"]
     assert g3_projection["authority_role"] == "projection_only"
     assert g3_projection["resolved_certificate_count"] == 1
@@ -1493,10 +1803,11 @@ def test_public_projection_shows_growth_limitation_without_allocation_authority(
     )
 
     projection = public_bundle["projection_semantics"]
-    assert projection["s12_public_growth_limitation"]
-    assert projection["explore_exploit_posture"] == "balanced_governed"
-    assert projection["override_rate_trend"] == "flat"
-    assert projection["reuse_rate_trend"] == "improving"
+    s12_projection = public_bundle["semantic_audit"]["s12_resource_projection"]
+    assert s12_projection["s12_public_growth_limitation"]
+    assert s12_projection["explore_exploit_posture"] == "balanced_governed"
+    assert s12_projection["override_rate_trend"] == "flat"
+    assert s12_projection["reuse_rate_trend"] == "improving"
     assert "production_recommendation" in projection["may_not_be_used_for"]
     assert projection["authority_role"] == "projection_only"
 
@@ -1516,9 +1827,10 @@ def test_public_projection_surfaces_accountability_note_and_preserves_historical
     )
 
     projection = public_bundle["projection_semantics"]
-    assert projection["public_accountability_note"]
-    assert projection["envelope_revision_direction"] == "shrink"
-    assert projection["closed_case_historical_meaning"] == "preserved"
+    s13_projection = public_bundle["semantic_audit"]["s13_post_deploy_accountability_projection"]
+    assert s13_projection["public_accountability_note"]
+    assert s13_projection["envelope_revision_direction"] == "shrink"
+    assert s13_projection["closed_case_historical_meaning"] == "preserved"
     assert projection["authority_role"] == "projection_only"
     assert "current_evidence_slot" in projection["may_not_be_used_for"]
 
@@ -1571,9 +1883,10 @@ def test_public_projection_reuses_public_revision_state_silent_upgrade_firewall(
 
 
 @pytest.mark.asyncio
-async def test_identity_current_v5_source_limited_run_is_refused_by_public_pre_n9_projection(
+async def test_identity_current_source_limited_run_is_refused_before_n9_projection(
     tmp_path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    from polisyos.runtime.quality.generation_cycle import GENERATION_CYCLE_SCHEMA_VERSION
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
     from tests.unit.runtime.quality.test_s8_blocked_generation_owner import (
         _owner_source_harness,
@@ -1588,7 +1901,7 @@ async def test_identity_current_v5_source_limited_run_is_refused_by_public_pre_n
         monkeypatch=monkeypatch,
     )
     run = harness["run"]
-    assert run.schema_version == "policyos.runtime.generation_cycle_controller.v5"
+    assert run.schema_version == GENERATION_CYCLE_SCHEMA_VERSION
     assert run.source_custody_limitation is not None
     assert run.source_custody_limitation.reason_code == "source_store_unavailable"
     observations = _track_currentness_observations(monkeypatch)
@@ -1614,3 +1927,743 @@ async def test_identity_current_v5_source_limited_run_is_refused_by_public_pre_n
         }
         for item in observations
     )
+
+
+def test_public_export_preserves_s10_welfare_mapping_as_projection_data() -> None:
+    welfare_comparison = {
+        "comparison_status": "limited",
+        "evidence_ref": "welfare://comparison/source",
+        "s8_value_choice_provenance_ref": "value-choice://s8/welfare",
+        "s8_value_tradeoff_disclosure_ref": "value-tradeoff://s8/welfare",
+    }
+    public_bundle = build_public_export_bundle(
+        run_id="run-public-s10-welfare-mapping",
+        artifacts={"public_summary": {"claim_refs": ["rec_1"]}},
+        authority_envelopes=[],
+        policy_design_case=policy_design_case(),
+        projection_payload=_s10_public_projection_payload(
+            welfare_comparison=welfare_comparison,
+        ),
+    )
+
+    projection = public_bundle["semantic_audit"]["s10_forecast_projection"]
+    assert projection["welfare_comparison"] == welfare_comparison
+    assert projection["authority_role"] == "projection_only"
+
+
+def test_public_export_rejects_non_string_keys_in_s10_projection_mapping() -> None:
+    with pytest.raises(
+        PublicExportRedactionError,
+        match="public_export_mapping_key_invalid",
+    ):
+        build_public_export_bundle(
+            run_id="run-public-s10-invalid-welfare-mapping",
+            artifacts={"public_summary": {"claim_refs": ["rec_1"]}},
+            authority_envelopes=[],
+            policy_design_case=policy_design_case(),
+            projection_payload=_s10_public_projection_payload(
+                welfare_comparison={1: "not a public mapping key"},
+            ),
+        )
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [("3", 3), (b"4", 4), (3, 3), (-2, 0), ("invalid", 0)],
+)
+def test_public_export_int_projection_preserves_supported_values(
+    value: object,
+    expected: int,
+) -> None:
+    assert public_export_module._int(value) == expected
+
+
+def test_complete_export_intake_reads_full_authority_envelope_sequence() -> None:
+    class HidingEnvelopeSequence(Sequence[Mapping[str, object]]):
+        def __init__(self, values: list[Mapping[str, object]]) -> None:
+            self._values = values
+
+        def __getitem__(self, index: int) -> Mapping[str, object]:
+            return self._values[index]
+
+        def __len__(self) -> int:
+            return len(self._values)
+
+        def __iter__(self) -> Iterator[Mapping[str, object]]:
+            return iter(self._values[:1])
+
+    first = authority_envelope_for(
+        report_key="policy_grounding_matrix",
+        ref_key="policy_grounding_matrix_ref",
+        ref_value=sha("a"),
+    )
+    first["owner"] = "first.audit@example.org"
+    second = authority_envelope_for(
+        report_key="policy_grounding_matrix",
+        ref_key="policy_grounding_matrix_ref",
+        ref_value=sha("b"),
+    )
+    second["owner"] = "second.audit@example.org"
+
+    bundle = build_public_export_bundle(
+        run_id="run-authority-envelope-sequence-intake",
+        artifacts={"decision": {"status": "limited"}},
+        authority_envelopes=HidingEnvelopeSequence([first, second]),
+    )
+
+    projections = bundle["semantic_audit"]["authority_projections"]
+    rendered = json.dumps(bundle, sort_keys=True)
+    assert len(projections) == 2
+    assert "first.audit@example.org" not in rendered
+    assert "second.audit@example.org" not in rendered
+    assert sum("[POLISYOS_SECRET_EMAIL_" in item["owner"] for item in projections) == 2
+
+
+def test_complete_export_recursively_scans_nested_mapping_and_sequence_subclasses() -> None:
+    class HidingDict(dict[str, object]):
+        def items(self) -> ItemsView[str, object]:
+            return {"visible": self["visible"]}.items()
+
+    class HidingMapping(Mapping[str, object]):
+        def __init__(self, values: dict[str, object]) -> None:
+            self._values = values
+
+        def __getitem__(self, key: str) -> object:
+            return self._values[key]
+
+        def __iter__(self) -> Iterator[str]:
+            return iter(self._values)
+
+        def __len__(self) -> int:
+            return len(self._values)
+
+        def items(self) -> ItemsView[str, object]:
+            return {"visible": self._values["visible"]}.items()
+
+    secret = "pass" + "word=nested-private-secret-value"
+    email = "nested.audit@example.org"
+    hidden = HidingDict({"visible": f"contact {email}", "private_prompt": secret})
+
+    generic_mapping = HidingMapping({"visible": f"contact {email}", "private_prompt": secret})
+
+    for index, nested_input in enumerate((hidden, generic_mapping)):
+        bundle = build_public_export_bundle(
+            run_id=f"run-nested-mapping-intake-{index}",
+            artifacts={"decision": {"status": "limited"}},
+            runtime_truth_preservation={"nested": nested_input},
+        )
+        nested = bundle["runtime_truth_preservation"]["nested"]
+        nested_mapping = nested if isinstance(nested, Mapping) else nested[1]
+        reports = bundle["semantic_audit"]["secret_pii_scan_reports"]
+        rendered = json.dumps(bundle, sort_keys=True)
+
+        assert "[POLISYOS_SECRET_EMAIL_" in rendered
+        assert email not in rendered
+        assert bundle["semantic_audit"]["strangle_receipts"]
+        assert bundle["redaction_summary"]["redacted_path_count"] >= 1
+        assert isinstance(nested_mapping, Mapping)
+        assert "private_prompt" in nested_mapping
+        assert secret not in rendered
+        assert "[POLISYOS_SECRET_KEYED_SECRET_" in rendered
+        assert any(report["finding_kind"] == "keyed_secret" for report in reports)
+
+
+def test_complete_export_recursively_scans_nested_sequence_subclasses() -> None:
+    class HidingSequence(Sequence[object]):
+        def __init__(self, values: list[object]) -> None:
+            self._values = values
+
+        def __getitem__(self, index: int) -> object:
+            return self._values[index]
+
+        def __len__(self) -> int:
+            return len(self._values)
+
+        def __iter__(self) -> Iterator[object]:
+            return iter(self._values[:1])
+
+    secret = "pass" + "word=nested-sequence-secret-value"
+    bundle = build_public_export_bundle(
+        run_id="run-nested-sequence-intake",
+        artifacts={"decision": {"status": "limited"}},
+        runtime_truth_preservation={
+            "nested": HidingSequence(["visible", {"private_prompt": secret}])
+        },
+    )
+
+    rendered = json.dumps(bundle, sort_keys=True)
+    nested = bundle["runtime_truth_preservation"]["nested"]
+    assert isinstance(nested, list)
+    assert nested[0] == "visible"
+    assert "private_prompt" in nested[1]
+    assert secret not in rendered
+    assert "[POLISYOS_SECRET_KEYED_SECRET_" in rendered
+    assert bundle["semantic_audit"]["strangle_receipts"]
+
+
+def test_public_export_rejects_non_string_nested_mapping_keys_before_collision() -> None:
+    with pytest.raises(PublicExportRedactionError) as error_info:
+        build_public_export_bundle(
+            run_id="run-non-string-mapping-key",
+            artifacts={"decision": {1: "integer key", "1": "string key"}},
+        )
+
+    assert error_info.value.code == "public_export_mapping_key_invalid"
+
+
+def test_public_export_rejects_opaque_json_leaves_before_fastapi_encoding() -> None:
+    from dataclasses import dataclass
+
+    from fastapi.encoders import jsonable_encoder
+    from pydantic import BaseModel
+
+    marker = "password=raw-nested-export-marker"
+
+    class NestedModel(BaseModel):
+        password: str
+
+    @dataclass
+    class NestedDataclass:
+        password: str
+
+    class NestedObject:
+        def __init__(self, password: str) -> None:
+            self.password = password
+
+    values: list[object] = [
+        NestedModel(password=marker),
+        NestedDataclass(password=marker),
+        NestedObject(marker),
+        object(),
+        float("nan"),
+        float("inf"),
+        b"password=raw-nested-export-marker",
+        bytearray(b"password=raw-nested-export-marker"),
+        {marker},
+        iter([marker]),
+    ]
+
+    for value in values:
+        error_code: str | None = None
+        bundle: dict[str, object] | None = None
+        try:
+            bundle = build_public_export_bundle(
+                run_id="run-opaque-json-leaf",
+                artifacts={"decision": {"status": "limited"}},
+                runtime_truth_preservation={"nested": [{"untrusted": value}]},
+            )
+        except PublicExportRedactionError as exc:
+            error_code = exc.code
+
+        if error_code is not None:
+            assert error_code == "public_export_value_invalid"
+            continue
+
+        assert bundle is not None
+        wire_value = jsonable_encoder(bundle)
+        assert marker not in repr(wire_value)
+        pytest.fail(
+            "opaque or non-finite input reached FastAPI's JSON encoder instead of failing closed"
+        )
+
+
+def test_public_export_refuses_cycles_in_supplied_json() -> None:
+    cyclic: list[object] = []
+    cyclic.append(cyclic)
+
+    with pytest.raises(PublicExportRedactionError) as error_info:
+        build_public_export_bundle(
+            run_id="run-cyclic-json",
+            artifacts={"decision": {"status": "limited"}},
+            runtime_truth_preservation={"nested": cyclic},
+        )
+
+    assert error_info.value.code == "public_export_payload_cycle"
+
+
+def test_public_export_fastapi_encoding_preserves_valid_json_and_projection_status() -> None:
+    from fastapi.encoders import jsonable_encoder
+
+    supplied = {"nested": [None, True, 4, 2.5, "visible"]}
+    bundle = build_public_export_bundle(
+        run_id="run-valid-json-domain",
+        artifacts={"decision": {"status": "limited"}},
+        runtime_truth_preservation=supplied,
+    )
+
+    wire_value = jsonable_encoder(bundle)
+
+    assert wire_value["runtime_truth_preservation"] == supplied
+    assert wire_value["authority_role"] == "projection_only"
+    assert_public_export_official_use_limits(wire_value)
+
+
+def test_public_export_rejects_objects_with_string_coercion_at_text_boundary() -> None:
+    class OpaqueText(str):
+        def __str__(self) -> str:
+            return "password=raw-export-text-marker"
+
+    with pytest.raises(PublicExportRedactionError) as run_id_error:
+        public_export_module.build_public_export_bundle(
+            run_id=OpaqueText("run-opaque"),
+            artifacts={},
+        )
+    assert run_id_error.value.code == "public_export_text_input_invalid"
+
+    with pytest.raises(PublicExportRedactionError) as title_error:
+        public_export_module.build_public_export_bundle(
+            run_id="run-opaque-title",
+            title=OpaqueText("title-opaque"),
+            artifacts={},
+        )
+    assert title_error.value.code == "public_export_text_input_invalid"
+
+
+def test_public_export_without_projection_does_not_create_a_verdict() -> None:
+    bundle = build_public_export_bundle(
+        run_id="run-public-export-without-pdc",
+        artifacts={"public_summary": {"claim_refs": ["rec_1"]}},
+        authority_envelopes=[],
+    )
+
+    assert bundle["semantic_audit"]["projection_contract_verification"] is None
+
+
+def test_final_stage_redaction_normalization_is_scoped_to_owned_record_paths() -> None:
+    private_ref = sha("f")
+    redactions: list[dict[str, str]] = []
+    candidate = {
+        "s10_forecast_projection": {
+            "private_basis": private_ref,
+            "benign_placeholder": "[REDACTED]",
+        },
+        "authority_surface_decisions": [
+            {
+                "private_basis": private_ref,
+                "benign_placeholder": "[REDACTED]",
+            }
+        ],
+    }
+
+    sanitized = public_export_module._redact_tenant_private_refs(
+        candidate,
+        path="semantic_audit",
+        redactions=redactions,
+    )
+    tenant_private_paths = frozenset(
+        row["path"] for row in redactions if row["reason"] == "tenant_private_ref"
+    )
+    assert "semantic_audit.s10_forecast_projection.private_basis" in tenant_private_paths
+    assert "semantic_audit.authority_surface_decisions[0].private_basis" in tenant_private_paths
+
+    final = public_export_module._remove_final_audit_redactions(
+        sanitized,
+        path=("semantic_audit",),
+        tenant_private_paths=tenant_private_paths,
+        scanner_redaction_paths=frozenset(),
+    )
+
+    assert isinstance(final, Mapping)
+    stage_record = final["s10_forecast_projection"]
+    outside_record = final["authority_surface_decisions"][0]
+    assert isinstance(stage_record, Mapping)
+    assert isinstance(outside_record, Mapping)
+    assert stage_record["private_basis"] is None
+    assert outside_record["private_basis"]["redacted"] is True
+    assert stage_record["benign_placeholder"] == "[REDACTED]"
+    assert outside_record["benign_placeholder"] == "[REDACTED]"
+
+
+def test_public_export_reverifies_stage_contract_after_reference_redaction() -> None:
+    from fastapi.encoders import jsonable_encoder
+
+    from polisyos.runtime.quality.projection_semantics import (
+        verify_s10_forecast_projection_consumer_contract,
+    )
+
+    private_ref = sha("f")
+    bundle = build_public_export_bundle(
+        run_id="run-public-s10-private-required-ref",
+        artifacts={"public_summary": {"claim_refs": ["rec_1"]}},
+        authority_envelopes=[],
+        policy_design_case=policy_design_case(),
+        projection_payload=_s10_public_projection_payload(
+            design_graph_ref=private_ref,
+        ),
+    )
+
+    wire = jsonable_encoder(bundle)
+    semantic_audit = wire["semantic_audit"]
+    stage_projection = semantic_audit["s10_forecast_projection"]
+    final_verification = verify_s10_forecast_projection_consumer_contract(
+        projections={"public": stage_projection},
+    )
+    aggregate_verification = semantic_audit["projection_contract_verification"]
+
+    assert private_ref not in json.dumps(wire, sort_keys=True)
+    assert stage_projection["design_graph_ref"] is None
+    assert final_verification["status"] == "fail"
+    assert (
+        semantic_audit["s10_forecast_projection_contract_verification"]["status"]
+        == final_verification["status"]
+    )
+    assert (
+        aggregate_verification["s10_forecast_projection"]["status"] == final_verification["status"]
+    )
+    assert aggregate_verification["status"] == "fail"
+
+
+def test_public_export_reverifies_all_emitted_stage_contracts_after_redaction() -> None:
+    from fastapi.encoders import jsonable_encoder
+
+    from polisyos.runtime.quality.projection_semantics import (
+        verify_s9_projection_faithfulness_for_pdc_consumer_contract,
+        verify_s10_forecast_projection_consumer_contract,
+        verify_s11_predictive_projection_consumer_contract,
+        verify_s12_resource_projection_consumer_contract,
+        verify_s13_post_deploy_accountability_projection_consumer_contract,
+        verify_s14_universality_projection_consumer_contract,
+    )
+
+    private_s10_ref = sha("a")
+    private_g3_proof_ref = sha("b")
+    projection_payload = _s10_public_projection_payload(design_graph_ref=private_s10_ref)
+    g3_projection = _g3_public_projection_payload()["layer3_g3_public_export_projection"]
+    assert isinstance(g3_projection, dict)
+    g3_projection["proof_carrying_analytics_refs"] = [private_g3_proof_ref]
+    stage_payloads = (
+        _s11_public_projection_payload(),
+        _s12_public_projection_payload(),
+        _s13_public_projection_payload(),
+        _s14_public_projection_payload(),
+        {"layer3_g3_public_export_projection": g3_projection},
+    )
+    may_not_be_used_for = set(projection_payload["may_not_be_used_for"])
+    authority_boundary = dict(projection_payload["authority_boundary"])
+    boundary_may_not = set(authority_boundary["may_not_use_for"])
+    for stage_payload in stage_payloads:
+        for key, value in stage_payload.items():
+            if key not in {"authority_boundary", "may_not_be_used_for", "rule_version_ref"}:
+                projection_payload[key] = value
+            if key == "may_not_be_used_for" and isinstance(value, list):
+                may_not_be_used_for.update(value)
+            if key == "authority_boundary" and isinstance(value, dict):
+                boundary_may_not.update(value.get("may_not_use_for", []))
+    authority_boundary["may_not_use_for"] = sorted(boundary_may_not)
+    projection_payload["authority_boundary"] = authority_boundary
+    projection_payload["may_not_be_used_for"] = sorted(may_not_be_used_for)
+    projection_payload["s9_projection_faithfulness"] = _s9_public_faithfulness_payload()
+
+    bundle = build_public_export_bundle(
+        run_id="run-public-export-all-stage-redaction",
+        artifacts={"public_summary": {"claim_refs": ["rec_1"]}},
+        authority_envelopes=[],
+        policy_design_case=policy_design_case(),
+        projection_payload=projection_payload,
+    )
+    wire = jsonable_encoder(bundle)
+    audit = wire["semantic_audit"]
+    aggregate = audit["projection_contract_verification"]
+
+    final_projection = wire["projection_semantics"]
+    source_state = final_projection["source_state"]
+    s9_payload = {
+        **final_projection,
+        "projection_policy": source_state["s9_projection_policy"],
+        "source_revision_ref": source_state["s9_source_revision_ref"],
+        "s9_projection_faithfulness": audit["projection_extensions"]["s9_projection_faithfulness"],
+    }
+    s9_verification = verify_s9_projection_faithfulness_for_pdc_consumer_contract(
+        projections={"public": s9_payload},
+        expected_closeout_truth=final_projection["closeout_truth"],
+        expected_contested_record_ids=[
+            row["contested_record_id"] for row in final_projection["contested_records"]
+        ],
+    )
+    emitted_verifications = {
+        "s10_forecast_projection": verify_s10_forecast_projection_consumer_contract(
+            projections={"public": audit["s10_forecast_projection"]}
+        ),
+        "s11_predictive_projection": verify_s11_predictive_projection_consumer_contract(
+            projections={"public": audit["s11_predictive_projection"]}
+        ),
+        "s12_resource_projection": verify_s12_resource_projection_consumer_contract(
+            projections={"public": audit["s12_resource_projection"]}
+        ),
+        "s13_post_deploy_accountability_projection": (
+            verify_s13_post_deploy_accountability_projection_consumer_contract(
+                projections={"public": audit["s13_post_deploy_accountability_projection"]}
+            )
+        ),
+        "s14_universality_projection": verify_s14_universality_projection_consumer_contract(
+            projections={"public": audit["s14_universality_projection"]}
+        ),
+    }
+
+    assert private_s10_ref not in json.dumps(wire, sort_keys=True)
+    assert private_g3_proof_ref not in json.dumps(wire, sort_keys=True)
+    assert audit["s10_forecast_projection"]["design_graph_ref"] is None
+    assert audit["layer3_g3_analytics_search_projection"]["proof_carrying_analytics_refs"] == []
+    for key, verification in emitted_verifications.items():
+        assert audit[f"{key}_contract_verification"]["status"] == verification["status"]
+        assert aggregate[key]["status"] == verification["status"]
+    assert aggregate["s9_projection_faithfulness"]["status"] == s9_verification["status"]
+    g3_verification = audit["layer3_g3_analytics_search_projection_contract_verification"]
+    assert g3_verification["status"] == "fail"
+    assert aggregate["layer3_g3_analytics_search_projection"]["status"] == g3_verification["status"]
+    assert aggregate["s10_forecast_projection"]["status"] == "fail"
+    assert aggregate["layer3_g3_analytics_search_projection"]["status"] == "fail"
+    assert aggregate["status"] == "fail"
+    assert (
+        audit["projection_extensions"]["s9_projection_faithfulness"]["faithfulness_status"]
+        == "pass"
+    )
+
+
+def test_public_export_composes_stage_audits_behind_typed_pdc_projection() -> None:
+    from fastapi.encoders import jsonable_encoder
+
+    from polisyos.core.contracts.policy_design_case_projection import (
+        PolicyDesignCaseProjection,
+    )
+    from polisyos.runtime.quality.projection_semantics import (
+        verify_policy_design_case_projection_consumer_contract,
+    )
+
+    projection_payload = _s10_public_projection_payload()
+    stage_payloads = (
+        _s11_public_projection_payload(),
+        _s12_public_projection_payload(),
+        _s13_public_projection_payload(),
+        _s14_public_projection_payload(),
+        _g3_public_projection_payload(),
+    )
+    may_not_be_used_for = set(projection_payload["may_not_be_used_for"])
+    authority_boundary = dict(projection_payload["authority_boundary"])
+    boundary_may_not = set(authority_boundary["may_not_use_for"])
+    for stage_payload in stage_payloads:
+        for key, value in stage_payload.items():
+            if key not in {"authority_boundary", "may_not_be_used_for", "rule_version_ref"}:
+                projection_payload[key] = value
+            if key == "may_not_be_used_for" and isinstance(value, list):
+                may_not_be_used_for.update(value)
+            if key == "authority_boundary" and isinstance(value, dict):
+                boundary_may_not.update(value.get("may_not_use_for", []))
+    authority_boundary["may_not_use_for"] = sorted(boundary_may_not)
+    projection_payload["authority_boundary"] = authority_boundary
+    projection_payload["may_not_be_used_for"] = sorted(may_not_be_used_for)
+    projection_payload["s9_projection_faithfulness"] = _s9_public_faithfulness_payload()
+
+    bundle = build_public_export_bundle(
+        run_id="run-public-export-composed-stage-audits",
+        artifacts={"public_summary": {"claim_refs": ["rec_1"]}},
+        authority_envelopes=[],
+        policy_design_case=policy_design_case(),
+        projection_payload=projection_payload,
+    )
+    wire = jsonable_encoder(bundle)
+    projection = wire["projection_semantics"]
+    semantic_audit = wire["semantic_audit"]
+    typed = PolicyDesignCaseProjection.model_validate(projection)
+    verification = verify_policy_design_case_projection_consumer_contract(
+        projections={"public": projection},
+        expected_closeout_truth=projection["closeout_truth"],
+        expected_contested_record_ids=[
+            row["contested_record_id"] for row in projection["contested_records"]
+        ],
+    )
+
+    assert typed.redacted is True
+    assert projection["contract_verification_status"] == verification["status"] == "pass"
+    assert semantic_audit["projection_contract_verification"]["status"] == "pass"
+    assert semantic_audit["s10_forecast_projection"]["forecast_tier"] == "observable_calibrated"
+    assert (
+        semantic_audit["s11_predictive_projection"]["effective_predictive_posture"]
+        == "limited_by_weakest_boundary"
+    )
+    assert (
+        semantic_audit["s12_resource_projection"]["explore_exploit_posture"] == "balanced_governed"
+    )
+    assert (
+        semantic_audit["s13_post_deploy_accountability_projection"]["envelope_revision_direction"]
+        == "shrink"
+    )
+    assert (
+        semantic_audit["s14_universality_projection"]["universality_claim_disposition"]
+        == "universal_claim_limited"
+    )
+    assert (
+        semantic_audit["layer3_g3_analytics_search_projection"]["resolved_certificate_count"] == 1
+    )
+    assert (
+        semantic_audit["projection_extensions"]["s9_projection_faithfulness"]["faithfulness_status"]
+        == "pass"
+    )
+    assert "limitations" in semantic_audit["projection_extensions"]
+
+    for forbidden_extra in (
+        "forecast_tier",
+        "effective_predictive_posture",
+        "explore_exploit_posture",
+        "public_accountability_note",
+        "universality_claim_disposition",
+        "layer3_g3_public_export_projection_status",
+        "s9_projection_faithfulness",
+    ):
+        assert forbidden_extra not in projection
+
+
+def test_public_projection_redacts_private_source_refs_and_reports_typed_status() -> None:
+    from fastapi.encoders import jsonable_encoder
+
+    from polisyos.core.contracts.policy_design_case_projection import (
+        PolicyDesignCaseProjection,
+    )
+    from polisyos.runtime.quality.projection_semantics import (
+        verify_policy_design_case_projection_consumer_contract,
+    )
+
+    private_ref = sha("a")
+    bundle = build_public_export_bundle(
+        run_id="run-private-source-ref-projection",
+        artifacts={"decision": {"status": "limited"}},
+        policy_design_case=policy_design_case(),
+        projection_payload={"audit_refs": [private_ref, "audit://public"]},
+    )
+
+    wire_value = jsonable_encoder(bundle)
+    projection = wire_value["projection_semantics"]
+    typed = PolicyDesignCaseProjection.model_validate(projection)
+    verification = verify_policy_design_case_projection_consumer_contract(
+        projections={"public": projection},
+        expected_closeout_truth=projection["closeout_truth"],
+        expected_contested_record_ids=[
+            row["contested_record_id"] for row in projection["contested_records"]
+        ],
+    )
+
+    assert private_ref not in json.dumps(wire_value, sort_keys=True)
+    assert wire_value["artifacts"]["decision"] == {"status": "limited"}
+    assert projection["authority_role"] == "projection_only"
+    assert typed.redacted is True
+    assert projection["audit_refs"] == [
+        "audit://public",
+        "event://policy_design_case/profile/run-24",
+    ]
+    assert projection["contract_verification_status"] == verification["status"] == "pass"
+    assert (
+        wire_value["semantic_audit"]["projection_contract_verification"]["status"]
+        == verification["status"]
+    )
+    assert any(
+        redaction["reason"] == "tenant_private_ref"
+        and redaction["path"].startswith("projection_semantics.")
+        for redaction in wire_value["redaction_summary"]["upserted_redactions"]
+    )
+
+
+def test_graph_projection_redaction_recomputes_contract_and_fails_closed() -> None:
+    from fastapi.encoders import jsonable_encoder
+
+    from polisyos.core.contracts.policy_design_case_projection import (
+        PolicyDesignCaseProjection,
+    )
+    from polisyos.pdc import compile_runtime_policy_design_case
+    from polisyos.runtime.quality.projection_semantics import (
+        verify_policy_design_case_projection_consumer_contract,
+    )
+
+    graph = compile_runtime_policy_design_case(
+        run_id="run-public-export-graph-redaction",
+        tenant_id="private-tenant",
+        policy_design_case=policy_design_case(),
+        claims=[
+            {
+                "claim_id": "claim-public-export-graph",
+                "claim_type": "factual",
+                "claim_use": "decision_support",
+                "text": "Graph source remains limited after reference redaction.",
+                "support_status": "supported",
+                "publishability": "review_required",
+                "readiness_level": "recommendation_ready",
+                "obligation_refs": ["obligation:public-export-graph"],
+            }
+        ],
+        claim_registry={
+            "claims": [
+                {
+                    "claim_id": "claim-public-export-graph",
+                    "data_refs": ["data:public-export-graph"],
+                }
+            ]
+        },
+        closeout_verdict={
+            "status": "blocked",
+            "verdict": "cannot_closeout",
+            "can_closeout": False,
+            "issues": [
+                {
+                    "code": "graph_source_blocker",
+                    "severity": "fail",
+                    "message": "The graph projection remains limited.",
+                }
+            ],
+        },
+    )
+    private_graph_ref = graph.graph_ref
+    bundle = build_public_export_bundle(
+        run_id="run-public-export-graph-redaction",
+        artifacts={
+            "decision": {"status": "limited"},
+            "sibling": {"public_fact": "preserved"},
+        },
+        runtime_pdc_graph=graph.model_dump(mode="json"),
+    )
+
+    wire_value = jsonable_encoder(bundle)
+    projection = wire_value["projection_semantics"]
+    typed = PolicyDesignCaseProjection.model_validate(projection)
+    verification = verify_policy_design_case_projection_consumer_contract(
+        projections={"public": projection},
+        expected_closeout_truth=projection["closeout_truth"],
+        expected_contested_record_ids=[
+            row["contested_record_id"] for row in projection["contested_records"]
+        ],
+        runtime_pdc_graph=graph.model_dump(mode="json"),
+    )
+
+    assert private_graph_ref not in json.dumps(wire_value, sort_keys=True)
+    assert projection["source_ref"] is None
+    assert projection["source_ref_fingerprint"] is None
+    assert typed.redacted is True
+    assert verification["status"] == "fail"
+    assert projection["contract_verification_status"] == "fail"
+    assert wire_value["semantic_audit"]["projection_contract_verification"]["status"] == "fail"
+    assert wire_value["artifacts"]["decision"] == {"status": "limited"}
+    assert wire_value["artifacts"]["sibling"] == {"public_fact": "preserved"}
+
+
+def test_public_export_accepts_declared_top_level_authority_model() -> None:
+    from fastapi.encoders import jsonable_encoder
+
+    from polisyos.runtime.quality.authority import EvidenceAuthorityEnvelope
+
+    private_ref = sha("d")
+    source = authority_envelope_for(
+        report_key="policy_grounding_matrix",
+        ref_key="policy_grounding_matrix_ref",
+        ref_value=private_ref,
+    )
+    envelope = EvidenceAuthorityEnvelope.model_validate(source)
+
+    bundle = build_public_export_bundle(
+        run_id="run-typed-authority-envelope",
+        artifacts={"decision": {"status": "limited"}},
+        authority_envelopes=(envelope,),
+    )
+    wire_value = jsonable_encoder(bundle)
+    projections = wire_value["semantic_audit"]["authority_projections"]
+
+    assert len(projections) == 1
+    assert projections[0]["authority_role"] == "projection_only"
+    assert private_ref not in repr(wire_value)

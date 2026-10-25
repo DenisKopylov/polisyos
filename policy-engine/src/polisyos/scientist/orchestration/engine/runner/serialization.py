@@ -19,6 +19,7 @@ import base64
 import binascii
 import hashlib
 import math
+import time
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime
@@ -65,6 +66,126 @@ _WIRE_MAX_DEPTH = 128
 _STATE_WIRE_SCHEMA = "polisyos.scientist.state_wire.v2"
 _OUTCOME_WIRE_SCHEMA = "polisyos.scientist.outcome_wire.v2"
 _TIMEOUT_CONTEXT_WIRE_SCHEMA = "polisyos.scientist.timeout_context.v2"
+_TIMEOUT_CONTEXT_WIRE_SCHEMA_V3 = "polisyos.scientist.timeout_context.v3"
+_TIMEOUT_CONTEXT_ENGINE_INVOCATION_NODE_ID = "scientist.node_run_transportability@1.0.0"
+
+
+@dataclass(frozen=True)
+class TimeoutWorkerEngineInvocation:
+    """One verified current engine attempt bound to a spawn timeout task."""
+
+    run_id: str
+    attempt_id: str
+    basis_ref: ArtifactRef
+    workflow_spec_ref: ArtifactRef
+    input_state_ref: ArtifactRef
+    node_alias: str
+    component_id: str
+    declared_timeout_s: float
+    effective_timeout_s: float
+    supervisor_deadline_monotonic: float
+
+    def to_wire(self) -> dict[str, Any]:
+        """Return the closed canonical attempt and timeout binding."""
+
+        def ref_payload(ref: ArtifactRef) -> dict[str, Any]:
+            return ref.model_dump(mode="json", by_alias=True, exclude_none=False)
+
+        return {
+            "attempt_id": self.attempt_id,
+            "basis_ref": ref_payload(self.basis_ref),
+            "workflow_spec_ref": ref_payload(self.workflow_spec_ref),
+            "input_state_ref": ref_payload(self.input_state_ref),
+            "node_alias": self.node_alias,
+            "component_id": self.component_id,
+            "declared_timeout_s_hex": self.declared_timeout_s.hex(),
+            "effective_timeout_s_hex": self.effective_timeout_s.hex(),
+            "supervisor_deadline_monotonic_hex": self.supervisor_deadline_monotonic.hex(),
+        }
+
+
+def _timeout_worker_params_match(
+    owner_params: Mapping[str, Any] | None,
+    dispatch_params: Mapping[str, Any] | None,
+) -> bool:
+    """Compare complete JSON parameter trees without collapsing JSON types."""
+    import json
+
+    def encode_value(value: Any, *, depth: int, ancestors: set[int]) -> Any:
+        if depth > _WIRE_MAX_DEPTH:
+            raise TypeError("timeout parameter identity depth exceeded")
+        if value is None:
+            return ["null"]
+        if type(value) is bool:
+            return ["bool", value]
+        if type(value) is int:
+            return ["int", str(value)]
+        if type(value) is float:
+            if not math.isfinite(value):
+                raise TypeError("non-finite timeout parameter")
+            return ["float", value.hex()]
+        if type(value) is str:
+            return ["str", value]
+        if type(value) not in (dict, list):
+            raise TypeError("unsupported timeout parameter value")
+
+        identity = id(value)
+        if identity in ancestors:
+            raise TypeError("cyclic timeout parameter value")
+        ancestors.add(identity)
+        try:
+            if type(value) is dict:
+                entries = tuple(dict.items(value))
+                if any(type(key) is not str for key, _ in entries):
+                    raise TypeError("timeout parameter object keys must be strings")
+                if len({key for key, _ in entries}) != len(entries):
+                    raise TypeError("duplicate timeout parameter object key")
+                return [
+                    "object",
+                    [
+                        [key, encode_value(item, depth=depth + 1, ancestors=ancestors)]
+                        for key, item in sorted(entries, key=lambda entry: entry[0])
+                    ],
+                ]
+            return [
+                "array",
+                [
+                    encode_value(item, depth=depth + 1, ancestors=ancestors)
+                    for item in list.__iter__(value)
+                ],
+            ]
+        finally:
+            ancestors.remove(identity)
+
+    def identity_bytes(value: Mapping[str, Any] | None) -> bytes | None:
+        if not isinstance(value, Mapping):
+            return None
+        try:
+            entries = tuple(value.items())
+            if len(entries) != len(value):
+                return None
+            if any(type(key) is not str for key, _ in entries):
+                return None
+            if len({key for key, _ in entries}) != len(entries):
+                return None
+            root = {
+                "object": [
+                    [key, encode_value(item, depth=1, ancestors=set())]
+                    for key, item in sorted(entries, key=lambda entry: entry[0])
+                ]
+            }
+            return json.dumps(
+                root,
+                ensure_ascii=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            ).encode("utf-8")
+        except (RecursionError, TypeError, ValueError, OverflowError):
+            return None
+
+    owner_bytes = identity_bytes(owner_params)
+    dispatch_bytes = identity_bytes(dispatch_params)
+    return owner_bytes is not None and dispatch_bytes is not None and owner_bytes == dispatch_bytes
 
 
 _WIRE_TYPE_KEY = "_type"
@@ -151,6 +272,27 @@ _WIRE_PLAIN_MODEL_FQNS = frozenset(
     }
 )
 _WIRE_MODEL_TYPES: dict[str, type[BaseModel]] | None = None
+_IR_ARTIFACT_REF_TYPES: frozenset[type[BaseModel]] | None = None
+
+
+def _wire_ir_artifact_ref_types() -> frozenset[type[BaseModel]]:
+    """Return exact ref classes exported by the canonical IR ref registry."""
+    global _IR_ARTIFACT_REF_TYPES
+    if _IR_ARTIFACT_REF_TYPES is None:
+        import polisyos.ir.registry.refs as ir_refs
+        from polisyos.ir.registry.refs import ArtifactRefModel
+
+        registered = []
+        for name in ir_refs.__all__:
+            model = getattr(ir_refs, name, None)
+            if (
+                isinstance(model, type)
+                and model.__module__ == ir_refs.__name__
+                and issubclass(model, ArtifactRefModel)
+            ):
+                registered.append(model)
+        _IR_ARTIFACT_REF_TYPES = frozenset(registered)
+    return _IR_ARTIFACT_REF_TYPES
 
 
 def _wire_model_types() -> dict[str, type[BaseModel]]:
@@ -565,6 +707,27 @@ def _encode_wire_value(
             )
 
             original = _owned_wire_model_origin(value)
+            ref_origin = original or model_type
+            if ref_origin in _wire_ir_artifact_ref_types():
+                from polisyos.core.artifacts import ArtifactRef
+                from polisyos.ir import normalize_artifact_ref
+
+                seen.add(value_id)
+                try:
+                    if context is not None and in_state_subtree:
+                        _record_wire_journal_owner(context, value)
+                    normalized_ref = ArtifactRef.model_validate(normalize_artifact_ref(value))
+                    _remember_validation_value(value, normalized_ref, context)
+                    return _encode_wire_value(
+                        normalized_ref,
+                        depth=depth,
+                        seen=seen,
+                        journal_value_mode=journal_value_mode,
+                        context=context,
+                        in_state_subtree=in_state_subtree,
+                    )
+                finally:
+                    seen.remove(value_id)
             if original is None:
                 raise TypeError(f"Unsupported model on runner wire: {fqn}")
             original_fqn = f"{original.__module__}.{original.__qualname__}"
@@ -1394,7 +1557,184 @@ def _timeout_access_scope_to_wire(scope: AccessScope | None) -> dict[str, Any] |
     return payload
 
 
-def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, Any]:
+def _timeout_worker_wire_values_match(left: Any, right: Any) -> bool:
+    """Compare serialized state payloads independent of JSON object-key order.
+
+    The closed state wire is JSON-shaped. Equality must preserve JSON types and
+    sequence order while treating mappings as unordered objects.
+    """
+    if type(left) is not type(right):
+        return False
+    if type(left) is dict:
+        return left.keys() == right.keys() and all(
+            _timeout_worker_wire_values_match(left[key], right[key]) for key in left
+        )
+    if type(left) is list:
+        return len(left) == len(right) and all(
+            _timeout_worker_wire_values_match(left_item, right_item)
+            for left_item, right_item in zip(left, right, strict=True)
+        )
+    if type(left) is float:
+        return left.hex() == right.hex()
+    return left == right
+
+
+def _timeout_worker_states_match(left: Any, right: Any) -> bool:
+    """Compare complete serialized states using exact typed wire semantics."""
+    return _timeout_worker_wire_values_match(
+        _loads(serialize_state(left)),
+        _loads(serialize_state(right)),
+    )
+
+
+def capture_timeout_worker_engine_invocation(
+    ctx: Any,
+    *,
+    expected_run_id: str,
+    node_alias: str,
+    component_id: str,
+    dispatch_params: Mapping[str, Any] | None,
+    timeout_s: float,
+    supervisor_deadline_monotonic: float,
+    state: Any,
+) -> TimeoutWorkerEngineInvocation:
+    """Freshly bind a spawn deadline to its current engine-owned attempt."""
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.core.run.context import RunContext
+    from polisyos.scientist.orchestration.engine.context import (
+        ExecutionContext,
+        _EngineInvocationBinding,
+    )
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
+
+    if type(ctx) is not ExecutionContext or type(ctx.run) is not RunContext:
+        raise ValueError("timeout_worker_engine_run_context_required")
+    binding = ctx._engine_invocation
+    if type(binding) is not _EngineInvocationBinding:
+        raise ValueError("timeout_worker_engine_invocation_binding_required")
+    state_wire_origin = type(state)
+    if state_wire_origin is not ExperimentState:
+        from polisyos.scientist.orchestration.engine.state_branching import (
+            _owned_wire_model_origin,
+        )
+
+        # Admit the engine's exact journaled projection only. Arbitrary
+        # ExperimentState subclasses remain outside this timeout boundary.
+        state_wire_origin = _owned_wire_model_origin(state)
+    if (
+        state_wire_origin is not ExperimentState
+        or type(expected_run_id) is not str
+        or state.run_id != expected_run_id
+        or binding.run_id != expected_run_id
+        or ctx.run.run_manifest.run_id != expected_run_id
+    ):
+        raise ValueError("timeout_worker_engine_invocation_run_mismatch")
+    if (
+        type(node_alias) is not str
+        or not node_alias
+        or type(component_id) is not str
+        or not component_id
+        or not isinstance(dispatch_params, Mapping)
+        or isinstance(timeout_s, bool)
+        or not isinstance(timeout_s, (int, float))
+        or not math.isfinite(float(timeout_s))
+        or float(timeout_s) <= 0.0
+        or type(supervisor_deadline_monotonic) is not float
+        or not math.isfinite(supervisor_deadline_monotonic)
+        or type(binding.basis_ref) is not ArtifactRef
+        or binding.basis_ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("timeout_worker_engine_invocation_input_invalid")
+    remaining_s = supervisor_deadline_monotonic - time.monotonic()
+    effective_timeout_s = min(float(timeout_s), remaining_s)
+    if effective_timeout_s <= 0.0:
+        raise ValueError("timeout_worker_engine_supervisor_deadline_expired")
+
+    attempts = ctx.run.read_runtime_invocation_attempts()
+    attempt_matches = [item for item in attempts if item.basis.attempt_id == binding.attempt_id]
+    matches = [item for item in attempt_matches if item.basis_ref == binding.basis_ref]
+    if len(attempt_matches) != 1 or len(matches) != 1:
+        raise ValueError("timeout_worker_engine_attempt_not_current")
+    attempt = matches[0]
+    basis = attempt.basis
+    if (
+        attempt.outcome is not None
+        or basis.run_id != expected_run_id
+        or basis.node_alias != node_alias
+        or basis.component_id != component_id
+        or basis.workflow_spec_ref.manifest_profile_sha256 is None
+        or basis.input_state_ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("timeout_worker_engine_attempt_identity_mismatch")
+
+    workflow_manifest = ctx.store.get_manifest(basis.workflow_spec_ref)
+    if (
+        workflow_manifest.kind != "scientist.workflow_spec"
+        or workflow_manifest.media_type != "application/json"
+        or workflow_manifest.artifact_schema is None
+        or workflow_manifest.artifact_schema.name
+        != "polisyos.scientist.orchestration.engine.WorkflowSpec"
+        or workflow_manifest.artifact_schema.version != "1.0"
+    ):
+        raise ValueError("timeout_worker_engine_workflow_contract_invalid")
+    workflow = WorkflowSpec.model_validate(
+        from_canonical_bytes(ctx.store.get_bytes(basis.workflow_spec_ref))
+    )
+    node_matches = [item for item in workflow.nodes if item.alias == node_alias]
+    if len(node_matches) != 1:
+        raise ValueError("timeout_worker_engine_workflow_node_ambiguous")
+    invocation = node_matches[0]
+    if (
+        str(invocation.node_id) != component_id
+        or not _timeout_worker_params_match(invocation.params, dispatch_params)
+        or invocation.timeout_s is None
+        or not math.isfinite(invocation.timeout_s)
+        or invocation.timeout_s <= 0.0
+        or effective_timeout_s > invocation.timeout_s
+    ):
+        raise ValueError("timeout_worker_engine_workflow_node_mismatch")
+
+    state_manifest = ctx.store.get_manifest(basis.input_state_ref)
+    if (
+        state_manifest.kind != "scientist.experiment_state"
+        or state_manifest.media_type != "application/json"
+        or state_manifest.artifact_schema is None
+        or state_manifest.artifact_schema.name
+        != "polisyos.scientist.orchestration.engine.ExperimentState"
+    ):
+        raise ValueError("timeout_worker_engine_input_state_contract_invalid")
+    basis_state = ExperimentState.model_validate(
+        from_canonical_bytes(ctx.store.get_bytes(basis.input_state_ref))
+    )
+    if (
+        basis_state.run_id != expected_run_id
+        or state_manifest.artifact_schema.version != basis_state.schema_version
+        or not _timeout_worker_states_match(basis_state, state)
+    ):
+        raise ValueError("timeout_worker_engine_input_state_mismatch")
+
+    return TimeoutWorkerEngineInvocation(
+        run_id=expected_run_id,
+        attempt_id=basis.attempt_id,
+        basis_ref=attempt.basis_ref,
+        workflow_spec_ref=basis.workflow_spec_ref,
+        input_state_ref=basis.input_state_ref,
+        node_alias=node_alias,
+        component_id=component_id,
+        declared_timeout_s=float(invocation.timeout_s),
+        effective_timeout_s=effective_timeout_s,
+        supervisor_deadline_monotonic=supervisor_deadline_monotonic,
+    )
+
+
+def serialize_timeout_context(
+    ctx: Any,
+    *,
+    expected_run_id: str,
+    engine_invocation: TimeoutWorkerEngineInvocation | None = None,
+) -> dict[str, Any]:
     """Encode the closed local context profile admitted by spawn timeout workers.
 
     The timeout worker must not silently replace a store, run, or optional port.
@@ -1406,7 +1746,7 @@ def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, An
     from pathlib import Path
 
     from polisyos.core import run as core_run
-    from polisyos.core.artifacts import ArtifactRef, SigningConfig
+    from polisyos.core.artifacts import SigningConfig
     from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.core.observability import (
         get_metrics,
@@ -1419,8 +1759,16 @@ def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, An
         get_current_cell_id,
         get_current_tenant_id_or_none,
     )
-    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.context import (
+        ExecutionContext,
+        _EngineInvocationBinding,
+    )
 
+    if (
+        engine_invocation is not None
+        and type(engine_invocation) is not TimeoutWorkerEngineInvocation
+    ):
+        raise ValueError("timeout_worker_engine_invocation_wire_type_invalid")
     if type(ctx) is not ExecutionContext:
         raise ValueError("timeout_worker_unsupported_execution_context")
     store = ctx.store
@@ -1485,6 +1833,16 @@ def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, An
         raise ValueError("timeout_worker_trace_path_outside_store") from exc
     if run_snapshot.run_id != expected_run_id:
         raise ValueError("timeout_worker_run_id_mismatch")
+    if engine_invocation is not None:
+        binding = ctx._engine_invocation
+        if (
+            type(binding) is not _EngineInvocationBinding
+            or binding.run_id != expected_run_id
+            or binding.attempt_id != engine_invocation.attempt_id
+            or binding.basis_ref != engine_invocation.basis_ref
+            or engine_invocation.run_id != expected_run_id
+        ):
+            raise ValueError("timeout_worker_engine_invocation_binding_mismatch")
     if (
         run_snapshot.run_manifest.tenant_id != run_snapshot.tenant_id
         or run_snapshot.run_manifest.cell_id != run_snapshot.cell_id
@@ -1510,7 +1868,7 @@ def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, An
     if not isinstance(ambient_tenant, str) or not ambient_tenant.strip():
         raise ValueError("timeout_worker_ambient_tenant_required")
 
-    return {
+    result = {
         "schema": _TIMEOUT_CONTEXT_WIRE_SCHEMA,
         "depth": ctx.depth,
         "logger_name": ctx.logger.name,
@@ -1538,3 +1896,7 @@ def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, An
         },
         "tenant_scope": {"tenant_id": ambient_tenant, "cell_id": ambient_cell},
     }
+    if engine_invocation is not None:
+        result["schema"] = _TIMEOUT_CONTEXT_WIRE_SCHEMA_V3
+        result["engine_invocation"] = engine_invocation.to_wire()
+    return result

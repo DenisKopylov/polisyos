@@ -8,8 +8,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
 from math import isfinite
-from pathlib import Path
-from typing import Any, Protocol, cast
+from typing import TYPE_CHECKING, Any, Protocol, TypeGuard, cast
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import (
@@ -19,6 +18,9 @@ from polisyos.core.observability import (
     get_metrics,
     get_tracer,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 logger = get_logger(__name__)
 
@@ -39,6 +41,66 @@ class _RetrievalStatsProvider(Protocol):
     """Minimal retrieval statistics surface consumed by health reporting."""
 
     def get_index_stats(self) -> object: ...
+
+
+class _FabricSegmentCountRecorder(Protocol):
+    """Optional provider capability for the world segment metric."""
+
+    def set_fabric_segment_count(self, count: float) -> None: ...
+
+
+class _FabricDlqCountRecorder(Protocol):
+    """Optional provider capability for the retrieval DLQ metric."""
+
+    def set_fabric_dlq_count(self, count: float) -> None: ...
+
+
+class _FabricSloAssessmentRecorder(Protocol):
+    """Optional provider capability for SLO assessment metrics."""
+
+    def record_fabric_slo_assessment(
+        self,
+        *,
+        sli_name: str,
+        observed_value: float | None,
+        burn_ratio: float | None,
+        healthy: bool,
+        priority: str,
+        window: str,
+    ) -> None: ...
+
+
+def _has_fabric_segment_count_recorder(
+    metrics: object,
+) -> TypeGuard[_FabricSegmentCountRecorder]:
+    recorder = getattr(metrics, "set_fabric_segment_count", None)
+    if not recorder:
+        return False
+    if not callable(recorder):
+        raise TypeError("set_fabric_segment_count must be callable")
+    return True
+
+
+def _has_fabric_dlq_count_recorder(
+    metrics: object,
+) -> TypeGuard[_FabricDlqCountRecorder]:
+    recorder = getattr(metrics, "set_fabric_dlq_count", None)
+    if not recorder:
+        return False
+    if not callable(recorder):
+        raise TypeError("set_fabric_dlq_count must be callable")
+    return True
+
+
+def _has_fabric_slo_assessment_recorder(
+    metrics: object,
+) -> TypeGuard[_FabricSloAssessmentRecorder]:
+    recorder = getattr(metrics, "record_fabric_slo_assessment", None)
+    if not recorder:
+        return False
+    if not callable(recorder):
+        raise TypeError("record_fabric_slo_assessment must be callable")
+    return True
 
 
 @dataclass(frozen=True)
@@ -705,25 +767,13 @@ def _record_health_metrics(
     if resolved_metrics is None:
         return
     for component in snapshot.components:
-        if component.name == "world" and getattr(
-            resolved_metrics,
-            "set_fabric_segment_count",
-            None,
-        ):
+        if component.name == "world" and _has_fabric_segment_count_recorder(resolved_metrics):
             resolved_metrics.set_fabric_segment_count(
                 float(component.details.get("segment_count", 0))
             )
-        if component.name == "retrieval" and getattr(
-            resolved_metrics,
-            "set_fabric_dlq_count",
-            None,
-        ):
+        if component.name == "retrieval" and _has_fabric_dlq_count_recorder(resolved_metrics):
             resolved_metrics.set_fabric_dlq_count(0.0)
-        if component.name == "slo" and getattr(
-            resolved_metrics,
-            "record_fabric_slo_assessment",
-            None,
-        ):
+        if component.name == "slo" and _has_fabric_slo_assessment_recorder(resolved_metrics):
             for assessment in component.details.get("assessments", []):
                 resolved_metrics.record_fabric_slo_assessment(
                     sli_name=str(assessment.get("name")),

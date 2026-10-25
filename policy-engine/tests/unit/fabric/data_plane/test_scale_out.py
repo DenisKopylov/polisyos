@@ -2,12 +2,14 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 
+from polisyos.core.artifacts import store as store_module
 from polisyos.core.artifacts.manifest import CanonInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, CanonViolation, to_canonical_bytes
+from polisyos.core.canon import CanonSpec, CanonViolation
 from polisyos.core.observability import get_metrics
 from polisyos.core.security.quota_enforcer import QuotaExceededError
 from polisyos.core.security.tenant_quota import TenantQuotaLimits
@@ -31,6 +33,21 @@ from polisyos.fabric.world.store import (
 from polisyos.ir.connectors import DataVersion, QualityTier, VersionStrategy
 from polisyos.ir.loading.fact_log import FactSegmentManifest
 from polisyos.ir.world.abi import NodeKind
+
+
+class _GaugeCapture:
+    """Capture gauge values with the same stable label key used by production."""
+
+    def __init__(self) -> None:
+        self._values: dict[tuple[tuple[str, object], ...], float] = {}
+
+    def set(self, value: float, attributes: dict[str, object] | None = None) -> None:
+        self._values[tuple(sorted((attributes or {}).items()))] = float(value)
+
+
+class _CacheMetrics:
+    def __init__(self) -> None:
+        self.connector_cache_entries_total = _GaugeCapture()
 
 
 def test_tenant_scoped_cas_isolates_artifacts_and_enforces_quota(tmp_path: Path):
@@ -79,16 +96,10 @@ def test_tenant_scoped_cas_refuses_profile_mismatch_before_serializing(
     store = TenantScopedCAS(
         tmp_path / ".polisyos", tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
     )
-    serialization_calls = 0
-
-    def count_serialization(payload: object, spec: CanonSpec | None = None) -> bytes:
-        nonlocal serialization_calls
-        serialization_calls += 1
-        return to_canonical_bytes(payload, spec)
-
-    monkeypatch.setattr(
-        "polisyos.fabric.storage.tenant_cas.to_canonical_bytes", count_serialization
-    )
+    serialization = Mock(wraps=store_module.to_canonical_bytes)
+    writer = Mock(wraps=store._cas.put_json)
+    monkeypatch.setattr(store_module, "to_canonical_bytes", serialization)
+    monkeypatch.setattr(store._cas, "put_json", writer)
     with pytest.raises(CanonViolation, match="canon metadata must match"):
         store.put_json(
             {"present": None},
@@ -100,7 +111,8 @@ def test_tenant_scoped_cas_refuses_profile_mismatch_before_serializing(
             canon_spec=CanonSpec(exclude_none=False),
         )
 
-    assert serialization_calls == 0
+    writer.assert_not_called()
+    serialization.assert_not_called()
     assert store.iter_artifact_ids() == []
 
 
@@ -108,17 +120,20 @@ def test_tenant_scoped_connector_cache_isolated_and_metrics_labeled(tmp_path: Pa
     tenant_a = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
     tenant_b = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
     namespace = f"connector_cache/{tmp_path.name}"
+    metrics = _CacheMetrics()
     cache_a = ConnectorCacheStore(
         TenantScopedCAS(tmp_path / ".polisyos", tenant_id=tenant_a),
         TTLPolicy(ttl=timedelta(hours=1)),
         namespace=namespace,
         tenant_id=tenant_a,
+        metrics=metrics,
     )
     cache_b = ConnectorCacheStore(
         TenantScopedCAS(tmp_path / ".polisyos", tenant_id=tenant_b),
         TTLPolicy(ttl=timedelta(hours=1)),
         namespace=namespace,
         tenant_id=tenant_b,
+        metrics=metrics,
     )
 
     request = FetchRequest(dataset_id="events")
@@ -163,8 +178,6 @@ def test_tenant_scoped_connector_cache_isolated_and_metrics_labeled(tmp_path: Pa
     assert cache_a.get(request, connector_id="stream.jsonl").result.data == {"tenant": "a"}
     assert cache_b.get(request, connector_id="stream.jsonl").result.data == {"tenant": "b"}
 
-    metrics = get_metrics()
-    assert metrics.connector_cache_entries_total is not None
     gauge_keys = list(metrics.connector_cache_entries_total._values.keys())
     assert any(
         ("tenant_id", tenant_a) in key and ("namespace", namespace) in key for key in gauge_keys

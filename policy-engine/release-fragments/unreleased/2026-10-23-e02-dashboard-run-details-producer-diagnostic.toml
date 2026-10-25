@@ -1,0 +1,21 @@
+id = "2026-10-23-e02-dashboard-run-details-producer-diagnostic"
+title = "Validate the Run Details producer diagnostic"
+type = "fixed"
+component = "runtime-dashboard API"
+owner = "team-frontend"
+summary = "The strict Run Details validator accepts the bounded method execution diagnostic, while the HTE preview preserves unavailable parse-failure status and renders legacy warnings without implying authority."
+evidence = [
+  "apps/runtime-dashboard/src/api/validators.ts",
+  "apps/runtime-dashboard/src/api/validators.methodExecutionProducerDiagnostic.test.ts",
+  "apps/runtime-dashboard/src/api/run-details-producer-diagnostic.md",
+]
+compatibility = "This aligns the dashboard runtime parser with the nullable Python RunDetails DTO field and preserves strict HTE legacy DTO limits. Unknown keys, invalid reference bindings, incoherent output-ref statuses, invalid legacy literals, and out-of-bound text remain refused. Owner-selected HTE projection and authority semantics are unchanged."
+change_class = "internal"
+surface_classification = "internal: internal-only"
+migration = "No data migration is required."
+api = "RunDetailsView gains a typed optional nullable candidate-only diagnostic. The generated OpenAPI snapshot and generated client outputs are a separate surface and are not changed by this dashboard-validator candidate."
+limitations = "The diagnostic is not rendered as evidence of workflow authority, scientific validity, or publication readiness. This change does not refresh the generated OpenAPI snapshot or generated client types."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

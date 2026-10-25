@@ -22,6 +22,8 @@ runtime mutations and live streams.
 - `src/polisyos/runtime/http/openapi_contract.py` for examples, links, and
   contract hardening hooks.
 
+The DS17 OpenAPI example is packaged at `src/polisyos/runtime/http/_resources/` as a pinned historical documentation fixture. It records the source commit, artifact, dependency aggregate, worker receipt, and example time in the OpenAPI description; it makes no claim about current availability or freshness. OpenAPI rendering reads this package resource without consulting the live owner. The real GET continues to resolve and validate the current owner source for every request.
+
 - `src/polisyos/runtime/http/permissions.py` for the server-owned action
   permission vocabulary and immutable role grants projected by `/auth/me`.
 
@@ -45,6 +47,24 @@ runtime mutations and live streams.
 - Internal local-navigation surfaces worth checking first: `routes/*`,
   `services/*`, `container.py`, `dependencies.py`, `execution_policy.py`,
   `mutation_policy.py`, `openapi_contract.py`, `permissions.py`
+
+## Observational input worker binding
+
+For direct observational method jobs, the worker reconciles the complete
+selection marker from the durable payload with the marker persisted in the
+job-created event, then resolves the selected immutable CAS intent and checks
+its source ref and digest. The method request comes from that typed intent. A
+removed or malformed marker, or drift in the selected source/profile, is
+refused before method work is constructed or submitted. The worker checks the
+immutable creation event as well as the loaded payload, so deleting the mutable
+marker cannot bypass that check. This preserves the accepted request across the queue boundary; it does not establish source
+authenticity or scientific admissibility.
+
+The requested-intent producer, content-admitted producer, and fresh completion consumer share
+typed-intent lineage recipes. The admitted recipe includes every selected Search binding snapshot
+ref when present and checks each input edge by role, artifact ID, profile, and multiplicity. Repeated
+refs remain separate edges when their semantic roles differ; the check does not grant additional
+read authority or change the admission status.
 
 ## Controlled local Legal runtime profile
 
@@ -135,6 +155,12 @@ record the existing Core tenant-boundary counter with requester tenant, owner
 tenant, and resource type labels. A refusal caused by missing owner scope is
 not counted as a cross-tenant mismatch because no target tenant is established.
 Metric recording is best-effort and cannot change the 403 decision.
+
+### Observational source access at run admission
+
+POST /api/v1/control/runs reads the selected observational manifest through the bounded Core CAS reader under the request tenant. A source manifest must still explicitly classify itself as public and omit tenant context for candidate execution; that classification does not grant CAS access. A missing current tenant owner for the selected CAS view returns the existing 403 observational_source_current_access_not_established response before enqueue. Malformed, integrity-failing, or over-bound source manifests remain 422 observational_source_manifest_not_admitted. On worker execution, the mutable job marker is reconciled with the selected immutable intent before method work is constructed or submitted; only the intent-bound selected source ref reaches method work.
+
+Typed intent readers retain the bounded Core read and validate persisted model payloads through Core's JSON-aware validator. This preserves strict field validation while reifying serialized timestamps and other JSON-native forms; the worker does not weaken intent validation or hand-parse individual fields.
 
 The runtime container appoints one Decision Validity service for control and promotion. Read-only
 run-index/debug adapters may open their own service view, but every view resolves the same locked

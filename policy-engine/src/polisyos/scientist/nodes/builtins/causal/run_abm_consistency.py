@@ -729,6 +729,7 @@ class RunABMConsistencyCheckNode:
                         else exact_inputs.micro_scm.graph
                     ),
                     inputs=micro_graph_inputs,
+                    return_selected_profile=True,
                 ),
             )
             macro_graph_ref = profile_bound_ref(
@@ -741,6 +742,7 @@ class RunABMConsistencyCheckNode:
                         else exact_inputs.macro_scm.graph
                     ),
                     inputs=macro_graph_inputs,
+                    return_selected_profile=True,
                 ),
             )
             selected_map = (

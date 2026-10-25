@@ -12,6 +12,7 @@ from pathlib import Path
 import pytest
 from unit.fabric.test_ceiling_relations import ceiling_payload, scope_payload, vocabulary_payload
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 
@@ -245,6 +246,29 @@ def candidate_request(module, runtime, kind="legal_mandate", *, malformed=False)
         requested_use=scope_payload(),
     )
     return request
+
+
+def test_selected_core_profile_is_required_by_real_candidate_reader(tmp_path, monkeypatch):
+    module, store, runtime = make_runtime(tmp_path)
+    request = candidate_request(module, runtime)
+    assert request.candidate_ref is not None
+    assert store.get_manifest(request.candidate_ref).canon is not None
+
+    original_reader = store.get_raw_manifest_bytes
+    selected_id = request.candidate_ref
+
+    def absent_profile(selector, *, manifest_profile_sha256=None):
+        raw = original_reader(selector, manifest_profile_sha256=manifest_profile_sha256)
+        if str(getattr(selector, "artifact_id", selector)) != selected_id:
+            return raw
+        manifest = json.loads(raw)
+        manifest.pop("canon", None)
+        return json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
+
+    monkeypatch.setattr(store, "get_raw_manifest_bytes", absent_profile)
+    with pytest.raises(CanonicalProfileRefusalError) as error:
+        runtime._resolve(request.candidate_ref, "fabric.non_data_acquisition.candidate")
+    assert error.value.code == "canon_profile_absent"
 
 
 @pytest.mark.parametrize("kind", sorted(DEMANDS))

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Mapping
 from enum import Enum
 from typing import Any, Literal
 
@@ -15,7 +16,15 @@ from polisyos.ir.analytics.causal_graph import (
     GraphProjectionDisposition,
     graph_for_analysis,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration, CanonInfo
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import (
+    IRRepresentationKey,
+    IRRepresentationRegistration,
+    ResolvedSchemaAdmission,
+    register_ir_representation,
+)
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import ArtifactRefModel, StructuralCausalModelSpecRef
 
@@ -329,6 +338,95 @@ class StructuralCausalModelSpec(BaseModel):
         return self
 
 
+def _family_payload_version(value: object) -> str | None:
+    """Return a strict embedded version, distinguishing absence from malformed null."""
+    if not isinstance(value, Mapping):
+        raise ValueError("owned family payload must be an object")
+    if "schema_version" not in value:
+        return None
+    version = value["schema_version"]
+    if type(version) is not str or not version.strip():
+        raise ValueError("owned family payload schema_version must be a nonempty string")
+    return version
+
+
+def _family_source_mapping(value: object, admission: ResolvedSchemaAdmission) -> dict[str, Any]:
+    """Bind payload bytes to the exact tuple already selected from the owner snapshot."""
+    if not isinstance(value, Mapping):
+        raise ValueError("owned family payload must be an object")
+    if _family_payload_version(value) != admission.source_registration.payload_version:
+        raise ValueError("payload version differs from exact registered tuple")
+    return dict(value)
+
+
+def _family_profile(profile: CanonInfo, row: IRRepresentationRegistration) -> bool:
+    """Require the producer's actual canonicalization profile and no profile alias."""
+    return (
+        profile == CanonInfo.from_spec(CanonSpec(forbid_floats=False)) and row.profile_ref is None
+    )
+
+
+_SCM_OWNER_POLICY = ("structural-causal-model-json", "1")
+_SCM_OWNER = ArtifactOwnerDeclaration(
+    contract_id="polisyos.ir.analytics.structural_causal_model.StructuralCausalModelSpec",
+    dto_fqn="polisyos.ir.analytics.structural_causal_model.StructuralCausalModelSpec",
+    abi_key="structural_causal_model_spec",
+    registry_key="structural_causal_model_spec",
+    kind="ir.structural_causal_model_spec",
+    media_type="application/json",
+    purpose="structural_causal_model_spec",
+    policy_revision="1",
+    accepted_wire_policies=(_SCM_OWNER_POLICY,),
+    payload_version_of=_family_payload_version,
+    validate_source=lambda value, admission: _validate_scm_source(value, admission),
+    project_for_consumer=lambda value, _admission: StructuralCausalModelSpec.model_validate(value),
+    validate_profile=_family_profile,
+)
+
+
+def _validate_scm_source(value: object, admission: ResolvedSchemaAdmission) -> dict[str, Any]:
+    """Retain the exact historically evidenced absent-version SCM row."""
+    payload = _family_source_mapping(value, admission)
+    if admission.source_registration.payload_version is None:
+        if admission.source_registration.schema_version != "1.0":
+            raise ValueError("payload-less SCM tuple is not an admitted legacy source")
+        payload["schema_version"] = "1.0"
+    return payload
+
+
+def _register_scm_owner() -> None:
+    """Bind explicit SCM versions, including the witnessed manifest-1.0 absent tuple."""
+    keys = (
+        IRRepresentationKey("ir.structural_causal_model_spec", "1.0", "1.0"),
+        IRRepresentationKey("ir.structural_causal_model_spec", "1.0", None),
+        IRRepresentationKey("ir.structural_causal_model_spec", "1.1", "1.1"),
+    )
+    tuples = (
+        ("1.0", "1.0", True, False, False),
+        ("1.0", None, False, False, False),
+        ("1.1", "1.1", True, False, False),
+        ("1.2", "1.2", True, True, True),
+    )
+    for manifest_version, payload_version, writable, current, default in tuples:
+        register_ir_representation(
+            registry_key="structural_causal_model_spec",
+            owner_ref=_SCM_OWNER.contract_id,
+            dto_abi=_SCM_OWNER.dto_fqn,
+            wire_policy_ref=_SCM_OWNER_POLICY[0],
+            wire_policy_revision=_SCM_OWNER_POLICY[1],
+            schema_name="ir.structural_causal_model_spec",
+            schema_version=manifest_version,
+            payload_version=payload_version,
+            writable=writable,
+            current=current,
+            default_write=default,
+            readable_from=keys if current else (),
+        )
+
+
+_register_scm_owner()
+
+
 def persist_structural_causal_model_spec(
     store: ArtifactStore,
     scm_spec: StructuralCausalModelSpec,
@@ -337,39 +435,28 @@ def persist_structural_causal_model_spec(
     schema_name: str = "ir.structural_causal_model_spec",
     schema_version: str | None = None,
 ) -> StructuralCausalModelSpecRef:
-    """Persist a structural causal model spec and return its typed artifact ref."""
-    resolved_version = schema_version or scm_spec.schema_version
-    if resolved_version != scm_spec.schema_version or resolved_version not in {"1.0", "1.1", "1.2"}:
-        raise ValueError("SCM payload and supported CAS schema versions must match")
-    ref = put_json_artifact(
+    """Persist the SCM using its exact registered manifest/payload tuple."""
+    resolved_version = scm_spec.schema_version if schema_version is None else schema_version
+    if resolved_version != scm_spec.schema_version:
+        raise ValueError("SCM payload and CAS schema versions must match")
+    ref = _put_owned_json_artifact(
         store,
         scm_spec.model_dump(mode="json"),
-        kind="ir.structural_causal_model_spec",
+        owner=_SCM_OWNER,
         schema_name=schema_name,
         schema_version=resolved_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return StructuralCausalModelSpecRef.model_validate(ref)
+    return StructuralCausalModelSpecRef.from_selected_write(ref)
 
 
 def load_structural_causal_model_spec(
     store: ArtifactStore,
     ref: StructuralCausalModelSpecRef,
 ) -> StructuralCausalModelSpec:
-    """Load structural causal model spec."""
-    payload = get_json_artifact(store, ref)
-    manifest = store.get_manifest(ref)
-    schema = getattr(manifest, "artifact_schema", None)
-    if schema is None or schema.version not in {"1.0", "1.1", "1.2"}:
-        raise ValueError("SCM artifact requires a supported CAS schema manifest")
-    if payload.get("schema_version", "1.0") != schema.version:
-        raise ValueError("SCM payload and CAS schema versions differ")
-    # Historical manifests without an explicit payload version remain 1.0.
-    # The current constructor default must not upgrade their backend profile.
-    return StructuralCausalModelSpec.model_validate(
-        {**payload, "schema_version": payload.get("schema_version", "1.0")}
-    )
+    """Load after exact owner, profile, manifest, and payload tuple admission."""
+    return _get_owned_json_artifact(store, ref, owner=_SCM_OWNER)
 
 
 __all__ = [

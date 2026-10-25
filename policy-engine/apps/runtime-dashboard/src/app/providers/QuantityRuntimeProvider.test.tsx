@@ -282,7 +282,7 @@ describe("QuantityRuntimeProvider", () => {
         undefined,
         temporalScope,
       ),
-    ).rejects.toThrow("unrequested or out-of-order item");
+    ).rejects.toThrow("unrequested or unbound item");
   });
 
   it("does not downgrade malformed present mappings to legacy exact-ID responses", async () => {
@@ -363,7 +363,7 @@ describe("QuantityRuntimeProvider", () => {
         undefined,
         temporalScope,
       ),
-    ).rejects.toThrow("unrequested or out-of-order item");
+    ).rejects.toThrow("unrequested or unbound item");
   });
 
   it("posts exact run/profile refs and refuses a same-ID response without the profile declaration", async () => {

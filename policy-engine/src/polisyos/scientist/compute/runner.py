@@ -8,17 +8,22 @@ import re
 import threading
 from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
+from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 import numpy as np
+from pydantic import BaseModel
 
 from polisyos.common import async_tools as common_async_tools
 from polisyos.common.logger import get_logger
 from polisyos.common.serialization import to_python_data
 from polisyos.core.artifacts import (
+    CoreJSONArtifactBoundedInputManifestReader,
+    CoreJSONArtifactBoundedInputManifestReceiptReader,
+    CoreJSONArtifactBoundedManifestReceiptReader,
+    CoreJSONArtifactBoundedMemberReader,
     CoreJSONArtifactStore,
-    CoreJSONArtifactStreamingReader,
     ensure_ir_artifact_store,
+    matches_runtime_protocol,
     read_core_input_manifest_profile_bounded,
     read_core_manifest_profile_bounded,
 )
@@ -41,6 +46,10 @@ from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.components import ENTRY_POINT_GROUP_FOUNDRY_METHODS
 from polisyos.core.components.bootstrap import build_components_index
+from polisyos.core.contracts.foundry import (
+    MethodExecutionBundle,
+    MethodMetricBindingSet,
+)
 from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorDispatchContext
 from polisyos.foundry.methods import (
     MethodSignature,
@@ -49,7 +58,8 @@ from polisyos.foundry.methods import (
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.exceptions import MethodNotFoundError
 from polisyos.foundry.methods.registry import MethodRegistry
-from polisyos.ir.analytics import PosteriorPointRole, PosteriorSummaryRef
+from polisyos.ir.analytics.posterior_summary import PosteriorPointRole, PosteriorSummaryRef
+from polisyos.ir.artifacts import ArtifactID as IRArtifactID
 from polisyos.ir.governance.validation import ValidationIssue
 from polisyos.ir.observation.bundles import (
     OBSERVATION_METHOD_INPUT_SCHEMA_NAME,
@@ -90,28 +100,19 @@ _RUNNER_DEGRADED_ERRORS = (
 
 class _MethodExecutionArtifactStore(
     CoreJSONArtifactStore,
-    CoreJSONArtifactStreamingReader,
+    CoreJSONArtifactBoundedInputManifestReader,
+    CoreJSONArtifactBoundedMemberReader,
     Protocol,
 ):
-    """Store surface needed for Core JSON writes and selected streamed reads."""
+    """Store surface for method admission, bounded reads, and selected output writes."""
 
 
-class _BoundedJobResultLineageStore(Protocol):
-    """Store surface required to resolve selected manifest roles without payload reads."""
-
-    def get_raw_manifest_bytes_bounded(
-        self,
-        selected_ref: ArtifactRef,
-        *,
-        max_manifest_bytes: int,
-    ) -> bytes: ...
-
-    def get_raw_manifest_bytes_bounded_for_input(
-        self,
-        input_ref: InputRef,
-        *,
-        max_manifest_bytes: int,
-    ) -> bytes: ...
+class _BoundedJobResultLineageStore(
+    CoreJSONArtifactBoundedInputManifestReceiptReader,
+    CoreJSONArtifactBoundedManifestReceiptReader,
+    Protocol,
+):
+    """Store surface for owner-measured selected-manifest lineage reads."""
 
 
 SIMULATION_RESULTS_MANIFEST_MAX_BYTES = 256 * 1024
@@ -129,6 +130,7 @@ if TYPE_CHECKING:
     from polisyos.core.contracts.runtime import (
         DirectMethodExecutionHTESummary,
         MethodExecutionCandidateOutcome,
+        ObservationalInputResourcePolicy,
     )
     from polisyos.foundry.data_plane.bindings import (
         HTEInputLimits,
@@ -137,6 +139,8 @@ if TYPE_CHECKING:
     )
     from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
         MethodMetricProjectionRefOutcome,
+        MethodMetricProjectionWorkLike,
+        _MethodMetricProjectionArtifactStore,
     )
 
 
@@ -187,6 +191,15 @@ class MethodRuntimeProviders:
     dispatcher_provider: Callable[[], MethodDispatcher]
 
 
+def _has_exact_dict_keys(values: object, expected_keys: tuple[str, ...]) -> bool:
+    """Check exact model state after bounding the number of keys inspected."""
+    if type(values) is not dict:
+        return False
+    if len(values) != len(expected_keys):
+        return False
+    return all(type(key) is str and key in expected_keys for key in tuple(values))
+
+
 @dataclass(frozen=True, slots=True)
 class _ArtifactRefView:
     """Immutable scalar snapshot of one fully selected CAS manifest view."""
@@ -200,29 +213,110 @@ class _ArtifactRefView:
     def capture(cls, ref: ArtifactRef | PosteriorSummaryRef) -> _ArtifactRefView:
         if type(ref) not in {ArtifactRef, PosteriorSummaryRef}:
             raise ValueError("method_execution_requires_canonical_artifact_ref_types")
+        ref_values = ref.__dict__
+        expected_ref_fields = (
+            "artifact_id",
+            "kind",
+            "media_type",
+            "manifest_profile_sha256",
+        )
         if (
-            type(ref.artifact_id) is not ArtifactID
-            or type(ref.kind) is not str
-            or not ref.kind
-            or len(ref.kind) > 255
-            or type(ref.media_type) is not str
-            or not ref.media_type
-            or len(ref.media_type) > 255
-            or type(ref.manifest_profile_sha256) is not str
-            or re.fullmatch(r"sha256:[0-9a-f]{64}", ref.manifest_profile_sha256) is None
+            not _has_exact_dict_keys(type(ref).model_fields, expected_ref_fields)
+            or not _has_exact_dict_keys(ref_values, expected_ref_fields)
+            or ref.__pydantic_extra__ is not None
+            or ref.__pydantic_private__ is not None
+        ):
+            raise ValueError("method_execution_requires_full_profile_artifact_refs")
+
+        raw_artifact_id = ref_values.get("artifact_id")
+        if type(ref) is ArtifactRef:
+            if type(raw_artifact_id) is not ArtifactID:
+                raise ValueError("method_execution_requires_full_profile_artifact_refs")
+            artifact_id: ArtifactID | IRArtifactID = raw_artifact_id
+        else:
+            if type(raw_artifact_id) is not IRArtifactID:
+                raise ValueError("method_execution_requires_full_profile_artifact_refs")
+            artifact_id = raw_artifact_id
+
+        artifact_id_values = artifact_id.__dict__
+        if (
+            not _has_exact_dict_keys(type(artifact_id).model_fields, ("root",))
+            or not _has_exact_dict_keys(artifact_id_values, ("root",))
+            or artifact_id.__pydantic_extra__ is not None
+            or artifact_id.__pydantic_private__ is not None
+        ):
+            raise ValueError("method_execution_requires_full_profile_artifact_refs")
+        raw_artifact_id_root = artifact_id_values.get("root")
+        if (
+            type(raw_artifact_id_root) is not str
+            or len(raw_artifact_id_root) > len(artifact_id.prefix) + 64
+        ):
+            raise ValueError("method_execution_requires_full_profile_artifact_refs")
+        if type(artifact_id) is ArtifactID:
+            validated_artifact_id = ArtifactID.model_validate(
+                raw_artifact_id_root,
+                strict=True,
+            )
+        else:
+            validated_artifact_id = IRArtifactID.model_validate(
+                raw_artifact_id_root,
+                strict=True,
+            )
+
+        kind = ref_values.get("kind")
+        media_type = ref_values.get("media_type")
+        manifest_profile_sha256 = ref_values.get("manifest_profile_sha256")
+        if (
+            type(kind) is not str
+            or not kind
+            or len(kind) > 255
+            or type(media_type) is not str
+            or not media_type
+            or len(media_type) > 255
+            or type(manifest_profile_sha256) is not str
+            or len(manifest_profile_sha256) > 71
+        ):
+            raise ValueError("method_execution_requires_full_profile_artifact_refs")
+
+        identity = {
+            "artifact_id": validated_artifact_id,
+            "kind": kind,
+            "media_type": media_type,
+            "manifest_profile_sha256": manifest_profile_sha256,
+        }
+        if type(ref) is ArtifactRef:
+            validated_ref: ArtifactRef | PosteriorSummaryRef = ArtifactRef.model_validate(
+                identity,
+                strict=True,
+            )
+            validated_ref = ArtifactRef.model_validate_json(
+                validated_ref.model_dump_json(),
+                strict=True,
+            )
+        else:
+            validated_ref = PosteriorSummaryRef.model_validate(identity, strict=True)
+            validated_ref = PosteriorSummaryRef.model_validate_json(
+                validated_ref.model_dump_json(),
+                strict=True,
+            )
+        if (
+            validated_ref.artifact_id.root != validated_artifact_id.root
+            or validated_ref.kind != kind
+            or validated_ref.media_type != media_type
+            or validated_ref.manifest_profile_sha256 != manifest_profile_sha256
         ):
             raise ValueError("method_execution_requires_full_profile_artifact_refs")
         return cls(
-            artifact_id=str(ref.artifact_id),
-            kind=ref.kind,
-            media_type=ref.media_type,
-            manifest_profile_sha256=ref.manifest_profile_sha256,
+            artifact_id=validated_artifact_id.root,
+            kind=kind,
+            media_type=media_type,
+            manifest_profile_sha256=manifest_profile_sha256,
         )
 
     def materialize(self) -> ArtifactRef:
         """Rebuild a fresh, complete public ref without sharing mutable models."""
         return ArtifactRef(
-            artifact_id=self.artifact_id,
+            artifact_id=ArtifactID(self.artifact_id),
             kind=self.kind,
             media_type=self.media_type,
             manifest_profile_sha256=self.manifest_profile_sha256,
@@ -232,11 +326,9 @@ class _ArtifactRefView:
         """Rebuild a posterior summary ref without sharing its mutable model."""
         if self.kind != "ir.posterior_summary":
             raise ValueError("method_execution_posterior_ref_kind_invalid")
-        return PosteriorSummaryRef(
-            artifact_id=self.artifact_id,
-            kind=self.kind,
-            media_type=self.media_type,
-            manifest_profile_sha256=self.manifest_profile_sha256,
+        return PosteriorSummaryRef.model_validate_json(
+            self.materialize().model_dump_json(),
+            strict=True,
         )
 
 
@@ -438,6 +530,191 @@ class MethodExecutionInputRefusalOutcome:
             )
         ):
             raise ValueError("method_execution_input_refusal_outcome_invalid")
+
+
+@dataclass(frozen=True, slots=True)
+class _RuntimeHTEFinalizedArtifactRefs:
+    """Carry the complete HTE ref set after strict projection into Core refs."""
+
+    owned_attempt_anchor_ref: OwnedAttemptAnchorRef
+    materialization_binding_ref: ArtifactRef
+    hte_outcome_ref: ArtifactRef
+    point_result_ref: ArtifactRef | None
+    hte_result_ref: ArtifactRef | None
+    inference_basis_ref: ArtifactRef | None
+    refusal_diagnostic_ref: ArtifactRef | None
+    invocation_basis_ref: ArtifactRef | None
+
+
+def _project_hte_ref_to_core[RuntimeHTECoreRef: BaseModel](
+    source_ref: BaseModel,
+    source_ref_type: type[BaseModel],
+    target_ref_type: type[RuntimeHTECoreRef],
+    field_name: str,
+    *,
+    allow_source_subclass: bool = False,
+) -> RuntimeHTECoreRef:
+    """Project one role-typed HTE ref through the strict persisted JSON ABI."""
+    if allow_source_subclass:
+        source_type_matches = isinstance(source_ref, source_ref_type)
+    else:
+        source_type_matches = type(source_ref) is source_ref_type
+    if not source_type_matches:
+        raise TypeError(f"method_execution_hte_{field_name}_type_invalid")
+
+    source_payload: dict[str, object] = source_ref.model_dump(mode="json")
+    if type(source_payload) is not dict or not all(type(key) is str for key in source_payload):
+        raise TypeError(f"method_execution_hte_{field_name}_payload_invalid")
+    source_projection = source_ref_type.model_validate(source_payload, strict=True)
+    if (
+        type(source_projection) is not source_ref_type
+        or source_projection.model_dump(mode="json") != source_payload
+    ):
+        raise ValueError(f"method_execution_hte_{field_name}_source_roundtrip_invalid")
+
+    core_ref = target_ref_type.model_validate(source_payload, strict=True)
+    if type(core_ref) is not target_ref_type or core_ref.model_dump(mode="json") != source_payload:
+        raise ValueError(f"method_execution_hte_{field_name}_core_roundtrip_invalid")
+    return core_ref
+
+
+def _normalize_hte_finalized_artifact_refs(
+    refs: object,
+) -> _RuntimeHTEFinalizedArtifactRefs:
+    """Strictly project every bridge-owned HTE ref through the JSON boundary.
+
+    Core and IR own distinct reference models. The bridge output is already
+    role-typed and its serialized ref payload is the shared ABI, so revalidate
+    that complete set in both owners and require exact identity round-tripping.
+    This projection preserves provenance; the caller still reconciles the refs
+    against Runtime's owned anchor and the bridge's independently projected
+    summary before constructing the Runtime outcome.
+    """
+    from polisyos.core.contracts.owned_attempt_anchor import (
+        OwnedAttemptAnchorRef as CoreOwnedAttemptAnchorRef,
+    )
+    from polisyos.ir.analytics.hte import (
+        ATEInferenceBasisRef,
+        HTEFinalizedArtifactRefs,
+        HTEOutcomeRef,
+        HTEPhysicalSourceMaterializationBindingRef,
+        HTEPointResultRef,
+        HTERefusalDiagnosticRef,
+        HTEResultEvidenceRef,
+    )
+    from polisyos.ir.analytics.hte import (
+        OwnedAttemptAnchorRef as IROwnedAttemptAnchorRef,
+    )
+    from polisyos.ir.registry.refs import ArtifactRefModel
+
+    if not isinstance(refs, HTEFinalizedArtifactRefs) or type(refs) is not HTEFinalizedArtifactRefs:
+        raise TypeError("method_execution_hte_finalized_refs_type_invalid")
+
+    expected_fields = frozenset(
+        {
+            "owned_attempt_anchor_ref",
+            "materialization_binding_ref",
+            "hte_outcome_ref",
+            "point_result_ref",
+            "hte_result_ref",
+            "inference_basis_ref",
+            "refusal_diagnostic_ref",
+            "invocation_basis_ref",
+        }
+    )
+    if set(HTEFinalizedArtifactRefs.model_fields) != expected_fields:
+        raise ValueError("method_execution_hte_finalized_ref_contract_changed")
+
+    payload: dict[str, object] = refs.model_dump(mode="json")
+    if type(payload) is not dict or set(payload) != expected_fields:
+        raise ValueError("method_execution_hte_finalized_ref_payload_invalid")
+    validated_refs = HTEFinalizedArtifactRefs.model_validate(payload, strict=True)
+    if (
+        type(validated_refs) is not HTEFinalizedArtifactRefs
+        or validated_refs.model_dump(mode="json") != payload
+    ):
+        raise ValueError("method_execution_hte_finalized_ref_bundle_roundtrip_invalid")
+
+    owned_attempt_anchor_ref = _project_hte_ref_to_core(
+        validated_refs.owned_attempt_anchor_ref,
+        IROwnedAttemptAnchorRef,
+        CoreOwnedAttemptAnchorRef,
+        "owned_attempt_anchor_ref",
+    )
+    materialization_binding_ref = _project_hte_ref_to_core(
+        validated_refs.materialization_binding_ref,
+        HTEPhysicalSourceMaterializationBindingRef,
+        ArtifactRef,
+        "materialization_binding_ref",
+    )
+    hte_outcome_ref = _project_hte_ref_to_core(
+        validated_refs.hte_outcome_ref,
+        HTEOutcomeRef,
+        ArtifactRef,
+        "hte_outcome_ref",
+    )
+    point_result_ref = (
+        _project_hte_ref_to_core(
+            validated_refs.point_result_ref,
+            HTEPointResultRef,
+            ArtifactRef,
+            "point_result_ref",
+        )
+        if validated_refs.point_result_ref is not None
+        else None
+    )
+    hte_result_ref = (
+        _project_hte_ref_to_core(
+            validated_refs.hte_result_ref,
+            HTEResultEvidenceRef,
+            ArtifactRef,
+            "hte_result_ref",
+        )
+        if validated_refs.hte_result_ref is not None
+        else None
+    )
+    inference_basis_ref = (
+        _project_hte_ref_to_core(
+            validated_refs.inference_basis_ref,
+            ATEInferenceBasisRef,
+            ArtifactRef,
+            "inference_basis_ref",
+        )
+        if validated_refs.inference_basis_ref is not None
+        else None
+    )
+    refusal_diagnostic_ref = (
+        _project_hte_ref_to_core(
+            validated_refs.refusal_diagnostic_ref,
+            HTERefusalDiagnosticRef,
+            ArtifactRef,
+            "refusal_diagnostic_ref",
+        )
+        if validated_refs.refusal_diagnostic_ref is not None
+        else None
+    )
+    invocation_basis_ref = (
+        _project_hte_ref_to_core(
+            validated_refs.invocation_basis_ref,
+            ArtifactRefModel,
+            ArtifactRef,
+            "invocation_basis_ref",
+            allow_source_subclass=True,
+        )
+        if validated_refs.invocation_basis_ref is not None
+        else None
+    )
+
+    return _RuntimeHTEFinalizedArtifactRefs(
+        owned_attempt_anchor_ref=owned_attempt_anchor_ref,
+        materialization_binding_ref=materialization_binding_ref,
+        hte_outcome_ref=hte_outcome_ref,
+        point_result_ref=point_result_ref,
+        hte_result_ref=hte_result_ref,
+        inference_basis_ref=inference_basis_ref,
+        refusal_diagnostic_ref=refusal_diagnostic_ref,
+        invocation_basis_ref=invocation_basis_ref,
+    )
 
 
 @dataclass(frozen=True, slots=True, init=False)
@@ -724,18 +1001,70 @@ class MethodExecutionRefOutcome:
 class MethodExecutionAdmission(Protocol):
     """One worker-local, current-lease admission resolved by Runtime."""
 
-    store: _MethodExecutionArtifactStore
-    protocol: Literal["method_input_envelope_v1", "legacy_hte_json_v1"]
-    method_fqn: str
-    method_version: str
-    effective_params: Mapping[str, Any]
-    seed: int
-    limits: HTEInputLimits
-    resource_policy_ref: ArtifactRef
-    resource_policy_digest: str
-    owned_hte_request_context: OwnedHTERequestContextV1 | None
-    method_abi_digest: str
-    method_build_digest: str
+    @property
+    def store(self) -> _MethodExecutionArtifactStore:
+        """Return the artifact store admitted for this worker lease."""
+        ...
+
+    @property
+    def protocol(self) -> Literal["method_input_envelope_v1", "legacy_hte_json_v1"]:
+        """Return the selected method-input protocol."""
+        ...
+
+    @property
+    def method_fqn(self) -> str:
+        """Return the fully qualified admitted method identity."""
+        ...
+
+    @property
+    def method_version(self) -> str:
+        """Return the admitted method version."""
+        ...
+
+    @property
+    def effective_params(self) -> Mapping[str, Any]:
+        """Return the effective parameters selected for method execution."""
+        ...
+
+    @property
+    def seed(self) -> int:
+        """Return the random seed selected for method execution."""
+        ...
+
+    @property
+    def limits(self) -> HTEInputLimits:
+        """Return the bounded method-input limits for this lease."""
+        ...
+
+    @property
+    def resource_policy_ref(self) -> ArtifactRef:
+        """Return the artifact reference for the admitted resource policy."""
+        ...
+
+    @property
+    def resource_policy(self) -> ObservationalInputResourcePolicy:
+        """Return the parsed resource policy for this method execution."""
+        ...
+
+    @property
+    def resource_policy_digest(self) -> str:
+        """Return the content digest bound to the resource policy."""
+        ...
+
+    @property
+    def owned_hte_request_context(self) -> OwnedHTERequestContextV1 | None:
+        """Return the owned HTE request context when one is admitted."""
+        ...
+
+    @property
+    def method_abi_digest(self) -> str:
+        """Return the admitted method ABI digest."""
+        ...
+
+    @property
+    def method_build_digest(self) -> str:
+        """Return the admitted method build digest."""
+        ...
 
 
 class MethodExecutionAdmissionService(Protocol):
@@ -808,8 +1137,8 @@ class MethodMetricProjectionStoreService(Protocol):
     def resolve_method_metric_projection_store(
         self,
         *,
-        work: MethodMetricProjectionWork,
-    ) -> _MethodExecutionArtifactStore | None: ...
+        work: MethodMetricProjectionWorkLike,
+    ) -> _MethodMetricProjectionArtifactStore | None: ...
 
 
 def resolve_method_runtime_providers(
@@ -991,7 +1320,7 @@ class MethodBackend:
     def _execute_method_execution_work(
         self,
         work: MethodExecutionWork,
-    ) -> MethodExecutionRefOutcome:
+    ) -> MethodExecutionRefOutcome | MethodExecutionInputRefusalOutcome:
         """Prepare, dispatch, and persist one admitted HTE method under one lease."""
         service = self._admission_service
         if service is None:
@@ -1053,9 +1382,7 @@ class MethodBackend:
                 method_fqn=admission.method_fqn,
                 limits=admission.limits,
                 materialization_binding_version=(
-                    "physical_v1"
-                    if getattr(admission.resource_policy, "revision", None) == "r5"
-                    else None
+                    "physical_v1" if admission.resource_policy.revision == "r5" else None
                 ),
             )
         except Exception as exc:
@@ -1120,6 +1447,9 @@ class MethodBackend:
                 refusal_code=refusal.code,
                 failure_stage=refusal.failure_stage,
             )
+
+        if prepared.payload_integrity_verified is not True:
+            raise ValueError("prepared_hte_payload_integrity_not_verified")
 
         submitted_input_ref = _ArtifactRefView.capture(prepared.submitted_ref).materialize()
         effective_input_ref = _ArtifactRefView.capture(prepared.effective_ref).materialize()
@@ -1199,7 +1529,6 @@ class MethodBackend:
                 }
                 slot_names = signature.input_slot_names
                 if "hte_data" in slot_names:
-                    from polisyos.core.canon import fingerprint
                     from polisyos.foundry.methods.catalog.causal._econml_adapter import (
                         build_hte_data,
                     )
@@ -1212,6 +1541,8 @@ class MethodBackend:
                     value = slot_values[name]
                     if name != "hte_data":
                         return fingerprint_method_input_value(value)
+                    from polisyos.core.canon import fingerprint
+
                     # Registered HTE methods may accept the complete typed
                     # HTEData value, not only its feature matrix. Hash every
                     # model array plus both ordered name lists under that slot.
@@ -1439,6 +1770,7 @@ class MethodBackend:
         ).materialize()
 
         finalized_hte = None
+        finalized_hte_refs = None
         if runtime_context is not None:
             from polisyos.scientist.compute.hte_outcome_bridge import (
                 persist_runtime_hte_outcome,
@@ -1451,6 +1783,18 @@ class MethodBackend:
                 method_result_ref=result_ref,
                 method_evidence_ref=evidence_ref,
             )
+            from polisyos.core.contracts.runtime import DirectMethodExecutionHTESummary
+
+            if type(finalized_hte.summary) is not DirectMethodExecutionHTESummary:
+                raise TypeError("method_execution_hte_summary_type_invalid")
+            finalized_hte_refs = _normalize_hte_finalized_artifact_refs(finalized_hte.artifact_refs)
+            if finalized_hte_refs.owned_attempt_anchor_ref != runtime_context.anchor_ref:
+                raise ValueError("method_execution_hte_owned_attempt_anchor_mismatch")
+            if (
+                finalized_hte_refs.materialization_binding_ref
+                != finalized_hte.summary.materialization_binding_ref
+            ):
+                raise ValueError("method_execution_hte_materialization_binding_mismatch")
 
         posterior_summary_refs: list[MethodExecutionPosteriorSummaryRef] = []
         if has_posterior_draw_evidence:
@@ -1499,31 +1843,29 @@ class MethodBackend:
             candidate_outcome=candidate_outcome,
             posterior_summary_refs=tuple(posterior_summary_refs),
             owned_attempt_anchor_ref=(
-                runtime_context.anchor_ref if runtime_context is not None else None
-            ),
-            hte_outcome_ref=(
-                finalized_hte.artifact_refs.hte_outcome_ref if finalized_hte is not None else None
-            ),
-            point_result_ref=(
-                finalized_hte.artifact_refs.point_result_ref if finalized_hte is not None else None
-            ),
-            hte_result_ref=(
-                finalized_hte.artifact_refs.hte_result_ref if finalized_hte is not None else None
-            ),
-            inference_basis_ref=(
-                finalized_hte.artifact_refs.inference_basis_ref
-                if finalized_hte is not None
+                finalized_hte_refs.owned_attempt_anchor_ref
+                if finalized_hte_refs is not None
                 else None
             ),
+            hte_outcome_ref=(
+                finalized_hte_refs.hte_outcome_ref if finalized_hte_refs is not None else None
+            ),
+            point_result_ref=(
+                finalized_hte_refs.point_result_ref if finalized_hte_refs is not None else None
+            ),
+            hte_result_ref=(
+                finalized_hte_refs.hte_result_ref if finalized_hte_refs is not None else None
+            ),
+            inference_basis_ref=(
+                finalized_hte_refs.inference_basis_ref if finalized_hte_refs is not None else None
+            ),
             refusal_diagnostic_ref=(
-                finalized_hte.artifact_refs.refusal_diagnostic_ref
-                if finalized_hte is not None
+                finalized_hte_refs.refusal_diagnostic_ref
+                if finalized_hte_refs is not None
                 else None
             ),
             invocation_basis_ref=(
-                finalized_hte.artifact_refs.invocation_basis_ref
-                if finalized_hte is not None
-                else None
+                finalized_hte_refs.invocation_basis_ref if finalized_hte_refs is not None else None
             ),
             hte_summary=(finalized_hte.summary if finalized_hte is not None else None),
         )
@@ -1863,11 +2205,9 @@ def read_job_result_method_execution_capture(
             limitations=("simulation_results_profile_unselected",),
         )
 
-    if not callable(getattr(store, "get_raw_manifest_bytes_bounded", None)) or not callable(
-        getattr(store, "get_raw_manifest_bytes_bounded_for_input", None)
-    ):
+    if not matches_runtime_protocol(store, _BoundedJobResultLineageStore):
         raise TypeError("artifact store lacks bounded selected-manifest readers")
-    bounded_store = cast("_BoundedJobResultLineageStore", store)
+    bounded_store = store
     result_read = read_core_manifest_profile_bounded(
         bounded_store,
         selected_result_ref,
@@ -1887,12 +2227,15 @@ def read_job_result_method_execution_capture(
     ):
         raise ValueError("JobResult does not select the expected SimulationResults manifest")
 
-    expected_roles = (
-        ("method_execution_bundle", "foundry.method_execution_bundle"),
-        ("method_metric_binding_set", "foundry.method_metric_binding_set"),
+    expected_roles: tuple[
+        tuple[Literal["method_execution_bundle", "method_metric_binding_set"], str],
+        ...,
+    ] = (
+        ("method_execution_bundle", MethodExecutionBundle.ARTIFACT_KIND),
+        ("method_metric_binding_set", MethodMetricBindingSet.ARTIFACT_KIND),
     )
     resolved: dict[str, ArtifactRef] = {}
-    absent: list[str] = []
+    absent: list[Literal["method_execution_bundle", "method_metric_binding_set"]] = []
     for role, expected_kind in expected_roles:
         matches = [item for item in result_manifest.inputs if item.role == role]
         if len(matches) > 1:
@@ -1919,16 +2262,20 @@ def read_job_result_method_execution_capture(
             schema = selected_manifest.artifact_schema
             if (
                 schema is None
-                or schema.name != "polisyos.core.MethodExecutionBundle"
-                or schema.version != "1.0"
+                or schema.name != MethodExecutionBundle.ARTIFACT_SCHEMA_NAME
+                or schema.version
+                not in {
+                    "1.0",
+                    MethodExecutionBundle.ARTIFACT_SCHEMA_VERSION,
+                }
             ):
                 raise ValueError("method execution bundle role has an unexpected schema")
         if role == "method_metric_binding_set":
             schema = selected_manifest.artifact_schema
             if (
                 schema is None
-                or schema.name != "polisyos.core.MethodMetricBindingSet"
-                or schema.version != "1.0"
+                or schema.name != MethodMetricBindingSet.ARTIFACT_SCHEMA_NAME
+                or schema.version != MethodMetricBindingSet.ARTIFACT_SCHEMA_VERSION
             ):
                 raise ValueError("method metric binding set role has an unexpected schema")
         resolved[role] = selected_ref
@@ -1939,7 +2286,23 @@ def read_job_result_method_execution_capture(
     availability: Literal["available", "partial", "unavailable"] = (
         "available" if ref_count == 2 else "partial" if ref_count == 1 else "unavailable"
     )
-    limitations = tuple(f"{role}_role_absent" for role in absent)
+    limitation_by_role: dict[
+        Literal["method_execution_bundle", "method_metric_binding_set"],
+        Literal[
+            "method_execution_bundle_role_absent",
+            "method_metric_binding_set_role_absent",
+        ],
+    ] = {
+        "method_execution_bundle": "method_execution_bundle_role_absent",
+        "method_metric_binding_set": "method_metric_binding_set_role_absent",
+    }
+    limitations: tuple[
+        Literal[
+            "method_execution_bundle_role_absent",
+            "method_metric_binding_set_role_absent",
+        ],
+        ...,
+    ] = tuple(limitation_by_role[role] for role in absent)
     return MethodExecutionCaptureProvenance(
         availability=availability,
         method_execution_bundle_ref=bundle_ref,

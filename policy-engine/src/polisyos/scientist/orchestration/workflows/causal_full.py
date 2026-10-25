@@ -9,6 +9,86 @@ from __future__ import annotations
 
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
+CAUSAL_FULL_TRANSPORT_NODE_TIMEOUT_S = 120.0
+CAUSAL_FULL_TRANSPORT_RESOURCE_POLICY_PARAM = "transport_candidate_resource_policy"
+
+
+def _transport_work_estimator_snapshot() -> dict[str, object]:
+    """Freeze the method-owned PAG work estimator identity without requiring its backend."""
+
+    try:
+        from polisyos.foundry.methods.catalog.causal.pag_member_family import (
+            PAGWorkEstimateError,
+            pag_member_work_algorithm_identity,
+            pag_member_work_estimator_source_sha256,
+        )
+    except ImportError:
+        return {
+            "status": "unavailable",
+            "reason_code": "pinned_backend_identity_unavailable",
+        }
+
+    try:
+        identity = pag_member_work_algorithm_identity()
+        source_sha256 = pag_member_work_estimator_source_sha256()
+    except PAGWorkEstimateError as exc:
+        return {
+            "status": "unavailable",
+            "reason_code": exc.code,
+        }
+
+    return {
+        "status": "available",
+        "algorithm_identity": identity.model_dump(mode="json"),
+        "estimator_source_sha256": source_sha256,
+    }
+
+
+def causal_full_transport_resource_policy_snapshot() -> dict[str, object]:
+    """Return the code-owned per-node resource profile frozen in WorkflowSpec."""
+
+    return {
+        "work_estimator": _transport_work_estimator_snapshot(),
+        "schema_version": "1.0",
+        "policy_id": "transport-candidate.standard.v1",
+        "policy_revision": "g528-conditional-transport-resources.v2",
+        "selection_identity": "transport-candidate.standard.v1",
+        "supported_profiles": [
+            {
+                "profile_id": "transport.conditional.resolved_graph",
+                "profile_revision": "1",
+            },
+            {
+                "profile_id": "pag.no_selection.finite_member_sensitivity",
+                "profile_revision": "1",
+            },
+        ],
+        "limits": {
+            "node_timeout_s": CAUSAL_FULL_TRANSPORT_NODE_TIMEOUT_S,
+            "max_proposals": 64,
+            "max_members": 64,
+            "max_evaluations": 64,
+            "max_oracle_operations": 64,
+            "max_estimated_dsep_queries": 8192,
+            "max_expanded_graph_element_query_units": 524288,
+            "max_elapsed_seconds": 75.0,
+            "max_output_bytes": 65536,
+            "max_diagnostic_bytes": 262144,
+        },
+        "limit_units": {
+            "node_timeout_s": "seconds",
+            "max_proposals": "count",
+            "max_members": "count",
+            "max_evaluations": "count",
+            "max_oracle_operations": "count",
+            "max_estimated_dsep_queries": "d_separation_query_count",
+            "max_expanded_graph_element_query_units": "expanded_graph_element_query_units",
+            "max_elapsed_seconds": "seconds",
+            "max_output_bytes": "bytes",
+            "max_diagnostic_bytes": "bytes",
+        },
+    }
+
 
 def causal_full_workflow_spec() -> WorkflowSpec:
     """Build the canonical end-to-end causal workflow spec.
@@ -146,7 +226,11 @@ def causal_full_workflow_spec() -> WorkflowSpec:
             NodeInvocation(
                 alias="run_transportability",
                 node_id="scientist.node_run_transportability@1.0.0",
+                params={
+                    CAUSAL_FULL_TRANSPORT_RESOURCE_POLICY_PARAM: causal_full_transport_resource_policy_snapshot()
+                },
                 depends_on=["run_abm_consistency", "reconcile_causal_graph"],
+                timeout_s=CAUSAL_FULL_TRANSPORT_NODE_TIMEOUT_S,
             ),
             NodeInvocation(
                 alias="run_distributional_analysis",

@@ -36,6 +36,26 @@ class CeilingDimension(StrEnum):
     MAXIMUM_COMMITMENT_STAGE = "maximum_commitment_stage"
 
 
+class _CeilingRelationDefinition(BaseModel):
+    """One fully typed row in the fixed relation registry."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    owner: str = Field(min_length=1)
+    relation: str = Field(min_length=1)
+
+
+class _CeilingRelationRegistry(BaseModel):
+    """Complete fixed-schema registry header and typed relation table."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["fabric.non_data_acquisition.ceiling_relations.v1"]
+    authority_purpose: Literal["candidate_definition_comparison_only"]
+    institutional_signer: None
+    relations: dict[str, _CeilingRelationDefinition]
+
+
 class PartialOrder(_StrictModel):
     """Finite registered order whose edges run from narrower to broader."""
 
@@ -214,10 +234,14 @@ def exact_identity_fields() -> set[str]:
 def registered_ceiling_relations() -> dict[str, dict[str, str]]:
     """Read the complete commissioned registry and reconcile it to live algebras."""
     payload = json.loads(Path(__file__).with_name("ceiling_vocabulary.json").read_text())
-    relations = payload["relations"]
-    if set(relations) != {member.value for member in CeilingDimension}:
+    registry = _CeilingRelationRegistry.model_validate(payload)
+    if set(registry.relations) != {member.value for member in CeilingDimension}:
         raise ValueError("ceiling_relation_registry_incomplete")
-    if any(value.get("owner") != __name__ for value in relations.values()):
+    relations = {
+        name: {"owner": definition.owner, "relation": definition.relation}
+        for name, definition in registry.relations.items()
+    }
+    if any(value["owner"] != __name__ for value in relations.values()):
         raise ValueError("ceiling_relation_owner_mismatch")
     return relations
 

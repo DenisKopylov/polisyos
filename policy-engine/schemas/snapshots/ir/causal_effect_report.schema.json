@@ -2,6 +2,9 @@
   "$defs": {
     "ArtifactID": {
       "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "maxLength": 71,
+      "minLength": 71,
+      "pattern": "^sha256:[0-9A-Fa-f]{64}$",
       "title": "ArtifactID",
       "type": "string"
     },
@@ -74,6 +77,45 @@
         "artifact_id"
       ],
       "title": "BoundsTighteningLogRef",
+      "type": "object"
+    },
+    "CausalGraphModelRef": {
+      "additionalProperties": false,
+      "description": "Stable handle for a persisted causal graph model once discovery or linking has frozen the structure.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.causal_graph_model",
+          "default": "ir.causal_graph_model",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "CausalGraphModelRef",
       "type": "object"
     },
     "CausalMethod": {
@@ -287,6 +329,38 @@
       ],
       "title": "GraphType",
       "type": "string"
+    },
+    "InputRef": {
+      "additionalProperties": false,
+      "description": "Identify an upstream artifact that should be recorded in persistence lineage metadata.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "role": {
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "role"
+      ],
+      "title": "InputRef",
+      "type": "object"
     },
     "PAGIdentificationPolicy": {
       "description": "PAG identification policy data model.",
@@ -1079,6 +1153,1059 @@
       "title": "TransportMode",
       "type": "string"
     },
+    "TransportabilityCandidateAttemptBindingV1": {
+      "additionalProperties": false,
+      "description": "Bind candidate computation to the engine-owned workflow attempt.",
+      "properties": {
+        "attempt_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Attempt Id",
+          "type": "string"
+        },
+        "attempt_number": {
+          "minimum": 1,
+          "title": "Attempt Number",
+          "type": "integer"
+        },
+        "basis_ref": {
+          "$ref": "#/$defs/InputRef"
+        },
+        "component_id": {
+          "maxLength": 240,
+          "minLength": 1,
+          "title": "Component Id",
+          "type": "string"
+        },
+        "dispatch_params_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Dispatch Params Sha256",
+          "type": "string"
+        },
+        "input_state_ref": {
+          "$ref": "#/$defs/InputRef"
+        },
+        "node_alias": {
+          "const": "run_transportability",
+          "title": "Node Alias",
+          "type": "string"
+        },
+        "run_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Run Id",
+          "type": "string"
+        },
+        "started_at": {
+          "format": "date-time",
+          "title": "Started At",
+          "type": "string"
+        },
+        "workflow_spec_ref": {
+          "$ref": "#/$defs/InputRef"
+        }
+      },
+      "required": [
+        "run_id",
+        "attempt_id",
+        "attempt_number",
+        "node_alias",
+        "component_id",
+        "started_at",
+        "dispatch_params_sha256",
+        "workflow_spec_ref",
+        "input_state_ref",
+        "basis_ref"
+      ],
+      "title": "TransportabilityCandidateAttemptBindingV1",
+      "type": "object"
+    },
+    "TransportabilityCandidateBudgetMeasureV1": {
+      "additionalProperties": false,
+      "description": "Record one effective resource limit or observed consumption measurement.",
+      "properties": {
+        "resource": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Resource",
+          "type": "string"
+        },
+        "unit": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "ge": 0.0,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "resource",
+        "value",
+        "unit"
+      ],
+      "title": "TransportabilityCandidateBudgetMeasureV1",
+      "type": "object"
+    },
+    "TransportabilityCandidateDiagnosticV1": {
+      "additionalProperties": false,
+      "description": "Persist a source-bound candidate diagnostic that cannot promote authority.",
+      "properties": {
+        "algorithm_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Algorithm Id",
+          "type": "string"
+        },
+        "algorithm_revision": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Algorithm Revision",
+          "type": "string"
+        },
+        "assignment_space_size": {
+          "anyOf": [
+            {
+              "pattern": "^(0|[1-9][0-9]*)$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Assignment Space Size"
+        },
+        "assumptions": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumptions",
+          "type": "array"
+        },
+        "attempt": {
+          "$ref": "#/$defs/TransportabilityCandidateAttemptBindingV1"
+        },
+        "backend_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Backend Id",
+          "type": "string"
+        },
+        "backend_revision": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Backend Revision",
+          "type": "string"
+        },
+        "candidate_request": {
+          "$ref": "#/$defs/TransportabilityCandidateRequestV1"
+        },
+        "candidate_scope": {
+          "const": "candidate_only",
+          "default": "candidate_only",
+          "title": "Candidate Scope",
+          "type": "string"
+        },
+        "disposition": {
+          "enum": [
+            "not_run",
+            "completed",
+            "partial",
+            "unsupported",
+            "error"
+          ],
+          "title": "Disposition",
+          "type": "string"
+        },
+        "effective_profile": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TransportabilityCandidateProfileV1"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evaluated_at": {
+          "format": "date-time",
+          "title": "Evaluated At",
+          "type": "string"
+        },
+        "evaluation_budget": {
+          "$ref": "#/$defs/TransportabilityCandidatePhaseBudgetV1"
+        },
+        "evaluations": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/TransportabilityCandidateMemberEvaluationV1"
+          },
+          "title": "Evaluations",
+          "type": "array"
+        },
+        "generation_budget": {
+          "$ref": "#/$defs/TransportabilityCandidatePhaseBudgetV1"
+        },
+        "generation_coverage": {
+          "enum": [
+            "declared_attempt_budget",
+            "finite_endpoint_assignment_space_complete",
+            "not_established"
+          ],
+          "title": "Generation Coverage",
+          "type": "string"
+        },
+        "graph_provenance": {
+          "enum": [
+            "manual",
+            "fitted",
+            "generated",
+            "unknown"
+          ],
+          "title": "Graph Provenance",
+          "type": "string"
+        },
+        "identified_member_fraction": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Identified Member Fraction"
+        },
+        "implementation_revision": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Implementation Revision",
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/$defs/TransportabilityCandidateInputBindingV1"
+        },
+        "interpretation_limit": {
+          "const": "selected_family_member_outcomes_do_not_establish_whole_pag_class_probability_calibration_legal_applicability_or_protected_eligibility",
+          "default": "selected_family_member_outcomes_do_not_establish_whole_pag_class_probability_calibration_legal_applicability_or_protected_eligibility",
+          "title": "Interpretation Limit",
+          "type": "string"
+        },
+        "parameters": {
+          "additionalProperties": true,
+          "title": "Parameters",
+          "type": "object"
+        },
+        "proposals": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/TransportabilityCandidateProposalV1"
+          },
+          "title": "Proposals",
+          "type": "array"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TransportabilityCandidateReasonV1"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "resource_resolution": {
+          "$ref": "#/$defs/TransportabilityCandidateResourceResolutionV1"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Seed"
+        },
+        "source_currentness": {
+          "const": "unknown",
+          "default": "unknown",
+          "title": "Source Currentness",
+          "type": "string"
+        },
+        "unattempted_proposals": {
+          "anyOf": [
+            {
+              "pattern": "^(0|[1-9][0-9]*)$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unattempted Proposals"
+        },
+        "unresolved_predicates": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Unresolved Predicates",
+          "type": "array"
+        }
+      },
+      "required": [
+        "candidate_request",
+        "resource_resolution",
+        "effective_profile",
+        "disposition",
+        "attempt",
+        "inputs",
+        "graph_provenance",
+        "algorithm_id",
+        "algorithm_revision",
+        "implementation_revision",
+        "backend_id",
+        "backend_revision",
+        "generation_budget",
+        "evaluation_budget",
+        "generation_coverage",
+        "evaluated_at"
+      ],
+      "title": "TransportabilityCandidateDiagnosticV1",
+      "type": "object"
+    },
+    "TransportabilityCandidateInputBindingV1": {
+      "additionalProperties": false,
+      "description": "Bind the computation to exact graph, query, contexts, and persisted inputs.",
+      "properties": {
+        "graph_ref": {
+          "$ref": "#/$defs/CausalGraphModelRef"
+        },
+        "graph_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Graph Sha256",
+          "type": "string"
+        },
+        "graph_type": {
+          "$ref": "#/$defs/GraphType"
+        },
+        "lineage_refs": {
+          "items": {
+            "$ref": "#/$defs/InputRef"
+          },
+          "title": "Lineage Refs",
+          "type": "array"
+        },
+        "model_plan_relation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TransportabilityCandidateModelPlanRelationV1"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "query_outcome": {
+          "maxLength": 240,
+          "minLength": 1,
+          "title": "Query Outcome",
+          "type": "string"
+        },
+        "query_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Query Sha256",
+          "type": "string"
+        },
+        "query_treatment": {
+          "maxLength": 240,
+          "minLength": 1,
+          "title": "Query Treatment",
+          "type": "string"
+        },
+        "selection_diagram_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Selection Diagram Sha256"
+        },
+        "source_context_id": {
+          "maxLength": 240,
+          "minLength": 1,
+          "title": "Source Context Id",
+          "type": "string"
+        },
+        "source_context_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Source Context Sha256",
+          "type": "string"
+        },
+        "target_context_id": {
+          "maxLength": 240,
+          "minLength": 1,
+          "title": "Target Context Id",
+          "type": "string"
+        },
+        "target_context_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Target Context Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "graph_ref",
+        "graph_type",
+        "graph_sha256",
+        "query_treatment",
+        "query_outcome",
+        "query_sha256",
+        "source_context_id",
+        "source_context_sha256",
+        "target_context_id",
+        "target_context_sha256",
+        "lineage_refs"
+      ],
+      "title": "TransportabilityCandidateInputBindingV1",
+      "type": "object"
+    },
+    "TransportabilityCandidateMemberEvaluationV1": {
+      "additionalProperties": false,
+      "description": "One and only one evaluation disposition for an admitted member.",
+      "properties": {
+        "disposition": {
+          "enum": [
+            "not_started",
+            "interrupted",
+            "completed",
+            "error"
+          ],
+          "title": "Disposition",
+          "type": "string"
+        },
+        "member_graph_ref": {
+          "$ref": "#/$defs/CausalGraphModelRef"
+        },
+        "member_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Member Sha256",
+          "type": "string"
+        },
+        "outcome": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TransportabilityCandidateSolverOutcomeV1"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TransportabilityCandidateReasonV1"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "member_sha256",
+        "member_graph_ref",
+        "disposition"
+      ],
+      "title": "TransportabilityCandidateMemberEvaluationV1",
+      "type": "object"
+    },
+    "TransportabilityCandidateModelPlanRelationV1": {
+      "additionalProperties": false,
+      "description": "Content-bound named model/plan relation used instead of a selection diagram.",
+      "properties": {
+        "content_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Content Sha256",
+          "type": "string"
+        },
+        "relation_id": {
+          "maxLength": 240,
+          "minLength": 1,
+          "title": "Relation Id",
+          "type": "string"
+        },
+        "revision": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Revision",
+          "type": "string"
+        }
+      },
+      "required": [
+        "relation_id",
+        "revision",
+        "content_sha256"
+      ],
+      "title": "TransportabilityCandidateModelPlanRelationV1",
+      "type": "object"
+    },
+    "TransportabilityCandidatePhaseBudgetV1": {
+      "additionalProperties": false,
+      "description": "Record owner admission, resolved limits, use, and termination for one phase.",
+      "properties": {
+        "admission": {
+          "enum": [
+            "admitted",
+            "refused",
+            "not_established",
+            "not_required"
+          ],
+          "title": "Admission",
+          "type": "string"
+        },
+        "admission_policy_id": {
+          "anyOf": [
+            {
+              "maxLength": 160,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Admission Policy Id"
+        },
+        "admission_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InputRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "admission_source": {
+          "enum": [
+            "existing_compute_permit",
+            "bounded_execution_policy",
+            "owner_refusal",
+            "not_established",
+            "not_required"
+          ],
+          "title": "Admission Source",
+          "type": "string"
+        },
+        "consumed": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/TransportabilityCandidateBudgetMeasureV1"
+          },
+          "title": "Consumed",
+          "type": "array"
+        },
+        "effective_limits": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/TransportabilityCandidateBudgetMeasureV1"
+          },
+          "title": "Effective Limits",
+          "type": "array"
+        },
+        "elapsed_seconds": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "ge": 0.0
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Elapsed Seconds"
+        },
+        "phase": {
+          "enum": [
+            "generation",
+            "evaluation"
+          ],
+          "title": "Phase",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TransportabilityCandidateReasonV1"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "selection_identity": {
+          "maxLength": 240,
+          "minLength": 1,
+          "title": "Selection Identity",
+          "type": "string"
+        },
+        "termination": {
+          "enum": [
+            "not_started",
+            "completed",
+            "budget_exhausted",
+            "cancelled",
+            "error",
+            "unsupported",
+            "not_required"
+          ],
+          "title": "Termination",
+          "type": "string"
+        }
+      },
+      "required": [
+        "phase",
+        "selection_identity",
+        "admission",
+        "admission_source",
+        "termination"
+      ],
+      "title": "TransportabilityCandidatePhaseBudgetV1",
+      "type": "object"
+    },
+    "TransportabilityCandidateProfileV1": {
+      "additionalProperties": false,
+      "description": "Identify the owner-resolved effective profile without a central profile allowlist.",
+      "properties": {
+        "profile_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Profile Id",
+          "type": "string"
+        },
+        "profile_revision": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Profile Revision",
+          "type": "string"
+        }
+      },
+      "required": [
+        "profile_id",
+        "profile_revision"
+      ],
+      "title": "TransportabilityCandidateProfileV1",
+      "type": "object"
+    },
+    "TransportabilityCandidateProposalV1": {
+      "additionalProperties": false,
+      "description": "Final disposition of one generated finite-family proposal.",
+      "properties": {
+        "assignment_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Assignment Sha256",
+          "type": "string"
+        },
+        "disposition": {
+          "enum": [
+            "admitted",
+            "duplicate",
+            "invalid",
+            "unsupported",
+            "validation_incomplete"
+          ],
+          "title": "Disposition",
+          "type": "string"
+        },
+        "duplicate_of": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duplicate Of"
+        },
+        "member_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Member Sha256"
+        },
+        "ordinal": {
+          "minimum": 0,
+          "title": "Ordinal",
+          "type": "integer"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TransportabilityCandidateReasonV1"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "ordinal",
+        "assignment_sha256",
+        "disposition"
+      ],
+      "title": "TransportabilityCandidateProposalV1",
+      "type": "object"
+    },
+    "TransportabilityCandidateReasonV1": {
+      "additionalProperties": false,
+      "description": "Explain one candidate execution or member outcome without assigning authority.",
+      "properties": {
+        "code": {
+          "pattern": "^[a-z][a-z0-9_]{1,95}$",
+          "title": "Code",
+          "type": "string"
+        },
+        "detail": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detail"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "title": "TransportabilityCandidateReasonV1",
+      "type": "object"
+    },
+    "TransportabilityCandidateRequestV1": {
+      "additionalProperties": false,
+      "description": "Strict caller intent for one registered conditional transport profile.",
+      "properties": {
+        "profile_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Profile Id",
+          "type": "string"
+        },
+        "profile_revision": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Profile Revision",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "selection_identity": {
+          "maxLength": 240,
+          "minLength": 1,
+          "title": "Selection Identity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "profile_id",
+        "profile_revision",
+        "selection_identity"
+      ],
+      "title": "TransportabilityCandidateRequestV1",
+      "type": "object"
+    },
+    "TransportabilityCandidateResourceResolutionV1": {
+      "additionalProperties": false,
+      "description": "Typed snapshot returned by the existing owner resource resolver.",
+      "properties": {
+        "effective_limit_units": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Effective Limit Units"
+        },
+        "effective_limits": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Effective Limits"
+        },
+        "policy_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Policy Id",
+          "type": "string"
+        },
+        "policy_revision": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Policy Revision",
+          "type": "string"
+        },
+        "profile_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Profile Id",
+          "type": "string"
+        },
+        "profile_revision": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Profile Revision",
+          "type": "string"
+        },
+        "reason_code": {
+          "anyOf": [
+            {
+              "maxLength": 160,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason Code"
+        },
+        "schema_version": {
+          "const": "1.1",
+          "default": "1.1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "selection_identity": {
+          "maxLength": 240,
+          "minLength": 1,
+          "title": "Selection Identity",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "selected",
+            "refused"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "policy_id",
+        "policy_revision",
+        "profile_id",
+        "profile_revision",
+        "selection_identity",
+        "status",
+        "effective_limits",
+        "effective_limit_units",
+        "sha256"
+      ],
+      "title": "TransportabilityCandidateResourceResolutionV1",
+      "type": "object"
+    },
+    "TransportabilityCandidateSolverOutcomeV1": {
+      "additionalProperties": false,
+      "description": "Retain the complete typed result returned by the existing solver.",
+      "properties": {
+        "algorithm_version": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Algorithm Version",
+          "type": "string"
+        },
+        "feasible": {
+          "title": "Feasible",
+          "type": "boolean"
+        },
+        "identification_engine": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Identification Engine",
+          "type": "string"
+        },
+        "identification_trace": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Identification Trace",
+          "type": "array"
+        },
+        "identified_region": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Identified Region"
+        },
+        "partial_identification_result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialIdentificationResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "query_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Query Sha256",
+          "type": "string"
+        },
+        "result": {
+          "$ref": "#/$defs/TransportabilityResult"
+        },
+        "result_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Result Sha256",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/TransportabilityStatus"
+        },
+        "transport_formula": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TransportFormula"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "transport_mode": {
+          "$ref": "#/$defs/TransportMode"
+        },
+        "unsupported_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unsupported Reason"
+        }
+      },
+      "required": [
+        "result",
+        "result_sha256",
+        "query_sha256",
+        "algorithm_version",
+        "identification_engine",
+        "status",
+        "transport_mode",
+        "feasible"
+      ],
+      "title": "TransportabilityCandidateSolverOutcomeV1",
+      "type": "object"
+    },
     "TransportabilityResult": {
       "additionalProperties": false,
       "description": "Persist the transportability decision, formula, and fallback diagnostics.\n\nReadiness gates and reporting layers inspect ``status`` and\n``transport_mode`` to decide whether a query can be transported directly,\nrequires a transport formula, falls back to bounds, or is unsupported. The\nmodel also upgrades legacy payload aliases so older persisted artifacts can\nstill be read during migration. Normalization happens before instance\ncreation so validated models no longer rewrite their own fields.",
@@ -1104,6 +2231,17 @@
           },
           "title": "Blocking S Nodes",
           "type": "array"
+        },
+        "candidate_diagnostics": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TransportabilityCandidateDiagnosticV1"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "context_distance_penalty": {
           "default": 0.0,
@@ -1343,7 +2481,7 @@
           "type": "integer"
         },
         "schema_version": {
-          "default": "2.1",
+          "default": "2.2",
           "pattern": "^\\d+\\.\\d+$",
           "title": "Schema Version",
           "type": "string"
@@ -1723,7 +2861,7 @@
       "type": "integer"
     },
     "schema_version": {
-      "default": "1.0",
+      "default": "1.1",
       "pattern": "^\\d+\\.\\d+$",
       "title": "Schema Version",
       "type": "string"

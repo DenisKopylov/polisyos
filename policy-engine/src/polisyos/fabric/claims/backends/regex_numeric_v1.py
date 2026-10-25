@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import re
 from decimal import Decimal
-
-from polisyos.ir.world.doc import DocMeta
+from typing import TYPE_CHECKING
 
 from ..canonicalize import canonical_unit, canonicalize_id, parse_decimal_value_text
 from ..types import ChunkContext, ClaimCandidate, ClaimExtractOptions
+
+if TYPE_CHECKING:
+    from polisyos.ir.world.doc import DocMeta
 
 _NUMERIC_RE = re.compile(
     r"(?P<num>[+-]?(?:\d{1,3}(?:[.,\u00a0\u202f\s]\d{3})+|\d+)(?:[.,]\d+)?(?:[eE][+-]?\d+)?)"

@@ -16,11 +16,11 @@ from polisyos.core.contracts.foundry import SimulationResult, SimulationResultRe
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.ir import normalize_artifact_ref
-from polisyos.ir.analytics.uncertainty import (
-    load_simulation_result_uncertainty_admission,
-    load_uncertainty_envelope,
-)
+from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
 from polisyos.scientist.governance.accountability import resolve_governance_threshold
+from polisyos.scientist.nodes.builtins.simulate.uncertainty_source_projection import (
+    load_science_simulation_result_uncertainty_admission,
+)
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 
@@ -74,7 +74,6 @@ class ConfidencePass(ValidatorPass):
             return issues
 
         envelope_refs: dict[str, Any] = {}
-
         try:
             sim_result_ref = _resolve_simulation_result_ref(ctx.state)
         except (TypeError, ValidationError, ValueError) as exc:
@@ -161,8 +160,8 @@ class ConfidencePass(ValidatorPass):
         n_gate_eligible = 0
         for metric_id, ref in envelope_refs.items():
             if sim_result_ref is not None and metric_id != "causal_effect":
-                admission = load_simulation_result_uncertainty_admission(
-                    _ensure_ir_artifact_store(store),
+                admission = load_science_simulation_result_uncertainty_admission(
+                    store,
                     sim_result_ref,
                     str(metric_id),
                 )

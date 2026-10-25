@@ -102,7 +102,9 @@ class TestIngestionResult:
 
 
 @pytest.mark.asyncio
-async def test_delegating_backend_uses_shared_blocking_bridge(monkeypatch: pytest.MonkeyPatch):
+async def test_delegating_backend_uses_shared_blocking_bridge(
+    monkeypatch: pytest.MonkeyPatch,
+):
     from polisyos.fabric.data_plane.orchestrator import DelegatingExecutionBackend
 
     class _TestBackend(DelegatingExecutionBackend):
@@ -316,10 +318,10 @@ class TestRunOrchestratedIngestion:
         assert result.evidence_bundle_ref == evidence_ref
         assert result.data_snapshot_ref is None
 
-    def test_connection_config_passed_through(self, tmp_path: Path):
-        """connection_config should be forwarded to run_connectors_ingestion."""
+    def test_connection_config_mapping_is_normalized_before_ingestion(self, tmp_path: Path):
+        """Mapping settings are converted to the connector-owned config contract."""
         cas_root = tmp_path / ".polisyos"
-        fake_config = {"url": "https://test.api.com", "timeout": 30}
+        config_mapping = {"url": "https://test.api.com", "timeout_seconds": 30}
 
         with patch(
             "polisyos.fabric.ingestion.run_connectors_ingestion",
@@ -330,13 +332,61 @@ class TestRunOrchestratedIngestion:
                 source="test",
                 license_name="open",
                 cas_root=cas_root,
-                connection_config=fake_config,
+                connection_config=config_mapping,
                 produce_snapshot=False,
             )
 
         mock_ingest.assert_called_once()
-        call_kwargs = mock_ingest.call_args.kwargs
-        assert call_kwargs["connection_config"] == fake_config
+        assert mock_ingest.call_args.kwargs["connection_config"] == ConnectionConfig(
+            url="https://test.api.com",
+            timeout_seconds=30,
+        )
+
+    def test_connection_config_subclass_identity_is_preserved(self, tmp_path: Path):
+        """Registered config subtypes retain identity through normalization."""
+
+        class ExtendedConnectionConfig(ConnectionConfig):
+            __slots__ = ()
+
+        config = ExtendedConnectionConfig(url="https://test.api.com")
+        with patch(
+            "polisyos.fabric.ingestion.run_connectors_ingestion",
+            return_value=None,
+        ) as mock_ingest:
+            run_orchestrated_ingestion(
+                connector_manifest={"datasets": []},
+                source="test",
+                license_name="open",
+                cas_root=tmp_path / ".polisyos",
+                connection_config=config,
+                produce_snapshot=False,
+            )
+
+        assert mock_ingest.call_args.kwargs["connection_config"] is config
+
+    def test_malformed_connection_config_fails_before_provider_resolution(
+        self, tmp_path: Path
+    ) -> None:
+        """A supplied invalid mapping must not become absent/default config."""
+        invalid_config = {"url": "https://test.api.com", "timeout": 30}
+
+        with (
+            patch(
+                "polisyos.fabric.ingestion.run_connectors_ingestion",
+                return_value=None,
+            ) as mock_ingest,
+            pytest.raises(TypeError),
+        ):
+            run_orchestrated_ingestion(
+                connector_manifest={"datasets": []},
+                source="test",
+                license_name="open",
+                cas_root=tmp_path / ".polisyos",
+                connection_config=invalid_config,
+                produce_snapshot=False,
+            )
+
+        mock_ingest.assert_not_called()
 
     def test_ingestion_dependencies_passed_through(self, tmp_path: Path) -> None:
         """Explicit ingestion dependencies should flow unchanged to the ingestion entrypoint."""
@@ -401,7 +451,9 @@ class TestRunOrchestratedIngestion:
     ) -> None:
         from polisyos.core.security.tenant_context import tenant_scope
         from polisyos.fabric.ingestion import resolve_ingestion_dependencies
-        from polisyos.fabric.ingestion.ingestion_providers import IngestionStoreBindingError
+        from polisyos.fabric.ingestion.ingestion_providers import (
+            IngestionStoreBindingError,
+        )
         from polisyos.fabric.storage.tenant_cas import TenantSidecarScope
 
         cas_root = tmp_path / "policy" / "tenants" / "00000000-0000-0000-0000-0000000000ff" / "cas"

@@ -5,14 +5,16 @@ Pure data transformations, NO jax/numpy imports.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
-from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
 
-from .models import BindingProfile
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.protocol import ArtifactStore
+
+    from .models import BindingProfile
 
 
 def resolve_binding_rules(profile: BindingProfile) -> list[dict[str, Any]]:

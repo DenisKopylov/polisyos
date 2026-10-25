@@ -7,22 +7,24 @@ Defines the core data structures used by the federation layer.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Literal
 
-import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from polisyos.fabric.connectors.base import FetchRequest
-from polisyos.fabric.connectors.contracts.schema import DataSchema
-from polisyos.fabric.connectors.quality.report import DataQualityReport
 from polisyos.fabric.data_plane.temporal import utc_now
 from polisyos.fabric.numerics.finite import ensure_probability
 from polisyos.ir.connectors import ConnectorMetadataSpec, TrustLevel
 
 if TYPE_CHECKING:
+    from datetime import datetime, timedelta
+
+    import pandas as pd
+
     from polisyos.core.contracts.fabric import EvidenceBundle
+    from polisyos.fabric.connectors.base import FetchRequest
+    from polisyos.fabric.connectors.contracts.schema import DataSchema
+    from polisyos.fabric.connectors.quality.report import DataQualityReport
 
 
 class CompositionStrategy(str, Enum):

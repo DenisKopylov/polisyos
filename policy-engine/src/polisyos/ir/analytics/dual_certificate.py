@@ -4,13 +4,25 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Mapping
 from itertools import product
 from typing import Annotated, Any, Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, model_validator
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declared_payload_version,
+    owner_profile_for_spec,
+    project_owner_source,
+    register_owner_representations,
+    validate_owner_payload,
+)
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode, ResolvedSchemaAdmission
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import DualCertificateRef
 
@@ -779,6 +791,80 @@ def coerce_bounds_certificate_bundle(
     return TypeAdapter(CertifiedBoundsCertificateBundle).validate_python(payload)
 
 
+_DUAL_CERTIFICATE_WIRE_POLICY = ("ir.analytics.dual_certificate.wire-law", "1")
+
+
+def _dual_certificate_payload_version(payload: object) -> str | None:
+    return declared_payload_version(payload, field_name="schema_version")
+
+
+def _parse_dual_certificate_source(payload: Mapping[str, Any]) -> CertifiedBoundsCertificateBundle:
+    return coerce_bounds_certificate_bundle(dict(payload))
+
+
+def _validate_dual_certificate_source(
+    payload: object, admission: ResolvedSchemaAdmission
+) -> CertifiedBoundsCertificateBundle:
+    return validate_owner_payload(
+        payload,
+        admission,
+        payload_version_field="schema_version",
+        source_parser=_parse_dual_certificate_source,
+        expected_rows=_DUAL_CERTIFICATE_OWNER_ROWS,
+        expected_types=(BoundsDualCertificateBundle, StratifiedLPDualCertificateBundle),
+    )
+
+
+def _project_dual_certificate_for_consumer(
+    source: CertifiedBoundsCertificateBundle,
+    _admission: ResolvedSchemaAdmission,
+) -> CertifiedBoundsCertificateBundle:
+    return project_owner_source(
+        (BoundsDualCertificateBundle, StratifiedLPDualCertificateBundle),
+        source,
+    )
+
+
+_DUAL_CERTIFICATE_OWNER: ArtifactOwnerDeclaration[Any, Any] = ArtifactOwnerDeclaration(
+    contract_id="ir.analytics.dual_certificate.owner.v1",
+    dto_fqn="polisyos.ir.analytics.dual_certificate.CertifiedBoundsCertificateBundle",
+    abi_key="ir.analytics.dual_certificate.owner.v1.dto-abi.v1",
+    registry_key="ir.dual_certificate",
+    kind="ir.dual_certificate",
+    media_type="application/json",
+    purpose="dual_certificate",
+    policy_revision="ir.analytics.dual_certificate.owner.v1.admission.v1",
+    accepted_wire_policies=(_DUAL_CERTIFICATE_WIRE_POLICY,),
+    payload_version_of=_dual_certificate_payload_version,
+    validate_source=_validate_dual_certificate_source,
+    project_for_consumer=_project_dual_certificate_for_consumer,
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+)
+_DUAL_CERTIFICATE_OWNER_ROWS = register_owner_representations(
+    _DUAL_CERTIFICATE_OWNER,
+    (
+        OwnedJSONRepresentation(
+            schema_name="ir.dual_certificate",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.dual_certificate.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=CompatibilityMode.NONE,
+            notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
 def persist_dual_certificate_bundle(
     store: ArtifactStore,
     bundle: CertifiedBoundsCertificateBundle,
@@ -787,28 +873,25 @@ def persist_dual_certificate_bundle(
     schema_name: str = "ir.dual_certificate",
     schema_version: str = "1.0",
 ) -> DualCertificateRef:
-    """Persist a dual-certificate bundle as a CAS-backed JSON artifact."""
-
-    ref = put_json_artifact(
+    """Persist a dual-certificate bundle through its exact typed owner."""
+    ref = _put_owned_json_artifact(
         store,
         bundle.model_dump(mode="json"),
-        kind="ir.dual_certificate",
+        owner=_DUAL_CERTIFICATE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return DualCertificateRef.model_validate(ref)
+    return DualCertificateRef.from_selected_write(ref)
 
 
 def load_dual_certificate_bundle(
     store: ArtifactStore,
     ref: DualCertificateRef,
 ) -> CertifiedBoundsCertificateBundle:
-    """Load a persisted dual-certificate bundle."""
-
-    payload = get_json_artifact(store, ref)
-    return coerce_bounds_certificate_bundle(payload)
+    """Load a dual-certificate bundle after owner and profile admission."""
+    return _get_owned_json_artifact(store, ref, owner=_DUAL_CERTIFICATE_OWNER)
 
 
 def hydrate_bounds_bundle_with_dual_certificate(
@@ -829,7 +912,7 @@ def hydrate_bounds_bundle_with_dual_certificate(
     resolved_bundle = (
         bundle if isinstance(bundle, BoundsBundle) else BoundsBundle.model_validate(bundle)
     )
-    resolved_inputs = list(inputs or [])
+    resolved_inputs = [] if inputs is None else list(inputs)
     bundle_warnings = list(resolved_bundle.warnings)
     if certificate_payload is None:
         return hydrate_bounds_bundle_with_tightening_log(

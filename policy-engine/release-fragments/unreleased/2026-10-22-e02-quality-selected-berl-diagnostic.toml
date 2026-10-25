@@ -1,0 +1,23 @@
+id = "2026-10-22-e02-quality-selected-berl-diagnostic"
+title = "Preserve selected BERL method identity in quality diagnostics"
+type = "added"
+component = "runtime"
+owner = "team-policyos-runtime"
+summary = "The quality scorecard can persist the existing claim-argument validation result, including method identity and field presence read from the exact selected BERL bundle. Canary assembly passes its resolved artifact store to the same validator."
+evidence = [
+  "src/polisyos/runtime/quality/explanation_reliability.py",
+  "src/polisyos/runtime/quality/scorecard.py",
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
+  "tests/unit/runtime/quality/test_explanation_reliability.py",
+  "tests/unit/runtime/quality/test_scorecard.py",
+]
+compatibility = "The policyos.quality_scorecard.v1 artifact gains an optional policy_design_claim_argument_validation_diagnostic field when existing serious-canary claim-argument validation applies. Existing fields and facade exports remain available. Missing or invalid selected BERL refs are not rescued by embedded copies. Incomplete runtime report registry composition produces a typed failing gate instead of an unchecked mapping lookup."
+change_class = "operator-visible-runtime-diagnostic"
+surface_classification = "public_experimental: polisyos.runtime.quality"
+migration = "Readers should continue to ignore unknown optional scorecard fields and use the existing gates for readiness. The diagnostic is an inspectable validation result, not independent evidence or authority."
+limitations = "Controlled producer-to-CAS-to-scorecard tests do not establish a first-party production caller, claim/run subject resolution, conditional law, live currentness, a complete canary closeout, or policy acceptance."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/runtime/quality-scorecard.md"]
+runbook_docs = []

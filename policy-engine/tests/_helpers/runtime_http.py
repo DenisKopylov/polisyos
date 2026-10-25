@@ -793,6 +793,9 @@ def _build_runtime_api_env_for_fixture_data(
     raise_server_exceptions: bool = True,
 ) -> dict[str, object]:
     """Build one independently owned Runtime app over a materialized fixture graph."""
+    selected_repo_root = (app_kwargs or {}).get("repo_root")
+    if selected_repo_root is not None and not isinstance(selected_repo_root, Path):
+        raise TypeError("runtime_api_fixture_repo_root_must_be_path")
     app = create_runtime_api_app(
         cas_root=cas_root,
         core_runs_root=cas_root / "runs",
@@ -830,11 +833,13 @@ def _build_runtime_api_env_for_fixture_data(
             else ControlPlaneService(
                 cas_root=cas_root,
                 core_runs_root=cas_root / "runs",
+                repo_root=selected_repo_root,
                 metrics=app.state.runtime_metrics,
                 tracer=app.state.runtime_tracer,
                 artifact_store=shared_store,
                 **(
                     {
+                        "signature_verifier": container.runtime_api_context.signature_verifier,
                         "async_artifact_store": container.runtime_api_context.async_store,
                         "registry_providers": container.control_registry_providers,
                         "decision_validity_service": container.decision_validity_service,
@@ -2192,11 +2197,16 @@ def build_runtime_api_env(
 
 
 @pytest.fixture
-def runtime_api_env(tmp_path: Path):
+def runtime_api_env(tmp_path: Path, pytestconfig: pytest.Config):
     if TestClient is None:  # pragma: no cover
         pytest.skip("fastapi is not installed")
 
-    env = build_runtime_api_env(tmp_path, include_test_client=True)
+    project_root = Path(pytestconfig.rootpath).resolve(strict=True)
+    env = build_runtime_api_env(
+        tmp_path,
+        include_test_client=True,
+        app_kwargs={"repo_root": project_root},
+    )
     try:
         yield env
     finally:
@@ -2216,6 +2226,7 @@ def _build_control_service(
     candidate_simulation_profiles=(),
     candidate_simulation_model_declarations=(),
     catalog_run_profile: str | None = None,
+    repo_root: Path | None = None,
 ) -> ControlPlaneService:
     store = artifact_store if artifact_store is not None else FileSystemCAS(tmp_path / ".polisyos")
     admission_owner = cycle_substrate_context_admission_owner
@@ -2241,6 +2252,7 @@ def _build_control_service(
     return ControlPlaneService(
         cas_root=tmp_path / ".polisyos",
         core_runs_root=tmp_path / ".polisyos" / "runs",
+        repo_root=repo_root,
         artifact_store=store,
         retrieval_service=_NoOpRetrievalService(),
         policy_resolver=resolver,

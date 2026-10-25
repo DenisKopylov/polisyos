@@ -16,14 +16,24 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir.artifacts import (
-    ArtifactStore,
-    InputRef,
-    get_json_artifact,
-    put_json_artifact,
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.contracts import (
+    ArtifactOwnerDeclaration,
+    CanonInfo,
+    OwnedArtifactRead,
 )
-from polisyos.ir.migrations import negotiate_schema_version
-from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.artifacts.io import (
+    _get_owned_json_artifact_with_bytes,
+    _put_owned_json_artifact,
+)
+from polisyos.ir.migrations.base import (
+    IRCompatibilityKind,
+    IRRepresentationKey,
+    IRRepresentationRegistration,
+    ResolvedSchemaAdmission,
+    register_ir_representation,
+)
+from polisyos.ir.model_layer.canon import CanonSpec, from_canonical_bytes
 from polisyos.ir.registry.refs import (
     BoundsBundleRef,
     DataReadinessReportRef,
@@ -359,6 +369,120 @@ class EvidenceBundle(BaseModel):
         )
 
 
+def _evidence_bundle_payload_version(_payload: object) -> None:
+    """Declare that this family carries no embedded payload-version discriminator."""
+    return None
+
+
+_EVIDENCE_BUNDLE_LEGACY_WIRE_POLICY = ("evidence-bundle-no-twin-field", "1")
+_EVIDENCE_BUNDLE_CURRENT_WIRE_POLICY = ("evidence-bundle-optional-twin-field", "1")
+
+
+def _evidence_bundle_wire_policy(registration: IRRepresentationRegistration) -> tuple[str, str]:
+    """Return the exact trusted semantic payload-law identity on one source row."""
+    return registration.wire_policy_ref, registration.wire_policy_revision
+
+
+def _validate_evidence_bundle_source(
+    payload: object,
+    admission: ResolvedSchemaAdmission,
+) -> EvidenceBundle:
+    """Validate source bytes under their registered semantic wire law."""
+    registration = admission.source_registration
+    if registration.schema_name != _CAUSAL_EVIDENCE_BUNDLE_SCHEMA:
+        raise ValueError("EvidenceBundle owner row has the wrong schema name")
+    if registration.payload_version is not None:
+        raise ValueError("EvidenceBundle owner rows must declare no embedded payload version")
+    if not isinstance(payload, Mapping):
+        raise ValueError("Causal EvidenceBundle payload must be a JSON object")
+    wire_policy = _evidence_bundle_wire_policy(registration)
+    if wire_policy == _EVIDENCE_BUNDLE_LEGACY_WIRE_POLICY:
+        if "twin_network_result_ref" in payload:
+            raise ValueError(
+                "EvidenceBundle no-Twin wire law forbids the 'twin_network_result_ref' key"
+            )
+    elif wire_policy != _EVIDENCE_BUNDLE_CURRENT_WIRE_POLICY:
+        raise ValueError(f"Unsupported causal EvidenceBundle wire policy {wire_policy!r}")
+    return EvidenceBundle.model_validate(payload)
+
+
+def _project_evidence_bundle_for_consumer(
+    source_value: EvidenceBundle,
+    _admission: ResolvedSchemaAdmission,
+) -> EvidenceBundle:
+    """Return the validated family DTO without a projection that drops its provenance."""
+    if not isinstance(source_value, EvidenceBundle):
+        raise TypeError("Causal EvidenceBundle source was not validated by its owner")
+    return source_value
+
+
+def _validate_evidence_bundle_profile(
+    profile: CanonInfo,
+    registration: IRRepresentationRegistration,
+) -> bool:
+    """Bind each admitted row to the exact canonical profile used by its owner."""
+    expected = CanonInfo.from_spec(CanonSpec(forbid_floats=False))
+    return registration.profile_ref is None and profile == expected
+
+
+_CAUSAL_EVIDENCE_BUNDLE_OWNER = ArtifactOwnerDeclaration(
+    contract_id="ir.analytics.causal_evidence_bundle",
+    dto_fqn="polisyos.ir.analytics.evidence_bundle.EvidenceBundle",
+    abi_key="ir.causal_evidence_bundle",
+    registry_key="ir.causal_evidence_bundle",
+    kind="fabric.evidence_bundle",
+    media_type="application/json",
+    purpose="causal_audit_evidence",
+    policy_revision="ir.causal_evidence_bundle.owner-admission.v1",
+    accepted_wire_policies=(
+        _EVIDENCE_BUNDLE_LEGACY_WIRE_POLICY,
+        _EVIDENCE_BUNDLE_CURRENT_WIRE_POLICY,
+    ),
+    payload_version_of=_evidence_bundle_payload_version,
+    validate_source=_validate_evidence_bundle_source,
+    project_for_consumer=_project_evidence_bundle_for_consumer,
+    validate_profile=_validate_evidence_bundle_profile,
+)
+
+
+_CAUSAL_EVIDENCE_BUNDLE_V1_KEY = IRRepresentationKey(
+    _CAUSAL_EVIDENCE_BUNDLE_SCHEMA,
+    _CAUSAL_EVIDENCE_BUNDLE_LEGACY_VERSION,
+    None,
+)
+register_ir_representation(
+    registry_key=_CAUSAL_EVIDENCE_BUNDLE_OWNER.registry_key,
+    owner_ref=_CAUSAL_EVIDENCE_BUNDLE_OWNER.contract_id,
+    dto_abi=_CAUSAL_EVIDENCE_BUNDLE_OWNER.dto_fqn,
+    wire_policy_ref=_EVIDENCE_BUNDLE_LEGACY_WIRE_POLICY[0],
+    wire_policy_revision=_EVIDENCE_BUNDLE_LEGACY_WIRE_POLICY[1],
+    schema_name=_CAUSAL_EVIDENCE_BUNDLE_SCHEMA,
+    schema_version=_CAUSAL_EVIDENCE_BUNDLE_LEGACY_VERSION,
+    payload_version=None,
+    profile_ref=None,
+    readable=True,
+    writable=True,
+    current=False,
+    default_write=False,
+)
+register_ir_representation(
+    registry_key=_CAUSAL_EVIDENCE_BUNDLE_OWNER.registry_key,
+    owner_ref=_CAUSAL_EVIDENCE_BUNDLE_OWNER.contract_id,
+    dto_abi=_CAUSAL_EVIDENCE_BUNDLE_OWNER.dto_fqn,
+    wire_policy_ref=_EVIDENCE_BUNDLE_CURRENT_WIRE_POLICY[0],
+    wire_policy_revision=_EVIDENCE_BUNDLE_CURRENT_WIRE_POLICY[1],
+    schema_name=_CAUSAL_EVIDENCE_BUNDLE_SCHEMA,
+    schema_version=_CAUSAL_EVIDENCE_BUNDLE_CURRENT_VERSION,
+    payload_version=None,
+    profile_ref=None,
+    readable=True,
+    writable=True,
+    current=True,
+    default_write=True,
+    readable_from=(_CAUSAL_EVIDENCE_BUNDLE_V1_KEY,),
+)
+
+
 def persist_causal_evidence_bundle(
     store: ArtifactStore,
     bundle: EvidenceBundle,
@@ -367,74 +491,125 @@ def persist_causal_evidence_bundle(
     schema_name: str = _CAUSAL_EVIDENCE_BUNDLE_SCHEMA,
     schema_version: str | None = None,
 ) -> EvidenceBundleRef:
-    """Persist a causal audit EvidenceBundle and return its typed artifact ref.
+    """Persist a causal audit bundle through its exact registered owner row.
 
-    Reference-free payloads keep the strict 1.0 field set. Payloads with a typed
-    twin-result reference are written as schema 1.1. The schema name is fixed
-    to the identity recognized by the typed reader.
+    By default, a reference-free bundle uses the strict legacy 1.0 representation
+    with the Twin key omitted. A Twin-linked bundle uses the unique current
+    writable representation. A supplied version is an exact owner-row request;
+    unknown, non-writable, or payload-mismatched rows refuse before CAS emission.
     """
     if schema_name != _CAUSAL_EVIDENCE_BUNDLE_SCHEMA:
         raise ValueError(f"Unsupported causal EvidenceBundle schema name {schema_name!r}")
-    has_twin_result = bundle.twin_network_result_ref is not None
-    expected_version = (
-        _CAUSAL_EVIDENCE_BUNDLE_CURRENT_VERSION
-        if has_twin_result
-        else _CAUSAL_EVIDENCE_BUNDLE_LEGACY_VERSION
-    )
-    selected_version = schema_version if schema_version is not None else expected_version
-    if selected_version != expected_version:
-        raise ValueError(
-            f"EvidenceBundle {expected_version} is required for this payload; "
-            f"got schema version {selected_version!r}"
-        )
-    payload = bundle.model_dump(
-        mode="json",
-        exclude=None if has_twin_result else {"twin_network_result_ref"},
-    )
-    ref = put_json_artifact(
+    selected_schema_version = schema_version
+    if selected_schema_version is None and bundle.twin_network_result_ref is None:
+        selected_schema_version = _CAUSAL_EVIDENCE_BUNDLE_LEGACY_VERSION
+    payload = bundle.model_dump(mode="json")
+    if (
+        bundle.twin_network_result_ref is None
+        and selected_schema_version == _CAUSAL_EVIDENCE_BUNDLE_LEGACY_VERSION
+    ):
+        payload.pop("twin_network_result_ref", None)
+    write_options: dict[str, object] = {}
+    if selected_schema_version is not None:
+        write_options.update(schema_name=schema_name, schema_version=selected_schema_version)
+    ref = _put_owned_json_artifact(
         store,
         payload,
-        kind="fabric.evidence_bundle",
-        schema_name=schema_name,
-        schema_version=selected_version,
+        owner=_CAUSAL_EVIDENCE_BUNDLE_OWNER,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
+        **write_options,
     )
     return EvidenceBundleRef.model_validate(ref)
 
 
-def _causal_evidence_bundle_version(store: ArtifactStore, ref: EvidenceBundleRef) -> str:
-    """Read and negotiate the schema version for this exact persisted manifest view."""
-    manifest = store.get_manifest(ref)
-    schema = getattr(manifest, "artifact_schema", None)
-    if schema is None or schema.name != _CAUSAL_EVIDENCE_BUNDLE_SCHEMA:
-        raise ValueError("Missing or unsupported causal EvidenceBundle schema metadata")
-    version = str(schema.version)
-    decision = negotiate_schema_version(
-        _CAUSAL_EVIDENCE_BUNDLE_SCHEMA,
-        version,
-        _CAUSAL_EVIDENCE_BUNDLE_CURRENT_VERSION,
+def _validate_causal_evidence_bundle_read(
+    read: OwnedArtifactRead[EvidenceBundle],
+) -> None:
+    """Bind a consumer projection to its selected owner row and same-byte witness."""
+    if type(read) is not OwnedArtifactRead:
+        raise ValueError("EvidenceBundle consumer requires an owned artifact read")
+    if (
+        read.contract_id != _CAUSAL_EVIDENCE_BUNDLE_OWNER.contract_id
+        or read.dto_fqn != _CAUSAL_EVIDENCE_BUNDLE_OWNER.dto_fqn
+        or read.abi_key != _CAUSAL_EVIDENCE_BUNDLE_OWNER.abi_key
+        or read.registry_key != _CAUSAL_EVIDENCE_BUNDLE_OWNER.registry_key
+        or read.purpose != _CAUSAL_EVIDENCE_BUNDLE_OWNER.purpose
+        or read.owner_policy_revision != _CAUSAL_EVIDENCE_BUNDLE_OWNER.policy_revision
+    ):
+        raise ValueError("EvidenceBundle consumer read does not match its trusted owner")
+    admission = read.admission
+    if type(admission) is not ResolvedSchemaAdmission:
+        raise ValueError("EvidenceBundle consumer read is missing resolved schema admission")
+    if (
+        type(admission.snapshot_revision) is not str
+        or not admission.snapshot_revision.startswith("sha256:")
+        or len(admission.snapshot_revision) != 71
+        or admission.compatibility_kind
+        not in (IRCompatibilityKind.EXACT, IRCompatibilityKind.DIRECT)
+        or admission.migration_path
+        or admission.profile_ref is not None
+    ):
+        raise ValueError("EvidenceBundle admission is not an exact or direct registered route")
+    source = admission.source_registration
+    current = admission.current_registration
+    for registration in (source, current):
+        if (
+            registration.registry_key != _CAUSAL_EVIDENCE_BUNDLE_OWNER.registry_key
+            or registration.owner_ref != _CAUSAL_EVIDENCE_BUNDLE_OWNER.contract_id
+            or registration.dto_abi != _CAUSAL_EVIDENCE_BUNDLE_OWNER.dto_fqn
+            or registration.schema_name != _CAUSAL_EVIDENCE_BUNDLE_SCHEMA
+            or registration.payload_version is not None
+            or registration.profile_ref is not None
+            or not registration.readable
+            or _evidence_bundle_wire_policy(registration)
+            not in _CAUSAL_EVIDENCE_BUNDLE_OWNER.accepted_wire_policies
+        ):
+            raise ValueError("EvidenceBundle admission rows are not accepted owner registrations")
+    if (
+        not current.current
+        or _evidence_bundle_wire_policy(current) != _EVIDENCE_BUNDLE_CURRENT_WIRE_POLICY
+    ):
+        raise ValueError("EvidenceBundle current reader does not use the selected current wire law")
+    profile = CanonInfo.from_spec(CanonSpec(forbid_floats=False))
+    if not _validate_evidence_bundle_profile(profile, source):
+        raise ValueError("EvidenceBundle source profile is not owner-approved")
+    profile_digest = read.manifest_profile_sha256
+    if (
+        type(profile_digest) is not str
+        or len(profile_digest) != 71
+        or not profile_digest.startswith("sha256:")
+        or any(char not in "0123456789abcdef" for char in profile_digest[7:])
+    ):
+        raise ValueError("EvidenceBundle consumer read is missing selected manifest-profile proof")
+    if type(read.raw_bytes) is not bytes or not read.raw_bytes:
+        raise ValueError("EvidenceBundle consumer read is missing its exact byte witness")
+    payload = from_canonical_bytes(read.raw_bytes)
+    source_value = _validate_evidence_bundle_source(payload, admission)
+    if not isinstance(read.value, EvidenceBundle) or source_value != read.value:
+        raise ValueError("EvidenceBundle consumer DTO is not bound to its admitted source bytes")
+
+
+def load_causal_evidence_bundle_with_admission(
+    store: ArtifactStore,
+    ref: EvidenceBundleRef,
+) -> OwnedArtifactRead[EvidenceBundle]:
+    """Load one EvidenceBundle with its exact registry admission and byte witness."""
+    read = _get_owned_json_artifact_with_bytes(
+        store,
+        ref,
+        owner=_CAUSAL_EVIDENCE_BUNDLE_OWNER,
     )
-    if not decision.can_read or decision.migration_required:
-        raise ValueError(
-            f"Unsupported causal EvidenceBundle schema version {version!r}; "
-            f"current reader is {_CAUSAL_EVIDENCE_BUNDLE_CURRENT_VERSION}"
-        )
-    return version
+    _validate_causal_evidence_bundle_read(read)
+    return read
 
 
 def load_causal_evidence_bundle(
     store: ArtifactStore,
     ref: EvidenceBundleRef,
 ) -> EvidenceBundle:
-    """Load a versioned causal audit EvidenceBundle from its selected CAS view."""
-    version = _causal_evidence_bundle_version(store, ref)
-    payload = get_json_artifact(store, ref)
-    if version == _CAUSAL_EVIDENCE_BUNDLE_LEGACY_VERSION and "twin_network_result_ref" in payload:
-        raise ValueError(
-            "EvidenceBundle v1.0 payload contains the v1.1 field 'twin_network_result_ref'"
-        )
-    return EvidenceBundle.model_validate(payload)
+    """Load a typed causal audit bundle while preserving the historical DTO return."""
+    return load_causal_evidence_bundle_with_admission(store, ref).value
 
 
 __all__ = [
@@ -446,5 +621,6 @@ __all__ = [
     "ProofStep",
     "_fingerprint",
     "load_causal_evidence_bundle",
+    "load_causal_evidence_bundle_with_admission",
     "persist_causal_evidence_bundle",
 ]

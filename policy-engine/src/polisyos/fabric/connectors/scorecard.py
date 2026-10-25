@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from polisyos.fabric.connectors.contracts import SourceContract
 from polisyos.fabric.numerics.finite import ensure_probability
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+
+    from polisyos.fabric.connectors.contracts import SourceContract
 
 ScorecardDimension = Literal[
     "freshness",
@@ -302,7 +305,7 @@ def _status(
 
 
 def _metric_cell(
-    metrics: Mapping[str, SourceScorecardMetric],
+    metrics: Mapping[ScorecardDimension, SourceScorecardMetric],
     name: ScorecardDimension,
 ) -> str:
     metric = metrics.get(name)

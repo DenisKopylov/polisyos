@@ -1771,159 +1771,42 @@ class CausalEngineIdentificationMixin:
         graph: CausalGraphModel,
         intervention: InterferenceIntervention,
         outcome: frozenset[str],
-    ) -> IdentificationResult | NegativeCertificate:
-        from polisyos.foundry.methods.catalog.causal.interference import (
-            build_interference_topology_contracts,
-            identify_interference_effect,
-        )
-        from polisyos.ir.analytics.interference import (
-            ExposureMappingType,
-            load_interaction_complex,
-            load_interference_certificate,
-        )
-
-        def _exposure_mapping_from_ref(value: str) -> ExposureMappingType:
-            lowered = value.strip().lower()
-            if "threshold" in lowered:
-                return ExposureMappingType.THRESHOLD
-            if "count" in lowered:
-                return ExposureMappingType.COUNT
-            if "kernel" in lowered or "spatial" in lowered:
-                return ExposureMappingType.KERNEL
-            return ExposureMappingType.FRACTIONAL
-
-        treatment_name = intervention.policies[0].target
-        outcome_name = next(iter(sorted(outcome)))
-        exposure_mapping = _exposure_mapping_from_ref(intervention.exposure_map_ref)
-        cluster_var = (
-            "cluster_map"
-            if intervention.interference_mode in {"partial", "cluster"}
-            or intervention.fallback_mode == "clustered"
-            else None
-        )
-        reduction_policy = {
-            "pairwise": "pairwise_projection",
-            "clustered": "cluster_projection",
-            "unsupported": "full_complex",
-        }[intervention.fallback_mode]
-
-        interference_result = identify_interference_effect(
-            graph,
-            treatment_name,
-            outcome_name,
-            exposure_mapping=exposure_mapping,
-            cluster_var=cluster_var,
-        )
-        interaction_complex, interference_certificate = build_interference_topology_contracts(
-            interference_result,
-            reduction_policy=reduction_policy,
-        )
-        effective_mode = (
-            interference_certificate.mode_used or interference_certificate.fallback_mode
-        )
-        estimand_label = {
-            "complex": "complex_exposure_effect",
-            "clustered": "clustered_exposure_effect",
-            "pairwise": "pairwise_projection_effect",
-            "unsupported": "unsupported_complex_effect",
-        }[effective_mode]
-        metadata: dict[str, Any] = {
-            "interaction_complex": (
-                interaction_complex.model_dump(mode="json")
-                if interaction_complex is not None
-                else None
-            ),
-            "interference_certificate": interference_certificate.model_dump(mode="json"),
-            "interference_mode": intervention.interference_mode,
-            "interference_fallback_mode": intervention.fallback_mode,
-            "interference_mode_requested": (
-                interference_certificate.mode_requested or intervention.interference_mode
-            ),
-            "interference_mode_used": effective_mode,
-            "interference_fallback_triggered": interference_certificate.fallback_triggered,
-            "interference_estimand_label": estimand_label,
-            "exposure_mapping": exposure_mapping.value,
-        }
-        if self._artifact_store is not None and intervention.interaction_complex_ref is not None:
-            try:
-                metadata["declared_interaction_complex"] = load_interaction_complex(
-                    _ensure_ir_artifact_store(self._artifact_store),
-                    intervention.interaction_complex_ref,
-                ).model_dump(mode="json")
-            except Exception:
-                pass
-        if (
-            self._artifact_store is not None
-            and query.context.interference_certificate_ref is not None
-        ):
-            try:
-                metadata["declared_interference_certificate"] = load_interference_certificate(
-                    _ensure_ir_artifact_store(self._artifact_store),
-                    query.context.interference_certificate_ref,
-                ).model_dump(mode="json")
-            except Exception:
-                pass
-
-        if interference_result.status == "identified":
-            estimand_ast = (
-                EstimandAST.model_validate(interference_result.estimand_ast)
-                if interference_result.estimand_ast is not None
-                else None
-            )
-            required_distributions = [
-                DistributionRef.model_validate(item)
-                for item in interference_result.required_distributions
-            ]
-            result = IdentificationResult(
-                status=IdentificationStatus.IDENTIFIED,
-                estimand_ast=estimand_ast,
-                hedge_certificate=None,
-                trace=[
-                    *list(interference_result.trace),
-                    "interference_intervention_id: identified on exposure-augmented graph",
-                ],
-                required_distributions=required_distributions,
-                algorithm_version="interference_intervention_v1",
-                proof_steps=list(interference_result.proof_steps),
-                query_str=render_intervention_query(query),
-                metadata=metadata,
-            )
-            return self._decorate_identification_result_with_intervention_query(result, query)
-
-        base_status = str(
-            interference_result.base_identification_status or interference_result.status
-        )
-        blocking_type = (
-            BlockingType.HEDGE_STRUCTURE
-            if base_status == IdentificationStatus.HEDGE_FOUND.value
-            else BlockingType.SEMANTICS_NOT_WELL_DEFINED
-        )
-        proof_trace = [
-            *list(interference_result.trace),
-            "interference_intervention_id: augmented-graph identification failed",
-        ]
-        return self._intervention_negative_certificate(
+    ) -> IdentificationResult:
+        """Refuse policy-specific ID until its exposure law is resolved and verified."""
+        del graph, intervention, outcome
+        result = self._oracle_needed_intervention_result(
             query=query,
-            blocking_type=blocking_type,
-            blocking_description=(
-                "Interference reduction did not identify the requested query on the "
-                "exposure-augmented graph."
+            algorithm_version="interference_policy_gate_v1",
+            trace_message=(
+                "interference_intervention: ORACLE_NEEDED; no owned exposure-map producer "
+                "resolves the requested exposure law or binds the assignment policy."
             ),
-            algorithm_version="interference_intervention_v1",
-            constructive_message=(
-                "Provide a certified cluster/network exposure design, or reduce the "
-                "query to a clustered partial-interference setting with explicit "
-                "topology metadata."
-            ),
-            proof_trace=proof_trace,
-            negative_payload={
-                "blocking_type": blocking_type.value,
-                "base_identification_status": base_status,
-                "interference_mode": intervention.interference_mode,
-                "fallback_mode": intervention.fallback_mode,
-            },
-            extra_diagnostics=metadata,
         )
+        result = dataclasses.replace(
+            result,
+            trace=[
+                *result.trace,
+                (
+                    "interference_intervention: topology metadata and ordinary ID success "
+                    "do not verify the policy-specific outcome law."
+                ),
+            ],
+            metadata={
+                "interference_policy_gate": {
+                    "state": "verification_missing",
+                    "missing_capability_labels": [
+                        "producer_missing",
+                        "bridge_missing",
+                        "verification_missing",
+                    ],
+                    "reason": (
+                        "exposure_map_ref is not resolved to an owned exposure operator, "
+                        "and no policy-specific assignment-law producer is bound to this query."
+                    ),
+                }
+            },
+        )
+        return self._decorate_identification_result_with_intervention_query(result, query)
 
     def _identify_from_intervention_query(
         self,

@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
@@ -16,12 +15,16 @@ from polisyos.fabric.world import (
     validate_doc_meta_ids,
     write_world_fact_segment,
 )
-from polisyos.ir.loading.fact_log import Fact, FactSegmentManifest
 from polisyos.ir.model_layer.canon import to_canonical_bytes
 from polisyos.ir.world.claim import Claim
 from polisyos.ir.world.doc import DocMeta
 
 from .errors import ClaimValidationError
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.ir.loading.fact_log import Fact, FactSegmentManifest
 
 
 def load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict[str, object]:

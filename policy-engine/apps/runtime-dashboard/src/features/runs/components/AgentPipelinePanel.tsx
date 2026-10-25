@@ -1,7 +1,12 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { normalizeAgentPipeline } from "@/shared/lib/domain/agents";
+import {
+  normalizeAgentPipeline,
+  summarizeAgentCostEvents,
+  type AgentCostEventView,
+  type AgentCostSummary,
+} from "@/shared/lib/domain/agents";
 import {
   formatBytes,
   formatCurrency,
@@ -36,6 +41,83 @@ function DecisionGradeLabel({
     >
       {presentation.ownerLabel ?? fallback}
     </span>
+  );
+}
+
+function AgentCostBreakdown({
+  summary,
+  reportedLabel,
+  estimatedLabel,
+  reuseEventsLabel,
+  unknownLabel,
+  groupLabel,
+}: {
+  summary: AgentCostSummary;
+  reportedLabel: string;
+  estimatedLabel: string;
+  reuseEventsLabel: string;
+  unknownLabel: string;
+  groupLabel: string;
+}) {
+  const parts: Array<{ key: string; content: ReactNode }> = [];
+  if (summary.reportedCostUsd !== null) {
+    parts.push({
+      key: "reported",
+      content: (
+        <span data-cost-origin="reported">
+          {reportedLabel}:{" "}
+          {formatCurrency(summary.reportedCostUsd, "USD", undefined, {
+            maximumFractionDigits: 6,
+          })}
+        </span>
+      ),
+    });
+  }
+  if (summary.estimatedCostUsd !== null) {
+    parts.push({
+      key: "estimated",
+      content: (
+        <span data-cost-origin="estimated">
+          {estimatedLabel}:{" "}
+          {formatCurrency(summary.estimatedCostUsd, "USD", undefined, {
+            maximumFractionDigits: 6,
+          })}
+        </span>
+      ),
+    });
+  }
+  if ((summary.costOriginCounts.reuse ?? 0) > 0) {
+    parts.push({
+      key: "reuse",
+      content: (
+        <span data-cost-origin="reuse">
+          {reuseEventsLabel}: {formatNumber(summary.costOriginCounts.reuse)}
+        </span>
+      ),
+    });
+  }
+  if (summary.costUnknown) {
+    parts.push({
+      key: "unknown",
+      content: <span data-cost-origin="unknown">{unknownLabel}</span>,
+    });
+  }
+
+  return (
+    <div
+      role="group"
+      aria-label={groupLabel}
+      data-cost-completeness={summary.costCompleteness}
+    >
+      {parts.length > 0
+        ? parts.map((part, index) => (
+            <span key={part.key}>
+              {index > 0 ? " · " : ""}
+              {part.content}
+            </span>
+          ))
+        : "-"}
+    </div>
   );
 }
 
@@ -82,8 +164,9 @@ export default function AgentPipelinePanel({
         completionTokens: number;
         totalTokens: number;
         latencyMs: number;
-        costUsd: number | null;
-        costUnknown: boolean;
+        costEvents: AgentCostEventView[];
+        unknownClaim: boolean;
+        costSummary: AgentCostSummary;
       }
     >();
 
@@ -101,8 +184,12 @@ export default function AgentPipelinePanel({
           completionTokens: 0,
           totalTokens: 0,
           latencyMs: 0,
-          costUsd: null,
-          costUnknown: false,
+          costEvents: [],
+          unknownClaim: false,
+          costSummary: summarizeAgentCostEvents(
+            [],
+            pipeline.ownerControlJobAttempt,
+          ),
         };
         existing.steps += 1;
         existing.promptTokens += step.promptTokens ?? 0;
@@ -111,12 +198,12 @@ export default function AgentPipelinePanel({
           step.totalTokens ??
           (step.promptTokens ?? 0) + (step.completionTokens ?? 0);
         existing.latencyMs += step.latencyMs ?? 0;
-        if (step.costUnknown ?? false) {
-          existing.costUnknown = true;
-        }
-        if (step.costUsd != null) {
-          existing.costUsd = (existing.costUsd ?? 0) + step.costUsd;
-        }
+        existing.unknownClaim ||=
+          step.ownerCostUnknown ||
+          (pipeline.ownerControlJobAttempt === null &&
+            (step.costEvents.length > 0 ||
+              step.unattributedCostScalars.length > 0));
+        existing.costEvents.push(...step.costEvents);
         if (!existing.provider && step.provider) {
           existing.provider = step.provider;
         }
@@ -124,9 +211,54 @@ export default function AgentPipelinePanel({
       }
     }
 
-    return Array.from(bucket.values()).sort(
-      (left, right) => right.totalTokens - left.totalTokens,
-    );
+    const modelBucketsByEventId = new Map<string, Set<string>>();
+    for (const row of bucket.values()) {
+      for (const event of row.costEvents) {
+        if (!event.currentOwnerEligible) {
+          continue;
+        }
+        if (
+          event.eventIdentityPresent === false ||
+          event.eventId.length === 0
+        ) {
+          row.unknownClaim = true;
+          continue;
+        }
+        const modelKeys = modelBucketsByEventId.get(event.eventId) ?? new Set();
+        modelKeys.add(row.key);
+        modelBucketsByEventId.set(event.eventId, modelKeys);
+      }
+    }
+
+    // A producer event has one global identity. If the same identity is
+    // projected into multiple model buckets, the input does not establish
+    // which variant owns it; leave it unresolved in every affected row.
+    for (const [eventId, modelKeys] of modelBucketsByEventId) {
+      if (modelKeys.size < 2) {
+        continue;
+      }
+      for (const modelKey of modelKeys) {
+        const row = bucket.get(modelKey);
+        if (!row) {
+          continue;
+        }
+        row.unknownClaim = true;
+        row.costEvents = row.costEvents.filter(
+          (event) => event.eventId !== eventId,
+        );
+      }
+    }
+
+    return Array.from(bucket.values())
+      .map((row) => ({
+        ...row,
+        costSummary: summarizeAgentCostEvents(
+          row.costEvents,
+          pipeline.ownerControlJobAttempt,
+          row.unknownClaim,
+        ),
+      }))
+      .sort((left, right) => right.totalTokens - left.totalTokens);
   }, [pipeline.attempts]);
 
   const selectedStep = useMemo(() => {
@@ -665,6 +797,13 @@ export default function AgentPipelinePanel({
             {modelSummary.map((row) => (
               <div
                 key={row.key}
+                role="group"
+                aria-label={
+                  t("panels.agentPipeline.variant") +
+                  ": " +
+                  (row.modelVariantId ?? row.model)
+                }
+                data-model-variant-id={row.modelVariantId ?? undefined}
                 className="bg-canvas/30 border-line grid gap-2 rounded-lg border p-2 text-xs md:grid-cols-7"
               >
                 <div>
@@ -710,15 +849,14 @@ export default function AgentPipelinePanel({
                   <p className="text-muted text-[10px] uppercase">
                     {t("panels.agentPipeline.cost")}
                   </p>
-                  <p>
-                    {row.costUnknown
-                      ? t("panels.agentPipeline.costUnknown")
-                      : row.costUsd != null
-                        ? formatCurrency(row.costUsd, "USD", undefined, {
-                            maximumFractionDigits: 6,
-                          })
-                        : "-"}
-                  </p>
+                  <AgentCostBreakdown
+                    summary={row.costSummary}
+                    groupLabel={t("panels.agentPipeline.cost")}
+                    reportedLabel={t("panels.agentPipeline.reportedCost")}
+                    estimatedLabel={t("panels.agentPipeline.estimatedCost")}
+                    reuseEventsLabel={t("panels.agentPipeline.reuseEvents")}
+                    unknownLabel={t("panels.agentPipeline.costUnknown")}
+                  />
                 </div>
               </div>
             ))}
@@ -871,20 +1009,18 @@ export default function AgentPipelinePanel({
                   <p className="text-muted text-xs uppercase">
                     {t("panels.agentPipeline.cost")}
                   </p>
-                  <p>
-                    {selectedStep.costUnknown
-                      ? t("panels.agentPipeline.costUnknown")
-                      : selectedStep.costUsd != null
-                        ? formatCurrency(
-                            selectedStep.costUsd,
-                            "USD",
-                            undefined,
-                            {
-                              maximumFractionDigits: 6,
-                            },
-                          )
-                        : "-"}
-                  </p>
+                  <AgentCostBreakdown
+                    groupLabel={t("panels.agentPipeline.cost")}
+                    summary={summarizeAgentCostEvents(
+                      selectedStep.costEvents,
+                      pipeline.ownerControlJobAttempt,
+                      selectedStep.ownerCostUnknown,
+                    )}
+                    reportedLabel={t("panels.agentPipeline.reportedCost")}
+                    estimatedLabel={t("panels.agentPipeline.estimatedCost")}
+                    reuseEventsLabel={t("panels.agentPipeline.reuseEvents")}
+                    unknownLabel={t("panels.agentPipeline.costUnknown")}
+                  />
                 </div>
               </div>
               {selectedStep.costEvents?.length ? (

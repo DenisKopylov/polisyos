@@ -47,6 +47,12 @@ __all__ = [
 ]
 
 if TYPE_CHECKING:
+    from polisyos.scholar._impl.evidence import (
+        SCHOLAR_ACADEMIC_EVIDENCE_FILENAME as SCHOLAR_ACADEMIC_EVIDENCE_FILENAME,
+    )
+    from polisyos.scholar._impl.evidence import (
+        scholar_academic_evidence_required as scholar_academic_evidence_required,
+    )
     from polisyos.scholar._impl.spine import (
         build_scholar_spine_evidence_binding as build_scholar_spine_evidence_binding,
     )

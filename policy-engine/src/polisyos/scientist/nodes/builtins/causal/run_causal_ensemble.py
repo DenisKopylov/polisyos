@@ -6,6 +6,7 @@ import hashlib
 import math
 from collections.abc import Mapping
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -19,6 +20,7 @@ from polisyos.core.artifacts import (
 )
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
+from polisyos.core.artifacts.protocol import RootedArtifactStore, matches_runtime_protocol
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.foundry.methods.catalog import (
     ensure_all_methods_registered as ensure_causal_methods_registered,
@@ -356,7 +358,7 @@ def _load_graph_for_candidate(
     store = _ensure_ir_artifact_store(ctx.store)
     if candidate.graph_ref is not None:
         graph_ref = profile_bound_ref(
-            store, ArtifactRef.model_validate(candidate.graph_ref.model_dump(mode="json"))
+            ctx.store, ArtifactRef.model_validate(candidate.graph_ref.model_dump(mode="json"))
         )
         graph = load_causal_graph_model(
             store, CausalGraphModelRef.model_validate(graph_ref.model_dump(mode="json"))
@@ -364,14 +366,24 @@ def _load_graph_for_candidate(
         return graph, graph_ref
 
     selected_scm_ref = profile_bound_ref(
-        store, ArtifactRef.model_validate(scm_ref.model_dump(mode="json"))
+        ctx.store, ArtifactRef.model_validate(scm_ref.model_dump(mode="json"))
     )
     graph_inputs = [
         input_ref_from_artifact_ref(selected_scm_ref, role=f"member_{member_index}.scm")
     ]
-    persisted = persist_causal_graph_model(store, scm_spec.graph, inputs=graph_inputs)
-    graph_ref = profile_bound_ref(store, persisted)
+    persisted = persist_causal_graph_model(
+        store, scm_spec.graph, inputs=graph_inputs, return_selected_profile=True
+    )
+    graph_ref = profile_bound_ref(ctx.store, persisted)
     return scm_spec.graph, ArtifactRef.model_validate(graph_ref.model_dump(mode="json"))
+
+
+def _seed_base(value: object) -> int:
+    """Preserve JSON int() coercion while narrowing supported scalar inputs."""
+    normalized = value or 0
+    if not isinstance(normalized, (str, int, float)):
+        raise TypeError("random_seed must be int-convertible")
+    return int(normalized)
 
 
 def _run_member_query(
@@ -381,6 +393,12 @@ def _run_member_query(
     scm_spec: StructuralCausalModelSpec,
     seed: int,
 ) -> CausalQueryResult:
+    store = ctx.store
+    if not matches_runtime_protocol(store, RootedArtifactStore):
+        raise RuntimeError("causal_ensemble_rooted_store_required")
+    cas_root = store.root
+    if not isinstance(cas_root, Path):
+        raise RuntimeError("causal_ensemble_rooted_store_required")
     method_state = SCMQueryData(scm_spec=scm_spec, query=query)
     result = run_job(
         JobSpec(
@@ -389,7 +407,7 @@ def _run_member_query(
             method_params={},
             seed=seed,
         ),
-        cas_root=ctx.store.root,
+        cas_root=cas_root,
         method_state=method_state,
     )
     if result.issues:
@@ -555,7 +573,7 @@ class RunCausalEnsembleNode:
         arms_initialized = False
 
         run_id = str(state.run_id)
-        seed_base = int(state.params.get("random_seed", 0) or 0)
+        seed_base = _seed_base(state.params.get("random_seed", 0))
 
         for idx, candidate in enumerate(candidates):
             if candidate.scm_inline is not None:
@@ -563,12 +581,12 @@ class RunCausalEnsembleNode:
                     _ensure_ir_artifact_store(ctx.store),
                     candidate.scm_inline,
                 )
-                scm_ref = profile_bound_ref(_ensure_ir_artifact_store(ctx.store), persisted_scm)
+                scm_ref = profile_bound_ref(ctx.store, persisted_scm)
                 scm_ref = ArtifactRef.model_validate(scm_ref.model_dump(mode="json"))
                 scm_spec = candidate.scm_inline
             elif candidate.scm_ref is not None:
                 scm_spec_ref = profile_bound_ref(
-                    _ensure_ir_artifact_store(ctx.store),
+                    ctx.store,
                     StructuralCausalModelSpecRef.model_validate(
                         candidate.scm_ref.model_dump(mode="json")
                     ),
@@ -750,18 +768,18 @@ class RunCausalEnsembleNode:
                 _ensure_ir_artifact_store(ctx.store),
                 consensus_graph,
                 inputs=graph_inputs,
+                return_selected_profile=True,
             )
-            consensus_graph_ref = profile_bound_ref(
-                _ensure_ir_artifact_store(ctx.store), persisted_consensus
-            )
+            selected_consensus_graph_ref = profile_bound_ref(ctx.store, persisted_consensus)
             consensus_graph_ref = ArtifactRef.model_validate(
-                consensus_graph_ref.model_dump(mode="json")
+                selected_consensus_graph_ref.model_dump(mode="json")
             )
             input_refs.append(
                 input_ref_from_artifact_ref(consensus_graph_ref, role="consensus_graph_ref")
             )
 
         ensemble = CausalModelEnsemble(
+            schema_version=CausalModelEnsemble.SCHEMA_VERSION,
             members=[item.member for item in normalized_members],
             consensus_graph_ref=(
                 str(consensus_graph_ref.artifact_id) if consensus_graph_ref is not None else None
@@ -769,7 +787,7 @@ class RunCausalEnsembleNode:
             edge_inclusion_frequency=edge_frequencies,
         )
         ensemble_ref = profile_bound_ref(
-            _ensure_ir_artifact_store(ctx.store),
+            ctx.store,
             persist_causal_model_ensemble(
                 _ensure_ir_artifact_store(ctx.store),
                 ensemble,
@@ -801,7 +819,7 @@ class RunCausalEnsembleNode:
             }
         )
         envelope_ref = profile_bound_ref(
-            _ensure_ir_artifact_store(ctx.store),
+            ctx.store,
             persist_uncertainty_envelope(
                 _ensure_ir_artifact_store(ctx.store),
                 envelope,

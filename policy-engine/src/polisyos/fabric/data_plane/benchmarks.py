@@ -4,17 +4,13 @@ from __future__ import annotations
 
 import time
 import tracemalloc
-from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
-from polisyos.fabric.connectors.base import ConnectionConfig
-from polisyos.fabric.data_plane.cursor_store import CursorStore
 from polisyos.fabric.data_plane.orchestrator import (
     ExecutionBackend,
     IngestionResult,
@@ -27,13 +23,20 @@ from polisyos.fabric.data_plane.streaming import (
     StreamRuntimeOptions,
     process_stream_dataset,
 )
-from polisyos.fabric.ingestion import ConnectorManifestSpec
-from polisyos.fabric.io.db import SimulationDB
-from polisyos.fabric.world import (
+from polisyos.fabric.world.materialize import (
     WorldMaterializationPolicy,
     WorldMaterializeStats,
     ensure_world_materialized,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from pathlib import Path
+
+    from polisyos.fabric.connectors.base import ConnectionConfig
+    from polisyos.fabric.data_plane.cursor_store import CursorStore
+    from polisyos.fabric.ingestion import ConnectorManifestSpec
+    from polisyos.fabric.io.db import SimulationDB
 
 
 @dataclass(frozen=True)

@@ -8,21 +8,23 @@ summaries and evidence payloads.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.canon import content_hash
 from polisyos.fabric.numerics.finite import ensure_non_negative_finite, ensure_probability
 from polisyos.ir.connectors import QualityTier
 
-from .statistics import (
-    AnomalyReport,
-    DatasetProfile,
-    DriftReport,
-    QualityContractResult,
-    QualityTrendReport,
-)
+if TYPE_CHECKING:
+    from datetime import datetime
+
+    from .statistics import (
+        AnomalyReport,
+        DatasetProfile,
+        DriftReport,
+        QualityContractResult,
+        QualityTrendReport,
+    )
 
 
 class FreshnessLevel(Enum):

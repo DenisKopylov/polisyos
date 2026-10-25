@@ -23,6 +23,7 @@ from polisyos.ir.analytics.causal_graph import (
     persist_causal_graph_model,
 )
 from polisyos.ir.analytics.context import ContextProfile
+from polisyos.ir.registry.refs import CausalGraphModelRef
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.causal.resolve_transport import RunTransportabilityNode
 from polisyos.scientist.nodes.builtins.causal.transport_resolution_inputs import (
@@ -156,17 +157,38 @@ def test_graph_and_capability_resolution_reads_typed_cas_refs_and_rejects_foreig
     artifact_ref_factory,
 ) -> None:
     graph = _causal_graph()
-    graph_ref = persist_causal_graph_model(ensure_ir_artifact_store(execution_context.store), graph)
+    ir_store = ensure_ir_artifact_store(execution_context.store)
+    graph_ref = persist_causal_graph_model(
+        ir_store,
+        graph,
+        return_selected_profile=True,
+    )
+    graph_v1_1_ref = persist_causal_graph_model(
+        ir_store,
+        graph,
+        schema_version="1.1",
+        return_selected_profile=True,
+    )
+    assert graph_v1_1_ref.artifact_id == graph_ref.artifact_id
+    assert graph_v1_1_ref.manifest_profile_sha256 != graph_ref.manifest_profile_sha256
+    graph_ref = CausalGraphModelRef.model_validate(graph_v1_1_ref.model_dump(mode="json"))
     graph_state = minimal_state.model_copy(
         update={"artifacts_index": {ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref}}
     )
     assert _resolve_causal_graph(execution_context, graph_state) == graph
+    stale_ref = graph_ref.model_copy(update={"manifest_profile_sha256": "sha256:" + "f" * 64})
+    stale_state = minimal_state.model_copy(
+        update={"artifacts_index": {ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: stale_ref}}
+    )
+    with pytest.raises(InvalidTransportInput, match="Invalid supplied"):
+        _resolve_causal_graph(execution_context, stale_state)
 
     foreign_ref = artifact_ref_factory(kind="ir.foreign_graph_payload")
     foreign_state = minimal_state.model_copy(
         update={"artifacts_index": {ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: foreign_ref}}
     )
-    assert _resolve_causal_graph(execution_context, foreign_state) is None
+    with pytest.raises(InvalidTransportInput, match="Invalid supplied"):
+        _resolve_causal_graph(execution_context, foreign_state)
 
     contract, contract_ref = _resolve_or_build_capability_contract(execution_context, minimal_state)
     contract_state = minimal_state.model_copy(
@@ -233,13 +255,14 @@ def test_explicit_invalid_transport_input_fails_at_node_boundary(
             **invalid_params,
         }
     )
+    state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF] = persist_causal_graph_model(
+        ensure_ir_artifact_store(execution_context.store),
+        _causal_graph(),
+        return_selected_profile=True,
+    )
     monkeypatch.setattr(
         "polisyos.scientist.nodes.builtins.causal.resolve_transport.load_causal_effect_report",
         lambda *_args, **_kwargs: _causal_report(),
-    )
-    monkeypatch.setattr(
-        "polisyos.scientist.nodes.builtins.causal.resolve_transport._resolve_causal_graph",
-        lambda *_args, **_kwargs: _causal_graph(),
     )
     monkeypatch.setattr(
         "polisyos.scientist.nodes.builtins.causal.resolve_transport._resolve_or_build_capability_contract",

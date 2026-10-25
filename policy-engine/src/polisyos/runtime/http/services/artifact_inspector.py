@@ -7,9 +7,12 @@ redaction, and delegates lineage expansion to `LineageService`.
 
 from __future__ import annotations
 
+import json
 import math
 from collections.abc import Callable, Mapping
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
+
+from pydantic import ValidationError
 
 from polisyos.common.canonical_profile import (
     CanonicalProfileRead,
@@ -28,6 +31,9 @@ from polisyos.core.artifacts import (
 )
 from polisyos.core.artifacts.canonical_profile import CoreJsonReadBoundsRefusalError
 from polisyos.core.canon.canon_json import CORE_TAG_POLICY_ID
+from polisyos.core.contracts.decision_packet_hte import (
+    build_decision_packet_legacy_hte_preview,
+)
 from polisyos.core.contracts.runtime import (
     ArtifactContentPreview,
     ArtifactLineageView,
@@ -629,17 +635,60 @@ def _normalize_authored_blocks(value: object) -> list[DecisionPacketAuthoredBloc
     return blocks
 
 
+def _is_modern_hte_summary(payload: Mapping[str, object]) -> bool:
+    return any(
+        key in payload
+        for key in (
+            "schema_version",
+            "kind",
+            "method_fqn",
+            "method_abi_digest",
+            "owned_attempt_anchor_ref",
+            "hte_outcome_ref",
+            "resource_evidence",
+        )
+    )
+
+
 def _build_decision_packet_preview(payload: object) -> DecisionPacketPreview | None:
     if not isinstance(payload, dict):
         return None
     normalized = dict(payload)
+    hte_projection_status: Literal["absent", "typed", "legacy_limited", "invalid"] = "absent"
+    typed_hte: DirectMethodExecutionHTESummary | None = None
+    limited_hte = None
     if "hte" in payload:
         hte_payload = payload["hte"]
-        normalized["hte"] = (
-            DirectMethodExecutionHTESummary.model_validate(hte_payload).model_dump(mode="json")
-            if hte_payload is not None
-            else None
-        )
+        if hte_payload is None:
+            hte_projection_status = "absent"
+        elif not isinstance(hte_payload, dict):
+            hte_projection_status = "invalid"
+        elif _is_modern_hte_summary(hte_payload):
+            try:
+                hte_json = json.dumps(
+                    hte_payload,
+                    ensure_ascii=False,
+                    allow_nan=False,
+                    separators=(",", ":"),
+                )
+                typed_hte = DirectMethodExecutionHTESummary.model_validate_json(
+                    hte_json,
+                    strict=True,
+                )
+            except (TypeError, ValueError, ValidationError):
+                hte_projection_status = "invalid"
+            else:
+                hte_projection_status = "typed"
+        else:
+            try:
+                limited_hte = build_decision_packet_legacy_hte_preview(hte_payload)
+            except (TypeError, ValueError, ValidationError):
+                hte_projection_status = "invalid"
+            else:
+                hte_projection_status = "legacy_limited"
+    normalized["hte"] = typed_hte
+    normalized["hte_projection_status"] = hte_projection_status
+    normalized["hte_legacy_limited"] = limited_hte
     normalized["document_outline"] = _normalize_outline(payload.get("document_outline"))
     normalized["metric_validation_comparison_rows"] = _normalize_metric_comparison_rows(
         payload.get("metric_validation_comparison_rows")

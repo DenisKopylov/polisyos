@@ -42,6 +42,7 @@ from polisyos.scientist.governance.passes.transportability_required_pass import 
 def _external_report(with_transport: bool) -> CausalEffectReport:
     transport = (
         TransportabilityResult(
+            schema_version="2.0",
             status=TransportabilityStatus.IDENTIFIED,
             final_confidence=0.8,
             query="P*(Y|do(X))",
@@ -297,6 +298,7 @@ def test_transportability_required_typed_legacy_result_runs_same_grade_gate() ->
 def test_transportability_required_conflicting_canonical_and_legacy_results_block() -> None:
     report = _external_report(with_transport=True).model_copy(
         update={
+            "schema_version": "1.1",
             "transport_result": _identified_y0_candidate(),
             "method_params": {
                 "source_type": "external_literature",
@@ -502,7 +504,9 @@ def test_transportability_required_direct_cas_alias_is_evaluated_once(tmp_path) 
     store = FileSystemCAS(tmp_path)
     result = _identified_y0_candidate()
     result_ref = persist_transportability_result(_ensure_ir_artifact_store(store), result)
-    report = _external_report(with_transport=True).model_copy(update={"transport_result": result})
+    report = _external_report(with_transport=True).model_copy(
+        update={"schema_version": "1.1", "transport_result": result}
+    )
     issues = TransportabilityRequiredPass().validate(
         _strict_context(
             {
@@ -630,7 +634,7 @@ def _identified_y0_candidate() -> TransportabilityResult:
 
 def test_transportability_required_blocks_y0_candidate_in_external_report() -> None:
     report = _external_report(with_transport=True).model_copy(
-        update={"transport_result": _identified_y0_candidate()}
+        update={"schema_version": "1.1", "transport_result": _identified_y0_candidate()}
     )
     ctx = PassContext(
         ir=None,
@@ -669,7 +673,9 @@ def test_transportability_required_blocks_unverified_identified_producer_label(
     assert proof.proof_stratum == "A1_extended"
     assert proof.completeness_regime == "sound_incomplete"
     assert proof.metadata["transport_review_grade"] == "unknown"
-    report = _external_report(with_transport=True).model_copy(update={"transport_result": result})
+    report = _external_report(with_transport=True).model_copy(
+        update={"schema_version": "1.1", "transport_result": result}
+    )
     ctx = PassContext(
         ir=None,
         state={"causal_report": report},

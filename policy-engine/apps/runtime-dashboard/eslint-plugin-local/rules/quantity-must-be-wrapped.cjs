@@ -357,8 +357,100 @@ function isControlOrFormattingLiteral(node, sourceCode) {
   return false;
 }
 
+function isAddAssignmentReference(reference) {
+  const assignment = reference.identifier.parent;
+  return (
+    assignment?.type === "AssignmentExpression" &&
+    assignment.operator === "+=" &&
+    assignment.left === reference.identifier
+  );
+}
+
+function isJsxExpressionReference(reference) {
+  let cursor = reference.identifier;
+  while (cursor.parent) {
+    if (cursor.parent.type === "JSXExpressionContainer") {
+      return true;
+    }
+    cursor = cursor.parent;
+  }
+  return false;
+}
+
+// This bounded syntax exemption recognizes a zero initializer only for its
+// exact let binding when every later write is +=, and when no read or escape
+// precedes the first +=. It does not claim dynamic reachability or value flow.
+function isSafeAccumulatorInitializer(node, sourceCode) {
+  if (node.value !== 0) {
+    return false;
+  }
+  const declarator = node.parent;
+  if (
+    declarator?.type !== "VariableDeclarator" ||
+    declarator.init !== node ||
+    declarator.id.type !== "Identifier"
+  ) {
+    return false;
+  }
+  const declaration = declarator.parent;
+  if (
+    declaration?.type !== "VariableDeclaration" ||
+    declaration.kind !== "let"
+  ) {
+    return false;
+  }
+
+  const variable = resolvedVariable(sourceCode, node, declarator.id.name);
+  if (
+    !variable ||
+    !variable.defs.some(
+      (definition) =>
+        definition.type === "Variable" &&
+        definition.node === declarator &&
+        definition.parent === declaration,
+    )
+  ) {
+    return false;
+  }
+
+  const initializerReference = variable.references.find(
+    (reference) => reference.identifier === declarator.id && reference.init,
+  );
+  if (!initializerReference) {
+    return false;
+  }
+
+  const references = variable.references.filter(
+    (reference) => reference !== initializerReference,
+  );
+  if (references.some(isJsxExpressionReference)) {
+    return false;
+  }
+
+  const writes = references.filter((reference) => reference.isWrite());
+  const additions = writes.filter(isAddAssignmentReference);
+  if (additions.length === 0 || additions.length !== writes.length) {
+    return false;
+  }
+  const firstAddition = additions.reduce((first, current) =>
+    current.identifier.range[0] < first.identifier.range[0] ? current : first,
+  );
+  return !references.some(
+    (reference) =>
+      reference.identifier.range[0] < firstAddition.identifier.range[0] &&
+      reference.isRead() &&
+      !isAddAssignmentReference(reference),
+  );
+}
+
 function classify(node, sourceCode, filename, structuralImports) {
   if (isImportedZodLiteralSchema(node, sourceCode)) {
+    return null;
+  }
+  if (
+    !DEBUG_FILE_RE.test(filename) &&
+    isSafeAccumulatorInitializer(node, sourceCode)
+  ) {
     return null;
   }
   const canonicalClass = canonicalNumericClassification(

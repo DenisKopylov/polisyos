@@ -12,7 +12,7 @@ import hashlib
 import json
 import os
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import StrEnum
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, cast
@@ -876,7 +876,12 @@ def _bind_owned_existing_path(
         resource_id, tenant_id = _resolve_owned_artifact(ctx, scope, value)
         selector_name = "artifact_id"
     elif resolver_kind is _ResolverKind.RUN:
-        resource_id, tenant_id = _resolve_owned_run(ctx, scope, value)
+        if spec.resource_kind == "runtime.run.method_execution_selection":
+            indexed_run = _resolve_method_execution_indexed_run(ctx, request, scope, value)
+            resource_id = indexed_run.run_id
+            tenant_id = indexed_run.details.tenant_id
+        else:
+            resource_id, tenant_id = _resolve_owned_run(ctx, scope, value)
         selector_name = "run_id"
     else:
         raise forbidden(
@@ -1551,6 +1556,151 @@ def _scenario_head_context(head: ScenarioHeadRecord) -> dict[str, object]:
         "manifest_hash": head.manifest_hash,
         "updated_at": head.updated_at.isoformat(),
     }
+
+
+def _resolve_method_execution_indexed_run(
+    ctx: RuntimeApiContext,
+    request: Request,
+    scope: AccessScope,
+    value: str,
+) -> IndexedRunRecord:
+    """Resolve the selected-method path to its actual Core trace under current ownership."""
+    run_id = _required_string(value, field_name="run_id")
+    used_control_alias = False
+    try:
+        indexed_run = ctx.run_index.get_run(run_id)
+    except (KeyError, TypeError, ValueError):
+        control = resolve_control_service(request)
+        resolve_binding = getattr(control, "_resolve_observational_method_core_run_binding", None)
+        if not callable(resolve_binding):
+            raise forbidden(
+                "Run resource could not be resolved",
+                code="authorization_binding_run_unresolved",
+            ) from None
+        try:
+            binding = resolve_binding(
+                control_run_id=run_id,
+                tenant_id=scope.tenant_id,
+                cell_id=scope.cell_id,
+            )
+        except (KeyError, RuntimeError, TypeError, ValueError) as exc:
+            raise forbidden(
+                "Run resource could not be resolved",
+                code="authorization_binding_run_unresolved",
+            ) from exc
+        if (
+            type(binding) is not tuple
+            or len(binding) != 2
+            or type(binding[0]) is not str
+            or not binding[0]
+            or type(binding[1]) is not str
+            or not binding[1]
+        ):
+            raise forbidden(
+                "Run resource could not be resolved",
+                code="authorization_binding_run_unresolved",
+            ) from None
+        core_run_id, control_job_id = binding
+        try:
+            ctx.run_index.refresh(force=True)
+            indexed_run = ctx.run_index.get_run(core_run_id)
+            confirmed_binding = resolve_binding(
+                control_run_id=run_id,
+                tenant_id=scope.tenant_id,
+                cell_id=scope.cell_id,
+            )
+        except (KeyError, RuntimeError, TypeError, ValueError) as exc:
+            raise forbidden(
+                "Run resource could not be resolved",
+                code="authorization_binding_run_unresolved",
+            ) from exc
+        if confirmed_binding != binding:
+            raise forbidden(
+                "Run resource ownership changed during resolution",
+                code="authorization_binding_run_unresolved",
+            ) from None
+        if (
+            indexed_run.source_kind != "core_run"
+            or indexed_run.run_id != core_run_id
+            or indexed_run.details.run_id != core_run_id
+            or indexed_run.summary.run_id != core_run_id
+            or indexed_run.details.source_kind != "core_run"
+            or indexed_run.summary.source_kind != "core_run"
+            or indexed_run.summary.tenant_id != scope.tenant_id
+            or indexed_run.summary.cell_id != scope.cell_id
+        ):
+            raise forbidden(
+                "Run resource is not the actual Core attempt selected by the owner",
+                code="authorization_binding_run_unresolved",
+            ) from None
+        details = indexed_run.details
+        summary = indexed_run.summary
+        if details.control_job_id == control_job_id and summary.control_job_id == control_job_id:
+            pass
+        elif (
+            details.control_job_id is None
+            and summary.control_job_id is None
+            and details.status == "unknown"
+            and summary.status == "unknown"
+            and details.manifest_ref is None
+            and details.execution_profile == summary.execution_profile
+            and details.started_at == summary.started_at
+            and summary.finished_at is None
+            and details.finished_at is None
+            and details.has_trace
+            and summary.has_trace
+            and summary.run_terminality.value == "non_terminal"
+            and details.tenant_id == scope.tenant_id
+            and summary.tenant_id == scope.tenant_id
+            and details.cell_id == scope.cell_id
+            and summary.cell_id == scope.cell_id
+        ):
+            # An active Core trace has no terminal manifest yet, so Core cannot
+            # claim the job ID. The current scoped control-owner binding above is
+            # the provenance for this projection association; preserve the actual
+            # Core run ID and source kind rather than relabelling the artifact.
+            indexed_run = replace(
+                indexed_run,
+                details=details.model_copy(update={"control_job_id": control_job_id}),
+                summary=summary.model_copy(update={"control_job_id": control_job_id}),
+            )
+        else:
+            raise forbidden(
+                "Run resource is not the selected control-job attempt",
+                code="authorization_binding_run_unresolved",
+            ) from None
+        used_control_alias = True
+
+    tenant_id = indexed_run.details.tenant_id
+    if not isinstance(tenant_id, str) or not tenant_id:
+        raise forbidden(
+            "Run resource has no verified tenant ownership",
+            code="authorization_binding_run_unscoped",
+        )
+    if tenant_id != scope.tenant_id:
+        raise forbidden(
+            "Run resource belongs to a different tenant",
+            code="authorization_binding_run_tenant_mismatch",
+        )
+    if used_control_alias and (
+        not scope.cell_id
+        or not indexed_run.details.cell_id
+        or indexed_run.details.cell_id != scope.cell_id
+    ):
+        raise forbidden(
+            "Run resource belongs to a different or unestablished cell",
+            code="authorization_binding_run_cell_mismatch",
+        )
+    if (
+        indexed_run.source_kind != "core_run"
+        or indexed_run.run_id != indexed_run.details.run_id
+        or not indexed_run.details.has_trace
+    ):
+        raise forbidden(
+            "Run resource has no verified Core trace identity",
+            code="authorization_binding_run_unresolved",
+        )
+    return indexed_run
 
 
 def _resolve_owned_run(

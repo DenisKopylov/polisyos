@@ -22,6 +22,7 @@ from polisyos.core.artifacts import (
     artifact_ref_for_manifest,
     artifact_ref_identity_key,
     read_core_json_artifact,
+    read_core_json_artifact_bounded,
     read_core_manifest_profile,
 )
 from polisyos.core.contracts.control import (
@@ -42,6 +43,7 @@ from polisyos.core.contracts.runtime import (
     RunCandidateSimulationN5Observation,
     RunCandidateSimulationN8ChildSourceBinding,
     RunCandidateSimulationProjection,
+    RunConditionalTransportCandidateProjection,
     RunDetailsResponse,
     RunEvidenceContextResponse,
     RunEvidenceContextView,
@@ -102,12 +104,24 @@ from polisyos.runtime.http.errors import (
 )
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.resource_binding import (
+    _resolve_method_execution_indexed_run,
     production_approval_inputs_from_bound_request,
 )
 from polisyos.runtime.http.response_policies import add_run_link_relations
 from polisyos.runtime.http.services.authority_values import (
     RunAuthorityProjection,
     build_run_authority_projection,
+)
+from polisyos.runtime.http.services.candidate_hte_packet_projection import (
+    DECISION_PACKET_CANDIDATE_READ_LIMITS,
+    CandidateDecisionPacketHTEProjection,
+    CandidatePacketProjectionRefusalError,
+    candidate_packet_source_selector,
+    project_candidate_hte_packet,
+    require_candidate_projection_scope,
+    require_exact_candidate_packet_ref,
+    require_same_candidate_source_run,
+    validate_bounded_candidate_packet,
 )
 from polisyos.runtime.http.services.case_inspection import CaseInspectionService
 from polisyos.runtime.http.services.case_inspection_contracts import (
@@ -162,6 +176,9 @@ if TYPE_CHECKING:
     from fastapi.responses import StreamingResponse
 
     from polisyos.core.artifacts import ArtifactStore
+    from polisyos.core.artifacts.manifest import ArtifactManifest
+    from polisyos.core.artifacts.manifest import InputRef as CoreInputRef
+    from polisyos.ir.artifacts.contracts import InputRef as IRInputRef
     from polisyos.runtime.http.services.run_index import IndexedRunRecord
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationN5InputV5,
@@ -230,6 +247,17 @@ _GET_RUN_METHOD_METRICS_AUTHZ = require_action_permission(
         source=ResourceBindingSource.OWNED_EXISTING_PATH,
         resource_kind="runtime.run.method_metrics",
         path_parameter="run_id",
+        allow_empty_body=True,
+    ),
+)
+_GET_RUN_CANDIDATE_PACKET_AUTHZ = require_action_permission(
+    RuntimePermission.RUNS_REVIEW,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.OWNED_EXISTING_PATH,
+        resource_kind="runtime.run.method_execution_selection",
+        path_parameter="run_id",
+        path_selector_parameters=("packet_id",),
+        query_selector_parameters=("manifest_profile_sha256",),
         allow_empty_body=True,
     ),
 )
@@ -2191,6 +2219,397 @@ def _candidate_simulation_projection(
         **acquisition_history_fields,
         **n4_projection_fields,
     )
+
+
+def _conditional_transport_candidate_for_indexed_run(
+    run: IndexedRunRecord,
+    *,
+    store: ArtifactStore,
+) -> RunConditionalTransportCandidateProjection | None:
+    """Project only a fresh, verified conditional result on the refused outer branch."""
+    from polisyos.core.run.manifest import RunInvocationStarted
+    from polisyos.ir.analytics.causal import CausalEffectReport
+    from polisyos.ir.analytics.causal_graph import (
+        graph_content_sha256,
+        load_causal_graph_model,
+    )
+    from polisyos.ir.analytics.transportability import (
+        TransportabilityCandidateRequestV1,
+        TransportabilityResult,
+        TransportabilityStatus,
+        TransportMode,
+    )
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
+
+    details = run.details
+
+    def read_selected(
+        ref: ArtifactRef,
+        *,
+        kind: str,
+        schema: str,
+        version: str | None = None,
+    ) -> tuple[dict[str, Any], ArtifactManifest]:
+        if (
+            ref.kind != kind
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("conditional_transport_selected_ref_invalid")
+        manifest, _declaration = read_core_manifest_profile(store, ref)
+        raw = store.get_bytes(ref)
+        expected_id = f"sha256:{hashlib.sha256(raw).hexdigest()}"
+        context = manifest.tenant_context
+        if (
+            not store.verify(ref).ok
+            or manifest.artifact_id != ref.artifact_id
+            or manifest.kind != kind
+            or manifest.media_type != ref.media_type
+            or str(ref.artifact_id) != expected_id
+            or str(manifest.artifact_id) != expected_id
+            or manifest.integrity.sha256 != expected_id.removeprefix("sha256:")
+            or manifest.byte_size != len(raw)
+            or manifest.artifact_schema is None
+            or manifest.artifact_schema.name != schema
+            or (version is not None and manifest.artifact_schema.version != version)
+            or (
+                context is not None
+                and (context.tenant_id != details.tenant_id or context.cell_id != details.cell_id)
+            )
+        ):
+            raise ValueError("conditional_transport_selected_artifact_unverified")
+        payload = read_core_json_artifact(
+            store,
+            ref,
+            raw_payload_bytes=raw,
+        ).value
+        if not isinstance(payload, dict):
+            raise ValueError("conditional_transport_selected_payload_not_object")
+        return payload, manifest
+
+    def ref_for_edge(edge: CoreInputRef, *, kind: str, role: str) -> ArtifactRef:
+        if edge.role != role or edge.manifest_profile_sha256 is None:
+            raise ValueError("conditional_transport_input_edge_invalid")
+        return ArtifactRef(
+            artifact_id=edge.artifact_id,
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256=edge.manifest_profile_sha256,
+        )
+
+    def same_reference_identity(
+        left_artifact_id: object,
+        left_profile: str | None,
+        right_artifact_id: object,
+        right_profile: str | None,
+    ) -> bool:
+        return (
+            left_profile is not None
+            and right_profile is not None
+            and str(left_artifact_id) == str(right_artifact_id)
+            and left_profile == right_profile
+        )
+
+    def same_edge(left: CoreInputRef, right: IRInputRef) -> bool:
+        return left.role == right.role and same_reference_identity(
+            left.artifact_id,
+            left.manifest_profile_sha256,
+            right.artifact_id,
+            right.manifest_profile_sha256,
+        )
+
+    def root_matches_edge(left: ArtifactRef, right: CoreInputRef) -> bool:
+        return same_reference_identity(
+            left.artifact_id,
+            left.manifest_profile_sha256,
+            right.artifact_id,
+            right.manifest_profile_sha256,
+        )
+
+    def one_edge(manifest: ArtifactManifest, role: str) -> CoreInputRef:
+        matches = [edge for edge in manifest.inputs if edge.role == role]
+        if len(matches) != 1:
+            raise ValueError("conditional_transport_manifest_input_not_unique")
+        return matches[0]
+
+    try:
+        reports = tuple(
+            ref
+            for ref in details.root_artifacts
+            if getattr(ref, "kind", None) == "ir.causal_effect_report"
+        )
+        if len(reports) != 1:
+            return None
+        report_ref = reports[0]
+        report_payload, report_manifest = read_selected(
+            report_ref,
+            kind="ir.causal_effect_report",
+            schema="ir.causal_effect_report",
+            version="1.1",
+        )
+        report = CausalEffectReport.model_validate(report_payload)
+        if report.schema_version != "1.1" or report.transport_result is None:
+            return None
+
+        source_report_edge = one_edge(report_manifest, "causal_report_prev")
+        if source_report_edge.manifest_profile_sha256 is None:
+            return None
+        source_report_ref = ref_for_edge(
+            source_report_edge,
+            kind="ir.causal_effect_report",
+            role="causal_report_prev",
+        )
+        if root_matches_edge(report_ref, source_report_edge):
+            return None
+        source_report_payload, source_report_manifest = read_selected(
+            source_report_ref,
+            kind="ir.causal_effect_report",
+            schema="ir.causal_effect_report",
+        )
+        source_report = CausalEffectReport.model_validate(source_report_payload)
+        if source_report.schema_version != source_report_manifest.artifact_schema.version:
+            return None
+
+        result_edge = one_edge(report_manifest, "transportability_result")
+        if result_edge.manifest_profile_sha256 is None:
+            return None
+        direct_results = tuple(
+            ref
+            for ref in details.root_artifacts
+            if getattr(ref, "kind", None) == "ir.transportability_result"
+        )
+        if len(direct_results) > 1:
+            return None
+        if direct_results:
+            result_ref = direct_results[0]
+            if not root_matches_edge(result_ref, result_edge):
+                return None
+        else:
+            result_ref = ref_for_edge(
+                result_edge,
+                kind="ir.transportability_result",
+                role="transportability_result",
+            )
+        result_payload, result_manifest = read_selected(
+            result_ref,
+            kind="ir.transportability_result",
+            schema="ir.transportability_result",
+            version="2.2",
+        )
+        result = TransportabilityResult.model_validate(result_payload)
+        if (
+            result.schema_version != "2.2"
+            or report.transport_result.model_dump(mode="json") != result.model_dump(mode="json")
+            or result.status is not TransportabilityStatus.UNSUPPORTED
+            or result.transport_mode is not TransportMode.NONE
+            or result.feasible is not False
+        ):
+            return None
+        diagnostic = result.candidate_diagnostics
+        if diagnostic is None:
+            return None
+
+        lineage = {edge.role: edge for edge in diagnostic.inputs.lineage_refs}
+        if set(lineage) != {
+            "transportability_attempt_basis",
+            "transportability_workflow_spec",
+            "transportability_input_state",
+            "selected_causal_graph",
+            "causal_effect_report",
+        }:
+            return None
+        expected = {
+            "transportability_attempt_basis": (
+                diagnostic.attempt.basis_ref,
+                "core.run_invocation_attempt",
+            ),
+            "transportability_workflow_spec": (
+                diagnostic.attempt.workflow_spec_ref,
+                "scientist.workflow_spec",
+            ),
+            "transportability_input_state": (
+                diagnostic.attempt.input_state_ref,
+                "scientist.experiment_state",
+            ),
+            "selected_causal_graph": (lineage["selected_causal_graph"], "ir.causal_graph_model"),
+            "causal_effect_report": (lineage["causal_effect_report"], "ir.causal_effect_report"),
+        }
+        for role, (expected_edge, kind) in expected.items():
+            if expected_edge.role != role or expected_edge.manifest_profile_sha256 is None:
+                return None
+            actual_edge = one_edge(result_manifest, role)
+            if not same_edge(actual_edge, expected_edge):
+                return None
+            if role == "causal_effect_report":
+                if not root_matches_edge(source_report_ref, actual_edge):
+                    return None
+                continue
+            selected_ref = ref_for_edge(actual_edge, kind=kind, role=role)
+            if role == "transportability_attempt_basis":
+                payload, manifest = read_selected(
+                    selected_ref,
+                    kind=kind,
+                    schema="polisyos.core.RunInvocationAttempt",
+                )
+                basis = RunInvocationStarted.model_validate(payload)
+                if (
+                    basis.workflow_spec_ref.kind != "scientist.workflow_spec"
+                    or basis.workflow_spec_ref.media_type != "application/json"
+                    or basis.input_state_ref.kind != "scientist.experiment_state"
+                    or basis.input_state_ref.media_type != "application/json"
+                    or basis.schema_version != manifest.artifact_schema.version
+                    or basis.run_id != details.run_id
+                    or basis.attempt_id != diagnostic.attempt.attempt_id
+                    or basis.attempt_number != diagnostic.attempt.attempt_number
+                    or basis.node_alias != diagnostic.attempt.node_alias
+                    or basis.component_id != diagnostic.attempt.component_id
+                    or basis.started_at != diagnostic.attempt.started_at
+                    or not same_reference_identity(
+                        basis.workflow_spec_ref.artifact_id,
+                        basis.workflow_spec_ref.manifest_profile_sha256,
+                        diagnostic.attempt.workflow_spec_ref.artifact_id,
+                        diagnostic.attempt.workflow_spec_ref.manifest_profile_sha256,
+                    )
+                    or not same_reference_identity(
+                        basis.input_state_ref.artifact_id,
+                        basis.input_state_ref.manifest_profile_sha256,
+                        diagnostic.attempt.input_state_ref.artifact_id,
+                        diagnostic.attempt.input_state_ref.manifest_profile_sha256,
+                    )
+                ):
+                    return None
+            elif role == "transportability_workflow_spec":
+                payload, manifest = read_selected(
+                    selected_ref,
+                    kind=kind,
+                    schema="polisyos.scientist.orchestration.engine.WorkflowSpec",
+                    version="1.0",
+                )
+                workflow = WorkflowSpec.model_validate(payload)
+                nodes = [
+                    node for node in workflow.nodes if node.alias == diagnostic.attempt.node_alias
+                ]
+                if (
+                    len(nodes) != 1
+                    or str(nodes[0].node_id) != diagnostic.attempt.component_id
+                    or workflow.schema_version != manifest.artifact_schema.version
+                ):
+                    return None
+            elif role == "transportability_input_state":
+                payload, manifest = read_selected(
+                    selected_ref,
+                    kind=kind,
+                    schema="polisyos.scientist.orchestration.engine.ExperimentState",
+                )
+                state = ExperimentState.model_validate(payload)
+                raw_request = state.params.get("conditional_transport_request")
+                if raw_request is None:
+                    return None
+                request = TransportabilityCandidateRequestV1.model_validate(raw_request)
+                if (
+                    state.run_id != details.run_id
+                    or state.schema_version != manifest.artifact_schema.version
+                    or request != diagnostic.candidate_request
+                ):
+                    return None
+
+        if not same_edge(
+            one_edge(result_manifest, "transportability_workflow_spec"),
+            lineage["transportability_workflow_spec"],
+        ) or not same_edge(
+            one_edge(result_manifest, "transportability_input_state"),
+            lineage["transportability_input_state"],
+        ):
+            return None
+
+        evaluations = {row.member_sha256: row for row in diagnostic.evaluations}
+        member_prefix = "transportability_candidate_member_graph:"
+        member_edges = [
+            edge for edge in result_manifest.inputs if edge.role.startswith(member_prefix)
+        ]
+        expected_roles = {member_prefix + sha256 for sha256 in evaluations}
+        if (
+            len(member_edges) != len(evaluations)
+            or {edge.role for edge in member_edges} != expected_roles
+        ):
+            return None
+        for edge in member_edges:
+            member_sha256 = edge.role.removeprefix(member_prefix)
+            evaluation = evaluations[member_sha256]
+            if not same_reference_identity(
+                edge.artifact_id,
+                edge.manifest_profile_sha256,
+                evaluation.member_graph_ref.artifact_id,
+                evaluation.member_graph_ref.manifest_profile_sha256,
+            ):
+                return None
+            graph_ref = evaluation.member_graph_ref
+            _member_payload, _member_manifest = read_selected(
+                ArtifactRef.model_validate(graph_ref.model_dump(mode="json")),
+                kind="ir.causal_graph_model",
+                schema="ir.causal_graph_model",
+                version="1.0",
+            )
+            member_graph = load_causal_graph_model(store, graph_ref)
+            if graph_content_sha256(member_graph) != member_sha256:
+                return None
+
+        selected_source_edge = lineage["selected_causal_graph"]
+        if not same_reference_identity(
+            selected_source_edge.artifact_id,
+            selected_source_edge.manifest_profile_sha256,
+            diagnostic.inputs.graph_ref.artifact_id,
+            diagnostic.inputs.graph_ref.manifest_profile_sha256,
+        ):
+            return None
+        graph_ref = diagnostic.inputs.graph_ref
+        _graph_payload, _graph_manifest = read_selected(
+            ArtifactRef.model_validate(graph_ref.model_dump(mode="json")),
+            kind="ir.causal_graph_model",
+            schema="ir.causal_graph_model",
+            version="1.0",
+        )
+        graph = load_causal_graph_model(store, graph_ref)
+        if (
+            graph.graph_type != diagnostic.inputs.graph_type
+            or graph_content_sha256(graph) != diagnostic.inputs.graph_sha256
+        ):
+            return None
+
+        completed_valid = tuple(
+            row
+            for row in diagnostic.evaluations
+            if row.disposition == "completed" and row.outcome is not None
+        )
+        identified = sum(
+            row.outcome.status is TransportabilityStatus.IDENTIFIED for row in completed_valid
+        )
+        denominator = len(completed_valid)
+        fraction = identified / denominator if denominator else None
+        if diagnostic.identified_member_fraction != fraction:
+            return None
+
+        resolution = diagnostic.resource_resolution
+        return RunConditionalTransportCandidateProjection(
+            candidate_scope="candidate_only",
+            candidate_disposition=diagnostic.disposition,
+            requested_profile_id=resolution.profile_id,
+            requested_profile_revision=resolution.profile_revision,
+            selection_identity=resolution.selection_identity,
+            reason_code=diagnostic.reason.code if diagnostic.reason is not None else None,
+            proposal_count=len(diagnostic.proposals),
+            member_evaluation_count=len(diagnostic.evaluations),
+            completed_valid_member_count=denominator,
+            identified_member_fraction=fraction,
+            identified_member_fraction_basis="selected_completed_valid_members",
+            source_currentness="unknown",
+            interpretation_limit=(
+                "selected_family_member_outcomes_do_not_establish_whole_pag_class_probability_calibration_legal_applicability_or_protected_eligibility"
+            ),
+        )
+    except Exception:
+        return None
 
 
 def _candidate_simulation_for_indexed_run(
@@ -4306,6 +4725,139 @@ if router is not None:
         return packet
 
     @router.get(
+        "/{run_id}/decision-packets/{packet_id}/candidate-hte",
+        response_model=CandidateDecisionPacketHTEProjection,
+        operation_id="get_run_candidate_hte_packet",
+    )
+    def get_run_candidate_hte_packet(
+        run_id: str,
+        packet_id: str,
+        request: Request,
+        manifest_profile_sha256: str = Query(..., min_length=1, max_length=128),
+        _authorization: Any = Depends(_GET_RUN_CANDIDATE_PACKET_AUTHZ),
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+    ) -> CandidateDecisionPacketHTEProjection:
+        """Expose one exact packet's candidate HTE after required run authorization."""
+        del _authorization
+        scope = require_access_scope(request)
+        try:
+            packet_run = ctx.run_index.get_run(run_id)
+        except (KeyError, TypeError, ValueError) as exc:
+            raise not_found("Run was not found", code="run_not_found") from exc
+        if (
+            packet_run.run_id != run_id
+            or packet_run.details.run_id != run_id
+            or packet_run.source_kind != "core_run"
+        ):
+            raise conflict(
+                "The decision-packet owner run is not a resolved Core run",
+                code="candidate_packet_run_identity_not_established",
+            )
+        if (
+            not packet_run.details.tenant_id
+            or not packet_run.details.cell_id
+            or scope.tenant_id != packet_run.details.tenant_id
+            or scope.cell_id != packet_run.details.cell_id
+        ):
+            raise conflict(
+                "The decision-packet owner run is outside the verified tenant/cell scope",
+                code="candidate_packet_run_scope_not_established",
+            )
+        try:
+            packet_ref = require_exact_candidate_packet_ref(
+                indexed_packet_ref=packet_run.decision_packet_ref,
+                requested_packet_id=packet_id,
+                requested_manifest_profile_sha256=manifest_profile_sha256,
+            )
+            bounded_read = read_core_json_artifact_bounded(
+                ctx.store,
+                packet_ref,
+                limits=DECISION_PACKET_CANDIDATE_READ_LIMITS,
+            )
+            packet_payload = validate_bounded_candidate_packet(
+                bounded_read=bounded_read,
+                selected_ref=packet_ref,
+            )
+            candidate_status, source_run_id = candidate_packet_source_selector(packet_payload)
+            require_same_candidate_source_run(
+                packet_run_id=packet_run.run_id,
+                source_run_id=source_run_id,
+            )
+            require_candidate_projection_scope(
+                scope_tenant_id=scope.tenant_id,
+                scope_cell_id=scope.cell_id,
+                packet_tenant_id=packet_run.details.tenant_id,
+                packet_cell_id=packet_run.details.cell_id,
+                source_tenant_id=packet_run.details.tenant_id,
+                source_cell_id=packet_run.details.cell_id,
+            )
+        except CandidatePacketProjectionRefusalError as exc:
+            raise conflict(
+                "The packet-bound HTE candidate is not established",
+                code=exc.code,
+            ) from exc
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise conflict(
+                "The exact bounded DecisionPacket profile could not be established",
+                code="candidate_packet_bounded_read_refused",
+            ) from exc
+
+        record_data_access_audit(
+            request,
+            resource_id=packet_run.run_id,
+            resource_kind="runtime.run.decision_packet_candidate",
+            tenant_id=packet_run.details.tenant_id,
+            metadata={
+                "decision_packet_id": str(packet_ref.artifact_id),
+                "manifest_profile_sha256": packet_ref.manifest_profile_sha256,
+                "source_run_id": source_run_id,
+            },
+        )
+        record_data_access_audit(
+            request,
+            resource_id=source_run_id,
+            resource_kind="runtime.run.method_execution_selection",
+            tenant_id=packet_run.details.tenant_id,
+            metadata={
+                "decision_packet_id": str(packet_ref.artifact_id),
+                "packet_owner_run_id": packet_run.run_id,
+            },
+        )
+
+        fresh_source = None
+        if candidate_status == "selected":
+            control_service = _control_service_from_request(request)
+            resolve_source = getattr(
+                control_service,
+                "resolve_completed_method_hte_selection",
+                None,
+            )
+            if not callable(resolve_source):
+                raise service_unavailable(
+                    "The completed HTE source owner is unavailable",
+                    code="completed_hte_source_owner_unavailable",
+                )
+            fresh_source = resolve_source(
+                source_run_id=source_run_id,
+                tenant_id=scope.tenant_id,
+                cell_id=scope.cell_id,
+            )
+        try:
+            return project_candidate_hte_packet(
+                packet_payload=packet_payload,
+                packet_run_id=packet_run.run_id,
+                packet_ref=packet_ref,
+                source_run_id_selector=source_run_id,
+                fresh_source=fresh_source,
+                reader_at=datetime.now(UTC),
+            )
+        except CandidatePacketProjectionRefusalError as exc:
+            raise conflict(
+                "The packet-bound HTE candidate does not reconcile to its owner",
+                code=exc.code,
+            ) from exc
+
+    @router.get(
         "/{run_id}",
         response_model=RunDetailsResponse,
         operation_id="get_run_details",
@@ -4326,24 +4878,54 @@ if router is not None:
         ),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> RunDetailsResponse:
-        run = ctx.run_index.get_run(run_id)
+        review_scope = require_access_scope(request)
+        run = _resolve_method_execution_indexed_run(ctx, request, review_scope, run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
-        if not method_selection_authorization.allowed:
-            method_execution_projection = DirectMethodExecutionRunProjection(
-                status="withheld",
-                limitations=("selected_view_permission_required",),
-            )
-            record_data_access_audit(
-                request,
-                resource_id=run_id,
-                resource_kind="runtime.run.method_execution_selection",
-                tenant_id=run.details.tenant_id,
-                outcome="denied",
-                metadata={"view": "selected_method_execution"},
-            )
-        else:
-            review_scope = require_access_scope(request)
-            if (
+        temporal_scope = _resolve_temporal_scope(
+            ctx,
+            run,
+            response,
+            surface="run_details",
+            valid_at=valid_at,
+            tx_at=tx_at,
+            t=t,
+            branch=branch,
+            snapshot_id=snapshot_id,
+            scenario_id=scenario_id,
+        )
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="runtime.run",
+            artifact_id=(
+                str(run.details.manifest_ref.artifact_id) if run.details.manifest_ref else None
+            ),
+        )
+        record_data_access_audit(
+            request,
+            resource_id=run_id,
+            tenant_id=run.details.tenant_id,
+        )
+        add_run_link_relations(response, run_id=run_id)
+        run_details = ctx.temporal.project_run_details(run.details, temporal_scope)
+
+        # These enrichments are current views with no independently bound record-time.
+        # A scoped historical read therefore returns only the temporally projected run.
+        if temporal_scope is None:
+            if not method_selection_authorization.allowed:
+                method_execution_projection = DirectMethodExecutionRunProjection(
+                    status="withheld",
+                    limitations=("selected_view_permission_required",),
+                )
+                record_data_access_audit(
+                    request,
+                    resource_id=run_id,
+                    resource_kind="runtime.run.method_execution_selection",
+                    tenant_id=run.details.tenant_id,
+                    outcome="denied",
+                    metadata={"view": "selected_method_execution"},
+                )
+            elif (
                 not run.details.tenant_id
                 or review_scope.tenant_id != run.details.tenant_id
                 or not run.details.cell_id
@@ -4395,76 +4977,82 @@ if router is not None:
                         status="unavailable",
                         limitations=("execution_outcome_not_established",),
                     )
-        temporal_scope = _resolve_temporal_scope(
-            ctx,
-            run,
-            response,
-            surface="run_details",
-            valid_at=valid_at,
-            tx_at=tx_at,
-            t=t,
-            branch=branch,
-            snapshot_id=snapshot_id,
-            scenario_id=scenario_id,
-        )
-        set_authz_resource(
-            request,
-            tenant_id=run.details.tenant_id,
-            kind="runtime.run",
-            artifact_id=(
-                str(run.details.manifest_ref.artifact_id) if run.details.manifest_ref else None
-            ),
-        )
-        record_data_access_audit(
-            request,
-            resource_id=run_id,
-            tenant_id=run.details.tenant_id,
-        )
-        add_run_link_relations(response, run_id=run_id)
-        run_details = ctx.temporal.project_run_details(run.details, temporal_scope)
-        control_service = _control_service_from_request(request)
-        operator_diagnostic = _latest_control_operator_diagnostic(control_service, run_id)
-        policy_design_case_projection = _latest_control_policy_projection(
-            control_service,
-            run_id,
-        )
-        updates: dict[str, Any] = {}
-        updates["method_execution_selection"] = method_execution_projection
-        get_method_execution_producer_diagnostic = getattr(
-            control_service,
-            "get_method_execution_producer_diagnostic",
-            None,
-        )
-        if callable(get_method_execution_producer_diagnostic):
-            producer_diagnostic = get_method_execution_producer_diagnostic(
-                run_id=run_id,
+            updates: dict[str, Any] = {
+                "method_execution_selection": method_execution_projection,
+            }
+
+            if (
+                not method_selection_authorization.allowed
+                or not run.details.tenant_id
+                or review_scope.tenant_id != run.details.tenant_id
+                or not run.details.cell_id
+                or review_scope.cell_id != run.details.cell_id
+            ):
+                record_data_access_audit(
+                    request,
+                    resource_id=run_id,
+                    resource_kind="runtime.run.conditional_transport_candidate",
+                    tenant_id=run.details.tenant_id,
+                    outcome="denied",
+                    metadata={"view": "conditional_transport_candidate"},
+                )
+            else:
+                conditional_transport_candidate = _conditional_transport_candidate_for_indexed_run(
+                    run, store=ctx.store
+                )
+                if conditional_transport_candidate is not None:
+                    updates["conditional_transport_candidate"] = conditional_transport_candidate
+                    record_data_access_audit(
+                        request,
+                        resource_id=run_id,
+                        resource_kind="runtime.run.conditional_transport_candidate",
+                        tenant_id=run.details.tenant_id,
+                        outcome="conditional_transport_candidate_projected",
+                        metadata={"view": "conditional_transport_candidate"},
+                    )
+
+            control_service = _control_service_from_request(request)
+            operator_diagnostic = _latest_control_operator_diagnostic(control_service, run_id)
+            policy_design_case_projection = _latest_control_policy_projection(
+                control_service,
+                run_id,
+            )
+            get_method_execution_producer_diagnostic = getattr(
+                control_service,
+                "get_method_execution_producer_diagnostic",
+                None,
+            )
+            if callable(get_method_execution_producer_diagnostic):
+                producer_diagnostic = get_method_execution_producer_diagnostic(
+                    run_id=run_id,
+                    tenant_id=run.details.tenant_id,
+                    cell_id=run.details.cell_id,
+                )
+                if isinstance(producer_diagnostic, MethodExecutionProducerDiagnostic):
+                    updates["method_execution_producer_diagnostic"] = producer_diagnostic
+
+            candidate_simulation = _candidate_simulation_for_indexed_run(
+                run,
+                store=ctx.store,
+                control_service=control_service,
+            )
+            if candidate_simulation is not None:
+                updates["candidate_simulation"] = candidate_simulation
+            generic_cycle_simulation = _generic_cycle_simulation_projection(
+                run_id=run.details.run_id,
                 tenant_id=run.details.tenant_id,
                 cell_id=run.details.cell_id,
+                root_artifacts=tuple(run.details.root_artifacts),
+                store=ctx.store,
             )
-            if isinstance(producer_diagnostic, MethodExecutionProducerDiagnostic):
-                updates["method_execution_producer_diagnostic"] = producer_diagnostic
-        candidate_simulation = _candidate_simulation_for_indexed_run(
-            run,
-            store=ctx.store,
-            control_service=control_service,
-        )
-        if candidate_simulation is not None:
-            updates["candidate_simulation"] = candidate_simulation
-        generic_cycle_simulation = _generic_cycle_simulation_projection(
-            run_id=run.details.run_id,
-            tenant_id=run.details.tenant_id,
-            cell_id=run.details.cell_id,
-            root_artifacts=tuple(run.details.root_artifacts),
-            store=ctx.store,
-        )
-        if generic_cycle_simulation is not None:
-            updates["generic_cycle_simulation"] = generic_cycle_simulation
-        if operator_diagnostic is not None:
-            updates["operator_diagnostic"] = operator_diagnostic
-        if policy_design_case_projection is not None:
-            updates["policy_design_case_projection"] = policy_design_case_projection
-        if updates:
+            if generic_cycle_simulation is not None:
+                updates["generic_cycle_simulation"] = generic_cycle_simulation
+            if operator_diagnostic is not None:
+                updates["operator_diagnostic"] = operator_diagnostic
+            if policy_design_case_projection is not None:
+                updates["policy_design_case_projection"] = policy_design_case_projection
             run_details = run_details.model_copy(update=updates)
+
         return RunDetailsResponse(
             meta=build_meta(request, source_kinds=[run.source_kind]),
             temporal_scope=temporal_scope,

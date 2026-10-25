@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import pickle
 from pathlib import Path
 
 import pytest
@@ -12,6 +13,7 @@ from polisyos.fabric.data_plane.evidence_journal import (
     EvidenceJournalError,
     HarnessAuthorizationEvidence,
     LiveExecutionAuthorization,
+    _LiveAcquirePermit,
     build_live_execution_authorization,
     canonical_json_bytes,
     content_sha256,
@@ -428,3 +430,8 @@ def test_evidence_journal_owner_is_exposed_by_the_data_plane_surface() -> None:
 
     assert data_plane.AppendOnlyEvidenceJournal is AppendOnlyEvidenceJournal
     assert data_plane.LiveExecutionAuthorization is LiveExecutionAuthorization
+
+
+def test_live_acquire_permit_cannot_be_pickled() -> None:
+    with pytest.raises(TypeError, match="not serializable"):
+        pickle.dumps(_LiveAcquirePermit())

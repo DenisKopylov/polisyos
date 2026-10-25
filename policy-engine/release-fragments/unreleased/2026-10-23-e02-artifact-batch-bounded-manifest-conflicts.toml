@@ -1,0 +1,35 @@
+id = "2026-10-23-e02-artifact-batch-bounded-manifest-conflicts"
+title = "Document bounded artifact-batch conflict responses"
+type = "changed"
+component = "runtime-api"
+owner = "team-polisyos"
+summary = "The artifact batch route declares its existing manifest-read budget, unavailable usage, and surface-admission HTTP 409 refusals as RuntimeApiProblem responses in OpenAPI."
+evidence = [
+  "src/polisyos/runtime/http/routes/artifacts.py",
+  "tests/unit/runtime/http/test_artifact_surface_safety.py",
+  "tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+]
+compatibility = "The route already emitted these 409 responses. The change makes the existing no-partial-batch refusals explicit in the public OpenAPI contract and does not change the response DTO or error codes."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: POST /api/v1/artifacts/batch HTTP 409 application/problem+json response"
+migration = "Regenerate strict runtime API clients from the composed OpenAPI document. Clients should treat a 409 as a typed batch refusal; null observed_source_bytes means the Core usage receipt is unavailable and must not be interpreted as zero."
+api = "The OpenAPI operation declares RuntimeApiProblem and representative existing codes for measured budget exhaustion, unavailable Core byte usage, and surface-admission refusal. Runtime continues to return the existing structured problem without any partial artifact list."
+limitations = "This slice documents the batch route response only. It does not regenerate the tracked OpenAPI snapshot or generated TypeScript clients, and it does not establish external authority or artifact currentness."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "artifact-batch-problem-response-openapi"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: POST /api/v1/artifacts/batch responses.409"
+owner = "team-polisyos"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "OpenAPI declares the artifact batch route's existing bounded-read and surface-admission 409 refusals with the strict RuntimeApiProblem envelope and representative current codes."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

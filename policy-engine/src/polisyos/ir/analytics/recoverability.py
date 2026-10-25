@@ -11,8 +11,16 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
 from polisyos.ir.analytics.negative_certificate import NegativeCertificate
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
 from polisyos.ir.registry.refs import JointDecisionCertificateRef, RecoverabilityCertificateRef
 
@@ -229,6 +237,65 @@ def mgraph_fingerprint(payload: object) -> str:
     return content_hash(canonical, prefix=True)
 
 
+def _declare_recoverability_owner(
+    model: type[BaseModel],
+    *,
+    schema_name: str,
+    schema_version: str,
+    purpose: str,
+) -> ArtifactOwnerDeclaration[Any, Any]:
+    contract_id = f"ir.analytics.{schema_name.replace('.', '_')}.owner.v1"
+    wire_policy_ref = f"{contract_id}.wire-law"
+    return declare_model_owner(
+        model,
+        contract_id=contract_id,
+        dto_fqn=f"{model.__module__}.{model.__qualname__}",
+        abi_key=f"{contract_id}.dto-abi.v1",
+        registry_key=schema_name,
+        kind=schema_name,
+        media_type="application/json",
+        purpose=purpose,
+        policy_revision=f"{contract_id}.admission.v1",
+        accepted_wire_policies=((wire_policy_ref, "1"),),
+        payload_version_field="schema_version",
+        validate_profile=owner_profile_for_spec(
+            CanonSpec(forbid_floats=False),
+            profile_ref=None,
+        ),
+        representations=(
+            OwnedJSONRepresentation(
+                schema_name=schema_name,
+                schema_version=schema_version,
+                payload_version=schema_version,
+                wire_policy_ref=wire_policy_ref,
+                wire_policy_revision="1",
+                profile_ref=None,
+                compatibility=CompatibilityMode.NONE,
+                notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+                readable=True,
+                writable=True,
+                current=True,
+                default_write=True,
+                readable_from=(),
+            ),
+        ),
+    )
+
+
+_RECOVERABILITY_CERTIFICATE_OWNER = _declare_recoverability_owner(
+    RecoverabilityCertificate,
+    schema_name="ir.recoverability_certificate",
+    schema_version="1.0",
+    purpose="recoverability_certificate",
+)
+_JOINT_DECISION_CERTIFICATE_OWNER = _declare_recoverability_owner(
+    JointDecisionCertificate,
+    schema_name="ir.joint_decision_certificate",
+    schema_version="1.0",
+    purpose="joint_decision_certificate",
+)
+
+
 def persist_recoverability_certificate(
     store: ArtifactStore,
     certificate: RecoverabilityCertificate,
@@ -237,12 +304,11 @@ def persist_recoverability_certificate(
     schema_name: str = "ir.recoverability_certificate",
     schema_version: str = "1.0",
 ) -> RecoverabilityCertificateRef:
-    """Persist a recoverability certificate and return its typed artifact ref."""
-
-    ref = put_json_artifact(
+    """Persist a recoverability certificate through its exact owner representation."""
+    ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind="ir.recoverability_certificate",
+        owner=_RECOVERABILITY_CERTIFICATE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -255,10 +321,12 @@ def load_recoverability_certificate(
     store: ArtifactStore,
     ref: RecoverabilityCertificateRef,
 ) -> RecoverabilityCertificate:
-    """Load a persisted recoverability certificate."""
-
-    payload = get_json_artifact(store, ref)
-    return RecoverabilityCertificate.model_validate(payload)
+    """Load a recoverability certificate after exact owner admission."""
+    return _get_owned_json_artifact(
+        store,
+        ref,
+        owner=_RECOVERABILITY_CERTIFICATE_OWNER,
+    )
 
 
 def persist_joint_decision_certificate(
@@ -269,12 +337,11 @@ def persist_joint_decision_certificate(
     schema_name: str = "ir.joint_decision_certificate",
     schema_version: str = "1.0",
 ) -> JointDecisionCertificateRef:
-    """Persist a joint identification-recoverability decision and return its typed artifact ref."""
-
-    ref = put_json_artifact(
+    """Persist a joint decision through its exact owner representation."""
+    ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind="ir.joint_decision_certificate",
+        owner=_JOINT_DECISION_CERTIFICATE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -287,30 +354,9 @@ def load_joint_decision_certificate(
     store: ArtifactStore,
     ref: JointDecisionCertificateRef,
 ) -> JointDecisionCertificate:
-    """Load a persisted joint identification-recoverability decision."""
-
-    payload = get_json_artifact(store, ref)
-    return JointDecisionCertificate.model_validate(payload)
-
-
-__all__ = [
-    "JointDecisionCertificate",
-    "JointDecisionCertificateRef",
-    "JointDecisionStatus",
-    "MinimalRepairSet",
-    "RecoverabilityCertificate",
-    "RecoverabilityCertificateRef",
-    "RecoverabilityCertificateStatus",
-    "RecoverabilityEstimatorFamily",
-    "RecoverabilityNuisanceKind",
-    "RecoverabilityProofForm",
-    "RecoveryScope",
-    "RecoveryStep",
-    "RepairSetTestability",
-    "RepairSetType",
-    "load_joint_decision_certificate",
-    "load_recoverability_certificate",
-    "mgraph_fingerprint",
-    "persist_joint_decision_certificate",
-    "persist_recoverability_certificate",
-]
+    """Load a joint decision after exact owner admission."""
+    return _get_owned_json_artifact(
+        store,
+        ref,
+        owner=_JOINT_DECISION_CERTIFICATE_OWNER,
+    )

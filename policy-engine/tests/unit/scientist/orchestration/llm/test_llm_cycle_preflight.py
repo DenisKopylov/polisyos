@@ -4,13 +4,56 @@ import importlib.util
 
 import pytest
 
+from polisyos.core.artifacts import resolve_manifest_by_profile
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode
 from polisyos.foundry.methods import MethodRegistry
 from polisyos.foundry.methods.catalog.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.catalog.snapshot import build_method_catalog_snapshot
-from polisyos.scientist.orchestration.llm.cycle import evaluate_iteration, preflight_execution_plan
+from polisyos.scientist.orchestration.llm.cycle import (
+    evaluate_iteration,
+    persist_execution_plan,
+    preflight_execution_plan,
+)
 
 _Y0_INSTALLED = importlib.util.find_spec("y0") is not None
+
+
+def test_persist_execution_plan_returns_exact_write_selected_profile(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    plan = ExecutionPlan(plan_id="plan_selected_profile", run_id="run_selected_profile")
+
+    ref = persist_execution_plan(store, plan)
+
+    assert ref.manifest_profile_sha256 is not None
+    manifest = resolve_manifest_by_profile(store, ref.artifact_id, ref.manifest_profile_sha256)
+    assert manifest.kind == "scientist.execution_plan"
+    assert manifest.artifact_schema is not None
+    assert manifest.artifact_schema.name == "polisyos.core.ExecutionPlan"
+
+    class MalformedSelectedWriter:
+        def put_json(self, obj, opts, canon_spec=None, *, return_selected_profile=False):
+            del obj, opts, canon_spec
+            assert return_selected_profile is True
+            return ref.model_copy(update={"manifest_profile_sha256": None})
+
+    with pytest.raises(ValueError, match="execution_plan_selected_write_ref_incomplete"):
+        persist_execution_plan(MalformedSelectedWriter(), plan)  # type: ignore[arg-type]
+
+
+def test_persist_execution_plan_refuses_writer_without_selected_profile_api() -> None:
+    class ProfilelessWriter:
+        def put_json(self, obj, opts, canon_spec=None):
+            del obj, opts, canon_spec
+            pytest.fail("selected-profile writer support must be checked before writing")
+
+    plan = ExecutionPlan(plan_id="plan_profileless_writer", run_id="run_profileless_writer")
+
+    with pytest.raises(
+        NotImplementedError,
+        match="artifact_store_return_selected_profile_unsupported",
+    ):
+        persist_execution_plan(ProfilelessWriter(), plan)  # type: ignore[arg-type]
 
 
 def test_preflight_returns_structured_diagnostics_for_cycle_and_missing_methods() -> None:

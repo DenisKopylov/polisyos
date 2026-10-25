@@ -14,6 +14,10 @@ from polisyos.data_forge.domains.catalog.knowledge.proxy_resolver import (
 from polisyos.data_forge.domains.catalog.knowledge.types import PStarZResult
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.context import ContextProfile
+from polisyos.ir.analytics.partial_identification import (
+    BoundMethod,
+    PartialIdentificationResult,
+)
 from polisyos.ir.analytics.transportability import (
     DataGap,
     SelectionDiagram,
@@ -309,14 +313,16 @@ def test_legal_projection_and_fresh_cas_preserve_result_alignment(
         gap_impact="Target age distribution is missing.",
         suggested_action="Collect target age observations.",
     )
+    # This distinct upstream source-authority refusal is copied through final assembly.
+    source_data_refusal = "source_data_authority_not_established"
     state = ResolutionState(
         round=3,
         legal_s_nodes=legal_nodes,
         data_gaps=[gap],
         p_star_values={"income": _income_pstar()},
         proxy_penalties={"income": 0.1},
-        requires_expert_review=bool(stale_mechanism_reasons),
-        expert_review_reasons=stale_mechanism_reasons,
+        requires_expert_review=True,
+        expert_review_reasons=[source_data_refusal, *stale_mechanism_reasons],
         feasible=True,
     )
     base = TransportabilityResult(
@@ -340,7 +346,7 @@ def test_legal_projection_and_fresh_cas_preserve_result_alignment(
     assert result.source_context_id == "UA-2020"
     assert result.target_context_id == "UA-2024"
     assert result.requires_expert_review is True
-    assert "source_data_authority_not_established" in result.expert_review_reasons
+    assert source_data_refusal in result.expert_review_reasons
     assert any(
         "mechanism_target_not_present_in_current_graph" in reason
         for reason in result.expert_review_reasons
@@ -436,7 +442,14 @@ def test_resolution_loop_carries_unresolved_legal_mapping_into_review_state(
     )
 
 
-def test_partial_identification_changes_status_only_for_informative_bounds() -> None:
+@pytest.mark.parametrize("confidence", [0.0, 0.5, 1.0])
+@pytest.mark.parametrize("is_proxy", [False, True])
+@pytest.mark.parametrize("value", [None, 0.25])
+def test_pstar_confidence_never_supplies_manski_target_moments(
+    confidence: float,
+    is_proxy: bool,
+    value: float | None,
+) -> None:
     unsupported = TransportabilityResult(
         query="P*(welfare|do(policy))",
         status=TransportabilityStatus.UNSUPPORTED,
@@ -444,28 +457,83 @@ def test_partial_identification_changes_status_only_for_informative_bounds() -> 
         base_confidence=0.0,
         final_confidence=0.0,
         feasible=False,
+        identification_engine="solver_owned",
+        unsupported_reason="basis_not_transportable",
+        unsupported_cases=["solver_refusal"],
+    )
+    p_star = _income_pstar(confidence).model_copy(update={"is_proxy": is_proxy, "value": value})
+    warnings: list[str] = []
+
+    result, partial_identification = _apply_partial_identification_fallback(
+        tr_result=unsupported,
+        state=ResolutionState(round=1, p_star_values={"income": p_star}),
+        warnings=warnings,
+    )
+
+    # These markers remain intact even when a mutant restores promotion below.
+    assert result.unsupported_cases == [
+        "solver_refusal",
+        "manski_target_basis_missing",
+    ]
+    assert warnings == ["partial_identification_unavailable:manski_target_basis_missing"]
+    assert partial_identification is None
+    assert result.status is TransportabilityStatus.UNSUPPORTED
+    assert result.transport_mode is TransportMode.NONE
+    assert result.unsupported_reason == "basis_not_transportable"
+    assert result.identification_engine == "solver_owned"
+
+
+def test_missing_target_basis_is_typed_without_synthesizing_bounds() -> None:
+    unsupported = TransportabilityResult(
+        query="P*(welfare|do(policy))",
+        status=TransportabilityStatus.UNSUPPORTED,
+        transport_mode=TransportMode.NONE,
+        feasible=False,
+        identification_engine="solver_owned",
         unsupported_reason="basis_not_transportable",
     )
-    without_evidence, unsupported_bounds = _apply_partial_identification_fallback(
+
+    result, partial_identification = _apply_partial_identification_fallback(
         tr_result=unsupported,
         state=ResolutionState(round=1),
         warnings=[],
     )
-    assert unsupported_bounds is not None
-    assert unsupported_bounds.is_informative is False
-    assert without_evidence.status is TransportabilityStatus.UNSUPPORTED
-    assert without_evidence.transport_mode is TransportMode.NONE
-    assert without_evidence.unsupported_reason == "basis_not_transportable"
 
-    warnings: list[str] = []
-    with_evidence, informative_bounds = _apply_partial_identification_fallback(
+    assert partial_identification is None
+    assert result.status is TransportabilityStatus.UNSUPPORTED
+    assert result.transport_mode is TransportMode.NONE
+    assert result.unsupported_reason == "basis_not_transportable"
+    assert result.identification_engine == "solver_owned"
+    assert result.unsupported_cases == ["manski_target_basis_missing"]
+
+
+def test_unsupported_result_preserves_attached_partial_bounds_as_opaque_history() -> None:
+    partial = PartialIdentificationResult(
+        method=BoundMethod.MANSKI,
+        lower_bound=-0.1,
+        upper_bound=0.1,
+        confidence=0.9,
+    )
+    unsupported = TransportabilityResult(
+        query="P*(welfare|do(policy))",
+        status=TransportabilityStatus.UNSUPPORTED,
+        transport_mode=TransportMode.NONE,
+        feasible=False,
+        identification_engine="solver_owned",
+        unsupported_reason="basis_not_transportable",
+        partial_identification_result=partial,
+    )
+
+    result, returned_partial = _apply_partial_identification_fallback(
         tr_result=unsupported,
         state=ResolutionState(round=1, p_star_values={"income": _income_pstar()}),
-        warnings=warnings,
+        warnings=[],
     )
-    assert informative_bounds is not None
-    assert informative_bounds.is_informative is True
-    assert with_evidence.status is TransportabilityStatus.BOUNDED_NON_IDENTIFIED
-    assert with_evidence.transport_mode is TransportMode.BOUNDS_ONLY
-    assert with_evidence.unsupported_reason is None
-    assert warnings == ["partial_identification_informative:manski_bounds"]
+
+    assert returned_partial is None
+    assert result.partial_identification_result == partial
+    assert result.status is TransportabilityStatus.UNSUPPORTED
+    assert result.transport_mode is TransportMode.NONE
+    assert result.unsupported_reason == "basis_not_transportable"
+    assert result.identification_engine == "solver_owned"
+    assert result.unsupported_cases == ["manski_target_basis_missing"]

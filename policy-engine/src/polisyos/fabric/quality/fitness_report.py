@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.fabric.data_plane.temporal import parse_datetime_utc, utc_now
 
 from .quality import QualityIndicators, QualityLevel, QualityThresholds
+
+if TYPE_CHECKING:
+    from datetime import datetime
 
 logger = get_logger(__name__)
 

@@ -9,7 +9,7 @@ when low-confidence outcomes remain.
 from __future__ import annotations
 
 from decimal import ROUND_HALF_UP, Decimal
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
@@ -69,6 +69,9 @@ from .score_claims import score_claim_trust_assessments
 from .score_docs import score_doc_trust_assessments
 from .types import ConflictResolveOptions, ConflictResolveResult, RankedClaim
 from .uncertainty_adapter import envelope_from_conflict_resolution
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 logger = get_logger(__name__)
 

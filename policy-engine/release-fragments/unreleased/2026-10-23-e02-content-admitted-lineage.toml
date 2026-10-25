@@ -1,0 +1,22 @@
+id = "2026-10-23-e02-content-admitted-lineage"
+title = "Validate the complete content-admitted input lineage"
+type = "fixed"
+component = "runtime-http"
+owner = "team-polisyos"
+summary = "Observational method producers and the fresh completion consumer now derive the same role-bearing lineage recipe from typed intents, including Search snapshot refs when present."
+evidence = [
+  "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+  "tests/unit/runtime/http/test_observational_method_runtime.py",
+  "tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py",
+  "src/polisyos/runtime/http/README.md",
+]
+compatibility = "The request and response schemas are unchanged. Existing persisted intents are accepted only when their manifest input edges match the producer recipe, including each role, selected artifact ID, profile, and multiplicity."
+change_class = "internal"
+surface_classification = "public_stable: polisyos.runtime HTTP observational method completion behavior"
+migration = "No request, response, or generated-client migration is required."
+api = "No HTTP shape changes. Fresh completion refuses missing, extra, substituted, or role-mismatched input edges; selected Search snapshot refs remain part of the content-admitted intent lineage."
+limitations = "This change does not grant read authority, bypass CAS content verification, or establish scientific admissibility. The full real-worker replay remains pending after source freeze and review."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

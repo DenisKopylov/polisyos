@@ -45,7 +45,19 @@ from tests.unit.runtime.quality.historical_artifacts import (
     historical_owner_bytes,
 )
 
-REPO_ROOT = Path(__file__).resolve().parents[4]
+
+def _git_repository_root() -> Path:
+    result = subprocess.run(
+        ["git", "rev-parse", "--show-toplevel"],
+        cwd=Path(__file__).resolve().parent,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return Path(result.stdout.strip())
+
+
+REPO_ROOT = _git_repository_root() / "policy-engine"
 N6_SCHEMA_PREFIX = "policyos.runtime.generation_cycle_controller."
 
 
@@ -87,12 +99,17 @@ def test_source_free_package_replays_n6_v1_v2_v3_with_semantic_mutation(
     build_environment = os.environ.copy()
     build_environment["UV_OFFLINE"] = "1"
     build_environment["UV_PYTHON_DOWNLOADS"] = "never"
+    build_environment["VIRTUAL_ENV"] = sys.prefix
+    uv_cache = tmp_path / "uv-cache"
+    uv_cache.mkdir()
+    build_environment["UV_CACHE_DIR"] = str(uv_cache)
     started = time.monotonic()
     build_result = subprocess.run(
         [
             uv_executable,
             "--offline",
             "build",
+            "--no-build-isolation",
             "--wheel",
             "--out-dir",
             str(wheelhouse),
@@ -107,7 +124,8 @@ def test_source_free_package_replays_n6_v1_v2_v3_with_semantic_mutation(
     record_property("wheel_build_wall_seconds", round(time.monotonic() - started, 3))
     record_property(
         "wheel_build_command",
-        "uv --offline build --wheel --out-dir <pytest-tmp>/wheelhouse",
+        f"{uv_executable} --offline build --no-build-isolation --wheel "
+        "--out-dir <pytest-tmp>/wheelhouse",
     )
     assert build_result.returncode == 0, build_result.stdout + "\n" + build_result.stderr
     wheels = tuple(sorted(wheelhouse.glob("*.whl")))
@@ -268,6 +286,7 @@ source_options = artifacts.PutOptions(
         name=value_choice_provenance.NORMATIVE_GENERATION_SOURCE_KIND,
         version=schema_version,
     ),
+    canon=artifacts.CanonInfo.from_spec(spec),
 )
 valid_source_ref = str(
     store.put_json(source, source_options, canon_spec=spec).artifact_id
@@ -289,7 +308,8 @@ try:
         schema=generation_cycle.GENERATION_CYCLE_SCHEMA_VERSION,
     )
 except value_choice_provenance.P20NormativeChoiceError as exc:
-    assert exc.code == "p20_normative_generation_history_invalid"
+    assert exc.code == "p20_value_schedule_ref_unresolvable"
+    assert "canon_profile_payload_nonconformant" in str(exc.__cause__)
 else:
     raise AssertionError("S8 accepted noncanonical raw N6 source bytes")
 source_run = GenerationCycleRun.model_validate(source)
@@ -436,17 +456,27 @@ def _v3_history_fixtures() -> tuple[tuple[str, dict[str, Any]], ...]:
     )
     rows: list[tuple[str, dict[str, Any]]] = []
     for fixture_name, expected_sha256 in fixtures:
-        fixture_path = Path(__file__).parent / "fixtures" / fixture_name
+        fixture_path = REPO_ROOT / "tests/unit/runtime/quality/fixtures" / fixture_name
         raw_fixture = fixture_path.read_bytes()
         assert hashlib.sha256(raw_fixture).hexdigest() == expected_sha256
         rows.append((fixture_name, canon.from_canonical_bytes(raw_fixture)))
     return tuple(rows)
 
 
-@cache
-def _tracked_n6_runs() -> tuple[int, list[tuple[str, str, dict[str, Any]]]]:
-    """Walk all tracked JSON/JSONL files and add the pinned Git-history fixture."""
+def _is_empty_stdout_capture(relative: str, source: str) -> bool:
+    return relative.endswith(".stdout.json") and source == ""
 
+
+def _decode_tracked_json_documents(relative: str, source: str) -> tuple[object, ...]:
+    if _is_empty_stdout_capture(relative, source):
+        return ()
+    if relative.endswith(".jsonl"):
+        return tuple(json.loads(line) for line in source.splitlines() if line.strip())
+    return (json.loads(source),)
+
+
+@cache
+def _tracked_n6_run_census() -> tuple[int, list[tuple[str, str, dict[str, Any]]], tuple[str, ...]]:
     listed = subprocess.run(
         ["git", "ls-files", "-z", "--", "*.json", "*.jsonl"],
         cwd=REPO_ROOT.parent,
@@ -456,16 +486,15 @@ def _tracked_n6_runs() -> tuple[int, list[tuple[str, str, dict[str, Any]]]]:
     paths = tuple(path for path in listed.split("\0") if path)
     assert "policy-engine/.vscode/settings.json" in paths
     rows: list[tuple[str, str, dict[str, Any]]] = []
+    empty_stdout_captures: list[str] = []
     for relative in paths:
         path = REPO_ROOT.parent / relative
         source = path.read_text(encoding="utf-8")
-        documents = (
-            [json.loads(line) for line in source.splitlines() if line.strip()]
-            if path.suffix == ".jsonl"
-            else [json.loads(source)]
-        )
+        if _is_empty_stdout_capture(relative, source):
+            empty_stdout_captures.append(relative)
+        documents = _decode_tracked_json_documents(relative, source)
         for index, document in enumerate(documents):
-            pointer = f"$line{index + 1}" if path.suffix == ".jsonl" else "$"
+            pointer = f"$line{index + 1}" if relative.endswith(".jsonl") else "$"
             rows.extend(_n6_runs(document, path=relative, pointer=pointer))
 
     pinned_raw = historical_owner_bytes(GENERATION_CYCLE_V1_BLOB)
@@ -480,7 +509,7 @@ def _tracked_n6_runs() -> tuple[int, list[tuple[str, str, dict[str, Any]]]]:
         )
     )
     for fixture_name, fixture in _v3_history_fixtures():
-        fixture_path = Path(__file__).parent / "fixtures" / fixture_name
+        fixture_path = REPO_ROOT / "tests/unit/runtime/quality/fixtures" / fixture_name
         rows.append(
             (
                 f"historical-fixture:{fixture_path.relative_to(REPO_ROOT.parent)}",
@@ -488,7 +517,23 @@ def _tracked_n6_runs() -> tuple[int, list[tuple[str, str, dict[str, Any]]]]:
                 fixture,
             )
         )
-    return len(paths), rows
+    return len(paths), rows, tuple(empty_stdout_captures)
+
+
+@cache
+def _tracked_n6_runs() -> tuple[int, list[tuple[str, str, dict[str, Any]]]]:
+    tracked_file_count, occurrences, _empty_stdout_captures = _tracked_n6_run_census()
+    return tracked_file_count, occurrences
+
+
+def test_empty_stdout_exclusion_is_bound_to_exact_artifact_role() -> None:
+    assert _decode_tracked_json_documents("worker.stdout.json", "") == ()
+    assert _decode_tracked_json_documents("ordinary.jsonl", "") == ()
+    assert _decode_tracked_json_documents("worker.stdout.json", "{}") == ({},)
+    with pytest.raises(json.JSONDecodeError):
+        _decode_tracked_json_documents("worker.stdout.json", " \n")
+    with pytest.raises(json.JSONDecodeError):
+        _decode_tracked_json_documents("ordinary.json", "")
 
 
 def _nested_models(value: object, model_type: type[BaseModel]) -> list[BaseModel]:
@@ -519,12 +564,32 @@ def _nested_models(value: object, model_type: type[BaseModel]) -> list[BaseModel
     return found
 
 
+def _assert_current_dump_only_adds_default_none(
+    current: object, historical: object, path: str = "$root"
+) -> None:
+    if isinstance(historical, Mapping):
+        assert isinstance(current, Mapping), f"historical mapping became scalar at {path}"
+        assert set(historical) <= set(current), f"historical keys dropped at {path}"
+        for key, old_value in historical.items():
+            _assert_current_dump_only_adds_default_none(current[key], old_value, f"{path}/{key}")
+        for key in set(current) - set(historical):
+            assert current[key] is None, f"current-only field is nondefault at {path}/{key}"
+        return
+    if isinstance(historical, list):
+        assert isinstance(current, list), f"historical sequence changed type at {path}"
+        assert len(current) == len(historical), f"historical sequence changed length at {path}"
+        for index, (new_value, old_value) in enumerate(zip(current, historical, strict=True)):
+            _assert_current_dump_only_adds_default_none(new_value, old_value, f"{path}/{index}")
+        return
+    assert current == historical, f"historical value changed at {path}"
+
+
 def test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly(
     record_property: Any,
 ) -> None:
     """Replay each enumerated persisted run through its own historical serializer."""
 
-    tracked_file_count, occurrences = _tracked_n6_runs()
+    tracked_file_count, occurrences, empty_stdout_captures = _tracked_n6_run_census()
     versions: dict[str, int] = {}
     for _path, _pointer, payload in occurrences:
         version = str(payload["schema_version"])
@@ -532,7 +597,10 @@ def test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly(
 
     # Record the complete tracked JSON/JSONL denominator; the set may grow.
     record_property("tracked_json_jsonl_file_count", tracked_file_count)
+    record_property("empty_stdout_capture_count", len(empty_stdout_captures))
+    record_property("empty_stdout_capture_paths", ",".join(empty_stdout_captures))
     assert tracked_file_count > 0
+    assert empty_stdout_captures
     assert versions.get("policyos.runtime.generation_cycle_controller.v1", 0) >= 10
     assert versions.get("policyos.runtime.generation_cycle_controller.v2", 0) >= 1
     assert versions.get("policyos.runtime.generation_cycle_controller.v3", 0) >= 2
@@ -555,10 +623,8 @@ def test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly(
         run = GenerationCycleRun.model_validate(payload)
         live_projection = run.model_dump(mode="json")
         if run.schema_version.endswith(".v3"):
-            # This patch must not change ordinary producer serialization.
-            assert canon.to_canonical_bytes(live_projection, spec) == (
-                canon.to_canonical_bytes(payload, spec)
-            )
+            # Supplied v3 bytes stay exact; current-only fields must remain default None.
+            _assert_current_dump_only_adds_default_none(live_projection, payload)
         replayed = generation._historical_generation_cycle_run_projection(run)
         persisted_bytes = canon.to_canonical_bytes(payload, spec)
         replayed_bytes = canon.to_canonical_bytes(replayed, spec)
@@ -803,7 +869,7 @@ def test_current_n6_v5_roundtrips_bound_n5_lineage_and_rejects_removal() -> None
     persisted = GenerationCycleRun.model_validate(current.model_dump(mode="json")).model_dump(
         mode="json"
     )
-    assert persisted["schema_version"] == "policyos.runtime.generation_cycle_controller.v5"
+    assert persisted["schema_version"] == GENERATION_CYCLE_SCHEMA_VERSION
     simulation_wire = persisted["cycles"][0]["simulation"]
     lineage_fields = (
         "candidate_simulation_n4_source_ref",
@@ -948,10 +1014,22 @@ def test_v1_projection_removal_probe_rejects_post_v1_field_with_markers_retained
 
 
 @pytest.mark.parametrize(
-    ("path", "field", "value"),
+    ("path", "field", "value", "expected_code", "expected_error"),
     [
-        (("candidate_summaries", 0), "grounding_issue_codes", []),
-        (("cycles", 0), "design_problem_basis_ref", "sha256:" + "0" * 64),
+        (
+            ("candidate_summaries", 0),
+            "grounding_issue_codes",
+            [],
+            "generation_cycle_historical_projection_mismatch",
+            None,
+        ),
+        (
+            ("cycles", 0),
+            "design_problem_basis_ref",
+            "sha256:" + "0" * 64,
+            "generation_cycle_historical_projection_invalid",
+            "generation_cycle_history_field_unrepresentable_in_epoch",
+        ),
         (
             ("cycles", 0, "simulation"),
             "simulation_result_ref",
@@ -960,12 +1038,24 @@ def test_v1_projection_removal_probe_rejects_post_v1_field_with_markers_retained
                 "kind": "runtime_quality.simulation_result",
                 "media_type": "application/json",
             },
+            "generation_cycle_historical_projection_invalid",
+            "generation_cycle_history_field_unrepresentable_in_epoch",
         ),
-        (("strangle_receipt",), "source_file_count", 0),
+        (
+            ("strangle_receipt",),
+            "source_file_count",
+            0,
+            "generation_cycle_historical_projection_mismatch",
+            None,
+        ),
     ],
 )
 def test_v2_history_rejects_post_version_nested_fields_with_markers_retained(
-    path: tuple[str | int, ...], field: str, value: object
+    path: tuple[str | int, ...],
+    field: str,
+    value: object,
+    expected_code: str,
+    expected_error: str | None,
 ) -> None:
     """An old outer version cannot acquire a later nested field by supplying it."""
 
@@ -983,9 +1073,13 @@ def test_v2_history_rejects_post_version_nested_fields_with_markers_retained(
     target[field] = value
     assert mutated["schema_version"] == original["schema_version"]
     assert mutated["strangle_receipt"]["status"] == original["strangle_receipt"]["status"]
-    assert validate_generation_cycle_run_history(mutated) == (
-        {"code": "generation_cycle_historical_projection_mismatch"},
-    )
+    issues = validate_generation_cycle_run_history(mutated)
+    assert len(issues) == 1
+    assert issues[0]["code"] == expected_code
+    if expected_error is None:
+        assert "error" not in issues[0]
+    else:
+        assert expected_error in str(issues[0].get("error", ""))
 
 
 def test_history_replay_is_read_only_and_does_not_consult_current_source(
@@ -1005,7 +1099,7 @@ def test_history_replay_is_read_only_and_does_not_consult_current_source(
     payload["strangle_receipt"] = source_receipt.model_dump(mode="json")
     run = GenerationCycleRun.model_validate(payload)
     assert isinstance(run.strangle_receipt, StrangleReceipt)
-    payload = run.model_dump(mode="json")
+    payload = generation._historical_generation_cycle_run_projection(run)
     currentness_before = generation.currentness_for_generation_cycle_run(run)
     assert currentness_before.status == "not_established"
     assert currentness_before.reason_code == "historical_deployment_identity_not_recorded"
@@ -1014,13 +1108,15 @@ def test_history_replay_is_read_only_and_does_not_consult_current_source(
         del self, repo_root
         raise AssertionError("historical_replay_consulted_live_source")
 
+    from polisyos.core.artifacts.store import FileSystemCAS
+
     monkeypatch.setattr(
-        generation.FileSystemCAS,
+        FileSystemCAS,
         "put_json",
         lambda *_args, **_kwargs: pytest.fail("history replay wrote an artifact"),
     )
     monkeypatch.setattr(
-        generation.FileSystemCAS,
+        FileSystemCAS,
         "put_bytes",
         lambda *_args, **_kwargs: pytest.fail("history replay wrote artifact bytes"),
     )

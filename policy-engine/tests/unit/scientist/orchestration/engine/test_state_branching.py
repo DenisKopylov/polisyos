@@ -5,11 +5,12 @@ from __future__ import annotations
 from datetime import UTC, date, datetime
 from decimal import Decimal
 from enum import Enum, StrEnum
-from typing import Any, Generic, TypeVar
+from typing import Any, ClassVar, Generic, TypeVar
 
 import pytest
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, RootModel, ValidationError
 
+from polisyos.core.artifacts.ids import ArtifactID as CoreArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.ir.artifacts import ArtifactID as IRArtifactID
@@ -1332,3 +1333,44 @@ def test_artifact_shaped_json_remains_json_outside_artifacts_index() -> None:
     mutation = branch.journal.operations[-1]
     assert mutation.value_kind == "json"
     assert mutation.value == payload
+
+
+def test_core_and_ir_artifact_ids_remain_journalable_root_models() -> None:
+    class CoreAlternateArtifactID(CoreArtifactID):
+        prefix: ClassVar[str] = "core-artifact:"
+
+    class IRAlternateArtifactID(IRArtifactID):
+        prefix: ClassVar[str] = "ir-artifact:"
+
+    original_ids = {
+        "core_base": CoreArtifactID(f"sha256:{'a' * 64}"),
+        "core_alternate": CoreAlternateArtifactID(f"core-artifact:{'b' * 64}"),
+        "ir_base": IRArtifactID(f"sha256:{'c' * 64}"),
+        "ir_alternate": IRAlternateArtifactID(f"ir-artifact:{'d' * 64}"),
+    }
+    state = ExperimentState(run_id="R_artifact_id_json_schema_metadata")
+    for name, artifact_id in original_ids.items():
+        state.params[name] = artifact_id
+
+    branch = branch_state(
+        state,
+        write_paths=("params",),
+        enforce_write_scope=True,
+    )
+    for name, artifact_id in original_ids.items():
+        assert branch.state.params[name] == artifact_id
+
+    replacements = {
+        "core_base": CoreArtifactID(f"sha256:{'e' * 64}"),
+        "core_alternate": CoreAlternateArtifactID(f"core-artifact:{'f' * 64}"),
+        "ir_base": IRArtifactID(f"sha256:{'1' * 64}"),
+        "ir_alternate": IRAlternateArtifactID(f"ir-artifact:{'2' * 64}"),
+    }
+    for name, artifact_id in replacements.items():
+        branch.state.params[name] = artifact_id
+
+    for name, artifact_id in original_ids.items():
+        assert state.params[name] == artifact_id
+    assert [operation.path for operation in branch.journal.operations] == [
+        f"params.{name}" for name in replacements
+    ]

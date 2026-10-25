@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+from hashlib import sha256
 from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, patch
 
 import pytest
 
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, IntegrityInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.data_plane.orchestrator import IngestionResult
 from polisyos.fabric.data_plane.regression import (
@@ -94,6 +97,17 @@ class TestReplayStore:
 
             def get_manifest(self, artifact_id):
                 return self._wrapped.get_manifest(artifact_id)
+
+            def get_raw_manifest_bytes(
+                self,
+                artifact_id: ArtifactID | ArtifactRef | str,
+                *,
+                manifest_profile_sha256: str | None = None,
+            ) -> bytes:
+                return self._wrapped.get_raw_manifest_bytes(
+                    artifact_id,
+                    manifest_profile_sha256=manifest_profile_sha256,
+                )
 
             def put_bytes(self, data, opts):
                 return self._wrapped.put_bytes(data, opts)
@@ -260,32 +274,42 @@ class TestRegressionComparison:
         assert result.issue_categories == (RegressionIssueCategory.COMPARISON_MISMATCH,)
 
 
+def _artifact_manifest(payload: bytes, *, kind: str) -> ArtifactManifest:
+    artifact_id = ArtifactID.from_sha256_hex(sha256(payload).hexdigest())
+    return ArtifactManifest(
+        artifact_id=artifact_id,
+        kind=kind,
+        media_type="application/octet-stream",
+        byte_size=len(payload),
+        integrity=IntegrityInfo(sha256=artifact_id.hex),
+    )
+
+
 class TestArtifactHashComparison:
     def test_matching_hashes(self):
         mock_store = MagicMock()
-        manifest = MagicMock()
-        manifest.content_hash = "abc123"
-        mock_store.get_manifest.return_value = manifest
-
+        record_manifest = _artifact_manifest(b"same payload", kind="record")
+        replay_manifest = _artifact_manifest(b"same payload", kind="replay")
+        mock_store.get_manifest.side_effect = [record_manifest, replay_manifest]
         mismatches = compare_artifact_hashes(mock_store, "ref1", "ref2", label="test")
+        assert record_manifest.kind != replay_manifest.kind
+        assert record_manifest.artifact_id == replay_manifest.artifact_id
         assert mismatches == []
 
     def test_mismatched_hashes(self):
         mock_store = MagicMock()
-        m1 = MagicMock()
-        m1.content_hash = "abc123"
-        m2 = MagicMock()
-        m2.content_hash = "def456"
-        mock_store.get_manifest.side_effect = [m1, m2]
-
+        record_manifest = _artifact_manifest(b"record payload", kind="record")
+        replay_manifest = _artifact_manifest(b"replay payload", kind="replay")
+        mock_store.get_manifest.side_effect = [record_manifest, replay_manifest]
         mismatches = compare_artifact_hashes(mock_store, "ref1", "ref2", label="test")
         assert len(mismatches) == 1
         assert "content_hash" in mismatches[0]
+        assert record_manifest.artifact_id.hex in mismatches[0]
+        assert replay_manifest.artifact_id.hex in mismatches[0]
 
     def test_comparison_error_handled(self):
         mock_store = MagicMock()
         mock_store.get_manifest.side_effect = RuntimeError("not found")
-
         mismatches = compare_artifact_hashes(mock_store, "ref1", "ref2")
         assert len(mismatches) == 1
         assert "failed" in mismatches[0]

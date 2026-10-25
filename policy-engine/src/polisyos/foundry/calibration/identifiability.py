@@ -14,6 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from polisyos.core.artifacts import (
     artifact_manifest_profile_sha256,
+    ensure_ir_artifact_store,
     read_core_manifest_profile,
     resolve_manifest_by_profile,
     validate_core_model_json_artifact,
@@ -46,11 +47,14 @@ from polisyos.foundry.calibration.execution_basis import canonical_input_sha256
 from polisyos.foundry.methods.catalog.simulation.dynamics import (
     build_abm_result_from_simulation,
 )
-from polisyos.ir.registry.refs import ABMResultRef
+from polisyos.ir.analytics.phase4_dynamics import persist_abm_result
+from polisyos.ir.artifacts import InputRef as IRInputRef
+from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
 
 if TYPE_CHECKING:
     from polisyos.foundry.calibration.hessian import HessianResult
     from polisyos.foundry.execute import ExecutionSourceAdmission
+    from polisyos.ir.registry.refs import ABMResultRef
 else:  # pragma: no cover - import guard for environments without JAX
     HessianResult = Any
 
@@ -557,24 +561,26 @@ def attach_abm_identifiability_certificate_ref(
         },
     }
     abm_result = type(abm_result).model_validate(result_payload)
-    ref = store.put_json(
+    return persist_abm_result(
+        ensure_ir_artifact_store(store),
         abm_result,
-        PutOptions(
-            kind="ir.abm_result",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.ABMResult", version="1.0"),
-            inputs=[
-                input_ref_from_artifact_ref(sim_ref, role="artifact.simulation_result_ref"),
+        schema_name="polisyos.ir.ABMResult",
+        inputs=[
+            IRInputRef.model_validate(
+                input_ref_from_artifact_ref(
+                    sim_ref,
+                    role="artifact.simulation_result_ref",
+                ).model_dump(mode="python")
+            ),
+            IRInputRef.model_validate(
                 input_ref_from_artifact_ref(
                     selected_diagnostic_ref,
                     role="artifact.identifiability_diagnostic_ref",
-                ),
-            ],
-        ),
-        canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
-        return_selected_profile=True,
+                ).model_dump(mode="python")
+            ),
+        ],
+        canon_spec=IRCanonSpec(forbid_floats=False, forbid_nan_inf=False),
     )
-    return ABMResultRef.model_validate(ref.model_dump(mode="python"))
 
 
 def _compute_identifiability_diagnostic(

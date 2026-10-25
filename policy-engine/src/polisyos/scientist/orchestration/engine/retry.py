@@ -15,7 +15,6 @@ from __future__ import annotations
 import asyncio
 import base64
 import contextvars
-import copy
 import ctypes
 import dataclasses
 import hashlib
@@ -33,8 +32,10 @@ import threading
 import time
 from collections.abc import Awaitable, Callable, Iterator, Mapping
 from concurrent.futures import wait
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, timedelta
+from datetime import time as _time_type
 from decimal import Decimal, InvalidOperation
+from types import GetSetDescriptorType, SimpleNamespace
 from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -52,6 +53,7 @@ from polisyos.core.contracts import (
     bounded_liveness_config_from_mapping,
 )
 from polisyos.core.run.context import RunContext as _RunContext
+from polisyos.ir.artifacts.contracts import _register_trusted_artifact_ref_facade
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.errors import (
     CircuitBreakerOpenError,
@@ -107,7 +109,10 @@ _PROCESS_CLEANUP_GRACE_S = 1.0
 # The spawn timeout wire is intentionally enabled only for the builtin node
 # whose real producer/consumer replay and timeout boundary are covered here.
 # Adding another node requires its own closed-context and cleanup controls.
-_SPAWN_TIMEOUT_NODE_IDS = frozenset({"scientist.node_resolve_parameters@1.0.0"})
+_SPAWN_TIMEOUT_TRANSPORTABILITY_NODE_ID = "scientist.node_run_transportability@1.0.0"
+_SPAWN_TIMEOUT_NODE_IDS = frozenset(
+    {"scientist.node_resolve_parameters@1.0.0", _SPAWN_TIMEOUT_TRANSPORTABILITY_NODE_ID}
+)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -189,7 +194,10 @@ class _WorkerResultChannel:
             del self._buffer[:8]
         if self._size is not None and len(self._buffer) >= self._size:
             wire = json.loads(self._buffer[: self._size])
-            if not isinstance(wire, dict) or wire.get("encoding") not in {"bytes", "json"}:
+            if not isinstance(wire, dict) or wire.get("encoding") not in {
+                "bytes",
+                "json",
+            }:
                 raise ValueError("invalid worker result envelope")
             data = wire["payload"]
             if wire["encoding"] == "bytes":
@@ -489,7 +497,9 @@ def _attempt_context_for_engine_attempt(
         raise _InvocationAttemptPersistenceError(
             "run_invocation_attempt_context_binding_failed"
         ) from exc
-    from polisyos.scientist.orchestration.engine.context import ExecutionContext as ContextType
+    from polisyos.scientist.orchestration.engine.context import (
+        ExecutionContext as ContextType,
+    )
 
     if not isinstance(attempt_context, ContextType):
         raise _InvocationAttemptPersistenceError("run_invocation_attempt_context_type_invalid")
@@ -900,6 +910,10 @@ def _unwrap_manifest_value(value: Any) -> Any:
     return value
 
 
+_register_trusted_artifact_ref_facade(_AttemptModelFacade, _unwrap_manifest_value)
+_register_trusted_artifact_ref_facade(_AttemptManifestFacade, _unwrap_manifest_value)
+
+
 class _AttemptRunFacade(_AttemptFacade):
     """Run facade with isolated manifest and trace sink references."""
 
@@ -957,6 +971,311 @@ class _AttemptRunFacade(_AttemptFacade):
         return super().__getattr__(name)
 
 
+_MAX_EXACT_WORKER_RUN_FACADE_DEPTH = 8
+
+
+def _resolve_exact_worker_run_view(value: Any) -> Any | None:
+    """Find a worker run view only through bounded engine-owned attempt facades.
+
+    The returned leaf is for identity and capability recognition only. Callers
+    retain the original outer facade for every write so each attempt authority
+    continues to gate staged receipts.
+    """
+    from polisyos.core.run.worker_lifecycle import WorkerRunView
+
+    current = value
+    seen: set[int] = set()
+    depth = 0
+    while True:
+        if type(current) is WorkerRunView:
+            return current
+        if type(current) is not _AttemptRunFacade or id(current) in seen:
+            return None
+        seen.add(id(current))
+        depth += 1
+        if depth > _MAX_EXACT_WORKER_RUN_FACADE_DEPTH:
+            return None
+        current = object.__getattribute__(current, "_target")
+
+
+_MANIFEST_SNAPSHOT_SCALAR_TYPES = (
+    str,
+    bytes,
+    bool,
+    int,
+    float,
+    type(None),
+    date,
+    datetime,
+    _time_type,
+    timedelta,
+    Decimal,
+)
+_MANIFEST_SNAPSHOT_KEY_TYPES = (str, bytes, bool, int, float, type(None))
+
+
+def _snapshot_manifest_value(
+    value: Any,
+    *,
+    _memo: dict[int, Any] | None = None,
+    _active: set[int] | None = None,
+) -> Any:
+    # Copy only known immutable values and exact builtin data containers.
+    value_type = type(value)
+    if any(value_type is scalar_type for scalar_type in _MANIFEST_SNAPSHOT_SCALAR_TYPES):
+        return value
+    if type(value) is bytearray:
+        return bytearray(value)
+
+    memo = {} if _memo is None else _memo
+    active = set() if _active is None else _active
+    identity = id(value)
+    if identity in active:
+        raise TypeError("run_manifest_snapshot_cycle")
+    if identity in memo:
+        return memo[identity]
+
+    from polisyos.core.artifacts.ids import ArtifactID
+    from polisyos.core.artifacts.manifest import EnvInfo, GitInfo, ProducerInfo
+    from polisyos.core.components.ids import ComponentId
+    from polisyos.core.run.manifest import RunManifest
+
+    model_type = type(value)
+    owned_model_types = (
+        ArtifactID,
+        ArtifactRef,
+        ComponentId,
+        EnvInfo,
+        GitInfo,
+        ProducerInfo,
+        RunManifest,
+    )
+    if any(model_type is owned_type for owned_type in owned_model_types):
+        active.add(identity)
+        try:
+            raw_fields = object.__getattribute__(value, "__dict__")
+            expected_fields = model_type.model_fields
+            if (
+                type(raw_fields) is not dict
+                or any(type(name) is not str for name in raw_fields)
+                or set(raw_fields) != set(expected_fields)
+            ):
+                raise TypeError("run_manifest_snapshot_model_fields_invalid")
+            if (
+                object.__getattribute__(value, "__pydantic_extra__") is not None
+                or object.__getattribute__(value, "__pydantic_private__") is not None
+            ):
+                raise TypeError("run_manifest_snapshot_model_private_state_unsupported")
+
+            fields = {
+                name: _snapshot_manifest_value(item, _memo=memo, _active=active)
+                for name, item in raw_fields.items()
+            }
+            raw_fields_set = object.__getattribute__(value, "__pydantic_fields_set__")
+            if type(raw_fields_set) is not set or any(
+                type(name) is not str or name not in expected_fields for name in raw_fields_set
+            ):
+                raise TypeError("run_manifest_snapshot_model_fields_set_invalid")
+            fields_set = _snapshot_manifest_value(raw_fields_set, _memo=memo, _active=active)
+            if model_type is ArtifactID or model_type is ComponentId:
+                if set(fields) != {"root"}:
+                    raise TypeError("run_manifest_snapshot_root_model_invalid")
+                detached_model = model_type.model_validate(fields["root"])
+            else:
+                detached_model = model_type.model_validate(fields)
+            if type(detached_model) is not model_type:
+                raise TypeError("run_manifest_snapshot_model_type_changed")
+            object.__setattr__(detached_model, "__pydantic_fields_set__", fields_set)
+            memo[identity] = detached_model
+            return detached_model
+        finally:
+            active.remove(identity)
+
+    # Unknown metaclasses may execute hooks during ordinary class-namespace
+    # access. Owned Pydantic models were handled above by exact type identity.
+    if type(model_type) is not type:
+        raise TypeError("run_manifest_snapshot_model_type_unsupported")
+
+    if type(value) is list:
+        active.add(identity)
+        detached: list[Any] = []
+        memo[identity] = detached
+        try:
+            detached.extend(
+                _snapshot_manifest_value(item, _memo=memo, _active=active) for item in value
+            )
+            return detached
+        finally:
+            active.remove(identity)
+    if type(value) is dict:
+        active.add(identity)
+        detached_dict: dict[Any, Any] = {}
+        memo[identity] = detached_dict
+        try:
+            for key, item in value.items():
+                key_type = type(key)
+                if not any(
+                    key_type is allowed_type for allowed_type in _MANIFEST_SNAPSHOT_KEY_TYPES
+                ):
+                    raise TypeError("run_manifest_snapshot_key_unsupported")
+                detached_dict[key] = _snapshot_manifest_value(item, _memo=memo, _active=active)
+            return detached_dict
+        finally:
+            active.remove(identity)
+    if type(value) is set:
+        active.add(identity)
+        detached_set: set[Any] = set()
+        memo[identity] = detached_set
+        try:
+            detached_set.update(
+                _snapshot_manifest_value(item, _memo=memo, _active=active) for item in value
+            )
+            return detached_set
+        finally:
+            active.remove(identity)
+    if type(value) is frozenset:
+        active.add(identity)
+        try:
+            detached_frozen = frozenset(
+                _snapshot_manifest_value(item, _memo=memo, _active=active) for item in value
+            )
+            memo[identity] = detached_frozen
+            return detached_frozen
+        finally:
+            active.remove(identity)
+    if type(value) is tuple:
+        active.add(identity)
+        try:
+            detached_tuple = tuple(
+                _snapshot_manifest_value(item, _memo=memo, _active=active) for item in value
+            )
+            memo[identity] = detached_tuple
+            return detached_tuple
+        finally:
+            active.remove(identity)
+
+    if type(value) is SimpleNamespace:
+        fields = object.__getattribute__(value, "__dict__")
+        if type(fields) is not dict:
+            raise TypeError("run_manifest_snapshot_namespace_invalid")
+        active.add(identity)
+        detached_namespace = SimpleNamespace()
+        memo[identity] = detached_namespace
+        try:
+            copied_fields = object.__getattribute__(detached_namespace, "__dict__")
+            for name, item in fields.items():
+                if type(name) is not str:
+                    raise TypeError("run_manifest_snapshot_field_name_invalid")
+                copied_fields[name] = _snapshot_manifest_value(item, _memo=memo, _active=active)
+            return detached_namespace
+        finally:
+            active.remove(identity)
+
+    record_type = model_type
+    record_mro = type.__getattribute__(record_type, "__mro__")
+    record_namespace = type.__getattribute__(record_type, "__dict__")
+    if (
+        len(record_mro) != 2
+        or record_mro[0] is not record_type
+        or record_mro[1] is not object
+        or "__slots__" in record_namespace
+        or any(
+            name in record_namespace
+            for name in (
+                "__getattribute__",
+                "__getattr__",
+                "__setattr__",
+                "__delattr__",
+                "__new__",
+                "__deepcopy__",
+                "__reduce__",
+                "__reduce_ex__",
+            )
+        )
+    ):
+        raise TypeError("run_manifest_snapshot_record_type_unsupported")
+    metadata_names = {
+        "__module__",
+        "__firstlineno__",
+        "__static_attributes__",
+        "__qualname__",
+        "__doc__",
+        "__dict__",
+        "__weakref__",
+        "__annotations__",
+        "__classcell__",
+    }
+    if any(
+        name not in metadata_names and name.startswith("__") and name.endswith("__")
+        for name in record_namespace
+    ):
+        raise TypeError("run_manifest_snapshot_record_type_unsupported")
+    storage_descriptor = record_namespace.get("__dict__")
+    if (
+        type(storage_descriptor) is not GetSetDescriptorType
+        or object.__getattribute__(storage_descriptor, "__objclass__") is not record_type
+    ):
+        raise TypeError("run_manifest_snapshot_record_storage_unsupported")
+    instance_fields = object.__getattribute__(value, "__dict__")
+    if type(instance_fields) is not dict:
+        raise TypeError("run_manifest_snapshot_record_state_unsupported")
+    fields = {
+        name: item
+        for name, item in record_namespace.items()
+        if not (name.startswith("__") and name.endswith("__"))
+    }
+    for item in fields.values():
+        item_type = type(item)
+        if type(item_type) is not type:
+            raise TypeError("run_manifest_snapshot_record_type_unsupported")
+        item_namespace = type.__getattribute__(item_type, "__dict__")
+        if any(name in item_namespace for name in ("__get__", "__set__", "__delete__")):
+            raise TypeError("run_manifest_snapshot_record_descriptor_unsupported")
+    if any(callable(item) for item in fields.values()):
+        raise TypeError("run_manifest_snapshot_record_hook_unsupported")
+    fields.update(instance_fields)
+
+    active.add(identity)
+    try:
+        detached_record = object.__new__(record_type)
+        memo[identity] = detached_record
+        for name, item in fields.items():
+            if type(name) is not str:
+                raise TypeError("run_manifest_snapshot_field_name_invalid")
+            object.__setattr__(
+                detached_record,
+                name,
+                _snapshot_manifest_value(item, _memo=memo, _active=active),
+            )
+        return detached_record
+    except TypeError:
+        memo.pop(identity, None)
+        raise
+    finally:
+        active.remove(identity)
+
+
+def _snapshot_attempt_manifest_value(value: Any) -> Any:
+    """Snapshot a manifest after peeling bounded exact attempt wrappers for reading.
+
+    Write-side argument unwrapping remains one-layer and authority-gated. This
+    reader recognizes only the engine's exact manifest facade and detaches the
+    underlying value through the strict callback-free snapshotter.
+    """
+    seen: set[int] = set()
+    depth = 0
+    while type(value) is _AttemptManifestFacade:
+        identity = id(value)
+        if identity in seen:
+            raise TypeError("run_manifest_snapshot_attempt_facade_cycle")
+        seen.add(identity)
+        depth += 1
+        if depth > _MAX_EXACT_WORKER_RUN_FACADE_DEPTH:
+            raise TypeError("run_manifest_snapshot_attempt_facade_depth_exceeded")
+        value = object.__getattribute__(value, "_target")
+    return _snapshot_manifest_value(value)
+
+
 _ENGINE_NODE_RUN_VIEW_TOKEN = object()
 
 
@@ -965,7 +1284,16 @@ class _EngineNodeRunView(_RunContext):
 
     __slots__ = ("__stage_worker_receipt_writes", "__target")
     _STAGED_WORKER_WRITE_METHODS = frozenset({"add_input", "add_output"})
-    _READ_FIELDS = frozenset({"access_scope", "cell_id", "store", "tenant_id", "trace_path"})
+    _READ_FIELDS = frozenset(
+        {
+            "access_scope",
+            "cell_id",
+            "dispatch_binding",
+            "store",
+            "tenant_id",
+            "trace_path",
+        }
+    )
     _READ_METHODS = frozenset(
         {
             "read_runtime_invocation_attempts",
@@ -1003,8 +1331,9 @@ class _EngineNodeRunView(_RunContext):
         if stage_worker_receipt_writes:
             from polisyos.core.run.worker_lifecycle import WorkerRunView
 
-            if type(target) is not _AttemptRunFacade or not isinstance(
-                target._target, WorkerRunView
+            if (
+                type(target) is not _AttemptRunFacade
+                or _resolve_exact_worker_run_view(target) is None
             ):
                 raise TypeError("worker receipt staging requires the typed attempt view")
         object.__setattr__(self, "_EngineNodeRunView__target", target)
@@ -1021,8 +1350,8 @@ class _EngineNodeRunView(_RunContext):
             return object.__getattribute__(self, name)
         if name == "run_manifest":
             target = object.__getattribute__(self, "_EngineNodeRunView__target")
-            manifest = _unwrap_manifest_value(getattr(target, name))
-            return copy.deepcopy(manifest)
+            manifest = getattr(target, name)
+            return _snapshot_attempt_manifest_value(manifest)
         if name in _EngineNodeRunView._LOCAL_METHODS:
             return object.__getattribute__(self, name)
         if name in _EngineNodeRunView._READ_FIELDS | _EngineNodeRunView._READ_METHODS:
@@ -1109,10 +1438,10 @@ def _node_facing_context(ctx: Any) -> Any:
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
     run = ctx.run
-    if isinstance(run, (WorkerRunView, _EngineNodeRunView)):
+    if type(run) in (WorkerRunView, _EngineNodeRunView):
         return ctx
-    stage_worker_receipt_writes = type(run) is _AttemptRunFacade and isinstance(
-        run._target, WorkerRunView
+    stage_worker_receipt_writes = (
+        type(run) is _AttemptRunFacade and _resolve_exact_worker_run_view(run) is not None
     )
     run_view = _EngineNodeRunView(
         run,
@@ -1298,7 +1627,9 @@ def _worker_control_error(payload: Any) -> BaseException:
     ):
         return SystemExit(payload.get("code"))
     return _WorkerNodeError(
-        message="invalid worker control envelope", category="fatal", code="node.control_protocol"
+        message="invalid worker control envelope",
+        category="fatal",
+        code="node.control_protocol",
     )
 
 
@@ -1331,7 +1662,10 @@ class _CompletedAttemptError(RuntimeError):
 
 
 def _worker_error_payload(
-    exc: BaseException, *, known_spend: dict[str, Decimal] | None = None, run_id: str | None = None
+    exc: BaseException,
+    *,
+    known_spend: dict[str, Decimal] | None = None,
+    run_id: str | None = None,
 ) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "message": f"{type(exc).__name__}: {exc}",
@@ -2147,7 +2481,10 @@ def _timeout_worker_unsupported(reason: str) -> NodeTimeoutError:
     return NodeTimeoutError(
         f"Timed node execution refused: {reason}",
         code="node.timeout_worker_unsupported",
-        details={"execution_state": "unsupported_timeout_worker_input", "reason": reason},
+        details={
+            "execution_state": "unsupported_timeout_worker_input",
+            "reason": reason,
+        },
     )
 
 
@@ -2433,10 +2770,16 @@ def _build_spawn_timeout_task(
     *,
     alias: str | None,
     dispatch_params: Mapping[str, Any] | None,
+    timeout_s: float | None = None,
+    supervisor_deadline_monotonic: float | None = None,
 ) -> Any:
     """Build the closed ``NodeTask`` accepted by the macOS spawn worker."""
-    from polisyos.scientist.orchestration.engine.registry import NodeRegistry, discover_nodes
+    from polisyos.scientist.orchestration.engine.registry import (
+        NodeRegistry,
+        discover_nodes,
+    )
     from polisyos.scientist.orchestration.engine.runner.serialization import (
+        capture_timeout_worker_engine_invocation,
         serialize_state,
         serialize_timeout_context,
         worker_dispatch_sha256,
@@ -2476,10 +2819,35 @@ def _build_spawn_timeout_task(
     if dispatch_params is None:
         raise ValueError("timeout_worker_dispatch_params_not_bound")
 
-    context_meta = serialize_timeout_context(ctx, expected_run_id=state.run_id)
-    plain_state = ExperimentState.model_validate(
-        state.model_dump(mode="python", by_alias=True, exclude_none=False)
+    engine_invocation = None
+    if node_id == _SPAWN_TIMEOUT_TRANSPORTABILITY_NODE_ID:
+        if timeout_s is None or supervisor_deadline_monotonic is None:
+            raise ValueError("timeout_worker_transportability_budget_required")
+        engine_invocation = capture_timeout_worker_engine_invocation(
+            ctx,
+            expected_run_id=state.run_id,
+            node_alias=alias or node_id,
+            component_id=node_id,
+            dispatch_params=dispatch_params,
+            timeout_s=timeout_s,
+            supervisor_deadline_monotonic=supervisor_deadline_monotonic,
+            state=state,
+        )
+    context_meta = serialize_timeout_context(
+        ctx,
+        expected_run_id=state.run_id,
+        engine_invocation=engine_invocation,
     )
+    if engine_invocation is None:
+        plain_state = ExperimentState.model_validate(
+            state.model_dump(mode="python", by_alias=True, exclude_none=False)
+        )
+    else:
+        from polisyos.core.canon import from_canonical_bytes
+
+        plain_state = ExperimentState.model_validate(
+            from_canonical_bytes(ctx.store.get_bytes(engine_invocation.input_state_ref))
+        )
     alias_value = alias or node_id
     state_bytes = serialize_state(plain_state)
     params = dict(dispatch_params)
@@ -2655,9 +3023,6 @@ def _admit_spawn_timeout_worker_result(
 ) -> NodeOutcome:
     """Validate a worker receipt against the parent dispatch before returning its outcome."""
     from polisyos.scientist.orchestration.engine.runner.serialization import (
-        DeserializationError,
-        deserialize_outcome,
-        deserialize_worker_execution_receipt,
         worker_dispatch_sha256,
     )
 
@@ -2877,6 +3242,7 @@ def _execute_with_timeout_process(
     dispatch_params: Mapping[str, Any] | None = None,
 ) -> NodeOutcome:
     deadline = _invocation_deadline(timeout_s, deadline_monotonic)
+    compute_deadline = deadline if deadline is not None else time.monotonic() + timeout_s
     start_method = _timeout_worker_start_method()
     if start_method is None:
         raise _timeout_worker_unsupported("safe_process_start_method_unavailable")
@@ -2899,6 +3265,8 @@ def _execute_with_timeout_process(
                 state,
                 alias=alias,
                 dispatch_params=dispatch_params,
+                timeout_s=timeout_s,
+                supervisor_deadline_monotonic=compute_deadline,
             )
             spawn_capability, spawn_binding = _bind_spawn_timeout_dispatch(
                 ctx,
@@ -2925,7 +3293,6 @@ def _execute_with_timeout_process(
                 raise
             reason = str(exc) or type(exc).__name__
             raise _timeout_worker_unsupported(reason) from exc
-    compute_deadline = deadline if deadline is not None else time.monotonic() + timeout_s
     result_queue: _WorkerResultChannel | None = None
     process: Any = None
     lifecycle = _WorkerLifecycle(compute_deadline=compute_deadline, completion_time=None)
@@ -3073,6 +3440,7 @@ async def _execute_with_timeout_process_async(
     dispatch_params: Mapping[str, Any] | None = None,
 ) -> NodeOutcome:
     deadline = _invocation_deadline(timeout_s, deadline_monotonic)
+    compute_deadline = deadline if deadline is not None else time.monotonic() + timeout_s
     start_method = _timeout_worker_start_method()
     if start_method is None:
         raise _timeout_worker_unsupported("safe_process_start_method_unavailable")
@@ -3097,6 +3465,8 @@ async def _execute_with_timeout_process_async(
                 state,
                 alias=alias,
                 dispatch_params=dispatch_params,
+                timeout_s=timeout_s,
+                supervisor_deadline_monotonic=compute_deadline,
             )
             spawn_capability, spawn_binding = _bind_spawn_timeout_dispatch(
                 ctx,
@@ -3123,7 +3493,6 @@ async def _execute_with_timeout_process_async(
                 raise
             reason = str(exc) or type(exc).__name__
             raise _timeout_worker_unsupported(reason) from exc
-    compute_deadline = deadline if deadline is not None else time.monotonic() + timeout_s
     result_queue: _WorkerResultChannel | None = None
     process: Any = None
     lifecycle = _WorkerLifecycle(compute_deadline=compute_deadline, completion_time=None)
@@ -3594,7 +3963,7 @@ async def execute_with_retry_async(
 
     for attempt in range(retry_policy.max_retries + 1):
         try:
-            remaining = _remaining_deadline(deadline)
+            _remaining_deadline(deadline)
         except NodeTimeoutError:
             _merge_spend(state, failed_spend)
             raise

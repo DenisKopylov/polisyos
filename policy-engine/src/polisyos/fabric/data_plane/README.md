@@ -116,3 +116,14 @@ Run from the repository root (`policy-engine/`).
 - [Retained artifact recovery runbook](../../../../docs/runbooks/retained-artifact-recovery.md)
 - [Artifact corruption recovery runbook](../../../../docs/runbooks/artifact-corruption-recovery.md)
 - [Fabric tests map](../../../../tests/unit/fabric/README.md)
+
+## Stream result and row boundaries
+
+The registered streaming runtime and the legacy fetch adapter report the same
+read-only summary to the manifest consumer. iter_record_batches() returns
+batches of object rows because non-object values are intentionally preserved
+for per-row quarantine. Frame-like inputs are recognized from the exact tabular
+operations each adapter consumes; input row caps use the frame's actual index.
+A local IndexedArtifactStore capability is required only when a row must be
+persisted to the quarantine index. Clean rows continue through stores that do
+not expose that local index.

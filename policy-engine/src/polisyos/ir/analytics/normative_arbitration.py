@@ -8,7 +8,18 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation as _OwnedJSONRepresentation,
+)
+from polisyos.ir.analytics._owner_admission import (
+    declare_model_owner as _declare_model_owner,
+)
+from polisyos.ir.analytics._owner_admission import (
+    owner_profile_for_spec as _owner_profile_for_spec,
+)
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode as _CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import NormativeArbitrationResultRef
 
@@ -208,6 +219,44 @@ class NormativeArbitrationResult(BaseModel):
         return self
 
 
+_NORMATIVE_ARBITRATION_RESULT_OWNER = _declare_model_owner(
+    NormativeArbitrationResult,
+    contract_id="ir.analytics.normative_arbitration_result.owner.v1",
+    dto_fqn="polisyos.ir.analytics.normative_arbitration.NormativeArbitrationResult",
+    abi_key="ir.analytics.normative_arbitration_result.dto-abi.v1",
+    registry_key="ir.normative_arbitration_result",
+    kind="ir.normative_arbitration_result",
+    media_type="application/json",
+    purpose="normative_arbitration_result",
+    policy_revision="ir.analytics.normative_arbitration_result.admission.v1",
+    accepted_wire_policies=(("ir.analytics.normative_arbitration_result.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=_owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name="ir.normative_arbitration_result",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.normative_arbitration_result.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=(
+                "Exact owner-bound normative arbitration result tuple; unknown history remains opaque.",
+            ),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
 def persist_normative_arbitration_result(
     store: ArtifactStore,
     result: NormativeArbitrationResult,
@@ -216,11 +265,11 @@ def persist_normative_arbitration_result(
     schema_name: str = "ir.normative_arbitration_result",
     schema_version: str = "1.0",
 ) -> NormativeArbitrationResultRef:
-    """Persist normative arbitration result helper."""
-    ref = put_json_artifact(
+    """Persist normative arbitration result through its declared artifact owner."""
+    ref = _put_owned_json_artifact(
         store,
         result.model_dump(mode="json"),
-        kind="ir.normative_arbitration_result",
+        owner=_NORMATIVE_ARBITRATION_RESULT_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -233,9 +282,12 @@ def load_normative_arbitration_result(
     store: ArtifactStore,
     ref: NormativeArbitrationResultRef,
 ) -> NormativeArbitrationResult:
-    """Load normative arbitration result."""
-    payload = get_json_artifact(store, ref)
-    return NormativeArbitrationResult.model_validate(payload)
+    """Load a normative arbitration result after exact owner admission."""
+    return _get_owned_json_artifact(
+        store,
+        ref,
+        owner=_NORMATIVE_ARBITRATION_RESULT_OWNER,
+    )
 
 
 __all__ = [

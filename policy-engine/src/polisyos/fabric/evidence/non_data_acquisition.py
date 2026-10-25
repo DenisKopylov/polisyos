@@ -16,11 +16,16 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+from polisyos.core.artifacts import (
+    CoreArtifactOwnerProfile,
+    validate_owned_core_model_json_artifact,
+)
+from polisyos.core.artifacts.manifest import CanonInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon.canon_json import CanonSpec
 from polisyos.fabric.data_plane.evidence_journal import (
     append_fsync_jsonl,
-    canonical_json_bytes,
     content_sha256,
     resolve_journal_event_ref,
 )
@@ -118,6 +123,35 @@ class NonDataReceipt(_StrictModel):
     verifier_owner_id: str | None
     planner_report_ref: str | None = Field(default=None, pattern=_DIGEST)
     artifact_ref: str | None = Field(default=None, pattern=_DIGEST)
+
+
+_NON_DATA_CANON_SPEC = CanonSpec(forbid_floats=False, exclude_none=False)
+
+_CANDIDATE_OWNER = CoreArtifactOwnerProfile(
+    kind=_CANDIDATE_KIND,
+    media_type="application/json",
+    schema_variants=(SchemaInfo(name=_CANDIDATE_KIND, version="1"),),
+    payload_schema_version_by_manifest="not_applicable",
+)
+_VOCABULARY_OWNER = CoreArtifactOwnerProfile(
+    kind=_VOCABULARY_KIND,
+    media_type="application/json",
+    schema_variants=(SchemaInfo(name=_VOCABULARY_KIND, version="1"),),
+    payload_schema_version_by_manifest="not_applicable",
+)
+_RECEIPT_OWNER = CoreArtifactOwnerProfile(
+    kind=_RECEIPT_KIND,
+    media_type="application/json",
+    schema_variants=(SchemaInfo(name=_RECEIPT_KIND, version="1"),),
+    payload_schema_version_by_manifest=(
+        (("fabric.non_data_acquisition.receipt", "1"), "fabric.non_data_acquisition.receipt.v1"),
+    ),
+)
+_NON_DATA_OWNER_CONTRACTS: dict[str, tuple[type[BaseModel], CoreArtifactOwnerProfile]] = {
+    _CANDIDATE_KIND: (CandidateObject, _CANDIDATE_OWNER),
+    _VOCABULARY_KIND: (CeilingVocabulary, _VOCABULARY_OWNER),
+    _RECEIPT_KIND: (NonDataReceipt, _RECEIPT_OWNER),
+}
 
 
 class AcquisitionEvaluationContext(_StrictModel):
@@ -219,7 +253,9 @@ def classify_gap(demand: Mapping[str, Any]) -> GapShapeAssessment:
         if not target_bound:
             cases.append(AcquisitionType.ESTIMAND_BINDING)
     relation = demand.get("relation")
-    if _complete(relation, ("source", "target", "context", "evidence_regime")):
+    if isinstance(relation, Mapping) and _complete(
+        relation, ("source", "target", "context", "evidence_regime")
+    ):
         assumptions = relation.get("assumptions")
         if (
             isinstance(assumptions, list)
@@ -229,11 +265,14 @@ def classify_gap(demand: Mapping[str, Any]) -> GapShapeAssessment:
             classified_fields.add("relation")
             if target_bound:
                 cases.append(AcquisitionType.GROUNDING_RELATION)
-    if _complete(demand.get("mutation"), ("system", "object", "field", "operation", "purpose")):
+    mutation = demand.get("mutation")
+    if isinstance(mutation, Mapping) and _complete(
+        mutation, ("system", "object", "field", "operation", "purpose")
+    ):
         classified_fields.add("mutation")
         cases.append(AcquisitionType.OWNER_WRITABILITY)
     act = demand.get("act")
-    if _complete(act, ("jurisdiction", "office", "action")):
+    if isinstance(act, Mapping) and _complete(act, ("jurisdiction", "office", "action")):
         chain = act.get("delegation_chain")
         if isinstance(chain, list) and chain and None in chain:
             classified_fields.add("act")
@@ -244,7 +283,9 @@ def classify_gap(demand: Mapping[str, Any]) -> GapShapeAssessment:
         classified_fields.add("determination")
         cases.append(AcquisitionType.NORMATIVE_AUTHORIZATION)
     commitment = demand.get("commitment")
-    if _complete(commitment, ("entity", "version", "stage", "environment", "horizon")):
+    if isinstance(commitment, Mapping) and _complete(
+        commitment, ("entity", "version", "stage", "environment", "horizon")
+    ):
         prerequisites = commitment.get("prerequisites")
         load = commitment.get("load")
         if (
@@ -258,7 +299,9 @@ def classify_gap(demand: Mapping[str, Any]) -> GapShapeAssessment:
             classified_fields.add("commitment")
             cases.append(AcquisitionType.IMPLEMENTATION_CAPACITY_EVIDENCE)
     judgment = demand.get("judgment")
-    if _complete(judgment, ("question", "role", "competence", "subject", "version")):
+    if isinstance(judgment, Mapping) and _complete(
+        judgment, ("question", "role", "competence", "subject", "version")
+    ):
         work = judgment.get("required_work")
         if (
             judgment.get("assurance_engagement") is False
@@ -297,19 +340,28 @@ class NonDataAcquisitionRuntime:
         self.independent_verifier = independent_verifier
 
     def _persist(self, payload: object, kind: str) -> str:
-        ref = self.store.put_bytes(
-            canonical_json_bytes(payload),
+        owner_contract = _NON_DATA_OWNER_CONTRACTS.get(kind)
+        if owner_contract is None:
+            raise ValueError("non_data_artifact_owner_unregistered")
+        ref = self.store.put_json(
+            payload,
             opts=PutOptions(
                 kind=kind,
                 media_type="application/json",
                 schema=SchemaInfo(name=kind, version="1"),
             ),
+            canon_spec=_NON_DATA_CANON_SPEC,
+            return_selected_profile=True,
         )
+        if ref.manifest_profile_sha256 is None:
+            raise CanonicalProfileRefusalError("non_data_profile_selection_unverified")
         return str(ref.artifact_id)
 
     def _resolve(self, ref: str, kind: str) -> dict[str, Any]:
-        from polisyos.core.artifacts import load_core_json_artifact
-
+        owner_contract = _NON_DATA_OWNER_CONTRACTS.get(kind)
+        if owner_contract is None:
+            raise ValueError("non_data_artifact_owner_unregistered")
+        model, expected_owner = owner_contract
         try:
             blob = self.store.get_bytes(ref)
             import hashlib
@@ -318,13 +370,22 @@ class NonDataAcquisitionRuntime:
                 raise ValueError("content_identity_mismatch")
             manifest = self.store.get_manifest(ref)
             if (
-                manifest.kind != kind
-                or manifest.artifact_schema is None
-                or manifest.artifact_schema.version != "1"
+                manifest.kind != expected_owner.kind
+                or manifest.media_type != expected_owner.media_type
+                or manifest.artifact_schema != SchemaInfo(name=expected_owner.kind, version="1")
             ):
                 raise ValueError("artifact_owner_kind_mismatch")
-            payload = load_core_json_artifact(self.store, ref, raw_payload_bytes=blob)
-            if not isinstance(payload, dict) or canonical_json_bytes(payload) != blob:
+            selected = validate_owned_core_model_json_artifact(
+                model,
+                self.store,
+                ref,
+                expected_owner=expected_owner,
+                raw_payload_bytes=blob,
+            )
+            if selected.canon_profile != CanonInfo.from_spec(_NON_DATA_CANON_SPEC):
+                raise CanonicalProfileRefusalError("non_data_canon_profile_mismatch")
+            payload = selected.value.model_dump(mode="json")
+            if not isinstance(payload, dict):
                 raise ValueError("content_encoding_invalid")
             return payload
         except (OSError, KeyError, TypeError) as exc:
@@ -443,7 +504,7 @@ class NonDataAcquisitionRuntime:
             state = "shape_not_established"
         elif shape.outcome == "split_required":
             state = "split_required"
-        elif candidate is None:
+        elif candidate is None or request.candidate_ref is None:
             state = "admission_refused"
         else:
             if emit_intermediate:

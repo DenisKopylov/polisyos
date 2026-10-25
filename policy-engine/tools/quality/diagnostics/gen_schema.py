@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any, Literal, get_args, get_origin
 
 from pydantic import Field, create_model
+from pydantic_core import PydanticUndefined
 
 from tools.lib.cache import (
     cache_path,
@@ -239,11 +240,21 @@ def _schema_version_for(entry: ABIModelEntry, cls: type[Any]) -> str | None:
     model_fields = getattr(cls, "model_fields", None)
     if isinstance(model_fields, dict) and entry.version_field in model_fields:
         field_info = model_fields[entry.version_field]
-        default = getattr(field_info, "default", None)
-        if default is not None:
-            return str(default)
+        default = getattr(field_info, "default", PydanticUndefined)
+        if default is not PydanticUndefined:
+            return str(default) if default is not None else None
+        if getattr(field_info, "default_factory", None) is not None:
+            return None
+        annotation = getattr(field_info, "annotation", None)
+        if get_origin(annotation) is Literal:
+            literal_values = get_args(annotation)
+            if literal_values and all(isinstance(value, str) for value in literal_values):
+                unique_values = set(literal_values)
+                if len(unique_values) == 1:
+                    return next(iter(unique_values))
+        return None
     value = getattr(cls, entry.version_field, None)
-    if value is not None:
+    if value is not None and value is not PydanticUndefined:
         return str(value)
     return None
 

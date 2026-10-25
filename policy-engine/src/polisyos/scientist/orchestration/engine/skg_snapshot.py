@@ -16,11 +16,12 @@ import stat
 import tempfile
 from dataclasses import replace
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
+from typing import TYPE_CHECKING, BinaryIO, Literal, Protocol, runtime_checkable
 
 from polisyos.core.artifacts import (
     ArtifactID,
     ArtifactManifest,
+    ArtifactMemberReceipt,
     ArtifactRef,
     ArtifactWriteOptions,
     AtomicFileDurabilityError,
@@ -29,6 +30,7 @@ from polisyos.core.artifacts import (
     ensure_directory_durable,
     fsync_directory,
     input_ref_from_artifact_ref,
+    matches_runtime_protocol,
 )
 from polisyos.data_forge.read_api.academic import (
     RetainedSKGSnapshot as RetainedSKGSnapshot,
@@ -45,7 +47,7 @@ from polisyos.data_forge.read_api.academic import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts import PutOptions
+    from polisyos.core.artifacts import ArtifactStore
     from polisyos.core.canon import CanonSpec
     from polisyos.data_forge.read_api.academic import PreparedSKGRead
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
@@ -54,10 +56,11 @@ if TYPE_CHECKING:
 SNAPSHOT_INPUT_KEY = "skg_source_snapshot"
 
 
+@runtime_checkable
 class _RetainedSKGReadStore(Protocol):
-    """Verified CAS member-read capabilities needed to reopen one selected source."""
+    """Minimal selected-profile and verified-copy operations used for retained replay."""
 
-    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef | str) -> ArtifactManifest: ...
+    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef) -> ArtifactManifest: ...
 
     def get_raw_manifest_bytes(
         self,
@@ -66,27 +69,24 @@ class _RetainedSKGReadStore(Protocol):
         manifest_profile_sha256: str | None = None,
     ) -> bytes: ...
 
-    def get_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes: ...
-
-    def open_member(
-        self, artifact_id: ArtifactID | ArtifactRef | str, member: Literal["blob"]
-    ) -> Any: ...
+    def get_bytes(self, artifact_id: ArtifactID | ArtifactRef) -> bytes: ...
 
     def copy_member_to(
         self,
-        artifact_id: ArtifactID | ArtifactRef | str,
+        artifact_id: ArtifactID | ArtifactRef,
         member: Literal["blob"],
-        destination: Any,
-    ) -> Any: ...
+        destination: BinaryIO,
+    ) -> ArtifactMemberReceipt: ...
 
 
+@runtime_checkable
 class _RetainedSKGStore(_RetainedSKGReadStore, Protocol):
-    """Selected-profile CAS capabilities used by capture and strict replay."""
+    """The reader contract plus Core selected-profile writes required by capture."""
 
     def put_bytes(
         self,
         data: bytes,
-        opts: PutOptions,
+        opts: ArtifactWriteOptions,
         *,
         return_selected_profile: bool = False,
     ) -> ArtifactRef: ...
@@ -94,20 +94,27 @@ class _RetainedSKGStore(_RetainedSKGReadStore, Protocol):
     def put_json(
         self,
         obj: object,
-        opts: PutOptions,
+        opts: ArtifactWriteOptions,
         canon_spec: CanonSpec | None = None,
         *,
         return_selected_profile: bool = False,
     ) -> ArtifactRef: ...
 
 
-_RETAINED_SKG_READ_METHODS = (
-    "get_manifest",
-    "get_raw_manifest_bytes",
-    "get_bytes",
-    "open_member",
-    "copy_member_to",
-)
+def _require_retained_skg_read_store(store: object) -> _RetainedSKGReadStore:
+    """Require actual selected-profile reads and the member-copy path used by replay."""
+    if not matches_runtime_protocol(store, _RetainedSKGReadStore):
+        raise RetainedSKGSnapshotError("retained_skg_member_read_store_required")
+    return store
+
+
+def _require_retained_skg_writer_store(store: object) -> _RetainedSKGStore:
+    """Require selected-profile writes and the read path used by capture before writing."""
+    if not matches_runtime_protocol(store, _RetainedSKGStore):
+        raise RetainedSKGSnapshotError("retained_skg_store_required")
+    return store
+
+
 _SNAPSHOT_KIND = "scientist.skg_source_snapshot"
 _CHUNK_KIND = "scientist.skg_source_chunk"
 _SNAPSHOT_VERSION: Literal["1.1"] = "1.1"
@@ -133,17 +140,6 @@ def _write_options(kind: str, media_type: str) -> ArtifactWriteOptions:
         schema=SchemaInfo(name=kind, version=version),
         producer=ProducerInfo(component=__name__, version=version),
     )
-
-
-def _require_retained_skg_read_store(store: object) -> _RetainedSKGReadStore:
-    """Require the profile and verified-member reads used by retained replay.
-
-    Retry attempt facades delegate these read methods while keeping CAS writes
-    behind their revocable authority. Do not unwrap their private target.
-    """
-    if not all(callable(getattr(store, name, None)) for name in _RETAINED_SKG_READ_METHODS):
-        raise RetainedSKGSnapshotError("retained_skg_member_read_store_required")
-    return cast("_RetainedSKGReadStore", store)
 
 
 def _require_selected_written_ref(
@@ -189,6 +185,7 @@ def retain_prepared_skg_read(
     Capture streams bounded chunks and publishes the descriptor only after the
     complete copied digest and both source-generation checks agree.
     """
+    store = _require_retained_skg_writer_store(store)
     if not prepared.source_generation_matches():
         raise RetainedSKGSnapshotError("retained_skg_source_changed")
     source_version_id = prepared.query.latest_skg_version_id()
@@ -384,7 +381,7 @@ def prepare_retained_skg_read(
 
 
 def prepare_or_validate_retained_skg_read(
-    store: _RetainedSKGReadStore,
+    store: ArtifactStore | _RetainedSKGReadStore,
     ref: ArtifactRef,
     *,
     directory: Path,

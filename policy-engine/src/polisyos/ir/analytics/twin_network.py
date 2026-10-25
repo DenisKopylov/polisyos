@@ -16,6 +16,7 @@ which is what creates the individual-level correlation between Y(x₀) and Y(x�
 from __future__ import annotations
 
 import math
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -26,7 +27,17 @@ from polisyos.ir.analytics.causal_queries import (
     CausalResultKind,
     _causal_distribution_envelope,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration, CanonInfo
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import (
+    CompatibilityMode,
+    IRRepresentationKey,
+    IRRepresentationRegistration,
+    ResolvedSchemaAdmission,
+    register_ir_representation,
+    register_schema_version,
+)
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import TwinNetworkResultRef
 
@@ -229,6 +240,109 @@ class TwinNetworkResult(BaseModel):
 # ── Persistence helpers ────────────────────────────────────────────────────────
 
 
+def _family_payload_version(value: object) -> str | None:
+    """Return a strict embedded version, distinguishing absence from malformed null."""
+    if not isinstance(value, Mapping):
+        raise ValueError("owned family payload must be an object")
+    if "schema_version" not in value:
+        return None
+    version = value["schema_version"]
+    if type(version) is not str or not version.strip():
+        raise ValueError("owned family payload schema_version must be a nonempty string")
+    return version
+
+
+def _family_source_mapping(value: object, admission: ResolvedSchemaAdmission) -> dict[str, Any]:
+    """Bind payload bytes to the exact tuple already selected from the owner snapshot."""
+    if not isinstance(value, Mapping):
+        raise ValueError("owned family payload must be an object")
+    if _family_payload_version(value) != admission.source_registration.payload_version:
+        raise ValueError("payload version differs from exact registered tuple")
+    return dict(value)
+
+
+def _family_profile(profile: CanonInfo, row: IRRepresentationRegistration) -> bool:
+    """Require the producer's actual canonicalization profile and no profile alias."""
+    return (
+        profile == CanonInfo.from_spec(CanonSpec(forbid_floats=False)) and row.profile_ref is None
+    )
+
+
+_TWIN_LEGACY_POLICY = ("twin-network-legacy-json", "1")
+_TWIN_CURRENT_POLICY = ("twin-network-current-json", "1")
+_TWIN_OWNER = ArtifactOwnerDeclaration(
+    contract_id="polisyos.ir.analytics.twin_network.TwinNetworkResult",
+    dto_fqn="polisyos.ir.analytics.twin_network.TwinNetworkResult",
+    abi_key="twin_network_result",
+    registry_key="twin_network_result",
+    kind="ir.twin_network_result",
+    media_type="application/json",
+    purpose="twin_network_result",
+    policy_revision="1",
+    accepted_wire_policies=(_TWIN_LEGACY_POLICY, _TWIN_CURRENT_POLICY),
+    payload_version_of=_family_payload_version,
+    validate_source=_family_source_mapping,
+    project_for_consumer=lambda value, admission: _project_twin_result(value, admission),
+    validate_profile=_family_profile,
+)
+
+
+def _project_twin_result(
+    value: dict[str, Any], admission: ResolvedSchemaAdmission
+) -> TwinNetworkResult:
+    """Apply the established legacy tuple adapter; keep current-law versions generic."""
+    payload = dict(value)
+    row = admission.source_registration
+    if (row.wire_policy_ref, row.wire_policy_revision) == _TWIN_LEGACY_POLICY:
+        payload.update(
+            schema_version="1.1", result_kind="ite_distribution", estimator_interval=None
+        )
+        payload["metadata"] = {
+            **payload.get("metadata", {}),
+            "source_schema_version": row.schema_version,
+        }
+    return TwinNetworkResult.model_validate(payload)
+
+
+def _register_twin_owner() -> None:
+    """Register only current writer 1.1 and parser-established persisted source 1.0."""
+    for version, mode in (("1.0", CompatibilityMode.NONE), ("1.1", CompatibilityMode.BACKWARD)):
+        register_schema_version(
+            "twin_network_result",
+            version,
+            compatibility=mode,
+            notes=("TwinNetworkResult exact source tuples are owner-admitted.",),
+        )
+    old = IRRepresentationKey("ir.twin_network_result", "1.0", "1.0")
+    register_ir_representation(
+        registry_key="twin_network_result",
+        owner_ref=_TWIN_OWNER.contract_id,
+        dto_abi=_TWIN_OWNER.dto_fqn,
+        wire_policy_ref=_TWIN_LEGACY_POLICY[0],
+        wire_policy_revision=_TWIN_LEGACY_POLICY[1],
+        schema_name="ir.twin_network_result",
+        schema_version="1.0",
+        payload_version="1.0",
+    )
+    register_ir_representation(
+        registry_key="twin_network_result",
+        owner_ref=_TWIN_OWNER.contract_id,
+        dto_abi=_TWIN_OWNER.dto_fqn,
+        wire_policy_ref=_TWIN_CURRENT_POLICY[0],
+        wire_policy_revision=_TWIN_CURRENT_POLICY[1],
+        schema_name="ir.twin_network_result",
+        schema_version="1.1",
+        payload_version="1.1",
+        writable=True,
+        current=True,
+        default_write=True,
+        readable_from=(old,),
+    )
+
+
+_register_twin_owner()
+
+
 def persist_twin_network_result(
     store: ArtifactStore,
     result: TwinNetworkResult,
@@ -237,43 +351,28 @@ def persist_twin_network_result(
     schema_name: str = "ir.twin_network_result",
     schema_version: str | None = None,
 ) -> TwinNetworkResultRef:
-    """Persist a TwinNetworkResult to the artifact store."""
-    resolved_version = schema_version or result.schema_version
-    if resolved_version != result.schema_version or resolved_version != "1.1":
-        raise ValueError("new twin results require matching payload/CAS schema 1.1")
-    ref = put_json_artifact(
+    """Persist a Twin result through the exact registered current owner row."""
+    resolved_version = result.schema_version if schema_version is None else schema_version
+    if resolved_version != result.schema_version:
+        raise ValueError("new twin results require matching payload/CAS schema")
+    ref = _put_owned_json_artifact(
         store,
         result.model_dump(mode="json"),
-        kind="ir.twin_network_result",
+        owner=_TWIN_OWNER,
         schema_name=schema_name,
         schema_version=resolved_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return TwinNetworkResultRef.model_validate(ref)
+    return TwinNetworkResultRef.from_selected_write(ref)
 
 
 def load_twin_network_result(
     store: ArtifactStore,
     ref: TwinNetworkResultRef,
 ) -> TwinNetworkResult:
-    """Load a TwinNetworkResult from the artifact store."""
-    payload = get_json_artifact(store, ref)
-    manifest = store.get_manifest(ref)
-    schema = getattr(manifest, "artifact_schema", None)
-    if schema is None or schema.version not in {"1.0", "1.1"}:
-        raise ValueError("twin result requires a supported CAS schema manifest")
-    if payload.get("schema_version", "1.0") != schema.version:
-        raise ValueError("twin result payload/CAS schema version mismatch")
-    if schema.version == "1.0":
-        payload = {
-            **payload,
-            "schema_version": "1.1",
-            "result_kind": "ite_distribution",
-            "estimator_interval": None,
-        }
-        payload["metadata"] = {**payload.get("metadata", {}), "source_schema_version": "1.0"}
-    return TwinNetworkResult.model_validate(payload)
+    """Load through exact owner tuple and current reader route."""
+    return _get_owned_json_artifact(store, ref, owner=_TWIN_OWNER)
 
 
 __all__ = [

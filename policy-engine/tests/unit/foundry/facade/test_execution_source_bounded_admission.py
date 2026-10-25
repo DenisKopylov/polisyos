@@ -55,6 +55,7 @@ class _LegacySelectedProfileReader:
 
     def read_edge_manifest(
         self,
+        _parent_ref: ArtifactRef,
         _edge: InputRef,
     ) -> tuple[ArtifactRef, ArtifactManifest, int]:
         raise AssertionError("legacy result without edges must not read an edge")
@@ -161,6 +162,7 @@ def test_bounded_admission_propagates_typed_budget_refusal_without_fallback() ->
 
         def read_edge_manifest(
             self,
+            _parent_ref: ArtifactRef,
             _edge: InputRef,
         ) -> tuple[ArtifactRef, ArtifactManifest, int]:
             raise AssertionError("budget refusal should stop before edge reads")
@@ -180,3 +182,87 @@ def test_bounded_admission_propagates_typed_budget_refusal_without_fallback() ->
         assert exc.reason == "execution_source_read_budget_exhausted"
     else:
         raise AssertionError("bounded read budget refusal was swallowed")
+
+
+def test_selected_edge_reader_receives_the_exact_parent_context() -> None:
+    """The Foundry session keeps direct-edge parent identity for bounded consumers."""
+    from polisyos.foundry.execute import api as execute_api
+
+    child = ArtifactManifest(
+        manifest_schema_version="v2",
+        artifact_id="sha256:" + "1" * 64,
+        kind="foundry.state_blob",
+        media_type="application/x-npz",
+        byte_size=17,
+        integrity=IntegrityInfo(sha256="sha256:" + "1" * 64),
+    )
+    child_profile = artifact_manifest_profile_sha256(child)
+    edge = InputRef(
+        artifact_id=child.artifact_id,
+        role="state_blob",
+        manifest_profile_sha256=child_profile,
+    )
+    parent = ArtifactManifest(
+        manifest_schema_version="v2",
+        artifact_id="sha256:" + "2" * 64,
+        kind="foundry.state_snapshot",
+        media_type="application/json",
+        byte_size=23,
+        inputs=[edge],
+        integrity=IntegrityInfo(sha256="sha256:" + "2" * 64),
+    )
+    parent_ref = ArtifactRef(
+        artifact_id=parent.artifact_id,
+        kind=parent.kind,
+        media_type=parent.media_type,
+        manifest_profile_sha256=artifact_manifest_profile_sha256(parent),
+    )
+    child_ref = ArtifactRef(
+        artifact_id=child.artifact_id,
+        kind=child.kind,
+        media_type=child.media_type,
+        manifest_profile_sha256=child_profile,
+    )
+
+    class _ParentAwareReader:
+        edge_calls: list[tuple[ArtifactRef, InputRef]]
+
+        def __init__(self) -> None:
+            self.edge_calls = []
+
+        def read_selected_manifest(
+            self,
+            ref: ArtifactRef,
+        ) -> tuple[ArtifactManifest, int]:
+            if ref == parent_ref:
+                return parent, 1
+            if ref == child_ref:
+                return child, 1
+            raise AssertionError("unexpected selected manifest")
+
+        def read_edge_manifest(
+            self,
+            selected_parent_ref: ArtifactRef,
+            selected_edge: InputRef,
+        ) -> tuple[ArtifactRef, ArtifactManifest, int]:
+            self.edge_calls.append((selected_parent_ref, selected_edge))
+            return child_ref, child, 1
+
+        def read_typed_model(
+            self,
+            _model: type[SimulationResult],
+            _ref: ArtifactRef,
+        ) -> tuple[ArtifactManifest, SimulationResult, int, int]:
+            raise AssertionError("legacy fixture does not need a typed model")
+
+    reader = _ParentAwareReader()
+    session = execute_api._BoundedExecutionSourceReadSession(reader)
+    resolved = execute_api._selected_ref_from_edge(
+        _NoFallbackStore(),
+        parent_ref,
+        "state_blob",
+        read_session=session,
+    )
+
+    assert resolved == child_ref
+    assert reader.edge_calls == [(parent_ref, edge)]

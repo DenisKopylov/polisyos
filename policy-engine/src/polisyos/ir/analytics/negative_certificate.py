@@ -15,6 +15,15 @@ from typing import Any, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation as _OwnedJSONRepresentation,
+)
+from polisyos.ir.analytics._owner_admission import (
+    declare_model_owner as _declare_model_owner,
+)
+from polisyos.ir.analytics._owner_admission import (
+    owner_profile_for_spec as _owner_profile_for_spec,
+)
 from polisyos.ir.analytics.partial_identification import (
     BoundsBundle,
     PartialIdentificationResult,
@@ -23,7 +32,10 @@ from polisyos.ir.analytics.partial_identification import (
     bounds_bundle_from_partial_identification_result,
 )
 from polisyos.ir.analytics.proximal import BridgeFailureMode, BridgePlausibilityReport
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics.transportability import TransportabilityResult
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode as _CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import NegativeCertificateRef
 
@@ -767,7 +779,12 @@ def negative_certificate_from_transport_result(
     blocking_type = (
         BlockingType.S_NODE_UNRESOLVED if blocking_s_nodes else BlockingType.MISSING_DISTRIBUTION
     )
-    partial_bounds = getattr(result, "partial_identification_result", None)
+    typed_result = result if isinstance(result, TransportabilityResult) else None
+    partial_bounds = (
+        typed_result.partial_identification_result
+        if typed_result is not None and typed_result.has_admissible_partial_bounds
+        else None
+    )
     transport_reason = str(getattr(result, "unsupported_reason", "") or "transport_unsupported")
     suggested = NegativeCertificate.auto_suggest_experiments(
         blocking_type,
@@ -921,6 +938,42 @@ def _constructive_message_from_bridge_report(report: BridgePlausibilityReport) -
     )
 
 
+_NEGATIVE_CERTIFICATE_OWNER = _declare_model_owner(
+    NegativeCertificate,
+    contract_id="ir.analytics.negative_certificate.owner.v1",
+    dto_fqn="polisyos.ir.analytics.negative_certificate.NegativeCertificate",
+    abi_key="ir.analytics.negative_certificate.owner.v1.dto-abi.v1",
+    registry_key="ir.negative_certificate",
+    kind="ir.negative_certificate",
+    media_type="application/json",
+    purpose="negative_identification_certificate",
+    policy_revision="ir.analytics.negative_certificate.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.negative_certificate.wire-law", "1"),),
+    payload_version_field=None,
+    validate_profile=_owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name="ir.negative_certificate",
+            schema_version="1.0",
+            payload_version=None,
+            wire_policy_ref="ir.analytics.negative_certificate.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=("Exact versionless owner-bound negative-certificate tuple.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
 def persist_negative_certificate(
     store: ArtifactStore,
     certificate: NegativeCertificate,
@@ -930,10 +983,10 @@ def persist_negative_certificate(
     schema_version: str = "1.0",
 ) -> NegativeCertificateRef:
     """Persist negative certificate helper."""
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind="ir.negative_certificate",
+        owner=_NEGATIVE_CERTIFICATE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -947,8 +1000,7 @@ def load_negative_certificate(
     ref: NegativeCertificateRef,
 ) -> NegativeCertificate:
     """Load negative certificate."""
-    payload = get_json_artifact(store, ref)
-    return NegativeCertificate.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_NEGATIVE_CERTIFICATE_OWNER)
 
 
 __all__ = [

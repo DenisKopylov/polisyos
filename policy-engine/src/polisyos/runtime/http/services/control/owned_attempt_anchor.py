@@ -16,16 +16,22 @@ import math
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import TYPE_CHECKING, Literal, Protocol, overload
 
 from pydantic import BaseModel, TypeAdapter
 
 from polisyos.core.artifacts import artifact_manifest_profile_sha256
 from polisyos.core.artifacts.manifest import (
+    ArtifactManifest,
     ArtifactRef,
     ArtifactTenantContextInfo,
+    InputRef,
     SchemaInfo,
     input_ref_from_artifact_ref,
+)
+from polisyos.core.artifacts.protocol import (
+    CoreJSONArtifactBoundedMemberReader,
+    CoreJSONArtifactStore,
 )
 from polisyos.core.contracts.owned_attempt_anchor import (
     OWNED_ATTEMPT_ANCHOR_KIND,
@@ -52,12 +58,44 @@ if TYPE_CHECKING:
         CoreJsonArtifactBoundedRead,
         CoreJsonReadLimits,
     )
-    from polisyos.core.artifacts.protocol import CoreJSONArtifactStore
+    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.contracts.owned_attempt_anchor import OwnedHTERequestContextV1
+    from polisyos.core.contracts.runtime import (
+        ContentAdmittedObservationalRunIntent,
+        DirectMethodExecutionHTEResourceEvidence,
+        DirectMethodExecutionSelection,
+        ObservationalInputResourcePolicy,
+        ObservationalRunIntent,
+    )
     from polisyos.foundry.data_plane.bindings import (
         HTEInputPreparationRefusal,
+        HTEPhysicalSourceMaterializationBinding,
         PreparedHTEObservationalInput,
     )
-    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.foundry.methods.catalog.causal.hte_v2 import (
+        HTEProducerResourceReceiptV1,
+        HTEWriterReadyIntervalV1,
+        HTEWriterReadyPointV1,
+        HTEWriterReadyV1,
+        _CaptureFactsV1,
+    )
+    from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
+    from polisyos.ir.analytics.hte import (
+        ATEInferenceBasis,
+        HTEOutcome,
+        HTEPointResult,
+        HTERefusalDiagnostic,
+        HTEResourceExecutionEvidenceV1,
+        HTEResult,
+    )
+    from polisyos.runtime.http.services.control_plane_store import (
+        ControlJobExecutionAdmission,
+        ControlJobExecutionScope,
+        ControlJobRecord,
+        ControlPlaneStore,
+        _ControlJobExecutionLifecycleProof,
+        _ControlJobLifecycleSourceEventRecord,
+    )
     from polisyos.scientist.compute.runner import (
         MethodExecutionAdmission,
         MethodExecutionWork,
@@ -67,15 +105,12 @@ _OBSERVATIONAL_INTENT_KIND = "runtime.observational_run_intent"
 _OBSERVATIONAL_INTENT_SCHEMA = "polisyos.runtime.ObservationalRunIntent"
 _CONTENT_ADMITTED_INTENT_KIND = "runtime.content_admitted_observational_run_intent"
 _CONTENT_ADMITTED_INTENT_SCHEMA = "polisyos.runtime.ContentAdmittedObservationalRunIntent"
-_OBSERVATIONAL_INTENT_SEMANTIC_SCHEMAS = {
-    "polisyos.runtime.observational_run_intent.v1": "1.0",
-    "polisyos.runtime.observational_run_intent.v2": "2.0",
-}
-_CONTENT_ADMITTED_INTENT_SEMANTIC_SCHEMAS = {
-    "polisyos.runtime.content_admitted_observational_run_intent.v1": "1.0",
-    "polisyos.runtime.content_admitted_observational_run_intent.v2": "2.0",
-}
-_SUCCESSOR_ANCHOR_INTENT_SCHEMA = "polisyos.runtime.observational_run_intent.v2"
+_SUCCESSOR_ANCHOR_INTENT_SCHEMAS = frozenset(
+    {
+        "polisyos.runtime.observational_run_intent.v2",
+        "polisyos.runtime.observational_run_intent.v3",
+    }
+)
 _SUCCESSOR_ANCHOR_METHOD_VERSION = "2.0.0"
 _SUCCESSOR_ANCHOR_METHODS = frozenset(
     {
@@ -97,11 +132,25 @@ class OwnedAttemptAnchorVersionRefusalError(ValueError):
         super().__init__(self.code)
 
 
+class _OwnedAttemptAnchorArtifactStore(
+    CoreJSONArtifactStore,
+    CoreJSONArtifactBoundedMemberReader,
+    Protocol,
+):
+    """Compose Core's existing selected-profile writer and bounded-reader ports."""
+
+
 class OwnedAttemptAnchorRuntimeHost(Protocol):
     """Narrow existing Runtime owners required by the anchor bridge."""
 
-    _artifact_store: CoreJSONArtifactStore
+    _artifact_store: ArtifactStore
     _control_store: ControlPlaneStore
+
+    def _require_owned_attempt_anchor_bounded_store(
+        self, *, limits: CoreJsonReadLimits
+    ) -> _OwnedAttemptAnchorArtifactStore:
+        """Require the existing typed bounded-reader ports for selected Core JSON."""
+        ...
 
     def _observational_read_limits(self) -> CoreJsonReadLimits:
         """Return the selected Runtime resource-policy limits."""
@@ -134,7 +183,7 @@ def _canonical_json_digest(value: object) -> str:
     return hashlib.sha256(encoded).hexdigest()
 
 
-def _resolved_params_digest(params: Mapping[str, Any], seed: int) -> str:
+def _resolved_params_digest(params: Mapping[str, object], seed: int) -> str:
     """Bind resolved method params and seed using the HTE capture's canonical recipe."""
     if type(seed) is not int or seed < 0:
         raise ValueError("owned_attempt_seed_invalid")
@@ -232,34 +281,47 @@ def _physical_binding_input(anchor: OwnedAttemptAnchor) -> tuple[tuple[ArtifactR
 
 def _require_physical_binding_content(
     *, service: OwnedAttemptAnchorRuntimeHost, anchor: OwnedAttemptAnchor
-) -> OwnedAttemptPhysicalSourceBindingRef | None:
+) -> tuple[OwnedAttemptPhysicalSourceBindingRef, HTEPhysicalSourceMaterializationBinding] | None:
     """Re-resolve the selected binding for full owner consumers, never as a semantic claim."""
     ref = _anchor_materialization_binding_ref(anchor)
     if ref is None:
         return None
+    from polisyos.core.artifacts.canonical_profile import CoreJsonReadBoundsRefusalError
     from polisyos.foundry.data_plane.bindings import prepare_hte_observational_input
 
+    limits = service._observational_read_limits()
+    submitted_ref = _require_full_profile_ref(
+        anchor.submitted_input_ref,
+        code="owned_attempt_selected_profile_required",
+    )
+    effective_ref = _require_full_profile_ref(
+        anchor.effective_input_ref,
+        code="owned_attempt_selected_profile_required",
+    )
     try:
+        bounded_store = service._require_owned_attempt_anchor_bounded_store(limits=limits)
         prepared = prepare_hte_observational_input(
-            store=service._artifact_store,
-            source_ref=anchor.submitted_input_ref,
+            store=bounded_store,
+            source_ref=submitted_ref,
             protocol=anchor.source_protocol,
             method_fqn=anchor.method_fqn,
-            limits=service._observational_read_limits(),
+            limits=limits,
         )
+    except CoreJsonReadBoundsRefusalError:
+        raise
     except (OSError, RuntimeError, TypeError, ValueError) as exc:
         raise ValueError("owned_attempt_physical_binding_input_recompute_failed") from exc
     if (
-        not _same_ref(prepared.submitted_ref, anchor.submitted_input_ref)
-        or not _same_ref(prepared.effective_ref, anchor.effective_input_ref)
+        not _same_ref(prepared.submitted_ref, submitted_ref)
+        or not _same_ref(prepared.effective_ref, effective_ref)
         or not _same_ref(prepared.effective_ref, anchor.input_capture.source_data_ref)
     ):
         raise ValueError("owned_attempt_physical_binding_input_identity_mismatch")
     return _resolve_physical_source_binding(
         service=service,
         binding_ref=ref,
-        submitted_ref=anchor.submitted_input_ref,
-        effective_ref=anchor.effective_input_ref,
+        submitted_ref=submitted_ref,
+        effective_ref=effective_ref,
         data=prepared.data,
     )
 
@@ -328,7 +390,7 @@ def _optional_same_ref(left: object | None, right: object | None) -> bool:
 
 def _read_profiled_value(
     *,
-    store: CoreJSONArtifactStore,
+    service: OwnedAttemptAnchorRuntimeHost,
     selected_ref: ArtifactRef,
     limits: CoreJsonReadLimits,
     expected_kind: str,
@@ -344,7 +406,8 @@ def _read_profiled_value(
     )
     if selected_ref.manifest_profile_sha256 is None:
         raise ValueError("owned_attempt_selected_profile_required")
-    bounded = read_core_json_artifact_bounded(store, selected_ref, limits=limits)
+    bounded_store = service._require_owned_attempt_anchor_bounded_store(limits=limits)
+    bounded = read_core_json_artifact_bounded(bounded_store, selected_ref, limits=limits)
     if not _same_ref(bounded.effective_ref, selected_ref):
         raise ValueError("owned_attempt_selected_profile_drift")
     manifest = bounded.manifest
@@ -365,7 +428,7 @@ def _read_projection_manifest(
     expected_kind: str,
     expected_schema_name: str,
     expected_schema_version: str,
-) -> object:
+) -> ArtifactManifest:
     """Resolve a selected manifest view without reading its artifact payload."""
     exact_ref = _require_full_profile_ref(
         selected_ref,
@@ -376,10 +439,10 @@ def _read_projection_manifest(
     except (OSError, RuntimeError, TypeError, ValueError) as exc:
         raise ValueError("owned_attempt_projection_manifest_unavailable") from exc
     if (
-        getattr(manifest, "artifact_id", None) != exact_ref.artifact_id
-        or getattr(manifest, "kind", None) != expected_kind
-        or getattr(manifest, "media_type", None) != "application/json"
-        or getattr(manifest, "artifact_schema", None)
+        manifest.artifact_id != exact_ref.artifact_id
+        or manifest.kind != expected_kind
+        or manifest.media_type != "application/json"
+        or manifest.artifact_schema
         != SchemaInfo(name=expected_schema_name, version=expected_schema_version)
         or artifact_manifest_profile_sha256(manifest) != exact_ref.manifest_profile_sha256
     ):
@@ -388,22 +451,22 @@ def _read_projection_manifest(
 
 
 def _require_projection_manifest_inputs(
-    *, manifest: object, inputs: tuple[tuple[ArtifactRef, str], ...], code: str
+    *, manifest: ArtifactManifest, inputs: tuple[tuple[ArtifactRef, str], ...], code: str
 ) -> None:
     """Require the exact selected-profile lineage from a manifest-only read."""
     expected = tuple(input_ref_from_artifact_ref(ref, role=role) for ref, role in inputs)
-    if tuple(getattr(manifest, "inputs", ())) != expected:
+    if tuple(manifest.inputs) != expected:
         raise ValueError(code)
 
 
 def _require_projection_manifest_input_variants(
     *,
-    manifest: object,
+    manifest: ArtifactManifest,
     alternatives: tuple[tuple[tuple[ArtifactRef, str], ...], ...],
     code: str,
 ) -> None:
     """Accept only explicitly defined lineage variants for optional evidence."""
-    actual = tuple(getattr(manifest, "inputs", ()))
+    actual = tuple(manifest.inputs)
     if not any(
         actual == tuple(input_ref_from_artifact_ref(ref, role=role) for ref, role in inputs)
         for inputs in alternatives
@@ -413,7 +476,7 @@ def _require_projection_manifest_input_variants(
 
 def _read_profiled_model[ModelT: BaseModel](
     *,
-    store: CoreJSONArtifactStore,
+    service: OwnedAttemptAnchorRuntimeHost,
     selected_ref: ArtifactRef,
     limits: CoreJsonReadLimits,
     model: type[ModelT],
@@ -421,56 +484,67 @@ def _read_profiled_model[ModelT: BaseModel](
     expected_schema_name: str,
     expected_schema_version: str,
 ) -> ModelT:
-    """Resolve a typed JSON artifact only after its exact selected view is verified."""
-    _bounded, value = _read_profiled_value(
-        store=store,
+    """Resolve a typed Core artifact through its owner-bound bounded reader."""
+    from polisyos.core.artifacts import validate_core_model_bounded_read
+
+    bounded, _value = _read_profiled_value(
+        service=service,
         selected_ref=selected_ref,
         limits=limits,
         expected_kind=expected_kind,
         expected_schema_name=expected_schema_name,
         expected_schema_version=expected_schema_version,
     )
-    return model.model_validate(value, strict=True)
+    return validate_core_model_bounded_read(model, bounded)
 
 
 def _read_versioned_profiled_model[ModelT: BaseModel](
     *,
-    store: CoreJSONArtifactStore,
+    service: OwnedAttemptAnchorRuntimeHost,
     selected_ref: ArtifactRef,
     limits: CoreJsonReadLimits,
     model: type[ModelT],
     expected_kind: str,
     expected_schema_name: str,
-    semantic_to_manifest_version: Mapping[str, str],
 ) -> ModelT:
-    """Resolve a semantic v1/v2 intent only when its CAS schema version agrees."""
+    """Resolve an exact semantic intent only when its CAS schema version agrees."""
     from polisyos.core.artifacts import (
         read_core_json_artifact_bounded,
         validate_core_model_bounded_read,
     )
+    from polisyos.core.contracts.runtime import _observational_intent_manifest_identity
 
     selected_ref = _require_full_profile_ref(
         selected_ref,
         code="owned_attempt_selected_profile_required",
     )
-    bounded = read_core_json_artifact_bounded(store, selected_ref, limits=limits)
+    bounded_store = service._require_owned_attempt_anchor_bounded_store(limits=limits)
+    bounded = read_core_json_artifact_bounded(bounded_store, selected_ref, limits=limits)
     if not _same_ref(bounded.effective_ref, selected_ref):
         raise ValueError("owned_attempt_selected_profile_drift")
     manifest = bounded.manifest
+    artifact_schema = manifest.artifact_schema
     if (
         manifest.kind != expected_kind
         or manifest.media_type != "application/json"
-        or manifest.artifact_schema.name != expected_schema_name
+        or artifact_schema is None
+        or artifact_schema.name != expected_schema_name
     ):
         raise ValueError("owned_attempt_artifact_manifest_identity_mismatch")
     parsed = validate_core_model_bounded_read(model, bounded)
     semantic_version = getattr(parsed, "schema_version", None)
     if type(semantic_version) is not str:
         raise ValueError("owned_attempt_semantic_schema_version_missing")
-    expected_manifest_version = semantic_to_manifest_version.get(semantic_version)
+    try:
+        semantic_kind, semantic_name, expected_manifest_version = (
+            _observational_intent_manifest_identity(semantic_version)
+        )
+    except ValueError as exc:
+        raise ValueError("owned_attempt_semantic_manifest_version_mismatch") from exc
     if (
-        expected_manifest_version is None
-        or manifest.artifact_schema.version != expected_manifest_version
+        semantic_kind != expected_kind
+        or semantic_name != expected_schema_name
+        or artifact_schema.version != expected_manifest_version
     ):
         raise ValueError("owned_attempt_semantic_manifest_version_mismatch")
     return parsed
@@ -478,7 +552,7 @@ def _read_versioned_profiled_model[ModelT: BaseModel](
 
 def _read_profiled_adapter[ValueT](
     *,
-    store: CoreJSONArtifactStore,
+    service: OwnedAttemptAnchorRuntimeHost,
     selected_ref: ArtifactRef,
     limits: CoreJsonReadLimits,
     adapter: TypeAdapter[ValueT],
@@ -488,7 +562,7 @@ def _read_profiled_adapter[ValueT](
 ) -> ValueT:
     """Resolve an exact profiled artifact validated by a discriminated TypeAdapter."""
     _bounded, value = _read_profiled_value(
-        store=store,
+        service=service,
         selected_ref=selected_ref,
         limits=limits,
         expected_kind=expected_kind,
@@ -498,15 +572,15 @@ def _read_profiled_adapter[ValueT](
     return adapter.validate_python(value, strict=True)
 
 
-def _lifecycle_event(event: object) -> OwnedAttemptLifecycleEvent:
+def _lifecycle_event(event: _ControlJobLifecycleSourceEventRecord) -> OwnedAttemptLifecycleEvent:
     """Copy only owner-issued event identity and digest into the anchor contract."""
     return OwnedAttemptLifecycleEvent.model_validate(
         {
-            "event_id": getattr(event, "event_id", None),
-            "job_id": getattr(event, "job_id", None),
-            "event_type": getattr(event, "event_type", None),
-            "payload_sha256": getattr(event, "payload_sha256", None),
-            "created_at": getattr(event, "created_at", None),
+            "event_id": event.event_id,
+            "job_id": event.job_id,
+            "event_type": event.event_type,
+            "payload_sha256": event.payload_sha256,
+            "created_at": event.created_at,
         },
         strict=True,
     )
@@ -517,7 +591,12 @@ def _check_live_attempt(
     service: OwnedAttemptAnchorRuntimeHost,
     work: MethodExecutionWork,
     admission: MethodExecutionAdmission,
-) -> tuple[object, object, object, object]:
+) -> tuple[
+    _ControlJobExecutionLifecycleProof,
+    ControlJobExecutionAdmission,
+    _ControlJobLifecycleSourceEventRecord,
+    ControlJobExecutionScope,
+]:
     """Reconcile the fenced running event, immutable creation event, and admitted scope."""
     control_store = service._control_store
     proof = control_store._current_execution_running_job_proof()
@@ -538,7 +617,9 @@ def _check_live_attempt(
         or admitted.job.job_id != job.job_id
         or admitted.job.run_id != job.run_id
         or admitted.job.attempt != job.attempt
+        or proof.attempt is None
         or proof.attempt != job.attempt
+        or proof.worker_id is None
         or proof.worker_id != job.lease_owner
         or not job.lease_owner
         or proof.proof_phase != "running"
@@ -550,6 +631,7 @@ def _check_live_attempt(
         or type(running_payload.get("attempt")) is not int
         or running_payload.get("attempt") != job.attempt
         or scope.status != "established"
+        or scope.tenant_id is None
         or not scope.tenant_id
         or created_event.event_type != "job_created"
         or created_event.job_id != job.job_id
@@ -564,8 +646,21 @@ def _check_live_attempt(
     return proof, admitted, created_event, scope
 
 
+def _checked_live_attempt_values(
+    proof: _ControlJobExecutionLifecycleProof,
+    scope: ControlJobExecutionScope,
+) -> tuple[str, int, str]:
+    """Expose owner values only after the live-attempt verifier established them."""
+    tenant_id = scope.tenant_id
+    attempt = proof.attempt
+    worker_id = proof.worker_id
+    if tenant_id is None or attempt is None or worker_id is None:
+        raise ValueError("owned_attempt_live_owner_fence_mismatch")
+    return tenant_id, attempt, worker_id
+
+
 def _selected_refs_from_creation_event(
-    *, created_event: object, work: MethodExecutionWork
+    *, created_event: _ControlJobLifecycleSourceEventRecord, work: MethodExecutionWork
 ) -> tuple[ArtifactRef, ArtifactRef, str]:
     """Read the exact immutable job-created marker that R12 already owns."""
     payload = getattr(created_event, "payload", None)
@@ -599,7 +694,7 @@ def _read_intents(
     service: OwnedAttemptAnchorRuntimeHost,
     requested_intent_ref: ArtifactRef,
     content_admitted_ref: ArtifactRef,
-) -> tuple[BaseModel, BaseModel]:
+) -> tuple[ObservationalRunIntent, ContentAdmittedObservationalRunIntent]:
     """Bound-read R12 v1/v2 intents and reconcile semantic with manifest versions."""
     from polisyos.core.contracts.runtime import (
         ContentAdmittedObservationalRunIntent,
@@ -608,22 +703,20 @@ def _read_intents(
 
     limits = service._observational_read_limits()
     requested = _read_versioned_profiled_model(
-        store=service._artifact_store,
+        service=service,
         selected_ref=requested_intent_ref,
         limits=limits,
         model=ObservationalRunIntent,
         expected_kind=_OBSERVATIONAL_INTENT_KIND,
         expected_schema_name=_OBSERVATIONAL_INTENT_SCHEMA,
-        semantic_to_manifest_version=_OBSERVATIONAL_INTENT_SEMANTIC_SCHEMAS,
     )
     admitted = _read_versioned_profiled_model(
-        store=service._artifact_store,
+        service=service,
         selected_ref=content_admitted_ref,
         limits=limits,
         model=ContentAdmittedObservationalRunIntent,
         expected_kind=_CONTENT_ADMITTED_INTENT_KIND,
         expected_schema_name=_CONTENT_ADMITTED_INTENT_SCHEMA,
-        semantic_to_manifest_version=_CONTENT_ADMITTED_INTENT_SEMANTIC_SCHEMAS,
     )
     requested_schema = getattr(requested, "schema_version", None)
     admitted_schema = getattr(admitted, "schema_version", None)
@@ -638,10 +731,10 @@ def _read_intents(
 
 
 def _require_intent_request_context_pair(
-    requested_intent: BaseModel,
-    admitted_intent: BaseModel | None = None,
+    requested_intent: ObservationalRunIntent,
+    admitted_intent: ContentAdmittedObservationalRunIntent | None = None,
 ) -> None:
-    """Enforce the v1-absent/v2-declared selector contract on owner intents."""
+    """Enforce each exact request-only or paired owner-intent selector contract."""
     from polisyos.core.contracts.owned_attempt_anchor import OwnedHTERequestContextV1
 
     schema_version = getattr(requested_intent, "schema_version", None)
@@ -666,7 +759,7 @@ def _require_intent_request_context_pair(
         ):
             raise ValueError("owned_attempt_legacy_intent_context_or_method_mismatch")
         return
-    if schema_version != "polisyos.runtime.observational_run_intent.v2":
+    if schema_version not in _SUCCESSOR_ANCHOR_INTENT_SCHEMAS:
         raise ValueError("owned_attempt_observational_intent_schema_not_supported")
     if (
         type(request_context) is not OwnedHTERequestContextV1
@@ -690,14 +783,31 @@ def _require_intent_request_context_pair(
         admitted_context.model_dump(mode="json"),
     ):
         raise ValueError("owned_attempt_request_and_admission_context_mismatch")
+    if schema_version == "polisyos.runtime.observational_run_intent.v3":
+        request_snapshot = getattr(requested_intent, "search_binding_admission", None)
+        request_binding = request_context.search_uncertainty_task_binding_ref
+        if (
+            request_binding is None
+            or request_snapshot is None
+            or not _same_ref(request_binding, request_snapshot.binding_ref)
+        ):
+            raise ValueError("owned_attempt_request_search_snapshot_mismatch")
+        if admitted_intent is not None:
+            admitted_snapshot = getattr(admitted_intent, "search_binding_admission", None)
+            if (
+                request_snapshot != admitted_snapshot
+                or getattr(admitted_intent, "schema_version", None)
+                != "polisyos.runtime.content_admitted_observational_run_intent.v3"
+            ):
+                raise ValueError("owned_attempt_request_and_admission_search_snapshot_mismatch")
 
 
 def _require_successor_anchor_intent_pair(
-    requested_intent: BaseModel,
-    admitted_intent: BaseModel | None = None,
+    requested_intent: ObservationalRunIntent,
+    admitted_intent: ContentAdmittedObservationalRunIntent | None = None,
 ) -> None:
     """Refuse legacy intents before either successor anchor producer can write."""
-    if getattr(requested_intent, "schema_version", None) != _SUCCESSOR_ANCHOR_INTENT_SCHEMA:
+    if getattr(requested_intent, "schema_version", None) not in _SUCCESSOR_ANCHOR_INTENT_SCHEMAS:
         raise OwnedAttemptAnchorVersionRefusalError()
     _require_intent_request_context_pair(requested_intent, admitted_intent)
 
@@ -706,24 +816,25 @@ def _read_requested_intent(
     *,
     service: OwnedAttemptAnchorRuntimeHost,
     requested_intent_ref: ArtifactRef,
-) -> BaseModel:
+) -> ObservationalRunIntent:
     """Resolve the immutable request side when content admission refused."""
     from polisyos.core.contracts.runtime import ObservationalRunIntent
 
     requested = _read_versioned_profiled_model(
-        store=service._artifact_store,
+        service=service,
         selected_ref=requested_intent_ref,
         limits=service._observational_read_limits(),
         model=ObservationalRunIntent,
         expected_kind=_OBSERVATIONAL_INTENT_KIND,
         expected_schema_name=_OBSERVATIONAL_INTENT_SCHEMA,
-        semantic_to_manifest_version=_OBSERVATIONAL_INTENT_SEMANTIC_SCHEMAS,
     )
     _require_intent_request_context_pair(requested)
     return requested
 
 
-def _owner_request_context(requested_intent: BaseModel) -> BaseModel:
+def _owner_request_context(
+    requested_intent: ObservationalRunIntent | ContentAdmittedObservationalRunIntent,
+) -> OwnedHTERequestContextV1:
     """Project only immutable request fields into HTE's strict selector model."""
     from polisyos.core.contracts.owned_attempt_anchor import OwnedHTERequestContextV1
 
@@ -749,7 +860,9 @@ def _owner_request_context(requested_intent: BaseModel) -> BaseModel:
     return OwnedHTERequestContextV1.model_validate(selected, strict=True)
 
 
-def _request_context_projection(context: BaseModel | None) -> dict[str, object] | None:
+def _request_context_projection(
+    context: OwnedHTERequestContextV1 | None,
+) -> dict[str, object] | None:
     """Project only immutable request selectors, excluding Runtime materialization evidence."""
     if context is None:
         return None
@@ -758,7 +871,10 @@ def _request_context_projection(context: BaseModel | None) -> dict[str, object] 
     return payload
 
 
-def _same_request_context(left: BaseModel | None, right: BaseModel | None) -> bool:
+def _same_request_context(
+    left: OwnedHTERequestContextV1 | None,
+    right: OwnedHTERequestContextV1 | None,
+) -> bool:
     """Compare request selectors without treating post-request input evidence as caller intent."""
     return _json_values_equal(
         _request_context_projection(left),
@@ -772,8 +888,8 @@ def _resolve_physical_source_binding(
     binding_ref: ArtifactRef | None,
     submitted_ref: ArtifactRef,
     effective_ref: ArtifactRef,
-    data: object | None = None,
-) -> OwnedAttemptPhysicalSourceBindingRef:
+    data: HTEObservationalData | None = None,
+) -> tuple[OwnedAttemptPhysicalSourceBindingRef, HTEPhysicalSourceMaterializationBinding]:
     """Resolve the selected Foundry binding against exact inputs and optional worker data."""
     from polisyos.foundry.data_plane.bindings import (
         HTEInputPreparationRefusal,
@@ -792,13 +908,15 @@ def _resolve_physical_source_binding(
     )
     if selected_ref.manifest_profile_sha256 is None:
         raise ValueError("owned_attempt_physical_materialization_binding_profile_missing")
+    limits = service._observational_read_limits()
+    bounded_store = service._require_owned_attempt_anchor_bounded_store(limits=limits)
     try:
         binding = load_hte_physical_source_materialization_binding(
-            store=service._artifact_store,
+            store=bounded_store,
             binding_ref=core_binding_ref,
             expected_submitted_ref=submitted_ref,
             expected_effective_ref=effective_ref,
-            limits=service._observational_read_limits(),
+            limits=limits,
             expected_data=data,
         )
     except HTEInputPreparationRefusal as exc:
@@ -810,20 +928,26 @@ def _resolve_physical_source_binding(
         or binding.effective_ref != effective_ref
     ):
         raise ValueError("owned_attempt_physical_materialization_binding_content_mismatch")
-    return selected_ref
+    return selected_ref, binding
 
 
 def _predicate_origins(
-    request_context: BaseModel,
+    request_context: OwnedHTERequestContextV1,
     *,
     input_content_recomputed: bool,
-    required_estimator_n_jobs: object,
-    execution_scope: object,
-    max_jobs: object,
+    required_estimator_n_jobs: int | None,
+    execution_scope: Literal[
+        "estimator_n_jobs_one",
+        "producer_scoped_joblib_parallelism_one",
+    ]
+    | None,
+    max_jobs: Literal[1] | None,
 ) -> OwnedAttemptPredicateOrigins:
     """Build P37 labels only after the owner source was read and reconciled."""
 
-    def request_origin(status: object) -> str:
+    def request_origin(
+        status: Literal["declared", "not_established"],
+    ) -> Literal["independently_reconciled", "not_established"]:
         return "independently_reconciled" if status == "declared" else "not_established"
 
     return OwnedAttemptPredicateOrigins(
@@ -855,29 +979,28 @@ def _predicate_origins(
     )
 
 
-def _refusal_capture_from_exception(error: BaseException) -> OwnedAttemptHTEInputRefusal:
+def _refusal_capture_from_exception(
+    error: HTEInputPreparationRefusal,
+) -> OwnedAttemptHTEInputRefusal:
     """Copy exact safe bounded fields from Core's genuine preparation refusal."""
     from polisyos.foundry.data_plane.bindings import HTEInputPreparationRefusal
 
     if type(error) is not HTEInputPreparationRefusal:
         raise TypeError("owned_attempt_exact_hte_input_preparation_refusal_required")
-    usage: dict[str, object] = {}
-    for name in (
-        "observed_manifest_selection_bytes",
-        "observed_manifest_verification_bytes",
-        "observed_payload_bytes",
-        "observed_source_bytes",
-    ):
-        value = getattr(error, name, None)
-        if value is not None and (type(value) is not int or value < 0):
-            raise ValueError("owned_attempt_refusal_usage_field_invalid")
-        usage[name] = value
-    source_usage_complete = getattr(error, "source_usage_complete", None)
-    payload_integrity_verified = getattr(error, "payload_integrity_verified", None)
+    usage = (
+        error.observed_manifest_selection_bytes,
+        error.observed_manifest_verification_bytes,
+        error.observed_payload_bytes,
+        error.observed_source_bytes,
+    )
+    if any(value is not None and (type(value) is not int or value < 0) for value in usage):
+        raise ValueError("owned_attempt_refusal_usage_field_invalid")
+    source_usage_complete = error.source_usage_complete
+    payload_integrity_verified = error.payload_integrity_verified
     if type(source_usage_complete) is not bool or type(payload_integrity_verified) is not bool:
         raise ValueError("owned_attempt_refusal_usage_status_invalid")
-    failure_code = getattr(error, "code", None)
-    failure_stage = getattr(error, "failure_stage", None)
+    failure_code = error.code
+    failure_stage = error.failure_stage
     if type(failure_code) is not str or (
         failure_stage is not None and type(failure_stage) is not str
     ):
@@ -885,7 +1008,10 @@ def _refusal_capture_from_exception(error: BaseException) -> OwnedAttemptHTEInpu
     return OwnedAttemptHTEInputRefusal(
         refusal_code=failure_code,
         failure_stage=failure_stage,
-        **usage,
+        observed_manifest_selection_bytes=error.observed_manifest_selection_bytes,
+        observed_manifest_verification_bytes=error.observed_manifest_verification_bytes,
+        observed_payload_bytes=error.observed_payload_bytes,
+        observed_source_bytes=error.observed_source_bytes,
         source_usage_complete=source_usage_complete,
         payload_integrity_verified=payload_integrity_verified,
     )
@@ -894,10 +1020,10 @@ def _refusal_capture_from_exception(error: BaseException) -> OwnedAttemptHTEInpu
 def _read_selected_resource_policy(
     *,
     service: OwnedAttemptAnchorRuntimeHost,
-    requested_intent: BaseModel,
-    content_intent: BaseModel | None,
+    requested_intent: ObservationalRunIntent,
+    content_intent: ContentAdmittedObservationalRunIntent | None,
     admission: MethodExecutionAdmission | None = None,
-) -> tuple[ArtifactRef, Any]:
+) -> tuple[ArtifactRef, ObservationalInputResourcePolicy]:
     """Resolve the exact Runtime policy artifact and reconcile its immutable pins."""
     from polisyos.runtime.http.services.control.run_lifecycle import (
         _read_observational_resource_policy_artifact,
@@ -919,13 +1045,15 @@ def _read_selected_resource_policy(
         and not _same_ref(policy_ref, getattr(content_intent, "resource_policy_ref", None))
     ) or (admission is not None and not _same_ref(policy_ref, admission.resource_policy_ref)):
         raise ValueError("owned_attempt_resource_policy_owner_ref_mismatch")
+    limits = service._observational_read_limits()
+    bounded_store = service._require_owned_attempt_anchor_bounded_store(limits=limits)
     policy = _read_observational_resource_policy_artifact(
-        store=service._artifact_store,
+        store=bounded_store,
         policy_ref=policy_ref,
         source_ref=requested_source_ref,
         source_governance=requested_intent.source_governance,
         source_tenant_context=requested_intent.source_tenant_context,
-        limits=service._observational_read_limits(),
+        limits=limits,
     )
     policy_digest = policy.digest()
     if (
@@ -948,7 +1076,7 @@ def persist_pre_output_owned_attempt_anchor(
     admission: MethodExecutionAdmission,
     prepared: PreparedHTEObservationalInput,
     content_admitted_intent_ref: ArtifactRef,
-    method_class: type[Any],
+    method_class: type,
 ) -> OwnedAttemptAnchorDispatchContext:
     """Persist an acyclic anchor from Runtime owner state and actual prepared HTE input.
 
@@ -972,6 +1100,7 @@ def persist_pre_output_owned_attempt_anchor(
         work=work,
         admission=admission,
     )
+    scope_tenant_id, _, _ = _checked_live_attempt_values(initial_proof, scope)
     source_ref, requested_intent_ref, creation_selection_digest = (
         _selected_refs_from_creation_event(created_event=created_event, work=work)
     )
@@ -998,7 +1127,7 @@ def persist_pre_output_owned_attempt_anchor(
     materialization_binding_ref = None
     raw_materialization_binding_ref = getattr(prepared, "materialization_binding_ref", None)
     if selected_resource_policy.revision == "r5" or raw_materialization_binding_ref is not None:
-        materialization_binding_ref = _resolve_physical_source_binding(
+        materialization_binding_ref, _ = _resolve_physical_source_binding(
             service=service,
             binding_ref=raw_materialization_binding_ref,
             submitted_ref=prepared.submitted_ref,
@@ -1080,7 +1209,7 @@ def persist_pre_output_owned_attempt_anchor(
         or (
             requested_intent.source_tenant_context is not None
             and (
-                requested_intent.source_tenant_context.tenant_id != scope.tenant_id
+                requested_intent.source_tenant_context.tenant_id != scope_tenant_id
                 or requested_intent.source_tenant_context.cell_id != scope.cell_id
             )
         )
@@ -1135,6 +1264,9 @@ def persist_pre_output_owned_attempt_anchor(
         work=work,
         admission=admission,
     )
+    final_tenant_id, final_attempt, final_worker_id = _checked_live_attempt_values(
+        final_proof, final_scope
+    )
     if (
         final_proof.record.job_id != initial_proof.record.job_id
         or final_proof.record.attempt != initial_proof.record.attempt
@@ -1152,10 +1284,10 @@ def persist_pre_output_owned_attempt_anchor(
         captured_at=captured_at,
         job_id=work.job_id,
         run_id=work.run_id,
-        tenant_id=scope.tenant_id,
-        cell_id=scope.cell_id,
-        attempt=final_proof.attempt,
-        worker_id=final_proof.worker_id,
+        tenant_id=final_tenant_id,
+        cell_id=final_scope.cell_id,
+        attempt=final_attempt,
+        worker_id=final_worker_id,
         lease_expires_at=lease_expires_at,
         job_created_event=_lifecycle_event(created_event),
         job_running_event=_lifecycle_event(final_proof.source_event),
@@ -1216,8 +1348,8 @@ def persist_pre_output_owned_attempt_anchor(
     )
     _require_search_binding_manifest(service=service, anchor=anchor)
     tenant_context = ArtifactTenantContextInfo(
-        tenant_id=scope.tenant_id,
-        cell_id=scope.cell_id,
+        tenant_id=final_tenant_id,
+        cell_id=final_scope.cell_id,
     )
     upstream_refs = [
         input_ref_from_artifact_ref(anchor.requested_source_ref, role="requested_source"),
@@ -1274,8 +1406,8 @@ def persist_pre_output_owned_attempt_anchor(
         raise RuntimeError("owned_attempt_anchor_tenant_owner_record_unavailable")
     record_owner(
         anchor_ref.artifact_id,
-        tenant_id=scope.tenant_id,
-        cell_id=scope.cell_id,
+        tenant_id=final_tenant_id,
+        cell_id=final_scope.cell_id,
         writer="runtime.control.owned_attempt_anchor",
     )
     persisted = _read_owned_attempt_anchor(
@@ -1309,7 +1441,7 @@ def persist_pre_output_hte_input_refusal_anchor(
     work: MethodExecutionWork,
     admission: MethodExecutionAdmission,
     refusal: HTEInputPreparationRefusal,
-    method_class: type[Any],
+    method_class: type,
 ) -> OwnedAttemptAnchorRef:
     """Persist a fenced refusal before content-admitted intent or estimator fit.
 
@@ -1330,6 +1462,7 @@ def persist_pre_output_hte_input_refusal_anchor(
         work=work,
         admission=admission,
     )
+    scope_tenant_id, _, _ = _checked_live_attempt_values(initial_proof, scope)
     source_ref, requested_intent_ref, creation_selection_digest = (
         _selected_refs_from_creation_event(created_event=created_event, work=work)
     )
@@ -1361,7 +1494,7 @@ def persist_pre_output_hte_input_refusal_anchor(
         or (
             requested_intent.source_tenant_context is not None
             and (
-                requested_intent.source_tenant_context.tenant_id != scope.tenant_id
+                requested_intent.source_tenant_context.tenant_id != scope_tenant_id
                 or requested_intent.source_tenant_context.cell_id != scope.cell_id
             )
         )
@@ -1377,6 +1510,9 @@ def persist_pre_output_hte_input_refusal_anchor(
         service=service,
         work=work,
         admission=admission,
+    )
+    final_tenant_id, final_attempt, final_worker_id = _checked_live_attempt_values(
+        final_proof, final_scope
     )
     if (
         final_proof.record.job_id != initial_proof.record.job_id
@@ -1396,10 +1532,10 @@ def persist_pre_output_hte_input_refusal_anchor(
         captured_at=captured_at,
         job_id=work.job_id,
         run_id=work.run_id,
-        tenant_id=scope.tenant_id,
-        cell_id=scope.cell_id,
-        attempt=final_proof.attempt,
-        worker_id=final_proof.worker_id,
+        tenant_id=final_tenant_id,
+        cell_id=final_scope.cell_id,
+        attempt=final_attempt,
+        worker_id=final_worker_id,
         lease_expires_at=lease_expires_at,
         job_created_event=_lifecycle_event(created_event),
         job_running_event=_lifecycle_event(final_proof.source_event),
@@ -1445,8 +1581,8 @@ def persist_pre_output_hte_input_refusal_anchor(
     )
     _require_search_binding_manifest(service=service, anchor=anchor)
     tenant_context = ArtifactTenantContextInfo(
-        tenant_id=scope.tenant_id,
-        cell_id=scope.cell_id,
+        tenant_id=final_tenant_id,
+        cell_id=final_scope.cell_id,
     )
     upstream_refs = (
         input_ref_from_artifact_ref(anchor.requested_source_ref, role="requested_source"),
@@ -1487,8 +1623,8 @@ def persist_pre_output_hte_input_refusal_anchor(
         raise RuntimeError("owned_attempt_anchor_tenant_owner_record_unavailable")
     record_owner(
         anchor_ref.artifact_id,
-        tenant_id=scope.tenant_id,
-        cell_id=scope.cell_id,
+        tenant_id=final_tenant_id,
+        cell_id=final_scope.cell_id,
         writer="runtime.control.owned_attempt_anchor",
     )
     persisted = _read_owned_attempt_anchor(service=service, anchor_ref=anchor_ref)
@@ -1514,7 +1650,7 @@ def _read_owned_attempt_anchor(
     from polisyos.core.artifacts.manifest import input_ref_from_artifact_ref
 
     bounded, _raw = _read_profiled_value(
-        store=service._artifact_store,
+        service=service,
         selected_ref=anchor_ref,
         limits=service._observational_read_limits(),
         expected_kind=OWNED_ATTEMPT_ANCHOR_KIND,
@@ -1594,18 +1730,47 @@ def _numeric_values_match(left: object, right: object) -> bool:
     )
 
 
-def _selection_ref(selection: object, name: str, *, required: bool) -> ArtifactRef | None:
+@overload
+def _selection_ref(
+    selection: DirectMethodExecutionSelection,
+    name: str,
+    *,
+    required: Literal[True],
+) -> SelectedArtifactRef: ...
+
+
+@overload
+def _selection_ref(
+    selection: DirectMethodExecutionSelection,
+    name: str,
+    *,
+    required: Literal[False],
+) -> SelectedArtifactRef | None: ...
+
+
+def _selection_ref(
+    selection: DirectMethodExecutionSelection,
+    name: str,
+    *,
+    required: bool,
+) -> SelectedArtifactRef | None:
     """Read one strict full-profile artifact ref from the typed owner selection."""
     raw = getattr(selection, name, None)
     if raw is None:
         if required:
             raise ValueError(f"owned_attempt_owner_selection_ref_missing:{name}")
         return None
-    ref = _require_full_profile_ref(raw, code=f"owned_attempt_owner_selection_ref_invalid:{name}")
+    return _selected_profile_ref(raw, code=f"owned_attempt_owner_selection_ref_invalid:{name}")
+
+
+def _required_projection_ref(ref: SelectedArtifactRef | None, *, code: str) -> SelectedArtifactRef:
+    """Narrow one ref after the matching projection branch has been checked."""
+    if ref is None:
+        raise ValueError(code)
     return ref
 
 
-def _outcome_matches_anchor(outcome: object, anchor: OwnedAttemptAnchor) -> bool:
+def _outcome_matches_anchor(outcome: HTEOutcome, anchor: OwnedAttemptAnchor) -> bool:
     """Reconcile HTE output selectors and input hashes to the pre-output anchor."""
     capture = anchor.input_capture
     request_context = capture.request_context
@@ -1747,14 +1912,14 @@ def _optional_numeric_values_match(left: object, right: object) -> bool:
     return _numeric_values_match(left, right)
 
 
-def _request_context_fields(context: BaseModel) -> dict[str, object]:
+def _request_context_fields(context: OwnedHTERequestContextV1) -> dict[str, object]:
     """Flatten the owner request context using its Runtime/HTE capture field names."""
     return context.model_dump(mode="json")
 
 
 def _capture_matches_writer_ready(
     *,
-    writer_capture: BaseModel,
+    writer_capture: _CaptureFactsV1,
     anchor: OwnedAttemptAnchor,
     anchor_ref: OwnedAttemptAnchorRef,
 ) -> bool:
@@ -1801,7 +1966,7 @@ def _capture_matches_writer_ready(
     )
 
 
-def _writer_ready_matches_outcome(writer_ready: BaseModel, outcome: BaseModel) -> bool:
+def _writer_ready_matches_outcome(writer_ready: HTEWriterReadyV1, outcome: HTEOutcome) -> bool:
     """Reconcile the method-result candidate with the selected persisted outcome."""
     if getattr(writer_ready, "kind", None) != getattr(outcome, "kind", None):
         return False
@@ -1837,7 +2002,10 @@ def _writer_ready_matches_outcome(writer_ready: BaseModel, outcome: BaseModel) -
 
 
 def _resource_evidence_payload(
-    *, anchor: OwnedAttemptAnchor, receipt: BaseModel, output_kind: str | None = None
+    *,
+    anchor: OwnedAttemptAnchor,
+    receipt: HTEProducerResourceReceiptV1,
+    output_kind: str | None = None,
 ) -> dict[str, object] | None:
     """Recompute the typed resource evidence from owner policy and worker receipt."""
     if anchor.resource_policy_revision == "r5":
@@ -1921,7 +2089,7 @@ def _resource_evidence_payload(
 def _resource_evidence_payload_r5(
     *,
     anchor: OwnedAttemptAnchor,
-    receipt: BaseModel,
+    receipt: HTEProducerResourceReceiptV1,
     allow_estimator_not_established: bool = False,
 ) -> dict[str, object] | None:
     """Recompute hybrid R5 evidence for the producer-wide joblib profile."""
@@ -2134,22 +2302,65 @@ def _resource_evidence_payload_r5(
     return payload
 
 
+def _resource_evidence_payload_for_consumer(
+    *,
+    payload: dict[str, object] | None,
+    consumer: HTEResourceExecutionEvidenceV1 | DirectMethodExecutionHTEResourceEvidence,
+) -> dict[str, object] | None:
+    """Normalize owner-derived evidence under the exact selected consumer DTO."""
+    if payload is None:
+        return None
+
+    from polisyos.core.contracts.runtime import (
+        DirectMethodExecutionHTEResourceEvidence,
+        _validate_strict_json_wire_payload,
+    )
+    from polisyos.ir.analytics.hte import HTEResourceExecutionEvidenceV1
+
+    try:
+        if type(consumer) is HTEResourceExecutionEvidenceV1:
+            normalized = _validate_strict_json_wire_payload(
+                payload,
+                TypeAdapter(HTEResourceExecutionEvidenceV1),
+                invalid_code="owned_attempt_resource_evidence_invalid",
+            )
+        elif type(consumer) is DirectMethodExecutionHTEResourceEvidence:
+            normalized = _validate_strict_json_wire_payload(
+                payload,
+                TypeAdapter(DirectMethodExecutionHTEResourceEvidence),
+                invalid_code="owned_attempt_resource_evidence_invalid",
+            )
+        else:
+            return None
+    except (TypeError, ValueError):
+        return None
+    return normalized.model_dump(mode="json")
+
+
 def _resource_evidence_matches_receipt(
-    *, evidence: BaseModel, anchor: OwnedAttemptAnchor, receipt: BaseModel
+    *,
+    evidence: HTEResourceExecutionEvidenceV1 | DirectMethodExecutionHTEResourceEvidence,
+    anchor: OwnedAttemptAnchor,
+    receipt: HTEProducerResourceReceiptV1,
 ) -> bool:
     """Require every HTE resource claim to match both owner policy and real receipt."""
-    expected = _resource_evidence_payload(anchor=anchor, receipt=receipt)
+    expected = _resource_evidence_payload_for_consumer(
+        payload=_resource_evidence_payload(anchor=anchor, receipt=receipt),
+        consumer=evidence,
+    )
     return expected is not None and _json_values_equal(evidence.model_dump(mode="json"), expected)
 
 
 def _refusal_diagnostic_matches_writer_ready(
     *,
-    diagnostic: BaseModel,
-    writer_ready: BaseModel,
+    diagnostic: HTERefusalDiagnostic,
+    writer_ready: HTEWriterReadyV1,
     anchor: OwnedAttemptAnchor,
     anchor_ref: OwnedAttemptAnchorRef,
     method_result_ref: ArtifactRef,
     method_evidence_ref: ArtifactRef,
+    materialization_binding_ref: ArtifactRef,
+    expected_limitations: tuple[str, ...] | None,
 ) -> bool:
     """Bind a method refusal diagnostic to the captured input and real execution."""
     capture = anchor.input_capture
@@ -2168,8 +2379,12 @@ def _refusal_diagnostic_matches_writer_ready(
         or not _same_ref(getattr(diagnostic, "owned_attempt_anchor_ref", None), anchor_ref)
         or not _same_ref(getattr(diagnostic, "method_result_ref", None), method_result_ref)
         or not _same_ref(getattr(diagnostic, "method_evidence_ref", None), method_evidence_ref)
-        or tuple(getattr(diagnostic, "limitations", ()))
-        != tuple(getattr(writer_ready, "limitations", ()))
+        or not _same_ref(
+            getattr(diagnostic, "materialization_binding_ref", None),
+            materialization_binding_ref,
+        )
+        or expected_limitations is None
+        or tuple(getattr(diagnostic, "limitations", ())) != expected_limitations
     ):
         return False
 
@@ -2190,8 +2405,10 @@ def _refusal_diagnostic_matches_writer_ready(
     ):
         return False
 
+    from polisyos.foundry.methods.catalog.causal.hte_v2 import HTEProducerResourceReceiptV1
+
     receipt = getattr(writer_ready, "resource_receipt", None)
-    if not isinstance(receipt, BaseModel):
+    if not isinstance(receipt, HTEProducerResourceReceiptV1):
         return False
     expected_resource_evidence = _resource_evidence_payload(
         anchor=anchor,
@@ -2201,6 +2418,10 @@ def _refusal_diagnostic_matches_writer_ready(
     actual_resource_evidence = getattr(diagnostic, "resource_evidence", None)
     if actual_resource_evidence is None:
         return receipt.execution_status == "not_started"
+    expected_resource_evidence = _resource_evidence_payload_for_consumer(
+        payload=expected_resource_evidence,
+        consumer=actual_resource_evidence,
+    )
     return expected_resource_evidence is not None and _json_values_equal(
         actual_resource_evidence.model_dump(mode="json"), expected_resource_evidence
     )
@@ -2208,8 +2429,8 @@ def _refusal_diagnostic_matches_writer_ready(
 
 def _point_result_matches_writer_ready(
     *,
-    point_result: BaseModel,
-    writer_ready: BaseModel,
+    point_result: HTEPointResult,
+    writer_ready: HTEWriterReadyPointV1,
     resource_evidence: dict[str, object],
     anchor_ref: OwnedAttemptAnchorRef,
     method_result_ref: ArtifactRef,
@@ -2244,9 +2465,9 @@ def _point_result_matches_writer_ready(
 
 def _basis_matches_writer_ready(
     *,
-    basis: BaseModel,
-    writer_ready: BaseModel,
-    outcome: BaseModel,
+    basis: ATEInferenceBasis,
+    writer_ready: HTEWriterReadyV1,
+    outcome: HTEOutcome,
     anchor: OwnedAttemptAnchor,
     anchor_ref: OwnedAttemptAnchorRef,
     point_result_ref: ArtifactRef | None,
@@ -2259,7 +2480,12 @@ def _basis_matches_writer_ready(
     """Reconcile every native basis value with the producer capture and owner."""
     capture = anchor.input_capture
     request = capture.request_context
-    native = getattr(writer_ready, "native_capture", None)
+    if outcome.kind == "interval_estimate":
+        native = getattr(writer_ready, "native_capture", None)
+    elif outcome.kind == "point_estimate":
+        native = getattr(writer_ready, "native_diagnostic", None)
+    else:
+        return False
     if native is None:
         return False
     expected: dict[str, object] = native.model_dump(mode="json")
@@ -2302,6 +2528,11 @@ def _basis_matches_writer_ready(
             "computed_target_scope": "selected_evaluation_rows",
             "target_relation": outcome.target_relation.model_dump(mode="json"),
             "source_data_ref": capture.source_data_ref.model_dump(mode="json"),
+            "materialization_binding_ref": (
+                capture.materialization_binding_ref.model_dump(mode="json")
+                if capture.materialization_binding_ref is not None
+                else None
+            ),
             "invocation_basis_ref": (
                 invocation_basis_ref.model_dump(mode="json")
                 if invocation_basis_ref is not None
@@ -2337,8 +2568,8 @@ def _basis_matches_writer_ready(
 
 def _hte_result_matches_writer_ready(
     *,
-    hte_result: BaseModel,
-    writer_ready: BaseModel,
+    hte_result: HTEResult,
+    writer_ready: HTEWriterReadyIntervalV1,
 ) -> bool:
     """Bind the legacy HTEResult v1 carrier to the completed producer output."""
     native = getattr(writer_ready, "native_capture", None)
@@ -2373,7 +2604,7 @@ def _hte_result_matches_writer_ready(
 def _expected_method_result_inputs(
     anchor: OwnedAttemptAnchor,
     anchor_ref: OwnedAttemptAnchorRef,
-) -> tuple[object, ...]:
+) -> tuple[InputRef, ...]:
     """Return the exact R12 method-result lineage rows for this selected input."""
     return (
         input_ref_from_artifact_ref(anchor.requested_source_ref, role="requested_source"),
@@ -2397,7 +2628,7 @@ def _expected_method_result_inputs(
 
 
 def _require_manifest_input_roles(
-    *, bounded: object, inputs: tuple[tuple[ArtifactRef, str], ...], code: str
+    *, bounded: CoreJsonArtifactBoundedRead, inputs: tuple[tuple[ArtifactRef, str], ...], code: str
 ) -> None:
     """Require exact ordered selected-profile lineage for one HTE artifact."""
     from polisyos.core.artifacts.manifest import input_ref_from_artifact_ref
@@ -2408,6 +2639,74 @@ def _require_manifest_input_roles(
         raise ValueError(code)
 
 
+def _owner_binding_inputs(
+    *,
+    physical_binding_ref: ArtifactRef | None,
+    search_binding_ref: ArtifactRef | None,
+) -> tuple[tuple[ArtifactRef, str], ...]:
+    """Return physical and Search owner edges in their canonical order."""
+    physical_inputs = (
+        ()
+        if physical_binding_ref is None
+        else ((physical_binding_ref, "physical_source_materialization_binding"),)
+    )
+    search_inputs = (
+        ()
+        if search_binding_ref is None
+        else ((search_binding_ref, "search_uncertainty_task_binding"),)
+    )
+    return (*physical_inputs, *search_inputs)
+
+
+def _numeric_hte_manifest_input_roles(
+    *,
+    prefix: tuple[tuple[ArtifactRef, str], ...],
+    anchor_ref: ArtifactRef,
+    source_data_ref: ArtifactRef,
+    method_result_ref: ArtifactRef,
+    method_evidence_ref: ArtifactRef,
+    resource_policy_ref: ArtifactRef,
+    owner_binding_inputs: tuple[tuple[ArtifactRef, str], ...],
+) -> tuple[tuple[ArtifactRef, str], ...]:
+    """Build the ordered lineage shared by numeric HTE outputs and readers."""
+    return (
+        *prefix,
+        (anchor_ref, "owned_attempt_anchor"),
+        (source_data_ref, "source_data"),
+        (method_result_ref, "method_result"),
+        (method_evidence_ref, "method_evidence"),
+        (resource_policy_ref, "resource_policy"),
+        *owner_binding_inputs,
+    )
+
+
+def _numeric_hte_outcome_input_roles(
+    *,
+    result_ref: ArtifactRef,
+    result_role: Literal["point_result", "hte_result"],
+    inference_basis_ref: ArtifactRef | None,
+    anchor_ref: ArtifactRef,
+    source_data_ref: ArtifactRef,
+    method_result_ref: ArtifactRef,
+    method_evidence_ref: ArtifactRef,
+    resource_policy_ref: ArtifactRef,
+    owner_binding_inputs: tuple[tuple[ArtifactRef, str], ...],
+) -> tuple[tuple[ArtifactRef, str], ...]:
+    """Build outcome lineage, retaining a selected optional basis edge."""
+    prefix = ((result_ref, result_role),)
+    if inference_basis_ref is not None:
+        prefix = (*prefix, (inference_basis_ref, "inference_basis"))
+    return _numeric_hte_manifest_input_roles(
+        prefix=prefix,
+        anchor_ref=anchor_ref,
+        source_data_ref=source_data_ref,
+        method_result_ref=method_result_ref,
+        method_evidence_ref=method_evidence_ref,
+        resource_policy_ref=resource_policy_ref,
+        owner_binding_inputs=owner_binding_inputs,
+    )
+
+
 def _read_owner_selected_method_outputs(
     *,
     service: OwnedAttemptAnchorRuntimeHost,
@@ -2415,13 +2714,13 @@ def _read_owner_selected_method_outputs(
     anchor_ref: OwnedAttemptAnchorRef,
     method_result_ref: ArtifactRef,
     method_evidence_ref: ArtifactRef,
-) -> tuple[BaseModel, object]:
+) -> tuple[HTEWriterReadyV1, ArtifactManifest]:
     """Resolve method output/evidence and bind their CAS lineage to this anchor."""
-    from polisyos.foundry.methods.catalog.causal.hte_v2 import HTEWriterReadyV1
+    from polisyos.foundry.methods.catalog.causal.hte_v2 import validate_hte_writer_ready_json
 
     limits = service._observational_read_limits()
     result_bounded, result_payload = _read_profiled_value(
-        store=service._artifact_store,
+        service=service,
         selected_ref=method_result_ref,
         limits=limits,
         expected_kind="scientist.method_result.causal.hte",
@@ -2436,10 +2735,7 @@ def _read_owner_selected_method_outputs(
     if not isinstance(writer_ready_raw, Mapping):
         raise ValueError("owned_attempt_hte_writer_ready_payload_missing")
     try:
-        writer_ready = TypeAdapter(HTEWriterReadyV1).validate_python(
-            writer_ready_raw,
-            strict=True,
-        )
+        writer_ready = validate_hte_writer_ready_json(writer_ready_raw)
     except (TypeError, ValueError) as exc:
         raise ValueError("owned_attempt_hte_writer_ready_payload_invalid") from exc
     if (
@@ -2470,7 +2766,7 @@ def _read_owner_selected_method_outputs(
         raise ValueError("owned_attempt_hte_writer_ready_kind_not_supported")
 
     evidence_bounded, evidence_payload = _read_profiled_value(
-        store=service._artifact_store,
+        service=service,
         selected_ref=method_evidence_ref,
         limits=limits,
         expected_kind="scientist.method_evidence",
@@ -2546,9 +2842,9 @@ class _CompletedOwnedAttemptFrame:
 
     anchor_ref: OwnedAttemptAnchorRef
     anchor: OwnedAttemptAnchor
-    record: object
-    completed_event: object
-    selection: object
+    record: ControlJobRecord
+    completed_event: _ControlJobLifecycleSourceEventRecord
+    selection: DirectMethodExecutionSelection
     historical_completed_event_id: int | None = None
 
 
@@ -2644,7 +2940,7 @@ def _resolve_completed_owned_attempt_frame(
     """Reconcile one current or exact historical owner row and completion event."""
     from polisyos.core.contracts.runtime import (
         DirectMethodExecutionSelection,
-        MethodExecutionSelection,
+        _validate_method_execution_selection_wire_payload,
     )
 
     typed_anchor_ref = _owned_attempt_anchor_ref(
@@ -2849,10 +3145,7 @@ def _resolve_completed_owned_attempt_frame(
     else:
         row_selection_payload = event_selection_payload
     try:
-        selected = TypeAdapter(MethodExecutionSelection).validate_python(
-            row_selection_payload,
-            strict=True,
-        )
+        selected = _validate_method_execution_selection_wire_payload(row_selection_payload)
     except (TypeError, ValueError) as exc:
         raise ValueError("owned_attempt_completed_selection_invalid") from exc
     if type(selected) is not DirectMethodExecutionSelection:
@@ -2923,12 +3216,18 @@ def resolve_owned_attempt_anchor_association(
         ValueError: If the anchor is not selected by the current unique completed
             owner attempt, or any selected artifact fails resolve/bind checks.
     """
-    from polisyos.core.contracts.runtime import DirectMethodExecutionHTESummary
+    from polisyos.core.contracts.runtime import (
+        DirectMethodExecutionHTESummary,
+        _validate_strict_json_wire_payload,
+    )
     from polisyos.ir.analytics.hte import (
         ATEInferenceBasis,
+        HTEIntervalOutcome,
         HTEOutcome,
+        HTEPointOutcome,
         HTEPointResult,
         HTERefusalDiagnostic,
+        HTERefusalOutcome,
         HTEResult,
     )
 
@@ -2946,9 +3245,16 @@ def resolve_owned_attempt_anchor_association(
     completed_event = owner_frame.completed_event
     selected = owner_frame.selection
     search_binding_ref = _require_search_binding_manifest(service=service, anchor=anchor)
-    search_binding_inputs = _search_binding_input(anchor)
-    physical_binding_ref = _require_physical_binding_content(service=service, anchor=anchor)
-    physical_binding_inputs = _physical_binding_input(anchor)
+    physical_binding = _require_physical_binding_content(service=service, anchor=anchor)
+    if physical_binding is None:
+        physical_binding_ref = None
+        verified_physical_binding = None
+    else:
+        physical_binding_ref, verified_physical_binding = physical_binding
+    owner_binding_inputs = _owner_binding_inputs(
+        physical_binding_ref=physical_binding_ref,
+        search_binding_ref=search_binding_ref,
+    )
     selected_summary = getattr(selected, "hte", None)
     if type(selected_summary) is not DirectMethodExecutionHTESummary or not _optional_same_ref(
         selected_summary.materialization_binding_ref,
@@ -2978,9 +3284,24 @@ def resolve_owned_attempt_anchor_association(
         method_result_ref=method_result_ref,
         method_evidence_ref=method_evidence_ref,
     )
+    refusal_expected_limitations: tuple[str, ...] | None = None
+    if writer_ready.kind == "refusal":
+        if physical_binding_ref is None or verified_physical_binding is None:
+            raise ValueError("owned_attempt_refusal_physical_binding_missing")
+        from polisyos.scientist.compute.hte_outcome_bridge import (
+            _expected_refusal_limitations,
+        )
+
+        try:
+            refusal_expected_limitations = _expected_refusal_limitations(
+                writer_ready,
+                verified_physical_binding,
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("owned_attempt_refusal_limitation_basis_invalid") from exc
     limits = service._observational_read_limits()
     outcome_bounded, outcome_payload = _read_profiled_value(
-        store=service._artifact_store,
+        service=service,
         selected_ref=outcome_ref,
         limits=limits,
         expected_kind="ir.hte_outcome",
@@ -2988,7 +3309,11 @@ def resolve_owned_attempt_anchor_association(
         expected_schema_version="1.0",
     )
     try:
-        outcome = TypeAdapter(HTEOutcome).validate_python(outcome_payload, strict=True)
+        outcome = _validate_strict_json_wire_payload(
+            outcome_payload,
+            TypeAdapter(HTEOutcome),
+            invalid_code="owned_attempt_hte_outcome_invalid",
+        )
     except (TypeError, ValueError) as exc:
         raise ValueError("owned_attempt_hte_outcome_invalid") from exc
     if (
@@ -3019,7 +3344,10 @@ def resolve_owned_attempt_anchor_association(
         raise ValueError("owned_attempt_invocation_basis_present_status_mismatch")
 
     source_data_ref = anchor.input_capture.source_data_ref
+    outcome_variant = outcome.root
     if outcome.kind == "refusal":
+        if not isinstance(outcome_variant, HTERefusalOutcome):
+            raise ValueError("owned_attempt_refusal_diagnostic_owner_binding_mismatch")
         if any(ref is not None for ref in (point_result_ref, hte_result_ref, inference_basis_ref)):
             raise ValueError("owned_attempt_refusal_has_numeric_owner_result")
         if (
@@ -3027,25 +3355,37 @@ def resolve_owned_attempt_anchor_association(
             or refusal_diagnostic_ref is None
             or not _same_ref(outcome.refusal_diagnostic_ref, refusal_diagnostic_ref)
             or outcome.method_abi_digest != anchor.method_abi_digest
+            or physical_binding_ref is None
+            or not _same_ref(outcome_variant.materialization_binding_ref, physical_binding_ref)
         ):
             raise ValueError("owned_attempt_refusal_diagnostic_owner_binding_mismatch")
+        if (
+            refusal_expected_limitations is None
+            or tuple(outcome.limitations) != refusal_expected_limitations
+        ):
+            raise ValueError("owned_attempt_refusal_outcome_content_mismatch")
         receipt = writer_ready.resource_receipt
         expected_resource_evidence = _resource_evidence_payload(
             anchor=anchor,
             receipt=receipt,
             output_kind=writer_ready.kind,
         )
-        outcome_resource_evidence = outcome.resource_evidence
+        outcome_resource_evidence = outcome_variant.resource_evidence
         if outcome_resource_evidence is None:
             if receipt.execution_status != "not_started":
                 raise ValueError("owned_attempt_refusal_resource_evidence_missing")
-        elif expected_resource_evidence is None or not _json_values_equal(
-            outcome_resource_evidence.model_dump(mode="json"), expected_resource_evidence
-        ):
-            raise ValueError("owned_attempt_refusal_resource_evidence_mismatch")
+        else:
+            expected_resource_evidence = _resource_evidence_payload_for_consumer(
+                payload=expected_resource_evidence,
+                consumer=outcome_resource_evidence,
+            )
+            if expected_resource_evidence is None or not _json_values_equal(
+                outcome_resource_evidence.model_dump(mode="json"), expected_resource_evidence
+            ):
+                raise ValueError("owned_attempt_refusal_resource_evidence_mismatch")
 
         diagnostic_bounded, diagnostic_payload = _read_profiled_value(
-            store=service._artifact_store,
+            service=service,
             selected_ref=refusal_diagnostic_ref,
             limits=limits,
             expected_kind="ir.hte_refusal_diagnostic",
@@ -3053,9 +3393,10 @@ def resolve_owned_attempt_anchor_association(
             expected_schema_version="1.0",
         )
         try:
-            refusal_diagnostic = HTERefusalDiagnostic.model_validate(
+            refusal_diagnostic = _validate_strict_json_wire_payload(
                 diagnostic_payload,
-                strict=True,
+                TypeAdapter(HTERefusalDiagnostic),
+                invalid_code="owned_attempt_refusal_diagnostic_invalid",
             )
         except (TypeError, ValueError) as exc:
             raise ValueError("owned_attempt_refusal_diagnostic_invalid") from exc
@@ -3066,8 +3407,7 @@ def resolve_owned_attempt_anchor_association(
         )
         if refusal_diagnostic.resource_evidence is not None:
             diagnostic_inputs += ((anchor.resource_policy_ref, "resource_policy"),)
-        diagnostic_inputs += physical_binding_inputs
-        diagnostic_inputs += search_binding_inputs
+        diagnostic_inputs += owner_binding_inputs
         _require_manifest_input_roles(
             bounded=diagnostic_bounded,
             inputs=diagnostic_inputs,
@@ -3080,15 +3420,19 @@ def resolve_owned_attempt_anchor_association(
             anchor_ref=typed_anchor_ref,
             method_result_ref=method_result_ref,
             method_evidence_ref=method_evidence_ref,
+            materialization_binding_ref=physical_binding_ref,
+            expected_limitations=refusal_expected_limitations,
         ):
             raise ValueError("owned_attempt_refusal_diagnostic_content_mismatch")
         if (refusal_diagnostic.resource_evidence is None) != (outcome_resource_evidence is None):
             raise ValueError("owned_attempt_refusal_resource_evidence_chain_mismatch")
-        if outcome_resource_evidence is not None and not _json_values_equal(
-            refusal_diagnostic.resource_evidence.model_dump(mode="json"),
-            outcome_resource_evidence.model_dump(mode="json"),
-        ):
-            raise ValueError("owned_attempt_refusal_resource_evidence_chain_mismatch")
+        if outcome_resource_evidence is not None:
+            diagnostic_resource_evidence = refusal_diagnostic.resource_evidence
+            if diagnostic_resource_evidence is None or not _json_values_equal(
+                diagnostic_resource_evidence.model_dump(mode="json"),
+                outcome_resource_evidence.model_dump(mode="json"),
+            ):
+                raise ValueError("owned_attempt_refusal_resource_evidence_chain_mismatch")
         outcome_inputs: tuple[tuple[ArtifactRef, str], ...] = (
             (refusal_diagnostic_ref, "refusal_diagnostic"),
             (typed_anchor_ref, "owned_attempt_anchor"),
@@ -3098,8 +3442,7 @@ def resolve_owned_attempt_anchor_association(
         )
         if outcome.source_data_status == "content_bound":
             outcome_inputs += ((source_data_ref, "source_data"),)
-        outcome_inputs += physical_binding_inputs
-        outcome_inputs += search_binding_inputs
+        outcome_inputs += owner_binding_inputs
         _require_manifest_input_roles(
             bounded=outcome_bounded,
             inputs=outcome_inputs,
@@ -3139,20 +3482,28 @@ def resolve_owned_attempt_anchor_association(
 
     if writer_ready.kind != outcome.kind:
         raise ValueError("owned_attempt_outcome_owner_kind_mismatch")
-    resource_evidence = _resource_evidence_payload(
+    if not isinstance(outcome_variant, (HTEPointOutcome, HTEIntervalOutcome)):
+        raise ValueError("owned_attempt_outcome_owner_kind_mismatch")
+    resource_evidence_payload = _resource_evidence_payload(
         anchor=anchor,
         receipt=writer_ready.resource_receipt,
     )
+    resource_evidence = _resource_evidence_payload_for_consumer(
+        payload=resource_evidence_payload,
+        consumer=outcome_variant.resource_evidence,
+    )
     if resource_evidence is None or not _resource_evidence_matches_receipt(
-        evidence=outcome.resource_evidence,
+        evidence=outcome_variant.resource_evidence,
         anchor=anchor,
         receipt=writer_ready.resource_receipt,
     ):
         raise ValueError("owned_attempt_outcome_resource_evidence_mismatch")
 
-    basis: BaseModel | None = None
-    hte_result: BaseModel | None = None
-    if outcome.kind == "point_estimate":
+    basis: ATEInferenceBasis | None = None
+    hte_result: HTEResult | None = None
+    if isinstance(outcome_variant, HTEPointOutcome):
+        if writer_ready.kind != "point_estimate":
+            raise ValueError("owned_attempt_point_result_content_mismatch")
         if point_result_ref is None or hte_result_ref is not None:
             raise ValueError("owned_attempt_point_result_refs_invalid")
         if not _same_ref(
@@ -3163,7 +3514,7 @@ def resolve_owned_attempt_anchor_association(
         ):
             raise ValueError("owned_attempt_point_result_outcome_ref_mismatch")
         point_bounded, point_payload = _read_profiled_value(
-            store=service._artifact_store,
+            service=service,
             selected_ref=point_result_ref,
             limits=limits,
             expected_kind="ir.hte_point_result",
@@ -3171,40 +3522,52 @@ def resolve_owned_attempt_anchor_association(
             expected_schema_version="1.0",
         )
         try:
-            point_result = HTEPointResult.model_validate(point_payload, strict=True)
+            point_result = _validate_strict_json_wire_payload(
+                point_payload,
+                TypeAdapter(HTEPointResult),
+                invalid_code="owned_attempt_point_result_invalid",
+            )
         except (TypeError, ValueError) as exc:
             raise ValueError("owned_attempt_point_result_invalid") from exc
         _require_manifest_input_roles(
             bounded=point_bounded,
-            inputs=(
-                (typed_anchor_ref, "owned_attempt_anchor"),
-                (source_data_ref, "source_data"),
-                (method_result_ref, "method_result"),
-                (method_evidence_ref, "method_evidence"),
-                (anchor.resource_policy_ref, "resource_policy"),
-                *physical_binding_inputs,
-                *search_binding_inputs,
+            inputs=_numeric_hte_manifest_input_roles(
+                prefix=(),
+                anchor_ref=typed_anchor_ref,
+                source_data_ref=source_data_ref,
+                method_result_ref=method_result_ref,
+                method_evidence_ref=method_evidence_ref,
+                resource_policy_ref=anchor.resource_policy_ref,
+                owner_binding_inputs=owner_binding_inputs,
             ),
             code="owned_attempt_point_result_manifest_lineage_mismatch",
         )
-        if not _resource_evidence_matches_receipt(
-            evidence=point_result.resource_evidence,
-            anchor=anchor,
-            receipt=writer_ready.resource_receipt,
-        ) or not _point_result_matches_writer_ready(
-            point_result=point_result,
-            writer_ready=writer_ready,
-            resource_evidence=resource_evidence,
-            anchor_ref=typed_anchor_ref,
-            method_result_ref=method_result_ref,
-            method_evidence_ref=method_evidence_ref,
+        point_resource_evidence = _resource_evidence_payload_for_consumer(
+            payload=resource_evidence_payload,
+            consumer=point_result.resource_evidence,
+        )
+        if (
+            point_resource_evidence is None
+            or not _resource_evidence_matches_receipt(
+                evidence=point_result.resource_evidence,
+                anchor=anchor,
+                receipt=writer_ready.resource_receipt,
+            )
+            or not _point_result_matches_writer_ready(
+                point_result=point_result,
+                writer_ready=writer_ready,
+                resource_evidence=point_resource_evidence,
+                anchor_ref=typed_anchor_ref,
+                method_result_ref=method_result_ref,
+                method_evidence_ref=method_evidence_ref,
+            )
         ):
             raise ValueError("owned_attempt_point_result_content_mismatch")
         if inference_basis_ref is not None:
             if getattr(outcome, "inference_reason", None) != "native_inference_invalid":
                 raise ValueError("owned_attempt_point_basis_disposition_invalid")
             basis_bounded, basis_payload = _read_profiled_value(
-                store=service._artifact_store,
+                service=service,
                 selected_ref=inference_basis_ref,
                 limits=limits,
                 expected_kind="ir.ate_inference_basis",
@@ -3212,56 +3575,70 @@ def resolve_owned_attempt_anchor_association(
                 expected_schema_version="1.0",
             )
             try:
-                basis = ATEInferenceBasis.model_validate(basis_payload, strict=True)
+                basis = _validate_strict_json_wire_payload(
+                    basis_payload,
+                    TypeAdapter(ATEInferenceBasis),
+                    invalid_code="owned_attempt_inference_basis_invalid",
+                )
             except (TypeError, ValueError) as exc:
                 raise ValueError("owned_attempt_inference_basis_invalid") from exc
             _require_manifest_input_roles(
                 bounded=basis_bounded,
-                inputs=(
-                    (point_result_ref, "point_result"),
-                    (typed_anchor_ref, "owned_attempt_anchor"),
-                    (source_data_ref, "source_data"),
-                    (method_result_ref, "method_result"),
-                    (method_evidence_ref, "method_evidence"),
-                    (anchor.resource_policy_ref, "resource_policy"),
-                    *physical_binding_inputs,
-                    *search_binding_inputs,
+                inputs=_numeric_hte_manifest_input_roles(
+                    prefix=((point_result_ref, "point_result"),),
+                    anchor_ref=typed_anchor_ref,
+                    source_data_ref=source_data_ref,
+                    method_result_ref=method_result_ref,
+                    method_evidence_ref=method_evidence_ref,
+                    resource_policy_ref=anchor.resource_policy_ref,
+                    owner_binding_inputs=owner_binding_inputs,
                 ),
                 code="owned_attempt_inference_basis_manifest_lineage_mismatch",
             )
-            if not _resource_evidence_matches_receipt(
-                evidence=basis.resource_evidence,
-                anchor=anchor,
-                receipt=writer_ready.resource_receipt,
-            ) or not _basis_matches_writer_ready(
-                basis=basis,
-                writer_ready=writer_ready,
-                outcome=outcome,
-                anchor=anchor,
-                anchor_ref=typed_anchor_ref,
-                point_result_ref=point_result_ref,
-                hte_result_ref=None,
-                method_result_ref=method_result_ref,
-                method_evidence_ref=method_evidence_ref,
-                invocation_basis_ref=invocation_basis_ref,
-                resource_evidence=resource_evidence,
+            basis_resource_evidence = _resource_evidence_payload_for_consumer(
+                payload=resource_evidence_payload,
+                consumer=basis.resource_evidence,
+            )
+            if (
+                basis_resource_evidence is None
+                or not _resource_evidence_matches_receipt(
+                    evidence=basis.resource_evidence,
+                    anchor=anchor,
+                    receipt=writer_ready.resource_receipt,
+                )
+                or not _basis_matches_writer_ready(
+                    basis=basis,
+                    writer_ready=writer_ready,
+                    outcome=outcome,
+                    anchor=anchor,
+                    anchor_ref=typed_anchor_ref,
+                    point_result_ref=point_result_ref,
+                    hte_result_ref=None,
+                    method_result_ref=method_result_ref,
+                    method_evidence_ref=method_evidence_ref,
+                    invocation_basis_ref=invocation_basis_ref,
+                    resource_evidence=basis_resource_evidence,
+                )
             ):
                 raise ValueError("owned_attempt_inference_basis_binding_mismatch")
         _require_manifest_input_roles(
             bounded=outcome_bounded,
-            inputs=(
-                (point_result_ref, "point_result"),
-                (typed_anchor_ref, "owned_attempt_anchor"),
-                (source_data_ref, "source_data"),
-                (method_result_ref, "method_result"),
-                (method_evidence_ref, "method_evidence"),
-                (anchor.resource_policy_ref, "resource_policy"),
-                *physical_binding_inputs,
-                *search_binding_inputs,
+            inputs=_numeric_hte_outcome_input_roles(
+                result_ref=point_result_ref,
+                result_role="point_result",
+                inference_basis_ref=inference_basis_ref,
+                anchor_ref=typed_anchor_ref,
+                source_data_ref=source_data_ref,
+                method_result_ref=method_result_ref,
+                method_evidence_ref=method_evidence_ref,
+                resource_policy_ref=anchor.resource_policy_ref,
+                owner_binding_inputs=owner_binding_inputs,
             ),
             code="owned_attempt_hte_outcome_manifest_lineage_mismatch",
         )
-    elif outcome.kind == "interval_estimate":
+    elif isinstance(outcome_variant, HTEIntervalOutcome):
+        if writer_ready.kind != "interval_estimate":
+            raise ValueError("owned_attempt_hte_result_content_mismatch")
         if point_result_ref is not None or hte_result_ref is None or inference_basis_ref is None:
             raise ValueError("owned_attempt_interval_result_refs_incomplete")
         if not _same_ref(getattr(outcome, "hte_result_ref", None), hte_result_ref) or (
@@ -3269,7 +3646,7 @@ def resolve_owned_attempt_anchor_association(
         ):
             raise ValueError("owned_attempt_interval_outcome_ref_mismatch")
         hte_bounded, hte_payload = _read_profiled_value(
-            store=service._artifact_store,
+            service=service,
             selected_ref=hte_result_ref,
             limits=limits,
             expected_kind="ir.hte_result",
@@ -3277,24 +3654,28 @@ def resolve_owned_attempt_anchor_association(
             expected_schema_version="1.0",
         )
         try:
-            hte_result = HTEResult.model_validate(hte_payload, strict=True)
+            hte_result = _validate_strict_json_wire_payload(
+                hte_payload,
+                TypeAdapter(HTEResult),
+                invalid_code="owned_attempt_hte_result_invalid",
+            )
         except (TypeError, ValueError) as exc:
             raise ValueError("owned_attempt_hte_result_invalid") from exc
         _require_manifest_input_roles(
             bounded=hte_bounded,
-            inputs=(
-                (typed_anchor_ref, "owned_attempt_anchor"),
-                (source_data_ref, "source_data"),
-                (method_result_ref, "method_result"),
-                (method_evidence_ref, "method_evidence"),
-                (anchor.resource_policy_ref, "resource_policy"),
-                *physical_binding_inputs,
-                *search_binding_inputs,
+            inputs=_numeric_hte_manifest_input_roles(
+                prefix=(),
+                anchor_ref=typed_anchor_ref,
+                source_data_ref=source_data_ref,
+                method_result_ref=method_result_ref,
+                method_evidence_ref=method_evidence_ref,
+                resource_policy_ref=anchor.resource_policy_ref,
+                owner_binding_inputs=owner_binding_inputs,
             ),
             code="owned_attempt_hte_result_manifest_lineage_mismatch",
         )
         if not _resource_evidence_matches_receipt(
-            evidence=getattr(outcome, "resource_evidence", None),
+            evidence=outcome_variant.resource_evidence,
             anchor=anchor,
             receipt=writer_ready.resource_receipt,
         ) or not _hte_result_matches_writer_ready(
@@ -3303,7 +3684,7 @@ def resolve_owned_attempt_anchor_association(
         ):
             raise ValueError("owned_attempt_hte_result_content_mismatch")
         basis_bounded, basis_payload = _read_profiled_value(
-            store=service._artifact_store,
+            service=service,
             selected_ref=inference_basis_ref,
             limits=limits,
             expected_kind="ir.ate_inference_basis",
@@ -3311,53 +3692,64 @@ def resolve_owned_attempt_anchor_association(
             expected_schema_version="1.0",
         )
         try:
-            basis = ATEInferenceBasis.model_validate(basis_payload, strict=True)
+            basis = _validate_strict_json_wire_payload(
+                basis_payload,
+                TypeAdapter(ATEInferenceBasis),
+                invalid_code="owned_attempt_inference_basis_invalid",
+            )
         except (TypeError, ValueError) as exc:
             raise ValueError("owned_attempt_inference_basis_invalid") from exc
         _require_manifest_input_roles(
             bounded=basis_bounded,
-            inputs=(
-                (hte_result_ref, "hte_result"),
-                (typed_anchor_ref, "owned_attempt_anchor"),
-                (source_data_ref, "source_data"),
-                (method_result_ref, "method_result"),
-                (method_evidence_ref, "method_evidence"),
-                (anchor.resource_policy_ref, "resource_policy"),
-                *physical_binding_inputs,
-                *search_binding_inputs,
+            inputs=_numeric_hte_manifest_input_roles(
+                prefix=((hte_result_ref, "hte_result"),),
+                anchor_ref=typed_anchor_ref,
+                source_data_ref=source_data_ref,
+                method_result_ref=method_result_ref,
+                method_evidence_ref=method_evidence_ref,
+                resource_policy_ref=anchor.resource_policy_ref,
+                owner_binding_inputs=owner_binding_inputs,
             ),
             code="owned_attempt_inference_basis_manifest_lineage_mismatch",
         )
-        if not _resource_evidence_matches_receipt(
-            evidence=basis.resource_evidence,
-            anchor=anchor,
-            receipt=writer_ready.resource_receipt,
-        ) or not _basis_matches_writer_ready(
-            basis=basis,
-            writer_ready=writer_ready,
-            outcome=outcome,
-            anchor=anchor,
-            anchor_ref=typed_anchor_ref,
-            point_result_ref=None,
-            hte_result_ref=hte_result_ref,
-            method_result_ref=method_result_ref,
-            method_evidence_ref=method_evidence_ref,
-            invocation_basis_ref=invocation_basis_ref,
-            resource_evidence=resource_evidence,
+        basis_resource_evidence = _resource_evidence_payload_for_consumer(
+            payload=resource_evidence_payload,
+            consumer=basis.resource_evidence,
+        )
+        if (
+            basis_resource_evidence is None
+            or not _resource_evidence_matches_receipt(
+                evidence=basis.resource_evidence,
+                anchor=anchor,
+                receipt=writer_ready.resource_receipt,
+            )
+            or not _basis_matches_writer_ready(
+                basis=basis,
+                writer_ready=writer_ready,
+                outcome=outcome,
+                anchor=anchor,
+                anchor_ref=typed_anchor_ref,
+                point_result_ref=None,
+                hte_result_ref=hte_result_ref,
+                method_result_ref=method_result_ref,
+                method_evidence_ref=method_evidence_ref,
+                invocation_basis_ref=invocation_basis_ref,
+                resource_evidence=basis_resource_evidence,
+            )
         ):
             raise ValueError("owned_attempt_inference_basis_binding_mismatch")
         _require_manifest_input_roles(
             bounded=outcome_bounded,
-            inputs=(
-                (hte_result_ref, "hte_result"),
-                (inference_basis_ref, "inference_basis"),
-                (typed_anchor_ref, "owned_attempt_anchor"),
-                (source_data_ref, "source_data"),
-                (method_result_ref, "method_result"),
-                (method_evidence_ref, "method_evidence"),
-                (anchor.resource_policy_ref, "resource_policy"),
-                *physical_binding_inputs,
-                *search_binding_inputs,
+            inputs=_numeric_hte_outcome_input_roles(
+                result_ref=hte_result_ref,
+                result_role="hte_result",
+                inference_basis_ref=inference_basis_ref,
+                anchor_ref=typed_anchor_ref,
+                source_data_ref=source_data_ref,
+                method_result_ref=method_result_ref,
+                method_evidence_ref=method_evidence_ref,
+                resource_policy_ref=anchor.resource_policy_ref,
+                owner_binding_inputs=owner_binding_inputs,
             ),
             code="owned_attempt_hte_outcome_manifest_lineage_mismatch",
         )
@@ -3374,7 +3766,7 @@ def resolve_owned_attempt_anchor_association(
         outcome_ref=outcome_ref,
         invocation_basis_ref=invocation_basis_ref,
         invocation_basis_content_status="not_established",
-        outcome_kind=outcome.kind,
+        outcome_kind=outcome_variant.kind,
         source_data_ref=source_data_ref,
         materialization_binding_ref=physical_binding_ref,
         search_uncertainty_task_binding_ref=search_binding_ref,
@@ -3427,7 +3819,7 @@ def resolve_owned_attempt_anchor_projection_association(
     from polisyos.core.contracts.runtime import (
         DirectMethodExecutionHTESummary,
         DirectMethodExecutionSelection,
-        MethodExecutionSelection,
+        _validate_method_execution_selection_wire_payload,
     )
 
     if not all(isinstance(value, str) and value for value in (run_id, expected_job_id, tenant_id)):
@@ -3450,9 +3842,8 @@ def resolve_owned_attempt_anchor_projection_association(
     ):
         raise ValueError("owned_attempt_projection_current_completed_winner_mismatch")
     try:
-        selected = TypeAdapter(MethodExecutionSelection).validate_python(
-            current_record.method_execution_selection,
-            strict=True,
+        selected = _validate_method_execution_selection_wire_payload(
+            current_record.method_execution_selection
         )
     except (TypeError, ValueError) as exc:
         raise ValueError("owned_attempt_projection_selection_invalid") from exc
@@ -3479,7 +3870,7 @@ def resolve_owned_attempt_anchor_projection_association(
     )
     anchor = owner_frame.anchor
     selected = owner_frame.selection
-    summary = getattr(selected, "hte", None)
+    summary = selected.hte
     if type(summary) is not DirectMethodExecutionHTESummary:
         raise ValueError("owned_attempt_projection_worker_summary_missing")
 
@@ -3507,12 +3898,12 @@ def resolve_owned_attempt_anchor_projection_association(
     capture = anchor.input_capture
     request_context = capture.request_context
     search_binding_ref = _require_search_binding_manifest(service=service, anchor=anchor)
-    search_binding_inputs = _search_binding_input(anchor)
     materialization_binding_ref = _anchor_materialization_binding_ref(anchor)
-    physical_binding_inputs = _physical_binding_input(anchor)
-    resource_evidence = getattr(summary, "resource_evidence", None)
-    if not isinstance(resource_evidence, BaseModel):
-        raise ValueError("owned_attempt_projection_resource_evidence_missing")
+    owner_binding_inputs = _owner_binding_inputs(
+        physical_binding_ref=materialization_binding_ref,
+        search_binding_ref=search_binding_ref,
+    )
+    resource_evidence = summary.resource_evidence
 
     expected_summary_refs = (
         ("owned_attempt_anchor_ref", anchor_ref),
@@ -3620,7 +4011,7 @@ def resolve_owned_attempt_anchor_projection_association(
         raise ValueError("owned_attempt_projection_selected_policy_mismatch")
     selected_summary_sha256 = _canonical_json_digest(summary.model_dump(mode="json"))
 
-    manifests: dict[str, object] = {}
+    manifests: dict[str, ArtifactManifest] = {}
 
     def read_manifest(
         key: str,
@@ -3628,7 +4019,7 @@ def resolve_owned_attempt_anchor_projection_association(
         kind: str,
         schema_name: str,
         schema_version: str,
-    ) -> object:
+    ) -> ArtifactManifest:
         manifest = _read_projection_manifest(
             service=service,
             selected_ref=ref,
@@ -3700,7 +4091,10 @@ def resolve_owned_attempt_anchor_projection_association(
     if summary.kind == "refusal":
         read_manifest(
             "refusal_diagnostic",
-            refusal_diagnostic_ref,
+            _required_projection_ref(
+                refusal_diagnostic_ref,
+                code="owned_attempt_projection_refusal_summary_mismatch",
+            ),
             "ir.hte_refusal_diagnostic",
             "polisyos.ir.HTERefusalDiagnostic",
             "1.0",
@@ -3709,7 +4103,10 @@ def resolve_owned_attempt_anchor_projection_association(
         if summary.kind == "point_estimate":
             read_manifest(
                 "point_result",
-                point_result_ref,
+                _required_projection_ref(
+                    point_result_ref,
+                    code="owned_attempt_projection_recomputed_rows_mismatch",
+                ),
                 "ir.hte_point_result",
                 "polisyos.ir.HTEPointResult",
                 "1.0",
@@ -3717,14 +4114,20 @@ def resolve_owned_attempt_anchor_projection_association(
         elif summary.kind == "interval_estimate":
             read_manifest(
                 "hte_result",
-                hte_result_ref,
+                _required_projection_ref(
+                    hte_result_ref,
+                    code="owned_attempt_projection_recomputed_rows_mismatch",
+                ),
                 "ir.hte_result",
                 "ir.hte_result",
                 "1.0",
             )
             read_manifest(
                 "inference_basis",
-                inference_basis_ref,
+                _required_projection_ref(
+                    inference_basis_ref,
+                    code="owned_attempt_projection_recomputed_rows_mismatch",
+                ),
                 "ir.ate_inference_basis",
                 "polisyos.ir.ATEInferenceBasis",
                 "1.0",
@@ -3732,7 +4135,10 @@ def resolve_owned_attempt_anchor_projection_association(
         elif inference_basis_ref is not None:
             read_manifest(
                 "point_result",
-                point_result_ref,
+                _required_projection_ref(
+                    point_result_ref,
+                    code="owned_attempt_projection_recomputed_rows_mismatch",
+                ),
                 "ir.hte_point_result",
                 "polisyos.ir.HTEPointResult",
                 "1.0",
@@ -3772,14 +4178,14 @@ def resolve_owned_attempt_anchor_projection_association(
 
     source_data_ref = capture.source_data_ref
     resource_policy_ref = anchor.resource_policy_ref
+    outcome_variants: tuple[tuple[tuple[ArtifactRef, str], ...], ...] = ()
     if summary.kind == "refusal":
         diagnostic_inputs = (
             (anchor_ref, "owned_attempt_anchor"),
             (method_result_ref, "method_result"),
             (method_evidence_ref, "method_evidence"),
             (resource_policy_ref, "resource_policy"),
-            *physical_binding_inputs,
-            *search_binding_inputs,
+            *owner_binding_inputs,
         )
         _require_projection_manifest_inputs(
             manifest=manifests["refusal_diagnostic"],
@@ -3787,104 +4193,124 @@ def resolve_owned_attempt_anchor_projection_association(
             code="owned_attempt_projection_refusal_diagnostic_lineage_mismatch",
         )
         outcome_inputs = (
-            (refusal_diagnostic_ref, "refusal_diagnostic"),
+            (
+                _required_projection_ref(
+                    refusal_diagnostic_ref,
+                    code="owned_attempt_projection_refusal_summary_mismatch",
+                ),
+                "refusal_diagnostic",
+            ),
             (anchor_ref, "owned_attempt_anchor"),
             (method_result_ref, "method_result"),
             (method_evidence_ref, "method_evidence"),
             (resource_policy_ref, "resource_policy"),
             (source_data_ref, "source_data"),
-            *physical_binding_inputs,
-            *search_binding_inputs,
+            *owner_binding_inputs,
         )
         outcome_variants = (outcome_inputs,)
     else:
         if summary.kind == "point_estimate":
             point_inputs = (
-                (anchor_ref, "owned_attempt_anchor"),
-                (source_data_ref, "source_data"),
-                (method_result_ref, "method_result"),
-                (method_evidence_ref, "method_evidence"),
-                (resource_policy_ref, "resource_policy"),
-                *physical_binding_inputs,
-                *search_binding_inputs,
+                *_numeric_hte_manifest_input_roles(
+                    prefix=(),
+                    anchor_ref=anchor_ref,
+                    source_data_ref=source_data_ref,
+                    method_result_ref=method_result_ref,
+                    method_evidence_ref=method_evidence_ref,
+                    resource_policy_ref=resource_policy_ref,
+                    owner_binding_inputs=owner_binding_inputs,
+                ),
             )
             _require_projection_manifest_inputs(
                 manifest=manifests["point_result"],
                 inputs=point_inputs,
                 code="owned_attempt_projection_point_result_lineage_mismatch",
             )
-            outcome_inputs = (
-                (point_result_ref, "point_result"),
-                (anchor_ref, "owned_attempt_anchor"),
-                (source_data_ref, "source_data"),
-                (method_result_ref, "method_result"),
-                (method_evidence_ref, "method_evidence"),
-                (resource_policy_ref, "resource_policy"),
-                *physical_binding_inputs,
-                *search_binding_inputs,
+            outcome_inputs = _numeric_hte_outcome_input_roles(
+                result_ref=_required_projection_ref(
+                    point_result_ref,
+                    code="owned_attempt_projection_recomputed_rows_mismatch",
+                ),
+                result_role="point_result",
+                inference_basis_ref=inference_basis_ref,
+                anchor_ref=anchor_ref,
+                source_data_ref=source_data_ref,
+                method_result_ref=method_result_ref,
+                method_evidence_ref=method_evidence_ref,
+                resource_policy_ref=resource_policy_ref,
+                owner_binding_inputs=owner_binding_inputs,
             )
             if inference_basis_ref is not None:
                 _require_projection_manifest_inputs(
                     manifest=manifests["inference_basis"],
-                    inputs=(
-                        (point_result_ref, "point_result"),
-                        (anchor_ref, "owned_attempt_anchor"),
-                        (source_data_ref, "source_data"),
-                        (method_result_ref, "method_result"),
-                        (method_evidence_ref, "method_evidence"),
-                        (resource_policy_ref, "resource_policy"),
-                        *physical_binding_inputs,
-                        *search_binding_inputs,
+                    inputs=_numeric_hte_manifest_input_roles(
+                        prefix=(
+                            (
+                                _required_projection_ref(
+                                    point_result_ref,
+                                    code="owned_attempt_projection_recomputed_rows_mismatch",
+                                ),
+                                "point_result",
+                            ),
+                        ),
+                        anchor_ref=anchor_ref,
+                        source_data_ref=source_data_ref,
+                        method_result_ref=method_result_ref,
+                        method_evidence_ref=method_evidence_ref,
+                        resource_policy_ref=resource_policy_ref,
+                        owner_binding_inputs=owner_binding_inputs,
                     ),
                     code="owned_attempt_projection_basis_lineage_mismatch",
                 )
-                outcome_inputs = (
-                    (point_result_ref, "point_result"),
-                    (inference_basis_ref, "inference_basis"),
-                    (anchor_ref, "owned_attempt_anchor"),
-                    (source_data_ref, "source_data"),
-                    (method_result_ref, "method_result"),
-                    (method_evidence_ref, "method_evidence"),
-                    (resource_policy_ref, "resource_policy"),
-                    *physical_binding_inputs,
-                    *search_binding_inputs,
-                )
         else:
-            outcome_inputs = (
-                (hte_result_ref, "hte_result"),
-                (inference_basis_ref, "inference_basis"),
-                (anchor_ref, "owned_attempt_anchor"),
-                (source_data_ref, "source_data"),
-                (method_result_ref, "method_result"),
-                (method_evidence_ref, "method_evidence"),
-                (resource_policy_ref, "resource_policy"),
-                *physical_binding_inputs,
-                *search_binding_inputs,
+            outcome_inputs = _numeric_hte_outcome_input_roles(
+                result_ref=_required_projection_ref(
+                    hte_result_ref,
+                    code="owned_attempt_projection_recomputed_rows_mismatch",
+                ),
+                result_role="hte_result",
+                inference_basis_ref=_required_projection_ref(
+                    inference_basis_ref,
+                    code="owned_attempt_projection_recomputed_rows_mismatch",
+                ),
+                anchor_ref=anchor_ref,
+                source_data_ref=source_data_ref,
+                method_result_ref=method_result_ref,
+                method_evidence_ref=method_evidence_ref,
+                resource_policy_ref=resource_policy_ref,
+                owner_binding_inputs=owner_binding_inputs,
             )
             _require_projection_manifest_inputs(
                 manifest=manifests["inference_basis"],
-                inputs=(
-                    (hte_result_ref, "hte_result"),
-                    (anchor_ref, "owned_attempt_anchor"),
-                    (source_data_ref, "source_data"),
-                    (method_result_ref, "method_result"),
-                    (method_evidence_ref, "method_evidence"),
-                    (resource_policy_ref, "resource_policy"),
-                    *physical_binding_inputs,
-                    *search_binding_inputs,
+                inputs=_numeric_hte_manifest_input_roles(
+                    prefix=(
+                        (
+                            _required_projection_ref(
+                                hte_result_ref,
+                                code="owned_attempt_projection_recomputed_rows_mismatch",
+                            ),
+                            "hte_result",
+                        ),
+                    ),
+                    anchor_ref=anchor_ref,
+                    source_data_ref=source_data_ref,
+                    method_result_ref=method_result_ref,
+                    method_evidence_ref=method_evidence_ref,
+                    resource_policy_ref=resource_policy_ref,
+                    owner_binding_inputs=owner_binding_inputs,
                 ),
                 code="owned_attempt_projection_basis_lineage_mismatch",
             )
             _require_projection_manifest_inputs(
                 manifest=manifests["hte_result"],
-                inputs=(
-                    (anchor_ref, "owned_attempt_anchor"),
-                    (source_data_ref, "source_data"),
-                    (method_result_ref, "method_result"),
-                    (method_evidence_ref, "method_evidence"),
-                    (resource_policy_ref, "resource_policy"),
-                    *physical_binding_inputs,
-                    *search_binding_inputs,
+                inputs=_numeric_hte_manifest_input_roles(
+                    prefix=(),
+                    anchor_ref=anchor_ref,
+                    source_data_ref=source_data_ref,
+                    method_result_ref=method_result_ref,
+                    method_evidence_ref=method_evidence_ref,
+                    resource_policy_ref=resource_policy_ref,
+                    owner_binding_inputs=owner_binding_inputs,
                 ),
                 code="owned_attempt_projection_hte_result_lineage_mismatch",
             )

@@ -10,7 +10,10 @@ from __future__ import annotations
 import hashlib
 import inspect
 import marshal
+import math
 import os
+import re
+import time
 import types
 from dataclasses import dataclass
 from pathlib import Path
@@ -42,7 +45,10 @@ class _BuiltinOwner:
 
 # Import-time references are held independently of the mutable registry. The
 # executor imports this module before workflow execution and plugin discovery.
-def _load_builtin_node_types() -> tuple[type[Any], type[Any]]:
+def _load_builtin_node_types() -> tuple[type[Any], type[Any], type[Any]]:
+    from polisyos.scientist.nodes.builtins.causal.resolve_transport import (
+        RunTransportabilityNode,
+    )
     from polisyos.scientist.nodes.builtins.decide.build_verified_policy_report import (
         BuildVerifiedPolicyReportNode,
     )
@@ -50,10 +56,12 @@ def _load_builtin_node_types() -> tuple[type[Any], type[Any]]:
         RunGovernanceNode,
     )
 
-    return BuildVerifiedPolicyReportNode, RunGovernanceNode
+    return BuildVerifiedPolicyReportNode, RunGovernanceNode, RunTransportabilityNode
 
 
-_BuildVerifiedPolicyReportNode, _RunGovernanceNode = _load_builtin_node_types()
+_BuildVerifiedPolicyReportNode, _RunGovernanceNode, _RunTransportabilityNode = (
+    _load_builtin_node_types()
+)
 
 
 def _function_from_descriptor(value: object) -> types.FunctionType | None:
@@ -134,7 +142,11 @@ def _owner(node_type: type[Any]) -> _BuiltinOwner:
 
 _OWNERS = {
     owner.component_id: owner
-    for owner in (_owner(_BuildVerifiedPolicyReportNode), _owner(_RunGovernanceNode))
+    for owner in (
+        _owner(_BuildVerifiedPolicyReportNode),
+        _owner(_RunGovernanceNode),
+        _owner(_RunTransportabilityNode),
+    )
 }
 
 
@@ -275,7 +287,162 @@ def matches_engine_component_identity(
         return False
 
 
+def matches_spawned_timeout_worker_component_identity(
+    ctx: object,
+    identity: RunInvocationImplementationIdentity,
+    component_id: str,
+    node_alias: str,
+    params: dict[str, Any],
+) -> bool:
+    """Recompute the exact selected builtin against a live spawned attempt.
+
+    Runtime process/object tokens remain part of the persisted parent identity;
+    this child verifier compares its stable executable/spec/binding fields only
+    after independently resolving that identity from the current run-owned
+    attempt and the typed parent-dispatch binding.
+    """
+    try:
+        from polisyos.core.canon import from_canonical_bytes
+        from polisyos.core.run.worker_lifecycle import (
+            WorkerDispatchBinding,
+            WorkerRunView,
+        )
+        from polisyos.scientist.orchestration.engine.context import (
+            ExecutionContext,
+            _EngineInvocationBinding,
+        )
+        from polisyos.scientist.orchestration.engine.retry import (
+            _AttemptRunFacade,
+            _EngineNodeRunView,
+            _resolve_exact_worker_run_view,
+        )
+        from polisyos.scientist.orchestration.engine.runner.serialization import (
+            _TIMEOUT_CONTEXT_ENGINE_INVOCATION_NODE_ID,
+            _timeout_worker_params_match,
+        )
+        from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
+
+        if (
+            type(ctx) is not ExecutionContext
+            or type(identity) is not RunInvocationImplementationIdentity
+            or type(component_id) is not str
+            or component_id != _TIMEOUT_CONTEXT_ENGINE_INVOCATION_NODE_ID
+            or type(node_alias) is not str
+            or node_alias != "run_transportability"
+            or type(params) is not dict
+        ):
+            return False
+
+        engine_binding = ctx._engine_invocation
+        if type(engine_binding) is not _EngineInvocationBinding:
+            return False
+        run_view = ctx.run
+        if type(run_view) is WorkerRunView:
+            worker_run = run_view
+        elif type(run_view) is _EngineNodeRunView:
+            current = object.__getattribute__(run_view, "_EngineNodeRunView__target")
+            if type(current) is not _AttemptRunFacade:
+                return False
+            worker_run = _resolve_exact_worker_run_view(current)
+            if worker_run is None:
+                return False
+        else:
+            return False
+
+        effective_timeout_s = engine_binding.effective_timeout_s
+        supervisor_deadline = engine_binding.supervisor_deadline_monotonic
+        if (
+            type(effective_timeout_s) is not float
+            or not math.isfinite(effective_timeout_s)
+            or effective_timeout_s <= 0.0
+            or type(supervisor_deadline) is not float
+            or not math.isfinite(supervisor_deadline)
+        ):
+            return False
+        dispatch_binding = run_view.dispatch_binding
+        if (
+            type(dispatch_binding) is not WorkerDispatchBinding
+            or worker_run.run_manifest.run_id != engine_binding.run_id
+        ):
+            return False
+        if (
+            dispatch_binding.run_id != engine_binding.run_id
+            or dispatch_binding.run_id != ctx.run.run_manifest.run_id
+            or re.fullmatch(r"[0-9a-f]{64}", dispatch_binding.invocation_id) is None
+            or re.fullmatch(r"[0-9a-f]{64}", dispatch_binding.dispatch_sha256) is None
+            or engine_binding.run_id != ctx.run.run_manifest.run_id
+            or engine_binding.basis_ref.manifest_profile_sha256 is None
+        ):
+            return False
+
+        attempts = ctx.run.read_runtime_invocation_attempts()
+        matches = [
+            item
+            for item in attempts
+            if item.basis.attempt_id == engine_binding.attempt_id
+            and item.basis_ref == engine_binding.basis_ref
+        ]
+        if len(matches) != 1:
+            return False
+        attempt = matches[0]
+        basis = attempt.basis
+        if (
+            attempt.outcome is not None
+            or basis.run_id != engine_binding.run_id
+            or basis.node_alias != node_alias
+            or basis.component_id != component_id
+            or basis.implementation_identity is None
+            or type(basis.implementation_identity) is not RunInvocationImplementationIdentity
+            or basis.implementation_identity != identity
+            or basis.workflow_spec_ref.manifest_profile_sha256 is None
+            or basis.input_state_ref.manifest_profile_sha256 is None
+        ):
+            return False
+
+        workflow = WorkflowSpec.model_validate(
+            from_canonical_bytes(ctx.store.get_bytes(basis.workflow_spec_ref))
+        )
+        selected_nodes = [item for item in workflow.nodes if item.alias == node_alias]
+        if len(selected_nodes) != 1:
+            return False
+        selected_node = selected_nodes[0]
+        if (
+            str(selected_node.node_id) != component_id
+            or selected_node.timeout_s is None
+            or not math.isfinite(selected_node.timeout_s)
+            or selected_node.timeout_s < effective_timeout_s
+            or not _timeout_worker_params_match(selected_node.params, params)
+        ):
+            return False
+
+        owner = _OWNERS.get(component_id)
+        if owner is None or owner.node_type is not _RunTransportabilityNode:
+            return False
+        expected = _bound_owner_instance(owner, params)
+        if type(expected) is not owner.node_type:
+            return False
+        recomputed = _identity_for(owner, expected, params)
+        stable_fields = (
+            "schema_version",
+            "scope",
+            "component_id",
+            "owner_module",
+            "owner_qualname",
+            "module_source_sha256",
+            "execute_code_sha256",
+            "bind_code_sha256",
+            "spec_accessor_code_sha256",
+            "node_spec_sha256",
+            "bound_state_sha256",
+            "dispatch_params_sha256",
+        )
+        return all(getattr(identity, name) == getattr(recomputed, name) for name in stable_fields)
+    except Exception:
+        return False
+
+
 __all__ = [
     "capture_engine_component_identity",
     "matches_engine_component_identity",
+    "matches_spawned_timeout_worker_component_identity",
 ]

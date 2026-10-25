@@ -1212,84 +1212,9 @@
         "title": "AgentPipelineCostEvent",
         "type": "object"
       },
-      "AgentPipelineUnattributedCostScalar": {
-        "additionalProperties": false,
-        "description": "A legacy cost summary scalar without established lease-attempt attribution.",
-        "properties": {
-          "agent": {
-            "anyOf": [
-              { "type": "string" },
-              { "type": "null" }
-            ]
-          },
-          "attempt": {
-            "anyOf": [
-              { "minimum": 1.0, "type": "integer" },
-              { "type": "null" }
-            ]
-          },
-          "claimed_value_usd": {
-            "minimum": 0.0,
-            "title": "Claimed Value Usd",
-            "type": "number"
-          },
-          "model": {
-            "anyOf": [
-              { "type": "string" },
-              { "type": "null" }
-            ]
-          },
-          "model_variant_id": {
-            "anyOf": [
-              { "type": "string" },
-              { "type": "null" }
-            ]
-          },
-          "scope": {
-            "const": "not_established",
-            "default": "not_established",
-            "title": "Scope",
-            "type": "string"
-          },
-          "source_field": {
-            "enum": [
-              "cost_usd",
-              "reported_cost_usd",
-              "estimated_cost_usd"
-            ],
-            "title": "Source Field",
-            "type": "string"
-          },
-          "source_index": {
-            "anyOf": [
-              { "minimum": 0.0, "type": "integer" },
-              { "type": "null" }
-            ]
-          },
-          "source_kind": {
-            "enum": [
-              "step_summary",
-              "attempt_summary",
-              "pipeline_summary",
-              "performance_summary_llm",
-              "performance_summary_variant_row"
-            ],
-            "title": "Source Kind",
-            "type": "string"
-          }
-        },
-        "required": [
-          "source_kind",
-          "source_field",
-          "claimed_value_usd",
-          "scope"
-        ],
-        "title": "AgentPipelineUnattributedCostScalar",
-        "type": "object"
-      },
       "AgentPipelineResponse": {
         "additionalProperties": false,
-        "description": "Response envelope returned by the agent-pipeline endpoint.",
+        "description": "Response/report envelope returned by the agent-pipeline endpoint.",
         "properties": {
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
@@ -1556,6 +1481,106 @@
         "title": "AgentPipelineStep",
         "type": "object"
       },
+      "AgentPipelineUnattributedCostScalar": {
+        "additionalProperties": false,
+        "description": "A legacy monetary scalar whose lease attribution is not established.",
+        "properties": {
+          "agent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent"
+          },
+          "attempt": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempt"
+          },
+          "claimed_value_usd": {
+            "title": "Claimed Value Usd",
+            "type": "number"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "model_variant_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Variant Id"
+          },
+          "scope": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Scope",
+            "type": "string"
+          },
+          "source_field": {
+            "enum": [
+              "cost_usd",
+              "reported_cost_usd",
+              "estimated_cost_usd"
+            ],
+            "title": "Source Field",
+            "type": "string"
+          },
+          "source_index": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Index"
+          },
+          "source_kind": {
+            "enum": [
+              "step_summary",
+              "attempt_summary",
+              "pipeline_summary",
+              "performance_summary_llm",
+              "performance_summary_variant_row"
+            ],
+            "title": "Source Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_kind",
+          "source_field",
+          "claimed_value_usd"
+        ],
+        "title": "AgentPipelineUnattributedCostScalar",
+        "type": "object"
+      },
       "AgentPipelineView": {
         "additionalProperties": false,
         "description": "Composite runtime view of agent attempts, retrieval, evaluation, and iteration state.",
@@ -1684,7 +1709,6 @@
                 "type": "null"
               }
             ],
-            "default": null,
             "description": "Verified ControlJob lease attempt bound to this run; null means the owner attempt was not established.",
             "title": "Owner Control Job Attempt"
           },
@@ -2010,6 +2034,9 @@
       },
       "ArtifactID-Input": {
         "description": "Represent a normalized CAS identifier in `sha256:<64hex>` form.\n\nThe `sha256:` prefix and lowercase 64-hex digest are part of the stable ABI\nused in manifests, runtime URLs, CLI arguments, and signature statements.",
+        "maxLength": 71,
+        "minLength": 71,
+        "pattern": "^sha256:[0-9A-Fa-f]{64}$",
         "title": "ArtifactID",
         "type": "string"
       },
@@ -6181,6 +6208,84 @@
         "title": "CacheStatusResponse",
         "type": "object"
       },
+      "CandidateDecisionPacketHTEProjection": {
+        "additionalProperties": false,
+        "description": "Strict response carrying one packet-bound HTE candidate, never authority.",
+        "properties": {
+          "candidate_only": {
+            "const": true,
+            "default": true,
+            "title": "Candidate Only",
+            "type": "boolean"
+          },
+          "candidate_status": {
+            "enum": [
+              "selected",
+              "absent"
+            ],
+            "title": "Candidate Status",
+            "type": "string"
+          },
+          "decision_packet_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 32,
+            "title": "Limitations",
+            "type": "array"
+          },
+          "live_source_currentness": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Live Source Currentness",
+            "type": "string"
+          },
+          "packet_run_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Packet Run Id",
+            "type": "string"
+          },
+          "publication_authorization": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Publication Authorization",
+            "type": "string"
+          },
+          "reader_at": {
+            "format": "date-time",
+            "title": "Reader At",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1",
+            "default": "1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CompletedMethodHTESource"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "packet_run_id",
+          "decision_packet_ref",
+          "candidate_status",
+          "reader_at"
+        ],
+        "title": "CandidateDecisionPacketHTEProjection",
+        "type": "object"
+      },
       "CandidateLever": {
         "additionalProperties": false,
         "description": "Represent one candidate operator/instrument slot for atom binding.",
@@ -8278,6 +8383,47 @@
           "run_b"
         ],
         "title": "ComparisonFrame",
+        "type": "object"
+      },
+      "CompletedMethodHTESource": {
+        "properties": {
+          "association": {
+            "$ref": "#/components/schemas/OwnedAttemptAnchorProjectionAssociation"
+          },
+          "completed_event_id": {
+            "title": "Completed Event Id",
+            "type": "integer"
+          },
+          "completed_event_payload_sha256": {
+            "title": "Completed Event Payload Sha256",
+            "type": "string"
+          },
+          "source_attempt": {
+            "title": "Source Attempt",
+            "type": "integer"
+          },
+          "source_job_id": {
+            "title": "Source Job Id",
+            "type": "string"
+          },
+          "source_run_id": {
+            "title": "Source Run Id",
+            "type": "string"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/DirectMethodExecutionHTESummary"
+          }
+        },
+        "required": [
+          "source_run_id",
+          "source_job_id",
+          "source_attempt",
+          "completed_event_id",
+          "completed_event_payload_sha256",
+          "summary",
+          "association"
+        ],
+        "title": "CompletedMethodHTESource",
         "type": "object"
       },
       "CompletionOutcome": {
@@ -12475,6 +12621,9 @@
           "data_snapshot_ref": {
             "anyOf": [
               {
+                "$ref": "#/components/schemas/DataSnapshotRef"
+              },
+              {
                 "type": "string"
               },
               {
@@ -13229,6 +13378,256 @@
         "title": "DecisionPacketEffectSize",
         "type": "object"
       },
+      "DecisionPacketLegacyHTEFeaturePreview": {
+        "additionalProperties": false,
+        "description": "One legacy feature ranking with metadata omitted from the public preview.",
+        "properties": {
+          "feature_name": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Feature Name",
+            "type": "string"
+          },
+          "importance_rank": {
+            "minimum": 1.0,
+            "title": "Importance Rank",
+            "type": "integer"
+          },
+          "importance_score": {
+            "title": "Importance Score",
+            "type": "number"
+          },
+          "method": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Method",
+            "type": "string"
+          }
+        },
+        "required": [
+          "feature_name",
+          "importance_score",
+          "importance_rank",
+          "method"
+        ],
+        "title": "DecisionPacketLegacyHTEFeaturePreview",
+        "type": "object"
+      },
+      "DecisionPacketLegacyHTEPreview": {
+        "additionalProperties": false,
+        "description": "Limited display projection of the older decision-packet HTE payload.",
+        "properties": {
+          "ate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ate"
+          },
+          "ate_ci_lower": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ate Ci Lower"
+          },
+          "ate_ci_upper": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ate Ci Upper"
+          },
+          "authority_status": {
+            "const": "limited_display_only",
+            "default": "limited_display_only",
+            "title": "Authority Status",
+            "type": "string"
+          },
+          "availability": {
+            "enum": [
+              "available",
+              "unavailable"
+            ],
+            "title": "Availability",
+            "type": "string"
+          },
+          "bounds_meaning_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Bounds Meaning Status",
+            "type": "string"
+          },
+          "conditional_coverage_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Conditional Coverage Status",
+            "type": "string"
+          },
+          "kind": {
+            "const": "legacy_limited",
+            "default": "legacy_limited",
+            "title": "Kind",
+            "type": "string"
+          },
+          "limitations": {
+            "default": [
+              "legacy_source_reference_unprofiled",
+              "legacy_target_scope_not_established",
+              "legacy_bound_meaning_not_established",
+              "legacy_conditional_coverage_not_established",
+              "legacy_population_coverage_not_established"
+            ],
+            "items": {
+              "enum": [
+                "legacy_source_reference_unprofiled",
+                "legacy_target_scope_not_established",
+                "legacy_bound_meaning_not_established",
+                "legacy_conditional_coverage_not_established",
+                "legacy_population_coverage_not_established"
+              ],
+              "type": "string"
+            },
+            "maxItems": 5,
+            "minItems": 5,
+            "title": "Limitations",
+            "type": "array"
+          },
+          "method": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Method"
+          },
+          "n_features": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N Features"
+          },
+          "n_samples": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N Samples"
+          },
+          "n_subgroups": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N Subgroups"
+          },
+          "parse_warning": {
+            "anyOf": [
+              {
+                "const": "hte_result_parse_failed",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parse Warning"
+          },
+          "population_coverage_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Population Coverage Status",
+            "type": "string"
+          },
+          "projection_status": {
+            "const": "legacy_limited",
+            "default": "legacy_limited",
+            "title": "Projection Status",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "default": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_reference_profile_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Source Reference Profile Status",
+            "type": "string"
+          },
+          "source_result_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Source Result Ref",
+            "type": "string"
+          },
+          "target_scope_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Target Scope Status",
+            "type": "string"
+          },
+          "top_features": {
+            "items": {
+              "$ref": "#/components/schemas/DecisionPacketLegacyHTEFeaturePreview"
+            },
+            "maxItems": 5,
+            "title": "Top Features",
+            "type": "array"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 64,
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "availability",
+          "source_result_ref",
+          "top_features",
+          "warnings",
+          "parse_warning"
+        ],
+        "title": "DecisionPacketLegacyHTEPreview",
+        "type": "object"
+      },
       "DecisionPacketMetricComparisonRow": {
         "additionalProperties": false,
         "description": "Typed metric-comparison row embedded in decision-packet previews.",
@@ -13674,6 +14073,37 @@
             },
             "title": "Evidence Summary Blocks",
             "type": "array"
+          },
+          "hte": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DirectMethodExecutionHTESummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "hte_legacy_limited": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionPacketLegacyHTEPreview"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "hte_projection_status": {
+            "default": "absent",
+            "enum": [
+              "absent",
+              "typed",
+              "legacy_limited",
+              "invalid"
+            ],
+            "title": "Hte Projection Status",
+            "type": "string"
           },
           "metric_significance_by_metric": {
             "additionalProperties": {
@@ -15614,6 +16044,1856 @@
           "name"
         ],
         "title": "DesignStakeholder",
+        "type": "object"
+      },
+      "DirectMethodExecutionHTEResourceEvidence": {
+        "additionalProperties": false,
+        "description": "Bounded owner-policy and method-specific execution evidence for one HTE result.",
+        "properties": {
+          "estimator_after_class_fqn": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimator After Class Fqn"
+          },
+          "estimator_after_n_jobs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimator After N Jobs"
+          },
+          "estimator_after_params_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimator After Params Sha256"
+          },
+          "estimator_before_class_fqn": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimator Before Class Fqn"
+          },
+          "estimator_before_n_jobs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimator Before N Jobs"
+          },
+          "estimator_before_params_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimator Before Params Sha256"
+          },
+          "estimator_observation_status": {
+            "enum": [
+              "recomputed",
+              "not_applicable",
+              "not_established"
+            ],
+            "title": "Estimator Observation Status",
+            "type": "string"
+          },
+          "execution_status": {
+            "enum": [
+              "not_started",
+              "returned",
+              "raised"
+            ],
+            "title": "Execution Status",
+            "type": "string"
+          },
+          "joblib_entry_backend_fqn": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joblib Entry Backend Fqn"
+          },
+          "joblib_entry_config_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joblib Entry Config Sha256"
+          },
+          "joblib_entry_effective_jobs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joblib Entry Effective Jobs"
+          },
+          "joblib_entry_implementation_version": {
+            "anyOf": [
+              {
+                "maxLength": 96,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joblib Entry Implementation Version"
+          },
+          "joblib_exit_backend_fqn": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joblib Exit Backend Fqn"
+          },
+          "joblib_exit_config_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joblib Exit Config Sha256"
+          },
+          "joblib_exit_effective_jobs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joblib Exit Effective Jobs"
+          },
+          "joblib_exit_implementation_version": {
+            "anyOf": [
+              {
+                "maxLength": 96,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joblib Exit Implementation Version"
+          },
+          "joblib_exit_status": {
+            "default": "not_started",
+            "enum": [
+              "not_started",
+              "returned",
+              "raised"
+            ],
+            "title": "Joblib Exit Status",
+            "type": "string"
+          },
+          "joblib_finished": {
+            "default": false,
+            "title": "Joblib Finished",
+            "type": "boolean"
+          },
+          "joblib_implementation": {
+            "anyOf": [
+              {
+                "const": "joblib.parallel_config",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joblib Implementation"
+          },
+          "joblib_implementation_version": {
+            "anyOf": [
+              {
+                "maxLength": 96,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joblib Implementation Version"
+          },
+          "joblib_max_jobs": {
+            "anyOf": [
+              {
+                "const": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joblib Max Jobs"
+          },
+          "joblib_observation_status": {
+            "enum": [
+              "recomputed",
+              "not_applicable",
+              "not_established"
+            ],
+            "title": "Joblib Observation Status",
+            "type": "string"
+          },
+          "joblib_profile_id": {
+            "anyOf": [
+              {
+                "const": "joblib.parallel_config.current_thread@1.0",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joblib Profile Id"
+          },
+          "joblib_profile_revision": {
+            "anyOf": [
+              {
+                "const": "1.0",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joblib Profile Revision"
+          },
+          "joblib_scope": {
+            "anyOf": [
+              {
+                "const": "current_thread_joblib",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joblib Scope"
+          },
+          "joblib_started": {
+            "default": false,
+            "title": "Joblib Started",
+            "type": "boolean"
+          },
+          "owner_policy_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Owner Policy Digest",
+            "type": "string"
+          },
+          "owner_policy_execution_scope": {
+            "enum": [
+              "estimator_n_jobs_one",
+              "producer_scoped_joblib_parallelism_one"
+            ],
+            "title": "Owner Policy Execution Scope",
+            "type": "string"
+          },
+          "owner_policy_manifest_schema_version": {
+            "const": "1.0",
+            "default": "1.0",
+            "title": "Owner Policy Manifest Schema Version",
+            "type": "string"
+          },
+          "owner_policy_max_jobs": {
+            "const": 1,
+            "title": "Owner Policy Max Jobs",
+            "type": "integer"
+          },
+          "owner_policy_method_fqn": {
+            "enum": [
+              "causal.hte.causal_forest@2.0.0",
+              "causal.hte.double_ml@2.0.0",
+              "causal.hte.meta_learner@2.0.0",
+              "causal.hte.forest_dr@2.0.0"
+            ],
+            "title": "Owner Policy Method Fqn",
+            "type": "string"
+          },
+          "owner_policy_method_profile_id": {
+            "enum": [
+              "econml.causal_forest_dml.native_mean@2.0",
+              "econml.dml.point_only@2.0",
+              "econml.meta_learner.point_only@2.0",
+              "econml.forest_dr.native_mean@2.0"
+            ],
+            "title": "Owner Policy Method Profile Id",
+            "type": "string"
+          },
+          "owner_policy_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "owner_policy_required_estimator_n_jobs": {
+            "anyOf": [
+              {
+                "const": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Policy Required Estimator N Jobs"
+          },
+          "owner_policy_revision": {
+            "enum": [
+              "r4",
+              "r5"
+            ],
+            "title": "Owner Policy Revision",
+            "type": "string"
+          },
+          "owner_policy_schema_version": {
+            "enum": [
+              "polisyos.runtime.observational_input_resource_policy.v4",
+              "polisyos.runtime.observational_input_resource_policy.v5"
+            ],
+            "title": "Owner Policy Schema Version",
+            "type": "string"
+          },
+          "physical_thread_limit": {
+            "title": "Physical Thread Limit",
+            "type": "null"
+          },
+          "physical_thread_limit_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Physical Thread Limit Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "owner_policy_ref",
+          "owner_policy_digest",
+          "owner_policy_schema_version",
+          "owner_policy_revision",
+          "owner_policy_method_fqn",
+          "owner_policy_method_profile_id",
+          "owner_policy_execution_scope",
+          "owner_policy_max_jobs",
+          "owner_policy_required_estimator_n_jobs",
+          "execution_status",
+          "estimator_observation_status",
+          "joblib_observation_status",
+          "joblib_profile_id",
+          "joblib_profile_revision",
+          "joblib_implementation",
+          "joblib_scope",
+          "joblib_max_jobs"
+        ],
+        "title": "DirectMethodExecutionHTEResourceEvidence",
+        "type": "object"
+      },
+      "DirectMethodExecutionHTESummary": {
+        "additionalProperties": false,
+        "description": "Scalar-only projection copied from a validated persisted HTE outcome.",
+        "properties": {
+          "computed_estimand": {
+            "anyOf": [
+              {
+                "const": "mean_effect_over_selected_x",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Computed Estimand"
+          },
+          "computed_estimand_status": {
+            "enum": [
+              "recomputed",
+              "not_established"
+            ],
+            "title": "Computed Estimand Status",
+            "type": "string"
+          },
+          "computed_guarantee": {
+            "anyOf": [
+              {
+                "enum": [
+                  "candidate_point",
+                  "backend_conditional_interval"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Computed Guarantee"
+          },
+          "computed_guarantee_status": {
+            "enum": [
+              "computed",
+              "not_established"
+            ],
+            "title": "Computed Guarantee Status",
+            "type": "string"
+          },
+          "computed_target_scope": {
+            "anyOf": [
+              {
+                "const": "selected_evaluation_rows",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Computed Target Scope"
+          },
+          "computed_target_scope_status": {
+            "enum": [
+              "recomputed",
+              "not_established"
+            ],
+            "title": "Computed Target Scope Status",
+            "type": "string"
+          },
+          "confidence_level": {
+            "anyOf": [
+              {
+                "exclusiveMaximum": 1.0,
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence Level"
+          },
+          "control_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Control Value"
+          },
+          "hte_outcome_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "hte_result_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "inference_basis_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "inference_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "inference_not_requested",
+                  "native_inference_unavailable",
+                  "native_inference_invalid",
+                  "method_profile_not_qualified",
+                  "selection_uses_outcomes",
+                  "contrast_not_established",
+                  "request_alpha_not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inference Reason"
+          },
+          "inference_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "not_requested",
+                  "unavailable",
+                  "unsupported",
+                  "not_qualified",
+                  "failed",
+                  "native_ate_inference_validated"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inference Status"
+          },
+          "kind": {
+            "enum": [
+              "point_estimate",
+              "interval_estimate",
+              "refusal"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 32,
+            "minItems": 1,
+            "title": "Limitations",
+            "type": "array"
+          },
+          "lower_bound": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lower Bound"
+          },
+          "materialization_binding_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "measure_unit": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Measure Unit"
+          },
+          "measure_unit_status": {
+            "enum": [
+              "established",
+              "not_established"
+            ],
+            "title": "Measure Unit Status",
+            "type": "string"
+          },
+          "method_abi_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Method Abi Digest",
+            "type": "string"
+          },
+          "method_evidence_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "method_fqn": {
+            "enum": [
+              "causal.hte.causal_forest@2.0.0",
+              "causal.hte.double_ml@2.0.0",
+              "causal.hte.meta_learner@2.0.0",
+              "causal.hte.forest_dr@2.0.0"
+            ],
+            "title": "Method Fqn",
+            "type": "string"
+          },
+          "method_profile_id": {
+            "enum": [
+              "econml.causal_forest_dml.native_mean@2.0",
+              "econml.dml.point_only@2.0",
+              "econml.meta_learner.point_only@2.0",
+              "econml.forest_dr.native_mean@2.0"
+            ],
+            "title": "Method Profile Id",
+            "type": "string"
+          },
+          "method_result_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "n_selected_rows": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N Selected Rows"
+          },
+          "outcome_variable_id": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome Variable Id"
+          },
+          "outcome_variable_status": {
+            "enum": [
+              "declared",
+              "not_established"
+            ],
+            "title": "Outcome Variable Status",
+            "type": "string"
+          },
+          "owned_attempt_anchor_ref": {
+            "$ref": "#/components/schemas/OwnedAttemptAnchorRef"
+          },
+          "point_estimate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Point Estimate"
+          },
+          "point_result_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "refusal_diagnostic_code": {
+            "anyOf": [
+              {
+                "enum": [
+                  "hte_input_invalid",
+                  "empty_selected_input",
+                  "econml_unavailable",
+                  "joblib_unavailable",
+                  "resource_profile_invalid",
+                  "dml_profile_invalid",
+                  "meta_profile_invalid",
+                  "hte_execution_failed",
+                  "hte_fit_failed",
+                  "hte_point_estimate_invalid",
+                  "contrast_not_established",
+                  "runtime_origin_not_verified"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refusal Diagnostic Code"
+          },
+          "refusal_diagnostic_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "refusal_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "invalid_point_estimate",
+                  "method_execution_failed",
+                  "required_input_unavailable",
+                  "invalid_selected_input",
+                  "method_profile_unavailable",
+                  "runtime_origin_not_verified"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refusal Reason"
+          },
+          "refusal_stage": {
+            "anyOf": [
+              {
+                "enum": [
+                  "prepare",
+                  "fit",
+                  "infer",
+                  "origin_verification"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refusal Stage"
+          },
+          "request_alpha_status": {
+            "enum": [
+              "declared",
+              "not_established"
+            ],
+            "title": "Request Alpha Status",
+            "type": "string"
+          },
+          "request_contrast_status": {
+            "enum": [
+              "declared",
+              "not_established"
+            ],
+            "title": "Request Contrast Status",
+            "type": "string"
+          },
+          "request_estimand": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Estimand"
+          },
+          "request_estimand_status": {
+            "enum": [
+              "declared",
+              "not_established"
+            ],
+            "title": "Request Estimand Status",
+            "type": "string"
+          },
+          "request_target_scope": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Target Scope"
+          },
+          "request_target_scope_status": {
+            "enum": [
+              "declared",
+              "not_established"
+            ],
+            "title": "Request Target Scope Status",
+            "type": "string"
+          },
+          "requested_alpha": {
+            "anyOf": [
+              {
+                "exclusiveMaximum": 1.0,
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Alpha"
+          },
+          "requested_guarantee": {
+            "anyOf": [
+              {
+                "enum": [
+                  "candidate_point",
+                  "backend_conditional_interval",
+                  "population_sampling_coverage"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Guarantee"
+          },
+          "requested_guarantee_status": {
+            "enum": [
+              "declared",
+              "not_established"
+            ],
+            "title": "Requested Guarantee Status",
+            "type": "string"
+          },
+          "resolved_params_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Resolved Params Sha256",
+            "type": "string"
+          },
+          "resource_evidence": {
+            "$ref": "#/components/schemas/DirectMethodExecutionHTEResourceEvidence"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "default": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "search_uncertainty_task_binding_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "selected_row_order_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Row Order Sha256"
+          },
+          "selected_rows_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Rows Sha256"
+          },
+          "selected_rows_status": {
+            "enum": [
+              "recomputed",
+              "not_established"
+            ],
+            "title": "Selected Rows Status",
+            "type": "string"
+          },
+          "selected_x_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected X Sha256"
+          },
+          "source_data_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "target_relation": {
+            "$ref": "#/components/schemas/DirectMethodExecutionHTETargetRelation"
+          },
+          "treated_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Treated Value"
+          },
+          "treatment_variable_id": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Treatment Variable Id"
+          },
+          "treatment_variable_status": {
+            "enum": [
+              "declared",
+              "not_established"
+            ],
+            "title": "Treatment Variable Status",
+            "type": "string"
+          },
+          "upper_bound": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upper Bound"
+          }
+        },
+        "required": [
+          "kind",
+          "method_fqn",
+          "method_abi_digest",
+          "method_profile_id",
+          "resolved_params_sha256",
+          "owned_attempt_anchor_ref",
+          "hte_outcome_ref",
+          "method_result_ref",
+          "method_evidence_ref",
+          "selected_rows_status",
+          "computed_estimand_status",
+          "computed_target_scope_status",
+          "measure_unit_status",
+          "request_estimand_status",
+          "request_target_scope_status",
+          "outcome_variable_status",
+          "treatment_variable_status",
+          "request_contrast_status",
+          "request_alpha_status",
+          "requested_guarantee_status",
+          "requested_guarantee",
+          "computed_guarantee_status",
+          "computed_guarantee",
+          "target_relation",
+          "inference_status",
+          "inference_reason",
+          "refusal_reason",
+          "refusal_diagnostic_code",
+          "resource_evidence",
+          "limitations"
+        ],
+        "title": "DirectMethodExecutionHTESummary",
+        "type": "object"
+      },
+      "DirectMethodExecutionHTETargetRelation": {
+        "additionalProperties": false,
+        "description": "Bounded target relation copied from the validated HTE outcome.",
+        "properties": {
+          "alpha_status": {
+            "enum": [
+              "recomputed",
+              "not_applicable",
+              "not_established"
+            ],
+            "title": "Alpha Status",
+            "type": "string"
+          },
+          "computed_guarantee": {
+            "anyOf": [
+              {
+                "enum": [
+                  "candidate_point",
+                  "backend_conditional_interval"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Computed Guarantee"
+          },
+          "computed_guarantee_status": {
+            "enum": [
+              "computed",
+              "not_established"
+            ],
+            "title": "Computed Guarantee Status",
+            "type": "string"
+          },
+          "computed_scope": {
+            "anyOf": [
+              {
+                "const": "selected_evaluation_rows",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Computed Scope"
+          },
+          "computed_scope_status": {
+            "enum": [
+              "recomputed",
+              "not_established"
+            ],
+            "title": "Computed Scope Status",
+            "type": "string"
+          },
+          "contrast_status": {
+            "enum": [
+              "recomputed",
+              "not_established"
+            ],
+            "title": "Contrast Status",
+            "type": "string"
+          },
+          "estimand_status": {
+            "enum": [
+              "recomputed",
+              "not_established"
+            ],
+            "title": "Estimand Status",
+            "type": "string"
+          },
+          "guarantee_disposition": {
+            "enum": [
+              "satisfied",
+              "requested_claim_not_satisfied",
+              "not_established"
+            ],
+            "title": "Guarantee Disposition",
+            "type": "string"
+          },
+          "overall_disposition": {
+            "enum": [
+              "satisfied",
+              "requested_claim_not_satisfied",
+              "not_established"
+            ],
+            "title": "Overall Disposition",
+            "type": "string"
+          },
+          "profile_status": {
+            "enum": [
+              "qualified",
+              "point_only",
+              "not_established"
+            ],
+            "title": "Profile Status",
+            "type": "string"
+          },
+          "requested_guarantee": {
+            "anyOf": [
+              {
+                "enum": [
+                  "candidate_point",
+                  "backend_conditional_interval",
+                  "population_sampling_coverage"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Guarantee"
+          },
+          "requested_guarantee_status": {
+            "enum": [
+              "declared",
+              "not_established"
+            ],
+            "title": "Requested Guarantee Status",
+            "type": "string"
+          },
+          "requested_scope": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Scope"
+          },
+          "requested_scope_status": {
+            "enum": [
+              "declared",
+              "not_established"
+            ],
+            "title": "Requested Scope Status",
+            "type": "string"
+          },
+          "row_order_status": {
+            "enum": [
+              "recomputed",
+              "not_established"
+            ],
+            "title": "Row Order Status",
+            "type": "string"
+          },
+          "scope_disposition": {
+            "enum": [
+              "satisfied",
+              "requested_claim_not_satisfied",
+              "not_established"
+            ],
+            "title": "Scope Disposition",
+            "type": "string"
+          },
+          "source_content_status": {
+            "enum": [
+              "content_bound",
+              "not_established"
+            ],
+            "title": "Source Content Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requested_scope_status",
+          "requested_guarantee_status",
+          "requested_guarantee",
+          "computed_scope_status",
+          "computed_scope",
+          "computed_guarantee_status",
+          "computed_guarantee",
+          "source_content_status",
+          "row_order_status",
+          "contrast_status",
+          "estimand_status",
+          "alpha_status",
+          "profile_status",
+          "scope_disposition",
+          "guarantee_disposition",
+          "overall_disposition"
+        ],
+        "title": "DirectMethodExecutionHTETargetRelation",
+        "type": "object"
+      },
+      "DirectMethodExecutionRequestSummary": {
+        "additionalProperties": false,
+        "description": "Privacy-bounded immutable request summary for one accepted direct method job.",
+        "properties": {
+          "max_bytes": {
+            "minimum": 1.0,
+            "title": "Max Bytes",
+            "type": "integer"
+          },
+          "max_depth": {
+            "minimum": 1.0,
+            "title": "Max Depth",
+            "type": "integer"
+          },
+          "max_elements": {
+            "minimum": 1.0,
+            "title": "Max Elements",
+            "type": "integer"
+          },
+          "max_manifest_bytes": {
+            "minimum": 1.0,
+            "title": "Max Manifest Bytes",
+            "type": "integer"
+          },
+          "method_abi_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Method Abi Digest",
+            "type": "string"
+          },
+          "method_build_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Method Build Digest",
+            "type": "string"
+          },
+          "method_build_digest_scope": {
+            "const": "class_source_only",
+            "title": "Method Build Digest Scope",
+            "type": "string"
+          },
+          "method_fqn": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Method Fqn",
+            "type": "string"
+          },
+          "method_version": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Method Version",
+            "type": "string"
+          },
+          "owned_hte_request_context": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OwnedHTERequestContextV1"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "requested_at": {
+            "format": "date-time",
+            "title": "Requested At",
+            "type": "string"
+          },
+          "requested_intent_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "requested_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "required_estimator_n_jobs": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Required Estimator N Jobs"
+          },
+          "resolved_params_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Resolved Params Sha256",
+            "type": "string"
+          },
+          "resource_policy_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Resource Policy Digest",
+            "type": "string"
+          },
+          "resource_policy_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "seed": {
+            "maximum": 4294967295.0,
+            "minimum": 0.0,
+            "title": "Seed",
+            "type": "integer"
+          },
+          "seed_policy_revision": {
+            "const": "server_seed_zero_v1",
+            "title": "Seed Policy Revision",
+            "type": "string"
+          },
+          "source_protocol": {
+            "enum": [
+              "method_input_envelope_v1",
+              "legacy_hte_json_v1"
+            ],
+            "title": "Source Protocol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requested_source_ref",
+          "requested_intent_ref",
+          "resource_policy_ref",
+          "source_protocol",
+          "method_fqn",
+          "method_version",
+          "method_abi_digest",
+          "method_build_digest",
+          "method_build_digest_scope",
+          "resource_policy_digest",
+          "resolved_params_sha256",
+          "seed",
+          "seed_policy_revision",
+          "max_manifest_bytes",
+          "max_bytes",
+          "max_depth",
+          "max_elements",
+          "requested_at"
+        ],
+        "title": "DirectMethodExecutionRequestSummary",
+        "type": "object"
+      },
+      "DirectMethodExecutionRunProjection": {
+        "additionalProperties": false,
+        "description": "Audience-bounded current projection of one persisted direct method run.",
+        "properties": {
+          "candidate_only": {
+            "const": true,
+            "default": true,
+            "title": "Candidate Only",
+            "type": "boolean"
+          },
+          "input_refusal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OwnedAttemptAnchorRefusalAssociation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "limitations": {
+            "items": {
+              "enum": [
+                "selected_view_permission_required",
+                "owned_run_cell_scope_required",
+                "no_direct_method_request",
+                "legacy_selection_unbound",
+                "candidate_execution_pending",
+                "execution_outcome_not_established",
+                "selection_persistence_not_established",
+                "input_refused_before_dispatch",
+                "candidate_input_not_external_truth",
+                "causal_identification_not_established",
+                "scientific_validity_not_established",
+                "units_and_context_not_established",
+                "source_access_revalidation_not_established",
+                "legacy_hte_json_v1_source_normalized"
+              ],
+              "type": "string"
+            },
+            "maxItems": 32,
+            "title": "Limitations",
+            "type": "array"
+          },
+          "refusal_code": {
+            "anyOf": [
+              {
+                "const": "observational_input_refused",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refusal Code"
+          },
+          "request": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DirectMethodExecutionRequestSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "selection": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DirectMethodExecutionSelection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "enum": [
+              "withheld",
+              "absent",
+              "legacy_unbound",
+              "accepted_pending",
+              "selected",
+              "input_refused",
+              "execution_failed",
+              "unavailable"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "time_roles": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DirectMethodExecutionTimeRoles"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "DirectMethodExecutionRunProjection",
+        "type": "object"
+      },
+      "DirectMethodExecutionSelection": {
+        "additionalProperties": false,
+        "description": "Persist the immutable input, runtime pins, and outputs of direct method work.",
+        "properties": {
+          "attempt": {
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "candidate_outcome": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MethodExecutionCandidateOutcome"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "content_admitted_intent_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "contract_target": {
+            "const": "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData",
+            "title": "Contract Target",
+            "type": "string"
+          },
+          "contract_target_id": {
+            "anyOf": [
+              {
+                "const": "foundry.causal.hte_observational_data.v1",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contract Target Id"
+          },
+          "effective_input_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "hte": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DirectMethodExecutionHTESummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "hte_outcome_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "hte_result_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "inference_basis_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "invocation_basis_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "job_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Job Id",
+            "type": "string"
+          },
+          "limitations": {
+            "items": {
+              "enum": [
+                "candidate_input_not_external_truth",
+                "scientific_validity_not_established",
+                "units_and_context_not_established",
+                "source_access_revalidation_not_established",
+                "legacy_hte_json_v1_source_normalized"
+              ],
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "method_abi_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Method Abi Digest",
+            "type": "string"
+          },
+          "method_build_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Method Build Digest",
+            "type": "string"
+          },
+          "method_build_digest_scope": {
+            "const": "class_source_only",
+            "title": "Method Build Digest Scope",
+            "type": "string"
+          },
+          "method_dispatch_binding_status": {
+            "enum": [
+              "recomputed",
+              "not_established"
+            ],
+            "title": "Method Dispatch Binding Status",
+            "type": "string"
+          },
+          "method_evidence_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "method_fqn": {
+            "enum": [
+              "causal.hte.forest_dr@1.0.0",
+              "causal.hte.forest_dr@1.1.0",
+              "causal.hte.causal_forest@2.0.0",
+              "causal.hte.double_ml@2.0.0",
+              "causal.hte.meta_learner@2.0.0",
+              "causal.hte.forest_dr@2.0.0"
+            ],
+            "title": "Method Fqn",
+            "type": "string"
+          },
+          "method_result_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "method_version": {
+            "enum": [
+              "1.0.0",
+              "1.1.0",
+              "2.0.0"
+            ],
+            "title": "Method Version",
+            "type": "string"
+          },
+          "normalization": {
+            "enum": [
+              "canonical_passthrough",
+              "legacy_to_method_input_envelope_v1"
+            ],
+            "title": "Normalization",
+            "type": "string"
+          },
+          "observational_run_intent_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "owned_attempt_anchor_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OwnedAttemptAnchorRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "owned_hte_request_context": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OwnedHTERequestContextV1"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "point_result_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "posterior_summary_refs": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/MethodExecutionPosteriorSummaryRef"
+            },
+            "title": "Posterior Summary Refs",
+            "type": "array"
+          },
+          "refusal_diagnostic_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "requested_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "resource_policy_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Resource Policy Digest",
+            "type": "string"
+          },
+          "resource_policy_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "run_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "selection_digest": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selection Digest"
+          },
+          "selection_kind": {
+            "const": "direct_method",
+            "default": "direct_method",
+            "title": "Selection Kind",
+            "type": "string"
+          },
+          "source_access_revalidation_status": {
+            "anyOf": [
+              {
+                "const": "not_established",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Access Revalidation Status"
+          },
+          "source_protocol": {
+            "enum": [
+              "method_input_envelope_v1",
+              "legacy_hte_json_v1"
+            ],
+            "title": "Source Protocol",
+            "type": "string"
+          },
+          "submitted_input_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          }
+        },
+        "required": [
+          "job_id",
+          "run_id",
+          "attempt",
+          "requested_source_ref",
+          "observational_run_intent_ref",
+          "content_admitted_intent_ref",
+          "resource_policy_ref",
+          "submitted_input_ref",
+          "effective_input_ref",
+          "method_result_ref",
+          "method_evidence_ref",
+          "contract_target",
+          "method_fqn",
+          "method_version",
+          "method_abi_digest",
+          "method_build_digest",
+          "method_build_digest_scope",
+          "resource_policy_digest",
+          "source_protocol",
+          "normalization",
+          "limitations",
+          "method_dispatch_binding_status"
+        ],
+        "title": "DirectMethodExecutionSelection",
+        "type": "object"
+      },
+      "DirectMethodExecutionTimeRoles": {
+        "additionalProperties": false,
+        "description": "Keep request, admission, execution, owner verification, and read times distinct.",
+        "properties": {
+          "admitted_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Admitted At"
+          },
+          "execution_finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Finished At"
+          },
+          "execution_started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Started At"
+          },
+          "owner_verified_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Verified At"
+          },
+          "reader_at": {
+            "format": "date-time",
+            "title": "Reader At",
+            "type": "string"
+          },
+          "source_observation_epoch": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Observation Epoch"
+          }
+        },
+        "required": [
+          "reader_at"
+        ],
+        "title": "DirectMethodExecutionTimeRoles",
         "type": "object"
       },
       "DiscoveryCandidate": {
@@ -24671,15 +26951,82 @@
             "minItems": 1,
             "title": "Lineage Ids",
             "type": "array"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Id"
+          },
+          "selected_artifact_refs": {
+            "anyOf": [
+              {
+                "items": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/ArtifactRef-Input"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Artifact Refs"
           }
         },
         "title": "LineageBatchRequest",
+        "type": "object"
+      },
+      "LineageBatchResolution": {
+        "additionalProperties": false,
+        "description": "Map one requested lineage selector and profile to its resolved response.",
+        "properties": {
+          "requested_lineage_id": {
+            "title": "Requested Lineage Id",
+            "type": "string"
+          },
+          "resolved_lineage_id": {
+            "title": "Resolved Lineage Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requested_lineage_id",
+          "resolved_lineage_id"
+        ],
+        "title": "LineageBatchResolution",
         "type": "object"
       },
       "LineageBatchResponse": {
         "additionalProperties": false,
         "description": "Response envelope returned by runtime lineage batch lookup.",
         "properties": {
+          "lineage_resolutions": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/LineageBatchResolution"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lineage Resolutions"
+          },
           "lineages": {
             "items": {
               "$ref": "#/components/schemas/LineageGraphView"
@@ -24876,9 +27223,33 @@
             "title": "Source Id",
             "type": "string"
           },
+          "source_manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Manifest Profile Sha256"
+          },
           "target_id": {
             "title": "Target Id",
             "type": "string"
+          },
+          "target_manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Manifest Profile Sha256"
           }
         },
         "required": [
@@ -24905,6 +27276,29 @@
           "label": {
             "title": "Label",
             "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
+          "media_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Media Type"
           },
           "metadata": {
             "additionalProperties": true,
@@ -24935,6 +27329,21 @@
         "additionalProperties": false,
         "description": "Compact plus full runtime lineage graph view.",
         "properties": {
+          "artifact_ref_provenance": {
+            "anyOf": [
+              {
+                "enum": [
+                  "run_output_ref",
+                  "reader_materialized"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifact Ref Provenance"
+          },
           "compact_summary": {
             "items": {
               "$ref": "#/components/schemas/LineageCompactSummaryItem"
@@ -24989,6 +27398,49 @@
             "title": "Nodes",
             "type": "array"
           },
+          "profile_binding_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "verified",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Binding Status"
+          },
+          "root_artifact_refs": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef-Output"
+            },
+            "title": "Root Artifact Refs",
+            "type": "array"
+          },
+          "selected_artifact_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Run Id"
+          },
           "status": {
             "default": "untraced",
             "enum": [
@@ -25022,6 +27474,31 @@
         "additionalProperties": false,
         "description": "Typed lineage reference embedded inside `QuantityValue` envelopes.",
         "properties": {
+          "artifact_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "artifact_ref_provenance": {
+            "anyOf": [
+              {
+                "enum": [
+                  "run_output_ref",
+                  "reader_materialized"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifact Ref Provenance"
+          },
           "compact_summary": {
             "items": {
               "$ref": "#/components/schemas/LineageCompactSummaryItem"
@@ -25065,6 +27542,17 @@
               }
             ],
             "title": "Reason Code"
+          },
+          "source_run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Run Id"
           },
           "status": {
             "default": "untraced",
@@ -25138,6 +27626,355 @@
           "lineage"
         ],
         "title": "LineageResponse",
+        "type": "object"
+      },
+      "MethodExecutionCandidateOutcome": {
+        "additionalProperties": false,
+        "description": "Scalar-only candidate summary captured from the producer's typed report.",
+        "properties": {
+          "candidate_only": {
+            "const": true,
+            "default": true,
+            "title": "Candidate Only",
+            "type": "boolean"
+          },
+          "confidence_interval": {
+            "anyOf": [
+              {
+                "maxItems": 2,
+                "minItems": 2,
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence Interval"
+          },
+          "confidence_level": {
+            "anyOf": [
+              {
+                "exclusiveMaximum": 1.0,
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence Level"
+          },
+          "estimand": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Estimand",
+            "type": "string"
+          },
+          "limitations": {
+            "default": [
+              "causal_identification_not_established",
+              "scientific_validity_not_established"
+            ],
+            "items": {
+              "enum": [
+                "causal_identification_not_established",
+                "scientific_validity_not_established"
+              ],
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "method": {
+            "const": "forest_dr",
+            "default": "forest_dr",
+            "title": "Method",
+            "type": "string"
+          },
+          "n_control": {
+            "minimum": 0.0,
+            "title": "N Control",
+            "type": "integer"
+          },
+          "n_treated": {
+            "minimum": 0.0,
+            "title": "N Treated",
+            "type": "integer"
+          },
+          "p_value": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P Value"
+          },
+          "point_estimate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Point Estimate"
+          },
+          "sample_size": {
+            "minimum": 0.0,
+            "title": "Sample Size",
+            "type": "integer"
+          },
+          "standard_error": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Standard Error"
+          },
+          "status": {
+            "enum": [
+              "success",
+              "input_invalid",
+              "assumption_failed",
+              "numerical_failure"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "estimand",
+          "sample_size",
+          "n_treated",
+          "n_control"
+        ],
+        "title": "MethodExecutionCandidateOutcome",
+        "type": "object"
+      },
+      "MethodExecutionPosteriorSummaryRef": {
+        "additionalProperties": false,
+        "description": "Point to one bounded posterior summary produced by a direct method run.",
+        "properties": {
+          "point_role": {
+            "maxLength": 96,
+            "minLength": 1,
+            "title": "Point Role",
+            "type": "string"
+          },
+          "ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          }
+        },
+        "required": [
+          "point_role",
+          "ref"
+        ],
+        "title": "MethodExecutionPosteriorSummaryRef",
+        "type": "object"
+      },
+      "MethodExecutionProducerDiagnostic": {
+        "additionalProperties": false,
+        "description": "Candidate-only per-attempt inventory of actual Foundry method emissions.",
+        "properties": {
+          "attempt": {
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "authority_status": {
+            "const": "candidate_only",
+            "default": "candidate_only",
+            "title": "Authority Status",
+            "type": "string"
+          },
+          "emissions": {
+            "items": {
+              "$ref": "#/components/schemas/MethodExecutionProducerEmissionDiagnostic"
+            },
+            "maxItems": 16,
+            "title": "Emissions",
+            "type": "array"
+          },
+          "inventory_truncated": {
+            "default": false,
+            "title": "Inventory Truncated",
+            "type": "boolean"
+          },
+          "job_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Job Id",
+            "type": "string"
+          },
+          "limitations": {
+            "default": [
+              "producer_diagnostic_only",
+              "workflow_authority_not_established",
+              "scientific_validity_not_established"
+            ],
+            "items": {
+              "enum": [
+                "producer_diagnostic_only",
+                "workflow_authority_not_established",
+                "scientific_validity_not_established"
+              ],
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "run_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id",
+          "run_id",
+          "attempt"
+        ],
+        "title": "MethodExecutionProducerDiagnostic",
+        "type": "object"
+      },
+      "MethodExecutionProducerEmissionDiagnostic": {
+        "additionalProperties": false,
+        "description": "One bounded actual ExecuteResult output inventory, without authority claims.",
+        "properties": {
+          "emission_index": {
+            "minimum": 0.0,
+            "title": "Emission Index",
+            "type": "integer"
+          },
+          "execute_result_status": {
+            "enum": [
+              "ok",
+              "failed",
+              "not_established"
+            ],
+            "title": "Execute Result Status",
+            "type": "string"
+          },
+          "method_execution_bundle_refs": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef-Output"
+            },
+            "maxItems": 8,
+            "title": "Method Execution Bundle Refs",
+            "type": "array"
+          },
+          "method_metric_binding_set_refs": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef-Output"
+            },
+            "maxItems": 8,
+            "title": "Method Metric Binding Set Refs",
+            "type": "array"
+          },
+          "output_ref_status": {
+            "enum": [
+              "complete",
+              "partial",
+              "none"
+            ],
+            "title": "Output Ref Status",
+            "type": "string"
+          },
+          "simulation_result_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "emission_index",
+          "execute_result_status",
+          "output_ref_status"
+        ],
+        "title": "MethodExecutionProducerEmissionDiagnostic",
+        "type": "object"
+      },
+      "MethodMetricProjectionResponse": {
+        "additionalProperties": false,
+        "description": "Bounded API projection of owner-selected method metric rows.",
+        "properties": {
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 32,
+            "title": "Limitations",
+            "type": "array"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "observations": {
+            "items": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "maxItems": 8192,
+            "title": "Observations",
+            "type": "array"
+          },
+          "run_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "selected",
+              "verification_missing",
+              "invalid"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "vector_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "meta",
+          "run_id",
+          "status"
+        ],
+        "title": "MethodMetricProjectionResponse",
         "type": "object"
       },
       "MetricCandidate": {
@@ -26527,6 +29364,16 @@
         "additionalProperties": false,
         "description": "POST /api/v1/control/runs/nl — NL request triggering agent circuit.",
         "properties": {
+          "calibration_rule_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "checkpoint_policy": {
             "default": "strict",
             "enum": [
@@ -26670,6 +29517,16 @@
             "title": "Max Parallel Models",
             "type": "integer"
           },
+          "model_spec_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "per_model_budget_usd": {
             "anyOf": [
               {
@@ -26684,6 +29541,16 @@
           },
           "policy_flags": {
             "$ref": "#/components/schemas/PolicyFlags"
+          },
+          "policy_spec_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "request": {
             "maxLength": 10000,
@@ -26721,6 +29588,29 @@
               }
             ],
             "title": "Target World Scope Profile Id"
+          },
+          "value_data_profile_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "value_data_unit_id": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Data Unit Id"
           }
         },
         "required": [
@@ -27284,6 +30174,281 @@
         "title": "ObligationCoverageEnvelope",
         "type": "object"
       },
+      "ObservationalHTERequestV1": {
+        "additionalProperties": false,
+        "description": "Declare the requested HTE target before a successor method is queued.\n\nThese are requested candidate semantics, not source authority. Runtime binds\nthem into its own immutable intent and the worker must reconcile them with\nthe exact selected input before dispatch.",
+        "properties": {
+          "alpha": {
+            "exclusiveMaximum": 1.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Alpha",
+            "type": "number"
+          },
+          "control_value": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Control Value"
+          },
+          "estimand": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Estimand",
+            "type": "string"
+          },
+          "outcome_variable_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Outcome Variable Id",
+            "type": "string"
+          },
+          "requested_guarantee": {
+            "anyOf": [
+              {
+                "enum": [
+                  "candidate_point",
+                  "backend_conditional_interval",
+                  "population_sampling_coverage"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Guarantee"
+          },
+          "schema_version": {
+            "const": "polisyos.runtime.observational_hte_request.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "target_scope": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Target Scope",
+            "type": "string"
+          },
+          "treated_value": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Treated Value"
+          },
+          "treatment_variable_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Treatment Variable Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "estimand",
+          "target_scope",
+          "outcome_variable_id",
+          "treatment_variable_id",
+          "control_value",
+          "treated_value",
+          "alpha"
+        ],
+        "title": "ObservationalHTERequestV1",
+        "type": "object"
+      },
+      "ObservationalHTERequestV2": {
+        "additionalProperties": false,
+        "description": "Version-two successor request, frozen into Runtime intent before enqueue.",
+        "properties": {
+          "alpha": {
+            "exclusiveMaximum": 1.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Alpha",
+            "type": "number"
+          },
+          "control_value": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Control Value"
+          },
+          "estimand": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Estimand",
+            "type": "string"
+          },
+          "outcome_variable_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Outcome Variable Id",
+            "type": "string"
+          },
+          "requested_guarantee": {
+            "anyOf": [
+              {
+                "enum": [
+                  "candidate_point",
+                  "backend_conditional_interval",
+                  "population_sampling_coverage"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Guarantee"
+          },
+          "schema_version": {
+            "const": "polisyos.runtime.observational_hte_request.v2",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "search_uncertainty_task_binding_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "target_scope": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Target Scope",
+            "type": "string"
+          },
+          "treated_value": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Treated Value"
+          },
+          "treatment_variable_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Treatment Variable Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "estimand",
+          "target_scope",
+          "outcome_variable_id",
+          "treatment_variable_id",
+          "control_value",
+          "treated_value",
+          "alpha"
+        ],
+        "title": "ObservationalHTERequestV2",
+        "type": "object"
+      },
+      "ObservationalRunInput": {
+        "additionalProperties": false,
+        "description": "Bind a selected-profile observation artifact to one direct method run.",
+        "properties": {
+          "hte_request": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ObservationalHTERequestV1"
+              },
+              {
+                "$ref": "#/components/schemas/ObservationalHTERequestV2"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hte Request"
+          },
+          "method": {
+            "$ref": "#/components/schemas/ObservationalRunMethodSelection"
+          },
+          "protocol": {
+            "enum": [
+              "method_input_envelope_v1",
+              "legacy_hte_json_v1"
+            ],
+            "title": "Protocol",
+            "type": "string"
+          },
+          "source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input"
+          }
+        },
+        "required": [
+          "protocol",
+          "source_ref",
+          "method"
+        ],
+        "title": "ObservationalRunInput",
+        "type": "object"
+      },
+      "ObservationalRunMethodSelection": {
+        "additionalProperties": false,
+        "description": "Select a method by exact version or request one-time latest resolution.",
+        "properties": {
+          "fqn": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Fqn",
+            "type": "string"
+          },
+          "params": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Params"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version"
+          }
+        },
+        "required": [
+          "fqn"
+        ],
+        "title": "ObservationalRunMethodSelection",
+        "type": "object"
+      },
       "OperatorDiagnostic": {
         "additionalProperties": false,
         "description": "Typed operator root-cause projection for serious runtime failures.",
@@ -27445,6 +30610,690 @@
           "estimand"
         ],
         "title": "OutcomeOfInterest",
+        "type": "object"
+      },
+      "OwnedAttemptAnchorProjectionAssociation": {
+        "additionalProperties": false,
+        "description": "Bind a bounded scalar summary to the current completed owner selection.\n\nThis result reconciles the owner row, terminal event, selected manifest\nidentities, and the already worker-admitted scalar-summary digest. It does\nnot read or recompute method-result, CATE, or native inference arrays.",
+        "properties": {
+          "anchor_ref": {
+            "$ref": "#/components/schemas/OwnedAttemptAnchorRef"
+          },
+          "attempt": {
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "cell_id": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cell Id"
+          },
+          "content_validation_status": {
+            "const": "worker_admitted_not_recomputed",
+            "default": "worker_admitted_not_recomputed",
+            "title": "Content Validation Status",
+            "type": "string"
+          },
+          "hte_result_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SelectedArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "inference_basis_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SelectedArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "invocation_basis_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SelectedArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "job_completed_event": {
+            "$ref": "#/components/schemas/OwnedAttemptLifecycleEvent"
+          },
+          "job_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Job Id",
+            "type": "string"
+          },
+          "manifest_identity_status": {
+            "const": "independently_reconciled",
+            "default": "independently_reconciled",
+            "title": "Manifest Identity Status",
+            "type": "string"
+          },
+          "materialization_binding_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OwnedAttemptPhysicalSourceBindingRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "method_evidence_ref": {
+            "$ref": "#/components/schemas/SelectedArtifactRef"
+          },
+          "method_result_ref": {
+            "$ref": "#/components/schemas/SelectedArtifactRef"
+          },
+          "outcome_kind": {
+            "enum": [
+              "point_estimate",
+              "interval_estimate",
+              "refusal"
+            ],
+            "title": "Outcome Kind",
+            "type": "string"
+          },
+          "outcome_ref": {
+            "$ref": "#/components/schemas/SelectedArtifactRef"
+          },
+          "point_result_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SelectedArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "refusal_diagnostic_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SelectedArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "resource_policy_ref": {
+            "$ref": "#/components/schemas/SelectedArtifactRef"
+          },
+          "run_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "default": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "search_uncertainty_task_binding_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SelectedArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "selected_summary_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Selected Summary Sha256",
+            "type": "string"
+          },
+          "source_data_ref": {
+            "$ref": "#/components/schemas/SelectedArtifactRef"
+          },
+          "source_data_summary_status": {
+            "const": "content_bound",
+            "default": "content_bound",
+            "title": "Source Data Summary Status",
+            "type": "string"
+          },
+          "status": {
+            "const": "owner_projection_reconciled",
+            "default": "owner_projection_reconciled",
+            "title": "Status",
+            "type": "string"
+          },
+          "tenant_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Tenant Id",
+            "type": "string"
+          },
+          "verified_at": {
+            "format": "date-time",
+            "title": "Verified At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "verified_at",
+          "anchor_ref",
+          "outcome_ref",
+          "outcome_kind",
+          "selected_summary_sha256",
+          "source_data_ref",
+          "resource_policy_ref",
+          "method_result_ref",
+          "method_evidence_ref",
+          "job_completed_event",
+          "job_id",
+          "run_id",
+          "tenant_id",
+          "attempt"
+        ],
+        "title": "OwnedAttemptAnchorProjectionAssociation",
+        "type": "object"
+      },
+      "OwnedAttemptAnchorRef": {
+        "additionalProperties": false,
+        "description": "Resolve one exact selected-profile view of an owned-attempt anchor.",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "kind": {
+            "const": "runtime.owned_attempt_anchor",
+            "default": "runtime.owned_attempt_anchor",
+            "title": "Kind",
+            "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Manifest Profile Sha256",
+            "type": "string"
+          },
+          "media_type": {
+            "const": "application/json",
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "manifest_profile_sha256"
+        ],
+        "title": "OwnedAttemptAnchorRef",
+        "type": "object"
+      },
+      "OwnedAttemptAnchorRefusalAssociation": {
+        "additionalProperties": false,
+        "description": "Return a failed-input anchor reconciled to its current failed owner event.\n\nThis result contains no method output refs. It establishes only that an\nowner-fenced preparation refusal belongs to the current failed attempt.",
+        "properties": {
+          "anchor_ref": {
+            "$ref": "#/components/schemas/OwnedAttemptAnchorRef"
+          },
+          "attempt": {
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "job_failed_event": {
+            "$ref": "#/components/schemas/OwnedAttemptLifecycleEvent"
+          },
+          "job_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Job Id",
+            "type": "string"
+          },
+          "observational_run_intent_ref": {
+            "$ref": "#/components/schemas/SelectedArtifactRef"
+          },
+          "refusal": {
+            "$ref": "#/components/schemas/OwnedAttemptHTEInputRefusal"
+          },
+          "requested_source_ref": {
+            "$ref": "#/components/schemas/SelectedArtifactRef"
+          },
+          "resource_policy_ref": {
+            "$ref": "#/components/schemas/SelectedArtifactRef"
+          },
+          "run_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "default": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "search_uncertainty_task_binding_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SelectedArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "const": "input_refusal_reconciled",
+            "default": "input_refusal_reconciled",
+            "title": "Status",
+            "type": "string"
+          },
+          "verified_at": {
+            "format": "date-time",
+            "title": "Verified At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "verified_at",
+          "anchor_ref",
+          "refusal",
+          "requested_source_ref",
+          "observational_run_intent_ref",
+          "resource_policy_ref",
+          "job_failed_event",
+          "job_id",
+          "run_id",
+          "attempt"
+        ],
+        "title": "OwnedAttemptAnchorRefusalAssociation",
+        "type": "object"
+      },
+      "OwnedAttemptHTEInputRefusal": {
+        "additionalProperties": false,
+        "description": "Capture a typed preparation refusal without inventing admitted input.",
+        "properties": {
+          "failure_stage": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure Stage"
+          },
+          "observed_manifest_selection_bytes": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed Manifest Selection Bytes"
+          },
+          "observed_manifest_verification_bytes": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed Manifest Verification Bytes"
+          },
+          "observed_payload_bytes": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed Payload Bytes"
+          },
+          "observed_source_bytes": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed Source Bytes"
+          },
+          "payload_integrity_verified": {
+            "title": "Payload Integrity Verified",
+            "type": "boolean"
+          },
+          "refusal_code": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Refusal Code",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "default": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_usage_complete": {
+            "title": "Source Usage Complete",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "refusal_code",
+          "source_usage_complete",
+          "payload_integrity_verified"
+        ],
+        "title": "OwnedAttemptHTEInputRefusal",
+        "type": "object"
+      },
+      "OwnedAttemptLifecycleEvent": {
+        "additionalProperties": false,
+        "description": "Identify one immutable lifecycle event row by owner identity and digest.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "event_id": {
+            "minimum": 1.0,
+            "title": "Event Id",
+            "type": "integer"
+          },
+          "event_type": {
+            "enum": [
+              "job_created",
+              "job_running",
+              "job_completed",
+              "job_failed"
+            ],
+            "title": "Event Type",
+            "type": "string"
+          },
+          "job_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Job Id",
+            "type": "string"
+          },
+          "payload_sha256": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Payload Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_id",
+          "job_id",
+          "event_type",
+          "payload_sha256",
+          "created_at"
+        ],
+        "title": "OwnedAttemptLifecycleEvent",
+        "type": "object"
+      },
+      "OwnedAttemptPhysicalSourceBindingRef": {
+        "additionalProperties": false,
+        "description": "Resolve one exact profile-selected physical HTE materialization record.",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "kind": {
+            "const": "foundry.hte.physical_source_materialization_binding",
+            "default": "foundry.hte.physical_source_materialization_binding",
+            "title": "Kind",
+            "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Manifest Profile Sha256",
+            "type": "string"
+          },
+          "media_type": {
+            "const": "application/json",
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "manifest_profile_sha256"
+        ],
+        "title": "OwnedAttemptPhysicalSourceBindingRef",
+        "type": "object"
+      },
+      "OwnedHTERequestContextV1": {
+        "additionalProperties": false,
+        "description": "Freeze request selectors from the immutable Runtime intent.",
+        "properties": {
+          "contrast_status": {
+            "enum": [
+              "declared",
+              "not_established"
+            ],
+            "title": "Contrast Status",
+            "type": "string"
+          },
+          "control_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Control Value"
+          },
+          "materialization_binding_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OwnedAttemptPhysicalSourceBindingRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "outcome_variable_id": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome Variable Id"
+          },
+          "outcome_variable_status": {
+            "enum": [
+              "declared",
+              "not_established"
+            ],
+            "title": "Outcome Variable Status",
+            "type": "string"
+          },
+          "request_alpha_status": {
+            "enum": [
+              "declared",
+              "not_established"
+            ],
+            "title": "Request Alpha Status",
+            "type": "string"
+          },
+          "request_estimand": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Estimand"
+          },
+          "request_estimand_status": {
+            "enum": [
+              "declared",
+              "not_established"
+            ],
+            "title": "Request Estimand Status",
+            "type": "string"
+          },
+          "request_target_scope": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Target Scope"
+          },
+          "request_target_scope_status": {
+            "enum": [
+              "declared",
+              "not_established"
+            ],
+            "title": "Request Target Scope Status",
+            "type": "string"
+          },
+          "requested_alpha": {
+            "anyOf": [
+              {
+                "exclusiveMaximum": 1.0,
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Alpha"
+          },
+          "requested_guarantee": {
+            "anyOf": [
+              {
+                "enum": [
+                  "candidate_point",
+                  "backend_conditional_interval",
+                  "population_sampling_coverage"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Guarantee"
+          },
+          "requested_guarantee_status": {
+            "enum": [
+              "declared",
+              "not_established"
+            ],
+            "title": "Requested Guarantee Status",
+            "type": "string"
+          },
+          "search_uncertainty_task_binding_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SelectedArtifactRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "treated_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Treated Value"
+          },
+          "treatment_variable_id": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Treatment Variable Id"
+          },
+          "treatment_variable_status": {
+            "enum": [
+              "declared",
+              "not_established"
+            ],
+            "title": "Treatment Variable Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_estimand_status",
+          "request_target_scope_status",
+          "outcome_variable_status",
+          "treatment_variable_status",
+          "contrast_status",
+          "request_alpha_status",
+          "requested_guarantee_status"
+        ],
+        "title": "OwnedHTERequestContextV1",
         "type": "object"
       },
       "PolicyDesignCaseAudience": {
@@ -28807,6 +32656,16 @@
             "title": "Evidence Reason Codes",
             "type": "array"
           },
+          "forecast_profile_member_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "intent_id": {
             "maxLength": 120,
             "minLength": 1,
@@ -28832,14 +32691,10 @@
               "causal_effect_claim"
             ],
             "items": {
-              "enum": [
-                "promotion",
-                "publication",
-                "policy_selection",
-                "causal_effect_claim"
-              ],
               "type": "string"
             },
+            "maxItems": 40,
+            "minItems": 1,
             "title": "May Not Use For",
             "type": "array"
           },
@@ -28896,6 +32751,15 @@
             "title": "Population Scope Status",
             "type": "string"
           },
+          "profile_join_status": {
+            "default": "profileless_legacy",
+            "enum": [
+              "joined_candidate",
+              "profileless_legacy"
+            ],
+            "title": "Profile Join Status",
+            "type": "string"
+          },
           "request_sha256": {
             "pattern": "^[0-9a-f]{64}$",
             "title": "Request Sha256",
@@ -28913,8 +32777,12 @@
             "$ref": "#/components/schemas/PredictiveCalibrationS10Summary"
           },
           "schema_version": {
-            "const": "polisyos.runtime.predictive_calibration_association.v2",
-            "default": "polisyos.runtime.predictive_calibration_association.v2",
+            "default": "polisyos.runtime.predictive_calibration_association.v4",
+            "enum": [
+              "polisyos.runtime.predictive_calibration_association.v2",
+              "polisyos.runtime.predictive_calibration_association.v3",
+              "polisyos.runtime.predictive_calibration_association.v4"
+            ],
             "title": "Schema Version",
             "type": "string"
           },
@@ -28931,6 +32799,16 @@
           },
           "uncertainty_bundle_ref": {
             "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "value_data_profile_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -29012,6 +32890,27 @@
           },
           "temporal_roles": {
             "$ref": "#/components/schemas/ForecastTemporalRoles"
+          },
+          "value_data_profile_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "value_data_unit_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Data Unit Id"
           }
         },
         "required": [
@@ -29055,8 +32954,18 @@
       },
       "PredictiveCalibrationS10Summary": {
         "additionalProperties": false,
-        "description": "Small persisted summary of the recomputed S10 candidate projection.",
+        "description": "Typed persisted projection of the recomputed S10 candidate support.",
         "properties": {
+          "authority_boundary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AuthorityBoundary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "calibration_record_ref": {
             "anyOf": [
               {
@@ -29095,6 +33004,30 @@
             "title": "Forecast Tier",
             "type": "string"
           },
+          "limitation_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitation Refs",
+            "type": "array"
+          },
+          "may_not_use_for": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 20,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "May Not Use For"
+          },
           "numerator": {
             "minimum": 0.0,
             "title": "Numerator",
@@ -29105,6 +33038,18 @@
             "minimum": 0.0,
             "title": "Observed Pass Rate",
             "type": "number"
+          },
+          "outcome_binding_status": {
+            "anyOf": [
+              {
+                "const": "not_established",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome Binding Status"
           }
         },
         "required": [
@@ -33939,6 +37884,116 @@
         "title": "RunCompareView",
         "type": "object"
       },
+      "RunConditionalTransportCandidateProjection": {
+        "additionalProperties": false,
+        "description": "Audience-safe candidate summary derived from a verified persisted result.",
+        "properties": {
+          "candidate_disposition": {
+            "enum": [
+              "not_run",
+              "completed",
+              "partial",
+              "unsupported",
+              "error"
+            ],
+            "title": "Candidate Disposition",
+            "type": "string"
+          },
+          "candidate_scope": {
+            "const": "candidate_only",
+            "title": "Candidate Scope",
+            "type": "string"
+          },
+          "completed_valid_member_count": {
+            "minimum": 0.0,
+            "title": "Completed Valid Member Count",
+            "type": "integer"
+          },
+          "identified_member_fraction": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identified Member Fraction"
+          },
+          "identified_member_fraction_basis": {
+            "const": "selected_completed_valid_members",
+            "title": "Identified Member Fraction Basis",
+            "type": "string"
+          },
+          "interpretation_limit": {
+            "const": "selected_family_member_outcomes_do_not_establish_whole_pag_class_probability_calibration_legal_applicability_or_protected_eligibility",
+            "title": "Interpretation Limit",
+            "type": "string"
+          },
+          "member_evaluation_count": {
+            "minimum": 0.0,
+            "title": "Member Evaluation Count",
+            "type": "integer"
+          },
+          "proposal_count": {
+            "minimum": 0.0,
+            "title": "Proposal Count",
+            "type": "integer"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "pattern": "^[a-z][a-z0-9_]{1,95}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          },
+          "requested_profile_id": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Requested Profile Id",
+            "type": "string"
+          },
+          "requested_profile_revision": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Requested Profile Revision",
+            "type": "string"
+          },
+          "selection_identity": {
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Selection Identity",
+            "type": "string"
+          },
+          "source_currentness": {
+            "const": "unknown",
+            "title": "Source Currentness",
+            "type": "string"
+          }
+        },
+        "required": [
+          "candidate_scope",
+          "candidate_disposition",
+          "requested_profile_id",
+          "requested_profile_revision",
+          "selection_identity",
+          "proposal_count",
+          "member_evaluation_count",
+          "completed_valid_member_count",
+          "identified_member_fraction_basis",
+          "source_currentness",
+          "interpretation_limit"
+        ],
+        "title": "RunConditionalTransportCandidateProjection",
+        "type": "object"
+      },
       "RunDetails": {
         "additionalProperties": false,
         "description": "Run details public type.",
@@ -33973,6 +38028,16 @@
               }
             ],
             "title": "Cell Id"
+          },
+          "conditional_transport_candidate": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunConditionalTransportCandidateProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "control_job_id": {
             "anyOf": [
@@ -34081,6 +38146,26 @@
             "anyOf": [
               {
                 "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "method_execution_producer_diagnostic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MethodExecutionProducerDiagnostic"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "method_execution_selection": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DirectMethodExecutionRunProjection"
               },
               {
                 "type": "null"
@@ -35630,6 +39715,190 @@
         "title": "RunGenericCycleSimulationN5TrajectoryPoint",
         "type": "object"
       },
+      "RunGenericCycleSimulationN6CycleHistoryEntry": {
+        "additionalProperties": false,
+        "description": "One exact N6 cycle state carried by the persisted candidate projection.",
+        "properties": {
+          "cycle_index": {
+            "minimum": 0.0,
+            "title": "Cycle Index",
+            "type": "integer"
+          },
+          "design_problem_basis_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Design Problem Basis Ref"
+          },
+          "design_problem_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Design Problem Ref",
+            "type": "string"
+          },
+          "generation_cycle_run_terminal_status": {
+            "enum": [
+              "completed",
+              "blocked"
+            ],
+            "title": "Generation Cycle Run Terminal Status",
+            "type": "string"
+          },
+          "grounding_current_valid": {
+            "title": "Grounding Current Valid",
+            "type": "boolean"
+          },
+          "grounding_status": {
+            "enum": [
+              "current_valid",
+              "grounded_shadow",
+              "grounding_gap",
+              "grounding_failed",
+              "grounding_unavailable"
+            ],
+            "title": "Grounding Status",
+            "type": "string"
+          },
+          "node_ref": {
+            "minLength": 1,
+            "title": "Node Ref",
+            "type": "string"
+          },
+          "refinement_decision": {
+            "enum": [
+              "refine",
+              "acquire",
+              "reframe",
+              "decompose",
+              "human_decision",
+              "abstain",
+              "block_candidate",
+              "stop"
+            ],
+            "title": "Refinement Decision",
+            "type": "string"
+          },
+          "search_iteration_status": {
+            "enum": [
+              "blocked",
+              "blocked_no_retry",
+              "governance_required",
+              "acquisition_required",
+              "abstained",
+              "stopped",
+              "refined_shadow"
+            ],
+            "title": "Search Iteration Status",
+            "type": "string"
+          },
+          "selected_candidate_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Selected Candidate Content Hash",
+            "type": "string"
+          },
+          "selected_candidate_ref": {
+            "minLength": 1,
+            "title": "Selected Candidate Ref",
+            "type": "string"
+          },
+          "terminal_kind": {
+            "enum": [
+              "a_spec_gap",
+              "tool_failure",
+              "composition_invalid",
+              "recursive_blocked",
+              "search_ceiling_repair_required",
+              "human_decision_required",
+              "acquisition_required",
+              "budget_exhausted",
+              "frontier_stable",
+              "grounded_admissible",
+              "grounded_partial_admissible",
+              "grounded_abstention"
+            ],
+            "title": "Terminal Kind",
+            "type": "string"
+          },
+          "value_authority_blockers": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Value Authority Blockers",
+            "type": "array"
+          },
+          "value_decision_grade": {
+            "anyOf": [
+              {
+                "enum": [
+                  "blocked",
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Decision Grade"
+          },
+          "value_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Ref"
+          },
+          "value_status": {
+            "enum": [
+              "value_pending_n8",
+              "value_ready",
+              "value_conditional",
+              "value_blocked"
+            ],
+            "title": "Value Status",
+            "type": "string"
+          },
+          "voi_next_action": {
+            "enum": [
+              "advance",
+              "stop",
+              "escalate",
+              "blocked"
+            ],
+            "title": "Voi Next Action",
+            "type": "string"
+          }
+        },
+        "required": [
+          "node_ref",
+          "cycle_index",
+          "design_problem_ref",
+          "selected_candidate_ref",
+          "selected_candidate_content_hash",
+          "generation_cycle_run_terminal_status",
+          "terminal_kind",
+          "refinement_decision",
+          "search_iteration_status",
+          "grounding_status",
+          "grounding_current_valid",
+          "value_status",
+          "voi_next_action"
+        ],
+        "title": "RunGenericCycleSimulationN6CycleHistoryEntry",
+        "type": "object"
+      },
       "RunGenericCycleSimulationProjection": {
         "additionalProperties": false,
         "description": "Persisted generic simulation lineage exposed as candidate-only history.",
@@ -35809,6 +40078,41 @@
             "title": "N5 Observations",
             "type": "array"
           },
+          "n6_cycle_history": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RunGenericCycleSimulationN6CycleHistoryEntry"
+            },
+            "title": "N6 Cycle History",
+            "type": "array"
+          },
+          "n6_cycle_history_limitation_code": {
+            "anyOf": [
+              {
+                "const": "n6_cycle_history_not_emitted",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N6 Cycle History Limitation Code"
+          },
+          "n6_cycle_history_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "resolved",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N6 Cycle History Status"
+          },
           "parent_context_job_ref": {
             "anyOf": [
               {
@@ -35866,7 +40170,9 @@
             "default": "policyos.runtime.run_generic_cycle_simulation_projection.v1",
             "enum": [
               "policyos.runtime.run_generic_cycle_simulation_projection.v1",
-              "policyos.runtime.run_generic_cycle_simulation_projection.v2"
+              "policyos.runtime.run_generic_cycle_simulation_projection.v2",
+              "policyos.runtime.run_generic_cycle_simulation_projection.v3",
+              "policyos.runtime.run_generic_cycle_simulation_projection.v4"
             ],
             "title": "Schema Version",
             "type": "string"
@@ -35926,6 +40232,71 @@
           },
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
+          },
+          "observational_contract_target_fqn": {
+            "anyOf": [
+              {
+                "const": "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observational Contract Target Fqn"
+          },
+          "observational_contract_target_id": {
+            "anyOf": [
+              {
+                "const": "foundry.causal.hte_observational_data.v1",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observational Contract Target Id"
+          },
+          "observational_method_fqn": {
+            "anyOf": [
+              {
+                "enum": [
+                  "causal.hte.forest_dr@1.0.0",
+                  "causal.hte.forest_dr@1.1.0",
+                  "causal.hte.causal_forest@2.0.0",
+                  "causal.hte.double_ml@2.0.0",
+                  "causal.hte.meta_learner@2.0.0",
+                  "causal.hte.forest_dr@2.0.0"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observational Method Fqn"
+          },
+          "observational_run_intent_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "observational_selection_digest": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observational Selection Digest"
           },
           "run_id": {
             "title": "Run Id",
@@ -39905,6 +44276,36 @@
         "title": "SearchRequest",
         "type": "object"
       },
+      "SelectedArtifactRef": {
+        "additionalProperties": false,
+        "description": "Require a concrete immutable CAS manifest profile at this boundary.",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Manifest Profile Sha256",
+            "type": "string"
+          },
+          "media_type": {
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "kind",
+          "media_type",
+          "manifest_profile_sha256"
+        ],
+        "title": "SelectedArtifactRef",
+        "type": "object"
+      },
       "SessionAuthorityProvenance": {
         "enum": [
           "canonical_repo",
@@ -42076,6 +46477,9 @@
           "data_snapshot_ref": {
             "anyOf": [
               {
+                "$ref": "#/components/schemas/DataSnapshotRef"
+              },
+              {
                 "type": "string"
               },
               {
@@ -42139,7 +46543,14 @@
             "type": "string"
           },
           "data_source": {
-            "$ref": "#/components/schemas/WorkflowDataSourceBinding"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/WorkflowDataSourceBinding"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "execution_profile": {
             "anyOf": [
@@ -42200,8 +46611,57 @@
             ],
             "title": "Norm Pack Ref"
           },
+          "observational_input": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ObservationalRunInput"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "params": {
             "additionalProperties": true,
+            "properties": {
+              "conditional_transport_request": {
+                "additionalProperties": false,
+                "description": "Strict caller intent for one registered conditional transport profile.",
+                "properties": {
+                  "profile_id": {
+                    "maxLength": 160,
+                    "minLength": 1,
+                    "title": "Profile Id",
+                    "type": "string"
+                  },
+                  "profile_revision": {
+                    "maxLength": 80,
+                    "minLength": 1,
+                    "title": "Profile Revision",
+                    "type": "string"
+                  },
+                  "schema_version": {
+                    "const": "1.0",
+                    "default": "1.0",
+                    "title": "Schema Version",
+                    "type": "string"
+                  },
+                  "selection_identity": {
+                    "maxLength": 240,
+                    "minLength": 1,
+                    "title": "Selection Identity",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "profile_id",
+                  "profile_revision",
+                  "selection_identity"
+                ],
+                "title": "TransportabilityCandidateRequestV1",
+                "type": "object"
+              }
+            },
             "title": "Params",
             "type": "object"
           },
@@ -42275,9 +46735,6 @@
             "title": "Trinity Bundle Ref"
           }
         },
-        "required": [
-          "data_source"
-        ],
         "title": "WorkflowRunRequest",
         "type": "object"
       },
@@ -42319,8 +46776,11 @@
         "title": "_QualifiedOutcomeOfInterestV3",
         "type": "object"
       },
-      "polisyos__core__artifacts__ids__ArtifactID": {
+      "polisyos__core__artifacts__ids__ArtifactID-Output": {
         "description": "Represent a normalized CAS identifier in `sha256:<64hex>` form.\n\nThe `sha256:` prefix and lowercase 64-hex digest are part of the stable ABI\nused in manifests, runtime URLs, CLI arguments, and signature statements.",
+        "maxLength": 71,
+        "minLength": 71,
+        "pattern": "^sha256:[0-9a-f]{64}$",
         "title": "ArtifactID",
         "type": "string"
       },
@@ -42328,6 +46788,31 @@
         "additionalProperties": false,
         "description": "Typed lineage reference embedded inside `QuantityValue` envelopes.",
         "properties": {
+          "artifact_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "artifact_ref_provenance": {
+            "anyOf": [
+              {
+                "enum": [
+                  "run_output_ref",
+                  "reader_materialized"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifact Ref Provenance"
+          },
           "compact_summary": {
             "items": {
               "$ref": "#/components/schemas/LineageCompactSummaryItem"
@@ -42371,6 +46856,17 @@
               }
             ],
             "title": "Reason Code"
+          },
+          "source_run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Run Id"
           },
           "status": {
             "default": "untraced",
@@ -42520,6 +47016,31 @@
         "additionalProperties": false,
         "description": "Lineage reference rich enough for compact UI and lazy full graph loading.",
         "properties": {
+          "artifact_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "artifact_ref_provenance": {
+            "anyOf": [
+              {
+                "enum": [
+                  "run_output_ref",
+                  "reader_materialized"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifact Ref Provenance"
+          },
           "compact_summary_ref": {
             "anyOf": [
               {
@@ -42593,6 +47114,17 @@
               }
             ],
             "title": "Reason Code"
+          },
+          "source_run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Run Id"
           },
           "status": {
             "default": "untraced",
@@ -42723,6 +47255,9 @@
       },
       "polisyos__ir__artifacts__contracts__ArtifactID": {
         "description": "IR-local artifact ID model compatible with CAS interfaces.",
+        "maxLength": 71,
+        "minLength": 71,
+        "pattern": "^sha256:[0-9a-f]{64}$",
         "title": "ArtifactID",
         "type": "string"
       }
@@ -44937,6 +49472,73 @@
               }
             },
             "description": "Requested representation is not supported for this resource."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "manifest_read_budget_exceeded": {
+                    "summary": "Measured manifest reads exceed the batch byte budget.",
+                    "value": {
+                      "code": "artifact_batch_manifest_read_budget_exceeded",
+                      "detail": "The selected artifact manifest reads exceed or cannot prove the batch byte budget.",
+                      "error": "artifact_batch_manifest_read_budget_exceeded",
+                      "extensions": {
+                        "artifact_ref_or_route": "/api/v1/artifacts/sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "consumed_source_bytes": 1999999,
+                        "limit_source_bytes": 2000000,
+                        "observed_source_bytes": 2,
+                        "requested_id_count": 1
+                      },
+                      "instance": "/api/v1/artifacts/batch",
+                      "request_id": "req_artifact_batch_budget",
+                      "status": 409,
+                      "status_code": 409,
+                      "title": "Conflict",
+                      "type": "about:blank"
+                    }
+                  },
+                  "manifest_read_usage_unavailable": {
+                    "summary": "The Core read did not provide a trustworthy byte-usage receipt.",
+                    "value": {
+                      "code": "artifact_batch_manifest_read_usage_unavailable",
+                      "detail": "The selected artifact manifest reads exceed or cannot prove the batch byte budget.",
+                      "error": "artifact_batch_manifest_read_usage_unavailable",
+                      "extensions": {
+                        "artifact_ref_or_route": "/api/v1/artifacts/sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "consumed_source_bytes": 4096,
+                        "limit_source_bytes": 2000000,
+                        "requested_id_count": 1
+                      },
+                      "instance": "/api/v1/artifacts/batch",
+                      "request_id": "req_artifact_batch_usage",
+                      "status": 409,
+                      "status_code": 409,
+                      "title": "Conflict",
+                      "type": "about:blank"
+                    }
+                  },
+                  "surface_admission_blocked": {
+                    "summary": "A selected artifact is blocked by surface admission.",
+                    "value": {
+                      "code": "authority_surface_admission_blocked",
+                      "detail": "Artifact surface blocked or downgraded by composed authority surface admission.",
+                      "error": "authority_surface_admission_blocked",
+                      "instance": "/api/v1/artifacts/batch",
+                      "request_id": "req_artifact_batch_admission",
+                      "status": 409,
+                      "status_code": 409,
+                      "title": "Conflict",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "The batch is refused when manifest-read usage cannot establish its byte budget or composed surface admission blocks a selected artifact."
           },
           "422": {
             "content": {
@@ -61631,7 +66233,8 @@
               "application/json": {
                 "examples": {
                   "default": {
-                    "summary": "get_confidence_ledger_risk_spend_projection response example",
+                    "description": "Pinned historical documentation sample from source commit be0bdb2bd2ac8d6a7dbb5eda6dbd25aac7516bf4. Its source artifact SHA-256 is dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391; the recorded dependency aggregate is sha256:4a0fd9f4e6ce949f538bbd8219afa144498fbc4bd8c1c0c2ab9ba12eea6c17aa and recorded worker receipt is sha256:74d4f2214adfcc1405f4ed46ef0d320c84be3f7217e8d9b756e8dee22af1e7ee. Example time: 2026-02-11T12:00:00Z. This is a documentation fixture, not a current availability or freshness claim; the live GET evaluates the owner source independently for each request.",
+                    "summary": "Historical owner-validated documentation sample",
                     "value": {
                       "absence_reason": null,
                       "as_of": "2026-02-11T12:00:00Z",
@@ -68464,6 +73067,12 @@
                   "default": {
                     "summary": "get_lineage_batch response example",
                     "value": {
+                      "lineage_resolutions": [
+                        {
+                          "requested_lineage_id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "resolved_lineage_id": "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                        }
+                      ],
                       "lineages": [
                         {
                           "compact_summary": [
@@ -73487,6 +78096,17 @@
         "summary": "Get Run Details",
         "tags": [
           "runtime-runs"
+        ],
+        "x-polisyos-optional-action-permissions": [
+          {
+            "permission": "runs.review",
+            "resource_binding": {
+              "allow_empty_body": true,
+              "path_parameter": "run_id",
+              "resource_kind": "runtime.run.method_execution_selection",
+              "source": "owned_existing_path"
+            }
+          }
         ]
       }
     },
@@ -76036,6 +80656,284 @@
         "tags": [
           "runtime-runs"
         ]
+      }
+    },
+    "/api/v1/runs/{run_id}/decision-packets/{packet_id}/candidate-hte": {
+      "get": {
+        "description": "Expose one exact packet's candidate HTE after required run authorization.",
+        "operationId": "get_run_candidate_hte_packet",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "packet_id",
+            "required": true,
+            "schema": {
+              "title": "Packet Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "manifest_profile_sha256",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "minLength": 1,
+              "title": "Manifest Profile Sha256",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "controlled_absence_fixture": {
+                    "description": "Documentation-only fixture for a DecisionPacket whose completed HTE source could not be established. It contains no source candidate, does not establish live source currentness, and grants no publication authorization. The live route resolves the selected packet and owner source on each request.",
+                    "summary": "Controlled candidate-source absence fixture",
+                    "value": {
+                      "candidate_only": true,
+                      "candidate_status": "absent",
+                      "decision_packet_ref": {
+                        "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "kind": "scientist.decision_packet",
+                        "manifest_profile_sha256": "sha256:0713f136ea316c8f3e274d55012e3bf10d05b5263837187a39593ff0d8838dfa",
+                        "media_type": "application/json"
+                      },
+                      "limitations": [
+                        "completed_hte_source_not_established"
+                      ],
+                      "live_source_currentness": "not_established",
+                      "packet_run_id": "R_core_api_001",
+                      "publication_authorization": "not_established",
+                      "reader_at": "2026-02-11T12:00:00Z",
+                      "schema_version": "1",
+                      "source": null
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateDecisionPacketHTEProjection"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/runs/{run_id}/decision-packets/{packet_id}/candidate-hte",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/runs/{run_id}/decision-packets/{packet_id}/candidate-hte",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/runs/{run_id}/decision-packets/{packet_id}/candidate-hte",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/runs/{run_id}/decision-packets/{packet_id}/candidate-hte",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/runs/{run_id}/decision-packets/{packet_id}/candidate-hte",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/runs/{run_id}/decision-packets/{packet_id}/candidate-hte",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/runs/{run_id}/decision-packets/{packet_id}/candidate-hte",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get Run Candidate Hte Packet",
+        "tags": [
+          "runtime-runs"
+        ],
+        "x-polisyos-action-permission": "runs.review",
+        "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
+          "path_parameter": "run_id",
+          "path_selector_parameters": [
+            "packet_id"
+          ],
+          "query_selector_parameters": [
+            "manifest_profile_sha256"
+          ],
+          "resource_kind": "runtime.run.method_execution_selection",
+          "source": "owned_existing_path"
+        }
       }
     },
     "/api/v1/runs/{run_id}/evidence-context": {
@@ -79297,6 +84195,255 @@
         ]
       }
     },
+    "/api/v1/runs/{run_id}/method-metrics": {
+      "get": {
+        "description": "Return only the bounded current AD01 metric projection for an owned run.",
+        "operationId": "get_run_method_metrics",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "owner_unavailable": {
+                    "description": "The route fallback when no current method-metric owner reader is available. No vector or observations are asserted.",
+                    "summary": "Current method-metric owner unavailable",
+                    "value": {
+                      "limitations": [
+                        "current_method_metric_owner_unavailable"
+                      ],
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": [
+                          "core_run"
+                        ]
+                      },
+                      "observations": [],
+                      "run_id": "R_core_api_001",
+                      "status": "verification_missing",
+                      "vector_ref": null
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/MethodMetricProjectionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/runs/{run_id}/method-metrics",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/runs/{run_id}/method-metrics",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/runs/{run_id}/method-metrics",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/runs/{run_id}/method-metrics",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/runs/{run_id}/method-metrics",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/runs/{run_id}/method-metrics",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/runs/{run_id}/method-metrics",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get Run Method Metrics",
+        "tags": [
+          "runtime-runs"
+        ],
+        "x-polisyos-action-permission": "runs.review",
+        "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
+          "path_parameter": "run_id",
+          "resource_kind": "runtime.run.method_metrics",
+          "source": "owned_existing_path"
+        }
+      }
+    },
     "/api/v1/runs/{run_id}/metrics": {
       "get": {
         "operationId": "get_run_counterfactual_metrics",
@@ -81207,14 +86354,27 @@
                         "evidence_reason_codes": [
                           "explicit_context_missing"
                         ],
+                        "forecast_profile_member_ref": null,
                         "intent_id": "openapi-calibration-fixture",
                         "issuer_status": "not_established",
                         "job_id": "job_openapi_predictive_calibration_fixture",
                         "may_not_use_for": [
-                          "promotion",
-                          "publication",
-                          "policy_selection",
-                          "causal_effect_claim"
+                          "production_recommendation",
+                          "production_claim_authority",
+                          "rollout_authority",
+                          "publication_authority",
+                          "claim_authority",
+                          "closeout_authority",
+                          "approval_authority",
+                          "scorecard_authority",
+                          "preference_learning_authority",
+                          "s11_calibration",
+                          "s12_envelope_growth",
+                          "s13_accountability_closure",
+                          "s14_universality",
+                          "causal_effect_authority",
+                          "s10_authority",
+                          "treatment_assignment_authority"
                         ],
                         "model_spec_ref": {
                           "artifact_id": "sha256:b3308c2d6acbb6a75cd1ef85b0578b7b768ad118042750fd9c47ed2ce30454d0",
@@ -81237,6 +86397,7 @@
                           "media_type": "application/json"
                         },
                         "population_scope_status": "not_established",
+                        "profile_join_status": "profileless_legacy",
                         "request_sha256": "cc6594c28227b137da80a4382c749db39d3b100acbbb5e312ccbd6046fdf6bdc",
                         "run_id": "R_openapi_predictive_calibration_fixture",
                         "run_manifest_ref": {
@@ -81245,25 +86406,82 @@
                           "media_type": "application/json"
                         },
                         "s10": {
+                          "authority_boundary": {
+                            "authoritative_for": [
+                              "forecast_support_tiering",
+                              "observable_subset_calibration"
+                            ],
+                            "boundary_id": null,
+                            "decision_grade": null,
+                            "evidence_basis": null,
+                            "evidence_kind": null,
+                            "known_limits": [],
+                            "may_not_use_for": [
+                              "production_recommendation",
+                              "production_claim_authority",
+                              "rollout_authority",
+                              "publication_authority",
+                              "claim_authority",
+                              "closeout_authority",
+                              "approval_authority",
+                              "scorecard_authority",
+                              "preference_learning_authority",
+                              "s11_calibration",
+                              "s12_envelope_growth",
+                              "s13_accountability_closure",
+                              "s14_universality",
+                              "causal_effect_authority",
+                              "s10_authority",
+                              "treatment_assignment_authority"
+                            ],
+                            "posture": "shadow",
+                            "rule_version_refs": [
+                              "policyos.layer2.s10.outcome_prediction.v1"
+                            ],
+                            "source_authority": "deterministic_producer"
+                          },
                           "calibration_record_ref": null,
                           "calibration_status": "insufficient_history",
                           "counterfactual_credibility": "not_established",
                           "denominator": 0,
-                          "forecast_tier": "insufficient_history",
+                          "forecast_tier": "blocked",
+                          "limitation_refs": [
+                            "s10://calibration/fail-closed/n4_outcome_target_binding_not_established"
+                          ],
+                          "may_not_use_for": [
+                            "production_recommendation",
+                            "production_claim_authority",
+                            "rollout_authority",
+                            "publication_authority",
+                            "claim_authority",
+                            "closeout_authority",
+                            "approval_authority",
+                            "scorecard_authority",
+                            "preference_learning_authority",
+                            "s11_calibration",
+                            "s12_envelope_growth",
+                            "s13_accountability_closure",
+                            "s14_universality",
+                            "causal_effect_authority",
+                            "s10_authority",
+                            "treatment_assignment_authority"
+                          ],
                           "numerator": 0,
-                          "observed_pass_rate": 0.0
+                          "observed_pass_rate": 0.0,
+                          "outcome_binding_status": "not_established"
                         },
-                        "schema_version": "polisyos.runtime.predictive_calibration_association.v2",
+                        "schema_version": "polisyos.runtime.predictive_calibration_association.v4",
                         "source_time_status": "not_established",
                         "tenant_id": "tenant-openapi-fixture",
                         "uncertainty_bundle_ref": {
                           "artifact_id": "sha256:bfef8cbd1fa1885d29dcba7e427433bc8ff2ff28d6b19d9c5f7a8d6584828119",
                           "kind": "ir.uncertainty_bundle",
                           "media_type": "application/json"
-                        }
+                        },
+                        "value_data_profile_ref": null
                       },
                       "association_ref": {
-                        "artifact_id": "sha256:e9175d1d36730b938dc36686bfdb57ef836f972c87190fde94526abfbc697b6a",
+                        "artifact_id": "sha256:46f9bf64037218384dc84be5f3ace8a11a6417b293d7199373280729cf73baa1",
                         "kind": "runtime.predictive_calibration_association",
                         "media_type": "application/json"
                       },
@@ -81545,14 +86763,27 @@
                         "evidence_reason_codes": [
                           "explicit_context_missing"
                         ],
+                        "forecast_profile_member_ref": null,
                         "intent_id": "openapi-calibration-fixture",
                         "issuer_status": "not_established",
                         "job_id": "job_openapi_predictive_calibration_fixture",
                         "may_not_use_for": [
-                          "promotion",
-                          "publication",
-                          "policy_selection",
-                          "causal_effect_claim"
+                          "production_recommendation",
+                          "production_claim_authority",
+                          "rollout_authority",
+                          "publication_authority",
+                          "claim_authority",
+                          "closeout_authority",
+                          "approval_authority",
+                          "scorecard_authority",
+                          "preference_learning_authority",
+                          "s11_calibration",
+                          "s12_envelope_growth",
+                          "s13_accountability_closure",
+                          "s14_universality",
+                          "causal_effect_authority",
+                          "s10_authority",
+                          "treatment_assignment_authority"
                         ],
                         "model_spec_ref": {
                           "artifact_id": "sha256:b3308c2d6acbb6a75cd1ef85b0578b7b768ad118042750fd9c47ed2ce30454d0",
@@ -81575,6 +86806,7 @@
                           "media_type": "application/json"
                         },
                         "population_scope_status": "not_established",
+                        "profile_join_status": "profileless_legacy",
                         "request_sha256": "cc6594c28227b137da80a4382c749db39d3b100acbbb5e312ccbd6046fdf6bdc",
                         "run_id": "R_openapi_predictive_calibration_fixture",
                         "run_manifest_ref": {
@@ -81583,25 +86815,82 @@
                           "media_type": "application/json"
                         },
                         "s10": {
+                          "authority_boundary": {
+                            "authoritative_for": [
+                              "forecast_support_tiering",
+                              "observable_subset_calibration"
+                            ],
+                            "boundary_id": null,
+                            "decision_grade": null,
+                            "evidence_basis": null,
+                            "evidence_kind": null,
+                            "known_limits": [],
+                            "may_not_use_for": [
+                              "production_recommendation",
+                              "production_claim_authority",
+                              "rollout_authority",
+                              "publication_authority",
+                              "claim_authority",
+                              "closeout_authority",
+                              "approval_authority",
+                              "scorecard_authority",
+                              "preference_learning_authority",
+                              "s11_calibration",
+                              "s12_envelope_growth",
+                              "s13_accountability_closure",
+                              "s14_universality",
+                              "causal_effect_authority",
+                              "s10_authority",
+                              "treatment_assignment_authority"
+                            ],
+                            "posture": "shadow",
+                            "rule_version_refs": [
+                              "policyos.layer2.s10.outcome_prediction.v1"
+                            ],
+                            "source_authority": "deterministic_producer"
+                          },
                           "calibration_record_ref": null,
                           "calibration_status": "insufficient_history",
                           "counterfactual_credibility": "not_established",
                           "denominator": 0,
-                          "forecast_tier": "insufficient_history",
+                          "forecast_tier": "blocked",
+                          "limitation_refs": [
+                            "s10://calibration/fail-closed/n4_outcome_target_binding_not_established"
+                          ],
+                          "may_not_use_for": [
+                            "production_recommendation",
+                            "production_claim_authority",
+                            "rollout_authority",
+                            "publication_authority",
+                            "claim_authority",
+                            "closeout_authority",
+                            "approval_authority",
+                            "scorecard_authority",
+                            "preference_learning_authority",
+                            "s11_calibration",
+                            "s12_envelope_growth",
+                            "s13_accountability_closure",
+                            "s14_universality",
+                            "causal_effect_authority",
+                            "s10_authority",
+                            "treatment_assignment_authority"
+                          ],
                           "numerator": 0,
-                          "observed_pass_rate": 0.0
+                          "observed_pass_rate": 0.0,
+                          "outcome_binding_status": "not_established"
                         },
-                        "schema_version": "polisyos.runtime.predictive_calibration_association.v2",
+                        "schema_version": "polisyos.runtime.predictive_calibration_association.v4",
                         "source_time_status": "not_established",
                         "tenant_id": "tenant-openapi-fixture",
                         "uncertainty_bundle_ref": {
                           "artifact_id": "sha256:bfef8cbd1fa1885d29dcba7e427433bc8ff2ff28d6b19d9c5f7a8d6584828119",
                           "kind": "ir.uncertainty_bundle",
                           "media_type": "application/json"
-                        }
+                        },
+                        "value_data_profile_ref": null
                       },
                       "association_ref": {
-                        "artifact_id": "sha256:e9175d1d36730b938dc36686bfdb57ef836f972c87190fde94526abfbc697b6a",
+                        "artifact_id": "sha256:46f9bf64037218384dc84be5f3ace8a11a6417b293d7199373280729cf73baa1",
                         "kind": "runtime.predictive_calibration_association",
                         "media_type": "application/json"
                       },

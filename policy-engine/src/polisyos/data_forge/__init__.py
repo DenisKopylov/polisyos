@@ -3,8 +3,14 @@
 from __future__ import annotations
 
 from importlib import import_module
+from typing import TYPE_CHECKING
 
 from . import read_api
+
+if TYPE_CHECKING:
+    from polisyos.data_forge._impl.compliance import (
+        build_privacy_compliance_report as build_privacy_compliance_report,
+    )
 
 __version__ = "0.1.0"
 

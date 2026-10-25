@@ -15,6 +15,7 @@ import ast
 import builtins as _builtins
 import contextvars
 import dataclasses as _dataclasses
+import dis
 import functools
 import hashlib
 import importlib
@@ -11354,6 +11355,1620 @@ def _read_api_surface_runtime_identity_projection(
     }
 
 
+class _ProviderSourceGraphReconciliation:
+    """Track identity bindings and completed comparisons for one provider graph."""
+
+    __slots__ = ("active_pairs", "expected_to_live", "verified_pairs")
+
+    def __init__(self) -> None:
+        self.expected_to_live: dict[int, object] = {}
+        self.active_pairs: set[tuple[int, int]] = set()
+        self.verified_pairs: set[tuple[int, int]] = set()
+
+    @staticmethod
+    def _is_primitive(value: object) -> bool:
+        return type(value) in {str, int, bool, float, bytes, type(None)}
+
+    def bind(self, expected: object, actual: object) -> bool:
+        if self._is_primitive(expected):
+            return True
+        previous = self.expected_to_live.get(id(expected), _SOURCE_DERIVATION_FAILED)
+        if previous is not _SOURCE_DERIVATION_FAILED:
+            return previous is actual
+        self.expected_to_live[id(expected)] = actual
+        return True
+
+    def enter(self, expected: object, actual: object) -> bool | None:
+        """Return false for alias conflicts, true for active/verified pairs, else None."""
+        if not self.bind(expected, actual):
+            return False
+        pair = (id(actual), id(expected))
+        if pair in self.verified_pairs or pair in self.active_pairs:
+            return True
+        self.active_pairs.add(pair)
+        return None
+
+    def finish(self, expected: object, actual: object, matched: bool) -> None:
+        """Close one active pair and memoize it only after a complete match."""
+        pair = (id(actual), id(expected))
+        self.active_pairs.discard(pair)
+        if matched:
+            self.verified_pairs.add(pair)
+
+
+_PYTHON_DATACLASS_TRANSFORM_KEY = "python.stdlib.dataclasses.dataclass"
+
+
+def _python_dataclass_transform_source_projection() -> dict[str, object]:
+    """Reconcile consumed stdlib dataclass bindings to an isolated source execution."""
+
+    provider = sys.modules.get("dataclasses")
+    if type(provider) is not types.ModuleType or provider is not _dataclasses:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    provider_namespace = vars(provider)
+    provider_path_value = getattr(provider, "__file__", None)
+    if type(provider_path_value) is not str:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    try:
+        provider_path = Path(provider_path_value).resolve()
+        stdlib_root = Path(sysconfig.get_path("stdlib")).resolve()
+        relative_provider_path = provider_path.relative_to(stdlib_root)
+    except (OSError, TypeError, ValueError) as exc:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch") from exc
+    if relative_provider_path.as_posix() != "dataclasses.py":
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    if types.MappingProxyType is not type(type.__dict__):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    analysis = _active_integrity_analysis()
+    try:
+        source_bytes = (
+            analysis.source_bytes(provider_path)
+            if analysis is not None
+            else provider_path.read_bytes()
+        )
+        provider_tree = ast.parse(source_bytes, filename=relative_provider_path.as_posix())
+        provider_code = compile(
+            source_bytes,
+            str(provider_path),
+            "exec",
+            dont_inherit=True,
+            optimize=sys.flags.optimize,
+        )
+    except (OSError, SyntaxError, TypeError, ValueError) as exc:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch") from exc
+    if not isinstance(provider_code, types.CodeType):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+
+    live_dataclasses_binding = sys.modules.get("dataclasses")
+    isolated_provider = types.ModuleType("dataclasses")
+    isolated_namespace = vars(isolated_provider)
+    isolated_namespace.update(
+        {
+            "__name__": "dataclasses",
+            "__package__": "",
+            "__file__": str(provider_path),
+            "__cached__": None,
+            "__loader__": getattr(provider, "__loader__", None),
+            "__spec__": getattr(provider, "__spec__", None),
+        }
+    )
+    isolated_modules = dict(sys.modules)
+    isolated_modules["dataclasses"] = isolated_provider
+    isolated_sys = types.ModuleType("sys")
+    isolated_sys.__dict__.update(vars(sys))
+    isolated_sys.modules = isolated_modules
+    real_import = _builtins.__import__
+
+    def isolated_import(
+        name: str,
+        globals: dict[str, object] | None = None,
+        locals: dict[str, object] | None = None,
+        fromlist: tuple[str, ...] = (),
+        level: int = 0,
+    ) -> object:
+        if level == 0 and name == "sys":
+            return isolated_sys
+        return real_import(name, globals, locals, fromlist, level)
+
+    isolated_builtins = dict(vars(_builtins))
+    isolated_builtins["__import__"] = isolated_import
+    isolated_namespace["__builtins__"] = isolated_builtins
+    try:
+        exec(provider_code, isolated_namespace)  # noqa: S102
+    except Exception as exc:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch") from exc
+    if (
+        sys.modules.get("dataclasses") is not live_dataclasses_binding
+        or live_dataclasses_binding is not provider
+        or isolated_namespace.get("sys") is not isolated_sys
+        or isolated_namespace.get("types") is not types
+    ):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+
+    source_code_hashes = _loader_code_hashes_by_qualname(provider_code)
+    source_function_names = {
+        statement.name
+        for statement in provider_tree.body
+        if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+    source_class_names = {
+        statement.name for statement in provider_tree.body if isinstance(statement, ast.ClassDef)
+    }
+    source_functions = {name: isolated_namespace.get(name) for name in ("dataclass", "field")}
+    if any(type(function) is not types.FunctionType for function in source_functions.values()):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+
+    consumed_global_names: set[str] = set()
+    consumed_load_global_names: set[str] = set()
+    consumed_builtin_names: set[str] = set()
+    consumed_class_names: set[str] = set()
+    consumed_class_bindings: set[str] = set()
+    helper_bindings: dict[str, dict[str, str]] = {}
+    global_bindings: dict[str, object] = {}
+    source_graph = _ProviderSourceGraphReconciliation()
+
+    def code_load_global_names(code: types.CodeType) -> tuple[str, ...] | None:
+        names: set[str] = set()
+        pending = [code]
+        visited_code: set[int] = set()
+        while pending:
+            current = pending.pop()
+            if id(current) in visited_code:
+                continue
+            visited_code.add(id(current))
+            try:
+                instructions = dis.get_instructions(current)
+            except (TypeError, ValueError):
+                return None
+            for instruction in instructions:
+                if instruction.opname == "LOAD_GLOBAL":
+                    if type(instruction.argval) is not str:
+                        return None
+                    names.add(instruction.argval)
+                elif instruction.opname in {
+                    "LOAD_NAME",
+                    "LOAD_CLASSDEREF",
+                    "LOAD_FROM_DICT_OR_GLOBALS",
+                }:
+                    return None
+            pending.extend(
+                constant for constant in current.co_consts if type(constant) is types.CodeType
+            )
+        return tuple(sorted(names))
+
+    def bind_expected(expected: object, actual: object) -> bool:
+        return source_graph.bind(expected, actual)
+
+    def provider_value_matches(actual: object, expected: object, *, depth: int = 0) -> bool:
+        if depth > 40:
+            return False
+        if type(expected) in {str, int, bool, float, bytes, type(None)}:
+            return _provider_value_matches_contents(actual, expected, depth=depth)
+        if type(expected) is types.FunctionType and (
+            expected.__module__ == "dataclasses" and expected.__globals__ is isolated_namespace
+        ):
+            return visit_function(f"binding:{expected.__qualname__}", actual, expected)
+        if (
+            type(expected) is type
+            and expected.__module__ == "dataclasses"
+            and expected.__qualname__ in source_code_hashes
+        ):
+            return visit_class(expected.__qualname__, actual, expected)
+        state = source_graph.enter(expected, actual)
+        if state is not None:
+            return state
+        matched = False
+        try:
+            matched = _provider_value_matches_contents(actual, expected, depth=depth)
+        except Exception:
+            matched = False
+        finally:
+            source_graph.finish(expected, actual, matched)
+        return matched
+
+    def _provider_value_matches_contents(actual: object, expected: object, *, depth: int) -> bool:
+        if actual is expected:
+            return True
+        if type(expected) is types.ModuleType:
+            if expected is not isolated_sys:
+                return actual is expected
+            if actual is not sys:
+                return False
+            actual_namespace = vars(sys)
+            expected_namespace = vars(isolated_sys)
+            if set(actual_namespace) != set(expected_namespace) or any(
+                actual_namespace[name] is not expected_namespace[name]
+                for name in expected_namespace
+                if name != "modules"
+            ):
+                return False
+            actual_modules = actual_namespace.get("modules")
+            expected_modules = expected_namespace.get("modules")
+            if (
+                type(actual_modules) is not dict
+                or type(expected_modules) is not dict
+                or set(actual_modules) != set(expected_modules)
+            ):
+                return False
+            for name, expected_module in expected_modules.items():
+                actual_module = actual_modules[name]
+                if name == "dataclasses":
+                    if expected_module is not isolated_provider or actual_module is not provider:
+                        return False
+                elif actual_module is not expected_module:
+                    return False
+            return True
+        if type(expected) is types.FunctionType:
+            if expected.__module__ == "dataclasses" and expected.__globals__ is isolated_namespace:
+                return visit_function(
+                    f"binding:{expected.__qualname__}",
+                    actual,
+                    expected,
+                )
+            if (
+                type(actual) is not types.FunctionType
+                or actual.__globals__ is not expected.__globals__
+            ):
+                return False
+            if (
+                _normalize_code_object(actual.__code__) != _normalize_code_object(expected.__code__)
+                or actual.__module__ != expected.__module__
+                or actual.__name__ != expected.__name__
+                or actual.__qualname__ != expected.__qualname__
+                or actual.__doc__ != expected.__doc__
+                or actual.__code__.co_freevars != expected.__code__.co_freevars
+                or not bind_expected(expected, actual)
+            ):
+                return False
+            actual_closure = actual.__closure__ or ()
+            expected_closure = expected.__closure__ or ()
+            if len(actual_closure) != len(expected_closure) or not all(
+                provider_value_matches(left.cell_contents, right.cell_contents, depth=depth + 1)
+                for left, right in zip(actual_closure, expected_closure, strict=True)
+            ):
+                return False
+            return all(
+                provider_value_matches(
+                    getattr(actual, attribute, None),
+                    getattr(expected, attribute, None),
+                    depth=depth + 1,
+                )
+                for attribute in ("__defaults__", "__kwdefaults__", "__annotations__", "__dict__")
+            )
+        if type(expected) is type:
+            if type(actual) is not type:
+                return False
+            if expected.__module__ == "dataclasses" and expected.__qualname__ in source_code_hashes:
+                return visit_class(expected.__qualname__, actual, expected)
+            return actual is expected
+        if type(expected) in {types.MemberDescriptorType, types.GetSetDescriptorType}:
+            if type(actual) is not type(expected):
+                return False
+            return actual.__name__ == expected.__name__ and provider_value_matches(
+                actual.__objclass__,
+                expected.__objclass__,
+                depth=depth + 1,
+            )
+        if type(expected) in {classmethod, staticmethod}:
+            return type(actual) is type(expected) and provider_value_matches(
+                actual.__func__,
+                expected.__func__,
+                depth=depth + 1,
+            )
+        if type(expected) is property:
+            if type(actual) is not property:
+                return False
+            return all(
+                provider_value_matches(
+                    getattr(actual, attribute, _SOURCE_DERIVATION_FAILED),
+                    getattr(expected, attribute, _SOURCE_DERIVATION_FAILED),
+                    depth=depth + 1,
+                )
+                for attribute in ("fget", "fset", "fdel", "__doc__")
+            )
+        if type(expected).__module__ == "re" and type(expected).__name__ == "Pattern":
+            return (
+                type(actual) is type(expected)
+                and actual.pattern == expected.pattern
+                and actual.flags == expected.flags
+                and actual.groups == expected.groups
+                and dict(actual.groupindex) == dict(expected.groupindex)
+            )
+        if type(expected) in {str, int, bool, bytes, type(None)}:
+            return type(actual) is type(expected) and actual == expected
+        if type(expected) is float:
+            return type(actual) is float and actual.hex() == expected.hex()
+        if type(expected) in {tuple, list}:
+            return (
+                type(actual) is type(expected)
+                and len(actual) == len(expected)
+                and all(
+                    provider_value_matches(left, right, depth=depth + 1)
+                    for left, right in zip(actual, expected, strict=True)
+                )
+            )
+        if type(expected) is dict:
+            return (
+                type(actual) is dict
+                and len(actual) == len(expected)
+                and all(
+                    key in actual and provider_value_matches(actual[key], value, depth=depth + 1)
+                    for key, value in expected.items()
+                )
+            )
+        if type(expected) is type(type.__dict__):
+            if type(actual) is not type(expected) or len(actual) != len(expected):
+                return False
+            return all(
+                key in actual and provider_value_matches(actual[key], value, depth=depth + 1)
+                for key, value in expected.items()
+            )
+        if type(expected) in {set, frozenset}:
+            return type(actual) is type(expected) and _normalize_runtime_binding_value(
+                actual, seen=set()
+            ) == _normalize_runtime_binding_value(expected, seen=set())
+        expected_type = type(expected)
+        if expected_type.__module__ == "dataclasses":
+            if not provider_value_matches(type(actual), expected_type, depth=depth + 1):
+                return False
+            if not bind_expected(expected, actual):
+                return False
+            try:
+                actual_state = object.__getattribute__(actual, "__dict__")
+                expected_state = object.__getattribute__(expected, "__dict__")
+            except AttributeError:
+                try:
+                    return repr(actual) == repr(expected)
+                except Exception:
+                    return False
+            return (
+                type(actual_state) is dict
+                and type(expected_state) is dict
+                and provider_value_matches(actual_state, expected_state, depth=depth + 1)
+            )
+        return actual is expected
+
+    def visit_function(label: str, actual: object, expected: object) -> bool:
+        state = source_graph.enter(expected, actual)
+        if state is not None:
+            return state
+        matched = False
+        try:
+            matched = _visit_function_contents(label, actual, expected)
+        finally:
+            source_graph.finish(expected, actual, matched)
+        return matched
+
+    def _visit_function_contents(label: str, actual: object, expected: object) -> bool:
+        if type(actual) is not types.FunctionType or type(expected) is not types.FunctionType:
+            return False
+        if (
+            expected.__module__ != "dataclasses"
+            or expected.__globals__ is not isolated_namespace
+            or actual.__module__ != "dataclasses"
+            or actual.__globals__ is not provider_namespace
+            or actual.__qualname__ != expected.__qualname__
+            or actual.__name__ != expected.__name__
+            or actual.__doc__ != expected.__doc__
+            or actual.__code__.co_qualname != expected.__code__.co_qualname
+        ):
+            return False
+        code_hash = _content_hash(_normalize_code_object(expected.__code__))
+        expected_hashes = source_code_hashes.get(expected.__code__.co_qualname, ())
+        if (
+            code_hash not in expected_hashes
+            or _content_hash(_normalize_code_object(actual.__code__)) != code_hash
+        ):
+            return False
+        if not bind_expected(expected, actual):
+            return False
+        helper_bindings[label] = {
+            "code_sha256": code_hash,
+            "binding_sha256": _content_hash(_normalize_function_binding(actual)),
+        }
+        if actual.__code__.co_freevars != expected.__code__.co_freevars:
+            return False
+        actual_closure = actual.__closure__ or ()
+        expected_closure = expected.__closure__ or ()
+        if len(actual_closure) != len(expected_closure):
+            return False
+        if not all(
+            provider_value_matches(left.cell_contents, right.cell_contents)
+            for left, right in zip(actual_closure, expected_closure, strict=True)
+        ):
+            return False
+        for attribute in ("__defaults__", "__kwdefaults__", "__annotations__", "__dict__"):
+            if not provider_value_matches(
+                getattr(actual, attribute, None),
+                getattr(expected, attribute, None),
+            ):
+                return False
+        global_names = code_load_global_names(expected.__code__)
+        expected_builtins = expected.__builtins__
+        actual_builtins = actual.__builtins__
+        if (
+            global_names is None
+            or type(expected_builtins) is not dict
+            or type(actual_builtins) is not dict
+        ):
+            return False
+        for name in global_names:
+            consumed_load_global_names.add(name)
+            if name in isolated_namespace:
+                consumed_global_names.add(name)
+                if not visit_binding(name):
+                    return False
+                continue
+            if name in provider_namespace:
+                return False
+            if name not in expected_builtins or name not in actual_builtins:
+                return False
+            if not provider_value_matches(actual_builtins[name], expected_builtins[name]):
+                return False
+            consumed_builtin_names.add(name)
+        return True
+
+    def visit_class(label: str, actual: object, expected: object) -> bool:
+        state = source_graph.enter(expected, actual)
+        if state is not None:
+            return state
+        matched = False
+        try:
+            matched = _visit_class_contents(label, actual, expected)
+        finally:
+            source_graph.finish(expected, actual, matched)
+        return matched
+
+    def _visit_class_contents(label: str, actual: object, expected: object) -> bool:
+        if type(actual) is not type or type(expected) is not type:
+            return False
+        if (
+            type.__getattribute__(expected, "__module__") != "dataclasses"
+            or type.__getattribute__(actual, "__module__") != "dataclasses"
+            or type.__getattribute__(actual, "__qualname__")
+            != type.__getattribute__(expected, "__qualname__")
+            or type.__getattribute__(actual, "__name__")
+            != type.__getattribute__(expected, "__name__")
+        ):
+            return False
+        if not bind_expected(expected, actual):
+            return False
+        consumed_class_names.add(label)
+        actual_bases = type.__getattribute__(actual, "__bases__")
+        expected_bases = type.__getattribute__(expected, "__bases__")
+        if len(actual_bases) != len(expected_bases) or not all(
+            provider_value_matches(left, right)
+            for left, right in zip(actual_bases, expected_bases, strict=True)
+        ):
+            return False
+        actual_namespace = type.__getattribute__(actual, "__dict__")
+        expected_namespace = type.__getattribute__(expected, "__dict__")
+        if set(actual_namespace) != set(expected_namespace):
+            return False
+        for name, expected_value in expected_namespace.items():
+            actual_value = actual_namespace[name]
+            if type(expected_value) is types.FunctionType and (
+                expected_value.__module__ == "dataclasses"
+                and expected_value.__globals__ is isolated_namespace
+            ):
+                if not visit_function(
+                    f"{label}.{name}",
+                    actual_value,
+                    expected_value,
+                ):
+                    return False
+            elif (
+                type(expected_value) is type
+                and expected_value.__module__ == "dataclasses"
+                and expected_value.__qualname__ in source_code_hashes
+            ):
+                if not visit_class(
+                    f"{label}.{name}",
+                    actual_value,
+                    expected_value,
+                ):
+                    return False
+            elif not provider_value_matches(actual_value, expected_value):
+                return False
+        return True
+
+    def visit_binding(name: str) -> bool:
+        if name not in isolated_namespace:
+            return True
+        if name not in provider_namespace:
+            return False
+        expected = isolated_namespace[name]
+        actual = provider_namespace[name]
+        if type(expected) is types.FunctionType and (
+            expected.__module__ == "dataclasses" and expected.__globals__ is isolated_namespace
+        ):
+            return visit_function(name, actual, expected)
+        if (
+            type(expected) is type
+            and expected.__module__ == "dataclasses"
+            and expected.__qualname__ in source_code_hashes
+        ):
+            consumed_class_bindings.add(name)
+            return visit_class(name, actual, expected)
+        if not bind_expected(expected, actual):
+            return False
+        if type(expected) is types.FunctionType and type(actual) is not types.FunctionType:
+            return False
+        if type(expected) is type and type(actual) is not type:
+            return False
+        if type(expected) is types.ModuleType and type(actual) is not types.ModuleType:
+            return False
+        if type(actual) is types.ModuleType:
+            rendered: object = {"module": actual.__name__}
+        elif type(actual) is types.FunctionType:
+            rendered = {
+                "function_module": actual.__module__,
+                "function_qualname": actual.__qualname__,
+                "function_code_sha256": _content_hash(_normalize_code_object(actual.__code__)),
+                "function_binding_sha256": _content_hash(_normalize_function_binding(actual)),
+            }
+        elif type(actual) is type:
+            rendered = {"type": _runtime_type_ref(actual)}
+        else:
+            rendered = _normalize_runtime_binding_value(actual, seen={id(provider)})
+        global_bindings[name] = rendered
+        return provider_value_matches(actual, expected)
+
+    for symbol, function in source_functions.items():
+        if (
+            type(function) is not types.FunctionType
+            or function.__module__ != "dataclasses"
+            or function.__qualname__ != symbol
+            or function.__globals__ is not isolated_namespace
+        ):
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+        actual_function = provider_namespace.get(symbol)
+        if not visit_function(symbol, actual_function, function):
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    for class_name in sorted(source_class_names):
+        if not visit_class(
+            class_name,
+            provider_namespace.get(class_name),
+            isolated_namespace.get(class_name),
+        ):
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    if not source_functions.keys() <= {
+        name for name in helper_bindings if name in source_function_names
+    }:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    if sys.modules.get("dataclasses") is not provider:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    return {
+        "provider_module": "dataclasses",
+        "provider_symbol": "dataclass",
+        "provider_symbols": ("dataclass", "field"),
+        "provider_relative_path": relative_provider_path.as_posix(),
+        "provider_source_sha256": _bytes_hash(source_bytes),
+        "provider_code_sha256": helper_bindings["dataclass"]["code_sha256"],
+        "field_code_sha256": helper_bindings["field"]["code_sha256"],
+        "helper_bindings": helper_bindings,
+        "global_bindings": global_bindings,
+        "consumed_global_names": tuple(sorted(consumed_global_names)),
+        "consumed_class_binding_names": tuple(sorted(consumed_class_bindings)),
+        "provider_source_class_names": tuple(sorted(source_class_names)),
+        "consumed_source_class_labels": tuple(sorted(consumed_class_names)),
+        "consumed_load_global_names": tuple(sorted(consumed_load_global_names)),
+        "consumed_builtin_names": tuple(sorted(consumed_builtin_names)),
+        "provider_load_global_binding_count": len(consumed_load_global_names),
+        "provider_builtin_binding_count": len(consumed_builtin_names),
+        "provider_global_binding_count": len(global_bindings) + len(consumed_class_bindings),
+        "provider_class_binding_count": len(source_class_names),
+    }
+
+
+def _source_dataclass_transform_options(
+    tree: ast.Module,
+    statement: ast.ClassDef,
+) -> tuple[str, dict[str, bool]] | None:
+    """Resolve one direct stdlib dataclass import and a literal option set."""
+
+    if len(statement.decorator_list) != 1:
+        return None
+    decorator = statement.decorator_list[0]
+    if isinstance(decorator, ast.Name):
+        decorator_name = decorator.id
+        options: dict[str, bool] = {}
+    elif isinstance(decorator, ast.Call) and isinstance(decorator.func, ast.Name):
+        decorator_name = decorator.func.id
+        if decorator.args:
+            return None
+        options = {}
+        supported_options = {
+            "init",
+            "repr",
+            "eq",
+            "order",
+            "unsafe_hash",
+            "frozen",
+            "match_args",
+            "kw_only",
+            "slots",
+            "weakref_slot",
+        }
+        for keyword in decorator.keywords:
+            if (
+                keyword.arg is None
+                or keyword.arg not in supported_options
+                or keyword.arg in options
+                or not isinstance(keyword.value, ast.Constant)
+                or type(keyword.value.value) is not bool
+            ):
+                return None
+            options[keyword.arg] = keyword.value.value
+    else:
+        return None
+    sites = _module_scope_direct_binding_sites(tree, decorator_name)
+    if not (
+        len(sites) == 1
+        and sites[0][0] == "import_from"
+        and isinstance(sites[0][1], ast.ImportFrom)
+        and sites[0][1].module == "dataclasses"
+        and sites[0][1].level == 0
+        and sites[0][2] is not None
+        and sites[0][2].name == "dataclass"
+        and sites[0][2].asname in {None, decorator_name}
+    ):
+        return None
+    return decorator_name, options
+
+
+def _source_dataclass_safe_literal(value: object, *, depth: int = 0) -> bool:
+    """Accept only bounded inert values for source-replayed dataclass defaults."""
+
+    if depth > 40:
+        return False
+    if type(value) in {str, int, bool, float, bytes, type(None)}:
+        return True
+    if type(value) in {tuple, list, set, frozenset}:
+        return len(value) <= 10000 and all(
+            _source_dataclass_safe_literal(item, depth=depth + 1) for item in value
+        )
+    if type(value) is dict:
+        return len(value) <= 10000 and all(
+            _source_dataclass_safe_literal(key, depth=depth + 1)
+            and _source_dataclass_safe_literal(item, depth=depth + 1)
+            for key, item in value.items()
+        )
+    return False
+
+
+def _source_dataclass_enum_member(
+    node: ast.Attribute,
+    *,
+    tree: ast.Module,
+    module: types.ModuleType,
+    module_name: str,
+) -> object:
+    """Resolve one member only from a simple source-owned string Enum declaration."""
+
+    if not isinstance(node.value, ast.Name):
+        return _SOURCE_DERIVATION_FAILED
+    enum_name = node.value.id
+    sites = _module_scope_direct_binding_sites(tree, enum_name)
+    if not (len(sites) == 1 and sites[0][0] == "local" and isinstance(sites[0][1], ast.ClassDef)):
+        return _SOURCE_DERIVATION_FAILED
+    statement = sites[0][1]
+    if not (
+        not statement.decorator_list
+        and len(statement.bases) == 2
+        and all(isinstance(base, ast.Name) for base in statement.bases)
+        and tuple(base.id for base in statement.bases) == ("str", "Enum")
+        and not statement.keywords
+        and not getattr(statement, "type_params", ())
+        and _source_import_binding(
+            "str",
+            tree=tree,
+            module=module,
+            module_name=module_name,
+        )
+        is _builtins.str
+        and _source_import_binding(
+            "Enum",
+            tree=tree,
+            module=module,
+            module_name=module_name,
+        )
+        is Enum
+    ):
+        return _SOURCE_DERIVATION_FAILED
+    members: dict[str, str] = {}
+    for member in statement.body:
+        if (
+            isinstance(member, ast.Expr)
+            and isinstance(member.value, ast.Constant)
+            and type(member.value.value) is str
+        ):
+            continue
+        if isinstance(member, ast.Assign) and len(member.targets) == 1:
+            target = member.targets[0]
+        elif (
+            isinstance(member, ast.AnnAssign)
+            and isinstance(member.target, ast.Name)
+            and member.value is not None
+        ):
+            target = member.target
+        else:
+            return _SOURCE_DERIVATION_FAILED
+        if not isinstance(target, ast.Name) or target.id in members:
+            return _SOURCE_DERIVATION_FAILED
+        try:
+            value = ast.literal_eval(member.value)
+        except (ValueError, TypeError, SyntaxError, MemoryError):
+            return _SOURCE_DERIVATION_FAILED
+        if type(value) is not str:
+            return _SOURCE_DERIVATION_FAILED
+        members[target.id] = value
+    actual_enum = vars(module).get(enum_name)
+    if not (
+        members
+        and type(actual_enum) is type(Enum)
+        and actual_enum.__module__ == module_name
+        and actual_enum.__qualname__ == enum_name
+        and str in actual_enum.__mro__
+        and Enum in actual_enum.__mro__
+    ):
+        return _SOURCE_DERIVATION_FAILED
+    actual_members = actual_enum.__members__
+    if tuple(actual_members) != tuple(members):
+        return _SOURCE_DERIVATION_FAILED
+    for name, value in members.items():
+        actual_member = actual_members.get(name)
+        if (
+            type(actual_member) is not actual_enum
+            or actual_member.value != value
+            or type(actual_member.value) is not str
+        ):
+            return _SOURCE_DERIVATION_FAILED
+    return actual_members.get(node.attr, _SOURCE_DERIVATION_FAILED)
+
+
+def _source_dataclass_value(
+    node: ast.expr,
+    *,
+    tree: ast.Module,
+    module: types.ModuleType,
+    module_name: str,
+    depth: int = 0,
+) -> object:
+    """Evaluate only source literals, exact builtins, Enum members, and dataclasses.field."""
+
+    if depth > 40:
+        return _SOURCE_DERIVATION_FAILED
+    try:
+        literal = ast.literal_eval(node)
+    except (ValueError, TypeError, SyntaxError, MemoryError):
+        literal = _SOURCE_DERIVATION_FAILED
+    if literal is not _SOURCE_DERIVATION_FAILED:
+        return literal if _source_dataclass_safe_literal(literal) else _SOURCE_DERIVATION_FAILED
+    if isinstance(node, ast.Attribute):
+        return _source_dataclass_enum_member(
+            node,
+            tree=tree,
+            module=module,
+            module_name=module_name,
+        )
+    if isinstance(node, ast.Name):
+        value = _source_import_binding(
+            node.id,
+            tree=tree,
+            module=module,
+            module_name=module_name,
+        )
+        safe_callables = (
+            _builtins.dict,
+            _builtins.list,
+            _builtins.set,
+            _builtins.tuple,
+            _builtins.frozenset,
+        )
+        return value if any(value is item for item in safe_callables) else _SOURCE_DERIVATION_FAILED
+    if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
+        return _SOURCE_DERIVATION_FAILED
+    function_name = node.func.id
+    function = _source_import_binding(
+        function_name,
+        tree=tree,
+        module=module,
+        module_name=module_name,
+    )
+    if function is _SOURCE_DERIVATION_FAILED:
+        return _SOURCE_DERIVATION_FAILED
+    if function is _dataclasses.field:
+        if node.args:
+            return _SOURCE_DERIVATION_FAILED
+        options: dict[str, object] = {}
+        allowed = {
+            "default",
+            "default_factory",
+            "init",
+            "repr",
+            "hash",
+            "compare",
+            "metadata",
+            "kw_only",
+        }
+        for keyword in node.keywords:
+            if keyword.arg is None or keyword.arg not in allowed or keyword.arg in options:
+                return _SOURCE_DERIVATION_FAILED
+            value = _source_dataclass_value(
+                keyword.value,
+                tree=tree,
+                module=module,
+                module_name=module_name,
+                depth=depth + 1,
+            )
+            if value is _SOURCE_DERIVATION_FAILED:
+                return _SOURCE_DERIVATION_FAILED
+            if keyword.arg in {"init", "repr", "compare", "kw_only"} and type(value) is not bool:
+                return _SOURCE_DERIVATION_FAILED
+            if keyword.arg == "hash" and value is not None and type(value) is not bool:
+                return _SOURCE_DERIVATION_FAILED
+            if keyword.arg == "default_factory" and value not in {
+                _builtins.dict,
+                _builtins.list,
+                _builtins.set,
+                _builtins.tuple,
+                _builtins.frozenset,
+            }:
+                return _SOURCE_DERIVATION_FAILED
+            if keyword.arg == "metadata" and type(value) is not dict:
+                return _SOURCE_DERIVATION_FAILED
+            options[keyword.arg] = value
+        try:
+            return _dataclasses.field(**options)
+        except (TypeError, ValueError):
+            return _SOURCE_DERIVATION_FAILED
+    if (
+        function
+        in {
+            _builtins.dict,
+            _builtins.list,
+            _builtins.set,
+            _builtins.tuple,
+            _builtins.frozenset,
+        }
+        and not node.args
+        and not node.keywords
+    ):
+        return function()
+    return _SOURCE_DERIVATION_FAILED
+
+
+def _source_dataclass_values_equal(actual: object, expected: object, *, depth: int = 0) -> bool:
+    """Compare supported source values without invoking arbitrary equality methods."""
+
+    if actual is expected:
+        return True
+    if depth > 40 or type(actual) is not type(expected):
+        return False
+    if type(actual) in {str, int, bool, bytes, type(None)}:
+        return actual == expected
+    if type(actual) is float:
+        return actual.hex() == expected.hex()
+    if type(actual) in {tuple, list}:
+        return len(actual) == len(expected) and all(
+            _source_dataclass_values_equal(left, right, depth=depth + 1)
+            for left, right in zip(actual, expected, strict=True)
+        )
+    if type(actual) in {set, frozenset}:
+        return _normalize_runtime_binding_value(actual, seen=set()) == (
+            _normalize_runtime_binding_value(expected, seen=set())
+        )
+    if type(actual) is dict:
+        return len(actual) == len(expected) and all(
+            key in expected
+            and _source_dataclass_values_equal(value, expected[key], depth=depth + 1)
+            for key, value in actual.items()
+        )
+    if isinstance(actual, Enum) and type(actual) is type(expected):
+        return actual.name == expected.name and _source_dataclass_values_equal(
+            actual.value, expected.value, depth=depth + 1
+        )
+    return False
+
+
+def _source_dataclass_fields_match(
+    actual_fields: tuple[object, ...],
+    expected_fields: tuple[object, ...],
+) -> bool:
+    # Compare every field slot emitted by the selected dataclass provider.
+    field_slots = _dataclasses.Field.__slots__
+    if type(field_slots) is str:
+        field_slots = (field_slots,)
+    if type(field_slots) is not tuple or any(type(name) is not str for name in field_slots):
+        return False
+    if len(actual_fields) != len(expected_fields):
+        return False
+    for actual, expected in zip(actual_fields, expected_fields, strict=True):
+        if type(actual) is not _dataclasses.Field or type(expected) is not _dataclasses.Field:
+            return False
+        for name in field_slots:
+            actual_value = getattr(actual, name, _SOURCE_DERIVATION_FAILED)
+            expected_value = getattr(expected, name, _SOURCE_DERIVATION_FAILED)
+            if (
+                actual_value is _SOURCE_DERIVATION_FAILED
+                or expected_value is _SOURCE_DERIVATION_FAILED
+            ):
+                return False
+            if name == "default_factory":
+                if actual_value is not expected_value:
+                    return False
+            elif name == "metadata":
+                if type(actual_value) is not type(expected_value):
+                    return False
+                if not _source_dataclass_values_equal(dict(actual_value), dict(expected_value)):
+                    return False
+            elif not _source_dataclass_values_equal(actual_value, expected_value):
+                return False
+    return True
+
+
+def _source_dataclass_function_globals_match(
+    actual: types.FunctionType,
+    expected: types.FunctionType,
+) -> bool:
+    """Bind only names executed by a generated function, without recursive global traversal."""
+
+    actual_globals = actual.__globals__
+    expected_globals = expected.__globals__
+    if type(actual_globals) is not dict or type(expected_globals) is not dict:
+        return False
+    actual_builtins = actual_globals.get("__builtins__", _SOURCE_DERIVATION_FAILED)
+    expected_builtins = expected_globals.get("__builtins__", _SOURCE_DERIVATION_FAILED)
+    if actual_builtins is _SOURCE_DERIVATION_FAILED or actual_builtins is not expected_builtins:
+        return False
+    if type(actual_builtins) is dict:
+        actual_builtins_namespace = actual_builtins
+        expected_builtins_namespace = expected_builtins
+    elif type(actual_builtins) is types.ModuleType:
+        actual_builtins_namespace = vars(actual_builtins)
+        expected_builtins_namespace = vars(expected_builtins)
+    else:
+        return False
+
+    referenced_names: set[str] = set()
+
+    def add_referenced_names(code: types.CodeType) -> None:
+        referenced_names.update(code.co_names)
+        for constant in code.co_consts:
+            if isinstance(constant, types.CodeType):
+                add_referenced_names(constant)
+
+    add_referenced_names(actual.__code__)
+    for name in referenced_names:
+        if name in actual_globals or name in expected_globals:
+            if name not in actual_globals or name not in expected_globals:
+                return False
+            actual_binding = actual_globals[name]
+            expected_binding = expected_globals[name]
+        else:
+            if name not in actual_builtins_namespace or name not in expected_builtins_namespace:
+                if name in actual_builtins_namespace or name in expected_builtins_namespace:
+                    return False
+                continue
+            actual_binding = actual_builtins_namespace[name]
+            expected_binding = expected_builtins_namespace[name]
+        if actual_binding is expected_binding:
+            continue
+        if (
+            type(actual_binding) is type(expected_binding)
+            and type(actual_binding) in {str, int, bool, bytes, float, type(None)}
+            and _source_dataclass_values_equal(actual_binding, expected_binding)
+        ):
+            continue
+        return False
+    return True
+
+
+def _source_dataclass_runtime_output_matches(
+    actual: object,
+    expected: object,
+    *,
+    actual_class: type[object],
+    expected_class: type[object],
+    depth: int = 0,
+    class_pairs: dict[int, type[object]] | None = None,
+    source_method_names: frozenset[str] = frozenset(),
+    source_method_function_ids: frozenset[int] = frozenset(),
+) -> bool:
+    pairs = {} if class_pairs is None else class_pairs
+    if expected is expected_class:
+        return actual is actual_class
+    if actual is expected:
+        return True
+    if depth > 40 or type(actual) is not type(expected):
+        return False
+    if type(actual) is type:
+        known_actual = pairs.get(id(expected))
+        if id(expected) in pairs:
+            return actual is known_actual
+        if type.__getattribute__(actual, "__module__") != type.__getattribute__(
+            expected, "__module__"
+        ) or type.__getattribute__(actual, "__qualname__") != type.__getattribute__(
+            expected, "__qualname__"
+        ):
+            return False
+        pairs[id(expected)] = actual
+        actual_bases = type.__getattribute__(actual, "__bases__")
+        expected_bases = type.__getattribute__(expected, "__bases__")
+        actual_mro = type.__getattribute__(actual, "__mro__")
+        expected_mro = type.__getattribute__(expected, "__mro__")
+        for actual_sequence, expected_sequence in (
+            (actual_bases, expected_bases),
+            (actual_mro, expected_mro),
+        ):
+            if len(actual_sequence) != len(expected_sequence) or not all(
+                _source_dataclass_runtime_output_matches(
+                    actual_item,
+                    expected_item,
+                    actual_class=actual_class,
+                    expected_class=expected_class,
+                    depth=depth + 1,
+                    class_pairs=pairs,
+                    source_method_names=source_method_names,
+                    source_method_function_ids=source_method_function_ids,
+                )
+                for actual_item, expected_item in zip(
+                    actual_sequence,
+                    expected_sequence,
+                    strict=True,
+                )
+            ):
+                return False
+        actual_namespace = type.__getattribute__(actual, "__dict__")
+        expected_namespace = type.__getattribute__(expected, "__dict__")
+        if type(actual_namespace) is not type(expected_namespace):
+            return False
+        if set(actual_namespace) != set(expected_namespace):
+            return False
+        for name, actual_value in actual_namespace.items():
+            if name in source_method_names or type(actual_value) is not types.FunctionType:
+                continue
+            if not _source_dataclass_runtime_output_matches(
+                actual_value,
+                expected_namespace[name],
+                actual_class=actual_class,
+                expected_class=expected_class,
+                depth=depth + 1,
+                class_pairs=pairs,
+                source_method_names=source_method_names,
+                source_method_function_ids=source_method_function_ids,
+            ):
+                return False
+        for name, actual_value in actual_namespace.items():
+            expected_value = expected_namespace[name]
+            if name == "__dataclass_fields__":
+                if type(actual_value) is not dict or type(expected_value) is not dict:
+                    return False
+                if tuple(actual_value) != tuple(
+                    expected_value
+                ) or not _source_dataclass_fields_match(
+                    tuple(actual_value.values()),
+                    tuple(expected_value.values()),
+                ):
+                    return False
+                continue
+            if name == "__dataclass_params__":
+                if type(actual_value) is not type(expected_value):
+                    return False
+                parameter_slots = getattr(type(actual_value), "__slots__", ())
+                if type(parameter_slots) is str:
+                    parameter_slots = (parameter_slots,)
+                if type(parameter_slots) is not tuple or any(
+                    type(parameter_name) is not str for parameter_name in parameter_slots
+                ):
+                    return False
+                if any(
+                    not _source_dataclass_values_equal(
+                        getattr(actual_value, parameter_name, _SOURCE_DERIVATION_FAILED),
+                        getattr(expected_value, parameter_name, _SOURCE_DERIVATION_FAILED),
+                    )
+                    for parameter_name in parameter_slots
+                ):
+                    return False
+                continue
+            if not _source_dataclass_runtime_output_matches(
+                actual_value,
+                expected_value,
+                actual_class=actual_class,
+                expected_class=expected_class,
+                depth=depth + 1,
+                class_pairs=pairs,
+                source_method_names=source_method_names,
+                source_method_function_ids=source_method_function_ids,
+            ):
+                return False
+        return True
+    if type(actual) in {str, int, bool, bytes, float, type(None)}:
+        return _source_dataclass_values_equal(actual, expected)
+    if type(actual) in {tuple, list}:
+        return len(actual) == len(expected) and all(
+            _source_dataclass_runtime_output_matches(
+                left,
+                right,
+                actual_class=actual_class,
+                expected_class=expected_class,
+                depth=depth + 1,
+                class_pairs=pairs,
+                source_method_names=source_method_names,
+                source_method_function_ids=source_method_function_ids,
+            )
+            for left, right in zip(actual, expected, strict=True)
+        )
+    if type(actual) is dict:
+        return len(actual) == len(expected) and all(
+            key in expected
+            and _source_dataclass_runtime_output_matches(
+                value,
+                expected[key],
+                actual_class=actual_class,
+                expected_class=expected_class,
+                depth=depth + 1,
+                class_pairs=pairs,
+                source_method_names=source_method_names,
+                source_method_function_ids=source_method_function_ids,
+            )
+            for key, value in actual.items()
+        )
+    if type(actual) in {set, frozenset}:
+        return _source_dataclass_values_equal(actual, expected)
+    if type(actual) in {types.MemberDescriptorType, types.GetSetDescriptorType}:
+        return actual.__name__ == expected.__name__ and _source_dataclass_runtime_output_matches(
+            actual.__objclass__,
+            expected.__objclass__,
+            actual_class=actual_class,
+            expected_class=expected_class,
+            depth=depth + 1,
+            class_pairs=pairs,
+            source_method_names=source_method_names,
+            source_method_function_ids=source_method_function_ids,
+        )
+    if type(actual) is property:
+        if type(expected) is not property:
+            return False
+        actual_getter = getattr(actual, "fget", _SOURCE_DERIVATION_FAILED)
+        expected_getter = getattr(expected, "fget", _SOURCE_DERIVATION_FAILED)
+        actual_setter = getattr(actual, "fset", _SOURCE_DERIVATION_FAILED)
+        expected_setter = getattr(expected, "fset", _SOURCE_DERIVATION_FAILED)
+        actual_deleter = getattr(actual, "fdel", _SOURCE_DERIVATION_FAILED)
+        expected_deleter = getattr(expected, "fdel", _SOURCE_DERIVATION_FAILED)
+        if any(
+            value is _SOURCE_DERIVATION_FAILED
+            for value in (
+                actual_getter,
+                expected_getter,
+                actual_setter,
+                expected_setter,
+                actual_deleter,
+                expected_deleter,
+            )
+        ):
+            return False
+        if actual_setter is not None or actual_deleter is not None:
+            return False
+        return all(
+            _source_dataclass_runtime_output_matches(
+                actual_value,
+                expected_value,
+                actual_class=actual_class,
+                expected_class=expected_class,
+                depth=depth + 1,
+                class_pairs=pairs,
+                source_method_names=source_method_names,
+                source_method_function_ids=source_method_function_ids,
+            )
+            for actual_value, expected_value in (
+                (actual_getter, expected_getter),
+                (actual_setter, expected_setter),
+                (actual_deleter, expected_deleter),
+                (getattr(actual, "__doc__", None), getattr(expected, "__doc__", None)),
+                (
+                    getattr(actual, "__isabstractmethod__", False),
+                    getattr(expected, "__isabstractmethod__", False),
+                ),
+            )
+        )
+    if type(actual) is types.FunctionType:
+        if id(actual) not in source_method_function_ids and _normalize_code_object(
+            actual.__code__
+        ) != _normalize_code_object(expected.__code__):
+            return False
+        if not _source_dataclass_function_globals_match(actual, expected):
+            return False
+        if any(
+            getattr(actual, name, _SOURCE_DERIVATION_FAILED)
+            != getattr(expected, name, _SOURCE_DERIVATION_FAILED)
+            for name in ("__module__", "__name__", "__qualname__", "__doc__")
+        ):
+            return False
+        for name in ("__defaults__", "__kwdefaults__", "__annotations__", "__type_params__"):
+            actual_value = getattr(actual, name, _SOURCE_DERIVATION_FAILED)
+            expected_value = getattr(expected, name, _SOURCE_DERIVATION_FAILED)
+            if not _source_dataclass_runtime_output_matches(
+                actual_value,
+                expected_value,
+                actual_class=actual_class,
+                expected_class=expected_class,
+                depth=depth + 1,
+                class_pairs=pairs,
+                source_method_names=source_method_names,
+                source_method_function_ids=source_method_function_ids,
+            ):
+                return False
+        actual_closure = actual.__closure__ or ()
+        expected_closure = expected.__closure__ or ()
+        if len(actual_closure) != len(expected_closure):
+            return False
+        actual_freevars = actual.__code__.co_freevars
+        expected_freevars = expected.__code__.co_freevars
+        if actual_freevars != expected_freevars:
+            return False
+        for freevar_name, actual_cell, expected_cell in zip(
+            actual_freevars,
+            actual_closure,
+            expected_closure,
+            strict=True,
+        ):
+            try:
+                actual_value = actual_cell.cell_contents
+            except ValueError:
+                actual_value = _SOURCE_DERIVATION_FAILED
+            try:
+                expected_value = expected_cell.cell_contents
+            except ValueError:
+                expected_value = _SOURCE_DERIVATION_FAILED
+            if freevar_name == "__class__":
+                if expected_value is expected_class:
+                    if actual_value is not actual_class:
+                        return False
+                elif pairs.get(id(expected_value), _SOURCE_DERIVATION_FAILED) is not actual_value:
+                    return False
+                continue
+            if not _source_dataclass_runtime_output_matches(
+                actual_value,
+                expected_value,
+                actual_class=actual_class,
+                expected_class=expected_class,
+                depth=depth + 1,
+                class_pairs=pairs,
+                source_method_names=source_method_names,
+                source_method_function_ids=source_method_function_ids,
+            ):
+                return False
+        return _source_dataclass_runtime_output_matches(
+            actual.__dict__,
+            expected.__dict__,
+            actual_class=actual_class,
+            expected_class=expected_class,
+            depth=depth + 1,
+            class_pairs=pairs,
+            source_method_names=source_method_names,
+            source_method_function_ids=source_method_function_ids,
+        )
+    return _source_dataclass_values_equal(actual, expected)
+
+
+def _source_python_dataclass_binding_supported(
+    repo_root: Path,
+    module_name: str,
+    export_name: str,
+    relative: Path,
+    tree: ast.Module,
+    statement: ast.ClassDef,
+) -> bool:
+    """Admit a dataclass only when its complete safe source projection matches runtime output."""
+
+    if statement.bases or statement.keywords or getattr(statement, "type_params", ()):
+        return False
+    resolved = _source_dataclass_transform_options(tree, statement)
+    if resolved is None:
+        return False
+    decorator_name, options = resolved
+    source_module = sys.modules.get(module_name)
+    if type(source_module) is not types.ModuleType:
+        return False
+    source_path = (repo_root / relative).resolve()
+    module_file = getattr(source_module, "__file__", None)
+    module_spec = getattr(source_module, "__spec__", None)
+    module_origin = getattr(module_spec, "origin", None)
+    if not (
+        type(module_file) is str
+        and type(module_origin) is str
+        and Path(module_file).resolve() == source_path
+        and Path(module_origin).resolve() == source_path
+    ):
+        return False
+    namespace = vars(source_module)
+    if (
+        namespace.get(decorator_name) is not _dataclasses.dataclass
+        or _source_import_binding(
+            decorator_name,
+            tree=tree,
+            module=source_module,
+            module_name=module_name,
+        )
+        is not _dataclasses.dataclass
+    ):
+        return False
+    try:
+        _python_dataclass_transform_source_projection()
+    except ConfidenceLedgerError:
+        return False
+    transformed = namespace.get(export_name)
+    if type(transformed) is not type:
+        return False
+    transformed_namespace = type.__getattribute__(transformed, "__dict__")
+    if not (
+        type.__getattribute__(transformed, "__module__") == module_name
+        and type.__getattribute__(transformed, "__qualname__") == export_name
+        and _dataclasses.is_dataclass(transformed)
+    ):
+        return False
+    if not _source_future_annotations_enabled(tree):
+        return False
+    declared: list[tuple[str, ast.expr]] = []
+    source_methods: list[ast.FunctionDef | ast.AsyncFunctionDef] = []
+    source_properties: set[str] = set()
+    source_defaults: dict[str, object] = {}
+    for index, member in enumerate(statement.body):
+        if (
+            index == 0
+            and isinstance(member, ast.Expr)
+            and isinstance(member.value, ast.Constant)
+            and type(member.value.value) is str
+        ):
+            continue
+        if (
+            isinstance(member, ast.Expr)
+            and isinstance(member.value, ast.Constant)
+            and type(member.value.value) is str
+        ):
+            continue
+        if isinstance(member, ast.AnnAssign):
+            if not (
+                isinstance(member.target, ast.Name)
+                and member.simple == 1
+                and member.target.id not in source_defaults
+            ):
+                return False
+            declared.append((member.target.id, member.annotation))
+            if member.value is not None:
+                value = _source_dataclass_value(
+                    member.value,
+                    tree=tree,
+                    module=source_module,
+                    module_name=module_name,
+                )
+                if value is _SOURCE_DERIVATION_FAILED:
+                    return False
+                source_defaults[member.target.id] = value
+            continue
+        if isinstance(member, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            if member.name in {item.name for item in source_methods}:
+                return False
+            if member.decorator_list:
+                if not (
+                    len(member.decorator_list) == 1
+                    and isinstance(member.decorator_list[0], ast.Name)
+                    and member.decorator_list[0].id == "property"
+                    and _source_import_binding(
+                        "property",
+                        tree=tree,
+                        module=source_module,
+                        module_name=module_name,
+                    )
+                    is property
+                ):
+                    return False
+                source_properties.add(member.name)
+            source_methods.append(member)
+            continue
+        return False
+    field_names = tuple(name for name, _annotation in declared)
+    annotations = transformed_namespace.get("__annotations__")
+    if (
+        not field_names
+        or len(field_names) != len(set(field_names))
+        or type(annotations) is not dict
+        or tuple(annotations) != field_names
+    ):
+        return False
+    for name, annotation_node in declared:
+        annotation = annotations.get(name)
+        if type(annotation) is not str or annotation != ast.unparse(annotation_node):
+            return False
+    try:
+        actual_fields = _dataclasses.fields(transformed)
+    except (TypeError, AttributeError):
+        return False
+    if tuple(field.name for field in actual_fields) != field_names:
+        return False
+    for field_value in actual_fields:
+        if field_value.type != annotations.get(field_value.name):
+            return False
+        expected_default = source_defaults.get(field_value.name, _dataclasses.MISSING)
+        if isinstance(expected_default, _dataclasses.Field):
+            source_field = expected_default
+            if (
+                field_value.default is not source_field.default
+                and not _source_dataclass_values_equal(field_value.default, source_field.default)
+            ):
+                return False
+            if field_value.default_factory is not source_field.default_factory:
+                return False
+            for option in ("init", "repr", "compare", "hash", "kw_only"):
+                expected_option = getattr(source_field, option)
+                if option == "kw_only" and expected_option is _dataclasses.MISSING:
+                    expected_option = options.get("kw_only", False)
+                if getattr(field_value, option) != expected_option:
+                    return False
+            if not _source_dataclass_values_equal(
+                dict(field_value.metadata),
+                dict(source_field.metadata),
+            ):
+                return False
+        elif not _source_dataclass_values_equal(field_value.default, expected_default):
+            return False
+    parameters = transformed_namespace.get("__dataclass_params__")
+    if parameters is None:
+        return False
+    for option in ("init", "repr", "eq", "order", "unsafe_hash", "frozen"):
+        if option in options and getattr(parameters, option, None) is not options[option]:
+            return False
+    if options.get("weakref_slot") is True:
+        return False
+    slots_enabled = options.get("slots", False)
+    expected_slots = field_names if slots_enabled else transformed_namespace.get("__slots__")
+    if slots_enabled:
+        if (
+            type(transformed_namespace.get("__slots__")) is not tuple
+            or tuple(transformed_namespace["__slots__"]) != expected_slots
+        ):
+            return False
+    elif "__slots__" in transformed_namespace:
+        return False
+    source_path = (repo_root / relative).resolve()
+    analysis = _active_integrity_analysis()
+    try:
+        source_bytes = (
+            analysis.source_bytes(source_path) if analysis is not None else source_path.read_bytes()
+        )
+        module_code = compile(
+            source_bytes,
+            str(source_path),
+            "exec",
+            dont_inherit=True,
+            optimize=sys.flags.optimize,
+        )
+    except (OSError, SyntaxError, TypeError, ValueError):
+        return False
+    if not isinstance(module_code, types.CodeType):
+        return False
+    source_code_hashes = _loader_code_hashes_by_qualname(module_code)
+    source_method_names: set[str] = set()
+    source_method_function_ids: set[int] = set()
+    for member in source_methods:
+        source_method_names.add(member.name)
+        actual_member = transformed_namespace.get(member.name)
+        if member.name in source_properties:
+            if (
+                type(actual_member) is not property
+                or actual_member.fset is not None
+                or actual_member.fdel is not None
+                or type(actual_member.fget) is not types.FunctionType
+            ):
+                return False
+            actual_method = actual_member.fget
+        else:
+            if type(actual_member) is not types.FunctionType:
+                return False
+            actual_method = actual_member
+        if not (
+            actual_method.__globals__ is namespace
+            and actual_method.__module__ == module_name
+            and actual_method.__qualname__ == f"{export_name}.{member.name}"
+            and Path(actual_method.__code__.co_filename).resolve() == source_path
+            and _content_hash(_normalize_code_object(actual_method.__code__))
+            in source_code_hashes.get(f"{export_name}.{member.name}", ())
+            and not actual_method.__dict__
+            and _source_function_defaults_match(actual_method, member)
+            and _source_function_annotations_match(actual_method, member)
+        ):
+            return False
+        source_method_function_ids.add(id(actual_method))
+    try:
+        replay_future_imports = [
+            candidate
+            for candidate in tree.body
+            if isinstance(candidate, ast.ImportFrom) and candidate.module == "__future__"
+        ]
+        if not replay_future_imports:
+            return False
+        replay_module = ast.Module(
+            body=[*replay_future_imports, statement],
+            type_ignores=[],
+        )
+        replay_code = compile(
+            replay_module,
+            str(source_path),
+            "exec",
+            optimize=sys.flags.optimize,
+        )
+        if not isinstance(replay_code, types.CodeType):
+            return False
+        replay_namespace = dict(namespace)
+        # Execute only the source-validated single stdlib dataclass statement above.
+        exec(replay_code, replay_namespace)  # noqa: S102
+        expected_class = replay_namespace.get(export_name)
+        if type(expected_class) is not type:
+            return False
+        expected_namespace = type.__getattribute__(expected_class, "__dict__")
+        expected_fields = tuple(_dataclasses.fields(expected_class))
+        actual_field_tuple = tuple(actual_fields)
+    except (AttributeError, NameError, RuntimeError, SyntaxError, TypeError, ValueError):
+        return False
+    if not _source_dataclass_fields_match(actual_field_tuple, expected_fields):
+        return False
+    if set(transformed_namespace) != set(expected_namespace):
+        return False
+    if tuple(expected_namespace.get("__annotations__", {})) != field_names:
+        return False
+    if tuple(expected_namespace.get("__dataclass_fields__", {})) != field_names:
+        return False
+    for output_name, expected_value in expected_namespace.items():
+        actual_value = transformed_namespace[output_name]
+        if output_name == "__dataclass_fields__":
+            actual_field_map = actual_value
+            expected_field_map = expected_value
+            if type(actual_field_map) is not dict or type(expected_field_map) is not dict:
+                return False
+            if tuple(actual_field_map) != tuple(expected_field_map):
+                return False
+            if not _source_dataclass_fields_match(
+                tuple(actual_field_map.values()),
+                tuple(expected_field_map.values()),
+            ):
+                return False
+            continue
+        if output_name == "__dataclass_params__":
+            if type(actual_value) is not type(expected_value):
+                return False
+            parameter_slots = getattr(type(actual_value), "__slots__", ())
+            if type(parameter_slots) is str:
+                parameter_slots = (parameter_slots,)
+            if type(parameter_slots) is not tuple or any(
+                type(name) is not str for name in parameter_slots
+            ):
+                return False
+            for parameter_name in parameter_slots:
+                actual_parameter = getattr(actual_value, parameter_name, _SOURCE_DERIVATION_FAILED)
+                expected_parameter = getattr(
+                    expected_value, parameter_name, _SOURCE_DERIVATION_FAILED
+                )
+                if (
+                    actual_parameter is _SOURCE_DERIVATION_FAILED
+                    or expected_parameter is _SOURCE_DERIVATION_FAILED
+                    or not _source_dataclass_values_equal(actual_parameter, expected_parameter)
+                ):
+                    return False
+            continue
+        if not _source_dataclass_runtime_output_matches(
+            actual_value,
+            expected_value,
+            actual_class=transformed,
+            expected_class=expected_class,
+            source_method_names=frozenset(source_method_names),
+            source_method_function_ids=frozenset(source_method_function_ids),
+        ):
+            return False
+    return True
+
+
 def _source_module_direct_binding_route(
     repo_root: Path,
     module_name: str,
@@ -11484,10 +13099,23 @@ def _source_module_direct_binding_route(
         statement,
         (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef),
     ):
-        if statement.decorator_list and not _read_api_surface_source_binding_supported(
-            module_name,
-            export_name,
-            tree,
+        if statement.decorator_list and not (
+            _read_api_surface_source_binding_supported(
+                module_name,
+                export_name,
+                tree,
+            )
+            or (
+                isinstance(statement, ast.ClassDef)
+                and _source_python_dataclass_binding_supported(
+                    repo_root,
+                    module_name,
+                    export_name,
+                    relative,
+                    tree,
+                    statement,
+                )
+            )
         ):
             raise ConfidenceLedgerError(
                 "canonical_loaded_runtime_mismatch",

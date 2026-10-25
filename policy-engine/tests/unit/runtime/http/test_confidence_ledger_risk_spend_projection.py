@@ -200,31 +200,215 @@ def test_real_owner_artifact_reaches_available_domain_projection(
     assert len(packet.payload.refusal_instance_refs) == 1
 
 
-def test_openapi_owner_timeout_stays_operational_not_an_admission_refusal(
+def _write_openapi_example_resource(
     monkeypatch: pytest.MonkeyPatch,
-) -> None:
+    root: Path,
+    raw: bytes,
+    *,
+    expected_sha256: str | None = None,
+) -> Path:
     from polisyos.runtime.http import openapi_contract
 
-    timeout_seconds = governed_sources._OWNER_VALIDATION_TIMEOUT_SECONDS
+    package_root = root / "runtime-http"
+    resource = package_root / "_resources" / "confidence_ledger_risk_spend_openapi_example.json"
+    resource.parent.mkdir(parents=True)
+    resource.write_bytes(raw)
+    monkeypatch.setattr(openapi_contract, "files", lambda _package: package_root, raising=False)
+    if expected_sha256 is not None:
+        monkeypatch.setattr(
+            openapi_contract,
+            "_CONFIDENCE_LEDGER_RISK_SPEND_OPENAPI_EXAMPLE_SHA256",
+            expected_sha256,
+        )
+    openapi_contract._confidence_ledger_risk_spend_example.cache_clear()
+    return resource
 
-    def timed_out(
+
+def test_openapi_historical_example_resolves_from_package_resources() -> None:
+    import hashlib
+    from importlib import resources
+    from importlib.util import module_from_spec, spec_from_file_location
+
+    package_root = Path(__file__).resolve().parents[4] / "src" / "polisyos" / "runtime" / "http"
+    spec = spec_from_file_location(
+        "_candidate_runtime_http_resources",
+        package_root / "__init__.py",
+        submodule_search_locations=[str(package_root)],
+    )
+    assert spec is not None
+    assert spec.loader is not None
+    package = module_from_spec(spec)
+    spec.loader.exec_module(package)
+    raw = (
+        resources.files(package)
+        .joinpath("_resources")
+        .joinpath("confidence_ledger_risk_spend_openapi_example.json")
+        .read_bytes()
+    )
+
+    assert len(raw) == 151860
+    assert hashlib.sha256(raw).hexdigest() == (
+        "944918b3935fe325ac0b06ec005f71f6efe185bc5b36af808e3314132853232d"
+    )
+
+
+def test_openapi_documents_pinned_historical_sample_without_live_owner(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from pydantic import TypeAdapter
+
+    from polisyos.runtime.http import openapi_contract
+    from polisyos.runtime.http.app import (
+        create_runtime_api_app,
+        export_runtime_openapi_schema,
+    )
+    from polisyos.runtime.http.services.confidence_ledger_risk_spend_contracts import (
+        ConfidenceLedgerRiskSpendPacket,
+    )
+
+    source_resource = (
+        Path(__file__).resolve().parents[4]
+        / "src"
+        / "polisyos"
+        / "runtime"
+        / "http"
+        / "_resources"
+        / "confidence_ledger_risk_spend_openapi_example.json"
+    )
+    package_root = source_resource.parent.parent
+    monkeypatch.setattr(openapi_contract, "files", lambda _package: package_root, raising=False)
+
+    def owner_must_not_run(
         _service: ConfidenceLedgerRiskSpendProjectionService,
         **_kwargs: object,
     ) -> None:
-        raise governed_sources.OwnerValidationTimeoutError(
-            GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND,
-            timeout_seconds=timeout_seconds,
-        )
+        raise AssertionError("OpenAPI documentation called the live owner")
 
+    monkeypatch.setattr(ConfidenceLedgerRiskSpendProjectionService, "get", owner_must_not_run)
     openapi_contract._confidence_ledger_risk_spend_example.cache_clear()
-    monkeypatch.setattr(ConfidenceLedgerRiskSpendProjectionService, "get", timed_out)
+    app = create_runtime_api_app(
+        cas_root=tmp_path / "cas",
+        enable_security_middlewares=False,
+    )
 
-    with pytest.raises(governed_sources.OwnerValidationTimeoutError) as caught:
-        openapi_contract._confidence_ledger_risk_spend_example()
+    schema = export_runtime_openapi_schema(app=app)
+    operation = schema["paths"][
+        "/api/v1/exports/governed-projections/confidence-ledger-risk-spend"
+    ]["get"]
+    content = operation["responses"]["200"]["content"]["application/json"]
+    example_object = content["examples"]["default"]
+    example = example_object["value"]
+    parsed = TypeAdapter(ConfidenceLedgerRiskSpendPacket).validate_json(
+        json.dumps(example, ensure_ascii=False),
+        strict=True,
+    )
 
-    assert caught.value.timeout_seconds == timeout_seconds
-    assert "timed out" in str(caught.value)
-    assert "owner-admitted" not in str(caught.value)
+    assert operation["operationId"] == "get_confidence_ledger_risk_spend_projection"
+    assert content["schema"]["discriminator"]["propertyName"] == "availability"
+    assert set(content["schema"]["discriminator"]["mapping"]) == {
+        "available",
+        "source_blocked",
+        "artifact_missing",
+        "invalid_source",
+    }
+    assert isinstance(parsed, AvailableConfidenceLedgerRiskSpendPacket)
+    assert example_object["summary"] == "Historical owner-validated documentation sample"
+    description = example_object["description"]
+    assert "not a current availability or freshness claim" in description
+    assert "be0bdb2bd2ac8d6a7dbb5eda6dbd25aac7516bf4" in description
+    assert "2026-02-11T12:00:00Z" in description
+    assert parsed.source.artifact_content_hash == (
+        "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391"
+    )
+    assert parsed.source.validation.bound_dependency_aggregate_identity == (
+        "sha256:4a0fd9f4e6ce949f538bbd8219afa144498fbc4bd8c1c0c2ab9ba12eea6c17aa"
+    )
+    assert parsed.worker_validation_receipt_hash == (
+        "sha256:74d4f2214adfcc1405f4ed46ef0d320c84be3f7217e8d9b756e8dee22af1e7ee"
+    )
+    assert parsed.availability == "available"
+    assert parsed.payload.coverage_assessment == "open_world_unresolved"
+    assert parsed.payload.status == "not_promoted"
+
+
+def test_openapi_rejects_changed_historical_example_bytes_before_schema_publish(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.http.app import create_runtime_api_app
+
+    _write_openapi_example_resource(monkeypatch, tmp_path, b"{}\n")
+    app = create_runtime_api_app(
+        cas_root=tmp_path / "cas",
+        enable_security_middlewares=False,
+    )
+
+    with pytest.raises(ValueError, match="pinned SHA-256"):
+        app.openapi()
+
+
+def test_openapi_rejects_rebound_historical_time_even_with_matching_file_hash(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import hashlib
+
+    from polisyos.runtime.http.app import create_runtime_api_app
+
+    sample = (
+        Path(__file__).resolve().parents[4]
+        / "src"
+        / "polisyos"
+        / "runtime"
+        / "http"
+        / "_resources"
+        / "confidence_ledger_risk_spend_openapi_example.json"
+    )
+    example = json.loads(sample.read_text(encoding="utf-8"))
+    example["freshness"]["observed_at"] = "2026-02-11T12:01:00Z"
+    raw = json.dumps(example, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode(
+        "utf-8"
+    )
+    _write_openapi_example_resource(
+        monkeypatch,
+        tmp_path,
+        raw,
+        expected_sha256=hashlib.sha256(raw).hexdigest(),
+    )
+    app = create_runtime_api_app(
+        cas_root=tmp_path / "cas",
+        enable_security_middlewares=False,
+    )
+
+    with pytest.raises(ValueError, match="historical provenance"):
+        app.openapi()
+
+
+def test_openapi_rejects_malformed_pinned_example_before_schema_publish(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import hashlib
+
+    from pydantic import ValidationError
+
+    from polisyos.runtime.http.app import create_runtime_api_app
+
+    raw = b'{"availability":"available"}'
+    _write_openapi_example_resource(
+        monkeypatch,
+        tmp_path,
+        raw,
+        expected_sha256=hashlib.sha256(raw).hexdigest(),
+    )
+    app = create_runtime_api_app(
+        cas_root=tmp_path / "cas",
+        enable_security_middlewares=False,
+    )
+
+    with pytest.raises(ValidationError):
+        app.openapi()
 
 
 def test_coherent_owner_over_spend_reaches_detail_free_source_blocker(

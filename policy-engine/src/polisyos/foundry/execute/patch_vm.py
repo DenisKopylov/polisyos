@@ -7,14 +7,17 @@ from typing import Any
 
 import numpy as np
 
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.protocol import ArtifactStore
+from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.contracts.foundry import PatchOp
 from polisyos.foundry.methods.components.merge_engine import MergeEngine, MergeRecord
-from polisyos.ir.kernel import MergeRuleKind, MergeRuleRegistry, SlotRegistry
+from polisyos.ir.kernel.merge_rules import MergeRuleKind, MergeRuleRegistry
+from polisyos.ir.kernel.slots import SlotRegistry
 
 
-def _put_tensor(store: FileSystemCAS, value: Any) -> ArtifactRef:
+def _put_tensor(store: ArtifactStore, value: Any) -> ArtifactRef:
     array = np.asarray(value)
     buf = BytesIO()
     np.save(buf, array, allow_pickle=False)
@@ -25,13 +28,14 @@ def _put_tensor(store: FileSystemCAS, value: Any) -> ArtifactRef:
     )
 
 
-def _load_tensor(store: FileSystemCAS, ref: ArtifactRef | str) -> np.ndarray:
-    data = store.get_bytes(ref)
+def _load_tensor(store: ArtifactStore, ref: ArtifactRef | str) -> np.ndarray:
+    selector = ArtifactID.model_validate(ref) if isinstance(ref, str) else ref
+    data = store.get_bytes(selector)
     return np.load(BytesIO(data), allow_pickle=False)
 
 
 def merge_patch_records(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     patch_records: dict[str, list[dict[str, Any]]],
     *,
     base_values: dict[str, Any] | None = None,

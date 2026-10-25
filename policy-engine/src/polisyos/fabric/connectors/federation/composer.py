@@ -89,7 +89,7 @@ def _is_missing_scalar(value: object) -> bool:
     if not pd.api.types.is_scalar(value):
         return False
     try:
-        return bool(pd.isna(value))
+        return bool(pd.Series([value], dtype=object).isna().iat[0])
     except (TypeError, ValueError):
         return False
 

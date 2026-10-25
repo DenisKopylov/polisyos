@@ -9,7 +9,6 @@ from __future__ import annotations
 import re
 from dataclasses import asdict
 from datetime import UTC, datetime
-from pathlib import Path
 from typing import TYPE_CHECKING, TypedDict
 
 from polisyos.core.artifacts.ids import ArtifactID
@@ -45,6 +44,8 @@ from .errors import DocNotReadyError, DocValidationError
 from .types import DocChunkOptions, DocChunkResult
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from polisyos.ir.loading import Fact
 
 _CHUNKS_SCHEMA = SchemaInfo(name="fabric.doc.chunks", version="1.0")

@@ -42,7 +42,6 @@ from __future__ import annotations
 
 import asyncio
 import time
-from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, ClassVar, TypedDict, TypeGuard
 
@@ -90,7 +89,7 @@ from polisyos.ir.connectors import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping
+    from collections.abc import AsyncIterator, Iterable, Mapping
 
 logger = get_logger(__name__)
 

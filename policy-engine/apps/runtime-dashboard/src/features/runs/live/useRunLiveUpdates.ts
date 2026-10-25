@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, type QueryKey } from "@tanstack/react-query";
 
+import { runDetailsSchema } from "@/api/validators";
 import { getSseRealtimeTransport } from "@/app/realtime/sseTransport";
 import { invalidateRunQueries } from "@/app/realtime/runInvalidation";
 import { parseRunsLiveEvent } from "@/app/providers/runsLiveMachine";
@@ -8,6 +9,44 @@ import {
   readRunsLiveDisabledPreference,
   useRunsLivePreferenceStore,
 } from "@/app/state/useRunsLivePreferenceStore";
+
+function isRunDetailsQueryKey(queryKey: QueryKey, routeRunId: string): boolean {
+  const temporalKey = queryKey[3];
+  return (
+    queryKey.length === 4 &&
+    queryKey[0] === "runtime" &&
+    queryKey[1] === "run" &&
+    queryKey[2] === routeRunId &&
+    typeof temporalKey === "object" &&
+    temporalKey !== null &&
+    !Array.isArray(temporalKey) &&
+    "temporal" in temporalKey
+  );
+}
+
+function cachedCoreRunIds(
+  queryClient: ReturnType<typeof useQueryClient>,
+  routeRunId: string,
+) {
+  const coreRunIds = new Set<string>();
+  const cachedQueries = queryClient.getQueriesData({
+    queryKey: ["runtime", "run", routeRunId],
+  });
+  for (const [queryKey, cachedData] of cachedQueries) {
+    if (!isRunDetailsQueryKey(queryKey, routeRunId)) {
+      continue;
+    }
+    const parsed = runDetailsSchema.safeParse(cachedData);
+    if (
+      parsed.success &&
+      parsed.data.run.source_kind === "core_run" &&
+      parsed.data.run.run_id.length > 0
+    ) {
+      coreRunIds.add(parsed.data.run.run_id);
+    }
+  }
+  return [...coreRunIds];
+}
 
 export function useRunLiveUpdates(runId: string | undefined) {
   const queryClient = useQueryClient();
@@ -44,7 +83,17 @@ export function useRunLiveUpdates(runId: string | undefined) {
             lastEventId: event.lastEventId,
           });
           if (parsed.kind === "run.snapshot" && parsed.runId === runId) {
-            void invalidateRunQueries(queryClient, runId);
+            const invalidations: Promise<unknown>[] = [
+              invalidateRunQueries(queryClient, runId),
+            ];
+            for (const coreRunId of cachedCoreRunIds(queryClient, runId)) {
+              invalidations.push(
+                queryClient.invalidateQueries({
+                  queryKey: ["runtime", "run", coreRunId],
+                }),
+              );
+            }
+            void Promise.all(invalidations);
           }
         },
         onError: () => {

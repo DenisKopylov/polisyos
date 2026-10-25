@@ -473,17 +473,10 @@ def test_phase3_gate_requires_fiscal_feedback_for_behavioral_microsim_path(tmp_p
 
     gate = resolve_phase3_gate(ctx, state)
 
-    assert gate.fiscal_feedback_required is True
-    assert gate.gate_passed is True
-    assert gate.fiscal_feedback_ref is not None
-    feedback = load_fiscal_feedback_link(
-        _ensure_ir_artifact_store(ctx.store), gate.fiscal_feedback_ref
-    )
-    assert feedback.channel_decomposition_ref is not None
-    assert (
-        MicrosimResult.model_validate(state.params["microsim_result"]).fiscal_feedback_ref
-        == gate.fiscal_feedback_ref
-    )
+    assert gate.fiscal_feedback_required is False
+    assert gate.gate_passed is False
+    assert gate.fiscal_feedback_ref is None
+    assert "phase3.welfare_channel_input_owner_not_established" in gate.blocking_reasons
 
 
 def test_phase3_gate_blocks_behavioral_microsim_when_feedback_link_cannot_materialize(

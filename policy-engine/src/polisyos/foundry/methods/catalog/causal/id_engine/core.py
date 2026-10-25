@@ -1,8 +1,15 @@
-"""id_engine — Shpitser-Pearl ID algorithm for causal identification.
+"""Bounded native Shpitser-Pearl ID with explicit optional oracle fallback.
 
-Implements the complete recursive ID algorithm (Tian & Pearl 2002; Shpitser &
-Pearl 2006) plus the IDC extension for conditional interventional distributions
-and the TR (Transportability) wrapper from Bareinboim & Pearl (2012).
+Implements supported native ID branches plus the IDC extension for conditional
+interventional distributions and the TR (Transportability) wrapper. Native Step
+6 returns ORACLE_NEEDED when recursive Q[S] input-kernel semantics are not
+represented. Native ID also requires available_vars to equal the full graph-node
+set; this module does not infer latent projections or marginalize omitted graph
+mechanisms. Public ID/IDC/TR/fallback entrypoints admit treatment, outcome,
+and conditioning roles against actual graph nodes before shortcuts; empty
+treatment and conditioning sets are supported, while outcome must be non-empty.
+id_with_oracle_fallback may delegate the complete admitted query to an
+explicitly selected backend and records that backend's provenance.
 
 All internal data-types (HedgeCertificate, IdentificationResult) are frozen
 dataclasses rather than Pydantic models — they are internal algorithm state that
@@ -19,7 +26,7 @@ idc_algorithm(treatment, outcome, conditions, graph)
     → IdentificationResult via IDC reduction to two ID calls
 
 tr_algorithm(treatment, outcome, selection_diagram)
-    → IdentificationResult for transportability (augments graph with S-nodes)
+    → bounded S-admissibility cases; otherwise ORACLE_NEEDED
 
 id_with_oracle_fallback(treatment, outcome, graph, oracle)
     → IdentificationResult, trying oracle backends when native ID returns ORACLE_NEEDED
@@ -53,7 +60,6 @@ from polisyos.foundry.methods.catalog.causal.admg_ops import (
     _validate_static_admg,
     _validate_static_id_graph,
     ancestors,
-    augment_with_s_nodes,
     c_components,
     canonical_scalar_selection_diagram,
     descendants,
@@ -65,7 +71,13 @@ from polisyos.foundry.methods.catalog.causal.admg_ops import (
     resolve_s_node_by_adjustment,
     topological_order,
 )
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    EdgeMark,
+    GraphType,
+    graph_content_sha256,
+)
 from polisyos.ir.analytics.estimand import (
     ConditionalInterventionNode,
     CounterfactualNode,
@@ -186,6 +198,25 @@ def _pag_id_algorithm(
 # ---------------------------------------------------------------------------
 
 
+def _c_forest_roots(
+    graph: CausalGraphModel,
+    component: frozenset[str],
+) -> frozenset[str] | None:
+    """Return sink roots when a bidirected component is a rooted C-forest.
+
+    In the ID hedge criterion a C-forest is a C-component in which each
+    observed vertex has at most one directed child. Its roots are the vertices
+    with no directed child. A component that branches is not a C-forest.
+    """
+    children: dict[str, set[str]] = {node: set() for node in component}
+    for source, target in extract_directed_edges(graph):
+        if source in component and target in component:
+            children[source].add(target)
+    if any(len(node_children) > 1 for node_children in children.values()):
+        return None
+    return frozenset(node for node, node_children in children.items() if not node_children)
+
+
 def _check_hedge_condition(
     *,
     treatment: frozenset[str],
@@ -214,12 +245,25 @@ def _check_hedge_condition(
     singleton = components_g_minus_x[0]
     if singleton != (V - treatment):
         return None
-    comps_g = c_components(graph)
+    comps_g = c_components(induced_subgraph(graph, V))
     if len(comps_g) != 1:
         return None
 
+    # A hedge pair needs two rooted C-forests with shared roots that remain
+    # ancestors of the outcome after intervention.
+    small_roots = _c_forest_roots(graph, singleton)
+    large_roots = _c_forest_roots(graph, comps_g[0])
+    roots_in_do_ancestors = ancestors(do_operator(graph, treatment), outcome) & V
+    if (
+        small_roots is None
+        or large_roots is None
+        or small_roots != large_roots
+        or not small_roots <= roots_in_do_ancestors
+    ):
+        return None
+
     # HEDGE detected: F = V, F' = V - X
-    hedge_root = V - treatment
+    hedge_root = small_roots
     X = treatment
     Y = outcome
     missing_dists = tuple(
@@ -310,20 +354,22 @@ def _detect_frontdoor_mediator(
         and frozenset({x, mediator}) not in bidirected
         and frozenset({mediator, y}) not in bidirected
     )
-    if not mediator_candidates:
+    if len(mediator_candidates) != 1:
         return None
 
-    # All directed children of X that can still reach Y must pass through the
-    # same mediator, otherwise the simple one-mediator frontdoor formula does
-    # not apply.
-    children_of_x = {dst for src, dst in directed if src == x and dst in available_vars}
-    for child in children_of_x:
-        if child == y:
-            return None
-        if child not in mediator_candidates and y in descendants(graph, frozenset({child})):
-            return None
+    mediator = mediator_candidates[0]
+    active_directed = {
+        (src, dst) for src, dst in directed if src in available_vars and dst in available_vars
+    }
+    active_bidirected = {pair for pair in bidirected if pair <= available_vars}
+    if (
+        available_vars != frozenset({x, mediator, y})
+        or active_directed != {(x, mediator), (mediator, y)}
+        or active_bidirected != {frozenset({x, y})}
+    ):
+        return None
 
-    return mediator_candidates[0]
+    return mediator
 
 
 def _dag_g_formula(
@@ -409,6 +455,88 @@ def _dag_g_formula(
     )
 
 
+def _native_query_admission_issue(
+    *,
+    treatment: object,
+    outcome: object,
+    conditions: object,
+    graph_nodes: frozenset[str],
+) -> tuple[str, str] | None:
+    """Return a typed refusal unless X/Y/Z form a supported graph query.
+
+    Empty treatment is supported as a marginal query, and empty conditions
+    reduce IDC to ID. The outcome must be non-empty. Every role must be a
+    frozenset of non-empty graph variable names, and treatment, outcome, and
+    conditions must be pairwise disjoint. This is the set-valued form of the
+    causal query validator's membership and non-self-effect rules.
+    """
+    role_sets = (
+        ("treatment", treatment),
+        ("outcome", outcome),
+        ("conditions", conditions),
+    )
+    for role, variables in role_sets:
+        if not isinstance(variables, frozenset):
+            return f"{role} must be a frozenset[str] query set", "query_shape"
+        if any(not isinstance(name, str) or not name for name in variables):
+            return (
+                f"{role} query set must contain only non-empty string names",
+                "query_shape",
+            )
+    if not outcome:
+        return "the native causal-effect query requires a non-empty outcome set", "query_shape"
+
+    for index, (left_role, left_variables) in enumerate(role_sets):
+        for right_role, right_variables in role_sets[index + 1 :]:
+            overlap = left_variables & right_variables
+            if overlap:
+                return (
+                    "query roles must be pairwise disjoint; "
+                    f"{left_role}/{right_role} overlap={sorted(overlap)}",
+                    "query_shape",
+                )
+
+    missing = (treatment | outcome | conditions) - graph_nodes
+    if missing:
+        return (
+            f"query variables are absent from the actual graph: {sorted(missing)}",
+            "query_identity",
+        )
+    return None
+
+
+def _native_query_refusal_result(
+    *,
+    caller: str,
+    reason: str,
+    gate: str,
+    trace: list[str] | None = None,
+) -> IdentificationResult:
+    """Build the typed, formula-free refusal shared by native ID/TR entry gates."""
+    refusal = f"{caller}: ORACLE_NEEDED: query admission failed: {reason}"
+    proof = ProofStep(
+        rule_name="ORACLE",
+        antecedent_vars=(),
+        consequent_vars=(),
+        applied_to_graph_state=f"Native query admission failed: {reason}",
+        depth=0,
+    )
+    return IdentificationResult(
+        status=IdentificationStatus.ORACLE_NEEDED,
+        estimand_ast=None,
+        hedge_certificate=None,
+        trace=[*(trace or []), refusal],
+        required_distributions=[],
+        algorithm_version="native_query_admission_v1",
+        proof_steps=[proof],
+        metadata={
+            "backend_id": caller,
+            "limitation_reason": reason,
+            "gate_predicates": {gate: "recomputed_false"},
+        },
+    )
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -425,23 +553,40 @@ def id_algorithm(
     _depth: int = 0,
     _trace: list[str] | None = None,
 ) -> IdentificationResult:
-    """Recursive Shpitser-Pearl ID algorithm.
+    """Run supported native ID branches and fail closed when Q[S] is unavailable.
 
     Parameters
     ----------
     treatment:      X — intervention set (frozenset of variable names)
     outcome:        Y — target variables
     graph:          resolved DAG or acyclic ADMG (bidirected=ARROW/ARROW)
-    available_vars: V — set of all observed variables (defaults to all graph nodes)
+    available_vars: V must equal all graph nodes; subsets require a separately
+                    validated latent-projection graph, which this path does not build
+    query sets:     non-empty outcome, disjoint treatment/outcome, both in graph.nodes
     dataset_ref:    tag for DistributionRef leaves (links to DataKnowledgeBase)
     domain:         DistributionDomain for leaf DistributionRef nodes
     _depth/_trace:  internal recursion bookkeeping
 
     Returns IdentificationResult with status IDENTIFIED, HEDGE_FOUND, or ORACLE_NEEDED.
+    Subset profiles require a separately validated latent-projection graph.
     """
     graph = _validate_static_id_graph(graph)
     if _trace is None:
         _trace = []
+    query_issue = _native_query_admission_issue(
+        treatment=treatment,
+        outcome=outcome,
+        conditions=frozenset(),
+        graph_nodes=frozenset(graph.nodes),
+    )
+    if query_issue is not None:
+        reason, gate = query_issue
+        return _native_query_refusal_result(
+            caller="id_algorithm",
+            reason=reason,
+            gate=gate,
+            trace=list(_trace),
+        )
     if available_vars is None:
         available_vars = frozenset(graph.nodes)
 
@@ -453,8 +598,45 @@ def id_algorithm(
 
     _trace.append(f"[depth={_depth}] id_algorithm(X={sorted(X)}, Y={sorted(Y)}, V={sorted(V)})")
 
+    # Native ID consumes the full observational kernel represented by graph.
+    # A caller-supplied subset is not a latent projection: bidirected paths may
+    # preserve dependence through omitted nodes even when directed ancestry does
+    # not. Require an exact node-set match before every algorithmic shortcut.
+    graph_node_profile = frozenset(graph.nodes)
+    omitted_graph_nodes = graph_node_profile - V
+    extra_available_vars = V - graph_node_profile
+    if omitted_graph_nodes or extra_available_vars:
+        omitted = sorted(omitted_graph_nodes)
+        extra = sorted(extra_available_vars)
+        _trace.append(
+            f"[depth={_depth}] Native ID requires a full observed-node kernel "
+            "with available_vars equal to the complete graph-node profile; "
+            f"omitted graph nodes={omitted}, extra available variables={extra}. "
+            "A separately validated latent-projection graph is required for a subset."
+        )
+        _steps.append(
+            ProofStep(
+                rule_name="ORACLE",
+                antecedent_vars=tuple(sorted(omitted_graph_nodes | extra_available_vars)),
+                consequent_vars=tuple(sorted(Y)),
+                applied_to_graph_state=(
+                    "Native ID accepts only the complete graph-node profile. This path "
+                    "does not marginalize omitted nodes or construct a validated latent projection."
+                ),
+                depth=_depth,
+            )
+        )
+        return IdentificationResult(
+            status=IdentificationStatus.ORACLE_NEEDED,
+            estimand_ast=None,
+            hedge_certificate=None,
+            trace=list(_trace),
+            required_distributions=[],
+            proof_steps=list(_steps),
+        )
+
     # ------------------------------------------------------------------
-    # PAG-specific branch (Malinsky & Spirtes 2017) — before Step 1
+    # PAG-specific branch (Malinsky & Spirtes 2017) before Step 1
     # ------------------------------------------------------------------
     if graph.graph_type is GraphType.PAG and _depth == 0:
         # Only intercept at the top-level call; recursive sub-calls on DAG
@@ -470,39 +652,43 @@ def id_algorithm(
             _trace=_trace,
         )
 
-    # ------------------------------------------------------------------
-    # Step 1: X = ∅  →  P(Y | An(Y)_G \ Y)  (marginalisation)
+    # Step 1: X = ∅ → the marginal distribution P(Y)
     # ------------------------------------------------------------------
     if not X:
-        an_y = ancestors(graph, Y) & V
-        conditioning = tuple(sorted(an_y - Y))
-        leaf = DistributionRef(
+        marginal = DistributionRef(
             domain=domain,
             variables=tuple(sorted(Y)),
-            conditioning=conditioning,
             dataset_ref=dataset_ref,
         )
-        _trace.append(f"[depth={_depth}] Step 1: X=∅ → P({sorted(Y)}|{sorted(conditioning)})")
+        _trace.append(f"[depth={_depth}] Step 1: X=∅ → marginal P({sorted(Y)}) from P(V)")
         _steps.append(
             ProofStep(
                 rule_name="RULE1",
                 antecedent_vars=(),
                 consequent_vars=tuple(sorted(Y)),
-                applied_to_graph_state=f"X=∅, marginalise over An({sorted(Y)})",
+                applied_to_graph_state=(
+                    f"X=∅, marginal P({sorted(Y)}) from P(V) over V={sorted(V)}"
+                ),
                 depth=_depth,
             )
         )
-        ast = _wrap_root(leaf, treatment=treatment, outcome=outcome, method="id_step1")
+        ast = EstimandAST(
+            query_str=_query_text(treatment, outcome),
+            root=marginal,
+            treatment=_query_var_label(treatment),
+            outcome=_query_var_label(outcome),
+            all_variables=tuple(sorted(V)),
+            identification_method="id_step1",
+        )
         return IdentificationResult(
             status=IdentificationStatus.IDENTIFIED,
             estimand_ast=ast,
             hedge_certificate=None,
             trace=list(_trace),
-            required_distributions=[leaf],
+            required_distributions=[marginal],
             proof_steps=list(_steps),
         )
 
-    # ------------------------------------------------------------------
     # Step 2: V ≠ An(Y)_G  →  restrict to ancestor subgraph of Y
     # ------------------------------------------------------------------
     an_y_full = ancestors(graph, Y) & V
@@ -529,7 +715,11 @@ def id_algorithm(
             _depth=_depth + 1,
             _trace=_trace,
         )
-        return dataclasses.replace(inner, proof_steps=list(_steps) + list(inner.proof_steps))
+        return _rebind_result_query(
+            dataclasses.replace(inner, proof_steps=list(_steps) + list(inner.proof_steps)),
+            treatment=X,
+            outcome=Y,
+        )
 
     # ------------------------------------------------------------------
     # Step 3: W = (V \ X) \ An(Y in G_{do(X)})  →  if W ≠ ∅ add to X
@@ -559,7 +749,11 @@ def id_algorithm(
             _depth=_depth + 1,
             _trace=_trace,
         )
-        return dataclasses.replace(inner, proof_steps=list(_steps) + list(inner.proof_steps))
+        return _rebind_result_query(
+            dataclasses.replace(inner, proof_steps=list(_steps) + list(inner.proof_steps)),
+            treatment=X,
+            outcome=Y,
+        )
 
     # ------------------------------------------------------------------
     # Exact DAG fallback: truncated factorization when there is no latent
@@ -650,6 +844,154 @@ def id_algorithm(
         )
 
     # ------------------------------------------------------------------
+    # Step 4b: factorise the truncated graph across every c-component.
+    # ------------------------------------------------------------------
+    if len(components_g_minus_x) > 1:
+        factorization_step = ProofStep(
+            rule_name="C_COMPONENT",
+            antecedent_vars=tuple(sorted(V - X)),
+            consequent_vars=tuple(sorted(Y)),
+            applied_to_graph_state=(
+                "ID Step 4: factorise over all c-components of G\\X and "
+                "marginalise variables outside X∪Y"
+            ),
+            depth=_depth,
+        )
+        component_results: list[IdentificationResult] = []
+        for component in components_g_minus_x:
+            _trace.append(
+                f"[depth={_depth}] Step 4: identifying Q[{sorted(component)}] "
+                f"as ID({sorted(component)}, {sorted(V - component)}, G)"
+            )
+            component_result = id_algorithm(
+                treatment=V - component,
+                outcome=component,
+                graph=graph,
+                available_vars=V,
+                dataset_ref=dataset_ref,
+                domain=domain,
+                _depth=_depth + 1,
+                _trace=_trace,
+            )
+            if component_result.status is not IdentificationStatus.IDENTIFIED:
+                outer_hedge = find_hedge(
+                    treatment=X,
+                    outcome=Y,
+                    graph=graph,
+                    available_vars=V,
+                )
+                if outer_hedge is not None:
+                    _trace.append(f"[depth={_depth}] Step 4: validated outer-query hedge")
+                    return IdentificationResult(
+                        status=IdentificationStatus.HEDGE_FOUND,
+                        estimand_ast=None,
+                        hedge_certificate=outer_hedge,
+                        trace=list(_trace),
+                        required_distributions=[],
+                        proof_steps=list(_steps)
+                        + [
+                            factorization_step,
+                            ProofStep(
+                                rule_name="HEDGE",
+                                antecedent_vars=tuple(sorted(X)),
+                                consequent_vars=tuple(sorted(Y)),
+                                applied_to_graph_state=outer_hedge.description,
+                                depth=_depth,
+                            ),
+                        ],
+                    )
+                _trace.append(
+                    f"[depth={_depth}] Step 4: Q[{sorted(component)}] did not yield "
+                    f"an identified kernel; returning {component_result.status.value}"
+                )
+                refusal_step = ProofStep(
+                    rule_name="ORACLE",
+                    antecedent_vars=tuple(sorted(X)),
+                    consequent_vars=tuple(sorted(Y)),
+                    applied_to_graph_state=(
+                        f"ID Step 4 kernel Q[{sorted(component)}] was not established"
+                    ),
+                    depth=_depth,
+                )
+                return IdentificationResult(
+                    status=(
+                        IdentificationStatus.ORACLE_NEEDED
+                        if component_result.status is IdentificationStatus.HEDGE_FOUND
+                        else component_result.status
+                    ),
+                    estimand_ast=None,
+                    hedge_certificate=None,
+                    trace=list(_trace),
+                    required_distributions=[],
+                    proof_steps=list(_steps) + [refusal_step],
+                )
+            if component_result.estimand_ast is None:
+                _trace.append(
+                    f"[depth={_depth}] Step 4: Q[{sorted(component)}] has no AST; "
+                    "returning ORACLE_NEEDED"
+                )
+                return IdentificationResult(
+                    status=IdentificationStatus.ORACLE_NEEDED,
+                    estimand_ast=None,
+                    hedge_certificate=None,
+                    trace=list(_trace),
+                    required_distributions=[],
+                    proof_steps=list(_steps)
+                    + [
+                        ProofStep(
+                            rule_name="ORACLE",
+                            antecedent_vars=tuple(sorted(X)),
+                            consequent_vars=tuple(sorted(Y)),
+                            applied_to_graph_state=(
+                                f"ID Step 4 kernel Q[{sorted(component)}] has no AST"
+                            ),
+                            depth=_depth,
+                        )
+                    ],
+                )
+            component_results.append(component_result)
+
+        component_roots = tuple(
+            component_result.estimand_ast.root
+            for component_result in component_results
+            if component_result.estimand_ast is not None
+        )
+        product_root: object = ProductNode(
+            factors=component_roots  # type: ignore[arg-type]
+        )
+        marginalise_over = tuple(sorted(V - (X | Y)))
+        if marginalise_over:
+            product_root = SumNode(
+                summation_vars=marginalise_over,
+                operand=product_root,  # type: ignore[arg-type]
+            )
+        ast = EstimandAST(
+            query_str=_query_text(X, Y),
+            root=product_root,  # type: ignore[arg-type]
+            treatment=_query_var_label(X),
+            outcome=_query_var_label(Y),
+            all_variables=tuple(sorted(V)),
+            identification_method="id_step4_factorization",
+        )
+        child_steps = [
+            step for component_result in component_results for step in component_result.proof_steps
+        ]
+        required = [
+            distribution
+            for component_result in component_results
+            if component_result.estimand_ast is not None
+            for distribution in component_result.estimand_ast.collect_distribution_refs()
+        ]
+        return IdentificationResult(
+            status=IdentificationStatus.IDENTIFIED,
+            estimand_ast=ast,
+            hedge_certificate=None,
+            trace=list(_trace),
+            required_distributions=required,
+            proof_steps=list(_steps) + [factorization_step] + child_steps,
+        )
+
+    # ------------------------------------------------------------------
     # Step 5: Y is in a single c-component Si of G \ X
     # ------------------------------------------------------------------
     y_component: frozenset[str] | None = None
@@ -692,7 +1034,11 @@ def id_algorithm(
                 depth=_depth,
                 trace=_trace,
             )
-            return dataclasses.replace(inner, proof_steps=list(_steps) + list(inner.proof_steps))
+            return _rebind_result_query(
+                dataclasses.replace(inner, proof_steps=list(_steps) + list(inner.proof_steps)),
+                treatment=X,
+                outcome=Y,
+            )
 
         # Si is its own c-component in G — Step 5 factorisation
         inner = _step5_formula(
@@ -749,6 +1095,19 @@ def idc_algorithm(
     This follows Shpitser & Pearl (2008) / Bareinboim & Pearl (2012).
     """
     graph = _validate_static_id_graph(graph)
+    query_issue = _native_query_admission_issue(
+        treatment=treatment,
+        outcome=outcome,
+        conditions=conditions,
+        graph_nodes=frozenset(graph.nodes),
+    )
+    if query_issue is not None:
+        reason, gate = query_issue
+        return _native_query_refusal_result(
+            caller="idc_algorithm",
+            reason=reason,
+            gate=gate,
+        )
     trace: list[str] = [
         f"idc_algorithm: Y={sorted(outcome)}, X={sorted(treatment)}, Z={sorted(conditions)}"
     ]
@@ -902,28 +1261,12 @@ def _s_trim_lemma(
     _steps: list[ProofStep],
     _depth: int = 0,
 ) -> tuple[CausalGraphModel, frozenset[str], frozenset[str]]:
-    """S-trimming lemma: prune S-nodes that cannot affect identification.
+    """Emit a directed-ancestor diagnostic for typed selection targets.
 
-    An S-node S_v is prunable iff ``v`` is not an ancestor of any outcome
-    variable in the base graph.  Such S-nodes can never create or block any
-    path to Y and are therefore irrelevant to identification.
-
-    Parameters
-    ----------
-    outcome       : outcome variable set Y
-    graph         : the BASE graph (before S-node augmentation)
-    s_node_vars   : variable names targeted by S-nodes (not the "S_v" names)
-    _trace        : mutable trace list for logging
-    _steps        : mutable list to collect ProofStep objects
-    _depth        : recursion depth for trace labels
-
-    Returns
-    -------
-    (trimmed_graph, remaining_s_node_vars, pruned_s_node_vars)
-        trimmed_graph         : graph with prunable S-nodes removed (if they were
-                                already augmented in; otherwise the original graph)
-        remaining_s_node_vars : S-node vars that must be kept
-        pruned_s_node_vars    : S-node vars that were pruned
+    This legacy screen is not a transportability gate: directed ancestry does
+    not account for active bidirected paths. Its output is diagnostic only;
+    positive identification uses the typed transport solver's m-separation
+    check, and unsupported cases fail closed.
     """
     graph = _validate_static_admg(graph)
     an_y = ancestors(graph, outcome)
@@ -933,11 +1276,11 @@ def _s_trim_lemma(
 
     for v in sorted(s_node_vars):  # sorted for determinism
         if v not in an_y:
-            # v has no path to any outcome variable → S-node is irrelevant
+            # No directed path is found; the typed TR adapter checks mixed paths.
             pruned.add(v)
             _trace.append(
-                f"[depth={_depth}] S_TRIM: prune S_{v} "
-                f"({v!r} not in ancestors of {sorted(outcome)})"
+                f"[depth={_depth}] S_TRIM diagnostic: {v!r} is not in the directed "
+                f"ancestors of {sorted(outcome)}"
             )
             _steps.append(
                 ProofStep(
@@ -945,7 +1288,8 @@ def _s_trim_lemma(
                     antecedent_vars=(f"S_{v}",),
                     consequent_vars=(),
                     applied_to_graph_state=(
-                        f"S_{v} pruned: {v!r} is not an ancestor of Y={sorted(outcome)}"
+                        f"S_{v} is a directed-ancestor diagnostic only: "
+                        f"{v!r} is not an ancestor of Y={sorted(outcome)}"
                     ),
                     depth=_depth,
                 )
@@ -1071,28 +1415,26 @@ def tr_algorithm(
     *,
     treatment: frozenset[str],
     outcome: frozenset[str],
-    selection_diagram: Any,  # SelectionDiagram — avoid circular import
+    selection_diagram: Any,
     dataset_ref: str | None = None,
 ) -> IdentificationResult:
-    """Bareinboim-Pearl TR algorithm for transportability.
+    """Identify bounded transport cases using typed selection semantics.
 
-    Augments the base graph with selection nodes (S→V for each SNode),
-    then runs id_algorithm on the augmented graph.  The S-nodes mark which
-    mechanisms differ between source and target domain.
-
-    Enhancements over the bare formulation:
-    - **S-trimming**: S-nodes whose target variable is not an ancestor of any
-      outcome variable are pruned before augmentation (they can never affect
-      identification).  Each pruned S-node emits a ``S_TRIM`` ProofStep.
-    - **ProofStep emission**: augmentation and trimming are traced as formal
-      proof steps for downstream audit.
-    - Uses :func:`augment_with_s_nodes` from admg_ops for pure graph surgery.
-
-    Parameters
-    ----------
-    selection_diagram:  polisyos.ir.analytics.transportability.SelectionDiagram
+    Native TR delegates to the base graph when every selected mechanism is
+    intervened on. Other scalar queries use the existing transport solver's
+    recomputed S-admissibility source-law branch. The directed S-trim pass is
+    diagnostic only; it cannot establish transportability. Unsupported or
+    unverified shifts return ORACLE_NEEDED without a source-only formula.
     """
-    from polisyos.ir.analytics.transportability import SelectionDiagram
+    from polisyos.foundry.methods.catalog.causal.transport_engine import (
+        _candidate_member_sha256,
+        solve_transportability,
+    )
+    from polisyos.ir.analytics.estimand import EstimandAST
+    from polisyos.ir.analytics.transportability import (
+        SelectionDiagram,
+        transportability_candidate_query_sha256,
+    )
 
     if not isinstance(selection_diagram, SelectionDiagram):
         return IdentificationResult(
@@ -1103,17 +1445,30 @@ def tr_algorithm(
             required_distributions=[],
         )
 
+    selection_diagram = canonical_scalar_selection_diagram(selection_diagram)
+    graph = selection_diagram.base_graph
+    query_issue = _native_query_admission_issue(
+        treatment=treatment,
+        outcome=outcome,
+        conditions=frozenset(),
+        graph_nodes=frozenset(graph.nodes),
+    )
+    if query_issue is not None:
+        reason, gate = query_issue
+        return _native_query_refusal_result(
+            caller="tr_algorithm",
+            reason=reason,
+            gate=gate,
+        )
+
     trace: list[str] = [
         f"tr_algorithm: X={sorted(treatment)}, Y={sorted(outcome)}, "
         f"s_nodes={[sn.target_variable for sn in selection_diagram.s_nodes]}"
     ]
     _steps: list[ProofStep] = []
 
-    selection_diagram = canonical_scalar_selection_diagram(selection_diagram)
-    graph = selection_diagram.base_graph
-
     if not selection_diagram.s_nodes:
-        trace.append("tr_algorithm: no S-nodes → direct ID on base graph")
+        trace.append("tr_algorithm: no S-nodes; direct ID on complete base graph")
         return id_algorithm(
             treatment=treatment,
             outcome=outcome,
@@ -1123,21 +1478,63 @@ def tr_algorithm(
             _trace=trace,
         )
 
-    # Collect all S-node target variable names
-    all_s_vars = frozenset(sn.target_variable for sn in selection_diagram.s_nodes)
+    selection_targets = frozenset(sn.target_variable for sn in selection_diagram.s_nodes)
 
-    # S-trimming: prune S-nodes whose target is not an ancestor of Y
-    _, remaining_s_vars, pruned_s_vars = _s_trim_lemma(
-        outcome=outcome,
-        graph=graph,
-        s_node_vars=all_s_vars,
-        _trace=trace,
-        _steps=_steps,
-        _depth=0,
-    )
+    # Synthetic names derive only from typed SNode targets. Reject graph identity
+    # collisions before trimming or treatment-cut delegation can erase ambiguity.
+    synthetic_s_names = frozenset(f"S_{variable}" for variable in selection_targets)
+    name_collisions = synthetic_s_names & frozenset(graph.nodes)
+    if name_collisions:
+        collisions = sorted(name_collisions)
+        trace.append(
+            "tr_algorithm: ORACLE_NEEDED because synthetic selection-node names "
+            f"collide with base graph nodes {collisions}"
+        )
+        _steps.append(
+            ProofStep(
+                rule_name="ORACLE",
+                antecedent_vars=tuple(collisions),
+                consequent_vars=tuple(sorted(outcome)),
+                applied_to_graph_state=(
+                    "A typed SNode target maps to a generated identity already used "
+                    "by the base graph; selection-node identity is ambiguous."
+                ),
+                depth=0,
+            )
+        )
+        return IdentificationResult(
+            status=IdentificationStatus.ORACLE_NEEDED,
+            estimand_ast=None,
+            hedge_certificate=None,
+            trace=list(trace),
+            required_distributions=[],
+            proof_steps=list(_steps),
+            algorithm_version="tr_identity_refusal_v1",
+            metadata={
+                "backend_id": "native_tr",
+                "gate_predicates": {"selection_node_identity": "not_established"},
+            },
+        )
 
-    if not remaining_s_vars:
-        trace.append("tr_algorithm: all S-nodes pruned by S-trimming → direct ID on base graph")
+    if selection_targets <= treatment:
+        # Every typed selection mechanism enters an intervened variable, so
+        # do(X) cuts those mechanisms. Use the original base graph's full kernel.
+        trace.append(
+            "tr_algorithm: every typed selection target is in do(X); "
+            "selection mechanisms are cut and native ID uses the original base graph"
+        )
+        _steps.append(
+            ProofStep(
+                rule_name="S_AUGMENT",
+                antecedent_vars=tuple(sorted(synthetic_s_names)),
+                consequent_vars=tuple(sorted(selection_targets)),
+                applied_to_graph_state=(
+                    "Typed S_v->v selection edges are cut by do(X); delegate the "
+                    "source effect to ID on the original complete base graph."
+                ),
+                depth=0,
+            )
+        )
         inner = id_algorithm(
             treatment=treatment,
             outcome=outcome,
@@ -1148,40 +1545,242 @@ def tr_algorithm(
         )
         return dataclasses.replace(inner, proof_steps=_steps + list(inner.proof_steps))
 
-    # Emit S_AUGMENT ProofStep for remaining S-nodes
-    _steps.append(
-        ProofStep(
-            rule_name="S_AUGMENT",
-            antecedent_vars=tuple(f"S_{v}" for v in sorted(remaining_s_vars)),
-            consequent_vars=tuple(sorted(remaining_s_vars)),
-            applied_to_graph_state=(
-                f"Augment graph with S-nodes for {sorted(remaining_s_vars)}; "
-                f"{len(pruned_s_vars)} S-node(s) pruned by S-trimming lemma"
-            ),
-            depth=0,
-        )
-    )
-
-    # Augment graph with remaining S-nodes using admg_ops primitive
-    augmented_graph = augment_with_s_nodes(graph, remaining_s_vars)
-
-    # S nodes are not part of the observed variables for identification
-    observed_vars = frozenset(graph.nodes)
-    trace.append(
-        f"tr_algorithm: augmented graph has {len(remaining_s_vars)} S-node(s) "
-        f"(pruned={len(pruned_s_vars)}); running ID on observed vars={sorted(observed_vars)}"
-    )
-
-    inner = id_algorithm(
-        treatment=treatment,
+    # This legacy directed screen is diagnostic only. The proper adapter below
+    # checks the actual typed selection diagram using do-graph m-separation.
+    _, remaining_s_vars, _ = _s_trim_lemma(
         outcome=outcome,
-        graph=augmented_graph,
-        available_vars=observed_vars,
-        dataset_ref=dataset_ref,
-        domain=DistributionDomain.SOURCE,
+        graph=graph,
+        s_node_vars=selection_targets,
         _trace=trace,
+        _steps=_steps,
+        _depth=0,
     )
-    return dataclasses.replace(inner, proof_steps=_steps + list(inner.proof_steps))
+    if remaining_s_vars:
+        _steps.append(
+            ProofStep(
+                rule_name="S_AUGMENT",
+                antecedent_vars=tuple(f"S_{v}" for v in sorted(remaining_s_vars)),
+                consequent_vars=tuple(sorted(remaining_s_vars)),
+                applied_to_graph_state=(
+                    "Nonintervened typed selection mechanisms remain; native ID "
+                    "does not treat synthetic S variables as source observations."
+                ),
+                depth=0,
+            )
+        )
+    trace.append(
+        "tr_algorithm: directed S-trim is diagnostic only; it does not prove selection invariance"
+    )
+
+    def oracle_needed(reason: str, gates: dict[str, str]) -> IdentificationResult:
+        trace.append(f"tr_algorithm: ORACLE_NEEDED: {reason}")
+        _steps.append(
+            ProofStep(
+                rule_name="ORACLE",
+                antecedent_vars=tuple(sorted(selection_targets)),
+                consequent_vars=tuple(sorted(outcome)),
+                applied_to_graph_state=reason,
+                depth=0,
+            )
+        )
+        return IdentificationResult(
+            status=IdentificationStatus.ORACLE_NEEDED,
+            estimand_ast=None,
+            hedge_certificate=None,
+            trace=list(trace),
+            required_distributions=[],
+            proof_steps=list(_steps),
+            algorithm_version="tr_s_admissibility_limited_v1",
+            metadata={
+                "backend_id": "transport_engine.solve_transportability:simplified",
+                "gate_predicates": gates,
+                "selection_targets": sorted(selection_targets),
+            },
+        )
+
+    if len(treatment) != 1 or len(outcome) != 1:
+        return oracle_needed(
+            "The reusable S-admissibility source-law adapter is bounded to scalar "
+            "treatment and outcome; multivariate nonintervened shifts are not established.",
+            {
+                "s_admissibility": "not_established",
+                "source_effect_identification": "not_established",
+            },
+        )
+
+    try:
+        transport_result = solve_transportability(
+            selection_diagram=selection_diagram,
+            query_treatment=next(iter(treatment)),
+            query_outcome=next(iter(outcome)),
+            solver_mode="simplified",
+        )
+    except Exception as exc:
+        return oracle_needed(
+            f"Existing typed transport adapter was unavailable: {type(exc).__name__}.",
+            {
+                "s_admissibility": "not_established",
+                "source_effect_identification": "not_established",
+            },
+        )
+
+    trace.extend(transport_result.identification_trace)
+    gates = dict(transport_result.metadata).get("gate_predicates", {})
+    expected_graph_sha256 = graph_content_sha256(graph)
+    treatment_name = next(iter(treatment))
+    outcome_name = next(iter(outcome))
+    expected_transport_query = f"P*({outcome_name}|do({treatment_name}))"
+    transport_query_identity = (
+        transport_result.query == expected_transport_query
+        and transport_result.source_graph_type is graph.graph_type
+        and transport_result.source_graph_sha256 == expected_graph_sha256
+        and transport_result.source_context_id == selection_diagram.source_context.context_id
+        and transport_result.target_context_id == selection_diagram.target_context.context_id
+    )
+    candidate_diagnostic = getattr(transport_result, "candidate_diagnostics", None)
+    candidate_inputs = getattr(candidate_diagnostic, "inputs", None)
+    if candidate_inputs is not None:
+        try:
+            expected_query_sha256 = transportability_candidate_query_sha256(
+                treatment_name, outcome_name
+            )
+            expected_selection_sha256 = _candidate_member_sha256(
+                selection_diagram.model_dump(mode="json")
+            )
+            expected_source_context_sha256 = _candidate_member_sha256(
+                selection_diagram.source_context.model_dump(mode="json")
+            )
+            expected_target_context_sha256 = _candidate_member_sha256(
+                selection_diagram.target_context.model_dump(mode="json")
+            )
+        except (TypeError, ValueError):
+            transport_query_identity = False
+        else:
+            transport_query_identity = transport_query_identity and (
+                candidate_inputs.query_treatment == treatment_name
+                and candidate_inputs.query_outcome == outcome_name
+                and candidate_inputs.query_sha256 == expected_query_sha256
+                and candidate_inputs.graph_type is graph.graph_type
+                and candidate_inputs.graph_sha256 == expected_graph_sha256
+                and candidate_inputs.selection_diagram_sha256 == expected_selection_sha256
+                and candidate_inputs.model_plan_relation is None
+                and candidate_inputs.source_context_id
+                == selection_diagram.source_context.context_id
+                and candidate_inputs.source_context_sha256 == expected_source_context_sha256
+                and candidate_inputs.target_context_id
+                == selection_diagram.target_context.context_id
+                and candidate_inputs.target_context_sha256 == expected_target_context_sha256
+            )
+    adapter_ast_raw = transport_result.estimand_ast
+    adapter_status = getattr(transport_result.status, "value", str(transport_result.status))
+    positive_adapter = (
+        transport_query_identity
+        and adapter_status == "identified"
+        and transport_result.algorithm_version == "s_admissibility_source_id_v1"
+        and gates.get("s_admissibility") == "recomputed"
+        and gates.get("source_effect_identification") == "recomputed"
+        and transport_result.source_graph_sha256 == expected_graph_sha256
+        and type(adapter_ast_raw) is dict
+    )
+    if positive_adapter:
+        try:
+            adapter_ast = EstimandAST.model_validate(adapter_ast_raw)
+        except Exception:
+            positive_adapter = False
+        else:
+            refs = adapter_ast.collect_distribution_refs()
+            treatment_is_ancestor = treatment_name in ancestors(graph, frozenset({outcome_name}))
+            treatment_matches = adapter_ast.treatment == treatment_name or (
+                not treatment_is_ancestor and adapter_ast.treatment == "[]"
+            )
+            positive_adapter = (
+                treatment_matches
+                and adapter_ast.outcome == outcome_name
+                and bool(refs)
+                and all(ref.domain is DistributionDomain.SOURCE for ref in refs)
+            )
+
+    if positive_adapter:
+        # The adapter does not carry dataset_ref. Reproduce the admitted source
+        # ID with the caller's binding before returning the formula.
+        source_result = id_algorithm(
+            treatment=treatment,
+            outcome=outcome,
+            graph=graph,
+            dataset_ref=dataset_ref,
+            domain=DistributionDomain.SOURCE,
+            _trace=trace,
+        )
+        source_ast = source_result.estimand_ast
+        source_refs = source_ast.collect_distribution_refs() if source_ast is not None else []
+        if (
+            source_result.status is IdentificationStatus.IDENTIFIED
+            and type(source_ast) is EstimandAST
+            and bool(source_refs)
+            and all(ref.domain is DistributionDomain.SOURCE for ref in source_refs)
+        ):
+            trace.append(
+                "tr_algorithm: identified through transport_engine "
+                "s_admissibility_source_id_v1 with recomputed graph binding and source ID"
+            )
+            admissibility_step = ProofStep(
+                rule_name="S_ADMISSIBILITY",
+                antecedent_vars=tuple(sorted(synthetic_s_names)),
+                consequent_vars=tuple(sorted(outcome)),
+                applied_to_graph_state=(
+                    "The typed transport adapter recomputed S-node m-separation after "
+                    "do(X), validated the full source ID AST, and bound it to the base graph."
+                ),
+                depth=0,
+            )
+            return dataclasses.replace(
+                source_result,
+                trace=list(trace),
+                proof_steps=_steps + [admissibility_step] + list(source_result.proof_steps),
+                algorithm_version="tr_s_admissibility_source_id_v1",
+                metadata={
+                    **source_result.metadata,
+                    "backend_id": (
+                        "transport_engine.solve_transportability:s_admissibility_source_id_v1"
+                    ),
+                    "backend_algorithm_version": transport_result.algorithm_version,
+                    "source_graph_sha256": expected_graph_sha256,
+                    "gate_predicates": {
+                        "s_admissibility": "recomputed",
+                        "source_effect_identification": "recomputed",
+                        "source_graph_binding": "recomputed",
+                        "transport_result_query_identity": "recomputed",
+                    },
+                    "selection_targets": sorted(selection_targets),
+                },
+            )
+
+    if not transport_query_identity:
+        adapter_reason = (
+            "The transport result query/type/context or returned selection-input binding "
+            "does not match the current typed SelectionDiagram and query."
+        )
+    else:
+        adapter_reason = (
+            transport_result.unsupported_reason
+            or "The typed adapter did not establish an S-admissibility source law."
+        )
+    reason = (
+        f"Existing transport adapter status={adapter_status}, "
+        f"algorithm_version={transport_result.algorithm_version}: {adapter_reason}"
+    )
+    return oracle_needed(
+        reason,
+        {
+            "s_admissibility": gates.get("s_admissibility", "not_established"),
+            "source_effect_identification": gates.get(
+                "source_effect_identification", "not_established"
+            ),
+            "transport_result_query_identity": (
+                "recomputed" if transport_query_identity else "recomputed_false"
+            ),
+        },
+    )
 
 
 def id_with_oracle_fallback(
@@ -1202,8 +1801,22 @@ def id_with_oracle_fallback(
     "y0"       – attempt identification via the Y0 Python package
     "dosearch" – attempt identification via dosearch R package (rpy2 required)
     """
-    # Freeze one admitted graph for native ID and any selected oracle fallback.
+    # Freeze one graph for native ID and any selected oracle fallback. Invalid
+    # query identities are refused before either native or external solvers.
     graph = _validate_static_id_graph(graph)
+    query_issue = _native_query_admission_issue(
+        treatment=treatment,
+        outcome=outcome,
+        conditions=frozenset(),
+        graph_nodes=frozenset(graph.nodes),
+    )
+    if query_issue is not None:
+        reason, gate = query_issue
+        return _native_query_refusal_result(
+            caller="id_with_oracle_fallback",
+            reason=reason,
+            gate=gate,
+        )
     result = id_algorithm(
         treatment=treatment,
         outcome=outcome,
@@ -1276,25 +1889,21 @@ def find_hedge(
     graph: CausalGraphModel,
     available_vars: frozenset[str] | None = None,
 ) -> HedgeCertificate | None:
-    """Find a hedge (Shpitser & Pearl 2006, Thm 3) without running full ID.
+    """Find a hedge witness for a query without running full ID.
 
-    Returns a :class:`HedgeCertificate` if P(Y|do(X)) is provably
-    non-identifiable from observational data, or ``None`` if no hedge exists.
+    Returns a HedgeCertificate when a valid witness is constructed.
+    None means this candidate search did not establish a hedge; it is not
+    an identifiability proof because subset queries are not enumerated here.
 
-    A hedge (F, F') is a pair of c-forests such that F' ⊆ F, F' is a
-    c-component of G[An(Y)] \\ X, and F is a c-component of G that contains
-    F' and has a non-empty intersection with X.
-
-    This is a **strict superset** of the Step 4a check inside
-    :func:`id_algorithm` — the internal check only catches the degenerate case
-    where a single component spans all of V \\ X.  This function checks all
-    c-component pairs and therefore detects hedges involving sub-graphs.
+    A hedge (F, F') is a pair of rooted C-forests with equal root sets such
+    that F' lies among ancestors of Y after intervention, F' is contained
+    in F, and F intersects X.
 
     Parameters
     ----------
     treatment      : X — intervention set
     outcome        : Y — target variables
-    graph          : resolved DAG or acyclic ADMG with ARROW↔ARROW bidirected edges
+    graph          : resolved DAG or acyclic ADMG
     available_vars : observed variables V; defaults to all graph nodes
     """
     graph = _validate_static_id_graph(graph)
@@ -1309,56 +1918,59 @@ def find_hedge(
     X = treatment
     Y = outcome
 
-    # Restrict to An(Y) for the c-forest pair check
-    an_y = ancestors(graph, Y) & V
-    g_an = induced_subgraph(graph, an_y)
-
-    # C(G[An(Y)] \ X) — candidate c-forests F'
-    g_an_minus_x = induced_subgraph(g_an, an_y - X)
+    # F' must be a c-forest over ancestors of Y after the intervention.
+    an_y_do_x = ancestors(do_operator(graph, X), Y) & V
+    g_an_minus_x = induced_subgraph(graph, an_y_do_x - X)
     comps_minus_x = c_components(g_an_minus_x)
 
-    # C(G) — larger candidate c-forests F
-    comps_g = c_components(graph)
-
-    bi_edges = extract_bidirected_edges(graph)
+    # F must be a containing c-forest in the admitted variable universe.
+    graph_v = induced_subgraph(graph, V)
+    comps_g = c_components(graph_v)
+    bi_edges = extract_bidirected_edges(graph_v)
 
     for si in comps_minus_x:
         if not (si >= Y):
             continue  # F' must contain Y
-        # Find Sj ∈ C(G) such that Si ⊆ Sj and Sj ∩ X ≠ ∅
+        small_roots = _c_forest_roots(graph_v, si)
+        if small_roots is None or not small_roots <= an_y_do_x:
+            continue
+        # F is a containing c-forest with the same root set and treatment.
         for sj in comps_g:
-            if si <= sj and sj & X:
-                # Hedge (F=Sj, F'=Si) found
-                minimal_s: set[str] = set()
-                for pair in bi_edges:
-                    u, v_node = tuple(pair)
-                    if u in X and v_node in si:
-                        minimal_s.add(v_node)
-                    elif v_node in X and u in si:
-                        minimal_s.add(u)
-                return HedgeCertificate(
-                    treatment=X,
-                    outcome=Y,
-                    hedge_forest=sj,
-                    hedge_root=si,
-                    c_component_witness=si,
-                    description=(
-                        f"Hedge (F={sorted(sj)}, F'={sorted(si)}): "
-                        f"P({sorted(Y)}|do({sorted(X)})) is NOT identifiable."
+            if not (si <= sj and sj & X):
+                continue
+            large_roots = _c_forest_roots(graph_v, sj)
+            if large_roots is None or large_roots != small_roots:
+                continue
+            minimal_s: set[str] = set()
+            for pair in bi_edges:
+                u, v_node = tuple(pair)
+                if u in X and v_node in si:
+                    minimal_s.add(v_node)
+                elif v_node in X and u in si:
+                    minimal_s.add(u)
+            return HedgeCertificate(
+                treatment=X,
+                outcome=Y,
+                hedge_forest=sj,
+                hedge_root=small_roots,
+                c_component_witness=si,
+                description=(
+                    f"Hedge (F={sorted(sj)}, F'={sorted(si)}): "
+                    f"P({sorted(Y)}|do({sorted(X)})) is NOT identifiable."
+                ),
+                required_data=RequiredDataSpec(
+                    missing_distributions=tuple(
+                        DistributionRef(
+                            domain=DistributionDomain.EXPERIMENTAL,
+                            variables=tuple(sorted(Y)),
+                            intervention_set=(xi,),
+                        )
+                        for xi in sorted(sj & X)
                     ),
-                    required_data=RequiredDataSpec(
-                        missing_distributions=tuple(
-                            DistributionRef(
-                                domain=DistributionDomain.EXPERIMENTAL,
-                                variables=tuple(sorted(Y)),
-                                intervention_set=(xi,),
-                            )
-                            for xi in sorted(sj & X)
-                        ),
-                        suggested_experiment=(f"Randomize: {sorted(sj & X)}" if sj & X else None),
-                    ),
-                    minimal_required_s_nodes=frozenset(minimal_s),
-                )
+                    suggested_experiment=(f"Randomize: {sorted(sj & X)}" if sj & X else None),
+                ),
+                minimal_required_s_nodes=frozenset(minimal_s),
+            )
     return None
 
 
@@ -1371,8 +1983,10 @@ def find_thicket(
 ) -> list[HedgeCertificate]:
     """Find ALL minimal hedges blocking P(Y|do(X)) identification.
 
-    A *thicket* is the set of minimal, non-redundant hedges.  Returns an empty
-    list iff P(Y|do(X)) is identifiable.
+    A thicket is the set of minimal, non-redundant hedge witnesses found
+    for the supplied query. An empty list means this search established no
+    hedge; it does not prove identifiability because subset queries are not
+    enumerated here.
 
     Complexity: O(|C|²) in the number of c-components — tractable for graphs
     under ~200 nodes.
@@ -1396,12 +2010,12 @@ def find_thicket(
     X = treatment
     Y = outcome
 
-    an_y = ancestors(graph, Y) & V
-    g_an = induced_subgraph(graph, an_y)
-    g_an_minus_x = induced_subgraph(g_an, an_y - X)
+    an_y_do_x = ancestors(do_operator(graph, X), Y) & V
+    g_an_minus_x = induced_subgraph(graph, an_y_do_x - X)
     comps_minus_x = c_components(g_an_minus_x)
-    comps_g = c_components(graph)
-    bi_edges = extract_bidirected_edges(graph)
+    graph_v = induced_subgraph(graph, V)
+    comps_g = c_components(graph_v)
+    bi_edges = extract_bidirected_edges(graph_v)
 
     all_certs: list[HedgeCertificate] = []
     seen: set[tuple[frozenset[str], frozenset[str]]] = set()
@@ -1409,8 +2023,14 @@ def find_thicket(
     for si in comps_minus_x:
         if not (si >= Y):
             continue
+        small_roots = _c_forest_roots(graph_v, si)
+        if small_roots is None or not small_roots <= an_y_do_x:
+            continue
         for sj in comps_g:
             if not (si <= sj and sj & X):
+                continue
+            large_roots = _c_forest_roots(graph_v, sj)
+            if large_roots is None or large_roots != small_roots:
                 continue
             key = (sj, si)
             if key in seen:
@@ -1428,7 +2048,7 @@ def find_thicket(
                     treatment=X,
                     outcome=Y,
                     hedge_forest=sj,
-                    hedge_root=si,
+                    hedge_root=small_roots,
                     c_component_witness=si,
                     description=(
                         f"Hedge (F={sorted(sj)}, F'={sorted(si)}): "
@@ -1715,6 +2335,41 @@ def _internal_proof_step_to_ir(step: ProofStep) -> Any:
 # ---------------------------------------------------------------------------
 
 
+def _query_var_label(variables: frozenset[str]) -> str:
+    """Render a variable set for the scalar query metadata fields."""
+    return next(iter(sorted(variables))) if len(variables) == 1 else str(sorted(variables))
+
+
+def _query_text(treatment: frozenset[str], outcome: frozenset[str]) -> str:
+    """Render the intervention query without inventing do() for an empty set."""
+    outcome_label = _query_var_label(outcome)
+    if not treatment:
+        return f"P({outcome_label})"
+    return f"P({outcome_label}|do({_query_var_label(treatment)}))"
+
+
+def _rebind_result_query(
+    result: IdentificationResult,
+    *,
+    treatment: frozenset[str],
+    outcome: frozenset[str],
+) -> IdentificationResult:
+    """Restore the caller's query metadata after a valid recursive reduction."""
+    ast = result.estimand_ast
+    if ast is None:
+        return result
+    all_variables = set(ast.all_variables) | treatment | outcome
+    rebound = ast.model_copy(
+        update={
+            "query_str": _query_text(treatment, outcome),
+            "treatment": _query_var_label(treatment),
+            "outcome": _query_var_label(outcome),
+            "all_variables": tuple(sorted(all_variables)),
+        }
+    )
+    return dataclasses.replace(result, estimand_ast=rebound)
+
+
 def _wrap_root(
     root: object,
     *,
@@ -1776,12 +2431,12 @@ def _step5_formula(
     depth: int,
     trace: list[str],
 ) -> IdentificationResult:
-    """Step 5: Y is contained in single component Si of G \\ X.
+    """Build the Step 5 Q[Si] kernel using the observational chain rule.
 
-    Factorises as: ∑_{V\\(Y∪X)} ∏_{Vk ∈ Si} P(Vk | pa(Vk) in topo order)
+    Factorises as: ∑_{V\\(X∪Y)} ∏_{Vk ∈ Si} P(Vk | V^(k-1)).
 
-    This implements the c-component factorisation formula for the case
-    where Si is its own c-component in G (not a subset of a larger component).
+    Each factor conditions on all preceding variables in a topological order.
+    The caller reaches Step 5 only when Si is the full c-component of G\\X.
     """
     # Get topological order over V (directed edges in G)
     try:
@@ -1799,25 +2454,16 @@ def _step5_formula(
             required_distributions=[],
         )
 
-    # Build P(V) = ∏_{Vi ∈ V} P(Vi | pa(Vi)_G)
-    directed = extract_directed_edges(graph)
-    # parents of a node = {src : (src, node) in directed}
-    parents_of: dict[str, set[str]] = {n: set() for n in graph.nodes}
-    for src, dst in directed:
-        parents_of[dst].add(src)
-
     all_dists: list[DistributionRef] = []
-    # For each node in Si, build P(Vi | pa(Vi)_G ∩ V before Vi in topo)
-    # following the Q-factorisation
+    # Q[Si] factors each Si variable against every preceding variable in the
+    # observational topological order, not only its directed graph parents.
+    # Non-parent predecessors can carry latent dependence into this kernel.
     factors: list[object] = []
-    for vi in topo_in_V:
+    for vi_idx, vi in enumerate(topo_in_V):
         if vi not in si:
             continue
-        # Predecessors of vi in V (in topological order)
-        vi_idx = topo_in_V.index(vi)
         predecessors_in_V = set(topo_in_V[:vi_idx])
-        pa_vi = parents_of.get(vi, set()) & predecessors_in_V
-        cond = tuple(sorted(pa_vi))
+        cond = tuple(sorted(predecessors_in_V))
         dr = _make_conditional_dist(
             variables=(vi,),
             conditioning=cond,
@@ -1829,8 +2475,8 @@ def _step5_formula(
 
     trace.append(f"[depth={depth}] Step 5: built {len(factors)}-factor product over Si")
 
-    # Marginalise over non-Y, non-X nodes in Si
-    marginalise_over = tuple(sorted((si - Y) & V))
+    # Sum every non-treatment, non-outcome variable in the reduced problem.
+    marginalise_over = tuple(sorted(V - (X | Y)))
     if len(factors) == 1:
         product_node = factors[0]
     else:
@@ -1842,7 +2488,7 @@ def _step5_formula(
         root_node = product_node  # type: ignore[assignment]
 
     ast = EstimandAST(
-        query_str=f"P({sorted(Y)}|do({sorted(X)}))",
+        query_str=_query_text(X, Y),
         root=root_node,  # type: ignore[arg-type]
         treatment=next(iter(sorted(X))) if len(X) == 1 else str(sorted(X)),
         outcome=next(iter(sorted(Y))) if len(Y) == 1 else str(sorted(Y)),
@@ -1871,42 +2517,35 @@ def _step6_formula(
     depth: int,
     trace: list[str],
 ) -> IdentificationResult:
-    """Step 6: Si ⊂ Sj ∈ C(G).
+    """Refuse Step 6 until the recursive Q[Sj] kernel can be carried.
 
-    Recurse: return ID(Y, X ∩ Si, G[Sj], Q[Sj]) where Q[Sj] is the
-    interventional distribution on Sj given all variables outside Sj are fixed.
-
-    Simplified approximation for practical cases:
-    We compute the formula by recursively calling id_algorithm on the
-    induced subgraph G[Sj] with X restricted to X ∩ Sj.
+    Standard ID recurses on ID(Y, X ∩ Si, G[Sj], Q[Sj]). The current
+    public input is observational P(V); calling id_algorithm on G[Sj] would
+    silently replace the required kernel with P(Sj) and can return a false
+    identified formula. Keep this branch fail-closed so the explicit oracle
+    bridge can evaluate the complete query with its own backend provenance.
     """
     trace.append(
-        f"[depth={depth}] Step 6: Si={sorted(si)} ⊂ Sj={sorted(sj)}, recursing on subgraph G[Sj]"
+        f"[depth={depth}] Step 6: Si={sorted(si)} ⊂ Sj={sorted(sj)} requires Q[Sj]; "
+        "native Q-kernel input is unavailable — ORACLE_NEEDED"
     )
-    sub_g_sj = induced_subgraph(graph, sj)
-    sub_x = X & sj
-    sub_y = Y & sj
-
-    if not sub_y:
-        # Y not in Sj — shouldn't happen at this step
-        trace.append(f"[depth={depth}] Step 6: Y not in Sj — ORACLE_NEEDED")
-        return IdentificationResult(
-            status=IdentificationStatus.ORACLE_NEEDED,
-            estimand_ast=None,
-            hedge_certificate=None,
-            trace=list(trace),
-            required_distributions=[],
-        )
-
-    return id_algorithm(
-        treatment=sub_x,
-        outcome=sub_y,
-        graph=sub_g_sj,
-        available_vars=sj,
-        dataset_ref=dataset_ref,
-        domain=domain,
-        _depth=depth + 1,
-        _trace=trace,
+    proof = ProofStep(
+        rule_name="ORACLE",
+        antecedent_vars=tuple(sorted(X)),
+        consequent_vars=tuple(sorted(Y)),
+        applied_to_graph_state=(
+            f"Step 6 requires Q[Sj] for Sj={sorted(sj)}; native ID only has P(V)"
+        ),
+        depth=depth,
+    )
+    return IdentificationResult(
+        status=IdentificationStatus.ORACLE_NEEDED,
+        estimand_ast=None,
+        hedge_certificate=None,
+        trace=list(trace),
+        required_distributions=[],
+        proof_steps=[proof],
+        query_str=_query_text(X, Y),
     )
 
 
@@ -2155,6 +2794,48 @@ def _collect_y0_distribution_refs(root: Any) -> list[DistributionRef]:
     raise TypeError(f"unsupported_policyos_y0_ast_node:{type(root).__name__}")
 
 
+def _dosearch_oracle_needed(
+    native_result: IdentificationResult,
+    *,
+    reason: str,
+    backend_call_attempted: bool,
+    backend_call_established: bool,
+    backend_result: str,
+    backend_formula: str | None = None,
+) -> IdentificationResult:
+    """Keep dosearch outcomes non-authoritative until a typed AST exists."""
+    metadata: dict[str, Any] = {
+        "backend_id": "dosearch",
+        "backend_operation": "dosearch",
+        "backend_call_attempted": backend_call_attempted,
+        "backend_call_established": backend_call_established,
+        "backend_result": backend_result,
+        "result_status_origin": "backend_formula_not_imported",
+        "limitation_reason": reason,
+        "gate_predicates": {
+            "backend_operation_result": (
+                "recomputed" if backend_call_established else "not_established"
+            ),
+            "typed_formula_import": "not_established",
+            "source_data_exists": "not_established",
+            "source_data_currentness": "not_established",
+            "source_data_authority": "not_established",
+        },
+    }
+    if backend_formula is not None:
+        metadata["backend_formula"] = backend_formula
+    return dataclasses.replace(
+        native_result,
+        status=IdentificationStatus.ORACLE_NEEDED,
+        estimand_ast=None,
+        hedge_certificate=None,
+        trace=[*native_result.trace, f"oracle_dosearch:limited:{reason}"],
+        required_distributions=[],
+        algorithm_version="dosearch_oracle",
+        metadata=metadata,
+    )
+
+
 def _oracle_dosearch(
     *,
     treatment: frozenset[str],
@@ -2164,71 +2845,68 @@ def _oracle_dosearch(
     dataset_ref: str | None,
     domain: DistributionDomain,
 ) -> IdentificationResult:
-    """Attempt identification via dosearch R package (requires rpy2)."""
+    """Attempt dosearch, failing closed until its formula has a typed importer."""
+    backend_call_attempted = False
+    backend_call_established = False
     try:
         import rpy2.robjects as ro  # type: ignore[import-not-found]
         from rpy2.robjects.packages import importr  # type: ignore[import-not-found]
 
         dosearch = importr("dosearch")
     except ImportError:
-        return dataclasses.replace(
+        return _dosearch_oracle_needed(
             native_result,
-            trace=[*native_result.trace, "oracle_dosearch: rpy2/dosearch not available"],
+            reason="rpy2_or_dosearch_unavailable",
+            backend_call_attempted=False,
+            backend_call_established=False,
+            backend_result="not_called",
         )
 
     try:
-        # Build dosearch input format
         directed_edges = [
-            f"{e.src} -> {e.dst}"
-            for e in graph.edges
-            if e.mark_src is EdgeMark.TAIL and e.mark_dst is EdgeMark.ARROW
+            f"{edge.src} -> {edge.dst}"
+            for edge in graph.edges
+            if edge.mark_src is EdgeMark.TAIL and edge.mark_dst is EdgeMark.ARROW
         ]
         bidirected_edges = [
-            f"{e.src} <-> {e.dst}"
-            for e in graph.edges
-            if e.mark_src is EdgeMark.ARROW and e.mark_dst is EdgeMark.ARROW
+            f"{edge.src} <-> {edge.dst}"
+            for edge in graph.edges
+            if edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.ARROW
         ]
         graph_str = "\n".join(directed_edges + bidirected_edges)
         data_str = f"p({', '.join(sorted(graph.nodes))})"
         query_str = f"p({', '.join(sorted(outcome))} | do({', '.join(sorted(treatment))}))"
+        backend_call_attempted = True
         result = dosearch.dosearch(
             data=ro.StrVector([data_str]),
             query=ro.StrVector([query_str]),
             graph=ro.StrVector([graph_str]),
         )
-        formula = str(result.rx2("formula")[0]) if result is not None else ""
-        if formula and formula != "NULL":
-            leaf = DistributionRef(
-                domain=domain,
-                variables=tuple(sorted(outcome)),
-                intervention_set=tuple(sorted(treatment)),
-                dataset_ref=dataset_ref,
+        backend_call_established = True
+        formula = str(result.rx2("formula")[0]).strip() if result is not None else ""
+        if formula and formula.upper() != "NULL":
+            return _dosearch_oracle_needed(
+                native_result,
+                reason="returned_formula_cannot_be_imported_to_typed_ast",
+                backend_call_attempted=True,
+                backend_call_established=True,
+                backend_result="formula_returned",
+                backend_formula=formula,
             )
-            ast = EstimandAST(
-                query_str=f"P({sorted(outcome)}|do({sorted(treatment)}))",
-                root=leaf,
-                treatment=next(iter(sorted(treatment)))
-                if len(treatment) == 1
-                else str(sorted(treatment)),
-                outcome=next(iter(sorted(outcome))) if len(outcome) == 1 else str(sorted(outcome)),
-                all_variables=tuple(sorted(treatment | outcome)),
-                identification_method="dosearch_oracle",
-            )
-            return IdentificationResult(
-                status=IdentificationStatus.IDENTIFIED,
-                estimand_ast=ast,
-                hedge_certificate=None,
-                trace=[*native_result.trace, f"oracle_dosearch: IDENTIFIED formula={formula}"],
-                required_distributions=[leaf],
-            )
-        return dataclasses.replace(
+        return _dosearch_oracle_needed(
             native_result,
-            trace=[*native_result.trace, "oracle_dosearch: not identified"],
+            reason="no_formula_returned",
+            backend_call_attempted=True,
+            backend_call_established=True,
+            backend_result="no_formula_returned",
         )
     except Exception as exc:
-        return dataclasses.replace(
+        return _dosearch_oracle_needed(
             native_result,
-            trace=[*native_result.trace, f"oracle_dosearch error: {exc}"],
+            reason=f"api_error:{type(exc).__name__}",
+            backend_call_attempted=backend_call_attempted,
+            backend_call_established=backend_call_established,
+            backend_result="not_returned",
         )
 
 

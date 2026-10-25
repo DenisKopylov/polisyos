@@ -7,7 +7,18 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.io import (
+    _get_owned_json_artifact,
+    _put_owned_json_artifact,
+    _validate_return_selected_profile_flag,
+)
+from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
@@ -91,34 +102,143 @@ def build_optimization_ambiguity_certificate(
     )
 
 
+_OPTIMIZATION_AMBIGUITY_CERTIFICATE_OWNER = declare_model_owner(
+    OptimizationAmbiguityCertificate,
+    contract_id="ir.analytics.ir_optimization_ambiguity_certificate.owner.v1",
+    dto_fqn="polisyos.ir.analytics.decision_layer.OptimizationAmbiguityCertificate",
+    abi_key="ir.analytics.ir_optimization_ambiguity_certificate.owner.v1.dto-abi.v1",
+    registry_key="ir.optimization_ambiguity_certificate",
+    kind="ir.optimization_ambiguity_certificate",
+    media_type="application/json",
+    purpose="optimization_ambiguity_certificate",
+    policy_revision="ir.analytics.ir_optimization_ambiguity_certificate.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.ir_optimization_ambiguity_certificate.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        OwnedJSONRepresentation(
+            schema_name="ir.optimization_ambiguity_certificate",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.ir_optimization_ambiguity_certificate.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=CompatibilityMode.NONE,
+            notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
+_SOCIAL_WEIGHT_MANIFEST_OWNER = declare_model_owner(
+    SocialWeightManifestArtifact,
+    contract_id="ir.analytics.ir_social_weight_manifest.owner.v1",
+    dto_fqn="polisyos.ir.analytics.decision_layer.SocialWeightManifestArtifact",
+    abi_key="ir.analytics.ir_social_weight_manifest.owner.v1.dto-abi.v1",
+    registry_key="ir.social_weight_manifest",
+    kind="ir.social_weight_manifest",
+    media_type="application/json",
+    purpose="social_weight_manifest",
+    policy_revision="ir.analytics.ir_social_weight_manifest.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.ir_social_weight_manifest.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        OwnedJSONRepresentation(
+            schema_name="ir.social_weight_manifest",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.ir_social_weight_manifest.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=CompatibilityMode.NONE,
+            notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
+_FISCAL_FEEDBACK_LINK_OWNER = declare_model_owner(
+    FiscalFeedbackLink,
+    contract_id="ir.analytics.ir_fiscal_feedback_link.owner.v1",
+    dto_fqn="polisyos.ir.analytics.decision_layer.FiscalFeedbackLink",
+    abi_key="ir.analytics.ir_fiscal_feedback_link.owner.v1.dto-abi.v1",
+    registry_key="ir.fiscal_feedback_link",
+    kind="ir.fiscal_feedback_link",
+    media_type="application/json",
+    purpose="fiscal_feedback_link",
+    policy_revision="ir.analytics.ir_fiscal_feedback_link.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.ir_fiscal_feedback_link.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        OwnedJSONRepresentation(
+            schema_name="ir.fiscal_feedback_link",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.ir_fiscal_feedback_link.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=CompatibilityMode.NONE,
+            notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
 def persist_optimization_ambiguity_certificate(
     store: ArtifactStore,
     certificate: OptimizationAmbiguityCertificate,
     *,
     inputs: list[InputRef] | None = None,
 ) -> OptimizationAmbiguityCertificateRef:
-    """Persist an optimization ambiguity certificate."""
-
-    ref = put_json_artifact(
+    """Persist an optimization ambiguity certificate through its exact owner."""
+    ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind=_OPTIMIZATION_AMBIGUITY_CERTIFICATE_SCHEMA_NAME,
+        owner=_OPTIMIZATION_AMBIGUITY_CERTIFICATE_OWNER,
         schema_name=_OPTIMIZATION_AMBIGUITY_CERTIFICATE_SCHEMA_NAME,
         schema_version=_OPTIMIZATION_AMBIGUITY_CERTIFICATE_SCHEMA_VERSION,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return OptimizationAmbiguityCertificateRef.model_validate(ref)
+    return OptimizationAmbiguityCertificateRef.from_selected_write(ref)
 
 
 def load_optimization_ambiguity_certificate(
     store: ArtifactStore,
     ref: OptimizationAmbiguityCertificateRef,
 ) -> OptimizationAmbiguityCertificate:
-    """Load a persisted optimization ambiguity certificate."""
-
-    payload = get_json_artifact(store, ref)
-    return OptimizationAmbiguityCertificate.model_validate(payload)
+    """Load an ambiguity certificate after owner and profile admission."""
+    return _get_owned_json_artifact(
+        store,
+        ref,
+        owner=_OPTIMIZATION_AMBIGUITY_CERTIFICATE_OWNER,
+    )
 
 
 def persist_social_weight_manifest(
@@ -128,36 +248,33 @@ def persist_social_weight_manifest(
     inputs: list[InputRef] | None = None,
     return_selected_profile: bool = False,
 ) -> SocialWeightManifestRef:
-    """Persist a state-dependent social-weight manifest.
+    """Persist a social-weight manifest through its exact typed owner.
 
-    Args:
-        store: Artifact store receiving the manifest.
-        artifact: Social-weight schedule and provenance payload.
-        inputs: Optional typed parent sources.
-        return_selected_profile: Return the profile chosen by this exact write.
+    The default retains the historical profileless inspection result. A caller
+    carrying the ref as evidence must request the selected profile explicitly.
     """
-
-    ref = put_json_artifact(
+    return_selected_profile = _validate_return_selected_profile_flag(return_selected_profile)
+    ref = _put_owned_json_artifact(
         store,
         artifact.model_dump(mode="json"),
-        kind=_SOCIAL_WEIGHT_MANIFEST_SCHEMA_NAME,
+        owner=_SOCIAL_WEIGHT_MANIFEST_OWNER,
         schema_name=_SOCIAL_WEIGHT_MANIFEST_SCHEMA_NAME,
         schema_version=_SOCIAL_WEIGHT_MANIFEST_SCHEMA_VERSION,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=return_selected_profile,
     )
-    return SocialWeightManifestRef.model_validate(ref)
+    selected_ref = SocialWeightManifestRef.from_selected_write(ref)
+    if not return_selected_profile:
+        return selected_ref.model_copy(update={"manifest_profile_sha256": None})
+    return selected_ref
 
 
 def load_social_weight_manifest(
     store: ArtifactStore,
     ref: SocialWeightManifestRef,
 ) -> SocialWeightManifestArtifact:
-    """Load a persisted state-dependent social-weight manifest."""
-
-    payload = get_json_artifact(store, ref)
-    return SocialWeightManifestArtifact.model_validate(payload)
+    """Load a social-weight manifest after owner and profile admission."""
+    return _get_owned_json_artifact(store, ref, owner=_SOCIAL_WEIGHT_MANIFEST_OWNER)
 
 
 def persist_fiscal_feedback_link(
@@ -166,28 +283,25 @@ def persist_fiscal_feedback_link(
     *,
     inputs: list[InputRef] | None = None,
 ) -> FiscalFeedbackLinkRef:
-    """Persist a behavioral microsim fiscal-feedback linkage artifact."""
-
-    ref = put_json_artifact(
+    """Persist a fiscal-feedback link through its exact typed owner."""
+    ref = _put_owned_json_artifact(
         store,
         link.model_dump(mode="json"),
-        kind=_FISCAL_FEEDBACK_LINK_SCHEMA_NAME,
+        owner=_FISCAL_FEEDBACK_LINK_OWNER,
         schema_name=_FISCAL_FEEDBACK_LINK_SCHEMA_NAME,
         schema_version=_FISCAL_FEEDBACK_LINK_SCHEMA_VERSION,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return FiscalFeedbackLinkRef.model_validate(ref)
+    return FiscalFeedbackLinkRef.from_selected_write(ref)
 
 
 def load_fiscal_feedback_link(
     store: ArtifactStore,
     ref: FiscalFeedbackLinkRef,
 ) -> FiscalFeedbackLink:
-    """Load a persisted fiscal-feedback linkage artifact."""
-
-    payload = get_json_artifact(store, ref)
-    return FiscalFeedbackLink.model_validate(payload)
+    """Load a fiscal-feedback link after owner and profile admission."""
+    return _get_owned_json_artifact(store, ref, owner=_FISCAL_FEEDBACK_LINK_OWNER)
 
 
 def _mapping_to_json_dict(value: Mapping[str, Any] | None) -> dict[str, Any]:

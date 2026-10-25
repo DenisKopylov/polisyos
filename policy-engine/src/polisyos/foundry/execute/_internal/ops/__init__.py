@@ -8,7 +8,7 @@ from typing import Any
 
 import jax.numpy as jnp
 
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.contracts.foundry import LoweredConstraint, PatchOp
 from polisyos.foundry.execute._internal.models import get_state_path, load_tensor, set_state_path
 from polisyos.foundry.methods.exceptions import SelectorCoercionError, SelectorEvaluationError
@@ -19,14 +19,10 @@ from polisyos.ir.governance.selector_expr import (
     SelectorNot,
     SelectorPredicate,
 )
-from polisyos.ir.kernel import (
-    ConstraintRegistry,
-    MergeRuleKind,
-    MergeRuleRegistry,
-    SelectorFieldRegistry,
-    SlotRegistry,
-    SlotScope,
-)
+from polisyos.ir.kernel.constraints import ConstraintRegistry
+from polisyos.ir.kernel.merge_rules import MergeRuleKind, MergeRuleRegistry
+from polisyos.ir.kernel.selector_fields import SelectorFieldRegistry
+from polisyos.ir.kernel.slots import SlotRegistry, SlotScope
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 from polisyos.ir.model_layer.types import SelectorOperator
 
@@ -147,9 +143,9 @@ def apply_operator(
                 value=value,
             )
     if operator == SelectorOperator.EQUALS:
-        return values == coerced
+        return jnp.equal(values, jnp.asarray(coerced))
     if operator == SelectorOperator.NOT_EQUALS:
-        return values != coerced
+        return jnp.not_equal(values, jnp.asarray(coerced))
     if operator == SelectorOperator.GREATER_THAN:
         return values > _require_numeric_selector_value(
             coerced, operator=operator, field_id=field_id
@@ -331,7 +327,7 @@ def validate_ops_compatibility(
             raise ValueError(f"Patch op 'set' incompatible with merge rule for '{slot_id}'")
 
 
-def apply_ops_for_slot(store: FileSystemCAS, base_value: Any, ops: Iterable[PatchOp]) -> Any:
+def apply_ops_for_slot(store: ArtifactStore, base_value: Any, ops: Iterable[PatchOp]) -> Any:
     """Apply compatible patch operations for a single state slot."""
     ops_list = list(ops)
     if not ops_list:
@@ -352,7 +348,7 @@ def apply_ops_for_slot(store: FileSystemCAS, base_value: Any, ops: Iterable[Patc
     raise ValueError("Multiple patch ops for a slot are not supported")
 
 
-def apply_op(store: FileSystemCAS, base_value: Any, op: PatchOp) -> Any:
+def apply_op(store: ArtifactStore, base_value: Any, op: PatchOp) -> Any:
     """Apply one CAS-backed patch operation to a slot value."""
     if op.value_ref is None:
         raise ValueError(f"Patch op '{op.op}' missing value_ref for slot '{op.slot_id}'")
@@ -371,7 +367,7 @@ def apply_op(store: FileSystemCAS, base_value: Any, op: PatchOp) -> Any:
 
 
 def apply_ops_to_state(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     *,
     base_state: Any,
     ops: Iterable[PatchOp],

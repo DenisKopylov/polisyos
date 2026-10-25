@@ -243,3 +243,20 @@ def test_real_registered_relation_denominator_matches_research_matrix_two_ways()
     assert (
         sum(1 for value in register["relations"].values() if value["owner"] == module.__name__) == 8
     )
+
+
+def test_registered_relation_loader_rejects_malformed_present_row(tmp_path, monkeypatch) -> None:
+    """The real file-backed registry reader validates the complete owner row shape."""
+    module = ceiling_module()
+    registry_path = (
+        Path(__file__).resolve().parents[3] / "src/polisyos/fabric/evidence/ceiling_vocabulary.json"
+    )
+    payload = json.loads(registry_path.read_text())
+    payload["relations"]["population"]["unexpected"] = "extra-field"
+    module_file = tmp_path / "ceiling_relations.py"
+    module_file.write_text("")
+    (tmp_path / "ceiling_vocabulary.json").write_text(json.dumps(payload))
+    monkeypatch.setattr(module, "__file__", str(module_file))
+
+    with pytest.raises(ValueError):
+        module.registered_ceiling_relations()

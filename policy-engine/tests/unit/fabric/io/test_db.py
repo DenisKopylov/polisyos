@@ -47,3 +47,55 @@ def test_empty_batch_is_a_noop_and_closed_database_refuses_write(tmp_path: Path)
 
     with pytest.raises(RuntimeError, match="closed"):
         db.save_macro([_macro_row(0)])
+
+
+class _RunRecordModelDump:
+    def __init__(self, payload: dict[str, object]) -> None:
+        self._payload = payload
+
+    def model_dump(self) -> dict[str, object]:
+        return self._payload.copy()
+
+
+def _run_record_payload(run_id: str) -> dict[str, object]:
+    return {
+        "run_id": run_id,
+        "parent_run_id": None,
+        "seed": 13,
+        "repro_mode": "strict",
+        "backend": "cpu",
+        "python_version": "3.14.3",
+        "platform": "test",
+        "generated_at": datetime(2026, 1, 1),
+        "schema_version": "1",
+        "generator": {"name": "fixture-generator", "version": "1.0"},
+        "library_versions": {"numpy": "1.0"},
+        "flags": {"deterministic": True},
+    }
+
+
+def test_run_record_generator_defaults_only_when_absent_and_rejects_malformed(
+    tmp_path: Path,
+) -> None:
+    with SimulationDB(db_path=str(tmp_path / "run-records.duckdb")) as db:
+        valid = _run_record_payload("run-record-valid")
+        db.save_run_record(_RunRecordModelDump(valid))
+
+        absent = _run_record_payload("run-record-absent")
+        del absent["generator"]
+        db.save_run_record(_RunRecordModelDump(absent))
+
+        rows = db.conn.execute(
+            "SELECT run_id, generator_name, generator_version FROM run_records ORDER BY run_id"
+        ).fetchall()
+        assert rows == [
+            ("run-record-absent", None, None),
+            ("run-record-valid", "fixture-generator", "1.0"),
+        ]
+
+        malformed = _run_record_payload("run-record-malformed")
+        malformed["generator"] = None
+        with pytest.raises(TypeError, match="generator metadata must be a mapping"):
+            db.save_run_record(_RunRecordModelDump(malformed))
+
+        assert db.conn.execute("SELECT count(*) FROM run_records").fetchone() == (2,)

@@ -330,10 +330,118 @@ def test_raw_result_sink_failure_prevents_all_downstream_persistence(
     assert sink_calls == 1
 
 
-def test_sync_fetch_removes_http_observer_from_handle_when_fetch_fails() -> None:
+def test_sync_fetch_forwards_checked_http_observer_and_removes_it_on_failure() -> None:
+    from polisyos.fabric.connectors.sources.http_base import _raw_http_response_observer
+
     config = ConnectionConfig(url="https://example.test")
     handle = ConnectionHandle(connector_id="test.connector", config=config)
-    observer = object()
+    observed: list[tuple[object, ...]] = []
+    release_calls = 0
+    url = "https://example.test/resource"
+    params = {"page": "1"}
+    headers = {"content-type": "application/json"}
+    raw_body = b'{"records":[{"id":7}]}'
+
+    class _Observer:
+        max_response_bytes = 1024
+        max_decompressed_bytes = 2048
+
+        def before_request(
+            self,
+            connector_id: str,
+            request_url: str,
+            request_params: dict[str, str],
+        ) -> None:
+            observed.append(("before_request", connector_id, request_url, dict(request_params)))
+
+        def on_raw_response(
+            self,
+            connector_id: str,
+            request_url: str,
+            request_params: dict[str, str],
+            status_code: int,
+            response_headers: dict[str, str],
+            body: bytes,
+        ) -> None:
+            observed.append(
+                (
+                    "on_raw_response",
+                    connector_id,
+                    request_url,
+                    dict(request_params),
+                    status_code,
+                    dict(response_headers),
+                    body,
+                )
+            )
+
+    observer = _Observer()
+
+    class _HandleRegistry:
+        async def get_connection(
+            self,
+            connector_id: str,
+            connection_config: ConnectionConfig,
+        ) -> ConnectionHandle:
+            assert connector_id == "test.connector"
+            assert connection_config is config
+            return handle
+
+        async def release_connection(
+            self,
+            connector_id: str,
+            released_handle: ConnectionHandle,
+        ) -> None:
+            nonlocal release_calls
+            assert connector_id == "test.connector"
+            assert released_handle is handle
+            assert _raw_http_response_observer(released_handle) is None
+            release_calls += 1
+
+    class _FailingConnector:
+        async def fetch(
+            self,
+            fetch_handle: ConnectionHandle,
+            request: FetchRequest,
+        ) -> FetchResult[Any]:
+            del request
+            checked_observer = _raw_http_response_observer(fetch_handle)
+            assert checked_observer is not None
+            checked_observer.before_request("test.connector", url, params)
+            checked_observer.on_raw_response(
+                "test.connector",
+                url,
+                params,
+                200,
+                headers,
+                raw_body,
+            )
+            raise RuntimeError("fetch failed")
+
+    with pytest.raises(RuntimeError, match="fetch failed"):
+        _sync_fetch(
+            _HandleRegistry(),  # type: ignore[arg-type]
+            "test.connector",
+            _FailingConnector(),
+            FetchRequest(dataset_id="raw.dataset"),
+            connection_config=config,
+            raw_http_response_observer=observer,
+        )
+
+    assert observed == [
+        ("before_request", "test.connector", url, params),
+        ("on_raw_response", "test.connector", url, params, 200, headers, raw_body),
+    ]
+    assert _raw_http_response_observer(handle) is None
+    assert release_calls == 1
+
+
+def test_sync_fetch_refuses_malformed_http_observer_and_removes_it() -> None:
+    from polisyos.fabric.connectors.sources.http_base import _raw_http_response_observer
+
+    config = ConnectionConfig(url="https://example.test")
+    handle = ConnectionHandle(connector_id="test.connector", config=config)
+    invalid_observer = object()
     release_calls = 0
 
     class _HandleRegistry:
@@ -354,30 +462,32 @@ def test_sync_fetch_removes_http_observer_from_handle_when_fetch_fails() -> None
             nonlocal release_calls
             assert connector_id == "test.connector"
             assert released_handle is handle
-            assert observer not in released_handle.state.values()
+            assert _raw_http_response_observer(released_handle) is None
             release_calls += 1
 
-    class _FailingConnector:
+    class _Connector:
         async def fetch(
             self,
             fetch_handle: ConnectionHandle,
             request: FetchRequest,
         ) -> FetchResult[Any]:
             del request
-            assert observer in fetch_handle.state.values()
-            raise RuntimeError("fetch failed")
+            checked_observer = _raw_http_response_observer(fetch_handle)
+            assert checked_observer is not None
+            checked_observer.before_request("test.connector", "https://example.test", {})
+            raise AssertionError("malformed observer unexpectedly authorized the request")
 
-    with pytest.raises(RuntimeError, match="fetch failed"):
+    with pytest.raises(TypeError, match="raw HTTP observer before_request must be callable"):
         _sync_fetch(
             _HandleRegistry(),  # type: ignore[arg-type]
             "test.connector",
-            _FailingConnector(),
+            _Connector(),
             FetchRequest(dataset_id="raw.dataset"),
             connection_config=config,
-            raw_http_response_observer=observer,  # type: ignore[arg-type]
+            raw_http_response_observer=invalid_observer,  # type: ignore[arg-type]
         )
 
-    assert observer not in handle.state.values()
+    assert _raw_http_response_observer(handle) is None
     assert release_calls == 1
 
 
@@ -400,6 +510,74 @@ def test_run_connectors_ingestion_distinguishes_empty_from_malformed_manifest() 
             license_name="MIT",
             cas_root=None,
         )
+
+
+@pytest.mark.parametrize(
+    "connector_manifest",
+    [
+        pytest.param({"datasets": []}, id="empty-manifest"),
+        pytest.param(
+            {"datasets": [{"connector_id": "test.connector", "dataset_id": "raw.dataset"}]},
+            id="nonempty-manifest",
+        ),
+    ],
+)
+def test_run_connectors_ingestion_refuses_invalid_config_before_dependencies(
+    monkeypatch: pytest.MonkeyPatch,
+    connector_manifest: dict[str, object],
+) -> None:
+    def _setup_must_not_run(*_args: object, **_kwargs: object) -> object:
+        raise AssertionError("invalid config reached dependency resolution")
+
+    monkeypatch.setattr(
+        "polisyos.fabric.ingestion.ingestion.resolve_ingestion_dependencies",
+        _setup_must_not_run,
+    )
+    invalid_config: dict[str, object] = {"not_a_connection_config": True}
+
+    with pytest.raises(TypeError, match="connector_ingestion_selected_connection_config_invalid"):
+        run_connectors_ingestion(
+            connector_manifest=connector_manifest,
+            source="test",
+            license_name="MIT",
+            cas_root=None,
+            # Intentional malformed value exercises the runtime boundary.
+            connection_config=invalid_config,  # type: ignore[arg-type]
+        )
+
+    assert invalid_config == {"not_a_connection_config": True}
+
+
+def test_invalid_connection_config_precedes_manifest_normalization(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def _manifest_normalizer_must_not_run(*_args: object, **_kwargs: object) -> object:
+        raise AssertionError("manifest normalization ran before config refusal")
+
+    def _setup_must_not_run(*_args: object, **_kwargs: object) -> object:
+        raise AssertionError("dependency resolution ran before config refusal")
+
+    monkeypatch.setattr(
+        "polisyos.fabric.ingestion.ingestion._normalize_connector_manifest",
+        _manifest_normalizer_must_not_run,
+    )
+    monkeypatch.setattr(
+        "polisyos.fabric.ingestion.ingestion.resolve_ingestion_dependencies",
+        _setup_must_not_run,
+    )
+    invalid_config: dict[str, object] = {"not_a_connection_config": True}
+
+    with pytest.raises(TypeError, match="connector_ingestion_selected_connection_config_invalid"):
+        run_connectors_ingestion(
+            connector_manifest={"datasets": None},
+            source="test",
+            license_name="MIT",
+            cas_root=None,
+            # Intentional malformed value exercises the runtime boundary.
+            connection_config=invalid_config,  # type: ignore[arg-type]
+        )
+
+    assert invalid_config == {"not_a_connection_config": True}
 
 
 def test_filter_map_preserves_supported_scalar_and_multi_value_coercions() -> None:

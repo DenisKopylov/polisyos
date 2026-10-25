@@ -8,10 +8,11 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir.analytics.dependence_structure import DependenceStructure
-from polisyos.ir.analytics.microsim_calibration import MicrosimCalibrationReport
-from polisyos.ir.analytics.mobility import MobilityReport
-from polisyos.ir.analytics.survey_quality import SurveyQualityCertificate
+from polisyos.ir.analytics.dependence_structure import load_dependence_structure
+from polisyos.ir.analytics.microsim_calibration import load_microsim_calibration_report
+from polisyos.ir.analytics.mobility import load_mobility_report
+from polisyos.ir.analytics.survey_quality import load_survey_quality_certificate
+from polisyos.ir.model_layer.canon import CanonViolation
 
 if TYPE_CHECKING:
     from polisyos.ir.artifacts.contracts import ArtifactStore
@@ -52,45 +53,47 @@ def load_phase1_flagship_dataset_ids() -> tuple[str, ...]:
 def build_phase1_gate_summary(
     artifact_store: ArtifactStore | None,
 ) -> Phase1GateSummary:
-    """Summarize whether the Phase 1 closure lane is materially available."""
-
+    """Summarize Phase 1 readiness from family-owner-admitted evidence."""
     flagship_ids = load_phase1_flagship_dataset_ids()
     certified_flagships: set[str] = set()
     calibrated_regimes: set[str] = set()
     microsim_gate_ready = False
     mobility_shell_ready = False
+    owner_refusals: set[tuple[str, str]] = set()
     metadata: dict[str, Any] = {"artifact_scan_enabled": artifact_store is not None}
 
     if artifact_store is not None:
-        from polisyos.ir.artifacts.io import get_json_artifact
-
         for artifact_id in artifact_store.iter_artifact_ids():
             manifest = artifact_store.get_manifest(artifact_id)
-            if manifest.kind == "ir.survey_quality_certificate":
-                payload = get_json_artifact(artifact_store, artifact_id)
-                certificate = SurveyQualityCertificate.model_validate(payload)
-                dataset_id = str(certificate.dataset_id or "").strip()
-                if (
-                    dataset_id
-                    and dataset_id in flagship_ids
-                    and certificate.overall_pass
-                    and certificate.regime_validated is not None
-                ):
-                    certified_flagships.add(dataset_id)
-            elif manifest.kind == "ir.dependence_structure":
-                payload = get_json_artifact(artifact_store, artifact_id)
-                structure = DependenceStructure.model_validate(payload)
-                if structure.calibrated:
-                    calibrated_regimes.add(structure.regime)
-            elif manifest.kind == "ir.microsim_calibration_report":
-                payload = get_json_artifact(artifact_store, artifact_id)
-                report = MicrosimCalibrationReport.model_validate(payload)
-                if report.can_run_microsim:
-                    microsim_gate_ready = True
-            elif manifest.kind == "ir.mobility_report":
-                payload = get_json_artifact(artifact_store, artifact_id)
-                MobilityReport.model_validate(payload)
-                mobility_shell_ready = True
+            try:
+                if manifest.kind == "ir.survey_quality_certificate":
+                    certificate = load_survey_quality_certificate(artifact_store, artifact_id)
+                    dataset_id = str(certificate.dataset_id or "").strip()
+                    if (
+                        dataset_id
+                        and dataset_id in flagship_ids
+                        and certificate.overall_pass
+                        and certificate.regime_validated is not None
+                    ):
+                        certified_flagships.add(dataset_id)
+                elif manifest.kind == "ir.dependence_structure":
+                    structure = load_dependence_structure(artifact_store, artifact_id)
+                    if structure.calibrated:
+                        calibrated_regimes.add(structure.regime)
+                elif manifest.kind == "ir.microsim_calibration_report":
+                    report = load_microsim_calibration_report(artifact_store, artifact_id)
+                    if report.can_run_microsim:
+                        microsim_gate_ready = True
+                elif manifest.kind == "ir.mobility_report":
+                    load_mobility_report(artifact_store, artifact_id)
+                    mobility_shell_ready = True
+            except CanonViolation as exc:
+                owner_refusals.add((manifest.kind, str(exc)))
+
+    if owner_refusals:
+        metadata["owner_admission_refusals"] = [
+            {"kind": kind, "reason": reason} for kind, reason in sorted(owner_refusals)
+        ]
 
     blocking_reasons: list[str] = []
     if len(certified_flagships) < len(flagship_ids):

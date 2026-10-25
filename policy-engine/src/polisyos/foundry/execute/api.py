@@ -16,8 +16,8 @@ from typing import Literal, Protocol, TypeVar, cast
 import numpy as np
 from pydantic import BaseModel
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import (
-    ArtifactStore,
     RegistryBundlePayload,
     artifact_manifest_profile_sha256,
     ensure_ir_artifact_store,
@@ -34,7 +34,8 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.protocol import ArtifactStore, CoreJSONArtifactStore
+from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import DataSnapshot
 from polisyos.core.contracts.foundry import (
@@ -72,11 +73,13 @@ from polisyos.core.contracts.foundry import (
     StateSnapshotRef,
     WelfareBoundReportRef,
 )
+from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
 from polisyos.core.registry import (
     RegistryBundleContent,
     load_registry_bundle_content,
     load_registry_bundle_payload,
 )
+from polisyos.foundry._artifact_capabilities import resolve_core_json_profile_store
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.data_plane import (
     extract_feedback_diagnostics,
@@ -198,12 +201,15 @@ class BoundedExecutionSourceReader(Protocol):
 
     def read_selected_manifest(self, ref: ArtifactRef) -> tuple[ArtifactManifest, int]:
         """Read and verify one exact selected-profile artifact view."""
+        ...
 
     def read_edge_manifest(
         self,
+        parent_ref: ArtifactRef,
         edge: InputRef,
     ) -> tuple[ArtifactRef, ArtifactManifest, int]:
-        """Resolve and verify an exact edge to a full selected-profile ref."""
+        """Resolve one exact edge while preserving its selected direct parent."""
+        ...
 
     def read_typed_model(
         self,
@@ -211,6 +217,7 @@ class BoundedExecutionSourceReader(Protocol):
         ref: ArtifactRef,
     ) -> tuple[ArtifactManifest, BaseModel, int, int]:
         """Read a strict Core model and report observed manifest/payload bytes."""
+        ...
 
 
 @dataclass
@@ -231,8 +238,13 @@ class _BoundedExecutionSourceReadSession:
         _require_selected_manifest_identity(manifest, ref)
         return manifest
 
-    def edge_ref_and_manifest(self, edge: InputRef) -> tuple[ArtifactRef, ArtifactManifest]:
-        ref, manifest, observed_bytes = self.reader.read_edge_manifest(edge)
+    def edge_ref_and_manifest(
+        self,
+        parent_ref: ArtifactRef,
+        edge: InputRef,
+    ) -> tuple[ArtifactRef, ArtifactManifest]:
+        """Resolve one edge with its selected parent context intact."""
+        ref, manifest, observed_bytes = self.reader.read_edge_manifest(parent_ref, edge)
         self.add(observed_bytes)
         if (
             edge.manifest_profile_sha256 is None
@@ -257,7 +269,7 @@ class _BoundedExecutionSourceReadSession:
 
 
 def _method_execution_abort_result(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     *,
     capture: MethodExecutionCapture | None,
     error: MethodExecutionAbortError,
@@ -365,10 +377,11 @@ def _selected_ref_from_edge(
             manifest_profile_sha256=edge.manifest_profile_sha256,
         )
     else:
-        ref, manifest = read_session.edge_ref_and_manifest(edge)
+        ref, manifest = read_session.edge_ref_and_manifest(parent_ref, edge)
     if expected_kind is not None and manifest.kind != expected_kind:
         raise ValueError(f"execution_source_edge_kind_mismatch:{role}")
-    _selected_manifest(store, ref, read_session=read_session)
+    if read_session is None:
+        _selected_manifest(store, ref)
     return ref
 
 
@@ -391,7 +404,7 @@ def _execution_source_inventory(
             if read_session is None:
                 resolve_manifest_by_profile(store, edge.artifact_id, edge.manifest_profile_sha256)
             else:
-                read_session.edge_ref_and_manifest(edge)
+                read_session.edge_ref_and_manifest(source_ref, edge)
             inventory.append(
                 InputRef(
                     artifact_id=edge.artifact_id,
@@ -465,7 +478,9 @@ def _execution_input_inventory_key(
     )
 
 
-def _execution_ref_key(ref: ArtifactRef) -> tuple[str, str, str, str | None]:
+def _execution_ref_key(
+    ref: ArtifactRef | UncertaintyEnvelopeRef,
+) -> tuple[str, str, str, str | None]:
     return (
         str(ref.artifact_id),
         ref.kind,
@@ -478,7 +493,7 @@ def _require_execution_edge_ref(
     store: ArtifactStore,
     parent_ref: ArtifactRef,
     role: str,
-    expected_ref: ArtifactRef,
+    expected_ref: ArtifactRef | UncertaintyEnvelopeRef,
     *,
     expected_kind: str,
     read_session: _BoundedExecutionSourceReadSession | None = None,
@@ -957,9 +972,9 @@ def _admit_execution_source(
         read_session=read_session,
     )
     state_delta = _read_typed_model(StateDelta, store, state_delta_ref, read_session=read_session)
-    if _execution_ref_key(state_delta.base_ref) != _execution_ref_key(
-        basis.base_state_snapshot_ref
-    ):
+    if state_delta.base_ref is None or _execution_ref_key(
+        state_delta.base_ref
+    ) != _execution_ref_key(basis.base_state_snapshot_ref):
         raise ValueError("execution_source_state_delta_base_differs_from_basis")
     for parent_ref in (metrics_ref, state_delta_ref):
         _require_execution_edge_ref(
@@ -1060,7 +1075,7 @@ def admit_execution_source_bounded(
 
 
 def _build_execution_input_basis(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     request: ExecuteRequest,
     resolved_state: _ResolvedStateSource,
@@ -1190,7 +1205,7 @@ def _build_execution_input_basis(
     return FoundryExecutionInputBasisRef.model_validate(payload_ref.model_dump(mode="python"))
 
 
-def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
+def execute(store: ArtifactStore, request: ExecuteRequest) -> ExecuteResult:
     """Execute a compiled Foundry plan from a bound state snapshot.
 
     `request.input_bindings_ref` is treated as the canonical boundary object
@@ -1240,6 +1255,10 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
         ```
     """
 
+    core_json_store = resolve_core_json_profile_store(store)
+    if core_json_store is None:
+        raise CanonicalProfileRefusalError("canon_profile_raw_manifest_unavailable")
+    store = core_json_store
     resolved_state = _resolve_state_snapshot(store, request)
     state_snapshot_ref = resolved_state.state_snapshot_ref
     registry_bundle_ref = request.registry_bundle_ref
@@ -1474,6 +1493,7 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
     )
 
     return ExecuteResult(
+        schema_version=("1.1" if exec_artifacts.method_execution_bundle_ref is not None else "1.0"),
         ok=True,
         simulation_result_ref=(
             SimulationResultRef.model_validate(sim_result_ref.model_dump(mode="python"))
@@ -1486,7 +1506,9 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
     )
 
 
-def _resolve_state_snapshot(store: FileSystemCAS, request: ExecuteRequest) -> _ResolvedStateSource:
+def _resolve_state_snapshot(
+    store: CoreJSONArtifactStore, request: ExecuteRequest
+) -> _ResolvedStateSource:
     """Load and validate the bound snapshot referenced by `request`."""
     bindings_ref = FoundryInputBindingsRef.model_validate(request.input_bindings_ref.model_dump())
     bindings = load_input_bindings(store, bindings_ref)
@@ -1506,13 +1528,13 @@ def _resolve_state_snapshot(store: FileSystemCAS, request: ExecuteRequest) -> _R
     )
 
 
-def _ensure_readable(store: FileSystemCAS, ref: ArtifactRef) -> None:
+def _ensure_readable(store: ArtifactStore, ref: ArtifactRef) -> None:
     """Raise if `ref` does not resolve to a readable CAS manifest."""
     store.get_manifest(ref)
 
 
 def _load_model[ModelT: BaseModel](
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     ref: ArtifactRef,
     model_cls: type[ModelT],
 ) -> ModelT:
@@ -1523,7 +1545,7 @@ def _load_model[ModelT: BaseModel](
 
 
 def _execute_with_feedback(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     request: ExecuteRequest,
     resolved_state: _ResolvedStateSource,
@@ -2020,6 +2042,7 @@ def _execute_with_feedback(
         )
 
     return ExecuteResult(
+        schema_version=("1.1" if exec_artifacts.method_execution_bundle_ref is not None else "1.0"),
         ok=True,
         simulation_result_ref=(
             SimulationResultRef.model_validate(sim_result_ref.model_dump(mode="python"))
@@ -2033,7 +2056,7 @@ def _execute_with_feedback(
 
 
 def _persisted_method_metric_capture_refs(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     capture: MethodExecutionCapture | None,
 ) -> list[DerivedArtifact]:
     """Persist refs-only graph evidence after a feedback failure with actual invocations."""
@@ -2050,7 +2073,7 @@ def _persisted_method_metric_capture_refs(
 
 
 def _run_feedback_iteration(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     exec_plan: ExecPlan,
     request: ExecuteRequest,
@@ -2140,6 +2163,7 @@ def _build_initial_feedback_state(
                 "source_kind is not 'state_path'"
             )
         single_config = FeedbackConfig(
+            schema_version="1.0",
             mode="fixed_point",
             variables=[variable],
             solver=feedback_config.solver,
@@ -2176,7 +2200,7 @@ def _merge_parameter_overrides(
 
 
 def _persist_parameter_override_bundle(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     *,
     request: ExecuteRequest,
     merged_overrides: dict[str, dict[str, object]] | None,
@@ -2185,6 +2209,7 @@ def _persist_parameter_override_bundle(
     if not merged_overrides:
         return request.parameter_override_bundle_ref
     payload = ParameterOverrideBundle(
+        schema_version="1.0",
         overrides=merged_overrides,
         sources={str(node_id): ["feedback_solver"] for node_id in merged_overrides},
         notes=["merged_for_feedback_mode", *feedback_notes],
@@ -2275,7 +2300,7 @@ def _extract_welfare_bound_refs(
 
 
 def _evaluate_welfare_bound_requirement(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     *,
     request: ExecuteRequest,
     derived_refs: list[DerivedArtifact],
@@ -2305,12 +2330,13 @@ def _evaluate_welfare_bound_requirement(
 
 
 def _persist_feedback_trace(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     *,
     outcome: SolveOutcome,
     request: ExecuteRequest,
 ) -> FeedbackTraceRef:
     trace = FeedbackTrace(
+        schema_version="1.0",
         records=[
             FeedbackIterationRecord(
                 stage_alpha=float(record.stage_alpha),
@@ -2355,7 +2381,7 @@ def _persist_feedback_trace(
 
 
 def _persist_feedback_jacobian(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     *,
     outcome: SolveOutcome,
     request: ExecuteRequest,
@@ -2364,6 +2390,7 @@ def _persist_feedback_jacobian(
     if outcome.jacobian is None:
         return None
     diagnostics = FeedbackJacobianDiagnostics(
+        schema_version="1.0",
         dimension=int(outcome.jacobian.matrix.shape[0]),
         jacobian=np.asarray(outcome.jacobian.matrix, dtype=float).tolist(),
         spectral_radius=outcome.jacobian.spectral_radius,
@@ -2401,8 +2428,37 @@ def _persist_feedback_jacobian(
     return FeedbackJacobianDiagnosticsRef(artifact_id=ref.artifact_id)
 
 
+def _feedback_convergence_status(
+    status: str,
+) -> Literal[
+    "converged",
+    "max_iter_exceeded",
+    "restarts_exhausted",
+    "diverged",
+    "oscillating",
+    "stagnated",
+    "failed",
+]:
+    """Retain only the existing convergence status vocabulary."""
+    if status == "converged":
+        return "converged"
+    if status == "max_iter_exceeded":
+        return "max_iter_exceeded"
+    if status == "restarts_exhausted":
+        return "restarts_exhausted"
+    if status == "diverged":
+        return "diverged"
+    if status == "oscillating":
+        return "oscillating"
+    if status == "stagnated":
+        return "stagnated"
+    if status == "failed":
+        return "failed"
+    return "failed"
+
+
 def _persist_feedback_convergence_certificate(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     *,
     outcome: SolveOutcome,
     request: ExecuteRequest,
@@ -2412,17 +2468,9 @@ def _persist_feedback_convergence_certificate(
 ) -> FeedbackConvergenceCertificateRef:
     final_record = outcome.trace[-1] if outcome.trace else None
     diagnostics = _sanitize_diagnostics(outcome.final_diagnostics)
-    allowed_statuses = {
-        "converged",
-        "max_iter_exceeded",
-        "restarts_exhausted",
-        "diverged",
-        "oscillating",
-        "stagnated",
-        "failed",
-    }
-    status = outcome.status if outcome.status in allowed_statuses else "failed"
+    status = _feedback_convergence_status(outcome.status)
     certificate = FeedbackConvergenceCertificate(
+        schema_version="1.0",
         status=status,
         converged=bool(outcome.converged),
         final_stage_alpha=float(final_record.stage_alpha) if final_record is not None else None,
@@ -2479,7 +2527,7 @@ def _persist_feedback_convergence_certificate(
 
 
 def _persist_equilibrium_multiplicity_report(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     *,
     request: ExecuteRequest,
     report: EquilibriumMultiplicityReport,
@@ -2526,7 +2574,7 @@ def _persist_equilibrium_multiplicity_report(
 
 
 def _persist_feedback_result(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     *,
     request: ExecuteRequest,
     prepared: PreparedFeedbackConfig,
@@ -2546,6 +2594,7 @@ def _persist_feedback_result(
     notes: list[str],
 ) -> FeedbackResultRef:
     result = FeedbackSolveResult(
+        schema_version="1.0",
         status=status,
         converged=converged,
         initial_state=initial_feedback_state,

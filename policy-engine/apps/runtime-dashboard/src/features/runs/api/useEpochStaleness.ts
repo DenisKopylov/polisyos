@@ -25,6 +25,8 @@ export type CapturedEpochStaleness = Readonly<{
 }>;
 
 export type EpochStalenessRequest = Readonly<{
+  /** Hook-only gate; never serialized into the runtime request or query identity. */
+  enabled?: boolean;
   runId: string;
   temporalScope?: TemporalScope | null;
   exportProjectionHash?: string | null;
@@ -134,9 +136,14 @@ export function useEpochStaleness(
   request: EpochStalenessRequest,
   client: EpochStalenessClient = defaultEpochStalenessClient,
 ) {
+  const { enabled = true, ...clientRequest } = request;
   return useGovernedQuery(
-    governedQueryOptions(epochStalenessQueryOptions(client, request), {
-      kind: "never_cache_authority",
-    }),
+    governedQueryOptions(
+      {
+        ...epochStalenessQueryOptions(client, clientRequest),
+        enabled: enabled && request.runId.length > 0,
+      },
+      { kind: "never_cache_authority" },
+    ),
   );
 }

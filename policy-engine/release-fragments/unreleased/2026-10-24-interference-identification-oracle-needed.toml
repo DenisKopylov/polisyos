@@ -1,0 +1,25 @@
+id = "2026-10-24-interference-identification-oracle-needed"
+title = "Refuse unbound policy-specific interference identification"
+type = "fixed"
+component = "causal-interference"
+owner = "team-polisyos"
+summary = "Interference identification runs ordinary original-graph ID only for a complete declared unit partition with no cross-unit edges; otherwise it preserves topology as a diagnostic and returns a typed oracle-needed result without inventing an exposure policy. Nullable topology indicators remain true, false, or unknown through traces and benchmark reports."
+evidence = [
+  "src/polisyos/foundry/methods/catalog/causal/interference/identification.py",
+  "src/polisyos/foundry/methods/catalog/causal/_interference_contracts.py",
+  "tests/unit/foundry/methods/catalog/causal/test_interference_identification.py",
+  "tests/unit/foundry/methods/catalog/causal/test__interference_contracts.py",
+  "tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+  "benchmarks/interference/policy_did_interference.py",
+  "src/polisyos/foundry/methods/catalog/causal/README.md",
+]
+compatibility = "Previously emitted schema 1.0 result payloads and their identified, non_identified, and input_invalid statuses remain readable. New helper results use schema 1.1; oracle_needed, pag_ambiguous, not_recoverable, and null topology indicators are rejected under schema 1.0."
+change_class = "internal"
+surface_classification = "internal: causal catalog interference identification helper and benchmark contract; supported Foundry facade unchanged"
+migration = "No data migration is required. Consumers that validate new results must accept schema 1.1 and preserve oracle_needed separately from non_identified."
+api = "A complete explicitly declared unit partition with zero cross-unit edges invokes ID on the original graph and reports ordinary_original_graph_id. Cross-unit edges or missing, partial, or inferred-only partitions return oracle_needed without an estimand AST or negative hedge certificate; topology booleans are null when partition completeness is unknown. Traces, adapter assumptions, benchmark case rows, and JSON reports preserve true, false, and unknown; aggregate spillover detection is null when unknown cases remain and no positive is established."
+limitations = "No policy-specific exposure-law producer or binding contract is added. Genuine cross-unit exposure identification remains oracle_needed until a verified exposure-law owner is available; topology candidates remain diagnostic and do not establish that law."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

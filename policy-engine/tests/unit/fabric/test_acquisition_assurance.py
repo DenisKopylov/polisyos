@@ -176,3 +176,23 @@ def test_persisted_consumer_rejects_self_stamped_closure(tmp_path, monkeypatch):
     case = next(row for row in corpus["cases"] if row["case_id"] == "rows.grounding_relation.0")
     with pytest.raises(ValueError, match="receipt_recomputation_mismatch"):
         execute_case(case, corpus["vocabulary"], tmp_path)
+
+
+def test_assurance_refuses_missing_receipt_artifact_ref_before_consumer_read(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    """The assurance consumer never reports a read when the producer omitted the ref."""
+    from polisyos.fabric.evidence.non_data_acquisition import NonDataAcquisitionRuntime
+
+    acquire = NonDataAcquisitionRuntime.acquire
+
+    def drop_artifact_ref(self, request, **kwargs):
+        receipt = acquire(self, request, **kwargs)
+        return receipt.model_copy(update={"artifact_ref": None})
+
+    monkeypatch.setattr(NonDataAcquisitionRuntime, "acquire", drop_artifact_ref)
+    corpus = decode_case_inputs(CORPUS)
+    case = next(row for row in corpus["cases"] if row["case_id"] == "rows.grounding_relation.0")
+    with pytest.raises(ValueError, match="persisted_receipt_missing_artifact_ref"):
+        execute_case(case, corpus["vocabulary"], tmp_path)

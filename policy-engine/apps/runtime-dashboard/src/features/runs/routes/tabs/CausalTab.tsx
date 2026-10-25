@@ -8,12 +8,20 @@ import {
 import { useParams } from "react-router-dom";
 
 import { useRunDetails } from "@/api/hooks/useRunDetails";
+import { coreRunIdFromDetails } from "@/features/runs/routes/useRunDetailSummary";
+import {
+  parseRunConditionalTransportCandidateProjection,
+  type RunConditionalTransportCandidateProjectionView,
+  type RunDetailsView,
+} from "@/api/validators";
+import { RunHteExecutionSummary } from "@/features/runs/components/RunHteExecutionSummary";
 import { useAuthz } from "@/app/authz/AuthzProvider";
 import {
   createAuthorityLocalStateEnvelopeFamily,
   type AuthorityLocalScope,
 } from "@/app/offline/authorityLocalState";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { formatNumber, formatPercent } from "@/shared/lib/utils";
 import {
   markUiMilestone,
   measureUiLatency,
@@ -615,6 +623,107 @@ function MethodVisualization({
 // Main tab content
 // ---------------------------------------------------------------------------
 
+function ConditionalTransportCandidateSummary({
+  projection,
+}: {
+  projection: RunConditionalTransportCandidateProjectionView | null;
+}) {
+  const { t } = useI18n();
+  if (!projection) {
+    return null;
+  }
+
+  const dispositionLabel = {
+    not_run: t("conditionalTransport.disposition.notRun"),
+    completed: t("conditionalTransport.disposition.completed"),
+    partial: t("conditionalTransport.disposition.partial"),
+    unsupported: t("conditionalTransport.disposition.unsupported"),
+    error: t("conditionalTransport.disposition.error"),
+  }[projection.candidate_disposition];
+  const fields = [
+    {
+      key: "profile",
+      label: t("conditionalTransport.profile"),
+      value:
+        projection.requested_profile_id +
+        " · " +
+        projection.requested_profile_revision,
+    },
+    {
+      key: "selection",
+      label: t("conditionalTransport.selectionIdentity"),
+      value: projection.selection_identity,
+    },
+    {
+      key: "proposals",
+      label: t("conditionalTransport.proposalCount"),
+      value: formatNumber(projection.proposal_count),
+    },
+    {
+      key: "evaluations",
+      label: t("conditionalTransport.memberEvaluationCount"),
+      value: formatNumber(projection.member_evaluation_count),
+    },
+    {
+      key: "completed-valid",
+      label: t("conditionalTransport.completedValidMemberCount"),
+      value: formatNumber(projection.completed_valid_member_count),
+    },
+    {
+      key: "identified-fraction",
+      label: t("conditionalTransport.identifiedMemberFraction"),
+      value:
+        projection.identified_member_fraction === null
+          ? t("conditionalTransport.fractionUnavailable")
+          : formatPercent(projection.identified_member_fraction, {
+              maximumFractionDigits: 1,
+            }),
+    },
+    {
+      key: "currentness",
+      label: t("conditionalTransport.sourceCurrentness"),
+      value: t("conditionalTransport.unknown"),
+    },
+    {
+      key: "reason",
+      label: t("conditionalTransport.reasonCode"),
+      value: projection.reason_code ?? t("conditionalTransport.noReasonCode"),
+    },
+  ];
+
+  return (
+    <section
+      aria-labelledby="conditional-transport-candidate-title"
+      className="border-line bg-panel rounded-xl border p-4"
+      data-testid="conditional-transport-candidate-summary"
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h3
+            className="text-base font-semibold"
+            id="conditional-transport-candidate-title"
+          >
+            {t("conditionalTransport.title")}
+          </h3>
+          <p className="text-muted mt-1 text-sm">
+            {t("conditionalTransport.candidateOnly")}
+          </p>
+        </div>
+        <Badge kind="warn">{dispositionLabel}</Badge>
+      </div>
+
+      <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+        {fields.map((field) => (
+          <div className="min-w-0" key={field.key}>
+            <dt className="text-muted text-xs font-semibold">{field.label}</dt>
+            <dd className="mt-1 break-all">{field.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
 function CausalTabContent({
   runId,
   scope,
@@ -623,10 +732,26 @@ function CausalTabContent({
   scope: AuthorityLocalScope | null;
 }) {
   const { t } = useI18n();
-  const runDetailsQuery = useRunDetails(runId);
+  const runDetailsQuery = useRunDetails(runId, { resolveCurrentAlias: true });
+  const cachedRun = runDetailsQuery.data?.run;
+  const resolvingCurrentAlias =
+    typeof cachedRun?.run_id === "string" &&
+    cachedRun.run_id !== runId &&
+    runDetailsQuery.isFetching;
+  const run =
+    !runDetailsQuery.isError && !resolvingCurrentAlias
+      ? (cachedRun ?? null)
+      : null;
+  const coreRunId = coreRunIdFromDetails(run);
+  const runDetails = run as RunDetailsView | undefined;
+  const methodExecutionSelection = runDetails?.method_execution_selection;
+  const conditionalTransportCandidate =
+    parseRunConditionalTransportCandidateProjection(
+      runDetails?.conditional_transport_candidate,
+    );
   const graph = useMemo(
-    () => extractCausalGraph(runDetailsQuery.data?.run ?? null),
-    [runDetailsQuery.data],
+    () => (coreRunId ? extractCausalGraph(run) : null),
+    [coreRunId, run],
   );
   const storedDraft = useMemo(
     () => (graph ? null : readStoredCausalDraft(scope, runId)),
@@ -662,7 +787,7 @@ function CausalTabContent({
   }, [sourceGraph]);
 
   useEffect(() => {
-    if (runDetailsQuery.isLoading) {
+    if (runDetailsQuery.isLoading || resolvingCurrentAlias) {
       return;
     }
     if (!scope) {
@@ -679,6 +804,7 @@ function CausalTabContent({
     draftGraph,
     graph,
     persistenceDirty,
+    resolvingCurrentAlias,
     runDetailsQuery.isLoading,
     runId,
     scope,
@@ -702,12 +828,20 @@ function CausalTabContent({
     });
   }, [draftGraph]);
 
-  if (runDetailsQuery.isLoading) {
+  if (runDetailsQuery.isLoading || resolvingCurrentAlias) {
     return <PanelSkeleton rows={6} />;
   }
 
   if (!draftGraph || draftGraph.nodes.length === 0) {
-    return <EmptyState title={t("causal.title")} body={t("causal.empty")} />;
+    return (
+      <div className="space-y-6">
+        <RunHteExecutionSummary projection={methodExecutionSelection} />
+        <ConditionalTransportCandidateSummary
+          projection={conditionalTransportCandidate}
+        />
+        <EmptyState title={t("causal.title")} body={t("causal.empty")} />
+      </div>
+    );
   }
 
   const selectedNode = selectedNodeId
@@ -727,6 +861,10 @@ function CausalTabContent({
 
   return (
     <div className="space-y-6">
+      <RunHteExecutionSummary projection={methodExecutionSelection} />
+      <ConditionalTransportCandidateSummary
+        projection={conditionalTransportCandidate}
+      />
       <Card className="space-y-4" data-testid="causal-atlas-editor">
         <div className="panel-header">
           <div>

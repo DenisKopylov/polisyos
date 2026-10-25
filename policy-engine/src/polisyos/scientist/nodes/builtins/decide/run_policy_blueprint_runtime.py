@@ -245,6 +245,11 @@ _SPEC = NodeSpec(
     state_reads=[
         "run_id",
         "last_checkpoint_ref",
+        "execution_plan_ref",
+        "method_catalog_snapshot_ref",
+        "execution_profile",
+        "causal_method_fqn",
+        "causal_method_params",
         "params",
         "params.workflow_id",
         "params.policy_mode",

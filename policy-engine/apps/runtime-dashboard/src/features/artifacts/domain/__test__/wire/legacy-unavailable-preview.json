@@ -1,0 +1,30 @@
+{
+  "kind": "legacy_limited",
+  "schema_version": "1.0",
+  "projection_status": "legacy_limited",
+  "availability": "unavailable",
+  "source_result_ref": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "method": null,
+  "ate": null,
+  "ate_ci_lower": null,
+  "ate_ci_upper": null,
+  "n_samples": null,
+  "n_features": null,
+  "n_subgroups": null,
+  "top_features": [],
+  "warnings": [],
+  "parse_warning": "hte_result_parse_failed",
+  "source_reference_profile_status": "not_established",
+  "target_scope_status": "not_established",
+  "bounds_meaning_status": "not_established",
+  "conditional_coverage_status": "not_established",
+  "population_coverage_status": "not_established",
+  "authority_status": "limited_display_only",
+  "limitations": [
+    "legacy_source_reference_unprofiled",
+    "legacy_target_scope_not_established",
+    "legacy_bound_meaning_not_established",
+    "legacy_conditional_coverage_not_established",
+    "legacy_population_coverage_not_established"
+  ]
+}

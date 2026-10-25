@@ -1182,3 +1182,80 @@ def test_incremental_checkpoint_rejects_cross_tenant_base(tmp_path: Path) -> Non
 
     with pytest.raises(CheckpointCorruptedError, match="chain scope mismatch"):
         materialize_checkpoint_state(store, incremental.checkpoint_ref)
+
+
+def test_compute_workflow_fingerprint_accepts_finite_nested_workflow_numbers() -> None:
+    workflow = WorkflowSpec(
+        workflow_id="wf_nested_numeric_params",
+        nodes=[
+            NodeInvocation(
+                alias="start",
+                node_id="scientist.node_noop@1.0.0",
+                params={
+                    "conditional_transport_request": {
+                        "resource_policy": {
+                            "limits": {"max_fraction": 0.75},
+                            "budget": {"max_elapsed_seconds": 90.25},
+                        }
+                    }
+                },
+            )
+        ],
+    )
+    before = workflow.model_dump(mode="python", by_alias=True, exclude_none=False)
+    fingerprint = compute_workflow_fingerprint(workflow)
+
+    assert isinstance(  # noqa: S101
+        workflow.nodes[0].params["conditional_transport_request"]["resource_policy"]["limits"][
+            "max_fraction"
+        ],
+        float,
+    )
+    assert len(fingerprint) == 64  # noqa: S101
+    assert compute_workflow_fingerprint(workflow.model_copy(deep=True)) == fingerprint  # noqa: S101
+    assert workflow.model_dump(mode="python", by_alias=True, exclude_none=False) == before  # noqa: S101
+
+    changed = WorkflowSpec.model_validate(before)
+    changed.nodes[0].params["conditional_transport_request"]["resource_policy"]["budget"][
+        "max_elapsed_seconds"
+    ] = 90.5
+    assert compute_workflow_fingerprint(changed) != fingerprint  # noqa: S101
+
+
+def test_compute_workflow_fingerprint_preserves_existing_float_free_bytes() -> None:
+    workflow = WorkflowSpec(
+        workflow_id="wf_checkpoint",
+        required_binds=["run_id"],
+        nodes=[NodeInvocation(alias="start", node_id="scientist.node_noop@1.0.0")],
+    )
+
+    assert (  # noqa: S101
+        compute_workflow_fingerprint(workflow)
+        == "9b03fb7cbd50f192ee7108f7b6e7882ca9dd737112473060191d258a396ccf98"
+    )
+
+
+@pytest.mark.parametrize(
+    "bad_value",
+    [float("nan"), float("inf"), float("-inf"), object()],
+    ids=["nan", "positive-infinity", "negative-infinity", "unsupported-object"],
+)
+def test_compute_workflow_fingerprint_refuses_nonfinite_or_malformed_nested_values_without_mutation(
+    bad_value: object,
+) -> None:
+    workflow = WorkflowSpec(
+        workflow_id="wf_malformed_nested_value",
+        nodes=[
+            NodeInvocation(
+                alias="start",
+                node_id="scientist.node_noop@1.0.0",
+                params={"resource_budget": {"limit": bad_value}},
+            )
+        ],
+    )
+    before = workflow.model_dump(mode="python", by_alias=True, exclude_none=False)
+
+    with pytest.raises(ValueError, match=r"NaN/Inf forbidden|Unsupported type for canonical JSON"):
+        compute_workflow_fingerprint(workflow)
+
+    assert workflow.model_dump(mode="python", by_alias=True, exclude_none=False) == before  # noqa: S101

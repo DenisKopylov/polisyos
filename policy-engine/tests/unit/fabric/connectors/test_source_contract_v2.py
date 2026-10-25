@@ -272,6 +272,26 @@ def test_sdk_scaffold_emits_contract_quality_fixture_and_docs_stub() -> None:
     assert "Processing guarantee" in artifacts.documentation_stub
 
 
+def test_sdk_scaffold_without_schema_contract_builds_coherent_artifacts() -> None:
+    artifacts = scaffold_source_artifacts(
+        metadata=WorldBankConnector.metadata,
+        schema_contract=None,
+        spec=SourceScaffoldSpec(
+            connector_id="worldbank.wdi",
+            profile_id="worldbank_wdi",
+            contract_id="worldbank.wdi.generic",
+        ),
+    )
+
+    assert artifacts.contract.schema_contract.schema_id == WorldBankConnector.metadata.schema_id
+    assert artifacts.contract.schema_contract.schema_contract_ref == (
+        WorldBankConnector.metadata.schema_registry_ref
+    )
+    assert artifacts.quality_contract["source_contract_id"] == artifacts.contract.id
+    assert artifacts.quality_contract["contract_id"] == artifacts.contract.quality.contract_ref
+    assert "World Bank" in artifacts.documentation_stub
+
+
 def test_conformance_v2_passes_for_scaffolded_worldbank_source() -> None:
     contract = SourceContract.from_connector_schema_contract(
         WDI_GENERIC_CONTRACT,

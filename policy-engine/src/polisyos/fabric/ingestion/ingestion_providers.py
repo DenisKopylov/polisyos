@@ -12,11 +12,11 @@ from polisyos.core.artifacts.backends.config import (
     ArtifactStoreConfig,
     build_artifact_store,
 )
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.observability import MetricsRegistry, PolicyOSTracer, get_metrics, get_tracer
 from polisyos.fabric.connectors.registry import ConnectorEntry, ConnectorRegistry
 
 if TYPE_CHECKING:
+    from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.fabric.connectors._registry_models import _ConnectorRegistrationBinding
     from polisyos.fabric.connectors.base import (
         ConnectionConfig,

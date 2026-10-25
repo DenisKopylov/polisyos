@@ -199,7 +199,8 @@ function AdmittedQuantityTrustMetadata({
   const selectedProfileContext = quantity.profile_binding_context;
   const selector = {
     lineageId: quantity.lineage.id,
-    selectedArtifactRef: quantity.lineage.artifact_ref ?? null,
+    // Reuse the exact tuple already admitted for this quantity.
+    selectedArtifactRef: selectedProfileContext?.selectedArtifactRef ?? null,
     artifactRefProvenance: quantity.lineage.artifact_ref_provenance ?? null,
     sourceRunId: quantity.lineage.source_run_id ?? null,
   };

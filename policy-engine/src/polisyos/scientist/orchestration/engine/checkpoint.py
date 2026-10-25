@@ -1628,13 +1628,14 @@ def _missing_completed_state_paths(
 def compute_workflow_fingerprint(workflow: WorkflowSpec) -> str:
     """Hash the functional workflow shape used to validate checkpoint compatibility."""
     payload = workflow.model_dump(mode="python", by_alias=True, exclude_none=False)
-    # Exclude operational fields (retry, timeout_s) from fingerprint —
-    # they don't affect functional outputs and contain floats that violate
-    # canonical JSON's forbid_floats constraint.
+    # Operational retry and timeout settings do not describe functional workflow shape.
     for node in payload.get("nodes", []):
         node.pop("retry", None)
         node.pop("timeout_s", None)
-    canonical = to_canonical_bytes(payload)
+    # Workflow params follow the finite JSON value grammar. Use the existing typed-float
+    # profile locally so numeric params fingerprint deterministically without widening
+    # Core's strict default for other callers.
+    canonical = to_canonical_bytes(payload, CanonSpec(forbid_floats=False))
     return content_hash(canonical)
 
 

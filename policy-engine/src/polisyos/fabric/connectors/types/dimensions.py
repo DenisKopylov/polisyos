@@ -25,12 +25,11 @@ Example:
 from __future__ import annotations
 
 import threading
-from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Mapping
 
 __all__ = [
     "BaseDimension",

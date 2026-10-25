@@ -4,8 +4,15 @@ import logging
 
 import pytest
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts import (
+    InputRef,
+    input_ref_from_artifact_ref,
+    profile_bound_ref,
+)
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.ir.analytics.causal_ensemble import load_causal_model_ensemble
@@ -107,6 +114,16 @@ def _fake_run_job_factory() -> callable:
     return _fake_run_job
 
 
+def _bound_test_input(store: FileSystemCAS, *, label: str) -> InputRef:
+    source_ref = store.put_json(
+        {"label": label},
+        PutOptions(kind="test.selected_profile_anchor", media_type="application/json"),
+    )
+    return input_ref_from_artifact_ref(
+        profile_bound_ref(store, source_ref), role="selected_profile_anchor"
+    )
+
+
 def test_run_causal_ensemble_node_skips_without_enable_flag(tmp_path) -> None:
     ctx = _build_ctx(tmp_path, run_id="R_ensemble_skip")
     state = ExperimentState(
@@ -137,10 +154,36 @@ def test_run_causal_ensemble_node_persists_ensemble_and_dual_writes_envelope(
         edges=[CausalEdge(src="X", dst="Y")],
         discovery_method="pc",
     )
+    scm_spec = _build_scm(graph=graph, coefficient_scale=1.2)
+    ir_store = _ensure_ir_artifact_store(ctx.store)
     scm_ref = persist_structural_causal_model_spec(
-        _ensure_ir_artifact_store(ctx.store),
-        _build_scm(graph=graph, coefficient_scale=1.2),
+        ir_store,
+        scm_spec,
+        inputs=[_bound_test_input(ctx.store, label="producer-input-selected")],
     )
+    latest_scm_ref = persist_structural_causal_model_spec(
+        ir_store,
+        scm_spec,
+        inputs=[_bound_test_input(ctx.store, label="producer-input-alternative")],
+    )
+    current_default_scm_ref = profile_bound_ref(
+        ctx.store, scm_ref.model_copy(update={"manifest_profile_sha256": None})
+    )
+    assert str(scm_ref.artifact_id) == str(latest_scm_ref.artifact_id)
+    assert ctx.store.get_bytes(scm_ref) == ctx.store.get_bytes(latest_scm_ref)
+    assert scm_ref.manifest_profile_sha256 is not None
+    assert latest_scm_ref.manifest_profile_sha256 is not None
+    assert scm_ref.manifest_profile_sha256 != latest_scm_ref.manifest_profile_sha256
+    selected_scm_ref = next(
+        candidate_ref
+        for candidate_ref in (scm_ref, latest_scm_ref)
+        if candidate_ref.manifest_profile_sha256 != current_default_scm_ref.manifest_profile_sha256
+    )
+    assert selected_scm_ref.manifest_profile_sha256 is not None
+    assert (
+        selected_scm_ref.manifest_profile_sha256 != current_default_scm_ref.manifest_profile_sha256
+    )
+    scm_ref = selected_scm_ref
 
     monkeypatch.setattr(
         "polisyos.scientist.nodes.builtins.causal.run_causal_ensemble.ensure_causal_methods_registered",
@@ -191,6 +234,10 @@ def test_run_causal_ensemble_node_persists_ensemble_and_dual_writes_envelope(
     assert outcome.state.params["causal_ensemble_member_count"] == 1
 
     manifest = ctx.store.get_manifest(ensemble_ref)
+    scm_edges = [edge for edge in manifest.inputs if edge.role == "member_0.scm_ref"]
+    assert len(scm_edges) == 1
+    assert scm_edges[0].manifest_profile_sha256 == scm_ref.manifest_profile_sha256
+    assert scm_edges[0].manifest_profile_sha256 != current_default_scm_ref.manifest_profile_sha256
     consensus_edges = [edge for edge in manifest.inputs if edge.role == "consensus_graph_ref"]
     assert ensemble.consensus_graph_ref is not None
     assert len(consensus_edges) == 1
@@ -219,6 +266,16 @@ def test_run_causal_ensemble_node_persists_ensemble_and_dual_writes_envelope(
             "media_type": "application/json",
             "manifest_profile_sha256": member_edges[0].manifest_profile_sha256,
         }
+    )
+    member_graph_manifest = ctx.store.get_manifest(selected_member_ref)
+    member_scm_edges = [
+        edge for edge in member_graph_manifest.inputs if edge.role == "member_0.scm"
+    ]
+    assert len(member_scm_edges) == 1
+    assert member_scm_edges[0].manifest_profile_sha256 == scm_ref.manifest_profile_sha256
+    assert (
+        member_scm_edges[0].manifest_profile_sha256
+        != current_default_scm_ref.manifest_profile_sha256
     )
     assert load_causal_graph_model(
         _ensure_ir_artifact_store(ctx.store), selected_member_ref

@@ -89,6 +89,11 @@ tester.run("quantity-must-be-wrapped", rule, {
       `,
       filename: "src/features/example/View.tsx",
     },
+    {
+      name: "accepts a scope-resolved let accumulator updated only with +=",
+      code: "function calculate(rows) { let costUsd = 0; for (const row of rows) { costUsd += row.costUsd; } return costUsd; }",
+      filename: "src/shared/lib/domain/agents.ts",
+    },
   ],
   invalid: [
     {
@@ -189,6 +194,54 @@ tester.run("quantity-must-be-wrapped", rule, {
         const confidenceScore = 0;
       `,
       filename: "src/features/example/View.tsx",
+      errors: [{ messageId: "decision" }],
+    },
+    {
+      name: "rejects a standalone decision cost zero",
+      code: "let costUsd = 0;",
+      filename: "src/shared/lib/domain/agents.ts",
+      errors: [{ messageId: "decision" }],
+    },
+    {
+      name: "same-file accumulator cannot exempt a direct JSX zero",
+      code: "function render() { let costUsd = 0; costUsd += increment; return <span>{0}</span>; }",
+      filename: "src/features/example/View.tsx",
+      errors: [{ messageId: "decision" }],
+    },
+    {
+      name: "rejects an accumulator binding used as a JSX value",
+      code: "function render() { let costUsd = 0; costUsd += increment; return <span>{costUsd}</span>; }",
+      filename: "src/shared/lib/domain/agents.ts",
+      errors: [{ messageId: "decision" }],
+    },
+    {
+      name: "rejects a read before the first addition assignment",
+      code: "function calculate() { let costUsd = 0; const before = costUsd; costUsd += increment; return before; }",
+      filename: "src/shared/lib/domain/agents.ts",
+      errors: [{ messageId: "decision" }],
+    },
+    {
+      name: "rejects a closure escape before the first addition assignment",
+      code: "function calculate(callback) { let costUsd = 0; callback(() => costUsd); costUsd += increment; return costUsd; }",
+      filename: "src/shared/lib/domain/agents.ts",
+      errors: [{ messageId: "decision" }],
+    },
+    {
+      name: "rejects a non-addition reassignment",
+      code: "function calculate(value) { let costUsd = 0; costUsd = value; costUsd += increment; return costUsd; }",
+      filename: "src/shared/lib/domain/agents.ts",
+      errors: [{ messageId: "decision" }],
+    },
+    {
+      name: "a shadowed accumulator cannot exempt the outer zero",
+      code: "let costUsd = 0; function calculate(value) { let costUsd = 0; costUsd += value; return costUsd; }",
+      filename: "src/shared/lib/domain/agents.ts",
+      errors: [{ messageId: "decision" }],
+    },
+    {
+      name: "rejects an accumulator binding used by a JSX attribute expression",
+      code: "function render() {\n  let costUsd = 0;\n  costUsd += increment;\n  return <span data-value={costUsd} />;\n}",
+      filename: "src/shared/lib/domain/agents.ts",
       errors: [{ messageId: "decision" }],
     },
   ],

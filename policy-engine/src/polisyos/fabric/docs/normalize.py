@@ -10,7 +10,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import asdict
 from datetime import UTC, datetime
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
@@ -43,6 +43,9 @@ from .backends.text_html import normalize_html_visible_text_v1
 from .backends.text_plain import normalize_plain_text_v1
 from .errors import DocUnsupportedMimeError, DocValidationError
 from .types import DocNormalizeOptions, DocNormalizeResult
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 _NORMALIZED_SCHEMA = SchemaInfo(name="fabric.doc.normalized", version="1.0")
 DocTextNormalizer = Callable[[str], str]

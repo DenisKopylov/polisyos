@@ -328,9 +328,24 @@ def _seed_phase1_gate_store(
     persist_mobility_report(
         _ensure_ir_artifact_store(store),
         MobilityReport(
+            schema_version="2.0",
             analysis_type="transition_matrix",
+            estimand_id="mobility.phase1_gate_fixture",
             status="ok",
-            summary_metrics={"n_obs": 10},
+            population={
+                "target_population": "phase1 gate test panel",
+                "panel_length": 2,
+                "waves_used": [1, 2],
+                "class_definition": {"type": "preclassified", "n_classes": 1},
+            },
+            point_estimate={
+                "joint_matrix": [[1.0]],
+                "transition_matrix": [[1.0]],
+                "row_marginals": [1.0],
+                "col_marginals": [1.0],
+            },
+            diagnostics={"observed_full_cases": 10},
+            summary_metrics={"transition_matrix": [[1.0]], "n_classes": 1, "n_obs": 10},
         ),
     )
     return {
@@ -992,64 +1007,22 @@ class TestCausalEngineIdentify:
         assert result.blocking_type is BlockingType.PROXIMAL_CONDITION_FAILED
         assert result.quantitative_diagnostics["failed_check"] == "no_direct_edge_Z_to_M"
 
-    def test_identify_clustered_interference_query_returns_constructive_negative_certificate(self):
+    @pytest.mark.parametrize("has_cross_cluster_edge", [False, True])
+    def test_interference_query_without_bound_policy_law_requests_oracle(
+        self, has_cross_cluster_edge: bool
+    ):
+        edges = [
+            CausalEdge(src="A_0", dst="Y_0", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+            CausalEdge(src="A_1", dst="Y_1", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+        ]
+        if has_cross_cluster_edge:
+            edges.append(
+                CausalEdge(src="A_0", dst="Y_1", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)
+            )
         graph = CausalGraphModel(
             graph_type=GraphType.DAG,
             nodes=["A_0", "Y_0", "A_1", "Y_1"],
-            edges=[
-                CausalEdge(src="A_0", dst="Y_0", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
-                CausalEdge(src="A_1", dst="Y_1", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
-                CausalEdge(src="A_0", dst="Y_1", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
-            ],
-            metadata={
-                "cluster_map": {
-                    "A_0": "0",
-                    "Y_0": "0",
-                    "A_1": "1",
-                    "Y_1": "1",
-                }
-            },
-        )
-        query = InterventionQuery(
-            target=QueryTarget(
-                target_kind=QueryTargetKind.DISTRIBUTION,
-                outcome_variables=("Y",),
-            ),
-            intervention=InterferenceIntervention(
-                policies=(
-                    InterferencePolicySpec(
-                        target="A",
-                        policy_expr="cluster_policy(A, E)",
-                        exposure_vars=("E",),
-                    ),
-                ),
-                exposure_map_ref="fractional",
-                interference_mode="cluster",
-                fallback_mode="clustered",
-            ),
-        )
-
-        result = self.engine.identify("A", "Y", graph, intervention_query=query)
-
-        assert isinstance(result, NegativeCertificate)
-        assert result.blocking_type == BlockingType.SEMANTICS_NOT_WELL_DEFINED
-        assert (
-            result.quantitative_diagnostics["algorithm_version"] == "interference_intervention_v1"
-        )
-        assert (
-            result.quantitative_diagnostics["interference_certificate"]["fallback_mode"]
-            == "clustered"
-        )
-        assert "Exposure augmentation" in " ".join(result.quantitative_diagnostics["proof_trace"])
-
-    def test_identify_interference_query_identifies_when_no_cross_unit_edges_exist(self):
-        graph = CausalGraphModel(
-            graph_type=GraphType.DAG,
-            nodes=["A_0", "Y_0", "A_1", "Y_1"],
-            edges=[
-                CausalEdge(src="A_0", dst="Y_0", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
-                CausalEdge(src="A_1", dst="Y_1", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
-            ],
+            edges=edges,
             metadata={
                 "cluster_map": {
                     "A_0": "0",
@@ -1081,13 +1054,85 @@ class TestCausalEngineIdentify:
         result = self.engine.identify("A", "Y", graph, intervention_query=query)
 
         assert isinstance(result, IdentificationResult)
-        assert result.status == IdentificationStatus.IDENTIFIED
-        assert result.algorithm_version == "interference_intervention_v1"
-        assert result.metadata["interference_certificate"]["fallback_mode"] == "clustered"
-        proof = proof_bundle_from_identification_result(result)
-        assert proof.metadata["intervention_type"] == "interference"
+        assert result.status is IdentificationStatus.ORACLE_NEEDED
+        assert result.estimand_ast is None
+        assert result.algorithm_version == "interference_policy_gate_v1"
+        assert any("no owned exposure-map producer" in step for step in result.trace)
+        gate = result.metadata["interference_policy_gate"]
+        assert gate["state"] == "verification_missing"
+        assert {
+            "producer_missing",
+            "bridge_missing",
+            "verification_missing",
+        } <= set(gate["missing_capability_labels"])
 
-    def test_identify_interference_query_surfaces_simplicial_star_local_certificate(self):
+    @pytest.mark.parametrize("has_cross_cluster_edge", [False, True])
+    def test_unbound_policy_and_exposure_variants_never_emit_identified_ast(
+        self, has_cross_cluster_edge: bool
+    ):
+        edges = [
+            CausalEdge(src="A_0", dst="Y_0", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+            CausalEdge(src="A_1", dst="Y_1", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+        ]
+        if has_cross_cluster_edge:
+            edges.append(
+                CausalEdge(src="A_0", dst="Y_1", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)
+            )
+        graph = CausalGraphModel(
+            graph_type=GraphType.DAG,
+            nodes=["A_0", "Y_0", "A_1", "Y_1"],
+            edges=edges,
+            metadata={
+                "cluster_map": {
+                    "A_0": "0",
+                    "Y_0": "0",
+                    "A_1": "1",
+                    "Y_1": "1",
+                }
+            },
+        )
+        variants = (
+            ("fractional", "treat_all()", ("E",)),
+            ("fractional", "treat_none()", ("E",)),
+            ("unregistered:sha256:deadbeef", "treat_all()", ("E",)),
+            ("fractional", "treat_all()", ("NOT_IN_GRAPH",)),
+        )
+        # Independent SCM: Y_0=A_0 and Y_1=A_1 XOR A_0.
+        treat_all_outcome = (1, 1 ^ 1)
+        treat_none_outcome = (0, 0 ^ 0)
+        assert treat_all_outcome == (1, 0)
+        assert treat_none_outcome == (0, 0)
+        assert treat_all_outcome != treat_none_outcome
+
+        results = []
+        for exposure_map_ref, policy_expr, exposure_vars in variants:
+            query = InterventionQuery(
+                target=QueryTarget(
+                    target_kind=QueryTargetKind.DISTRIBUTION,
+                    outcome_variables=("Y",),
+                ),
+                intervention=InterferenceIntervention(
+                    policies=(
+                        InterferencePolicySpec(
+                            target="A",
+                            policy_expr=policy_expr,
+                            exposure_vars=exposure_vars,
+                        ),
+                    ),
+                    exposure_map_ref=exposure_map_ref,
+                    interference_mode="cluster",
+                    fallback_mode="clustered",
+                ),
+            )
+            result = self.engine.identify("A", "Y", graph, intervention_query=query)
+            results.append(result)
+
+        assert results[0].query_str != results[1].query_str
+        assert all(isinstance(result, IdentificationResult) for result in results)
+        assert all(result.status is IdentificationStatus.ORACLE_NEEDED for result in results)
+        assert all(result.estimand_ast is None for result in results)
+
+    def test_simplicial_graph_metadata_does_not_authorize_interference_policy(self):
         graph = CausalGraphModel(
             graph_type=GraphType.DAG,
             nodes=["A_0", "Y_0", "A_1", "Y_1", "A_2", "Y_2"],
@@ -1100,17 +1145,10 @@ class TestCausalEngineIdentify:
                 "topology": {
                     "reduction_policy": "full_complex",
                     "candidate_topology": "audited_or_fdr_controlled",
-                    "simplices": [
-                        ["A_0", "A_1", "A_2"],
-                        ["Y_0", "Y_1", "Y_2"],
-                    ],
+                    "simplices": [["A_0", "A_1", "A_2"], ["Y_0", "Y_1", "Y_2"]],
                     "exposure_operator": {
                         "locality_scope": "closed_star",
-                        "exposure_states": [
-                            "direct_only",
-                            "pairwise_exposed",
-                            "simplex_exposed",
-                        ],
+                        "exposure_states": ["direct_only", "pairwise_exposed", "simplex_exposed"],
                         "exposure_consistency": True,
                         "assignment_design": "bernoulli",
                         "design_positivity": True,
@@ -1143,22 +1181,40 @@ class TestCausalEngineIdentify:
         result = self.engine.identify("A", "Y", graph, intervention_query=query)
 
         assert isinstance(result, IdentificationResult)
-        assert result.status == IdentificationStatus.IDENTIFIED
-        assert result.metadata["interference_certificate"]["supported_query_family"] == (
-            "cluster_projection_queries"
+        assert result.status is IdentificationStatus.ORACLE_NEEDED
+        assert result.estimand_ast is None
+        assert "interference_certificate" not in result.metadata
+
+    def test_ordinary_joint_do_remains_identified_on_interference_fixture(self):
+        graph = CausalGraphModel(
+            graph_type=GraphType.DAG,
+            nodes=["A_0", "Y_0", "A_1", "Y_1"],
+            edges=[
+                CausalEdge(src="A_0", dst="Y_0", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+                CausalEdge(src="A_1", dst="Y_1", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+                CausalEdge(src="A_0", dst="Y_1", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+            ],
         )
-        assert result.metadata["interference_certificate"]["fallback_mode"] == "clustered"
-        assert result.metadata["interference_certificate"]["mode_requested"] == "complex"
-        assert result.metadata["interference_certificate"]["mode_used"] == "clustered"
-        assert result.metadata["interference_certificate"]["fallback_triggered"] is True
-        assert result.metadata["interference_mode_requested"] == "complex"
-        assert result.metadata["interference_mode_used"] == "clustered"
-        assert result.metadata["interference_fallback_triggered"] is True
-        assert result.metadata["interference_estimand_label"] == "clustered_exposure_effect"
-        assert (
-            "known_simplicial_complex"
-            in result.metadata["interference_certificate"]["exposure_assumptions"]
+
+        result = self.engine.identify(
+            frozenset({"A_0", "A_1"}),
+            frozenset({"Y_0", "Y_1"}),
+            graph,
         )
+
+        assert isinstance(result, IdentificationResult)
+        assert result.status is IdentificationStatus.IDENTIFIED
+        assert result.estimand_ast is not None
+        assert result.estimand_ast.identification_method == "g_formula"
+        assert result.estimand_ast.root.node_type == "product"
+        factors = {
+            tuple(factor.variables): tuple(factor.conditioning)
+            for factor in result.estimand_ast.root.factors
+        }
+        assert factors == {
+            ("Y_0",): ("A_0",),
+            ("Y_1",): ("A_0", "A_1"),
+        }
 
     def test_identify_rejects_ill_typed_intervention_query(self):
         graph = make_dag([("A", "Y"), ("W", "A"), ("W", "Y")])

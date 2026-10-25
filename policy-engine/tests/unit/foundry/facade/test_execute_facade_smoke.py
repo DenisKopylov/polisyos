@@ -4,19 +4,11 @@ from decimal import Decimal
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.contracts.fabric import DataSnapshot
-from polisyos.core.contracts.foundry import (
-    CompileRequest,
-    ExecuteRequest,
-    FoundryInputBindings,
-    FoundryInputBindingsRef,
-    StateSnapshotRef,
-)
+from polisyos.core.contracts.foundry import CompileRequest, ExecuteRequest
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
+from polisyos.foundry._internal.quickstart import prepare_trivial_input_bindings
 from polisyos.foundry.compile.api import compile as compile_foundry
-from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute.api import execute as execute_foundry
-from polisyos.foundry.execute.executor import put_state_snapshot
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec
@@ -73,28 +65,19 @@ def test_execute_facade_smoke(tmp_path) -> None:
     assert compile_result.ok
     assert compile_result.exec_plan_ref is not None
 
-    base_state = GlobalState.empty(n_agents=2, n_firms=1)
-    snapshot_ref = put_state_snapshot(store, state=base_state, step=0)
-    state_snapshot_ref = StateSnapshotRef(artifact_id=snapshot_ref.artifact_id)
-    data_snapshot_ref = store.put_json(
-        DataSnapshot(data_ref=state_snapshot_ref),
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
-    input_bindings_ref = store.put_json(
-        FoundryInputBindings(
-            data_snapshot_ref=data_snapshot_ref,
-            registry_bundle_ref=bundle.bundle_ref,
-            rules=[],
-            bound_state_snapshot_ref=state_snapshot_ref,
-        ),
-        PutOptions(kind="foundry.input_bindings", media_type="application/json"),
+    input_bindings_ref = prepare_trivial_input_bindings(
+        store,
+        bundle.bundle_ref,
+        n_agents=2,
+        n_firms=1,
+        step=0,
     )
 
     exec_result = execute_foundry(
         store,
         ExecuteRequest(
             exec_plan_ref=compile_result.exec_plan_ref,
-            input_bindings_ref=FoundryInputBindingsRef(artifact_id=input_bindings_ref.artifact_id),
+            input_bindings_ref=input_bindings_ref,
             registry_bundle_ref=bundle.bundle_ref,
         ),
     )

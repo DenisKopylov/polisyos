@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import importlib
 import json
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from copy import deepcopy
 from enum import Enum
 from functools import cached_property
@@ -17,7 +17,21 @@ from polisyos.ir._internal.runtime_protocols import protocol_declared_callables_
 
 if TYPE_CHECKING:
     import networkx as nx
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import ArtifactStore
+from polisyos.ir.artifacts._lineage import InputRefLike
+from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration, CanonInfo
+from polisyos.ir.artifacts.io import (
+    _get_owned_json_artifact,
+    _put_owned_json_artifact,
+    _validate_return_selected_profile_flag,
+)
+from polisyos.ir.migrations.base import (
+    CompatibilityMode,
+    IRRepresentationRegistration,
+    ResolvedSchemaAdmission,
+    register_ir_representation,
+    register_schema_version,
+)
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import CausalGraphModelRef
 
@@ -129,9 +143,9 @@ def _declared_cached_property_names(model_type: type[BaseModel]) -> frozenset[st
 
 def _snapshot_canonical_value(value: object) -> object:
     """Copy canonical container values without trusting caller-defined iterators."""
-    if type(value) in (list, _FrozenList):
+    if isinstance(value, list) and type(value) in (list, _FrozenList):
         return [_snapshot_canonical_value(item) for item in list.__iter__(value)]
-    if type(value) in (dict, _FrozenDict):
+    if isinstance(value, dict) and type(value) in (dict, _FrozenDict):
         return {key: _snapshot_canonical_value(item) for key, item in dict.items(value)}
     if type(value) is tuple:
         return tuple(_snapshot_canonical_value(item) for item in value)
@@ -920,36 +934,119 @@ def _has_directed_cycle(
     return visited != len(nodes)
 
 
+def _family_payload_version(value: object) -> str | None:
+    """Return a strict embedded version, distinguishing absence from malformed null."""
+    if not isinstance(value, Mapping):
+        raise ValueError("owned family payload must be an object")
+    if "schema_version" not in value:
+        return None
+    version = value["schema_version"]
+    if type(version) is not str or not version.strip():
+        raise ValueError("owned family payload schema_version must be a nonempty string")
+    return version
+
+
+def _family_source_mapping(value: object, admission: ResolvedSchemaAdmission) -> dict[str, Any]:
+    """Bind payload bytes to the exact tuple already selected from the owner snapshot."""
+    if not isinstance(value, Mapping):
+        raise ValueError("owned family payload must be an object")
+    if _family_payload_version(value) != admission.source_registration.payload_version:
+        raise ValueError("payload version differs from exact registered tuple")
+    return dict(value)
+
+
+def _family_profile(profile: CanonInfo, row: IRRepresentationRegistration) -> bool:
+    """Require the producer's actual canonicalization profile and no profile alias."""
+    return (
+        profile == CanonInfo.from_spec(CanonSpec(forbid_floats=False)) and row.profile_ref is None
+    )
+
+
+_CAUSAL_GRAPH_POLICY = ("causal-graph-model-json", "1")
+_CAUSAL_GRAPH_OWNER = ArtifactOwnerDeclaration(
+    contract_id="polisyos.ir.analytics.causal_graph.CausalGraphModel",
+    dto_fqn="polisyos.ir.analytics.causal_graph.CausalGraphModel",
+    abi_key="causal_graph_model",
+    registry_key="causal_graph_model",
+    kind="ir.causal_graph_model",
+    media_type="application/json",
+    purpose="causal_graph_model",
+    policy_revision="1",
+    accepted_wire_policies=(_CAUSAL_GRAPH_POLICY,),
+    payload_version_of=_family_payload_version,
+    validate_source=_family_source_mapping,
+    project_for_consumer=lambda value, _admission: CausalGraphModel.model_validate(value),
+    validate_profile=_family_profile,
+)
+
+
+def _register_causal_graph_owner() -> None:
+    """Register the current graph and its already-supported selected manifest tuple."""
+    for version in ("1.0", "1.1"):
+        register_schema_version(
+            "causal_graph_model",
+            version,
+            compatibility=CompatibilityMode.NONE,
+            notes=("Exact CausalGraphModel JSON representation.",),
+        )
+    for manifest_version, payload_version, current, default in (
+        ("1.0", "1.0", True, True),
+        ("1.1", "1.0", False, False),
+    ):
+        register_ir_representation(
+            registry_key="causal_graph_model",
+            owner_ref=_CAUSAL_GRAPH_OWNER.contract_id,
+            dto_abi=_CAUSAL_GRAPH_OWNER.dto_fqn,
+            wire_policy_ref=_CAUSAL_GRAPH_POLICY[0],
+            wire_policy_revision=_CAUSAL_GRAPH_POLICY[1],
+            schema_name="ir.causal_graph_model",
+            schema_version=manifest_version,
+            payload_version=payload_version,
+            writable=True,
+            current=current,
+            default_write=default,
+        )
+
+
+_register_causal_graph_owner()
+
+
 def persist_causal_graph_model(
     store: ArtifactStore,
     graph: CausalGraphModel,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
     schema_name: str = "ir.causal_graph_model",
     schema_version: str = "1.0",
     return_selected_profile: bool = False,
 ) -> CausalGraphModelRef:
-    """Persist a graph and optionally return the exact profile selected by this write."""
-    ref = put_json_artifact(
+    """Persist through its owner and return the selected typed identity.
+
+    The default keeps the historical profileless inspection result. Callers that
+    carry this ref as evidence must request the selected profile explicitly.
+    """
+    return_selected_profile = _validate_return_selected_profile_flag(return_selected_profile)
+    ref = _put_owned_json_artifact(
         store,
         graph.model_dump(mode="json"),
-        kind="ir.causal_graph_model",
+        owner=_CAUSAL_GRAPH_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=return_selected_profile,
     )
-    return CausalGraphModelRef.model_validate(ref)
+    selected_ref = CausalGraphModelRef.from_selected_write(ref)
+    if not return_selected_profile:
+        return selected_ref.model_copy(update={"manifest_profile_sha256": None})
+    return selected_ref
 
 
 def load_causal_graph_model(
     store: ArtifactStore,
     ref: CausalGraphModelRef,
 ) -> CausalGraphModel:
-    """Load causal graph model."""
-    payload = get_json_artifact(store, ref)
-    return CausalGraphModel.model_validate(payload)
+    """Load through exact owner, profile, version, and DTO admission."""
+    return _get_owned_json_artifact(store, ref, owner=_CAUSAL_GRAPH_OWNER)
 
 
 def _dag_projection_refusal_code_from_canonical(

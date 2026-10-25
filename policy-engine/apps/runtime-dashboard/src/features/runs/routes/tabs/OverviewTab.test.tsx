@@ -1,13 +1,17 @@
 import { fireEvent, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 
-import { runDetailsSchema } from "@/api/validators";
+import { runDetailsSchema } from "../../../../api/validators";
 import { runN5InteractionEvidenceFixture } from "@/test/fixtures/runN5InteractionEvidence";
 import * as performanceTelemetry from "@/shared/telemetry/performance";
 import { renderWithProviders } from "@/test/render";
 
 const overviewState = vi.hoisted(() => ({
   artifactContentMock: vi.fn(),
+  evidenceContextMock: vi.fn(),
+  governanceDebugMock: vi.fn(),
+  predictiveCalibrationQueryMock: vi.fn(),
+  timelineMock: vi.fn(),
   predictiveCalibrationQuery: {
     isPending: true,
     error: undefined,
@@ -30,29 +34,22 @@ vi.mock("react-router-dom", async (importOriginal) => {
   return { ...actual, useParams: () => ({ runId: "run-1" }) };
 });
 vi.mock("@/api/hooks/useGovernanceDebug", () => ({
-  useSuspenseGovernanceDebug: () => ({
-    data: {
-      debug: {
-        issues: [
-          { code: "known", message: "Known blocker", severity: "fail" },
-          {
-            code: "novel",
-            message: "Novel severity",
-            severity: "future_owner_severity",
-          },
-        ],
-      },
-    },
-  }),
+  useSuspenseGovernanceDebug: (...args: unknown[]) =>
+    overviewState.governanceDebugMock(...args),
 }));
 vi.mock("@/api/hooks/useRunEvidenceContext", () => ({
-  useSuspenseRunEvidenceContext: () => ({ data: { context: {} } }),
+  useSuspenseRunEvidenceContext: (...args: unknown[]) =>
+    overviewState.evidenceContextMock(...args),
 }));
 vi.mock("@/api/hooks/useRunTimeline", () => ({
-  useSuspenseRunTimeline: () => ({ data: { timeline: { events: [] } } }),
+  useSuspenseRunTimeline: (...args: unknown[]) =>
+    overviewState.timelineMock(...args),
 }));
 vi.mock("@/api/hooks/useRunPredictiveCalibration", () => ({
-  useRunPredictiveCalibration: () => overviewState.predictiveCalibrationQuery,
+  useRunPredictiveCalibration: (...args: unknown[]) => {
+    overviewState.predictiveCalibrationQueryMock(...args);
+    return overviewState.predictiveCalibrationQuery;
+  },
   useCreateRunPredictiveCalibration: () =>
     overviewState.predictiveCalibrationMutation,
 }));
@@ -451,7 +448,60 @@ function genericCycleSimulationProjection(
 function parsedRunWithGenericCycleSimulation(
   projectionRunId = "run-1",
   terminalKinds?: Record<string, string> | null,
+  includeCycleHistory = false,
+  historyVersion: "v3" | "v4" = "v3",
 ): Record<string, unknown> {
+  const projection = genericCycleSimulationProjection(
+    projectionRunId,
+    terminalKinds,
+  );
+  if (includeCycleHistory) {
+    Object.assign(projection, {
+      schema_version:
+        historyVersion === "v3"
+          ? "policyos.runtime.run_generic_cycle_simulation_projection.v3"
+          : "policyos.runtime.run_generic_cycle_simulation_projection.v4",
+      n6_cycle_history_status: "resolved",
+      n6_cycle_history_limitation_code: null,
+      n6_cycle_history: [
+        {
+          cycle_index: 2,
+          design_problem_basis_ref: null,
+          design_problem_ref: "sha256:" + "d".repeat(64),
+          generation_cycle_run_terminal_status: "completed",
+          grounding_current_valid: false,
+          grounding_status: "grounded_shadow",
+          node_ref: "design-problem://" + "d".repeat(64),
+          refinement_decision: "refine",
+          search_iteration_status: "refined_shadow",
+          selected_candidate_content_hash: "sha256:" + "a".repeat(64),
+          selected_candidate_ref: "candidate://candidate-a",
+          terminal_kind: "grounded_partial_admissible",
+          value_authority_blockers: ["publication_not_admitted"],
+          value_decision_grade: "medium",
+          value_ref: "sha256:" + "b".repeat(64),
+          value_status: "value_conditional",
+          voi_next_action: "advance",
+        },
+      ],
+      ...(historyVersion === "v4"
+        ? {
+            credal_source_attempt_ref: null,
+            credal_source_limitation_code:
+              "candidate_source_authority_not_established",
+            credal_source_status: "not_established",
+            child_profile_bindings: [],
+            child_profile_set_ref: null,
+            child_profile_status: "not_established",
+            child_profile_limitation_code:
+              "generic_n4_source_generation_not_complete",
+            n5_observations: [],
+            n5_limitation_code: "generic_n4_source_generation_not_complete",
+            limitation_code: "candidate_source_authority_not_established",
+          }
+        : {}),
+    });
+  }
   const { run } = runDetailsSchema.parse({
     meta: {
       request_id: "req-generic-cycle",
@@ -462,10 +512,7 @@ function parsedRunWithGenericCycleSimulation(
       run_id: "run-1",
       source_kind: "core_run",
       status: "failed",
-      generic_cycle_simulation: genericCycleSimulationProjection(
-        projectionRunId,
-        terminalKinds,
-      ),
+      generic_cycle_simulation: projection,
     },
     temporal_scope: null,
   });
@@ -479,6 +526,30 @@ describe("OverviewTab", () => {
   });
 
   beforeEach(() => {
+    overviewState.evidenceContextMock.mockReset();
+    overviewState.evidenceContextMock.mockReturnValue({
+      data: { context: {} },
+    });
+    overviewState.governanceDebugMock.mockReset();
+    overviewState.governanceDebugMock.mockReturnValue({
+      data: {
+        debug: {
+          issues: [
+            { code: "known", message: "Known blocker", severity: "fail" },
+            {
+              code: "novel",
+              message: "Novel severity",
+              severity: "future_owner_severity",
+            },
+          ],
+        },
+      },
+    });
+    overviewState.predictiveCalibrationQueryMock.mockReset();
+    overviewState.timelineMock.mockReset();
+    overviewState.timelineMock.mockReturnValue({
+      data: { timeline: { events: [] } },
+    });
     overviewState.artifactContentMock.mockReset();
     overviewState.artifactContentMock.mockImplementation(() => ({
       data: { artifact: overviewState.decisionArtifact },
@@ -498,6 +569,23 @@ describe("OverviewTab", () => {
       mutate: vi.fn(),
     };
     overviewState.run = parsedRun();
+  });
+
+  it("routes Core-only overview reads through the resolved Core identity", () => {
+    overviewState.run = { ...parsedRun(), run_id: "core-attempt-7" };
+
+    renderWithProviders(<OverviewTab />);
+
+    expect(overviewState.governanceDebugMock).toHaveBeenCalledWith(
+      "core-attempt-7",
+    );
+    expect(overviewState.evidenceContextMock).toHaveBeenCalledWith(
+      "core-attempt-7",
+    );
+    expect(overviewState.timelineMock).toHaveBeenCalledWith("core-attempt-7");
+    expect(overviewState.predictiveCalibrationQueryMock).toHaveBeenCalledWith(
+      "core-attempt-7",
+    );
   });
 
   it("keeps the run-bound action hidden without the existing evaluation permission", () => {
@@ -565,6 +653,7 @@ describe("OverviewTab", () => {
     };
     overviewState.run = {
       run_id: "run-1",
+      source_kind: "core_run",
       root_artifacts: [model, policy, rule],
       root_input_artifacts: [
         observed,
@@ -825,6 +914,52 @@ describe("OverviewTab", () => {
       "application/json",
       `sha256:${"c".repeat(64)}`,
     ]);
+  });
+
+  it.each(["v3", "v4"] as const)(
+    "renders the parsed %s cycle history as candidate-only run detail",
+    (version) => {
+      overviewState.run = parsedRunWithGenericCycleSimulation(
+        "run-1",
+        undefined,
+        true,
+        version,
+      );
+
+      renderWithProviders(<OverviewTab />);
+
+      const panel = screen.getByTestId("overview-generic-cycle-simulation");
+      expect(panel).toHaveTextContent(
+        "Persisted candidate lineage only. Currentness and publication authority are not established.",
+      );
+      expect(
+        screen.getByTestId("overview-generic-cycle-history-status"),
+      ).toHaveTextContent("Cycle history status: resolved");
+      const rows = screen.getAllByTestId("overview-generic-cycle-history-row");
+      expect(rows).toHaveLength(1);
+      expect(rows[0]).toHaveTextContent("cycle 2");
+      expect(rows[0]).toHaveTextContent("candidate://candidate-a");
+      expect(rows[0]).toHaveTextContent("grounded_partial_admissible");
+      expect(rows[0]).toHaveTextContent("current valid: false");
+      expect(panel).not.toHaveTextContent("publication_ready");
+    },
+  );
+
+  it("withholds the current cycle history when its parsed run binding differs", () => {
+    overviewState.run = parsedRunWithGenericCycleSimulation(
+      "run-other",
+      undefined,
+      true,
+    );
+
+    renderWithProviders(<OverviewTab />);
+
+    expect(
+      screen.getByTestId("overview-generic-cycle-simulation-refused"),
+    ).toHaveTextContent("run_id_mismatch");
+    expect(
+      screen.queryByTestId("overview-generic-cycle-history"),
+    ).not.toBeInTheDocument();
   });
 
   it("renders parsed generic cycle children and the retained failed sibling as candidate-only history", () => {

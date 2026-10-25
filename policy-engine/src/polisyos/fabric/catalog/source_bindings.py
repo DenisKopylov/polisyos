@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import threading
 from fnmatch import fnmatchcase
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -17,6 +16,7 @@ logger = get_logger(__name__)
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from pathlib import Path
 
 
 class SourceBinding(BaseModel):

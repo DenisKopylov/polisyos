@@ -14,7 +14,7 @@ from contextvars import ContextVar
 from dataclasses import dataclass, field, replace
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 from urllib.parse import urlparse
 
 from polisyos.common.logger import get_logger
@@ -61,6 +61,7 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 _EXECUTABLE_CATALOG_TIERS = frozenset({"fetchable", "transport_ready"})
+_CatalogCandidateT = TypeVar("_CatalogCandidateT", MetricCandidate, DiscoveryCandidate)
 
 
 @dataclass(frozen=True)
@@ -729,11 +730,11 @@ class RetrievalService:
     def _filter_known_incompatible_catalog_outputs(
         self,
         plans: list[FetchPlan],
-        candidates: list[MetricCandidate | DiscoveryCandidate],
+        candidates: Sequence[_CatalogCandidateT],
         data_needs: list[DataNeed],
         *,
         run_profile: CatalogRunProfile | None = None,
-    ) -> tuple[list[FetchPlan], list[MetricCandidate | DiscoveryCandidate], list[str]]:
+    ) -> tuple[list[FetchPlan], list[_CatalogCandidateT], list[str]]:
         """Filter known-incompatible outputs at the selected resolve boundary.
 
         The same target predicate covers executable plans, public candidates,
@@ -924,7 +925,7 @@ class RetrievalService:
                         run_profile=run_profile,
                     )
                 )
-                fast_candidates = cast("list[MetricCandidate]", scoped_fast_candidates)
+                fast_candidates = scoped_fast_candidates
                 candidates.extend(fast_candidates)
                 fetch_plans.extend(fast_plans)
                 warnings.extend(scope_warnings)
@@ -966,7 +967,7 @@ class RetrievalService:
                 warnings.extend(catalog_scope_warnings)
                 warnings.extend(scope_warnings)
                 fetch_plans.extend(scoped_catalog_plans)
-                candidates.extend(cast("list[MetricCandidate]", scoped_catalog_candidates))
+                candidates.extend(scoped_catalog_candidates)
                 resolved_metrics = {plan.metric_id for plan in fetch_plans}
                 unresolved = [need for need in unresolved if need.metric not in resolved_metrics]
                 phase_metrics.append(
@@ -1007,9 +1008,7 @@ class RetrievalService:
                         )
                     )
                     warnings.extend(scope_warnings)
-                    explore_candidates = cast(
-                        "list[DiscoveryCandidate]", scoped_discovery_candidates
-                    )
+                    explore_candidates = scoped_discovery_candidates
                     explore_plans = self._build_plans_from_discovery(
                         candidates=explore_candidates,
                         existing_metric_ids={plan.metric_id for plan in fetch_plans},
@@ -1177,12 +1176,8 @@ class RetrievalService:
                     plan,
                     persist_payload=persist_payload,
                     allow_fallback=allow_fallback,
-                    **({"dataset_catalog": self._dataset_catalog} if persist_payload else {}),
-                    **(
-                        {"execution_binding": execution_binding}
-                        if execution_binding is not None
-                        else {}
-                    ),
+                    dataset_catalog=self._dataset_catalog if persist_payload else None,
+                    execution_binding=execution_binding,
                 )
                 previews.append(outcome)
                 if outcome.fallback_used:
@@ -1226,8 +1221,8 @@ class RetrievalService:
         self,
         plans: Sequence[FetchPlan],
         *,
-        preflight: Callable[[FetchCapturePreflightView], None],
-        postflight: Callable[[FetchCapturePostflightView], None],
+        preflight: Callable[[FetchCapturePreflightView], object],
+        postflight: Callable[[FetchCapturePostflightView], object],
     ) -> ExecuteOutcome:
         """Execute one persisted fetch under owner-managed source and registry binding.
 

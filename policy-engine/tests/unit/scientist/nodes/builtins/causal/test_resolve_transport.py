@@ -9,15 +9,28 @@ from unittest.mock import patch
 import pytest
 
 import polisyos.scientist.nodes.builtins.causal as causal_nodes
-from polisyos.ir.analytics.causal import CausalEffectReport, CausalMethod
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.ir.analytics.causal import (
+    CausalEffectReport,
+    CausalMethod,
+    load_causal_effect_report,
+    persist_causal_effect_report,
+)
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.context import ContextProfile
-from polisyos.ir.analytics.transportability import TransportabilityStatus, TransportMode
+from polisyos.ir.analytics.transportability import (
+    TransportabilityStatus,
+    TransportMode,
+    load_transportability_result,
+)
+from polisyos.ir.registry.refs import CausalEffectReportRef, TransportabilityResultRef
 from polisyos.scientist.nodes.builtins.causal.resolve_transport import (
     ResolutionState,
     RunTransportabilityNode,
     TransportabilityResolutionLoop,
     _build_skg_query,
+    _persist_blocking_transportability_result,
     _resolve_context_profile,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -82,6 +95,29 @@ def test_transport_public_api_keeps_its_canonical_module_identity():
         "allow_degraded_transport",
         "capability_contract",
         "privacy_context",
+        "candidate_refusal_handler",
+    )
+
+
+def test_causal_full_transport_timeout_uses_owner_profile_ceiling() -> None:
+    from polisyos.scientist.nodes.builtins.causal.transport_resolution_inputs import (
+        conditional_transport_node_timeout_s,
+    )
+    from polisyos.scientist.orchestration.workflows.causal_full import (
+        causal_full_workflow_spec,
+    )
+
+    workflow = causal_full_workflow_spec()
+    transport_node = next(node for node in workflow.nodes if node.alias == "run_transportability")
+
+    from polisyos.scientist.orchestration.workflows.causal_full import (
+        CAUSAL_FULL_TRANSPORT_RESOURCE_POLICY_PARAM,
+        causal_full_transport_resource_policy_snapshot,
+    )
+
+    assert transport_node.timeout_s == conditional_transport_node_timeout_s()
+    assert transport_node.params[CAUSAL_FULL_TRANSPORT_RESOURCE_POLICY_PARAM] == (
+        causal_full_transport_resource_policy_snapshot()
     )
 
 
@@ -91,6 +127,84 @@ def test_skip_when_no_causal_report(execution_context, minimal_state):
     outcome = RunTransportabilityNode().execute(execution_context, state)
     assert outcome.status == "skip"
     assert any("causal report" in e.message.lower() for e in outcome.events)
+
+
+def test_absent_candidate_request_skips_but_explicit_null_is_invalid(
+    execution_context,
+    minimal_state,
+):
+    state = minimal_state.model_copy(update={"params": {}})
+    absent = RunTransportabilityNode().execute(execution_context, state)
+    assert absent.status == "skip"
+
+    explicit_null = state.model_copy(deep=True)
+    explicit_null.params["conditional_transport_request"] = None
+    refused = RunTransportabilityNode().execute(execution_context, explicit_null)
+    assert refused.status == "fail"
+    assert refused.error is not None
+    assert "must be an object when supplied" in refused.error.message
+
+
+@pytest.mark.parametrize(
+    ("missing_input", "required_input"),
+    [
+        ("causal_report", "causal_report"),
+        ("contexts", "source_context_and_target_context"),
+        ("graph", "selected_causal_graph"),
+    ],
+)
+def test_explicit_candidate_request_fails_closed_on_missing_prerequisite(
+    missing_input,
+    required_input,
+    execution_context,
+    minimal_state,
+    artifact_ref_factory,
+):
+    state = minimal_state.model_copy(deep=True)
+    state.params["conditional_transport_request"] = {
+        "schema_version": "1.0",
+        "profile_id": "transport.conditional.resolved_graph",
+        "profile_revision": "1",
+        "selection_identity": "transport-candidate.standard.v1",
+    }
+    state.params["existing_partial_state"] = {"keep": "unchanged"}
+    if missing_input != "causal_report":
+        state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF] = artifact_ref_factory(
+            kind="ir.causal_effect_report"
+        )
+    if missing_input == "graph":
+        state.params["source_context"] = {"context_id": "source"}
+        state.params["target_context"] = {"context_id": "target"}
+    original = state.model_dump(mode="python", by_alias=True, exclude_none=False)
+
+    load_patch = patch(
+        "polisyos.scientist.nodes.builtins.causal.resolve_transport.load_causal_effect_report",
+        return_value=_causal_report(),
+    )
+    graph_patch = patch(
+        "polisyos.scientist.nodes.builtins.causal.resolve_transport._resolve_causal_graph_source",
+        return_value=None,
+    )
+    if missing_input == "contexts":
+        with load_patch:
+            outcome = RunTransportabilityNode().execute(execution_context, state)
+    elif missing_input == "graph":
+        with load_patch, graph_patch:
+            outcome = RunTransportabilityNode().execute(execution_context, state)
+    else:
+        outcome = RunTransportabilityNode().execute(execution_context, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    from polisyos.scientist.nodes.builtins import errors as node_errors
+
+    assert outcome.error.code == node_errors.ERROR_MISSING_INPUT
+    assert outcome.error.details == {
+        "request_key": "conditional_transport_request",
+        "required_input": required_input,
+    }
+    assert outcome.state is state
+    assert state.model_dump(mode="python", by_alias=True, exclude_none=False) == original
 
 
 def test_skip_when_missing_source_or_target_context(
@@ -259,3 +373,72 @@ def test_actual_resolution_loop_refuses_unverified_legal_basis_before_solver() -
         "code": "legal_source_relation_verification_not_established",
         "status": "verification_missing",
     }
+
+
+def test_blocking_writer_fresh_cas_binds_selected_result_profile_to_report(
+    execution_context,
+    minimal_state,
+):
+    """The 2.2 result and 1.1 report retain the exact selected CAS lineage."""
+    ir_store = _ensure_ir_artifact_store(execution_context.store)
+    source_report = _causal_report().model_copy(update={"schema_version": "1.1"})
+    source_report_ref = persist_causal_effect_report(
+        ir_store,
+        source_report,
+        schema_version="1.1",
+        return_selected_profile=True,
+    )
+    assert source_report_ref.manifest_profile_sha256 is not None
+
+    outcome = _persist_blocking_transportability_result(
+        ctx=execution_context,
+        state=minimal_state,
+        reason="candidate_input_missing",
+        message="Required transport input is unavailable.",
+        causal_report=source_report,
+        report_ref=source_report_ref,
+    )
+
+    result_ref = TransportabilityResultRef.model_validate(
+        next(
+            ref for ref in outcome.artifacts if ref.kind == "ir.transportability_result"
+        ).model_dump(mode="json")
+    )
+    report_ref = CausalEffectReportRef.model_validate(
+        next(
+            ref
+            for ref in outcome.artifacts
+            if ref.kind == "ir.causal_effect_report"
+            and ref.artifact_id != source_report_ref.artifact_id
+        ).model_dump(mode="json")
+    )
+    assert result_ref.manifest_profile_sha256 is not None
+    assert report_ref.manifest_profile_sha256 is not None
+
+    fresh_store = _ensure_ir_artifact_store(FileSystemCAS(execution_context.store.root))
+    fresh_result_ref = TransportabilityResultRef.model_validate(result_ref.model_dump(mode="json"))
+    fresh_report_ref = CausalEffectReportRef.model_validate(report_ref.model_dump(mode="json"))
+    fresh_result = load_transportability_result(fresh_store, fresh_result_ref)
+    fresh_report = load_causal_effect_report(fresh_store, fresh_report_ref)
+
+    assert fresh_result.schema_version == "2.2"
+    assert fresh_result.status is TransportabilityStatus.UNSUPPORTED
+    assert fresh_result.transport_mode is TransportMode.NONE
+    assert fresh_report.schema_version == "1.1"
+    assert fresh_report.transport_result == fresh_result
+
+    result_manifest = fresh_store.get_manifest(fresh_result_ref)
+    report_manifest = fresh_store.get_manifest(fresh_report_ref)
+    source_edge = next(edge for edge in result_manifest.inputs if edge.role == "causal_report")
+    assert str(source_edge.artifact_id) == str(source_report_ref.artifact_id)
+    assert source_edge.manifest_profile_sha256 == source_report_ref.manifest_profile_sha256
+    result_edge = next(
+        edge for edge in report_manifest.inputs if edge.role == "transportability_result"
+    )
+    assert str(result_edge.artifact_id) == str(fresh_result_ref.artifact_id)
+    assert result_edge.manifest_profile_sha256 == fresh_result_ref.manifest_profile_sha256
+    previous_report_edge = next(
+        edge for edge in report_manifest.inputs if edge.role == "causal_report_prev"
+    )
+    assert str(previous_report_edge.artifact_id) == str(source_report_ref.artifact_id)
+    assert previous_report_edge.manifest_profile_sha256 == source_report_ref.manifest_profile_sha256

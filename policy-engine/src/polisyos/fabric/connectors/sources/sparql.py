@@ -17,9 +17,8 @@ from __future__ import annotations
 import json as _json
 import re
 import time
-from collections.abc import AsyncIterator
 from datetime import UTC, datetime
-from typing import Any, ClassVar, TypeGuard
+from typing import TYPE_CHECKING, Any, ClassVar, TypeGuard
 
 import aiohttp
 import pandas as pd
@@ -59,6 +58,9 @@ from polisyos.ir.connectors import (
     TrustLevel,
     capabilities_from_flags,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
 
 _MAX_LIMIT = 100000
 _DEFAULT_TIMEOUT_HINT = 30  # seconds

@@ -10,15 +10,24 @@ from __future__ import annotations
 
 import json
 import math
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal, TypeGuard
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactRef, CoreJSONArtifactBoundedMemberReader
     from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorDispatchContext
     from polisyos.core.contracts.runtime import DirectMethodExecutionHTESummary
-    from polisyos.ir.analytics.hte import HTEFinalizedArtifactRefs
+    from polisyos.foundry.data_plane.bindings import HTEPhysicalSourceMaterializationBinding
+    from polisyos.foundry.methods.catalog.causal.hte_v2 import (
+        HTEWriterReadyIntervalV1,
+        HTEWriterReadyPointV1,
+        HTEWriterReadyRefusalV1,
+        HTEWriterReadyV1,
+    )
+    from polisyos.ir.analytics.hte import ATEInferenceBasis, HTEFinalizedArtifactRefs
+    from polisyos.ir.artifacts import ArtifactStore as IRArtifactStore
+    from polisyos.ir.registry.refs import HTEPointResultRef, HTEResultEvidenceRef
 
 
 _BOOTSTRAP_LIMITS = (1_048_576, 64, 100_000, 65_536)
@@ -29,6 +38,13 @@ _METHOD_EVIDENCE_SCHEMA = "polisyos.scientist.MethodExecutionEvidence"
 _ANCHOR_SCHEMA = "polisyos.runtime.OwnedAttemptAnchor"
 _RESOURCE_POLICY_SCHEMA = "polisyos.runtime.ObservationalInputResourcePolicy"
 _SOURCE_VARIABLE_IDENTITY_LIMITATION = "source_variable_identity_not_established"
+
+type _NativeResultDisposition = Literal[
+    "legacy_hte_result_admitted", "legacy_hte_result_unrepresentable"
+]
+type _NativeResultDispositionReason = (
+    Literal["point_not_contained_in_legacy_interval", "native_bounds_unordered"] | None
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -50,8 +66,79 @@ def _canonical_json(value: Any) -> str:
 
 
 def _core_ref(ref: Any, artifact_ref_type: type[Any]) -> Any:
-    """Reconstruct one exact Core ref without discarding its selected view."""
-    return artifact_ref_type.model_validate(ref.model_dump(mode="json"), strict=True)
+    """Project one owner ref into the exact Core model without losing identity."""
+    return _project_model(ref, artifact_ref_type)
+
+
+def _ir_ref(ref: Any, artifact_ref_type: type[Any]) -> Any:
+    """Project one Core ref into the exact IR model without losing identity."""
+    return _project_model(ref, artifact_ref_type)
+
+
+def _project_model(value: Any, model_type: type[Any]) -> Any:
+    """Revalidate a typed boundary value through its lossless JSON projection.
+
+    Core, Foundry, and IR intentionally own separate ref classes. Strict
+    Pydantic validation does not accept a different owner's model instance,
+    even when all serialized fields match. The JSON projection is the existing
+    persisted ABI between those owners; revalidation preserves the full
+    artifact ID, kind, media type, and selected manifest profile.
+    """
+    model_dump = getattr(value, "model_dump", None)
+    payload = model_dump(mode="json") if callable(model_dump) else value
+    projected = model_type.model_validate(payload, strict=True)
+    if callable(model_dump) and projected.model_dump(mode="json") != payload:
+        raise ValueError("hte_bridge_cross_owner_projection_changed_identity")
+    return projected
+
+
+def _is_writer_ready_json_object(value: object) -> TypeGuard[dict[str, object]]:
+    """Narrow a JSON boundary value to an object with exact string keys.
+
+    Nested values remain subject to the HTE writer-ready owner validator,
+    which rejects values that are not lossless JSON.
+    """
+    return type(value) is dict and all(type(key) is str for key in value)
+
+
+def _validate_native_writer_identity(
+    writer: HTEWriterReadyV1,
+    *,
+    method_fqn: str,
+    method_abi: str,
+    method_abi_digest: str,
+    method_profile_id: str,
+) -> None:
+    """Bind a native result to the complete Runtime-owned method identity.
+
+    The producer writer-ready validator admits native captures with a well-formed
+    ABI digest, but does not bind that digest to the pre-output Runtime anchor.
+    This gate checks the whole identity tuple before this bridge persists any
+    finalized HTE artifact; a basis must never inherit an owner digest that the native result
+    did not itself carry.
+    """
+    from polisyos.foundry.methods.catalog.causal.hte_v2 import (
+        HTEWriterReadyIntervalV1,
+        HTEWriterReadyPointV1,
+    )
+
+    if isinstance(writer, HTEWriterReadyIntervalV1):
+        native = writer.native_capture
+    elif isinstance(writer, HTEWriterReadyPointV1):
+        native = writer.native_diagnostic
+    else:
+        return
+    if native is None:
+        return
+    owner_identity = (method_fqn, method_abi, method_abi_digest, method_profile_id)
+    native_identity = (
+        native.method_fqn,
+        native.method_abi,
+        native.method_abi_digest,
+        native.method_profile_id,
+    )
+    if native_identity != owner_identity:
+        raise ValueError("hte_bridge_native_method_identity_mismatch")
 
 
 def _read_bounded(
@@ -139,6 +226,80 @@ def _input_refs(refs: tuple[tuple[Any, str], ...], artifact_ref_type: type[Any])
     ]
 
 
+def _owner_binding_inputs(
+    *,
+    materialization_binding_ref: object | None,
+    search_uncertainty_task_binding_ref: object | None,
+) -> tuple[tuple[object, str], ...]:
+    """Return physical and Search owner edges in the reader's canonical order."""
+    physical_inputs = (
+        ()
+        if materialization_binding_ref is None
+        else ((materialization_binding_ref, "physical_source_materialization_binding"),)
+    )
+    search_inputs = (
+        ()
+        if search_uncertainty_task_binding_ref is None
+        else ((search_uncertainty_task_binding_ref, "search_uncertainty_task_binding"),)
+    )
+    return (*physical_inputs, *search_inputs)
+
+
+def _numeric_outcome_inputs(
+    *,
+    result_ref: object,
+    result_role: Literal["point_result", "hte_result"],
+    inference_basis_ref: object | None,
+    base_inputs: tuple[tuple[object, str], ...],
+) -> tuple[tuple[object, str], ...]:
+    """Place an optional inference basis after the result and before its bases."""
+    result_inputs = ((result_ref, result_role),)
+    basis_inputs = (
+        () if inference_basis_ref is None else ((inference_basis_ref, "inference_basis"),)
+    )
+    return (*result_inputs, *basis_inputs, *base_inputs)
+
+
+def _refusal_diagnostic_inputs(
+    *,
+    anchor_ref: object,
+    method_result_ref: object,
+    method_evidence_ref: object,
+    resource_policy_ref: object,
+    owner_binding_inputs: tuple[tuple[object, str], ...],
+) -> tuple[tuple[object, str], ...]:
+    """Build the ordered owner lineage for a refusal diagnostic."""
+    return (
+        (anchor_ref, "owned_attempt_anchor"),
+        (method_result_ref, "method_result"),
+        (method_evidence_ref, "method_evidence"),
+        (resource_policy_ref, "resource_policy"),
+        *owner_binding_inputs,
+    )
+
+
+def _refusal_outcome_inputs(
+    *,
+    refusal_diagnostic_ref: object,
+    anchor_ref: object,
+    method_result_ref: object,
+    method_evidence_ref: object,
+    resource_policy_ref: object,
+    source_data_ref: object,
+    owner_binding_inputs: tuple[tuple[object, str], ...],
+) -> tuple[tuple[object, str], ...]:
+    """Build the ordered owner lineage for a refusal outcome."""
+    return (
+        (refusal_diagnostic_ref, "refusal_diagnostic"),
+        (anchor_ref, "owned_attempt_anchor"),
+        (method_result_ref, "method_result"),
+        (method_evidence_ref, "method_evidence"),
+        (resource_policy_ref, "resource_policy"),
+        (source_data_ref, "source_data"),
+        *owner_binding_inputs,
+    )
+
+
 def _source_ref_matches(left: Any, right: Any) -> bool:
     return _canonical_json(left.model_dump(mode="json")) == _canonical_json(
         right.model_dump(mode="json")
@@ -184,7 +345,7 @@ def _validate_writer_capture(writer_ready: Any, context: Any, anchor: Any) -> No
     actual_capture = capture.model_dump(mode="json", exclude_none=False)
     if (
         capture.source_data_ref_status != "capture_matched"
-        or capture.owned_attempt_anchor_ref != context.anchor_ref
+        or not _source_ref_matches(capture.owned_attempt_anchor_ref, context.anchor_ref)
         or capture.method_abi_digest != context.method_abi_digest
         or actual_capture != expected_capture
         or not _source_ref_matches(capture.source_data_ref, core_capture.source_data_ref)
@@ -193,8 +354,7 @@ def _validate_writer_capture(writer_ready: Any, context: Any, anchor: Any) -> No
         raise ValueError("hte_bridge_writer_capture_owner_mismatch")
 
 
-def _policy_payload(anchor: Any, policy: Any) -> dict[str, Any]:
-    policy_ref = anchor.resource_policy_ref
+def _policy_payload(anchor: Any, policy: Any, policy_ref: Any) -> dict[str, Any]:
     expected_profiles = {
         "causal.hte.causal_forest@2.0.0": (
             "econml.causal_forest_dml.native_mean@2.0",
@@ -251,11 +411,60 @@ def _policy_payload(anchor: Any, policy: Any) -> dict[str, Any]:
     }
 
 
-def _resource_evidence(anchor: Any, policy: Any, receipt: Any, ir_model: type[Any]) -> Any:
-    owner = _policy_payload(anchor, policy)
+def _expected_refusal_limitations(
+    writer: HTEWriterReadyRefusalV1,
+    physical_binding: HTEPhysicalSourceMaterializationBinding,
+) -> tuple[str, ...]:
+    """Derive refusal limitations from the typed writer and verified binding facts.
+
+    Callers pass only the selected binding after the Foundry owner has resolved
+    its bytes, identity, and expected input refs. The physical binding expressly
+    leaves semantic variable alignment unestablished; a refusal publishes no
+    effect estimate. Preserve method limitations and append those two facts in
+    one canonical order for both producer and consumer.
+    """
+    from polisyos.foundry.data_plane.bindings import HTEPhysicalSourceMaterializationBinding
+    from polisyos.foundry.methods.catalog.causal.hte_v2 import HTEWriterReadyRefusalV1
+
+    if type(writer) is not HTEWriterReadyRefusalV1:
+        raise TypeError("hte_refusal_limitations_require_typed_refusal_writer")
+    if type(physical_binding) is not HTEPhysicalSourceMaterializationBinding:
+        raise TypeError("hte_refusal_limitations_require_verified_physical_binding")
+    if (
+        physical_binding.binding_scope != "physical_materialization_only"
+        or physical_binding.semantic_alignment_status != "not_established"
+    ):
+        raise ValueError("hte_refusal_limitation_binding_semantics_invalid")
+    return tuple(
+        dict.fromkeys(
+            (
+                *writer.limitations,
+                "no_effect_estimate_published",
+                _SOURCE_VARIABLE_IDENTITY_LIMITATION,
+            )
+        )
+    )
+
+
+def _resource_evidence(
+    anchor: Any,
+    policy: Any,
+    receipt: Any,
+    ir_model: type[Any],
+    *,
+    policy_ref: Any,
+    method_profile_id: str,
+) -> Any:
+    from polisyos.ir.registry.refs import HTEResourcePolicyRef
+
+    owner = _policy_payload(anchor, policy, policy_ref)
+    owner["owner_policy_ref"] = _ir_ref(policy_ref, HTEResourcePolicyRef)
     fields = receipt.model_dump(mode="json", exclude_none=False)
     fields.pop("schema_version", None)
     fields.pop("scope", None)
+    if receipt.method_profile_id != method_profile_id:
+        raise ValueError("hte_bridge_resource_receipt_profile_mismatch")
+    fields.pop("method_profile_id", None)
     if receipt.scope != "producer_scoped_joblib_parallelism_one":
         raise ValueError("hte_bridge_joblib_scope_receipt_mismatch")
     joblib_observed = receipt.joblib_started
@@ -318,22 +527,51 @@ def _resource_evidence(anchor: Any, policy: Any, receipt: Any, ir_model: type[An
 def _target_relation(
     capture: Any,
     *,
+    request_context: Any | None = None,
+    validated_writer_capture: Any | None = None,
     computed_guarantee: str | None,
     profile_status: str,
     interval_alpha: float | None,
     refusal: bool = False,
     ir_model: type[Any],
 ) -> Any:
-    request = capture
+    request = request_context if request_context is not None else capture
     request_scope_status = request.request_target_scope_status
     request_scope = request.request_target_scope
     request_guarantee_status = request.requested_guarantee_status
     request_guarantee = request.requested_guarantee
-    resolved = request.resolved_params
+    # The request context contains only owner-frozen selectors. Scientific
+    # parameters belong to the admitted input capture and are reconciled
+    # separately against the persisted anchor.
+    resolved = capture.resolved_params
+    resolved_control = resolved.get("control_value")
+    resolved_treated = resolved.get("treated_value")
+    method_contrast_matches = (resolved_control is None and resolved_treated is None) or (
+        resolved_control is not None
+        and resolved_treated is not None
+        and not isinstance(resolved_control, bool)
+        and not isinstance(resolved_treated, bool)
+        and isinstance(resolved_control, (int, float))
+        and isinstance(resolved_treated, (int, float))
+        and math.isfinite(float(resolved_control))
+        and math.isfinite(float(resolved_treated))
+        and math.isclose(
+            float(resolved_control), float(request.control_value), rel_tol=0.0, abs_tol=1.0e-12
+        )
+        and math.isclose(
+            float(resolved_treated), float(request.treated_value), rel_tol=0.0, abs_tol=1.0e-12
+        )
+    )
+    # This capture has already passed _validate_writer_capture against the
+    # immutable Core input capture and request context. Its numeric values are
+    # the producer-use witness; method parameters may intentionally be null.
     contrast_recomputed = (
         request.contrast_status == "declared"
-        and resolved.get("control_value") == request.control_value
-        and resolved.get("treated_value") == request.treated_value
+        and validated_writer_capture is not None
+        and validated_writer_capture.contrast_status == "declared"
+        and validated_writer_capture.control_value == request.control_value
+        and validated_writer_capture.treated_value == request.treated_value
+        and method_contrast_matches
     )
     # The selected HTE input contract carries numeric Y/T arrays but no typed
     # binding from requested variable IDs to those arrays. Matching a request
@@ -434,6 +672,11 @@ def _target_relation(
 
 
 def _request_fields(capture: Any) -> dict[str, Any]:
+    from polisyos.ir.registry.refs import (
+        HTEPhysicalSourceMaterializationBindingRef,
+        SearchUncertaintyTaskBindingRef,
+    )
+
     return {
         "request_estimand_status": capture.request_estimand_status,
         "request_estimand": capture.request_estimand,
@@ -447,8 +690,18 @@ def _request_fields(capture: Any) -> dict[str, Any]:
         "requested_alpha": capture.requested_alpha,
         "requested_guarantee_status": capture.requested_guarantee_status,
         "requested_guarantee": capture.requested_guarantee,
-        "search_uncertainty_task_binding_ref": capture.search_uncertainty_task_binding_ref,
-        "materialization_binding_ref": capture.materialization_binding_ref,
+        "search_uncertainty_task_binding_ref": (
+            None
+            if capture.search_uncertainty_task_binding_ref is None
+            else _ir_ref(
+                capture.search_uncertainty_task_binding_ref,
+                SearchUncertaintyTaskBindingRef,
+            )
+        ),
+        "materialization_binding_ref": _ir_ref(
+            capture.materialization_binding_ref,
+            HTEPhysicalSourceMaterializationBindingRef,
+        ),
         "contrast_status": "established"
         if capture.contrast_status == "declared"
         else "not_established",
@@ -457,19 +710,20 @@ def _request_fields(capture: Any) -> dict[str, Any]:
     }
 
 
-def _persist_and_check(
+def _persist_and_check[RefT](
     *,
-    store: Any,
+    store: CoreJSONArtifactBoundedMemberReader,
+    ir_store: IRArtifactStore,
     model: Any,
-    persist: Any,
+    persist: Callable[..., RefT],
     inputs: tuple[tuple[Any, str], ...],
     artifact_ref_type: type[Any],
     limits: Any,
     schema_name: str,
     schema_version: str,
     validator: Any,
-) -> Any:
-    ref = persist(store, model, inputs=_input_refs(inputs, artifact_ref_type))
+) -> RefT:
+    ref = persist(ir_store, model, inputs=_input_refs(inputs, artifact_ref_type))
     core_ref = _core_ref(ref, artifact_ref_type)
     _, manifest, bounded = _read_bounded(
         store,
@@ -480,11 +734,19 @@ def _persist_and_check(
         schema_version=schema_version,
     )
     _assert_manifest_inputs(manifest, inputs, artifact_ref_type)
+    # Core's bounded raw bytes are canonical-profile bytes, whose numeric tags
+    # are not the JSON representation consumed by IR model validators. The
+    # bounded value has already been decoded and profile-verified from those
+    # exact bytes; round-trip that semantic JSON value through the strict JSON
+    # validator, matching IR's public artifact loaders.
+    bounded_json = _canonical_json(bounded.value).encode("utf-8")
     if hasattr(validator, "validate_json"):
-        loaded = validator.validate_json(bounded.raw_payload_bytes, strict=True)
+        loaded = validator.validate_json(bounded_json, strict=True)
     else:
-        loaded = validator.model_validate_json(bounded.raw_payload_bytes, strict=True)
-    if loaded != model:
+        loaded = validator.model_validate_json(bounded_json, strict=True)
+    if _canonical_json(loaded.model_dump(mode="json")) != _canonical_json(
+        model.model_dump(mode="json")
+    ):
         raise ValueError("hte_bridge_persisted_model_readback_mismatch")
     return ref
 
@@ -499,10 +761,18 @@ def _bounded_summary(
     relation_model: type[Any],
     resource_model: type[Any],
 ) -> Any:
-    request = outcome
-    relation = relation_model.model_validate(
-        outcome.target_relation.model_dump(mode="json"), strict=True
+    from polisyos.core.artifacts import ArtifactRef as CoreArtifactRef
+    from polisyos.core.contracts.owned_attempt_anchor import (
+        OwnedAttemptAnchorRef as CoreOwnedAttemptAnchorRef,
     )
+
+    request = outcome
+    relation_payload = outcome.target_relation.model_dump(mode="json")
+    # The IR relation is versioned as its own persisted contract; the Core
+    # bounded summary embeds the same relation fields under the enclosing
+    # summary schema and intentionally has no nested schema_version field.
+    relation_payload.pop("schema_version")
+    relation = relation_model.model_validate(relation_payload, strict=True)
     resource_payload = resource.model_dump(mode="json", exclude_none=False)
     resource_payload.pop("schema_version", None)
     resource_copy = resource_model.model_validate(resource_payload, strict=True)
@@ -525,7 +795,11 @@ def _bounded_summary(
         "requested_alpha": request.requested_alpha,
         "requested_guarantee_status": request.requested_guarantee_status,
         "requested_guarantee": request.requested_guarantee,
-        "search_uncertainty_task_binding_ref": request.search_uncertainty_task_binding_ref,
+        "search_uncertainty_task_binding_ref": (
+            None
+            if request.search_uncertainty_task_binding_ref is None
+            else _core_ref(request.search_uncertainty_task_binding_ref, CoreArtifactRef)
+        ),
     }
     if is_refusal:
         selected = {
@@ -581,16 +855,38 @@ def _bounded_summary(
             "method_abi_digest": outcome.method_abi_digest,
             "method_profile_id": outcome.method_profile_id,
             "resolved_params_sha256": outcome.resolved_params_sha256,
-            "owned_attempt_anchor_ref": refs.owned_attempt_anchor_ref,
-            "materialization_binding_ref": refs.materialization_binding_ref,
-            "hte_outcome_ref": refs.hte_outcome_ref,
-            "point_result_ref": refs.point_result_ref,
-            "hte_result_ref": refs.hte_result_ref,
-            "inference_basis_ref": refs.inference_basis_ref,
-            "refusal_diagnostic_ref": refs.refusal_diagnostic_ref,
-            "method_result_ref": outcome.method_result_ref,
-            "method_evidence_ref": outcome.method_evidence_ref,
-            "source_data_ref": source_data_ref,
+            "owned_attempt_anchor_ref": _core_ref(
+                refs.owned_attempt_anchor_ref, CoreOwnedAttemptAnchorRef
+            ),
+            "materialization_binding_ref": (
+                None
+                if refs.materialization_binding_ref is None
+                else _core_ref(refs.materialization_binding_ref, CoreArtifactRef)
+            ),
+            "hte_outcome_ref": _core_ref(refs.hte_outcome_ref, CoreArtifactRef),
+            "point_result_ref": (
+                None
+                if refs.point_result_ref is None
+                else _core_ref(refs.point_result_ref, CoreArtifactRef)
+            ),
+            "hte_result_ref": (
+                None
+                if refs.hte_result_ref is None
+                else _core_ref(refs.hte_result_ref, CoreArtifactRef)
+            ),
+            "inference_basis_ref": (
+                None
+                if refs.inference_basis_ref is None
+                else _core_ref(refs.inference_basis_ref, CoreArtifactRef)
+            ),
+            "refusal_diagnostic_ref": (
+                None
+                if refs.refusal_diagnostic_ref is None
+                else _core_ref(refs.refusal_diagnostic_ref, CoreArtifactRef)
+            ),
+            "method_result_ref": _core_ref(outcome.method_result_ref, CoreArtifactRef),
+            "method_evidence_ref": _core_ref(outcome.method_evidence_ref, CoreArtifactRef),
+            "source_data_ref": _core_ref(source_data_ref, CoreArtifactRef),
             **selected,
             "measure_unit_status": "not_established",
             "measure_unit": None,
@@ -627,11 +923,17 @@ def persist_runtime_hte_outcome(
         ValueError: If the input refs, selected profiles, owner capture, resource
             policy, or actual MethodResult output fail reconciliation.
     """
+    from typing import Protocol, runtime_checkable
+
     from polisyos.core.artifacts import (
         ArtifactRef as CoreArtifactRef,
     )
     from polisyos.core.artifacts import (
+        CoreJSONArtifactBoundedMemberReader,
+        CoreJSONArtifactStore,
         CoreJsonReadLimits,
+        ensure_ir_artifact_store,
+        matches_artifact_store_protocol,
         read_core_json_artifact_bounded,
         validate_core_model_bounded_read,
     )
@@ -639,6 +941,18 @@ def persist_runtime_hte_outcome(
         OwnedAttemptAnchor,
         OwnedAttemptAnchorDispatchContext,
     )
+
+    @runtime_checkable
+    class _HTEBridgeCoreArtifactStore(
+        CoreJSONArtifactStore,
+        CoreJSONArtifactBoundedMemberReader,
+        Protocol,
+    ):
+        """Core owner with bounded selected reads and profile-aware writes."""
+
+    if not matches_artifact_store_protocol(store, _HTEBridgeCoreArtifactStore):
+        raise TypeError("hte_bridge_requires_core_json_bounded_write_store")
+    ir_store = ensure_ir_artifact_store(store)
     from polisyos.core.contracts.runtime import (
         DirectMethodExecutionHTEResourceEvidence,
         DirectMethodExecutionHTESummary,
@@ -646,6 +960,8 @@ def persist_runtime_hte_outcome(
         ObservationalInputResourcePolicy,
     )
     from polisyos.foundry.methods.catalog.causal.hte_v2 import (
+        HTEWriterReadyIntervalV1,
+        HTEWriterReadyPointV1,
         HTEWriterReadyRefusalV1,
         validate_hte_writer_ready_json,
     )
@@ -674,6 +990,7 @@ def persist_runtime_hte_outcome(
         MethodExecutionEvidenceRef,
         MethodResultEvidenceRef,
         OwnedAttemptAnchorRef,
+        SearchUncertaintyTaskBindingRef,
         persist_ate_inference_basis,
         persist_hte_outcome,
         persist_hte_point_result,
@@ -690,6 +1007,32 @@ def persist_runtime_hte_outcome(
         store, anchor_ref_core, limits=bootstrap_limits
     )
     anchor = validate_core_model_bounded_read(OwnedAttemptAnchor, anchor_bounded)
+    method_profile_id = anchor.resource_policy_method_profile_id
+    if method_profile_id is None:
+        raise ValueError("hte_bridge_resource_policy_profile_missing")
+    anchor_refs = {
+        "requested_source_ref": _core_ref(anchor.requested_source_ref, CoreArtifactRef),
+        "observational_run_intent_ref": _core_ref(
+            anchor.observational_run_intent_ref, CoreArtifactRef
+        ),
+        "content_admitted_intent_ref": _core_ref(
+            anchor.content_admitted_intent_ref, CoreArtifactRef
+        ),
+        "submitted_input_ref": _core_ref(anchor.submitted_input_ref, CoreArtifactRef),
+        "effective_input_ref": _core_ref(anchor.effective_input_ref, CoreArtifactRef),
+        "resource_policy_ref": _core_ref(anchor.resource_policy_ref, CoreArtifactRef),
+        "source_data_ref": _core_ref(anchor.input_capture.source_data_ref, CoreArtifactRef),
+        "materialization_binding_ref": _core_ref(
+            anchor.input_capture.materialization_binding_ref, CoreArtifactRef
+        ),
+        "search_uncertainty_task_binding_ref": (
+            None
+            if anchor.request_context.search_uncertainty_task_binding_ref is None
+            else _core_ref(
+                anchor.request_context.search_uncertainty_task_binding_ref, CoreArtifactRef
+            )
+        ),
+    }
     if (
         anchor_bounded.effective_ref != anchor_ref_core
         or anchor.input_admission.admission_status != "input_admitted"
@@ -700,15 +1043,14 @@ def persist_runtime_hte_outcome(
     ):
         raise ValueError("hte_bridge_pre_output_anchor_capture_mismatch")
 
+    policy_ref_core = anchor_refs["resource_policy_ref"]
     policy_bounded = read_core_json_artifact_bounded(
-        store,
-        anchor.resource_policy_ref,
-        limits=bootstrap_limits,
+        store, policy_ref_core, limits=bootstrap_limits
     )
     policy_manifest = policy_bounded.manifest
     policy_schema = policy_manifest.artifact_schema
     if (
-        policy_bounded.effective_ref != anchor.resource_policy_ref
+        policy_bounded.effective_ref != policy_ref_core
         or policy_manifest.kind != "runtime.observational_input_resource_policy"
         or policy_manifest.media_type != "application/json"
         or policy_schema is None
@@ -717,7 +1059,7 @@ def persist_runtime_hte_outcome(
     ):
         raise ValueError("hte_bridge_resource_policy_manifest_mismatch")
     policy = ObservationalInputResourcePolicy.model_validate(policy_bounded.value, strict=True)
-    policy_fields = _policy_payload(anchor, policy)
+    policy_fields = _policy_payload(anchor, policy, policy_ref_core)
     limits = CoreJsonReadLimits(
         max_bytes=policy.max_bytes,
         max_depth=policy.max_depth,
@@ -726,10 +1068,13 @@ def persist_runtime_hte_outcome(
     )
 
     capture = anchor.input_capture
-    materialization_binding_ref = capture.materialization_binding_ref
+    materialization_binding_ref = anchor_refs["materialization_binding_ref"]
     if (
         materialization_binding_ref is None
-        or materialization_binding_ref != anchor.request_context.materialization_binding_ref
+        or not _source_ref_matches(
+            materialization_binding_ref,
+            anchor.request_context.materialization_binding_ref,
+        )
         or materialization_binding_ref.kind != "foundry.hte.physical_source_materialization_binding"
         or materialization_binding_ref.media_type != "application/json"
         or materialization_binding_ref.manifest_profile_sha256 is None
@@ -739,12 +1084,11 @@ def persist_runtime_hte_outcome(
         load_hte_physical_source_materialization_binding,
     )
 
-    physical_binding_ref_core = _core_ref(materialization_binding_ref, CoreArtifactRef)
     physical_binding = load_hte_physical_source_materialization_binding(
         store=store,
-        binding_ref=physical_binding_ref_core,
-        expected_submitted_ref=anchor.submitted_input_ref,
-        expected_effective_ref=anchor.effective_input_ref,
+        binding_ref=materialization_binding_ref,
+        expected_submitted_ref=anchor_refs["submitted_input_ref"],
+        expected_effective_ref=anchor_refs["effective_input_ref"],
         limits=limits,
     )
     if (
@@ -753,7 +1097,7 @@ def persist_runtime_hte_outcome(
     ):
         raise ValueError("hte_bridge_physical_binding_capture_mismatch")
     materialization_binding_ir_ref = HTEPhysicalSourceMaterializationBindingRef.model_validate(
-        physical_binding_ref_core.model_dump(mode="json"), strict=True
+        materialization_binding_ref.model_dump(mode="json"), strict=True
     )
 
     method_result_ref_core = _core_ref(method_result_ref, CoreArtifactRef)
@@ -792,23 +1136,25 @@ def persist_runtime_hte_outcome(
         or evidence_payload.get("method_abi_digest") != anchor.method_abi_digest
         or evidence_payload.get("resource_policy_digest") != anchor.resource_policy_digest
         or CoreArtifactRef.model_validate(evidence_payload.get("resource_policy_ref"), strict=True)
-        != anchor.resource_policy_ref
+        != policy_ref_core
         or CoreArtifactRef.model_validate(evidence_payload.get("effective_input_ref"), strict=True)
-        != anchor.effective_input_ref
-        or evidence_payload.get("materialization_binding_ref")
-        != materialization_binding_ref.model_dump(mode="json")
+        != anchor_refs["effective_input_ref"]
+        or CoreArtifactRef.model_validate(
+            evidence_payload.get("materialization_binding_ref"), strict=True
+        )
+        != materialization_binding_ref
         or CoreArtifactRef.model_validate(evidence_payload.get("requested_source_ref"), strict=True)
-        != anchor.requested_source_ref
+        != anchor_refs["requested_source_ref"]
     ):
         raise ValueError("hte_bridge_method_evidence_owner_binding_mismatch")
 
     source_refs = (
-        (anchor.requested_source_ref, "requested_source"),
-        (anchor.observational_run_intent_ref, "observational_run_intent"),
-        (anchor.content_admitted_intent_ref, "content_admitted_intent"),
-        (anchor.submitted_input_ref, "submitted_method_input"),
-        (anchor.effective_input_ref, "effective_method_input"),
-        (anchor.resource_policy_ref, "method_resource_policy"),
+        (anchor_refs["requested_source_ref"], "requested_source"),
+        (anchor_refs["observational_run_intent_ref"], "observational_run_intent"),
+        (anchor_refs["content_admitted_intent_ref"], "content_admitted_intent"),
+        (anchor_refs["submitted_input_ref"], "submitted_method_input"),
+        (anchor_refs["effective_input_ref"], "effective_method_input"),
+        (policy_ref_core, "method_resource_policy"),
         (materialization_binding_ref, "physical_source_materialization_binding"),
         (anchor_ref, "owned_attempt_anchor"),
     )
@@ -816,8 +1162,13 @@ def persist_runtime_hte_outcome(
     evidence_refs = ((method_result_ref_core, "method_result"), *source_refs)
     _assert_manifest_inputs(evidence_manifest, evidence_refs, CoreArtifactRef)
 
+    if not _is_writer_ready_json_object(writer_ready):
+        raise TypeError("writer-ready JSON payload must be a JSON object")
     writer = validate_hte_writer_ready_json(writer_ready)
-    stored_writer = validate_hte_writer_ready_json(result_payload.get("hte_outcome_write_ready"))
+    stored_writer_payload = result_payload.get("hte_outcome_write_ready")
+    if not _is_writer_ready_json_object(stored_writer_payload):
+        raise TypeError("writer-ready JSON payload must be a JSON object")
+    stored_writer = validate_hte_writer_ready_json(stored_writer_payload)
     if _canonical_json(writer.model_dump(mode="json")) != _canonical_json(
         stored_writer.model_dump(mode="json")
     ):
@@ -826,18 +1177,27 @@ def persist_runtime_hte_outcome(
     if (
         writer.method_fqn != anchor.method_fqn
         or writer.method_abi != anchor.method_version
-        or writer.method_profile_id != anchor.resource_policy_method_profile_id
+        or writer.method_profile_id != method_profile_id
         or writer.resource_receipt.scope != anchor.resource_policy_execution_scope
     ):
         raise ValueError("hte_bridge_writer_method_profile_mismatch")
+    _validate_native_writer_identity(
+        writer,
+        method_fqn=anchor.method_fqn,
+        method_abi=anchor.method_version,
+        method_abi_digest=anchor.method_abi_digest,
+        method_profile_id=method_profile_id,
+    )
     resource = _resource_evidence(
         anchor,
         policy,
         writer.resource_receipt,
         HTEResourceExecutionEvidenceV1,
+        policy_ref=policy_ref_core,
+        method_profile_id=method_profile_id,
     )
     source_ref = HTEInputSourceRef.model_validate(
-        capture.source_data_ref.model_dump(mode="json"), strict=True
+        anchor_refs["source_data_ref"].model_dump(mode="json"), strict=True
     )
     point_ref = MethodResultEvidenceRef.model_validate(
         method_result_ref_core.model_dump(mode="json"), strict=True
@@ -851,16 +1211,20 @@ def persist_runtime_hte_outcome(
     anchor_ir_ref = OwnedAttemptAnchorRef.model_validate(
         anchor_ir_ref.model_dump(mode="json"), strict=True
     )
-    task_binding_ref = capture.search_uncertainty_task_binding_ref
-    task_binding_inputs = (
-        ((task_binding_ref, "search_uncertainty_task_binding"),)
-        if task_binding_ref is not None
-        else ()
+    task_binding_ref = anchor_refs["search_uncertainty_task_binding_ref"]
+    task_binding_ir_ref = (
+        None
+        if task_binding_ref is None
+        else SearchUncertaintyTaskBindingRef.model_validate(
+            task_binding_ref.model_dump(mode="json"), strict=True
+        )
     )
-    materialization_binding_inputs = (
-        (materialization_binding_ir_ref, "physical_source_materialization_binding"),
+    owner_binding_inputs = _owner_binding_inputs(
+        materialization_binding_ref=materialization_binding_ir_ref,
+        search_uncertainty_task_binding_ref=task_binding_ir_ref,
     )
-    request_fields = _request_fields(capture)
+    request_context = anchor.request_context
+    request_fields = _request_fields(request_context)
     point_inputs = (
         (anchor_ir_ref, "owned_attempt_anchor"),
         (source_ref, "source_data"),
@@ -872,23 +1236,24 @@ def persist_runtime_hte_outcome(
             ),
             "resource_policy",
         ),
-        *materialization_binding_inputs,
-        *task_binding_inputs,
+        *owner_binding_inputs,
     )
     # Resource policy stays at its fixed position; optional source and Search
     # bindings follow in their owner-defined order.
     resource_ref = point_inputs[4][0]
-    point_result_ref: Any = None
-    basis_ref: Any = None
-    refusal_ref: Any = None
+    point_result_ref: HTEPointResultRef | None = None
+    hte_result_ref: HTEResultEvidenceRef | None = None
+    basis_ref: ATEInferenceBasisRef | None = None
+    refusal_ref: HTERefusalDiagnosticRef | None = None
     if isinstance(writer, HTEWriterReadyRefusalV1):
+        refusal_limitations = _expected_refusal_limitations(writer, physical_binding)
         diagnostic = HTERefusalDiagnostic(
             diagnostic_origin="method_execution",
             method_fqn=anchor.method_fqn,
             method_abi=anchor.method_version,
             method_abi_digest=anchor.method_abi_digest,
-            method_profile_id=anchor.resource_policy_method_profile_id,
-            search_uncertainty_task_binding_ref=capture.search_uncertainty_task_binding_ref,
+            method_profile_id=method_profile_id,
+            search_uncertainty_task_binding_ref=task_binding_ir_ref,
             refusal_stage=writer.refusal_stage,
             refusal_reason=writer.refusal_reason,
             diagnostic_code=writer.diagnostic_code,
@@ -903,26 +1268,18 @@ def persist_runtime_hte_outcome(
             selected_rows_sha256=capture.selected_rows_sha256,
             selected_x_sha256=capture.selected_x_sha256,
             selected_row_order_sha256=capture.selected_row_order_sha256,
-            limitations=tuple(
-                dict.fromkeys(
-                    (
-                        *writer.limitations,
-                        "no_effect_estimate_published",
-                        _SOURCE_VARIABLE_IDENTITY_LIMITATION,
-                    )
-                )
-            ),
+            limitations=refusal_limitations,
         )
-        refusal_inputs = (
-            (anchor_ir_ref, "owned_attempt_anchor"),
-            (point_ref, "method_result"),
-            (evidence_ref, "method_evidence"),
-            (resource_ref, "resource_policy"),
-            *task_binding_inputs,
-            *materialization_binding_inputs,
+        refusal_inputs = _refusal_diagnostic_inputs(
+            anchor_ref=anchor_ir_ref,
+            method_result_ref=point_ref,
+            method_evidence_ref=evidence_ref,
+            resource_policy_ref=resource_ref,
+            owner_binding_inputs=owner_binding_inputs,
         )
-        refusal_ref = _persist_and_check(
+        refusal_diagnostic_ref = _persist_and_check(
             store=store,
+            ir_store=ir_store,
             model=diagnostic,
             persist=persist_hte_refusal_diagnostic,
             inputs=refusal_inputs,
@@ -932,25 +1289,33 @@ def persist_runtime_hte_outcome(
             schema_version=HTERefusalDiagnosticRef.ARTIFACT_SCHEMA_VERSION,
             validator=HTERefusalDiagnostic,
         )
+        refusal_ref = refusal_diagnostic_ref
         target_relation = _target_relation(
             capture,
+            request_context=request_context,
+            validated_writer_capture=writer.capture,
             computed_guarantee=None,
             profile_status="not_established",
             interval_alpha=None,
             refusal=True,
             ir_model=HTETargetRelationV1,
         )
+        invocation_basis_reason: Literal[
+            "not_available_at_refusal_stage", "no_invocation_basis_artifact_contract"
+        ] = (
+            "not_available_at_refusal_stage"
+            if writer.refusal_stage == "prepare"
+            else "no_invocation_basis_artifact_contract"
+        )
         refusal_outcome = HTERefusalOutcome(
             method_fqn=anchor.method_fqn,
             method_abi=anchor.method_version,
             method_abi_digest=anchor.method_abi_digest,
-            method_profile_id=anchor.resource_policy_method_profile_id,
-            search_uncertainty_task_binding_ref=capture.search_uncertainty_task_binding_ref,
+            method_profile_id=method_profile_id,
             refusal_stage=writer.refusal_stage,
             refusal_reason=writer.refusal_reason,
             diagnostic_code=writer.diagnostic_code,
             owned_attempt_anchor_ref=anchor_ir_ref,
-            materialization_binding_ref=materialization_binding_ir_ref,
             anchor_status="pre_output_anchor_resolved",
             requested_source_ref=HTEInputSourceRef.model_validate(
                 anchor.requested_source_ref.model_dump(mode="json"), strict=True
@@ -973,34 +1338,24 @@ def persist_runtime_hte_outcome(
             resource_evidence=resource,
             invocation_basis_ref=None,
             invocation_basis_status="not_established",
-            invocation_basis_reason="not_available_at_refusal_stage"
-            if writer.refusal_stage == "prepare"
-            else "no_invocation_basis_artifact_contract",
-            refusal_diagnostic_ref=refusal_ref,
+            invocation_basis_reason=invocation_basis_reason,
+            refusal_diagnostic_ref=refusal_diagnostic_ref,
             **request_fields,
             target_relation=target_relation,
-            limitations=tuple(
-                dict.fromkeys(
-                    (
-                        *writer.limitations,
-                        "no_effect_estimate_published",
-                        _SOURCE_VARIABLE_IDENTITY_LIMITATION,
-                    )
-                )
-            ),
+            limitations=refusal_limitations,
         )
-        outcome_inputs = (
-            (refusal_ref, "refusal_diagnostic"),
-            (anchor_ir_ref, "owned_attempt_anchor"),
-            (point_ref, "method_result"),
-            (evidence_ref, "method_evidence"),
-            (resource_ref, "resource_policy"),
-            (source_ref, "source_data"),
-            *task_binding_inputs,
-            *materialization_binding_inputs,
+        outcome_inputs = _refusal_outcome_inputs(
+            refusal_diagnostic_ref=refusal_diagnostic_ref,
+            anchor_ref=anchor_ir_ref,
+            method_result_ref=point_ref,
+            method_evidence_ref=evidence_ref,
+            resource_policy_ref=resource_ref,
+            source_data_ref=source_ref,
+            owner_binding_inputs=owner_binding_inputs,
         )
         outcome_ref = _persist_and_check(
             store=store,
+            ir_store=ir_store,
             model=refusal_outcome,
             persist=persist_hte_outcome,
             inputs=outcome_inputs,
@@ -1014,7 +1369,7 @@ def persist_runtime_hte_outcome(
             owned_attempt_anchor_ref=anchor_ir_ref,
             materialization_binding_ref=materialization_binding_ir_ref,
             hte_outcome_ref=outcome_ref,
-            refusal_diagnostic_ref=refusal_ref,
+            refusal_diagnostic_ref=refusal_diagnostic_ref,
         )
         summary = _bounded_summary(
             outcome=refusal_outcome,
@@ -1032,6 +1387,8 @@ def persist_runtime_hte_outcome(
     )
     target_relation = _target_relation(
         capture,
+        request_context=request_context,
+        validated_writer_capture=writer.capture,
         computed_guarantee=(
             "backend_conditional_interval"
             if writer.kind == "interval_estimate"
@@ -1050,19 +1407,42 @@ def persist_runtime_hte_outcome(
     )
 
     def _basis_for_native(
-        native: Any,
+        writer: HTEWriterReadyIntervalV1 | HTEWriterReadyPointV1,
         *,
-        disposition: str,
-        disposition_reason: str | None,
-        hte_result_ref: Any = None,
-        point_result_ref: Any = None,
-    ) -> Any:
+        disposition: _NativeResultDisposition,
+        disposition_reason: _NativeResultDispositionReason,
+        hte_result_ref: HTEResultEvidenceRef | None = None,
+        point_result_ref: HTEPointResultRef | None = None,
+    ) -> ATEInferenceBasis:
+        if writer.kind == "interval_estimate":
+            native = writer.native_capture
+        else:
+            native = writer.native_diagnostic
+            if native is None:
+                raise ValueError("hte_bridge_native_inference_diagnostic_missing")
+        if (
+            anchor.method_fqn == "causal.hte.causal_forest@2.0.0"
+            and method_profile_id == "econml.causal_forest_dml.native_mean@2.0"
+            and native.method_fqn == anchor.method_fqn
+            and native.method_abi == anchor.method_version
+            and native.method_profile_id == method_profile_id
+        ) or (
+            anchor.method_fqn == "causal.hte.forest_dr@2.0.0"
+            and method_profile_id == "econml.forest_dr.native_mean@2.0"
+            and native.method_fqn == anchor.method_fqn
+            and native.method_abi == anchor.method_version
+            and native.method_profile_id == method_profile_id
+        ):
+            native_method_fqn = anchor.method_fqn
+            native_method_profile_id = method_profile_id
+        else:
+            raise ValueError("hte_bridge_native_inference_profile_not_supported")
         return ATEInferenceBasis(
             inference_profile_id=native.inference_profile_id,
-            method_fqn=anchor.method_fqn,
+            method_fqn=native_method_fqn,
             method_abi=anchor.method_version,
             method_abi_digest=anchor.method_abi_digest,
-            method_profile_id=anchor.resource_policy_method_profile_id,
+            method_profile_id=native_method_profile_id,
             estimator_class=native.estimator_class,
             inference_class=native.inference_class,
             econml_version=native.econml_version,
@@ -1103,23 +1483,31 @@ def persist_runtime_hte_outcome(
             selected_row_order_sha256=capture.selected_row_order_sha256,
             n_selected_rows=capture.n_selected_rows,
             contrast_status="established"
-            if capture.contrast_status == "declared"
+            if target_relation.contrast_status == "recomputed"
             else "not_established",
-            control_value=capture.control_value,
-            treated_value=capture.treated_value,
-            request_estimand_status=capture.request_estimand_status,
-            request_estimand=capture.request_estimand,
-            request_target_scope_status=capture.request_target_scope_status,
-            request_target_scope=capture.request_target_scope,
-            outcome_variable_status=capture.outcome_variable_status,
-            outcome_variable_id=capture.outcome_variable_id,
-            treatment_variable_status=capture.treatment_variable_status,
-            treatment_variable_id=capture.treatment_variable_id,
-            request_alpha_status=capture.request_alpha_status,
-            requested_alpha=capture.requested_alpha,
-            requested_guarantee_status=capture.requested_guarantee_status,
-            requested_guarantee=capture.requested_guarantee,
-            search_uncertainty_task_binding_ref=capture.search_uncertainty_task_binding_ref,
+            control_value=(
+                writer.capture.control_value
+                if target_relation.contrast_status == "recomputed"
+                else None
+            ),
+            treated_value=(
+                writer.capture.treated_value
+                if target_relation.contrast_status == "recomputed"
+                else None
+            ),
+            request_estimand_status=request_context.request_estimand_status,
+            request_estimand=request_context.request_estimand,
+            request_target_scope_status=request_context.request_target_scope_status,
+            request_target_scope=request_context.request_target_scope,
+            outcome_variable_status=request_context.outcome_variable_status,
+            outcome_variable_id=request_context.outcome_variable_id,
+            treatment_variable_status=request_context.treatment_variable_status,
+            treatment_variable_id=request_context.treatment_variable_id,
+            request_alpha_status=request_context.request_alpha_status,
+            requested_alpha=request_context.requested_alpha,
+            requested_guarantee_status=request_context.requested_guarantee_status,
+            requested_guarantee=request_context.requested_guarantee,
+            search_uncertainty_task_binding_ref=task_binding_ir_ref,
             target_relation=target_relation,
             conditional_assumptions=native.conditional_assumptions,
             source_data_ref=source_ref,
@@ -1137,9 +1525,6 @@ def persist_runtime_hte_outcome(
             method_evidence_ref=evidence_ref,
         )
 
-    point_result_ref: Any = None
-    hte_result_ref: Any = None
-    basis_ref: Any = None
     if writer.kind == "interval_estimate":
         native = writer.native_capture
         feature_names = tuple(capture.source_feature_names or ())
@@ -1167,7 +1552,7 @@ def persist_runtime_hte_outcome(
                     "method_fqn": anchor.method_fqn,
                     "method_abi": anchor.method_version,
                     "method_abi_digest": anchor.method_abi_digest,
-                    "method_profile_id": anchor.resource_policy_method_profile_id,
+                    "method_profile_id": method_profile_id,
                     "resolved_params_sha256": capture.resolved_params_sha256,
                     "source_data_sha256": capture.source_data_sha256,
                     "selected_input_sha256": capture.selected_input_sha256,
@@ -1181,8 +1566,8 @@ def persist_runtime_hte_outcome(
                     ),
                     "search_uncertainty_task_binding_ref": (
                         None
-                        if capture.search_uncertainty_task_binding_ref is None
-                        else capture.search_uncertainty_task_binding_ref.model_dump(mode="json")
+                        if task_binding_ir_ref is None
+                        else task_binding_ir_ref.model_dump(mode="json")
                     ),
                     "econml_source_profile_sha256": native.econml_source_profile_sha256,
                     "ate_inference_method": native.ate_inference_method,
@@ -1200,8 +1585,9 @@ def persist_runtime_hte_outcome(
             },
             strict=True,
         )
-        hte_result_ref = _persist_and_check(
+        persisted_hte_result_ref = _persist_and_check(
             store=store,
+            ir_store=ir_store,
             model=legacy_result,
             persist=persist_hte_result_v2,
             inputs=point_inputs,
@@ -1211,15 +1597,17 @@ def persist_runtime_hte_outcome(
             schema_version=HTEResultEvidenceRef.ARTIFACT_SCHEMA_VERSION,
             validator=HTEResult,
         )
+        hte_result_ref = persisted_hte_result_ref
         basis = _basis_for_native(
-            native,
+            writer,
             disposition="legacy_hte_result_admitted",
             disposition_reason=None,
-            hte_result_ref=hte_result_ref,
+            hte_result_ref=persisted_hte_result_ref,
         )
-        basis_inputs = ((hte_result_ref, "hte_result"), *point_inputs)
-        basis_ref = _persist_and_check(
+        basis_inputs = ((persisted_hte_result_ref, "hte_result"), *point_inputs)
+        persisted_inference_basis_ref = _persist_and_check(
             store=store,
+            ir_store=ir_store,
             model=basis,
             persist=persist_ate_inference_basis,
             inputs=basis_inputs,
@@ -1229,12 +1617,12 @@ def persist_runtime_hte_outcome(
             schema_version=ATEInferenceBasisRef.ARTIFACT_SCHEMA_VERSION,
             validator=ATEInferenceBasis,
         )
+        basis_ref = persisted_inference_basis_ref
         outcome = HTEIntervalOutcome(
             method_fqn=anchor.method_fqn,
             method_abi=anchor.method_version,
             method_abi_digest=anchor.method_abi_digest,
-            method_profile_id=anchor.resource_policy_method_profile_id,
-            search_uncertainty_task_binding_ref=capture.search_uncertainty_task_binding_ref,
+            method_profile_id=method_profile_id,
             input_profile_id=capture.input_profile_id,
             selected_input_sha256=capture.selected_input_sha256,
             selected_rows_sha256=capture.selected_rows_sha256,
@@ -1243,7 +1631,6 @@ def persist_runtime_hte_outcome(
             resolved_params_sha256=capture.resolved_params_sha256,
             n_selected_rows=capture.n_selected_rows,
             source_data_ref=source_ref,
-            materialization_binding_ref=materialization_binding_ir_ref,
             invocation_basis_ref=None,
             invocation_basis_status="not_established",
             invocation_basis_reason="no_invocation_basis_artifact_contract",
@@ -1262,21 +1649,22 @@ def persist_runtime_hte_outcome(
             confidence_level=native.confidence_level,
             interval_semantics="native_mean_confidence_interval",
             inference_status="native_ate_inference_validated",
-            hte_result_ref=hte_result_ref,
-            inference_basis_ref=basis_ref,
+            hte_result_ref=persisted_hte_result_ref,
+            inference_basis_ref=persisted_inference_basis_ref,
         )
-        outcome_inputs = (
-            (hte_result_ref, "hte_result"),
-            (basis_ref, "inference_basis"),
-            *point_inputs,
+        outcome_inputs = _numeric_outcome_inputs(
+            result_ref=persisted_hte_result_ref,
+            result_role="hte_result",
+            inference_basis_ref=persisted_inference_basis_ref,
+            base_inputs=point_inputs,
         )
     else:
         point_result = HTEPointResult(
             method_fqn=anchor.method_fqn,
             method_abi=anchor.method_version,
             method_abi_digest=anchor.method_abi_digest,
-            method_profile_id=anchor.resource_policy_method_profile_id,
-            search_uncertainty_task_binding_ref=capture.search_uncertainty_task_binding_ref,
+            method_profile_id=method_profile_id,
+            search_uncertainty_task_binding_ref=task_binding_ir_ref,
             resolved_params_sha256=capture.resolved_params_sha256,
             source_data_ref=source_ref,
             materialization_binding_ref=materialization_binding_ir_ref,
@@ -1294,8 +1682,9 @@ def persist_runtime_hte_outcome(
             method_evidence_ref=evidence_ref,
             resource_evidence=resource,
         )
-        point_result_ref = _persist_and_check(
+        persisted_point_result_ref = _persist_and_check(
             store=store,
+            ir_store=ir_store,
             model=point_result,
             persist=persist_hte_point_result,
             inputs=point_inputs,
@@ -1305,23 +1694,26 @@ def persist_runtime_hte_outcome(
             schema_version=HTEPointResultRef.ARTIFACT_SCHEMA_VERSION,
             validator=HTEPointResult,
         )
-        point_result_inputs = ((point_result_ref, "point_result"), *point_inputs)
+        point_result_ref = persisted_point_result_ref
         native = writer.native_diagnostic
         if native is not None:
-            disposition_reason = (
+            disposition_reason: Literal[
+                "point_not_contained_in_legacy_interval", "native_bounds_unordered"
+            ] = (
                 "native_bounds_unordered"
                 if native.native_lower_bound > native.native_upper_bound
                 else "point_not_contained_in_legacy_interval"
             )
             basis = _basis_for_native(
-                native,
+                writer,
                 disposition="legacy_hte_result_unrepresentable",
                 disposition_reason=disposition_reason,
-                point_result_ref=point_result_ref,
+                point_result_ref=persisted_point_result_ref,
             )
-            basis_inputs = ((point_result_ref, "point_result"), *point_inputs)
+            basis_inputs = ((persisted_point_result_ref, "point_result"), *point_inputs)
             basis_ref = _persist_and_check(
                 store=store,
+                ir_store=ir_store,
                 model=basis,
                 persist=persist_ate_inference_basis,
                 inputs=basis_inputs,
@@ -1335,8 +1727,7 @@ def persist_runtime_hte_outcome(
             method_fqn=anchor.method_fqn,
             method_abi=anchor.method_version,
             method_abi_digest=anchor.method_abi_digest,
-            method_profile_id=anchor.resource_policy_method_profile_id,
-            search_uncertainty_task_binding_ref=capture.search_uncertainty_task_binding_ref,
+            method_profile_id=method_profile_id,
             input_profile_id=capture.input_profile_id,
             selected_input_sha256=capture.selected_input_sha256,
             selected_rows_sha256=capture.selected_rows_sha256,
@@ -1345,12 +1736,11 @@ def persist_runtime_hte_outcome(
             resolved_params_sha256=capture.resolved_params_sha256,
             n_selected_rows=capture.n_selected_rows,
             source_data_ref=source_ref,
-            materialization_binding_ref=materialization_binding_ir_ref,
             invocation_basis_ref=None,
             invocation_basis_status="not_established",
             invocation_basis_reason="no_invocation_basis_artifact_contract",
             owned_attempt_anchor_ref=anchor_ir_ref,
-            point_result_ref=point_result_ref,
+            point_result_ref=persisted_point_result_ref,
             inference_basis_ref=basis_ref,
             resource_evidence=resource,
             method_result_ref=point_ref,
@@ -1373,11 +1763,16 @@ def persist_runtime_hte_outcome(
             inference_status=writer.inference_status,
             inference_reason=writer.inference_reason,
         )
-        basis_outcome_inputs = ((basis_ref, "inference_basis"),) if basis_ref is not None else ()
-        outcome_inputs = (*point_result_inputs, *basis_outcome_inputs)
+        outcome_inputs = _numeric_outcome_inputs(
+            result_ref=persisted_point_result_ref,
+            result_role="point_result",
+            inference_basis_ref=basis_ref,
+            base_inputs=point_inputs,
+        )
     outcome = _HTE_OUTCOME_ADAPTER.validate_python(outcome, strict=True)
     outcome_ref = _persist_and_check(
         store=store,
+        ir_store=ir_store,
         model=outcome,
         persist=persist_hte_outcome,
         inputs=outcome_inputs,

@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.fabric.io.atomic import atomic_write_text
-from polisyos.ir.loading.fact_log import FactSegmentManifest
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.ir.loading.fact_log import FactSegmentManifest
 
 
 def write_segment_manifest(manifest: FactSegmentManifest, manifest_path: Path) -> Path:

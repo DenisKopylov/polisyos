@@ -10,6 +10,15 @@ from typing import Any, ClassVar, Literal, Protocol, TypeGuard
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir._internal.validation import ensure_confidence_interval, ensure_finite_numeric
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation as _OwnedJSONRepresentation,
+)
+from polisyos.ir.analytics._owner_admission import (
+    declare_model_owner as _declare_model_owner,
+)
+from polisyos.ir.analytics._owner_admission import (
+    owner_profile_for_spec as _owner_profile_for_spec,
+)
 from polisyos.ir.analytics.administrative_missingness import (
     AdministrativeMissingnessClass,
     MissingnessAssessmentReport,
@@ -51,8 +60,19 @@ from polisyos.ir.analytics.uncertainty import (
     ValueUncertaintyProjectionKind,
     value_uncertainty_output_contract,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.io import (
+    _get_owned_json_artifact,
+    _put_owned_json_artifact,
+    _validate_return_selected_profile_flag,
+)
 from polisyos.ir.governance.phase1 import Phase1GateSummary
+from polisyos.ir.migrations.base import (
+    CompatibilityMode as _CompatibilityMode,
+)
+from polisyos.ir.migrations.base import (
+    IRRepresentationKey as _IRRepresentationKey,
+)
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     BridgePlausibilityReportRef,
@@ -229,7 +249,7 @@ class ProofBundle(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("1.1", pattern=r"^\d+\.\d+$")
     proof_status: Literal["identified", "non_identified", "oracle_needed"]
     proof_stratum: Literal["A0_trusted", "A1_extended", "A1_dynamic", "A2_oracle_backed"]
     theorem_family: str
@@ -538,7 +558,7 @@ class CausalEffectReport(BaseModel):
     )
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("1.1", pattern=r"^\d+\.\d+$")
 
     method: CausalMethod
     status: EstimationStatus = EstimationStatus.SUCCESS
@@ -580,6 +600,18 @@ class CausalEffectReport(BaseModel):
 
     @model_validator(mode="after")
     def _validate_numbers(self) -> CausalEffectReport:
+        if (
+            self.transport_result is not None
+            and self.transport_result.schema_version == "2.2"
+            and self.schema_version != "1.1"
+        ):
+            raise ValueError("transportability_result_2_2_requires_causal_report_schema_1_1")
+        if (
+            self.transport_result is not None
+            and self.transport_result.candidate_diagnostics is not None
+            and self.schema_version != "1.1"
+        ):
+            raise ValueError("candidate_diagnostic_requires_causal_report_schema_1_1")
         if self.status is EstimationStatus.SUCCESS:
             if self.point_estimate is None:
                 raise ValueError("point_estimate is required for successful estimates")
@@ -720,13 +752,102 @@ class CausalEffectReport(BaseModel):
         return envelope.model_copy(update={"gate_eligible": False, "metadata": metadata})
 
 
+_CAUSAL_EFFECT_REPORT_OWNER = _declare_model_owner(
+    CausalEffectReport,
+    contract_id="ir.analytics.causal_effect_report.owner.v1",
+    dto_fqn="polisyos.ir.analytics.causal.CausalEffectReport",
+    abi_key="ir.analytics.causal_effect_report.owner.v1.dto-abi.v1",
+    registry_key="ir.causal_effect_report",
+    kind="ir.causal_effect_report",
+    media_type="application/json",
+    purpose="causal_effect_report",
+    policy_revision="ir.analytics.causal_effect_report.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.causal_effect_report.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=_owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name="ir.causal_effect_report",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.causal_effect_report.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=("Source-supported read-only causal-effect report predecessor.",),
+            readable=True,
+            writable=False,
+            current=False,
+            default_write=False,
+            readable_from=(),
+        ),
+        _OwnedJSONRepresentation(
+            schema_name="ir.causal_effect_report",
+            schema_version="1.1",
+            payload_version="1.1",
+            wire_policy_ref="ir.analytics.causal_effect_report.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=("Current causal-effect report tuple; candidate transport diagnostics use 1.1.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(_IRRepresentationKey("ir.causal_effect_report", "1.0", "1.0"),),
+        ),
+    ),
+)
+
+
+_PROOF_BUNDLE_OWNER = _declare_model_owner(
+    ProofBundle,
+    contract_id="ir.analytics.proof_bundle.owner.v1",
+    dto_fqn="polisyos.ir.analytics.causal.ProofBundle",
+    abi_key="ir.analytics.proof_bundle.owner.v1.dto-abi.v1",
+    registry_key="ir.proof_bundle",
+    kind="ir.proof_bundle",
+    media_type="application/json",
+    purpose="causal_proof_bundle",
+    policy_revision="ir.analytics.proof_bundle.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.proof_bundle.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=_owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name="ir.proof_bundle",
+            schema_version="1.0",
+            payload_version="1.1",
+            wire_policy_ref="ir.analytics.proof_bundle.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=(
+                "Current exact split tuple retained by the existing writer: manifest 1.0, payload 1.1.",
+            ),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
 def persist_causal_effect_report(
     store: ArtifactStore,
     report: CausalEffectReport,
     *,
     inputs: list[InputRef] | None = None,
     schema_name: str = "ir.causal_effect_report",
-    schema_version: str = "1.0",
+    schema_version: str = "1.1",
     return_selected_profile: bool = False,
 ) -> CausalEffectReportRef:
     """Persist a causal report, optionally returning the profile selected by this write.
@@ -742,16 +863,18 @@ def persist_causal_effect_report(
     Returns:
         A typed report reference preserving historical default-reference behavior.
     """
-    ref = put_json_artifact(
+    return_selected_profile = _validate_return_selected_profile_flag(return_selected_profile)
+    ref = _put_owned_json_artifact(
         store,
         report.model_dump(mode="json"),
-        kind="ir.causal_effect_report",
+        owner=_CAUSAL_EFFECT_REPORT_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=return_selected_profile,
     )
+    if not return_selected_profile:
+        ref.pop("manifest_profile_sha256", None)
     return CausalEffectReportRef.model_validate(ref)
 
 
@@ -760,8 +883,7 @@ def load_causal_effect_report(
     ref: CausalEffectReportRef,
 ) -> CausalEffectReport:
     """Load causal effect report."""
-    payload = get_json_artifact(store, ref)
-    return CausalEffectReport.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_CAUSAL_EFFECT_REPORT_OWNER)
 
 
 def persist_proof_bundle(
@@ -773,10 +895,10 @@ def persist_proof_bundle(
     schema_version: str = "1.0",
 ) -> ProofBundleRef:
     """Persist a proof bundle and return its typed artifact reference."""
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         bundle.model_dump(mode="json"),
-        kind="ir.proof_bundle",
+        owner=_PROOF_BUNDLE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -790,8 +912,7 @@ def load_proof_bundle(
     ref: ProofBundleRef,
 ) -> ProofBundle:
     """Load proof bundle."""
-    payload = get_json_artifact(store, ref)
-    return ProofBundle.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_PROOF_BUNDLE_OWNER)
 
 
 class PositivityDiagnosticReport(BaseModel):
@@ -855,6 +976,42 @@ class DataReadinessReport(BaseModel):
     metrics: dict[str, float] = Field(default_factory=dict)
 
 
+_DATA_READINESS_REPORT_OWNER = _declare_model_owner(
+    DataReadinessReport,
+    contract_id="ir.analytics.data_readiness_report.owner.v1",
+    dto_fqn="polisyos.ir.analytics.causal.DataReadinessReport",
+    abi_key="ir.analytics.data_readiness_report.owner.v1.dto-abi.v1",
+    registry_key="ir.data_readiness_report",
+    kind="ir.data_readiness_report",
+    media_type="application/json",
+    purpose="causal_data_readiness_report",
+    policy_revision="ir.analytics.data_readiness_report.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.data_readiness_report.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=_owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name="ir.data_readiness_report",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.data_readiness_report.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=("Exact owner-bound data-readiness report tuple.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
 def persist_data_readiness_report(
     store: ArtifactStore,
     report: DataReadinessReport,
@@ -864,10 +1021,10 @@ def persist_data_readiness_report(
     schema_version: str = "1.0",
 ) -> DataReadinessReportRef:
     """Persist a data-readiness report used by pre-estimation governance gates."""
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         report.model_dump(mode="json"),
-        kind="ir.data_readiness_report",
+        owner=_DATA_READINESS_REPORT_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -881,8 +1038,7 @@ def load_data_readiness_report(
     ref: DataReadinessReportRef,
 ) -> DataReadinessReport:
     """Load data readiness report."""
-    payload = get_json_artifact(store, ref)
-    return DataReadinessReport.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_DATA_READINESS_REPORT_OWNER)
 
 
 def proof_bundle_from_identification_result(

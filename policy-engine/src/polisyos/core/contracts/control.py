@@ -6,11 +6,12 @@ import hashlib
 import json
 import math
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Annotated, Any, Literal, Self, cast, final
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from ..artifacts.manifest import ArtifactRef
 from .decision_validity import (
@@ -593,6 +594,16 @@ class ObservationalRunInput(BaseModel):
         return self
 
 
+def _conditional_transport_request_schema(schema: dict[str, Any]) -> None:
+    """Inline the canonical conditional transport request under open workflow params."""
+    from polisyos.ir.analytics.transportability import TransportabilityCandidateRequestV1
+
+    properties = schema.setdefault("properties", {})
+    properties["conditional_transport_request"] = (
+        TransportabilityCandidateRequestV1.model_json_schema()
+    )
+
+
 _OBSERVATIONAL_INPUT_CONSUMED_REQUEST_FIELDS = frozenset(
     {
         "mode",
@@ -631,7 +642,34 @@ class WorkflowRunRequest(BaseModel):
     checkpoint_policy: CheckpointPolicyType = "strict"
     execution_profile: ExecutionProfile | None = None
     policy_flags: PolicyFlags = Field(default_factory=PolicyFlags)
-    params: dict[str, Any] = Field(default_factory=dict)
+    params: dict[str, Any] = Field(
+        default_factory=dict,
+        json_schema_extra=_conditional_transport_request_schema,
+    )
+
+    @field_validator("params", mode="before")
+    @classmethod
+    def _validate_conditional_transport_request(cls, value: object) -> object:
+        """Strictly validate a present request while preserving unrelated params."""
+        if not isinstance(value, Mapping):
+            return value
+        params = dict(value)
+        if "conditional_transport_request" not in params:
+            return params
+        raw_request = params["conditional_transport_request"]
+        if raw_request is None:
+            raise ValueError("workflow_conditional_transport_request_explicit_null")
+        from polisyos.ir.analytics.transportability import TransportabilityCandidateRequestV1
+
+        try:
+            request = TransportabilityCandidateRequestV1.model_validate(
+                raw_request,
+                strict=True,
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("workflow_conditional_transport_request_invalid") from exc
+        params["conditional_transport_request"] = request.model_dump(mode="json")
+        return params
 
     @model_validator(mode="after")
     def _validate_input_selection(self) -> Self:

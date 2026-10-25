@@ -8,13 +8,24 @@ runners can block, downgrade, or proceed with a causal execution bundle.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 from pydantic import Field, model_validator
 
 from polisyos.ir._internal.validation import ensure_non_empty_dotted_path, ensure_unique_ids
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import ArtifactStore
+from polisyos.ir.artifacts._lineage import InputRefLike
+from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration, CanonInfo
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.kernel.base import KernelModel
+from polisyos.ir.migrations.base import (
+    CompatibilityMode,
+    IRRepresentationRegistration,
+    ResolvedSchemaAdmission,
+    register_ir_representation,
+    register_schema_version,
+)
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import ArtifactRefModel, CausalReadinessBundleRef
 
@@ -22,6 +33,7 @@ if TYPE_CHECKING:
     from polisyos.ir.observation.contracts import ObservationFamily, StrategicResponseChannel
 else:
     from polisyos.ir.observation.contracts import ObservationFamily, StrategicResponseChannel
+
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 _CAUSAL_READINESS_SCHEMA_NAME = "ir.causal_readiness_bundle"
@@ -161,7 +173,8 @@ class CausalReadinessBundle(KernelModel):
     causal execution run.
     """
 
-    schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
+    SCHEMA_VERSION: ClassVar[str] = _CAUSAL_READINESS_SCHEMA_VERSION
+    schema_version: str = Field(SCHEMA_VERSION, pattern=SCHEMA_VERSION_PATTERN)
     proxy_results: list[ProxyIdentificationEntry] = Field(default_factory=list)
     transport_results: list[TransportabilityCheckEntry] = Field(default_factory=list)
     strategic_results: list[StrategicResponseEntry] = Field(default_factory=list)
@@ -199,55 +212,124 @@ class CausalReadinessBundle(KernelModel):
         return self
 
 
+_OWNER_SCHEMA_NAME = _CAUSAL_READINESS_SCHEMA_NAME
+_OWNER_SCHEMA_VERSION = _CAUSAL_READINESS_SCHEMA_VERSION
+_OWNER_WIRE_POLICY = ("ir.owner.causalreadinessbundle.wire", "1")
+
+
+def _owner_payload_version(payload: object) -> str:
+    """Require an embedded source version; a DTO default is not historical evidence."""
+    if not isinstance(payload, dict):
+        raise TypeError("Owned CausalReadinessBundle payload must be a JSON object")
+    version = payload.get("schema_version")
+    if type(version) is not str or not version.strip():
+        raise ValueError("Owned CausalReadinessBundle payload requires an explicit schema_version")
+    return version
+
+
+def _validate_owner_source(
+    payload: object, admission: ResolvedSchemaAdmission
+) -> CausalReadinessBundle:
+    """Validate bytes only under this owner exact registered source representation."""
+    registration = admission.source_registration
+    if registration.schema_name != _OWNER_SCHEMA_NAME:
+        raise ValueError("Owned CausalReadinessBundle source has the wrong schema name")
+    if registration.payload_version != _owner_payload_version(payload):
+        raise ValueError(
+            "Owned CausalReadinessBundle payload version disagrees with its representation"
+        )
+    return CausalReadinessBundle.model_validate(payload)
+
+
+def _project_owner_source(
+    source: CausalReadinessBundle,
+    admission: ResolvedSchemaAdmission,
+) -> CausalReadinessBundle:
+    """Preserve the validated source value when no semantic projection is declared."""
+    if not isinstance(source, CausalReadinessBundle):
+        raise TypeError("Owned CausalReadinessBundle source was not validated by its owner")
+    if admission.source_registration.payload_version != source.schema_version:
+        raise ValueError("Owned CausalReadinessBundle projection would change the source version")
+    return source
+
+
+def _validate_owner_profile(
+    profile: CanonInfo,
+    registration: IRRepresentationRegistration,
+) -> bool:
+    """Accept only the canonical profile used by this family real writer."""
+    expected = CanonInfo.from_spec(CanonSpec(forbid_floats=False))
+    return registration.profile_ref is None and profile == expected
+
+
+_causalreadinessbundle_owner = ArtifactOwnerDeclaration(
+    contract_id="ir.observation.causal_readiness_bundle.v1",
+    dto_fqn="polisyos.ir.observation.causal_readiness.CausalReadinessBundle",
+    abi_key=_CAUSAL_READINESS_SCHEMA_NAME,
+    registry_key=_CAUSAL_READINESS_SCHEMA_NAME,
+    kind="ir.causal_readiness_bundle",
+    media_type="application/json",
+    purpose="ir.causal_readiness_bundle.typed_consumer",
+    policy_revision="ir.observation.causal_readiness_bundle.v1.owner-admission.v1",
+    accepted_wire_policies=(_OWNER_WIRE_POLICY,),
+    payload_version_of=_owner_payload_version,
+    validate_source=_validate_owner_source,
+    project_for_consumer=_project_owner_source,
+    validate_profile=_validate_owner_profile,
+)
+
+
+register_schema_version(
+    _OWNER_SCHEMA_NAME,
+    _OWNER_SCHEMA_VERSION,
+    compatibility=CompatibilityMode.NONE,
+    notes=(
+        "CausalReadinessBundle current owner-admitted representation; historical predecessors are not registered.",
+    ),
+)
+register_ir_representation(
+    registry_key=_causalreadinessbundle_owner.registry_key,
+    owner_ref=_causalreadinessbundle_owner.contract_id,
+    dto_abi=_causalreadinessbundle_owner.dto_fqn,
+    wire_policy_ref=_OWNER_WIRE_POLICY[0],
+    wire_policy_revision=_OWNER_WIRE_POLICY[1],
+    schema_name=_OWNER_SCHEMA_NAME,
+    schema_version=_OWNER_SCHEMA_VERSION,
+    payload_version=_OWNER_SCHEMA_VERSION,
+    profile_ref=None,
+    readable=True,
+    writable=True,
+    current=True,
+    default_write=True,
+)
+
+
 def persist_causal_readiness_bundle(
     store: ArtifactStore,
     bundle: CausalReadinessBundle,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
     schema_name: str = _CAUSAL_READINESS_SCHEMA_NAME,
     schema_version: str = _CAUSAL_READINESS_SCHEMA_VERSION,
 ) -> CausalReadinessBundleRef:
-    """Persist readiness checks as a content-addressed IR artifact.
-
-    Args:
-        store: Artifact store that owns the JSON artifact payload.
-        bundle: Readiness results to serialize.
-        inputs: Optional upstream artifact refs for lineage.
-        schema_name: Schema identifier written to artifact metadata.
-        schema_version: Schema version written to artifact metadata.
-
-    Returns:
-        A typed artifact reference for the stored readiness bundle.
-    """
-
-    ref = put_json_artifact(
+    """Persist a source-validated CausalReadinessBundle under its exact owned representation."""
+    selected = _put_owned_json_artifact(
         store,
         bundle.model_dump(mode="json"),
-        kind="ir.causal_readiness_bundle",
+        owner=_causalreadinessbundle_owner,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return CausalReadinessBundleRef.model_validate(ref)
+    return CausalReadinessBundleRef.model_validate(selected)
 
 
 def load_causal_readiness_bundle(
-    store: ArtifactStore,
-    ref: CausalReadinessBundleRef,
+    store: ArtifactStore, ref: CausalReadinessBundleRef
 ) -> CausalReadinessBundle:
-    """Load and validate a persisted readiness bundle from artifact storage.
-
-    Args:
-        store: Artifact store containing the bundle payload.
-        ref: Typed reference returned by ``persist_causal_readiness_bundle``.
-
-    Returns:
-        The validated readiness bundle.
-    """
-
-    payload = get_json_artifact(store, ref)
-    return CausalReadinessBundle.model_validate(payload)
+    """Read CausalReadinessBundle only after its trusted owner admits the stored representation."""
+    return _get_owned_json_artifact(store, ref, owner=_causalreadinessbundle_owner)
 
 
 __all__ = [

@@ -538,6 +538,29 @@ def test_world_segment_gc_retains_invalid_time_but_propagates_assertions(
             time_end="not-a-time",
         ),
         FactSegmentManifest(
+            segment_id="segment.numeric",
+            path="numeric.parquet",
+            row_count=1,
+            sha256="0" * 64,
+            time_end=1_700_000_000,
+        ),
+        FactSegmentManifest(
+            segment_id="segment.zero-end-old-start",
+            path="zero-end.parquet",
+            row_count=1,
+            sha256="0" * 64,
+            time_start="2020-01-01T00:00:00Z",
+            time_end=0,
+        ),
+        FactSegmentManifest(
+            segment_id="segment.old-end-zero-start",
+            path="old-end.parquet",
+            row_count=1,
+            sha256="0" * 64,
+            time_start=0,
+            time_end="2020-01-01T00:00:00Z",
+        ),
+        FactSegmentManifest(
             segment_id="segment.latest",
             path="latest.parquet",
             row_count=1,
@@ -553,8 +576,18 @@ def test_world_segment_gc_retains_invalid_time_but_propagates_assertions(
         "dry_run": True,
     }
     report = gc_world_segments(tmp_path, **options)
-    assert report.deleted_segment_ids == ()
+    assert report.deleted_segment_ids == ("segment.old-end-zero-start",)
     assert "segment.invalid" in report.retained_segment_ids
+    assert "segment.numeric" in report.retained_segment_ids
+    assert "segment.zero-end-old-start" in report.retained_segment_ids
+    numeric_manifest = next(item for item in manifests if item.segment_id == "segment.numeric")
+    assert type(numeric_manifest.time_end) is int
+    assert numeric_manifest.time_end == 1_700_000_000
+    zero_end_manifest = next(
+        item for item in manifests if item.segment_id == "segment.zero-end-old-start"
+    )
+    assert type(zero_end_manifest.time_end) is int
+    assert zero_end_manifest.time_end == 0
     original = segments.parse_datetime_utc
 
     def parse_with_programmer_failure(value, *, what):

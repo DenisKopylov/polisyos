@@ -107,10 +107,10 @@ class _TenantQuotaAdmission:
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
 
-    from polisyos.core.artifacts import ExportReport, ImportReport
+    from polisyos.core.artifacts import ExportReport, ImportReport, VerificationReport
     from polisyos.core.artifacts.ids import ArtifactID
     from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef
-    from polisyos.core.artifacts.protocol import ArtifactStore, _CASStorageMember
+    from polisyos.core.artifacts.protocol import CoreJSONArtifactStore, _CASStorageMember
     from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.core.security import QuotaEnforcer, TenantQuotaLimits
@@ -222,7 +222,7 @@ class TenantSidecarScope:
 
 
 class TenantScopedCAS:
-    """Small compatibility wrapper around ``ArtifactStore`` for one tenant namespace."""
+    """Tenant-local quota wrapper implementing the strict Core JSON store contract."""
 
     def __init__(
         self,
@@ -237,7 +237,10 @@ class TenantScopedCAS:
         self.tenant_id = tenant_id
         self.root = tenant_scoped_cas_root(root, tenant_id)
         self._config = ArtifactStoreConfig(backend="filesystem", root=str(self.root))
-        self._cas = build_artifact_store(self._config, metrics=metrics, tracer=tracer)
+        self._cas = cast(
+            "CoreJSONArtifactStore",
+            build_artifact_store(self._config, metrics=metrics, tracer=tracer),
+        )
         self._quota_registry = quota_registry or TenantQuotaRegistry()
         if quota_limits is not None:
             self._quota_registry.set_limits(tenant_id, quota_limits)
@@ -324,14 +327,30 @@ class TenantScopedCAS:
                 else self._cas.put_json(obj, opts=opts, canon_spec=spec)
             )
 
-    def has(self, artifact_id: ArtifactID) -> bool:
+    def has(self, artifact_id: ArtifactID | ArtifactRef) -> bool:
         return bool(self._cas.has(artifact_id))
 
-    def get_bytes(self, artifact_id: ArtifactID) -> bytes:
+    def get_bytes(self, artifact_id: ArtifactID | ArtifactRef) -> bytes:
         return bytes(self._cas.get_bytes(artifact_id))
 
-    def get_manifest(self, artifact_id: ArtifactID) -> ArtifactManifest:
+    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef) -> ArtifactManifest:
         return self._cas.get_manifest(artifact_id)
+
+    def get_raw_manifest_bytes(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+        *,
+        manifest_profile_sha256: str | None = None,
+    ) -> bytes:
+        """Read the exact default or selected manifest through this tenant's CAS."""
+        return self._cas.get_raw_manifest_bytes(
+            artifact_id,
+            manifest_profile_sha256=manifest_profile_sha256,
+        )
+
+    def verify(self, artifact_id: ArtifactID | ArtifactRef) -> VerificationReport:
+        """Verify the exact tenant-local artifact and selected manifest view."""
+        return self._cas.verify(artifact_id)
 
     def iter_artifact_ids(self) -> list[ArtifactID]:
         return self._cas.iter_artifact_ids()
@@ -385,13 +404,16 @@ def resolve_cas_store(
     quota_limits: TenantQuotaLimits | None = None,
     metrics: MetricsRegistry | None = None,
     tracer: PolicyOSTracer | None = None,
-) -> ArtifactStore | TenantScopedCAS:
-    """Resolve either the shared CAS or an isolated tenant-specific namespace."""
+) -> CoreJSONArtifactStore:
+    """Resolve the strict Core JSON store view for shared or tenant-local CAS."""
     if tenant_id is None:
-        return build_artifact_store(
-            ArtifactStoreConfig(backend="filesystem", root=str(Path(root))),
-            metrics=metrics,
-            tracer=tracer,
+        return cast(
+            "CoreJSONArtifactStore",
+            build_artifact_store(
+                ArtifactStoreConfig(backend="filesystem", root=str(Path(root))),
+                metrics=metrics,
+                tracer=tracer,
+            ),
         )
     return TenantScopedCAS(
         root,

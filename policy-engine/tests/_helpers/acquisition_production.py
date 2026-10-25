@@ -382,16 +382,41 @@ async def persist_wdi_route(
             assert planner_ref is not None
             assert planner_report is not None
             assert requirement is not None
+            linked_records = tuple(
+                record
+                for record in planner_report.acquisition_records
+                if requirement.requirement_gap_id in record.scenario_requirement_refs
+            )
+            assert len(linked_records) == 1, (
+                "the N7 source gap must join exactly one persisted planner record",
+                requirement.requirement_gap_id,
+                tuple(record.compiled_requirement_ref for record in linked_records),
+            )
+            selected_compiled_requirement_ref = linked_records[0].compiled_requirement_ref
             report_issues = validate_persisted_acquisition_planner_report(
                 control._artifact_store,
                 planner_ref,
                 planner_report,
                 expected_scenario_id=compiled.design_problem.design_problem_id,
-                expected_compiled_requirement_ref=requirement.compiled_requirement_ref,
+                expected_compiled_requirement_ref=selected_compiled_requirement_ref,
             )
             assert report_issues == (), (
                 "the N7 report and compiler basis must resolve from the application CAS",
                 report_issues,
+            )
+            wrong_binding_issues = validate_persisted_acquisition_planner_report(
+                control._artifact_store,
+                planner_ref,
+                planner_report,
+                expected_scenario_id=compiled.design_problem.design_problem_id,
+                expected_compiled_requirement_ref=(selected_compiled_requirement_ref + ":wrong"),
+            )
+            assert any(
+                issue.get("code") == "acquisition_compiled_requirement_not_in_basis"
+                for issue in wrong_binding_issues
+            ), (
+                "the persisted N7 reader must reject a wrong compiler requirement binding",
+                wrong_binding_issues,
             )
             compiled_artifact_ref = control._put_json_artifact_ref(
                 compiled.model_dump(mode="json"),
@@ -552,10 +577,20 @@ def _sha(path: Path) -> str:
     return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def bind_fixture_l1_catalog_source(repo_root: Path, baseline_path: Path) -> None:
-    """Bind a clean fixture root; leave partial or invalid owners for native refusal."""
+def bind_fixture_l1_catalog_source(
+    repo_root: Path,
+    baseline_path: Path,
+    *,
+    include_n7_dataset_bundle: bool = False,
+) -> None:
+    """Bind a clean fixture root; leave partial or invalid owners for native refusal.
+
+    The optional N7 bundle is a controlled fixture declaration for the route
+    witness, not evidence of production custody or source currentness.
+    """
     from polisyos.runtime.quality.substrate_registry import (
         DEFAULT_L1_DCAT_PATH,
+        DEFAULT_PRODUCTION_DATA_ROOT,
         DEFAULT_ROOT_MANIFEST_PATH,
     )
 
@@ -584,7 +619,7 @@ def bind_fixture_l1_catalog_source(repo_root: Path, baseline_path: Path) -> None
             if current.is_symlink() or (current.exists() and not current.is_dir()):
                 return
 
-    expected_manifest = {
+    expected_manifest: dict[str, Any] = {
         "schema_version": "1.0",
         "kind": "policyos.production_data_root",
         "fixture_catalog": {
@@ -592,6 +627,15 @@ def bind_fixture_l1_catalog_source(repo_root: Path, baseline_path: Path) -> None
             "sha256": hashlib.sha256(baseline.read_bytes()).hexdigest(),
         },
     }
+    if include_n7_dataset_bundle:
+        expected_manifest["bundles"] = {
+            "datasets": {
+                "version_id": "fixture-only-datasets-v1",
+                "path": DEFAULT_L1_DCAT_PATH.parent.relative_to(
+                    DEFAULT_PRODUCTION_DATA_ROOT
+                ).as_posix(),
+            }
+        }
 
     manifest_present = manifest_path.exists() or manifest_path.is_symlink()
     if manifest_present:

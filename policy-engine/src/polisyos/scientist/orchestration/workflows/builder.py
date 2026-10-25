@@ -77,6 +77,7 @@ if TYPE_CHECKING:
     from polisyos.core.security import AuditLog
     from polisyos.pdc import EvalSafetyVerifierPort, EvaluationExecutionContext
     from polisyos.scientist.orchestration.engine.context import (
+        CompletedMethodHTESelectionOwnerPort,
         FabricPort,
         FoundryPort,
         LexPort,
@@ -317,6 +318,7 @@ def build_execution_context(
     eval_safety_verifier: EvalSafetyVerifierPort | None = None,
     epoch_certificate_issuance_owner: EpochCertificateIssuanceOwner | None = None,
     method_metric_selection_owner: MethodMetricSelectionOwnerPort | None = None,
+    completed_method_hte_selection_owner: CompletedMethodHTESelectionOwnerPort | None = None,
 ) -> ClaimCapableExecutionContext:
     """Create the engine execution context shared by all nodes in one run.
 
@@ -335,6 +337,8 @@ def build_execution_context(
         memory: Optional memory backend.
         depth: Sub-workflow nesting depth for trace/debug metadata.
         epoch_certificate_issuance_owner: Trusted in-process epoch issuance owner.
+        completed_method_hte_selection_owner: Runtime-owned HTE source reader installed by
+            composition; never read from workflow state.
 
     Returns:
         Fully initialized `ExecutionContext` with a started `RunContext`.
@@ -377,6 +381,7 @@ def build_execution_context(
         eval_safety_verifier=eval_safety_verifier,
         epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
         method_metric_selection_owner=method_metric_selection_owner,
+        completed_method_hte_selection_owner=completed_method_hte_selection_owner,
         memory=memory,
         claim_ledger_owner=build_default_claim_ledger_owner(store=store),
     )
@@ -575,6 +580,7 @@ def run_selected_workflow(
     eval_safety_verifier: EvalSafetyVerifierPort | None = None,
     epoch_certificate_issuance_owner: EpochCertificateIssuanceOwner | None = None,
     method_metric_selection_owner: MethodMetricSelectionOwnerPort | None = None,
+    completed_method_hte_selection_owner: CompletedMethodHTESelectionOwnerPort | None = None,
 ) -> WorkflowExecutionResult:
     """Dispatch to the builtin workflow runner chosen by `resolve_workflow_id()`.
 
@@ -591,6 +597,8 @@ def run_selected_workflow(
         lex: Optional Lex adapter.
         logger: Optional workflow logger.
         tracer: Optional tracer object.
+        completed_method_hte_selection_owner: Runtime-owned HTE source reader forwarded only to
+            the policy-design workflow.
 
     Returns:
         `WorkflowExecutionResult` from the concrete DAG runner.
@@ -616,6 +624,7 @@ def run_selected_workflow(
             eval_safety_verifier=eval_safety_verifier,
             epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
             method_metric_selection_owner=method_metric_selection_owner,
+            completed_method_hte_selection_owner=completed_method_hte_selection_owner,
         )
     if workflow_id == "scientist_discovery":
         return run_discovery_workflow(
@@ -720,8 +729,15 @@ def run_policy_design_workflow(
     eval_safety_verifier: EvalSafetyVerifierPort | None = None,
     epoch_certificate_issuance_owner: EpochCertificateIssuanceOwner | None = None,
     method_metric_selection_owner: MethodMetricSelectionOwnerPort | None = None,
+    completed_method_hte_selection_owner: CompletedMethodHTESelectionOwnerPort | None = None,
 ) -> WorkflowExecutionResult:
-    """Execute the `scientist_policy_design` DAG with search and translation stages."""
+    """Execute the policy-design DAG with search and translation stages.
+
+    Args:
+        initial_state: Initial policy-design workflow state.
+        completed_method_hte_selection_owner: Runtime-owned completed HTE reader passed into the
+            workflow context; source selection is never sourced from a workflow payload.
+    """
     store = _resolve_store(store, store_factory=store_factory)
     policy = normalize_checkpoint_policy(checkpoint_policy)
 
@@ -781,6 +797,7 @@ def run_policy_design_workflow(
             eval_safety_verifier=eval_safety_verifier,
             epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
             method_metric_selection_owner=method_metric_selection_owner,
+            completed_method_hte_selection_owner=completed_method_hte_selection_owner,
         )
         _propagate_runtime_run_metadata(ctx, state)
 

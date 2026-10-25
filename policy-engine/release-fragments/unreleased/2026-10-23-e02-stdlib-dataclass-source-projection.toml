@@ -1,0 +1,34 @@
+id = "2026-10-23-e02-stdlib-dataclass-source-projection"
+title = "Reconcile consumed dataclass provider lookups with isolated source"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-polisyos"
+summary = "The confidence-ledger source verifier executes the selected stdlib dataclasses.py in an isolated module namespace, then reconciles every consumed LOAD_GLOBAL lookup and recursively checks the provider object graph. Active recursion pairs are separate from fully verified pairs, and mapping-proxy contents, aliases, and cycles are checked before admission. Runtime-only provider globals that shadow a consumed builtin fallback are rejected."
+evidence = [
+  "src/polisyos/runtime/quality/confidence_ledger.py",
+  "tests/unit/runtime/quality/test_confidence_ledger_dataclass_source_transform.py",
+]
+compatibility = "This is an internal source-binding correction. Supported exact stdlib dataclass and bare built-in read-only property forms can resolve only when their source-derived runtime projection matches loaded owner classes and consumed provider lookups; unsupported transforms and provider mutations remain fail-closed."
+change_class = "internal"
+surface_classification = "internal: confidence-ledger source binding verification"
+migration = "No persisted-data, caller-signature, or consumer migration is required."
+api = "No public API, DTO, schema, HTTP route, exported signature, or generated-client change."
+limitations = "The candidate focused suite passed 15 tests on CPython 3.14.3; CPython 3.12 was not run. The interpreter builtins mapping is an explicit trusted boundary for this bounded check; this does not establish a universal Python sandbox or process-lifetime import purity. The bounded transform subset does not establish the full N11 source/import/package closure, DS17 Available admission, source-artifact refresh, or production availability. Pydantic model, typing.Protocol, arbitrary descriptor and setter transforms remain unresolved and fail closed."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "stdlib-dataclass-source-projection-internal"
+change_class = "internal"
+impact = "internal"
+surface = "internal: runtime-quality confidence-ledger source binding"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Supported stdlib dataclass outputs and exact read-only built-in property descriptors are reconciled against the selected source-executed provider graph; unproven consumed lookups, provider-graph mismatches, and runtime-only global shadows remain fail-closed."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

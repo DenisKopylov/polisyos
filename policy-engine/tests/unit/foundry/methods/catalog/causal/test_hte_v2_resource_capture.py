@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+import math
 from types import SimpleNamespace
 from typing import Any
 
@@ -21,7 +22,9 @@ from polisyos.core.contracts.owned_attempt_anchor import (
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.numpy_runner import NumpyRunner
 from polisyos.foundry.methods.backends.protocol import RuntimeContextDispatchError
-from polisyos.foundry.methods.catalog.causal.forest_dr import ForestDRLearnerEstimatorV11
+from polisyos.foundry.methods.catalog.causal.forest_dr import (
+    ForestDRLearnerEstimatorV11,
+)
 from polisyos.foundry.methods.catalog.causal.hte_v2 import (
     CausalForestEstimatorV2,
     DoubleMachineLearningV2,
@@ -41,11 +44,14 @@ from polisyos.foundry.methods.catalog.causal.hte_v2 import (
     _native_extraction_entry,
     _not_started_resource_receipt,
     _one_scalar,
+    _pinned_econml_constructor_values,
+    _refusal_output,
     _resource_receipt,
     _run_with_joblib_profile,
     _validate_numeric_resource_receipt,
     build_hte_data,
     build_owned_hte_input_capture,
+    validate_hte_writer_ready_json,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
 from polisyos.runtime.http.services.control.owned_attempt_anchor import (
@@ -78,7 +84,122 @@ def test_joblib_profile_is_scoped_to_one_method_call_and_restored() -> None:
     assert receipt.joblib_exit_status == "returned"
     assert receipt.joblib_entry_effective_jobs == receipt.joblib_exit_effective_jobs == 1
     assert receipt.joblib_entry_config_sha256 == receipt.joblib_exit_config_sha256
-    assert receipt.joblib_entry_backend_fqn == receipt.joblib_exit_backend_fqn
+
+
+@pytest.mark.parametrize(
+    ("module_name", "class_name", "class_fqn"),
+    [
+        (
+            "econml.dml.causal_forest",
+            "CausalForestDML",
+            "econml.dml.causal_forest.CausalForestDML",
+        ),
+        (
+            "econml.dr._drlearner",
+            "ForestDRLearner",
+            "econml.dr._drlearner.ForestDRLearner",
+        ),
+    ],
+)
+def test_pinned_econml_constructor_observation_covers_every_field_and_fails_closed(
+    module_name: str,
+    class_name: str,
+    class_fqn: str,
+) -> None:
+    """Capture the complete pinned constructor surface and exact one-job value."""
+    import importlib
+    import inspect
+
+    pytest.importorskip("econml")
+    from polisyos.foundry.methods.catalog.causal.hte_v2 import _capture_estimator_observation
+
+    estimator_type = getattr(importlib.import_module(module_name), class_name)
+    estimator = estimator_type(n_jobs=1, n_estimators=8)
+    assert not callable(getattr(estimator, "get_params", None))
+
+    constructor_parameters = inspect.signature(estimator_type.__init__).parameters
+    expected_fields = {name for name in constructor_parameters if name != "self"}
+    configured_values = _pinned_econml_constructor_values(estimator)
+    assert set(configured_values) == expected_fields
+
+    before = _capture_estimator_observation(estimator)
+    assert before["class_fqn"] == class_fqn
+    assert before["n_jobs"] == 1
+    estimator.n_estimators += 1
+    after = _capture_estimator_observation(estimator)
+    assert before["params_sha256"] != after["params_sha256"]
+
+    for invalid_n_jobs in (True, -1, 2):
+        estimator.n_jobs = invalid_n_jobs
+        with pytest.raises(ValueError, match="hte_estimator_n_jobs_not_one"):
+            _capture_estimator_observation(estimator)
+
+    estimator.n_jobs = 1
+    del estimator.n_jobs
+    with pytest.raises(ValueError, match="hte_estimator_n_jobs_not_one"):
+        _capture_estimator_observation(estimator)
+
+    class ForeignEstimatorWithoutGetter:
+        pass
+
+    with pytest.raises(ValueError, match="hte_estimator_n_jobs_not_one"):
+        _capture_estimator_observation(ForeignEstimatorWithoutGetter())
+
+
+@pytest.mark.parametrize("invalid_effective_jobs", [True, False, 0, -1, 1.5, "1", np.int64(1)])
+def test_invalid_joblib_effective_jobs_refuse_before_method_callback(
+    monkeypatch: pytest.MonkeyPatch,
+    invalid_effective_jobs: object,
+) -> None:
+    """Only a positive built-in int may qualify the selected one-job profile."""
+    import joblib
+
+    from polisyos.foundry.methods.catalog.causal import hte_v2
+
+    def callback_must_not_run(*_args: object, **_kwargs: object) -> dict[str, Any]:
+        raise AssertionError("invalid Joblib observation must refuse before method execution")
+
+    monkeypatch.setattr(joblib, "effective_n_jobs", lambda n_jobs=-1: invalid_effective_jobs)
+    monkeypatch.setattr(hte_v2, "_execute_with_profile_unscoped", callback_must_not_run)
+
+    result = CausalForestEstimatorV2.pure_step({}, {})
+    refusal = validate_hte_writer_ready_json(result["hte_outcome_write_ready"])
+    assert isinstance(refusal, HTEWriterReadyRefusalV1)
+
+    assert refusal.diagnostic_code == "resource_profile_invalid"
+    assert refusal.refusal_stage == "prepare"
+    assert refusal.refusal_reason == "method_profile_unavailable"
+    assert refusal.resource_receipt.execution_status == "not_started"
+    assert refusal.resource_receipt.joblib_started is False
+
+
+@pytest.mark.parametrize("invalid_exit_jobs", [True, False, 0, -1, 1.5, "1", np.int64(1)])
+def test_invalid_joblib_exit_after_callback_never_emits_point_or_completed_receipt(
+    monkeypatch: pytest.MonkeyPatch,
+    invalid_exit_jobs: object,
+) -> None:
+    """A malformed exit observation cannot become a false complete resource receipt."""
+    import joblib
+
+    from polisyos.foundry.methods.catalog.causal import hte_v2
+
+    values = iter((1, invalid_exit_jobs))
+    callback_calls: list[bool] = []
+
+    def callback_returns_candidate(*_args: object, **_kwargs: object) -> dict[str, Any]:
+        callback_calls.append(True)
+        return {"hte_outcome_write_ready": {"kind": "point_estimate"}}
+
+    monkeypatch.setattr(joblib, "effective_n_jobs", lambda n_jobs=-1: next(values))
+    monkeypatch.setattr(hte_v2, "_execute_with_profile_unscoped", callback_returns_candidate)
+
+    with pytest.raises(
+        ValueError,
+        match="hte_joblib_resource_observation_invalid_after_start",
+    ):
+        CausalForestEstimatorV2.pure_step({}, {})
+
+    assert callback_calls == [True]
 
 
 def _owned_context_for(method_class: type, *, seed: int) -> OwnedAttemptAnchorDispatchContext:
@@ -489,7 +610,9 @@ def test_returned_but_unqualified_resource_measurement_is_not_called_raised(
         np.asarray([1.0, True], dtype=object),
     ],
 )
-def test_numeric_native_payloads_reject_boolean_scalars_and_vectors(payload: object) -> None:
+def test_numeric_native_payloads_reject_boolean_scalars_and_vectors(
+    payload: object,
+) -> None:
     """Boolean values cannot become numeric effect or inference evidence."""
     with pytest.raises(ValueError):
         _one_scalar(payload, name="native_bound")
@@ -825,7 +948,7 @@ def _writer_ready_point_json(*, feature_names: list[str] | None) -> dict[str, An
         runtime_context=None,
     )
     _, receipt = _run_with_joblib_profile(
-        lambda: None,
+        lambda: {},
         method_profile_id=method_profile_id,
     )
     point = HTEWriterReadyPointV1(
@@ -873,6 +996,19 @@ def test_writer_ready_json_boundary_round_trips_json_tuples_without_weakening_py
     attached_value = validate_hte_writer_ready_json(attached["hte_outcome_write_ready"])
     assert isinstance(attached_value, HTEWriterReadyPointV1)
     assert attached_value.capture.source_feature_names == ("earnings", "schooling")
+
+    refusal_output = _refusal_output(
+        payload["method_fqn"],
+        payload["method_abi"],
+        DoubleMachineLearningV2.owned_hte_profile_id,
+        diagnostic_code="resource_profile_invalid",
+        resource_receipt=receipt,
+        capture=payload["capture"],
+    )
+    refusal = validate_hte_writer_ready_json(refusal_output["hte_outcome_write_ready"])
+    assert isinstance(refusal, HTEWriterReadyRefusalV1)
+    assert refusal.capture is not None
+    assert refusal.capture.source_feature_names == ("earnings", "schooling")
 
 
 def test_writer_ready_json_boundary_preserves_absent_feature_names_and_refusal() -> None:
@@ -957,3 +1093,239 @@ def test_writer_ready_json_boundary_rejects_malformed_values_without_coercion() 
     non_finite_number["point_estimate"] = float("nan")
     with pytest.raises((TypeError, ValueError)):
         validate_hte_writer_ready_json(non_finite_number)
+
+
+# These tests exercise the actual EconML producer. `model_type` selects a
+# constructor; it is provenance, not an EconML constructor keyword.
+def _dml_selector_fixture(selector: str):
+    from polisyos.core.contracts.owned_attempt_anchor import (
+        OwnedAttemptAnchorDispatchContext,
+        OwnedAttemptAnchorRef,
+        OwnedHTERequestContextV1,
+    )
+
+    rng = np.random.default_rng(1601)
+    treatment = np.tile(np.asarray([0, 1], dtype=np.int64), 20)
+    rng.shuffle(treatment)
+    covariates = rng.normal(size=(40, 2))
+    outcome = (
+        1.4 * treatment
+        + 0.6 * covariates[:, 0]
+        - 0.25 * covariates[:, 1]
+        + rng.normal(scale=0.2, size=40)
+    )
+    state = HTEObservationalData(
+        outcome=outcome,
+        treatment=treatment,
+        covariates=covariates,
+        feature_names=["baseline", "income"],
+    )
+    params = {item.name: item.default for item in DoubleMachineLearningV2.signature.parameters}
+    params.update(model_type=selector, control_value=0.0, treated_value=1.0)
+    request = OwnedHTERequestContextV1(
+        request_estimand_status="not_established",
+        request_estimand=None,
+        request_target_scope_status="not_established",
+        request_target_scope=None,
+        outcome_variable_status="not_established",
+        outcome_variable_id=None,
+        treatment_variable_status="not_established",
+        treatment_variable_id=None,
+        contrast_status="declared",
+        control_value=0.0,
+        treated_value=1.0,
+        request_alpha_status="not_established",
+        requested_alpha=None,
+        requested_guarantee_status="not_established",
+        requested_guarantee=None,
+        materialization_binding_ref={
+            "artifact_id": "sha256:" + "b" * 64,
+            "kind": "foundry.hte.physical_source_materialization_binding",
+            "media_type": "application/json",
+            "manifest_profile_sha256": "sha256:" + "c" * 64,
+        },
+    )
+    capture = build_owned_hte_input_capture(
+        state,
+        source_data_ref={
+            "artifact_id": "sha256:" + "1" * 64,
+            "kind": "ir.observation_method_input",
+            "media_type": "application/json",
+            "manifest_profile_sha256": "sha256:" + "2" * 64,
+        },
+        method_class=DoubleMachineLearningV2,
+        method_abi_digest="8" * 64,
+        resolved_params=params,
+        seed=0,
+        request_context=request,
+    )
+    anchor_ref = OwnedAttemptAnchorRef(
+        artifact_id="sha256:" + "9" * 64,
+        kind="runtime.owned_attempt_anchor",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "a" * 64,
+    )
+    context = OwnedAttemptAnchorDispatchContext(
+        anchor_ref=anchor_ref,
+        input_capture=capture,
+        method_abi_digest="8" * 64,
+    )
+    return state, params, context
+
+
+@pytest.mark.parametrize(
+    ("selector", "constructor_name"),
+    [
+        ("linear", "LinearDML"),
+        ("sparse", "SparseLinearDML"),
+        ("kernel", "KernelDML"),
+    ],
+)
+def test_dml_selector_dispatches_to_real_constructor_without_laundering(
+    monkeypatch: pytest.MonkeyPatch,
+    selector: str,
+    constructor_name: str,
+) -> None:
+    """Each supported selector fits a real model and remains owner-bound."""
+    from types import MappingProxyType
+
+    import econml.dml
+    from threadpoolctl import threadpool_limits
+
+    state, params, context = _dml_selector_fixture(selector)
+    immutable_params = MappingProxyType(dict(params))
+    original_params = dict(immutable_params)
+    real_constructor = getattr(econml.dml, constructor_name)
+    constructor_calls: list[dict[str, Any]] = []
+
+    def observed_constructor(*args: Any, **kwargs: Any) -> Any:
+        constructor_calls.append(dict(kwargs))
+        return real_constructor(*args, **kwargs)
+
+    observed_constructor.__name__ = real_constructor.__name__
+    observed_constructor.__qualname__ = real_constructor.__qualname__
+    monkeypatch.setattr(econml.dml, constructor_name, observed_constructor)
+
+    with threadpool_limits(limits=1):
+        output = DoubleMachineLearningV2.pure_step_with_runtime_context(
+            state,
+            immutable_params,
+            runtime_context=context,
+        )
+
+    from polisyos.foundry.methods.catalog.causal.hte_v2 import (
+        validate_hte_writer_ready_json,
+    )
+
+    outcome = output["hte_outcome_write_ready"]
+    assert outcome["kind"] == "point_estimate"
+    point = validate_hte_writer_ready_json(outcome)
+    assert isinstance(point, HTEWriterReadyPointV1)
+    assert constructor_calls and len(constructor_calls) == 1
+    assert "model_type" not in constructor_calls[0]
+    assert point.method_profile_id == "econml.dml.point_only@2.0"
+    assert math.isfinite(point.point_estimate)
+    assert point.inference_reason == "inference_not_requested"
+    assert point.cate_values and len(point.cate_values) == 40
+    assert point.capture.resolved_params["model_type"] == selector
+    assert point.capture.resolved_params_sha256 == context.input_capture.resolved_params_sha256
+    assert point.capture.source_feature_names == ("baseline", "income")
+    assert point.capture.n_treated == point.capture.n_control == 20
+    assert point.resource_receipt.execution_status == "returned"
+    assert point.resource_receipt.joblib_max_jobs == 1
+    assert dict(immutable_params) == original_params
+
+
+def test_dml_selector_reintroduction_is_a_typed_fit_refusal(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Reintroducing the selector as a constructor kwarg must fail closed."""
+    from types import MappingProxyType
+
+    import econml.dml
+    from threadpoolctl import threadpool_limits
+
+    state, params, context = _dml_selector_fixture("linear")
+    immutable_params = MappingProxyType(dict(params))
+    real_constructor = econml.dml.LinearDML
+    constructor_errors: list[str] = []
+
+    def reintroduced_selector(*args: Any, **kwargs: Any) -> Any:
+        try:
+            return real_constructor(*args, model_type="linear", **kwargs)
+        except TypeError as exc:
+            constructor_errors.append(str(exc))
+            raise
+
+    reintroduced_selector.__name__ = real_constructor.__name__
+    reintroduced_selector.__qualname__ = real_constructor.__qualname__
+    monkeypatch.setattr(econml.dml, "LinearDML", reintroduced_selector)
+
+    with threadpool_limits(limits=1):
+        output = DoubleMachineLearningV2.pure_step_with_runtime_context(
+            state,
+            immutable_params,
+            runtime_context=context,
+        )
+
+    from polisyos.foundry.methods.catalog.causal.hte_v2 import (
+        validate_hte_writer_ready_json,
+    )
+
+    outcome = validate_hte_writer_ready_json(output["hte_outcome_write_ready"])
+    assert isinstance(outcome, HTEWriterReadyRefusalV1)
+    assert constructor_errors
+    assert outcome.refusal_stage == "fit"
+    assert outcome.diagnostic_code == "hte_fit_failed"
+    assert outcome.capture is not None
+    assert outcome.capture.resolved_params["model_type"] == "linear"
+    assert outcome.capture.resolved_params_sha256 == context.input_capture.resolved_params_sha256
+    assert outcome.resource_receipt.execution_status == "returned"
+    assert outcome.resource_receipt.joblib_max_jobs == 1
+
+
+def test_dml_unknown_selector_remains_a_preparation_refusal() -> None:
+    """The constructor split does not turn malformed selectors into defaults."""
+    from types import MappingProxyType
+
+    state, params, context = _dml_selector_fixture("not-a-supported-model")
+    immutable_params = MappingProxyType(dict(params))
+    original_params = dict(immutable_params)
+    output = DoubleMachineLearningV2.pure_step_with_runtime_context(
+        state,
+        immutable_params,
+        runtime_context=context,
+    )
+    from polisyos.foundry.methods.catalog.causal.hte_v2 import (
+        validate_hte_writer_ready_json,
+    )
+
+    outcome = validate_hte_writer_ready_json(output["hte_outcome_write_ready"])
+    assert isinstance(outcome, HTEWriterReadyRefusalV1)
+    assert outcome.refusal_stage == "prepare"
+    assert outcome.diagnostic_code == "dml_profile_invalid"
+    assert dict(immutable_params) == original_params
+
+
+def test_dml_invalid_supplied_state_is_typed_invalid_input_not_absence() -> None:
+    """Malformed supplied data remains a strict invalid-input refusal."""
+    from types import MappingProxyType
+
+    from polisyos.foundry.methods.catalog.causal.hte_v2 import (
+        validate_hte_writer_ready_json,
+    )
+
+    state, params, context = _dml_selector_fixture("linear")
+    malformed_state = state.model_dump()
+    malformed_state["outcome"] = state.outcome[:-1]
+    output = DoubleMachineLearningV2.pure_step_with_runtime_context(
+        malformed_state,
+        MappingProxyType(dict(params)),
+        runtime_context=context,
+    )
+    outcome = validate_hte_writer_ready_json(output["hte_outcome_write_ready"])
+    assert isinstance(outcome, HTEWriterReadyRefusalV1)
+    assert outcome.refusal_stage == "prepare"
+    assert outcome.refusal_reason == "invalid_selected_input"
+    assert outcome.diagnostic_code == "hte_input_invalid"
+    assert outcome.capture is None

@@ -11,6 +11,8 @@ from polisyos.fabric.connectors.sources.http_common import (
     build_data_version,
     quality_flags_from_source_metadata,
     retry_after_seconds,
+    safe_float,
+    safe_int,
 )
 from polisyos.ir.connectors import VersionStrategy
 
@@ -75,3 +77,33 @@ def test_quality_flags_adds_freshness_hint_when_source_timestamp_missing() -> No
     )
     assert "custom:flag" in flags
     assert FRESHNESS_SOURCE_TIMESTAMP_MISSING in flags
+
+
+def test_safe_numeric_helpers_accept_supported_protocols_and_buffers() -> None:
+    class IntConvertible:
+        def __int__(self) -> int:
+            return 17
+
+    class IndexConvertible:
+        def __index__(self) -> int:
+            return 23
+
+    class FloatConvertible:
+        def __float__(self) -> float:
+            return 1.25
+
+    assert safe_int("12") == 12
+    assert safe_int(b"13") == 13
+    assert safe_int(memoryview(b"14")) == 14
+    assert safe_int(IntConvertible()) == 17
+    assert safe_int(IndexConvertible()) == 23
+    assert safe_int("not-an-integer") is None
+    assert safe_int(object()) is None
+
+    assert safe_float("1.5") == 1.5
+    assert safe_float(b"2.5") == 2.5
+    assert safe_float(memoryview(b"3.5")) == 3.5
+    assert safe_float(FloatConvertible()) == 1.25
+    assert safe_float(IndexConvertible()) == 23.0
+    assert safe_float("not-a-float") is None
+    assert safe_float(object()) is None

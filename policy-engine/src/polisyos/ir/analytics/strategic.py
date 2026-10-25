@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 import itertools
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any
@@ -18,11 +18,20 @@ from polisyos.ir._internal.validation import (
     ensure_finite_numeric,
     ensure_unique_ids,
 )
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
 from polisyos.ir.analytics.abstraction import AbstractionPreservationType
 from polisyos.ir.analytics.causal_queries import InterventionSpec, InterventionType
 from polisyos.ir.analytics.dynamic_regime import RuntimeSupportStatus
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import ArtifactStore
+from polisyos.ir.artifacts._lineage import InputRefLike
+from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.kernel.base import ComputeBudget
+from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
@@ -115,17 +124,20 @@ def _persist_strategic_leaf(
     kind: str,
     schema_name: str,
     schema_version: str,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
 ) -> ArtifactRefModel:
-    ref = put_json_artifact(
+    """Persist a registered strategic DTO through its owner and selected-profile receipt."""
+    owner = _STRATEGIC_OWNER_BY_MODEL.get(type(payload))
+    if owner is None or kind != owner.kind or schema_name != owner.registry_key:
+        raise ValueError("ir_strategic_leaf_owner_mismatch")
+    ref = _put_owned_json_artifact(
         store,
         payload.model_dump(mode="json"),
-        kind=kind,
+        owner=owner,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=True,
     )
     return ArtifactRefModel.model_validate(ref)
 
@@ -139,22 +151,20 @@ def _load_strategic_leaf[StrategicModelT: BaseModel](
     expected_schema_name: str,
     expected_schema_version: str,
 ) -> StrategicModelT:
-    if ref.kind != expected_kind or ref.media_type != "application/json":
-        raise ValueError("ir_strategic_leaf_owner_mismatch")
-
-    manifest = store.get_manifest(ref)
-    schema = manifest.artifact_schema
+    """Load a strategic DTO after one frozen owner admission."""
+    owner = _STRATEGIC_OWNER_BY_MODEL.get(model)
     if (
-        manifest.kind != expected_kind
-        or manifest.media_type != "application/json"
-        or schema is None
-        or schema.name != expected_schema_name
-        or schema.version != expected_schema_version
+        owner is None
+        or ref.kind != expected_kind
+        or ref.media_type != "application/json"
+        or expected_kind != owner.kind
+        or expected_schema_name != owner.registry_key
     ):
         raise ValueError("ir_strategic_leaf_owner_mismatch")
-
-    payload = get_json_artifact(store, ref)
-    return model.model_validate(payload)
+    # This argument names each wrapper's former current version. Admitted versions
+    # are selected by the exact owner registry route, not by a default-version allowlist.
+    _ = expected_schema_version
+    return _get_owned_json_artifact(store, ref, owner=owner)
 
 
 def encode_action_profile(
@@ -2263,101 +2273,247 @@ class StrategicResponseBundle(BaseModel):
         return self
 
 
+def _declare_strategic_owner(
+    model: type[BaseModel],
+    *,
+    schema_name: str,
+    schema_version: str,
+) -> ArtifactOwnerDeclaration[Any, Any]:
+    contract_id = f"ir.analytics.{schema_name.replace('.', '_')}.owner.v1"
+    wire_policy_ref = f"{contract_id}.wire-law"
+    return declare_model_owner(
+        model,
+        contract_id=contract_id,
+        dto_fqn=f"{model.__module__}.{model.__qualname__}",
+        abi_key=f"{contract_id}.dto-abi.v1",
+        registry_key=schema_name,
+        kind=schema_name,
+        media_type="application/json",
+        purpose="strategic_ir_artifact",
+        policy_revision=f"{contract_id}.admission.v1",
+        accepted_wire_policies=((wire_policy_ref, "1"),),
+        payload_version_field="schema_version",
+        validate_profile=owner_profile_for_spec(
+            CanonSpec(forbid_floats=False),
+            profile_ref=None,
+        ),
+        representations=(
+            OwnedJSONRepresentation(
+                schema_name=schema_name,
+                schema_version=schema_version,
+                payload_version=schema_version,
+                wire_policy_ref=wire_policy_ref,
+                wire_policy_revision="1",
+                profile_ref=None,
+                compatibility=CompatibilityMode.NONE,
+                notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+                readable=True,
+                writable=True,
+                current=True,
+                default_write=True,
+                readable_from=(),
+            ),
+        ),
+    )
+
+
+_STRATEGIC_OWNER_BY_MODEL = {
+    model: _declare_strategic_owner(
+        model,
+        schema_name=schema_name,
+        schema_version=schema_version,
+    )
+    for model, schema_name, schema_version in (
+        (
+            FiniteStrategicPayoffTable,
+            _STRATEGIC_PAYOFF_TABLE_SCHEMA_NAME,
+            _STRATEGIC_PAYOFF_TABLE_SCHEMA_VERSION,
+        ),
+        (StrategicSCM, _STRATEGIC_SCM_SCHEMA_NAME, _STRATEGIC_SCM_SCHEMA_VERSION),
+        (
+            StrategicResponseBundle,
+            _STRATEGIC_RESPONSE_BUNDLE_SCHEMA_NAME,
+            _STRATEGIC_RESPONSE_BUNDLE_SCHEMA_VERSION,
+        ),
+        (
+            MeanFieldPerturbationSpec,
+            _MFG_PERTURBATION_SPEC_SCHEMA_NAME,
+            _MFG_PERTURBATION_SPEC_SCHEMA_VERSION,
+        ),
+        (
+            MeanFieldMacroSimulationConfig,
+            _MFG_MACRO_SIMULATION_CONFIG_SCHEMA_NAME,
+            _MFG_MACRO_SIMULATION_CONFIG_SCHEMA_VERSION,
+        ),
+        (
+            MeanFieldSolverResidualReport,
+            _MFG_SOLVER_RESIDUAL_REPORT_SCHEMA_NAME,
+            _MFG_SOLVER_RESIDUAL_REPORT_SCHEMA_VERSION,
+        ),
+        (
+            MeanFieldMassConservationReport,
+            _MFG_MASS_CONSERVATION_REPORT_SCHEMA_NAME,
+            _MFG_MASS_CONSERVATION_REPORT_SCHEMA_VERSION,
+        ),
+        (
+            MeanFieldEquilibriumCertificate,
+            _MFG_EQUILIBRIUM_CERTIFICATE_SCHEMA_NAME,
+            _MFG_EQUILIBRIUM_CERTIFICATE_SCHEMA_VERSION,
+        ),
+        (
+            StrategicClosureSummary,
+            _STRATEGIC_CLOSURE_SUMMARY_SCHEMA_NAME,
+            _STRATEGIC_CLOSURE_SUMMARY_SCHEMA_VERSION,
+        ),
+        (
+            EquilibriumSetSummary,
+            _EQUILIBRIUM_SET_SUMMARY_SCHEMA_NAME,
+            _EQUILIBRIUM_SET_SUMMARY_SCHEMA_VERSION,
+        ),
+        (
+            EquilibriumSelectionSummary,
+            _EQUILIBRIUM_SELECTION_SUMMARY_SCHEMA_NAME,
+            _EQUILIBRIUM_SELECTION_SUMMARY_SCHEMA_VERSION,
+        ),
+        (
+            PerformativeShiftSummary,
+            _PERFORMATIVE_SHIFT_SUMMARY_SCHEMA_NAME,
+            _PERFORMATIVE_SHIFT_SUMMARY_SCHEMA_VERSION,
+        ),
+        (
+            PostAdaptationPolicyValueSummary,
+            _POST_ADAPTATION_POLICY_VALUE_SUMMARY_SCHEMA_NAME,
+            _POST_ADAPTATION_POLICY_VALUE_SUMMARY_SCHEMA_VERSION,
+        ),
+        (
+            StrategicDecompositionCertificate,
+            _STRATEGIC_DECOMPOSITION_CERTIFICATE_SCHEMA_NAME,
+            _STRATEGIC_DECOMPOSITION_CERTIFICATE_SCHEMA_VERSION,
+        ),
+        (
+            StrategicDecompositionFailureCard,
+            _STRATEGIC_DECOMPOSITION_FAILURE_CARD_SCHEMA_NAME,
+            _STRATEGIC_DECOMPOSITION_FAILURE_CARD_SCHEMA_VERSION,
+        ),
+        (
+            StrategicComponentBoundsSummary,
+            _STRATEGIC_COMPONENT_BOUNDS_SUMMARY_SCHEMA_NAME,
+            _STRATEGIC_COMPONENT_BOUNDS_SUMMARY_SCHEMA_VERSION,
+        ),
+    )
+}
+
+
 def persist_strategic_payoff_table(
     store: ArtifactStore,
     table: FiniteStrategicPayoffTable,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
     schema_name: str = _STRATEGIC_PAYOFF_TABLE_SCHEMA_NAME,
     schema_version: str = _STRATEGIC_PAYOFF_TABLE_SCHEMA_VERSION,
 ) -> StrategicPayoffTableRef:
-    """Persist one finite payoff table and return its typed artifact reference."""
-    ref = put_json_artifact(
+    """Persist one finite payoff table through exact owner admission."""
+    ref = _persist_strategic_leaf(
         store,
-        table.model_dump(mode="json"),
+        table,
         kind="ir.strategic_payoff_table",
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
-        canon_spec=CanonSpec(forbid_floats=False),
     )
-    return StrategicPayoffTableRef.model_validate(ref)
+    return StrategicPayoffTableRef.model_validate(ref.model_dump(mode="json"))
 
 
 def load_strategic_payoff_table(
     store: ArtifactStore,
     ref: StrategicPayoffTableRef,
 ) -> FiniteStrategicPayoffTable:
-    """Load strategic payoff table."""
-    payload = get_json_artifact(store, ref)
-    return FiniteStrategicPayoffTable.model_validate(payload)
+    """Load strategic payoff table after exact owner admission."""
+    return _load_strategic_leaf(
+        store,
+        ref,
+        FiniteStrategicPayoffTable,
+        expected_kind=_STRATEGIC_PAYOFF_TABLE_SCHEMA_NAME,
+        expected_schema_name=_STRATEGIC_PAYOFF_TABLE_SCHEMA_NAME,
+        expected_schema_version=_STRATEGIC_PAYOFF_TABLE_SCHEMA_VERSION,
+    )
 
 
 def persist_strategic_scm(
     store: ArtifactStore,
     contract: StrategicSCM,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
     schema_name: str = _STRATEGIC_SCM_SCHEMA_NAME,
     schema_version: str = _STRATEGIC_SCM_SCHEMA_VERSION,
 ) -> StrategicSCMRef:
-    """Persist a strategic SCM contract and return its typed artifact reference."""
-    ref = put_json_artifact(
+    """Persist one strategic SCM through exact owner admission."""
+    ref = _persist_strategic_leaf(
         store,
-        contract.model_dump(mode="json"),
+        contract,
         kind="ir.strategic_scm",
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
-        canon_spec=CanonSpec(forbid_floats=False),
     )
-    return StrategicSCMRef.model_validate(ref)
+    return StrategicSCMRef.model_validate(ref.model_dump(mode="json"))
 
 
 def load_strategic_scm(
     store: ArtifactStore,
     ref: StrategicSCMRef,
 ) -> StrategicSCM:
-    """Load strategic scm."""
-    payload = get_json_artifact(store, ref)
-    return StrategicSCM.model_validate(payload)
+    """Load strategic SCM after exact owner admission."""
+    return _load_strategic_leaf(
+        store,
+        ref,
+        StrategicSCM,
+        expected_kind=_STRATEGIC_SCM_SCHEMA_NAME,
+        expected_schema_name=_STRATEGIC_SCM_SCHEMA_NAME,
+        expected_schema_version=_STRATEGIC_SCM_SCHEMA_VERSION,
+    )
 
 
 def persist_strategic_response_bundle(
     store: ArtifactStore,
     bundle: StrategicResponseBundle,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
     schema_name: str = _STRATEGIC_RESPONSE_BUNDLE_SCHEMA_NAME,
     schema_version: str = _STRATEGIC_RESPONSE_BUNDLE_SCHEMA_VERSION,
 ) -> StrategicResponseBundleRef:
-    """Persist the top-level strategic-response bundle for downstream reporting."""
-    ref = put_json_artifact(
+    """Persist strategic response through exact owner admission."""
+    ref = _persist_strategic_leaf(
         store,
-        bundle.model_dump(mode="json"),
+        bundle,
         kind="ir.strategic_response_bundle",
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
-        canon_spec=CanonSpec(forbid_floats=False),
     )
-    return StrategicResponseBundleRef.model_validate(ref)
+    return StrategicResponseBundleRef.model_validate(ref.model_dump(mode="json"))
 
 
 def load_strategic_response_bundle(
     store: ArtifactStore,
     ref: StrategicResponseBundleRef,
 ) -> StrategicResponseBundle:
-    """Load strategic response bundle."""
-    payload = get_json_artifact(store, ref)
-    return StrategicResponseBundle.model_validate(payload)
+    """Load strategic response after exact owner admission."""
+    return _load_strategic_leaf(
+        store,
+        ref,
+        StrategicResponseBundle,
+        expected_kind=_STRATEGIC_RESPONSE_BUNDLE_SCHEMA_NAME,
+        expected_schema_name=_STRATEGIC_RESPONSE_BUNDLE_SCHEMA_NAME,
+        expected_schema_version=_STRATEGIC_RESPONSE_BUNDLE_SCHEMA_VERSION,
+    )
 
 
 def persist_mean_field_perturbation_spec(
     store: ArtifactStore,
     spec: MeanFieldPerturbationSpec,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
 ) -> MeanFieldPerturbationSpecRef:
     """Persist a compiled MFG perturbation spec."""
     ref = _persist_strategic_leaf(
@@ -2392,7 +2548,7 @@ def persist_mean_field_macro_simulation_config(
     store: ArtifactStore,
     config: MeanFieldMacroSimulationConfig,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
 ) -> MeanFieldMacroSimulationConfigRef:
     """Persist a reproducible MFG numerics config."""
     ref = _persist_strategic_leaf(
@@ -2427,7 +2583,7 @@ def persist_mean_field_solver_residual_report(
     store: ArtifactStore,
     report: MeanFieldSolverResidualReport,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
 ) -> ArtifactRefModel:
     """Persist a mean-field solver residual evidence report."""
     return _persist_strategic_leaf(
@@ -2461,7 +2617,7 @@ def persist_mean_field_mass_conservation_report(
     store: ArtifactStore,
     report: MeanFieldMassConservationReport,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
 ) -> ArtifactRefModel:
     """Persist a mean-field mass conservation evidence report."""
     return _persist_strategic_leaf(
@@ -2495,7 +2651,7 @@ def persist_mean_field_equilibrium_certificate(
     store: ArtifactStore,
     certificate: MeanFieldEquilibriumCertificate,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
 ) -> MeanFieldEquilibriumCertificateRef:
     """Persist a mean-field-equilibrium certificate leaf artifact."""
     ref = _persist_strategic_leaf(
@@ -2530,7 +2686,7 @@ def persist_strategic_closure_summary(
     store: ArtifactStore,
     summary: StrategicClosureSummary,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
 ) -> ArtifactRefModel:
     """Persist a strategic closure summary leaf artifact."""
     return _persist_strategic_leaf(
@@ -2564,7 +2720,7 @@ def persist_equilibrium_set_summary(
     store: ArtifactStore,
     summary: EquilibriumSetSummary,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
 ) -> ArtifactRefModel:
     """Persist an equilibrium-set disclosure leaf artifact."""
     return _persist_strategic_leaf(
@@ -2598,7 +2754,7 @@ def persist_equilibrium_selection_summary(
     store: ArtifactStore,
     summary: EquilibriumSelectionSummary,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
 ) -> ArtifactRefModel:
     """Persist the selected-equilibrium disclosure leaf artifact."""
     return _persist_strategic_leaf(
@@ -2632,7 +2788,7 @@ def persist_performative_shift_summary(
     store: ArtifactStore,
     summary: PerformativeShiftSummary,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
 ) -> ArtifactRefModel:
     """Persist a performative-shift disclosure leaf artifact."""
     return _persist_strategic_leaf(
@@ -2666,7 +2822,7 @@ def persist_post_adaptation_policy_value_summary(
     store: ArtifactStore,
     summary: PostAdaptationPolicyValueSummary,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
 ) -> ArtifactRefModel:
     """Persist the post-adaptation policy-value disclosure leaf artifact."""
     return _persist_strategic_leaf(
@@ -2700,7 +2856,7 @@ def persist_strategic_decomposition_certificate(
     store: ArtifactStore,
     certificate: StrategicDecompositionCertificate,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
 ) -> ArtifactRefModel:
     """Persist a strategic decomposition certificate leaf artifact."""
     return _persist_strategic_leaf(
@@ -2734,7 +2890,7 @@ def persist_strategic_decomposition_failure_card(
     store: ArtifactStore,
     card: StrategicDecompositionFailureCard,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
 ) -> ArtifactRefModel:
     """Persist a strategic decomposition failure-card leaf artifact."""
     return _persist_strategic_leaf(
@@ -2768,7 +2924,7 @@ def persist_strategic_component_bounds_summary(
     store: ArtifactStore,
     summary: StrategicComponentBoundsSummary,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
 ) -> ArtifactRefModel:
     """Persist a bounded causal/strategic component leaf artifact."""
     return _persist_strategic_leaf(

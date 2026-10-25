@@ -8,7 +8,7 @@ from csv import DictReader
 from datetime import UTC, datetime
 from hashlib import sha256
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, TypedDict
 
 import duckdb
 
@@ -17,6 +17,7 @@ from polisyos.data_forge.domains.catalog.batch.benchmark import (
     active_readiness_thresholds_for_profile,
     readiness_thresholds_for_profile,
 )
+from polisyos.data_forge.kernel.io.hashing import sha256_file
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
 from polisyos.data_forge.kernel.quality import (
     QCCheck,
@@ -25,9 +26,73 @@ from polisyos.data_forge.kernel.quality import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
 
 logger = get_logger(__name__)
+
+_OBSERVED_SUPPORT_SCHEMA_VERSION: Literal["policyos.catalog.qc.observed_support.v1"] = (
+    "policyos.catalog.qc.observed_support.v1"
+)
+_OBSERVED_SUPPORT_REQUIRED_COLUMNS = (
+    "dataset_id",
+    "raw_variable",
+    "canonical_var",
+    "country_code",
+    "year",
+    "survey_year",
+    "wave",
+    "value",
+    "condition_json",
+)
+
+
+class _ObservationProducerProvenance(TypedDict):
+    """Non-secret provenance fields persisted with one Core observation."""
+
+    acquisition_method: str | None
+    source_watermark: str | None
+    dataset_version: str | None
+
+
+class _ObservedSupportPoint(TypedDict):
+    """One grouped exact support key without row identifiers or payload values."""
+
+    dataset_id: str
+    dataset_binding: Literal["resolved", "unresolved"]
+    source: str | None
+    raw_variable: str
+    canonical_var: str
+    country_code: str
+    year: int | None
+    survey_year: int | None
+    wave: int | None
+    condition_sha256: str | None
+    producer_provenance: _ObservationProducerProvenance
+    observation_count: int
+
+
+class _ObservedSupportSnapshot(TypedDict):
+    """Content references for the local snapshot that produced the points."""
+
+    run_signature: str
+    stage_input_basis_digest: str | None
+    graph_database_sha256: str | None
+    core_ingest_report_sha256: str | None
+
+
+class _ObservedSupportArtifact(TypedDict):
+    """Internal QC evidence projection; it makes no completeness claim."""
+
+    schema_version: Literal["policyos.catalog.qc.observed_support.v1"]
+    generated_at: str
+    producer_snapshot: _ObservedSupportSnapshot
+    observation_table_present: bool
+    record_set: Literal["non_null_value_rows"]
+    required_columns_present: bool
+    missing_required_columns: list[str]
+    points: list[_ObservedSupportPoint]
 
 
 def _is_smoke_like_run(config: DatasetBatchConfig) -> bool:
@@ -175,6 +240,10 @@ def _coverage_heatmap_path(config: DatasetBatchConfig) -> Path:
     return config.component_dir / "coverage_heatmap.json"
 
 
+def _observed_support_path(config: DatasetBatchConfig) -> Path:
+    return config.component_dir / "observed_support.json"
+
+
 def _generate_coverage_heatmap(
     con: duckdb.DuckDBPyConnection,
     *,
@@ -210,6 +279,154 @@ def _generate_coverage_heatmap(
             }
         matrix[country] = country_data
     return matrix
+
+
+def _observed_support_projection(
+    con: duckdb.DuckDBPyConnection,
+) -> tuple[list[_ObservedSupportPoint], bool, list[str]]:
+    """Read exact non-null support keys without values, IDs, or raw conditions.
+
+    Equal support keys are grouped with their producer provenance. A missing
+    table/schema produces an empty projection with explicit schema diagnostics;
+    absence of points is not interpreted as source unavailability. Dataset
+    identity resolves only through the Catalog primary key.
+    """
+    if not _table_exists(con, "ds_observations"):
+        return [], False, list(_OBSERVED_SUPPORT_REQUIRED_COLUMNS)
+
+    observation_columns = _table_columns(con, "ds_observations")
+    missing_columns = sorted(set(_OBSERVED_SUPPORT_REQUIRED_COLUMNS) - observation_columns)
+    if missing_columns:
+        return [], True, missing_columns
+
+    dataset_columns = _table_columns(con, "ds_datasets")
+    can_resolve_dataset = "id" in dataset_columns
+    dataset_source = "d.source" if can_resolve_dataset and "source" in dataset_columns else "NULL"
+    dataset_row_id = "d.id" if can_resolve_dataset else "NULL"
+    dataset_join = (
+        " LEFT JOIN ds_datasets AS d ON d.id = o.dataset_id" if can_resolve_dataset else ""
+    )
+
+    def observation_column(name: str) -> str:
+        return f"o.{name}" if name in observation_columns else "NULL"
+
+    selected_columns = (
+        "o.dataset_id",
+        f"{dataset_row_id} AS resolved_dataset_id",
+        f"{dataset_source} AS source",
+        "o.raw_variable",
+        "o.canonical_var",
+        "o.country_code",
+        "o.year",
+        "o.survey_year",
+        "o.wave",
+        f"{observation_column('condition_json')} AS condition_json",
+        f"{observation_column('acquisition_method')} AS acquisition_method",
+        f"{observation_column('source_watermark')} AS source_watermark",
+        f"{observation_column('dataset_version')} AS dataset_version",
+    )
+    group_columns = ["o.dataset_id"]
+    if can_resolve_dataset:
+        group_columns.append("d.id")
+        if "source" in dataset_columns:
+            group_columns.append("d.source")
+    group_columns.extend(
+        f"o.{name}"
+        for name in (
+            "raw_variable",
+            "canonical_var",
+            "country_code",
+            "year",
+            "survey_year",
+            "wave",
+            "condition_json",
+            "acquisition_method",
+            "source_watermark",
+            "dataset_version",
+        )
+        if name in observation_columns
+    )
+    rows = con.execute(
+        "SELECT "
+        + ", ".join(selected_columns)
+        + ", COUNT(*) AS observation_count "
+        + "FROM ds_observations AS o"
+        + dataset_join
+        + " WHERE o.value IS NOT NULL GROUP BY "
+        + ", ".join(group_columns)
+        + " ORDER BY o.dataset_id, source, o.raw_variable, o.canonical_var, "
+        "o.country_code, o.year, o.survey_year, o.wave, condition_json, "
+        "acquisition_method, source_watermark, dataset_version"
+    ).fetchall()
+
+    points: list[_ObservedSupportPoint] = []
+    for row in rows:
+        raw_condition = row[9]
+        points.append(
+            {
+                "dataset_id": str(row[0]),
+                "dataset_binding": "resolved" if row[1] is not None else "unresolved",
+                "source": str(row[2]) if row[2] is not None else None,
+                "raw_variable": str(row[3]),
+                "canonical_var": str(row[4]),
+                "country_code": str(row[5]),
+                "year": int(row[6]) if row[6] is not None else None,
+                "survey_year": int(row[7]) if row[7] is not None else None,
+                "wave": int(row[8]) if row[8] is not None else None,
+                "condition_sha256": (
+                    sha256(str(raw_condition).encode("utf-8")).hexdigest()
+                    if raw_condition is not None
+                    else None
+                ),
+                "producer_provenance": {
+                    "acquisition_method": (str(row[10]) if row[10] is not None else None),
+                    "source_watermark": str(row[11]) if row[11] is not None else None,
+                    "dataset_version": str(row[12]) if row[12] is not None else None,
+                },
+                "observation_count": int(row[13]),
+            }
+        )
+    return points, True, []
+
+
+def _optional_file_sha256(path: Path) -> str | None:
+    """Return a content digest only when the referenced local file exists."""
+    try:
+        return sha256_file(path) if path.is_file() else None
+    except OSError:
+        return None
+
+
+def _observed_support_artifact(
+    config: DatasetBatchConfig,
+    *,
+    generated_at: str,
+    points: list[_ObservedSupportPoint],
+    observation_table_present: bool,
+    missing_required_columns: list[str],
+    content_basis: Mapping[str, object] | None,
+) -> _ObservedSupportArtifact:
+    """Bind internal positive support points to this local graph/run snapshot."""
+    raw_basis_digest = content_basis.get("basis_digest") if content_basis is not None else None
+    basis_digest = (
+        str(raw_basis_digest) if isinstance(raw_basis_digest, str) and raw_basis_digest else None
+    )
+    core_report_path = config.manifests_dir / "core_sources_ingest.json"
+    return {
+        "schema_version": _OBSERVED_SUPPORT_SCHEMA_VERSION,
+        "generated_at": generated_at,
+        "producer_snapshot": {
+            "run_signature": config.run_signature,
+            "stage_input_basis_digest": basis_digest,
+            "graph_database_sha256": _optional_file_sha256(config.db_path),
+            "core_ingest_report_sha256": _optional_file_sha256(core_report_path),
+        },
+        "observation_table_present": observation_table_present,
+        "record_set": "non_null_value_rows",
+        "required_columns_present": not missing_required_columns,
+        "missing_required_columns": missing_required_columns,
+        "points": points,
+    }
 
 
 def _check_observation_coverage(
@@ -323,13 +540,19 @@ def evaluate_qc(
     )
 
 
-def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCReport:
+def run_qc(
+    config: DatasetBatchConfig,
+    *,
+    fail_fast: bool | None = None,
+    _content_basis: Mapping[str, object] | None = None,
+) -> QCReport:
     """Evaluate and persist dataset QC using the canonical benchmark report."""
     report = _evaluate_qc(
         config,
         benchmark_report_payload=None,
         fail_fast=fail_fast,
         persist_outputs=True,
+        content_basis=_content_basis,
     )
     return report
 
@@ -340,6 +563,7 @@ def _evaluate_qc(
     benchmark_report_payload: dict[str, object] | None,
     fail_fast: bool | None,
     persist_outputs: bool,
+    content_basis: Mapping[str, object] | None = None,
 ) -> QCReport:
     """Evaluate dataset artifacts with the shared producer/admission logic.
 
@@ -370,6 +594,10 @@ def _evaluate_qc(
     )
     partial_eval = evaluation_mode == "partial-eval"
     metrics["qc_evaluation_mode"] = evaluation_mode
+    observed_support_points: list[_ObservedSupportPoint] = []
+    observation_table_present = False
+    missing_observation_columns = list(_OBSERVED_SUPPORT_REQUIRED_COLUMNS)
+    coverage_heatmap: dict[str, dict[str, dict[str, object]]] = {}
 
     source_dirs = (
         [p for p in config.raw_dir.iterdir() if p.is_dir()] if config.raw_dir.exists() else []
@@ -641,6 +869,11 @@ def _evaluate_qc(
             has_bindings = _table_exists(con, "ds_metric_bindings")
             has_schema_profiles = _table_exists(con, "ds_schema_profiles")
             has_alignments = _table_exists(con, "ds_variable_alignments")
+            (
+                observed_support_points,
+                observation_table_present,
+                missing_observation_columns,
+            ) = _observed_support_projection(con)
 
             if distribution_columns:
                 dist_total = _scalar(con, "SELECT count(*) FROM ds_distributions")
@@ -761,18 +994,12 @@ def _evaluate_qc(
                         year_range=config.resolved_year_window,
                     )
                     metrics["observation_coverage_pct"] = float(coverage_check.value or 0.0)
-                    heatmap = _generate_coverage_heatmap(
+                    coverage_heatmap = _generate_coverage_heatmap(
                         con,
                         countries=active_countries,
                         variables=coverage_variables,
                         year_range=config.resolved_year_window,
                     )
-                    heatmap_path = _coverage_heatmap_path(config)
-                    if persist_outputs:
-                        heatmap_path.parent.mkdir(parents=True, exist_ok=True)
-                        with open(heatmap_path, "w", encoding="utf-8") as fh:
-                            json.dump(heatmap, fh, ensure_ascii=False, indent=2)
-                    metrics["coverage_heatmap_path"] = str(heatmap_path)
                     cross_source_check = _check_cross_source_consistency(con)
                     if smoke_like or partial_eval:
                         checks.append(
@@ -1020,6 +1247,11 @@ def _evaluate_qc(
             )
         )
 
+    heatmap_path = _coverage_heatmap_path(config)
+    observed_support_path = _observed_support_path(config)
+    metrics["coverage_heatmap_path"] = str(heatmap_path)
+    metrics["observed_support_path"] = str(observed_support_path)
+
     metrics["qc_check_groups"] = {
         group: [check.name for check in checks if check.group == group]
         for group in sorted({check.group for check in checks if check.group})
@@ -1031,6 +1263,22 @@ def _evaluate_qc(
         config.qc_report_path.parent.mkdir(parents=True, exist_ok=True)
         config.qc_report_path.write_text(
             json.dumps(report_payload, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        heatmap_path.write_text(
+            json.dumps(coverage_heatmap, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        observed_support_payload = _observed_support_artifact(
+            config,
+            generated_at=datetime.now(UTC).isoformat(),
+            points=observed_support_points,
+            observation_table_present=observation_table_present,
+            missing_required_columns=missing_observation_columns,
+            content_basis=content_basis,
+        )
+        observed_support_path.write_text(
+            json.dumps(observed_support_payload, ensure_ascii=False, indent=2),
             encoding="utf-8",
         )
         write_stage_manifest(

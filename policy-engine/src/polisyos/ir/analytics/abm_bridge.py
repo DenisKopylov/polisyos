@@ -9,7 +9,14 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from polisyos.ir._internal.validation import coerce_float
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import ABMAlignmentReportRef
 
@@ -140,6 +147,42 @@ class ABMAlignmentReport(BaseModel):
     warnings: list[str] = Field(default_factory=list)
 
 
+_ABM_ALIGNMENT_REPORT_OWNER = declare_model_owner(
+    ABMAlignmentReport,
+    contract_id="ir.analytics.ir_abm_alignment_report.owner.v1",
+    dto_fqn="polisyos.ir.analytics.abm_bridge.ABMAlignmentReport",
+    abi_key="ir.analytics.ir_abm_alignment_report.owner.v1.dto-abi.v1",
+    registry_key="ir.abm_alignment_report",
+    kind="ir.abm_alignment_report",
+    media_type="application/json",
+    purpose="abm_alignment_report",
+    policy_revision="ir.analytics.ir_abm_alignment_report.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.ir_abm_alignment_report.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        OwnedJSONRepresentation(
+            schema_name="ir.abm_alignment_report",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.ir_abm_alignment_report.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=CompatibilityMode.NONE,
+            notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
 def persist_abm_alignment_report(
     store: ArtifactStore,
     report: ABMAlignmentReport,
@@ -148,26 +191,25 @@ def persist_abm_alignment_report(
     schema_name: str = "ir.abm_alignment_report",
     schema_version: str = "1.0",
 ) -> ABMAlignmentReportRef:
-    """Persist abm alignment report helper."""
-    ref = put_json_artifact(
+    """Persist an ABM alignment report through its exact typed owner."""
+    ref = _put_owned_json_artifact(
         store,
         report.model_dump(mode="json"),
-        kind="ir.abm_alignment_report",
+        owner=_ABM_ALIGNMENT_REPORT_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return ABMAlignmentReportRef.model_validate(ref)
+    return ABMAlignmentReportRef.from_selected_write(ref)
 
 
 def load_abm_alignment_report(
     store: ArtifactStore,
     ref: ABMAlignmentReportRef,
 ) -> ABMAlignmentReport:
-    """Load abm alignment report."""
-    payload = get_json_artifact(store, ref)
-    return ABMAlignmentReport.model_validate(payload)
+    """Load an ABM alignment report after owner and profile admission."""
+    return _get_owned_json_artifact(store, ref, owner=_ABM_ALIGNMENT_REPORT_OWNER)
 
 
 __all__ = [

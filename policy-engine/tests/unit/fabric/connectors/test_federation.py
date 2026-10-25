@@ -847,3 +847,35 @@ def test_composite_evidence_deterministic(tmp_path: Path):
     assert composite_1.provenance_ref is not None
     assert composite_2.provenance_ref is not None
     assert composite_1.provenance_ref.stable_id == composite_2.provenance_ref.stable_id
+
+
+def test_outer_join_preserves_unmatched_rows_when_lineage_sidecars_are_missing() -> None:
+    left = pd.DataFrame({"key": [1], "left_value": [10]})
+    right = pd.DataFrame({"key": [2], "right_value": [20]})
+    fetched_at = datetime(2024, 1, 1, tzinfo=UTC)
+    meta_left = _make_source_metadata("left", TrustLevel.HIGH, fetched_at)
+    meta_right = _make_source_metadata("right", TrustLevel.MEDIUM, fetched_at)
+    request = CompositionRequest(
+        dataset_pattern="test.outer_join_lineage",
+        strategy=CompositionStrategy.JOIN,
+        conflict_policy=ConflictPolicy.TRUST_HIGHEST,
+        join_keys=["key"],
+        join_how="outer",
+        audit_level=AuditLevel.NONE,
+    )
+
+    result, _ = DataComposer(
+        conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST)
+    ).compose(
+        sources=[(left, meta_left), (right, meta_right)],
+        strategy=request.strategy,
+        request=request,
+    )
+
+    ordered = result.sort_values("key").reset_index(drop=True)
+    assert ordered["key"].tolist() == [1, 2]
+    assert ordered.loc[0, "left_value"] == 10
+    assert pd.isna(ordered.loc[0, "right_value"])
+    assert pd.isna(ordered.loc[1, "left_value"])
+    assert ordered.loc[1, "right_value"] == 20
+    assert not any(column.startswith("__policyos_lineage") for column in result.columns)

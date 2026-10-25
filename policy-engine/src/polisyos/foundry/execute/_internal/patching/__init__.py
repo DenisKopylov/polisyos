@@ -6,7 +6,7 @@ from typing import Any
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, input_ref_from_artifact_ref
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.protocol import ArtifactStore, CoreJSONArtifactStore
 from polisyos.core.contracts.foundry import PatchOp, StateDelta
 from polisyos.foundry.execute._internal.models import (
     ApplyArtifacts,
@@ -38,7 +38,7 @@ __all__ = [
 
 
 def apply_state_delta(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     base_state: Any,
     state_delta_ref: ArtifactRef | ArtifactID | str,
@@ -131,10 +131,10 @@ def apply_patch_map(
     for slot_id, patches in patch_map.items():
         patch_list = patches if isinstance(patches, list) else [patches]
         for patch in patch_list:
-            record = {"node_id": default_node_id}
+            record = dict(patch)
+            record.setdefault("node_id", default_node_id)
             if "priority" not in patch:
                 record["priority"] = priority
-            record.update(patch)
             patch_records.setdefault(slot_id, []).append(record)
     return apply_patch_records(
         base_state,
@@ -145,7 +145,7 @@ def apply_patch_map(
 
 
 def apply_state_delta_and_snapshot(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     base_state: Any,
     state_delta_ref: ArtifactRef | ArtifactID | str,
@@ -186,7 +186,7 @@ def apply_state_delta_and_snapshot(
 
 
 def _merge_patch_records(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     patch_records: dict[str, list[dict[str, Any]]],
     *,
     slot_registry: SlotRegistry,

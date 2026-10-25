@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
@@ -9,7 +10,9 @@ from typing import TYPE_CHECKING, Any
 import pytest
 from pydantic import ValidationError
 
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts import CoreJSONArtifactStore
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.cursor import (
     CursorState,
     PartitionCursorState,
@@ -22,9 +25,16 @@ from polisyos.fabric.data_plane.cursor_store import (
     CursorStore,
     CursorStoreError,
 )
+from polisyos.fabric.storage.tenant_cas import TenantScopedCAS
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+    from polisyos.core.artifacts import VerificationReport
+    from polisyos.core.artifacts.ids import ArtifactID
+    from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+    from polisyos.core.canon import CanonSpec
 
 _NOW = datetime(2024, 6, 15, 12, 0, 0, tzinfo=UTC)
 
@@ -132,33 +142,138 @@ class TestCursorStore:
             def __init__(self, inner: FileSystemCAS) -> None:
                 self._inner = inner
 
-            def has(self, artifact_id: Any) -> bool:
+            def has(self, artifact_id: ArtifactID | ArtifactRef) -> bool:
                 return self._inner.has(artifact_id)
 
-            def get_bytes(self, artifact_id: Any) -> bytes:
+            def get_bytes(self, artifact_id: ArtifactID | ArtifactRef) -> bytes:
                 return self._inner.get_bytes(artifact_id)
 
-            def get_manifest(self, artifact_id: Any) -> Any:
+            def get_manifest(self, artifact_id: ArtifactID | ArtifactRef) -> ArtifactManifest:
                 return self._inner.get_manifest(artifact_id)
 
-            def put_bytes(self, data: bytes, opts: Any) -> Any:
-                return self._inner.put_bytes(data, opts)
+            def get_raw_manifest_bytes(
+                self,
+                artifact_id: Any,
+                *,
+                manifest_profile_sha256: str | None = None,
+            ) -> bytes:
+                return self._inner.get_raw_manifest_bytes(
+                    artifact_id,
+                    manifest_profile_sha256=manifest_profile_sha256,
+                )
 
-            def put_json(self, obj: object, opts: Any, canon_spec: Any = None) -> Any:
-                return self._inner.put_json(obj, opts, canon_spec=canon_spec)
+            def put_bytes(
+                self,
+                data: bytes,
+                opts: ArtifactWriteOptions,
+                *,
+                return_selected_profile: bool = False,
+            ) -> ArtifactRef:
+                return self._inner.put_bytes(
+                    data,
+                    opts,
+                    return_selected_profile=return_selected_profile,
+                )
 
-            def verify(self, artifact_id: Any) -> Any:
+            def put_json(
+                self,
+                obj: object,
+                opts: ArtifactWriteOptions,
+                canon_spec: CanonSpec | None = None,
+                *,
+                return_selected_profile: bool = False,
+            ) -> ArtifactRef:
+                return self._inner.put_json(
+                    obj,
+                    opts,
+                    canon_spec=canon_spec,
+                    return_selected_profile=return_selected_profile,
+                )
+
+            def verify(self, artifact_id: ArtifactID | ArtifactRef) -> VerificationReport:
                 return self._inner.verify(artifact_id)
 
-            def iter_artifact_ids(self) -> list[Any]:
+            def iter_artifact_ids(self) -> list[ArtifactID]:
                 return self._inner.iter_artifact_ids()
 
-        store = _RootlessStoreProxy(FileSystemCAS(tmp_path / ".polisyos"))
+        store: CoreJSONArtifactStore = _RootlessStoreProxy(FileSystemCAS(tmp_path / ".polisyos"))
+        assert isinstance(store, CoreJSONArtifactStore)
         cursor_store = CursorStore(store, index_root=tmp_path / ".cursor-index")
         ref = cursor_store.save_cursor(_make_cursor())
 
         assert ref is not None
         assert cursor_store.find_latest_cursor("worldbank.wdi", "NY.GDP.MKTP.CD") is not None
+
+    def test_tenant_scoped_profile_reads_keep_exact_view_and_tenant_boundary(
+        self, tmp_path: Path
+    ) -> None:
+        tenant_a = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+        tenant_b = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+        root = tmp_path / ".polisyos"
+        store_a = TenantScopedCAS(root, tenant_id=tenant_a)
+        store_b = TenantScopedCAS(root, tenant_id=tenant_b)
+
+        first = store_a.put_json(
+            {"value": 7},
+            PutOptions(
+                kind="fabric.profile.first",
+                media_type="application/json",
+                schema=SchemaInfo(name="profile.first", version="1.0"),
+            ),
+            return_selected_profile=True,
+        )
+        second = store_a.put_json(
+            {"value": 7},
+            PutOptions(
+                kind="fabric.profile.second",
+                media_type="application/json",
+                schema=SchemaInfo(name="profile.second", version="1.0"),
+            ),
+            return_selected_profile=True,
+        )
+
+        assert isinstance(store_a, CoreJSONArtifactStore)
+        assert first.artifact_id == second.artifact_id
+        assert first.manifest_profile_sha256 is not None
+        assert second.manifest_profile_sha256 is not None
+        assert first.manifest_profile_sha256 != second.manifest_profile_sha256
+        assert store_a.verify(first).ok
+        assert store_a.verify(second).ok
+        assert store_a.has(first)
+        assert store_a.has(second)
+        assert store_a.get_bytes(first) == store_a.get_bytes(second)
+        assert store_a.get_manifest(first).kind == first.kind
+        assert store_a.get_manifest(second).kind == second.kind
+
+        first_manifest = store_a.get_raw_manifest_bytes(first)
+        second_manifest = store_a.get_raw_manifest_bytes(second)
+        assert first_manifest != second_manifest
+        assert json.loads(first_manifest)["kind"] == first.kind
+        assert json.loads(second_manifest)["kind"] == second.kind
+        assert (
+            store_a.get_raw_manifest_bytes(
+                first.artifact_id,
+                manifest_profile_sha256=first.manifest_profile_sha256,
+            )
+            == first_manifest
+        )
+
+        assert not store_b.has(first.artifact_id)
+        assert not store_b.has(first)
+        with pytest.raises(FileNotFoundError):
+            store_b.get_raw_manifest_bytes(first)
+        assert not store_b.verify(first).ok
+
+        cursor_store = CursorStore(store_a, index_root=tmp_path / "cursor-index")
+        cursor = _make_cursor()
+        cursor_ref = cursor_store.save_cursor(cursor)
+        assert cursor_store.load_cursor(cursor_ref.artifact_id) == cursor
+        other_tenant_cursor_store = CursorStore(
+            store_b,
+            index_root=tmp_path / "other-cursor-index",
+        )
+        with pytest.raises((FileNotFoundError, ValueError)):
+            other_tenant_cursor_store.load_cursor(cursor_ref.artifact_id)
 
     def test_save_and_load_cursor(self, tmp_path: Path):
         store = FileSystemCAS(tmp_path / ".polisyos")

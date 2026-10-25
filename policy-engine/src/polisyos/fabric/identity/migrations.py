@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
 from polisyos.common import migrations as common_migrations
-from polisyos.common.migrations import ArtifactPayload
+
+if TYPE_CHECKING:
+    from polisyos.common.migrations import ArtifactPayload
 
 MANIFEST_CURRENT_VERSION: Final[str] = "1.0"
 

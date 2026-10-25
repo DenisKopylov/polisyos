@@ -22,6 +22,7 @@ export type AgentSettlementStatus =
 
 export type AgentCostEventView = {
   eventId: string;
+  eventIdentityPresent?: boolean;
   originEventId: string | null;
   costOrigin: AgentCostOrigin;
   controlJobAttempt: number | null;
@@ -35,6 +36,22 @@ export type AgentCostEventView = {
   payloadDigest: string | null;
   model: string | null;
   provider: string | null;
+};
+
+export type AgentCostCompleteness =
+  | "not_observed"
+  | "unknown"
+  | "partial_unknown"
+  | "complete";
+
+export type AgentCostSummary = {
+  costUsd: number | null;
+  reportedCostUsd: number | null;
+  estimatedCostUsd: number | null;
+  costOriginCounts: Record<string, number>;
+  settlementStatusCounts: Record<string, number>;
+  costUnknown: boolean;
+  costCompleteness: AgentCostCompleteness;
 };
 
 export type AgentUnattributedCostScalarView = {
@@ -69,6 +86,7 @@ export type AgentStepView = {
   latencyMs: number | null;
   costUsd: number | null;
   costUnknown: boolean;
+  ownerCostUnknown: boolean;
   costEvents: AgentCostEventView[];
   unattributedCostScalars: AgentUnattributedCostScalarView[];
   prompt: string | null;
@@ -271,6 +289,21 @@ function normalizeSettlementStatus(value: unknown): AgentSettlementStatus {
   return "unknown";
 }
 
+function isCurrentOwnerCostEvent(
+  event: Pick<
+    AgentCostEventView,
+    "controlJobAttempt" | "preAdmissionAttemptId" | "durability"
+  >,
+  ownerAttempt: number | null,
+): boolean {
+  return (
+    ownerAttempt !== null &&
+    event.durability === "ledger" &&
+    event.controlJobAttempt === ownerAttempt &&
+    event.preAdmissionAttemptId === null
+  );
+}
+
 function normalizeCostEvent(
   raw: unknown,
   ownerAttempt: number | null,
@@ -295,13 +328,14 @@ function normalizeCostEvent(
       : null;
   const controlJobAttempt = asNumber(event.control_job_attempt);
   const preAdmissionAttemptId = asString(event.pre_admission_attempt_id);
-  const currentOwnerEligible =
-    ownerAttempt !== null &&
-    controlJobAttempt === ownerAttempt &&
-    durability === "ledger" &&
-    preAdmissionAttemptId === null;
+  const currentOwnerEligible = isCurrentOwnerCostEvent(
+    { controlJobAttempt, preAdmissionAttemptId, durability },
+    ownerAttempt,
+  );
+  const eventId = asString(event.event_id);
   return {
-    eventId: asString(event.event_id) ?? "unidentified",
+    eventId: eventId ?? "unidentified",
+    eventIdentityPresent: eventId !== null && eventId.length > 0,
     originEventId: asString(event.origin_event_id),
     costOrigin,
     controlJobAttempt,
@@ -388,14 +422,70 @@ function normalizeUnattributedCostScalars(
     );
 }
 
+type AgentCostProducerProjection = Pick<
+  AgentCostSummary,
+  "costUsd" | "reportedCostUsd" | "estimatedCostUsd"
+>;
+
+/**
+ * Mirrors the Core producer scalar projection for reconciliation only.
+ *
+ * This preserves producer zero subtotals and source event multiplicity. It is
+ * deliberately separate from the origin-aware, identity-reduced UI summary.
+ */
+function projectProducerCostScalars(
+  events: AgentCostEventView[],
+  ownerAttempt: number | null,
+): AgentCostProducerProjection {
+  const currentOwnerEvents = events.filter((event) =>
+    isCurrentOwnerCostEvent(event, ownerAttempt),
+  );
+  if (currentOwnerEvents.length === 0) {
+    return {
+      costUsd: null,
+      reportedCostUsd: null,
+      estimatedCostUsd: null,
+    };
+  }
+
+  let totalCostUsd = 0;
+  let reportedCostUsd = 0;
+  let estimatedCostUsd = 0;
+  let costIsUnknown = false;
+  for (const event of currentOwnerEvents) {
+    if (event.costOrigin === "reported" && event.costUsd !== null) {
+      reportedCostUsd += event.costUsd;
+    }
+    if (event.costOrigin === "estimated" && event.costUsd !== null) {
+      estimatedCostUsd += event.costUsd;
+    }
+    if (
+      event.costOrigin === "unknown" ||
+      event.settlementStatus === "pending" ||
+      event.settlementStatus === "unknown" ||
+      event.costUsd === null
+    ) {
+      costIsUnknown = true;
+    } else if (
+      event.costOrigin === "reported" ||
+      event.costOrigin === "estimated" ||
+      event.costOrigin === "reuse"
+    ) {
+      totalCostUsd += event.costUsd;
+    }
+  }
+
+  return {
+    costUsd: costIsUnknown ? null : totalCostUsd,
+    reportedCostUsd,
+    estimatedCostUsd,
+  };
+}
+
 function legacyCostScalars(
   record: Record<string, unknown>,
   sourceKind: AgentUnattributedCostScalarView["sourceKind"],
-  projectedValues: {
-    costUsd: number | null;
-    reportedCostUsd: number | null;
-    estimatedCostUsd: number | null;
-  },
+  projectedValues: AgentCostProducerProjection,
 ): AgentUnattributedCostScalarView[] {
   const sourceFields = [
     "cost_usd",
@@ -447,52 +537,86 @@ function hasEligibleCurrentAttemptEvents(
   events: AgentCostEventView[],
   ownerAttempt: number | null,
 ): boolean {
-  return events.some(
-    (event) =>
-      event.durability === "ledger" &&
-      ownerAttempt !== null &&
-      event.controlJobAttempt === ownerAttempt &&
-      event.preAdmissionAttemptId === null,
+  return events.some((event) => isCurrentOwnerCostEvent(event, ownerAttempt));
+}
+
+function hasCostEventIdentity(event: AgentCostEventView): boolean {
+  return event.eventIdentityPresent !== false && event.eventId.length > 0;
+}
+
+function sameCostEventObservation(
+  left: AgentCostEventView,
+  right: AgentCostEventView,
+): boolean {
+  return (
+    left.eventId === right.eventId &&
+    left.originEventId === right.originEventId &&
+    left.costOrigin === right.costOrigin &&
+    left.controlJobAttempt === right.controlJobAttempt &&
+    left.preAdmissionAttemptId === right.preAdmissionAttemptId &&
+    left.currentOwnerEligible === right.currentOwnerEligible &&
+    left.amount === right.amount &&
+    left.costUsd === right.costUsd &&
+    left.settlementStatus === right.settlementStatus &&
+    left.durability === right.durability &&
+    left.receipts.length === right.receipts.length &&
+    left.receipts.every(
+      (receipt, index) => receipt === right.receipts[index],
+    ) &&
+    left.payloadDigest === right.payloadDigest &&
+    left.model === right.model &&
+    left.provider === right.provider
   );
 }
 
-function hasLegacyScalarCostClaim(record: Record<string, unknown>): boolean {
-  return ["cost_usd", "reported_cost_usd", "estimated_cost_usd"].some(
-    (field) => record[field] !== null && record[field] !== undefined,
-  );
-}
-
-function summarizeCostEvents(
-  events: AgentCostEventView[],
-  ownerAttempt: number | null,
-): {
-  costUsd: number | null;
-  reportedCostUsd: number | null;
-  estimatedCostUsd: number | null;
-  costOriginCounts: Record<string, number>;
-  settlementStatusCounts: Record<string, number>;
-  costUnknown: boolean;
+function uniqueCostEventObservations(events: AgentCostEventView[]): {
+  events: AgentCostEventView[];
+  unresolvedIdentity: boolean;
 } {
-  const currentAttemptEvents = events.filter((event) =>
-    hasEligibleCurrentAttemptEvents([event], ownerAttempt),
-  );
-  if (!currentAttemptEvents.length) {
-    return {
-      costUsd: null,
-      reportedCostUsd: null,
-      estimatedCostUsd: null,
-      costOriginCounts: {},
-      settlementStatusCounts: {},
-      costUnknown: true,
-    };
+  const eventsById = new Map<string, AgentCostEventView>();
+  const conflictingEventIds = new Set<string>();
+  let unresolvedIdentity = false;
+
+  for (const event of events) {
+    if (!hasCostEventIdentity(event)) {
+      unresolvedIdentity = true;
+      continue;
+    }
+    if (conflictingEventIds.has(event.eventId)) {
+      continue;
+    }
+    const existing = eventsById.get(event.eventId);
+    if (!existing) {
+      eventsById.set(event.eventId, event);
+      continue;
+    }
+    if (sameCostEventObservation(existing, event)) {
+      continue;
+    }
+
+    // One producer identity cannot support two different payloads. Exclude
+    // every row for that identity and retain only uncontested event subtotals.
+    eventsById.delete(event.eventId);
+    conflictingEventIds.add(event.eventId);
+    unresolvedIdentity = true;
   }
-  // Billing-event sums start at the additive identity; unknown events stay null.
-  let total = 0; // policyos-quantity: telemetry
-  let reported = 0; // policyos-quantity: telemetry
-  let estimated = 0; // policyos-quantity: telemetry
-  let unknown = false;
+
+  return {
+    events: Array.from(eventsById.values()),
+    unresolvedIdentity,
+  };
+}
+
+function summarizeCurrentCostEvents(
+  currentAttemptEvents: AgentCostEventView[],
+  unknownClaim: boolean,
+): AgentCostSummary {
+  let unresolved = unknownClaim;
+  let reported: number | null = null;
+  let estimated: number | null = null;
   const costOriginCounts: Record<string, number> = {};
   const settlementStatusCounts: Record<string, number> = {};
+
   for (const event of currentAttemptEvents) {
     costOriginCounts[event.costOrigin] =
       (costOriginCounts[event.costOrigin] ?? 0) + 1;
@@ -500,28 +624,74 @@ function summarizeCostEvents(
       (settlementStatusCounts[event.settlementStatus] ?? 0) + 1;
     if (
       event.costOrigin === "unknown" ||
+      event.costOrigin === "reuse" ||
       event.settlementStatus === "unknown" ||
       event.settlementStatus === "pending" ||
       event.costUsd === null
     ) {
-      unknown = true;
+      // A reuse event can expose the original provider amount. It does not
+      // establish the incremental cost of the reuse operation itself.
+      unresolved = true;
       continue;
     }
-    total += event.costUsd;
     if (event.costOrigin === "reported") {
-      reported += event.costUsd;
+      reported = (reported ?? 0) + event.costUsd;
     } else if (event.costOrigin === "estimated") {
-      estimated += event.costUsd;
+      estimated = (estimated ?? 0) + event.costUsd;
     }
   }
+
+  const hasObservedOriginAmount = reported !== null || estimated !== null;
+  const costCompleteness: AgentCostCompleteness = unresolved
+    ? hasObservedOriginAmount
+      ? "partial_unknown"
+      : "unknown"
+    : currentAttemptEvents.length > 0
+      ? "complete"
+      : "not_observed";
+  const onlyReportedOrigin =
+    !unresolved && reported !== null && estimated === null;
+
   return {
-    costUsd: unknown ? null : total,
+    // The legacy generic field remains populated only when it can mean a
+    // complete reported amount; estimates and reuse amounts are never folded
+    // into a single unlabeled total.
+    costUsd: onlyReportedOrigin ? reported : null,
     reportedCostUsd: reported,
     estimatedCostUsd: estimated,
     costOriginCounts,
     settlementStatusCounts,
-    costUnknown: unknown,
+    costUnknown: unresolved,
+    costCompleteness,
   };
+}
+
+function summarizeCostEvents(
+  events: AgentCostEventView[],
+  ownerAttempt: number | null,
+  unknownClaim = false,
+): AgentCostSummary {
+  const currentOwnerEvents = events.filter((event) =>
+    hasEligibleCurrentAttemptEvents([event], ownerAttempt),
+  );
+  const resolved = uniqueCostEventObservations(currentOwnerEvents);
+  const currentAttemptEvents = resolved.events;
+  const unattributedClaim = unknownClaim || resolved.unresolvedIdentity;
+  return summarizeCurrentCostEvents(currentAttemptEvents, unattributedClaim);
+}
+
+/**
+ * Summarizes normalized events for one UI consumer using the durable owner attempt.
+ *
+ * Reported and estimated amounts remain separate. Reuse amounts remain in event
+ * lineage and are not treated as incremental spend; unresolved claims stay open.
+ */
+export function summarizeAgentCostEvents(
+  events: AgentCostEventView[],
+  ownerAttempt: number | null,
+  ownerUnknownClaim = false,
+): AgentCostSummary {
+  return summarizeCostEvents(events, ownerAttempt, ownerUnknownClaim);
 }
 
 function normalizeAgent(value: unknown): string {
@@ -757,11 +927,18 @@ function normalizeStep(
   const explicitUnattributedCostScalars = normalizeUnattributedCostScalars(
     step.unattributed_cost_scalars,
   );
-  const costSummary = summarizeCostEvents(costEvents, ownerAttempt);
+  const ownerCostSummary = summarizeCostEvents(costEvents, ownerAttempt);
+  const producerCostProjection = projectProducerCostScalars(
+    costEvents,
+    ownerAttempt,
+  );
   const unattributedCostScalars =
     explicitUnattributedCostScalars.length > 0
       ? explicitUnattributedCostScalars
-      : legacyCostScalars(step, "step_summary", costSummary);
+      : legacyCostScalars(step, "step_summary", producerCostProjection);
+  const hasOnlyUnscopedEvents =
+    costEvents.length > 0 &&
+    !costEvents.some((event) => isCurrentOwnerCostEvent(event, ownerAttempt));
 
   return {
     attempt: Math.max(1, asNumber(step.attempt) ?? 1),
@@ -776,12 +953,12 @@ function normalizeStep(
     provider: asString(step.provider),
     modelVariantId: asString(step.model_variant_id),
     latencyMs: asNumber(step.latency_ms),
-    costUsd: costSummary.costUsd,
+    costUsd: ownerCostSummary.costUsd,
     costUnknown:
-      (costEvents.length > 0 ||
-        hasLegacyScalarCostClaim(step) ||
-        unattributedCostScalars.length > 0) &&
-      costSummary.costUnknown,
+      ownerCostSummary.costUnknown ||
+      hasOnlyUnscopedEvents ||
+      unattributedCostScalars.length > 0,
+    ownerCostUnknown: ownerCostSummary.costUnknown,
     costEvents,
     unattributedCostScalars,
     prompt: asString(step.prompt),
@@ -826,10 +1003,14 @@ function normalizeAttempt(
   }
 
   const attemptNumber = asNumber(attempt.attempt) ?? 1;
-  const steps = asArray(attempt.steps)
+  const sourceOrderSteps = asArray(attempt.steps)
     .map((item) => normalizeStep(item, ownerAttempt))
-    .filter((item): item is AgentStepView => item !== null)
-    .sort(sortSteps);
+    .filter((item): item is AgentStepView => item !== null);
+  const producerCostProjection = projectProducerCostScalars(
+    sourceOrderSteps.flatMap((step) => step.costEvents),
+    ownerAttempt,
+  );
+  const steps = sourceOrderSteps.sort(sortSteps);
   const costEvents = steps.flatMap((step) => step.costEvents);
   const explicitUnattributedCostScalars = normalizeUnattributedCostScalars(
     attempt.unattributed_cost_scalars,
@@ -840,7 +1021,11 @@ function normalizeAttempt(
       ? explicitUnattributedCostScalars
       : [
           ...steps.flatMap((step) => step.unattributedCostScalars),
-          ...legacyCostScalars(attempt, "attempt_summary", costSummary),
+          ...legacyCostScalars(
+            attempt,
+            "attempt_summary",
+            producerCostProjection,
+          ),
         ];
 
   return {
@@ -868,6 +1053,19 @@ export function normalizeAgentPipeline(payload: unknown): AgentPipelineModel {
   const ownerControlJobAttempt = parseOwnerControlJobAttempt(
     pipeline.owner_control_job_attempt,
   );
+  const producerCostEvents = asArray(pipeline.attempts).flatMap(
+    (rawAttempt) => {
+      const attempt = asRecord(rawAttempt);
+      return asArray(attempt?.steps).flatMap((rawStep) => {
+        const step = asRecord(rawStep);
+        return normalizeCostEvents(step?.cost_events, ownerControlJobAttempt);
+      });
+    },
+  );
+  const producerCostProjection = projectProducerCostScalars(
+    producerCostEvents,
+    ownerControlJobAttempt,
+  );
   const attempts = asArray(pipeline.attempts)
     .map((item) => normalizeAttempt(item, ownerControlJobAttempt))
     .filter((item): item is AgentAttemptView => item !== null)
@@ -894,7 +1092,11 @@ export function normalizeAgentPipeline(payload: unknown): AgentPipelineModel {
       ? explicitUnattributedCostScalars
       : [
           ...attempts.flatMap((attempt) => attempt.unattributedCostScalars),
-          ...legacyCostScalars(pipeline, "pipeline_summary", costSummary),
+          ...legacyCostScalars(
+            pipeline,
+            "pipeline_summary",
+            producerCostProjection,
+          ),
         ];
 
   return {

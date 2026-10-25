@@ -1,0 +1,29 @@
+id = "2026-10-23-e02-phase4-abm-owner-admission"
+title = "Admit Phase-4 analytical artifacts by exact owner representations"
+type = "changed"
+component = "ir"
+owner = "team-ir"
+summary = "Phase-4 ABM results, alignment reports, dynamic microsim reports, and causal certificates use shared analytics owner contracts across exact producer-selected representations while preserving historical bytes and canonicalization profiles."
+evidence = [
+  "src/polisyos/ir/analytics/phase4_dynamics.py",
+  "src/polisyos/ir/analytics/abm_bridge.py",
+  "src/polisyos/foundry/analysis/attractors.py",
+  "src/polisyos/foundry/calibration/identifiability.py",
+  "tests/unit/ir/analytics/test_phase4_dynamics_closure.py",
+  "tests/unit/ir/test_abm_bridge_contract.py",
+  "tests/unit/foundry/methods/catalog/microsim/test_advanced.py",
+  "tests/unit/foundry/methods/catalog/causal/test_dynamic_graph_dscm.py",
+  "tests/unit/foundry/methods/catalog/causal/test_space_time_dscm.py",
+  "tests/unit/foundry/methods/catalog/simulation/test_abm_receipt_strangle.py",
+  "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py",
+]
+compatibility = "Typed owner admission accepts four explicitly declared ABMResult tuples: ir.abm_result@1.0 and polisyos.ir.ABMResult@1.0, each at payload versions 1.3 and 1.4. ABMAlignmentReport keeps its exact ir.abm_alignment_report@1.0 tuple. DynamicMicrosimValidationReport, TemporalGraphCausalCertificate, and SpaceTimeCausalCertificate each keep the exact producer-selected ir.<type>@1.0 manifest and 1.0 payload tuple. Their existing FULL planning rules and exact notes remain unchanged and do not authorize undeclared typed representations. Unsupported representations fail typed admission; generic JSON inspection remains available for opaque history."
+change_class = "persisted-artifact-format"
+surface_classification = "public_stable: typed Phase-4 ABMResult artifact read/write boundary"
+migration = "Readers and writers resolve exact registered manifest/payload tuples. Historical ABMResult 1.3 bytes remain readable and explicitly writable when the actual producer payload is 1.3. The other three Phase-4 owners register only their currently selected 1.0/1.0 tuple. No blobs are rewritten; future representations require an owner declaration and reviewed compatibility edge."
+api = "ABM persistence uses its existing default manifest and source-owned identities; the alignment-report helper retains its exact declared identity. The three Phase-4 report/certificate producers and typed readers use the same shared owner admission path. Malformed version selectors fail before mutation, typed reads resolve exact manifest and payload rows, and returned DTOs retain their recorded versions."
+limitations = "The two observed Core manifest profiles under polisyos.ir.ABMResult@1.0 are preserved exactly: the attractor producer uses forbid_nan_inf=true, while the identifiability producer retains forbid_nan_inf=false. CanonInfo does not identify which Foundry producer emitted an artifact, so admission accepts this finite source-observed profile set without inventing producer provenance. The three report/certificate producer paths currently select only their 1.0/1.0 rows; no additional historical tuple was observed. This does not establish law, authority, custody, or currentness."
+generated_client_compatibility = "no_http_api_change"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/ir/schema-catalog.md", "src/polisyos/ir/analytics/README.md"]
+runbook_docs = []

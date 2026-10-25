@@ -10,13 +10,14 @@ import math
 import time
 from collections.abc import Mapping
 from datetime import UTC, datetime
-from typing import Any, Literal
+from typing import Any, Literal, Protocol, TypedDict, TypeVar
 
 import jax
 import jax.numpy as jnp
 import numpy as np
 from pydantic import TypeAdapter, ValidationError
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import artifact_ref_for_manifest
 from polisyos.core.artifacts.environment import (
     EnvironmentManifest,
@@ -24,13 +25,19 @@ from polisyos.core.artifacts.environment import (
     capture_environment,
 )
 from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.ir_adapter import matches_artifact_store_protocol
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
     ArtifactRef,
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.protocol import (
+    ArtifactStore,
+    CoreJSONArtifactBoundedMemberReader,
+    CoreJSONArtifactStore,
+)
+from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.foundry import (
     METHOD_METRIC_BINDING_LIMIT,
@@ -64,6 +71,7 @@ from polisyos.core.contracts.foundry import (
     PatchOp,
     ProgramGraph,
     ProgramGraphRef,
+    ProgramNode,
     StateDelta,
     StateSnapshotRef,
 )
@@ -118,20 +126,16 @@ from polisyos.foundry.welfare.bounds import (
 )
 from polisyos.ir.governance.schedule import ScheduleSpec, schedule_range
 from polisyos.ir.governance.selector_expr import SelectorExpr
-from polisyos.ir.kernel import (
-    ConstraintRegistry,
-    MechanismTypeRegistry,
-    MergeRuleKind,
-    MergeRuleRegistry,
-    SelectorFieldRegistry,
-    SlotRegistry,
-    SlotScope,
-)
+from polisyos.ir.kernel.constraints import ConstraintRegistry
+from polisyos.ir.kernel.mechanisms import MechanismTypeRegistry
+from polisyos.ir.kernel.merge_rules import MergeRuleKind, MergeRuleRegistry
 from polisyos.ir.kernel.method_metrics import (
     METHOD_METRIC_EX_ANTE_MEAN_CHANGE_LAW_ID,
     MethodMetricSourceUnit,
     registered_method_metric_semantics_match,
 )
+from polisyos.ir.kernel.selector_fields import SelectorFieldRegistry
+from polisyos.ir.kernel.slots import SlotRegistry, SlotScope
 
 logger = logging.getLogger(__name__)
 
@@ -158,13 +162,25 @@ _CLASSIFIED_EXECUTOR_FAILURES = (
 )
 
 
+class _MethodExecutionIdentity(TypedDict, total=False):
+    """Method identity fields retain the source's declared value domains."""
+
+    method_fqn: str
+    method_version: str | None
+    method_abi_digest: str | None
+    method_abi_digest_algorithm: Literal["blake2b"] | None
+    method_build_digest: str | None
+    method_build_digest_scope: Literal["class_source_only", "unavailable"] | None
+    limitation: str | None
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 
 
 def _execution_treasury(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     program_ref: ArtifactRef | ArtifactID | str,
     exec_plan_ref: ArtifactRef | ArtifactID | str,
     program: ProgramGraph,
@@ -178,7 +194,7 @@ def _execution_treasury(
         raise ValueError("unsupported_randomization_profile")
     if plan.program_ref.artifact_id != artifact_id(program_ref):
         raise ValueError("treasury_exec_program_mismatch")
-    manifest = store.get_manifest(exec_plan_ref)
+    manifest = store.get_manifest(_artifact_selector(exec_plan_ref))
     if manifest.kind != "foundry.exec_plan":
         raise ValueError("treasury_exec_manifest_kind")
 
@@ -239,15 +255,25 @@ def _execution_treasury(
     return treasury
 
 
-def _selected_typed_ref(store: FileSystemCAS, ref: ArtifactRef, ref_type: type[Any]) -> Any:
+def _artifact_selector(ref: ArtifactRef | ArtifactID | str) -> ArtifactRef | ArtifactID:
+    """Normalize a string selector to the generic CAS protocol's typed ID."""
+    return ArtifactID.model_validate(ref) if isinstance(ref, str) else ref
+
+
+def _selected_typed_ref(
+    store: ArtifactStore,
+    ref: ArtifactRef | ArtifactID | str,
+    ref_type: type[_RefT],
+) -> _RefT:
     """Resolve and type the exact current manifest profile for one source ref."""
-    manifest = store.get_manifest(ref)
-    if manifest.artifact_id != ref.artifact_id or manifest.kind != ref.kind:
-        raise ValueError("method_execution_source_ref_identity_mismatch")
-    if manifest.media_type != ref.media_type:
-        raise ValueError("method_execution_source_ref_media_type_mismatch")
+    manifest = store.get_manifest(_artifact_selector(ref))
+    if isinstance(ref, ArtifactRef):
+        if manifest.artifact_id != ref.artifact_id or manifest.kind != ref.kind:
+            raise ValueError("method_execution_source_ref_identity_mismatch")
+        if manifest.media_type != ref.media_type:
+            raise ValueError("method_execution_source_ref_media_type_mismatch")
     profile = artifact_ref_for_manifest(manifest)
-    if (
+    if isinstance(ref, ArtifactRef) and (
         ref.manifest_profile_sha256 is not None
         and ref.manifest_profile_sha256 != profile.manifest_profile_sha256
     ):
@@ -270,10 +296,10 @@ def _edge_matches_ref(edge: Any, ref: ArtifactRef) -> bool:
 
 
 def _binding_ref_from_exec_plan_manifest(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     exec_plan_ref: ArtifactRef | ArtifactID | str,
 ) -> MethodMetricBindingSetRef | None:
-    manifest = store.get_manifest(exec_plan_ref)
+    manifest = store.get_manifest(_artifact_selector(exec_plan_ref))
     edges = [item for item in manifest.inputs if item.role == "method_metric_bindings"]
     if not edges:
         return None
@@ -295,8 +321,23 @@ _METHOD_METRIC_BINDING_JSON_ELEMENT_LIMIT = 32_768
 _METHOD_METRIC_BINDING_JSON_DEPTH_LIMIT = 16
 
 
+class _BoundedCoreJSONArtifactStore(
+    CoreJSONArtifactStore,
+    CoreJSONArtifactBoundedMemberReader,
+    Protocol,
+):
+    """Store needed only when execution admits a bounded method-metric binding read."""
+
+
+def _require_bounded_core_json_store(store: CoreJSONArtifactStore) -> _BoundedCoreJSONArtifactStore:
+    """Narrow the optional bounded reader at the method-metric read use site."""
+    if not matches_artifact_store_protocol(store, _BoundedCoreJSONArtifactStore):
+        raise CanonicalProfileRefusalError("canon_profile_bounded_stream_unavailable")
+    return store
+
+
 def _read_method_metric_binding_set_bounded(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactBoundedMemberReader,
     binding_set_ref: MethodMetricBindingSetRef,
 ) -> tuple[ArtifactManifest, MethodMetricBindingSet]:
     """Read a selected binding set under Core bounds before Pydantic materialization."""
@@ -329,7 +370,7 @@ def _read_method_metric_binding_set_bounded(
 
 
 def _validate_method_metric_plan_binding(
-    store: FileSystemCAS,
+    store: _BoundedCoreJSONArtifactStore,
     *,
     plan_ref: ExecPlanRef,
     graph_ref: ProgramGraphRef,
@@ -379,7 +420,7 @@ def _validate_method_metric_plan_binding(
 
 
 def new_method_execution_capture(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     program_ref: ArtifactRef | ArtifactID | str,
     exec_plan_ref: ArtifactRef | ArtifactID | str,
@@ -394,8 +435,9 @@ def new_method_execution_capture(
         return None
     plan_ref = _selected_typed_ref(store, exec_plan_ref, ExecPlanRef)
     graph_ref = _selected_typed_ref(store, program_ref, ProgramGraphRef)
+    bounded_store = _require_bounded_core_json_store(store)
     binding_set = _validate_method_metric_plan_binding(
-        store,
+        bounded_store,
         plan_ref=plan_ref,
         graph_ref=graph_ref,
         binding_set_ref=binding_set_ref,
@@ -410,18 +452,18 @@ def new_method_execution_capture(
 
 def _resolve_planned_method_identities(
     order: list[str], node_map: dict[str, Any]
-) -> tuple[dict[str, type[Any]], dict[str, dict[str, str | None]]]:
+) -> tuple[dict[str, type[Any]], dict[str, _MethodExecutionIdentity]]:
     """Load exact planned method classes and retain honest source identity limits."""
     from polisyos.foundry.methods.registry import MethodRegistry
 
     registry = MethodRegistry.get_instance()
     classes: dict[str, type[Any]] = {}
-    identities: dict[str, dict[str, str | None]] = {}
+    identities: dict[str, _MethodExecutionIdentity] = {}
     for node_id in dict.fromkeys(order):
         node = node_map.get(node_id)
         if node is None or node.node_kind != "method" or not node.method_fqn:
             continue
-        identity: dict[str, str | None] = {
+        identity: _MethodExecutionIdentity = {
             "method_fqn": node.method_fqn,
             "method_version": node.method_version,
             "method_abi_digest": None,
@@ -521,15 +563,15 @@ def _bounded_json_value(
             if identity in active:
                 return _UNSUPPORTED_BOUNDED_JSON
             active.add(identity)
-            values = []
+            list_values: list[Any] = []
             for child in item:
                 value = visit(child, depth + 1)
                 if value is _UNSUPPORTED_BOUNDED_JSON:
                     active.remove(identity)
                     return _UNSUPPORTED_BOUNDED_JSON
-                values.append(value)
+                list_values.append(value)
             active.remove(identity)
-            return values
+            return list_values
         from pydantic import BaseModel
 
         if isinstance(item, BaseModel):
@@ -719,12 +761,13 @@ _MAX_METHOD_CAPTURE_SIDECAR_REFS = 8192
 _MAX_METHOD_CAPTURE_INPUT_BYTES = 32 * 1024 * 1024
 _METHOD_PRESTATE_IDENTITY_ALGORITHM = "policyos.method_dispatch_input_map.sha256.v1"
 _METHOD_PRESTATE_IDENTITY_DOMAIN = b"policyos.method_dispatch_input_map.sha256.v1\0"
+_RefT = TypeVar("_RefT", bound=ArtifactRef)
 
 
 def _materialize_exact_method_input_state(
     state: Any,
     *,
-    node: Any,
+    node: ProgramNode,
     method_class: type[Any],
     slot_registry: SlotRegistry,
 ) -> Any:
@@ -740,7 +783,7 @@ def _materialize_exact_method_input_state(
     if len(signature_input_slots) > 32:
         return state
     signature_input_ids = {slot.name for slot in signature_input_slots}
-    graph_input_ids = tuple(getattr(node, "inputs", ()) or ())
+    graph_input_ids = tuple(node.inputs)
     if (
         not signature_input_ids
         or not graph_input_ids
@@ -973,7 +1016,7 @@ def _method_input_slot_values(
 
 
 def _capture_method_metric_dispatch_inputs(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     capture: MethodExecutionCapture,
     occurrence_id: str,
@@ -1241,7 +1284,7 @@ def _successful_method_dispatch_record(
         and isinstance(raw_attempts, list)
         and 0 < len(raw_attempts) <= 32
     )
-    if trace_valid:
+    if trace_valid and isinstance(raw_attempts, list):
         for attempt in raw_attempts:
             if (
                 not isinstance(attempt, Mapping)
@@ -1486,7 +1529,7 @@ def _planned_method_dispatch(
     *,
     node: Any | None,
     method_class: type[Any] | None,
-    method_identity: dict[str, str | None],
+    method_identity: _MethodExecutionIdentity,
     metric_input_capture_required: bool,
 ) -> MethodExecutionDispatchRecord:
     """Create a terminally honest not-run record before a graph invocation."""
@@ -1531,8 +1574,9 @@ def _planned_method_dispatch(
         and signature_parameter_count > _MAX_METHOD_PARAMETER_COUNT
     ):
         limitations.append("method_signature_parameter_inventory_exceeds_capture_limit")
-    if method_identity.get("limitation"):
-        limitations.append(str(method_identity["limitation"]))
+    identity_limitation = method_identity.get("limitation")
+    if identity_limitation:
+        limitations.append(identity_limitation)
     return MethodExecutionDispatchRecord(
         outcome="not_run",
         method_metric_input_capture_status=(
@@ -1573,7 +1617,7 @@ def _planned_method_occurrence(
     plan_index: int,
     node: Any | None,
     node_id: str,
-    method_identity: dict[str, str | None] | None,
+    method_identity: _MethodExecutionIdentity | None,
     method_class: type[Any] | None,
     selected_slot_ids: tuple[str, ...],
     metric_input_capture_required: bool,
@@ -1587,8 +1631,9 @@ def _planned_method_occurrence(
         method_fqn = node.method_fqn
     identity = method_identity or {}
     limitations = []
-    if node_kind == "method" and identity.get("limitation"):
-        limitations.append(str(identity["limitation"]))
+    identity_limitation = identity.get("limitation")
+    if node_kind == "method" and identity_limitation:
+        limitations.append(identity_limitation)
     slots = [
         MethodExecutionOutputSlot(
             slot_id=slot_id,
@@ -1648,7 +1693,9 @@ def _planned_method_occurrence(
     )
 
 
-def _runtime_slot_shape(value: Any) -> tuple[tuple[int, ...] | None, str]:
+def _runtime_slot_shape(
+    value: Any,
+) -> tuple[tuple[int, ...] | None, Literal["captured", "not_established"]]:
     """Read runtime shape metadata without converting or copying output arrays."""
     shape = getattr(value, "shape", None)
     if shape is not None:
@@ -1769,13 +1816,13 @@ def _returned_slot_inventory_row(
 
 
 def _capture_method_outputs(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     capture: MethodExecutionCapture,
     occurrence: MethodExecutionOccurrence,
     method_class: type[Any],
     method_result: Any,
-    method_identity: dict[str, str | None],
+    method_identity: _MethodExecutionIdentity,
     bindings: dict[tuple[str, str], MethodMetricBinding],
 ) -> tuple[
     list[MethodExecutionOutputSlot],
@@ -2056,7 +2103,7 @@ def _capture_method_outputs(
 
 
 def _capture_method_artifacts(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     capture: MethodExecutionCapture,
     occurrence: MethodExecutionOccurrence,
@@ -2314,7 +2361,7 @@ def _mark_unfinished_capture_occurrences_skipped(
 
 
 def persist_method_execution_capture(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     capture: MethodExecutionCapture,
 ) -> MethodExecutionBundleRef:
     """Persist a terminal bundle with the complete occurrence and output edge set."""
@@ -2448,16 +2495,17 @@ def persist_method_execution_capture(
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
-    capture.method_execution_bundle_ref = _selected_typed_ref(
+    bundle_ref = _selected_typed_ref(
         store,
         ref,
         MethodExecutionBundleRef,
     )
-    return capture.method_execution_bundle_ref
+    capture.method_execution_bundle_ref = bundle_ref
+    return bundle_ref
 
 
 def _abort_method_capture_limit(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     capture: MethodExecutionCapture,
     *,
     reason: str,
@@ -2495,7 +2543,7 @@ def _treasury_node_key(root_key: jax.Array, treasury: TreasuryPlan, node_id: str
 
 
 def execute_program_graph(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     program_ref: ArtifactRef | ArtifactID | str,
     exec_plan_ref: ArtifactRef | ArtifactID | str,
@@ -2507,7 +2555,7 @@ def execute_program_graph(
     constraint_registry: ConstraintRegistry | None = None,
     step: int = 0,
     seed: int | None = None,
-    base_ref: ArtifactRef | None = None,
+    base_ref: StateSnapshotRef | None = None,
     project_root: str | None = None,
     capture_env: bool = False,
     parameter_overrides: dict[str, dict[str, Any]] | None = None,
@@ -2548,8 +2596,9 @@ def execute_program_graph(
                 raise ValueError("method_execution_capture_source_tuple_mismatch")
             binding_rows = capture.method_metric_bindings
         else:
+            bounded_store = _require_bounded_core_json_store(store)
             binding_set = _validate_method_metric_plan_binding(
-                store,
+                bounded_store,
                 plan_ref=plan_ref,
                 graph_ref=graph_ref,
                 binding_set_ref=binding_set_ref,
@@ -2731,6 +2780,7 @@ def execute_program_graph(
     checked_constraints = 0
     masks: dict[str, tuple[jnp.ndarray, SlotScope]] = {}
     constraint_report = ConstraintReport(
+        schema_version="1.0",
         ok=True,
         hard_fail=False,
         constraint_mode=lowered_ir.constraint_mode,
@@ -3643,7 +3693,7 @@ def _seed_from_key(key: jax.Array) -> int:
 
 
 def _execute_mechanism_like_node(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     node: Any,
     visible_state: Any,
@@ -3788,7 +3838,7 @@ def _execute_mechanism_like_node(
 
 
 def _build_state_delta_ops(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     base_state: Any,
     final_state: Any,
@@ -3825,7 +3875,7 @@ def _build_state_delta_ops(
 
 
 def _persist_environment_manifest(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     manifest: EnvironmentManifest,
     exec_plan_ref: ArtifactRef | ArtifactID | str,
     *,
@@ -3864,7 +3914,7 @@ def _log_environment_captured(manifest: EnvironmentManifest) -> None:
 
 def _resolve_income_tax_rate(
     program_graph: ProgramGraph,
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     step: int,
     parameter_overrides: dict[str, dict[str, Any]] | None = None,
 ) -> jnp.ndarray | None:
@@ -3889,7 +3939,7 @@ def _resolve_income_tax_rate(
 
 
 def _load_node_payload(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     node: Any,
     parameter_overrides: dict[str, dict[str, Any]] | None,

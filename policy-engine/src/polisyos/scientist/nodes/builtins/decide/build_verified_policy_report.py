@@ -92,7 +92,11 @@ class BuildVerifiedPolicyReportNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        state = project_policy_promotion_state(state, ctx=ctx)
+        state = project_policy_promotion_state(
+            state,
+            ctx=ctx,
+            branch_write_paths=_SPEC.state_writes,
+        )
         existing_ref = state.verified_policy_report_ref or state.artifacts_index.get(
             ARTIFACT_VERIFIED_POLICY_REPORT_REF
         )

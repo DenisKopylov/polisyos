@@ -1,0 +1,53 @@
+id = "2026-10-22-e02-canary-selected-profile-and-public-export-boundaries"
+title = "Bind canary evidence to selected source profiles and redact complete public exports"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "Serious canary admission retains the exact selected CAS profile through scorecard and closeout, Wave 4/I4 source admission requires the joined typed owner and selected PDC source with a matching closed, digest-bearing manifest/envelope input closure; protected publication projections remain incomplete until a non-circular verified producer exists, and public export redaction covers the complete returned projection."
+evidence = [
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "src/polisyos/runtime/quality/refs.py",
+  "src/polisyos/runtime/quality/report_registry.py",
+  "src/polisyos/runtime/quality/public_export.py",
+  "tests/unit/tools/test_canary_evidence.py",
+  "tests/unit/runtime/quality/test_quality_refs.py",
+  "tests/unit/runtime/quality/test_public_export.py",
+]
+compatibility = "Additive diagnostics and fail-closed source admission within the existing public-experimental runtime-quality surface. No existing serialized artifact identity is rewritten; public export output remains projection-only. Source records lacking an exact selected profile or owner join no longer enter serious authority paths. A successful PDC owner join does not establish publication truth: the current pre-closeout projection and I4 graph remain incomplete with producer_missing and cannot satisfy closeout."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.runtime.quality.build_public_export_bundle; internal runtime: selected quality-source admission, closeout source identity, and Wave 4/I4 owner join"
+migration = "Callers that supply runtime_truth_preservation may continue to pass a mapping. Serious canary consumers must provide the typed selected ArtifactRef with its exact manifest profile; legacy string refs remain diagnostic/candidate inputs when serious admission requires a selected view. A selected PDC manifest and its producer authority envelope must agree on a closed same-input closure with a content digest. A security report's schema-owned bundle locator is accepted only in its registered field; CAS identity remains the selected artifact ID."
+api = "The existing public-experimental build_public_export_bundle accepts an optional runtime_truth_preservation mapping and returns the same projection-only bundle shape with a complete-bundle redaction receipt. Internal canary readers preserve ArtifactRef kind, media type, and manifest_profile_sha256 through source resolution and closeout records, and require the selected PDC manifest closure summary to equal its closed, digest-bearing producer envelope closure. The I4 owner join preserves source case bytes but does not create a publication decision; until a non-circular verified publication producer is wired, projection, graph, and audit-verifier intake status stays incomplete with policy_design_case_publication_source_not_established."
+limitations = "A selected manifest profile proves which CAS view was read, not whether that source is current, legally valid, representative, or sufficient. The PDC closure check binds the producer-supplied closure identity across envelope and manifest; underlying input currentness remains not_established. A successful typed owner join proves only the exact job/run/PDC identity relation admitted by this consumer; broader ownership and currentness remain not_established. The current assembly has no non-circular verified publication producer before the scorecard-backed closeout reader, so projection truth stays not_established and the reader refuses the incomplete I4 graph. Public export redaction does not confer publication or approval authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-quality-public-export-complete-redaction"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.runtime.quality.build_public_export_bundle"
+owner = "team-runtime-quality"
+version_owner = "team-runtime-quality"
+deprecation_window = "not_applicable"
+release_note = "The public export owner redacts authority projections, runtime truth, and the rest of the emitted bundle before its final residual check; output remains projection-only."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-quality-selected-source-profile-and-i4-owner"
+change_class = "internal"
+impact = "behavioral"
+surface = "internal: canary scorecard selected-source admission, closeout source identity, and Wave 4/I4 runtime-owned emission"
+owner = "team-runtime-quality"
+version_owner = "team-runtime-quality"
+deprecation_window = "not_applicable"
+release_note = "Serious scorecard and closeout source records require the exact selected CAS profile and producer binding; I4 source admission requires the typed selected PDC source joined to the authenticated control job and run, with a closed digest-bearing envelope closure matching its manifest summary. That owner join does not supply publication truth: protected projection/graph records stay incomplete with producer_missing until a non-circular verified publication producer exists."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

@@ -6,6 +6,7 @@ packages = ["src/polisyos", "tools"]
 "data/dataset_catalog/proxy_metric_alignments.yaml" = "polisyos/data_forge/domains/catalog/_resources/proxy_metric_alignments.yaml"
 "data/dataset_catalog/wvs_indicator_registry.yaml" = "polisyos/data_forge/domains/catalog/_resources/wvs_indicator_registry.yaml"
 "data/dataset_catalog/metrics_map.yaml" = "polisyos/data_forge/domains/catalog/_resources/metrics_map.yaml"
+"src/polisyos/runtime/http/_resources/confidence_ledger_risk_spend_openapi_example.json" = "polisyos/runtime/http/_resources/confidence_ledger_risk_spend_openapi_example.json"
 
 "architecture/production_quality/method_catalog_dependency_digest_domains.toml" = "polisyos/foundry/methods/catalog/_resources/method_catalog_dependency_digest_domains.toml"
 

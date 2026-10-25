@@ -6,7 +6,7 @@ import json
 from collections.abc import Mapping, Sequence
 from copy import deepcopy
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from polisyos.core.contracts.control import POLICY_AUTHORITY_PROFILES
 from polisyos.core.security import (
@@ -56,6 +56,7 @@ from polisyos.runtime.quality.authority import (
     authority_envelope_ownership_issues,
     classify_authority_failure,
     deserialize_authority_envelope,
+    runtime_quality_report_cas_admission_issues,
 )
 from polisyos.runtime.quality.calibration_ledger import (
     calibration_behavior_deficit_records,
@@ -249,7 +250,7 @@ SECURITY_REPORT_INTAKE_KEY = "security_assurance_report_intake"
 SECURITY_REPORT_INTAKE_FILE = "security_assurance_report_intake.json"
 SECURITY_REPORT_INTAKE_SCHEMA_VERSION = "policyos.runtime.security_report_intake.v1"
 
-QUALITY_REPORT_GATE_METADATA = {
+QUALITY_REPORT_GATE_METADATA: dict[str, tuple[str, str, str]] = {
     "production_data_quality": (
         "production_data_quality_present",
         "materialization",
@@ -336,6 +337,52 @@ QUALITY_REPORT_GATE_METADATA = {
         "scientist_governance_lifecycle",
     ),
 }
+_DEDICATED_QUALITY_REPORT_CONSUMER_KEYS: frozenset[str] = frozenset({"can_i_closeout"})
+
+
+def _quality_report_registry_issues() -> tuple[str, ...]:
+    metadata_keys = set(QUALITY_REPORT_GATE_METADATA)
+    runtime_ref_keys = set(QUALITY_REPORT_RUNTIME_REFS)
+    dedicated_keys = set(_DEDICATED_QUALITY_REPORT_CONSUMER_KEYS)
+    file_keys = set(QUALITY_REPORT_FILES)
+    issues: list[str] = []
+
+    metadata_without_runtime_refs = sorted(metadata_keys - runtime_ref_keys)
+    if metadata_without_runtime_refs:
+        issues.append(
+            "authority metadata has no runtime ref: " + ", ".join(metadata_without_runtime_refs)
+        )
+
+    dedicated_without_runtime_refs = sorted(dedicated_keys - runtime_ref_keys)
+    if dedicated_without_runtime_refs:
+        issues.append(
+            "dedicated typed consumers have no runtime ref: "
+            + ", ".join(dedicated_without_runtime_refs)
+        )
+
+    consumers_without_files = sorted((metadata_keys | dedicated_keys) - file_keys)
+    if consumers_without_files:
+        issues.append(
+            "runtime report consumers have no file mapping: " + ", ".join(consumers_without_files)
+        )
+
+    overlapping_consumers = sorted(metadata_keys & dedicated_keys)
+    if overlapping_consumers:
+        issues.append(
+            "runtime report keys have both generic and dedicated consumers: "
+            + ", ".join(overlapping_consumers)
+        )
+
+    unclassified_runtime_refs = sorted(runtime_ref_keys - metadata_keys - dedicated_keys)
+    if unclassified_runtime_refs:
+        issues.append(
+            "runtime refs lack generic authority metadata or a dedicated typed consumer: "
+            + ", ".join(unclassified_runtime_refs)
+        )
+
+    return tuple(issues)
+
+
 CONTINUOUS_GOVERNANCE_LIFECYCLE_REPORT_KEYS = (
     "continuous_governance_stale",
     "continuous_governance_reissue",
@@ -1016,17 +1063,39 @@ def _domain_next_action_for_report(*, report: Any, default: str) -> str:
     return issue_next_action or default
 
 
-def _expected_source_families(quality_evidence: dict[str, Any]) -> list[str]:
-    scenario_contract = quality_evidence.get("golden_scenario_contract")
-    if not isinstance(scenario_contract, dict):
-        return []
-    expected = scenario_contract.get("expected_evidence_contract")
-    if not isinstance(expected, dict):
-        return []
-    families = expected.get("admissible_data_source_families")
+ExpectedSourceFamilyState = Literal["absent", "null", "empty", "values", "malformed"]
+
+
+def _expected_source_families(
+    quality_evidence: dict[str, Any],
+) -> tuple[ExpectedSourceFamilyState, list[str]]:
+    """Preserve absence separately from malformed supplied scenario intent."""
+    if "golden_scenario_contract" not in quality_evidence:
+        return "absent", []
+    scenario_contract = quality_evidence["golden_scenario_contract"]
+    if scenario_contract is None:
+        return "null", []
+    if not isinstance(scenario_contract, Mapping):
+        return "malformed", []
+    if "expected_evidence_contract" not in scenario_contract:
+        return "absent", []
+    expected = scenario_contract["expected_evidence_contract"]
+    if expected is None:
+        return "null", []
+    if not isinstance(expected, Mapping):
+        return "malformed", []
+    if "admissible_data_source_families" not in expected:
+        return "absent", []
+    families = expected["admissible_data_source_families"]
+    if families is None:
+        return "null", []
     if not isinstance(families, list):
-        return []
-    return [str(family) for family in families if str(family or "").strip()]
+        return "malformed", []
+    if not families:
+        return "empty", []
+    if any(not isinstance(family, str) or not family.strip() for family in families):
+        return "malformed", []
+    return "values", [family.strip() for family in families]
 
 
 def _expected_foundry_methods(quality_evidence: dict[str, Any]) -> list[str]:
@@ -1067,10 +1136,15 @@ def normalize_quality_evidence(
             normalize_data_forge_snapshot_binding_report(data_forge_snapshot_binding)
         )
     fabric_trace = normalized.get("fabric_retrieval_trace")
-    if isinstance(fabric_trace, dict):
-        normalized["fabric_retrieval_trace"] = normalize_fabric_retrieval_trace(
+    if "fabric_retrieval_trace" in normalized and fabric_trace is not None:
+        # Missing, null, and valid-empty intent retain report consistency behavior.
+        # A malformed present outer value cannot fall back to the report's own claim.
+        expectation_state, expected_source_families = _expected_source_families(normalized)
+        normalized_trace = normalize_fabric_retrieval_trace(
             fabric_trace,
-            expected_source_families=_expected_source_families(normalized),
+            expected_source_families=(
+                expected_source_families if expectation_state == "values" else None
+            ),
             canary_kind=canary_kind,
             data_forge_snapshot_binding=(
                 normalized[DATA_FORGE_SNAPSHOT_BINDING_REPORT_KEY]
@@ -1078,6 +1152,29 @@ def normalize_quality_evidence(
                 else None
             ),
         )
+        if expectation_state == "malformed":
+            issues = list(normalized_trace["issues"])
+            issues.append(
+                {
+                    "code": "scenario_source_family_expectation_invalid",
+                    "severity": "fail",
+                    "layer": "fabric_retrieval",
+                    "phase": "scenario_contract",
+                    "source_id": None,
+                    "message": (
+                        "The supplied golden scenario source-family expectation is malformed."
+                    ),
+                    "next_action": (
+                        "Provide a mapping with a text list of admissible source families."
+                    ),
+                }
+            )
+            normalized_trace["issues"] = issues
+            normalized_trace["status"] = "fail"
+            normalized_trace["blocking_issue_count"] = sum(
+                issue.get("severity") == "fail" for issue in issues
+            )
+        normalized["fabric_retrieval_trace"] = normalized_trace
     foundry_report = normalized.get("foundry_method_report")
     if isinstance(foundry_report, dict):
         normalized["foundry_method_report"] = normalize_foundry_method_report(
@@ -1906,6 +2003,7 @@ def _authority_contract_gates(
     job_payload: dict[str, Any] | None,
     run_payload: dict[str, Any] | None,
     quality_evidence_bundle_path: str | None,
+    artifact_store: ArtifactStore | None = None,
 ) -> list[dict[str, Any]]:
     if not _serious_canary(canary_kind):
         return []
@@ -1916,8 +2014,33 @@ def _authority_contract_gates(
     )
     registry_ref_keys = _scorecard_invariant_ref_keys()
     gates: list[dict[str, Any]] = []
+    registry_issues = _quality_report_registry_issues()
+    if registry_issues:
+        gates.append(
+            _gate(
+                name="quality_report_registry_complete",
+                stage="ops",
+                code="quality_report_registry_incomplete",
+                status="fail",
+                layer="runtime_quality_registry",
+                phase="authority_contract",
+                message=(
+                    "Runtime quality report registry composition is incomplete: "
+                    + "; ".join(registry_issues)
+                ),
+                evidence_ref=None,
+                next_action=(
+                    "Give every runtime quality ref a generic authority metadata row or "
+                    "a dedicated typed consumer, with its report file mapping."
+                ),
+            )
+        )
     validated_envelopes: list[EvidenceAuthorityEnvelope] = []
-    for report_key, ref_key in QUALITY_REPORT_RUNTIME_REFS.items():
+    for report_key, (gate_name, stage, layer) in QUALITY_REPORT_GATE_METADATA.items():
+        ref_key = QUALITY_REPORT_RUNTIME_REFS.get(report_key)
+        filename = QUALITY_REPORT_FILES.get(report_key)
+        if ref_key is None or filename is None:
+            continue
         if registry_ref_keys and ref_key not in registry_ref_keys:
             continue
         report = quality_evidence.get(report_key)
@@ -1925,11 +2048,8 @@ def _authority_contract_gates(
             continue
 
         runtime_ref = authority_refs.get(ref_key)
-        if runtime_ref is None:
-            continue
-
-        gate_name, stage, layer = QUALITY_REPORT_GATE_METADATA[report_key]
-        evidence_ref = f"quality_evidence/{QUALITY_REPORT_FILES[report_key]}"
+        selected_ref = authority_refs.get_selected_ref(ref_key)
+        evidence_ref = f"quality_evidence/{filename}"
 
         def append_failure(
             code: str,
@@ -1939,7 +2059,7 @@ def _authority_contract_gates(
             stage: str = stage,
             layer: str = layer,
             evidence_ref: str = evidence_ref,
-            runtime_ref: str = runtime_ref,
+            runtime_ref: str | None = runtime_ref,
             envelope: Mapping[str, Any] | None = None,
             authority_error_code: str | None = None,
             domain_failure_code: str | None = None,
@@ -1980,16 +2100,47 @@ def _authority_contract_gates(
                 )
             )
 
-        if _is_bundle_local_ref(runtime_ref):
+        if runtime_ref is not None and _is_bundle_local_ref(runtime_ref):
             append_failure(
                 "hds_bundle_ref_used_as_runtime_ref",
                 f"Runtime-owned {ref_key} points at bundle-local evidence.",
             )
-        elif not _is_cas_authority_ref(runtime_ref):
+        elif runtime_ref is not None and not _is_cas_authority_ref(runtime_ref):
             append_failure(
                 "hds_ref_identity_mismatch",
                 f"Runtime-owned {ref_key} is not a CAS authority ref.",
             )
+
+        envelope = _report_authority_envelope(report)
+        cas_issues = runtime_quality_report_cas_admission_issues(
+            artifact_store=artifact_store,
+            selected_ref=selected_ref,
+            runtime_ref=runtime_ref,
+            report_key=report_key,
+            ref_key=ref_key,
+            report=report,
+            envelope=envelope,
+        )
+        cas_admitted = not cas_issues
+        for issue in cas_issues:
+            issue_code = str(issue.get("code") or "runtime_quality_cas_admission_failed")
+            append_failure(
+                issue_code,
+                str(issue.get("message") or "Runtime report CAS admission did not establish."),
+                envelope=envelope,
+                authority_error_code=(
+                    "hds_unknown_provenance"
+                    if issue_code == "runtime_quality_owner_contract_not_established"
+                    else "hds_ref_identity_mismatch"
+                ),
+                next_action=str(
+                    issue.get("next_action")
+                    or "Resolve the exact selected report ref and producer-owned manifest profile."
+                ),
+            )
+
+        if runtime_ref is None:
+            continue
 
         embedded_ref = _sanitize_ref(report.get(ref_key))
         if embedded_ref is not None and embedded_ref != runtime_ref:
@@ -1998,7 +2149,6 @@ def _authority_contract_gates(
                 f"Embedded {ref_key} does not match the runtime CAS ref.",
             )
 
-        envelope = _report_authority_envelope(report)
         if envelope is None:
             append_failure(
                 "hds_unknown_provenance",
@@ -2129,7 +2279,8 @@ def _authority_contract_gates(
                 ),
                 phase=domain_phase,
             )
-        validated_envelopes.append(validated)
+        if cas_admitted:
+            validated_envelopes.append(validated)
 
     if len(validated_envelopes) > 1:
         try:
@@ -6529,28 +6680,38 @@ def _policy_design_wave21_claim_gate(
     )
 
 
-def _policy_design_wave22_claim_argument_gates(
+def _policy_design_wave22_claim_argument_validation_result(
     quality_evidence: dict[str, Any],
     *,
     canary_kind: str,
     artifact_store: ArtifactStore | None = None,
-) -> list[dict[str, Any]]:
+) -> ClaimArgumentValidationResult | None:
     if not _serious_canary(canary_kind):
-        return []
+        return None
     case = quality_evidence.get("policy_design_case")
-    if not isinstance(case, Mapping):
-        return []
-    final_claims = _policy_design_final_major_claims(case)
-    if not final_claims:
-        return []
-    result = validate_claim_argument_case_surfaces(
+    if not isinstance(case, Mapping) or not _policy_design_final_major_claims(case):
+        return None
+    return validate_claim_argument_case_surfaces(
         case,
         effective_authority_profile=(
             _policy_design_case_effective_authority_profile(case) or canary_kind
         ),
         artifact_store=artifact_store,
     )
-    return _policy_design_wave22_claim_argument_issue_gates(result)
+
+
+def _policy_design_wave22_claim_argument_gates(
+    quality_evidence: dict[str, Any],
+    *,
+    canary_kind: str,
+    artifact_store: ArtifactStore | None = None,
+) -> list[dict[str, Any]]:
+    result = _policy_design_wave22_claim_argument_validation_result(
+        quality_evidence,
+        canary_kind=canary_kind,
+        artifact_store=artifact_store,
+    )
+    return _policy_design_wave22_claim_argument_issue_gates(result) if result is not None else []
 
 
 def _policy_design_wave22_claim_argument_issue_gates(
@@ -8913,10 +9074,12 @@ def _phase_barrier_gates(
         if owner_source_refusal_detail is not None
         else ""
     )
-    source_owner: dict[str, object] | None = None
+    source_owner: Mapping[str, object] | None = None
     if verified_owner_source is not None:
         try:
-            from polisyos.runtime.http.services.debug import _ScorecardControlJobOwnerSource
+            from polisyos.runtime.http.services.debug import (
+                _ScorecardControlJobOwnerSource,
+            )
 
             if type(verified_owner_source) is _ScorecardControlJobOwnerSource:
                 source_owner = verified_owner_source.as_owner_binding()
@@ -8930,7 +9093,11 @@ def _phase_barrier_gates(
         if source_owner is not None
         else None
     )
-    owner_source_reconciled = owner_binding is not None and source_owner_binding is not None
+    owner_source_reconciled = (
+        owner_binding is not None
+        and verified_owner_source is not None
+        and source_owner_binding is not None
+    )
     if owner_binding is None:
         gates.append(
             _gate(
@@ -8948,7 +9115,7 @@ def _phase_barrier_gates(
                 ),
             )
         )
-    elif owner_source_reconciled:
+    elif verified_owner_source is not None and source_owner_binding is not None:
         gates.append(
             _gate(
                 name="serious_phase_barrier_owner_scope",
@@ -9264,6 +9431,43 @@ def _lifecycle_report_contract_gate(
     }
 
 
+def _security_report_ref_rejection_is_valid(value: object) -> bool:
+    if not isinstance(value, Mapping):
+        return False
+
+    key: object = value.get("key")
+    path: object = value.get("path")
+    if key != SECURITY_ASSURANCE_REPORT_REF_KEY and not (
+        isinstance(key, str)
+        and key in {"runtime_quality_refs", "runtime_quality_artifact_refs"}
+        and isinstance(path, str)
+        and any(
+            marker in path
+            for marker in (
+                ".runtime_quality_refs",
+                ".runtime_quality_artifact_refs",
+            )
+        )
+    ):
+        return False
+
+    for field in ("source", "path", "reason", "input_type"):
+        field_value: object = value.get(field)
+        if not isinstance(field_value, str) or not field_value:
+            return False
+
+    value_sha256: object = value.get("value_sha256")
+    if (
+        not isinstance(value_sha256, str)
+        or len(value_sha256) != 64
+        or any(character not in "0123456789abcdef" for character in value_sha256)
+    ):
+        return False
+
+    value_length: object = value.get("value_length")
+    return value_length is None or (type(value_length) is int and value_length >= 0)
+
+
 def _security_report_intake_gates(
     quality_evidence: dict[str, Any],
 ) -> list[dict[str, Any]]:
@@ -9283,35 +9487,7 @@ def _security_report_intake_gates(
     resolution_rejections_valid = (
         isinstance(raw_rejections, list)
         and bool(raw_rejections)
-        and all(
-            isinstance(row, Mapping)
-            and (
-                row.get("key") == SECURITY_ASSURANCE_REPORT_REF_KEY
-                or (
-                    row.get("key") in {"runtime_quality_refs", "runtime_quality_artifact_refs"}
-                    and isinstance(row.get("path"), str)
-                    and any(
-                        marker in row.get("path")
-                        for marker in (
-                            ".runtime_quality_refs",
-                            ".runtime_quality_artifact_refs",
-                        )
-                    )
-                )
-            )
-            and all(
-                isinstance(row.get(field), str) and bool(row.get(field))
-                for field in ("source", "path", "reason", "input_type")
-            )
-            and isinstance(row.get("value_sha256"), str)
-            and len(row.get("value_sha256")) == 64
-            and all(character in "0123456789abcdef" for character in row.get("value_sha256"))
-            and (
-                row.get("value_length") is None
-                or (type(row.get("value_length")) is int and row.get("value_length") >= 0)
-            )
-            for row in raw_rejections
-        )
+        and all(_security_report_ref_rejection_is_valid(row) for row in raw_rejections)
     )
     resolution_refusal = (
         source_ref is None
@@ -10340,6 +10516,13 @@ def _build_quality_scorecard_impl(
         run_payload=run_payload,
         quality_evidence=quality_evidence,
     )
+    policy_design_claim_argument_validation = (
+        _policy_design_wave22_claim_argument_validation_result(
+            quality_evidence,
+            canary_kind=canary_kind,
+            artifact_store=artifact_store,
+        )
+    )
     gates: list[dict[str, Any]] = [
         _execution_gate(execution_status=execution_status, job_payload=job_payload),
         *_llm_gates(
@@ -10373,6 +10556,7 @@ def _build_quality_scorecard_impl(
             job_payload=job_payload,
             run_payload=run_payload,
             quality_evidence_bundle_path=quality_evidence_bundle_path,
+            artifact_store=artifact_store,
         ),
         *_report_gates(
             quality_evidence,
@@ -10494,10 +10678,12 @@ def _build_quality_scorecard_impl(
             quality_evidence,
             canary_kind=canary_kind,
         ),
-        *_policy_design_wave22_claim_argument_gates(
-            quality_evidence,
-            canary_kind=canary_kind,
-            artifact_store=artifact_store,
+        *(
+            _policy_design_wave22_claim_argument_issue_gates(
+                policy_design_claim_argument_validation
+            )
+            if policy_design_claim_argument_validation is not None
+            else []
         ),
         *_policy_design_wave25_research_deficit_promotion_gates(
             quality_evidence,
@@ -10727,6 +10913,10 @@ def _build_quality_scorecard_impl(
         "approval_eligibility": approval_eligibility,
         "evidence_refs": refs,
     }
+    if policy_design_claim_argument_validation is not None:
+        payload["policy_design_claim_argument_validation_diagnostic"] = (
+            policy_design_claim_argument_validation.as_dict()
+        )
     if status_envelope is not None:
         payload["status_envelope"] = status_envelope_payload(status_envelope)
         payload["deficit_crosswalk"] = [
@@ -10819,7 +11009,7 @@ def _installed_canary_owner_source_context(
         return None, "runtime_owner_source_context_not_installed"
 
     control_service = container.control_service
-    if type(control_service) is not ControlPlaneService:
+    if control_service is None or type(control_service) is not ControlPlaneService:
         return None, "runtime_owner_source_control_service_not_started"
     if (
         type(runtime_api_context.debug) is not DebugService
@@ -10851,7 +11041,9 @@ def _build_quality_scorecard_with_runtime_owner_source(
     artifact_store: ArtifactStore | None = None,
 ) -> dict[str, Any]:
     """Recompute the owner source join immediately before one private canary scorecard."""
-    from polisyos.runtime.http.services.debug import _ScorecardOwnerSourceReaderUnavailableError
+    from polisyos.runtime.http.services.debug import (
+        _ScorecardOwnerSourceReaderUnavailableError,
+    )
 
     verified_owner_source: Any | None = None
     owner_source_refusal_detail: str | None = None
@@ -10895,7 +11087,14 @@ def _build_quality_scorecard_with_runtime_owner_source(
                     )
             except _ScorecardOwnerSourceReaderUnavailableError as exc:
                 owner_source_refusal_detail = str(exc)
-            except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError):
+            except (
+                AttributeError,
+                KeyError,
+                OSError,
+                RuntimeError,
+                TypeError,
+                ValueError,
+            ):
                 verified_owner_source = None
     return _build_quality_scorecard_impl(
         canary_kind=canary_kind,

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from contextlib import contextmanager, nullcontext
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -20,9 +19,7 @@ from polisyos.core.contracts.control import (
     FetchPlan,
     FetchPlanFallback,
 )
-from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
 from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
-from polisyos.data_forge.domains.catalog.batch.pipeline import run_content_stage_with_receipt
 from polisyos.data_forge.read_api import catalog as catalog_api
 from polisyos.fabric.catalog.resolver_fast_lane import FastLaneResolveResult
 from polisyos.fabric.connectors.base import ConnectionConfig
@@ -55,7 +52,6 @@ def build_real_fetch_owner(
     dataset_records=None,
     artifact_store=None,
     artifact_store_config=None,
-    catalog_publish_config: DatasetBatchConfig | None = None,
 ):
     """Use a real graph, with only the connector transport controlled."""
     from polisyos.data_forge.domains.catalog.knowledge.types import (
@@ -63,11 +59,7 @@ def build_real_fetch_owner(
         DistributionRecord,
     )
 
-    graph_path = (
-        catalog_publish_config.db_path
-        if catalog_publish_config is not None
-        else tmp_path / "catalog.duckdb"
-    )
+    graph_path = tmp_path / "catalog.duckdb"
     records = [
         DatasetRecord(
             id=f"catalog-{name}",
@@ -90,11 +82,8 @@ def build_real_fetch_owner(
         for name in dataset_names
     ]
     build_graph(records=records if dataset_records is None else dataset_records, db_path=graph_path)
-    if catalog_publish_config is not None:
-        _write_current_test_catalog_inputs(catalog_publish_config)
-        run_content_stage_with_receipt(catalog_publish_config, "publish")
     overlay_path = tmp_path / "overlay.duckdb"
-    index_dir = catalog_publish_config.index_dir if catalog_publish_config is not None else tmp_path
+    index_dir = tmp_path
     graph = catalog_api.DatasetCatalogGraph(graph_path, index_dir, overlay_path=overlay_path)
     rows = [{"row_id": f"r-{index}", "value": index + 0.5, "optional": None} for index in range(12)]
     requests = []
@@ -224,7 +213,6 @@ def build_real_fetch_owner(
         dataset_id=dataset_names[0],
         quality_min=0.5,
         source_lane="fastlane",
-        metadata={"resolution_route": "catalog", "catalog_discovered": True},
     )
     local_cas_root = (
         tmp_path / "cas" if artifact_store is None and artifact_store_config is None else None
@@ -260,59 +248,6 @@ def build_real_fetch_owner(
     graph.close()
 
 
-def _write_current_test_catalog_inputs(config: DatasetBatchConfig) -> None:
-    """Write controlled stage inputs consumed by the real catalog publisher."""
-    publish_blocking_sources = [
-        source.name for source in config.load_registry().sources if source.publish_blocking
-    ]
-    if len(publish_blocking_sources) != 1:
-        raise ValueError("controlled_test_registry_must_select_one_publish_blocking_source")
-    config.merged_records_path.write_text('{"title":"Recorded local file"}\n', encoding="utf-8")
-    config.duplicates_report_path.write_text("dataset_id,duplicate_id\n", encoding="utf-8")
-    config.qc_report_path.write_text(
-        json.dumps(
-            {
-                "scope": "datasets",
-                "passed": True,
-                "metrics": {
-                    "machine_readable_distribution_pct": 100.0,
-                    "parser_supported_distribution_pct": 100.0,
-                    "datasets_with_metric_binding_pct": 100.0,
-                    "datasets_with_schema_profile_pct": 100.0,
-                    "transport_ready_var_coverage_pct": 100.0,
-                    "execution_readiness_score_avg": 0.9,
-                },
-                "checks": [],
-            }
-        ),
-        encoding="utf-8",
-    )
-    config.benchmark_report_path.write_text(
-        json.dumps(
-            {
-                "kind": "datasets_benchmark",
-                "evaluation_mode": "full-ready",
-                "metrics": {
-                    "benchmark_search_top5_relevance_pct": 100.0,
-                    "benchmark_retrieval_ready_pct": 100.0,
-                    "benchmark_transport_ready_pct": 100.0,
-                    "benchmark_foundry_fitness_pct": 100.0,
-                    "benchmark_source_preflight_ready_pct": 100.0,
-                    "benchmark_bulk_equivalence_mismatch_rate": 0.0,
-                    "benchmark_bulk_equivalence_blocking_sources_total": 0,
-                },
-                "source_preflight": {
-                    "sources": [
-                        {"source": source, "status": "complete", "ready": True}
-                        for source in publish_blocking_sources
-                    ]
-                },
-            }
-        ),
-        encoding="utf-8",
-    )
-
-
 @contextmanager
 def build_recorded_file_fetch_owner(
     tmp_path,
@@ -321,15 +256,12 @@ def build_recorded_file_fetch_owner(
     catalog_source_locator=None,
     catalog_connector_params=None,
     profile_base_url=None,
-    publish_current_catalog=False,
+    with_catalog_profile=False,
 ):
-    """Run the actual registered FileTabularConnector against a local CSV.
+    """Use the real FileTabularConnector and exact catalog binding for custody tests.
 
-    The default keeps the historical fixture's symbolic catalog locator.  The
-    acquisition-capture tests opt into a catalog built with the canonical
-    absolute file locator before ``DatasetCatalogGraph`` opens its read-only
-    session.  This keeps fixture preparation on the writable graph-builder
-    path instead of mutating the read-only graph after construction.
+    The test-only recorded_file_local profile binds executor configuration only. This fixture
+    does not claim catalog-publisher currentness.
     """
     from polisyos.data_forge.domains.catalog.knowledge.types import (
         DatasetRecord,
@@ -371,7 +303,7 @@ def build_recorded_file_fetch_owner(
         if isinstance(configured_locator, str) and configured_locator.strip():
             assert Path(configured_locator).resolve(strict=True) == canonical_catalog_locator
     profiles = SourceProfileRegistry()
-    selected_profile_id = "recorded_file_local" if publish_current_catalog else None
+    selected_profile_id = "recorded_file_local" if with_catalog_profile else None
     if selected_profile_id is not None:
         profiles.register(
             SourceProfile(
@@ -410,9 +342,8 @@ def build_recorded_file_fetch_owner(
                     connector_params=(
                         primary_connector_params if name == "primary" else {"url": str(csv_path)}
                     ),
-                    # Canonical capture fixtures must resolve the intended
-                    # primary target before the read-only route check.  Keep
-                    # the symbolic fallback binding available for the CAS
+                    # Canonical capture fixtures resolve the intended primary target
+                    # before read-only binding; retain symbolic fallback for the
                     # foreign-binding negative case.
                     quality_score=1.0 if name == "primary" and catalog_locator else 0.0,
                 )
@@ -438,81 +369,44 @@ def build_recorded_file_fetch_owner(
             record_fabric_connector_fetch=lambda **kwargs: None,
         ),
     )
-    fixture_source_registry = catalog_api.CatalogSourceRegistrySpec(
-        sources=(
-            catalog_api.CatalogSourceRegistryEntry(
-                source_id="recorded_file",
-                family="controlled_test_fixture",
-                wave="T",
-                endpoint="file://controlled-test-fixture",
-                connector_id="files.tabular",
-                execution_tier="transport_ready",
-                run_lane="empirical",
-                enabled=True,
-            ),
-        )
-    )
-    with pytest.MonkeyPatch.context() as patch:
-        patch.setattr(
-            catalog_api,
-            "load_catalog_source_registry",
-            lambda: fixture_source_registry,
-        )
-        publish_config = None
-        if publish_current_catalog:
-            patch.setattr(SourceProfileRegistry, "_instance", profiles)
-            registry_path = tmp_path / "current-catalog-sources.yaml"
-            registry_path.write_text(
-                "\n".join(
-                    [
-                        "version: 1",
-                        "sources:",
-                        "  - name: recorded_file",
-                        "    family: controlled_test_fixture",
-                        "    wave: T",
-                        "    endpoint: file://controlled-test-fixture",
-                        "    enabled: true",
-                        "    execution_tier: transport_ready",
-                        "    run_lane: empirical",
-                        "    publish_blocking: true",
-                    ]
-                )
-                + "\n",
-                encoding="utf-8",
+    with build_real_fetch_owner(
+        tmp_path,
+        connector_id="files.tabular",
+        providers_override=providers,
+        source_location=str(csv_path),
+        patch_fastlane=False,
+        dataset_records=dataset_records,
+    ) as owner:
+        owner.csv_path = csv_path
+        owner.frame = frame
+        owner.rows = frame.to_dict(orient="records")
+        owner.requests = requests
+        owner.index_dir = tmp_path
+        if selected_profile_id is not None:
+            # Match the graph-owned request id derived from this distribution source locator.
+            admitted_dataset_id = (
+                str(catalog_locator) if catalog_locator is not None else owner.plan.dataset_id
             )
-            publish_config = DatasetBatchConfig(
-                snapshot_root=tmp_path / "current-catalog-snapshot",
-                registry_path=registry_path,
+            owner.plan = owner.plan.model_copy(
+                update={
+                    "dataset_id": admitted_dataset_id,
+                    "profile_id": selected_profile_id,
+                }
             )
-        with build_real_fetch_owner(
-            tmp_path,
-            connector_id="files.tabular",
-            providers_override=providers,
-            source_location=str(csv_path),
-            patch_fastlane=False,
-            dataset_records=dataset_records,
-            catalog_publish_config=publish_config,
-        ) as owner:
-            owner.csv_path = csv_path
-            owner.frame = frame
-            owner.rows = frame.to_dict(orient="records")
-            owner.requests = requests
-            owner.index_dir = publish_config.index_dir if publish_config is not None else tmp_path
-            yield owner
+        yield owner
 
 
 @contextmanager
 def build_worldbank_fetch_owner(tmp_path):
-    """Use the committed WDI HTTP fixture through the actual registered owner.
+    """Run the committed WDI HTTP fixture against its exact graph-bound plan.
 
-    The fixture remains a transport instrument: its USA/DEU GDP identities are
-    preserved, and it is never relabeled as the Ukraine credit population.
+    Publisher currentness is witnessed separately through the complete catalog fixture.
+    The USA/DEU GDP identities in the recorded HTTP payload remain unchanged.
     """
     import ast
     import json
     from pathlib import Path
 
-    from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
     from polisyos.data_forge.domains.catalog.batch.normalizer import normalize_worldbank
     from polisyos.data_forge.domains.catalog.knowledge.types import DatasetCoverage
     from polisyos.fabric.connectors.profiles import SourceProfileRegistry
@@ -545,8 +439,6 @@ def build_worldbank_fetch_owner(tmp_path):
     assert indicator_ids == {"NY.GDP.MKTP.CD"}
     indicator_names = {row["indicator"]["value"] for row in raw_rows}
     assert len(indicator_names) == 1
-    # The catalog's existing WDI owner supplies license, parser/readiness and
-    # annual frequency; the complete recorded response supplies exact coverage.
     record = normalize_worldbank(
         {"id": "NY.GDP.MKTP.CD", "name": next(iter(indicator_names))},
         metrics_map={"gdp": {"worldbank_indicators": ["NY.GDP.MKTP.CD"]}},
@@ -562,11 +454,7 @@ def build_worldbank_fetch_owner(tmp_path):
                 granularity="annual",
             ),
             "distributions": [
-                dist.model_copy(
-                    update={
-                        "default_filters": {"country": ["US", "DE"]},
-                    }
-                )
+                dist.model_copy(update={"default_filters": {"country": ["US", "DE"]}})
                 for dist in record.distributions
             ],
         }
@@ -620,38 +508,18 @@ def build_worldbank_fetch_owner(tmp_path):
     providers = RetrievalProviders(
         registry=registry,
         profiles=SourceProfileRegistry(),
-        tracer=SimpleNamespace(start_as_current_span=lambda *a, **k: nullcontext()),
+        tracer=SimpleNamespace(start_as_current_span=lambda *args, **kwargs: nullcontext()),
         metrics=SimpleNamespace(
             record_fabric_query=lambda **kwargs: None,
             record_fabric_connector_fetch=lambda **kwargs: None,
         ),
     )
     providers.profiles.register(
-        next(p for p in BUILTIN_PROFILES if p.profile_id == "worldbank_wdi")
-    )
-    worldbank_policy = catalog_api.load_catalog_source_registry().source_by_id("worldbank")
-    assert worldbank_policy is not None
-    fixture_source_registry = catalog_api.CatalogSourceRegistrySpec(sources=(worldbank_policy,))
-    source_row = worldbank_policy.model_dump(mode="json")
-    source_row["name"] = source_row.pop("source_id")
-    registry_path = tmp_path / "worldbank-current-test-source.yaml"
-    registry_path.write_text(
-        json.dumps({"version": 1, "sources": [source_row]}),
-        encoding="utf-8",
-    )
-    publish_config = DatasetBatchConfig(
-        snapshot_root=tmp_path / "worldbank-current-catalog",
-        registry_path=registry_path,
+        next(profile for profile in BUILTIN_PROFILES if profile.profile_id == "worldbank_wdi")
     )
     with pytest.MonkeyPatch.context() as patch:
         patch.setattr(WorldBankConnector, "_request_json", staticmethod(request_json))
         patch.setattr(WorldBankConnector, "_get_session", get_session)
-        patch.setattr(
-            catalog_api,
-            "load_catalog_source_registry",
-            lambda: fixture_source_registry,
-        )
-        patch.setattr(SourceProfileRegistry, "_instance", providers.profiles)
         with build_real_fetch_owner(
             tmp_path,
             dataset_names=("NY.GDP.MKTP.CD",),
@@ -661,11 +529,21 @@ def build_worldbank_fetch_owner(tmp_path):
             patch_fastlane=False,
             metric_id="gdp",
             dataset_records=[record],
-            catalog_publish_config=publish_config,
         ) as owner:
             owner.plan = owner.plan.model_copy(
                 update={"profile_id": "worldbank_wdi", "filters": {"country": ["US", "DE"]}}
             )
+            if (
+                owner.graph.bind_fetch_target(
+                    metric_id=owner.plan.metric_id,
+                    connector_id=owner.plan.connector_id,
+                    request_dataset_id=owner.plan.dataset_id,
+                    profile_id=owner.plan.profile_id,
+                    filters=owner.plan.filters,
+                )
+                is None
+            ):
+                raise AssertionError("worldbank_http_plan_not_bound_by_exact_catalog_graph")
             records = [row for page in sorted(responses) for row in responses[page][1]]
             owner.frame = normalize_worldbank_records(records, "NY.GDP.MKTP.CD")
             owner.rows = owner.frame.to_dict(orient="records")
@@ -682,17 +560,32 @@ def real_fetch_owner(tmp_path):
         yield owner
 
 
-def _execute(owner, plan=None):
-    resolved = owner.service.resolve(
-        DataResolveRequest(
-            data_needs=[DataNeed(metric=owner.plan.metric_id)],
-            mode="fastlane",
-            catalog_run_profile="prod_full",
-        )
+def _recorded_file_bound_plan(owner):
+    """Return the existing candidate plan only after exact graph binding succeeds."""
+    plan = owner.plan
+    binding = owner.graph.bind_fetch_target(
+        metric_id=plan.metric_id,
+        connector_id=plan.connector_id,
+        request_dataset_id=plan.dataset_id,
+        profile_id=plan.profile_id,
+        filters=plan.filters,
     )
-    return owner.service.execute_fetch_plans(
-        [plan or resolved.fetch_plans[0]], persist_payload=True
-    ).previews[0]
+    if binding is None:
+        raise AssertionError("recorded_file_candidate_plan_not_graph_bound")
+    return plan
+
+
+def _execute(owner, plan=None):
+    if plan is None:
+        resolved = owner.service.resolve(
+            DataResolveRequest(
+                data_needs=[DataNeed(metric=owner.plan.metric_id)],
+                mode="fastlane",
+                catalog_run_profile="prod_full",
+            )
+        )
+        plan = resolved.fetch_plans[0]
+    return owner.service.execute_fetch_plans([plan], persist_payload=True).previews[0]
 
 
 def _exercise_worldbank_pool_protocol(owner) -> None:
@@ -785,7 +678,7 @@ def test_persisted_fetch_capture_owner_runs_safe_preflight_and_postflight(tmp_pa
     with build_recorded_file_fetch_owner(
         tmp_path,
         canonicalize_catalog_source=True,
-        publish_current_catalog=True,
+        with_catalog_profile=True,
     ) as owner:
         service = RetrievalService(
             curated_dir=tmp_path,
@@ -793,15 +686,7 @@ def test_persisted_fetch_capture_owner_runs_safe_preflight_and_postflight(tmp_pa
             dataset_catalog=owner.graph,
             providers=owner.providers,
         )
-        resolved = service.resolve(
-            DataResolveRequest(
-                data_needs=[DataNeed(metric="metric.test")],
-                mode="hybrid",
-                allow_explore_fallback=False,
-            ),
-            run_profile="prod_full",
-        )
-        assert len(resolved.fetch_plans) == 1
+        plan = _recorded_file_bound_plan(owner)
         callback_order: list[str] = []
         plan_fingerprints: list[str] = []
         config_fingerprints: list[tuple[str, str | None]] = []
@@ -813,22 +698,22 @@ def test_persisted_fetch_capture_owner_runs_safe_preflight_and_postflight(tmp_pa
                 (view.effective_config_fingerprint, view.source_profile_fingerprint)
             )
             assert owner.requests == []
-            assert view.plan_id == resolved.fetch_plans[0].plan_id
-            assert view.metric_id == resolved.fetch_plans[0].metric_id
+            assert view.plan_id == plan.plan_id
+            assert view.metric_id == plan.metric_id
             assert view.connector_id == "files.tabular"
             binding = owner.graph.bind_fetch_target(
-                metric_id=resolved.fetch_plans[0].metric_id,
-                connector_id=resolved.fetch_plans[0].connector_id,
-                request_dataset_id=resolved.fetch_plans[0].dataset_id,
-                profile_id=resolved.fetch_plans[0].profile_id,
-                filters=resolved.fetch_plans[0].filters,
+                metric_id=plan.metric_id,
+                connector_id=plan.connector_id,
+                request_dataset_id=plan.dataset_id,
+                profile_id=plan.profile_id,
+                filters=plan.filters,
             )
             assert view.catalog_binding_fingerprint == canon.fingerprint(
                 binding.model_dump(mode="json"),
                 prefix=True,
                 canon_spec=canon.CanonSpec(forbid_floats=False, exclude_none=False),
             )
-            assert view.target_profile_id == resolved.fetch_plans[0].profile_id
+            assert view.target_profile_id == plan.profile_id
             assert tuple(name for name, _ in view.connector_param_locators) == ("url",)
             assert view.connector_param_locators[0][1].classification == "local"
             assert view.effective_locator.local_path == str(owner.csv_path)
@@ -843,20 +728,20 @@ def test_persisted_fetch_capture_owner_runs_safe_preflight_and_postflight(tmp_pa
             ) == config_fingerprints[0]
             assert len(view.metrics) == 1
             metric = view.metrics[0]
-            assert metric.plan_id == resolved.fetch_plans[0].plan_id
+            assert metric.plan_id == plan.plan_id
             assert metric.payload_ref is not None
             assert metric.fetch_receipt_ref is not None
             assert not hasattr(metric, "sample_rows")
 
         outcome = service.execute_persisted_fetch_capture(
-            resolved.fetch_plans,
+            [plan],
             preflight=preflight,
             postflight=postflight,
         )
 
         assert callback_order == ["preflight", "postflight"]
         assert len(owner.requests) == 2
-        assert outcome.previews[0].used_plan == resolved.fetch_plans[0]
+        assert outcome.previews[0].used_plan == plan
         assert not outcome.previews[0].fallback_used
         metric = outcome.data_context.metrics[0]
         assert metric.payload_ref is not None
@@ -872,7 +757,7 @@ def test_persisted_fetch_capture_owner_rejects_non_none_preflight_result(tmp_pat
     with build_recorded_file_fetch_owner(
         tmp_path,
         canonicalize_catalog_source=True,
-        publish_current_catalog=True,
+        with_catalog_profile=True,
     ) as owner:
         service = RetrievalService(
             curated_dir=tmp_path,
@@ -880,15 +765,7 @@ def test_persisted_fetch_capture_owner_rejects_non_none_preflight_result(tmp_pat
             dataset_catalog=owner.graph,
             providers=owner.providers,
         )
-        resolved = service.resolve(
-            DataResolveRequest(
-                data_needs=[DataNeed(metric="metric.test")],
-                mode="hybrid",
-                allow_explore_fallback=False,
-            ),
-            run_profile="prod_full",
-        )
-        assert len(resolved.fetch_plans) == 1
+        plan = _recorded_file_bound_plan(owner)
         execute_calls: list[object] = []
 
         def trap_execute(*args: object, **kwargs: object) -> object:
@@ -898,7 +775,7 @@ def test_persisted_fetch_capture_owner_rejects_non_none_preflight_result(tmp_pat
         service.execute_fetch_plans = trap_execute  # type: ignore[method-assign]
         with pytest.raises(ValueError, match="preflight_must_return_none"):
             service.execute_persisted_fetch_capture(
-                resolved.fetch_plans,
+                [plan],
                 preflight=lambda _view: False,
                 postflight=lambda _view: None,
             )
@@ -919,7 +796,7 @@ def test_persisted_fetch_capture_defers_explore_promotion_until_postflight(
     with build_recorded_file_fetch_owner(
         tmp_path,
         canonicalize_catalog_source=True,
-        publish_current_catalog=True,
+        with_catalog_profile=True,
     ) as owner:
         service = RetrievalService(
             curated_dir=tmp_path,
@@ -927,16 +804,7 @@ def test_persisted_fetch_capture_defers_explore_promotion_until_postflight(
             dataset_catalog=owner.graph,
             providers=owner.providers,
         )
-        resolved = service.resolve(
-            DataResolveRequest(
-                data_needs=[DataNeed(metric="metric.test")],
-                mode="hybrid",
-                allow_explore_fallback=False,
-            ),
-            run_profile="prod_full",
-        )
-        assert len(resolved.fetch_plans) == 1
-        plan = resolved.fetch_plans[0].model_copy(update={"source_lane": "explorelane"})
+        plan = _recorded_file_bound_plan(owner).model_copy(update={"source_lane": "explorelane"})
 
         def preflight(_view) -> None:
             assert service.list_promotion_candidates() == []
@@ -1489,25 +1357,64 @@ def test_explicit_metric_binding_admits_its_real_nonpreferred_distribution(tmp_p
             graph.close()
 
 
+def _build_full_published_catalog_fixture(tmp_path, monkeypatch):
+    """Reuse the existing owner-complete publisher fixture by its canonical path."""
+    import importlib.util
+    import sys
+
+    fixture_path = Path(__file__).parents[1] / "runtime" / "http" / "_published_catalog_fixture.py"
+    module_name = "_e02_fetch_custody_published_catalog_fixture"
+    spec = importlib.util.spec_from_file_location(module_name, fixture_path)
+    if spec is None or spec.loader is None:
+        raise AssertionError("complete published catalog fixture module spec is unavailable")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+    return module.build_published_catalog_fixture(tmp_path, monkeypatch)
+
+
 def test_worldbank_fixture_current_catalog_receipt_admits_its_exact_fetch_plan(
-    tmp_path,
+    tmp_path, monkeypatch
 ):
-    from polisyos.core.contracts.control import DataNeed, DataResolveRequest
-
-    with build_worldbank_fetch_owner(tmp_path) as owner:
-        resolved = owner.service.resolve(
-            DataResolveRequest(
-                data_needs=[DataNeed(metric=owner.plan.metric_id)],
-                mode="fastlane",
-                catalog_run_profile="prod_full",
-            )
+    fixture = _build_full_published_catalog_fixture(tmp_path, monkeypatch)
+    try:
+        service = RetrievalService(
+            curated_dir=tmp_path / "curated",
+            dataset_catalog=fixture.producer_graph,
+            profiles=fixture.profile_registry,
         )
-
-    assert len(resolved.fetch_plans) == 1
-    plan = resolved.fetch_plans[0]
-    assert plan.connector_id == "worldbank.wdi"
-    assert plan.dataset_id == "NY.GDP.MKTP.CD"
-    assert plan.profile_id == "worldbank_wdi"
+        resolved = service.resolve(
+            DataResolveRequest(
+                data_needs=[
+                    DataNeed(
+                        metric="scope_metric",
+                        geography="DEU",
+                        time_start="2025",
+                        time_end="2025",
+                    )
+                ],
+                mode="fastlane",
+                allow_explore_fallback=False,
+            ),
+            run_profile="prod_full",
+        )
+        assert fixture.report_basis_state == "current"
+        assert fixture.publish_receipt_state == "current"
+        assert fixture.readiness["consumer_ready"] is True
+        assert len(resolved.fetch_plans) == 1
+        assert len(resolved.candidates) == 1
+        assert resolved.candidates[0].metadata["source_currentness"] == "current"
+        assert (
+            resolved.candidates[0].metadata["plan_admission_reason"]
+            == "catalog_profile_inputs_covered"
+        )
+        plan = resolved.fetch_plans[0]
+        assert plan.connector_id == "worldbank.wdi"
+        assert plan.dataset_id == "scope_dataset"
+        assert plan.profile_id == "worldbank_wdi"
+    finally:
+        fixture.producer_graph.close()
+        fixture.close()
 
 
 def test_worldbank_connector_replays_existing_http_fixture_through_real_owner(tmp_path):
@@ -1679,9 +1586,9 @@ def test_persisted_fetch_replay_uses_one_atomic_current_profile_snapshot(tmp_pat
     from polisyos.fabric.retrieval.executor import FetchExecutor
 
     with build_recorded_file_fetch_owner(
-        tmp_path, canonicalize_catalog_source=True, publish_current_catalog=True
+        tmp_path, canonicalize_catalog_source=True, with_catalog_profile=True
     ) as owner:
-        executed = _execute(owner)
+        executed = _execute(owner, _recorded_file_bound_plan(owner))
         assert executed.fetch_receipt_ref is not None
         profile = owner.providers.profiles.get("recorded_file_local")
         assert profile is not None

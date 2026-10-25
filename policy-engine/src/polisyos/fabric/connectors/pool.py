@@ -16,11 +16,10 @@ import asyncio
 import copy
 import threading
 from collections import OrderedDict, deque
-from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 from uuid import uuid4
 
 from polisyos.common.logger import get_logger
@@ -31,6 +30,7 @@ from polisyos.fabric.connectors.base import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from types import TracebackType
 
     from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle, HealthStatus
@@ -38,6 +38,7 @@ if TYPE_CHECKING:
 
 logger = get_logger(__name__)
 
+# Retain module name resolution for deferred public method annotations.
 ConnectorT = TypeVar("ConnectorT", bound="SourceConnectorValue[Any]")
 SettlementT = TypeVar("SettlementT")
 
@@ -63,7 +64,7 @@ class PoolClosedError(Exception):
 
 
 @dataclass
-class PooledConnection(Generic[ConnectorT]):
+class PooledConnection[ConnectorT: SourceConnectorValue[Any]]:
     """
     Wrapper around ConnectionHandle with pool metadata.
 
@@ -233,7 +234,7 @@ class PoolBackpressureSnapshot:
     active_signals: tuple[BackpressureSignal, ...] = ()
 
 
-class ConnectionPool(Generic[ConnectorT]):
+class ConnectionPool[ConnectorT: SourceConnectorValue[Any]]:
     """
     Thread-safe connection pool for SourceConnector instances.
 

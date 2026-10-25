@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
-from collections.abc import AsyncIterator, Awaitable
 from inspect import isawaitable
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator, Awaitable
 
 
 async def resolve_async_iterator[T](

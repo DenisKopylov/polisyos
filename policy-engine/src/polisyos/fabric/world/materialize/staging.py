@@ -4,13 +4,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pandas as pd
 
-from polisyos.ir.loading.fact_log import FactSegmentManifest
 from polisyos.ir.world.predicates import WORLD_REL_PREFIX
 
 from .errors import WorldSchemaError
+
+if TYPE_CHECKING:
+    from polisyos.ir.loading.fact_log import FactSegmentManifest
 
 REQUIRED_COLUMNS = {
     "fact_id",

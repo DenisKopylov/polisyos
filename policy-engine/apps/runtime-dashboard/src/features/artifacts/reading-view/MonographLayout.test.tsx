@@ -1,4 +1,10 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
+import { renderWithProviders } from "@/test/render";
+
+import {
+  legacyLimitedProjection,
+  pointSummary,
+} from "../domain/__test__/decisionPacketHteFixtures";
 
 import {
   MonographLayout,
@@ -182,5 +188,54 @@ describe("MonographLayout", () => {
     expect(
       screen.getAllByText(/licensing remains mandatory/i).length,
     ).toBeGreaterThan(0);
+  });
+
+  it("carries a bounded HTE preview into the reading and print document with traversable refs", () => {
+    const document = buildDecisionPacketDocument({
+      ...packetPreview,
+      hte: pointSummary(),
+    });
+    expect(document).not.toBeNull();
+    expect(
+      document?.sections.find((section) => section.id === "hte_outcome"),
+    ).toMatchObject({
+      hteProjection: { status: "valid" },
+    });
+
+    renderWithProviders(<MonographLayout document={document!} />);
+
+    expect(screen.getByTestId("hte-outcome-point-value")).toHaveTextContent(
+      "0.25",
+    );
+    expect(screen.getByRole("link", { name: "Point result" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("ir.hte_point_result"),
+    );
+    expect(screen.getByRole("navigation")).toHaveTextContent(/HTE outcome/i);
+  });
+
+  it("carries the typed limited legacy projection through the monograph reading surface", () => {
+    const document = buildDecisionPacketDocument({
+      ...packetPreview,
+      hte: null,
+      hte_projection_status: "legacy_limited",
+      hte_legacy_limited: legacyLimitedProjection(),
+    });
+    expect(document).not.toBeNull();
+    expect(
+      document?.sections.find((section) => section.id === "hte_outcome"),
+    ).toMatchObject({
+      hteProjection: { status: "valid" },
+    });
+
+    renderWithProviders(<MonographLayout document={document!} />);
+
+    const outcome = screen.getByTestId("hte-outcome");
+    expect(outcome).toHaveAttribute("data-hte-outcome-kind", "legacy_limited");
+    expect(outcome).toHaveTextContent("0.25");
+    expect(outcome).toHaveTextContent(
+      "meaning and coverage are not established",
+    );
+    expect(within(outcome).queryByRole("link")).not.toBeInTheDocument();
   });
 });

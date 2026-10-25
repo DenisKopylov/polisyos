@@ -1,0 +1,38 @@
+id = "2026-10-23-e02-generation-cycle-history-dashboard"
+title = "Read typed generation-cycle history on the run overview"
+type = "fixed"
+component = "runtime-dashboard"
+owner = "team-frontend"
+summary = "The run details parser accepts existing Generic Cycle Simulation v1-v4 response variants and the overview presents coherent v3/v4 N6 cycle history as candidate-only evidence."
+evidence = [
+  "apps/runtime-dashboard/src/api/validators.ts",
+  "apps/runtime-dashboard/src/api/validators.test.ts",
+  "apps/runtime-dashboard/src/features/runs/domain/genericCycleSimulation.ts",
+  "apps/runtime-dashboard/src/features/runs/domain/genericCycleSimulation.test.ts",
+  "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+  "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx",
+]
+compatibility = "No Runtime API wire or generated-client changes. The dashboard response parser now discriminates the existing v1-v4 projection variants; malformed version/history and run/profile bindings continue to refuse rather than default."
+change_class = "internal"
+surface_classification = "internal: runtime-dashboard strict run-details parser and Overview reader; no HTTP, OpenAPI, or generated-client surface change."
+migration = "No stored data migration or API rollout is required. Existing v1-v4 run details retain their wire shape; coherent N6 history is surfaced only where its version, status, run, and profile bindings validate."
+api = "The existing response parser validates the currently supported versioned projection shapes. Overview shows status, limitation, history entries, outcomes, and signals as candidate information; no authority is added."
+limitations = "This dashboard companion does not establish upstream source currentness, legal authority, admissibility, or publication authority, and it does not prove an external production workload."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "dashboard-generic-cycle-versioned-history-reader"
+change_class = "internal"
+impact = "internal"
+surface = "internal: runtime-dashboard run-details parser and Overview reader"
+owner = "team-frontend"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "The run overview reads Generic Cycle Simulation projection versions v1-v4 and shows coherent v3/v4 N6 history with its candidate-only status and limitation."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

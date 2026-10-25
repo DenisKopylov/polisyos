@@ -2246,6 +2246,239 @@ def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
         assert raw.list_outbox_events(state=None, limit=100) == before_outbox
 
 
+def test_append_event_preserves_utc_microseconds_without_rewriting_legacy_rows(
+    tmp_path: Path,
+) -> None:
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(
+        store,
+        execution_scope=_job_execution_scope(),
+    )
+    legacy_row = store._fetchone(
+        "SELECT created_at FROM control_job_events WHERE job_id = ? AND event_type = ?",
+        (job.job_id, "job_created"),
+    )
+    assert legacy_row is not None
+    legacy_created_at = (
+        datetime.fromisoformat(str(legacy_row[0])).replace(microsecond=0).isoformat()
+    )
+    store._execute(
+        "UPDATE control_job_events SET created_at = ? WHERE job_id = ? AND event_type = ?",
+        (legacy_created_at, job.job_id, "job_created"),
+    )
+    assert datetime.fromisoformat(legacy_created_at).microsecond == 0
+
+    before = datetime.now(UTC)
+    store.append_event(job_id=job.job_id, event_type="job_progress", payload={"phase": "observed"})
+    after = datetime.now(UTC)
+
+    emitted_row = store._fetchone(
+        "SELECT created_at FROM control_job_events WHERE job_id = ? AND event_type = ?",
+        (job.job_id, "job_progress"),
+    )
+    assert emitted_row is not None
+    emitted_text = str(emitted_row[0])
+    emitted_at = datetime.fromisoformat(emitted_text)
+    assert emitted_at.tzinfo is not None and emitted_at.utcoffset() == timedelta(0)
+    assert before <= emitted_at <= after
+    assert emitted_text == emitted_at.isoformat(timespec="microseconds")
+
+    legacy_after = store._fetchone(
+        "SELECT created_at FROM control_job_events WHERE job_id = ? AND event_type = ?",
+        (job.job_id, "job_created"),
+    )
+    assert legacy_after is not None
+    assert str(legacy_after[0]) == legacy_created_at
+
+
+def _complete_execution_admission_job(
+    store: ControlPlaneStore,
+    *,
+    execution_scope: dict[str, object] | None,
+) -> ControlJobRecord:
+    job = _create_execution_admission_job(store, execution_scope=execution_scope)
+    with _fence_leased_execution(store, job=job):
+        store.complete_job(job_id=job.job_id, progress={"phase": "completed"})
+    return job
+
+
+@pytest.mark.parametrize("guarded", [False, True])
+def test_historical_completed_job_execution_scope_reuses_creation_envelope_without_live_lease(
+    tmp_path: Path,
+    guarded: bool,
+) -> None:
+    raw = _make_store(tmp_path)
+    store = guard_runtime_control_store(raw) if guarded else raw
+    job = _complete_execution_admission_job(
+        store,
+        execution_scope=_job_execution_scope(),
+    )
+
+    with pytest.raises(ControlJobLeaseLostError, match="identity is not bound"):
+        store.current_execution_job_record()
+
+    scope = store.historical_completed_job_execution_scope(
+        job_id=job.job_id,
+        expected_run_id=job.run_id,
+    )
+
+    assert scope.status == "established"
+    assert scope.tenant_id == "tenant-b"
+    assert scope.cell_id == "cell-b"
+    assert scope.actor_subject == "denis"
+    assert scope.actor_authenticated is True
+    assert scope.actor_roles == ("analyst", "operator")
+
+
+@pytest.mark.parametrize(
+    ("tamper", "expected_error"),
+    [
+        ("event_scope", "control_job_created_event_outbox_mismatch"),
+        ("outbox_scope", "control_job_created_event_outbox_mismatch"),
+        ("stable_run", "control_job_created_stable_field_mismatch"),
+        ("missing_creation_event", "control_job_created_event_unavailable"),
+        ("duplicate_creation_event", "control_job_created_event_unavailable"),
+        ("missing_creation_outbox", "control_job_created_outbox_unavailable"),
+    ],
+)
+def test_historical_completed_job_execution_scope_rejects_creation_envelope_drift(
+    tmp_path: Path,
+    tamper: str,
+    expected_error: str,
+) -> None:
+    store = _make_store(tmp_path)
+    job = _complete_execution_admission_job(
+        store,
+        execution_scope=_job_execution_scope(),
+    )
+
+    if tamper == "event_scope":
+        payload = store.get_job_created_event_payload(job.job_id)
+        payload["execution_scope"]["tenant_id"] = "tenant-forged"
+        store._execute(
+            "UPDATE control_job_events SET payload_json = ? WHERE job_id = ? AND event_type = ?",
+            (json.dumps(payload, sort_keys=True), job.job_id, "job_created"),
+        )
+    elif tamper == "outbox_scope":
+        outbox = store.get_job_created_outbox_event(job.job_id)
+        assert outbox is not None
+        payload = outbox.payload
+        payload["execution_scope"]["tenant_id"] = "tenant-forged"
+        store._execute(
+            "UPDATE control_outbox_events SET payload_json = ? WHERE event_id = ?",
+            (json.dumps(payload, sort_keys=True), outbox.event_id),
+        )
+    elif tamper == "stable_run":
+        payload = store.get_job_created_event_payload(job.job_id)
+        payload["run_id"] = "run-forged"
+        serialized = json.dumps(payload, sort_keys=True)
+        store._execute(
+            "UPDATE control_job_events SET payload_json = ? WHERE job_id = ? AND event_type = ?",
+            (serialized, job.job_id, "job_created"),
+        )
+        outbox = store.get_job_created_outbox_event(job.job_id)
+        assert outbox is not None
+        store._execute(
+            "UPDATE control_outbox_events SET payload_json = ? WHERE event_id = ?",
+            (serialized, outbox.event_id),
+        )
+    elif tamper == "missing_creation_event":
+        store._execute(
+            "DELETE FROM control_job_events WHERE job_id = ? AND event_type = ?",
+            (job.job_id, "job_created"),
+        )
+    elif tamper == "missing_creation_outbox":
+        outbox = store.get_job_created_outbox_event(job.job_id)
+        assert outbox is not None
+        store._execute(
+            "DELETE FROM control_outbox_events WHERE event_id = ?",
+            (outbox.event_id,),
+        )
+    else:
+        store.append_event(
+            job_id=job.job_id,
+            event_type="job_created",
+            payload=_job_creation_event(execution_scope=_job_execution_scope()),
+        )
+
+    with pytest.raises(ControlJobExecutionAdmissionError, match=expected_error):
+        store.historical_completed_job_execution_scope(
+            job_id=job.job_id,
+            expected_run_id=job.run_id,
+        )
+
+
+@pytest.mark.parametrize(
+    ("execution_scope", "expected_error"),
+    [
+        (None, "control_job_execution_scope_not_established"),
+        (
+            {
+                **_job_execution_scope(),
+                "actor_authenticated": False,
+            },
+            "control_job_execution_scope_incomplete",
+        ),
+        (
+            {
+                "schema_version": "polisyos.runtime.control_execution_scope.v1",
+                "status": "not_established",
+                "tenant_id": None,
+                "cell_id": None,
+                "actor_subject": None,
+                "actor_authenticated": False,
+                "actor_roles": [],
+            },
+            "control_job_execution_scope_not_established",
+        ),
+    ],
+)
+def test_historical_completed_job_execution_scope_refuses_unknown_or_malformed_owner(
+    tmp_path: Path,
+    execution_scope: dict[str, object] | None,
+    expected_error: str,
+) -> None:
+    store = _make_store(tmp_path)
+    job = _complete_execution_admission_job(store, execution_scope=execution_scope)
+
+    with pytest.raises(ControlJobExecutionAdmissionError, match=expected_error):
+        store.historical_completed_job_execution_scope(
+            job_id=job.job_id,
+            expected_run_id=job.run_id,
+        )
+
+
+def test_historical_completed_job_execution_scope_requires_completed_exact_run(
+    tmp_path: Path,
+) -> None:
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(
+        store,
+        execution_scope=_job_execution_scope(),
+    )
+
+    with pytest.raises(
+        ControlJobExecutionAdmissionError,
+        match="control_job_historical_execution_job_not_completed",
+    ):
+        store.historical_completed_job_execution_scope(
+            job_id=job.job_id,
+            expected_run_id=job.run_id,
+        )
+
+    with _fence_leased_execution(store, job=job):
+        store.complete_job(job_id=job.job_id, progress={"phase": "completed"})
+
+    with pytest.raises(
+        ControlJobExecutionAdmissionError,
+        match="control_job_historical_execution_run_mismatch",
+    ):
+        store.historical_completed_job_execution_scope(
+            job_id=job.job_id,
+            expected_run_id="different-run",
+        )
+
+
 def test_control_job_execution_admission_uses_event_and_allows_fenced_pointer_refresh(
     tmp_path: Path,
 ) -> None:

@@ -1,0 +1,22 @@
+id = "2026-10-23-e02-r24-candidate-packet-projection"
+title = "Add candidate-only HTE projection from an owned DecisionPacket"
+type = "added"
+component = "runtime-http"
+owner = "team-polisyos"
+summary = "Adds a required RUNS_REVIEW route for one indexed DecisionPacket profile, bounded-reads the exact packet, and reconciles its persisted HTE summary and complete stable owner association to Runtime's fresh completed-method source owner."
+evidence = [
+  "src/polisyos/runtime/http/routes/runs.py",
+  "src/polisyos/runtime/http/services/candidate_hte_packet_projection.py",
+  "tests/unit/runtime/http/test_candidate_hte_packet_projection.py",
+  "tests/unit/runtime/http/test_owned_attempt_anchor_associations.py",
+]
+compatibility = "Additive GET route. The existing generic artifact content refusal is unchanged."
+change_class = "additive"
+surface_classification = "public_stable: polisyos.runtime HTTP candidate evidence projection"
+migration = "No stored artifact or request migration is required. Clients must provide the exact packet ID and manifest profile selected by the packet-owning run."
+api = "The new candidate-only route requires RUNS_REVIEW on the packet-owning run, uses run-owned packet/profile equality selectors, and bounded-reads the exact DecisionPacket JSON profile. It requires packet/source identity equality before source owner-state access; cross-run source selection returns a typed cross_run_authorization_not_established refusal. Exact persisted HTE summary and full association equality is required except for aware verified_at time ordered packet < fresh owner <= reader."
+limitations = "The route does not establish publication authorization or live source currentness. Cross-run source authorization is not established and remains refused. Generic /api/v1/artifacts/{artifact_id}/content continues to refuse runtime_closeout_authority when authority_surface_signal_missing."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

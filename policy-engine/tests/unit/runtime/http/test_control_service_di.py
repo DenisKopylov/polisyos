@@ -450,12 +450,67 @@ def test_control_service_rejects_foreign_promotion_store(tmp_path) -> None:
         )
 
 
+def test_control_service_does_not_trust_injected_store_backend_labels(tmp_path) -> None:
+    direct_store = FileSystemCAS(tmp_path / "direct-cas")
+    direct_service = _build_control_service(
+        tmp_path / "direct-service",
+        artifact_store=direct_store,
+    )
+    assert direct_service._artifact_store_backend == "filesystem"
+    assert direct_service._promotion_runtime.signature_verifier is not None
+    assert direct_service._promotion_runtime.signature_verifier.guarded_store is direct_store
+
+    class ClaimedFilesystemStore:
+        backend = "filesystem"
+
+        def __init__(self, store: FileSystemCAS) -> None:
+            self._store = store
+
+        def __getattr__(self, name: str) -> Any:
+            return getattr(self._store, name)
+
+    claimed_store = ClaimedFilesystemStore(FileSystemCAS(tmp_path / "claimed-cas"))
+    claimed_service = _build_control_service(
+        tmp_path / "claimed-service",
+        artifact_store=claimed_store,  # type: ignore[arg-type]
+    )
+    assert claimed_service._artifact_store_backend is None
+    assert claimed_service._promotion_runtime.signature_verifier is None
+
+    from polisyos.runtime.http.resilience import (
+        build_guarded_signature_verifier,
+    )
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        _injected_artifact_store_backend,
+    )
+
+    unrelated_verifier = build_guarded_signature_verifier(
+        backend="filesystem",
+        guarded_store=direct_store,
+    )
+    assert unrelated_verifier is not None
+    with pytest.raises(ValueError, match="control_signature_verifier_store_mismatch"):
+        _injected_artifact_store_backend(
+            artifact_store=claimed_store,  # type: ignore[arg-type]
+            signature_verifier=unrelated_verifier,
+        )
+
+
 @pytest.mark.asyncio
 async def test_runtime_container_exposes_one_decision_validity_owner(tmp_path) -> None:
     app = create_runtime_api_app(cas_root=tmp_path / ".polisyos" / "cas")
 
     await app.state.runtime_container.startup(app)
     try:
+        runtime_context = app.state.runtime_container.runtime_api_context
+        control_service = app.state._control_service
+        assert control_service._artifact_store is runtime_context.store
+        assert runtime_context.signature_verifier is not None
+        assert runtime_context.signature_verifier.guarded_store is runtime_context.store
+        assert control_service._artifact_store_backend == "filesystem"
+        assert control_service._promotion_runtime.signature_verifier is (
+            runtime_context.signature_verifier
+        )
         assert app.state._control_service._decision_validity_service is (
             app.state.runtime_container.decision_validity_service
         )
@@ -2006,6 +2061,7 @@ async def _run_controlled_simulate_only_job_fixture(
     local_sibling_mechanism_witness: bool = False,
     root_input_factory: Callable[[Any], None] | None = None,
     registered_ncm_outcome: bool = True,
+    source_repo_root: Path | None = None,
 ) -> SimpleNamespace:
     """Run the controlled candidate N5 path; sibling mode is local mechanism only.
 
@@ -2149,6 +2205,7 @@ async def _run_controlled_simulate_only_job_fixture(
             artifact_store=store,
             candidate_simulation_profiles=(profile,),
             candidate_simulation_model_declarations=(model_declaration,),
+            repo_root=source_repo_root,
         )
     assert service._artifact_store is store
     source_owner = service._cycle_substrate_context_admission_owner
@@ -2174,6 +2231,8 @@ async def _run_controlled_simulate_only_job_fixture(
     owner_refs = []
     owner_replays = []
     owner_replay_refs = []
+    owner_replay_calls = []
+    owner_replay_currentness_refusals = []
     verified_scope_observations = []
     n5_port_observations = []
     n5_engine_requests = []
@@ -2419,6 +2478,57 @@ async def _run_controlled_simulate_only_job_fixture(
                         repo_root=repo_root,
                         verified_nl_job_scope=changed_scope,
                     )
+        if not owner_replay_currentness_refusals:
+            # The same persisted artifact must reject changed job scope, problem
+            # basis, and source root; valid CAS bytes and markers are insufficient.
+            changed_scope = verified_nl_job_scope.model_copy(
+                update={"attempt": verified_nl_job_scope.attempt + 1}
+            )
+            with pytest.raises(
+                CycleSubstrateContextOwnerError,
+                match="cycle_substrate_context_job_verified_scope_mismatch",
+            ):
+                original_resolve(
+                    owner,
+                    ref,
+                    problem=problem,
+                    repo_root=repo_root,
+                    verified_nl_job_scope=changed_scope,
+                )
+            owner_replay_currentness_refusals.append("issued_scope_mismatch_refused")
+            changed_problem = problem.model_copy(
+                update={
+                    "problem_statement": (
+                        problem.problem_statement + " [currentness basis negative control]"
+                    )
+                }
+            )
+            with pytest.raises(
+                CycleSubstrateContextOwnerError,
+                match="cycle_substrate_context_job_binding_mismatch",
+            ):
+                original_resolve(
+                    owner,
+                    ref,
+                    problem=changed_problem,
+                    repo_root=repo_root,
+                    verified_nl_job_scope=verified_nl_job_scope,
+                )
+            owner_replay_currentness_refusals.append("changed_problem_basis_refused")
+            unrelated_source_root = tmp_path / "empty-current-source-root"
+            unrelated_source_root.mkdir()
+            with pytest.raises(
+                CycleSubstrateContextOwnerError,
+                match="candidate_cycle_source_profile_resolve_owner_refused",
+            ):
+                original_resolve(
+                    owner,
+                    ref,
+                    problem=problem,
+                    repo_root=unrelated_source_root,
+                    verified_nl_job_scope=verified_nl_job_scope,
+                )
+            owner_replay_currentness_refusals.append("unrelated_source_root_refused")
         artifact = original_resolve(
             owner,
             ref,
@@ -2426,6 +2536,7 @@ async def _run_controlled_simulate_only_job_fixture(
             repo_root=repo_root,
             verified_nl_job_scope=verified_nl_job_scope,
         )
+        owner_replay_calls.append((owner, ref, problem, repo_root, verified_nl_job_scope))
         owner_replays.append(artifact)
         owner_replay_refs.append(ref)
         return artifact
@@ -2755,10 +2866,32 @@ async def _run_controlled_simulate_only_job_fixture(
         assert progress["cycle_substrate_context_job_ref"]
         assert len(compiler_calls) == 1
         assert compiler_calls[0]["nl_request"] == problem.nl_provenance.raw_request
-        # Child-owner replay now independently re-admits the exact profile
-        # after resolving its issued job scope, so admission count may exceed
-        # artifact replay count by the number of routed children.
-        assert len(admission_observations) >= len(owner_replays) >= 2
+        # A currentness callback and a separate artifact read are distinct
+        # owner operations; they need not create one profile admission per read.
+        # Each successful read is recorded only after the owner validates the
+        # persisted job artifact, current source basis, and issued scope.
+        assert len(owner_replays) >= 2
+        assert owner_replay_currentness_refusals == [
+            "issued_scope_mismatch_refused",
+            "changed_problem_basis_refused",
+            "unrelated_source_root_refused",
+        ]
+        assert len(owner_replay_calls) == len(owner_replays)
+        assert all(
+            type(owner) is CycleSubstrateContextArtifactOwner
+            and owner._store is service._artifact_store
+            and artifact_ref_identity_key(ref) == artifact_ref_identity_key(owner_refs[0])
+            and replay_problem is problem
+            and cycle_job_design_problem_ref(replay_problem) == problem_ref
+            and replay_repo_root == REPO_ROOT
+            and verified_scope is verified_scope_observations[0]
+            and verified_scope._was_issued_by_verified_nl_execution_owner
+            and (verified_scope.job_id, verified_scope.run_id) == (launch.job_id, str(job.run_id))
+            and (verified_scope.tenant_id, verified_scope.cell_id)
+            == ("tenant-fixture", "cell-fixture")
+            for owner, ref, replay_problem, replay_repo_root, verified_scope in owner_replay_calls
+        )
+        assert admission_observations
         admitted_offer = admission_observations[0][1]
         assert type(source_owner) is ConfiguredCandidateSimulationContextAdmissionOwner
         assert source_owner.store is service._artifact_store
@@ -3776,12 +3909,15 @@ async def test_fresh_run_details_get_keeps_local_n5_and_sibling_failure_checkpoi
     from polisyos.runtime.quality.recursive_generation_cycle import (
         RECURSIVE_GENERATION_CYCLE_PARTIAL_V3_SCHEMA_VERSION,
     )
+    from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT
 
     fixture = await _run_controlled_simulate_only_job_fixture(
         monkeypatch,
         tmp_path,
         local_sibling_mechanism_witness=True,
+        source_repo_root=REPO_ROOT,
     )
+    assert fixture.service._repo_root == REPO_ROOT.resolve()
     core_run_id = str(fixture.job.progress["core_run_id"])
     compiled_payload = canon.from_canonical_bytes(fixture.compiled_payload)
     recursive_payload = compiled_payload["recursive_run"]
@@ -3844,8 +3980,25 @@ async def test_fresh_run_details_get_keeps_local_n5_and_sibling_failure_checkpoi
         app = create_runtime_api_app(
             cas_root=tmp_path / ".polisyos",
             core_runs_root=tmp_path / ".polisyos" / "runs",
+            candidate_simulation_profiles=(fixture.profile,),
+            candidate_simulation_model_declarations=(fixture.model_declaration,),
+            repo_root=REPO_ROOT,
             allow_fixture_identity=True,
         )
+    runtime_container = app.state.runtime_container
+    assert runtime_container.config.repo_root == REPO_ROOT.resolve()
+    assert runtime_container.config.candidate_simulation_profiles == (fixture.profile,)
+    assert runtime_container.config.candidate_simulation_model_declarations == (
+        fixture.model_declaration,
+    )
+    assert runtime_container.config.cas_root.resolve() == fixture.service._artifact_store.root
+    profile_owner = runtime_container.candidate_simulation_context_admission_owner
+    assert profile_owner is not None
+    assert profile_owner._store is runtime_container.runtime_api_context.store
+    assert (
+        profile_owner.configured_profile_for_selection_ref(fixture.profile.profile_selection_ref)
+        == fixture.profile
+    )
     _install_fixture_tenant_lifespan(app)
     try:
         with TestClient(app) as client:
@@ -4340,7 +4493,31 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         resolve_catalog_serving_source,
     )
     from polisyos.scientist.methods.backtesting.forecast_owner import ForecastOwner
+
+    # The N7 route needs an explicit datasets bundle to exercise registry
+    # resolution. Keep this opt-in to this one controlled HTTP witness.
+    from tests._helpers import acquisition_epoch_production, acquisition_production
     from tests.unit.remediation.test_frc_02_owner import _rule, _source, _spec
+
+    original_bind_fixture_l1_catalog_source = acquisition_production.bind_fixture_l1_catalog_source
+
+    def bind_n7_fixture_catalog(repo_root, baseline_path):
+        original_bind_fixture_l1_catalog_source(
+            repo_root,
+            baseline_path,
+            include_n7_dataset_bundle=True,
+        )
+
+    monkeypatch.setattr(
+        acquisition_production,
+        "bind_fixture_l1_catalog_source",
+        bind_n7_fixture_catalog,
+    )
+    monkeypatch.setattr(
+        acquisition_epoch_production,
+        "bind_fixture_l1_catalog_source",
+        bind_n7_fixture_catalog,
+    )
 
     def assert_persisted_evidence_identity(store: Any, stored_association: dict[str, Any]) -> None:
         with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):

@@ -287,6 +287,9 @@ export type CacheEntryInfo = RuntimeApiComponents["schemas"]["CacheEntryInfo"];
 export type CacheStatusResponse =
   RuntimeApiComponents["schemas"]["CacheStatusResponse"];
 
+export type CandidateDecisionPacketHTEProjection =
+  RuntimeApiComponents["schemas"]["CandidateDecisionPacketHTEProjection"];
+
 export type CandidateLever = RuntimeApiComponents["schemas"]["CandidateLever"];
 
 export type CandidateLeverSpace =
@@ -383,6 +386,9 @@ export type CompareRunResponse =
 
 export type ComparisonFrame =
   RuntimeApiComponents["schemas"]["ComparisonFrame"];
+
+export type CompletedMethodHTESource =
+  RuntimeApiComponents["schemas"]["CompletedMethodHTESource"];
 
 export type CompletionOutcome =
   RuntimeApiComponents["schemas"]["CompletionOutcome"];
@@ -573,6 +579,12 @@ export type DecisionPacketAuthoredBlock =
 export type DecisionPacketEffectSize =
   RuntimeApiComponents["schemas"]["DecisionPacketEffectSize"];
 
+export type DecisionPacketLegacyHTEFeaturePreview =
+  RuntimeApiComponents["schemas"]["DecisionPacketLegacyHTEFeaturePreview"];
+
+export type DecisionPacketLegacyHTEPreview =
+  RuntimeApiComponents["schemas"]["DecisionPacketLegacyHTEPreview"];
+
 export type DecisionPacketMetricComparisonRow =
   RuntimeApiComponents["schemas"]["DecisionPacketMetricComparisonRow"];
 
@@ -674,6 +686,27 @@ export type DesignRecordV0 = RuntimeApiComponents["schemas"]["DesignRecordV0"];
 
 export type DesignStakeholder =
   RuntimeApiComponents["schemas"]["DesignStakeholder"];
+
+export type DirectMethodExecutionHTEResourceEvidence =
+  RuntimeApiComponents["schemas"]["DirectMethodExecutionHTEResourceEvidence"];
+
+export type DirectMethodExecutionHTESummary =
+  RuntimeApiComponents["schemas"]["DirectMethodExecutionHTESummary"];
+
+export type DirectMethodExecutionHTETargetRelation =
+  RuntimeApiComponents["schemas"]["DirectMethodExecutionHTETargetRelation"];
+
+export type DirectMethodExecutionRequestSummary =
+  RuntimeApiComponents["schemas"]["DirectMethodExecutionRequestSummary"];
+
+export type DirectMethodExecutionRunProjection =
+  RuntimeApiComponents["schemas"]["DirectMethodExecutionRunProjection"];
+
+export type DirectMethodExecutionSelection =
+  RuntimeApiComponents["schemas"]["DirectMethodExecutionSelection"];
+
+export type DirectMethodExecutionTimeRoles =
+  RuntimeApiComponents["schemas"]["DirectMethodExecutionTimeRoles"];
 
 export type DiscoveryCandidate =
   RuntimeApiComponents["schemas"]["DiscoveryCandidate"];
@@ -1061,6 +1094,9 @@ export type LexTriggerResponse =
 export type LineageBatchRequest =
   RuntimeApiComponents["schemas"]["LineageBatchRequest"];
 
+export type LineageBatchResolution =
+  RuntimeApiComponents["schemas"]["LineageBatchResolution"];
+
 export type LineageBatchResponse =
   RuntimeApiComponents["schemas"]["LineageBatchResponse"];
 
@@ -1089,6 +1125,21 @@ export type LineageRefInput =
 
 export type LineageResponse =
   RuntimeApiComponents["schemas"]["LineageResponse"];
+
+export type MethodExecutionCandidateOutcome =
+  RuntimeApiComponents["schemas"]["MethodExecutionCandidateOutcome"];
+
+export type MethodExecutionPosteriorSummaryRef =
+  RuntimeApiComponents["schemas"]["MethodExecutionPosteriorSummaryRef"];
+
+export type MethodExecutionProducerDiagnostic =
+  RuntimeApiComponents["schemas"]["MethodExecutionProducerDiagnostic"];
+
+export type MethodExecutionProducerEmissionDiagnostic =
+  RuntimeApiComponents["schemas"]["MethodExecutionProducerEmissionDiagnostic"];
+
+export type MethodMetricProjectionResponse =
+  RuntimeApiComponents["schemas"]["MethodMetricProjectionResponse"];
 
 export type MetricCandidate =
   RuntimeApiComponents["schemas"]["MetricCandidate"];
@@ -1185,6 +1236,18 @@ export type ObligationClassRiskSpend =
 export type ObligationCoverageEnvelope =
   RuntimeApiComponents["schemas"]["ObligationCoverageEnvelope"];
 
+export type ObservationalHTERequestV1 =
+  RuntimeApiComponents["schemas"]["ObservationalHTERequestV1"];
+
+export type ObservationalHTERequestV2 =
+  RuntimeApiComponents["schemas"]["ObservationalHTERequestV2"];
+
+export type ObservationalRunInput =
+  RuntimeApiComponents["schemas"]["ObservationalRunInput"];
+
+export type ObservationalRunMethodSelection =
+  RuntimeApiComponents["schemas"]["ObservationalRunMethodSelection"];
+
 export type OperatorDiagnostic =
   RuntimeApiComponents["schemas"]["OperatorDiagnostic"];
 
@@ -1193,6 +1256,27 @@ export type OperatorProjectionStateLabel =
 
 export type OutcomeOfInterest =
   RuntimeApiComponents["schemas"]["OutcomeOfInterest"];
+
+export type OwnedAttemptAnchorProjectionAssociation =
+  RuntimeApiComponents["schemas"]["OwnedAttemptAnchorProjectionAssociation"];
+
+export type OwnedAttemptAnchorRef =
+  RuntimeApiComponents["schemas"]["OwnedAttemptAnchorRef"];
+
+export type OwnedAttemptAnchorRefusalAssociation =
+  RuntimeApiComponents["schemas"]["OwnedAttemptAnchorRefusalAssociation"];
+
+export type OwnedAttemptHTEInputRefusal =
+  RuntimeApiComponents["schemas"]["OwnedAttemptHTEInputRefusal"];
+
+export type OwnedAttemptLifecycleEvent =
+  RuntimeApiComponents["schemas"]["OwnedAttemptLifecycleEvent"];
+
+export type OwnedAttemptPhysicalSourceBindingRef =
+  RuntimeApiComponents["schemas"]["OwnedAttemptPhysicalSourceBindingRef"];
+
+export type OwnedHTERequestContextV1 =
+  RuntimeApiComponents["schemas"]["OwnedHTERequestContextV1"];
 
 export type PolicyDesignCaseAudience =
   RuntimeApiComponents["schemas"]["PolicyDesignCaseAudience"];
@@ -1421,6 +1505,9 @@ export type RunCompareResponse =
 
 export type RunCompareView = RuntimeApiComponents["schemas"]["RunCompareView"];
 
+export type RunConditionalTransportCandidateProjection =
+  RuntimeApiComponents["schemas"]["RunConditionalTransportCandidateProjection"];
+
 export type RunDetails = RuntimeApiComponents["schemas"]["RunDetails"];
 
 export type RunDetailsResponse =
@@ -1475,6 +1562,9 @@ export type RunGenericCycleSimulationN5Trajectory =
 
 export type RunGenericCycleSimulationN5TrajectoryPoint =
   RuntimeApiComponents["schemas"]["RunGenericCycleSimulationN5TrajectoryPoint"];
+
+export type RunGenericCycleSimulationN6CycleHistoryEntry =
+  RuntimeApiComponents["schemas"]["RunGenericCycleSimulationN6CycleHistoryEntry"];
 
 export type RunGenericCycleSimulationProjection =
   RuntimeApiComponents["schemas"]["RunGenericCycleSimulationProjection"];
@@ -1659,6 +1749,9 @@ export type SearchFrontier = RuntimeApiComponents["schemas"]["SearchFrontier"];
 
 export type SearchRequest = RuntimeApiComponents["schemas"]["SearchRequest"];
 
+export type SelectedArtifactRef =
+  RuntimeApiComponents["schemas"]["SelectedArtifactRef"];
+
 export type SessionAuthorityProvenance =
   RuntimeApiComponents["schemas"]["SessionAuthorityProvenance"];
 
@@ -1778,8 +1871,8 @@ export type WorkflowRunRequest =
 export type _QualifiedOutcomeOfInterestV3 =
   RuntimeApiComponents["schemas"]["_QualifiedOutcomeOfInterestV3"];
 
-export type polisyos__core__artifacts__ids__ArtifactID =
-  RuntimeApiComponents["schemas"]["polisyos__core__artifacts__ids__ArtifactID"];
+export type PolisyosCoreArtifactsIdsArtifactIDOutput =
+  RuntimeApiComponents["schemas"]["polisyos__core__artifacts__ids__ArtifactID-Output"];
 
 export type PolisyosCoreContractsRuntimeLineageRefOutput =
   RuntimeApiComponents["schemas"]["polisyos__core__contracts__runtime__LineageRef-Output"];
@@ -3186,6 +3279,24 @@ export class RuntimeApiClient {
     );
   }
 
+  async getRunCandidateHtePacket(params: {
+    run_id: string;
+    packet_id: string;
+    manifest_profile_sha256: string;
+  }): Promise<CandidateDecisionPacketHTEProjection> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/decision-packets/${encodeURIComponent(String(params.packet_id))}/candidate-hte`;
+    const query = this.buildQuery({
+      manifest_profile_sha256: params.manifest_profile_sha256,
+    });
+    return this.request<CandidateDecisionPacketHTEProjection>(
+      "GET",
+      path,
+      query,
+      undefined,
+      undefined,
+    );
+  }
+
   async getRunEvidenceContext(params: {
     run_id: string;
     valid_at?: string | null;
@@ -3374,6 +3485,20 @@ export class RuntimeApiClient {
       scenario_id: params.scenario_id,
     });
     return this.request<RunLineageResponse>(
+      "GET",
+      path,
+      query,
+      undefined,
+      undefined,
+    );
+  }
+
+  async getRunMethodMetrics(params: {
+    run_id: string;
+  }): Promise<MethodMetricProjectionResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/method-metrics`;
+    const query = undefined;
+    return this.request<MethodMetricProjectionResponse>(
       "GET",
       path,
       query,
@@ -3700,3 +3825,7 @@ export class RuntimeApiClient {
     }>("GET", path, query, undefined, undefined);
   }
 }
+
+/** Compatibility export retained for established package-root imports. */
+export type polisyos__core__artifacts__ids__ArtifactID =
+  RuntimeApiComponents["schemas"]["polisyos__core__artifacts__ids__ArtifactID-Output"];

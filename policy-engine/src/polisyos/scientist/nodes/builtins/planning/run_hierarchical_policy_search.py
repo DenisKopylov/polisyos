@@ -25,7 +25,12 @@ from pydantic import (
     model_validator,
 )
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.components import (
@@ -701,7 +706,7 @@ class _CandidateEvaluationRecord:
     candidate: PolicyCandidateSchema
     evaluation: PolicyEvaluationVector | None
     feasible: bool
-    objective_value: float
+    objective_value: float | None
     metadata: dict[str, Any]
 
 
@@ -1305,6 +1310,30 @@ def _iter_candidate_records(search_result: Any) -> list[_CandidateEvaluationReco
                     metadata=dict(getattr(iteration, "stage_b_result", {}) or {}),
                 )
             )
+    represented_hashes = {record.candidate.candidate_hash() for record in records}
+    for structure in getattr(search_result.state, "structure_candidates", ()):
+        if getattr(structure, "accepted", False) is not True:
+            continue
+        candidate = _coerce_policy_candidate(getattr(structure, "candidate", None))
+        if candidate is None:
+            continue
+        candidate_hash = candidate.candidate_hash()
+        if candidate_hash in represented_hashes:
+            continue
+        metadata = getattr(structure, "metadata", {})
+        records.append(
+            _CandidateEvaluationRecord(
+                structure_id=str(
+                    getattr(structure, "structure_id", None) or candidate.candidate_id
+                ),
+                candidate=candidate,
+                evaluation=None,
+                feasible=False,
+                objective_value=None,
+                metadata=dict(metadata) if isinstance(metadata, Mapping) else {},
+            )
+        )
+        represented_hashes.add(candidate_hash)
     return records
 
 
@@ -1313,6 +1342,8 @@ def _candidate_rank_key(
 ) -> tuple[float, float, float, int] | None:
     evaluation = record.evaluation
     if evaluation is None:
+        if record.objective_value is None:
+            return None
         return (1.0 if record.feasible else 0.0, -float(record.objective_value), 0.0, 0)
     policy_value = _objective_value(evaluation, "policy_value")
     welfare = _objective_value(evaluation, "welfare")
@@ -1396,21 +1427,24 @@ def _persist_trinity_bundle(
     *,
     state: ExperimentState,
 ) -> TrinityBundleRef:
-    inputs = [InputRef(artifact_id=ref.artifact_id, role=key) for key, ref in state.inputs.items()]
-    artifact = ctx.store.put_json(
-        bundle,
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(
-                name="polisyos.ir.TrinityBundle",
-                version=str(bundle.schema_version),
-            ),
-            inputs=inputs,
-        ),
-        canon_spec=CanonSpec(forbid_floats=False),
+    inputs = [input_ref_from_artifact_ref(ref, role=key) for key, ref in state.inputs.items()]
+    from polisyos.core.artifacts import ensure_ir_artifact_store
+    from polisyos.ir.artifacts.io import _put_owned_json_artifact
+    from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
+    from polisyos.ir.registry.refs import ArtifactRefModel
+    from polisyos.ir.trinity.loaders import _TRINITY_BUNDLE_OWNER
+
+    artifact = _put_owned_json_artifact(
+        ensure_ir_artifact_store(ctx.store),
+        bundle.model_dump(mode="json"),
+        owner=_TRINITY_BUNDLE_OWNER,
+        schema_name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+        schema_version=str(bundle.schema_version),
+        inputs=inputs,
+        canon_spec=IRCanonSpec(forbid_floats=False),
     )
-    return TrinityBundleRef.model_validate(artifact.model_dump(mode="json"))
+    selected = ArtifactRefModel.from_selected_write(artifact)
+    return TrinityBundleRef.model_validate(selected.model_dump(mode="json"))
 
 
 def _persist_frontier_report(

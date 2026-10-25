@@ -27,7 +27,6 @@ from polisyos.ir import (
     load_abm_alignment_report,
     load_abstraction_certificate,
     load_backtest_report,
-    load_channel_decomposition_artifact,
     load_distributional_effect_bundle,
     load_distributional_report,
     load_hte_result,
@@ -799,7 +798,11 @@ def _build_welfare_section(
                     if welfare.channel_decomposition_ref is not None
                     else None
                 ),
-                "channel_decomposition": dict(welfare.channel_decomposition),
+                "channel_decomposition": (
+                    {}
+                    if welfare.channel_decomposition_ref is not None
+                    else dict(welfare.channel_decomposition)
+                ),
                 "subgroup_welfare": dict(welfare.subgroup_welfare),
                 "equilibrium_multiplicity": welfare.equilibrium_multiplicity.model_dump(
                     mode="json"
@@ -843,52 +846,13 @@ def _build_welfare_section(
             }
         )
         if welfare.channel_decomposition_ref is not None:
-            try:
-                channel = load_channel_decomposition_artifact(
-                    _ensure_ir_artifact_store(ctx.store),
-                    welfare.channel_decomposition_ref,
-                )
-                payload["channel_decomposition_artifact"] = {
-                    "target_kind": channel.target_kind.value,
-                    "policy_class": channel.policy_class.value,
-                    "basis_labels": list(channel.basis_labels),
-                    "step_vector": list(channel.step_vector),
-                    "mechanical_vector": (
-                        None
-                        if channel.mechanical_vector is None
-                        else list(channel.mechanical_vector)
-                    ),
-                    "behavioral_vector": (
-                        None
-                        if channel.behavioral_vector is None
-                        else list(channel.behavioral_vector)
-                    ),
-                    "fiscal_feedback_vector": (
-                        None
-                        if channel.fiscal_feedback_vector is None
-                        else list(channel.fiscal_feedback_vector)
-                    ),
-                    "total_vector": (
-                        None if channel.total_vector is None else list(channel.total_vector)
-                    ),
-                    "identification_status": channel.identification_status.value,
-                    "blocking_reasons": list(channel.blocking_reasons),
-                    "first_stage_stats": dict(channel.first_stage_stats),
-                    "overid_stats": dict(channel.overid_stats),
-                    "overlap_stats": dict(channel.overlap_stats),
-                    "local_remainder_bound": channel.local_remainder_bound,
-                    "diagnostic_summary": dict(channel.diagnostic_summary),
-                }
-            except _DECISION_PACKET_LOAD_ERRORS as exc:
-                payload["channel_decomposition_parse_warning"] = "channel_decomposition_load_failed"
-                _record_decision_packet_section_degraded(
-                    packet_payload,
-                    operation="load_channel_decomposition_artifact",
-                    reason="channel_decomposition_load_failed",
-                    exc=exc,
-                    ref=welfare.channel_decomposition_ref,
-                    artifact_key=ARTIFACT_WELFARE_BUNDLE_REF,
-                )
+            # No role-owner contracts are established, so do not read/project this candidate.
+            payload["channel_decomposition_authority_status"] = "not_established"
+            payload["channel_decomposition_artifact"] = {
+                "identification_status": "blocked",
+                "blocking_reasons": ["upstream_input_owner_not_established"],
+                "authority_status": "not_established",
+            }
     except _DECISION_PACKET_LOAD_ERRORS as exc:
         payload["parse_warning"] = "welfare_bundle_load_failed"
         _record_decision_packet_section_degraded(

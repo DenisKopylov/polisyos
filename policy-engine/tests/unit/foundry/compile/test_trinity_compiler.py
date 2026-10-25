@@ -2,18 +2,27 @@ from __future__ import annotations
 
 import importlib
 from pathlib import Path
-from unittest.mock import MagicMock, patch
 
 import pytest
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
-from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.registry import RegistryBundlePayload
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.contracts.foundry import (
+    CompileRequest,
+    FoundryCompileConfig,
+    FoundryValidationFlags,
+)
+from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.registry.builder import build_registry_bundle
 from polisyos.core.registry.loader import load_registry_bundle_content
+from polisyos.foundry._internal.quickstart import (
+    build_trivial_trinity_bundle,
+    put_trivial_trinity_bundle,
+)
 from polisyos.foundry.compile.trinity_compiler import _merge_notes
 from polisyos.ir.kernel import (
     ConstraintRegistry,
@@ -21,14 +30,8 @@ from polisyos.ir.kernel import (
     MergeRuleRegistry,
     SlotRegistry,
 )
-
-
-def _artifact_ref(kind: str = "test") -> ArtifactRef:
-    return ArtifactRef(
-        artifact_id=ArtifactID("sha256:" + "a" * 64),
-        kind=kind,
-        media_type="application/json",
-    )
+from polisyos.ir.linker.reports import LinkIssueCode, LinkReport
+from polisyos.ir.trinity import TrinityBundle
 
 
 def _alternate_manifest_profile(
@@ -121,7 +124,6 @@ def test_compile_rejects_trinity_payload_version_drift(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from polisyos.foundry._internal.quickstart import build_trivial_trinity_bundle
     from polisyos.foundry.compile import trinity_compiler
 
     store = FileSystemCAS(tmp_path / "cas")
@@ -131,16 +133,15 @@ def test_compile_rejects_trinity_payload_version_drift(
     policy_ref = store.put_json(
         payload,
         PutOptions(
-            kind=bundle.ARTIFACT_KIND,
-            media_type=bundle.ARTIFACT_MEDIA_TYPE,
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
             schema=SchemaInfo(
-                name=bundle.ARTIFACT_SCHEMA_NAME,
-                version=bundle.ARTIFACT_SCHEMA_VERSION,
+                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
             ),
         ),
     )
-    request = _make_compile_request()
-    request.policy_ref = policy_ref
+    request = _make_compile_request(policy_ref)
     monkeypatch.setattr(trinity_compiler, "_resolve_registry_bundle_ref", lambda *_: None)
 
     with pytest.raises(
@@ -151,278 +152,155 @@ def test_compile_rejects_trinity_payload_version_drift(
 
 
 def _make_compile_request(
+    policy_ref: ArtifactRef,
     *,
-    registry_bundle_ref=None,
-    strict_link=False,
-    strict_schema=False,
-    strict_conflict_check=False,
-    cost_budget_max_total_ms=None,
-):
-    request = MagicMock()
-    request.policy_ref = _artifact_ref("ir")
-    request.registry_bundle_ref = registry_bundle_ref
-    flags = MagicMock()
-    flags.strict_link = strict_link
-    flags.strict_schema = strict_schema
-    flags.strict_conflict_check = strict_conflict_check
-    flags.allow_extra_params = False
-    request.validation_flags = flags
-    config = MagicMock()
-    config.determinism_tier = "strict_cpu"
-    config.random_seed = 42
-    config.nan_guard_enabled = True
-    config.mode = "dev"
-    config.jit = True
-    config.max_steps = 100
-    config.estimate_n_agents = 100
-    config.estimate_time_steps = 10
-    config.cost_budget_max_total_ms = cost_budget_max_total_ms
-    config.cost_budget_max_memory_mb = None
-    config.cost_budget_max_compile_ms = None
-    config.cost_budget_max_per_mechanism_ms = None
-    request.compile_config = config
-    return request
+    registry_bundle_ref: ArtifactRef | None = None,
+    strict_link: bool = False,
+    strict_schema: bool = False,
+    strict_conflict_check: bool = False,
+    cost_budget_max_total_ms: int | None = None,
+    return_selected_profile: bool = False,
+) -> CompileRequest:
+    """Build the current typed request with its real empty metric inventory."""
+    return CompileRequest(
+        input_kind="trinity",
+        policy_ref=policy_ref,
+        registry_bundle_ref=registry_bundle_ref,
+        compile_config=FoundryCompileConfig(
+            determinism_tier="strict_cpu",
+            random_seed=42,
+            nan_guard_enabled=True,
+            mode="dev",
+            jit=True,
+            max_steps=100,
+            estimate_n_agents=100,
+            estimate_time_steps=10,
+            cost_budget_max_total_ms=cost_budget_max_total_ms,
+        ),
+        validation_flags=FoundryValidationFlags(
+            strict_link=strict_link,
+            strict_schema=strict_schema,
+            strict_conflict_check=strict_conflict_check,
+            allow_extra_params=False,
+        ),
+        return_selected_profile=return_selected_profile,
+    )
 
 
 class TestCompileTrinityMissing:
-    @patch("polisyos.foundry.compile.trinity_compiler.from_canonical_bytes")
-    @patch("polisyos.foundry.compile.trinity_compiler.put_compile_report")
-    def test_compile_trinity_missing_registry_bundle(
-        self,
-        mock_put_report,
-        mock_canon,
-    ) -> None:
+    def test_compile_trinity_missing_registry_bundle(self, tmp_path: Path) -> None:
         from polisyos.foundry.compile.trinity_compiler import compile_trinity
 
-        mock_canon.return_value = {
-            "problem_frame": {"schema_version": "0.1"},
-            "policy_spec": {"schema_version": "0.1"},
-            "model_spec": {"schema_version": "0.1", "registry_bundle_ref": None},
-        }
-        mock_put_report.return_value = _artifact_ref("report")
-
-        store = MagicMock()
-        store.get_bytes.return_value = b"{}"
-        request = _make_compile_request(registry_bundle_ref=None)
-
-        with patch(
-            "polisyos.foundry.compile.trinity_compiler.TrinityBundle.model_validate",
-        ) as mock_validate:
-            mock_bundle = MagicMock()
-            mock_bundle.model_spec.registry_bundle_ref = None
-            mock_validate.return_value = mock_bundle
-            result = compile_trinity(store, request)
+        store = FileSystemCAS(tmp_path / "cas")
+        bundle = build_trivial_trinity_bundle("sha256:" + "c" * 64)
+        payload = bundle.model_dump(mode="python")
+        payload["model_spec"]["registry_bundle_ref"] = None
+        bundle_without_registry = TrinityBundle.model_validate(payload)
+        policy_ref = put_trivial_trinity_bundle(store, bundle_without_registry)
+        result = compile_trinity(store, _make_compile_request(policy_ref))
 
         assert result.ok is False
         assert "missing_registry_bundle" in result.notes
 
 
 class TestCompileTrinityLowering:
-    @patch("polisyos.foundry.compile.trinity_compiler.RegistryBundle")
-    @patch("polisyos.foundry.compile.trinity_compiler.from_canonical_bytes")
-    @patch("polisyos.foundry.compile.trinity_compiler.TrinityBundle.model_validate")
-    @patch("polisyos.foundry.compile.trinity_compiler.load_registry_bundle_content")
-    @patch("polisyos.foundry.compile.trinity_compiler.link_trinity")
-    @patch("polisyos.foundry.compile.trinity_compiler.put_link_report")
-    @patch("polisyos.foundry.compile.trinity_compiler.lower_trinity")
-    @patch("polisyos.foundry.compile.trinity_compiler.put_compile_report")
     def test_compile_trinity_lowering_exception(
         self,
-        mock_put_report,
-        mock_lower,
-        mock_put_link,
-        mock_link,
-        mock_load_registry,
-        mock_validate,
-        mock_canon,
-        mock_reg_bundle,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        from polisyos.foundry.compile.trinity_compiler import compile_trinity
+        from polisyos.foundry.compile import trinity_compiler
 
-        mock_canon.return_value = {}
-        mock_bundle = MagicMock()
-        mock_bundle.model_spec.registry_bundle_ref = "sha256:" + "c" * 64
-        mock_validate.return_value = mock_bundle
-        mock_load_registry.return_value = MagicMock()
+        store = FileSystemCAS(tmp_path / "cas")
+        registry = build_default_registry_bundle(store)
+        bundle = build_trivial_trinity_bundle(str(registry.bundle_ref.artifact_id))
+        policy_ref = put_trivial_trinity_bundle(store, bundle)
+        request = _make_compile_request(policy_ref, registry_bundle_ref=registry.bundle_ref)
+        lowering_calls: list[None] = []
 
-        link_report = MagicMock()
-        link_report.ok = True
-        link_report.issues = []
-        mock_link.return_value = (mock_bundle, link_report)
-        mock_put_link.return_value = _artifact_ref("link_report")
+        def fail_lowering(*_args: object, **_kwargs: object) -> None:
+            lowering_calls.append(None)
+            raise ValueError("missing_runtime_mechanism_support:unknown_mech")
 
-        mock_lower.side_effect = ValueError("missing_runtime_mechanism_support:unknown_mech")
-        mock_put_report.return_value = _artifact_ref("report")
+        monkeypatch.setattr(trinity_compiler, "lower_trinity", fail_lowering)
+        result = trinity_compiler.compile_trinity(store, request)
 
-        store = MagicMock()
-        store.get_bytes.return_value = b"{}"
-        request = _make_compile_request(registry_bundle_ref=_artifact_ref("registry"))
-
-        result = compile_trinity(store, request)
-
+        assert lowering_calls == [None]
         assert result.ok is False
-        assert any("semantic_lowering_failed" in n for n in result.notes)
+        assert any("semantic_lowering_failed" in note for note in result.notes)
 
-    @patch("polisyos.foundry.compile.trinity_compiler.RegistryBundle")
-    @patch("polisyos.foundry.compile.trinity_compiler.from_canonical_bytes")
-    @patch("polisyos.foundry.compile.trinity_compiler.TrinityBundle.model_validate")
-    @patch("polisyos.foundry.compile.trinity_compiler.load_registry_bundle_content")
-    @patch("polisyos.foundry.compile.trinity_compiler.link_trinity")
-    @patch("polisyos.foundry.compile.trinity_compiler.put_link_report")
-    @patch("polisyos.foundry.compile.trinity_compiler.put_compile_report")
-    def test_compile_trinity_strict_link_failure(
-        self,
-        mock_put_report,
-        mock_put_link,
-        mock_link,
-        mock_load_registry,
-        mock_validate,
-        mock_canon,
-        mock_reg_bundle,
-    ) -> None:
-        from polisyos.foundry.compile.trinity_compiler import compile_trinity
+    def test_compile_trinity_strict_link_failure(self, tmp_path: Path) -> None:
+        from polisyos.foundry.compile import trinity_compiler
 
-        mock_canon.return_value = {}
-        mock_bundle = MagicMock()
-        mock_bundle.model_spec.registry_bundle_ref = None
-        mock_validate.return_value = mock_bundle
-        mock_load_registry.return_value = MagicMock()
-
-        link_report = MagicMock()
-        link_report.ok = False
-        link_report.issues = []
-        mock_link.return_value = (mock_bundle, link_report)
-        mock_put_link.return_value = _artifact_ref("link_report")
-        mock_put_report.return_value = _artifact_ref("report")
-
-        store = MagicMock()
-        store.get_bytes.return_value = b"{}"
+        store = FileSystemCAS(tmp_path / "cas")
+        registry = build_default_registry_bundle(store)
+        bundle = build_trivial_trinity_bundle(str(registry.bundle_ref.artifact_id))
+        payload = bundle.model_dump(mode="python")
+        payload["policy_spec"]["interventions"][0]["kind"] = "unknown_mech"
+        invalid_bundle = TrinityBundle.model_validate(payload)
+        policy_ref = put_trivial_trinity_bundle(store, invalid_bundle)
         request = _make_compile_request(
-            registry_bundle_ref=_artifact_ref("registry"),
+            policy_ref,
+            registry_bundle_ref=registry.bundle_ref,
             strict_link=True,
         )
 
-        result = compile_trinity(store, request)
+        result = trinity_compiler.compile_trinity(store, request)
 
         assert result.ok is False
         assert "link_failed" in result.notes
+        link_report_ref = next(
+            derived.ref for derived in result.derived_refs if derived.role == "link_report"
+        )
+        link_report = LinkReport.model_validate(
+            from_canonical_bytes(store.get_bytes(link_report_ref))
+        )
+        assert link_report.ok is False
+        assert any(issue.code == LinkIssueCode.UNKNOWN_MECHANISM for issue in link_report.issues)
 
 
 class TestCompileTrinitySuccess:
-    def test_compile_trinity_success_all_derived_refs(self, tmp_path: Path, monkeypatch) -> None:
+    def test_compile_trinity_success_all_derived_refs(self, tmp_path: Path) -> None:
         compiler = importlib.import_module("polisyos.foundry.compile.trinity_compiler")
-        mock_reg_bundle = MagicMock()
-        mock_canon = MagicMock(return_value={})
-        mock_validate = MagicMock()
-        mock_load_registry = MagicMock(return_value=MagicMock())
-        mock_link = MagicMock()
-        mock_put_link = MagicMock(return_value=_artifact_ref("link_report"))
-        mock_lower = MagicMock()
-        mock_build_graph = MagicMock()
-        mock_conflict_checker = MagicMock()
-        mock_slot_layout = MagicMock()
-        mock_treasury = MagicMock()
-        mock_put_report = MagicMock(return_value=_artifact_ref("report"))
-        monkeypatch.setattr(compiler, "RegistryBundle", mock_reg_bundle)
-        monkeypatch.setattr(compiler, "from_canonical_bytes", mock_canon)
-        monkeypatch.setattr(compiler.TrinityBundle, "model_validate", mock_validate)
-        monkeypatch.setattr(compiler, "load_registry_bundle_content", mock_load_registry)
-        monkeypatch.setattr(compiler, "link_trinity", mock_link)
-        monkeypatch.setattr(compiler, "put_link_report", mock_put_link)
-        monkeypatch.setattr(compiler, "lower_trinity", mock_lower)
-        monkeypatch.setattr(compiler, "build_program_graph", mock_build_graph)
-        monkeypatch.setattr(compiler, "CompileTimeConflictChecker", mock_conflict_checker)
-        monkeypatch.setattr(compiler, "build_slot_layout", mock_slot_layout)
-        monkeypatch.setattr(compiler, "build_treasury_plan", mock_treasury)
-        monkeypatch.setattr(compiler, "put_compile_report", mock_put_report)
-        from polisyos.core.contracts.foundry import LoweredIR, LoweredIRRef, ProgramGraph
-        from polisyos.foundry.compile.trinity_compiler import compile_trinity
-
-        mock_canon.return_value = {}
-        mock_bundle = MagicMock()
-        mock_bundle.model_spec.registry_bundle_ref = None
-        mock_validate.return_value = mock_bundle
-        mock_load_registry.return_value = MagicMock()
-
-        link_report = MagicMock()
-        link_report.ok = True
-        link_report.issues = []
-        mock_link.return_value = (mock_bundle, link_report)
-        mock_put_link.return_value = _artifact_ref("link_report")
-
-        lowered_ir_ref = LoweredIRRef(artifact_id=ArtifactID("sha256:" + "d" * 64))
-        lowered_ir = MagicMock(spec=LoweredIR)
-        lowered_ir.mechanisms = []
-        lowered_ir.constraints = []
-        lowered_ir.policy_fidelity_level = "fluid"
-        lowered_ir.constraint_mode = "hard_soft_v1"
-        mock_lower.return_value = (lowered_ir_ref, lowered_ir, ["trinity_coverage_audit:ok"])
-
-        program_graph = ProgramGraph(
-            ir_ref=_artifact_ref("ir"),
-            nodes=[],
-            edges=[],
-            entrypoints=[],
+        store = FileSystemCAS(tmp_path / "cas")
+        registry = build_default_registry_bundle(store)
+        bundle = build_trivial_trinity_bundle(str(registry.bundle_ref.artifact_id))
+        policy_ref = put_trivial_trinity_bundle(store, bundle)
+        selected_policy_ref = _alternate_manifest_profile(store, policy_ref, version="2.0.0")
+        selected_registry_ref = _alternate_manifest_profile(
+            store,
+            registry.bundle_ref,
+            version="2.0.0",
         )
-        mock_build_graph.return_value = (program_graph, {})
-
-        conflict_report = MagicMock()
-        conflict_report.ok = True
-        mock_conflict_checker.return_value.check.return_value = conflict_report
-
-        mock_slot_layout.return_value = MagicMock(schema_version="0.1")
-        mock_treasury.return_value = MagicMock(schema_version="0.1")
-
-        artifact_store = FileSystemCAS(tmp_path / "cas")
-        policy_ref = artifact_store.put_bytes(
-            b"policy",
-            PutOptions(
-                kind="ir",
-                media_type="application/json",
-                schema=SchemaInfo(name="test.Trinity", version="1"),
-            ),
+        request = _make_compile_request(
+            selected_policy_ref,
+            registry_bundle_ref=selected_registry_ref,
+            return_selected_profile=True,
         )
-        registry_ref = artifact_store.put_bytes(
-            b"registry",
-            PutOptions(
-                kind="registry_bundle",
-                media_type="application/json",
-                schema=SchemaInfo(name="test.RegistryBundle", version="1"),
-            ),
-        )
-        request = _make_compile_request(registry_bundle_ref=registry_ref)
-        request.policy_ref = _alternate_manifest_profile(
-            artifact_store, policy_ref, version="2.0.0"
-        )
-        request.registry_bundle_ref = _alternate_manifest_profile(
-            artifact_store, registry_ref, version="2.0.0"
-        )
-        store = MagicMock(wraps=artifact_store)
-        store.put_json.return_value = _artifact_ref("stored")
-        mock_put_report.return_value = _artifact_ref("report")
 
-        result = compile_trinity(store, request)
+        result = compiler.compile_trinity(store, request)
 
         assert result.ok is True
-        store.get_bytes.assert_called_once_with(request.policy_ref)
-        link_inputs = mock_put_link.call_args.kwargs["inputs"]
-        assert [item.manifest_profile_sha256 for item in link_inputs] == [
-            request.policy_ref.manifest_profile_sha256,
-            request.registry_bundle_ref.manifest_profile_sha256,
-        ]
-        program_graph_options = next(
-            options
-            for call in store.put_json.call_args_list
-            for options in call.args
-            if isinstance(options, PutOptions) and options.kind == "foundry.program_graph"
+        assert result.exec_plan_ref is not None
+        link_report_ref = next(
+            derived.ref for derived in result.derived_refs if derived.role == "link_report"
         )
+        link_inputs = store.get_manifest(link_report_ref).inputs
+        assert [item.manifest_profile_sha256 for item in link_inputs] == [
+            selected_policy_ref.manifest_profile_sha256,
+            selected_registry_ref.manifest_profile_sha256,
+        ]
+        program_graph_ref = next(
+            derived.ref for derived in result.derived_refs if derived.role == "program_graph"
+        )
+        program_graph_inputs = store.get_manifest(program_graph_ref).inputs
         assert any(
             item.role == "ir"
-            and item.manifest_profile_sha256 == request.policy_ref.manifest_profile_sha256
-            for item in program_graph_options.inputs
+            and item.manifest_profile_sha256 == selected_policy_ref.manifest_profile_sha256
+            for item in program_graph_inputs
         )
         assert len(result.derived_refs) == 6
-        roles = {d.role for d in result.derived_refs}
+        roles = {derived.role for derived in result.derived_refs}
         assert roles == {
             "lowered_ir",
             "program_graph",

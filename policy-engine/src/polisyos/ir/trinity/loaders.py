@@ -3,23 +3,75 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING, Any
 
-from polisyos.ir.artifacts.io import get_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
+from polisyos.ir.artifacts import ArtifactStore
+from polisyos.ir.artifacts.io import (
+    _get_owned_json_artifact,
+    _put_owned_json_artifact,
+)
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemFrame
+from polisyos.ir.migrations.base import CompatibilityMode
+from polisyos.ir.model_layer.canon import CanonSpec, CanonViolation
 from polisyos.ir.model_layer.model_spec import ModelSpec
+from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.ir.trinity import TRINITY_BUNDLE_SCHEMA_VERSION, TrinityBundle
 
 if TYPE_CHECKING:
-    from polisyos.ir.artifacts.contracts import ArtifactSelector, ArtifactStore
+    from polisyos.ir.artifacts._lineage import InputRefLike
+    from polisyos.ir.artifacts.contracts import ArtifactSelector
 
 
 class TrinityLoadError(ValueError):
     """Trinity load error exception."""
 
     pass
+
+
+_TRINITY_BUNDLE_POLICY = ("ir.trinity.trinity_bundle.wire-law", "1")
+_TRINITY_BUNDLE_OWNER = declare_model_owner(
+    TrinityBundle,
+    contract_id="ir.trinity.trinity_bundle.owner.v1",
+    dto_fqn="polisyos.ir.trinity.TrinityBundle",
+    abi_key="ir.trinity.trinity_bundle.owner.v1.dto-abi.v1",
+    registry_key="ir.trinity_bundle",
+    kind=TrinityBundle.ARTIFACT_KIND,
+    media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+    purpose="trinity_bundle",
+    policy_revision="ir.trinity.trinity_bundle.owner.v1.admission.v1",
+    accepted_wire_policies=(_TRINITY_BUNDLE_POLICY,),
+    payload_version_field="schema_version",
+    validate_profile=owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        OwnedJSONRepresentation(
+            schema_name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+            schema_version=TRINITY_BUNDLE_SCHEMA_VERSION,
+            payload_version=TRINITY_BUNDLE_SCHEMA_VERSION,
+            wire_policy_ref=_TRINITY_BUNDLE_POLICY[0],
+            wire_policy_revision=_TRINITY_BUNDLE_POLICY[1],
+            profile_ref=None,
+            compatibility=CompatibilityMode.NONE,
+            notes=(
+                "Exact owner-bound TrinityBundle JSON representation; unknown history remains opaque.",
+            ),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
 
 
 def _parse_str_payload(payload: str, *, fmt: str) -> object:
@@ -163,42 +215,53 @@ def load_trinity_bundle(
     return TrinityBundle.model_validate(mapping)
 
 
-def _manifest_value(manifest: object, field: str, *, model_attribute: str | None = None) -> object:
-    if isinstance(manifest, Mapping):
-        if field in manifest:
-            return manifest[field]
-        if model_attribute is not None:
-            return manifest.get(model_attribute)
-        return None
-    return getattr(manifest, model_attribute or field, None)
+def _trinity_owner_error(exc: CanonViolation) -> TrinityLoadError:
+    """Preserve the public Trinity refusal boundary for shared owner failures."""
+    code = getattr(exc, "code", str(exc))
+    if code in {
+        "ir_owned_artifact_manifest_identity_invalid",
+        "ir_owned_artifact_manifest_identity_mismatch",
+        "ir_owned_artifact_owner_contract_mismatch",
+        "ir_owned_artifact_representation_unregistered",
+    }:
+        return TrinityLoadError("TrinityBundle artifact manifest does not match its IR owner")
+    if code == "ir_owned_artifact_profile_refused":
+        return TrinityLoadError("TrinityBundle artifact profile does not match its IR owner")
+    if code in {
+        "ir_owned_artifact_payload_version_invalid",
+        "ir_owned_artifact_representation_unreadable",
+    }:
+        return TrinityLoadError(
+            "Unsupported schema_version; TrinityBundle payload is not an admitted owner representation"
+        )
+    return TrinityLoadError("TrinityBundle artifact failed IR owner admission")
+
+
+def persist_trinity_bundle_artifact(
+    store: ArtifactStore,
+    bundle: TrinityBundle,
+    *,
+    inputs: Sequence[InputRefLike] | None = None,
+) -> ArtifactRefModel:
+    """Persist a Trinity bundle under its exact owner-declared JSON representation."""
+    selected_ref = _put_owned_json_artifact(
+        store,
+        bundle.model_dump(mode="json"),
+        owner=_TRINITY_BUNDLE_OWNER,
+        schema_name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+        schema_version=TRINITY_BUNDLE_SCHEMA_VERSION,
+        inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return ArtifactRefModel.from_selected_write(selected_ref)
 
 
 def load_trinity_bundle_artifact(store: ArtifactStore, selector: ArtifactSelector) -> TrinityBundle:
-    """Load a persisted Trinity bundle through its selected IR CAS view.
-
-    The IR JSON reader verifies the selected profile and byte conformance. This
-    boundary adds Trinity's manifest owner metadata and payload-version checks
-    before returning the typed bundle.
-    """
-    payload = get_json_artifact(store, selector)
-    manifest = store.get_manifest(selector)
-    schema = _manifest_value(manifest, "schema", model_attribute="artifact_schema")
-    schema_name = _manifest_value(schema, "name")
-    schema_version = _manifest_value(schema, "version")
-    if (
-        _manifest_value(manifest, "kind") != TrinityBundle.ARTIFACT_KIND
-        or _manifest_value(manifest, "media_type") != TrinityBundle.ARTIFACT_MEDIA_TYPE
-        or schema_name != TrinityBundle.ARTIFACT_SCHEMA_NAME
-        or schema_version != TrinityBundle.ARTIFACT_SCHEMA_VERSION
-    ):
-        raise TrinityLoadError("TrinityBundle artifact manifest does not match its IR owner")
-
-    bundle = load_trinity_bundle(payload)
-    if bundle.schema_version != schema_version:
-        raise TrinityLoadError(
-            "TrinityBundle payload schema_version does not match its selected artifact manifest"
-        )
-    return bundle
+    """Load a persisted Trinity bundle through exact owner and profile admission."""
+    try:
+        return _get_owned_json_artifact(store, selector, owner=_TRINITY_BUNDLE_OWNER)
+    except CanonViolation as exc:
+        raise _trinity_owner_error(exc) from exc
 
 
 __all__ = [
@@ -208,4 +271,5 @@ __all__ = [
     "load_problem_frame",
     "load_trinity_bundle",
     "load_trinity_bundle_artifact",
+    "persist_trinity_bundle_artifact",
 ]

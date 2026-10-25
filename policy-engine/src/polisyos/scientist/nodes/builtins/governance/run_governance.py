@@ -253,7 +253,11 @@ class RunGovernanceNode:
         return replace(self, default_verdict=str(verdict))
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        state = project_policy_promotion_state(state, ctx=ctx)
+        state = project_policy_promotion_state(
+            state,
+            ctx=ctx,
+            branch_write_paths=_SPEC.state_writes,
+        )
         events: list[NodeEvent] = []
         issues: list[dict[str, Any]] = []
         try:

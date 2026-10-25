@@ -172,7 +172,10 @@ def test_build_channel_decomposition_ref_identified_with_matrix_replay(tmp_path)
     )
     artifact = load_channel_decomposition_artifact(_ensure_ir_artifact_store(store), ref)
 
-    assert artifact.identification_status is ChannelIdentificationStatus.IDENTIFIED
+    assert artifact.identification_status is ChannelIdentificationStatus.BLOCKED
+    assert "upstream_input_owner_not_established" in artifact.blocking_reasons
+    assert artifact.diagnostic_summary["candidate_identification_status"] == "identified"
+    assert artifact.diagnostic_summary["input_owner_status"] == "not_established"
     assert artifact.mechanical_vector == pytest.approx((0.6, 1.0, 1.8))
     assert artifact.behavioral_vector == pytest.approx((-0.24, -0.36, -0.48))
     assert artifact.fiscal_feedback_vector == pytest.approx((0.10, 0.15, 0.20))
@@ -221,7 +224,9 @@ def test_build_channel_decomposition_ref_downgrades_without_fiscal_channel(tmp_p
     )
     artifact = load_channel_decomposition_artifact(_ensure_ir_artifact_store(store), ref)
 
-    assert artifact.identification_status is ChannelIdentificationStatus.BOUNDED
+    assert artifact.identification_status is ChannelIdentificationStatus.BLOCKED
+    assert "upstream_input_owner_not_established" in artifact.blocking_reasons
+    assert artifact.diagnostic_summary["candidate_identification_status"] == "bounded"
     assert artifact.behavioral_vector == pytest.approx((-0.24, -0.36, -0.48))
     assert artifact.fiscal_feedback_vector is None
     assert artifact.total_vector == pytest.approx((0.36, 0.64, 1.32))

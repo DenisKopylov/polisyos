@@ -3,17 +3,27 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir._internal.validation import ensure_finite_numeric, ensure_unique_ids
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     CausalGraphModelRef,
     RegimeShiftIdentificationCertificateRef,
 )
+
+if TYPE_CHECKING:
+    from polisyos.ir.artifacts import ArtifactStore, InputRef
+    from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration
 
 
 class EnvironmentShiftType(str, Enum):
@@ -1136,6 +1146,76 @@ class RegimeShiftIdentificationCertificate(BaseModel):
         return self
 
 
+_ANALYTICS_ARTIFACT_CANON_SPEC = CanonSpec(forbid_floats=False)
+
+
+def _declare_owned_model(
+    model: type[BaseModel],
+    *,
+    contract_id: str,
+    dto_fqn: str,
+    abi_key: str,
+    registry_key: str,
+    kind: str,
+    schema_name: str,
+    schema_version: str,
+    payload_version: str,
+    purpose: str,
+    notes: tuple[str, ...],
+    compatibility: CompatibilityMode = CompatibilityMode.NONE,
+) -> ArtifactOwnerDeclaration[Any, Any]:
+    """Declare one exact source-proven DTO/artifact representation."""
+    wire_policy_ref = f"{contract_id}.wire"
+    return declare_model_owner(
+        model,
+        contract_id=contract_id,
+        dto_fqn=dto_fqn,
+        abi_key=abi_key,
+        registry_key=registry_key,
+        kind=kind,
+        media_type="application/json",
+        purpose=purpose,
+        policy_revision=f"{contract_id}.owner-admission.v1",
+        accepted_wire_policies=((wire_policy_ref, "1"),),
+        payload_version_field="schema_version",
+        validate_profile=owner_profile_for_spec(_ANALYTICS_ARTIFACT_CANON_SPEC, profile_ref=None),
+        representations=(
+            OwnedJSONRepresentation(
+                schema_name=schema_name,
+                schema_version=schema_version,
+                payload_version=payload_version,
+                wire_policy_ref=wire_policy_ref,
+                wire_policy_revision="1",
+                profile_ref=None,
+                compatibility=compatibility,
+                notes=notes,
+                readable=True,
+                writable=True,
+                current=True,
+                default_write=True,
+                readable_from=(),
+            ),
+        ),
+    )
+
+
+_REGIME_SHIFT_CERTIFICATE_OWNER = _declare_owned_model(
+    RegimeShiftIdentificationCertificate,
+    contract_id="ir.analytics.invariance.regime_shift_identification_certificate",
+    dto_fqn="polisyos.ir.analytics.invariance.RegimeShiftIdentificationCertificate",
+    abi_key="ir.regime_shift_identification_certificate",
+    registry_key="ir.regime_shift_identification_certificate",
+    kind="ir.regime_shift_identification_certificate",
+    schema_name="ir.regime_shift_identification_certificate",
+    schema_version="1.0",
+    payload_version="1.0",
+    purpose="ir_regime_shift_identification_certificate",
+    notes=(
+        "RegimeShiftIdentificationCertificate 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+    ),
+)
+
+
 def persist_regime_shift_identification_certificate(
     store: ArtifactStore,
     certificate: RegimeShiftIdentificationCertificate,
@@ -1144,11 +1224,11 @@ def persist_regime_shift_identification_certificate(
     schema_name: str = "ir.regime_shift_identification_certificate",
     schema_version: str = "1.0",
 ) -> RegimeShiftIdentificationCertificateRef:
-    """Persist a regime-shift identification certificate as a typed IR artifact."""
-    ref = put_json_artifact(
+    """Persist RegimeShiftIdentificationCertificate through its exact owner declaration."""
+    ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind="ir.regime_shift_identification_certificate",
+        owner=_REGIME_SHIFT_CERTIFICATE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -1161,9 +1241,8 @@ def load_regime_shift_identification_certificate(
     store: ArtifactStore,
     ref: RegimeShiftIdentificationCertificateRef,
 ) -> RegimeShiftIdentificationCertificate:
-    """Load a persisted regime-shift identification certificate."""
-    payload = get_json_artifact(store, ref)
-    return RegimeShiftIdentificationCertificate.model_validate(payload)
+    """Load RegimeShiftIdentificationCertificate through its exact owner declaration."""
+    return _get_owned_json_artifact(store, ref, owner=_REGIME_SHIFT_CERTIFICATE_OWNER)
 
 
 __all__ = [

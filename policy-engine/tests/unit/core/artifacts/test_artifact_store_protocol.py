@@ -426,29 +426,43 @@ def test_put_bytes_can_return_the_exact_write_selected_profile(
     assert {str(artifact_id) for artifact_id in store.iter_artifact_ids()} == before_ids
 
 
-def test_core_adapter_accepts_explicit_positional_or_keyword_profile_parameter() -> None:
+def test_core_adapter_accepts_explicit_positional_or_keyword_profile_parameter(
+    tmp_path: Path,
+) -> None:
     class PositionalOrKeywordStore:
-        called = False
+        def __init__(self, delegate: FileSystemCAS) -> None:
+            self.delegate = delegate
+            self.selected_profile_calls: list[bool] = []
 
-        def put_bytes(self, data, opts, return_selected_profile=False):
-            self.called = True
-            assert return_selected_profile is True
-            return ArtifactRef(
-                artifact_id=ArtifactID.from_sha256_hex("0" * 64),
-                kind=opts.kind,
-                media_type=opts.media_type,
-                manifest_profile_sha256="sha256:" + "1" * 64,
+        def put_bytes(
+            self,
+            data: bytes,
+            opts: PutOptions,
+            return_selected_profile: bool = False,
+        ) -> ArtifactRef:
+            self.selected_profile_calls.append(return_selected_profile)
+            return self.delegate.put_bytes(
+                data,
+                opts,
+                return_selected_profile=return_selected_profile,
             )
 
-    store = PositionalOrKeywordStore()
+        def __getattr__(self, name: str) -> Any:
+            return getattr(self.delegate, name)
+
+    payload = b"selected"
+    store = PositionalOrKeywordStore(FileSystemCAS(tmp_path / "cas"))
     ref = CoreToIRArtifactStoreAdapter(store).put_bytes(
-        b"selected",
-        PutOptions(kind="test.profile.pos_or_kw", media_type="application/json"),
+        payload,
+        PutOptions(kind="test.profile.pos_or_kw", media_type="application/octet-stream"),
         return_selected_profile=True,
     )
 
-    assert store.called is True
-    assert ref.manifest_profile_sha256 == "sha256:" + "1" * 64
+    assert store.selected_profile_calls == [True]
+    assert ref.artifact_id == ArtifactID.from_sha256_hex(hashlib.sha256(payload).hexdigest())
+    manifest = store.get_manifest(ref)
+    assert ref.manifest_profile_sha256 == artifact_manifest_profile_sha256(manifest)
+    assert store.get_bytes(ref) == payload
 
 
 @pytest.mark.parametrize(

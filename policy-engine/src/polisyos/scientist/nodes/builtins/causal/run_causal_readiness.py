@@ -109,6 +109,22 @@ _SPEC = NodeSpec(
     ],
 )
 
+
+def _measurement_models_from_state(state: ExperimentState) -> dict[str, str] | None:
+    """Narrow the optional family-to-model map without coercing supplied values."""
+    key = "measurement_model_by_family"
+    if key not in state.params:
+        return None
+    value = state.params[key]
+    if value is None:
+        return None
+    if not isinstance(value, Mapping) or any(
+        not isinstance(name, str) or not isinstance(model, str) for name, model in value.items()
+    ):
+        raise ValueError("params.measurement_model_by_family must map strings to strings")
+    return dict(value)
+
+
 _CAUSAL_READINESS_VALIDATION_ERRORS = (
     TypeError,
     ValueError,
@@ -205,7 +221,7 @@ class RunCausalReadinessNode:
         try:
             store = _ensure_ir_artifact_store(ctx.store)
             graph_ref = profile_bound_ref(
-                store,
+                ctx.store,
                 CausalGraphModelRef.model_validate(graph_ref_payload.model_dump(mode="json")),
             )
             graph = load_causal_graph_model(store, graph_ref)
@@ -234,7 +250,7 @@ class RunCausalReadinessNode:
             graph_input = ArtifactRef.model_validate(graph_ref.model_dump(mode="json"))
             causal_component_payload = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
             causal_component_ref = (
-                graph_input
+                ArtifactRefModel.model_validate(graph_input.model_dump(mode="json"))
                 if causal_component_payload is None
                 else ArtifactRefModel.model_validate(
                     causal_component_payload.model_dump(mode="json")
@@ -261,6 +277,18 @@ class RunCausalReadinessNode:
                 ),
             )
 
+        try:
+            measurement_models = _measurement_models_from_state(state)
+        except ValueError as exc:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=str(exc),
+                ),
+            )
+
         graph_inputs = [input_ref_from_artifact_ref(graph_input, role="reconciled_causal_graph")]
         proxy_runner = ProxyIdentificationRunner(graph=graph)
         transport_runner = TransportabilityChecker(
@@ -278,7 +306,7 @@ class RunCausalReadinessNode:
 
         proxy_results = proxy_runner.run(
             proxy_bundle,
-            measurement_models=state.params.get("measurement_model_by_family"),
+            measurement_models=measurement_models,
         )
         transport_results = transport_runner.run(
             transport_bundle,
@@ -294,6 +322,7 @@ class RunCausalReadinessNode:
         interference_results = build_interference_readiness_entries(interference_bundle)
 
         readiness_bundle = CausalReadinessBundle(
+            schema_version=CausalReadinessBundle.SCHEMA_VERSION,
             proxy_results=proxy_results,
             transport_results=transport_results,
             strategic_results=strategic_results,

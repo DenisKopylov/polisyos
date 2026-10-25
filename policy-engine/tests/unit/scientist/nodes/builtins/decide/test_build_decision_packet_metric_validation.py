@@ -18,6 +18,7 @@ from polisyos.ir.analytics.metric_validation_report import (
 )
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
 from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_DECISION_PACKET_REF,
     ARTIFACT_METRIC_VALIDATION_REPORT_REF,
     ARTIFACT_METRICS_REF,
     INPUT_DATA_SNAPSHOT_REF,
@@ -124,7 +125,12 @@ def test_build_decision_packet_projects_metric_validation_comparisons(tmp_path) 
     )
 
     outcome = BuildDecisionPacketNode().execute(ctx, state)
-    payload = from_canonical_bytes(store.get_bytes(outcome.artifacts[0].artifact_id))
+    packet_ref = outcome.artifacts[0]
+    state_packet_ref = outcome.state.artifacts_index[ARTIFACT_DECISION_PACKET_REF]
+    assert packet_ref.manifest_profile_sha256 is not None
+    assert state_packet_ref.artifact_id == packet_ref.artifact_id
+    assert state_packet_ref.manifest_profile_sha256 == packet_ref.manifest_profile_sha256
+    payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
 
     assert payload["metric_validation_report_ref"] == str(metric_validation_ref.artifact_id)
     assert payload["metric_validation_family_adjustment"] == {

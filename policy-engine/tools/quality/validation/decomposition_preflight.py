@@ -607,6 +607,16 @@ _DYNAMIC_IMPORT_CALLABLE_NAMES = frozenset(
         "list_entry_points",
     }
 )
+_DYNAMIC_IMPORT_TEMPORAL_CALLABLES = DYNAMIC_CALL_NAMES | frozenset(
+    {
+        "builtins.eval",
+        "builtins.exec",
+        "builtins.getattr",
+        "builtins.globals",
+        "builtins.locals",
+        "builtins.vars",
+    }
+)
 _DYNAMIC_ITERABLE_CONSTRUCTORS = frozenset({"frozenset", "list", "set", "sorted", "tuple"})
 _DYNAMIC_CAPABILITY_PREDICATES = frozenset({"callable", "isinstance", "issubclass"})
 _DYNAMIC_MODULE_NAMESPACE_FACTORIES = frozenset(
@@ -622,6 +632,7 @@ class _DynamicImportBinding:
     kind: Literal[
         "module",
         "callable",
+        "source_function",
         "unknown",
         "other",
         "ambiguous",
@@ -655,6 +666,10 @@ class _DynamicImportBinding:
     literal_key: object | None = None
     literal_key_known: bool = False
     element: _DynamicImportBinding | None = None
+    sequence_type: Literal["list", "tuple"] | None = None
+    source_arguments: tuple[_DynamicImportBinding, ...] | None = None
+    source_keyword_names: tuple[str | None, ...] | None = None
+    importer_origins: tuple[str, ...] = ()
 
 
 def _dynamic_source_class_origins(
@@ -717,6 +732,74 @@ class _DynamicImportSite:
 class _PendingDynamicImportScope:
     node: ast.AST
     environment_at_definition: Mapping[str, _DynamicImportBinding]
+    importer_binding_mutations: Mapping[str, int]
+
+
+class _DefinitionTimeCallVisitor(ast.NodeVisitor):
+    """Find calls evaluated while a deferred source scope is being defined."""
+
+    def __init__(self, *, future_annotations: bool) -> None:
+        self.future_annotations = future_annotations
+        self.found_call = False
+
+    def visit_Call(self, node: ast.Call) -> None:
+        self.found_call = True
+        self.generic_visit(node)
+
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        self._visit_function_definition_expressions(node)
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+        self._visit_function_definition_expressions(node)
+
+    def visit_Lambda(self, node: ast.Lambda) -> None:
+        self._visit_defaults(node.args)
+
+    def visit_GeneratorExp(self, node: ast.GeneratorExp) -> None:
+        if node.generators:
+            self.visit(node.generators[0].iter)
+
+    def visit_TypeAlias(self, node: ast.TypeAlias) -> None:
+        # PEP 695 alias values are lazy and do not execute at this statement.
+        del node
+
+    def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
+        if not self.future_annotations:
+            self.visit(node.annotation)
+        if node.value is not None:
+            self.visit(node.value)
+
+    def _visit_function_definition_expressions(
+        self, node: ast.FunctionDef | ast.AsyncFunctionDef
+    ) -> None:
+        for decorator in node.decorator_list:
+            self.visit(decorator)
+        self._visit_defaults(node.args)
+        if not self.future_annotations:
+            for argument in (
+                *node.args.posonlyargs,
+                *node.args.args,
+                *node.args.kwonlyargs,
+                *((node.args.vararg,) if node.args.vararg else ()),
+                *((node.args.kwarg,) if node.args.kwarg else ()),
+            ):
+                if argument.annotation is not None:
+                    self.visit(argument.annotation)
+            if node.returns is not None:
+                self.visit(node.returns)
+
+    def _visit_defaults(self, arguments: ast.arguments) -> None:
+        for expression in (*arguments.defaults, *arguments.kw_defaults):
+            if expression is not None:
+                self.visit(expression)
+
+
+@dataclass(frozen=True, slots=True)
+class _DynamicImportFunctionSummary:
+    """A module-local function and its exact definition-time default values."""
+
+    node: ast.FunctionDef | ast.AsyncFunctionDef
+    defaults: Mapping[str, _DynamicImportBinding]
 
 
 _DYNAMIC_UNKNOWN = _DynamicImportBinding("unknown")
@@ -744,6 +827,7 @@ _DYNAMIC_PATH_METHOD_RESULTS: Mapping[str, _DynamicImportBinding] = {
     "write_text": _DYNAMIC_BUILTIN_INT,
     "read_bytes": _DYNAMIC_BUILTIN_BYTES,
     "read_text": _DYNAMIC_BUILTIN_STR,
+    "mkdir": _DYNAMIC_NONE,
 }
 _DYNAMIC_PATH_METHOD_ARGUMENTS: Mapping[str, tuple[frozenset[str], ...]] = {
     "absolute": (),
@@ -759,8 +843,15 @@ _DYNAMIC_PATH_METHOD_ARGUMENTS: Mapping[str, tuple[frozenset[str], ...]] = {
     "write_text": (frozenset({"string", "builtin_str"}),),
     "read_bytes": (),
     "read_text": (),
+    "mkdir": (),
 }
 _DYNAMIC_PATH_METHOD_KEYWORDS: Mapping[str, Mapping[str, frozenset[str]]] = {
+    "resolve": {"strict": frozenset({"boolean"})},
+    "mkdir": {
+        "mode": frozenset({"builtin_int"}),
+        "parents": frozenset({"boolean"}),
+        "exist_ok": frozenset({"boolean"}),
+    },
     "stat": {"follow_symlinks": frozenset({"boolean"})},
     "chmod": {"follow_symlinks": frozenset({"boolean"})},
     "write_text": {
@@ -783,7 +874,26 @@ def _dynamic_join_with_guarded_origin(
     trusted_result: bool = False,
 ) -> _DynamicImportBinding:
     """Keep importer uncertainty on a derived value unless its result is proven safe."""
-    if trusted_result or result.guarded or result.kind == "ambiguous":
+    if trusted_result:
+        return result
+    importer_origins = {
+        origin for binding in bindings for origin in _dynamic_importer_origins(binding)
+    }
+    if importer_origins and result.kind in {
+        "ambiguous",
+        "iterable",
+        "mapping",
+        "namespace",
+        "object",
+        "sequence",
+        "unknown",
+        "union",
+    }:
+        result = replace(
+            result,
+            importer_origins=tuple(sorted(set(result.importer_origins) | importer_origins)),
+        )
+    if result.guarded or result.kind == "ambiguous":
         return result
     if not any(binding.guarded or binding.kind == "ambiguous" for binding in bindings):
         return result
@@ -889,6 +999,103 @@ def _dynamic_binding_for_import(module: str, name: str | None = None) -> _Dynami
     if canonical == "sys":
         return _DynamicImportBinding("module", canonical, guarded=True)
     return _DYNAMIC_OTHER
+
+
+def _is_guarded_importer_binding(binding: _DynamicImportBinding) -> bool:
+    """Return whether a binding has a recognized dynamic-import namespace identity."""
+    return bool(_dynamic_importer_origins(binding))
+
+
+def _dynamic_importer_origins(binding: _DynamicImportBinding) -> frozenset[str]:
+    """Return proven importer identities carried by a bounded abstract value."""
+    origins: set[str] = set()
+    pending = [binding]
+    seen: set[int] = set()
+    while pending:
+        current = pending.pop()
+        identity = id(current)
+        if identity in seen:
+            continue
+        seen.add(identity)
+        origins.update(current.importer_origins)
+        is_temporal_callable = (
+            current.name is not None
+            and current.kind == "callable"
+            and current.name in _DYNAMIC_IMPORT_TEMPORAL_CALLABLES
+        )
+        is_importer_namespace = (
+            current.name is not None
+            and current.kind
+            in {
+                "module",
+                "ambiguous",
+            }
+            and (
+                current.name in {"sys", "builtins", *_DYNAMIC_IMPORT_GUARDED_ROOTS}
+                or any(
+                    current.name == prefix or current.name.startswith(f"{prefix}.")
+                    for prefix in _DYNAMIC_IMPORT_MODULE_PREFIXES
+                )
+            )
+        )
+        if (
+            current.guarded
+            and current.name is not None
+            and (is_temporal_callable or is_importer_namespace)
+        ):
+            origins.add(current.name)
+        pending.extend(current.items or ())
+        pending.extend(current.values or ())
+        if current.receiver is not None:
+            pending.append(current.receiver)
+        if current.element is not None:
+            pending.append(current.element)
+    return frozenset(origins)
+
+
+def _dynamic_function_has_unmodeled_implicit_dispatch(
+    function: ast.FunctionDef | ast.AsyncFunctionDef,
+    environment: Mapping[str, _DynamicImportBinding],
+) -> bool:
+    """Detect callable bodies whose implicit Python dispatch is outside the summary."""
+    for node in ast.walk(function):
+        if isinstance(
+            node,
+            (
+                ast.AsyncFor,
+                ast.AsyncWith,
+                ast.Await,
+                ast.BinOp,
+                ast.Compare,
+                ast.For,
+                ast.GeneratorExp,
+                ast.IfExp,
+                ast.ListComp,
+                ast.Match,
+                ast.SetComp,
+                ast.Subscript,
+                ast.UnaryOp,
+                ast.While,
+                ast.With,
+                ast.YieldFrom,
+            ),
+        ):
+            return True
+        if isinstance(node, ast.Attribute):
+            if not isinstance(node.value, ast.Name):
+                return True
+            receiver = environment.get(node.value.id, _DYNAMIC_UNKNOWN)
+            if receiver.kind not in {"module", "none"} and not (
+                receiver.kind == "other"
+                and receiver.literal_key_known
+                and receiver.literal_key is None
+            ):
+                return True
+        if isinstance(node, ast.If) and (
+            not isinstance(node.test, ast.Constant) or not isinstance(node.test.value, bool)
+        ):
+            return True
+    return False
 
 
 def _dynamic_builtin_binding(name: str) -> _DynamicImportBinding:
@@ -1000,6 +1207,12 @@ def _dynamic_mapping_lookup(
     *,
     default: _DynamicImportBinding = _DYNAMIC_OTHER,
 ) -> _DynamicImportBinding:
+    if mapping.kind == "unknown":
+        # A declaration-only parameter may implement __getitem__ with arbitrary
+        # behavior. Keep the result unknown until a source-backed call summary
+        # can re-evaluate the access with the actual receiver and key. In
+        # particular, this is not proof that the result is a non-importer.
+        return _dynamic_join_with_guarded_origin((mapping, key), _DYNAMIC_UNKNOWN)
     if mapping.kind not in {"mapping", "namespace", "object"}:
         return _dynamic_join_with_guarded_origin(
             (mapping, key),
@@ -1049,6 +1262,11 @@ def _dynamic_attribute_binding(
     binding: _DynamicImportBinding,
     attribute: str,
 ) -> _DynamicImportBinding:
+    if binding.kind == "unknown":
+        # An unknown receiver can define arbitrary attribute behavior. Preserve
+        # that uncertainty until a source-backed call summary has the actual
+        # receiver; do not turn an unobserved attribute into a safe value.
+        return _dynamic_join_with_guarded_origin((binding,), _DYNAMIC_UNKNOWN)
     if binding.kind == "pathlib_path":
         if attribute == "parent":
             return _DYNAMIC_PATH
@@ -1065,6 +1283,8 @@ def _dynamic_attribute_binding(
         if attribute == "st_mode":
             return _DYNAMIC_BUILTIN_INT
         return _DYNAMIC_OTHER
+    if binding.kind in {"string", "builtin_str"} and attribute == "split":
+        return _DynamicImportBinding("callable", "builtins.str.split", receiver=binding)
     if binding.kind == "argument_parser":
         if attribute in {"add_argument", "parse_args"}:
             return _DynamicImportBinding(
@@ -1123,6 +1343,37 @@ def _dynamic_attribute_binding(
     return _dynamic_join_with_guarded_origin((binding,), _DYNAMIC_OTHER)
 
 
+def _dynamic_source_object_field(
+    binding: _DynamicImportBinding,
+    attribute: str,
+    value: _DynamicImportBinding,
+) -> _DynamicImportBinding:
+    """Return a source instance with one exact constructor-derived field."""
+    if binding.kind != "object" or binding.origin_name is None:
+        return _DYNAMIC_AMBIGUOUS
+    if binding.items is None or binding.values is None:
+        fields: dict[str, _DynamicImportBinding] = {}
+    else:
+        if len(binding.items) != len(binding.values):
+            return _DYNAMIC_AMBIGUOUS
+        fields = {}
+        for key, field_value in zip(binding.items, binding.values, strict=True):
+            if key.kind != "string" or key.name is None:
+                return _DYNAMIC_AMBIGUOUS
+            fields[key.name] = field_value
+    fields[attribute] = value
+    if len(fields) > _DYNAMIC_COMPREHENSION_VALUE_LIMIT:
+        return _DYNAMIC_AMBIGUOUS
+    names = tuple(fields)
+    values = tuple(fields[name] for name in names)
+    return replace(
+        binding,
+        guarded=binding.guarded or value.guarded,
+        items=tuple(_dynamic_string_binding(name) for name in names),
+        values=values,
+    )
+
+
 def _join_dynamic_bindings(
     bindings: Sequence[_DynamicImportBinding],
 ) -> _DynamicImportBinding:
@@ -1155,7 +1406,14 @@ def _join_dynamic_bindings(
                     for values in zip(*concrete_item_lists, strict=True)
                 )
                 if first.kind in {"sequence", "iterable"}:
-                    result = _dynamic_sequence_binding(items, kind=first.kind)
+                    sequence_types = {binding.sequence_type for binding in bindings}
+                    result = _dynamic_sequence_binding(
+                        items,
+                        kind=first.kind,
+                        sequence_type=(
+                            next(iter(sequence_types)) if len(sequence_types) == 1 else None
+                        ),
+                    )
                     return _dynamic_join_with_guarded_origin(source_bindings, result)
                 value_lists = [binding.values for binding in bindings]
                 if all(values is not None for values in value_lists):
@@ -1194,6 +1452,7 @@ def _dynamic_sequence_binding(
     kind: Literal["sequence", "iterable"] = "sequence",
     guarded: bool = False,
     component_names: tuple[str | None, ...] | None = None,
+    sequence_type: Literal["list", "tuple"] | None = None,
 ) -> _DynamicImportBinding:
     """Return an iterable value whose importer provenance stays attached to its items."""
     materialized = tuple(items) if items is not None else None
@@ -1203,6 +1462,7 @@ def _dynamic_sequence_binding(
         guarded=guarded or has_guarded_item,
         items=materialized,
         component_names=component_names,
+        sequence_type=sequence_type,
     )
 
 
@@ -1258,6 +1518,8 @@ def _dynamic_union_binding(
 def _dynamic_binding_alternatives(
     binding: _DynamicImportBinding,
 ) -> tuple[_DynamicImportBinding, ...] | None:
+    if binding.kind == "source_function":
+        return (binding,) if binding.origin_name is not None else None
     if binding.kind == "union":
         return binding.items
     if binding.kind in {"unknown", "ambiguous"}:
@@ -1267,7 +1529,14 @@ def _dynamic_binding_alternatives(
             return (replace(binding, component_names=None, origin_name=None),)
     if binding.kind == "string" and binding.name is not None:
         return (replace(binding, component_names=None, origin_name=None),)
-    if binding.kind in {"other", "boolean", "type", "module", "callable", "namespace"}:
+    if binding.kind in {
+        "other",
+        "boolean",
+        "type",
+        "module",
+        "callable",
+        "namespace",
+    }:
         return (replace(binding, component_names=None, origin_name=None),)
     return None
 
@@ -1291,6 +1560,8 @@ def _dynamic_binding_is_exact(binding: _DynamicImportBinding) -> bool:
         )
     if binding.kind == "string":
         return binding.name is not None
+    if binding.kind == "source_function":
+        return binding.origin_name is not None
     return binding.kind in {"other", "boolean", "type", "module", "callable", "namespace"}
 
 
@@ -1322,6 +1593,8 @@ def _dynamic_bindings_may_equal(
         return left.name == right.name
     if left.kind in {"module", "callable", "type"}:
         return left.name == right.name
+    if left.kind == "source_function":
+        return left.origin_name == right.origin_name
     if left.kind == "boolean":
         return left.boolean == right.boolean
     return left.kind == "other"
@@ -1925,12 +2198,139 @@ class _DynamicImportSourceBindings:
             return None
         return source_module, definitions[0], environment
 
-    def source_method_return_binding(
+    def _source_pydantic_root_model_string(
+        self,
+        source_name: str,
+    ) -> tuple[str, ast.ClassDef, Mapping[str, _DynamicImportBinding]] | None:
+        """Recognize an exact source class whose Pydantic root schema is builtin ``str``."""
+        module = source_name.rpartition(".")[0]
+        environment = self._module_environment(module, ())
+        if environment is None:
+            return None
+        definition = self._source_class_definition(
+            source_name,
+            current_module=module,
+            current_environment=environment,
+            stack=(),
+        )
+        if definition is None:
+            return None
+        _, class_node, _ = definition
+        if class_node.decorator_list or class_node.keywords:
+            return None
+        if self._source_import_identity(module, "RootModel") != "pydantic.RootModel":
+            return None
+        if "str" in environment:
+            return None
+        bases = [
+            base
+            for base in class_node.bases
+            if isinstance(base, ast.Subscript)
+            and isinstance(base.value, ast.Name)
+            and base.value.id == "RootModel"
+        ]
+        if (
+            len(class_node.bases) != 1
+            or len(bases) != 1
+            or not isinstance(bases[0].slice, ast.Name)
+        ):
+            return None
+        if bases[0].slice.id != "str":
+            return None
+        unsafe_overrides = {
+            "__get_pydantic_core_schema__",
+            "__get_pydantic_json_schema__",
+            "__get_validators__",
+            "__getattribute__",
+            "__getattr__",
+            "__init__",
+            "__new__",
+            "__setattr__",
+            "model_construct",
+            "model_post_init",
+            "model_validate",
+            "root",
+        }
+        for statement in class_node.body:
+            if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                if statement.name in unsafe_overrides:
+                    return None
+                for decorator in statement.decorator_list:
+                    decorated = decorator.func if isinstance(decorator, ast.Call) else decorator
+                    if (
+                        isinstance(decorated, ast.Name)
+                        and decorated.id in {"classmethod", "staticmethod", "property"}
+                        and decorated.id not in environment
+                    ):
+                        continue
+                    if (
+                        isinstance(decorator, ast.Call)
+                        and isinstance(decorator.func, ast.Name)
+                        and self._source_import_identity(module, decorator.func.id)
+                        == "pydantic.field_validator"
+                        and len(decorator.args) == 1
+                        and isinstance(decorator.args[0], ast.Constant)
+                        and decorator.args[0].value == "root"
+                        and len(decorator.keywords) == 1
+                        and decorator.keywords[0].arg == "mode"
+                        and isinstance(decorator.keywords[0].value, ast.Constant)
+                        and decorator.keywords[0].value.value == "before"
+                    ):
+                        # A before-validator still passes through the declared
+                        # RootModel[str] core schema; after/wrap/plain validators
+                        # can replace the value after that type check.
+                        continue
+                    return None
+            if isinstance(statement, ast.AnnAssign):
+                if isinstance(statement.target, ast.Name) and statement.target.id in {
+                    "root",
+                    "model_config",
+                }:
+                    return None
+            if isinstance(statement, ast.Assign) and any(
+                name in unsafe_overrides | {"model_config"}
+                for target in statement.targets
+                for name in self._simple_target_names(target)
+            ):
+                return None
+        if self._source_class_has_effect(
+            source_name,
+            current_module=module,
+            current_environment=environment,
+            stack=(),
+        ):
+            return None
+        return module, class_node, environment
+
+    def _source_pydantic_root_model_instance(
+        self,
+        source_name: str,
+    ) -> _DynamicImportBinding | None:
+        """Bind Pydantic ``model_validate`` to the exact source root-model identity."""
+        if self._source_pydantic_root_model_string(source_name) is None:
+            return None
+        base = _DynamicImportBinding(
+            "object", source_name, origin_name=source_name, items=(), values=()
+        )
+        return _dynamic_source_object_field(base, "root", _DYNAMIC_BUILTIN_STR)
+
+    def source_method_definition(
         self,
         source_name: str,
         method_name: str,
-    ) -> _DynamicImportBinding | None:
-        """Resolve a typed source method from the values its body actually returns."""
+        *,
+        allow_property: bool = False,
+        allow_root_model: bool = False,
+    ) -> (
+        tuple[
+            str,
+            ast.ClassDef,
+            ast.FunctionDef | ast.AsyncFunctionDef,
+            Mapping[str, _DynamicImportBinding],
+        ]
+        | None
+    ):
+        """Find one ordinary method on the still-bound source class identity."""
         source_module = source_name.rpartition(".")[0]
         source_environment = self._module_environment(source_module, ())
         if source_environment is None:
@@ -1947,9 +2347,12 @@ class _DynamicImportSourceBindings:
         if (
             class_node.decorator_list
             or class_node.keywords
-            or any(
-                not (isinstance(base, ast.Name) and base.id == "object")
-                for base in class_node.bases
+            or (
+                not allow_root_model
+                and any(
+                    not (isinstance(base, ast.Name) and base.id == "object")
+                    for base in class_node.bases
+                )
             )
         ):
             return None
@@ -1968,10 +2371,429 @@ class _DynamicImportSourceBindings:
         if len(methods) != 1:
             return None
         method = methods[0]
-        # Decorators can replace or wrap the declared callable; asynchronous
-        # methods return a coroutine rather than the annotated inner value.
-        if method.decorator_list or isinstance(method, ast.AsyncFunctionDef):
+        property_decorator = (
+            allow_property
+            and len(method.decorator_list) == 1
+            and isinstance(method.decorator_list[0], ast.Name)
+            and method.decorator_list[0].id == "property"
+            and "property" not in environment
+        )
+        if (method.decorator_list and not property_decorator) or isinstance(
+            method, ast.AsyncFunctionDef
+        ):
             return None
+        return module, class_node, method, environment
+
+    @staticmethod
+    def _source_method_arguments(
+        method: ast.FunctionDef | ast.AsyncFunctionDef,
+        receiver: _DynamicImportBinding,
+        call_node: ast.Call | None,
+        argument_bindings: Sequence[_DynamicImportBinding],
+    ) -> dict[str, _DynamicImportBinding] | None:
+        """Bind one statically spelled call to a source method's declared parameters."""
+        parameters = (*method.args.posonlyargs, *method.args.args)
+        if not parameters or parameters[0].arg != "self":
+            return None
+        if method.args.vararg is not None or method.args.kwarg is not None:
+            return None
+        result = {parameters[0].arg: receiver}
+        if call_node is None:
+            if argument_bindings:
+                return None
+            return result
+        if any(keyword.arg is None for keyword in call_node.keywords):
+            return None
+        positional = argument_bindings[: len(call_node.args)]
+        keyword_values = argument_bindings[len(call_node.args) :]
+        if len(positional) != len(call_node.args) or len(keyword_values) != len(call_node.keywords):
+            return None
+        method_positional = parameters[1:]
+        if len(positional) > len(method_positional):
+            return None
+        result.update(
+            (parameter.arg, binding)
+            for parameter, binding in zip(method_positional, positional, strict=False)
+        )
+        keyword_only = {argument.arg for argument in method.args.kwonlyargs}
+        allowed = {argument.arg for argument in method_positional} | keyword_only
+        for keyword, binding in zip(call_node.keywords, keyword_values, strict=True):
+            if keyword.arg not in allowed or keyword.arg in result:
+                return None
+            result[keyword.arg] = binding
+        return result
+
+    def _source_method_summary(
+        self,
+        source_name: str,
+        method_name: str,
+        receiver: _DynamicImportBinding,
+        *,
+        call_node: ast.Call | None = None,
+        argument_bindings: Sequence[_DynamicImportBinding] = (),
+        required_fields: frozenset[str] | None = None,
+        summary_stack: tuple[tuple[str, str], ...] = (),
+        allow_property: bool = False,
+        allow_root_model: bool = False,
+    ) -> tuple[_DynamicImportBinding, _DynamicImportBinding] | None:
+        """Interpret one bounded source method with its actual receiver and arguments."""
+        key = (source_name, method_name)
+        if key in summary_stack or len(summary_stack) >= 24:
+            return None
+        definition = self.source_method_definition(
+            source_name,
+            method_name,
+            allow_property=allow_property,
+            allow_root_model=allow_root_model,
+        )
+        if definition is None:
+            return None
+        module, _, method, environment = definition
+        source_path = self.module_paths.get(module)
+        if source_path is None:
+            return None
+        parameter_bindings = self._source_method_arguments(
+            method,
+            receiver,
+            call_node,
+            argument_bindings,
+        )
+        if parameter_bindings is None:
+            return None
+        body_scanner = _DynamicImportSourceScanner(source_path, source_bindings=self)
+        body_scanner._module_environment = dict(environment)
+        tree = self._module_tree(module)
+        if tree is not None:
+            body_scanner.future_annotations = _future_annotations_enabled(tree)
+        body_scanner._source_instance_summary = True
+        body_scanner._source_summary_fields = required_fields
+        body_scanner._source_summary_locals = self._summary_required_locals(
+            method,
+            required_fields or frozenset(),
+        )
+        body_scanner._source_summary_stack = (*summary_stack, key)
+        returned: list[_DynamicImportBinding] = []
+        final_environments: list[dict[str, _DynamicImportBinding]] = []
+        body_scanner._scan_function(
+            method,
+            {},
+            environment,
+            return_bindings=returned,
+            parameter_bindings=parameter_bindings,
+            final_environments=final_environments,
+        )
+        actual_result = _join_dynamic_bindings(returned or (_DYNAMIC_NONE,))
+        updated_receiver = (
+            final_environments[0].get("self", receiver) if final_environments else receiver
+        )
+        return actual_result, updated_receiver
+
+    def source_property_return_binding(
+        self,
+        source_name: str,
+        property_name: str,
+        receiver: _DynamicImportBinding,
+    ) -> _DynamicImportBinding | None:
+        """Resolve a source ``@property`` body over an exact Pydantic ``RootModel[str]``."""
+        if self._source_pydantic_root_model_string(source_name) is None:
+            return None
+        definition = self.source_method_definition(
+            source_name,
+            property_name,
+            allow_property=True,
+            allow_root_model=True,
+        )
+        if definition is None or receiver.origin_name != source_name:
+            return None
+        _, _, method, _ = definition
+        required_fields = frozenset(
+            child.attr
+            for child in ast.walk(method)
+            if isinstance(child, ast.Attribute)
+            and isinstance(child.value, ast.Name)
+            and child.value.id == "self"
+            and isinstance(child.ctx, ast.Load)
+        )
+        summary = self._source_method_summary(
+            source_name,
+            property_name,
+            receiver,
+            required_fields=required_fields,
+            allow_property=True,
+            allow_root_model=True,
+        )
+        if summary is None:
+            return _DYNAMIC_AMBIGUOUS
+        result, _ = summary
+        if result.kind != "builtin_str" or not _dynamic_binding_is_proven_nonimporter(result):
+            return _DYNAMIC_AMBIGUOUS
+        return result
+
+    @staticmethod
+    def _summary_target_names(target: ast.AST) -> tuple[set[str], set[str]]:
+        """Return simple local names and direct ``self.field`` targets."""
+        names: set[str] = set()
+        fields: set[str] = set()
+        if isinstance(target, ast.Name):
+            names.add(target.id)
+        elif isinstance(target, ast.Attribute) and isinstance(target.value, ast.Name):
+            if target.value.id == "self":
+                fields.add(target.attr)
+        elif isinstance(target, ast.Tuple | ast.List):
+            for item in target.elts:
+                child_names, child_fields = _DynamicImportSourceBindings._summary_target_names(item)
+                names.update(child_names)
+                fields.update(child_fields)
+        return names, fields
+
+    @classmethod
+    def _summary_required_locals(
+        cls,
+        method: ast.FunctionDef | ast.AsyncFunctionDef,
+        required_fields: frozenset[str],
+    ) -> frozenset[str]:
+        """Close local-name dependencies for requested constructor fields."""
+        relevant: set[str] = set()
+        assignments = [
+            node
+            for node in ast.walk(method)
+            if isinstance(node, ast.Assign | ast.AnnAssign | ast.AugAssign | ast.NamedExpr)
+        ]
+        for _ in range(min(len(assignments) + 1, 65)):
+            changed = False
+            for assignment in assignments:
+                targets = (
+                    assignment.targets
+                    if isinstance(assignment, ast.Assign)
+                    else (assignment.target,)
+                )
+                target_names: set[str] = set()
+                target_fields: set[str] = set()
+                for target in targets:
+                    names, fields = cls._summary_target_names(target)
+                    target_names.update(names)
+                    target_fields.update(fields)
+                if not target_fields.intersection(
+                    required_fields
+                ) and not target_names.intersection(relevant):
+                    continue
+                value = assignment.value
+                if value is None:
+                    continue
+                for child in ast.walk(value):
+                    if (
+                        isinstance(child, ast.Name)
+                        and isinstance(child.ctx, ast.Load)
+                        and child.id != "self"
+                        and child.id not in relevant
+                    ):
+                        relevant.add(child.id)
+                        changed = True
+            if not changed:
+                break
+        return frozenset(relevant)
+
+    @classmethod
+    def _summary_block_writes_relevant(
+        cls,
+        block: Sequence[ast.stmt],
+        required_fields: frozenset[str],
+        required_locals: frozenset[str],
+    ) -> bool:
+        """Check whether a control-flow branch can change a requested field input."""
+        for statement in block:
+            for node in ast.walk(statement):
+                if isinstance(node, ast.Assign):
+                    targets = node.targets
+                elif isinstance(
+                    node,
+                    ast.AnnAssign | ast.AugAssign | ast.NamedExpr | ast.For | ast.AsyncFor,
+                ):
+                    targets = (node.target,)
+                else:
+                    continue
+                names: set[str] = set()
+                fields: set[str] = set()
+                for target in targets:
+                    child_names, child_fields = cls._summary_target_names(target)
+                    names.update(child_names)
+                    fields.update(child_fields)
+                if fields.intersection(required_fields) or names.intersection(required_locals):
+                    return True
+        return False
+
+    def _source_constructor_required_fields(
+        self,
+        source_name: str,
+        requested_fields: frozenset[str],
+    ) -> frozenset[str] | None:
+        """Close field requirements through source-owned initializer calls and stores."""
+        module = source_name.rpartition(".")[0]
+        environment = self._module_environment(module, ())
+        if environment is None:
+            return None
+        definition = self._source_class_definition(
+            source_name,
+            current_module=module,
+            current_environment=environment,
+            stack=(),
+        )
+        if definition is None:
+            return None
+        _, class_node, _ = definition
+        methods = {
+            statement.name: statement
+            for statement in class_node.body
+            if isinstance(statement, ast.FunctionDef)
+        }
+        if len(methods) > 128:
+            return None
+        required = set(requested_fields)
+        pending_methods = ["__init__"]
+        seen_methods: set[str] = set()
+        while pending_methods:
+            method_name = pending_methods.pop()
+            if method_name in seen_methods:
+                continue
+            seen_methods.add(method_name)
+            method = methods.get(method_name)
+            if method is None:
+                continue
+            if any(
+                isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda))
+                and node is not method
+                for statement in method.body
+                for node in ast.walk(statement)
+            ):
+                return None
+            for node in ast.walk(method):
+                if (
+                    isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Attribute)
+                    and isinstance(node.func.value, ast.Name)
+                    and node.func.value.id == "self"
+                    and node.func.attr in methods
+                ):
+                    pending_methods.append(node.func.attr)
+                if not isinstance(node, ast.Assign | ast.AnnAssign):
+                    continue
+                targets = node.targets if isinstance(node, ast.Assign) else (node.target,)
+                assigned_fields = {
+                    target.attr
+                    for target in targets
+                    if isinstance(target, ast.Attribute)
+                    and isinstance(target.value, ast.Name)
+                    and target.value.id == "self"
+                }
+                if not assigned_fields.intersection(required):
+                    continue
+                value = node.value
+                if value is None:
+                    continue
+                required.update(
+                    child.attr
+                    for child in ast.walk(value)
+                    if isinstance(child, ast.Attribute)
+                    and isinstance(child.value, ast.Name)
+                    and child.value.id == "self"
+                    and isinstance(child.ctx, ast.Load)
+                )
+                if len(required) > 64:
+                    return None
+            if len(seen_methods) > 32:
+                return None
+        return frozenset(required)
+
+    def _source_constructor_field_summary(
+        self,
+        source_name: str,
+        receiver: _DynamicImportBinding,
+        *,
+        required_fields: frozenset[str],
+        summary_stack: tuple[tuple[str, str], ...],
+    ) -> _DynamicImportBinding | None:
+        """Derive only requested fields through the exact source initializer chain."""
+        if (
+            receiver.kind != "object"
+            or receiver.origin_name != source_name
+            or receiver.source_arguments is None
+            or receiver.source_keyword_names is None
+            or len(receiver.source_arguments) != len(receiver.source_keyword_names)
+        ):
+            return None
+        module = source_name.rpartition(".")[0]
+        environment = self._module_environment(module, ())
+        if environment is None or self._source_class_has_effect(
+            source_name,
+            current_module=module,
+            current_environment=environment,
+            stack=(),
+        ):
+            return None
+        fields = self._source_constructor_required_fields(source_name, required_fields)
+        if fields is None:
+            return None
+        init_definition = self.source_method_definition(source_name, "__init__")
+        if init_definition is None:
+            return receiver
+        positional = [
+            binding
+            for binding, name in zip(
+                receiver.source_arguments,
+                receiver.source_keyword_names,
+                strict=True,
+            )
+            if name is None
+        ]
+        keywords = [
+            (binding, name)
+            for binding, name in zip(
+                receiver.source_arguments,
+                receiver.source_keyword_names,
+                strict=True,
+            )
+            if name is not None
+        ]
+        dummy_call = ast.Call(
+            func=ast.Name(id="__init__", ctx=ast.Load()),
+            args=[ast.Constant(value=None) for _ in positional],
+            keywords=[
+                ast.keyword(arg=name, value=ast.Constant(value=None)) for _, name in keywords
+            ],
+        )
+        ordered_bindings = [*positional, *(binding for binding, _ in keywords)]
+        summary = self._source_method_summary(
+            source_name,
+            "__init__",
+            replace(receiver, items=(), values=()),
+            call_node=dummy_call,
+            argument_bindings=ordered_bindings,
+            required_fields=fields,
+            summary_stack=summary_stack,
+        )
+        if summary is None:
+            return None
+        result, updated = summary
+        if result.kind != "none" or updated.kind != "object":
+            return None
+        return updated
+
+    def source_method_return_binding(
+        self,
+        source_name: str,
+        method_name: str,
+        *,
+        receiver: _DynamicImportBinding | None = None,
+        call_node: ast.Call | None = None,
+        argument_bindings: Sequence[_DynamicImportBinding] = (),
+        required_fields: frozenset[str] | None = None,
+        summary_stack: tuple[tuple[str, str], ...] = (),
+    ) -> tuple[_DynamicImportBinding, _DynamicImportBinding] | None:
+        """Resolve a source method result and its body-derived receiver state."""
+        definition = self.source_method_definition(source_name, method_name)
+        if definition is None:
+            return None
+        module, _, method, environment = definition
         annotation = method.returns
         declared_result: _DynamicImportBinding | None = None
         if isinstance(annotation, ast.Name):
@@ -2005,29 +2827,53 @@ class _DynamicImportSourceBindings:
                 declared_result = _DynamicImportBinding("object", "argparse.Namespace")
         if isinstance(annotation, ast.Constant) and annotation.value is None:
             declared_result = _DYNAMIC_NONE
-        if declared_result is None:
-            return None
-
-        source_path = self.module_paths.get(module)
-        if source_path is None:
-            return _DYNAMIC_AMBIGUOUS
-        body_scanner = _DynamicImportSourceScanner(source_path)
-        body_scanner._module_environment = dict(environment)
-        tree = self._module_tree(module)
-        if tree is not None:
-            body_scanner.future_annotations = _future_annotations_enabled(tree)
-        returned: list[_DynamicImportBinding] = []
-        body_scanner._scan_function(method, {}, environment, return_bindings=returned)
-        actual_result = _join_dynamic_bindings(returned or (_DYNAMIC_NONE,))
+        if receiver is None:
+            receiver = _DynamicImportBinding("object", source_name, origin_name=source_name)
+        if required_fields is None:
+            required_fields = frozenset(
+                child.attr
+                for child in ast.walk(method)
+                if isinstance(child, ast.Attribute)
+                and isinstance(child.value, ast.Name)
+                and child.value.id == "self"
+                and isinstance(child.ctx, ast.Load)
+            )
         if (
-            not _dynamic_binding_is_proven_nonimporter(actual_result)
-            or actual_result.kind != declared_result.kind
+            receiver.source_arguments is not None
+            and not receiver.items
+            and not any(owner == source_name for owner, _ in summary_stack)
+        ):
+            materialized = self._source_constructor_field_summary(
+                source_name,
+                receiver,
+                required_fields=required_fields,
+                summary_stack=summary_stack,
+            )
+            if materialized is None:
+                return _DYNAMIC_AMBIGUOUS
+            receiver = materialized
+        summary = self._source_method_summary(
+            source_name,
+            method_name,
+            receiver,
+            call_node=call_node,
+            argument_bindings=argument_bindings,
+            required_fields=required_fields,
+            summary_stack=summary_stack,
+        )
+        if summary is None:
+            return _DYNAMIC_AMBIGUOUS
+        actual_result, updated_receiver = summary
+        if not _dynamic_binding_is_proven_nonimporter(actual_result):
+            return _DYNAMIC_AMBIGUOUS
+        if declared_result is not None and (
+            actual_result.kind != declared_result.kind
             or (actual_result.kind == "object" and actual_result.name != declared_result.name)
         ):
             return _DYNAMIC_AMBIGUOUS
-        # The annotation selects a bounded transfer family; only the body-derived
-        # abstract value flows to the caller. An unknown external result stays unknown.
-        return actual_result
+        # A resolved annotation constrains the body result. An unresolved runtime
+        # annotation is not needed when the bounded body itself proves the transfer.
+        return actual_result, updated_receiver
 
     def _source_class_has_effect(
         self,
@@ -4283,7 +5129,24 @@ class _DynamicImportSourceScanner:
         self._module_scope_info: Mapping[str, set[str]] = {}
         self._module_possible_rebindings: set[str] = set()
         self._active_function_returns: list[list[_DynamicImportBinding]] = []
+        self._module_function_summaries: dict[str, _DynamicImportFunctionSummary] = {}
+        self._module_time_proven_scope_ids: set[int] = set()
+        self._active_module_function_stack: list[str] = []
+        self._active_module_environment: dict[str, _DynamicImportBinding] | None = None
+        self._recorded_entry_ids: set[str] = set()
+        self._recorded_sink_sites: set[tuple[int, str]] = set()
+        self._module_execution_active = False
+        self._pending_temporal_invocations: list[
+            tuple[ast.AST, dict[str, _DynamicImportBinding], dict[str, int], str]
+        ] = []
+        self._importer_binding_revisions: dict[str, int] = {}
+        self._importer_binding_mutations: dict[str, int] = {}
+        self._observed_importer_binding_names: set[str] = set()
         self.source_bindings = source_bindings
+        self._source_instance_summary = False
+        self._source_summary_fields: frozenset[str] | None = None
+        self._source_summary_locals: frozenset[str] = frozenset()
+        self._source_summary_stack: tuple[tuple[str, str], ...] = ()
         if source_bindings is not None and source_context is not None:
             source_bindings.invalidate_source_classes(source_context.source_class_effects or ())
         try:
@@ -4301,6 +5164,15 @@ class _DynamicImportSourceScanner:
 
     def scan(self, tree: ast.Module) -> list[dict[str, Any]]:
         self.future_annotations = _future_annotations_enabled(tree)
+        self._module_function_summaries.clear()
+        self._module_time_proven_scope_ids.clear()
+        self._active_module_function_stack.clear()
+        self._active_module_environment = None
+        self._module_execution_active = False
+        self._pending_temporal_invocations.clear()
+        self._importer_binding_revisions.clear()
+        self._importer_binding_mutations.clear()
+        self._observed_importer_binding_names.clear()
         locals_, _, _ = _scope_local_bindings(tree.body)
         environment = {name: self._unknown_binding(name) for name in locals_}
         self._module_environment = environment
@@ -4311,7 +5183,20 @@ class _DynamicImportSourceScanner:
         }
         self._module_scope_info = module_scope_info
         pending: list[_PendingDynamicImportScope] = []
-        self._scan_statements(tree.body, environment, locals_, module_scope_info, pending, {})
+        self._module_execution_active = True
+        try:
+            environment = self._scan_statements(
+                tree.body,
+                environment,
+                locals_,
+                module_scope_info,
+                pending,
+                {},
+            )
+        finally:
+            self._module_execution_active = False
+        self._module_environment = environment
+        self._raise_for_unproven_temporal_invocations(environment, pending)
         for deferred in pending:
             scope = deferred.node
             # Module names are globals resolved at call time, not closure cells.
@@ -4366,14 +5251,40 @@ class _DynamicImportSourceScanner:
         environment: dict[str, _DynamicImportBinding],
         scope_info: Mapping[str, set[str]],
     ) -> None:
+        module_target = scope_info is self._module_scope_info or name in scope_info.get(
+            "globals", set()
+        )
         if _dynamic_type_checking_kind(value) is not None:
             effectful = scope_info.get("_effectful", set())
-            module_target = scope_info is self._module_scope_info or name in scope_info.get(
-                "globals", set()
-            )
             if name in effectful or (module_target and name in self._module_possible_rebindings):
                 value = self._unknown_binding(name)
+        if module_target:
+            self._note_importer_binding_write(
+                name,
+                environment.get(name, self._unknown_binding(name)),
+                value,
+            )
         environment[name] = value
+
+    def _note_importer_binding_write(
+        self,
+        name: str,
+        prior: _DynamicImportBinding,
+        value: _DynamicImportBinding,
+    ) -> None:
+        """Track module/global stores that can change guarded importer resolution."""
+        if (
+            name not in _DYNAMIC_IMPORT_GUARDED_ROOTS
+            and name not in self._observed_importer_binding_names
+            and not (_is_guarded_importer_binding(prior) or _is_guarded_importer_binding(value))
+        ):
+            return
+        if prior != value and _is_guarded_importer_binding(prior):
+            self._importer_binding_mutations[name] = (
+                self._importer_binding_mutations.get(name, 0) + 1
+            )
+        self._observed_importer_binding_names.add(name)
+        self._importer_binding_revisions[name] = self._importer_binding_revisions.get(name, 0) + 1
 
     def _register_deferred_scope_effects(
         self,
@@ -4388,7 +5299,9 @@ class _DynamicImportSourceScanner:
         for name in global_writes:
             module_value = self._module_environment.get(name, self._unknown_binding(name))
             if _dynamic_type_checking_kind(module_value) is not None:
-                self._module_environment[name] = self._unknown_binding(name)
+                unknown = self._unknown_binding(name)
+                self._note_importer_binding_write(name, module_value, unknown)
+                self._module_environment[name] = unknown
                 if scope_info is self._module_scope_info or name in scope_info.get(
                     "globals", set()
                 ):
@@ -4586,10 +5499,22 @@ class _DynamicImportSourceScanner:
         scope_info: Mapping[str, set[str]],
         *,
         comprehension_outer: dict[str, _DynamicImportBinding] | None = None,
+        awaited: bool = False,
     ) -> _DynamicImportBinding:
+        if isinstance(node, ast.Await):
+            return self._expression_binding(
+                node.value,
+                environment,
+                pending,
+                scope_info,
+                comprehension_outer=comprehension_outer,
+                awaited=isinstance(node.value, ast.Call),
+            )
         if isinstance(node, ast.Constant):
             if isinstance(node.value, str):
                 return _dynamic_string_binding(node.value)
+            if node.value is None:
+                return _DYNAMIC_NONE
             if type(node.value) is int:
                 return replace(
                     _DYNAMIC_BUILTIN_INT,
@@ -4675,6 +5600,21 @@ class _DynamicImportSourceScanner:
             if isinstance(node.op, ast.Div) and left.kind == "pathlib_path":
                 if right.kind in {"string", "builtin_str", "pathlib_path"}:
                     return _dynamic_join_with_guarded_origin(operands, _DYNAMIC_PATH)
+            if (
+                isinstance(node.op, ast.Add)
+                and left.kind == right.kind == "sequence"
+                and left.sequence_type is not None
+                and left.sequence_type == right.sequence_type
+            ):
+                if left.items is None or right.items is None:
+                    return _dynamic_join_with_guarded_origin(operands, _DYNAMIC_UNKNOWN)
+                if len(left.items) + len(right.items) > _DYNAMIC_COMPREHENSION_VALUE_LIMIT:
+                    return _dynamic_join_with_guarded_origin(operands, _DYNAMIC_UNKNOWN)
+                combined = _dynamic_sequence_binding(
+                    (*left.items, *right.items),
+                    sequence_type=left.sequence_type,
+                )
+                return _dynamic_join_with_guarded_origin(operands, combined)
             if isinstance(node.op, ast.Add) and left.kind == right.kind == "string":
                 if left.name is not None and right.name is not None:
                     combined = left.name + right.name
@@ -4732,6 +5672,31 @@ class _DynamicImportSourceScanner:
                     else _DYNAMIC_BUILTIN_STR
                 )
                 return _dynamic_join_with_guarded_origin(operands, result)
+            if (
+                any(binding.kind == "unknown" for binding in operands)
+                and not any(binding.guarded or binding.kind == "ambiguous" for binding in operands)
+                and all(
+                    binding.kind
+                    in {
+                        "unknown",
+                        "string",
+                        "boolean",
+                        "none",
+                        "builtin_int",
+                        "builtin_float",
+                        "builtin_bytes",
+                        "builtin_str",
+                        "type",
+                    }
+                    for binding in operands
+                )
+            ):
+                # A declaration-only scan has no call-site value for an ordinary
+                # parameter. Preserve that absence as unknown; source-method
+                # summaries re-evaluate the operator with the actual receiver and
+                # arguments. Known importer provenance and custom object operands
+                # remain ambiguous above.
+                return _DYNAMIC_UNKNOWN
             return _dynamic_join_with_guarded_origin(operands, _DYNAMIC_AMBIGUOUS)
         if isinstance(node, ast.Name):
             return self._lookup(node.id, environment)
@@ -4763,17 +5728,33 @@ class _DynamicImportSourceScanner:
                 and base.origin_name is not None
                 and base.origin_name.startswith("polisyos.")
             ):
-                source_method_result = self.source_bindings.source_method_return_binding(
+                source_property_result = self.source_bindings.source_property_return_binding(
                     base.origin_name,
                     node.attr,
+                    base,
                 )
-                if source_method_result is not None:
+                if source_property_result is not None:
+                    return _dynamic_join_with_guarded_origin((base,), source_property_result)
+                if self.source_bindings.source_method_definition(base.origin_name, node.attr):
                     return _DynamicImportBinding(
                         "callable",
                         f"source-method:{base.origin_name}::{node.attr}",
                         guarded=base.guarded,
                         receiver=base,
                     )
+            if (
+                self.source_bindings is not None
+                and base.kind == "other"
+                and base.origin_name is not None
+                and base.origin_name.startswith("polisyos.")
+                and node.attr == "model_validate"
+            ):
+                if self.source_bindings._source_pydantic_root_model_string(base.origin_name):
+                    return _DynamicImportBinding(
+                        "callable",
+                        f"source-model-validate:{base.origin_name}",
+                    )
+                return _DYNAMIC_AMBIGUOUS
             if (
                 self.source_bindings is not None
                 and self.module_name is not None
@@ -4905,6 +5886,13 @@ class _DynamicImportSourceScanner:
                 kind=kind,
                 guarded=guarded,
                 component_names=component_names,
+                sequence_type=(
+                    "tuple"
+                    if isinstance(node, ast.Tuple)
+                    else "list"
+                    if isinstance(node, ast.List)
+                    else None
+                ),
             )
             if isinstance(node, ast.Tuple) and shape_known:
                 literal_items: list[object] = []
@@ -5006,14 +5994,26 @@ class _DynamicImportSourceScanner:
                 and callee.name is not None
                 and callee.name.startswith("source-method:")
             )
-            if source_method_call:
-                # A typed method invocation is an ordinary receiver operation;
-                # its arguments still cross a call boundary and may invalidate
-                # any source-class summaries they carry.
-                self._invalidate_source_class_effects(argument_bindings)
-            else:
+            if not source_method_call:
                 self._invalidate_source_class_effects(call_values)
             self._record_call(node, callee, argument_bindings)
+            source_function_result = self._source_function_call(
+                node,
+                callee,
+                argument_bindings,
+                environment,
+                scope_info,
+                awaited=awaited,
+            )
+            if source_function_result is not None:
+                return source_function_result
+            if callee.kind in {"other", "unknown"}:
+                self._remember_unmodeled_temporal_invocation(
+                    node,
+                    environment,
+                    scope_info,
+                    "unmodeled call",
+                )
             if (
                 callee.kind == "other"
                 and callee.origin_name is not None
@@ -5087,9 +6087,30 @@ class _DynamicImportSourceScanner:
                         is not None
                     ):
                         guarded_constructor_input = any(
-                            binding.guarded or binding.kind in {"unknown", "ambiguous"}
+                            binding.guarded or binding.kind == "ambiguous"
                             for binding in argument_bindings
                         )
+                        source_class_symbol = callee.origin_name.rpartition(".")[2]
+                        is_source_constructor = isinstance(node.func, ast.Name) or (
+                            isinstance(node.func, ast.Attribute)
+                            and node.func.attr == source_class_symbol
+                        )
+                        if (
+                            is_source_constructor
+                            and not guarded_constructor_input
+                            and all(keyword.arg is not None for keyword in node.keywords)
+                            and len(argument_bindings) == len(node.args) + len(node.keywords)
+                        ):
+                            return _DynamicImportBinding(
+                                "object",
+                                callee.origin_name,
+                                origin_name=callee.origin_name,
+                                source_arguments=tuple(argument_bindings),
+                                source_keyword_names=(
+                                    *((None,) * len(node.args)),
+                                    *(keyword.arg for keyword in node.keywords),
+                                ),
+                            )
                         return _DynamicImportBinding(
                             "object",
                             callee.origin_name,
@@ -5106,12 +6127,101 @@ class _DynamicImportSourceScanner:
                     return _DYNAMIC_AMBIGUOUS
                 for binding in argument_bindings:
                     self._reject_guarded_escape(binding, node, "a source method argument")
-                result = self.source_bindings.source_method_return_binding(source_name, method_name)
-                if result is None:
+                transfer = self.source_bindings.source_method_return_binding(
+                    source_name,
+                    method_name,
+                    receiver=receiver,
+                    call_node=node,
+                    argument_bindings=argument_bindings,
+                    required_fields=(
+                        self._source_summary_fields
+                        if (
+                            self._source_instance_summary
+                            and self._source_summary_fields is not None
+                            and self._source_summary_stack
+                            and receiver.origin_name == self._source_summary_stack[-1][0]
+                        )
+                        else None
+                    ),
+                    summary_stack=self._source_summary_stack,
+                )
+                if transfer is None:
                     return _DYNAMIC_AMBIGUOUS
+                if isinstance(transfer, tuple):
+                    result, updated_receiver = transfer
+                else:
+                    result, updated_receiver = transfer, receiver
+                if isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name):
+                    environment[node.func.value.id] = updated_receiver
                 resolved = _dynamic_join_with_guarded_origin((receiver, *argument_bindings), result)
-                self._invalidate_source_class_effects((receiver,))
+                if not self._source_instance_summary:
+                    self._invalidate_source_class_effects((*argument_bindings, receiver))
                 return resolved
+            if (
+                callee.kind == "callable"
+                and callee.name is not None
+                and callee.name.startswith("source-model-validate:")
+                and self.source_bindings is not None
+            ):
+                source_name = callee.name.removeprefix("source-model-validate:")
+                if (
+                    len(node.args) != 1
+                    or node.keywords
+                    or isinstance(node.args[0], ast.Starred)
+                    or len(argument_bindings) != 1
+                ):
+                    return _DYNAMIC_AMBIGUOUS
+                instance = self.source_bindings._source_pydantic_root_model_instance(source_name)
+                return instance if instance is not None else _DYNAMIC_AMBIGUOUS
+            if (
+                callee.kind == "callable"
+                and callee.name == "builtins.str.split"
+                and callee.receiver is not None
+            ):
+                if (
+                    callee.receiver.kind not in {"string", "builtin_str"}
+                    or callee.receiver.guarded
+                    or callee.receiver.kind == "ambiguous"
+                    or len(node.args) > 2
+                    or any(isinstance(argument, ast.Starred) for argument in node.args)
+                    or any(keyword.arg is None for keyword in node.keywords)
+                ):
+                    return _DYNAMIC_AMBIGUOUS
+                keyword_names = [keyword.arg for keyword in node.keywords]
+                if len(keyword_names) != len(set(keyword_names)) or any(
+                    name not in {"sep", "maxsplit"} for name in keyword_names
+                ):
+                    return _DYNAMIC_AMBIGUOUS
+                positional = argument_bindings[: len(node.args)]
+                keyword_values = argument_bindings[len(node.args) :]
+                if len(positional) != len(node.args) or len(keyword_values) != len(node.keywords):
+                    return _DYNAMIC_AMBIGUOUS
+                supplied: dict[str, _DynamicImportBinding] = {}
+                if positional:
+                    supplied["sep"] = positional[0]
+                if len(positional) > 1:
+                    supplied["maxsplit"] = positional[1]
+                for keyword, value in zip(node.keywords, keyword_values, strict=True):
+                    if keyword.arg in supplied:
+                        return _DYNAMIC_AMBIGUOUS
+                    supplied[str(keyword.arg)] = value
+                separator = supplied.get("sep")
+                maxsplit = supplied.get("maxsplit")
+                if separator is not None and separator.kind not in {
+                    "string",
+                    "builtin_str",
+                    "none",
+                }:
+                    return _DYNAMIC_AMBIGUOUS
+                if maxsplit is not None and maxsplit.kind != "builtin_int":
+                    return _DYNAMIC_AMBIGUOUS
+                if any(value.guarded or value.kind == "ambiguous" for value in supplied.values()):
+                    return _DYNAMIC_AMBIGUOUS
+                return _DynamicImportBinding(
+                    "sequence",
+                    "builtins.str.split",
+                    element=_DYNAMIC_BUILTIN_STR,
+                )
             if callee.kind == "callable" and callee.name == "pathlib.Path":
                 if any(keyword.arg is None for keyword in node.keywords):
                     return _DYNAMIC_AMBIGUOUS
@@ -5397,7 +6507,15 @@ class _DynamicImportSourceScanner:
                     if constructor == "sorted":
                         return _DYNAMIC_UNKNOWN
                     return _dynamic_sequence_binding(
-                        (), kind="iterable" if constructor in {"set", "frozenset"} else "sequence"
+                        (),
+                        kind="iterable" if constructor in {"set", "frozenset"} else "sequence",
+                        sequence_type=(
+                            constructor
+                            if constructor in {"list", "tuple"}
+                            else "list"
+                            if constructor == "sorted"
+                            else None
+                        ),
                     )
                 iterable = argument_bindings[0]
                 if iterable.kind in {"mapping", "namespace"}:
@@ -5413,6 +6531,13 @@ class _DynamicImportSourceScanner:
                     result = _dynamic_sequence_binding(
                         items,
                         kind="iterable" if constructor in {"set", "frozenset"} else "sequence",
+                        sequence_type=(
+                            constructor
+                            if constructor in {"list", "tuple"}
+                            else "list"
+                            if constructor == "sorted"
+                            else None
+                        ),
                     )
                     return _dynamic_join_with_guarded_origin(
                         (iterable,),
@@ -5559,6 +6684,28 @@ class _DynamicImportSourceScanner:
                 scope_info,
                 comprehension_outer=comprehension_outer,
             )
+            if mapping.kind in {"string", "builtin_str"}:
+                if isinstance(node.slice, ast.Slice):
+                    index_bindings = tuple(
+                        self._expression_binding(
+                            index,
+                            environment,
+                            pending,
+                            scope_info,
+                            comprehension_outer=comprehension_outer,
+                        )
+                        for index in (node.slice.lower, node.slice.upper, node.slice.step)
+                        if index is not None
+                    )
+                    if any(binding.kind != "builtin_int" for binding in index_bindings):
+                        return _DYNAMIC_AMBIGUOUS
+                    return _dynamic_join_with_guarded_origin(
+                        (mapping, *index_bindings),
+                        _DYNAMIC_BUILTIN_STR,
+                    )
+                elif key.kind != "builtin_int":
+                    return _DYNAMIC_AMBIGUOUS
+                return _dynamic_join_with_guarded_origin((mapping, key), _DYNAMIC_BUILTIN_STR)
             if mapping.kind in {"sequence", "iterable"} and mapping.element is not None:
                 if key.kind != "builtin_int":
                     return _DYNAMIC_AMBIGUOUS
@@ -5610,7 +6757,13 @@ class _DynamicImportSourceScanner:
                 if expression is not None:
                     binding = self._expression_binding(expression, environment, pending, scope_info)
                     self._reject_guarded_escape(binding, expression, "a lambda default")
-            pending.append(_PendingDynamicImportScope(node, environment.copy()))
+            pending.append(
+                _PendingDynamicImportScope(
+                    node,
+                    environment.copy(),
+                    dict(self._importer_binding_mutations),
+                )
+            )
             return _DYNAMIC_OTHER
         if isinstance(node, (ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)):
             return self._scan_comprehension(node, environment, pending, scope_info)
@@ -5843,6 +6996,7 @@ class _DynamicImportSourceScanner:
                 None,
                 kind="iterable" if isinstance(node, ast.SetComp) else "sequence",
                 guarded=element.guarded or element.kind == "ambiguous",
+                sequence_type="list" if isinstance(node, ast.ListComp) else None,
             )
 
     def _filter_comprehension_values(
@@ -5879,6 +7033,11 @@ class _DynamicImportSourceScanner:
     ) -> bool | None:
         if isinstance(node, ast.Constant) and isinstance(node.value, bool):
             return node.value
+        if isinstance(node, ast.Name):
+            binding = environment.get(node.id)
+            if binding is not None and binding.kind == "boolean":
+                return binding.boolean
+            return None
         if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
             value = self._known_comprehension_condition(node.operand, environment)
             return None if value is None else not value
@@ -6163,9 +7322,22 @@ class _DynamicImportSourceScanner:
                 else value
             )
             self._bind_name(target.id, assigned, environment, scope_info)
+            if (
+                self._active_module_function_stack
+                and self._active_module_environment is not None
+                and target.id in scope_info.get("globals", set())
+            ):
+                self._active_module_environment[target.id] = environment[target.id]
             return
         if isinstance(target, (ast.Tuple, ast.List)):
             items = value.items if value.kind in {"sequence", "mapping"} else None
+            if (
+                items is None
+                and value.kind == "sequence"
+                and value.element is not None
+                and not any(isinstance(element, ast.Starred) for element in target.elts)
+            ):
+                items = (value.element,) * len(target.elts)
             if value.kind == "union" and value.items is not None:
                 alternatives = value.items
                 if all(item.kind == "sequence" and item.items is not None for item in alternatives):
@@ -6241,6 +7413,27 @@ class _DynamicImportSourceScanner:
         if isinstance(target, ast.Attribute):
             self._reject_guarded_escape(value, target, "attribute storage")
             receiver = self._expression_binding(target.value, environment, pending, scope_info)
+            if (
+                self._source_instance_summary
+                and isinstance(target.value, ast.Name)
+                and (target.value.id == "self")
+            ):
+                current = environment.get("self")
+                if (
+                    current is not None
+                    and current.kind == "object"
+                    and current.origin_name is not None
+                    and current.origin_name.startswith("polisyos.")
+                ):
+                    if (
+                        self._source_summary_fields is not None
+                        and target.attr not in self._source_summary_fields
+                    ):
+                        return
+                    updated = _dynamic_source_object_field(current, target.attr, value)
+                    if updated.kind == "object":
+                        environment["self"] = updated
+                        return
             self._invalidate_source_class_effects((receiver, value))
             return
         if isinstance(target, ast.Subscript):
@@ -6289,6 +7482,245 @@ class _DynamicImportSourceScanner:
                     f"{self.relative_path}:{line}: cross-scope write changes guarded importer binding {name!r}"
                 )
 
+    def _source_function_call(
+        self,
+        node: ast.Call,
+        callee: _DynamicImportBinding,
+        argument_bindings: Sequence[_DynamicImportBinding],
+        environment: dict[str, _DynamicImportBinding],
+        scope_info: Mapping[str, set[str]],
+        *,
+        awaited: bool,
+    ) -> _DynamicImportBinding | None:
+        """Interpret a resolved same-module function call with its call-time globals."""
+        alternatives = (
+            callee.items
+            if callee.kind == "union" and callee.items is not None
+            else (callee,)
+            if callee.kind == "source_function"
+            else ()
+        )
+        function_bindings = tuple(
+            binding for binding in alternatives if binding.kind == "source_function"
+        )
+        if not function_bindings:
+            return None
+        if scope_info is not self._module_scope_info and not self._active_module_function_stack:
+            return None
+        if len(function_bindings) != len(alternatives):
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}:{node.lineno}: module-time local function target is ambiguous"
+            )
+        identities = {binding.origin_name for binding in function_bindings}
+        if len(identities) != 1 or None in identities:
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}:{node.lineno}: module-time local function target is unresolved"
+            )
+        identity = next(iter(identities))
+        summary = self._module_function_summaries.get(identity)
+        if summary is None:
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}:{node.lineno}: module-time function summary is unavailable"
+            )
+        function = summary.node
+        if isinstance(function, ast.AsyncFunctionDef):
+            if awaited:
+                raise DynamicImportCollectionError(
+                    f"{self.relative_path}:{node.lineno}: awaited local async function timing is unresolved"
+                )
+            return _DYNAMIC_OTHER
+        if function.decorator_list:
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}:{node.lineno}: decorated local function call timing is unresolved"
+            )
+        parameter_bindings = self._source_function_parameter_bindings(
+            function,
+            node,
+            argument_bindings,
+            summary.defaults,
+        )
+        if parameter_bindings is None:
+            # A proven wrong arity or duplicate argument raises before the body runs.
+            return _DYNAMIC_OTHER
+        if identity in self._active_module_function_stack:
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}:{node.lineno}: recursive module-time function call is unresolved"
+            )
+        if len(self._active_module_function_stack) >= 24:
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}:{node.lineno}: module-time function call depth exceeds the bounded summary limit"
+            )
+
+        outermost = not self._active_module_function_stack
+        if outermost:
+            self._active_module_environment = environment
+        module_environment = self._active_module_environment
+        if module_environment is None:
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}:{node.lineno}: module-time namespace snapshot is unavailable"
+            )
+        returned: list[_DynamicImportBinding] = []
+        self._active_module_function_stack.append(identity)
+        try:
+            self._scan_function(
+                function,
+                {},
+                module_environment,
+                return_bindings=returned,
+                parameter_bindings=parameter_bindings,
+            )
+            if not _dynamic_function_has_unmodeled_implicit_dispatch(function, module_environment):
+                self._module_time_proven_scope_ids.add(id(function))
+        finally:
+            self._active_module_function_stack.pop()
+            if outermost:
+                self._active_module_environment = None
+        return _join_dynamic_bindings(returned or (_DYNAMIC_NONE,))
+
+    def _remember_unmodeled_temporal_invocation(
+        self,
+        node: ast.AST,
+        environment: Mapping[str, _DynamicImportBinding],
+        scope_info: Mapping[str, set[str]],
+        label: str,
+    ) -> None:
+        """Retain namespace evidence for a module-time call the scanner cannot transfer."""
+        if not (self._module_execution_active or self._active_module_function_stack):
+            return
+        if self._active_module_function_stack and self._active_module_environment is not None:
+            module_environment = self._active_module_environment
+        elif scope_info is self._module_scope_info:
+            module_environment = environment
+        else:
+            # Class bodies execute during module initialization but have their own namespace.
+            # Method bodies resolve importer globals in the module namespace.
+            module_environment = self._module_environment
+        self._pending_temporal_invocations.append(
+            (
+                node,
+                dict(module_environment),
+                dict(self._importer_binding_revisions),
+                label,
+            )
+        )
+
+    def _raise_for_unproven_temporal_invocations(
+        self,
+        final_environment: Mapping[str, _DynamicImportBinding],
+        pending_scopes: Sequence[_PendingDynamicImportScope],
+    ) -> None:
+        """Fail closed when importer mutation crosses deferred or unmodeled execution."""
+        for deferred in pending_scopes:
+            if id(deferred.node) in self._module_time_proven_scope_ids:
+                continue
+            mutated: list[str] = []
+            relevant_names = self._observed_importer_binding_names | _DYNAMIC_IMPORT_GUARDED_ROOTS
+            for name in relevant_names:
+                mutation_count_at_definition = deferred.importer_binding_mutations.get(name, 0)
+                if self._importer_binding_mutations.get(name, 0) <= mutation_count_at_definition:
+                    continue
+                if name in self._observed_importer_binding_names or _is_guarded_importer_binding(
+                    deferred.environment_at_definition.get(name, self._unknown_binding(name))
+                ):
+                    mutated.append(name)
+            if mutated:
+                names = ", ".join(sorted(mutated))
+                raise DynamicImportCollectionError(
+                    f"{self.relative_path}:{getattr(deferred.node, 'lineno', 1)}: deferred source "
+                    f"effects cross a proven importer rebind ({names}); inventory is incomplete"
+                )
+        relevant_names = self._observed_importer_binding_names | {
+            name
+            for name in _DYNAMIC_IMPORT_GUARDED_ROOTS
+            if name in final_environment
+            or any(
+                name in call_environment
+                for _, call_environment, _, _ in self._pending_temporal_invocations
+            )
+        }
+        for node, call_environment, revisions_at_call, label in self._pending_temporal_invocations:
+            changed: list[str] = []
+            unresolved: list[str] = []
+            for name in sorted(relevant_names):
+                before = call_environment.get(name, self._unknown_binding(name))
+                after = final_environment.get(name, self._unknown_binding(name))
+                revision_changed = self._importer_binding_revisions.get(
+                    name, 0
+                ) != revisions_at_call.get(name, 0)
+                if revision_changed or before != after:
+                    changed.append(name)
+                elif before.kind in {"unknown", "ambiguous"} and (
+                    name in _DYNAMIC_IMPORT_GUARDED_ROOTS
+                    or name in self._observed_importer_binding_names
+                ):
+                    unresolved.append(name)
+            if changed or unresolved:
+                names = sorted(set(changed + unresolved))
+                detail = ", ".join(names) if names else "an unresolved guarded importer"
+                raise DynamicImportCollectionError(
+                    f"{self.relative_path}:{getattr(node, 'lineno', 1)}: {label} has an "
+                    f"unproven module-time dynamic-import namespace ({detail}); inventory is incomplete"
+                )
+
+    def _source_function_parameter_bindings(
+        self,
+        function: ast.FunctionDef,
+        call_node: ast.Call,
+        argument_bindings: Sequence[_DynamicImportBinding],
+        defaults: Mapping[str, _DynamicImportBinding],
+    ) -> dict[str, _DynamicImportBinding] | None:
+        """Bind fixed positional and named parameters without executing Python code."""
+        if function.args.vararg is not None or function.args.kwarg is not None:
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}:{call_node.lineno}: variadic local function call is unresolved"
+            )
+        if any(isinstance(argument, ast.Starred) for argument in call_node.args) or any(
+            keyword.arg is None for keyword in call_node.keywords
+        ):
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}:{call_node.lineno}: expanded local function arguments are unresolved"
+            )
+
+        positional_parameters = (*function.args.posonlyargs, *function.args.args)
+        keyword_only_parameters = function.args.kwonlyargs
+        if len(call_node.args) > len(positional_parameters):
+            return None
+        if len(argument_bindings) != len(call_node.args) + len(call_node.keywords):
+            raise DynamicImportCollectionError(
+                f"{self.relative_path}:{call_node.lineno}: local function arguments are not source-bound"
+            )
+
+        bound: dict[str, _DynamicImportBinding] = {
+            parameter.arg: value
+            for parameter, value in zip(
+                positional_parameters,
+                argument_bindings[: len(call_node.args)],
+                strict=False,
+            )
+        }
+        positional_only = {parameter.arg for parameter in function.args.posonlyargs}
+        keyword_parameters = {
+            parameter.arg for parameter in (*function.args.args, *keyword_only_parameters)
+        }
+        for keyword, value in zip(
+            call_node.keywords,
+            argument_bindings[len(call_node.args) :],
+            strict=True,
+        ):
+            name = keyword.arg
+            if name in positional_only or name not in keyword_parameters or name in bound:
+                return None
+            bound[name] = value
+
+        for parameter in (*positional_parameters, *keyword_only_parameters):
+            if parameter.arg in bound:
+                continue
+            default = defaults.get(parameter.arg)
+            if default is None:
+                return None
+            bound[parameter.arg] = default
+        return bound
+
     def _record_call(
         self,
         node: ast.Call,
@@ -6333,21 +7765,27 @@ class _DynamicImportSourceScanner:
             first_argument_binding=first_argument_binding,
         )
         identity = f"{self.relative_path}:{node.lineno}:{resolved_call}:{pattern}"
-        self.entries.append(
-            {
-                "id": f"dynamic-{_sha(identity)}",
-                "pattern": pattern,
-                "source_file": self.relative_path,
-                "line": node.lineno,
-                "call": resolved_call,
-                "owner": _owner_for_path(self.source_path, relative_path=self.relative_path),
-                "target": pattern,
-                "verifier": "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports",
-                "allowed_targets": allowed_targets,
-                "notes": _dynamic_notes(self.relative_path, pattern, allowed_targets),
-            }
-        )
-        self.sink_sites.append(_DynamicImportSite(node=node, call_name=resolved_call))
+        entry_id = f"dynamic-{_sha(identity)}"
+        if entry_id not in self._recorded_entry_ids:
+            self._recorded_entry_ids.add(entry_id)
+            self.entries.append(
+                {
+                    "id": entry_id,
+                    "pattern": pattern,
+                    "source_file": self.relative_path,
+                    "line": node.lineno,
+                    "call": resolved_call,
+                    "owner": _owner_for_path(self.source_path, relative_path=self.relative_path),
+                    "target": pattern,
+                    "verifier": "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports",
+                    "allowed_targets": allowed_targets,
+                    "notes": _dynamic_notes(self.relative_path, pattern, allowed_targets),
+                }
+            )
+        site_identity = (id(node), resolved_call)
+        if site_identity not in self._recorded_sink_sites:
+            self._recorded_sink_sites.add(site_identity)
+            self.sink_sites.append(_DynamicImportSite(node=node, call_name=resolved_call))
 
     def _import_binding(
         self, module: str, name: str | None, bound_name: str
@@ -6419,13 +7857,25 @@ class _DynamicImportSourceScanner:
             for expression in node.decorator_list:
                 binding = self._expression_binding(expression, environment, pending, scope_info)
                 self._reject_guarded_escape(binding, expression, "a function decorator")
-            for expression in node.args.defaults:
+                self._remember_unmodeled_temporal_invocation(
+                    node, environment, scope_info, "implicit function decorator application"
+                )
+            defaults: dict[str, _DynamicImportBinding] = {}
+            positional_parameters = (*node.args.posonlyargs, *node.args.args)
+            default_offset = len(positional_parameters) - len(node.args.defaults)
+            for index, expression in enumerate(node.args.defaults):
                 binding = self._expression_binding(expression, environment, pending, scope_info)
                 self._reject_guarded_escape(binding, expression, "a function default")
-            for expression in node.args.kw_defaults:
+                defaults[positional_parameters[default_offset + index].arg] = binding
+            for argument, expression in zip(
+                node.args.kwonlyargs,
+                node.args.kw_defaults,
+                strict=True,
+            ):
                 if expression is not None:
                     binding = self._expression_binding(expression, environment, pending, scope_info)
                     self._reject_guarded_escape(binding, expression, "a function default")
+                    defaults[argument.arg] = binding
             for argument in (
                 *node.args.posonlyargs,
                 *node.args.args,
@@ -6449,15 +7899,39 @@ class _DynamicImportSourceScanner:
                     scope_info,
                     "a function annotation",
                 )
-            environment[node.name] = _DYNAMIC_OTHER
-            pending.append(_PendingDynamicImportScope(node, environment.copy()))
+            if scope_info is self._module_scope_info:
+                identity = f"{self.relative_path}:{node.lineno}:{node.col_offset}"
+                self._module_function_summaries[identity] = _DynamicImportFunctionSummary(
+                    node=node,
+                    defaults=defaults,
+                )
+                environment[node.name] = _DynamicImportBinding(
+                    "source_function",
+                    name=node.name,
+                    origin_name=identity,
+                )
+            else:
+                environment[node.name] = _DYNAMIC_OTHER
+            pending.append(
+                _PendingDynamicImportScope(
+                    node,
+                    environment.copy(),
+                    dict(self._importer_binding_mutations),
+                )
+            )
             return environment
         if isinstance(node, ast.ClassDef):
             global_writes, nonlocal_writes = _dynamic_scope_cross_writes(node)
             self._register_deferred_scope_effects(
                 global_writes, nonlocal_writes, environment, scope_info, closure_env
             )
-            for expression in (*node.decorator_list, *node.bases):
+            for expression in node.decorator_list:
+                binding = self._expression_binding(expression, environment, pending, scope_info)
+                self._reject_guarded_escape(binding, expression, "a class decorator")
+                self._remember_unmodeled_temporal_invocation(
+                    node, environment, scope_info, "implicit class decorator application"
+                )
+            for expression in node.bases:
                 binding = self._expression_binding(expression, environment, pending, scope_info)
                 self._reject_guarded_escape(binding, expression, "a class definition")
             for keyword in node.keywords:
@@ -6475,7 +7949,22 @@ class _DynamicImportSourceScanner:
                 )
             else:
                 environment[node.name] = _DYNAMIC_OTHER
-            pending.append(_PendingDynamicImportScope(node, environment.copy()))
+            eager_calls = _DefinitionTimeCallVisitor(future_annotations=self.future_annotations)
+            eager_calls.visit(node)
+            if eager_calls.found_call:
+                self._remember_unmodeled_temporal_invocation(
+                    node,
+                    environment,
+                    scope_info,
+                    "a deferred definition-time source scope",
+                )
+            pending.append(
+                _PendingDynamicImportScope(
+                    node,
+                    environment.copy(),
+                    dict(self._importer_binding_mutations),
+                )
+            )
             return environment
         if isinstance(node, ast.Import):
             for alias in node.names:
@@ -6503,7 +7992,11 @@ class _DynamicImportSourceScanner:
                     if value.guarded:
                         environment[name] = _DYNAMIC_AMBIGUOUS
                 for name in _DYNAMIC_IMPORT_GUARDED_ROOTS:
-                    environment[name] = self._unknown_binding(name)
+                    unknown = self._unknown_binding(name)
+                    self._note_importer_binding_write(
+                        name, environment.get(name, self._unknown_binding(name)), unknown
+                    )
+                    environment[name] = unknown
                 return environment
             module = ("." * node.level) + (node.module or "")
             for alias in node.names:
@@ -6525,6 +8018,18 @@ class _DynamicImportSourceScanner:
                 )
             return environment
         if isinstance(node, ast.Assign):
+            if (
+                self._source_instance_summary
+                and self._source_summary_fields is not None
+                and all(
+                    isinstance(target, ast.Attribute)
+                    and isinstance(target.value, ast.Name)
+                    and target.value.id == "self"
+                    and target.attr not in self._source_summary_fields
+                    for target in node.targets
+                )
+            ):
+                return environment
             value = self._expression_binding(node.value, environment, pending, scope_info)
             for target in node.targets:
                 self._check_cross_scope_write(target, value, environment, scope_info, node.lineno)
@@ -6534,6 +8039,15 @@ class _DynamicImportSourceScanner:
             self._check_annotation(
                 node.annotation, environment, pending, scope_info, "an annotation"
             )
+            if (
+                self._source_instance_summary
+                and self._source_summary_fields is not None
+                and isinstance(node.target, ast.Attribute)
+                and isinstance(node.target.value, ast.Name)
+                and node.target.value.id == "self"
+                and node.target.attr not in self._source_summary_fields
+            ):
+                return environment
             value = (
                 self._expression_binding(node.value, environment, pending, scope_info)
                 if node.value is not None
@@ -6546,7 +8060,13 @@ class _DynamicImportSourceScanner:
             value = self._expression_binding(node.value, environment, pending, scope_info)
             self._reject_guarded_escape(value, node.value, "a type alias")
             self._assign_target(node.name, _DYNAMIC_OTHER, environment, pending, scope_info)
-            pending.append(_PendingDynamicImportScope(node, environment.copy()))
+            pending.append(
+                _PendingDynamicImportScope(
+                    node,
+                    environment.copy(),
+                    dict(self._importer_binding_mutations),
+                )
+            )
             return environment
         if isinstance(node, ast.NamedExpr):
             value = self._expression_binding(node.value, environment, pending, scope_info)
@@ -6574,17 +8094,54 @@ class _DynamicImportSourceScanner:
                         scope_info,
                         node.lineno,
                     )
-                    environment[target.id] = self._unknown_binding(target.id)
+                    unknown = self._unknown_binding(target.id)
+                    if scope_info is self._module_scope_info or target.id in scope_info.get(
+                        "globals", set()
+                    ):
+                        self._note_importer_binding_write(
+                            target.id,
+                            environment.get(target.id, self._unknown_binding(target.id)),
+                            unknown,
+                        )
+                    environment[target.id] = unknown
+                    if (
+                        self._active_module_function_stack
+                        and self._active_module_environment is not None
+                        and target.id in scope_info.get("globals", set())
+                    ):
+                        self._active_module_environment[target.id] = environment[target.id]
                 else:
                     self._assign_target(target, _DYNAMIC_OTHER, environment, pending, scope_info)
             return environment
         if isinstance(node, ast.If):
+            if (
+                self._source_instance_summary
+                and self._source_summary_fields is not None
+                and self.source_bindings is not None
+                and not self.source_bindings._summary_block_writes_relevant(
+                    (*node.body, *node.orelse),
+                    self._source_summary_fields,
+                    self._source_summary_locals,
+                )
+            ):
+                return environment
             self._expression_binding(node.test, environment, pending, scope_info)
             runtime_type_checking_branch = _type_checking_runtime_branch(
                 node.test, bindings=self._type_checking_bindings(environment)
             )
             if runtime_type_checking_branch is not None:
                 selected = node.body if runtime_type_checking_branch else node.orelse
+                return self._scan_statements(
+                    selected,
+                    environment,
+                    local_names,
+                    scope_info,
+                    pending,
+                    closure_env,
+                )
+            known_branch = self._known_comprehension_condition(node.test, environment)
+            if known_branch is not None:
+                selected = node.body if known_branch else node.orelse
                 return self._scan_statements(
                     selected,
                     environment,
@@ -6950,6 +8507,8 @@ class _DynamicImportSourceScanner:
         *,
         type_parameter_environment: Mapping[str, _DynamicImportBinding] | None = None,
         return_bindings: list[_DynamicImportBinding] | None = None,
+        parameter_bindings: Mapping[str, _DynamicImportBinding] | None = None,
+        final_environments: list[dict[str, _DynamicImportBinding]] | None = None,
     ) -> None:
         body_nodes = [] if isinstance(node, ast.Lambda) else node.body
         local_names, global_names, nonlocal_names = _scope_local_bindings(body_nodes)
@@ -6981,7 +8540,36 @@ class _DynamicImportSourceScanner:
             *((node.args.vararg,) if node.args.vararg else ()),
             *((node.args.kwarg,) if node.args.kwarg else ()),
         ):
-            environment[argument.arg] = self._unknown_binding(argument.arg)
+            if parameter_bindings is not None and argument.arg in parameter_bindings:
+                environment[argument.arg] = parameter_bindings[argument.arg]
+            else:
+                environment[argument.arg] = self._unknown_binding(argument.arg)
+        if self._source_instance_summary and not isinstance(node, ast.Lambda):
+            positional = (*node.args.posonlyargs, *node.args.args)
+            default_offset = len(positional) - len(node.args.defaults)
+            for index, default in enumerate(node.args.defaults):
+                argument = positional[default_offset + index]
+                if parameter_bindings is None or argument.arg not in parameter_bindings:
+                    environment[argument.arg] = self._expression_binding(
+                        default,
+                        dict(module_env),
+                        pending,
+                        scope_info,
+                    )
+            for argument, default in zip(
+                node.args.kwonlyargs,
+                node.args.kw_defaults,
+                strict=True,
+            ):
+                if default is not None and (
+                    parameter_bindings is None or argument.arg not in parameter_bindings
+                ):
+                    environment[argument.arg] = self._expression_binding(
+                        default,
+                        dict(module_env),
+                        pending,
+                        scope_info,
+                    )
         if return_bindings is not None:
             self._active_function_returns.append(return_bindings)
         try:
@@ -7010,6 +8598,8 @@ class _DynamicImportSourceScanner:
         finally:
             if return_bindings is not None:
                 self._active_function_returns.pop()
+        if final_environments is not None:
+            final_environments.append(final_env)
         for deferred in pending:
             scope = deferred.node
             child_parent = self._join_environments(

@@ -1,0 +1,22 @@
+id = "2026-10-23-e02-ir-owner-compatibility-registry"
+title = "Resolve IR compatibility through immutable owner registrations"
+type = "fixed"
+component = "ir"
+owner = "team-polisyos"
+summary = "IR artifacts are admitted through exact owner, DTO ABI, manifest tuple, payload discriminator, and trusted wire-policy registrations on an immutable compatibility snapshot. New resources can reuse a declared family wire law without central version dispatch; legacy migration routes preserve an explicit absent embedded discriminator."
+evidence = [
+  "src/polisyos/ir/migrations/base.py",
+  "src/polisyos/ir/migrations/schema_registry.py",
+  "tests/contract/test_ir_migrations.py",
+  "tests/unit/remediation/test_mig_05.py",
+]
+compatibility = "Advisory schema negotiation remains unchanged. Owner registrations are explicit and idempotent; conflicting rules and unknown exact tuples refuse. Payload-less migration graph routing uses manifest versions only as graph keys and does not change the exact admitted payload_version=None tuple."
+change_class = "internal"
+surface_classification = "public_stable: IR artifact owner compatibility and typed admission behavior"
+migration = "No stored bytes are rewritten. Family owners register existing and current representations adjacent to their DTOs; readers should deploy before new writers. A rollback returns to the existing reader behavior without changing persisted history."
+api = "The new owner-registry API is additive. Strict owner admission is separate from ADR-0107 advisory FULL negotiation. Existing representations must be declared with their exact manifest and payload tuple, owner reference, DTO ABI, profile identity, and trusted wire-policy reference/revision."
+limitations = "This registry does not invent historical ownership, wire law, canonical profile, custody, or authority. It does not claim a payload tuple that lacks an owner registration."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

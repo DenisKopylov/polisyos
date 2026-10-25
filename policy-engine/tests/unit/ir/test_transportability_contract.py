@@ -17,9 +17,11 @@ from polisyos.ir.analytics.causal_graph import (
     graph_content_sha256,
 )
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
+from polisyos.ir.analytics.estimand import DistributionDomain, EstimandAST
 from polisyos.ir.analytics.partial_identification import BoundMethod, compute_manski_bounds
 from polisyos.ir.analytics.transportability import (
     SelectionDiagram,
+    SelectionDiagramBuilder,
     SNode,
     SNodeOrigin,
     SNodeRole,
@@ -203,6 +205,7 @@ def test_causal_report_accepts_transportability_fields() -> None:
         sutva_assumed=True,
         sutva_violation_risk="high",
         transport_result=TransportabilityResult(
+            schema_version="2.0",
             sutva_assumed=True,
             sutva_violation_risk="high",
             metadata={"phase": "8A"},
@@ -279,10 +282,7 @@ def test_transportability_result_is_frozen_report_contract() -> None:
 
 
 def _build_golden_scenario() -> tuple[SelectionDiagram, str, str]:
-    """Collider S-node blocks transport → NON_TRANSPORTABLE.
-
-    Graph: X -> Y, X -> C <- Y, S-node on C (collider).
-    """
+    # C is a collider and its mechanism shifts; the queried Y mechanism does not.
     graph = CausalGraphModel(
         graph_type=GraphType.DAG,
         nodes=["X", "Y", "C"],
@@ -326,21 +326,20 @@ def _build_golden_scenario() -> tuple[SelectionDiagram, str, str]:
         income_level=IncomeLevel.LOWER_MIDDLE,
         gdp_per_capita=2_200.0,
     )
-    s_nodes = [
-        SNode(
-            target_variable="C",
-            context_dimension="institutional_quality",
-            source_value=0.95,
-            target_value=0.3,
-            delta=0.65,
-            severity="high",
-            origin=SNodeOrigin.CONTEXT_DELTA,
-            role=SNodeRole.COLLIDER,
-        ),
-    ]
     diagram = SelectionDiagram(
         base_graph=graph,
-        s_nodes=s_nodes,
+        s_nodes=[
+            SNode(
+                target_variable="C",
+                context_dimension="institutional_quality",
+                source_value=0.95,
+                target_value=0.3,
+                delta=0.65,
+                severity="high",
+                origin=SNodeOrigin.CONTEXT_DELTA,
+                role=SNodeRole.COLLIDER,
+            ),
+        ],
         source_context=source_ctx,
         target_context=target_ctx,
         context_distance=0.7,
@@ -348,8 +347,31 @@ def _build_golden_scenario() -> tuple[SelectionDiagram, str, str]:
     return diagram, "X", "Y"
 
 
-def test_golden_non_transportable_verdict() -> None:
-    """Collider S-node blocks transport → UNSUPPORTED in legacy simplified mode."""
+def _build_outcome_selection_scenario() -> tuple[SelectionDiagram, str, str]:
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[
+            CausalEdge(
+                src="X",
+                dst="Y",
+                mark_src=EdgeMark.TAIL,
+                mark_dst=EdgeMark.ARROW,
+                sources=[EdgeSource.DATA],
+                data_confidence=0.9,
+            ),
+        ],
+        discovery_method="scientific_test_fixture",
+    )
+    diagram = (
+        SelectionDiagramBuilder(graph)
+        .add_sigma_variable("Y")
+        .build(ContextProfile(context_id="source"), ContextProfile(context_id="target"))
+    )
+    return diagram, "X", "Y"
+
+
+def test_golden_collider_selection_preserves_identified_source_law() -> None:
     diagram, treatment, outcome = _build_golden_scenario()
     raw = CheckTransportability.pure_step(
         state={
@@ -357,50 +379,76 @@ def test_golden_non_transportable_verdict() -> None:
             "query_treatment": treatment,
             "query_outcome": outcome,
         },
-        params={},
+        params={"transport_solver_mode": "simplified"},
     )
     tr = TransportabilityResult.model_validate(raw["transport_result"])
-    assert tr.status == TransportabilityStatus.UNSUPPORTED
-    assert tr.final_confidence == 0.0
-    assert len(tr.blocking_s_nodes) >= 1
+    assert tr.status is TransportabilityStatus.IDENTIFIED
+    assert tr.transport_mode is TransportMode.TRANSPORT_FORMULA
+    assert tr.transport_formula is not None
+    assert tr.transport_formula.adjustment_type == "s_admissibility_source_law"
+    assert tr.transport_formula.source_quantities == ["P_s(Y " + chr(92) + "mid X)"]
+    assert tr.transport_formula.target_quantities == []
+    assert tr.blocking_s_nodes == []
+
+    ast = EstimandAST.model_validate(tr.estimand_ast)
+    refs = ast.collect_distribution_refs()
+    assert all(ref.domain is DistributionDomain.SOURCE for ref in refs)
+    assert {(ref.variables, ref.conditioning) for ref in refs} == {(("Y",), ("X",))}
+    metadata = raw["proof_bundle"]["metadata"]
+    assert metadata["s_admissibility_selection_targets"] == ["C"]
+    assert metadata["source_data_exists"] == "not_established"
+    assert metadata["source_data_currentness"] == "not_established"
+    assert metadata["source_data_authority"] == "not_established"
 
 
-def test_golden_manski_bounds_fallback() -> None:
-    """When transport fails, Manski bounds provide partial identification."""
+def test_manski_bounds_math_uses_named_target_domain_sufficient_statistics() -> None:
+    # This is an arithmetic control: these arrays are supplied as target-population moments.
+    target_outcome_stratum_means = np.array([0.25, 0.55])
+    target_treatment_marginals = np.array([0.6, 0.4])
     manski = compute_manski_bounds(
-        outcome_conditioned=np.array([0.3, 0.6]),
-        treatment_probs=np.array([0.45, 0.55]),
+        outcome_conditioned=target_outcome_stratum_means,
+        treatment_probs=target_treatment_marginals,
         outcome_support=(0.0, 1.0),
     )
-    assert manski.method == BoundMethod.MANSKI
-    assert manski.lower_bound < manski.upper_bound
-    assert manski.lower_bound <= 0.3
-    assert manski.upper_bound >= 0.3
-    assert manski.bound_width > 0
+    assert manski.method is BoundMethod.MANSKI
+    assert manski.lower_bound == pytest.approx(-0.33)
+    assert manski.upper_bound == pytest.approx(0.67)
+    assert manski.bound_width == pytest.approx(1.0)
+    assert manski.is_informative is False
 
 
-def test_golden_non_transportable_then_manski_e2e() -> None:
-    """Full pipeline: transport fails → Manski bounds provide fallback."""
-    diagram, treatment, outcome = _build_golden_scenario()
-
+def test_outcome_selection_refusal_and_target_domain_bounds_are_not_automatic() -> None:
+    diagram, treatment, outcome = _build_outcome_selection_scenario()
     raw = CheckTransportability.pure_step(
         state={
             "selection_diagram": diagram.model_dump(mode="json"),
             "query_treatment": treatment,
             "query_outcome": outcome,
         },
-        params={},
+        params={"transport_solver_mode": "simplified"},
     )
     tr = TransportabilityResult.model_validate(raw["transport_result"])
-    assert tr.status == TransportabilityStatus.UNSUPPORTED
+    assert tr.status is TransportabilityStatus.UNSUPPORTED
+    assert tr.transport_mode is TransportMode.NONE
+    assert tr.unsupported_reason == "query_variable_is_selection_target"
+    assert tr.transport_formula is None
+    assert tr.partial_identification_result is None
+    assert raw["proof_bundle"]["metadata"]["selection_targets"] == ["Y"]
+    assert raw["proof_bundle"]["metadata"]["limitation_reason"] == (
+        "query_variable_is_selection_target"
+    )
 
+    # The math accepts target-domain moments, but this direct consumer does not bind or attach them.
+    target_outcome_stratum_means = np.array([0.25, 0.55])
+    target_treatment_marginals = np.array([0.6, 0.4])
     manski = compute_manski_bounds(
-        outcome_conditioned=np.array([0.25, 0.55]),
-        treatment_probs=np.array([0.6, 0.4]),
+        outcome_conditioned=target_outcome_stratum_means,
+        treatment_probs=target_treatment_marginals,
         outcome_support=(0.0, 1.0),
     )
-    assert manski.lower_bound < manski.upper_bound
-    assert manski.bound_width > 0
+    assert manski.lower_bound == pytest.approx(-0.33)
+    assert manski.upper_bound == pytest.approx(0.67)
+    assert tr.partial_identification_result is None
 
 
 def test_golden_time_stationarity_warning() -> None:

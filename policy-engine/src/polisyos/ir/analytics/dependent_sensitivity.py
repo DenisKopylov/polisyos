@@ -7,14 +7,27 @@ structural/dependence delta between them.
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import ConfigDict, Field, model_validator
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration, CanonInfo
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
+from polisyos.ir.migrations.base import (
+    CompatibilityMode,
+    IRCompatibilityKind,
+    IRRepresentationRegistration,
+    ResolvedSchemaAdmission,
+    register_ir_representation,
+    register_schema_version,
+)
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import ArtifactRefModel
+
+if TYPE_CHECKING:
+    from polisyos.ir.artifacts import ArtifactStore, InputRef
 
 CopulaFamily = Literal[
     "product",
@@ -407,6 +420,155 @@ class DependentSensitivityResultRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+_DEPENDENT_SENSITIVITY_WIRE_POLICY_REVISION = "1"
+
+
+def _dependent_sensitivity_profile_is_supported(
+    profile: CanonInfo, registration: IRRepresentationRegistration
+) -> bool:
+    """Require the exact canonical profile selected by this producer."""
+    return registration.profile_ref is None and profile == CanonInfo.from_spec(
+        CanonSpec(forbid_floats=False)
+    )
+
+
+def _register_dependent_sensitivity_owner(
+    model: type[DependentSensitivityModel],
+    *,
+    registry_key: str,
+    kind: str,
+    schema_version: str,
+) -> ArtifactOwnerDeclaration[Any, Any]:
+    """Declare one exact dependent-sensitivity contract tuple."""
+    contract_id = f"ir.analytics.{model.__name__}.owner.v1"
+    policy = (
+        f"{contract_id}.camel-contract-version-wire-law",
+        _DEPENDENT_SENSITIVITY_WIRE_POLICY_REVISION,
+    )
+    dto_fqn = f"polisyos.ir.analytics.dependent_sensitivity.{model.__name__}"
+
+    def payload_version_of(payload: object) -> str | None:
+        if not isinstance(payload, Mapping):
+            return None
+        value = payload.get("contractVersion")
+        return value if type(value) is str else None
+
+    def validate_source(
+        payload: object, admission: ResolvedSchemaAdmission
+    ) -> DependentSensitivityModel:
+        if (
+            admission.compatibility_kind
+            not in (IRCompatibilityKind.EXACT, IRCompatibilityKind.DIRECT)
+            or admission.migration_path
+            or not isinstance(payload, Mapping)
+            or "contract_version" in payload
+        ):
+            raise ValueError("dependent-sensitivity owner requires its exact alias wire shape")
+        expected = admission.source_registration.payload_version
+        supplied = payload.get("contractVersion")
+        if type(expected) is not str or type(supplied) is not str or supplied != expected:
+            raise ValueError("dependent-sensitivity payload version does not match its exact row")
+        source = model.model_validate(payload)
+        if source.contract_version != expected:
+            raise ValueError("dependent-sensitivity DTO changed its admitted payload version")
+        return source
+
+    def project_for_consumer(
+        source: DependentSensitivityModel, _admission: ResolvedSchemaAdmission
+    ) -> DependentSensitivityModel:
+        if type(source) is not model:
+            raise TypeError("dependent-sensitivity source DTO does not match its owner")
+        return source
+
+    owner = ArtifactOwnerDeclaration(
+        contract_id=contract_id,
+        dto_fqn=dto_fqn,
+        abi_key=f"{contract_id}.dto-abi",
+        registry_key=registry_key,
+        kind=kind,
+        media_type="application/json",
+        purpose="dependent_sensitivity_analysis_artifact",
+        policy_revision=f"{contract_id}.admission-policy.v1",
+        accepted_wire_policies=(policy,),
+        payload_version_of=payload_version_of,
+        validate_source=validate_source,
+        project_for_consumer=project_for_consumer,
+        validate_profile=_dependent_sensitivity_profile_is_supported,
+    )
+    register_schema_version(
+        registry_key,
+        schema_version,
+        compatibility=CompatibilityMode.NONE,
+        notes=("Owner-bound dependent-sensitivity tuple; unknown history remains opaque.",),
+    )
+    register_ir_representation(
+        registry_key=registry_key,
+        owner_ref=owner.contract_id,
+        dto_abi=owner.dto_fqn,
+        wire_policy_ref=policy[0],
+        wire_policy_revision=policy[1],
+        schema_name=registry_key,
+        schema_version=schema_version,
+        payload_version=schema_version,
+        profile_ref=None,
+        readable=True,
+        writable=True,
+        current=True,
+        default_write=True,
+    )
+    return owner
+
+
+_DEPENDENT_SENSITIVITY_BUNDLE_OWNER = _register_dependent_sensitivity_owner(
+    DependentSensitivityAnalysisBundle,
+    registry_key="ir.dependent_sensitivity_bundle",
+    kind="ir.dependent_sensitivity_bundle",
+    schema_version="2.0",
+)
+_DEPENDENT_SENSITIVITY_RESULT_OWNER = _register_dependent_sensitivity_owner(
+    DependentSensitivityResult,
+    registry_key="ir.dependent_sensitivity_result",
+    kind="ir.dependent_sensitivity_result",
+    schema_version="2.0",
+)
+
+
+def _dependent_sensitivity_owner_model(
+    owner: ArtifactOwnerDeclaration[Any, Any],
+) -> type[DependentSensitivityModel]:
+    if owner is _DEPENDENT_SENSITIVITY_BUNDLE_OWNER:
+        return DependentSensitivityAnalysisBundle
+    if owner is _DEPENDENT_SENSITIVITY_RESULT_OWNER:
+        return DependentSensitivityResult
+    raise ValueError("ir_dependent_sensitivity_owner_unknown")
+
+
+def _persist_dependent_sensitivity_owner(
+    store: ArtifactStore,
+    payload: DependentSensitivityModel,
+    *,
+    owner: ArtifactOwnerDeclaration[Any, Any],
+    schema_name: str,
+    schema_version: str,
+    inputs: list[InputRef] | None,
+) -> dict[str, str]:
+    """Persist a dependent-sensitivity DTO through its owner."""
+    if (
+        type(payload) is not _dependent_sensitivity_owner_model(owner)
+        or schema_name != owner.registry_key
+    ):
+        raise ValueError("ir_dependent_sensitivity_owner_mismatch")
+    return _put_owned_json_artifact(
+        store,
+        payload.model_dump(mode="json", by_alias=True),
+        owner=owner,
+        schema_name=schema_name,
+        schema_version=schema_version,
+        inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+
+
 def persist_dependent_sensitivity_bundle(
     store: ArtifactStore,
     bundle: DependentSensitivityAnalysisBundle,
@@ -415,16 +577,14 @@ def persist_dependent_sensitivity_bundle(
     schema_name: str = "ir.dependent_sensitivity_bundle",
     schema_version: str = "2.0",
 ) -> DependentSensitivityAnalysisBundleRef:
-    """Persist a dependent sensitivity bundle contract."""
-
-    ref = put_json_artifact(
+    """Persist a dependent-sensitivity bundle through its owner."""
+    ref = _persist_dependent_sensitivity_owner(
         store,
-        bundle.model_dump(mode="json", by_alias=True),
-        kind="ir.dependent_sensitivity_bundle",
+        bundle,
+        owner=_DEPENDENT_SENSITIVITY_BUNDLE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
-        canon_spec=CanonSpec(forbid_floats=False),
     )
     return DependentSensitivityAnalysisBundleRef.model_validate(ref)
 
@@ -433,10 +593,10 @@ def load_dependent_sensitivity_bundle(
     store: ArtifactStore,
     ref: DependentSensitivityAnalysisBundleRef,
 ) -> DependentSensitivityAnalysisBundle:
-    """Load a persisted dependent sensitivity bundle contract."""
-
-    payload = get_json_artifact(store, ref)
-    return DependentSensitivityAnalysisBundle.model_validate(payload)
+    """Load a dependent-sensitivity bundle after owner admission."""
+    if ref.kind != _DEPENDENT_SENSITIVITY_BUNDLE_OWNER.kind or ref.media_type != "application/json":
+        raise ValueError("ir_dependent_sensitivity_owner_mismatch")
+    return _get_owned_json_artifact(store, ref, owner=_DEPENDENT_SENSITIVITY_BUNDLE_OWNER)
 
 
 def persist_dependent_sensitivity_result(
@@ -447,16 +607,14 @@ def persist_dependent_sensitivity_result(
     schema_name: str = "ir.dependent_sensitivity_result",
     schema_version: str = "2.0",
 ) -> DependentSensitivityResultRef:
-    """Persist a dependent sensitivity result."""
-
-    ref = put_json_artifact(
+    """Persist a dependent-sensitivity result through its owner."""
+    ref = _persist_dependent_sensitivity_owner(
         store,
-        result.model_dump(mode="json", by_alias=True),
-        kind="ir.dependent_sensitivity_result",
+        result,
+        owner=_DEPENDENT_SENSITIVITY_RESULT_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
-        canon_spec=CanonSpec(forbid_floats=False),
     )
     return DependentSensitivityResultRef.model_validate(ref)
 
@@ -465,10 +623,10 @@ def load_dependent_sensitivity_result(
     store: ArtifactStore,
     ref: DependentSensitivityResultRef,
 ) -> DependentSensitivityResult:
-    """Load a persisted dependent sensitivity result."""
-
-    payload = get_json_artifact(store, ref)
-    return DependentSensitivityResult.model_validate(payload)
+    """Load a dependent-sensitivity result after owner admission."""
+    if ref.kind != _DEPENDENT_SENSITIVITY_RESULT_OWNER.kind or ref.media_type != "application/json":
+        raise ValueError("ir_dependent_sensitivity_owner_mismatch")
+    return _get_owned_json_artifact(store, ref, owner=_DEPENDENT_SENSITIVITY_RESULT_OWNER)
 
 
 __all__ = [

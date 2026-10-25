@@ -1,0 +1,31 @@
+id = "2026-10-22-e02-public-export-typed-projection"
+title = "Keep composed public-export projections within the typed PDC contract"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-policyos-runtime"
+summary = "Public export now emits a schema-valid Policy Design Case projection after composing S9 through G3; stage-specific evidence and verification remain in semantic_audit."
+change_class = "persisted-artifact-format"
+surface_classification = "public_experimental: build_public_export_bundle projection_semantics and semantic_audit"
+compatibility = "projection_semantics now contains only PolicyDesignCaseProjection-owned fields. S10-S14 and G3 details remain under their existing semantic_audit records; the S9 faithfulness payload and accumulated limitations are retained under semantic_audit.projection_extensions when not already represented by an audit owner. The authority projection declares tenant_redacted=true and emits no stable tenant fingerprint; generic nested private references retain their typed JSON redaction markers."
+migration = "Consumers should read core Policy Design Case fields from projection_semantics and stage-specific S9-S14/G3 details from semantic_audit. Generated core projection fields remain unchanged."
+api = "The public-export producer partitions its composed projection through PolicyDesignCaseProjection.model_fields, redacts typed references without changing their declared types, and recomputes the PDC plus each active S9-S14/G3 consumer verdict over the final emitted records after recursive redaction. Aggregate status is rebuilt from those post-redaction verdicts. Tenant-private references in stage audit records are removed at their exact redacted paths and listed in the bundle redaction summary; authority projection source references remain fail-closed."
+limitations = "The projection remains redacted, non-authoritative public audit evidence. Redacted graph-bound projections remain fail-closed; this change does not establish source authority, graph currentness, or publication permission."
+generated_client_compatibility = "generated core PDC clients already model the retained projection fields; no generated DTO declarations changed"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+evidence = ["src/polisyos/runtime/quality/public_export.py", "tests/unit/runtime/quality/test_public_export.py"]
+
+[[compatibility_change]]
+id = "public-export-pdc-composition"
+change_class = "persisted-artifact-format"
+impact = "migration"
+surface = "public_experimental: public-export bundle projection_semantics"
+owner = "team-policyos-runtime"
+version_owner = "team-polisyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "S9-S14/G3 details are read from their semantic_audit producer records; projection_semantics is validated as the strict typed PDC contract."
+generated_client_compatibility = "generated core projection fields remain unchanged"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

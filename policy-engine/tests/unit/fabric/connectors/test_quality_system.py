@@ -161,6 +161,21 @@ class TestFreshnessChecker:
         assert status.level == FreshnessLevel.FRESH
         assert metrics.calls == [("stock_prices", 60.0)]
 
+    def test_missing_freshness_metric_is_a_noop(self) -> None:
+        checker = FreshnessChecker()
+        now = datetime.now(UTC)
+
+        status = checker.check_freshness(
+            dataset_id="stock_prices",
+            metadata=SimpleNamespace(schedule="real-time", capabilities=0),
+            fetched_at=now - timedelta(minutes=2),
+            last_updated=now - timedelta(minutes=1),
+            metrics=SimpleNamespace(),
+        )
+
+        assert status.level == FreshnessLevel.FRESH
+        assert status.data_age_seconds == 60
+
 
 class TestCompletenessAnalyzer:
     def test_missing_required_field_hard_fail(self):

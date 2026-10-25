@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import math
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
@@ -41,6 +42,7 @@ from polisyos.ir import (
     persist_causal_capability_contract,
 )
 from polisyos.ir.analytics import CausalEffectReport
+from polisyos.ir.analytics.transportability import TransportabilityCandidateRequestV1
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_CAPABILITY_CONTRACT_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
@@ -48,12 +50,26 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.workflows.causal_full import (
+    CAUSAL_FULL_TRANSPORT_NODE_TIMEOUT_S,
+)
 
 logger = common_logger.get_logger("polisyos.scientist.nodes.builtins.causal.resolve_transport")
 
 _TRANSPORT_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
 _TRANSPORT_LOAD_ERRORS = (OSError, RuntimeError, TypeError, ValueError, ValidationError)
 _TRANSPORT_NUMERIC_PARSE_ERRORS = (TypeError, ValueError, OverflowError)
+
+
+def conditional_transport_node_timeout_s() -> float:
+    """Return the trusted timeout ceiling for transport candidate execution.
+
+    Returns:
+        The finite owner-selected node timeout in seconds.
+    """
+    return float(CAUSAL_FULL_TRANSPORT_NODE_TIMEOUT_S)
+
+
 _VALID_TRANSPORT_SOLVER_MODES: frozenset[str] = frozenset(
     {"auto", "simplified", "symbolic", "symbolic_y0", "symbolic_r", "full_auto"}
 )
@@ -61,6 +77,18 @@ _VALID_TRANSPORT_SOLVER_MODES: frozenset[str] = frozenset(
 
 class InvalidTransportInput(ValueError):
     """Identify an explicitly supplied transport value that cannot be consumed safely."""
+
+
+def _parse_conditional_transport_request(raw: Any) -> TransportabilityCandidateRequestV1:
+    """Parse explicit candidate intent without defaulting null or malformed values."""
+    if not isinstance(raw, Mapping):
+        raise InvalidTransportInput(
+            "params.conditional_transport_request must be an object when supplied"
+        )
+    try:
+        return TransportabilityCandidateRequestV1.model_validate(dict(raw), strict=True)
+    except (TypeError, ValueError, ValidationError) as exc:
+        raise InvalidTransportInput("params.conditional_transport_request is malformed") from exc
 
 
 def _read_optional_name(raw: Any, field: str) -> str | None:
@@ -462,13 +490,17 @@ def _resolve_transport_execution_inputs(
     )
 
 
-def _resolve_causal_graph(ctx: ExecutionContext, state: ExperimentState) -> CausalGraphModel | None:
+def _resolve_causal_graph_source(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> tuple[CausalGraphModelRef, CausalGraphModel] | None:
+    """Resolve the selected graph and preserve the exact manifest profile used."""
     store = _ensure_ir_artifact_store(ctx.store)
     ensemble_ref_raw = state.artifacts_index.get(ARTIFACT_CAUSAL_ENSEMBLE_REF)
     if ensemble_ref_raw is not None:
         try:
             ensemble_ref = profile_bound_ref(
-                store,
+                ctx.store,
                 CausalModelEnsembleRef.model_validate(ensemble_ref_raw.model_dump(mode="json")),
             )
             ensemble = load_causal_model_ensemble(store, ensemble_ref)
@@ -491,7 +523,7 @@ def _resolve_causal_graph(ctx: ExecutionContext, state: ExperimentState) -> Caus
                         "causal_ensemble.consensus_graph_ref lineage edge has no selected manifest profile"
                     )
                 consensus_ref = profile_bound_ref(
-                    store,
+                    ctx.store,
                     CausalGraphModelRef.model_validate(
                         {
                             "artifact_id": consensus_edge.artifact_id,
@@ -501,7 +533,7 @@ def _resolve_causal_graph(ctx: ExecutionContext, state: ExperimentState) -> Caus
                         }
                     ),
                 )
-                return load_causal_graph_model(store, consensus_ref)
+                return consensus_ref, load_causal_graph_model(store, consensus_ref)
         except InvalidTransportInput:
             raise
         except _TRANSPORT_LOAD_ERRORS as exc:
@@ -515,15 +547,21 @@ def _resolve_causal_graph(ctx: ExecutionContext, state: ExperimentState) -> Caus
             continue
         try:
             graph_ref = profile_bound_ref(
-                store,
+                ctx.store,
                 CausalGraphModelRef.model_validate(ref_raw.model_dump(mode="json")),
             )
-            return load_causal_graph_model(store, graph_ref)
+            return graph_ref, load_causal_graph_model(store, graph_ref)
         except _TRANSPORT_LOAD_ERRORS as exc:
             raise InvalidTransportInput(
                 f"Invalid supplied {key} causal graph reference: {exc}"
             ) from exc
     return None
+
+
+def _resolve_causal_graph(ctx: ExecutionContext, state: ExperimentState) -> CausalGraphModel | None:
+    """Resolve a graph while preserving the historical model-only helper contract."""
+    resolved = _resolve_causal_graph_source(ctx, state)
+    return resolved[1] if resolved is not None else None
 
 
 def _build_dataset_registry(raw_path: Any) -> DatasetRegistry | _NullDatasetRegistry:

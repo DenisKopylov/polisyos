@@ -3,13 +3,21 @@ from __future__ import annotations
 import logging
 from datetime import timedelta
 from types import SimpleNamespace
+from typing import TYPE_CHECKING
 
 import pandas as pd
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 import polisyos.fabric._adapters.observability as fabric_observability
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.observability import get_metrics
-from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES, build_fabric_health_snapshot
+from polisyos.fabric._adapters.observability import (
+    DEFAULT_FABRIC_SLO_TARGETS,
+    FABRIC_TRACE_NAMES,
+    build_fabric_health_snapshot,
+)
 from polisyos.fabric.connectors.base import HealthStatus
 from polisyos.fabric.connectors.cache import ConnectorCacheStore, TTLPolicy
 from polisyos.fabric.connectors.transform import TransformContext, TransformPipeline
@@ -168,6 +176,7 @@ def test_build_fabric_health_snapshot_accepts_injected_metrics(
 def test_degraded_health_uses_noop_alert_sink_without_message_collision(
     caplog,
     monkeypatch,
+    tmp_path: Path,
 ) -> None:
     logger = logging.getLogger(f"{fabric_observability.__name__}.test")
     monkeypatch.setattr(fabric_observability.logger, "_wrapped", logger)
@@ -181,10 +190,27 @@ def test_degraded_health_uses_noop_alert_sink_without_message_collision(
         }
     )
 
-    snapshot = build_fabric_health_snapshot(registry=registry, metrics=SimpleNamespace())
+    snapshot = build_fabric_health_snapshot(
+        registry=registry,
+        fact_log_root=tmp_path,
+        retrieval_service=SimpleNamespace(
+            get_index_stats=lambda: SimpleNamespace(
+                index_docs_total=1,
+                index_size_bytes=2,
+                indexed_sources=3,
+            )
+        ),
+        sli_observations={target.name: target.objective for target in DEFAULT_FABRIC_SLO_TARGETS},
+        metrics=SimpleNamespace(),
+    )
 
     assert snapshot.healthy is False
     assert snapshot.reasons == ("connector.degraded: timeout",)
+    assert {component.name for component in snapshot.components} >= {
+        "world",
+        "retrieval",
+        "slo",
+    }
     records = [
         record
         for record in caplog.records

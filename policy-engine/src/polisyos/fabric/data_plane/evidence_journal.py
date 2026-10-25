@@ -19,7 +19,7 @@ from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, NoReturn, Self, SupportsIndex
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -1442,7 +1442,7 @@ class _LiveAcquirePermit:
         del memo
         raise TypeError("live acquire permits are not copyable")
 
-    def __reduce_ex__(self, protocol: int) -> object:
+    def __reduce_ex__(self, protocol: SupportsIndex) -> NoReturn:
         del protocol
         raise TypeError("live acquire permits are not serializable")
 

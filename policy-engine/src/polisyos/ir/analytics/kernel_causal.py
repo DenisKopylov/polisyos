@@ -3,11 +3,17 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
+)
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     DataReadinessReportRef,
@@ -16,6 +22,10 @@ from polisyos.ir.registry.refs import (
     OperatorEffectBundleRef,
     ProofBundleRef,
 )
+
+if TYPE_CHECKING:
+    from polisyos.ir.artifacts import ArtifactStore, InputRef
+    from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration
 
 _KERNEL_ESTIMATOR_SPEC_SCHEMA_NAME = "ir.kernel_estimator_spec"
 _KERNEL_ESTIMATOR_SPEC_SCHEMA_VERSION = "1.0"
@@ -261,18 +271,103 @@ class OperatorEffectBundle(BaseModel):
         return self
 
 
+_ANALYTICS_ARTIFACT_CANON_SPEC = CanonSpec(forbid_floats=False)
+
+
+def _declare_owned_model(
+    model: type[BaseModel],
+    *,
+    contract_id: str,
+    dto_fqn: str,
+    abi_key: str,
+    registry_key: str,
+    kind: str,
+    schema_name: str,
+    schema_version: str,
+    payload_version: str,
+    purpose: str,
+    notes: tuple[str, ...],
+    compatibility: CompatibilityMode = CompatibilityMode.NONE,
+) -> ArtifactOwnerDeclaration[Any, Any]:
+    """Declare one exact source-proven DTO/artifact representation."""
+    wire_policy_ref = f"{contract_id}.wire"
+    return declare_model_owner(
+        model,
+        contract_id=contract_id,
+        dto_fqn=dto_fqn,
+        abi_key=abi_key,
+        registry_key=registry_key,
+        kind=kind,
+        media_type="application/json",
+        purpose=purpose,
+        policy_revision=f"{contract_id}.owner-admission.v1",
+        accepted_wire_policies=((wire_policy_ref, "1"),),
+        payload_version_field="schema_version",
+        validate_profile=owner_profile_for_spec(_ANALYTICS_ARTIFACT_CANON_SPEC, profile_ref=None),
+        representations=(
+            OwnedJSONRepresentation(
+                schema_name=schema_name,
+                schema_version=schema_version,
+                payload_version=payload_version,
+                wire_policy_ref=wire_policy_ref,
+                wire_policy_revision="1",
+                profile_ref=None,
+                compatibility=compatibility,
+                notes=notes,
+                readable=True,
+                writable=True,
+                current=True,
+                default_write=True,
+                readable_from=(),
+            ),
+        ),
+    )
+
+
+_KERNEL_ESTIMATOR_SPEC_OWNER = _declare_owned_model(
+    KernelEstimatorSpec,
+    contract_id="ir.analytics.kernel_causal.kernel_estimator_spec",
+    dto_fqn="polisyos.ir.analytics.kernel_causal.KernelEstimatorSpec",
+    abi_key="ir.kernel_estimator_spec",
+    registry_key="ir.kernel_estimator_spec",
+    kind="ir.kernel_estimator_spec",
+    schema_name=_KERNEL_ESTIMATOR_SPEC_SCHEMA_NAME,
+    schema_version=_KERNEL_ESTIMATOR_SPEC_SCHEMA_VERSION,
+    payload_version="1.0",
+    purpose="ir_kernel_estimator_spec",
+    notes=(
+        "KernelEstimatorSpec 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+    ),
+)
+
+_OPERATOR_EFFECT_BUNDLE_OWNER = _declare_owned_model(
+    OperatorEffectBundle,
+    contract_id="ir.analytics.kernel_causal.operator_effect_bundle",
+    dto_fqn="polisyos.ir.analytics.kernel_causal.OperatorEffectBundle",
+    abi_key="ir.operator_effect_bundle",
+    registry_key="ir.operator_effect_bundle",
+    kind="ir.operator_effect_bundle",
+    schema_name=_OPERATOR_EFFECT_BUNDLE_SCHEMA_NAME,
+    schema_version=_OPERATOR_EFFECT_BUNDLE_SCHEMA_VERSION,
+    payload_version="1.0",
+    purpose="ir_operator_effect_bundle",
+    notes=(
+        "OperatorEffectBundle 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+    ),
+)
+
+
 def persist_kernel_estimator_spec(
     store: ArtifactStore,
     spec: KernelEstimatorSpec,
     *,
     inputs: list[InputRef] | None = None,
 ) -> KernelEstimatorSpecRef:
-    """Persist a ``KernelEstimatorSpec`` and return its typed artifact ref."""
-
-    ref = put_json_artifact(
+    """Persist KernelEstimatorSpec through its exact owner declaration."""
+    ref = _put_owned_json_artifact(
         store,
         spec.model_dump(mode="json"),
-        kind="ir.kernel_estimator_spec",
+        owner=_KERNEL_ESTIMATOR_SPEC_OWNER,
         schema_name=_KERNEL_ESTIMATOR_SPEC_SCHEMA_NAME,
         schema_version=_KERNEL_ESTIMATOR_SPEC_SCHEMA_VERSION,
         inputs=inputs,
@@ -285,10 +380,8 @@ def load_kernel_estimator_spec(
     store: ArtifactStore,
     ref: KernelEstimatorSpecRef,
 ) -> KernelEstimatorSpec:
-    """Load a persisted ``KernelEstimatorSpec``."""
-
-    payload = get_json_artifact(store, ref)
-    return KernelEstimatorSpec.model_validate(payload)
+    """Load KernelEstimatorSpec through its exact owner declaration."""
+    return _get_owned_json_artifact(store, ref, owner=_KERNEL_ESTIMATOR_SPEC_OWNER)
 
 
 def persist_operator_effect_bundle(
@@ -297,12 +390,11 @@ def persist_operator_effect_bundle(
     *,
     inputs: list[InputRef] | None = None,
 ) -> OperatorEffectBundleRef:
-    """Persist an ``OperatorEffectBundle`` and return its typed artifact ref."""
-
-    ref = put_json_artifact(
+    """Persist OperatorEffectBundle through its exact owner declaration."""
+    ref = _put_owned_json_artifact(
         store,
         bundle.model_dump(mode="json"),
-        kind="ir.operator_effect_bundle",
+        owner=_OPERATOR_EFFECT_BUNDLE_OWNER,
         schema_name=_OPERATOR_EFFECT_BUNDLE_SCHEMA_NAME,
         schema_version=_OPERATOR_EFFECT_BUNDLE_SCHEMA_VERSION,
         inputs=inputs,
@@ -315,10 +407,8 @@ def load_operator_effect_bundle(
     store: ArtifactStore,
     ref: OperatorEffectBundleRef,
 ) -> OperatorEffectBundle:
-    """Load a persisted ``OperatorEffectBundle``."""
-
-    payload = get_json_artifact(store, ref)
-    return OperatorEffectBundle.model_validate(payload)
+    """Load OperatorEffectBundle through its exact owner declaration."""
+    return _get_owned_json_artifact(store, ref, owner=_OPERATOR_EFFECT_BUNDLE_OWNER)
 
 
 __all__ = [

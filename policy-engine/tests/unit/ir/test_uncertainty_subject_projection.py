@@ -43,6 +43,7 @@ def _put(
         payload,
         ArtifactWriteOptions(
             kind=kind,
+            media_type="application/json",
             schema=SchemaInfo(name=schema_name, version=schema_version),
             producer=ProducerInfo(
                 component="scientist.node_propagate_uncertainty@1.0.0", version="1.0.0"
@@ -273,8 +274,16 @@ def _lineage_fixture(
         payload={"values": {}},
     )
     sim_inputs = [
-        InputRef(artifact_id=source_sim_ref.artifact_id, role="base_simulation_result"),
-        InputRef(artifact_id=config_ref.artifact_id, role="propagation_config"),
+        InputRef(
+            artifact_id=source_sim_ref.artifact_id,
+            role="base_simulation_result",
+            manifest_profile_sha256=source_sim_ref.manifest_profile_sha256,
+        ),
+        InputRef(
+            artifact_id=config_ref.artifact_id,
+            role="propagation_config",
+            manifest_profile_sha256=config_ref.manifest_profile_sha256,
+        ),
         InputRef(
             artifact_id=report_ref.artifact_id,
             role="propagation_report",

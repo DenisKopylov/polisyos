@@ -53,7 +53,6 @@ from polisyos.ir import (
     UncertaintyEnvelope,
     UncertaintySource,
     combine_envelopes,
-    load_simulation_result_uncertainty_admission,
 )
 from polisyos.ir import CanonSpec as IRCanonSpec
 from polisyos.ir.analytics.backtest import (
@@ -80,6 +79,9 @@ from polisyos.scientist.methods.backtesting.plan import (
     PredictionSource,
 )
 from polisyos.scientist.methods.backtesting.trust_scorer import TrustScorer
+from polisyos.scientist.nodes.builtins.simulate.uncertainty_source_projection import (
+    load_science_simulation_result_uncertainty_admission,
+)
 from polisyos.scientist.orchestration.engine.context import FoundryPort
 
 
@@ -1032,7 +1034,7 @@ class BacktestOrchestrator:
         artifacts: dict[str, Any],
         plan: HistoricalValidationPlan,
     ) -> tuple[dict[str, list[tuple[float, float]]], dict[str, Any], tuple[str, ...]]:
-        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.core.artifacts import validate_core_model_json_artifact
 
         if "simulation_result_ref" not in artifacts:
             return {}, {}, ()
@@ -1050,15 +1052,14 @@ class BacktestOrchestrator:
         except (TypeError, ValueError):
             return {}, {}, ("simulation_result_ref_malformed",)
         try:
-            sim_payload = load_core_json_artifact(self._store, simulation_result_ref)
+            simulation_result = validate_core_model_json_artifact(
+                SimulationResult, self._store, simulation_result_ref
+            )
         except Exception as exc:
             return {}, {}, (f"simulation_result_unavailable:{type(exc).__name__}",)
-        if not isinstance(sim_payload, Mapping):
-            return {}, {}, ("simulation_result_payload_invalid",)
-        envelopes = sim_payload.get("uncertainty_envelopes")
-        if not isinstance(envelopes, dict):
+        envelopes = simulation_result.uncertainty_envelopes
+        if not isinstance(envelopes, Mapping):
             return {}, {}, ("simulation_uncertainty_map_missing",)
-
         intervals: dict[str, list[tuple[float, float]]] = {}
         envelope_metadata: list[tuple[float | None, str | None]] = []
         envelope_contracts: list[UncertaintyEnvelope] = []
@@ -1066,14 +1067,14 @@ class BacktestOrchestrator:
         metadata_errors: list[str] = []
         for metric in plan.target_metrics:
             ref_payload = envelopes.get(metric)
-            if not isinstance(ref_payload, dict) or not ref_payload.get("artifact_id"):
+            if ref_payload is None or not getattr(ref_payload, "artifact_id", None):
                 metadata_errors.append(
                     f"simulation_uncertainty_metric_envelope_ref_missing:{metric}"
                 )
                 continue
             try:
-                admission = load_simulation_result_uncertainty_admission(
-                    _ensure_ir_artifact_store(self._store),
+                admission = load_science_simulation_result_uncertainty_admission(
+                    self._store,
                     simulation_result_ref,
                     metric,
                 )
@@ -1085,7 +1086,7 @@ class BacktestOrchestrator:
                         f"simulation_uncertainty_admission_limited:{metric}:{limitations}"
                     )
                     continue
-                env_id = ArtifactID.model_validate(ref_payload["artifact_id"])
+                env_id = ArtifactID.model_validate(ref_payload.artifact_id)
                 env_payload = admission.envelope.model_dump(mode="python", round_trip=True)
                 (
                     metadata_declared,
@@ -1120,7 +1121,7 @@ class BacktestOrchestrator:
                     if parsed_interval is not None:
                         intervals[metric] = [parsed_interval] * horizon
             except (TypeError, ValueError, KeyError):
-                if isinstance(ref_payload, dict) and ref_payload.get("artifact_id"):
+                if ref_payload is not None and getattr(ref_payload, "artifact_id", None):
                     metadata_errors.append("uncertainty_envelope_metadata_invalid")
                 continue
         if envelope_metadata and legacy_metadata_seen:

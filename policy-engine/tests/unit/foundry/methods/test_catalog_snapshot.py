@@ -9,11 +9,14 @@ from pathlib import Path
 
 import pytest
 
+from polisyos.core.artifacts import resolve_manifest_by_profile
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import (
     DeclaredBuiltinLoader,
     DiscoveryDeclaredBuiltinLoaderIdentity,
 )
 from polisyos.core.components.discovery import _component_discovery_manifest_id
+from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot
 from polisyos.foundry.extensions.discovery import (
     BUILTIN_LOADER,
     ENTRY_POINT_GROUP,
@@ -39,11 +42,56 @@ from polisyos.foundry.methods.catalog.snapshot import (
     build_method_catalog_runtime_identity,
     build_method_catalog_snapshot,
     method_catalog_provenance_id,
+    persist_method_catalog_snapshot,
 )
 from polisyos.foundry.methods.selection import reachable_value_method_fqns
 from polisyos.foundry.methods.selection.registry import MethodRegistry, registry_scope
 
 _Y0_INSTALLED = importlib.util.find_spec("y0") is not None
+
+
+def test_persist_method_catalog_snapshot_returns_exact_write_selected_profile(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    snapshot = MethodCatalogSnapshot(snapshot_id="catalog_selected_profile")
+
+    ref = persist_method_catalog_snapshot(store, snapshot)
+
+    assert ref.manifest_profile_sha256 is not None
+    manifest = resolve_manifest_by_profile(store, ref.artifact_id, ref.manifest_profile_sha256)
+    assert manifest.kind == "foundry.method_catalog_snapshot"
+    assert manifest.artifact_schema is not None
+    assert manifest.artifact_schema.name == "polisyos.core.MethodCatalogSnapshot"
+
+    class MalformedSelectedWriter:
+        def put_json(self, obj, opts, canon_spec=None, *, return_selected_profile=False):
+            del obj, opts, canon_spec
+            assert return_selected_profile is True
+            return ref.model_copy(update={"manifest_profile_sha256": None})
+
+    with pytest.raises(
+        ValueError,
+        match="method_catalog_snapshot_selected_write_ref_incomplete",
+    ):
+        persist_method_catalog_snapshot(MalformedSelectedWriter(), snapshot)  # type: ignore[arg-type]
+
+
+def test_persist_method_catalog_snapshot_refuses_writer_without_selected_profile_api(
+    tmp_path: Path,
+) -> None:
+    snapshot = MethodCatalogSnapshot(snapshot_id="catalog_profileless_writer")
+
+    class ProfilelessWriter:
+        def put_json(self, obj, opts, canon_spec=None):
+            del obj, opts, canon_spec
+            pytest.fail("selected-profile writer support must be checked before writing")
+
+    with pytest.raises(
+        NotImplementedError,
+        match="artifact_store_return_selected_profile_unsupported",
+    ):
+        persist_method_catalog_snapshot(ProfilelessWriter(), snapshot)  # type: ignore[arg-type]
 
 
 @pytest.fixture(autouse=True)
@@ -682,7 +730,7 @@ def test_method_catalog_snapshot_contains_stable_entries() -> None:
     }
     assert len(first.entries) >= 382
     assert first_value_capable == second_value_capable
-    assert len(first_value_capable) == 55
+    assert len(first_value_capable) == 60
 
 
 def test_value_projection_and_joint_simulation_output_axes_compose() -> None:

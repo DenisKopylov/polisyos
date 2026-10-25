@@ -1400,7 +1400,22 @@ def test_runtime_openapi_snapshot_is_a_default_freshness_probe() -> None:
     assert family.output_probe_command is not None
     assert "tools/ops_runners/runtime/export_runtime_openapi.py" in family.output_probe_command
     assert "{output_root}/schemas/runtime_api_v1.openapi.json" in family.output_probe_command
-    assert "consulted dependency basis" in family.freshness_rule
+    assert "confidence_ledger_risk_spend_openapi_example.json" in family.source_of_truth
+    assert "schema rendering does not query current owner availability" in family.source_of_truth
+    assert "reviewed historical OpenAPI example bytes/provenance change" in family.freshness_rule
+    assert (
+        "live owner dependency-basis change does not silently rewrite the historical example"
+        in family.freshness_rule
+    )
+    required_paths = {
+        path.relative_to(guardrails.REPO_ROOT).as_posix() for path in family.probe_required_paths
+    }
+    assert "hatch.toml" in required_paths
+    assert "src/polisyos/runtime/http/openapi_contract.py" in required_paths
+    assert (
+        "src/polisyos/runtime/http/_resources/confidence_ledger_risk_spend_openapi_example.json"
+        in required_paths
+    )
 
 
 def test_guardrails_check_discloses_the_standalone_status_gate(

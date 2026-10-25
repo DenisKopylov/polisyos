@@ -12,9 +12,6 @@ from pydantic import ValidationError
 
 from polisyos.common import logger as common_logger
 from polisyos.core.artifacts import ArtifactRef
-from polisyos.core.artifacts import (
-    ensure_ir_artifact_store as _ensure_ir_artifact_store,
-)
 from polisyos.core.contracts import Metrics, SimulationResult
 from polisyos.ir import (
     ArbitrationOption,
@@ -33,9 +30,11 @@ from polisyos.ir import (
     StakeholderSpec,
     StakeholderUtilitySummary,
     UtilityDirection,
-    load_simulation_result_uncertainty_admission,
 )
 from polisyos.ir.analytics import DistributionalReport
+from polisyos.scientist.nodes.builtins.simulate.uncertainty_source_projection import (
+    load_science_simulation_result_uncertainty_admission,
+)
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
@@ -257,8 +256,8 @@ def _uncertainty_ratio(
     if simulation_result_ref is None:
         return None, ("simulation_result_ref_missing",)
     try:
-        admission = load_simulation_result_uncertainty_admission(
-            _ensure_ir_artifact_store(ctx.store),
+        admission = load_science_simulation_result_uncertainty_admission(
+            ctx.store,
             simulation_result_ref,
             metric_id,
         )

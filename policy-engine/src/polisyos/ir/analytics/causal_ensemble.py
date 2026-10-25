@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Mapping, Sequence
+from typing import Any, ClassVar
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -14,9 +16,21 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import ArtifactStore
+from polisyos.ir.artifacts._lineage import InputRefLike
+from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration, CanonInfo
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import (
+    CompatibilityMode,
+    IRRepresentationRegistration,
+    ResolvedSchemaAdmission,
+    register_ir_representation,
+    register_schema_version,
+)
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import CausalModelEnsembleRef
+
+_CAUSAL_MODEL_ENSEMBLE_SCHEMA_VERSION = "1.0"
 
 
 class EnsembleMember(BaseModel):
@@ -35,7 +49,8 @@ class CausalModelEnsemble(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    SCHEMA_VERSION: ClassVar[str] = _CAUSAL_MODEL_ENSEMBLE_SCHEMA_VERSION
+    schema_version: str = Field(_CAUSAL_MODEL_ENSEMBLE_SCHEMA_VERSION, pattern=r"^\d+\.\d+$")
     members: list[EnsembleMember]
     consensus_graph_ref: str | None = None
     edge_inclusion_frequency: dict[str, float] = Field(default_factory=dict)
@@ -75,6 +90,7 @@ class CausalModelEnsemble(BaseModel):
         if not all_estimates:
             sentinel = 1.0e12
             return UncertaintyEnvelope(
+                schema_version=UncertaintyEnvelope.SCHEMA_VERSION,
                 point_estimate=0.0,
                 confidence_interval=(-sentinel, sentinel),
                 confidence_level=None,
@@ -93,6 +109,7 @@ class CausalModelEnsemble(BaseModel):
 
         arr = np.asarray(all_estimates, dtype=float)
         return UncertaintyEnvelope(
+            schema_version=UncertaintyEnvelope.SCHEMA_VERSION,
             point_estimate=float(np.median(arr)),
             confidence_interval=(
                 float(np.percentile(arr, 2.5)),
@@ -114,34 +131,106 @@ class CausalModelEnsemble(BaseModel):
         )
 
 
+def _family_payload_version(value: object) -> str | None:
+    """Return a strict embedded version, distinguishing absence from malformed null."""
+    if not isinstance(value, Mapping):
+        raise ValueError("owned family payload must be an object")
+    if "schema_version" not in value:
+        return None
+    version = value["schema_version"]
+    if type(version) is not str or not version.strip():
+        raise ValueError("owned family payload schema_version must be a nonempty string")
+    return version
+
+
+def _family_source_mapping(value: object, admission: ResolvedSchemaAdmission) -> dict[str, Any]:
+    """Bind payload bytes to the exact tuple already selected from the owner snapshot."""
+    if not isinstance(value, Mapping):
+        raise ValueError("owned family payload must be an object")
+    if _family_payload_version(value) != admission.source_registration.payload_version:
+        raise ValueError("payload version differs from exact registered tuple")
+    return dict(value)
+
+
+def _family_profile(profile: CanonInfo, row: IRRepresentationRegistration) -> bool:
+    """Require the producer's actual canonicalization profile and no profile alias."""
+    return (
+        profile == CanonInfo.from_spec(CanonSpec(forbid_floats=False)) and row.profile_ref is None
+    )
+
+
+_ENSEMBLE_OWNER_POLICY = ("causal-model-ensemble-json", "1")
+_ENSEMBLE_OWNER = ArtifactOwnerDeclaration(
+    contract_id="polisyos.ir.analytics.causal_ensemble.CausalModelEnsemble",
+    dto_fqn="polisyos.ir.analytics.causal_ensemble.CausalModelEnsemble",
+    abi_key="causal_model_ensemble",
+    registry_key="causal_model_ensemble",
+    kind="ir.causal_model_ensemble",
+    media_type="application/json",
+    purpose="causal_model_ensemble",
+    policy_revision="1",
+    accepted_wire_policies=(_ENSEMBLE_OWNER_POLICY,),
+    payload_version_of=_family_payload_version,
+    validate_source=_family_source_mapping,
+    project_for_consumer=lambda value, _admission: CausalModelEnsemble.model_validate(value),
+    validate_profile=_family_profile,
+)
+
+
+def _register_ensemble_owner() -> None:
+    """Register the current typed ensemble row as its only default writer."""
+    version = CausalModelEnsemble.SCHEMA_VERSION
+    register_schema_version(
+        "causal_model_ensemble",
+        version,
+        compatibility=CompatibilityMode.NONE,
+        notes=("CausalModelEnsemble current owner JSON representation.",),
+    )
+    register_ir_representation(
+        registry_key="causal_model_ensemble",
+        owner_ref=_ENSEMBLE_OWNER.contract_id,
+        dto_abi=_ENSEMBLE_OWNER.dto_fqn,
+        wire_policy_ref=_ENSEMBLE_OWNER_POLICY[0],
+        wire_policy_revision=_ENSEMBLE_OWNER_POLICY[1],
+        schema_name="ir.causal_model_ensemble",
+        schema_version=version,
+        payload_version=version,
+        writable=True,
+        current=True,
+        default_write=True,
+    )
+
+
+_register_ensemble_owner()
+
+
 def persist_causal_model_ensemble(
     store: ArtifactStore,
     ensemble: CausalModelEnsemble,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
     schema_name: str = "ir.causal_model_ensemble",
-    schema_version: str = "1.0",
+    schema_version: str = CausalModelEnsemble.SCHEMA_VERSION,
 ) -> CausalModelEnsembleRef:
-    """Persist a causal-model ensemble artifact for structural-uncertainty reporting."""
-    ref = put_json_artifact(
+    """Persist the ensemble through its exact owner-registered tuple."""
+    ref = _put_owned_json_artifact(
         store,
         ensemble.model_dump(mode="json"),
-        kind="ir.causal_model_ensemble",
+        owner=_ENSEMBLE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    return CausalModelEnsembleRef.model_validate(ref)
+    return CausalModelEnsembleRef.from_selected_write(ref)
 
 
 def load_causal_model_ensemble(
     store: ArtifactStore,
     ref: CausalModelEnsembleRef,
 ) -> CausalModelEnsemble:
-    """Load causal model ensemble."""
-    payload = get_json_artifact(store, ref)
-    return CausalModelEnsemble.model_validate(payload)
+    """Load through exact owner-bound artifact admission."""
+    return _get_owned_json_artifact(store, ref, owner=_ENSEMBLE_OWNER)
 
 
 __all__ = [

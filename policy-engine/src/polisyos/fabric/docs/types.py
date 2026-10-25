@@ -9,12 +9,14 @@ chunks.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
-from typing import Literal
-
-from polisyos.ir.loading.fact_log import FactSegmentManifest
+from typing import TYPE_CHECKING, Literal
 
 from .errors import DocValidationError
+
+if TYPE_CHECKING:
+    from datetime import datetime
+
+    from polisyos.ir.loading.fact_log import FactSegmentManifest
 
 
 @dataclass(frozen=True)

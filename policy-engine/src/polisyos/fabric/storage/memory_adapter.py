@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 
 from .port import StoragePort
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Mapping, Sequence
 
 
 class InMemoryStorageAdapter(StoragePort):

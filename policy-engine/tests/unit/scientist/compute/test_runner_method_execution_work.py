@@ -5,7 +5,7 @@ import threading
 import weakref
 from contextvars import ContextVar
 from dataclasses import fields
-from typing import Any, ClassVar
+from typing import Any
 
 import numpy as np
 import pytest
@@ -15,24 +15,18 @@ from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.observability import DeterminismTier
-from polisyos.foundry.methods import (
-    ComplexityClass,
-    ComputeBackend,
-    FidelityLevel,
-    MethodMetadata,
-    MethodRegistry,
-    MethodSignature,
-    SlotSpec,
-    SlotType,
-    Unit,
-)
+from polisyos.core.contracts.runtime import ObservationalInputResourcePolicy
+from polisyos.foundry.methods import ComputeBackend, MethodRegistry, MethodSignature
 from polisyos.foundry.methods.backends.protocol import (
     MethodResult,
     MethodTiming,
     ReproducibilityInfo,
 )
+from polisyos.foundry.methods.catalog.causal._common import wrap_causal_output
+from polisyos.foundry.methods.catalog.causal.forest_dr import ForestDRLearnerEstimator
 from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
+from polisyos.ir.analytics.causal import CausalEffectReport, CausalMethod
+from polisyos.ir.analytics.hte import HTEResult
 from polisyos.ir.observation.bundles import ContractCompatibilityTarget
 from polisyos.scientist.compute.runner import (
     MethodBackend,
@@ -51,55 +45,53 @@ def _reset_registry():
     MethodRegistry.reset_instance()
 
 
-class _QualifiedHTEMethod:
-    signature: ClassVar[MethodSignature] = MethodSignature(
-        name="qualified_hte_bridge",
-        namespace="tests.scientist.compute",
-        version="1.0.0",
-        input_slots=frozenset(
-            {
-                SlotSpec("X", SlotType.MATRIX, Unit("covariate", "value")),
-                SlotSpec("treatment", SlotType.VECTOR, Unit("treatment", "binary")),
-                SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value")),
-            }
-        ),
-        output_slots=frozenset(),
-        parameters=(),
-        fidelity=FidelityLevel.LOW,
-        complexity=ComplexityClass.O_1,
-        backend=ComputeBackend.NUMPY,
-        supports_jit=False,
-        supports_vmap=False,
-        supports_grad=False,
-    )
-    metadata: ClassVar[MethodMetadata] = MethodMetadata(
-        description="qualified worker bridge fixture"
-    )
-
-    @staticmethod
-    def pure_step(state: Any, params: dict[str, Any]) -> dict[str, Any]:
-        del state, params
-        return {"estimate": 1.0}
-
-
 class _FixedDispatcher:
     def __init__(self, *, fail: bool = False) -> None:
         self.fail = fail
         self.seen_state = False
 
     def dispatch(self, **kwargs: Any) -> MethodResult:
-        assert kwargs["method_class"] is _QualifiedHTEMethod
+        assert kwargs["method_class"] is ForestDRLearnerEstimator
         state = kwargs["state"]
         assert isinstance(state, HTEObservationalData)
         if self.fail:
             raise ValueError("method dispatch failed", state.covariates)
         self.seen_state = True
         return MethodResult(
-            output={"estimate": 1.25},
+            output=wrap_causal_output(
+                CausalEffectReport(
+                    method=CausalMethod.FOREST_DR,
+                    estimand="ATE",
+                    point_estimate=1.25,
+                    confidence_interval=(0.25, 2.25),
+                    confidence_level=0.95,
+                    standard_error=0.5,
+                    inference_method="controlled_test_dispatch",
+                    sample_size=40,
+                    n_treated=20,
+                    n_control=20,
+                    pre_periods=0,
+                    post_periods=0,
+                ),
+                extras={
+                    "hte_result": HTEResult.from_estimates(
+                        method=CausalMethod.FOREST_DR,
+                        ate=1.25,
+                        ate_ci_lower=0.25,
+                        ate_ci_upper=2.25,
+                        n_samples=40,
+                        n_treated=20,
+                        n_control=20,
+                        n_features=2,
+                        feature_names=["x0", "x1"],
+                        cate_values=[1.25] * 40,
+                    ),
+                },
+            ),
             timing=MethodTiming(wall_time_ms=1.0),
             reproducibility=ReproducibilityInfo(
                 backend=ComputeBackend.NUMPY,
-                determinism_tier=DeterminismTier.DETERMINISTIC,
+                determinism_tier=ForestDRLearnerEstimator.determinism_tier,
                 seed=9,
             ),
         )
@@ -107,17 +99,18 @@ class _FixedDispatcher:
 
 class _Admission:
     protocol = "method_input_envelope_v1"
-    method_fqn = _QualifiedHTEMethod.signature.fqn
-    method_version = _QualifiedHTEMethod.signature.version
+    method_fqn = ForestDRLearnerEstimator.signature.fqn
+    method_version = ForestDRLearnerEstimator.signature.version
     seed = 9
     limits = object()
-    method_abi_digest = _QualifiedHTEMethod.signature.abi_digest()
+    method_abi_digest = ForestDRLearnerEstimator.signature.abi_digest()
     method_build_digest = "a" * 64
     resource_policy_digest = "b" * 64
 
     def __init__(self, store: FileSystemCAS, resource_policy_ref: ArtifactRef) -> None:
         self.store = store
         self.resource_policy_ref = resource_policy_ref
+        self.resource_policy = ObservationalInputResourcePolicy()
         self.effective_params = {"alpha": 0.05}
 
 
@@ -143,8 +136,8 @@ class _AdmissionService:
         method_class: type,
     ) -> None:
         assert admission is self.admission
-        assert signature is _QualifiedHTEMethod.signature
-        assert method_class is _QualifiedHTEMethod
+        assert signature is ForestDRLearnerEstimator.signature
+        assert method_class is ForestDRLearnerEstimator
 
     def persist_content_admitted_intent(self, **kwargs: Any) -> ArtifactRef:
         self.persisted_fields = frozenset(kwargs)
@@ -187,6 +180,7 @@ def _install_prepared_input(
     *,
     data: HTEObservationalData,
     input_ref: ArtifactRef,
+    payload_integrity_verified: bool = True,
 ) -> dict[str, object]:
     from polisyos.foundry.data_plane import bindings
 
@@ -205,7 +199,7 @@ def _install_prepared_input(
                 contract_id="foundry.causal.hte_observational_data.v1",
                 contract_fqn="polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData",
             ),
-            "method_fqn": _QualifiedHTEMethod.signature.fqn,
+            "method_fqn": ForestDRLearnerEstimator.signature.fqn,
             "source_protocol": "method_input_envelope_v1",
             "normalization": "canonical_passthrough",
             "limitations": (),
@@ -216,7 +210,7 @@ def _install_prepared_input(
             "observed_manifest_verification_bytes": 64,
             "observed_payload_bytes": 512,
             "observed_source_bytes": 768,
-            "payload_integrity_verified": True,
+            "payload_integrity_verified": payload_integrity_verified,
             "observed_bytes": 512,
             "observed_depth": 4,
             "observed_elements": 120,
@@ -225,7 +219,7 @@ def _install_prepared_input(
     holder: dict[str, object] = {"prepared": prepared}
 
     def prepare(**kwargs: Any) -> object:
-        assert kwargs["method_fqn"] == _QualifiedHTEMethod.signature.fqn
+        assert kwargs["method_fqn"] == ForestDRLearnerEstimator.signature.fqn
         return holder["prepared"]
 
     monkeypatch.setattr(bindings, "prepare_hte_observational_input", prepare, raising=False)
@@ -238,7 +232,7 @@ def _build_backend(
     fail: bool = False,
 ) -> tuple[MethodBackend, _AdmissionService, _FixedDispatcher, FileSystemCAS, ArtifactRef]:
     registry = MethodRegistry.get_instance()
-    registry.register(_QualifiedHTEMethod, override=True)
+    registry.register(ForestDRLearnerEstimator, override=True)
     store = FileSystemCAS(tmp_path)
     resource_policy_ref = _put_ref(
         store,
@@ -374,6 +368,9 @@ def test_qualified_method_route_keeps_full_worker_lease_and_ref_only_outcome(
         assert outcome.method_evidence_ref.manifest_profile_sha256 is not None
         assert outcome.content_admitted_intent_ref.manifest_profile_sha256 is not None
         assert outcome.method_dispatch_binding_status == "recomputed"
+        assert outcome.candidate_outcome is not None
+        assert outcome.candidate_outcome.status == "success"
+        assert outcome.candidate_outcome.point_estimate == 1.25
         assert service.resolved_refs is not None
         assert service.resolved_refs[0].kind == "tests.requested_observation"
         assert service.resolved_refs[1].kind == "tests.observational_run_intent"
@@ -390,27 +387,55 @@ def test_qualified_method_route_keeps_full_worker_lease_and_ref_only_outcome(
 
         mutable_view = outcome.method_result_ref
         mutable_view.kind = "tests.local_mutation"
-        assert outcome.method_result_ref.kind == "scientist.method_result.tests.scientist.compute"
+        assert outcome.method_result_ref.kind == "scientist.method_result.causal.hte"
         assert not any(
             isinstance(getattr(outcome, item.name), (np.ndarray, MethodResult))
             for item in fields(outcome)
         )
+        persisted_result = from_canonical_bytes(store.get_bytes(outcome.method_result_ref))
+        assert persisted_result["report"]["method"] == "forest_dr"
+        assert persisted_result["hte_result"]["ate"] == 1.25
         evidence = from_canonical_bytes(store.get_bytes(outcome.method_evidence_ref))
         assert evidence["authority_purpose"] == "method_execution"
-        assert evidence["method_abi_digest"] == _QualifiedHTEMethod.signature.abi_digest()
+        assert evidence["method_abi_digest"] == ForestDRLearnerEstimator.signature.abi_digest()
         assert evidence["method_build_digest_scope"] == "class_source_only"
         assert evidence["resource_policy_digest"] == "b" * 64
         assert evidence["method_dispatch_binding_status"] == "recomputed"
         assert evidence["method_dispatch_binding"]["method_fqn"] == (
-            _QualifiedHTEMethod.signature.fqn
+            ForestDRLearnerEstimator.signature.fqn
         )
         assert (
-            evidence["method_dispatch_binding"]["input_refs"]["X"]["manifest_profile_sha256"]
+            evidence["method_dispatch_binding"]["input_refs"]["hte_data"]["manifest_profile_sha256"]
             == input_ref.manifest_profile_sha256
         )
     finally:
         release_blocker.set()
         executor.shutdown(wait=True, cancel_futures=True)
+
+
+def test_worker_refuses_unverified_payload_before_content_admission(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    backend, service, dispatcher, store, _policy_ref = _build_backend(tmp_path)
+    work, _source_ref, _intent_ref = _new_work(store)
+    input_ref = _put_ref(
+        store,
+        kind="tests.effective_method_input",
+        schema_name="tests.EffectiveMethodInput",
+    )
+    _install_prepared_input(
+        monkeypatch,
+        data=_hte_data(np.ones((40, 2), dtype=float)),
+        input_ref=input_ref,
+        payload_integrity_verified=False,
+    )
+
+    with pytest.raises(ValueError, match="prepared_hte_payload_integrity_not_verified"):
+        backend._execute_method_execution_work(work)
+
+    assert service.persisted_fields == frozenset()
+    assert dispatcher.seen_state is False
 
 
 def test_metric_projection_work_snapshots_all_full_refs_and_supports_graph_none(tmp_path) -> None:
@@ -617,12 +642,12 @@ def test_qualified_dispatch_fingerprint_tracks_consumed_values_not_only_selected
         first_binding = first_evidence["method_dispatch_binding"]
         second_binding = second_evidence["method_dispatch_binding"]
         assert (
-            first_binding["input_refs"]["X"]["manifest_profile_sha256"]
-            == (second_binding["input_refs"]["X"]["manifest_profile_sha256"])
+            first_binding["input_refs"]["hte_data"]["manifest_profile_sha256"]
+            == (second_binding["input_refs"]["hte_data"]["manifest_profile_sha256"])
         )
         assert (
-            first_binding["input_state_fingerprints"]["X"]
-            != (second_binding["input_state_fingerprints"]["X"])
+            first_binding["input_state_fingerprints"]["hte_data"]
+            != (second_binding["input_state_fingerprints"]["hte_data"])
         )
     finally:
         executor.shutdown(wait=True, cancel_futures=True)

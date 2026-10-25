@@ -16,7 +16,7 @@ import { usePermission } from "@/app/authz/AuthzProvider";
 import { buildArtifactHref } from "@/features/artifacts";
 import { useFeatureFlag } from "@/app/providers/FeatureFlagProvider";
 import { useRunInspector } from "@/features/runs/context/RunInspectorContext";
-import { normalizeGenericCycleSimulation } from "@/features/runs/domain/genericCycleSimulation";
+import { normalizeGenericCycleSimulation } from "../../domain/genericCycleSimulation";
 import { MetricCard } from "@/features/runs/components/MetricCard";
 import { ScenarioWorkbench } from "@/features/whatif";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
@@ -28,6 +28,7 @@ import {
   findRunEvidencePromotion,
   normalizeRunEvidenceContext,
 } from "@/shared/lib/domain/evidence";
+import { coreRunIdFromDetails } from "@/features/runs/routes/useRunDetailSummary";
 import { normalizeGovernanceIssues } from "@/shared/lib/domain/governance";
 import {
   formatDate,
@@ -895,6 +896,7 @@ function GenericCycleSimulationPanel({
   const { projection } = presentation;
   const observations =
     projection.artifact_status === "resolved" ? projection.n5_observations : [];
+  const cycleHistory = projection.n6_cycle_history ?? [];
   const profileBindings =
     projection.artifact_status === "resolved"
       ? projection.child_profile_bindings
@@ -940,6 +942,58 @@ function GenericCycleSimulationPanel({
           </p>
         ) : null}
       </div>
+      {projection.n6_cycle_history_status ? (
+        <div
+          className="space-y-2 border-t pt-3"
+          data-testid="overview-generic-cycle-history"
+        >
+          <h5>{t("pages.runs.genericCycleSimulation.cycleHistoryTitle")}</h5>
+          <p data-testid="overview-generic-cycle-history-status">
+            {t("pages.runs.genericCycleSimulation.cycleHistoryStatus", {
+              status: projection.n6_cycle_history_status,
+            })}
+          </p>
+          {projection.n6_cycle_history_limitation_code ? (
+            <p data-testid="overview-generic-cycle-history-limitation">
+              {t("pages.runs.genericCycleSimulation.cycleHistoryLimitation", {
+                reason: projection.n6_cycle_history_limitation_code,
+              })}
+            </p>
+          ) : null}
+          {cycleHistory.map((cycle) => (
+            <article
+              className="space-y-1 break-all"
+              data-testid="overview-generic-cycle-history-row"
+              key={JSON.stringify([cycle.node_ref, cycle.cycle_index])}
+            >
+              <p>
+                {t("pages.runs.genericCycleSimulation.cycleHistoryEntry", {
+                  nodeRef: cycle.node_ref,
+                  cycleIndex: cycle.cycle_index,
+                  candidateRef: cycle.selected_candidate_ref,
+                })}
+              </p>
+              <p>
+                {t("pages.runs.genericCycleSimulation.cycleHistoryOutcome", {
+                  generationStatus: cycle.generation_cycle_run_terminal_status,
+                  terminal: cycle.terminal_kind,
+                  refinement: cycle.refinement_decision,
+                  search: cycle.search_iteration_status,
+                })}
+              </p>
+              <p>
+                {t("pages.runs.genericCycleSimulation.cycleHistorySignals", {
+                  grounding: cycle.grounding_status,
+                  groundingCurrentValid: String(cycle.grounding_current_valid),
+                  value: cycle.value_status,
+                  nextAction: cycle.voi_next_action,
+                  blockers: cycle.value_authority_blockers.join(", "),
+                })}
+              </p>
+            </article>
+          ))}
+        </div>
+      ) : null}
       {projection.artifact_status !== "resolved" ? (
         <p data-testid="overview-generic-cycle-simulation-unavailable">
           {t("pages.runs.genericCycleSimulation.unavailable", {
@@ -1899,18 +1953,19 @@ export default function OverviewTab() {
   const canReviewCycleBoard = usePermission("runs.review");
   const { runId } = useParams();
   const summary = useRunInspector();
+  const coreRunId = coreRunIdFromDetails(summary.run);
   const genericCycleSimulation = normalizeGenericCycleSimulation(
     summary.run?.run_id ?? runId ?? "unknown-run",
     summary.run?.generic_cycle_simulation,
   );
 
-  if (!summary.run || !runId) {
+  if (!summary.run || !coreRunId || !runId) {
     return null;
   }
 
   return (
     <div className="space-y-5" data-testid="run-tab-overview">
-      <PredictiveCalibrationPanel runId={runId} run={summary.run} />
+      <PredictiveCalibrationPanel runId={coreRunId} run={summary.run} />
       <CandidateSimulationPanel run={summary.run} />
       <GenericCycleSimulationPanel presentation={genericCycleSimulation} />
       <div className="grid gap-5 xl:grid-cols-2">
@@ -1968,7 +2023,7 @@ export default function OverviewTab() {
             }
             resetKeys={[runId]}
           >
-            <GovernancePanelContent runId={runId} />
+            <GovernancePanelContent runId={coreRunId} />
           </FeatureAsyncBoundary>
         </Card>
       </div>
@@ -2005,7 +2060,7 @@ export default function OverviewTab() {
             }
             resetKeys={[runId]}
           >
-            <EvidencePanelContent runId={runId} />
+            <EvidencePanelContent runId={coreRunId} />
           </FeatureAsyncBoundary>
         </Card>
 
@@ -2025,18 +2080,18 @@ export default function OverviewTab() {
             }
             resetKeys={[runId]}
           >
-            <TimelinePanelContent runId={runId} />
+            <TimelinePanelContent runId={coreRunId} />
           </FeatureAsyncBoundary>
         </Card>
       </div>
 
       {whatIfEnabled ? (
         <Card className="space-y-4" data-testid="overview-scenario-workbench">
-          <ScenarioWorkbench runId={runId} />
+          <ScenarioWorkbench runId={coreRunId} />
         </Card>
       ) : null}
 
-      <RunOverviewProfileLineage runId={runId} />
+      <RunOverviewProfileLineage runId={coreRunId} />
 
       {/* Explainability & Trust (XAI) */}
       <Card className="space-y-4">

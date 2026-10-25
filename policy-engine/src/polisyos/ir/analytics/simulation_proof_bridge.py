@@ -13,6 +13,15 @@ from polisyos.common.canonical_profile import (
     CanonicalProfileRefusalError,
     read_optional_selected_artifact,
 )
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation as _OwnedJSONRepresentation,
+)
+from polisyos.ir.analytics._owner_admission import (
+    declare_model_owner as _declare_model_owner,
+)
+from polisyos.ir.analytics._owner_admission import (
+    owner_profile_for_spec as _owner_profile_for_spec,
+)
 from polisyos.ir.analytics._truthfulness import (
     TruthfulnessReceipt,
     TruthfulnessScope,
@@ -34,13 +43,9 @@ from polisyos.ir.analytics.proof_composability import (
     persist_proof_composability_certificate,
     persist_proof_witness_index,
 )
-from polisyos.ir.artifacts import (
-    ArtifactID,
-    ArtifactStore,
-    InputRef,
-    get_json_artifact,
-    put_json_artifact,
-)
+from polisyos.ir.artifacts import ArtifactID, ArtifactStore, InputRef, get_json_artifact
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode as _CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec, to_canonical_bytes
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
@@ -222,6 +227,63 @@ class SimulationProofBridgeArtifacts(BaseModel):
         return self
 
 
+def _declare_simulation_json_owner(
+    model: type[BaseModel],
+    *,
+    family: str,
+    kind: str,
+) -> object:
+    """Register one exact simulation bridge DTO/schema tuple."""
+    contract_id = f"ir.analytics.{family}.owner.v1"
+    wire_policy_ref = f"ir.analytics.{family}.wire-law"
+    return _declare_model_owner(
+        model,
+        contract_id=contract_id,
+        dto_fqn=f"{model.__module__}.{model.__qualname__}",
+        abi_key=f"{contract_id}.dto-abi.v1",
+        registry_key=kind,
+        kind=kind,
+        media_type="application/json",
+        purpose=family,
+        policy_revision=f"{contract_id}.admission.v1",
+        accepted_wire_policies=((wire_policy_ref, "1"),),
+        payload_version_field="schema_version",
+        validate_profile=_owner_profile_for_spec(
+            CanonSpec(forbid_floats=False),
+            profile_ref=None,
+        ),
+        representations=(
+            _OwnedJSONRepresentation(
+                schema_name=kind,
+                schema_version=_SCHEMA_VERSION,
+                payload_version=_SCHEMA_VERSION,
+                wire_policy_ref=wire_policy_ref,
+                wire_policy_revision="1",
+                profile_ref=None,
+                compatibility=_CompatibilityMode.NONE,
+                notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+                readable=True,
+                writable=True,
+                current=True,
+                default_write=True,
+                readable_from=(),
+            ),
+        ),
+    )
+
+
+_SIMULATION_CALIBRATION_RECEIPT_OWNER = _declare_simulation_json_owner(
+    SimulationCalibrationReceipt,
+    family="simulation_calibration_receipt",
+    kind="ir.simulation_calibration_receipt",
+)
+_SIMULATION_PROOF_BRIDGE_OWNER = _declare_simulation_json_owner(
+    SimulationProofBridge,
+    family="simulation_proof_bridge",
+    kind="ir.simulation_proof_bridge",
+)
+
+
 def persist_simulation_calibration_receipt(
     store: ArtifactStore,
     receipt: SimulationCalibrationReceipt,
@@ -235,10 +297,10 @@ def persist_simulation_calibration_receipt(
     validated = SimulationCalibrationReceipt.model_validate(
         receipt.model_dump(mode="python", warnings=False)
     )
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         validated.model_dump(mode="json"),
-        kind="ir.simulation_calibration_receipt",
+        owner=_SIMULATION_CALIBRATION_RECEIPT_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -253,8 +315,11 @@ def load_simulation_calibration_receipt(
 ) -> SimulationCalibrationReceipt:
     """Load a persisted simulation calibration receipt."""
 
-    payload = get_json_artifact(store, ref)
-    return SimulationCalibrationReceipt.model_validate(payload)
+    return _get_owned_json_artifact(
+        store,
+        ref,
+        owner=_SIMULATION_CALIBRATION_RECEIPT_OWNER,
+    )
 
 
 def persist_simulation_proof_bridge(
@@ -270,10 +335,10 @@ def persist_simulation_proof_bridge(
     validated = SimulationProofBridge.model_validate(
         bridge.model_dump(mode="python", warnings=False)
     )
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         validated.model_dump(mode="json"),
-        kind="ir.simulation_proof_bridge",
+        owner=_SIMULATION_PROOF_BRIDGE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -288,8 +353,11 @@ def load_simulation_proof_bridge(
 ) -> SimulationProofBridge:
     """Load a persisted simulation-proof bridge."""
 
-    payload = get_json_artifact(store, ref)
-    return SimulationProofBridge.model_validate(payload)
+    return _get_owned_json_artifact(
+        store,
+        ref,
+        owner=_SIMULATION_PROOF_BRIDGE_OWNER,
+    )
 
 
 def build_simulation_proof_bridge_artifacts(

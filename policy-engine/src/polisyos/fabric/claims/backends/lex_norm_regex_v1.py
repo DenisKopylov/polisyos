@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import re
 from decimal import Decimal
-
-from polisyos.ir.world.doc import DocMeta
+from typing import TYPE_CHECKING
 
 from ..canonicalize import canonical_unit, canonicalize_id, parse_decimal_value_text
 from ..types import ChunkContext, ClaimCandidate, ClaimExtractOptions
+
+if TYPE_CHECKING:
+    from polisyos.ir.world.doc import DocMeta
 
 _LINE_RE = re.compile(
     r"^(?:(?:\d+[.)]|[a-zа-я]\))\s*)?(?:norm|claim)\s*:\s*(?P<body>.+)$",

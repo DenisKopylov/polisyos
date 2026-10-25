@@ -752,3 +752,244 @@ def test_family_result_rejects_member_link_with_foreign_assignment_digest() -> N
 
     with pytest.raises(ValidationError, match="member rows"):
         module.PAGMemberFamilyResult.model_validate_json(json.dumps(payload))
+
+
+def _estimate_work(
+    graph: CausalGraphModel,
+    *,
+    module: ModuleType | None = None,
+    dsep_limit: int = 64,
+    expanded_limit: int = 524288,
+    proposals: int = 64,
+    members: int = 64,
+    oracle: int = 64,
+) -> BaseModel:
+    candidate = module or _load_candidate()
+    return candidate.estimate_pag_member_work(
+        graph,
+        profile_id="pag.no_selection.finite_member_sensitivity",
+        profile_revision="1",
+        budget=_budget(candidate, proposals=proposals, members=members, oracle=oracle),
+        max_estimated_dsep_queries=dsep_limit,
+        max_estimated_expanded_graph_element_query_units=expanded_limit,
+    )
+
+
+def test_method_owned_work_estimate_uses_graph_dimensions_and_bounded_queries() -> None:
+    module = _load_candidate()
+    two = _estimate_work(_two_node_circle(), module=module)
+    three_graph = _pag(
+        ["X", "M", "Y"],
+        [
+            _edge("X", "M", EdgeMark.CIRCLE, EdgeMark.CIRCLE),
+            _edge("X", "Y", EdgeMark.CIRCLE, EdgeMark.CIRCLE),
+            _edge("M", "Y", EdgeMark.CIRCLE, EdgeMark.CIRCLE),
+        ],
+    )
+    three = _estimate_work(three_graph, module=module)
+    three_limited = _estimate_work(three_graph, module=module, proposals=10, oracle=10)
+
+    assert two.assignment_space.model_dump(mode="json") == {"base": 2, "exponent": 2}
+    assert two.observed_node_count == 2
+    assert two.observed_edge_count == 1
+    assert two.circle_endpoint_count == 2
+    assert two.bidirected_edge_upper_bound == 1
+    assert two.expanded_node_upper_bound == 3
+    assert two.expanded_edge_upper_bound == 2
+    assert two.proposal_bound.model_dump(mode="json") == {
+        "value": 4,
+        "ceiling": 64,
+        "exceeded_ceiling": False,
+    }
+    assert two.fci_membership_call_bound.value == 4
+    assert two.d_separation_queries_per_fci_call_bound.value == 1
+    assert two.d_separation_query_bound.value == 4
+    assert two.expanded_graph_element_query_bound.value == 20
+
+    assert three.assignment_space.exponent == 6
+    assert three.observed_node_count == 3
+    assert three.observed_edge_count == 3
+    assert three.circle_endpoint_count == 6
+    assert three.bidirected_edge_upper_bound == 3
+    assert three.expanded_node_upper_bound == 6
+    assert three.expanded_edge_upper_bound == 6
+    assert three.fci_membership_call_bound.value == 64
+    assert three.d_separation_queries_per_fci_call_bound.value == 6
+    assert three.d_separation_query_bound.model_dump(mode="json") == {
+        "value": 65,
+        "ceiling": 64,
+        "exceeded_ceiling": True,
+    }
+    assert three.expanded_graph_element_query_bound.value == 4608
+
+    # Same graph dimension with fewer permitted full FCI calls must lower the bound.
+    # This falsifies a dimension-only/hardcoded n=3 estimator.
+    assert three_limited.fci_membership_call_bound.value == 10
+    assert three_limited.d_separation_query_bound.value == 60
+    assert three_limited.expanded_graph_element_query_bound.value == 720
+    assert not three_limited.d_separation_query_bound.exceeded_ceiling
+
+
+def test_work_estimate_keeps_assignment_power_factored_for_large_circle_spaces() -> None:
+    module = _load_candidate()
+    node_count = 1000
+    graph = _pag(
+        [f"X{index}" for index in range(node_count)],
+        [
+            _edge(f"X{index}", f"X{index + 1}", EdgeMark.CIRCLE, EdgeMark.CIRCLE)
+            for index in range(node_count - 1)
+        ],
+    )
+
+    estimate = _estimate_work(graph, module=module)
+
+    assert estimate.assignment_space.model_dump(mode="json") == {
+        "base": 2,
+        "exponent": 2 * (node_count - 1),
+    }
+    assert estimate.proposal_bound.exceeded_ceiling
+    assert estimate.proposal_bound.value == estimate.proposal_bound.ceiling + 1
+    assert estimate.d_separation_query_bound.exceeded_ceiling
+
+
+def test_work_estimator_refuses_unpinned_backend_identity(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    module = _load_candidate()
+    original = module.importlib.metadata.version
+
+    def wrong_causal_learn_version(name: str) -> str:
+        if name == "causal-learn":
+            return "unexpected"
+        return original(name)
+
+    monkeypatch.setattr(module.importlib.metadata, "version", wrong_causal_learn_version)
+
+    with pytest.raises(module.PAGWorkEstimateError) as error:
+        module.pag_member_work_algorithm_identity()
+
+    assert error.value.code == "pinned_backend_identity_unavailable"
+
+
+def test_full_zero_member_search_is_not_established_and_cannot_claim_empty_class(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    module = _load_candidate()
+
+    def reject_membership(
+        *_args: object, **_kwargs: object
+    ) -> tuple[tuple[str, ...], dict[tuple[str, str], tuple[EdgeMark, EdgeMark]]]:
+        return ("X", "Y"), {}
+
+    monkeypatch.setattr(module, "_oracle_pag_endpoint_map", reject_membership)
+    result = module.evaluate_pag_member_family(
+        _two_node_circle(),
+        profile_id="pag.no_selection.finite_member_sensitivity",
+        profile_revision="1",
+        budget=_budget(module, proposals=4, members=4, oracle=4),
+    )
+
+    assert result.status.value == "not_established"
+    assert result.coverage.value == "not_established"
+    assert result.reason_code == "zero_admitted_members_not_established"
+    assert result.counts.admitted == 0
+    assert result.members == ()
+    assert result.counts.proposals_attempted == 4
+    assert result.counts.unattempted_proposals == "0"
+
+    admitted = _evaluate(_two_node_circle()).model_dump(mode="python")
+    admitted.update(
+        status="not_established",
+        coverage="not_established",
+        reason_code="zero_admitted_members_not_established",
+    )
+    with pytest.raises(ValidationError, match="zero-admitted proposal family"):
+        module.PAGMemberFamilyResult.model_validate(admitted)
+
+
+@pytest.mark.parametrize(
+    ("zero_members", "falsifier", "expected_error"),
+    [
+        (False, "shifted_ordinals", "exhausted_proposal_ordinals"),
+        (False, "validation_incomplete", "exhausted_proposal_partition_cannot_include"),
+        (True, "shifted_ordinals", "exhausted_proposal_ordinals"),
+        (True, "validation_incomplete", "exhausted_proposal_partition_cannot_include"),
+    ],
+)
+def test_exhausted_family_rejects_shifted_or_incomplete_terminal_partition(
+    monkeypatch: pytest.MonkeyPatch,
+    zero_members: bool,
+    falsifier: str,
+    expected_error: str,
+) -> None:
+    module = _load_candidate()
+    if zero_members:
+
+        def reject_membership(
+            *_args: object, **_kwargs: object
+        ) -> tuple[tuple[str, ...], dict[tuple[str, str], tuple[EdgeMark, EdgeMark]]]:
+            return ("X", "Y"), {}
+
+        monkeypatch.setattr(module, "_oracle_pag_endpoint_map", reject_membership)
+
+    result = module.evaluate_pag_member_family(
+        _two_node_circle(),
+        profile_id="pag.no_selection.finite_member_sensitivity",
+        profile_revision="1",
+        budget=_budget(module, proposals=4, members=4, oracle=4),
+    )
+    assert result.status.value == ("not_established" if zero_members else "completed")
+
+    payload = result.model_dump(mode="python")
+    if falsifier == "shifted_ordinals":
+        for proposal in payload["proposals"]:
+            proposal["ordinal"] += 1
+        for member in payload["members"]:
+            member["proposal_ordinal"] += 1
+    else:
+        proposal_index = next(
+            index
+            for index, proposal in enumerate(payload["proposals"])
+            if proposal["disposition"] != "admitted"
+        )
+        proposal = payload["proposals"][proposal_index]
+        previous_disposition = proposal["disposition"]
+        proposal.update(
+            disposition="validation_incomplete",
+            member_sha256=None,
+            duplicate_of=None,
+            reason_code="candidate_validation_incomplete",
+        )
+        payload["counts"][previous_disposition] -= 1
+        payload["counts"]["validation_incomplete"] += 1
+
+    with pytest.raises(ValidationError, match=expected_error):
+        module.PAGMemberFamilyResult.model_validate(payload)
+
+
+def test_completed_finite_coverage_requires_positive_member_admission(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    module = _load_candidate()
+
+    def reject_membership(
+        *_args: object, **_kwargs: object
+    ) -> tuple[tuple[str, ...], dict[tuple[str, str], tuple[EdgeMark, EdgeMark]]]:
+        return ("X", "Y"), {}
+
+    monkeypatch.setattr(module, "_oracle_pag_endpoint_map", reject_membership)
+    result = module.evaluate_pag_member_family(
+        _two_node_circle(),
+        profile_id="pag.no_selection.finite_member_sensitivity",
+        profile_revision="1",
+        budget=_budget(module, proposals=4, members=4, oracle=4),
+    )
+    payload = result.model_dump(mode="python")
+    payload.update(
+        status="completed",
+        coverage="finite_endpoint_assignment_space_complete",
+        reason_code=None,
+    )
+
+    with pytest.raises(ValidationError, match="complete finite coverage"):
+        module.PAGMemberFamilyResult.model_validate(payload)

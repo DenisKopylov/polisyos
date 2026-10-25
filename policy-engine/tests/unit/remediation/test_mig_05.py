@@ -3,7 +3,9 @@
 These tests intentionally keep the two public runners side by side.  The
 future shared engine may remove duplicated traversal code, but it must not
 erase the observable copy, stamping, identity, or error differences recorded
-here.  Data Forge graph migration is deliberately outside this corpus (LK25).
+here. IR registration is stricter than Common: conflicting replacement and
+cycle edges refuse at registration. Data Forge graph migration is outside
+this corpus (LK25).
 """
 
 from __future__ import annotations
@@ -296,13 +298,8 @@ def test_ir_missing_edge_and_cycle_remain_distinguishable() -> None:
         )
 
     _register_ir("mig05.ir.cycle", "0.1", "0.2", _return_without_schema_version)
-    _register_ir("mig05.ir.cycle", "0.2", "0.1", _return_without_schema_version)
-    with pytest.raises(ValueError, match="Migration loop detected"):
-        ir_migrations.migrate_artifact(
-            _payload(),
-            artifact="mig05.ir.cycle",
-            target_version="0.3",
-        )
+    with pytest.raises(ir_migrations.MigrationCompatibilityError, match="creates a cycle"):
+        _register_ir("mig05.ir.cycle", "0.2", "0.1", _return_without_schema_version)
 
 
 def test_common_duplicate_registration_replaces_previous_callback() -> None:
@@ -328,19 +325,22 @@ def test_common_duplicate_registration_replaces_previous_callback() -> None:
     assert called == ["new"]
 
 
-def test_ir_duplicate_registration_replaces_previous_callback() -> None:
+def test_ir_duplicate_registration_refuses_conflicting_callback_and_preserves_original() -> None:
     called: list[str] = []
 
     def old_callback(data: dict[str, Any]) -> dict[str, Any]:
-        del data
-        raise AssertionError("replaced callback was called")
+        called.append("old")
+        return _return_without_schema_version(data)
 
     def new_callback(data: dict[str, Any]) -> dict[str, Any]:
         called.append("new")
         return _return_without_schema_version(data)
 
     _register_ir("mig05.ir.duplicate", "0.1", "0.2", old_callback)
-    _register_ir("mig05.ir.duplicate", "0.1", "0.2", new_callback)
+    with pytest.raises(
+        ir_migrations.MigrationCompatibilityError, match="Conflicting migration edge"
+    ):
+        _register_ir("mig05.ir.duplicate", "0.1", "0.2", new_callback)
 
     ir_migrations.migrate_artifact(
         _payload(),
@@ -348,7 +348,7 @@ def test_ir_duplicate_registration_replaces_previous_callback() -> None:
         target_version="0.2",
     )
 
-    assert called == ["new"]
+    assert called == ["old"]
 
 
 def test_real_common_manifest_callback_remains_registered_and_isolated() -> None:

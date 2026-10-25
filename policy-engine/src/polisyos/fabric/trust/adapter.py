@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from polisyos.core.contracts.fabric import UncertaintyBounds
+from typing import TYPE_CHECKING
+
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
@@ -10,6 +11,9 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
+
+if TYPE_CHECKING:
+    from polisyos.core.contracts.fabric import UncertaintyBounds
 
 
 def envelope_from_trust_bounds(

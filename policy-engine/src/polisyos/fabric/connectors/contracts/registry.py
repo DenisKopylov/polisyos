@@ -13,7 +13,6 @@ from __future__ import annotations
 import json
 import threading
 from datetime import UTC, datetime
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -31,6 +30,7 @@ from polisyos.fabric.io.atomic import (
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+    from pathlib import Path
 
 logger = get_logger(__name__)
 

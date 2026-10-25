@@ -1,0 +1,25 @@
+id = "2026-10-23-e02-agent-cost-origin-aggregation"
+title = "Keep agent cost origin visible in run diagnostics"
+type = "changed"
+component = "runtime-dashboard"
+owner = "team-policyos-runtime"
+summary = "Agent model comparisons reduce the whole monetary observation by the verified current-owner ledger scope before grouping or resolving identities. Legacy scalar reconciliation mirrors the validated Core producer projection, including zero subtotals for absent origins, while display totals retain their separate origin-aware and identity-reduced rules. Stale, unowned, non-ledger, and not-established scalar inputs stay outside current-owner totals; conflicting attribution and unknown incremental spend stay unresolved."
+evidence = [
+  "apps/runtime-dashboard/src/shared/lib/domain/agents.ts",
+  "apps/runtime-dashboard/src/shared/lib/domain/agents.test.ts",
+  "apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx",
+  "apps/runtime-dashboard/src/features/runs/components/pipelinePanels.test.tsx",
+  "apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+  "apps/runtime-dashboard/src/shared/i18n/locales/ru.json",
+  "apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+]
+compatibility = "Internal runtime-dashboard display behavior only. No runtime API, generated-client, persisted-format, or producer billing semantics change."
+change_class = "internal"
+surface_classification = "internal: runtime-dashboard run-detail Agent Pipeline cost summary"
+migration = "No external migration is required. The dashboard labels reported and estimated amounts separately and deduplicates identical repeated identities only in its display summary. For legacy scalar claim reconciliation, it recomputes the validated Core producer projection over the original event sequence and preserves the producer zero subtotals for absent origins; this scalar basis is not used as the display total. Missing, conflicting, or cross-model current-owner identities remain unresolved in display. Stale, ownerless, non-ledger, and scope-not-established claims stay visible as diagnostics and do not contaminate current-owner totals; reuse events remain lineage rows without implying zero incremental cost."
+api = "The existing run-detail view renders origin-specific event totals and an explicit incomplete state from current-owner attempt ledger events."
+limitations = "Dashboard aggregation does not establish provider billing correctness or the actual incremental resource cost of cache reuse. Core scalar reconciliation is a consumer-side mirror of the validated AgentPipelineView projection; the retained producer-model fixture covers this mapping but does not prove the complete HTTP route. Unknown and pending current-owner ledger events remain unresolved for display. Unattributed scalar claims remain separately visible with scope not_established and are not assigned to a model total. Conflicting or missing identities among current-owner ledger events are excluded from display subtotals; an identity projected into multiple model variants is left unattributed across those rows. Stale, ownerless, and non-ledger observations are excluded before the shared owner reduction."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

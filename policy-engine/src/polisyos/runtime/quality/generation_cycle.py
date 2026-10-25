@@ -50,7 +50,9 @@ from pydantic import (
     ConfigDict,
     Field,
     RootModel,
+    SerializationInfo,
     SerializerFunctionWrapHandler,
+    TypeAdapter,
     model_serializer,
     model_validator,
 )
@@ -726,14 +728,16 @@ def _historical_generation_cycle_field_tree(
     *,
     version: str,
     design_problem_schema_version: str | None = None,
+    serialization_mode: Literal["json", "python"] = "json",
 ) -> object:
     """Project an N6 object through its frozen v1/v2/v3 typed serializer graph.
 
     Unknown typed owners, changed historical model edges, and current-only
-    Literal values fail closed. Fields absent from the persisted model's
-    supplied-field set stay absent; opaque mapping leaves remain uninterpreted.
-    Inputs have already passed the current Pydantic parser, so a record rejected
-    before this projection cannot be recovered by historical compatibility.
+    Literal values fail closed. Unrepresented payload fields are omitted only
+    when frozen metadata classifies them or typed current values match defaults.
+    Opaque mapping leaves remain uninterpreted. Inputs have already passed
+    current Pydantic parsing; records rejected earlier cannot be recovered by
+    historical compatibility.
     """
 
     version_models = FROZEN_N6_HISTORY_SCHEMA.get(version)
@@ -870,8 +874,127 @@ def _historical_generation_cycle_field_tree(
             for key in (name, field.alias, field.serialization_alias)
             if isinstance(key, str)
         }
-        allowed_wire_fields = set(shape["wire_fields"])
-        computed_fields = set(shape["computed_fields"])
+        raw_wire_fields = shape.get("wire_fields")
+        raw_computed_fields = shape.get("computed_fields")
+        raw_excluded_fields = shape.get("excluded_fields")
+        if (
+            not isinstance(raw_wire_fields, list)
+            or not isinstance(raw_computed_fields, list)
+            or not isinstance(raw_excluded_fields, list)
+        ):
+            raise ValueError("generation_cycle_history_schema_unmapped")
+        wire_field_names = [
+            field_name for field_name in raw_wire_fields if isinstance(field_name, str)
+        ]
+        computed_field_names = [
+            field_name for field_name in raw_computed_fields if isinstance(field_name, str)
+        ]
+        excluded_field_names = [
+            field_name for field_name in raw_excluded_fields if isinstance(field_name, str)
+        ]
+        if (
+            len(wire_field_names) != len(raw_wire_fields)
+            or len(computed_field_names) != len(raw_computed_fields)
+            or len(excluded_field_names) != len(raw_excluded_fields)
+        ):
+            raise ValueError("generation_cycle_history_schema_unmapped")
+        allowed_wire_fields = set(wire_field_names)
+        historically_computed_fields = set(computed_field_names)
+        computed_fields = historically_computed_fields
+        historically_excluded_fields = set(excluded_field_names)
+        historically_representable_fields = {
+            fields_by_key[key] for key in allowed_wire_fields if key in fields_by_key
+        }
+        current_computed_fields_by_key: dict[str, str] = {}
+        for computed_name, computed_field in type(value).model_computed_fields.items():
+            computed_keys = {computed_name}
+            if isinstance(computed_field.alias, str):
+                computed_keys.add(computed_field.alias)
+            for computed_key in computed_keys:
+                current_computed_fields_by_key[computed_key] = computed_name
+
+        def serialized_values_match(left: object, right: object) -> bool:
+            if type(left) is not type(right):
+                return False
+            if isinstance(left, Mapping) and isinstance(right, Mapping):
+                return left.keys() == right.keys() and all(
+                    serialized_values_match(left[key], right[key]) for key in left
+                )
+            if isinstance(left, (list, tuple)) and isinstance(right, (list, tuple)):
+                return len(left) == len(right) and all(
+                    serialized_values_match(left_item, right_item)
+                    for left_item, right_item in zip(left, right, strict=True)
+                )
+            try:
+                return (left == right) is True
+            except Exception:
+                return False
+
+        def current_field_matches_default(
+            field_name: str,
+            emitted_value: object = None,
+            *,
+            compare_emitted_value: bool = False,
+        ) -> bool:
+            field = current_fields[field_name]
+            try:
+                default = field.get_default(
+                    call_default_factory=True,
+                    validated_data=dict(value.__dict__),
+                )
+                current_value = getattr(value, field_name)
+                if type(current_value) is not type(default) or current_value != default:
+                    return False
+                if not compare_emitted_value:
+                    return True
+                serialized_default = TypeAdapter(field.annotation).dump_python(
+                    default,
+                    mode=serialization_mode,
+                )
+                if serialization_mode == "json":
+                    spec = CanonSpec(forbid_floats=False)
+                    return to_canonical_bytes(emitted_value, spec) == to_canonical_bytes(
+                        serialized_default,
+                        spec,
+                    )
+                return serialized_values_match(emitted_value, serialized_default)
+            except Exception as exc:
+                raise ValueError(
+                    "generation_cycle_history_unrepresentable_default_unavailable"
+                ) from exc
+
+        if not isinstance(payload, dict):
+            raise ValueError("generation_cycle_history_typed_model_not_object")
+        for key, item in payload.items():
+            if not isinstance(key, str):
+                raise ValueError("generation_cycle_history_emitted_field_owner_unmapped")
+            if key in allowed_wire_fields:
+                continue
+            field_name = fields_by_key.get(key)
+            if field_name in historically_excluded_fields:
+                continue
+            computed_name = current_computed_fields_by_key.get(key)
+            if computed_name in historically_computed_fields:
+                continue
+            if field_name is not None:
+                if current_field_matches_default(
+                    field_name,
+                    item,
+                    compare_emitted_value=True,
+                ):
+                    continue
+                raise ValueError("generation_cycle_history_field_unrepresentable_in_epoch")
+            raise ValueError("generation_cycle_history_emitted_field_unrepresentable_in_epoch")
+
+        for field_name in current_fields:
+            if (
+                field_name in historically_representable_fields
+                or field_name in historically_excluded_fields
+            ):
+                continue
+            if current_field_matches_default(field_name):
+                continue
+            raise ValueError("generation_cycle_history_field_unrepresentable_in_epoch")
         result: dict[str, Any] = {}
         for key, item in payload.items():
             if key not in allowed_wire_fields:
@@ -894,6 +1017,7 @@ def _historical_generation_cycle_field_tree(
                 item,
                 version=version,
                 design_problem_schema_version=nested_design_problem_schema_version,
+                serialization_mode=serialization_mode,
             )
         if is_root_model:
             if set(result) != {"root"}:
@@ -908,20 +1032,23 @@ def _historical_generation_cycle_field_tree(
                 item,
                 version=version,
                 design_problem_schema_version=design_problem_schema_version,
+                serialization_mode=serialization_mode,
             )
             for key, item in payload.items()
             if key in value
         }
     if isinstance(value, (tuple, list)) and isinstance(payload, (tuple, list)):
-        return [
+        projected_sequence = [
             _historical_generation_cycle_field_tree(
                 original,
                 item,
                 version=version,
                 design_problem_schema_version=design_problem_schema_version,
+                serialization_mode=serialization_mode,
             )
             for original, item in zip(value, payload, strict=True)
         ]
+        return tuple(projected_sequence) if isinstance(payload, tuple) else projected_sequence
     return payload
 
 
@@ -2929,7 +3056,11 @@ class GenerationCycleRun(_StrictModel):
             )
 
     @model_serializer(mode="wrap")
-    def _serialize_own_epoch(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+    def _serialize_own_epoch(
+        self,
+        handler: SerializerFunctionWrapHandler,
+        info: SerializationInfo,
+    ) -> dict[str, Any]:
         if (
             self.source_custody_limitation is not None
             and self.schema_version not in _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSIONS
@@ -2949,7 +3080,12 @@ class GenerationCycleRun(_StrictModel):
         payload = handler(self)
         if self.schema_version.endswith((".v1", ".v2")):
             version = self.schema_version.rsplit(".", 1)[-1]
-            supplied = _historical_generation_cycle_field_tree(self, payload, version=version)
+            supplied = _historical_generation_cycle_field_tree(
+                self,
+                payload,
+                version=version,
+                serialization_mode=info.mode,
+            )
             if not isinstance(supplied, dict):
                 raise TypeError("historical_generation_payload_invalid")
             payload = supplied
@@ -2963,8 +3099,29 @@ class GenerationCycleRun(_StrictModel):
                 raise TypeError("generation_cycle_limited_v4_projection_invalid")
             v3_payload = dict(payload)
             v3_payload["schema_version"] = _GENERATION_CYCLE_V3_SCHEMA_VERSION
-            v3_run = GenerationCycleRun.model_validate(v3_payload)
-            supplied = _historical_generation_cycle_field_tree(v3_run, v3_payload, version="v3")
+            # Project typed values before reparsing: the current serializer emits
+            # nullable generic fields that v3 correctly treats as supplied.
+            v3_source = self.model_copy(
+                update={
+                    "schema_version": _GENERATION_CYCLE_V3_SCHEMA_VERSION,
+                    "source_custody_limitation": None,
+                }
+            )
+            v3_projection = _historical_generation_cycle_field_tree(
+                v3_source,
+                v3_payload,
+                version="v3",
+                serialization_mode=info.mode,
+            )
+            if not isinstance(v3_projection, dict):
+                raise TypeError("historical_generation_payload_invalid")
+            v3_run = GenerationCycleRun.model_validate(v3_projection)
+            supplied = _historical_generation_cycle_field_tree(
+                v3_run,
+                v3_projection,
+                version="v3",
+                serialization_mode=info.mode,
+            )
             if not isinstance(supplied, dict):
                 raise TypeError("historical_generation_payload_invalid")
             supplied["schema_version"] = self.schema_version

@@ -22,16 +22,28 @@ import type {
 export type CounterfactualMetric = RuntimeCounterfactualMetric;
 export type FabricDecisionData = RuntimeFabricDecisionData;
 export type FabricDecisionDataResponse = RuntimeFabricDecisionDataResponse;
-export type LineageBatchResponsePayload = RuntimeLineageBatchResponse;
+export type LineageBatchResponsePayload = Omit<
+  RuntimeLineageBatchResponse,
+  "lineages"
+> & {
+  lineages?: LineageGraphView[];
+};
 export type LineageCompactSummaryItem = RuntimeLineageCompactSummaryItem;
 export type LineageExportLinks = RuntimeLineageExportLinks;
 export type LineageExportPayload = RuntimeLineageExportResponse;
 export type LineageGraphEdge = RuntimeLineageGraphEdge;
 export type LineageGraphNode = RuntimeLineageGraphNode;
+type LineageRootArtifactRefProjection = Omit<
+  RuntimeArtifactRef,
+  "kind" | "media_type"
+> &
+  Partial<Pick<RuntimeArtifactRef, "kind" | "media_type">>;
+
 export type LineageGraphView = Omit<
   RuntimeLineageGraphView,
-  "selected_artifact_ref"
+  "root_artifact_refs" | "selected_artifact_ref"
 > & {
+  root_artifact_refs?: LineageRootArtifactRefProjection[];
   selected_artifact_ref?: RuntimeArtifactRef | null;
   profile_binding_status?: ProfileBindingStatus | null;
   artifact_ref_provenance?: ArtifactRefProvenance | null;
@@ -42,7 +54,8 @@ export type LineageResponsePayload = RuntimeLineageResponse;
 export type QuantityUncertainty = RuntimeQuantityUncertainty;
 export type QuantityValue = Omit<RuntimeQuantityValue, "lineage"> & {
   lineage: RuntimeLineageRef & {
-    artifact_ref?: SelectedArtifactRef | null;
+    // Wire refs may be profileless; binding requires a schema-validated selected tuple.
+    artifact_ref?: RuntimeArtifactRef | null;
     artifact_ref_provenance?: ArtifactRefProvenance | null;
     source_run_id?: string | null;
   };

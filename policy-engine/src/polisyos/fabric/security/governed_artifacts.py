@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts.manifest import (
     ArtifactEncryptionPolicyInfo,
@@ -12,6 +12,9 @@ from polisyos.core.artifacts.manifest import (
 
 from .access_control import DataClassification, normalize_classification
 from .retention import EncryptionMode, RetentionPlanner, RetentionScope
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 
 class ArtifactGovernanceError(ValueError):

@@ -111,5 +111,7 @@ def test_execute_supports_input_bindings_ref(tmp_path) -> None:
         ),
     )
     assert result.ok
+    assert result.schema_version == "1.0"
+    assert result.method_execution_bundle_ref is None
     assert result.simulation_result_ref is not None
     assert any(note == "state_source:input_bindings_ref" for note in result.notes)

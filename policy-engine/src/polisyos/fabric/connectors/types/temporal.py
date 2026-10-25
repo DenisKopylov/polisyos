@@ -43,13 +43,15 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from enum import Enum
-from typing import ClassVar, Literal
+from typing import TYPE_CHECKING, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __all__ = [
     "AggregationMethod",

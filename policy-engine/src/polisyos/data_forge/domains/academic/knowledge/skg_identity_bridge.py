@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Literal
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core import artifacts
+from polisyos.core import artifacts, canon
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -293,15 +293,19 @@ def produce_source_identity_bundle(
     persist a typed refusal. No database bytes are copied into CAS.
     """
     bundle = _recompute(source=source, selection=selection, scratch=scratch)
-    ref = store.put_bytes(
-        _json_bytes(bundle.model_dump(mode="json")),
+    ref = store.put_json(
+        bundle.model_dump(mode="json"),
         artifacts.ArtifactWriteOptions(
             kind=_KIND,
             media_type="application/json",
             schema=artifacts.SchemaInfo(name=_KIND, version=_SCHEMA_VERSION),
             producer=artifacts.ProducerInfo(component=__name__, version=_SCHEMA_VERSION),
         ),
+        canon_spec=canon.CanonSpec(),
+        return_selected_profile=True,
     )
+    if ref.manifest_profile_sha256 is None:
+        raise ValueError("source_identity_manifest_profile_missing")
     replay_source_identity_bundle(
         ref=ref,
         source=source,

@@ -9,6 +9,7 @@ from typing import ClassVar
 import pytest
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+import polisyos.ir.artifacts.contracts as _artifact_contracts
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID as CoreArtifactID
 from polisyos.core.artifacts.ir_adapter import ensure_ir_artifact_store
@@ -60,6 +61,58 @@ def test_artifact_ref_model_keeps_profileless_legacy_mapping() -> None:
     assert len(ref) == 3
 
 
+def test_artifact_ref_from_selected_write_requires_selected_profile() -> None:
+    profileless = {
+        "artifact_id": "sha256:" + "c" * 64,
+        "kind": "ir.strategic_payoff_table",
+        "media_type": "application/json",
+    }
+
+    with pytest.raises(ValueError, match="selected_write_ref_requires_profile"):
+        StrategicPayoffTableRef.from_selected_write(profileless)
+
+
+def test_artifact_ref_from_selected_write_refuses_a_different_typed_identity() -> None:
+    selected = {
+        "artifact_id": "sha256:" + "d" * 64,
+        "kind": "ir.not_a_strategic_payoff_table",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:" + "e" * 64,
+    }
+
+    with pytest.raises(ValidationError):
+        StrategicPayoffTableRef.from_selected_write(selected)
+
+
+def test_artifact_ref_from_selected_write_uses_one_mapping_snapshot() -> None:
+    profile = "sha256:" + "f" * 64
+    values: dict[str, object] = {
+        "artifact_id": "sha256:" + "a" * 64,
+        "kind": "ir.strategic_payoff_table",
+        "media_type": "application/json",
+        "manifest_profile_sha256": profile,
+    }
+
+    class InconsistentSelectedWriteMapping(Mapping[str, object]):
+        def __getitem__(self, key: str) -> object:
+            return values[key]
+
+        def __iter__(self) -> Iterator[str]:
+            for key in values:
+                if key != "manifest_profile_sha256":
+                    yield key
+
+        def __len__(self) -> int:
+            return len(values) - 1
+
+    selected = InconsistentSelectedWriteMapping()
+    assert selected.get("manifest_profile_sha256") == profile
+    assert "manifest_profile_sha256" not in dict(selected)
+
+    with pytest.raises(ValueError, match="selected_write_ref_requires_profile"):
+        StrategicPayoffTableRef.from_selected_write(selected)
+
+
 @pytest.mark.parametrize(
     "value",
     ["sha256:" + "A" * 64, "sha256:short", "not-a-profile", 42],
@@ -87,6 +140,201 @@ def test_artifact_ref_model_refuses_unknown_selector_fields() -> None:
                 "selector_hint": "ignore me",
             }
         )
+
+
+def test_normalize_artifact_ref_preserves_raw_mapping_error_class_before_projection() -> None:
+    selected = {
+        "artifact_id": "sha256:" + "2" * 64,
+        "kind": "ir.example",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:" + "3" * 64,
+        "selection_hint": "unknown payload field",
+    }
+
+    class ProjectingMapping(Mapping[str, object]):
+        __slots__ = ("_projection_calls", "_values")
+
+        def __init__(self, values: Mapping[str, object]) -> None:
+            self._values = dict(values)
+            self._projection_calls = 0
+
+        def __getitem__(self, key: str) -> object:
+            return self._values[key]
+
+        def __iter__(self) -> Iterator[str]:
+            return iter(self._values)
+
+        def __len__(self) -> int:
+            return len(self._values)
+
+        def model_dump(self, *, mode: str) -> object:
+            self._projection_calls += 1
+            return {key: value for key, value in self._values.items() if key != "selection_hint"}
+
+    projecting = ProjectingMapping(selected)
+    for raw_mapping in (selected, projecting):
+        with pytest.raises(ValidationError):
+            normalize_artifact_ref(raw_mapping)
+    assert projecting._projection_calls == 0
+
+    class MappingChangingShape(ProjectingMapping):
+        def __getitem__(self, key: str) -> object:
+            value = super().__getitem__(key)
+            if key == "selection_hint":
+                self._values["late_selector_field"] = "added during materialization"
+            return value
+
+    with pytest.raises(TypeError, match="mapping changed during materialization"):
+        normalize_artifact_ref(MappingChangingShape(selected))
+
+    class MappingWithDeclaredExtra(ProjectingMapping):
+        @property
+        def selection_hint(self) -> str:
+            return "structural selector field"
+
+    valid_selected = {key: value for key, value in selected.items() if key != "selection_hint"}
+    with pytest.raises(TypeError, match="unexpected field.*selection_hint"):
+        normalize_artifact_ref(MappingWithDeclaredExtra(valid_selected))
+
+
+def test_normalize_artifact_ref_uses_exact_registered_facade_extractor() -> None:
+    artifact_id = "sha256:" + "1" * 64
+
+    class RegisteredFacade:
+        __slots__ = ("_projection_calls", "_target")
+
+        def __init__(self, target: object) -> None:
+            self._target = target
+            self._projection_calls = 0
+
+        @property
+        def __class__(self) -> type[object]:
+            return type(self._target)
+
+        def model_dump(self, *, mode: str) -> object:
+            assert mode == "python"
+            self._projection_calls += 1
+            return {}
+
+    def extract_target(value: object) -> object:
+        return object.__getattribute__(value, "_target")
+
+    registry = _artifact_contracts._TRUSTED_ARTIFACT_REF_FACADE_EXTRACTORS
+    previous = registry.get(RegisteredFacade)
+    was_registered = RegisteredFacade in registry
+    _artifact_contracts._register_trusted_artifact_ref_facade(RegisteredFacade, extract_target)
+    try:
+        target = ArtifactRefModel(
+            artifact_id=artifact_id,
+            kind="ir.example",
+            media_type="application/json",
+        )
+        facade = RegisteredFacade(target)
+        assert isinstance(facade, ArtifactRefModel)
+        assert normalize_artifact_ref(facade) == normalize_artifact_ref(target)
+        assert facade._projection_calls == 0
+
+        class HiddenExtraModel(BaseModel):
+            model_config = ConfigDict(extra="forbid")
+
+            artifact_id: str
+            kind: str
+            media_type: str
+            selection_hint: str = Field(exclude=True)
+
+        hidden_target = HiddenExtraModel(
+            artifact_id=artifact_id,
+            kind="ir.example",
+            media_type="application/json",
+            selection_hint="must remain visible before projection",
+        )
+        hidden_facade = RegisteredFacade(hidden_target)
+        with pytest.raises(TypeError, match="unexpected field.*selection_hint"):
+            normalize_artifact_ref(hidden_facade)
+        assert hidden_facade._projection_calls == 0
+
+        class UnregisteredSubclass(RegisteredFacade):
+            __slots__ = ()
+
+        unregistered = UnregisteredSubclass(target)
+        with pytest.raises(TypeError):
+            normalize_artifact_ref(unregistered)
+        assert unregistered._projection_calls == 0
+    finally:
+        if was_registered:
+            registry[RegisteredFacade] = previous
+        else:
+            registry.pop(RegisteredFacade, None)
+
+
+def test_normalize_artifact_ref_rejects_unregistered_class_view_without_projection() -> None:
+    target = ArtifactRefWithHiddenSelectorField(
+        artifact_id="sha256:" + "2" * 64,
+        kind="ir.example",
+        media_type="application/json",
+        selection_hint="must remain visible before projection",
+    )
+
+    class UnregisteredFacade:
+        __slots__ = ("_projection_calls", "_target")
+
+        def __init__(self, wrapped: BaseModel) -> None:
+            self._target = wrapped
+            self._projection_calls = 0
+
+        @property
+        def __class__(self) -> type[object]:
+            return type(self._target)
+
+        def __getattr__(self, name: str) -> object:
+            if name in {"artifact_id", "kind", "media_type", "manifest_profile_sha256"}:
+                return getattr(self._target, name)
+            raise AttributeError(name)
+
+        def model_dump(self, *, mode: str) -> object:
+            assert mode == "python"
+            self._projection_calls += 1
+            return {
+                "artifact_id": self._target.artifact_id,
+                "kind": self._target.kind,
+                "media_type": self._target.media_type,
+            }
+
+    facade = UnregisteredFacade(target)
+    assert isinstance(facade, BaseModel)
+    assert BaseModel not in type(facade).__mro__
+    with pytest.raises(
+        TypeError,
+        match="claims Pydantic model without actual Pydantic storage",
+    ):
+        normalize_artifact_ref(facade)
+    assert facade._projection_calls == 0
+
+
+def test_normalize_artifact_ref_accepts_unclaimed_structural_selector() -> None:
+    class StructuralSelector:
+        def __init__(self) -> None:
+            self.artifact_id = "sha256:" + "3" * 64
+            self.kind = "ir.example"
+            self.media_type = "application/json"
+
+    selector = StructuralSelector()
+
+    assert not isinstance(selector, BaseModel)
+    assert normalize_artifact_ref(selector) == {
+        "artifact_id": "sha256:" + "3" * 64,
+        "kind": "ir.example",
+        "media_type": "application/json",
+    }
+
+
+class ArtifactRefWithHiddenSelectorField(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str
+    kind: str
+    media_type: str
+    selection_hint: str = Field(exclude=True)
 
 
 def test_normalize_artifact_ref_uses_the_strict_shared_ref_schema() -> None:
@@ -332,6 +580,12 @@ def test_get_json_artifact_rejects_property_extension_before_manifest_or_payload
         PropertySelectorWithExtraField(),
         RootOnlyObject(),
         StringDumpObject(),
+        {
+            "artifact_id": stored_ref["artifact_id"],
+            "kind": stored_ref["kind"],
+            "media_type": stored_ref["media_type"],
+            "selection_hint": "unknown payload field",
+        },
     ):
         with pytest.raises(CanonViolation, match="ir_artifact_view_selector_invalid"):
             get_json_artifact(ir_store, invalid_selector)
@@ -365,10 +619,11 @@ def test_typed_artifact_ref_fresh_load_keeps_selected_manifest_view(tmp_path) ->
     assert selected_ref.artifact_id == default_ref.artifact_id
     assert selected_ref.manifest_profile_sha256 is not None
 
-    typed_ref = StrategicPayoffTableRef.model_validate(selected_ref.model_dump(mode="json"))
+    typed_ref = StrategicPayoffTableRef.from_selected_write(selected_ref.model_dump(mode="json"))
     fresh_reader = FileSystemCAS(root)
     ir_reader = ensure_ir_artifact_store(fresh_reader)
 
+    assert typed_ref.model_dump(mode="json") == selected_ref.model_dump(mode="json")
     assert typed_ref.manifest_profile_sha256 == selected_ref.manifest_profile_sha256
     assert ir_reader.get_bytes(typed_ref) == raw
     assert ir_reader.get_manifest(typed_ref).artifact_schema.version == "2.0"

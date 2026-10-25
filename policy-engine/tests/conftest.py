@@ -1,9 +1,11 @@
 import os
 import sys
 import tomllib
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -34,6 +36,32 @@ pytest_plugins = (
     "_helpers.artifacts",
     "_helpers.observability",
 )
+
+
+@pytest.fixture
+def canary_diagnostic_output_root(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> Path:
+    """Redirect only the canary writer's default diagnostic root."""
+
+    from tools.ops_runners.runtime import canary_evidence
+
+    diagnostic_root = tmp_path / "migration-sandbox"
+    original_writer = canary_evidence.persist_legacy_migration_sandbox_report
+
+    def persist_scoped_report(report: Mapping[str, Any], **kwargs: Any) -> Path:
+        forwarded_kwargs = dict(kwargs)
+        forwarded_kwargs.setdefault("repo_root", diagnostic_root)
+        return original_writer(report, **forwarded_kwargs)
+
+    monkeypatch.setattr(
+        canary_evidence,
+        "persist_legacy_migration_sandbox_report",
+        persist_scoped_report,
+    )
+    return diagnostic_root
+
 
 QUARANTINE_REGISTRY = TESTS_ROOT / "quarantine.toml"
 PRIMARY_TAXONOMY_MARKERS = (

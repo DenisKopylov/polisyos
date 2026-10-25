@@ -8,16 +8,21 @@ issuer, custody, authenticity, or currentness claim about the source.
 from __future__ import annotations
 
 import hashlib
-from typing import ClassVar, Literal, Protocol
+from typing import TYPE_CHECKING, ClassVar, Literal, Protocol, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts import (
-    ArtifactManifest,
     ArtifactRef,
     input_ref_from_artifact_ref,
+    matches_runtime_protocol,
     validate_core_model_json_artifact,
 )
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactStore
+    from polisyos.core.artifacts.ids import ArtifactID
+    from polisyos.core.artifacts.manifest import ArtifactManifest
 
 _KIND = "scientist.skg_source_snapshot"
 _MEDIA_TYPE = "application/json"
@@ -34,11 +39,18 @@ class RetainedSKGSnapshotError(ValueError):
 
 
 class _RetainedSKGReader(Protocol):
-    """Selected-profile reads needed to reconcile one retained descriptor."""
+    """Exact read operations used to reconcile one retained descriptor."""
 
-    def get_manifest(self, artifact_id: ArtifactRef | str) -> ArtifactManifest: ...
+    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef) -> ArtifactManifest: ...
 
-    def get_bytes(self, artifact_id: ArtifactRef | str) -> bytes: ...
+    def get_raw_manifest_bytes(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+        *,
+        manifest_profile_sha256: str | None = None,
+    ) -> bytes: ...
+
+    def get_bytes(self, artifact_id: ArtifactID | ArtifactRef) -> bytes: ...
 
 
 class _SnapshotChunk(BaseModel):
@@ -52,19 +64,22 @@ class RetainedSKGSnapshotChunk(_SnapshotChunk):
     """Current public chunk type; v1.0 keeps the original private schema name."""
 
 
-class _RetainedSKGSnapshotFields(BaseModel):
+class _RetainedSKGSnapshotFields[
+    SnapshotVersionT: str,
+    SnapshotChunkT: _SnapshotChunk,
+](BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True, frozen=True)
 
-    schema_version: str
+    schema_version: SnapshotVersionT
     source_reference: str = Field(min_length=1)
     source_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     byte_size: int = Field(gt=0)
     source_binding_schema_version: str = Field(min_length=1)
     query_version: str = Field(min_length=1)
-    chunks: tuple[_SnapshotChunk, ...] = Field(min_length=1)
+    chunks: tuple[SnapshotChunkT, ...] = Field(min_length=1)
 
     @model_validator(mode="after")
-    def _require_complete_length(self) -> _RetainedSKGSnapshotFields:
+    def _require_complete_length(self) -> Self:
         if sum(chunk.byte_size for chunk in self.chunks) != self.byte_size:
             raise ValueError("retained_skg_chunk_length_mismatch")
         if any(chunk.byte_size != _CHUNK_BYTES for chunk in self.chunks[:-1]):
@@ -72,7 +87,9 @@ class _RetainedSKGSnapshotFields(BaseModel):
         return self
 
 
-class RetainedSKGSnapshot(_RetainedSKGSnapshotFields):
+class RetainedSKGSnapshot(
+    _RetainedSKGSnapshotFields[Literal["1.0"], _SnapshotChunk],
+):
     """Exact operational bytes and provenance; no scientific authenticity claim."""
 
     ARTIFACT_KIND: ClassVar[str] = _KIND
@@ -80,10 +97,10 @@ class RetainedSKGSnapshot(_RetainedSKGSnapshotFields):
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = _KIND
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = _SNAPSHOT_SCHEMA_V1_0
 
-    schema_version: Literal["1.0"]
 
-
-class RetainedSKGSnapshotV11(_RetainedSKGSnapshotFields):
+class RetainedSKGSnapshotV11(
+    _RetainedSKGSnapshotFields[Literal["1.1"], RetainedSKGSnapshotChunk],
+):
     """Current descriptor with local content identity and observed source version."""
 
     ARTIFACT_KIND: ClassVar[str] = _KIND
@@ -91,10 +108,8 @@ class RetainedSKGSnapshotV11(_RetainedSKGSnapshotFields):
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = _KIND
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = _SNAPSHOT_SCHEMA_V1_1
 
-    schema_version: Literal["1.1"]
     source_version_id: int = Field(gt=0)
     version_identity_kind: Literal["content_digest"]
-    chunks: tuple[RetainedSKGSnapshotChunk, ...] = Field(min_length=1)
 
 
 RetainedSKGSnapshotV10 = RetainedSKGSnapshot
@@ -187,10 +202,12 @@ def load_retained_skg_snapshot(
 
 
 def retained_skg_source_binding(
-    store: _RetainedSKGReader,
+    store: ArtifactStore | _RetainedSKGReader,
     ref: ArtifactRef,
 ) -> RetainedSKGSourceBinding:
     """Build a typed binding only from a fully verified v1.1 descriptor."""
+    if not matches_runtime_protocol(store, _RetainedSKGReader):
+        raise RetainedSKGSnapshotError("retained_skg_descriptor_read_store_required")
     snapshot = load_retained_skg_snapshot(store, ref)
     if not isinstance(snapshot, RetainedSKGSnapshotV11):
         raise RetainedSKGSnapshotError("retained_skg_legacy_source_version_unbound")

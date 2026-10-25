@@ -5,7 +5,7 @@ from __future__ import annotations
 import ast
 import builtins as _builtins
 import re
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import Field as DataclassField
 from dataclasses import asdict, dataclass, fields, is_dataclass
 from typing import (
@@ -28,12 +28,66 @@ from pydantic import (
     field_validator,
 )
 
-if TYPE_CHECKING:
-    from collections.abc import Sequence
+from polisyos.ir.model_layer.canon import CanonViolation
 
+if TYPE_CHECKING:
+    from polisyos.ir.migrations.base import IRRepresentationRegistration, ResolvedSchemaAdmission
     from polisyos.ir.model_layer.canon import CanonSpec
 
 _SHA256_HEX_RE = re.compile(r"[0-9a-f]{64}")
+
+
+_TRUSTED_ARTIFACT_REF_FACADE_EXTRACTORS: dict[type[object], Callable[[object], object]] = {}
+
+
+def _register_trusted_artifact_ref_facade(
+    facade_type: type[object],
+    extractor: Callable[[object], object],
+) -> None:
+    """Register one exact code-owned facade type and its raw model extractor."""
+    if type(facade_type) is not type or not callable(extractor):
+        raise TypeError("Artifact reference facade registration is malformed")
+    existing = _TRUSTED_ARTIFACT_REF_FACADE_EXTRACTORS.get(facade_type)
+    if existing is not None and existing is not extractor:
+        raise ValueError("Artifact reference facade type already has another extractor")
+    _TRUSTED_ARTIFACT_REF_FACADE_EXTRACTORS[facade_type] = extractor
+
+
+def _is_pydantic_model_instance(value: object) -> bool:
+    """Identify actual Pydantic model storage without honoring a class view."""
+    try:
+        actual_mro = type.__getattribute__(type(value), "__mro__")
+    except (AttributeError, TypeError):
+        return False
+    return BaseModel in actual_mro
+
+
+def _reject_unbacked_pydantic_class_view(value: object) -> None:
+    """Reject a class view that claims Pydantic storage absent from the physical type."""
+    if _is_pydantic_model_instance(value):
+        return
+    try:
+        claims_pydantic_model = isinstance(value, BaseModel)
+    except Exception as exc:
+        raise TypeError("Artifact reference class view is malformed") from exc
+    if claims_pydantic_model:
+        raise TypeError(
+            "Artifact reference class view claims Pydantic model without actual Pydantic storage"
+        )
+
+
+def _trusted_artifact_ref_facade_target(value: object) -> object | None:
+    """Resolve an exact code-registered facade to its underlying Pydantic model."""
+    extractor = _TRUSTED_ARTIFACT_REF_FACADE_EXTRACTORS.get(type(value))
+    if extractor is None:
+        return None
+    try:
+        target = extractor(value)
+    except Exception as exc:
+        raise TypeError("Artifact reference facade could not expose its model snapshot") from exc
+    if not _is_pydantic_model_instance(target):
+        raise TypeError("Artifact reference facade must resolve to an actual Pydantic model")
+    return target
 
 
 _ARTIFACT_ID_VALIDATION_SCHEMA_PATTERN = r"^[0-9A-Fa-f]{64}$"
@@ -80,7 +134,7 @@ def _is_string_root_model(value: object) -> bool:
     model_fields = getattr(type(value), "model_fields", None)
     root_field = model_fields.get("root") if isinstance(model_fields, Mapping) else None
     return (
-        isinstance(value, BaseModel)
+        _is_pydantic_model_instance(value)
         and getattr(type(value), "__pydantic_root_model__", False) is True
         and isinstance(model_fields, Mapping)
         and set(model_fields) == {"root"}
@@ -90,9 +144,12 @@ def _is_string_root_model(value: object) -> bool:
 
 def _normalize_scalar_artifact_id(value: object) -> ArtifactID:
     """Normalize a string ID, native IR ID, or exact scalar root-model ID."""
+    facade_target = _trusted_artifact_ref_facade_target(value)
+    if facade_target is not None:
+        value = facade_target
     if isinstance(value, str):
         return ArtifactID.model_validate(value)
-    if isinstance(value, ArtifactID):
+    if _is_pydantic_model_instance(value) and isinstance(value, ArtifactID):
         return value
     if not _is_string_root_model(value):
         raise TypeError("Artifact ID selector must be a string scalar")
@@ -237,6 +294,79 @@ class InputRef(BaseModel):
     )
 
 
+@dataclass(frozen=True, slots=True)
+class ArtifactOwnerDeclaration[OwnerSourceT, OwnerConsumerT]:
+    """Bind a trusted consumer and DTO ABI to exact registered artifact representations."""
+
+    contract_id: str
+    dto_fqn: str
+    abi_key: str
+    registry_key: str
+    kind: str
+    media_type: str
+    purpose: str
+    policy_revision: str
+    accepted_wire_policies: tuple[tuple[str, str], ...]
+    payload_version_of: Callable[[object], str | None]
+    validate_source: Callable[[object, ResolvedSchemaAdmission], OwnerSourceT]
+    project_for_consumer: Callable[[OwnerSourceT, ResolvedSchemaAdmission], OwnerConsumerT]
+    validate_profile: Callable[[CanonInfo, IRRepresentationRegistration], bool]
+
+    def __post_init__(self) -> None:
+        """Reject incomplete declarations before they can be used as trusted owner context."""
+        for field_name in (
+            "contract_id",
+            "dto_fqn",
+            "abi_key",
+            "registry_key",
+            "kind",
+            "media_type",
+            "purpose",
+            "policy_revision",
+        ):
+            value = getattr(self, field_name)
+            if type(value) is not str or not value.strip():
+                raise ValueError(f"Artifact owner declaration requires a nonempty {field_name}")
+        policies = self.accepted_wire_policies
+        if type(policies) is not tuple or not policies:
+            raise ValueError("Artifact owner declaration requires trusted wire policies")
+        normalized_policies: list[tuple[str, str]] = []
+        for policy in policies:
+            if (
+                type(policy) is not tuple
+                or len(policy) != 2
+                or any(type(value) is not str or not value.strip() for value in policy)
+            ):
+                raise ValueError("Artifact owner wire policies must be exact non-empty pairs")
+            normalized_policies.append(policy)
+        if len(set(normalized_policies)) != len(normalized_policies):
+            raise ValueError("Artifact owner wire policies must be unique")
+        for field_name in (
+            "payload_version_of",
+            "validate_source",
+            "project_for_consumer",
+            "validate_profile",
+        ):
+            if not callable(getattr(self, field_name)):
+                raise TypeError(f"Artifact owner declaration requires callable {field_name}")
+
+
+@dataclass(frozen=True, slots=True)
+class OwnedArtifactRead[OwnerConsumerT]:
+    """Retain the exact shared admission context and byte witness for one typed read."""
+
+    value: OwnerConsumerT
+    raw_bytes: bytes
+    admission: ResolvedSchemaAdmission
+    contract_id: str
+    dto_fqn: str
+    abi_key: str
+    registry_key: str
+    purpose: str
+    owner_policy_revision: str
+    manifest_profile_sha256: str | None
+
+
 @dataclass(frozen=True)
 class PutOptions:
     """Collect the metadata that IR helpers attach when persisting a JSON artifact."""
@@ -288,6 +418,16 @@ class StorePutOptions:
     same_input_closure: _MetadataOption | None = None
     authority: _MetadataOption | None = None
     warnings: list[_MetadataOption] | None = None
+
+
+class OwnedWriteOptionsPreparer(Protocol):
+    """Normalize a selected owner write into the neutral IR options contract.
+
+    Concrete stores own normalization of their native write DTOs. The shared IR
+    owner path consumes only this detached, complete-facet projection.
+    """
+
+    def prepare_owned_write_options(self, options: object) -> StorePutOptions: ...
 
 
 @runtime_checkable
@@ -353,9 +493,13 @@ def _as_payload(value: object) -> dict[str, object]:
 
 
 def normalize_input_refs(inputs: Sequence[object] | None) -> list[InputRef]:
-    """Coerce loose lineage inputs into validated ``InputRef`` records before persistence."""
-    if not inputs:
+    """Coerce a declared input sequence into validated refs before persistence."""
+    if inputs is None:
         return []
+    if isinstance(inputs, (str, bytes, bytearray, memoryview, Mapping)) or not isinstance(
+        inputs, Sequence
+    ):
+        raise CanonViolation("ir_artifact_inputs_invalid")
     normalized: list[InputRef] = []
     for value in inputs:
         payload = _as_payload(value)
@@ -501,34 +645,160 @@ def _validated_dataclass_field_inventory(
     )
 
 
+def _artifact_ref_mapping_shape_matches(
+    value: Mapping[object, object], expected_keys: frozenset[str]
+) -> bool:
+    """Return whether a mapping still exposes the frozen selector key shape."""
+    try:
+        current_length = len(value)
+        current_keys = tuple(value)
+    except Exception:
+        return False
+    return (
+        current_length == len(expected_keys)
+        and len(current_keys) == len(expected_keys)
+        and all(isinstance(key, str) for key in current_keys)
+        and len(set(current_keys)) == len(current_keys)
+        and frozenset(current_keys) == expected_keys
+    )
+
+
+def _artifact_ref_mapping_snapshot(
+    value: Mapping[object, object],
+) -> tuple[dict[str, object], frozenset[str]]:
+    """Materialize one mapping payload and retain the exact key-shape witness."""
+    try:
+        original_length = len(value)
+        original_keys = tuple(value)
+    except Exception as exc:
+        raise TypeError("Artifact reference mapping payload is malformed") from exc
+    if original_length != len(original_keys):
+        raise TypeError("Artifact reference mapping changed during normalization")
+    if not all(isinstance(key, str) for key in original_keys):
+        raise TypeError("Artifact reference payload keys must be strings")
+    key_set = frozenset(original_keys)
+    if len(key_set) != len(original_keys):
+        raise TypeError("Artifact reference mapping contains duplicate keys")
+
+    payload: dict[str, object] = {}
+    try:
+        for key in original_keys:
+            payload[key] = value[key]
+    except Exception as exc:
+        raise TypeError(
+            "Artifact reference mapping payload changed during materialization"
+        ) from exc
+    if len(payload) != original_length or frozenset(payload) != key_set:
+        raise TypeError("Artifact reference mapping payload lost its frozen key shape")
+    if not _artifact_ref_mapping_shape_matches(value, key_set):
+        raise TypeError("Artifact reference mapping changed during materialization")
+    return payload, key_set
+
+
+def _pydantic_artifact_ref_stored_payload(value: object) -> dict[str, object]:
+    """Read Pydantic field storage and extras without trusting a projection method."""
+    if not _is_pydantic_model_instance(value):
+        raise TypeError("Artifact reference model has malformed stored values")
+    try:
+        raw_fields = object.__getattribute__(value, "__dict__")
+        extras = object.__getattribute__(value, "__pydantic_extra__")
+    except AttributeError as exc:
+        raise TypeError("Artifact reference model has malformed stored values") from exc
+    if not isinstance(raw_fields, Mapping):
+        raise TypeError("Artifact reference model has malformed stored values")
+    payload = dict(raw_fields)
+    if extras is not None:
+        if not isinstance(extras, Mapping):
+            raise TypeError("Artifact reference model has malformed extra values")
+        for key, item in extras.items():
+            if key in payload:
+                raise TypeError("Artifact reference model has overlapping stored values")
+            payload[key] = item
+    return payload
+
+
 def normalize_artifact_ref(ref: object) -> dict[str, str]:
     """Normalize a store-specific artifact handle into the stable IR ref mapping boundary."""
     from polisyos.ir.registry.refs import ArtifactRefModel
 
+    facade_target = _trusted_artifact_ref_facade_target(ref)
+    if facade_target is not None:
+        return normalize_artifact_ref(facade_target)
+    _reject_unbacked_pydantic_class_view(ref)
+
+    mapping_snapshot = (
+        _artifact_ref_mapping_snapshot(ref)
+        if isinstance(ref, Mapping) and not _is_pydantic_model_instance(ref)
+        else None
+    )
     field_inventory = _validated_dataclass_field_inventory(ref)
     original_selector_fields = frozenset(_selector_public_fields(ref, field_inventory))
-    _refuse_unknown_model_fields(original_selector_fields, ArtifactRefModel.model_fields)
+    if mapping_snapshot is None:
+        _refuse_unknown_model_fields(original_selector_fields, ArtifactRefModel.model_fields)
+    else:
+        _mapping_payload, mapping_payload_fields = mapping_snapshot
+        if not _artifact_ref_mapping_shape_matches(ref, mapping_payload_fields):
+            raise TypeError("Artifact reference mapping changed during selector inspection")
+        _refuse_unknown_model_fields(
+            original_selector_fields - mapping_payload_fields, ArtifactRefModel.model_fields
+        )
 
-    # Freeze the caller's actual shape before even looking up a projection method. A custom
-    # model_dump can mutate the selector before returning a narrower mapping.
-    model_dump = getattr(ref, "model_dump", None)
-    selector_fields = original_selector_fields | frozenset(
-        _selector_public_fields(ref, field_inventory)
+    # Freeze the caller shape before consulting a projection method. A custom model_dump can
+    # mutate a structural selector before returning a narrower mapping. Mapping inputs instead
+    # validate their frozen raw payload so unknown payload keys remain Pydantic errors.
+    model_dump = (
+        getattr(ref, "model_dump", None)
+        if mapping_snapshot is None and _is_pydantic_model_instance(ref)
+        else None
     )
-    _refuse_unknown_model_fields(selector_fields, ArtifactRefModel.model_fields)
+    selector_fields = original_selector_fields
+    if mapping_snapshot is None:
+        selector_fields |= frozenset(_selector_public_fields(ref, field_inventory))
+        _refuse_unknown_model_fields(selector_fields, ArtifactRefModel.model_fields)
+    else:
+        mapping_payload_fields = mapping_snapshot[1]
+        selector_fields |= frozenset(_selector_public_fields(ref, field_inventory))
+        if not _artifact_ref_mapping_shape_matches(ref, mapping_payload_fields):
+            raise TypeError("Artifact reference mapping changed during selector inspection")
+        _refuse_unknown_model_fields(
+            selector_fields - mapping_payload_fields, ArtifactRefModel.model_fields
+        )
     if callable(model_dump):
         model_fields = getattr(type(ref), "model_fields", None)
         _refuse_unknown_model_fields(model_fields, ArtifactRefModel.model_fields)
-        payload = model_dump(mode="python")
-        if not isinstance(payload, Mapping):
+        try:
+            stored_model = ArtifactRefModel.model_validate(
+                _pydantic_artifact_ref_stored_payload(ref)
+            )
+        except Exception as exc:
+            raise TypeError("Artifact reference model has invalid stored values") from exc
+        projected_payload = model_dump(mode="python")
+        if not isinstance(projected_payload, Mapping):
             raise TypeError("Artifact reference model_dump() must return a mapping")
+        try:
+            projected_model = ArtifactRefModel.model_validate(dict(projected_payload))
+        except Exception as exc:
+            raise TypeError("Artifact reference model_dump() projection is invalid") from exc
+        if projected_model != stored_model:
+            raise TypeError(
+                "Artifact reference model_dump() projection disagrees with stored values"
+            )
+        try:
+            current_model = ArtifactRefModel.model_validate(
+                _pydantic_artifact_ref_stored_payload(ref)
+            )
+        except Exception as exc:
+            raise TypeError("Artifact reference model changed during projection") from exc
+        if current_model != stored_model:
+            raise TypeError("Artifact reference model changed during projection")
         selector_fields |= frozenset(_selector_public_fields(ref, field_inventory))
         _refuse_unknown_model_fields(selector_fields, ArtifactRefModel.model_fields)
-        payload = dict(payload)
-    elif isinstance(ref, Mapping):
-        payload = dict(ref)
-        selector_fields |= frozenset(_selector_public_fields(ref, field_inventory))
-        _refuse_unknown_model_fields(selector_fields, ArtifactRefModel.model_fields)
+        payload = stored_model.model_dump(mode="python")
+    elif mapping_snapshot is not None:
+        mapping_payload, mapping_payload_fields = mapping_snapshot
+        if not _artifact_ref_mapping_shape_matches(ref, mapping_payload_fields):
+            raise TypeError("Artifact reference mapping changed before validation")
+        payload = mapping_payload
     elif is_dataclass(ref):
         if isinstance(ref, type):
             raise TypeError("Artifact reference dataclass selector must be an instance")
@@ -585,6 +855,8 @@ def normalize_artifact_ref(ref: object) -> dict[str, str]:
 
 def _pydantic_model_input_fields(value: BaseModel) -> frozenset[str]:
     """Inventory a Pydantic instance from stored values, fields-set, and extras."""
+    if not _is_pydantic_model_instance(value):
+        raise TypeError("Artifact reference model has malformed field metadata")
     try:
         raw_fields = object.__getattribute__(value, "__dict__")
         model_fields = getattr(type(value), "model_fields", None)
@@ -612,7 +884,7 @@ def _string_root_model_snapshot(
     value: object,
 ) -> tuple[str, frozenset[str], frozenset[str]]:
     """Snapshot only stored inputs for a schema-only scalar Pydantic root."""
-    if not isinstance(value, BaseModel):
+    if not _is_pydantic_model_instance(value):
         raise TypeError("Artifact ID root model has malformed stored fields")
     fields = _pydantic_model_input_fields(value)
     try:
@@ -725,7 +997,7 @@ def _selector_public_fields(
 ) -> set[str]:
     """Collect public selector fields before projecting a supported ref shape."""
     names = _declared_public_fields(value)
-    if isinstance(value, BaseModel):
+    if _is_pydantic_model_instance(value):
         names.update(_pydantic_model_input_fields(value))
     if isinstance(value, Mapping):
         names.update(name for name in value if isinstance(name, str))

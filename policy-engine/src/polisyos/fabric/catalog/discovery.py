@@ -11,13 +11,15 @@ import hashlib
 import json
 import math
 import re
-from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
-from polisyos.fabric.connectors.contracts.source_contract import SourceContract
-from polisyos.fabric.connectors.profiles.models import SourceProfile
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+
+    from polisyos.fabric.connectors.contracts.source_contract import SourceContract
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
 _STOPWORDS = {
@@ -444,7 +446,7 @@ class SemanticDatasetCatalog:
             ) in enumerate(scored[: max(1, int(limit))])
         )
         route = _plan_route(candidates)
-        plan_steps = (
+        plan_steps: tuple[dict[str, object], ...] = (
             {
                 "step": "offline_embedding_rank",
                 "route": "semantic",

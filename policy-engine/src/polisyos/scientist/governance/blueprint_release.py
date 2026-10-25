@@ -113,6 +113,7 @@ from polisyos.ir.observation.contracts import (
 )
 from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir.trinity.loaders import persist_trinity_bundle_artifact
 from polisyos.scientist.governance.accountability import GovernanceAccountabilityInput
 from polisyos.scientist.governance.backtest_matrix import BacktestKind
 from polisyos.scientist.governance.calibration import (
@@ -3037,17 +3038,10 @@ def run_verified_ukraine_d5_release(
         canon_spec=CanonSpec(forbid_floats=False),
     )
     trinity = _build_d5_release_trinity(admission)
-    trinity_ref = store.put_json(
-        trinity,
-        PutOptions(
-            kind=TrinityBundle.ARTIFACT_KIND,
-            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
-            schema=SchemaInfo(
-                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
-                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
-            ),
-        ),
+    selected_trinity_ref = persist_trinity_bundle_artifact(
+        _ensure_ir_artifact_store(store), trinity
     )
+    trinity_ref = ArtifactRef.model_validate(selected_trinity_ref.model_dump(mode="python"))
     foundry_receipt: FoundryReleaseAcceptanceReceipt = ReleaseAcceptanceRunner(store).run(
         release_manifest_ref=admission.manifest_ref,
         runtime_agent_registry_ref=runtime_agents.content_ref,

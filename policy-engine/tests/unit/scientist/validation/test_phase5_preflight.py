@@ -498,3 +498,42 @@ def test_preflight_fails_closed_when_actual_berl_validation_is_unavailable(
         "unavailable": "validation unavailable or input malformed",
     }[mutation]
     assert any(expected_reason in x for x in report.gate_failures)
+
+
+def test_publication_result_uses_same_persisted_owner_loaded_report(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import polisyos.scientist.validation.phase5_preflight as phase5_preflight
+
+    store = FileSystemCAS(tmp_path / "cas")
+    ctx = cast("ExecutionContext", SimpleNamespace(store=store))
+    original_loader = phase5_preflight.load_validation_report
+    loaded: list[tuple[object, object]] = []
+
+    def observe_owner_load(store_arg, ref_arg):
+        report_arg = original_loader(store_arg, ref_arg)
+        loaded.append((ref_arg, report_arg))
+        return report_arg
+
+    monkeypatch.setattr(phase5_preflight, "load_validation_report", observe_owner_load)
+    result = run_phase5_artifact_preflight(
+        ctx,
+        _state(judge_verdict=_passing_judge_verdict()),
+        Phase5ArtifactPreflightInput(
+            artifact_payload={"summary": "analyst packet"},
+            artifact_kind="scientist.decision_packet",
+            analyst_facing=True,
+        ),
+    )
+
+    assert result.publishable
+    assert len(loaded) == 1
+    loaded_ref, loaded_report = loaded[0]
+    assert loaded_ref == result.validation_ref
+    assert result.validation_report is loaded_report
+    assert result.readiness == loaded_report.readiness
+    assert result.publishable == (
+        loaded_report.verdict not in {"fail", "blocked"}
+        and loaded_report.readiness not in {"restricted", "blocked"}
+    )

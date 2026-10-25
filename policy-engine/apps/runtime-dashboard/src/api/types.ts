@@ -1597,6 +1597,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/runs/{run_id}/decision-packets/{packet_id}/candidate-hte": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Run Candidate Hte Packet
+     * @description Expose one exact packet's candidate HTE after required run authorization.
+     */
+    get: operations["get_run_candidate_hte_packet"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/runs/{run_id}/evidence-context": {
     parameters: {
       query?: never;
@@ -1709,6 +1729,26 @@ export interface paths {
     };
     /** Get Run Lineage */
     get: operations["get_run_lineage"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/runs/{run_id}/method-metrics": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Run Method Metrics
+     * @description Return only the bounded current AD01 metric projection for an owned run.
+     */
+    get: operations["get_run_method_metrics"];
     put?: never;
     post?: never;
     delete?: never;
@@ -2516,42 +2556,8 @@ export interface components {
       settlement_status: "pending" | "committed" | "unknown" | "unmanaged";
     };
     /**
-     * AgentPipelineUnattributedCostScalar
-     * @description A legacy cost summary scalar without established lease-attempt attribution.
-     */
-    AgentPipelineUnattributedCostScalar: {
-      agent?: string | null;
-      attempt?: number | null;
-      /** Claimed Value Usd */
-      claimed_value_usd: number;
-      model?: string | null;
-      model_variant_id?: string | null;
-      /**
-       * Scope
-       * @default not_established
-       * @constant
-       */
-      scope: "not_established";
-      /**
-       * Source Field
-       * @enum {string}
-       */
-      source_field: "cost_usd" | "reported_cost_usd" | "estimated_cost_usd";
-      source_index?: number | null;
-      /**
-       * Source Kind
-       * @enum {string}
-       */
-      source_kind:
-        | "step_summary"
-        | "attempt_summary"
-        | "pipeline_summary"
-        | "performance_summary_llm"
-        | "performance_summary_variant_row";
-    };
-    /**
      * AgentPipelineResponse
-     * @description Response envelope returned by the agent-pipeline endpoint.
+     * @description Response/report envelope returned by the agent-pipeline endpoint.
      */
     AgentPipelineResponse: {
       meta: components["schemas"]["ApiMeta"];
@@ -2635,6 +2641,45 @@ export interface components {
       unattributed_cost_scalars?: components["schemas"]["AgentPipelineUnattributedCostScalar"][];
     };
     /**
+     * AgentPipelineUnattributedCostScalar
+     * @description A legacy monetary scalar whose lease attribution is not established.
+     */
+    AgentPipelineUnattributedCostScalar: {
+      /** Agent */
+      agent?: string | null;
+      /** Attempt */
+      attempt?: number | null;
+      /** Claimed Value Usd */
+      claimed_value_usd: number;
+      /** Model */
+      model?: string | null;
+      /** Model Variant Id */
+      model_variant_id?: string | null;
+      /**
+       * Scope
+       * @default not_established
+       * @constant
+       */
+      scope: "not_established";
+      /**
+       * Source Field
+       * @enum {string}
+       */
+      source_field: "cost_usd" | "reported_cost_usd" | "estimated_cost_usd";
+      /** Source Index */
+      source_index?: number | null;
+      /**
+       * Source Kind
+       * @enum {string}
+       */
+      source_kind:
+        | "step_summary"
+        | "attempt_summary"
+        | "pipeline_summary"
+        | "performance_summary_llm"
+        | "performance_summary_variant_row";
+    };
+    /**
      * AgentPipelineView
      * @description Composite runtime view of agent attempts, retrieval, evaluation, and iteration state.
      */
@@ -2665,7 +2710,6 @@ export interface components {
       /**
        * Owner Control Job Attempt
        * @description Verified ControlJob lease attempt bound to this run; null means the owner attempt was not established.
-       * @default null
        */
       owner_control_job_attempt?: number | null;
       /** Performance Summary */
@@ -4610,6 +4654,52 @@ export interface components {
       total_size_bytes: number;
     };
     /**
+     * CandidateDecisionPacketHTEProjection
+     * @description Strict response carrying one packet-bound HTE candidate, never authority.
+     */
+    CandidateDecisionPacketHTEProjection: {
+      /**
+       * Candidate Only
+       * @default true
+       * @constant
+       */
+      candidate_only: true;
+      /**
+       * Candidate Status
+       * @enum {string}
+       */
+      candidate_status: "selected" | "absent";
+      decision_packet_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Limitations */
+      limitations?: string[];
+      /**
+       * Live Source Currentness
+       * @default not_established
+       * @constant
+       */
+      live_source_currentness: "not_established";
+      /** Packet Run Id */
+      packet_run_id: string;
+      /**
+       * Publication Authorization
+       * @default not_established
+       * @constant
+       */
+      publication_authorization: "not_established";
+      /**
+       * Reader At
+       * Format: date-time
+       */
+      reader_at: string;
+      /**
+       * Schema Version
+       * @default 1
+       * @constant
+       */
+      schema_version: "1";
+      source?: components["schemas"]["CompletedMethodHTESource"] | null;
+    };
+    /**
      * CandidateLever
      * @description Represent one candidate operator/instrument slot for atom binding.
      */
@@ -5520,6 +5610,21 @@ export interface components {
        * @enum {string}
        */
       unit_policy: "canonical" | "source" | "mixed";
+    };
+    /** CompletedMethodHTESource */
+    CompletedMethodHTESource: {
+      association: components["schemas"]["OwnedAttemptAnchorProjectionAssociation"];
+      /** Completed Event Id */
+      completed_event_id: number;
+      /** Completed Event Payload Sha256 */
+      completed_event_payload_sha256: string;
+      /** Source Attempt */
+      source_attempt: number;
+      /** Source Job Id */
+      source_job_id: string;
+      /** Source Run Id */
+      source_run_id: string;
+      summary: components["schemas"]["DirectMethodExecutionHTESummary"];
     };
     /** @enum {string} */
     CompletionOutcome:
@@ -7236,7 +7341,10 @@ export interface components {
      */
     DataSourceBinding: {
       /** Data Snapshot Ref */
-      data_snapshot_ref?: string | null;
+      data_snapshot_ref?:
+        | components["schemas"]["DataSnapshotRef"]
+        | string
+        | null;
       /** Data View Request Ref */
       data_view_request_ref?: string | null;
       /** Input Bindings Ref */
@@ -7505,6 +7613,124 @@ export interface components {
       } | null;
     };
     /**
+     * DecisionPacketLegacyHTEFeaturePreview
+     * @description One legacy feature ranking with metadata omitted from the public preview.
+     */
+    DecisionPacketLegacyHTEFeaturePreview: {
+      /** Feature Name */
+      feature_name: string;
+      /** Importance Rank */
+      importance_rank: number;
+      /** Importance Score */
+      importance_score: number;
+      /** Method */
+      method: string;
+    };
+    /**
+     * DecisionPacketLegacyHTEPreview
+     * @description Limited display projection of the older decision-packet HTE payload.
+     */
+    DecisionPacketLegacyHTEPreview: {
+      /** Ate */
+      ate?: number | null;
+      /** Ate Ci Lower */
+      ate_ci_lower?: number | null;
+      /** Ate Ci Upper */
+      ate_ci_upper?: number | null;
+      /**
+       * Authority Status
+       * @default limited_display_only
+       * @constant
+       */
+      authority_status: "limited_display_only";
+      /**
+       * Availability
+       * @enum {string}
+       */
+      availability: "available" | "unavailable";
+      /**
+       * Bounds Meaning Status
+       * @default not_established
+       * @constant
+       */
+      bounds_meaning_status: "not_established";
+      /**
+       * Conditional Coverage Status
+       * @default not_established
+       * @constant
+       */
+      conditional_coverage_status: "not_established";
+      /**
+       * Kind
+       * @default legacy_limited
+       * @constant
+       */
+      kind: "legacy_limited";
+      /**
+       * Limitations
+       * @default [
+       *       "legacy_source_reference_unprofiled",
+       *       "legacy_target_scope_not_established",
+       *       "legacy_bound_meaning_not_established",
+       *       "legacy_conditional_coverage_not_established",
+       *       "legacy_population_coverage_not_established"
+       *     ]
+       */
+      limitations: (
+        | "legacy_source_reference_unprofiled"
+        | "legacy_target_scope_not_established"
+        | "legacy_bound_meaning_not_established"
+        | "legacy_conditional_coverage_not_established"
+        | "legacy_population_coverage_not_established"
+      )[];
+      /** Method */
+      method?: string | null;
+      /** N Features */
+      n_features?: number | null;
+      /** N Samples */
+      n_samples?: number | null;
+      /** N Subgroups */
+      n_subgroups?: number | null;
+      /** Parse Warning */
+      parse_warning: "hte_result_parse_failed" | null;
+      /**
+       * Population Coverage Status
+       * @default not_established
+       * @constant
+       */
+      population_coverage_status: "not_established";
+      /**
+       * Projection Status
+       * @default legacy_limited
+       * @constant
+       */
+      projection_status: "legacy_limited";
+      /**
+       * Schema Version
+       * @default 1.0
+       * @constant
+       */
+      schema_version: "1.0";
+      /**
+       * Source Reference Profile Status
+       * @default not_established
+       * @constant
+       */
+      source_reference_profile_status: "not_established";
+      /** Source Result Ref */
+      source_result_ref: string;
+      /**
+       * Target Scope Status
+       * @default not_established
+       * @constant
+       */
+      target_scope_status: "not_established";
+      /** Top Features */
+      top_features: components["schemas"]["DecisionPacketLegacyHTEFeaturePreview"][];
+      /** Warnings */
+      warnings: string[];
+    };
+    /**
      * DecisionPacketMetricComparisonRow
      * @description Typed metric-comparison row embedded in decision-packet previews.
      */
@@ -7609,6 +7835,16 @@ export interface components {
       document_outline?: components["schemas"]["DecisionPacketOutlineEntry"][];
       /** Evidence Summary Blocks */
       evidence_summary_blocks?: components["schemas"]["DecisionPacketAuthoredBlock"][];
+      hte?: components["schemas"]["DirectMethodExecutionHTESummary"] | null;
+      hte_legacy_limited?:
+        | components["schemas"]["DecisionPacketLegacyHTEPreview"]
+        | null;
+      /**
+       * Hte Projection Status
+       * @default absent
+       * @enum {string}
+       */
+      hte_projection_status: "absent" | "typed" | "legacy_limited" | "invalid";
       /** Metric Significance By Metric */
       metric_significance_by_metric?: {
         [
@@ -8383,6 +8619,714 @@ export interface components {
       role?: string | null;
       /** Stakeholder Id */
       stakeholder_id: string;
+    };
+    /**
+     * DirectMethodExecutionHTEResourceEvidence
+     * @description Bounded owner-policy and method-specific execution evidence for one HTE result.
+     */
+    DirectMethodExecutionHTEResourceEvidence: {
+      /** Estimator After Class Fqn */
+      estimator_after_class_fqn?: string | null;
+      /** Estimator After N Jobs */
+      estimator_after_n_jobs?: number | null;
+      /** Estimator After Params Sha256 */
+      estimator_after_params_sha256?: string | null;
+      /** Estimator Before Class Fqn */
+      estimator_before_class_fqn?: string | null;
+      /** Estimator Before N Jobs */
+      estimator_before_n_jobs?: number | null;
+      /** Estimator Before Params Sha256 */
+      estimator_before_params_sha256?: string | null;
+      /**
+       * Estimator Observation Status
+       * @enum {string}
+       */
+      estimator_observation_status:
+        | "recomputed"
+        | "not_applicable"
+        | "not_established";
+      /**
+       * Execution Status
+       * @enum {string}
+       */
+      execution_status: "not_started" | "returned" | "raised";
+      /** Joblib Entry Backend Fqn */
+      joblib_entry_backend_fqn?: string | null;
+      /** Joblib Entry Config Sha256 */
+      joblib_entry_config_sha256?: string | null;
+      /** Joblib Entry Effective Jobs */
+      joblib_entry_effective_jobs?: number | null;
+      /** Joblib Entry Implementation Version */
+      joblib_entry_implementation_version?: string | null;
+      /** Joblib Exit Backend Fqn */
+      joblib_exit_backend_fqn?: string | null;
+      /** Joblib Exit Config Sha256 */
+      joblib_exit_config_sha256?: string | null;
+      /** Joblib Exit Effective Jobs */
+      joblib_exit_effective_jobs?: number | null;
+      /** Joblib Exit Implementation Version */
+      joblib_exit_implementation_version?: string | null;
+      /**
+       * Joblib Exit Status
+       * @default not_started
+       * @enum {string}
+       */
+      joblib_exit_status: "not_started" | "returned" | "raised";
+      /**
+       * Joblib Finished
+       * @default false
+       */
+      joblib_finished: boolean;
+      /** Joblib Implementation */
+      joblib_implementation: "joblib.parallel_config" | null;
+      /** Joblib Implementation Version */
+      joblib_implementation_version?: string | null;
+      /** Joblib Max Jobs */
+      joblib_max_jobs: 1 | null;
+      /**
+       * Joblib Observation Status
+       * @enum {string}
+       */
+      joblib_observation_status:
+        | "recomputed"
+        | "not_applicable"
+        | "not_established";
+      /** Joblib Profile Id */
+      joblib_profile_id: "joblib.parallel_config.current_thread@1.0" | null;
+      /** Joblib Profile Revision */
+      joblib_profile_revision: "1.0" | null;
+      /** Joblib Scope */
+      joblib_scope: "current_thread_joblib" | null;
+      /**
+       * Joblib Started
+       * @default false
+       */
+      joblib_started: boolean;
+      /** Owner Policy Digest */
+      owner_policy_digest: string;
+      /**
+       * Owner Policy Execution Scope
+       * @enum {string}
+       */
+      owner_policy_execution_scope:
+        | "estimator_n_jobs_one"
+        | "producer_scoped_joblib_parallelism_one";
+      /**
+       * Owner Policy Manifest Schema Version
+       * @default 1.0
+       * @constant
+       */
+      owner_policy_manifest_schema_version: "1.0";
+      /**
+       * Owner Policy Max Jobs
+       * @constant
+       */
+      owner_policy_max_jobs: 1;
+      /**
+       * Owner Policy Method Fqn
+       * @enum {string}
+       */
+      owner_policy_method_fqn:
+        | "causal.hte.causal_forest@2.0.0"
+        | "causal.hte.double_ml@2.0.0"
+        | "causal.hte.meta_learner@2.0.0"
+        | "causal.hte.forest_dr@2.0.0";
+      /**
+       * Owner Policy Method Profile Id
+       * @enum {string}
+       */
+      owner_policy_method_profile_id:
+        | "econml.causal_forest_dml.native_mean@2.0"
+        | "econml.dml.point_only@2.0"
+        | "econml.meta_learner.point_only@2.0"
+        | "econml.forest_dr.native_mean@2.0";
+      owner_policy_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Owner Policy Required Estimator N Jobs */
+      owner_policy_required_estimator_n_jobs: 1 | null;
+      /**
+       * Owner Policy Revision
+       * @enum {string}
+       */
+      owner_policy_revision: "r4" | "r5";
+      /**
+       * Owner Policy Schema Version
+       * @enum {string}
+       */
+      owner_policy_schema_version:
+        | "polisyos.runtime.observational_input_resource_policy.v4"
+        | "polisyos.runtime.observational_input_resource_policy.v5";
+      /** Physical Thread Limit */
+      physical_thread_limit?: null;
+      /**
+       * Physical Thread Limit Status
+       * @default not_established
+       * @constant
+       */
+      physical_thread_limit_status: "not_established";
+    };
+    /**
+     * DirectMethodExecutionHTESummary
+     * @description Scalar-only projection copied from a validated persisted HTE outcome.
+     */
+    DirectMethodExecutionHTESummary: {
+      /** Computed Estimand */
+      computed_estimand?: "mean_effect_over_selected_x" | null;
+      /**
+       * Computed Estimand Status
+       * @enum {string}
+       */
+      computed_estimand_status: "recomputed" | "not_established";
+      /** Computed Guarantee */
+      computed_guarantee:
+        | ("candidate_point" | "backend_conditional_interval")
+        | null;
+      /**
+       * Computed Guarantee Status
+       * @enum {string}
+       */
+      computed_guarantee_status: "computed" | "not_established";
+      /** Computed Target Scope */
+      computed_target_scope?: "selected_evaluation_rows" | null;
+      /**
+       * Computed Target Scope Status
+       * @enum {string}
+       */
+      computed_target_scope_status: "recomputed" | "not_established";
+      /** Confidence Level */
+      confidence_level?: number | null;
+      /** Control Value */
+      control_value?: number | null;
+      hte_outcome_ref: components["schemas"]["ArtifactRef-Output"];
+      hte_result_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      inference_basis_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /** Inference Reason */
+      inference_reason:
+        | (
+            | "inference_not_requested"
+            | "native_inference_unavailable"
+            | "native_inference_invalid"
+            | "method_profile_not_qualified"
+            | "selection_uses_outcomes"
+            | "contrast_not_established"
+            | "request_alpha_not_established"
+          )
+        | null;
+      /** Inference Status */
+      inference_status:
+        | (
+            | "not_requested"
+            | "unavailable"
+            | "unsupported"
+            | "not_qualified"
+            | "failed"
+            | "native_ate_inference_validated"
+          )
+        | null;
+      /**
+       * Kind
+       * @enum {string}
+       */
+      kind: "point_estimate" | "interval_estimate" | "refusal";
+      /** Limitations */
+      limitations: string[];
+      /** Lower Bound */
+      lower_bound?: number | null;
+      materialization_binding_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+      /** Measure Unit */
+      measure_unit?: string | null;
+      /**
+       * Measure Unit Status
+       * @enum {string}
+       */
+      measure_unit_status: "established" | "not_established";
+      /** Method Abi Digest */
+      method_abi_digest: string;
+      method_evidence_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Method Fqn
+       * @enum {string}
+       */
+      method_fqn:
+        | "causal.hte.causal_forest@2.0.0"
+        | "causal.hte.double_ml@2.0.0"
+        | "causal.hte.meta_learner@2.0.0"
+        | "causal.hte.forest_dr@2.0.0";
+      /**
+       * Method Profile Id
+       * @enum {string}
+       */
+      method_profile_id:
+        | "econml.causal_forest_dml.native_mean@2.0"
+        | "econml.dml.point_only@2.0"
+        | "econml.meta_learner.point_only@2.0"
+        | "econml.forest_dr.native_mean@2.0";
+      method_result_ref: components["schemas"]["ArtifactRef-Output"];
+      /** N Selected Rows */
+      n_selected_rows?: number | null;
+      /** Outcome Variable Id */
+      outcome_variable_id?: string | null;
+      /**
+       * Outcome Variable Status
+       * @enum {string}
+       */
+      outcome_variable_status: "declared" | "not_established";
+      owned_attempt_anchor_ref: components["schemas"]["OwnedAttemptAnchorRef"];
+      /** Point Estimate */
+      point_estimate?: number | null;
+      point_result_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /** Refusal Diagnostic Code */
+      refusal_diagnostic_code:
+        | (
+            | "hte_input_invalid"
+            | "empty_selected_input"
+            | "econml_unavailable"
+            | "joblib_unavailable"
+            | "resource_profile_invalid"
+            | "dml_profile_invalid"
+            | "meta_profile_invalid"
+            | "hte_execution_failed"
+            | "hte_fit_failed"
+            | "hte_point_estimate_invalid"
+            | "contrast_not_established"
+            | "runtime_origin_not_verified"
+          )
+        | null;
+      refusal_diagnostic_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+      /** Refusal Reason */
+      refusal_reason:
+        | (
+            | "invalid_point_estimate"
+            | "method_execution_failed"
+            | "required_input_unavailable"
+            | "invalid_selected_input"
+            | "method_profile_unavailable"
+            | "runtime_origin_not_verified"
+          )
+        | null;
+      /** Refusal Stage */
+      refusal_stage?:
+        | ("prepare" | "fit" | "infer" | "origin_verification")
+        | null;
+      /**
+       * Request Alpha Status
+       * @enum {string}
+       */
+      request_alpha_status: "declared" | "not_established";
+      /**
+       * Request Contrast Status
+       * @enum {string}
+       */
+      request_contrast_status: "declared" | "not_established";
+      /** Request Estimand */
+      request_estimand?: string | null;
+      /**
+       * Request Estimand Status
+       * @enum {string}
+       */
+      request_estimand_status: "declared" | "not_established";
+      /** Request Target Scope */
+      request_target_scope?: string | null;
+      /**
+       * Request Target Scope Status
+       * @enum {string}
+       */
+      request_target_scope_status: "declared" | "not_established";
+      /** Requested Alpha */
+      requested_alpha?: number | null;
+      /** Requested Guarantee */
+      requested_guarantee:
+        | (
+            | "candidate_point"
+            | "backend_conditional_interval"
+            | "population_sampling_coverage"
+          )
+        | null;
+      /**
+       * Requested Guarantee Status
+       * @enum {string}
+       */
+      requested_guarantee_status: "declared" | "not_established";
+      /** Resolved Params Sha256 */
+      resolved_params_sha256: string;
+      resource_evidence: components["schemas"]["DirectMethodExecutionHTEResourceEvidence"];
+      /**
+       * Schema Version
+       * @default 1.0
+       * @constant
+       */
+      schema_version: "1.0";
+      search_uncertainty_task_binding_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+      /** Selected Row Order Sha256 */
+      selected_row_order_sha256?: string | null;
+      /** Selected Rows Sha256 */
+      selected_rows_sha256?: string | null;
+      /**
+       * Selected Rows Status
+       * @enum {string}
+       */
+      selected_rows_status: "recomputed" | "not_established";
+      /** Selected X Sha256 */
+      selected_x_sha256?: string | null;
+      source_data_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      target_relation: components["schemas"]["DirectMethodExecutionHTETargetRelation"];
+      /** Treated Value */
+      treated_value?: number | null;
+      /** Treatment Variable Id */
+      treatment_variable_id?: string | null;
+      /**
+       * Treatment Variable Status
+       * @enum {string}
+       */
+      treatment_variable_status: "declared" | "not_established";
+      /** Upper Bound */
+      upper_bound?: number | null;
+    };
+    /**
+     * DirectMethodExecutionHTETargetRelation
+     * @description Bounded target relation copied from the validated HTE outcome.
+     */
+    DirectMethodExecutionHTETargetRelation: {
+      /**
+       * Alpha Status
+       * @enum {string}
+       */
+      alpha_status: "recomputed" | "not_applicable" | "not_established";
+      /** Computed Guarantee */
+      computed_guarantee:
+        | ("candidate_point" | "backend_conditional_interval")
+        | null;
+      /**
+       * Computed Guarantee Status
+       * @enum {string}
+       */
+      computed_guarantee_status: "computed" | "not_established";
+      /** Computed Scope */
+      computed_scope: "selected_evaluation_rows" | null;
+      /**
+       * Computed Scope Status
+       * @enum {string}
+       */
+      computed_scope_status: "recomputed" | "not_established";
+      /**
+       * Contrast Status
+       * @enum {string}
+       */
+      contrast_status: "recomputed" | "not_established";
+      /**
+       * Estimand Status
+       * @enum {string}
+       */
+      estimand_status: "recomputed" | "not_established";
+      /**
+       * Guarantee Disposition
+       * @enum {string}
+       */
+      guarantee_disposition:
+        | "satisfied"
+        | "requested_claim_not_satisfied"
+        | "not_established";
+      /**
+       * Overall Disposition
+       * @enum {string}
+       */
+      overall_disposition:
+        | "satisfied"
+        | "requested_claim_not_satisfied"
+        | "not_established";
+      /**
+       * Profile Status
+       * @enum {string}
+       */
+      profile_status: "qualified" | "point_only" | "not_established";
+      /** Requested Guarantee */
+      requested_guarantee:
+        | (
+            | "candidate_point"
+            | "backend_conditional_interval"
+            | "population_sampling_coverage"
+          )
+        | null;
+      /**
+       * Requested Guarantee Status
+       * @enum {string}
+       */
+      requested_guarantee_status: "declared" | "not_established";
+      /** Requested Scope */
+      requested_scope?: string | null;
+      /**
+       * Requested Scope Status
+       * @enum {string}
+       */
+      requested_scope_status: "declared" | "not_established";
+      /**
+       * Row Order Status
+       * @enum {string}
+       */
+      row_order_status: "recomputed" | "not_established";
+      /**
+       * Scope Disposition
+       * @enum {string}
+       */
+      scope_disposition:
+        | "satisfied"
+        | "requested_claim_not_satisfied"
+        | "not_established";
+      /**
+       * Source Content Status
+       * @enum {string}
+       */
+      source_content_status: "content_bound" | "not_established";
+    };
+    /**
+     * DirectMethodExecutionRequestSummary
+     * @description Privacy-bounded immutable request summary for one accepted direct method job.
+     */
+    DirectMethodExecutionRequestSummary: {
+      /** Max Bytes */
+      max_bytes: number;
+      /** Max Depth */
+      max_depth: number;
+      /** Max Elements */
+      max_elements: number;
+      /** Max Manifest Bytes */
+      max_manifest_bytes: number;
+      /** Method Abi Digest */
+      method_abi_digest: string;
+      /** Method Build Digest */
+      method_build_digest: string;
+      /**
+       * Method Build Digest Scope
+       * @constant
+       */
+      method_build_digest_scope: "class_source_only";
+      /** Method Fqn */
+      method_fqn: string;
+      /** Method Version */
+      method_version: string;
+      owned_hte_request_context?:
+        | components["schemas"]["OwnedHTERequestContextV1"]
+        | null;
+      /**
+       * Requested At
+       * Format: date-time
+       */
+      requested_at: string;
+      requested_intent_ref: components["schemas"]["ArtifactRef-Output"];
+      requested_source_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Required Estimator N Jobs */
+      required_estimator_n_jobs?: number | null;
+      /** Resolved Params Sha256 */
+      resolved_params_sha256: string;
+      /** Resource Policy Digest */
+      resource_policy_digest: string;
+      resource_policy_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Seed */
+      seed: number;
+      /**
+       * Seed Policy Revision
+       * @constant
+       */
+      seed_policy_revision: "server_seed_zero_v1";
+      /**
+       * Source Protocol
+       * @enum {string}
+       */
+      source_protocol: "method_input_envelope_v1" | "legacy_hte_json_v1";
+    };
+    /**
+     * DirectMethodExecutionRunProjection
+     * @description Audience-bounded current projection of one persisted direct method run.
+     */
+    DirectMethodExecutionRunProjection: {
+      /**
+       * Candidate Only
+       * @default true
+       * @constant
+       */
+      candidate_only: true;
+      input_refusal?:
+        | components["schemas"]["OwnedAttemptAnchorRefusalAssociation"]
+        | null;
+      /** Limitations */
+      limitations?: (
+        | "selected_view_permission_required"
+        | "owned_run_cell_scope_required"
+        | "no_direct_method_request"
+        | "legacy_selection_unbound"
+        | "candidate_execution_pending"
+        | "execution_outcome_not_established"
+        | "selection_persistence_not_established"
+        | "input_refused_before_dispatch"
+        | "candidate_input_not_external_truth"
+        | "causal_identification_not_established"
+        | "scientific_validity_not_established"
+        | "units_and_context_not_established"
+        | "source_access_revalidation_not_established"
+        | "legacy_hte_json_v1_source_normalized"
+      )[];
+      /** Refusal Code */
+      refusal_code?: "observational_input_refused" | null;
+      request?:
+        | components["schemas"]["DirectMethodExecutionRequestSummary"]
+        | null;
+      selection?:
+        | components["schemas"]["DirectMethodExecutionSelection"]
+        | null;
+      /**
+       * Status
+       * @enum {string}
+       */
+      status:
+        | "withheld"
+        | "absent"
+        | "legacy_unbound"
+        | "accepted_pending"
+        | "selected"
+        | "input_refused"
+        | "execution_failed"
+        | "unavailable";
+      time_roles?:
+        | components["schemas"]["DirectMethodExecutionTimeRoles"]
+        | null;
+    };
+    /**
+     * DirectMethodExecutionSelection
+     * @description Persist the immutable input, runtime pins, and outputs of direct method work.
+     */
+    DirectMethodExecutionSelection: {
+      /** Attempt */
+      attempt: number;
+      candidate_outcome?:
+        | components["schemas"]["MethodExecutionCandidateOutcome"]
+        | null;
+      content_admitted_intent_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Contract Target
+       * @constant
+       */
+      contract_target: "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData";
+      /** Contract Target Id */
+      contract_target_id?: "foundry.causal.hte_observational_data.v1" | null;
+      effective_input_ref: components["schemas"]["ArtifactRef-Output"];
+      hte?: components["schemas"]["DirectMethodExecutionHTESummary"] | null;
+      hte_outcome_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      hte_result_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      inference_basis_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      invocation_basis_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /** Job Id */
+      job_id: string;
+      /** Limitations */
+      limitations: (
+        | "candidate_input_not_external_truth"
+        | "scientific_validity_not_established"
+        | "units_and_context_not_established"
+        | "source_access_revalidation_not_established"
+        | "legacy_hte_json_v1_source_normalized"
+      )[];
+      /** Method Abi Digest */
+      method_abi_digest: string;
+      /** Method Build Digest */
+      method_build_digest: string;
+      /**
+       * Method Build Digest Scope
+       * @constant
+       */
+      method_build_digest_scope: "class_source_only";
+      /**
+       * Method Dispatch Binding Status
+       * @enum {string}
+       */
+      method_dispatch_binding_status: "recomputed" | "not_established";
+      method_evidence_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Method Fqn
+       * @enum {string}
+       */
+      method_fqn:
+        | "causal.hte.forest_dr@1.0.0"
+        | "causal.hte.forest_dr@1.1.0"
+        | "causal.hte.causal_forest@2.0.0"
+        | "causal.hte.double_ml@2.0.0"
+        | "causal.hte.meta_learner@2.0.0"
+        | "causal.hte.forest_dr@2.0.0";
+      method_result_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Method Version
+       * @enum {string}
+       */
+      method_version: "1.0.0" | "1.1.0" | "2.0.0";
+      /**
+       * Normalization
+       * @enum {string}
+       */
+      normalization:
+        | "canonical_passthrough"
+        | "legacy_to_method_input_envelope_v1";
+      observational_run_intent_ref: components["schemas"]["ArtifactRef-Output"];
+      owned_attempt_anchor_ref?:
+        | components["schemas"]["OwnedAttemptAnchorRef"]
+        | null;
+      owned_hte_request_context?:
+        | components["schemas"]["OwnedHTERequestContextV1"]
+        | null;
+      point_result_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /**
+       * Posterior Summary Refs
+       * @default []
+       */
+      posterior_summary_refs: components["schemas"]["MethodExecutionPosteriorSummaryRef"][];
+      refusal_diagnostic_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+      requested_source_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Resource Policy Digest */
+      resource_policy_digest: string;
+      resource_policy_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Run Id */
+      run_id: string;
+      /** Selection Digest */
+      selection_digest?: string | null;
+      /**
+       * Selection Kind
+       * @default direct_method
+       * @constant
+       */
+      selection_kind: "direct_method";
+      /** Source Access Revalidation Status */
+      source_access_revalidation_status?: "not_established" | null;
+      /**
+       * Source Protocol
+       * @enum {string}
+       */
+      source_protocol: "method_input_envelope_v1" | "legacy_hte_json_v1";
+      submitted_input_ref: components["schemas"]["ArtifactRef-Output"];
+    };
+    /**
+     * DirectMethodExecutionTimeRoles
+     * @description Keep request, admission, execution, owner verification, and read times distinct.
+     */
+    DirectMethodExecutionTimeRoles: {
+      /** Admitted At */
+      admitted_at?: string | null;
+      /** Execution Finished At */
+      execution_finished_at?: string | null;
+      /** Execution Started At */
+      execution_started_at?: string | null;
+      /** Owner Verified At */
+      owner_verified_at?: string | null;
+      /**
+       * Reader At
+       * Format: date-time
+       */
+      reader_at: string;
+      /** Source Observation Epoch */
+      source_observation_epoch?: string | null;
     };
     /**
      * DiscoveryCandidate
@@ -12654,12 +13598,32 @@ export interface components {
     LineageBatchRequest: {
       /** Lineage Ids */
       lineage_ids?: string[];
+      /** Run Id */
+      run_id?: string | null;
+      /** Selected Artifact Refs */
+      selected_artifact_refs?:
+        | (components["schemas"]["ArtifactRef-Input"] | null)[]
+        | null;
+    };
+    /**
+     * LineageBatchResolution
+     * @description Map one requested lineage selector and profile to its resolved response.
+     */
+    LineageBatchResolution: {
+      /** Requested Lineage Id */
+      requested_lineage_id: string;
+      /** Resolved Lineage Id */
+      resolved_lineage_id: string;
     };
     /**
      * LineageBatchResponse
      * @description Response envelope returned by runtime lineage batch lookup.
      */
     LineageBatchResponse: {
+      /** Lineage Resolutions */
+      lineage_resolutions?:
+        | components["schemas"]["LineageBatchResolution"][]
+        | null;
       /** Lineages */
       lineages?: components["schemas"]["LineageGraphView"][];
       meta: components["schemas"]["ApiMeta"];
@@ -12762,8 +13726,12 @@ export interface components {
       relation: string;
       /** Source Id */
       source_id: string;
+      /** Source Manifest Profile Sha256 */
+      source_manifest_profile_sha256?: string | null;
       /** Target Id */
       target_id: string;
+      /** Target Manifest Profile Sha256 */
+      target_manifest_profile_sha256?: string | null;
     };
     /**
      * LineageGraphNode
@@ -12779,6 +13747,10 @@ export interface components {
       kind: string;
       /** Label */
       label: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
+      /** Media Type */
+      media_type?: string | null;
       /** Metadata */
       metadata?: {
         [key: string]: unknown;
@@ -12791,6 +13763,10 @@ export interface components {
      * @description Compact plus full runtime lineage graph view.
      */
     LineageGraphView: {
+      /** Artifact Ref Provenance */
+      artifact_ref_provenance?:
+        | ("run_output_ref" | "reader_materialized")
+        | null;
       /** Compact Summary */
       compact_summary?: components["schemas"]["LineageCompactSummaryItem"][];
       /** Edges */
@@ -12812,6 +13788,15 @@ export interface components {
       };
       /** Nodes */
       nodes?: components["schemas"]["LineageGraphNode"][];
+      /** Profile Binding Status */
+      profile_binding_status?: ("verified" | "not_established") | null;
+      /** Root Artifact Refs */
+      root_artifact_refs?: components["schemas"]["ArtifactRef-Output"][];
+      selected_artifact_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+      /** Source Run Id */
+      source_run_id?: string | null;
       /**
        * Status
        * @default untraced
@@ -12825,6 +13810,11 @@ export interface components {
      * @description Typed lineage reference embedded inside `QuantityValue` envelopes.
      */
     "LineageRef-Input": {
+      artifact_ref?: components["schemas"]["ArtifactRef-Input"] | null;
+      /** Artifact Ref Provenance */
+      artifact_ref_provenance?:
+        | ("run_output_ref" | "reader_materialized")
+        | null;
       /** Compact Summary */
       compact_summary?: _RuntimeApiRequestView_4c_69_6e_65_61_67_65_43_6f_6d_70_61_63_74_53_75_6d_6d_61_72_79_49_74_65_6d[];
       /**
@@ -12839,6 +13829,8 @@ export interface components {
       id: string;
       /** Reason Code */
       reason_code?: string | null;
+      /** Source Run Id */
+      source_run_id?: string | null;
       /**
        * Status
        * @default untraced
@@ -12861,6 +13853,153 @@ export interface components {
       lineage: components["schemas"]["LineageGraphView"];
       meta: components["schemas"]["ApiMeta"];
       temporal_scope?: components["schemas"]["TemporalScope"] | null;
+    };
+    /**
+     * MethodExecutionCandidateOutcome
+     * @description Scalar-only candidate summary captured from the producer's typed report.
+     */
+    MethodExecutionCandidateOutcome: {
+      /**
+       * Candidate Only
+       * @default true
+       * @constant
+       */
+      candidate_only: true;
+      /** Confidence Interval */
+      confidence_interval?: [number, number] | null;
+      /** Confidence Level */
+      confidence_level?: number | null;
+      /** Estimand */
+      estimand: string;
+      /**
+       * Limitations
+       * @default [
+       *       "causal_identification_not_established",
+       *       "scientific_validity_not_established"
+       *     ]
+       */
+      limitations: (
+        | "causal_identification_not_established"
+        | "scientific_validity_not_established"
+      )[];
+      /**
+       * Method
+       * @default forest_dr
+       * @constant
+       */
+      method: "forest_dr";
+      /** N Control */
+      n_control: number;
+      /** N Treated */
+      n_treated: number;
+      /** P Value */
+      p_value?: number | null;
+      /** Point Estimate */
+      point_estimate?: number | null;
+      /** Sample Size */
+      sample_size: number;
+      /** Standard Error */
+      standard_error?: number | null;
+      /**
+       * Status
+       * @enum {string}
+       */
+      status:
+        | "success"
+        | "input_invalid"
+        | "assumption_failed"
+        | "numerical_failure";
+    };
+    /**
+     * MethodExecutionPosteriorSummaryRef
+     * @description Point to one bounded posterior summary produced by a direct method run.
+     */
+    MethodExecutionPosteriorSummaryRef: {
+      /** Point Role */
+      point_role: string;
+      ref: components["schemas"]["ArtifactRef-Output"];
+    };
+    /**
+     * MethodExecutionProducerDiagnostic
+     * @description Candidate-only per-attempt inventory of actual Foundry method emissions.
+     */
+    MethodExecutionProducerDiagnostic: {
+      /** Attempt */
+      attempt: number;
+      /**
+       * Authority Status
+       * @default candidate_only
+       * @constant
+       */
+      authority_status: "candidate_only";
+      /** Emissions */
+      emissions?: components["schemas"]["MethodExecutionProducerEmissionDiagnostic"][];
+      /**
+       * Inventory Truncated
+       * @default false
+       */
+      inventory_truncated: boolean;
+      /** Job Id */
+      job_id: string;
+      /**
+       * Limitations
+       * @default [
+       *       "producer_diagnostic_only",
+       *       "workflow_authority_not_established",
+       *       "scientific_validity_not_established"
+       *     ]
+       */
+      limitations: (
+        | "producer_diagnostic_only"
+        | "workflow_authority_not_established"
+        | "scientific_validity_not_established"
+      )[];
+      /** Run Id */
+      run_id: string;
+    };
+    /**
+     * MethodExecutionProducerEmissionDiagnostic
+     * @description One bounded actual ExecuteResult output inventory, without authority claims.
+     */
+    MethodExecutionProducerEmissionDiagnostic: {
+      /** Emission Index */
+      emission_index: number;
+      /**
+       * Execute Result Status
+       * @enum {string}
+       */
+      execute_result_status: "ok" | "failed" | "not_established";
+      /** Method Execution Bundle Refs */
+      method_execution_bundle_refs?: components["schemas"]["ArtifactRef-Output"][];
+      /** Method Metric Binding Set Refs */
+      method_metric_binding_set_refs?: components["schemas"]["ArtifactRef-Output"][];
+      /**
+       * Output Ref Status
+       * @enum {string}
+       */
+      output_ref_status: "complete" | "partial" | "none";
+      simulation_result_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+    };
+    /**
+     * MethodMetricProjectionResponse
+     * @description Bounded API projection of owner-selected method metric rows.
+     */
+    MethodMetricProjectionResponse: {
+      /** Limitations */
+      limitations?: string[];
+      meta: components["schemas"]["ApiMeta"];
+      /** Observations */
+      observations?: components["schemas"]["JsonValue"][];
+      /** Run Id */
+      run_id: string;
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "selected" | "verification_missing" | "invalid";
+      vector_ref?: components["schemas"]["ArtifactRef-Output"] | null;
     };
     /**
      * MetricCandidate
@@ -13484,6 +14623,7 @@ export interface components {
      * @description POST /api/v1/control/runs/nl — NL request triggering agent circuit.
      */
     NaturalLanguageRunRequest: {
+      calibration_rule_ref?: components["schemas"]["ArtifactRef-Input"] | null;
       /**
        * Checkpoint Policy
        * @default strict
@@ -13533,9 +14673,11 @@ export interface components {
        * @default 1
        */
       max_parallel_models?: number;
+      model_spec_ref?: components["schemas"]["ArtifactRef-Input"] | null;
       /** Per Model Budget Usd */
       per_model_budget_usd?: number | null;
       policy_flags?: components["schemas"]["PolicyFlags"];
+      policy_spec_ref?: components["schemas"]["ArtifactRef-Input"] | null;
       /** Request */
       request: string;
       /** Run Budget Usd */
@@ -13546,6 +14688,11 @@ export interface components {
       };
       /** Target World Scope Profile Id */
       target_world_scope_profile_id?: string | null;
+      value_data_profile_ref?:
+        | components["schemas"]["ArtifactRef-Input"]
+        | null;
+      /** Value Data Unit Id */
+      value_data_unit_id?: string | null;
     };
     /**
      * NodeDebugResponse
@@ -13805,6 +14952,111 @@ export interface components {
       witness_refs: string[];
     };
     /**
+     * ObservationalHTERequestV1
+     * @description Declare the requested HTE target before a successor method is queued.
+     *
+     *     These are requested candidate semantics, not source authority. Runtime binds
+     *     them into its own immutable intent and the worker must reconcile them with
+     *     the exact selected input before dispatch.
+     */
+    ObservationalHTERequestV1: {
+      /** Alpha */
+      alpha: number;
+      /** Control Value */
+      control_value: number;
+      /** Estimand */
+      estimand: string;
+      /** Outcome Variable Id */
+      outcome_variable_id: string;
+      /** Requested Guarantee */
+      requested_guarantee?:
+        | (
+            | "candidate_point"
+            | "backend_conditional_interval"
+            | "population_sampling_coverage"
+          )
+        | null;
+      /**
+       * Schema Version
+       * @constant
+       */
+      schema_version: "polisyos.runtime.observational_hte_request.v1";
+      /** Target Scope */
+      target_scope: string;
+      /** Treated Value */
+      treated_value: number;
+      /** Treatment Variable Id */
+      treatment_variable_id: string;
+    };
+    /**
+     * ObservationalHTERequestV2
+     * @description Version-two successor request, frozen into Runtime intent before enqueue.
+     */
+    ObservationalHTERequestV2: {
+      /** Alpha */
+      alpha: number;
+      /** Control Value */
+      control_value: number;
+      /** Estimand */
+      estimand: string;
+      /** Outcome Variable Id */
+      outcome_variable_id: string;
+      /** Requested Guarantee */
+      requested_guarantee?:
+        | (
+            | "candidate_point"
+            | "backend_conditional_interval"
+            | "population_sampling_coverage"
+          )
+        | null;
+      /**
+       * Schema Version
+       * @constant
+       */
+      schema_version: "polisyos.runtime.observational_hte_request.v2";
+      search_uncertainty_task_binding_ref?:
+        | components["schemas"]["ArtifactRef-Input"]
+        | null;
+      /** Target Scope */
+      target_scope: string;
+      /** Treated Value */
+      treated_value: number;
+      /** Treatment Variable Id */
+      treatment_variable_id: string;
+    };
+    /**
+     * ObservationalRunInput
+     * @description Bind a selected-profile observation artifact to one direct method run.
+     */
+    ObservationalRunInput: {
+      /** Hte Request */
+      hte_request?:
+        | components["schemas"]["ObservationalHTERequestV1"]
+        | components["schemas"]["ObservationalHTERequestV2"]
+        | null;
+      method: components["schemas"]["ObservationalRunMethodSelection"];
+      /**
+       * Protocol
+       * @enum {string}
+       */
+      protocol: "method_input_envelope_v1" | "legacy_hte_json_v1";
+      source_ref: components["schemas"]["ArtifactRef-Input"];
+    };
+    /**
+     * ObservationalRunMethodSelection
+     * @description Select a method by exact version or request one-time latest resolution.
+     */
+    ObservationalRunMethodSelection: {
+      /** Fqn */
+      fqn: string;
+      /** Params */
+      params?: {
+        [key: string]: unknown;
+      } | null;
+      /** Version */
+      version?: string | null;
+    };
+    /**
      * OperatorDiagnostic
      * @description Typed operator root-cause projection for serious runtime failures.
      */
@@ -13886,6 +15138,296 @@ export interface components {
       metric_id: string;
       /** Target Variable */
       target_variable: string;
+    };
+    /**
+     * OwnedAttemptAnchorProjectionAssociation
+     * @description Bind a bounded scalar summary to the current completed owner selection.
+     *
+     *     This result reconciles the owner row, terminal event, selected manifest
+     *     identities, and the already worker-admitted scalar-summary digest. It does
+     *     not read or recompute method-result, CATE, or native inference arrays.
+     */
+    OwnedAttemptAnchorProjectionAssociation: {
+      anchor_ref: components["schemas"]["OwnedAttemptAnchorRef"];
+      /** Attempt */
+      attempt: number;
+      /** Cell Id */
+      cell_id?: string | null;
+      /**
+       * Content Validation Status
+       * @default worker_admitted_not_recomputed
+       * @constant
+       */
+      content_validation_status: "worker_admitted_not_recomputed";
+      hte_result_ref?: components["schemas"]["SelectedArtifactRef"] | null;
+      inference_basis_ref?: components["schemas"]["SelectedArtifactRef"] | null;
+      invocation_basis_ref?:
+        | components["schemas"]["SelectedArtifactRef"]
+        | null;
+      job_completed_event: components["schemas"]["OwnedAttemptLifecycleEvent"];
+      /** Job Id */
+      job_id: string;
+      /**
+       * Manifest Identity Status
+       * @default independently_reconciled
+       * @constant
+       */
+      manifest_identity_status: "independently_reconciled";
+      materialization_binding_ref?:
+        | components["schemas"]["OwnedAttemptPhysicalSourceBindingRef"]
+        | null;
+      method_evidence_ref: components["schemas"]["SelectedArtifactRef"];
+      method_result_ref: components["schemas"]["SelectedArtifactRef"];
+      /**
+       * Outcome Kind
+       * @enum {string}
+       */
+      outcome_kind: "point_estimate" | "interval_estimate" | "refusal";
+      outcome_ref: components["schemas"]["SelectedArtifactRef"];
+      point_result_ref?: components["schemas"]["SelectedArtifactRef"] | null;
+      refusal_diagnostic_ref?:
+        | components["schemas"]["SelectedArtifactRef"]
+        | null;
+      resource_policy_ref: components["schemas"]["SelectedArtifactRef"];
+      /** Run Id */
+      run_id: string;
+      /**
+       * Schema Version
+       * @default 1.0
+       * @constant
+       */
+      schema_version: "1.0";
+      search_uncertainty_task_binding_ref?:
+        | components["schemas"]["SelectedArtifactRef"]
+        | null;
+      /** Selected Summary Sha256 */
+      selected_summary_sha256: string;
+      source_data_ref: components["schemas"]["SelectedArtifactRef"];
+      /**
+       * Source Data Summary Status
+       * @default content_bound
+       * @constant
+       */
+      source_data_summary_status: "content_bound";
+      /**
+       * Status
+       * @default owner_projection_reconciled
+       * @constant
+       */
+      status: "owner_projection_reconciled";
+      /** Tenant Id */
+      tenant_id: string;
+      /**
+       * Verified At
+       * Format: date-time
+       */
+      verified_at: string;
+    };
+    /**
+     * OwnedAttemptAnchorRef
+     * @description Resolve one exact selected-profile view of an owned-attempt anchor.
+     */
+    OwnedAttemptAnchorRef: {
+      artifact_id: string;
+      /**
+       * Kind
+       * @default runtime.owned_attempt_anchor
+       * @constant
+       */
+      kind: "runtime.owned_attempt_anchor";
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256: string;
+      /**
+       * Media Type
+       * @default application/json
+       * @constant
+       */
+      media_type: "application/json";
+    };
+    /**
+     * OwnedAttemptAnchorRefusalAssociation
+     * @description Return a failed-input anchor reconciled to its current failed owner event.
+     *
+     *     This result contains no method output refs. It establishes only that an
+     *     owner-fenced preparation refusal belongs to the current failed attempt.
+     */
+    OwnedAttemptAnchorRefusalAssociation: {
+      anchor_ref: components["schemas"]["OwnedAttemptAnchorRef"];
+      /** Attempt */
+      attempt: number;
+      job_failed_event: components["schemas"]["OwnedAttemptLifecycleEvent"];
+      /** Job Id */
+      job_id: string;
+      observational_run_intent_ref: components["schemas"]["SelectedArtifactRef"];
+      refusal: components["schemas"]["OwnedAttemptHTEInputRefusal"];
+      requested_source_ref: components["schemas"]["SelectedArtifactRef"];
+      resource_policy_ref: components["schemas"]["SelectedArtifactRef"];
+      /** Run Id */
+      run_id: string;
+      /**
+       * Schema Version
+       * @default 1.0
+       * @constant
+       */
+      schema_version: "1.0";
+      search_uncertainty_task_binding_ref?:
+        | components["schemas"]["SelectedArtifactRef"]
+        | null;
+      /**
+       * Status
+       * @default input_refusal_reconciled
+       * @constant
+       */
+      status: "input_refusal_reconciled";
+      /**
+       * Verified At
+       * Format: date-time
+       */
+      verified_at: string;
+    };
+    /**
+     * OwnedAttemptHTEInputRefusal
+     * @description Capture a typed preparation refusal without inventing admitted input.
+     */
+    OwnedAttemptHTEInputRefusal: {
+      /** Failure Stage */
+      failure_stage?: string | null;
+      /** Observed Manifest Selection Bytes */
+      observed_manifest_selection_bytes?: number | null;
+      /** Observed Manifest Verification Bytes */
+      observed_manifest_verification_bytes?: number | null;
+      /** Observed Payload Bytes */
+      observed_payload_bytes?: number | null;
+      /** Observed Source Bytes */
+      observed_source_bytes?: number | null;
+      /** Payload Integrity Verified */
+      payload_integrity_verified: boolean;
+      /** Refusal Code */
+      refusal_code: string;
+      /**
+       * Schema Version
+       * @default 1.0
+       * @constant
+       */
+      schema_version: "1.0";
+      /** Source Usage Complete */
+      source_usage_complete: boolean;
+    };
+    /**
+     * OwnedAttemptLifecycleEvent
+     * @description Identify one immutable lifecycle event row by owner identity and digest.
+     */
+    OwnedAttemptLifecycleEvent: {
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Event Id */
+      event_id: number;
+      /**
+       * Event Type
+       * @enum {string}
+       */
+      event_type:
+        | "job_created"
+        | "job_running"
+        | "job_completed"
+        | "job_failed";
+      /** Job Id */
+      job_id: string;
+      /** Payload Sha256 */
+      payload_sha256: string;
+    };
+    /**
+     * OwnedAttemptPhysicalSourceBindingRef
+     * @description Resolve one exact profile-selected physical HTE materialization record.
+     */
+    OwnedAttemptPhysicalSourceBindingRef: {
+      artifact_id: string;
+      /**
+       * Kind
+       * @default foundry.hte.physical_source_materialization_binding
+       * @constant
+       */
+      kind: "foundry.hte.physical_source_materialization_binding";
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256: string;
+      /**
+       * Media Type
+       * @default application/json
+       * @constant
+       */
+      media_type: "application/json";
+    };
+    /**
+     * OwnedHTERequestContextV1
+     * @description Freeze request selectors from the immutable Runtime intent.
+     */
+    OwnedHTERequestContextV1: {
+      /**
+       * Contrast Status
+       * @enum {string}
+       */
+      contrast_status: "declared" | "not_established";
+      /** Control Value */
+      control_value?: number | null;
+      materialization_binding_ref?:
+        | components["schemas"]["OwnedAttemptPhysicalSourceBindingRef"]
+        | null;
+      /** Outcome Variable Id */
+      outcome_variable_id?: string | null;
+      /**
+       * Outcome Variable Status
+       * @enum {string}
+       */
+      outcome_variable_status: "declared" | "not_established";
+      /**
+       * Request Alpha Status
+       * @enum {string}
+       */
+      request_alpha_status: "declared" | "not_established";
+      /** Request Estimand */
+      request_estimand?: string | null;
+      /**
+       * Request Estimand Status
+       * @enum {string}
+       */
+      request_estimand_status: "declared" | "not_established";
+      /** Request Target Scope */
+      request_target_scope?: string | null;
+      /**
+       * Request Target Scope Status
+       * @enum {string}
+       */
+      request_target_scope_status: "declared" | "not_established";
+      /** Requested Alpha */
+      requested_alpha?: number | null;
+      /** Requested Guarantee */
+      requested_guarantee?:
+        | (
+            | "candidate_point"
+            | "backend_conditional_interval"
+            | "population_sampling_coverage"
+          )
+        | null;
+      /**
+       * Requested Guarantee Status
+       * @enum {string}
+       */
+      requested_guarantee_status: "declared" | "not_established";
+      search_uncertainty_task_binding_ref?:
+        | components["schemas"]["SelectedArtifactRef"]
+        | null;
+      /** Treated Value */
+      treated_value?: number | null;
+      /** Treatment Variable Id */
+      treatment_variable_id?: string | null;
+      /**
+       * Treatment Variable Status
+       * @enum {string}
+       */
+      treatment_variable_status: "declared" | "not_established";
     };
     /**
      * PolicyDesignCaseAudience
@@ -14565,6 +16107,9 @@ export interface components {
        * @default []
        */
       evidence_reason_codes: string[];
+      forecast_profile_member_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
       /** Intent Id */
       intent_id: string;
       /**
@@ -14584,12 +16129,7 @@ export interface components {
        *       "causal_effect_claim"
        *     ]
        */
-      may_not_use_for: (
-        | "promotion"
-        | "publication"
-        | "policy_selection"
-        | "causal_effect_claim"
-      )[];
+      may_not_use_for: string[];
       model_spec_ref: components["schemas"]["ArtifactRef-Output"];
       /** Nominal Confidence Level */
       nominal_confidence_level?: number | null;
@@ -14612,6 +16152,12 @@ export interface components {
        * @constant
        */
       population_scope_status: "not_established";
+      /**
+       * Profile Join Status
+       * @default profileless_legacy
+       * @enum {string}
+       */
+      profile_join_status: "joined_candidate" | "profileless_legacy";
       /** Request Sha256 */
       request_sha256: string;
       /** Run Id */
@@ -14620,10 +16166,13 @@ export interface components {
       s10: components["schemas"]["PredictiveCalibrationS10Summary"];
       /**
        * Schema Version
-       * @default polisyos.runtime.predictive_calibration_association.v2
-       * @constant
+       * @default polisyos.runtime.predictive_calibration_association.v4
+       * @enum {string}
        */
-      schema_version: "polisyos.runtime.predictive_calibration_association.v2";
+      schema_version:
+        | "polisyos.runtime.predictive_calibration_association.v2"
+        | "polisyos.runtime.predictive_calibration_association.v3"
+        | "polisyos.runtime.predictive_calibration_association.v4";
       /**
        * Source Time Status
        * @default not_established
@@ -14633,6 +16182,9 @@ export interface components {
       /** Tenant Id */
       tenant_id: string;
       uncertainty_bundle_ref: components["schemas"]["ArtifactRef-Output"];
+      value_data_profile_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
     };
     /**
      * PredictiveCalibrationRequest
@@ -14655,6 +16207,11 @@ export interface components {
       /** Target Metric */
       target_metric: string;
       temporal_roles: components["schemas"]["ForecastTemporalRoles"];
+      value_data_profile_ref?:
+        | components["schemas"]["ArtifactRef-Input"]
+        | null;
+      /** Value Data Unit Id */
+      value_data_unit_id?: string | null;
     };
     /**
      * PredictiveCalibrationResponse
@@ -14667,9 +16224,10 @@ export interface components {
     };
     /**
      * PredictiveCalibrationS10Summary
-     * @description Small persisted summary of the recomputed S10 candidate projection.
+     * @description Typed persisted projection of the recomputed S10 candidate support.
      */
     PredictiveCalibrationS10Summary: {
+      authority_boundary?: components["schemas"]["AuthorityBoundary"] | null;
       /** Calibration Record Ref */
       calibration_record_ref?: string | null;
       /**
@@ -14691,10 +16249,19 @@ export interface components {
       denominator: number;
       /** Forecast Tier */
       forecast_tier: string;
+      /**
+       * Limitation Refs
+       * @default []
+       */
+      limitation_refs: string[];
+      /** May Not Use For */
+      may_not_use_for?: string[] | null;
       /** Numerator */
       numerator: number;
       /** Observed Pass Rate */
       observed_pass_rate: number;
+      /** Outcome Binding Status */
+      outcome_binding_status?: "not_established" | null;
     };
     /**
      * PredictiveCoverageDiagnosticPreview
@@ -16623,6 +18190,58 @@ export interface components {
       right_run_id: string;
     };
     /**
+     * RunConditionalTransportCandidateProjection
+     * @description Audience-safe candidate summary derived from a verified persisted result.
+     */
+    RunConditionalTransportCandidateProjection: {
+      /**
+       * Candidate Disposition
+       * @enum {string}
+       */
+      candidate_disposition:
+        | "not_run"
+        | "completed"
+        | "partial"
+        | "unsupported"
+        | "error";
+      /**
+       * Candidate Scope
+       * @constant
+       */
+      candidate_scope: "candidate_only";
+      /** Completed Valid Member Count */
+      completed_valid_member_count: number;
+      /** Identified Member Fraction */
+      identified_member_fraction?: number | null;
+      /**
+       * Identified Member Fraction Basis
+       * @constant
+       */
+      identified_member_fraction_basis: "selected_completed_valid_members";
+      /**
+       * Interpretation Limit
+       * @constant
+       */
+      interpretation_limit: "selected_family_member_outcomes_do_not_establish_whole_pag_class_probability_calibration_legal_applicability_or_protected_eligibility";
+      /** Member Evaluation Count */
+      member_evaluation_count: number;
+      /** Proposal Count */
+      proposal_count: number;
+      /** Reason Code */
+      reason_code?: string | null;
+      /** Requested Profile Id */
+      requested_profile_id: string;
+      /** Requested Profile Revision */
+      requested_profile_revision: string;
+      /** Selection Identity */
+      selection_identity: string;
+      /**
+       * Source Currentness
+       * @constant
+       */
+      source_currentness: "unknown";
+    };
+    /**
      * RunDetails
      * @description Run details public type.
      */
@@ -16635,6 +18254,9 @@ export interface components {
         | null;
       /** Cell Id */
       cell_id?: string | null;
+      conditional_transport_candidate?:
+        | components["schemas"]["RunConditionalTransportCandidateProjection"]
+        | null;
       /** Control Job Id */
       control_job_id?: string | null;
       /**
@@ -16670,6 +18292,12 @@ export interface components {
        */
       has_workflow_report: boolean;
       manifest_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      method_execution_producer_diagnostic?:
+        | components["schemas"]["MethodExecutionProducerDiagnostic"]
+        | null;
+      method_execution_selection?:
+        | components["schemas"]["DirectMethodExecutionRunProjection"]
+        | null;
       operator_diagnostic?:
         | components["schemas"]["RunOperatorDiagnostic"]
         | null;
@@ -17295,6 +18923,106 @@ export interface components {
       step: number;
     };
     /**
+     * RunGenericCycleSimulationN6CycleHistoryEntry
+     * @description One exact N6 cycle state carried by the persisted candidate projection.
+     */
+    RunGenericCycleSimulationN6CycleHistoryEntry: {
+      /** Cycle Index */
+      cycle_index: number;
+      /** Design Problem Basis Ref */
+      design_problem_basis_ref?: string | null;
+      /** Design Problem Ref */
+      design_problem_ref: string;
+      /**
+       * Generation Cycle Run Terminal Status
+       * @enum {string}
+       */
+      generation_cycle_run_terminal_status: "completed" | "blocked";
+      /** Grounding Current Valid */
+      grounding_current_valid: boolean;
+      /**
+       * Grounding Status
+       * @enum {string}
+       */
+      grounding_status:
+        | "current_valid"
+        | "grounded_shadow"
+        | "grounding_gap"
+        | "grounding_failed"
+        | "grounding_unavailable";
+      /** Node Ref */
+      node_ref: string;
+      /**
+       * Refinement Decision
+       * @enum {string}
+       */
+      refinement_decision:
+        | "refine"
+        | "acquire"
+        | "reframe"
+        | "decompose"
+        | "human_decision"
+        | "abstain"
+        | "block_candidate"
+        | "stop";
+      /**
+       * Search Iteration Status
+       * @enum {string}
+       */
+      search_iteration_status:
+        | "blocked"
+        | "blocked_no_retry"
+        | "governance_required"
+        | "acquisition_required"
+        | "abstained"
+        | "stopped"
+        | "refined_shadow";
+      /** Selected Candidate Content Hash */
+      selected_candidate_content_hash: string;
+      /** Selected Candidate Ref */
+      selected_candidate_ref: string;
+      /**
+       * Terminal Kind
+       * @enum {string}
+       */
+      terminal_kind:
+        | "a_spec_gap"
+        | "tool_failure"
+        | "composition_invalid"
+        | "recursive_blocked"
+        | "search_ceiling_repair_required"
+        | "human_decision_required"
+        | "acquisition_required"
+        | "budget_exhausted"
+        | "frontier_stable"
+        | "grounded_admissible"
+        | "grounded_partial_admissible"
+        | "grounded_abstention";
+      /**
+       * Value Authority Blockers
+       * @default []
+       */
+      value_authority_blockers: string[];
+      /** Value Decision Grade */
+      value_decision_grade?: ("blocked" | "low" | "medium" | "high") | null;
+      /** Value Ref */
+      value_ref?: string | null;
+      /**
+       * Value Status
+       * @enum {string}
+       */
+      value_status:
+        | "value_pending_n8"
+        | "value_ready"
+        | "value_conditional"
+        | "value_blocked";
+      /**
+       * Voi Next Action
+       * @enum {string}
+       */
+      voi_next_action: "advance" | "stop" | "escalate" | "blocked";
+    };
+    /**
      * RunGenericCycleSimulationProjection
      * @description Persisted generic simulation lineage exposed as candidate-only history.
      */
@@ -17360,6 +19088,15 @@ export interface components {
        * @default []
        */
       n5_observations: components["schemas"]["RunGenericCycleSimulationN5Observation"][];
+      /**
+       * N6 Cycle History
+       * @default []
+       */
+      n6_cycle_history: components["schemas"]["RunGenericCycleSimulationN6CycleHistoryEntry"][];
+      /** N6 Cycle History Limitation Code */
+      n6_cycle_history_limitation_code?: "n6_cycle_history_not_emitted" | null;
+      /** N6 Cycle History Status */
+      n6_cycle_history_status?: ("resolved" | "not_established") | null;
       parent_context_job_ref?:
         | components["schemas"]["ArtifactRef-Output"]
         | null;
@@ -17384,7 +19121,9 @@ export interface components {
        */
       schema_version:
         | "policyos.runtime.run_generic_cycle_simulation_projection.v1"
-        | "policyos.runtime.run_generic_cycle_simulation_projection.v2";
+        | "policyos.runtime.run_generic_cycle_simulation_projection.v2"
+        | "policyos.runtime.run_generic_cycle_simulation_projection.v3"
+        | "policyos.runtime.run_generic_cycle_simulation_projection.v4";
       /** Source Content Hash */
       source_content_hash?: string | null;
       source_ref?: components["schemas"]["ArtifactRef-Output"] | null;
@@ -17408,6 +19147,30 @@ export interface components {
       /** Message */
       message: string;
       meta: components["schemas"]["ApiMeta"];
+      /** Observational Contract Target Fqn */
+      observational_contract_target_fqn?:
+        | "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
+        | null;
+      /** Observational Contract Target Id */
+      observational_contract_target_id?:
+        | "foundry.causal.hte_observational_data.v1"
+        | null;
+      /** Observational Method Fqn */
+      observational_method_fqn?:
+        | (
+            | "causal.hte.forest_dr@1.0.0"
+            | "causal.hte.forest_dr@1.1.0"
+            | "causal.hte.causal_forest@2.0.0"
+            | "causal.hte.double_ml@2.0.0"
+            | "causal.hte.meta_learner@2.0.0"
+            | "causal.hte.forest_dr@2.0.0"
+          )
+        | null;
+      observational_run_intent_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+      /** Observational Selection Digest */
+      observational_selection_digest?: string | null;
       /** Run Id */
       run_id: string;
       /**
@@ -19139,6 +20902,19 @@ export interface components {
        */
       schema_version: "policyos.core.contracts.search.v1";
     };
+    /**
+     * SelectedArtifactRef
+     * @description Require a concrete immutable CAS manifest profile at this boundary.
+     */
+    SelectedArtifactRef: {
+      artifact_id: string;
+      /** Kind */
+      kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256: string;
+      /** Media Type */
+      media_type: string;
+    };
     /** @enum {string} */
     SessionAuthorityProvenance: "canonical_repo" | "verification";
     /**
@@ -20129,7 +21905,10 @@ export interface components {
      */
     WorkflowDataSourceBinding: {
       /** Data Snapshot Ref */
-      data_snapshot_ref?: string | null;
+      data_snapshot_ref?:
+        | components["schemas"]["DataSnapshotRef"]
+        | string
+        | null;
       /** Data View Request Ref */
       data_view_request_ref?:
         | components["schemas"]["DataViewRequestRef"]
@@ -20151,7 +21930,7 @@ export interface components {
        * @enum {string}
        */
       checkpoint_policy?: "strict" | "lenient" | "disabled";
-      data_source: components["schemas"]["WorkflowDataSourceBinding"];
+      data_source?: components["schemas"]["WorkflowDataSourceBinding"] | null;
       /** Execution Profile */
       execution_profile?:
         | ("dev" | "research" | "governed" | "production")
@@ -20168,8 +21947,30 @@ export interface components {
       model_spec_ref?: string | null;
       /** Norm Pack Ref */
       norm_pack_ref?: string | null;
+      observational_input?:
+        | components["schemas"]["ObservationalRunInput"]
+        | null;
       /** Params */
       params?: {
+        /**
+         * TransportabilityCandidateRequestV1
+         * @description Strict caller intent for one registered conditional transport profile.
+         */
+        conditional_transport_request?: {
+          /** Profile Id */
+          profile_id: string;
+          /** Profile Revision */
+          profile_revision: string;
+          /**
+           * Schema Version
+           * @default 1.0
+           * @constant
+           */
+          schema_version?: "1.0";
+          /** Selection Identity */
+          selection_identity: string;
+        };
+      } & {
         [key: string]: unknown;
       };
       policy_flags?: components["schemas"]["PolicyFlags"];
@@ -20215,12 +22016,17 @@ export interface components {
      *     The `sha256:` prefix and lowercase 64-hex digest are part of the stable ABI
      *     used in manifests, runtime URLs, CLI arguments, and signature statements.
      */
-    polisyos__core__artifacts__ids__ArtifactID: string;
+    "polisyos__core__artifacts__ids__ArtifactID-Output": string;
     /**
      * LineageRef
      * @description Typed lineage reference embedded inside `QuantityValue` envelopes.
      */
     "polisyos__core__contracts__runtime__LineageRef-Output": {
+      artifact_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /** Artifact Ref Provenance */
+      artifact_ref_provenance?:
+        | ("run_output_ref" | "reader_materialized")
+        | null;
       /** Compact Summary */
       compact_summary?: components["schemas"]["LineageCompactSummaryItem"][];
       /**
@@ -20235,6 +22041,8 @@ export interface components {
       id: string;
       /** Reason Code */
       reason_code?: string | null;
+      /** Source Run Id */
+      source_run_id?: string | null;
       /**
        * Status
        * @default untraced
@@ -20285,6 +22093,11 @@ export interface components {
      * @description Lineage reference rich enough for compact UI and lazy full graph loading.
      */
     polisyos__fabric__evidence__decision_data__LineageRef: {
+      artifact_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /** Artifact Ref Provenance */
+      artifact_ref_provenance?:
+        | ("run_output_ref" | "reader_materialized")
+        | null;
       /** Compact Summary Ref */
       compact_summary_ref?: string | null;
       /** Export Links */
@@ -20303,6 +22116,8 @@ export interface components {
       raw_evidence_refs?: string[];
       /** Reason Code */
       reason_code?: string | null;
+      /** Source Run Id */
+      source_run_id?: string | null;
       /**
        * Status
        * @default untraced
@@ -21056,6 +22871,15 @@ export interface operations {
       };
       /** @description Requested representation is not supported for this resource. */
       406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description The batch is refused when manifest-read usage cannot establish its byte budget or composed surface admission blocks a selected artifact. */
+      409: {
         headers: {
           [name: string]: unknown;
         };
@@ -28871,6 +30695,95 @@ export interface operations {
       };
     };
   };
+  get_run_candidate_hte_packet: {
+    parameters: {
+      query: {
+        manifest_profile_sha256: string;
+      };
+      header?: never;
+      path: {
+        run_id: string;
+        packet_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CandidateDecisionPacketHTEProjection"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
   get_run_evidence_context: {
     parameters: {
       query?: {
@@ -29614,6 +31527,92 @@ export interface operations {
       };
       /** @description The selected Core canonical profile is malformed or not byte-conformant. */
       409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_run_method_metrics: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        run_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MethodMetricProjectionResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
         headers: {
           [name: string]: unknown;
         };

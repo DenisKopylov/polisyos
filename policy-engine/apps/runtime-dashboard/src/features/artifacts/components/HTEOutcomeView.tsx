@@ -1,117 +1,42 @@
 import { buildArtifactHref } from "@/features/artifacts/domain/searchParams";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import type { EvidenceArtifactRef } from "@/shared/lib/domain/evidence";
 import { formatNumber } from "@/shared/lib/utils";
 
-/**
- * Bounded display model for the persisted HTE outcome union.
- *
- * The Runtime projection may carry additional provenance, but this component
- * deliberately accepts no per-row CATE vector. Those values remain behind the
- * CAS artifact boundary and are not part of a decision-packet GET.
- */
-export type HTEOutcomeDisplayModelCommon = {
-  schema_version: "1.0";
-  authority_status: "candidate" | "refusal";
-  method_fqn: string;
-  method_abi: string;
-  method_abi_digest: string;
-  method_profile_id: string;
-  input_profile_id: "all_source_rows_in_input_order@1.0";
-  selected_input_sha256: string;
-  selected_rows_sha256: string;
-  selected_x_sha256: string;
-  selected_row_order_sha256: string;
-  resolved_params_sha256: string;
-  n_selected_rows: number;
-  source_data_ref: EvidenceArtifactRef;
-  invocation_basis_ref: EvidenceArtifactRef | null;
-  invocation_basis_status: "established" | "not_established";
-  invocation_basis_reason:
-    | "owner_selected_invocation_basis"
-    | "no_invocation_basis_artifact_contract"
-    | null;
-  owned_attempt_anchor_ref: EvidenceArtifactRef;
-  method_result_ref: EvidenceArtifactRef;
-  method_evidence_ref: EvidenceArtifactRef;
-  request_estimand_status: "declared" | "not_established";
-  request_estimand: string | null;
-  request_target_scope_status: "declared" | "not_established";
-  request_target_scope: string | null;
-  outcome_variable_status: "declared" | "not_established";
-  outcome_variable_id: string | null;
-  treatment_variable_status: "declared" | "not_established";
-  treatment_variable_id: string | null;
-  request_alpha_status: "declared" | "not_established";
-  requested_alpha: number | null;
-  contrast_status: "established" | "not_established";
-  control_value: number | null;
-  treated_value: number | null;
-  limitations: string[];
-};
+import type {
+  DecisionPacketHTEProjection,
+  HTEArtifactRef,
+  HTETargetRelationDisplay,
+} from "../domain/decisionPacketHte";
 
-export type HTEPointEstimateDisplay = {
-  schema_version: "1.0";
-  value: number;
-  estimand: "mean_effect_over_selected_x";
-  computed_target_scope_status: "recomputed";
-  computed_target_scope: "selected_evaluation_rows";
-  measure_unit_status: "established" | "not_established";
-  measure_unit: string | null;
-};
-
-export type HTEPointOutcomeDisplay = HTEOutcomeDisplayModelCommon & {
-  kind: "point_estimate";
-  authority_status: "candidate";
-  point_estimate: HTEPointEstimateDisplay;
-  inference_status: "unavailable" | "unsupported" | "not_qualified";
-  inference_reason:
-    | "native_inference_unavailable"
-    | "native_inference_invalid"
-    | "method_profile_not_qualified"
-    | "selection_uses_outcomes"
-    | "contrast_not_established"
-    | "request_alpha_not_established"
-    | "runtime_origin_not_verified";
-};
-
-export type HTEIntervalOutcomeDisplay = HTEOutcomeDisplayModelCommon & {
-  kind: "interval_estimate";
-  authority_status: "candidate";
-  point_estimate: HTEPointEstimateDisplay;
-  lower_bound: number;
-  upper_bound: number;
-  confidence_level: number;
-  interval_semantics: "native_mean_confidence_interval";
-  inference_status: "native_ate_inference_validated";
-  inference_basis_ref: EvidenceArtifactRef;
-  hte_result_ref: EvidenceArtifactRef;
-};
-
-export type HTERefusalOutcomeDisplay = HTEOutcomeDisplayModelCommon & {
-  kind: "refusal";
-  authority_status: "refusal";
-  refusal_stage: "prepare" | "fit" | "infer" | "origin_verification";
-  refusal_reason:
-    | "invalid_point_estimate"
-    | "method_execution_failed"
-    | "native_inference_invalid"
-    | "runtime_origin_not_verified";
-  diagnostic_code: string;
-};
-
-/** A bounded, typed display projection of one persisted HTE outcome. */
-export type HTEOutcomeDisplayModel =
-  | HTEPointOutcomeDisplay
-  | HTEIntervalOutcomeDisplay
-  | HTERefusalOutcomeDisplay;
+export type {
+  HTEIntervalOutcomeDisplay,
+  HTEOutcomeDisplayModel,
+  HTEPointOutcomeDisplay,
+  HTERefusalOutcomeDisplay,
+  HTETargetRelationDisplay,
+} from "../domain/decisionPacketHte";
 
 type HTEOutcomeViewProps = {
-  outcome: HTEOutcomeDisplayModel;
+  outcome: DecisionPacketHTEProjection;
 };
 
-function displayStatus(value: string | null, status: string) {
-  return value === null ? status : value;
+function displayValue(
+  value: string | null,
+  t: ReturnType<typeof useI18n>["t"],
+) {
+  return value ?? t("pages.artifacts.hteOutcome.notEstablished");
+}
+
+function dispositionLabel(
+  disposition: HTETargetRelationDisplay["overall_disposition"],
+  t: ReturnType<typeof useI18n>["t"],
+) {
+  const labelKeys = {
+    satisfied: "satisfied",
+    requested_claim_not_satisfied: "requestedClaimNotSatisfied",
+    not_established: "notEstablished",
+  } as const;
+  return t(`pages.artifacts.hteOutcome.dispositions.${labelKeys[disposition]}`);
 }
 
 function ReferenceLink({
@@ -119,7 +44,7 @@ function ReferenceLink({
   reference,
 }: {
   label: string;
-  reference: EvidenceArtifactRef;
+  reference: HTEArtifactRef;
 }) {
   const href = buildArtifactHref(reference.artifact_id, {
     artifactRef: reference,
@@ -134,9 +59,222 @@ function ReferenceLink({
   );
 }
 
+export function InvalidHTEOutcomeView() {
+  const { t } = useI18n();
+  return (
+    <section
+      aria-labelledby="hte-outcome-heading"
+      className="border-line bg-panel rounded-xl border p-4"
+      data-hte-outcome-kind="invalid"
+      data-testid="hte-outcome-invalid"
+    >
+      <h4 className="text-base font-semibold" id="hte-outcome-heading">
+        {t("pages.artifacts.hteOutcome.title")}
+      </h4>
+      <p className="text-muted mt-1 text-sm">
+        {t("pages.artifacts.hteOutcome.invalidSummary")}
+      </p>
+    </section>
+  );
+}
+
 export default function HTEOutcomeView({ outcome }: HTEOutcomeViewProps) {
   const { t } = useI18n();
+  if (outcome.kind === "legacy_limited") {
+    if (outcome.availability === "unavailable") {
+      if (outcome.parse_warning !== "hte_result_parse_failed") {
+        return <InvalidHTEOutcomeView />;
+      }
+      return (
+        <section
+          aria-labelledby="hte-outcome-heading"
+          className="border-line bg-panel rounded-xl border p-4"
+          data-hte-availability="unavailable"
+          data-hte-outcome-kind="legacy_limited"
+          data-testid="hte-outcome-unavailable"
+          role="status"
+        >
+          <h4 className="text-base font-semibold" id="hte-outcome-heading">
+            {t("pages.artifacts.hteOutcome.title")}
+          </h4>
+          <p className="text-muted mt-1 text-sm">
+            {t("pages.artifacts.hteOutcome.legacyUnavailableTitle")}
+          </p>
+          <p className="mt-2 text-sm">
+            {t("pages.artifacts.hteOutcome.legacyUnavailableSummary", {
+              parseWarning: outcome.parse_warning,
+            })}
+          </p>
+        </section>
+      );
+    }
+
+    const legacyQuantity = (value: number | null) =>
+      value === null
+        ? t("pages.artifacts.hteOutcome.notEstablished")
+        : formatNumber(value, { maximumFractionDigits: 4 });
+
+    return (
+      <section
+        aria-labelledby="hte-outcome-heading"
+        className="border-line bg-panel rounded-xl border p-4"
+        data-hte-outcome-kind="legacy_limited"
+        data-testid="hte-outcome"
+      >
+        <h4 className="text-base font-semibold" id="hte-outcome-heading">
+          {t("pages.artifacts.hteOutcome.title")}
+        </h4>
+        <p className="text-muted mt-1 text-sm">
+          {t("pages.artifacts.hteOutcome.legacyTitle")}
+        </p>
+        <div className="mt-4 space-y-2 text-sm">
+          <p>
+            <span className="text-muted">
+              {t("pages.artifacts.hteOutcome.legacyAte")}:{" "}
+            </span>
+            <span data-testid="hte-legacy-ate">
+              {legacyQuantity(outcome.ate)}
+            </span>
+          </p>
+          <div data-testid="hte-legacy-bounds">
+            <p className="text-muted">
+              {t("pages.artifacts.hteOutcome.legacyBounds")}
+            </p>
+            <p>
+              {legacyQuantity(outcome.ate_ci_lower)} –{" "}
+              {legacyQuantity(outcome.ate_ci_upper)}
+            </p>
+          </div>
+          <p data-testid="hte-legacy-limitations">
+            {t("pages.artifacts.hteOutcome.legacyLimitations")}
+          </p>
+          {outcome.warnings.length > 0 ? (
+            <aside
+              aria-label={t("pages.artifacts.hteOutcome.legacyWarningsTitle")}
+              className="border-line mt-3 rounded-lg border p-3"
+              data-testid="hte-legacy-warnings"
+              role="note"
+            >
+              <h5 className="font-medium">
+                {t("pages.artifacts.hteOutcome.legacyWarningsTitle")}
+              </h5>
+              <ul className="mt-1 list-disc pl-5">
+                {outcome.warnings.map((warning, index) => (
+                  <li key={warning + String(index)}>{warning}</li>
+                ))}
+              </ul>
+            </aside>
+          ) : null}
+        </div>
+      </section>
+    );
+  }
+
   const isRefusal = outcome.kind === "refusal";
+  const resource = outcome.resource_evidence;
+  const resourceObservations: Array<{
+    kind: "estimator" | "joblib" | "unobserved";
+    text: string;
+  }> = [];
+
+  if (resource.execution_status === "not_started") {
+    resourceObservations.push({
+      kind: "unobserved",
+      text: t("pages.artifacts.hteOutcome.resource.unobserved"),
+    });
+  } else {
+    if (resource.estimator_observation_status === "recomputed") {
+      resourceObservations.push({
+        kind: "estimator",
+        text: t("pages.artifacts.hteOutcome.resource.estimator", {
+          beforeEstimator: resource.estimator_before_class_fqn ?? "",
+          afterEstimator: resource.estimator_after_class_fqn ?? "",
+          beforeJobs: resource.estimator_before_n_jobs ?? "",
+          afterJobs: resource.estimator_after_n_jobs ?? "",
+          beforeDigest: resource.estimator_before_params_sha256 ?? "",
+          afterDigest: resource.estimator_after_params_sha256 ?? "",
+        }),
+      });
+    }
+
+    if (resource.joblib_observation_status === "recomputed") {
+      resourceObservations.push({
+        kind: "joblib",
+        text: t("pages.artifacts.hteOutcome.resource.joblib", {
+          status: resource.joblib_exit_status,
+          entryVersion: resource.joblib_entry_implementation_version ?? "",
+          exitVersion: resource.joblib_exit_implementation_version ?? "",
+          entryJobs: resource.joblib_entry_effective_jobs ?? "",
+          exitJobs: resource.joblib_exit_effective_jobs ?? "",
+          entryBackend: resource.joblib_entry_backend_fqn ?? "",
+          exitBackend: resource.joblib_exit_backend_fqn ?? "",
+          entryDigest: resource.joblib_entry_config_sha256 ?? "",
+          exitDigest: resource.joblib_exit_config_sha256 ?? "",
+        }),
+      });
+    }
+
+    if (resourceObservations.length === 0) {
+      resourceObservations.push({
+        kind: "unobserved",
+        text: t("pages.artifacts.hteOutcome.resource.unobserved"),
+      });
+    }
+  }
+  const references = [
+    {
+      label: t("pages.artifacts.hteOutcome.refs.sourceData"),
+      reference: outcome.source_data_ref,
+    },
+    {
+      label: t("pages.artifacts.hteOutcome.refs.ownedAttempt"),
+      reference: outcome.owned_attempt_anchor_ref,
+    },
+    {
+      label: t("pages.artifacts.hteOutcome.refs.hteOutcome"),
+      reference: outcome.hte_outcome_ref,
+    },
+    {
+      label: t("pages.artifacts.hteOutcome.refs.methodResult"),
+      reference: outcome.method_result_ref,
+    },
+    {
+      label: t("pages.artifacts.hteOutcome.refs.methodEvidence"),
+      reference: outcome.method_evidence_ref,
+    },
+    {
+      label: t("pages.artifacts.hteOutcome.refs.resourcePolicy"),
+      reference: resource.owner_policy_ref,
+    },
+    ...(outcome.kind === "point_estimate"
+      ? [
+          {
+            label: t("pages.artifacts.hteOutcome.refs.pointResult"),
+            reference: outcome.point_result_ref,
+          },
+        ]
+      : []),
+    ...(outcome.kind === "interval_estimate"
+      ? [
+          {
+            label: t("pages.artifacts.hteOutcome.refs.hteResult"),
+            reference: outcome.hte_result_ref,
+          },
+          {
+            label: t("pages.artifacts.hteOutcome.refs.inferenceBasis"),
+            reference: outcome.inference_basis_ref,
+          },
+        ]
+      : []),
+    ...(outcome.kind === "refusal"
+      ? [
+          {
+            label: t("pages.artifacts.hteOutcome.refs.refusalDiagnostic"),
+            reference: outcome.refusal_diagnostic_ref,
+          },
+        ]
+      : []),
+  ];
 
   return (
     <section
@@ -157,36 +295,36 @@ export default function HTEOutcomeView({ outcome }: HTEOutcomeViewProps) {
                 ? t("pages.artifacts.hteOutcome.pointOnly")
                 : t("pages.artifacts.hteOutcome.intervalAvailable")}
           </p>
+          <p className="text-muted text-xs">
+            {isRefusal
+              ? t("pages.artifacts.hteOutcome.authority.refusal")
+              : t("pages.artifacts.hteOutcome.authority.candidate")}
+          </p>
         </div>
-        <span className="border-line rounded-full border px-2 py-1 text-xs font-semibold">
-          {isRefusal
-            ? t("pages.artifacts.hteOutcome.authority.refusal")
-            : t("pages.artifacts.hteOutcome.authority.candidate")}
-        </span>
       </div>
 
-      {outcome.kind === "refusal" ? (
+      {isRefusal ? (
         <div
           className="mt-4 space-y-2 text-sm"
           data-testid="hte-outcome-refusal"
         >
           <p>
             <span className="text-muted">
-              {t("pages.artifacts.hteOutcome.refusalStage")}:
+              {t("pages.artifacts.hteOutcome.refusalStage")}:{" "}
             </span>
-            <span>{outcome.refusal_stage}</span>
+            {outcome.refusal_stage}
           </p>
           <p>
             <span className="text-muted">
-              {t("pages.artifacts.hteOutcome.refusalReason")}:
+              {t("pages.artifacts.hteOutcome.refusalReason")}:{" "}
             </span>
-            <span>{outcome.refusal_reason}</span>
+            {outcome.refusal_reason}
           </p>
           <p>
             <span className="text-muted">
-              {t("pages.artifacts.hteOutcome.diagnosticCode")}:
+              {t("pages.artifacts.hteOutcome.diagnosticCode")}:{" "}
             </span>
-            <span>{outcome.diagnostic_code}</span>
+            {outcome.refusal_diagnostic_code}
           </p>
         </div>
       ) : (
@@ -199,22 +337,26 @@ export default function HTEOutcomeView({ outcome }: HTEOutcomeViewProps) {
               className="mt-1 text-lg font-semibold"
               data-testid="hte-outcome-point-value"
             >
-              {formatNumber(outcome.point_estimate.value, {
+              {formatNumber(outcome.point_estimate, {
                 maximumFractionDigits: 4,
               })}
-              {outcome.point_estimate.measure_unit_status === "established" &&
-              outcome.point_estimate.measure_unit
-                ? ` ${outcome.point_estimate.measure_unit}`
+              {outcome.measure_unit_status === "established" &&
+              outcome.measure_unit
+                ? ` ${outcome.measure_unit}`
                 : ""}
             </p>
             <p className="text-muted mt-1 text-xs">
-              {t("pages.artifacts.hteOutcome.computedScope")}:
-              {outcome.point_estimate.computed_target_scope}
+              {t("pages.artifacts.hteOutcome.computedScope")}:{" "}
+              {displayValue(outcome.computed_target_scope, t)}
             </p>
             <p className="text-muted text-xs">
-              {t("pages.artifacts.hteOutcome.measureUnit")}:
-              {outcome.point_estimate.measure_unit_status === "established"
-                ? outcome.point_estimate.measure_unit
+              {t("pages.artifacts.hteOutcome.computedEstimand")}:{" "}
+              {displayValue(outcome.computed_estimand, t)}
+            </p>
+            <p className="text-muted text-xs">
+              {t("pages.artifacts.hteOutcome.measureUnit")}:{" "}
+              {outcome.measure_unit_status === "established"
+                ? displayValue(outcome.measure_unit, t)
                 : t("pages.artifacts.hteOutcome.unitNotEstablished")}
             </p>
           </div>
@@ -225,22 +367,71 @@ export default function HTEOutcomeView({ outcome }: HTEOutcomeViewProps) {
             </p>
             <p className="mt-1">
               {t("pages.artifacts.hteOutcome.requestedScope")}:{" "}
-              {displayStatus(
-                outcome.request_target_scope,
-                t("pages.artifacts.hteOutcome.notEstablished"),
-              )}
+              {displayValue(outcome.request_target_scope, t)}
             </p>
             <p>
               {t("pages.artifacts.hteOutcome.requestedEstimand")}:{" "}
-              {displayStatus(
-                outcome.request_estimand,
-                t("pages.artifacts.hteOutcome.notEstablished"),
-              )}
+              {displayValue(outcome.request_estimand, t)}
+            </p>
+            <p>
+              {t("pages.artifacts.hteOutcome.outcomeVariable")}:{" "}
+              {displayValue(outcome.outcome_variable_id, t)}
+            </p>
+            <p>
+              {t("pages.artifacts.hteOutcome.treatmentVariable")}:{" "}
+              {displayValue(outcome.treatment_variable_id, t)}
+            </p>
+            <p>
+              {t("pages.artifacts.hteOutcome.requestedAlpha")}:{" "}
+              {outcome.requested_alpha === null
+                ? t("pages.artifacts.hteOutcome.notEstablished")
+                : formatNumber(outcome.requested_alpha, {
+                    maximumFractionDigits: 4,
+                  })}
+            </p>
+            <p>
+              {t("pages.artifacts.hteOutcome.contrast")}:{" "}
+              {outcome.request_contrast_status === "declared"
+                ? `${formatNumber(outcome.control_value ?? 0, { maximumFractionDigits: 4 })} → ${formatNumber(outcome.treated_value ?? 0, { maximumFractionDigits: 4 })}`
+                : t("pages.artifacts.hteOutcome.notEstablished")}
+            </p>
+            <p>
+              {t("pages.artifacts.hteOutcome.requestedGuarantee")}:{" "}
+              {displayValue(outcome.requested_guarantee, t)}
+            </p>
+            <p>
+              {t("pages.artifacts.hteOutcome.computedGuarantee")}:{" "}
+              {displayValue(outcome.computed_guarantee, t)}
             </p>
             <p className="text-muted mt-2 text-xs">
-              {t("pages.artifacts.hteOutcome.selectedRows", {
-                count: outcome.n_selected_rows,
-              })}
+              {outcome.n_selected_rows === null
+                ? t("pages.artifacts.hteOutcome.selectedRowsUnknown")
+                : t("pages.artifacts.hteOutcome.selectedRows", {
+                    count: outcome.n_selected_rows,
+                  })}
+            </p>
+          </div>
+
+          <div
+            className="border-line bg-canvas/30 rounded-lg border p-3 text-sm md:col-span-2"
+            data-overall-disposition={
+              outcome.target_relation.overall_disposition
+            }
+            data-testid="hte-target-relation"
+          >
+            <p className="font-semibold">
+              {t("pages.artifacts.hteOutcome.claimDisposition")}:{" "}
+              {dispositionLabel(outcome.target_relation.overall_disposition, t)}
+            </p>
+            <p className="text-muted mt-1 text-xs">
+              {t("pages.artifacts.hteOutcome.scopeDisposition")}:{" "}
+              {dispositionLabel(outcome.target_relation.scope_disposition, t)}
+              {" · "}
+              {t("pages.artifacts.hteOutcome.guaranteeDisposition")}:{" "}
+              {dispositionLabel(
+                outcome.target_relation.guarantee_disposition,
+                t,
+              )}
             </p>
           </div>
 
@@ -275,13 +466,13 @@ export default function HTEOutcomeView({ outcome }: HTEOutcomeViewProps) {
             <div className="border-line bg-canvas/30 rounded-lg border p-3 text-sm md:col-span-2">
               <p>
                 <span className="text-muted">
-                  {t("pages.artifacts.hteOutcome.inferenceStatus")}:
+                  {t("pages.artifacts.hteOutcome.inferenceStatus")}:{" "}
                 </span>
                 {outcome.inference_status}
               </p>
               <p>
                 <span className="text-muted">
-                  {t("pages.artifacts.hteOutcome.inferenceReason")}:
+                  {t("pages.artifacts.hteOutcome.inferenceReason")}:{" "}
                 </span>
                 {outcome.inference_reason}
               </p>
@@ -290,23 +481,21 @@ export default function HTEOutcomeView({ outcome }: HTEOutcomeViewProps) {
         </div>
       )}
 
-      {!isRefusal ? (
-        <div className="border-line mt-4 border-t pt-3 text-sm">
-          <p className="text-muted text-xs font-semibold uppercase">
-            {t("pages.artifacts.hteOutcome.inferenceLimitsTitle")}
-          </p>
-          <p className="mt-1">
-            {t("pages.artifacts.hteOutcome.inferenceLimits")}
-          </p>
-          {outcome.limitations.length > 0 ? (
-            <ul className="text-muted mt-2 list-disc space-y-1 pl-5">
-              {outcome.limitations.map((limitation) => (
-                <li key={limitation}>{limitation}</li>
-              ))}
-            </ul>
-          ) : null}
-        </div>
-      ) : null}
+      <div className="border-line mt-4 border-t pt-3 text-sm">
+        <p className="text-muted text-xs font-semibold uppercase">
+          {t("pages.artifacts.hteOutcome.inferenceLimitsTitle")}
+        </p>
+        <p className="mt-1">
+          {t("pages.artifacts.hteOutcome.inferenceLimits")}
+        </p>
+        {outcome.limitations.length > 0 ? (
+          <ul className="text-muted mt-2 list-disc space-y-1 pl-5">
+            {outcome.limitations.map((limitation) => (
+              <li key={limitation}>{limitation}</li>
+            ))}
+          </ul>
+        ) : null}
+      </div>
 
       <details className="border-line mt-4 border-t pt-3 text-sm">
         <summary className="cursor-pointer font-semibold">
@@ -316,59 +505,75 @@ export default function HTEOutcomeView({ outcome }: HTEOutcomeViewProps) {
           <p>
             {t("pages.artifacts.hteOutcome.method")}:{" "}
             <span className="text-ink">{outcome.method_fqn}</span>
-            {" · "}
-            <span className="text-ink">{outcome.method_abi}</span>
           </p>
           <p>
             {t("pages.artifacts.hteOutcome.profile")}:{" "}
             <span className="text-ink">{outcome.method_profile_id}</span>
           </p>
           <p>
-            {t("pages.artifacts.hteOutcome.rowOrderDigest")}:{" "}
-            <code className="break-all">
-              {outcome.selected_row_order_sha256}
-            </code>
+            {t("pages.artifacts.hteOutcome.methodAbiDigest")}:{" "}
+            <code className="break-all">{outcome.method_abi_digest}</code>
+          </p>
+          <p>
+            {t("pages.artifacts.hteOutcome.resolvedParamsDigest")}:{" "}
+            <code className="break-all">{outcome.resolved_params_sha256}</code>
           </p>
           <p>
             {t("pages.artifacts.hteOutcome.selectedRowsDigest")}:{" "}
-            <code className="break-all">{outcome.selected_rows_sha256}</code>
+            <code className="break-all">
+              {outcome.selected_rows_sha256 ??
+                t("pages.artifacts.hteOutcome.notEstablished")}
+            </code>
+          </p>
+          <p>
+            {t("pages.artifacts.hteOutcome.rowOrderDigest")}:{" "}
+            <code className="break-all">
+              {outcome.selected_row_order_sha256 ??
+                t("pages.artifacts.hteOutcome.notEstablished")}
+            </code>
+          </p>
+          <p>
+            {t("pages.artifacts.hteOutcome.selectedXDigest")}:{" "}
+            <code className="break-all">
+              {outcome.selected_x_sha256 ??
+                t("pages.artifacts.hteOutcome.notEstablished")}
+            </code>
+          </p>
+          <p>
+            {t("pages.artifacts.hteOutcome.resource.policyDigest")}:{" "}
+            <code className="break-all">{resource.owner_policy_digest}</code>
+          </p>
+          <p>
+            {t("pages.artifacts.hteOutcome.resource.execution")}:{" "}
+            {resource.execution_status}
+          </p>
+          <div
+            className="sm:col-span-2"
+            data-testid="hte-outcome-resource-observations"
+          >
+            {resourceObservations.map(({ kind, text }) => (
+              <p
+                className="text-muted mt-1 text-xs"
+                data-testid={`hte-outcome-resource-${kind}`}
+                key={kind}
+              >
+                {t("pages.artifacts.hteOutcome.resource.observation")}: {text}
+              </p>
+            ))}
+          </div>
+          <p>
+            {t("pages.artifacts.hteOutcome.resource.physicalLimit")}:{" "}
+            {t("pages.artifacts.hteOutcome.notEstablished")}
           </p>
         </div>
         <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-          <ReferenceLink
-            label={t("pages.artifacts.hteOutcome.refs.sourceData")}
-            reference={outcome.source_data_ref}
-          />
-          <ReferenceLink
-            label={t("pages.artifacts.hteOutcome.refs.ownedAttempt")}
-            reference={outcome.owned_attempt_anchor_ref}
-          />
-          <ReferenceLink
-            label={t("pages.artifacts.hteOutcome.refs.methodResult")}
-            reference={outcome.method_result_ref}
-          />
-          <ReferenceLink
-            label={t("pages.artifacts.hteOutcome.refs.methodEvidence")}
-            reference={outcome.method_evidence_ref}
-          />
-          {outcome.invocation_basis_ref ? (
+          {references.map(({ label, reference }) => (
             <ReferenceLink
-              label={t("pages.artifacts.hteOutcome.refs.invocationBasis")}
-              reference={outcome.invocation_basis_ref}
+              key={`${label}:${reference.artifact_id}`}
+              label={label}
+              reference={reference}
             />
-          ) : null}
-          {outcome.kind === "interval_estimate" ? (
-            <>
-              <ReferenceLink
-                label={t("pages.artifacts.hteOutcome.refs.inferenceBasis")}
-                reference={outcome.inference_basis_ref}
-              />
-              <ReferenceLink
-                label={t("pages.artifacts.hteOutcome.refs.hteResult")}
-                reference={outcome.hte_result_ref}
-              />
-            </>
-          ) : null}
+          ))}
         </ul>
       </details>
     </section>

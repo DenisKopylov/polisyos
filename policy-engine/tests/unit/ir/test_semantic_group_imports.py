@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import importlib
+import os
+import subprocess
 import sys
-import warnings
+from pathlib import Path
 
 import pytest
 
@@ -169,20 +171,45 @@ def test_ir_canonical_large_surfaces_import_without_alias_warning(
     target_fqn: str,
     export_name: str,
 ) -> None:
-    _drop_module(target_fqn)
-    importlib.import_module("polisyos.ir")
+    script = """
+import importlib
+import sys
+import warnings
 
-    with warnings.catch_warnings(record=True) as caught:
-        warnings.simplefilter("always")
-        target_module = importlib.import_module(target_fqn)
+target_fqn, export_name = sys.argv[1:]
+for loaded_name in tuple(sys.modules):
+    if loaded_name == target_fqn or loaded_name.startswith(f"{target_fqn}."):
+        sys.modules.pop(loaded_name, None)
+importlib.import_module("polisyos.ir")
 
-    assert getattr(target_module, export_name)
-    assert not [
-        warning
-        for warning in caught
-        if issubclass(warning.category, DeprecationWarning)
-        and "deprecated IR compatibility import" in str(warning.message)
-    ]
+with warnings.catch_warnings(record=True) as caught:
+    warnings.simplefilter("always")
+    target_module = importlib.import_module(target_fqn)
+
+assert getattr(target_module, export_name)
+assert not [
+    warning
+    for warning in caught
+    if issubclass(warning.category, DeprecationWarning)
+    and "deprecated IR compatibility import" in str(warning.message)
+]
+"""
+    project_root = Path(__file__).resolve().parents[3]
+    environment = os.environ.copy()
+    source_root = str(project_root / "src")
+    python_path = environment.get("PYTHONPATH")
+    environment["PYTHONPATH"] = os.pathsep.join(part for part in (source_root, python_path) if part)
+
+    result = subprocess.run(
+        [sys.executable, "-c", script, target_fqn, export_name],
+        cwd=project_root,
+        env=environment,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stdout + "\n" + result.stderr
 
 
 @pytest.mark.parametrize(

@@ -2,6 +2,9 @@
   "$defs": {
     "ArtifactID": {
       "description": "Represent a normalized CAS identifier in `sha256:<64hex>` form.\n\nThe `sha256:` prefix and lowercase 64-hex digest are part of the stable ABI\nused in manifests, runtime URLs, CLI arguments, and signature statements.",
+      "maxLength": 71,
+      "minLength": 71,
+      "pattern": "^sha256:[0-9A-Fa-f]{64}$",
       "title": "ArtifactID",
       "type": "string"
     },

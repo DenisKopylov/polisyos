@@ -6,7 +6,18 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation as _OwnedJSONRepresentation,
+)
+from polisyos.ir.analytics._owner_admission import (
+    declare_model_owner as _declare_model_owner,
+)
+from polisyos.ir.analytics._owner_admission import (
+    owner_profile_for_spec as _owner_profile_for_spec,
+)
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode as _CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import MetricValidationReportRef
 
@@ -96,6 +107,42 @@ class MetricValidationReport(BaseModel):
     notes: tuple[str, ...] = ()
 
 
+_METRIC_VALIDATION_REPORT_OWNER = _declare_model_owner(
+    MetricValidationReport,
+    contract_id="ir.analytics.metric_validation_report.owner.v1",
+    dto_fqn="polisyos.ir.analytics.metric_validation_report.MetricValidationReport",
+    abi_key="ir.analytics.metric_validation_report.owner.v1.dto-abi.v1",
+    registry_key="polisyos.scientist.metric_validation_report",
+    kind="scientist.metric_validation_report",
+    media_type="application/json",
+    purpose="metric_validation_report",
+    policy_revision="ir.analytics.metric_validation_report.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.metric_validation_report.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=_owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name="polisyos.scientist.metric_validation_report",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.metric_validation_report.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=("Exact owner-bound metric-validation report tuple.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
 def persist_metric_validation_report(
     store: ArtifactStore,
     report: MetricValidationReport,
@@ -106,10 +153,10 @@ def persist_metric_validation_report(
 ) -> MetricValidationReportRef:
     """Persist a metric validation report and return its typed CAS reference."""
 
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         report.model_dump(mode="json"),
-        kind="scientist.metric_validation_report",
+        owner=_METRIC_VALIDATION_REPORT_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -124,8 +171,7 @@ def load_metric_validation_report(
 ) -> MetricValidationReport:
     """Load a persisted metric validation report from CAS."""
 
-    payload = get_json_artifact(store, ref)
-    return MetricValidationReport.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_METRIC_VALIDATION_REPORT_OWNER)
 
 
 __all__ = [

@@ -482,3 +482,94 @@ export class RuntimeApiClient {}
       error.details.alias === "RuntimeApiClient",
   );
 });
+
+
+test("legacy ArtifactID export aliases only the exact serialized output component", () => {
+  const legacyExportName = "polisyos__core__artifacts__ids__ArtifactID";
+  const outputSchemaName =
+    "polisyos__core__artifacts__ids__ArtifactID-Output";
+  const componentSchemas = {
+    [outputSchemaName]: {
+      type: "string",
+      pattern: "^sha256:[0-9a-f]{64}$",
+      minLength: 71,
+      maxLength: 71,
+      title: "ArtifactID",
+      description: "Stable serialized CAS identifier.",
+    },
+  };
+  const generatedSource = `// GENERATED FILE. DO NOT EDIT.
+// Source: schemas/runtime_api_v1.openapi.json
+
+export type PolisyosCoreArtifactsIdsArtifactIDOutput = string;
+export interface RuntimeApiClientOptions { baseUrl: string; }
+export class RuntimeApiClient {}
+`;
+  const componentTypes = `export interface components {
+  schemas: {
+    "polisyos__core__artifacts__ids__ArtifactID-Output": string;
+  };
+}
+`;
+  const canonicalized = canonicalizeRuntimeClientSource(
+    generatedSource,
+    [outputSchemaName],
+    componentSchemas,
+  );
+  const compatibilityExport = exportedTypeAliases(canonicalized).find(
+    (declaration) => declaration.name.text === legacyExportName,
+  );
+
+  assert.ok(compatibilityExport);
+  assert.equal(
+    compatibilityExport.type.getText(),
+    `RuntimeApiComponents["schemas"]["${outputSchemaName}"]`,
+  );
+  assert.deepEqual(
+    typeDiagnostics(
+      `${canonicalized}
+type Equal<Left, Right> = (<Value>() => Value extends Left ? 1 : 2) extends (<Value>() => Value extends Right ? 1 : 2) ? true : false;
+type Assert<Value extends true> = Value;
+type LegacyArtifactIDMatchesOutput = Assert<Equal<${legacyExportName}, RuntimeApiComponents["schemas"]["${outputSchemaName}"]>>;
+const validArtifactID: ${legacyExportName} = "sha256:" + "a".repeat(64);
+// @ts-expect-error the preserved alias retains the generated output string type
+const invalidArtifactID: ${legacyExportName} = 42;
+void validArtifactID;
+void invalidArtifactID;
+`,
+      componentTypes,
+    ),
+    [],
+  );
+  assert.equal(
+    canonicalizeRuntimeClientSource(
+      canonicalized,
+      [outputSchemaName],
+      componentSchemas,
+    ),
+    canonicalized,
+  );
+});
+
+test("legacy ArtifactID compatibility alias rejects a changed serialized type", () => {
+  const outputSchemaName =
+    "polisyos__core__artifacts__ids__ArtifactID-Output";
+  assert.throws(
+    () =>
+      canonicalizeRuntimeClientSource(
+        `// GENERATED FILE. DO NOT EDIT.
+// Source: schemas/runtime_api_v1.openapi.json
+
+export type PolisyosCoreArtifactsIdsArtifactIDOutput = number;
+export interface RuntimeApiClientOptions { baseUrl: string; }
+export class RuntimeApiClient {}
+`,
+        [outputSchemaName],
+        { [outputSchemaName]: { type: "number" } },
+      ),
+    (error) =>
+      error instanceof RuntimeApiClientGenerationError &&
+      error.code === "compatibility_export_schema_changed" &&
+      error.details.targetSchemaName === outputSchemaName,
+  );
+});

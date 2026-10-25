@@ -42,8 +42,8 @@ from benchmarks.runtime import BenchmarkMode, resolve_mode  # noqa: E402
 from polisyos.foundry.methods.catalog.causal.did import (  # noqa: E402
     StandardDifferenceInDifferences,
 )
-from polisyos.foundry.methods.catalog.causal.interference import (
-    identify_interference_effect,  # noqa: E402
+from polisyos.foundry.methods.catalog.causal.interference import (  # noqa: E402
+    identify_interference_effect,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData  # noqa: E402
 from polisyos.ir.analytics.causal import EstimationStatus  # noqa: E402
@@ -206,7 +206,8 @@ def _case_contaminated_rollout() -> BenchmarkCase:
             raise AssertionError(f"contaminated rollout should succeed, got {report.status.value}")
         if abs(float(report.point_estimate) - expected_att) > 0.15:
             raise AssertionError(
-                f"contaminated rollout estimate drifted: want {expected_att}, got {report.point_estimate}"
+                f"contaminated rollout estimate drifted: want {expected_att}, "
+                f"got {report.point_estimate}"
             )
         return True
 
@@ -231,12 +232,20 @@ def _case_graph_interference_detection() -> BenchmarkCase:
 
     def checker(result: dict[str, Any]) -> bool:
         artifact = result["artifact"]
-        if not artifact.sutva_violated:
-            raise AssertionError("graph case should detect SUTVA violation")
-        if not artifact.interference_detected:
-            raise AssertionError("graph case should flag interference_detected")
-        if not artifact.augmented_graph.exposure_nodes:
-            raise AssertionError("graph case should create exposure nodes")
+        if artifact.sutva_violated is not True or artifact.interference_detected is not True:
+            raise AssertionError("graph case requires known cross-unit topology indicators")
+        if artifact.status != "oracle_needed":
+            raise AssertionError("cross-unit topology without a bound exposure law must refuse ID")
+        if artifact.schema_version != "1.1":
+            raise AssertionError("expanded interference status must use schema version 1.1")
+        if artifact.identification_method != "unsupported_exposure_law":
+            raise AssertionError("unsupported exposure law must be explicit in the result")
+        if artifact.base_identification_status is not None:
+            raise AssertionError("ordinary ID must not run without a bound exposure law")
+        if artifact.estimand_ast is not None or artifact.negative_certificate is not None:
+            raise AssertionError("oracle refusal must not carry an estimand or hedge certificate")
+        if artifact.augmented_graph.exposure_nodes:
+            raise AssertionError("graph topology must not fabricate exposure nodes")
         return True
 
     return BenchmarkCase(
@@ -261,6 +270,15 @@ def build_harness() -> BenchmarkHarness:
     return harness
 
 
+def _topology_case_state(row: dict[str, Any]) -> bool | None:
+    indicators = (row.get("interference_detected"), row.get("sutva_violated"))
+    if any(value is True for value in indicators):
+        return True
+    if all(value is False for value in indicators):
+        return False
+    return None
+
+
 def _aggregate_metrics(report: BenchmarkReport) -> dict[str, Any]:
     rows: list[dict[str, Any]] = []
     abs_errors: list[float] = []
@@ -280,6 +298,11 @@ def _aggregate_metrics(report: BenchmarkReport) -> dict[str, Any]:
             "status": getattr(artifact, "status", getattr(artifact, "status", None)),
             "warnings": len(payload.get("warnings", [])),
         }
+        if hasattr(artifact, "identification_method"):
+            row["identification_method"] = artifact.identification_method
+            row["base_identification_status"] = artifact.base_identification_status
+            row["estimand_available"] = artifact.estimand_ast is not None
+            row["negative_certificate_available"] = artifact.negative_certificate is not None
         if hasattr(artifact, "point_estimate") and artifact.point_estimate is not None:
             point = float(artifact.point_estimate)
             row["point_estimate"] = point
@@ -298,11 +321,24 @@ def _aggregate_metrics(report: BenchmarkReport) -> dict[str, Any]:
                 clean_point_estimate = point
             elif case.name.endswith("spillover_contaminated_rollout"):
                 contaminated_point_estimate = point
-        if hasattr(artifact, "sutva_violated"):
-            row["sutva_violated"] = bool(artifact.sutva_violated)
-            row["interference_detected"] = bool(artifact.interference_detected)
-            row["exposure_nodes"] = len(artifact.augmented_graph.exposure_nodes)
+        if hasattr(artifact, "sutva_violated") or hasattr(artifact, "interference_detected"):
+            row["sutva_violated"] = getattr(artifact, "sutva_violated", None)
+            row["interference_detected"] = getattr(artifact, "interference_detected", None)
+            augmented_graph = getattr(artifact, "augmented_graph", None)
+            row["exposure_nodes"] = len(getattr(augmented_graph, "exposure_nodes", ()))
         rows.append(row)
+
+    topology_rows = [
+        row for row in rows if "interference_detected" in row or "sutva_violated" in row
+    ]
+    topology_states = [_topology_case_state(row) for row in topology_rows]
+    spillover_detection: bool | None
+    if any(state is True for state in topology_states):
+        spillover_detection = True
+    elif topology_states and all(state is False for state in topology_states):
+        spillover_detection = False
+    else:
+        spillover_detection = None
 
     bias_gap = None
     if clean_point_estimate is not None and contaminated_point_estimate is not None:
@@ -313,25 +349,21 @@ def _aggregate_metrics(report: BenchmarkReport) -> dict[str, Any]:
         "flagship_method": "policy_os_interference_did",
         "checks": {
             "mean_abs_att_error": mean_abs_error is not None and mean_abs_error <= 0.20,
-            "spillover_detection": any(
-                row.get("interference_detected") is True or row.get("sutva_violated") is True
-                for row in rows
-            ),
+            "spillover_detection": spillover_detection,
             "all_cases_green": report.n_total() > 0 and report.n_total() == report.n_passed(),
         },
     }
-    flagship_scorecard["passes_all"] = all(flagship_scorecard["checks"].values())
+    flagship_scorecard["passes_all"] = all(
+        check is True for check in flagship_scorecard["checks"].values()
+    )
 
     return {
         "case_rows": rows,
         "mean_abs_att_error": mean_abs_error,
         "max_abs_att_error": float(np.max(abs_errors)) if abs_errors else None,
         "did_bias_gap": bias_gap,
-        "n_detected_spillover_cases": sum(
-            1
-            for row in rows
-            if row.get("interference_detected") is True or row.get("sutva_violated") is True
-        ),
+        "n_detected_spillover_cases": sum(state is True for state in topology_states),
+        "n_unknown_topology_cases": sum(state is None for state in topology_states),
         "ranking_summary": {
             "aggregate": {
                 "policy_os_interference_did": {
@@ -397,11 +429,11 @@ def main(argv: list[str] | None = None) -> int:
             json.dumps(_report_to_dict(report, mode=mode.value, preflight=preflight), indent=2),
             encoding="utf-8",
         )
-        print(f"\nJSON report written to: {args.json}")
+        print(f"\nJSON report written to: {args.json}")  # noqa: T201
 
     failures = report.n_total() - report.n_passed()
     if failures > 0:
-        print(f"\n[FAIL] {failures} interference case(s) failed.")
+        print(f"\n[FAIL] {failures} interference case(s) failed.")  # noqa: T201
     return 0 if failures == 0 else 1
 
 

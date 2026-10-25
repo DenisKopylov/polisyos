@@ -467,6 +467,7 @@ __all__ = [
     "load_causal_capability_contract",
     "load_causal_effect_report",
     "load_causal_evidence_bundle",
+    "load_causal_evidence_bundle_with_admission",
     "load_causal_execution_bundle",
     "load_causal_graph_model",
     "load_causal_model_ensemble",
@@ -1725,6 +1726,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "load_causal_evidence_bundle": (
         "polisyos.ir.analytics.evidence_bundle",
         "load_causal_evidence_bundle",
+    ),
+    "load_causal_evidence_bundle_with_admission": (
+        "polisyos.ir.analytics.evidence_bundle",
+        "load_causal_evidence_bundle_with_admission",
     ),
     "load_causal_graph_model": (
         "polisyos.ir.analytics.causal_graph",

@@ -5,13 +5,11 @@ from __future__ import annotations
 from enum import Enum
 from typing import TYPE_CHECKING
 
-from polisyos.ir.loading.fact_log import Fact, FactLegal, FactProvenance
-from polisyos.ir.world.doc import DocFragment, DocMeta
-from polisyos.ir.world.event import WorldEvent
-
 if TYPE_CHECKING:
     from polisyos.ir.loading import CitationRef
-    from polisyos.ir.world.event import WorldObjectRef
+    from polisyos.ir.loading.fact_log import Fact, FactLegal, FactProvenance
+    from polisyos.ir.world.doc import DocFragment, DocMeta
+    from polisyos.ir.world.event import WorldEvent, WorldObjectRef
 
 from polisyos.fabric.evidence.fact_writer import build_fact
 from polisyos.ir.world.abi import EdgeKind, NodeKind

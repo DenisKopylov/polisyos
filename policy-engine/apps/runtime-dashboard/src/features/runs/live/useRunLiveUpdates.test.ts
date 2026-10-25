@@ -1,7 +1,12 @@
 import { renderHook, waitFor } from "@testing-library/react";
 
+import { queryKeys } from "@/api/queryKeys";
+import { runDetailsSchema } from "@/api/validators";
 import { resetRunsLivePreferenceStore } from "@/app/state/useRunsLivePreferenceStore";
-import { createQueryHookWrapper } from "@/test/queryHook";
+import {
+  createQueryHookHarness,
+  createQueryHookWrapper,
+} from "@/test/queryHook";
 
 const { invalidateRunQueriesMock, parseRunsLiveEventMock, subscribeMock } =
   vi.hoisted(() => ({
@@ -41,6 +46,22 @@ const EventSourceMock = Object.assign(
   },
 );
 
+function runDetailsPayload(runId: string) {
+  return runDetailsSchema.parse({
+    meta: {
+      request_id: "request-live-test",
+      generated_at: "2026-10-22T10:00:00Z",
+      source_kinds: ["core_run"],
+    },
+    temporal_scope: null,
+    run: {
+      run_id: runId,
+      source_kind: "core_run",
+      status: "running",
+    },
+  });
+}
+
 describe("useRunLiveUpdates", () => {
   beforeEach(() => {
     invalidateRunQueriesMock.mockReset();
@@ -77,11 +98,21 @@ describe("useRunLiveUpdates", () => {
 
     parseRunsLiveEventMock.mockReturnValue({
       kind: "run.snapshot",
-      runId: "run-1",
+      runId: "stable-control-alias",
     });
     handlers?.onMessage?.({
       data: '{"kind":"runs"}',
       lastEventId: "evt-1",
+    } as MessageEvent<string>);
+    expect(invalidateRunQueriesMock).not.toHaveBeenCalled();
+
+    parseRunsLiveEventMock.mockReturnValue({
+      kind: "run.snapshot",
+      runId: "run-1",
+    });
+    handlers?.onMessage?.({
+      data: '{"kind":"runs"}',
+      lastEventId: "evt-2",
     } as MessageEvent<string>);
     await waitFor(() => {
       expect(invalidateRunQueriesMock).toHaveBeenCalledWith(
@@ -110,5 +141,99 @@ describe("useRunLiveUpdates", () => {
       wrapper: createQueryHookWrapper(),
     });
     expect(view.result.current.isLiveConnected).toBe(false);
+  });
+
+  it.each([
+    { routeRunId: "control-run-alias", coreRunId: "core-attempt-7" },
+    { routeRunId: "run-1", coreRunId: "run-1" },
+  ])(
+    "keeps the alias subscription and invalidates only strict Core identity caches ($routeRunId)",
+    async ({ routeRunId, coreRunId }) => {
+      const harness = createQueryHookHarness();
+      const invalidateQueries = vi.spyOn(
+        harness.queryClient,
+        "invalidateQueries",
+      );
+      harness.queryClient.setQueryData(
+        queryKeys.run(routeRunId),
+        runDetailsPayload(coreRunId),
+      );
+      let onMessage: ((event: MessageEvent<string>) => void) | undefined;
+      subscribeMock.mockImplementation((request, handlers) => {
+        expect(request).toEqual({ channel: "runs.byId", runId: routeRunId });
+        onMessage = handlers.onMessage;
+        return { close: vi.fn() };
+      });
+      parseRunsLiveEventMock.mockReturnValue({
+        kind: "run.snapshot",
+        runId: routeRunId,
+      });
+
+      const view = renderHook(() => useRunLiveUpdates(routeRunId), {
+        wrapper: harness.wrapper,
+      });
+      onMessage?.({
+        data: JSON.stringify({ run_id: routeRunId }),
+        lastEventId: "evt-aliased",
+      } as MessageEvent<string>);
+
+      await waitFor(() => {
+        expect(invalidateRunQueriesMock).toHaveBeenCalledWith(
+          harness.queryClient,
+          routeRunId,
+        );
+        expect(invalidateQueries).toHaveBeenCalledWith({
+          queryKey: ["runtime", "run", coreRunId],
+        });
+      });
+      expect(subscribeMock).toHaveBeenCalledTimes(1);
+      view.unmount();
+    },
+  );
+
+  it("does not invalidate a Core owner from a mismatched event or untyped cached details", async () => {
+    const routeRunId = "control-run-alias";
+    const harness = createQueryHookHarness();
+    const invalidateQueries = vi.spyOn(
+      harness.queryClient,
+      "invalidateQueries",
+    );
+    harness.queryClient.setQueryData(queryKeys.run(routeRunId), {
+      meta: {
+        request_id: "request-live-test",
+        generated_at: "2026-10-22T10:00:00Z",
+        source_kinds: ["core_run"],
+      },
+      temporal_scope: null,
+      run: {
+        run_id: "other-owner-core",
+        source_kind: "control_run",
+        status: "running",
+      },
+    });
+    let onMessage: ((event: MessageEvent<string>) => void) | undefined;
+    subscribeMock.mockImplementation((_request, handlers) => {
+      onMessage = handlers.onMessage;
+      return { close: vi.fn() };
+    });
+    parseRunsLiveEventMock.mockReturnValue({
+      kind: "run.snapshot",
+      runId: "different-control-run",
+    });
+
+    const view = renderHook(() => useRunLiveUpdates(routeRunId), {
+      wrapper: harness.wrapper,
+    });
+    onMessage?.({
+      data: JSON.stringify({ run_id: "different-control-run" }),
+      lastEventId: "evt-wrong-owner",
+    } as MessageEvent<string>);
+
+    await waitFor(() => expect(subscribeMock).toHaveBeenCalledTimes(1));
+    expect(invalidateRunQueriesMock).not.toHaveBeenCalled();
+    expect(invalidateQueries).not.toHaveBeenCalledWith({
+      queryKey: ["runtime", "run", "other-owner-core"],
+    });
+    view.unmount();
   });
 });

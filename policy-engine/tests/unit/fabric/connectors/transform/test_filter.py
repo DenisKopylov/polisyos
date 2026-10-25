@@ -103,7 +103,8 @@ def test_filter_transform_preserves_comparison_dispatch_across_operand_shapes(
         TransformContext(),
     )
 
-    assert warnings == []
+    expected_warnings = [] if expected_index else ["Filter dropped 100.0% of rows (>90.0%)"]
+    assert warnings == expected_warnings
     assert result.index.tolist() == expected_index
 
 
@@ -133,8 +134,46 @@ def test_filter_transform_preserves_scalar_left_python_membership(
         TransformContext(),
     )
 
-    assert warnings == []
+    expected_warnings = [] if expected_index else ["Filter dropped 100.0% of rows (>90.0%)"]
+    assert warnings == expected_warnings
     assert result.index.tolist() == expected_index
+
+
+@pytest.mark.parametrize(
+    ("condition", "expected_values", "expected_warnings"),
+    [
+        ("value >= 1", [1, 2, 3], []),  # 25% dropped: below the 50% threshold.
+        ("value >= 2", [2, 3], []),  # Exactly 50% dropped: the warning is strict.
+        ("value > 2", [3], ["Filter dropped 75.0% of rows (>50.0%)"]),
+        ("value >= 4", [], ["Filter dropped 100.0% of rows (>50.0%)"]),
+    ],
+)
+def test_filter_transform_warns_only_above_configured_drop_threshold(
+    condition: str,
+    expected_values: list[int],
+    expected_warnings: list[str],
+) -> None:
+    data = pd.DataFrame({"value": [0, 1, 2, 3]})
+
+    result, _lineage, warnings = FilterTransform(
+        condition=condition,
+        max_drop_pct=0.5,
+    ).apply(data, TransformContext())
+
+    assert result["value"].tolist() == expected_values
+    assert warnings == expected_warnings
+
+
+def test_filter_transform_does_not_warn_when_empty_input_has_no_drops() -> None:
+    data = pd.DataFrame({"value": pd.Series(dtype="int64")})
+
+    result, _lineage, warnings = FilterTransform(
+        condition="value > 0",
+        max_drop_pct=0.0,
+    ).apply(data, TransformContext())
+
+    assert result.empty
+    assert warnings == []
 
 
 @pytest.mark.parametrize("operator", ["in", "not in"])

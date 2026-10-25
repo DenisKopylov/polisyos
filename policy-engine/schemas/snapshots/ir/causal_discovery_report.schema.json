@@ -199,6 +199,9 @@
     },
     "ArtifactID": {
       "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "maxLength": 71,
+      "minLength": 71,
+      "pattern": "^sha256:[0-9A-Fa-f]{64}$",
       "title": "ArtifactID",
       "type": "string"
     },

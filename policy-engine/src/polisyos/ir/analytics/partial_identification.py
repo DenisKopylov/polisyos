@@ -8,6 +8,11 @@ from typing import TYPE_CHECKING, Any, ClassVar, Literal
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation as _OwnedJSONRepresentation,
+)
+from polisyos.ir.analytics._owner_admission import declare_model_owner as _declare_model_owner
+from polisyos.ir.analytics._owner_admission import owner_profile_for_spec as _owner_profile_for_spec
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
@@ -19,7 +24,12 @@ from polisyos.ir.analytics.uncertainty import (
     ValueUncertaintyProjectionKind,
     value_uncertainty_output_contract,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts import get_json_artifact as get_json_artifact
+from polisyos.ir.artifacts import put_json_artifact as put_json_artifact
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.artifacts.io import normalize_input_sequence as _normalize_input_sequence
+from polisyos.ir.migrations.base import CompatibilityMode as _CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import BoundsBundleRef, BoundsTighteningLogRef, DualCertificateRef
 
@@ -678,6 +688,77 @@ def attach_tightening_log_ref(
     )
 
 
+_BOUNDS_BUNDLE_OWNER = _declare_model_owner(
+    BoundsBundle,
+    contract_id="ir.analytics.ir.bounds_bundle.owner.v1",
+    dto_fqn="polisyos.ir.analytics.partial_identification.BoundsBundle",
+    abi_key="ir.analytics.ir.bounds_bundle.owner.v1.dto-abi.v1",
+    registry_key="ir.bounds_bundle",
+    kind="ir.bounds_bundle",
+    media_type="application/json",
+    purpose="bounds_bundle",
+    policy_revision="ir.analytics.ir.bounds_bundle.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.bounds_bundle.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=_owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name="ir.bounds_bundle",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.bounds_bundle.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+_BOUNDS_TIGHTENING_LOG_OWNER = _declare_model_owner(
+    BoundsTighteningLog,
+    contract_id="ir.analytics.ir.bounds_tightening_log.owner.v1",
+    dto_fqn="polisyos.ir.analytics.partial_identification.BoundsTighteningLog",
+    abi_key="ir.analytics.ir.bounds_tightening_log.owner.v1.dto-abi.v1",
+    registry_key="ir.bounds_tightening_log",
+    kind="ir.bounds_tightening_log",
+    media_type="application/json",
+    purpose="bounds_tightening_log",
+    policy_revision="ir.analytics.ir.bounds_tightening_log.owner.v1.admission.v1",
+    accepted_wire_policies=(("ir.analytics.bounds_tightening_log.wire-law", "1"),),
+    payload_version_field="schema_version",
+    validate_profile=_owner_profile_for_spec(
+        CanonSpec(forbid_floats=False),
+        profile_ref=None,
+    ),
+    representations=(
+        _OwnedJSONRepresentation(
+            schema_name="ir.bounds_tightening_log",
+            schema_version="1.0",
+            payload_version="1.0",
+            wire_policy_ref="ir.analytics.bounds_tightening_log.wire-law",
+            wire_policy_revision="1",
+            profile_ref=None,
+            compatibility=_CompatibilityMode.NONE,
+            notes=("Exact owner-bound analytics tuple; unknown history remains opaque.",),
+            readable=True,
+            writable=True,
+            current=True,
+            default_write=True,
+            readable_from=(),
+        ),
+    ),
+)
+
+
 def persist_bounds_bundle(
     store: ArtifactStore,
     bundle: BoundsBundle,
@@ -687,10 +768,10 @@ def persist_bounds_bundle(
     schema_version: str = "1.0",
 ) -> BoundsBundleRef:
     """Persist bounds bundle helper."""
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         bundle.model_dump(mode="json"),
-        kind="ir.bounds_bundle",
+        owner=_BOUNDS_BUNDLE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -709,10 +790,10 @@ def persist_bounds_tightening_log(
 ) -> BoundsTighteningLogRef:
     """Persist certified bounds-tightening proof-of-stopping log."""
 
-    ref = put_json_artifact(
+    ref = _put_owned_json_artifact(
         store,
         log.model_dump(mode="json"),
-        kind="ir.bounds_tightening_log",
+        owner=_BOUNDS_TIGHTENING_LOG_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -727,8 +808,7 @@ def load_bounds_tightening_log(
 ) -> BoundsTighteningLog:
     """Load certified bounds-tightening proof-of-stopping log."""
 
-    payload = get_json_artifact(store, ref)
-    return BoundsTighteningLog.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_BOUNDS_TIGHTENING_LOG_OWNER)
 
 
 def bounds_tightening_log_from_claim(claim: BestInClassClaim) -> BoundsTighteningLog:
@@ -753,7 +833,7 @@ def hydrate_bounds_bundle_with_tightening_log(
 ) -> tuple[BoundsBundle, list[InputRef]]:
     """Persist an inline best-in-class claim log and attach its ref."""
 
-    resolved_inputs = list(inputs or [])
+    resolved_inputs = _normalize_input_sequence(inputs)
     if bundle.best_in_class_claim is None or bundle.tightening_log_ref is not None:
         return bundle, resolved_inputs
     log = bounds_tightening_log_from_claim(bundle.best_in_class_claim)
@@ -767,8 +847,7 @@ def load_bounds_bundle(
     ref: BoundsBundleRef,
 ) -> BoundsBundle:
     """Load bounds bundle."""
-    payload = get_json_artifact(store, ref)
-    return BoundsBundle.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=_BOUNDS_BUNDLE_OWNER)
 
 
 def compute_manski_bounds(

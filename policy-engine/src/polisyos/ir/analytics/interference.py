@@ -10,7 +10,7 @@ from __future__ import annotations
 import math
 from collections.abc import Buffer
 from enum import Enum
-from typing import Any, Literal, SupportsFloat, SupportsIndex, cast
+from typing import TYPE_CHECKING, Any, Literal, SupportsFloat, SupportsIndex, cast
 
 from pydantic import (
     BaseModel,
@@ -21,12 +21,13 @@ from pydantic import (
     model_validator,
 )
 
-from polisyos.ir.artifacts import (
-    ArtifactStore,
-    InputRef,
-    get_json_artifact,
-    put_json_artifact,
+from polisyos.ir.analytics._owner_admission import (
+    OwnedJSONRepresentation,
+    declare_model_owner,
+    owner_profile_for_spec,
 )
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
@@ -35,6 +36,10 @@ from polisyos.ir.registry.refs import (
     MAUPInvarianceCertificateRef,
     SpatialHodgeDiagnosticsRef,
 )
+
+if TYPE_CHECKING:
+    from polisyos.ir.artifacts import ArtifactStore, InputRef
+    from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration
 
 _INTERACTION_COMPLEX_SCHEMA_NAME = "ir.interaction_complex"
 _INTERACTION_COMPLEX_SCHEMA_VERSION = "1.0"
@@ -276,6 +281,92 @@ class InterferenceCertificate(BaseModel):
         return self
 
 
+_ANALYTICS_ARTIFACT_CANON_SPEC = CanonSpec(forbid_floats=False)
+
+
+def _declare_owned_model(
+    model: type[BaseModel],
+    *,
+    contract_id: str,
+    dto_fqn: str,
+    abi_key: str,
+    registry_key: str,
+    kind: str,
+    schema_name: str,
+    schema_version: str,
+    payload_version: str,
+    purpose: str,
+    notes: tuple[str, ...],
+    compatibility: CompatibilityMode = CompatibilityMode.NONE,
+) -> ArtifactOwnerDeclaration[Any, Any]:
+    """Declare one exact source-proven DTO/artifact representation."""
+    wire_policy_ref = f"{contract_id}.wire"
+    return declare_model_owner(
+        model,
+        contract_id=contract_id,
+        dto_fqn=dto_fqn,
+        abi_key=abi_key,
+        registry_key=registry_key,
+        kind=kind,
+        media_type="application/json",
+        purpose=purpose,
+        policy_revision=f"{contract_id}.owner-admission.v1",
+        accepted_wire_policies=((wire_policy_ref, "1"),),
+        payload_version_field="schema_version",
+        validate_profile=owner_profile_for_spec(_ANALYTICS_ARTIFACT_CANON_SPEC, profile_ref=None),
+        representations=(
+            OwnedJSONRepresentation(
+                schema_name=schema_name,
+                schema_version=schema_version,
+                payload_version=payload_version,
+                wire_policy_ref=wire_policy_ref,
+                wire_policy_revision="1",
+                profile_ref=None,
+                compatibility=compatibility,
+                notes=notes,
+                readable=True,
+                writable=True,
+                current=True,
+                default_write=True,
+                readable_from=(),
+            ),
+        ),
+    )
+
+
+_INTERACTION_COMPLEX_OWNER = _declare_owned_model(
+    InteractionComplex,
+    contract_id="ir.analytics.interference.interaction_complex",
+    dto_fqn="polisyos.ir.analytics.interference.InteractionComplex",
+    abi_key="ir.interaction_complex",
+    registry_key="ir.interaction_complex",
+    kind="ir.interaction_complex",
+    schema_name=_INTERACTION_COMPLEX_SCHEMA_NAME,
+    schema_version=_INTERACTION_COMPLEX_SCHEMA_VERSION,
+    payload_version="1.0",
+    purpose="ir_interaction_complex",
+    notes=(
+        "InteractionComplex 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+    ),
+)
+
+_INTERFERENCE_CERTIFICATE_OWNER = _declare_owned_model(
+    InterferenceCertificate,
+    contract_id="ir.analytics.interference.interference_certificate",
+    dto_fqn="polisyos.ir.analytics.interference.InterferenceCertificate",
+    abi_key="ir.interference_certificate",
+    registry_key="ir.interference_certificate",
+    kind="ir.interference_certificate",
+    schema_name=_INTERFERENCE_CERTIFICATE_SCHEMA_NAME,
+    schema_version=_INTERFERENCE_CERTIFICATE_SCHEMA_VERSION,
+    payload_version="1.0",
+    purpose="ir_interference_certificate",
+    notes=(
+        "InterferenceCertificate 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+    ),
+)
+
+
 def persist_interaction_complex(
     store: ArtifactStore,
     contract: InteractionComplex,
@@ -284,11 +375,11 @@ def persist_interaction_complex(
     schema_name: str = _INTERACTION_COMPLEX_SCHEMA_NAME,
     schema_version: str = _INTERACTION_COMPLEX_SCHEMA_VERSION,
 ) -> InteractionComplexRef:
-    """Persist interaction complex helper."""
-    ref = put_json_artifact(
+    """Persist InteractionComplex through its exact owner declaration."""
+    ref = _put_owned_json_artifact(
         store,
         contract.model_dump(mode="json"),
-        kind="ir.interaction_complex",
+        owner=_INTERACTION_COMPLEX_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -301,9 +392,8 @@ def load_interaction_complex(
     store: ArtifactStore,
     ref: InteractionComplexRef,
 ) -> InteractionComplex:
-    """Load interaction complex."""
-    payload = get_json_artifact(store, ref)
-    return InteractionComplex.model_validate(payload)
+    """Load InteractionComplex through its exact owner declaration."""
+    return _get_owned_json_artifact(store, ref, owner=_INTERACTION_COMPLEX_OWNER)
 
 
 def persist_interference_certificate(
@@ -314,11 +404,11 @@ def persist_interference_certificate(
     schema_name: str = _INTERFERENCE_CERTIFICATE_SCHEMA_NAME,
     schema_version: str = _INTERFERENCE_CERTIFICATE_SCHEMA_VERSION,
 ) -> InterferenceCertificateRef:
-    """Persist interference certificate helper."""
-    ref = put_json_artifact(
+    """Persist InterferenceCertificate through its exact owner declaration."""
+    ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind="ir.interference_certificate",
+        owner=_INTERFERENCE_CERTIFICATE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -331,9 +421,8 @@ def load_interference_certificate(
     store: ArtifactStore,
     ref: InterferenceCertificateRef,
 ) -> InterferenceCertificate:
-    """Load interference certificate."""
-    payload = get_json_artifact(store, ref)
-    return InterferenceCertificate.model_validate(payload)
+    """Load InterferenceCertificate through its exact owner declaration."""
+    return _get_owned_json_artifact(store, ref, owner=_INTERFERENCE_CERTIFICATE_OWNER)
 
 
 def persist_maup_invariance_certificate(
@@ -344,11 +433,11 @@ def persist_maup_invariance_certificate(
     schema_name: str = _MAUP_INVARIANCE_CERTIFICATE_SCHEMA_NAME,
     schema_version: str = _MAUP_INVARIANCE_CERTIFICATE_SCHEMA_VERSION,
 ) -> MAUPInvarianceCertificateRef:
-    """Persist a MAUP invariance certificate helper."""
-    ref = put_json_artifact(
+    """Persist MAUPInvarianceCertificate through its exact owner declaration."""
+    ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),
-        kind="ir.maup_invariance_certificate",
+        owner=_MAUP_INVARIANCE_CERTIFICATE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -361,9 +450,8 @@ def load_maup_invariance_certificate(
     store: ArtifactStore,
     ref: MAUPInvarianceCertificateRef,
 ) -> MAUPInvarianceCertificate:
-    """Load a persisted MAUP invariance certificate."""
-    payload = get_json_artifact(store, ref)
-    return MAUPInvarianceCertificate.model_validate(payload)
+    """Load MAUPInvarianceCertificate through its exact owner declaration."""
+    return _get_owned_json_artifact(store, ref, owner=_MAUP_INVARIANCE_CERTIFICATE_OWNER)
 
 
 def persist_spatial_hodge_diagnostics(
@@ -374,11 +462,11 @@ def persist_spatial_hodge_diagnostics(
     schema_name: str = _SPATIAL_HODGE_DIAGNOSTICS_SCHEMA_NAME,
     schema_version: str = _SPATIAL_HODGE_DIAGNOSTICS_SCHEMA_VERSION,
 ) -> SpatialHodgeDiagnosticsRef:
-    """Persist multiscale spatial Hodge diagnostics."""
-    ref = put_json_artifact(
+    """Persist SpatialHodgeDiagnostics through its exact owner declaration."""
+    ref = _put_owned_json_artifact(
         store,
         diagnostics.model_dump(mode="json"),
-        kind="ir.spatial_hodge_diagnostics",
+        owner=_SPATIAL_HODGE_DIAGNOSTICS_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
@@ -391,9 +479,8 @@ def load_spatial_hodge_diagnostics(
     store: ArtifactStore,
     ref: SpatialHodgeDiagnosticsRef,
 ) -> SpatialHodgeDiagnostics:
-    """Load persisted multiscale spatial Hodge diagnostics."""
-    payload = get_json_artifact(store, ref)
-    return SpatialHodgeDiagnostics.model_validate(payload)
+    """Load SpatialHodgeDiagnostics through its exact owner declaration."""
+    return _get_owned_json_artifact(store, ref, owner=_SPATIAL_HODGE_DIAGNOSTICS_OWNER)
 
 
 class InterferenceMethod(str, Enum):
@@ -835,3 +922,36 @@ __all__ = [
     "persist_maup_invariance_certificate",
     "persist_spatial_hodge_diagnostics",
 ]
+
+
+_MAUP_INVARIANCE_CERTIFICATE_OWNER = _declare_owned_model(
+    MAUPInvarianceCertificate,
+    contract_id="ir.analytics.interference.maup_invariance_certificate",
+    dto_fqn="polisyos.ir.analytics.interference.MAUPInvarianceCertificate",
+    abi_key="ir.maup_invariance_certificate",
+    registry_key="ir.maup_invariance_certificate",
+    kind="ir.maup_invariance_certificate",
+    schema_name=_MAUP_INVARIANCE_CERTIFICATE_SCHEMA_NAME,
+    schema_version=_MAUP_INVARIANCE_CERTIFICATE_SCHEMA_VERSION,
+    payload_version="1.0",
+    purpose="ir_maup_invariance_certificate",
+    notes=(
+        "MAUPInvarianceCertificate 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+    ),
+)
+
+_SPATIAL_HODGE_DIAGNOSTICS_OWNER = _declare_owned_model(
+    SpatialHodgeDiagnostics,
+    contract_id="ir.analytics.interference.spatial_hodge_diagnostics",
+    dto_fqn="polisyos.ir.analytics.interference.SpatialHodgeDiagnostics",
+    abi_key="ir.spatial_hodge_diagnostics",
+    registry_key="ir.spatial_hodge_diagnostics",
+    kind="ir.spatial_hodge_diagnostics",
+    schema_name=_SPATIAL_HODGE_DIAGNOSTICS_SCHEMA_NAME,
+    schema_version=_SPATIAL_HODGE_DIAGNOSTICS_SCHEMA_VERSION,
+    payload_version="1.0",
+    purpose="ir_spatial_hodge_diagnostics",
+    notes=(
+        "SpatialHodgeDiagnostics 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+    ),
+)

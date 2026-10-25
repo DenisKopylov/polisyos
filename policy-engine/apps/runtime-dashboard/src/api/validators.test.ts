@@ -19,6 +19,7 @@ import {
   runEvidenceContextSchema,
   runsListSchema,
 } from "./validators";
+import { runHteSelectedProjection } from "@/features/runs/domain/__test__/runExecutionHteFixtures";
 import {
   acquisitionGrowthPayloadSchema,
   acquisitionRouteListResponseSchema,
@@ -544,6 +545,9 @@ function genericCycleSimulationProjection(
     run_id: runId,
     schema_version:
       "policyos.runtime.run_generic_cycle_simulation_projection.v1",
+    n6_cycle_history_status: null,
+    n6_cycle_history_limitation_code: null,
+    n6_cycle_history: [],
     source_content_hash: "sha256:" + "6".repeat(64),
     source_ref: sourceRef,
   };
@@ -569,6 +573,44 @@ function genericCycleCredalProjection(runId: string) {
   projection.n5_limitation_code = "generic_n4_source_generation_not_complete";
   projection.n5_observations = [];
   projection.limitation_code = "candidate_source_authority_not_established";
+  return projection;
+}
+
+function genericCycleN6HistoryEntry() {
+  return {
+    cycle_index: 1,
+    design_problem_basis_ref: null,
+    design_problem_ref: "sha256:" + "d".repeat(64),
+    generation_cycle_run_terminal_status: "completed",
+    grounding_current_valid: false,
+    grounding_status: "grounding_gap",
+    node_ref: "design-problem://" + "d".repeat(64),
+    refinement_decision: "refine",
+    search_iteration_status: "refined_shadow",
+    selected_candidate_content_hash: "sha256:" + "e".repeat(64),
+    selected_candidate_ref: "candidate://candidate-a",
+    terminal_kind: "grounded_partial_admissible",
+    value_authority_blockers: ["publication_not_admitted"],
+    value_decision_grade: null,
+    value_ref: null,
+    value_status: "value_conditional",
+    voi_next_action: "advance",
+  };
+}
+
+function genericCycleN6Projection(runId: string, version: "v3" | "v4" = "v3") {
+  const projection = mutableRecord(
+    version === "v4"
+      ? genericCycleCredalProjection(runId)
+      : genericCycleSimulationProjection(runId),
+  );
+  projection.schema_version =
+    version === "v3"
+      ? "policyos.runtime.run_generic_cycle_simulation_projection.v3"
+      : "policyos.runtime.run_generic_cycle_simulation_projection.v4";
+  projection.n6_cycle_history_status = "resolved";
+  projection.n6_cycle_history_limitation_code = null;
+  projection.n6_cycle_history = [genericCycleN6HistoryEntry()];
   return projection;
 }
 
@@ -1327,6 +1369,43 @@ describe("runtime API validators", () => {
     expect(parsed.run).not.toHaveProperty("generic_cycle_simulation");
   });
 
+  it("retains the current direct-method selection returned by RunDetails GET", () => {
+    const payload = runDetailsPayload("projection only");
+    const projection = {
+      status: "absent",
+      candidate_only: true,
+      limitations: ["no_direct_method_request"],
+    };
+    mutableRecord(payload.run).method_execution_selection = projection;
+
+    const parsed = runDetailsSchema.parse(payload);
+
+    expect(parsed.run.method_execution_selection).toEqual(projection);
+    const withUnknownTopLevelField = structuredClone(payload);
+    mutableRecord(withUnknownTopLevelField.run).unreviewed_run_field = true;
+    expect(runDetailsSchema.safeParse(withUnknownTopLevelField).success).toBe(
+      false,
+    );
+  });
+
+  it("strictly validates a selected direct-method HTE in the RunDetails GET", () => {
+    const payload = runDetailsPayload("projection only");
+    const projection = runHteSelectedProjection();
+    mutableRecord(payload.run).method_execution_selection = projection;
+
+    const parsed = runDetailsSchema.parse(payload);
+    expect(parsed.run.method_execution_selection).toEqual(projection);
+
+    const withUnknownHteField = structuredClone(payload);
+    const untypedRun = mutableRecord(withUnknownHteField.run);
+    const untypedProjection = mutableRecord(
+      untypedRun.method_execution_selection,
+    );
+    const selected = mutableRecord(untypedProjection.selection);
+    mutableRecord(selected.hte).unreviewed_summary_field = true;
+    expect(runDetailsSchema.safeParse(withUnknownHteField).success).toBe(false);
+  });
+
   it("preserves generic cycle simulation lineage through a freshly parsed run response", () => {
     const payload = runDetailsPayload("projection only");
     const run = mutableRecord(payload.run);
@@ -1735,6 +1814,111 @@ describe("runtime API validators", () => {
       "not_established",
     );
     expect(parsed.run.generic_cycle_simulation?.n5_observations).toEqual([]);
+  });
+
+  it.each(["v3", "v4"] as const)(
+    "preserves the complete candidate-only N6 history under %s",
+    (version) => {
+      const payload = runDetailsPayload("projection only");
+      mutableRecord(payload.run).generic_cycle_simulation =
+        genericCycleN6Projection("run-projection-mask", version);
+
+      const parsed = runDetailsSchema.parse(payload);
+      const projection = parsed.run.generic_cycle_simulation;
+
+      expect(projection?.schema_version).toBe(
+        version === "v3"
+          ? "policyos.runtime.run_generic_cycle_simulation_projection.v3"
+          : "policyos.runtime.run_generic_cycle_simulation_projection.v4",
+      );
+      expect(projection?.n6_cycle_history_status).toBe("resolved");
+      expect(projection?.n6_cycle_history).toHaveLength(1);
+      expect(projection?.n6_cycle_history?.[0]).toMatchObject({
+        node_ref: "design-problem://" + "d".repeat(64),
+        cycle_index: 1,
+        selected_candidate_ref: "candidate://candidate-a",
+        terminal_kind: "grounded_partial_admissible",
+        grounding_current_valid: false,
+        value_authority_blockers: ["publication_not_admitted"],
+        voi_next_action: "advance",
+      });
+      expect(projection?.authority_purpose).toBe("cycle_input_candidate_only");
+      expect(projection?.currentness_status).toBe("not_established");
+      expect(projection?.publication_authority).toBe(false);
+    },
+  );
+
+  it.each([
+    "missing_schema_version",
+    "unknown_schema_version",
+    "history_extension_under_v1",
+    "v3_history_status_missing",
+    "v3_resolved_without_rows",
+    "v3_not_established_with_rows",
+    "v3_duplicate_node_cycle",
+    "v3_credal_extension_without_v4",
+    "v4_missing_n6_history",
+    "v4_credal_status_missing",
+    "v3_profile_ref_kind_mismatch",
+  ])("rejects malformed supplied N6/version binding: %s", (control) => {
+    const payload = runDetailsPayload("projection only");
+    const run = mutableRecord(payload.run);
+    const projection = mutableRecord(
+      control === "v4_missing_n6_history" ||
+        control === "v4_credal_status_missing"
+        ? genericCycleCredalProjection("run-projection-mask")
+        : genericCycleN6Projection("run-projection-mask"),
+    );
+    run.generic_cycle_simulation = projection;
+
+    if (control === "missing_schema_version") {
+      delete projection.schema_version;
+    } else if (control === "unknown_schema_version") {
+      projection.schema_version =
+        "policyos.runtime.run_generic_cycle_simulation_projection.v5";
+    } else if (control === "history_extension_under_v1") {
+      projection.schema_version =
+        "policyos.runtime.run_generic_cycle_simulation_projection.v1";
+    } else if (control === "v3_history_status_missing") {
+      delete projection.n6_cycle_history_status;
+    } else if (control === "v3_resolved_without_rows") {
+      projection.n6_cycle_history = [];
+    } else if (control === "v3_not_established_with_rows") {
+      projection.n6_cycle_history_status = "not_established";
+      projection.n6_cycle_history_limitation_code =
+        "n6_cycle_history_not_emitted";
+    } else if (control === "v3_duplicate_node_cycle") {
+      projection.n6_cycle_history = [
+        genericCycleN6HistoryEntry(),
+        genericCycleN6HistoryEntry(),
+      ];
+    } else if (control === "v3_credal_extension_without_v4") {
+      projection.credal_source_status = "not_established";
+      projection.credal_source_limitation_code =
+        "candidate_source_authority_not_established";
+    } else if (control === "v4_missing_n6_history") {
+      projection.schema_version =
+        "policyos.runtime.run_generic_cycle_simulation_projection.v4";
+      projection.n6_cycle_history_status = null;
+      projection.n6_cycle_history_limitation_code = null;
+      projection.n6_cycle_history = [];
+    } else if (control === "v4_credal_status_missing") {
+      projection.schema_version =
+        "policyos.runtime.run_generic_cycle_simulation_projection.v4";
+      projection.n6_cycle_history_status = "resolved";
+      projection.n6_cycle_history_limitation_code = null;
+      projection.n6_cycle_history = [genericCycleN6HistoryEntry()];
+      projection.credal_source_status = null;
+    } else if (control === "v3_profile_ref_kind_mismatch") {
+      mutableRecord(
+        firstMutableRecord(
+          projection.child_profile_bindings,
+          "child_profile_bindings",
+        ).profile_ref,
+      ).kind = "runtime.unbound_profile";
+    }
+
+    expect(runDetailsSchema.safeParse(payload).success).toBe(false);
   });
 
   it.each([
@@ -3219,6 +3403,7 @@ const decisionPacketContentApiResponseFixture = {
       "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     canon_read_status: "declared_bytes_conformant",
     decision_packet_preview: {
+      hte_projection_status: "absent",
       document_outline: [
         {
           section_id: "policy_answer",

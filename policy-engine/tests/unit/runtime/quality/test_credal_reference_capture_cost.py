@@ -11,6 +11,140 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
+def test_empty_builtin_dict_capture_is_fresh_immutable_and_skips_wire_serialization(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Exact empty builtins get fresh immutable snapshots with a cached wire."""
+
+    from polisyos.runtime.quality import credal_reference as owner
+
+    dumps_calls = 0
+    original_dumps = owner.json.dumps
+
+    def counted_dumps(*args: object, **kwargs: object) -> str:
+        nonlocal dumps_calls
+        dumps_calls += 1
+        return original_dumps(*args, **kwargs)
+
+    monkeypatch.setattr(owner.json, "dumps", counted_dumps)
+    source: dict[str, object] = {}
+    snapshots = tuple(owner._freeze_reference_payload(source) for _ in range(24))
+
+    assert len({id(snapshot) for snapshot in snapshots}) == len(snapshots)
+    assert all(isinstance(snapshot, owner._FrozenReferenceMapping) for snapshot in snapshots)
+    assert all(snapshot._wire_json == "{}" for snapshot in snapshots)
+    assert all(owner._json_ready(snapshot) == {} for snapshot in snapshots)
+    assert dumps_calls == 0
+    with pytest.raises(TypeError, match="does not support item assignment"):
+        snapshots[0]["mutation"] = "blocked"
+
+    source["after_capture"] = "visible to a new snapshot"
+    next_snapshot = owner._freeze_reference_payload(source)
+    assert owner._json_ready(next_snapshot) == {"after_capture": "visible to a new snapshot"}
+    assert owner._json_ready(snapshots[0]) == {}
+    assert dumps_calls == 1
+
+    class EmptyDictSubclass(dict[str, object]):
+        pass
+
+    subclass_snapshot = owner._freeze_reference_payload(EmptyDictSubclass())
+    assert owner._json_ready(subclass_snapshot) == {}
+    assert dumps_calls == 2
+
+
+@pytest.mark.parametrize(
+    ("synthetic_values", "expect_synthetic"),
+    [((), False), ((True,), True)],
+)
+def test_selected_data_forge_edge_hashes_final_profile_and_synthetic_basis_once(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    synthetic_values: tuple[bool, ...],
+    expect_synthetic: bool,
+) -> None:
+    """Selected catalog provenance is bound before one final immutable edge hash."""
+
+    from polisyos.runtime.quality import credal_reference as owner
+
+    class SourceRows:
+        source_snapshot_ref = "snapshot-ref-1"
+        source_snapshot_sha256 = "a" * 64
+        version_id = "version-1"
+
+        def iter_variables(self):
+            return iter(())
+
+        def iter_variable_synonyms(self):
+            return iter(())
+
+        def iter_causal_edges(self):
+            return iter(())
+
+        def iter_family_edges(self):
+            return iter(())
+
+        def iter_moderation_edges(self):
+            return iter(())
+
+        def iter_causal_claim_results(self):
+            return iter(())
+
+        def iter_contested_edges(self):
+            return iter(())
+
+        def iter_synthetic_values(self):
+            return iter(synthetic_values)
+
+    profile = SimpleNamespace(
+        source_snapshot_ref=SourceRows.source_snapshot_ref,
+        source_snapshot_sha256=SourceRows.source_snapshot_sha256,
+    )
+    selected = owner._PreparedL2Source(
+        prepared_read=SimpleNamespace(_prepare_credal_source_stream=SourceRows),
+        profile=profile,
+        version="version-1",
+    )
+    catalog_profile = SimpleNamespace(
+        source_version="catalog-version-1",
+        content_hash="sha256:" + "b" * 64,
+    )
+    source_row = (
+        "dataset-1",
+        "raw-variable",
+        "canonical-variable",
+        "exact",
+        0.9,
+        "paired fixture evidence",
+        False,
+        0.0,
+    )
+    catalog = owner._PreparedDataForgeCatalogSource(
+        profile=catalog_profile,
+        iter_rows=lambda: iter((source_row,)),
+    )
+
+    original_with_hash = owner.CredalReferenceEdge.with_content_hash
+    hash_calls = 0
+
+    def counted_with_hash(edge):
+        nonlocal hash_calls
+        hash_calls += 1
+        return original_with_hash(edge)
+
+    monkeypatch.setattr(owner.CredalReferenceEdge, "with_content_hash", counted_with_hash)
+    edges = tuple(owner._iter_selected_l2_edges(tmp_path, selected, catalog_source=catalog))
+
+    assert len(edges) == 1
+    edge = edges[0]
+    assert hash_calls == 1
+    assert edge.provenance["selected_catalog_source_profile_hash"] == catalog_profile.content_hash
+    assert ("synthetic" in edge.provenance) is expect_synthetic
+    if expect_synthetic:
+        assert edge.provenance["synthetic"] is True
+        assert edge.provenance["synthetic_scope"] == ("snapshot_contains_constructed_raw_support")
+    assert edge.content_hash == owner.gy_content_hash(edge._hash_payload(semantic_content=True))
+
+
 def test_nested_dict_capture_serializes_one_wire_root(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -405,10 +539,10 @@ def test_selected_l2_edges_reuse_one_immutable_profile_snapshot(
         source_snapshot_ref=profile.source_snapshot_ref,
         source_snapshot_sha256=profile.source_snapshot_sha256,
         version_id="version-1",
-        synthetic_values=(),
+        iter_synthetic_values=lambda: iter(()),
     )
     selected = owner._PreparedL2Source(
-        prepared_read=SimpleNamespace(read_credal_source_rows=lambda: rows),
+        prepared_read=SimpleNamespace(_prepare_credal_source_stream=lambda: rows),
         profile=profile,
         version="version-1",
     )

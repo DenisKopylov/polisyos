@@ -12,12 +12,13 @@ import shutil
 import stat
 import threading
 import weakref
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable, Iterator, Mapping
 from contextlib import ExitStack, contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from types import MappingProxyType
+from typing import Any, cast
 
 from polisyos.core.canon.canon_json import CanonSpec, to_canonical_bytes
 
@@ -89,6 +90,92 @@ class _OwnershipSnapshot:
     pointer_sha256: str | None = None
     payload_sha256: str | None = None
     signature_sha256: str | None = None
+
+
+@dataclass(frozen=True)
+class _CachedOwnershipSnapshot:
+    """Deeply immutable validated projection keyed by exact active contents."""
+
+    key: tuple[str, str, str]
+    payload: Mapping[str, Any]
+    signature: Mapping[str, Any] | None
+    source_format: str
+    persisted: bool
+    legacy_index_bytes: bytes | None
+    legacy_signature_bytes: bytes | None
+    generation_sha256: str | None
+    generation_path: Path | None
+    pointer_sha256: str | None
+    payload_sha256: str | None
+    signature_sha256: str | None
+
+
+def _freeze_json(value: object) -> object:
+    """Build a detached immutable tree from JSON-shaped validated data."""
+    if isinstance(value, dict):
+        return MappingProxyType({key: _freeze_json(item) for key, item in value.items()})
+    if isinstance(value, list):
+        return tuple(_freeze_json(item) for item in value)
+    return value
+
+
+def _thaw_json(value: object) -> object:
+    """Return a detached mutable JSON-shaped tree from an immutable cache value."""
+    if isinstance(value, Mapping):
+        return {key: _thaw_json(item) for key, item in value.items()}
+    if isinstance(value, tuple):
+        return [_thaw_json(item) for item in value]
+    return value
+
+
+def _cache_ownership_snapshot(
+    key: tuple[str, str, str],
+    snapshot: _OwnershipSnapshot,
+) -> _CachedOwnershipSnapshot:
+    """Freeze an independently owned projection of one validated generation."""
+    payload = _freeze_json(snapshot.payload)
+    signature = _freeze_json(snapshot.signature) if snapshot.signature is not None else None
+    if not isinstance(payload, Mapping) or (
+        signature is not None and not isinstance(signature, Mapping)
+    ):
+        raise ValueError("ownership_index_generation_invalid")
+    return _CachedOwnershipSnapshot(
+        key=key,
+        payload=cast("Mapping[str, Any]", payload),
+        signature=(cast("Mapping[str, Any]", signature) if signature is not None else None),
+        source_format=snapshot.source_format,
+        persisted=snapshot.persisted,
+        legacy_index_bytes=snapshot.legacy_index_bytes,
+        legacy_signature_bytes=snapshot.legacy_signature_bytes,
+        generation_sha256=snapshot.generation_sha256,
+        generation_path=snapshot.generation_path,
+        pointer_sha256=snapshot.pointer_sha256,
+        payload_sha256=snapshot.payload_sha256,
+        signature_sha256=snapshot.signature_sha256,
+    )
+
+
+def _detached_ownership_snapshot(
+    cached: _CachedOwnershipSnapshot,
+) -> _OwnershipSnapshot:
+    """Give a caller fresh mutable containers without exposing cache storage."""
+    payload = _thaw_json(cached.payload)
+    signature = _thaw_json(cached.signature) if cached.signature is not None else None
+    if not isinstance(payload, dict) or (signature is not None and not isinstance(signature, dict)):
+        raise ValueError("ownership_index_generation_invalid")
+    return _OwnershipSnapshot(
+        payload=payload,
+        signature=signature,
+        source_format=cached.source_format,
+        persisted=cached.persisted,
+        legacy_index_bytes=cached.legacy_index_bytes,
+        legacy_signature_bytes=cached.legacy_signature_bytes,
+        generation_sha256=cached.generation_sha256,
+        generation_path=cached.generation_path,
+        pointer_sha256=cached.pointer_sha256,
+        payload_sha256=cached.payload_sha256,
+        signature_sha256=cached.signature_sha256,
+    )
 
 
 class OwnershipIndexPublicationIndeterminateError(RuntimeError):
@@ -524,6 +611,7 @@ class ArtifactOwnershipIndex:
         self._lock = threading.Lock()
         self._claim_file_identities: tuple[_FileIdentity, ...] | None = None
         self._claim_ids_cache: frozenset[str] | None = None
+        self._snapshot_cache: _CachedOwnershipSnapshot | None = None
 
     @property
     def transaction_root(self) -> Path:
@@ -1123,7 +1211,8 @@ class ArtifactOwnershipIndex:
         normalized_tenant = _normal_tenant_id(tenant_id)
         normalized_cell = _normal_cell_id(cell_id)
         with self._lock, self._cross_instance_write_lock():
-            payload = self._load_payload()
+            snapshot = self._load_snapshot()
+            payload = snapshot.payload
             artifacts = _artifacts_mapping(payload)
             records = list(artifacts.get(str(aid), []))
             if any(
@@ -1153,7 +1242,7 @@ class ArtifactOwnershipIndex:
                 ),
             )
             payload["artifacts"] = dict(sorted(artifacts.items()))
-            self._write_payload(payload)
+            self._write_payload(payload, previous_snapshot=snapshot)
 
     def record_blob_reader(
         self,
@@ -1181,7 +1270,8 @@ class ArtifactOwnershipIndex:
         normalized_tenant = _normal_tenant_id(tenant_id)
         normalized_cell = _normal_cell_id(cell_id)
         with self._lock, self._cross_instance_write_lock():
-            payload = self._load_payload()
+            snapshot = self._load_snapshot()
+            payload = snapshot.payload
             blob_readers = _blob_readers_mapping(payload)
             records = list(blob_readers.get(str(aid), []))
             if any(
@@ -1211,7 +1301,7 @@ class ArtifactOwnershipIndex:
                 ),
             )
             payload["blob_readers"] = dict(sorted(blob_readers.items()))
-            self._write_payload(payload)
+            self._write_payload(payload, previous_snapshot=snapshot)
 
     def is_blob_readable_by(
         self,
@@ -1276,7 +1366,8 @@ class ArtifactOwnershipIndex:
         ):
             raise ValueError("public_read_closure_identity_invalid")
         with self._lock, self._cross_instance_write_lock():
-            payload = self._load_payload()
+            snapshot = self._load_snapshot()
+            payload = snapshot.payload
             closures = dict(_public_read_closures_mapping(payload))
             previous = closures.get(record_id)
             if previous is not None:
@@ -1301,7 +1392,7 @@ class ArtifactOwnershipIndex:
             }
             closures[record_id] = closure
             payload["public_read_closures"] = dict(sorted(closures.items()))
-            self._write_payload(payload)
+            self._write_payload(payload, previous_snapshot=snapshot)
             return _copy_public_read_closure(closure)
 
     def _revoke_public_read_closure(self, record_id: str) -> bool:
@@ -1309,7 +1400,8 @@ class ArtifactOwnershipIndex:
         if not _PUBLIC_RECORD_ID.fullmatch(record_id):
             raise ValueError("public_read_closure_identity_invalid")
         with self._lock, self._cross_instance_write_lock():
-            payload = self._load_payload()
+            snapshot = self._load_snapshot()
+            payload = snapshot.payload
             closures = dict(_public_read_closures_mapping(payload))
             closure = closures.get(record_id)
             if closure is None or closure["status"] == "revoked":
@@ -1320,7 +1412,7 @@ class ArtifactOwnershipIndex:
             revoked["revoked_at"] = _utc_now()
             closures[record_id] = revoked
             payload["public_read_closures"] = dict(sorted(closures.items()))
-            self._write_payload(payload)
+            self._write_payload(payload, previous_snapshot=snapshot)
             return True
 
     def _get_public_read_closure(self, record_id: str) -> dict[str, Any] | None:
@@ -1384,7 +1476,8 @@ class ArtifactOwnershipIndex:
         normalized_tenant = _normal_tenant_id(tenant_id)
         normalized_cell = _normal_cell_id(cell_id)
         with self._lock, self._cross_instance_write_lock():
-            payload = self._load_payload()
+            snapshot = self._load_snapshot()
+            payload = snapshot.payload
             artifacts = _artifacts_mapping(payload)
             records = list(artifacts.get(str(aid), []))
             if any(
@@ -1417,7 +1510,7 @@ class ArtifactOwnershipIndex:
                 ),
             )
             payload["artifacts"] = dict(sorted(artifacts.items()))
-            self._write_payload(payload)
+            self._write_payload(payload, previous_snapshot=snapshot)
 
     def is_view_owned_by(
         self,
@@ -1601,6 +1694,10 @@ class ArtifactOwnershipIndex:
     def _invalidate_claim_cache(self) -> None:
         self._claim_file_identities = None
         self._claim_ids_cache = None
+
+    def _invalidate_snapshot_cache(self) -> None:
+        """Discard the immutable decoded projection after a local write attempt."""
+        self._snapshot_cache = None
 
     @contextmanager
     def _cross_instance_write_lock(self) -> Iterator[None]:
@@ -1927,6 +2024,16 @@ class ArtifactOwnershipIndex:
             generation_bytes = generation_path.read_bytes()
             if _sha256_bytes(generation_bytes) != generation_sha256:
                 raise ValueError("ownership_index_generation_invalid")
+        except (OSError, ValueError):
+            raise ValueError("ownership_index_generation_invalid") from None
+
+        pointer_sha256 = _sha256_bytes(pointer_bytes)
+        cache_key = (str(self.root), pointer_sha256, generation_sha256)
+        cached = self._snapshot_cache
+        if cached is not None and cached.key == cache_key:
+            return _detached_ownership_snapshot(cached)
+
+        try:
             generation = _decode_json(generation_bytes, reject_duplicate_keys=True)
             snapshot = self._parse_generation(generation)
         except (
@@ -1937,17 +2044,19 @@ class ArtifactOwnershipIndex:
             ValueError,
         ):
             raise ValueError("ownership_index_generation_invalid") from None
-        return _OwnershipSnapshot(
+        result = _OwnershipSnapshot(
             payload=snapshot.payload,
             signature=snapshot.signature,
             source_format=OWNERSHIP_INDEX_POINTER_SCHEMA_VERSION,
             persisted=True,
             generation_sha256=generation_sha256,
             generation_path=generation_path,
-            pointer_sha256=_sha256_bytes(pointer_bytes),
+            pointer_sha256=pointer_sha256,
             payload_sha256=snapshot.payload_sha256,
             signature_sha256=snapshot.signature_sha256,
         )
+        self._snapshot_cache = _cache_ownership_snapshot(cache_key, result)
+        return result
 
     def _parse_generation(self, generation: Any) -> _OwnershipSnapshot:
         expected_fields = {
@@ -2095,9 +2204,15 @@ class ArtifactOwnershipIndex:
                             f"ownership_index_generation_{field}_history_lost"
                         ) from None
 
-    def _write_payload(self, payload: dict[str, Any]) -> None:
+    def _write_payload(
+        self,
+        payload: dict[str, Any],
+        *,
+        previous_snapshot: _OwnershipSnapshot | None = None,
+    ) -> None:
         self._invalidate_claim_cache()
-        previous = self._load_snapshot()
+        self._invalidate_snapshot_cache()
+        previous = previous_snapshot if previous_snapshot is not None else self._load_snapshot()
         next_payload = dict(payload)
         next_payload["schema_version"] = OWNERSHIP_INDEX_SCHEMA_VERSION
         next_payload["mode"] = OWNERSHIP_MODE_SHARED_CAS
@@ -2172,11 +2287,13 @@ class ArtifactOwnershipIndex:
                 observed_generation_sha256 = observed.generation_sha256
             except (OSError, TypeError, ValueError):
                 pass
+            self._invalidate_snapshot_cache()
             raise OwnershipIndexPublicationIndeterminateError(
                 generation_sha256,
                 observed_generation_sha256,
             ) from exc
         self._invalidate_claim_cache()
+        self._invalidate_snapshot_cache()
 
     def _signature_payload(self, payload: dict[str, Any], *, digest: str) -> dict[str, Any]:
         index_schema_version = str(payload.get("schema_version") or OWNERSHIP_INDEX_SCHEMA_VERSION)

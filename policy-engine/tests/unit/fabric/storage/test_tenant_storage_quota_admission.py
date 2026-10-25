@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import multiprocessing as mp
 import os
+import queue
 import threading
+import time
 from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -33,6 +35,10 @@ class _ProcessGate(Protocol):
 
 class _OutcomeQueue(Protocol):
     def put(self, item: tuple[str, str | None, str | None]) -> None: ...
+
+
+class _WorkerStageQueue(Protocol):
+    def put(self, item: tuple[int, int, str]) -> None: ...
 
 
 @pytest.fixture(autouse=True)
@@ -251,25 +257,39 @@ def _cross_process_put_worker(
     index: int,
     gate: _ProcessGate,
     outcomes: _OutcomeQueue,
+    stages: _WorkerStageQueue,
     limit: int,
 ) -> None:
     """Race one real write from a separate process against the shared tenant root."""
+
+    def report(stage: str) -> None:
+        stages.put((index, os.getpid(), stage))
+
+    report("worker_started")
     try:
+        report("store_construction_started")
         store = TenantScopedCAS(
             root,
             tenant_id=TENANT,
             quota_limits=TenantQuotaLimits(max_storage_bytes=limit),
         )
+        report("store_constructed")
+        report("barrier_waiting")
         gate.wait(timeout=20)
+        report("barrier_released")
+        report("write_started")
         ref = store.put_bytes(
             bytes([index + 1]) * 12_000,
             _options(f"tests.cross-process.{index}"),
         )
     except QuotaExceededError:
+        report("quota_refused")
         outcomes.put(("quota", None, None))
     except BaseException as exc:
+        report(f"error:{type(exc).__name__}")
         outcomes.put(("error", type(exc).__name__, str(exc)))
     else:
+        report("write_committed")
         outcomes.put(("written", str(ref.artifact_id), None))
 
 
@@ -290,28 +310,61 @@ def test_cross_process_instances_serialize_shared_storage_budget(tmp_path: Path)
     context = mp.get_context("spawn")
     gate = context.Barrier(2)
     outcomes = context.Queue()
+    stages = context.Queue()
     processes = [
         context.Process(
             target=_cross_process_put_worker,
-            args=(str(root), index, gate, outcomes, limit),
+            args=(str(root), index, gate, outcomes, stages, limit),
         )
         for index in range(2)
     ]
     started = []
+    results = []
+    outcome_timeout = False
+    stages_at_timeout = []
     try:
         for process in processes:
             process.start()
             started.append(process)
         results = [outcomes.get(timeout=30) for _ in processes]
+    except queue.Empty:
+        outcome_timeout = True
+        deadline = time.monotonic() + 1.0
+        while True:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                break
+            try:
+                stages_at_timeout.append(stages.get(timeout=remaining))
+            except queue.Empty:
+                break
     finally:
         for process in started:
-            process.join(timeout=10)
+            if outcome_timeout and process.is_alive():
+                process.terminate()
+            process.join(timeout=2 if outcome_timeout else 10)
             if process.is_alive():
                 process.terminate()
-                process.join(timeout=5)
+                process.join(timeout=2)
         outcomes.close()
         outcomes.join_thread()
 
+    stage_events = list(stages_at_timeout)
+    while True:
+        try:
+            stage_events.append(stages.get_nowait())
+        except queue.Empty:
+            break
+    stages.close()
+    stages.join_thread()
+    process_states = [
+        {"pid": process.pid, "exitcode": process.exitcode, "alive": process.is_alive()}
+        for process in processes
+    ]
+    assert not outcome_timeout, (
+        "cross-process quota workers did not report both outcomes within 30 seconds; "
+        f"stages={stage_events!r}; processes={process_states!r}"
+    )
     assert all(process.exitcode == 0 for process in processes)
     assert sorted(result[0] for result in results) == ["quota", "written"]
     winner = next(result[1] for result in results if result[0] == "written")

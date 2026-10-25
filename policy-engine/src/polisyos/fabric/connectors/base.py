@@ -22,7 +22,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     ClassVar,
-    Generic,
     Protocol,
     TypedDict,
     TypeGuard,
@@ -151,7 +150,7 @@ StateT = TypeVar("StateT")
 
 
 @dataclass(frozen=True, slots=True)
-class _ConnectionStateKey(Generic[StateT]):
+class _ConnectionStateKey[StateT]:
     name: str
     accepts: Callable[[object], TypeGuard[StateT]]
 

@@ -291,3 +291,16 @@ def test_identity_facade_exports_bind_all_manifest_owners() -> None:
         owners = [module for module in (manifest, segment_manifest) if hasattr(module, name)]
         assert len(owners) == 1
         assert getattr(identity, name) is getattr(owners[0], name)
+
+
+def test_fabric_identity_package_keeps_canonical_helper_attributes() -> None:
+    from pydantic import BaseModel, ConfigDict, Field
+
+    from polisyos.fabric.data_plane.temporal import utc_now
+
+    identity_exports = vars(importlib.import_module("polisyos.fabric.identity"))
+
+    assert identity_exports["BaseModel"] is BaseModel
+    assert identity_exports["ConfigDict"] is ConfigDict
+    assert identity_exports["Field"] is Field
+    assert identity_exports["utc_now"] is utc_now

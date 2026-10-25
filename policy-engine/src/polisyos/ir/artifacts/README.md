@@ -16,7 +16,7 @@ layer. It contains no domain logic for specific artifacts: the package defines
 - **Artifact identity** — `ArtifactID` fixes the canonical `sha256:<hex>` identifier.
 - **Store protocol** — `ArtifactStore` defines the minimum JSON/bytes persistence contract.
 - **Schema metadata** — `SchemaInfo`, `CanonInfo`, and `PutOptions` describe the stored payload.
-- **Lineage normalization** — input refs and artifact refs are normalized before writing.
+- **Lineage normalization** — input refs and artifact refs are normalized before writing. A private IR-owned structural input edge accepts Core or IR string-root artifact IDs, then the existing strict normalizer validates and converts each edge at the write boundary.
 - **Profile-aware reads** — `get_json_artifact()` requires the store's raw
   `get_raw_manifest_bytes()` capability. It parses the exact selected sidecar before any IR
   profile model can fill defaults, requires every current `CanonInfo` field, then reads
@@ -66,6 +66,6 @@ Full reference: [docs/reference/ir/](../../../../docs/reference/ir/index.md)
 ## Current state
 
 - Last updated: 2026-10-14
-- Files: 5 Python files under this package tree
+- Files: 6 Python files under this package tree
 - Exports: 33 public names in `__all__` in `__init__.py`
 - Current usage: shared I/O layer for analytics artifacts, observation bundles, and typed `ir.refs`

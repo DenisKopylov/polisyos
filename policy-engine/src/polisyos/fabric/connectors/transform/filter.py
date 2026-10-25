@@ -4,9 +4,8 @@ from __future__ import annotations
 
 import ast
 import operator
-from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 import pandas as pd
 
@@ -23,6 +22,9 @@ from polisyos.fabric.connectors.transform.pipeline import (
     TransformLineage,
 )
 from polisyos.fabric.quality.safety import UnsafeFilterExpressionError
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 __all__ = ["FilterTransform"]
 

@@ -29,6 +29,7 @@ from polisyos.core.artifacts import (
 )
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+from polisyos.core.artifacts.protocol import RawManifestBytesReader
 from polisyos.core.contracts import ControlJobResponse, SimulationResult
 from polisyos.core.contracts.runtime import (
     AgentPipelineAttempt,
@@ -60,12 +61,15 @@ from polisyos.core.contracts.runtime import (
 )
 from polisyos.core.trace import TraceRecord
 from polisyos.ir import CanonViolation
-from polisyos.ir import ModelQueryDataViewRequest as QueryDataViewRequest
 from polisyos.ir import get_json_artifact as get_ir_json_artifact
-from polisyos.ir.analytics import (
+from polisyos.ir.analytics.data_views import (
     DataViewRequest as AnalyticsDataViewRequest,
 )
-from polisyos.scientist.orchestration.engine import BudgetLedgerProducerRunBinding, BudgetMiddleware
+from polisyos.ir.model_layer.queries import DataViewRequest as QueryDataViewRequest
+from polisyos.scientist.orchestration.engine import (
+    BudgetLedgerProducerRunBinding,
+    BudgetMiddleware,
+)
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 
 if TYPE_CHECKING:
@@ -538,6 +542,7 @@ class DebugService:
             report_ref = _extract_report_ref(state_payload, _GOVERNANCE_REPORT_KEY)
 
         report_missing: list[bool] = []
+        report_payload: dict[str, Any] = {}
         if report_ref is not None:
             report_payload = self._load_json_artifact(
                 report_ref,
@@ -777,10 +782,11 @@ class DebugService:
             if source is None:
                 source = "reflexion_terminal"
 
-        variant_steps = _agent_steps_from_model_variants(
+        variant_steps, variant_notes = _agent_steps_from_model_variants(
             state_payload,
             sensitive_keys=self._sensitive_keys,
         )
+        notes.extend(variant_notes)
         if variant_steps:
             for step in variant_steps:
                 existing_index = _agent_step_index(steps, step)
@@ -819,15 +825,17 @@ class DebugService:
             unattributed_cost_events,
             ledger_events_by_id,
             owner_attempt,
-            producer_note,
+            producer_notes,
         ) = self._producer_ledger_projection_for_indexed_run(run)
         if producer_steps:
             steps.extend(producer_steps)
             source = source or "llm_producer_settlement_ledger"
             if source != "llm_producer_settlement_ledger":
                 source = f"{source}+llm_producer_settlement_ledger"
-        if producer_note is not None:
-            notes.append(producer_note)
+        notes.extend(producer_notes)
+        producer_owner_not_established = (
+            "llm_producer_control_job_owner_not_established" in producer_notes
+        )
 
         other_attempt_events_excluded = False
         reconciled_steps: list[AgentPipelineStep] = []
@@ -839,6 +847,11 @@ class DebugService:
                     reconciled_events.append(event)
                     continue
                 if canonical_event is None:
+                    if event.durability == "ledger" and producer_owner_not_established:
+                        # Raw state is not an owner witness. Without the persisted
+                        # lease-attempt selector, omit ledger claims rather than
+                        # surfacing a contradictory or unverified monetary event.
+                        continue
                     raise ValueError("agent_pipeline_cost_event_ledger_reconciliation_failed")
                 if (
                     event.control_job_attempt is not None
@@ -1037,10 +1050,10 @@ class DebugService:
     def _agent_steps_from_producer_ledger(
         self,
         run: IndexedRunRecord,
-    ) -> tuple[list[AgentPipelineStep], str | None]:
+    ) -> tuple[list[AgentPipelineStep], list[str]]:
         """Return only events attributed to this run's validated lease attempt."""
-        steps, _, _, _, note = self._producer_ledger_projection_for_indexed_run(run)
-        return steps, note
+        steps, _, _, _, notes = self._producer_ledger_projection_for_indexed_run(run)
+        return steps, notes
 
     def _producer_ledger_projection_for_indexed_run(
         self,
@@ -1050,15 +1063,15 @@ class DebugService:
         list[AgentPipelineCostEvent],
         dict[str, AgentPipelineCostEvent],
         int | None,
-        str | None,
+        list[str],
     ]:
         """Partition exact-owner ledger rows using the persisted lease attempt."""
         settlement_store = self._producer_settlement_store
         if settlement_store is None:
-            return [], [], {}, None, None
+            return [], [], {}, None, []
         binding, attempt, binding_note = self._producer_run_binding_and_attempt_for_indexed_run(run)
         if binding is None or attempt is None:
-            return [], [], {}, None, binding_note
+            return [], [], {}, None, [binding_note] if binding_note is not None else []
         records = settlement_store.list_producer_events_for_run_safe(binding)
         events_by_id = {
             record.event_id: AgentPipelineCostEvent(
@@ -1125,7 +1138,7 @@ class DebugService:
             )
         if unattributed_events:
             notes.append("llm_producer_events_with_unknown_or_pre_admission_attempt_unassigned")
-        return steps, unattributed_events, events_by_id, attempt, ";".join(notes) or None
+        return steps, unattributed_events, events_by_id, attempt, notes
 
     def _producer_run_binding_for_indexed_run(
         self,
@@ -1259,7 +1272,9 @@ class DebugService:
             _control_job_outbox_identity_envelope,
             _json_values_equal_strict,
         )
-        from polisyos.runtime.quality.phase_barriers import _validated_execution_owner_binding
+        from polisyos.runtime.quality.phase_barriers import (
+            _validated_execution_owner_binding,
+        )
 
         store = self._producer_control_job_store
         control_job_id = run.details.control_job_id
@@ -1282,6 +1297,8 @@ class DebugService:
             creation_outbox = store.get_job_created_outbox_event(control_job_id)
             terminal_event = store.get_job_terminal_source_event_record(control_job_id)
             completion_outbox = store.get_job_completed_outbox_event(control_job_id)
+            if terminal_event is None or completion_outbox is None:
+                return None
             scope = _control_job_execution_scope_from_event(creation_payload)
             fresh_job = ControlJobResponse.model_validate(fresh_job_payload)
         except (
@@ -2150,6 +2167,10 @@ class DebugService:
         except CanonicalProfileRefusalError:
             raise
         except FileNotFoundError as exc:
+            if not isinstance(self._store, RawManifestBytesReader):
+                raise CanonicalProfileRefusalError(
+                    "canon_profile_raw_manifest_reader_unavailable"
+                ) from exc
             try:
                 self._store.get_raw_manifest_bytes(ref)
             except FileNotFoundError as selected_manifest_missing:
@@ -3023,19 +3044,39 @@ def _unattributed_nested_model_variant_scalars(
     return rows
 
 
+def _model_variant_step_details(
+    nested: dict[str, Any],
+    *,
+    sensitive_keys: tuple[str, ...],
+) -> tuple[dict[str, Any], str | None]:
+    """Classify one supplied model-variant details field without inventing defaults."""
+    if "details" not in nested:
+        return {}, None
+    raw_details = nested["details"]
+    if raw_details is None:
+        return {}, None
+    if not isinstance(raw_details, dict):
+        return {}, "llm_model_variant_step_details_invalid_type_not_projected"
+    sanitized = _sanitize_payload(raw_details, sensitive_keys=sensitive_keys)
+    if not isinstance(sanitized, dict):
+        return {}, "llm_model_variant_step_details_invalid_type_not_projected"
+    return sanitized, None
+
+
 def _agent_steps_from_model_variants(
     payload: dict[str, Any],
     *,
     sensitive_keys: tuple[str, ...],
-) -> list[AgentPipelineStep]:
+) -> tuple[list[AgentPipelineStep], list[str]]:
     params = payload.get("params")
     if not isinstance(params, dict):
-        return []
+        return [], []
     raw_variants = params.get("llm_model_variants")
     if not isinstance(raw_variants, list):
-        return []
+        return [], []
 
     steps: list[AgentPipelineStep] = []
+    notes: list[str] = []
     for index, raw_variant in enumerate(raw_variants):
         if not isinstance(raw_variant, dict):
             continue
@@ -3065,9 +3106,12 @@ def _agent_steps_from_model_variants(
                 nested_usage = _token_usage(nested.get("token_usage"))
                 nested_prompt = _as_str(nested.get("prompt"))
                 nested_response = _as_str(nested.get("response"))
-                nested_details = _sanitize_payload(
-                    nested.get("details"), sensitive_keys=sensitive_keys
+                nested_details, details_note = _model_variant_step_details(
+                    nested,
+                    sensitive_keys=sensitive_keys,
                 )
+                if details_note is not None and details_note not in notes:
+                    notes.append(details_note)
                 raw_status = _as_str(nested.get("status"))
                 nested_status = _agent_step_status(
                     raw_status,
@@ -3085,7 +3129,7 @@ def _agent_steps_from_model_variants(
                         status=nested_status,
                         timestamp=_as_datetime(nested.get("timestamp")) or timestamp,
                         summary=_as_str(nested.get("summary")),
-                        details=nested_details if isinstance(nested_details, dict) else {},
+                        details=nested_details,
                         prompt=nested_prompt,
                         response=nested_response,
                         model=_as_str(nested.get("model")) or variant_model,
@@ -3103,6 +3147,12 @@ def _agent_steps_from_model_variants(
                 )
             continue
 
+        _, variant_details_note = _model_variant_step_details(
+            raw_variant,
+            sensitive_keys=sensitive_keys,
+        )
+        if variant_details_note is not None and variant_details_note not in notes:
+            notes.append(variant_details_note)
         details = _sanitize_payload(raw_variant, sensitive_keys=sensitive_keys)
         summary_status_map: dict[str, AgentStepStatus] = {
             "completed": "ok",
@@ -3132,7 +3182,7 @@ def _agent_steps_from_model_variants(
                 token_usage=token_usage,
             )
         )
-    return steps
+    return steps, notes
 
 
 def _agent_steps_from_nl_preflight(
@@ -3870,11 +3920,17 @@ def _data_view_request_ref_from_snapshot(
     if not isinstance(request_payload, dict):
         return None, "data_view_request_payload_invalid"
     valid_models = 0
-    for model in (QueryDataViewRequest, AnalyticsDataViewRequest):
-        try:
-            model.model_validate(request_payload)
-        except TypeError, ValueError, ValidationError:
-            continue
+    try:
+        QueryDataViewRequest.model_validate(request_payload)
+    except TypeError, ValueError, ValidationError:
+        pass
+    else:
+        valid_models += 1
+    try:
+        AnalyticsDataViewRequest.model_validate(request_payload)
+    except TypeError, ValueError, ValidationError:
+        pass
+    else:
         valid_models += 1
     if valid_models != 1:
         reason = "ambiguous" if valid_models > 1 else "invalid"

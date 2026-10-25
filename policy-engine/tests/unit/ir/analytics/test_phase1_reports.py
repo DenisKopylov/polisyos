@@ -105,8 +105,12 @@ def test_dependence_structure_round_trips_via_store(tmp_path) -> None:
 def test_mobility_report_round_trips_via_store(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     report = MobilityReport(
+        schema_version="2.0",
+        artifact_name="mobility_report_v2.json",
         analysis_type="intergenerational_elasticity",
+        estimand_id="mobility.intergenerational_elasticity",
         status="ok",
+        point_estimate={"mobility_stats": {"ige": 0.42}},
         summary_metrics={"ige": 0.42, "n": 120},
         sensitivity_envelope={"bootstrap_ci": [0.30, 0.55]},
         upstream_refs=["artifact://demo"],

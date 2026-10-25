@@ -11,9 +11,8 @@ Two data paths controlled by X-ODS-ExportMode header:
 from __future__ import annotations
 
 import time
-from collections.abc import AsyncIterator
 from datetime import UTC, datetime
-from typing import Any, ClassVar, TypeGuard
+from typing import TYPE_CHECKING, Any, ClassVar, TypeGuard
 
 import pandas as pd
 
@@ -49,6 +48,9 @@ from polisyos.ir.connectors import (
     TrustLevel,
     capabilities_from_flags,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
 
 
 def _is_schema_field_cache(value: object) -> TypeGuard[dict[str, set[str]]]:

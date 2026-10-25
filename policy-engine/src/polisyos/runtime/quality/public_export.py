@@ -3,16 +3,22 @@
 from __future__ import annotations
 
 import hashlib
+import math
 import re
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING
+from types import UnionType
+from typing import TYPE_CHECKING, Any, SupportsInt, Union, get_args, get_origin
+
+from pydantic import BaseModel, ValidationError
 
 from polisyos.core import PromptSanitizer, scan_secret_and_pii
+from polisyos.core.contracts.policy_design_case_projection import PolicyDesignCaseProjection
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.authority import (
     AuthorityEnvelopeInput,
     AuthoritySurfaceDecision,
+    EvidenceAuthorityEnvelope,
     authority_surface_decision,
     deserialize_authority_envelope,
 )
@@ -69,6 +75,22 @@ if TYPE_CHECKING:
 
 PUBLIC_EXPORT_SCHEMA_VERSION = "policyos.runtime.public_export_bundle.v1"
 PUBLIC_EXPORT_REDACTION_POLICY_REF = "redaction-policy/public-export-v1"
+
+
+def _iter_mapping_items[K, V](
+    value: Mapping[K, V],
+) -> Iterator[tuple[K, V]]:
+    """Iterate a mapping through its canonical key and item lookup protocol."""
+
+    for key in value:
+        yield key, value[key]
+
+
+def _copy_mapping[K, V](value: Mapping[K, V]) -> dict[K, V]:
+    """Copy every mapping entry without trusting overridable view methods."""
+
+    return {key: value[key] for key in value}
+
 
 _TENANT_PRIVATE_REF_PATTERNS = (
     re.compile(r"^sha256:[0-9a-f]{64}$", re.IGNORECASE),
@@ -132,6 +154,170 @@ _OFFICIAL_USE_LIMITS = {
 }
 
 
+def _normalize_public_export_mapping(
+    value: Mapping[str, object],
+    *,
+    field: str,
+) -> dict[str, object]:
+    """Snapshot nested public JSON input before validators or scanners inspect it."""
+
+    normalized = _normalize_public_export_value(value, field=field, ancestors=set())
+    if not isinstance(normalized, dict):
+        raise PublicExportRedactionError(
+            "public_export_mapping_invalid",
+            f"{field} must be a mapping.",
+        )
+    return normalized
+
+
+def _snapshot_public_export_sequence(value: object, *, field: str) -> list[object]:
+    """Read a declared sequence through indexed access without retaining its implementation."""
+
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes, bytearray)):
+        raise PublicExportRedactionError(
+            "public_export_sequence_invalid",
+            f"{field} must be a sequence.",
+        )
+    try:
+        if isinstance(value, list):
+            items = [list.__getitem__(value, index) for index in range(list.__len__(value))]
+        elif isinstance(value, tuple):
+            items = [tuple.__getitem__(value, index) for index in range(tuple.__len__(value))]
+        else:
+            items = [value[index] for index in range(len(value))]
+    except Exception as exc:
+        raise PublicExportRedactionError(
+            "public_export_sequence_invalid",
+            f"{field} could not be read as a sequence.",
+        ) from exc
+    if any(item is value for item in items):
+        raise PublicExportRedactionError(
+            "public_export_payload_cycle",
+            "Public export inputs must be acyclic.",
+        )
+    return items
+
+
+def _normalize_public_export_value(
+    value: object,
+    *,
+    field: str,
+    ancestors: set[int],
+) -> object:
+    """Copy JSON values and reject unsupported leaves before any serializer sees them."""
+
+    if value is None or type(value) in (str, bool, int):
+        return value
+    if type(value) is float:
+        if math.isfinite(value):
+            return value
+        raise PublicExportRedactionError(
+            "public_export_value_invalid",
+            f"{field} contains a non-finite number.",
+        )
+    if isinstance(value, (str, bytes, bytearray)):
+        raise PublicExportRedactionError(
+            "public_export_value_invalid",
+            f"{field} contains a value outside the JSON domain.",
+        )
+    if isinstance(value, Mapping):
+        identity = id(value)
+        if identity in ancestors:
+            raise PublicExportRedactionError(
+                "public_export_payload_cycle",
+                "Public export inputs must be acyclic.",
+            )
+        ancestors.add(identity)
+        try:
+            normalized: dict[str, object] = {}
+            if isinstance(value, dict):
+                entries = ((key, dict.__getitem__(value, key)) for key in dict.__iter__(value))
+            else:
+                entries = _iter_mapping_items(value)
+            for key, item in entries:
+                if type(key) is not str:
+                    raise PublicExportRedactionError(
+                        "public_export_mapping_key_invalid",
+                        f"{field} keys must be plain strings.",
+                    )
+                if key in normalized:
+                    raise PublicExportRedactionError(
+                        "public_export_mapping_key_invalid",
+                        f"{field} contains duplicate mapping keys.",
+                    )
+                normalized[key] = _normalize_public_export_value(
+                    item,
+                    field=field,
+                    ancestors=ancestors,
+                )
+            return normalized
+        except PublicExportRedactionError:
+            raise
+        except Exception as exc:
+            raise PublicExportRedactionError(
+                "public_export_mapping_invalid",
+                f"{field} could not be read as a mapping.",
+            ) from exc
+        finally:
+            ancestors.remove(identity)
+    if isinstance(value, Sequence):
+        identity = id(value)
+        if identity in ancestors:
+            raise PublicExportRedactionError(
+                "public_export_payload_cycle",
+                "Public export inputs must be acyclic.",
+            )
+        ancestors.add(identity)
+        try:
+            items = _snapshot_public_export_sequence(value, field=field)
+            return [
+                _normalize_public_export_value(
+                    item,
+                    field=field,
+                    ancestors=ancestors,
+                )
+                for item in items
+            ]
+        finally:
+            ancestors.remove(identity)
+    raise PublicExportRedactionError(
+        "public_export_value_invalid",
+        f"{field} contains a value outside the JSON domain.",
+    )
+
+
+def _normalize_public_export_authority_envelopes(
+    values: Sequence[AuthorityEnvelopeInput],
+) -> list[AuthorityEnvelopeInput]:
+    """Snapshot envelopes while preserving their declared typed owner boundary."""
+
+    raw_envelopes = _snapshot_public_export_sequence(values, field="authority_envelopes")
+    envelopes: list[AuthorityEnvelopeInput] = []
+    for envelope in raw_envelopes:
+        if isinstance(envelope, Mapping):
+            envelopes.append(
+                _normalize_public_export_mapping(envelope, field="authority_envelopes")
+            )
+        elif isinstance(envelope, (EvidenceAuthorityEnvelope, str, bytes)):
+            envelopes.append(envelope)
+        else:
+            raise PublicExportRedactionError(
+                "public_export_authority_envelope_invalid",
+                "Authority envelope entries must be typed models, mappings, or encoded values.",
+            )
+    return envelopes
+
+
+def _normalize_authority_envelope_input(
+    value: AuthorityEnvelopeInput,
+) -> AuthorityEnvelopeInput:
+    """Normalize mapping envelopes before model validation consumes them."""
+
+    if isinstance(value, Mapping):
+        return _normalize_public_export_mapping(value, field="authority_envelopes")
+    return value
+
+
 class PublicExportRedactionError(ValueError):
     """Typed public-export redaction or authority-boundary violation."""
 
@@ -143,7 +329,9 @@ class PublicExportRedactionError(ValueError):
         authority_surface_decisions: Sequence[Mapping[str, object]] = (),
     ) -> None:
         self.code = code
-        self.authority_surface_decisions = [dict(item) for item in authority_surface_decisions]
+        self.authority_surface_decisions = [
+            _copy_mapping(item) for item in authority_surface_decisions
+        ]
         super().__init__(f"{code}: {message or code}")
 
 
@@ -289,6 +477,900 @@ def project_pre_n9_open_world_limitations(
     return tuple(limitations)
 
 
+class _ProjectionReferenceNotRepresentableError(ValueError):
+    """Raised when a private reference occupies a required typed PDC field."""
+
+    def __init__(self, path: str) -> None:
+        self.path = path
+        super().__init__(path)
+
+
+def _is_projection_reference_field(field_name: str) -> bool:
+    """Return whether the typed schema names a field as a reference."""
+
+    return field_name.endswith(("_ref", "_refs", "_ref_fingerprint"))
+
+
+def _projection_annotation_for_value(value: object, annotation: object) -> tuple[object, bool]:
+    """Select a union member from the actual runtime value and retain optionality."""
+
+    args = get_args(annotation)
+    origin = get_origin(annotation)
+    optional = type(None) in args
+    if origin not in (UnionType, Union):
+        return annotation, optional
+    choices = tuple(choice for choice in args if choice is not type(None))
+    for choice in choices:
+        if choice is Any:
+            return choice, optional
+        if choice is str and type(value) is str:
+            return choice, optional
+        if (
+            isinstance(choice, type)
+            and issubclass(choice, BaseModel)
+            and isinstance(value, Mapping)
+        ):
+            return choice, optional
+        choice_origin = get_origin(choice)
+        if isinstance(value, Mapping) and choice_origin in (dict, Mapping):
+            return choice, optional
+        if (
+            isinstance(value, Sequence)
+            and not isinstance(value, (str, bytes, bytearray))
+            and choice_origin in (list, tuple, Sequence)
+        ):
+            return choice, optional
+        if isinstance(choice, type) and type(value) is choice:
+            return choice, optional
+    return choices[0], optional
+
+
+def _redact_projection_value_by_schema(
+    value: object,
+    annotation: object,
+    *,
+    field_name: str,
+    path: str,
+    path_tokens: tuple[str | int, ...],
+    redactions: list[dict[str, str]],
+    scanner_redaction_paths: frozenset[tuple[str | int, ...]],
+    optional_field: bool = False,
+) -> object:
+    """Erase private refs according to typed reference fields, never replace their types."""
+
+    annotation, annotation_optional = _projection_annotation_for_value(value, annotation)
+    optional = optional_field or annotation_optional
+    origin = get_origin(annotation)
+    args = get_args(annotation)
+    changed_by_scanner = path_tokens in scanner_redaction_paths
+    reference_field = _is_projection_reference_field(field_name)
+
+    if value is None:
+        return None
+
+    if annotation is Any or annotation is object:
+        return _redact_tenant_private_refs(
+            value,
+            path=path,
+            redactions=redactions,
+        )
+
+    if isinstance(annotation, type) and issubclass(annotation, BaseModel):
+        if isinstance(value, BaseModel):
+            value = value.model_dump(mode="python")
+        if not isinstance(value, Mapping):
+            return value
+        return _redact_projection_model_by_schema(
+            value,
+            annotation,
+            path=path,
+            path_tokens=path_tokens,
+            redactions=redactions,
+            scanner_redaction_paths=scanner_redaction_paths,
+        )
+
+    if annotation is str:
+        if type(value) is not str:
+            return value
+        if _is_tenant_private_ref(value):
+            if reference_field and optional:
+                redactions.append({"path": path, "reason": "tenant_private_ref"})
+                return None
+            if reference_field:
+                raise _ProjectionReferenceNotRepresentableError(path)
+            raise _ProjectionReferenceNotRepresentableError(path)
+        if changed_by_scanner and reference_field:
+            if optional:
+                redactions.append({"path": path, "reason": "canonical_secret_redaction"})
+                return None
+            raise _ProjectionReferenceNotRepresentableError(path)
+        return value
+
+    if origin in (list, tuple, Sequence):
+        item_annotation = args[0] if args else Any
+        if not isinstance(value, Sequence) or isinstance(value, (str, bytes, bytearray)):
+            return value
+        sanitized: list[object] = []
+        for index, item in enumerate(value):
+            item_path = f"{path}[{index}]"
+            item_tokens = (*path_tokens, index)
+            if type(item) is str and (
+                _is_tenant_private_ref(item) or item_tokens in scanner_redaction_paths
+            ):
+                if reference_field:
+                    redactions.append(
+                        {
+                            "path": item_path,
+                            "reason": (
+                                "tenant_private_ref"
+                                if _is_tenant_private_ref(item)
+                                else "canonical_secret_redaction"
+                            ),
+                        }
+                    )
+                    continue
+                if _is_tenant_private_ref(item):
+                    raise _ProjectionReferenceNotRepresentableError(item_path)
+            sanitized.append(
+                _redact_projection_value_by_schema(
+                    item,
+                    item_annotation,
+                    field_name=field_name,
+                    path=item_path,
+                    path_tokens=item_tokens,
+                    redactions=redactions,
+                    scanner_redaction_paths=scanner_redaction_paths,
+                )
+            )
+        return tuple(sanitized) if isinstance(value, tuple) else sanitized
+
+    if origin in (dict, Mapping):
+        key_annotation, value_annotation = args if len(args) == 2 else (str, Any)
+        if not isinstance(value, Mapping):
+            return value
+        sanitized_mapping: dict[object, object] = {}
+        for key, item in _iter_mapping_items(value):
+            item_path = f"{path}.{key}"
+            item_tokens = (*path_tokens, str(key))
+            key_is_private = type(key) is str and _is_tenant_private_ref(key)
+            item_is_private = type(item) is str and _is_tenant_private_ref(item)
+            scanner_changed = item_tokens in scanner_redaction_paths
+            if reference_field and (key_is_private or item_is_private or scanner_changed):
+                redactions.append(
+                    {
+                        "path": item_path,
+                        "reason": (
+                            "tenant_private_ref"
+                            if key_is_private or item_is_private
+                            else "canonical_secret_redaction"
+                        ),
+                    }
+                )
+                continue
+            if key_is_private:
+                raise _ProjectionReferenceNotRepresentableError(item_path)
+            sanitized_key = _redact_projection_value_by_schema(
+                key,
+                key_annotation,
+                field_name=field_name,
+                path=f"{path}.<key>",
+                path_tokens=path_tokens,
+                redactions=redactions,
+                scanner_redaction_paths=scanner_redaction_paths,
+            )
+            sanitized_mapping[sanitized_key] = _redact_projection_value_by_schema(
+                item,
+                value_annotation,
+                field_name=field_name,
+                path=item_path,
+                path_tokens=item_tokens,
+                redactions=redactions,
+                scanner_redaction_paths=scanner_redaction_paths,
+            )
+        return sanitized_mapping
+
+    return value
+
+
+def _redact_projection_model_by_schema(
+    value: Mapping[str, object],
+    model_type: type[BaseModel],
+    *,
+    path: str,
+    path_tokens: tuple[str | int, ...],
+    redactions: list[dict[str, str]],
+    scanner_redaction_paths: frozenset[tuple[str | int, ...]] = frozenset(),
+) -> dict[str, object]:
+    """Recursively redact only schema-typed reference fields from a public projection."""
+
+    fields = model_type.model_fields
+    sanitized: dict[str, object] = {}
+    for key, item in _iter_mapping_items(value):
+        field = fields.get(key)
+        if field is None:
+            raise _ProjectionReferenceNotRepresentableError(f"{path}.{key}")
+        sanitized[key] = _redact_projection_value_by_schema(
+            item,
+            field.annotation,
+            field_name=key,
+            path=f"{path}.{key}",
+            path_tokens=(*path_tokens, key),
+            redactions=redactions,
+            scanner_redaction_paths=scanner_redaction_paths,
+        )
+    return sanitized
+
+
+def _split_projection_extensions(
+    value: Mapping[str, object],
+) -> tuple[dict[str, object], dict[str, object]]:
+    """Separate the strict PDC DTO from already-produced S/G3 sibling projections."""
+
+    fields = PolicyDesignCaseProjection.model_fields
+    typed_projection: dict[str, object] = {}
+    extensions: dict[str, object] = {}
+    for key, item in _iter_mapping_items(value):
+        if key in fields:
+            typed_projection[key] = item
+        else:
+            extensions[key] = item
+    return typed_projection, extensions
+
+
+def _mapping_contains_exact_pair(
+    value: object,
+    *,
+    key: str,
+    expected: object,
+) -> bool:
+    if isinstance(value, Mapping):
+        for nested_key, nested_value in _iter_mapping_items(value):
+            if nested_key == key and nested_value == expected:
+                return True
+            if _mapping_contains_exact_pair(nested_value, key=key, expected=expected):
+                return True
+    elif isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        return any(_mapping_contains_exact_pair(item, key=key, expected=expected) for item in value)
+    return False
+
+
+def _named_verification_matches(
+    value: object,
+    *,
+    verification_key: str,
+    field_name: str,
+    expected: object,
+) -> bool:
+    if isinstance(value, Mapping):
+        for key, nested_value in _iter_mapping_items(value):
+            if (
+                key == verification_key
+                and isinstance(nested_value, Mapping)
+                and nested_value.get(field_name) == expected
+            ):
+                return True
+            if _named_verification_matches(
+                nested_value,
+                verification_key=verification_key,
+                field_name=field_name,
+                expected=expected,
+            ):
+                return True
+    elif isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        return any(
+            _named_verification_matches(
+                item,
+                verification_key=verification_key,
+                field_name=field_name,
+                expected=expected,
+            )
+            for item in value
+        )
+    return False
+
+
+def _unrepresented_projection_extensions(
+    extensions: Mapping[str, object],
+    semantic_audit: Mapping[str, object],
+) -> dict[str, object]:
+    """Retain only projection additions not already represented by their audit owner."""
+
+    retained: dict[str, object] = {}
+    for key, value in _iter_mapping_items(extensions):
+        if key == "s9_projection_faithfulness":
+            retained[key] = value
+            continue
+        if _mapping_contains_exact_pair(semantic_audit, key=key, expected=value):
+            continue
+        if key.endswith("_contract_verification_status"):
+            verification_key = key.removesuffix("_status")
+            if key.startswith("s9_"):
+                verification_key = "s9_projection_faithfulness"
+            if _named_verification_matches(
+                semantic_audit,
+                verification_key=verification_key,
+                field_name="status",
+                expected=value,
+            ):
+                continue
+        if key.endswith("_contract_verification_ref"):
+            verification_key = key.removesuffix("_ref")
+            if key.startswith("s9_"):
+                verification_key = "s9_projection_faithfulness"
+            if _named_verification_matches(
+                semantic_audit,
+                verification_key=verification_key,
+                field_name="consumer_contract_ref",
+                expected=value,
+            ):
+                continue
+        retained[key] = value
+    return retained
+
+
+def _redact_and_verify_public_projection(
+    projection: Mapping[str, object],
+    *,
+    previous_verification: Mapping[str, object] | None,
+    runtime_pdc_graph: Mapping[str, object] | None,
+    scanner_redaction_paths: frozenset[tuple[str | int, ...]] = frozenset(),
+) -> tuple[dict[str, object] | None, dict[str, object], list[dict[str, str]]]:
+    """Rebuild and verify the strict PDC after each reference-redaction pass."""
+
+    redactions: list[dict[str, str]] = []
+    try:
+        typed_projection = _redact_projection_model_by_schema(
+            projection,
+            PolicyDesignCaseProjection,
+            path="projection_semantics",
+            path_tokens=(),
+            redactions=redactions,
+            scanner_redaction_paths=scanner_redaction_paths,
+        )
+    except _ProjectionReferenceNotRepresentableError as exc:
+        previous = previous_verification or {
+            "schema_version": (
+                "policyos.runtime.policy_design_case.projection_contract_verification.v1"
+            ),
+            "status": "fail",
+        }
+        refusal = _projection_verification_with_siblings(
+            previous,
+            previous,
+            refusal_path=exc.path,
+        )
+        return None, refusal, redactions
+
+    if redactions:
+        typed_projection = _mark_projection_redacted(
+            typed_projection,
+            reference_paths=[item["path"] for item in redactions],
+        )
+    typed_projection_model = PolicyDesignCaseProjection.model_validate(typed_projection)
+    typed_projection, verification = _verify_final_public_projection(
+        typed_projection_model.model_dump(mode="json"),
+        expected_closeout_truth=typed_projection_model.closeout_truth.model_dump(mode="json"),
+        expected_contested_record_ids=[
+            record.contested_record_id for record in typed_projection_model.contested_records
+        ],
+        runtime_pdc_graph=runtime_pdc_graph,
+        previous_verification=previous_verification,
+    )
+    return typed_projection, verification, redactions
+
+
+def _mark_projection_redacted(
+    projection: dict[str, object],
+    *,
+    reference_paths: Sequence[str],
+) -> dict[str, object]:
+    """Record truthful redaction state without inventing a replacement reference."""
+
+    if not reference_paths:
+        return projection
+    summary_value = projection.get("redaction_summary")
+    summary = _copy_mapping(summary_value) if isinstance(summary_value, Mapping) else {}
+    existing_paths = summary.get("tenant_private_reference_paths")
+    paths = (
+        [item for item in existing_paths if type(item) is str]
+        if isinstance(existing_paths, list)
+        else []
+    )
+    for path in reference_paths:
+        if path not in paths:
+            paths.append(path)
+    summary["redacted_for_public"] = True
+    summary["tenant_private_reference_count"] = len(paths)
+    summary["tenant_private_reference_paths"] = sorted(paths)
+    projection["redaction_summary"] = summary
+    projection["redacted"] = True
+    projection["evidence_class"] = "redacted_derived"
+    return projection
+
+
+def _projection_verification_with_siblings(
+    pdc_verification: Mapping[str, object],
+    previous: Mapping[str, object] | None,
+    *,
+    refusal_path: str | None = None,
+) -> dict[str, object]:
+    """Bind aggregate status to the final PDC verdict and preserved S/G3 verdicts."""
+
+    result = _copy_mapping(pdc_verification)
+    sibling_keys = (
+        "s9_projection_faithfulness",
+        "s10_forecast_projection",
+        "s11_predictive_projection",
+        "s12_resource_projection",
+        "s13_post_deploy_accountability_projection",
+        "s14_universality_projection",
+        "layer3_g3_analytics_search_projection",
+    )
+    statuses = [str(result.get("status") or "fail")]
+    if previous is not None:
+        for key in sibling_keys:
+            sibling = previous.get(key)
+            if isinstance(sibling, Mapping):
+                sibling_copy = _copy_mapping(sibling)
+                result[key] = sibling_copy
+                statuses.append(str(sibling_copy.get("status") or "fail"))
+    if refusal_path is not None:
+        issues_value = result.get("issues")
+        issues = (
+            [_copy_mapping(item) for item in issues_value if isinstance(item, Mapping)]
+            if isinstance(issues_value, list)
+            else []
+        )
+        issues.append(
+            {
+                "code": "public_export_projection_reference_not_representable",
+                "audience": "public",
+                "path": refusal_path,
+            }
+        )
+        result["issues"] = issues
+        contracts_value = result.get("consumer_contracts")
+        contracts = (
+            [_copy_mapping(item) for item in contracts_value if isinstance(item, Mapping)]
+            if isinstance(contracts_value, list)
+            else []
+        )
+        result["consumer_contracts"] = [
+            {
+                "consumer": "public",
+                "audience": "public",
+                "status": "fail",
+                "issue_codes": ["public_export_projection_reference_not_representable"],
+                "verified_fields": [],
+            },
+            *[row for row in contracts if row.get("audience") != "public"],
+        ]
+        statuses.append("fail")
+    result["status"] = "fail" if any(status != "pass" for status in statuses) else "pass"
+    return result
+
+
+def _verify_final_public_projection(
+    projection: dict[str, object],
+    *,
+    expected_closeout_truth: Mapping[str, object],
+    expected_contested_record_ids: Sequence[str],
+    runtime_pdc_graph: Mapping[str, object] | None,
+    previous_verification: Mapping[str, object] | None,
+) -> tuple[dict[str, object], dict[str, object]]:
+    """Recompute the typed PDC verdict after redaction, then compose sibling statuses."""
+
+    pdc = verify_policy_design_case_projection_consumer_contract(
+        projections={"public": projection},
+        expected_closeout_truth=expected_closeout_truth,
+        expected_contested_record_ids=expected_contested_record_ids,
+        runtime_pdc_graph=runtime_pdc_graph,
+    )
+    pdc_status = str(pdc.get("status") or "fail")
+    projection["contract_verification_status"] = pdc_status
+    projection["contract_verification_refs"] = [
+        "policyos.runtime.policy_design_case.projection_contract_verification.v1"
+    ]
+    return projection, _projection_verification_with_siblings(
+        pdc,
+        previous_verification,
+    )
+
+
+_FINAL_STAGE_AUDIT_SPECS = (
+    (
+        "s10",
+        "s10_forecast_projection",
+        "s10_forecast_projection_contract_verification",
+        "s10_forecast_projection",
+    ),
+    (
+        "s11",
+        "s11_predictive_projection",
+        "s11_predictive_projection_contract_verification",
+        "s11_predictive_projection",
+    ),
+    (
+        "s12",
+        "s12_resource_projection",
+        "s12_resource_projection_contract_verification",
+        "s12_resource_projection",
+    ),
+    (
+        "s13",
+        "s13_post_deploy_accountability_projection",
+        "s13_post_deploy_accountability_projection_contract_verification",
+        "s13_post_deploy_accountability_projection",
+    ),
+    (
+        "s14",
+        "s14_universality_projection",
+        "s14_universality_projection_contract_verification",
+        "s14_universality_projection",
+    ),
+)
+
+
+_FINAL_AUDIT_REDACTED = object()
+_REDACTED_PRIVATE_KEY = re.compile(r"^\[REDACTED_TENANT_PRIVATE_REF_KEY_[0-9a-f]{16}\]$")
+_FINAL_STAGE_AUDIT_RECORD_PATHS = frozenset(
+    ("semantic_audit", projection_key) for _, projection_key, _, _ in _FINAL_STAGE_AUDIT_SPECS
+) | frozenset(
+    {
+        ("semantic_audit", "layer3_g3_analytics_search_projection"),
+        (
+            "semantic_audit",
+            "projection_extensions",
+            "s9_projection_faithfulness",
+        ),
+    }
+)
+
+
+def _is_final_stage_audit_payload_path(path: tuple[str | int, ...]) -> bool:
+    return any(
+        path[: len(record_path)] == record_path for record_path in _FINAL_STAGE_AUDIT_RECORD_PATHS
+    )
+
+
+def _final_audit_path(path: tuple[str | int, ...]) -> str:
+    if not path:
+        return ""
+    rendered = str(path[0])
+    for component in path[1:]:
+        rendered += f"[{component}]" if isinstance(component, int) else f".{component}"
+    return rendered
+
+
+def _remove_final_audit_redactions(
+    value: object,
+    *,
+    path: tuple[str | int, ...],
+    tenant_private_paths: frozenset[str],
+    scanner_redaction_paths: frozenset[tuple[str | int, ...]],
+) -> object:
+    """Normalize exact redaction receipts only within registered stage payloads.
+
+    The shared redactors still sanitize every emitted field. This second pass removes their
+    replacement values only from records whose typed consumer contracts must be recomputed;
+    explanatory markers in unrelated audit records remain visible.
+    """
+
+    is_stage_payload = _is_final_stage_audit_payload_path(path)
+    if is_stage_payload and (
+        path in scanner_redaction_paths or _final_audit_path(path) in tenant_private_paths
+    ):
+        return _FINAL_AUDIT_REDACTED
+    if isinstance(value, Mapping):
+        result: dict[str, object] = {}
+        for key, nested in _iter_mapping_items(value):
+            public_key = key if type(key) is str else str(key)
+            child_path = (*path, public_key)
+            child_path_text = _final_audit_path(child_path)
+            if (
+                is_stage_payload
+                and child_path_text in tenant_private_paths
+                and _REDACTED_PRIVATE_KEY.fullmatch(public_key)
+            ):
+                continue
+            sanitized = _remove_final_audit_redactions(
+                nested,
+                path=child_path,
+                tenant_private_paths=tenant_private_paths,
+                scanner_redaction_paths=scanner_redaction_paths,
+            )
+            result[public_key] = None if sanitized is _FINAL_AUDIT_REDACTED else sanitized
+        return result
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        sanitized_items: list[object] = []
+        for index, nested in enumerate(value):
+            sanitized = _remove_final_audit_redactions(
+                nested,
+                path=(*path, index),
+                tenant_private_paths=tenant_private_paths,
+                scanner_redaction_paths=scanner_redaction_paths,
+            )
+            if sanitized is not _FINAL_AUDIT_REDACTED:
+                sanitized_items.append(sanitized)
+        return sanitized_items
+    return value
+
+
+def _run_final_stage_consumer_verifier(
+    stage: str,
+    record: Mapping[str, object],
+) -> dict[str, Any]:
+    """Run the registered consumer contract on its exact final emitted record."""
+
+    projections = {"public": record}
+    if stage == "s10":
+        return verify_s10_forecast_projection_consumer_contract(projections=projections)
+    if stage == "s11":
+        return verify_s11_predictive_projection_consumer_contract(projections=projections)
+    if stage == "s12":
+        return verify_s12_resource_projection_consumer_contract(projections=projections)
+    if stage == "s13":
+        return verify_s13_post_deploy_accountability_projection_consumer_contract(
+            projections=projections
+        )
+    if stage == "s14":
+        return verify_s14_universality_projection_consumer_contract(projections=projections)
+    raise ValueError(f"Unregistered public-export stage {stage!r}.")
+
+
+def _final_s9_verification(
+    *,
+    audit: dict[str, object],
+    projection: Mapping[str, object] | None,
+    aggregate_before: Mapping[str, object] | None,
+) -> dict[str, Any] | None:
+    extensions_value = audit.get("projection_extensions")
+    extensions = _copy_mapping(extensions_value) if isinstance(extensions_value, Mapping) else {}
+    faithfulness = extensions.get("s9_projection_faithfulness")
+    previous = aggregate_before.get("s9_projection_faithfulness") if aggregate_before else None
+    active = (isinstance(faithfulness, Mapping) and bool(faithfulness)) or isinstance(
+        previous, Mapping
+    )
+    if not active:
+        return None
+
+    projection_value = _copy_mapping(projection) if isinstance(projection, Mapping) else {}
+    source_state_value = projection_value.get("source_state")
+    source_state = (
+        _copy_mapping(source_state_value) if isinstance(source_state_value, Mapping) else {}
+    )
+    verifier_projection = {
+        **projection_value,
+        "projection_policy": _text(source_state.get("s9_projection_policy")),
+        "source_revision_ref": _text(source_state.get("s9_source_revision_ref")),
+        "s9_projection_faithfulness": (
+            _copy_mapping(faithfulness) if isinstance(faithfulness, Mapping) else {}
+        ),
+    }
+    closeout_value = projection_value.get("closeout_truth")
+    closeout_truth = _copy_mapping(closeout_value) if isinstance(closeout_value, Mapping) else {}
+    contested_ids = [
+        _text(record.get("contested_record_id"))
+        for record in _as_sequence(projection_value.get("contested_records"))
+        if isinstance(record, Mapping) and _text(record.get("contested_record_id"))
+    ]
+    verification = verify_s9_projection_faithfulness_for_pdc_consumer_contract(
+        projections={"public": verifier_projection},
+        expected_closeout_truth=closeout_truth,
+        expected_contested_record_ids=contested_ids,
+    )
+    if "s9_projection_contract_verification_status" in extensions:
+        extensions["s9_projection_contract_verification_status"] = verification.get("status")
+    if "s9_projection_contract_verification_ref" in extensions:
+        extensions["s9_projection_contract_verification_ref"] = verification.get(
+            "consumer_contract_ref"
+        )
+    if isinstance(extensions_value, Mapping):
+        audit["projection_extensions"] = extensions
+    return verification
+
+
+def _final_g3_verification(
+    audit: dict[str, object],
+    aggregate_before: Mapping[str, object] | None,
+) -> dict[str, object] | None:
+    projection_key = "layer3_g3_analytics_search_projection"
+    verification_key = "layer3_g3_analytics_search_projection_contract_verification"
+    aggregate_key = "layer3_g3_analytics_search_projection"
+    record_value = audit.get(projection_key)
+    previous = audit.get(verification_key)
+    previous_aggregate = aggregate_before.get(aggregate_key) if aggregate_before else None
+    active = isinstance(record_value, Mapping) and bool(record_value)
+    active = active or isinstance(previous, Mapping) or isinstance(previous_aggregate, Mapping)
+    if not active:
+        return None
+
+    from polisyos.runtime.quality.proving_ground.proof_carrying_analytics_search import (
+        Layer3G3PublicExportProjectionRefSurface,
+        build_g3_public_export_projection_ref_surface,
+    )
+
+    clean_record = _copy_mapping(record_value) if isinstance(record_value, Mapping) else {}
+    model_fields = Layer3G3PublicExportProjectionRefSurface.model_fields
+    typed_input = {key: value for key, value in clean_record.items() if key in model_fields}
+
+    def build_from_projection(surface: Mapping[str, object]) -> dict[str, object]:
+        certificate_report = {
+            "resolved_certificate_count": _int(surface.get("resolved_certificate_count")),
+            "blocking_certificate_count": _int(surface.get("blocked_certificate_count")),
+        }
+        proof_records = [
+            {"proof_ref": reference}
+            for reference in _text_list(surface.get("proof_carrying_analytics_refs"))
+        ]
+        bridge_refs = _text_list(surface.get("ir_analytics_bridge_refs"))
+        bridge = {"bridge_ref": bridge_refs[0]} if bridge_refs else None
+        derived = build_g3_public_export_projection_ref_surface(
+            certificate_resolution_report=certificate_report,
+            proof_carrying_analytics_records=proof_records,
+            ir_analytics_bridge=bridge,
+        )
+        return derived.model_dump(mode="json")
+
+    try:
+        surface = Layer3G3PublicExportProjectionRefSurface.model_validate(typed_input)
+    except ValidationError:
+        derived_refusal = build_g3_public_export_projection_ref_surface(
+            certificate_resolution_report={"resolved_certificate_count": 0},
+            proof_carrying_analytics_records=(),
+            ir_analytics_bridge=None,
+        )
+        surface = Layer3G3PublicExportProjectionRefSurface(
+            status="fail",
+            public_payload_redaction_status="fail",
+            issue_codes=derived_refusal.issue_codes,
+        )
+        clean_record = {
+            "audience": "PUBLIC",
+            "authority_role": "projection_only",
+            "projection_policy": "reads_layer3_g3_resolution_status_as_audit_refs",
+        }
+
+    surface_payload = surface.model_dump(mode="python")
+    derived = build_from_projection(surface_payload)
+    original_status = surface.status
+    final_status = (
+        "fail"
+        if original_status == "pass" and _text(derived.get("status")) != "pass"
+        else original_status
+    )
+    issue_codes = tuple(
+        dict.fromkeys((*surface.issue_codes, *_text_list(derived.get("issue_codes"))))
+    )
+    model_payload = surface.model_dump(mode="python")
+    model_payload.update(status=final_status, issue_codes=issue_codes)
+    final_surface = Layer3G3PublicExportProjectionRefSurface.model_validate(model_payload)
+    final_record = _copy_mapping(clean_record)
+    final_record.update(final_surface.model_dump(mode="json"))
+    verifier_status = (
+        "pass"
+        if final_surface.status == "pass"
+        and final_surface.public_payload_redaction_status == "pass"
+        else "fail"
+    )
+    verification: dict[str, object] = {
+        "consumer_contract_ref": (
+            "policyos.runtime.policy_design_case.layer3_g3_public_projection_verification.v1"
+        ),
+        "status": verifier_status,
+        "public_projection": final_record,
+        "issue_codes": list(final_surface.issue_codes),
+    }
+    audit[projection_key] = final_record
+    audit[verification_key] = verification
+    return verification
+
+
+def _reverify_final_public_audit(
+    semantic_audit: Mapping[str, object],
+    *,
+    projection: Mapping[str, object] | None,
+    runtime_pdc_graph: Mapping[str, object] | None,
+    tenant_private_paths: frozenset[str],
+    scanner_redaction_paths: frozenset[tuple[str | int, ...]],
+) -> tuple[dict[str, object], dict[str, object] | None]:
+    """Recompute every emitted PDC and S9-G3 verdict after recursive redaction."""
+
+    sanitized_value = _remove_final_audit_redactions(
+        semantic_audit,
+        path=("semantic_audit",),
+        tenant_private_paths=tenant_private_paths,
+        scanner_redaction_paths=scanner_redaction_paths,
+    )
+    if not isinstance(sanitized_value, Mapping):
+        raise PublicExportRedactionError(
+            "public_export_final_audit_invalid",
+            "Final public audit must remain a JSON mapping after path-bound redaction.",
+        )
+    audit = _copy_mapping(sanitized_value)
+    aggregate_before_value = audit.get("projection_contract_verification")
+    aggregate_before = (
+        _copy_mapping(aggregate_before_value)
+        if isinstance(aggregate_before_value, Mapping)
+        else None
+    )
+
+    pdc_verification: dict[str, Any] | None
+    if isinstance(projection, Mapping):
+        typed_projection = PolicyDesignCaseProjection.model_validate(_copy_mapping(projection))
+        final_projection, pdc_verification = _verify_final_public_projection(
+            typed_projection.model_dump(mode="json"),
+            expected_closeout_truth=typed_projection.closeout_truth.model_dump(mode="json"),
+            expected_contested_record_ids=[
+                record.contested_record_id for record in typed_projection.contested_records
+            ],
+            runtime_pdc_graph=runtime_pdc_graph,
+            previous_verification=None,
+        )
+    elif aggregate_before is not None:
+        pdc_verification = _copy_mapping(aggregate_before)
+        for key in (
+            "s9_projection_faithfulness",
+            "s10_forecast_projection",
+            "s11_predictive_projection",
+            "s12_resource_projection",
+            "s13_post_deploy_accountability_projection",
+            "s14_universality_projection",
+            "layer3_g3_analytics_search_projection",
+        ):
+            pdc_verification.pop(key, None)
+        pdc_verification["status"] = "fail"
+        final_projection = None
+    else:
+        pdc_verification = None
+        final_projection = None
+
+    fresh_siblings: dict[str, object] = {}
+    s9_verification = _final_s9_verification(
+        audit=audit,
+        projection=final_projection,
+        aggregate_before=aggregate_before,
+    )
+    if s9_verification is not None:
+        fresh_siblings["s9_projection_faithfulness"] = s9_verification
+
+    for stage, projection_key, verification_key, aggregate_key in _FINAL_STAGE_AUDIT_SPECS:
+        record_value = audit.get(projection_key)
+        verification_value = audit.get(verification_key)
+        aggregate_value = (
+            aggregate_before.get(aggregate_key) if aggregate_before is not None else None
+        )
+        active = isinstance(record_value, Mapping) and bool(record_value)
+        active = active or isinstance(verification_value, Mapping)
+        active = active or isinstance(aggregate_value, Mapping)
+        if not active:
+            continue
+        record = _copy_mapping(record_value) if isinstance(record_value, Mapping) else {}
+        verification = _run_final_stage_consumer_verifier(stage, record)
+        audit[verification_key] = verification
+        fresh_siblings[aggregate_key] = verification
+
+    g3_verification = _final_g3_verification(audit, aggregate_before)
+    if g3_verification is not None:
+        fresh_siblings["layer3_g3_analytics_search_projection"] = g3_verification
+
+    if pdc_verification is None and fresh_siblings:
+        pdc_verification = verify_policy_design_case_projection_consumer_contract(
+            projections={"public": {}},
+            expected_closeout_truth={},
+            expected_contested_record_ids=(),
+            runtime_pdc_graph=runtime_pdc_graph,
+        )
+    if pdc_verification is None:
+        audit["projection_contract_verification"] = None
+    else:
+        audit["projection_contract_verification"] = _projection_verification_with_siblings(
+            pdc_verification,
+            fresh_siblings,
+        )
+    return audit, final_projection
+
+
 def build_public_export_bundle(
     *,
     run_id: str,
@@ -297,12 +1379,39 @@ def build_public_export_bundle(
     policy_design_case: Mapping[str, object] | None = None,
     runtime_pdc_graph: Mapping[str, object] | None = None,
     projection_payload: Mapping[str, object] | None = None,
+    runtime_truth_preservation: Mapping[str, object] | None = None,
     title: str | None = None,
     generated_at: datetime | None = None,
 ) -> dict[str, object]:
     """Build a redacted public projection that cannot satisfy authority gates."""
 
-    tenant_private_refs = _tenant_private_refs_in_payload(artifacts)
+    if type(run_id) is not str or (title is not None and type(title) is not str):
+        raise PublicExportRedactionError(
+            "public_export_text_input_invalid",
+            "Run identifiers and titles must be plain strings.",
+        )
+    authority_envelopes = _normalize_public_export_authority_envelopes(authority_envelopes)
+    artifacts = _normalize_public_export_mapping(artifacts, field="artifacts")
+    if policy_design_case is not None:
+        policy_design_case = _normalize_public_export_mapping(
+            policy_design_case,
+            field="policy_design_case",
+        )
+    if runtime_pdc_graph is not None:
+        runtime_pdc_graph = _normalize_public_export_mapping(
+            runtime_pdc_graph,
+            field="runtime_pdc_graph",
+        )
+    if projection_payload is not None:
+        projection_payload = _normalize_public_export_mapping(
+            projection_payload,
+            field="projection_payload",
+        )
+    if runtime_truth_preservation is not None:
+        runtime_truth_preservation = _normalize_public_export_mapping(
+            runtime_truth_preservation,
+            field="runtime_truth_preservation",
+        )
     recourse_pointer = None
     if policy_design_case is not None:
         try:
@@ -343,8 +1452,31 @@ def build_public_export_bundle(
     rule_evolution_annotations = _iter_rule_evolution_annotations(sanitized_artifacts)
     public_revision_states = _iter_public_revision_states(sanitized_artifacts)
     orchestration_continuity = _public_orchestration_continuity_projection(sanitized_artifacts)
-    authority_projections = [_authority_projection(envelope) for envelope in authority_envelopes]
+    validated_authority_envelopes = [
+        deserialize_authority_envelope(_normalize_authority_envelope_input(envelope))
+        for envelope in authority_envelopes
+    ]
+    authority_projections = [
+        _authority_projection(envelope) for envelope in validated_authority_envelopes
+    ]
+    tenant_private_refs = _tenant_private_refs_in_payload(
+        {
+            "run_id": run_id,
+            "title": title,
+            "artifacts": artifacts,
+            "authority_envelopes": [
+                envelope.model_dump(mode="json") for envelope in validated_authority_envelopes
+            ],
+            "policy_design_case": policy_design_case,
+            "runtime_pdc_graph": runtime_pdc_graph,
+            "projection_payload": projection_payload,
+            "runtime_truth_preservation": runtime_truth_preservation,
+        }
+    )
+    for authority_projection in authority_projections:
+        _assert_no_tenant_private_ref_leak(authority_projection, tenant_private_refs)
     projection_semantics = None
+    projection_extensions: dict[str, object] = {}
     projection_contract_verification = None
     s10_verification = None
     s10_projection = None
@@ -390,14 +1522,19 @@ def build_public_export_bundle(
             "evidence_class": "redacted_derived",
         }
         if projection_payload is not None:
-            projection_source.update(dict(projection_payload))
+            projection_source.update(_copy_mapping(projection_payload))
         projection_semantics = build_policy_design_case_projection_semantics(
             policy_design_case=policy_design_case,
             surface="public_export",
             source_payload=projection_source,
-            source_ref=projection_source.get("source_ref")
-            if isinstance(projection_source.get("source_ref"), str)
-            else None,
+            source_ref=(
+                source_ref
+                if isinstance(
+                    (source_ref := projection_source.get("source_ref")),
+                    str,
+                )
+                else None
+            ),
             generated_at=generated_at,
         )
         projection_contract_verification = verify_policy_design_case_projection_consumer_contract(
@@ -607,14 +1744,28 @@ def build_public_export_bundle(
                     else "pass",
                 }
     _assert_public_claim_omissions_manifested(sanitized_artifacts, projection_semantics)
+    if projection_semantics is not None:
+        projection_semantics, projection_extensions = _split_projection_extensions(
+            projection_semantics
+        )
+        (
+            projection_semantics,
+            projection_contract_verification,
+            projection_redactions,
+        ) = _redact_and_verify_public_projection(
+            projection_semantics,
+            previous_verification=projection_contract_verification,
+            runtime_pdc_graph=runtime_pdc_graph,
+        )
+        redactions.extend(projection_redactions)
     exported_public_revision_states = list(public_revision_states)
     if s13_public_revision_state is not None:
         exported_public_revision_states.append(s13_public_revision_state)
     bundle = {
         "schema_version": PUBLIC_EXPORT_SCHEMA_VERSION,
         "generated_at": (generated_at or datetime.now(UTC)).replace(microsecond=0).isoformat(),
-        "run_id": str(run_id),
-        "title": str(title or "Public export bundle"),
+        "run_id": run_id,
+        "title": title or "Public export bundle",
         "public_export_classification": "public_redacted_projection",
         "evidence_class": "redacted_derived",
         "authority_role": "projection_only",
@@ -624,6 +1775,11 @@ def build_public_export_bundle(
         "allowed_approval_authority_role": "not_authoritative",
         "official_use_limits": dict(_OFFICIAL_USE_LIMITS),
         "artifacts": sanitized_artifacts,
+        **(
+            {"runtime_truth_preservation": _copy_mapping(runtime_truth_preservation)}
+            if runtime_truth_preservation is not None
+            else {}
+        ),
         "semantic_audit": {
             "artifact_keys": sorted(str(key) for key in sanitized_artifacts),
             "authority_projection_count": len(authority_projections),
@@ -643,13 +1799,19 @@ def build_public_export_bundle(
             "layer3_g3_analytics_search_projection": g3_projection,
             "layer3_g3_analytics_search_projection_contract_verification": (g3_verification),
             "authority_surface_decisions": public_authority_surface_decisions,
-            "omission_manifest": list(
-                projection_semantics.get("omission_manifest", [])
+            "omission_manifest": (
+                _copy_public_sequence(
+                    projection_semantics.get("omission_manifest", []),
+                    field="omission_manifest",
+                )
                 if projection_semantics is not None
                 else []
             ),
-            "audit_refs": list(
-                projection_semantics.get("audit_refs", [])
+            "audit_refs": (
+                _copy_public_sequence(
+                    projection_semantics.get("audit_refs", []),
+                    field="audit_refs",
+                )
                 if projection_semantics is not None
                 else []
             ),
@@ -672,11 +1834,304 @@ def build_public_export_bundle(
             s13_verification
         )
         bundle["semantic_audit"] = semantic_audit
+    if projection_extensions:
+        semantic_audit = dict(bundle["semantic_audit"])
+        missing_projection_extensions = _unrepresented_projection_extensions(
+            projection_extensions,
+            semantic_audit,
+        )
+        if missing_projection_extensions:
+            semantic_audit["projection_extensions"] = missing_projection_extensions
+        bundle["semantic_audit"] = semantic_audit
+    semantic_audit_value = bundle.get("semantic_audit")
+    if isinstance(semantic_audit_value, Mapping):
+        audit_redactions: list[dict[str, str]] = []
+        redacted_audit = _redact_tenant_private_refs(
+            semantic_audit_value,
+            path="semantic_audit",
+            redactions=audit_redactions,
+        )
+        if not isinstance(redacted_audit, Mapping):
+            raise PublicExportRedactionError(
+                "public_export_semantic_audit_invalid",
+                "Redacted semantic audit must preserve its mapping shape.",
+            )
+        bundle["semantic_audit"] = _copy_mapping(redacted_audit)
+        if audit_redactions:
+            redaction_summary_value = bundle.get("redaction_summary")
+            if not isinstance(redaction_summary_value, Mapping):
+                raise PublicExportRedactionError(
+                    "public_export_redaction_summary_invalid",
+                    "Semantic-audit redaction requires a valid bundle redaction summary.",
+                )
+            redaction_summary = _copy_mapping(redaction_summary_value)
+            existing_redactions_value = redaction_summary.get("upserted_redactions")
+            existing_redactions = (
+                [
+                    _copy_mapping(item)
+                    for item in existing_redactions_value
+                    if isinstance(item, Mapping)
+                ]
+                if isinstance(existing_redactions_value, list)
+                else []
+            )
+            existing_redactions.extend(audit_redactions)
+            redaction_summary["upserted_redactions"] = existing_redactions
+            redaction_summary["redacted_path_count"] = len(existing_redactions)
+            redaction_summary["erased_paths"] = sorted(
+                {str(item.get("path")) for item in existing_redactions if isinstance(item, Mapping)}
+            )
+            bundle["redaction_summary"] = redaction_summary
     if projection_semantics is not None:
         bundle["projection_semantics"] = projection_semantics
-    assert_public_export_official_use_limits(bundle)
-    _assert_no_tenant_private_ref_leak(bundle, tenant_private_refs)
-    return bundle
+    bundle = _normalize_public_export_mapping(bundle, field="public_export_bundle")
+    complete_sanitizer = PromptSanitizer()
+    complete_scan = scan_secret_and_pii(
+        bundle,
+        scope="dashboard/public/export packets",
+        artifact_ref_or_route="public-export://complete-bundle",
+        sanitizer=complete_sanitizer,
+        redact=True,
+        block_on_findings=False,
+    )
+    if not isinstance(complete_scan.redacted_payload, Mapping):
+        raise PublicExportRedactionError(
+            "public_export_complete_scan_invalid_payload",
+            "Canonical complete-bundle scan did not preserve public export mapping shape.",
+        )
+    complete_bundle = _copy_mapping(complete_scan.redacted_payload)
+    complete_scan_redaction_values = _verified_redaction_values(
+        bundle,
+        complete_bundle,
+        sanitizer=complete_sanitizer,
+    )
+    complete_audit = complete_bundle.get("semantic_audit")
+    complete_summary = complete_bundle.get("redaction_summary")
+    if not isinstance(complete_audit, Mapping) or not isinstance(complete_summary, Mapping):
+        raise PublicExportRedactionError(
+            "public_export_complete_scan_receipt_missing",
+            "Complete-bundle redaction receipts are missing or malformed.",
+        )
+    audit = _copy_mapping(complete_audit)
+    existing_reports = audit.get("secret_pii_scan_reports")
+    scan_reports = (
+        [_copy_mapping(item) for item in existing_reports if isinstance(item, Mapping)]
+        if isinstance(existing_reports, list)
+        else []
+    )
+    scan_reports.extend(report.model_dump(mode="json") for report in complete_scan.reports)
+    audit["secret_pii_scan_reports"] = scan_reports
+    complete_bundle["semantic_audit"] = audit
+    summary = _copy_mapping(complete_summary)
+    redactions_value = summary.get("upserted_redactions")
+    redactions = (
+        [_copy_mapping(item) for item in redactions_value if isinstance(item, Mapping)]
+        if isinstance(redactions_value, list)
+        else []
+    )
+    redactions.extend(
+        {
+            "path": f"complete_bundle_redaction:{index}",
+            "reason": _canonical_redaction_reason(placeholder),
+        }
+        for index, placeholder in enumerate(sorted(complete_sanitizer.placeholder_map()), start=1)
+    )
+    summary["redacted_path_count"] = len(redactions)
+    summary["erased_paths"] = sorted({item["path"] for item in redactions})
+    summary["upserted_redactions"] = redactions
+    complete_bundle["redaction_summary"] = summary
+    scanned_projection = complete_bundle.get("projection_semantics")
+    if isinstance(scanned_projection, Mapping):
+        scanned_audit = complete_bundle.get("semantic_audit")
+        previous_projection_verification = (
+            scanned_audit.get("projection_contract_verification")
+            if isinstance(scanned_audit, Mapping)
+            else None
+        )
+        scanner_projection_paths = frozenset(
+            path[1:]
+            for path in complete_scan_redaction_values
+            if path and path[0] == "projection_semantics"
+        )
+        (
+            final_projection,
+            final_projection_verification,
+            projection_redactions,
+        ) = _redact_and_verify_public_projection(
+            scanned_projection,
+            previous_verification=(
+                previous_projection_verification
+                if isinstance(previous_projection_verification, Mapping)
+                else None
+            ),
+            runtime_pdc_graph=runtime_pdc_graph,
+            scanner_redaction_paths=scanner_projection_paths,
+        )
+        summary_redactions = summary.get("upserted_redactions")
+        if not isinstance(summary_redactions, list):
+            summary_redactions = []
+        summary_redactions.extend(projection_redactions)
+        summary["upserted_redactions"] = summary_redactions
+        summary["redacted_path_count"] = len(summary_redactions)
+        summary["erased_paths"] = sorted(
+            {str(item.get("path")) for item in summary_redactions if isinstance(item, Mapping)}
+        )
+        complete_bundle["redaction_summary"] = summary
+        if final_projection is None:
+            complete_bundle.pop("projection_semantics", None)
+        else:
+            complete_bundle["projection_semantics"] = final_projection
+        final_audit = _copy_mapping(scanned_audit) if isinstance(scanned_audit, Mapping) else {}
+        final_audit["projection_contract_verification"] = final_projection_verification
+        tenant_private_paths = frozenset(
+            _text(item.get("path"))
+            for item in summary_redactions
+            if isinstance(item, Mapping)
+            and item.get("reason") == "tenant_private_ref"
+            and _text(item.get("path")).startswith("semantic_audit.")
+        )
+        scanner_audit_paths = frozenset(
+            path for path in complete_scan_redaction_values if path and path[0] == "semantic_audit"
+        )
+        final_audit, final_projection = _reverify_final_public_audit(
+            final_audit,
+            projection=final_projection,
+            runtime_pdc_graph=runtime_pdc_graph,
+            tenant_private_paths=tenant_private_paths,
+            scanner_redaction_paths=scanner_audit_paths,
+        )
+        if final_projection is None:
+            complete_bundle.pop("projection_semantics", None)
+        else:
+            complete_bundle["projection_semantics"] = final_projection
+        complete_bundle["semantic_audit"] = final_audit
+    else:
+        scanned_audit = complete_bundle.get("semantic_audit")
+        if not isinstance(scanned_audit, Mapping):
+            raise PublicExportRedactionError(
+                "public_export_final_audit_invalid",
+                "Final public audit must remain a mapping after complete-bundle scanning.",
+            )
+        final_audit = _copy_mapping(scanned_audit)
+        existing_projection_verification = final_audit.get("projection_contract_verification")
+        if isinstance(existing_projection_verification, Mapping):
+            final_audit["projection_contract_verification"] = _copy_mapping(
+                existing_projection_verification
+            )
+        tenant_private_paths = frozenset(
+            _text(item.get("path"))
+            for item in redactions
+            if isinstance(item, Mapping)
+            and item.get("reason") == "tenant_private_ref"
+            and _text(item.get("path")).startswith("semantic_audit.")
+        )
+        scanner_audit_paths = frozenset(
+            path for path in complete_scan_redaction_values if path and path[0] == "semantic_audit"
+        )
+        final_audit, _ = _reverify_final_public_audit(
+            final_audit,
+            projection=None,
+            runtime_pdc_graph=runtime_pdc_graph,
+            tenant_private_paths=tenant_private_paths,
+            scanner_redaction_paths=scanner_audit_paths,
+        )
+        complete_bundle.pop("projection_semantics", None)
+        complete_bundle["semantic_audit"] = final_audit
+    final_scan = scan_secret_and_pii(
+        _complete_scan_verification_view(
+            complete_bundle,
+            verified_redaction_values=complete_scan_redaction_values,
+        ),
+        scope="dashboard/public/export packets",
+        artifact_ref_or_route=f"public-export://{run_id}/complete-bundle-final",
+        sanitizer=PromptSanitizer(),
+        redact=False,
+        block_on_findings=True,
+    )
+    if final_scan.has_findings:
+        raise PublicExportRedactionError(
+            "public_export_complete_scan_residual",
+            "Sensitive material remained after complete-bundle redaction.",
+        )
+    complete_bundle = _normalize_public_export_mapping(
+        complete_bundle,
+        field="public_export_bundle",
+    )
+    assert_public_export_official_use_limits(complete_bundle)
+    final_projection_value = complete_bundle.get("projection_semantics")
+    if isinstance(final_projection_value, Mapping):
+        PolicyDesignCaseProjection.model_validate(final_projection_value)
+    _assert_no_tenant_private_ref_leak(complete_bundle, tenant_private_refs)
+    return complete_bundle
+
+
+def _verified_redaction_values(
+    original: object,
+    redacted: object,
+    *,
+    sanitizer: PromptSanitizer,
+) -> dict[tuple[str | int, ...], tuple[object, str, tuple[str, ...]]]:
+    """Bind generated redaction markers to their changed source paths and values."""
+
+    generated_placeholders = tuple(sorted(sanitizer.placeholder_map()))
+    replacements: dict[tuple[str | int, ...], tuple[object, str, tuple[str, ...]]] = {}
+
+    def visit(
+        before: object,
+        after: object,
+        path: tuple[str | int, ...],
+    ) -> None:
+        if isinstance(after, str):
+            markers = tuple(marker for marker in generated_placeholders if marker in after)
+            if before != after and markers:
+                replacements[path] = (before, after, markers)
+            return
+        if isinstance(before, dict) and isinstance(after, dict):
+            for key, after_value in after.items():
+                visit(before.get(key), after_value, (*path, str(key)))
+            return
+        if isinstance(before, list) and isinstance(after, list):
+            for index, after_value in enumerate(after):
+                before_value = before[index] if index < len(before) else None
+                visit(before_value, after_value, (*path, index))
+            return
+        if isinstance(before, tuple) and isinstance(after, tuple):
+            for index, after_value in enumerate(after):
+                before_value = before[index] if index < len(before) else None
+                visit(before_value, after_value, (*path, index))
+
+    visit(original, redacted, ())
+    return replacements
+
+
+def _complete_scan_verification_view(
+    value: object,
+    *,
+    verified_redaction_values: Mapping[
+        tuple[str | int, ...],
+        tuple[object, str, tuple[str, ...]],
+    ],
+) -> object:
+    """Remove only same-pass markers from the exact values that received them."""
+
+    def project(current: object, path: tuple[str | int, ...]) -> object:
+        if isinstance(current, str):
+            replacement = verified_redaction_values.get(path)
+            if replacement is None or current != replacement[1]:
+                return current
+            verification_value = current
+            for marker in replacement[2]:
+                verification_value = verification_value.replace(marker, "")
+            return verification_value
+        if isinstance(current, dict):
+            return {key: project(item, (*path, str(key))) for key, item in current.items()}
+        if isinstance(current, list):
+            return [project(item, (*path, index)) for index, item in enumerate(current)]
+        if isinstance(current, tuple):
+            return tuple(project(item, (*path, index)) for index, item in enumerate(current))
+        return current
+
+    return project(value, ())
 
 
 def _scan_public_export_artifacts(
@@ -686,7 +2141,7 @@ def _scan_public_export_artifacts(
 ) -> tuple[dict[str, object], list[dict[str, object]], list[dict[str, str]], dict[str, object]]:
     sanitizer = PromptSanitizer()
     scan = scan_secret_and_pii(
-        dict(artifacts),
+        _copy_mapping(artifacts),
         scope="dashboard/public/export packets",
         artifact_ref_or_route=f"public-export://{run_id}",
         sanitizer=sanitizer,
@@ -719,7 +2174,7 @@ def _scan_public_export_artifacts(
     ]
     redactions.extend(private_ref_redactions)
     return (
-        dict(sanitized_artifacts),
+        _copy_mapping(sanitized_artifacts),
         [report.model_dump(mode="json") for report in scan.reports],
         redactions,
         _public_export_sanitizer_strangle_receipt(),
@@ -734,7 +2189,7 @@ def _redact_tenant_private_refs(
 ) -> object:
     if isinstance(value, Mapping):
         sanitized: dict[str, object] = {}
-        for key, item in value.items():
+        for key, item in _iter_mapping_items(value):
             raw_key = str(key)
             public_key = _public_mapping_key(raw_key)
             if public_key != raw_key:
@@ -786,7 +2241,7 @@ def _tenant_private_refs_in_payload(value: object) -> frozenset[str]:
 
     def collect(item: object) -> None:
         if isinstance(item, Mapping):
-            for key, nested in item.items():
+            for key, nested in _iter_mapping_items(item):
                 collect(str(key))
                 collect(nested)
             return
@@ -810,7 +2265,7 @@ def _assert_no_tenant_private_ref_leak(
 
     def first_leak_path(item: object, *, path: str) -> str | None:
         if isinstance(item, Mapping):
-            for key, nested in item.items():
+            for key, nested in _iter_mapping_items(item):
                 key_text = str(key)
                 if any(ref in key_text for ref in tenant_private_refs):
                     return f"{path}.<key>"
@@ -859,7 +2314,7 @@ def _public_authority_surface_decisions(
             "public_export_authority_decision_scan_invalid_payload",
             "Private-ref scan did not preserve authority decision projection shape.",
         )
-    return [dict(item) for item in projection]
+    return [_copy_mapping(item) for item in projection]
 
 
 def _canonical_redaction_reason(placeholder: str) -> str:
@@ -879,8 +2334,9 @@ def _public_export_sanitizer_strangle_receipt() -> dict[str, object]:
         "disposition": "deleted_live_path_default_flipped_to_composed_gate",
         "default_before": "public export used a parallel deny-list sanitizer",
         "default_after": (
-            "public export redacts through the canonical SecretAndPIIScanReport emitter "
-            "and every artifact is admitted through authority_surface_decision"
+            "public export scans artifact inputs before semantic derivation and scans the "
+            "complete returned bundle after authority projections and runtime truth are added; "
+            "every artifact is also admitted through authority_surface_decision"
         ),
         "remaining_callers": [],
     }
@@ -890,7 +2346,7 @@ def _authority_surface_decisions_for_public_export(
     artifacts: Mapping[str, object],
 ) -> list[tuple[str, AuthoritySurfaceDecision]]:
     decisions: list[tuple[str, AuthoritySurfaceDecision]] = []
-    for key, artifact in artifacts.items():
+    for key, artifact in _iter_mapping_items(artifacts):
         if not isinstance(artifact, Mapping):
             continue
         export_decision = authority_surface_decision(
@@ -922,7 +2378,7 @@ def _apply_s14_universality_projection(
     projection_payload: Mapping[str, object],
 ) -> tuple[dict[str, object], dict[str, object] | None, dict[str, object] | None]:
     if not _has_s14_universality_projection(projection_payload):
-        return dict(projection_semantics), None, None
+        return _copy_mapping(projection_semantics), None, None
     verification = verify_s14_universality_projection_consumer_contract(
         projections={"public": projection_payload},
     )
@@ -931,9 +2387,13 @@ def _apply_s14_universality_projection(
             _first_s14_issue_code(verification),
             "S14 universality projection consumer contract must pass before public release.",
         )
-    public_projection = dict(verification.get("public_projection") or {})
-    s14_projection = dict(verification.get("s14_universality_projection") or {})
-    enriched = dict(projection_semantics)
+    public_projection = _copy_optional_public_mapping(
+        verification.get("public_projection"), field="public_projection"
+    )
+    s14_projection = _copy_optional_public_mapping(
+        verification.get("s14_universality_projection"), field="s14_universality_projection"
+    )
+    enriched = _copy_mapping(projection_semantics)
     may_not = _unique_texts(
         [
             *_text_list(enriched.get("may_not_be_used_for")),
@@ -975,7 +2435,7 @@ def _apply_s14_universality_projection(
             *_text_list(s14_projection.get("s9_projection_faithfulness_refs")),
         ]
     )
-    source_state = dict(enriched.get("source_state") or {})
+    source_state = _copy_optional_public_mapping(enriched.get("source_state"), field="source_state")
     source_state.update(
         {
             "s14_universality_assurance_ref": s14_projection.get("s14_universality_assurance_ref"),
@@ -1061,7 +2521,7 @@ def _apply_s13_post_deploy_accountability_projection(
 ]:
     s13_projection = _s13_accountability_projection_record(projection_payload)
     if not s13_projection:
-        return dict(projection_semantics), None, None, None
+        return _copy_mapping(projection_semantics), None, None, None
     verification = verify_s13_post_deploy_accountability_projection_consumer_contract(
         projections={"public": s13_projection},
     )
@@ -1071,8 +2531,10 @@ def _apply_s13_post_deploy_accountability_projection(
             "S13 accountability projection consumer contract must pass before public release.",
         )
     revision_state = _s13_public_revision_state(projection_payload)
-    public_projection = dict(verification.get("public_projection") or {})
-    enriched = dict(projection_semantics)
+    public_projection = _copy_optional_public_mapping(
+        verification.get("public_projection"), field="public_projection"
+    )
+    enriched = _copy_mapping(projection_semantics)
     accountability_note = _text(
         public_projection.get("public_accountability_note")
         or s13_projection.get("public_accountability_note")
@@ -1102,7 +2564,7 @@ def _apply_s13_post_deploy_accountability_projection(
             *_text_list(s13_projection.get("learning_update_proposal_refs")),
         ]
     )
-    source_state = dict(enriched.get("source_state") or {})
+    source_state = _copy_optional_public_mapping(enriched.get("source_state"), field="source_state")
     source_state.update(
         {
             "s13_accountability_posture_ref": s13_projection.get("accountability_posture_ref"),
@@ -1141,7 +2603,7 @@ def _apply_s12_resource_projection(
 ) -> tuple[dict[str, object], dict[str, object] | None, dict[str, object] | None]:
     s12_projection = _s12_resource_projection_record(projection_payload)
     if not s12_projection:
-        return dict(projection_semantics), None, None
+        return _copy_mapping(projection_semantics), None, None
     verification = verify_s12_resource_projection_consumer_contract(
         projections={"public": s12_projection},
     )
@@ -1150,8 +2612,10 @@ def _apply_s12_resource_projection(
             _first_s12_issue_code(verification),
             "S12 resource projection consumer contract must pass before public release.",
         )
-    public_projection = dict(verification.get("public_projection") or {})
-    enriched = dict(projection_semantics)
+    public_projection = _copy_optional_public_mapping(
+        verification.get("public_projection"), field="public_projection"
+    )
+    enriched = _copy_mapping(projection_semantics)
     growth_limitation = _text(
         public_projection.get("s12_public_growth_limitation")
         or s12_projection.get("s12_public_growth_limitation")
@@ -1186,7 +2650,7 @@ def _apply_s12_resource_projection(
             "recommendation_authority",
         ]
     )
-    source_state = dict(enriched.get("source_state") or {})
+    source_state = _copy_optional_public_mapping(enriched.get("source_state"), field="source_state")
     source_state.update(
         {
             "s12_resource_posture_ref": s12_projection.get("resource_allocation_policy_ref"),
@@ -1221,7 +2685,7 @@ def _apply_s11_predictive_projection(
 ) -> tuple[dict[str, object], dict[str, object] | None, dict[str, object] | None]:
     s11_projection = _s11_predictive_projection_record(projection_payload)
     if not s11_projection:
-        return dict(projection_semantics), None, None
+        return _copy_mapping(projection_semantics), None, None
     verification = verify_s11_predictive_projection_consumer_contract(
         projections={"public": s11_projection},
     )
@@ -1230,8 +2694,10 @@ def _apply_s11_predictive_projection(
             _first_s11_issue_code(verification),
             "S11 predictive projection consumer contract must pass before public release.",
         )
-    public_projection = dict(verification.get("public_projection") or {})
-    enriched = dict(projection_semantics)
+    public_projection = _copy_optional_public_mapping(
+        verification.get("public_projection"), field="public_projection"
+    )
+    enriched = _copy_mapping(projection_semantics)
     s11_limitation = _text(
         public_projection.get("s11_public_limitation")
         or s11_projection.get("s11_public_limitation")
@@ -1265,7 +2731,7 @@ def _apply_s11_predictive_projection(
             "runtime_closeout_authority",
         ]
     )
-    source_state = dict(enriched.get("source_state") or {})
+    source_state = _copy_optional_public_mapping(enriched.get("source_state"), field="source_state")
     source_state.update(
         {
             "s11_predictive_posture_ref": s11_projection.get("s11_predictive_posture_ref"),
@@ -1298,7 +2764,7 @@ def _apply_layer3_g3_analytics_search_projection(
 ) -> tuple[dict[str, object], dict[str, object] | None, dict[str, object] | None]:
     g3_projection = _layer3_g3_analytics_search_projection_record(projection_payload)
     if not g3_projection:
-        return dict(projection_semantics), None, None
+        return _copy_mapping(projection_semantics), None, None
     verification = {
         "consumer_contract_ref": (
             "policyos.runtime.policy_design_case.layer3_g3_public_projection_verification.v1"
@@ -1306,7 +2772,7 @@ def _apply_layer3_g3_analytics_search_projection(
         "status": "pass",
         "public_projection": g3_projection,
     }
-    enriched = dict(projection_semantics)
+    enriched = _copy_mapping(projection_semantics)
     may_not = _unique_texts(
         [
             *_text_list(enriched.get("may_not_be_used_for")),
@@ -1330,7 +2796,7 @@ def _apply_layer3_g3_analytics_search_projection(
             *_text_list(g3_projection.get("s11_predictive_posture_refs")),
         ]
     )
-    source_state = dict(enriched.get("source_state") or {})
+    source_state = _copy_optional_public_mapping(enriched.get("source_state"), field="source_state")
     source_state.update(
         {
             "layer3_g3_projection_policy": "reads_projection_only_search_resolution_refs",
@@ -1370,7 +2836,7 @@ def _apply_s10_forecast_projection(
 ) -> tuple[dict[str, object], dict[str, object] | None, dict[str, object] | None]:
     s10_projection = _s10_forecast_projection_record(projection_payload)
     if not s10_projection:
-        return dict(projection_semantics), None, None
+        return _copy_mapping(projection_semantics), None, None
     missing_refs = _s10_missing_machine_export_refs(s10_projection)
     if missing_refs:
         raise PublicExportRedactionError(
@@ -1385,7 +2851,7 @@ def _apply_s10_forecast_projection(
             _first_s10_issue_code(verification),
             "S10 forecast projection consumer contract must pass before public release.",
         )
-    enriched = dict(projection_semantics)
+    enriched = _copy_mapping(projection_semantics)
     limitations = _unique_texts(
         [
             *_text_list(enriched.get("limitations")),
@@ -1407,7 +2873,7 @@ def _apply_s10_forecast_projection(
             s10_projection.get("rule_version_ref"),
         ]
     )
-    source_state = dict(enriched.get("source_state") or {})
+    source_state = _copy_optional_public_mapping(enriched.get("source_state"), field="source_state")
     source_state.update(
         {
             "s10_forecast_support_ref": s10_projection.get("forecast_support_ref"),
@@ -1445,10 +2911,13 @@ def _s10_forecast_projection_record(
         or _text(projection_payload.get("forecast_tier"))
     ):
         return {}
-    authority_boundary = dict(
-        projection_payload.get("authority_boundary")
-        if isinstance(projection_payload.get("authority_boundary"), Mapping)
-        else {}
+    authority_boundary = _copy_public_mapping_if_present(
+        projection_payload.get("authority_boundary"),
+        field="authority_boundary",
+    )
+    welfare_comparison = _copy_public_mapping_if_present(
+        projection_payload.get("welfare_comparison"),
+        field="welfare_comparison",
     )
     return {
         "audience": "PUBLIC",
@@ -1479,9 +2948,7 @@ def _s10_forecast_projection_record(
         "uncertainty_interval_refs": _text_list(
             projection_payload.get("uncertainty_interval_refs")
         ),
-        "welfare_comparison": dict(projection_payload.get("welfare_comparison") or {})
-        if isinstance(projection_payload.get("welfare_comparison"), Mapping)
-        else {},
+        "welfare_comparison": welfare_comparison,
         "authority_boundary": authority_boundary,
         "limitations": _text_list(projection_payload.get("limitations")),
         "may_not_be_used_for": _unique_texts(
@@ -1503,10 +2970,9 @@ def _s11_predictive_projection_record(
         or _as_sequence(projection_payload.get("predictive_axis_rows"))
     ):
         return {}
-    authority_boundary = dict(
-        projection_payload.get("authority_boundary")
-        if isinstance(projection_payload.get("authority_boundary"), Mapping)
-        else {}
+    authority_boundary = _copy_public_mapping_if_present(
+        projection_payload.get("authority_boundary"),
+        field="authority_boundary",
     )
     return {
         "audience": "PUBLIC",
@@ -1525,7 +2991,7 @@ def _s11_predictive_projection_record(
             or projection_payload.get("axis_upgrade_refs")
         ),
         "predictive_axis_rows": [
-            dict(row)
+            _copy_mapping(row)
             for row in _as_sequence(projection_payload.get("predictive_axis_rows"))
             if isinstance(row, Mapping)
         ],
@@ -1559,8 +3025,9 @@ def _layer3_g3_analytics_search_projection_record(
     raw = projection_payload.get("layer3_g3_public_export_projection")
     if not isinstance(raw, Mapping):
         return {}
-    authority_boundary = dict(
-        raw.get("authority_boundary") if isinstance(raw.get("authority_boundary"), Mapping) else {}
+    authority_boundary = _copy_public_mapping_if_present(
+        raw.get("authority_boundary"),
+        field="authority_boundary",
     )
     may_not = _unique_texts(
         [
@@ -1601,10 +3068,9 @@ def _s12_resource_projection_record(
         or _text(projection_payload.get("explore_exploit_posture"))
     ):
         return {}
-    authority_boundary = dict(
-        projection_payload.get("authority_boundary")
-        if isinstance(projection_payload.get("authority_boundary"), Mapping)
-        else {}
+    authority_boundary = _copy_public_mapping_if_present(
+        projection_payload.get("authority_boundary"),
+        field="authority_boundary",
     )
     return {
         "audience": "PUBLIC",
@@ -1652,10 +3118,9 @@ def _s13_accountability_projection_record(
         or _text(projection_payload.get("public_accountability_note_ref"))
     ):
         return {}
-    authority_boundary = dict(
-        projection_payload.get("authority_boundary")
-        if isinstance(projection_payload.get("authority_boundary"), Mapping)
-        else {}
+    authority_boundary = _copy_public_mapping_if_present(
+        projection_payload.get("authority_boundary"),
+        field="authority_boundary",
     )
     return {
         "audience": "PUBLIC",
@@ -1708,7 +3173,7 @@ def _s13_public_revision_state(
     revision_state = projection_payload.get("public_revision_state")
     if not isinstance(revision_state, Mapping):
         return None
-    state = dict(revision_state)
+    state = _copy_mapping(revision_state)
     claim_ids = _unique_texts(
         [
             *_text_list(state.get("affected_claim_ids")),
@@ -1835,9 +3300,9 @@ def _apply_s9_projection_faithfulness(
 ) -> tuple[dict[str, object], dict[str, object] | None]:
     faithfulness = _s9_faithfulness_record(projection_payload)
     if not faithfulness:
-        return dict(projection_semantics), None
+        return _copy_mapping(projection_semantics), None
     verifier_payload = {
-        **dict(projection_semantics),
+        **_copy_mapping(projection_semantics),
         "projection_policy": "reads_canonical_design_record",
         "source_revision_ref": _text(
             projection_payload.get("source_revision_ref") or faithfulness.get("source_revision_ref")
@@ -1848,7 +3313,10 @@ def _apply_s9_projection_faithfulness(
         verifier_payload["omission_manifest"] = projection_payload["omission_manifest"]
     verification = verify_s9_projection_faithfulness_for_pdc_consumer_contract(
         projections={"public": verifier_payload},
-        expected_closeout_truth=dict(projection_semantics.get("closeout_truth") or {}),
+        expected_closeout_truth=_copy_optional_public_mapping(
+            projection_semantics.get("closeout_truth"),
+            field="closeout_truth",
+        ),
         expected_contested_record_ids=[
             _text(record.get("contested_record_id"))
             for record in _as_sequence(projection_semantics.get("contested_records"))
@@ -1861,7 +3329,7 @@ def _apply_s9_projection_faithfulness(
             code,
             "S9 projection faithfulness must pass before public release.",
         )
-    enriched = dict(projection_semantics)
+    enriched = _copy_mapping(projection_semantics)
     audit_refs = _unique_texts(
         [
             *_text_list(enriched.get("audit_refs")),
@@ -1870,7 +3338,7 @@ def _apply_s9_projection_faithfulness(
             *_text_list(projection_payload.get("lowering_append_refs")),
         ]
     )
-    source_state = dict(enriched.get("source_state") or {})
+    source_state = _copy_optional_public_mapping(enriched.get("source_state"), field="source_state")
     source_state.update(
         {
             "s9_source_revision_ref": _text(faithfulness.get("source_revision_ref")),
@@ -1897,15 +3365,16 @@ def _apply_s9_projection_faithfulness(
 
 def _s9_faithfulness_record(payload: Mapping[str, object]) -> dict[str, object]:
     record = payload.get("s9_projection_faithfulness")
-    if record is None and isinstance(payload.get("s9_projection"), Mapping):
-        record = dict(payload["s9_projection"]).get("s9_projection_faithfulness")
+    s9_projection = payload.get("s9_projection")
+    if record is None and isinstance(s9_projection, Mapping):
+        record = s9_projection.get("s9_projection_faithfulness")
     if isinstance(record, Mapping):
-        return dict(record)
+        return _copy_public_mapping(record, field="s9_projection_faithfulness")
     model_dump = getattr(record, "model_dump", None)
     if callable(model_dump):
         dumped = model_dump(mode="json")
         if isinstance(dumped, Mapping):
-            return dict(dumped)
+            return _copy_public_mapping(dumped, field="s9_projection_faithfulness")
     return {}
 
 
@@ -1971,7 +3440,7 @@ def _assert_public_export_candidate_firewall(artifacts: Mapping[str, object]) ->
 
 def _assert_public_welfare_frontier_surface(payload: Mapping[str, object]) -> None:
     scalar_keys = {
-        key for key, value in payload.items() if key in _SCALAR_WELFARE_KEYS and value is not None
+        key for key in payload if key in _SCALAR_WELFARE_KEYS and payload[key] is not None
     }
     if not scalar_keys:
         return
@@ -1994,7 +3463,7 @@ def _find_hypothesis_ledger(value: object) -> Mapping[str, object] | None:
         ledger = value.get("hypothesis_ledger")
         if isinstance(ledger, Mapping):
             return ledger
-        for item in value.values():
+        for _, item in _iter_mapping_items(value):
             found = _find_hypothesis_ledger(item)
             if found is not None:
                 return found
@@ -2009,7 +3478,7 @@ def _find_hypothesis_ledger(value: object) -> Mapping[str, object] | None:
 def _iter_omitted_claim_ids(value: object) -> list[str]:
     found: list[str] = []
     if isinstance(value, Mapping):
-        for key, item in value.items():
+        for key, item in _iter_mapping_items(value):
             lowered = str(key).casefold()
             if lowered in {"omitted_claim_ids", "omitted_blocked_claim_ids"}:
                 found.extend(str(claim_id) for claim_id in _as_sequence(item) if str(claim_id))
@@ -2049,7 +3518,7 @@ def _iter_drift_explanations(value: object) -> Sequence[Mapping[str, object]]:
     if isinstance(value, Mapping):
         if _looks_like_drift_explanation(value):
             found.append(value)
-        for key, item in value.items():
+        for key, item in _iter_mapping_items(value):
             if key == "drift_explanation" and isinstance(item, Mapping):
                 found.append(item)
             else:
@@ -2072,8 +3541,8 @@ def _iter_rule_evolution_annotations(value: object) -> list[dict[str, object]]:
     found: list[dict[str, object]] = []
     if isinstance(value, Mapping):
         if _looks_like_rule_evolution_annotation(value):
-            found.append(dict(value))
-        for item in value.values():
+            found.append(_copy_mapping(value))
+        for _, item in _iter_mapping_items(value):
             found.extend(_iter_rule_evolution_annotations(item))
     elif isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
         for item in value:
@@ -2085,8 +3554,8 @@ def _iter_public_revision_states(value: object) -> list[dict[str, object]]:
     found: list[dict[str, object]] = []
     if isinstance(value, Mapping):
         if _looks_like_public_revision_state(value):
-            found.append(dict(value))
-        for item in value.values():
+            found.append(_copy_mapping(value))
+        for _, item in _iter_mapping_items(value):
             found.extend(_iter_public_revision_states(item))
     elif isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
         for item in value:
@@ -2245,7 +3714,6 @@ def _authority_projection(envelope: AuthorityEnvelopeInput) -> dict[str, object]
             closure.closure_sha256 or closure.closure_id
         ),
         "tenant_redacted": True,
-        "tenant_fingerprint": _fingerprint(validated.tenant_id),
     }
 
 
@@ -2264,10 +3732,60 @@ def _text_list(value: object) -> list[str]:
 
 
 def _int(value: object) -> int:
-    try:
-        return max(0, int(value or 0))
-    except (TypeError, ValueError):
+    if not value or not isinstance(value, (str, bytes, bytearray, SupportsInt)):
         return 0
+    try:
+        return max(0, int(value))
+    except (OverflowError, TypeError, ValueError):
+        return 0
+
+
+def _copy_public_mapping(value: object, *, field: str) -> dict[str, object]:
+    """Copy a JSON-shaped mapping without losing its string-key contract."""
+
+    if not isinstance(value, Mapping):
+        raise PublicExportRedactionError(
+            "public_export_mapping_invalid",
+            f"{field} must be a mapping.",
+        )
+    copied: dict[str, object] = {}
+    for key, item in _iter_mapping_items(value):
+        if not isinstance(key, str):
+            raise PublicExportRedactionError(
+                "public_export_mapping_key_invalid",
+                f"{field} keys must be strings.",
+            )
+        copied[key] = item
+    return copied
+
+
+def _copy_optional_public_mapping(value: object, *, field: str) -> dict[str, object]:
+    """Copy an optional mapping, preserving absence as an empty projection."""
+
+    if value is None:
+        return {}
+    return _copy_public_mapping(value, field=field)
+
+
+def _copy_public_mapping_if_present(value: object, *, field: str) -> dict[str, object]:
+    """Copy a supplied mapping, retaining the existing absent/non-mapping fallback."""
+
+    if not isinstance(value, Mapping):
+        return {}
+    return _copy_public_mapping(value, field=field)
+
+
+def _copy_public_sequence(value: object, *, field: str) -> list[object]:
+    """Copy an optional JSON sequence while rejecting text and non-sequences."""
+
+    if value is None:
+        return []
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        return list(value)
+    raise PublicExportRedactionError(
+        "public_export_sequence_invalid",
+        f"{field} must be a sequence.",
+    )
 
 
 def _unique_texts(values: Sequence[object]) -> list[str]:

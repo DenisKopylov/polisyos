@@ -28,6 +28,9 @@ from polisyos.scientist.methods.search.objective import (
 )
 from polisyos.scientist.methods.search.stage_contracts import SearchStage, StageResult
 from polisyos.scientist.methods.search.uncertainty import (
+    SearchUncertaintyCurrentRead as SearchUncertaintyCurrentRead,
+)
+from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope as UncertaintyEnvelope,
 )
 from polisyos.scientist.methods.search.uncertainty import (
@@ -469,6 +472,9 @@ class FunnelTicket(_FunnelTicketMethodMetricCapabilitySlot):
     lineage: tuple[str, ...] = ()
     continuation_reason: str | None = None
     terminal_basis: str | None = None
+    search_uncertainty_ticket_id: str | None = None
+    search_uncertainty_generation: int | None = None
+    search_uncertainty_task_binding_ref: ArtifactRef | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "_method_metric_projection_basis", None)
@@ -534,6 +540,7 @@ class FunnelOutcome:
     current_uncertainty_envelope: UncertaintyEnvelope | None = None
     uncertainty_observation_refs: list[ArtifactRef] = field(default_factory=list)
     uncertainty_intake_failures: list[str] = field(default_factory=list)
+    search_uncertainty_current_read: SearchUncertaintyCurrentRead | None = None
 
     def __post_init__(self) -> None:
         _validate_funnel_cost(self.compute_cost_usd, self.compute_cost_origin)

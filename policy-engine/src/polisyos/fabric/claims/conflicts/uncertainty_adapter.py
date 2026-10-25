@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
@@ -11,7 +12,9 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-from polisyos.ir.world.conflict import ConflictResolutionCandidate, ConflictSetResolution
+
+if TYPE_CHECKING:
+    from polisyos.ir.world.conflict import ConflictResolutionCandidate, ConflictSetResolution
 
 
 def _as_score(value: str) -> float:

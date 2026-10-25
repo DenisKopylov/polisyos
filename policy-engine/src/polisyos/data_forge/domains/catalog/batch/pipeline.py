@@ -58,7 +58,7 @@ _STAGE_RULE_VERSIONS = {
     "graph_index": "policyos.catalog.graph_index.v1",
     "embed": "policyos.catalog.embed.v2",
     "benchmark": "policyos.catalog.benchmark.v2",
-    "qc": "policyos.catalog.qc.v2",
+    "qc": "policyos.catalog.qc.v3",
     "publish": "policyos.catalog.publish.v2",
 }
 
@@ -410,7 +410,12 @@ def _stage_outputs(config: DatasetBatchConfig, stage: str) -> list:
         "core_sources_ingest": [config.manifests_dir / "core_sources_ingest.json"],
         "embed": [config.index_dir / "embedding_generation.json"],
         "benchmark": [config.benchmark_report_path, config.manifests_dir / "benchmark.json"],
-        "qc": [config.qc_report_path, config.manifests_dir / "qc.json"],
+        "qc": [
+            config.qc_report_path,
+            config.manifests_dir / "qc.json",
+            config.component_dir / "coverage_heatmap.json",
+            config.component_dir / "observed_support.json",
+        ],
         "publish": [
             config.publish_manifest_path,
             config.consumer_readiness_path,
@@ -1252,7 +1257,11 @@ def run_content_stage_with_receipt(
     elif stage == "qc":
         from polisyos.data_forge.domains.catalog.batch.qc import run_qc
 
-        result = run_qc(config, fail_fast=config.fail_fast_qc)
+        result = run_qc(
+            config,
+            fail_fast=config.fail_fast_qc,
+            _content_basis=initial_basis,
+        )
         stage_metadata = {"passed": bool(result.passed)}
     else:
         from polisyos.data_forge.domains.catalog.batch.publish import run_publish

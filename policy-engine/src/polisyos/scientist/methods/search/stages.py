@@ -14,6 +14,12 @@ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreAdmission as ObjectiveScoreAdmission,
+)
+from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreAssessment as ObjectiveScoreAssessment,
+)
+from polisyos.scientist.methods.search.objective import (
     ObjectiveScoreStatus,
     _apply_default_search_objective_limitations,
     _assess_default_search_objective,

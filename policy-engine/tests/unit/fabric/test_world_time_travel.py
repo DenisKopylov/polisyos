@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import shutil
+from decimal import Decimal
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -28,7 +30,33 @@ from polisyos.fabric.world.store import (
     register_world_snapshot_record,
     resolve_world_snapshot,
 )
+from polisyos.fabric.world.store.snapshots import _normalize_row_value, _rows_equivalent
 from polisyos.runtime.http.services.temporal import TemporalService
+
+
+def test_snapshot_row_comparison_normalizes_scalar_nulls_and_rejects_arrays() -> None:
+    timestamp = pd.Timestamp("2026-01-01T00:00:00Z")
+
+    assert _normalize_row_value(pd.NA) is None
+    assert _normalize_row_value(pd.NaT) is None
+    period_nat = pd.Period("NaT", freq="D")
+    interval = pd.Interval(1, 2, closed="both")
+    assert _normalize_row_value(period_nat) is None
+    assert _normalize_row_value(interval) == interval
+    assert _normalize_row_value(float("nan")) is None
+    assert _normalize_row_value(np.float32("nan")) is None
+    assert _normalize_row_value(complex(float("nan"), 0.0)) is None
+    assert _normalize_row_value(np.complex64(complex(float("nan"), 0.0))) is None
+    assert _normalize_row_value(Decimal("NaN")) is None
+    assert _normalize_row_value(np.datetime64("NaT")) is None
+    assert _normalize_row_value(timestamp) == timestamp.isoformat()
+    assert _rows_equivalent({"nullable": pd.NA}, {"nullable": None})
+
+    with pytest.raises(ValueError, match="world snapshot row values must be scalar"):
+        _rows_equivalent(
+            {"unsupported": pd.Series([1])},
+            {"unsupported": pd.Series([1])},
+        )
 
 
 def _insert_node_attr_fact(
@@ -698,9 +726,12 @@ def test_world_branch_merge_uses_backend_transaction_and_rolls_back_programmer_e
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from collections.abc import Iterator
     from contextlib import contextmanager
-    from types import SimpleNamespace
 
+    import duckdb
+
+    from polisyos.core.security import DuckDBLegacyBackend
     from polisyos.fabric.world.store import snapshots
 
     snapshot_root = tmp_path / "rollback_snapshots"
@@ -720,34 +751,35 @@ def test_world_branch_merge_uses_backend_transaction_and_rolls_back_programmer_e
     create_world_branch(
         snapshot_root, branch_name="rollback_source", base_snapshot_id=base.snapshot_id
     )
-    original_backend = SimulationDB.as_backend
-    rollback_observations = []
+    original_transaction = DuckDBLegacyBackend.transaction
+    transaction_entries: list[bool] = []
+    rollback_observations: list[int] = []
+    fresh_reader_observations: list[int] = []
 
-    def observed_backend(db):
-        backend = original_backend(db)
+    @contextmanager
+    def observed_transaction(backend: DuckDBLegacyBackend) -> Iterator[None]:
+        transaction_entries.append(True)
+        try:
+            with original_transaction(backend):
+                yield
+        finally:
+            owner = backend._db
+            query = "SELECT COUNT(*) FROM world.world_nodes WHERE label = 'rollback me'"
+            rollback_observations.append(owner.conn.execute(query).fetchone()[0])
+            with duckdb.connect(owner.db_path) as fresh_reader:
+                fresh_reader_observations.append(fresh_reader.execute(query).fetchone()[0])
 
-        @contextmanager
-        def transaction():
-            try:
-                with backend.transaction():
-                    yield
-            finally:
-                rollback_observations.append(
-                    db.conn.execute(
-                        "SELECT COUNT(*) FROM world.world_nodes WHERE label = 'rollback me'"
-                    ).fetchone()[0]
-                )
-
-        return SimpleNamespace(transaction=transaction)
-
-    def fail_after_write(db, **kwargs):
+    def fail_after_write(db: SimulationDB, *, source_db: SimulationDB) -> None:
+        del source_db
         db.conn.execute("UPDATE world.world_nodes SET label = 'rollback me'")
         raise AssertionError("merge implementation failed")
 
-    monkeypatch.setattr(SimulationDB, "as_backend", observed_backend)
+    monkeypatch.setattr(DuckDBLegacyBackend, "transaction", observed_transaction)
     monkeypatch.setattr(snapshots, "_refresh_merged_world_nodes", fail_after_write)
     with pytest.raises(AssertionError, match="merge implementation failed"):
         merge_world_branch(snapshot_root, branch_name="rollback_source")
+    assert transaction_entries == [True]
     assert rollback_observations == [0]
+    assert fresh_reader_observations == [0]
     assert snapshots.get_world_branch(snapshot_root, "main").head_snapshot_id == base.snapshot_id
     assert not list(snapshot_root.glob(".merge_*.duckdb"))

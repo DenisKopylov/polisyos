@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-from polisyos.ir.connectors import ConnectorMetadataSpec
+if TYPE_CHECKING:
+    from polisyos.ir.connectors import ConnectorMetadataSpec
 
 __all__ = [
     "ConnectorGovernanceMetadataIssue",

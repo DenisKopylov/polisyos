@@ -17,13 +17,15 @@ export function RunInspectorProvider({
   runId,
 }: PropsWithChildren<{ runId: string }>) {
   const { t } = useI18n();
-  const live = useRunLiveUpdates(runId);
-  const summary = useRunDetailSummary(runId, t, {
+  const summary = useRunDetailSummary(runId, t);
+  const live = useRunLiveUpdates(summary.coreRunId);
+  const currentSummary = {
+    ...summary,
     liveTransport: live.isLiveConnected,
-  });
+  };
 
   return (
-    <RunInspectorContext.Provider value={summary}>
+    <RunInspectorContext.Provider value={currentSummary}>
       {children}
     </RunInspectorContext.Provider>
   );

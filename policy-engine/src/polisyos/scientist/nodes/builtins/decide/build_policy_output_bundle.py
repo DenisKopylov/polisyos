@@ -203,26 +203,44 @@ class BuildPolicyOutputBundleNode:
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         if not _is_policy_mode(state):
             return NodeOutcome(status="skip", state=state)
-        state = project_policy_promotion_state(state, ctx=ctx)
+        expected_frontier_loop_id = str(
+            state.params.get("policy_loop_id") or f"{state.run_id}:policy_search"
+        )
+        run_local_frontier_ref, frontier_ref_reason = (
+            _resolve_run_local_candidate_frontier_report_ref(
+                ctx.store,
+                state.artifacts_index.get(ARTIFACT_POLICY_FRONTIER_REPORT_REF),
+                expected_run_id=state.run_id,
+                expected_loop_id=expected_frontier_loop_id,
+            )
+        )
+        preserved_frontier_refs = (
+            {ARTIFACT_POLICY_FRONTIER_REPORT_REF: run_local_frontier_ref}
+            if run_local_frontier_ref is not None
+            else {}
+        )
+        if _current_policy_output_bundle_ref(state) is not None:
+            state = _prepare_policy_candidate_state_for_direct_consumer(
+                ctx,
+                state,
+                preserve_source_bound_candidate_bundle=True,
+            )
+        else:
+            state = project_policy_promotion_state(
+                state,
+                ctx=ctx,
+                branch_write_paths=_SPEC.state_writes,
+                preserved_artifact_refs=preserved_frontier_refs,
+            )
         current_promotion_result, _promotion_reason = _resolve_current_policy_promotion_result(
             state
         )
         if (
-            state.policy_output_bundle_ref is not None
+            current_promotion_result is None
+            and state.policy_output_bundle_ref is not None
             and ARTIFACT_POLICY_OUTPUT_BUNDLE_REF in state.artifacts_index
         ):
-            try:
-                existing_bundle = load_policy_artifact_bundle(
-                    ctx.store, state.policy_output_bundle_ref
-                )
-            except _OPTIONAL_ARTIFACT_LOAD_ERRORS:
-                existing_bundle = None
-            if existing_bundle is not None and not (
-                existing_bundle.promotion_result is not None
-                and existing_bundle.promotion_result.promotion_decision.promoted
-                and current_promotion_result is None
-            ):
-                return NodeOutcome(status="ok", state=state)
+            return NodeOutcome(status="ok", state=state)
 
         candidate, candidate_ref = _resolve_candidate(ctx, state)
         if candidate is None:
@@ -270,17 +288,6 @@ class BuildPolicyOutputBundleNode:
         pareto_snapshot = _parse_model(
             state.params.get("pareto_registry_snapshot"),
             ParetoRegistrySnapshot,
-        )
-        expected_frontier_loop_id = str(
-            state.params.get("policy_loop_id") or f"{state.run_id}:policy_search"
-        )
-        run_local_frontier_ref, frontier_ref_reason = (
-            _resolve_run_local_candidate_frontier_report_ref(
-                ctx.store,
-                state.artifacts_index.get(ARTIFACT_POLICY_FRONTIER_REPORT_REF),
-                expected_run_id=state.run_id,
-                expected_loop_id=expected_frontier_loop_id,
-            )
         )
         if promotion_result is None:
             policy_brief = None
@@ -604,8 +611,21 @@ def _prepare_policy_candidate_state_for_direct_consumer(
     """Remove caller promotion state, retaining only a fully source-bound candidate bundle."""
     if not _is_policy_mode(state):
         return state
+    expected_frontier_loop_id = str(
+        state.params.get("policy_loop_id") or f"{state.run_id}:policy_search"
+    )
+    run_local_frontier_ref, _ = _resolve_run_local_candidate_frontier_report_ref(
+        ctx.store,
+        state.artifacts_index.get(ARTIFACT_POLICY_FRONTIER_REPORT_REF),
+        expected_run_id=state.run_id,
+        expected_loop_id=expected_frontier_loop_id,
+    )
     preserved_state_refs: dict[str, ArtifactRef] = {}
-    preserved_artifact_refs: dict[str, ArtifactRef] = {}
+    preserved_artifact_refs = (
+        {ARTIFACT_POLICY_FRONTIER_REPORT_REF: run_local_frontier_ref}
+        if run_local_frontier_ref is not None
+        else {}
+    )
     if preserve_source_bound_candidate_bundle:
         candidate_view = project_policy_promotion_state(state, archive_prior=False, ctx=ctx)
         candidate, candidate_ref = _resolve_candidate(ctx, candidate_view)
@@ -619,6 +639,7 @@ def _prepare_policy_candidate_state_for_direct_consumer(
                 existing_ref,
                 candidate=candidate,
                 candidate_ref=candidate_ref,
+                run_local_frontier_ref=run_local_frontier_ref,
             )
         ):
             bundle = load_policy_artifact_bundle(ctx.store, existing_ref)
@@ -672,12 +693,27 @@ def _candidate_only_bundle_matches_source(
     *,
     candidate: PolicyCandidateSchema,
     candidate_ref: ArtifactRef | None,
+    run_local_frontier_ref: ArtifactRef | None,
 ) -> bool:
     """Recompute the persisted candidate-only bundle's complete runtime source binding."""
     try:
         bundle = load_policy_artifact_bundle(ctx.store, bundle_ref)
         audit = load_replayable_audit_bundle(ctx.store, bundle.replayable_audit_bundle_ref)
     except _OPTIONAL_ARTIFACT_LOAD_ERRORS:
+        return False
+
+    expected_frontier_loop_id = str(
+        state.params.get("policy_loop_id") or f"{state.run_id}:policy_search"
+    )
+    cached_run_local_frontier_ref, _frontier_reason = (
+        _resolve_run_local_candidate_frontier_report_ref(
+            ctx.store,
+            bundle.policy_frontier_report_ref,
+            expected_run_id=state.run_id,
+            expected_loop_id=expected_frontier_loop_id,
+        )
+    )
+    if not _same_artifact_ref(run_local_frontier_ref, cached_run_local_frontier_ref):
         return False
 
     if (
@@ -770,10 +806,16 @@ def _resolve_candidate(
     if source_pointer is None or trinity_ref is None:
         return None, None
     bundle = load_trinity_bundle_artifact(_ensure_ir_artifact_store(ctx.store), trinity_ref)
+    if "policy_candidate_id" not in state.params:
+        candidate_id = bundle.policy_spec.policy_id
+    else:
+        candidate_id = state.params["policy_candidate_id"]
+        if not isinstance(candidate_id, str) or not candidate_id:
+            raise ValueError("policy_candidate_id_invalid")
     return (
         PolicyCandidateSchema.from_trinity_bundle(
             bundle,
-            candidate_id=str(state.params.get("policy_candidate_id") or state.run_id),
+            candidate_id=candidate_id,
             metadata={"workflow_id": str(state.params.get("workflow_id") or "")},
         ),
         trinity_ref,

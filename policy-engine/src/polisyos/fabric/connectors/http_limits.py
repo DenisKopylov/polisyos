@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import AsyncIterator, Callable
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
 from polisyos.core import scan_secret_and_pii
 from polisyos.fabric.connectors.base import (
@@ -12,6 +11,9 @@ from polisyos.fabric.connectors.base import (
     _is_runtime_callable,
 )
 from polisyos.fabric.connectors.types import FetchError
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator, Callable
 
 
 class _BeforeClassification(Protocol):

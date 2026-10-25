@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import math
 from collections.abc import Sequence
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.protocol import ArtifactStore, CoreJSONArtifactStore
+from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.foundry import (
     ObservedRange,
@@ -31,7 +32,7 @@ _REQUIRED_OBSERVABLES: dict[str, tuple[str, ...]] = {
 
 
 def persist_observed_range_bundle(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     bundle: ObservedRangeBundle,
     *,
     inputs: list[InputRef] | None = None,
@@ -53,7 +54,7 @@ def persist_observed_range_bundle(
 
 
 def load_observed_range_bundle(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     ref: ArtifactRef | ObservedRangeBundleRef,
 ) -> ObservedRangeBundle:
     """Load an observed/calibrated range bundle."""
@@ -63,7 +64,7 @@ def load_observed_range_bundle(
 
 
 def persist_welfare_bound_report(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     report: WelfareBoundReport,
     *,
     inputs: list[InputRef] | None = None,
@@ -85,7 +86,7 @@ def persist_welfare_bound_report(
 
 
 def load_welfare_bound_report(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     ref: ArtifactRef | WelfareBoundReportRef,
 ) -> WelfareBoundReport:
     """Load a persisted welfare-bound report."""
@@ -121,6 +122,7 @@ def safe_compute_mechanism_welfare_bound_report(
         )
     except Exception as exc:  # pragma: no cover - defensive envelope
         return WelfareBoundReport(
+            schema_version="1.0",
             mechanism_type=mechanism_type,
             node_id=node_id,
             mode=_coerce_mode(mode),
@@ -183,7 +185,7 @@ def _compute_labor_market_report(
     *,
     node_id: str | None,
     target_mask: Any,
-    mode: str,
+    mode: Literal["ex_ante", "ex_post", "both"],
 ) -> WelfareBoundReport:
     report = _base_report("labor_market", node_id=node_id, mode=mode)
     wages = np.asarray(state_before.firms.wage_offer, dtype=np.float64)
@@ -289,7 +291,7 @@ def _compute_income_tax_report(
     *,
     node_id: str | None,
     target_mask: Any,
-    mode: str,
+    mode: Literal["ex_ante", "ex_post", "both"],
 ) -> WelfareBoundReport:
     report = _base_report("income_tax", node_id=node_id, mode=mode)
     rate = _coerce_rate(getattr(mechanism, "rate", None))
@@ -436,7 +438,7 @@ def _compute_tax_subsidy_report(
     *,
     node_id: str | None,
     target_mask: Any,
-    mode: str,
+    mode: Literal["ex_ante", "ex_post", "both"],
 ) -> WelfareBoundReport:
     report = _base_report("tax_subsidy", node_id=node_id, mode=mode)
     xstar_range = _get_range(observed_ranges, "tax_subsidy.first_best_transfer")
@@ -541,8 +543,14 @@ def _compute_tax_subsidy_report(
     )
 
 
-def _base_report(mechanism_type: str, *, node_id: str | None, mode: str) -> WelfareBoundReport:
+def _base_report(
+    mechanism_type: str,
+    *,
+    node_id: str | None,
+    mode: Literal["ex_ante", "ex_post", "both"],
+) -> WelfareBoundReport:
     return WelfareBoundReport(
+        schema_version="1.0",
         mechanism_type=mechanism_type,
         node_id=node_id,
         mode=mode,
@@ -550,9 +558,13 @@ def _base_report(mechanism_type: str, *, node_id: str | None, mode: str) -> Welf
     )
 
 
-def _coerce_mode(value: str) -> str:
-    if value in {"ex_ante", "ex_post", "both"}:
-        return value
+def _coerce_mode(value: str) -> Literal["ex_ante", "ex_post", "both"]:
+    if value == "ex_ante":
+        return "ex_ante"
+    if value == "ex_post":
+        return "ex_post"
+    if value == "both":
+        return "both"
     return "ex_ante"
 
 

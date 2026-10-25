@@ -6,6 +6,7 @@ from collections.abc import Mapping
 from typing import Any
 
 from pydantic import ValidationError
+from pydantic.fields import FieldInfo
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
@@ -16,8 +17,10 @@ from polisyos.core.artifacts.manifest import (
     input_ref_from_artifact_ref,
 )
 from polisyos.core.contracts.decision_validity import (
+    DecisionBasisSection,
     DecisionDependencyKind,
     DecisionDependencyRef,
+    DecisionValidityEnvelope,
 )
 from polisyos.ir.registry.refs import (
     SensitivityAnalysisBundleRef,
@@ -440,6 +443,28 @@ def _load_json_payload_by_ref(
     return None
 
 
+def _validated_decision_validity_envelope_payload(value: object) -> dict[str, object]:
+    """Validate present typed basis sections before generic reference traversal."""
+    if not isinstance(value, Mapping):
+        raise ValueError("decision_packet_manifest_envelope_invalid")
+    payload = dict(value)
+    if not payload:
+        # The sole producer assigns a typed model dump; a present empty object is malformed.
+        raise ValueError("decision_packet_manifest_envelope_invalid")
+
+    for field_name, field_info in DecisionValidityEnvelope.model_fields.items():
+        if field_info.annotation is not DecisionBasisSection or field_name not in payload:
+            continue
+        try:
+            DecisionBasisSection.model_validate(payload[field_name])
+        except (TypeError, ValueError) as exc:
+            raise ValueError("decision_packet_manifest_reference_invalid") from exc
+
+    # The manifest collector needs typed basis references, not defaulted identity fields.
+    # Keep the original JSON values so validation cannot synthesize omitted content.
+    return payload
+
+
 def _build_manifest_inputs(
     packet_payload: dict[str, object],
     *,
@@ -501,14 +526,213 @@ def _build_manifest_inputs(
         ("judge_verdict_ref", "judge_verdict"),
     ):
         section = packet_payload.get(section_name)
+        if section_name == "decision_validity_envelope" and section_name in packet_payload:
+            section = _validated_decision_validity_envelope_payload(section)
         _collect_manifest_refs(
             section,
             prefix,
             collected,
             source_refs_by_id=source_refs_by_id,
             source_refs_by_role=source_refs_by_role,
+            allow_bare_reference=section_name == "inputs",
+            reference_children=section_name == "inputs",
         )
     return list(collected.values())
+
+
+def _unique_source_refs(
+    artifact_id: ArtifactID,
+    source_refs_by_id: Mapping[str, list[ArtifactRef]] | None,
+) -> tuple[ArtifactRef, ...]:
+    """Return distinct selected source views for one exact artifact id."""
+    refs = (source_refs_by_id or {}).get(str(artifact_id), [])
+    unique: dict[tuple[str, str, str, str | None], ArtifactRef] = {}
+    for ref in refs:
+        unique[artifact_ref_identity_key(ref)] = ref
+    return tuple(unique.values())
+
+
+def _input_ref_for_artifact(
+    artifact_id: ArtifactID,
+    role: str,
+    *,
+    source_refs_by_id: Mapping[str, list[ArtifactRef]] | None,
+    profile_sha256: str | None = None,
+    kind: str | None = None,
+    media_type: str | None = None,
+) -> InputRef:
+    """Bind one declared artifact identity to its exact available source view."""
+    candidates = _unique_source_refs(artifact_id, source_refs_by_id)
+    matching = tuple(
+        ref
+        for ref in candidates
+        if (profile_sha256 is None or ref.manifest_profile_sha256 == profile_sha256)
+        and (kind is None or ref.kind == kind)
+        and (media_type is None or ref.media_type == media_type)
+    )
+    if candidates and not matching:
+        raise ValueError("decision_packet_manifest_input_profile_mismatch")
+    if len(matching) > 1:
+        raise ValueError("decision_packet_manifest_input_profile_ambiguous")
+    if matching:
+        return input_ref_from_artifact_ref(matching[0], role=role)
+    return InputRef(
+        artifact_id=artifact_id,
+        role=role,
+        manifest_profile_sha256=profile_sha256,
+    )
+
+
+def _record_manifest_input(
+    input_ref: InputRef,
+    role: str,
+    collected: dict[tuple[str, str], InputRef],
+) -> None:
+    key = (input_ref.artifact_id.hex, role)
+    existing = collected.get(key)
+    if existing is not None and existing != input_ref:
+        raise ValueError("decision_packet_manifest_input_profile_mismatch")
+    collected[key] = input_ref
+
+
+def _is_ref_field(field_name: str) -> bool:
+    """Recognize scalar wire fields whose declared meaning is an artifact reference."""
+    return field_name == "artifact_id" or field_name.endswith(
+        ("_ref", "_refs", "_reference", "_references")
+    )
+
+
+def _is_ref_collection_field(field_name: str) -> bool:
+    """Recognize fields that contain a collection of references."""
+    return field_name.endswith(("_refs", "_references"))
+
+
+def _has_required_reference_fields(
+    keys: set[str],
+    fields: Mapping[str, FieldInfo],
+) -> bool:
+    return all(name in keys for name, field in fields.items() if field.is_required())
+
+
+def _parse_reference_mapping(
+    value: Mapping[str, object],
+    *,
+    declared_reference_context: bool,
+) -> InputRef | ArtifactRef | DecisionDependencyRef | None:
+    """Parse one complete typed reference variant or refuse malformed records."""
+    string_keys = {key for key in value if isinstance(key, str)}
+    has_non_string_key = len(string_keys) != len(value)
+    has_complete_shape = any(
+        _has_required_reference_fields(string_keys, fields)
+        for fields in (
+            InputRef.model_fields,
+            ArtifactRef.model_fields,
+            DecisionDependencyRef.model_fields,
+        )
+    )
+    if not declared_reference_context and not has_complete_shape:
+        return None
+    if has_non_string_key:
+        raise ValueError("decision_packet_manifest_reference_invalid")
+
+    payload = dict(value)
+    candidates: list[InputRef | ArtifactRef | DecisionDependencyRef] = []
+    try:
+        candidates.append(InputRef.model_validate(payload))
+    except (TypeError, ValueError):
+        pass
+    try:
+        candidates.append(ArtifactRef.model_validate(payload))
+    except (TypeError, ValueError):
+        pass
+    try:
+        candidates.append(DecisionDependencyRef.model_validate(payload))
+    except (TypeError, ValueError):
+        pass
+
+    if len(candidates) != 1:
+        raise ValueError("decision_packet_manifest_reference_invalid")
+    return candidates[0]
+
+
+def _collect_dependency_reference(
+    dependency: DecisionDependencyRef,
+    role_prefix: str,
+    collected: dict[tuple[str, str], InputRef],
+    *,
+    source_refs_by_id: Mapping[str, list[ArtifactRef]] | None,
+    source_refs_by_role: Mapping[str, ArtifactRef] | None,
+) -> None:
+    profile_sha256 = dependency.metadata.get("manifest_profile_sha256")
+    if dependency.artifact_id is None:
+        if profile_sha256 is not None:
+            raise ValueError("decision_packet_manifest_dependency_profile_without_artifact")
+    else:
+        try:
+            artifact_id = ArtifactID.model_validate(dependency.artifact_id)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("decision_packet_manifest_dependency_ref_invalid") from exc
+        if profile_sha256 is not None and not isinstance(profile_sha256, str):
+            raise ValueError("decision_packet_manifest_dependency_profile_invalid")
+        input_ref = _input_ref_for_artifact(
+            artifact_id,
+            role_prefix,
+            source_refs_by_id=source_refs_by_id,
+            profile_sha256=profile_sha256,
+        )
+        _record_manifest_input(input_ref, role_prefix, collected)
+
+    for key, nested in dependency.metadata.items():
+        if key == "manifest_profile_sha256":
+            continue
+        is_collection = _is_ref_collection_field(key)
+        _collect_manifest_refs(
+            nested,
+            f"{role_prefix}.metadata.{key}",
+            collected,
+            source_refs_by_id=source_refs_by_id,
+            source_refs_by_role=source_refs_by_role,
+            allow_bare_reference=_is_ref_field(key),
+            reference_context=_is_ref_field(key) and not is_collection,
+            reference_children=is_collection,
+        )
+
+
+def _collect_typed_reference(
+    reference: InputRef | ArtifactRef | DecisionDependencyRef,
+    role_prefix: str,
+    collected: dict[tuple[str, str], InputRef],
+    *,
+    source_refs_by_id: Mapping[str, list[ArtifactRef]] | None,
+    source_refs_by_role: Mapping[str, ArtifactRef] | None,
+) -> None:
+    if isinstance(reference, DecisionDependencyRef):
+        _collect_dependency_reference(
+            reference,
+            role_prefix,
+            collected,
+            source_refs_by_id=source_refs_by_id,
+            source_refs_by_role=source_refs_by_role,
+        )
+        return
+
+    if isinstance(reference, ArtifactRef):
+        input_ref = _input_ref_for_artifact(
+            reference.artifact_id,
+            role_prefix,
+            source_refs_by_id=source_refs_by_id,
+            profile_sha256=reference.manifest_profile_sha256,
+            kind=reference.kind,
+            media_type=reference.media_type,
+        )
+    else:
+        input_ref = _input_ref_for_artifact(
+            reference.artifact_id,
+            role_prefix,
+            source_refs_by_id=source_refs_by_id,
+            profile_sha256=reference.manifest_profile_sha256,
+        )
+    _record_manifest_input(input_ref, role_prefix, collected)
 
 
 def _collect_manifest_refs(
@@ -518,28 +742,44 @@ def _collect_manifest_refs(
     *,
     source_refs_by_id: Mapping[str, list[ArtifactRef]] | None = None,
     source_refs_by_role: Mapping[str, ArtifactRef] | None = None,
+    allow_bare_reference: bool = False,
+    allow_source_bound_bare_reference: bool = False,
+    reference_context: bool = False,
+    reference_children: bool = False,
 ) -> None:
+    if isinstance(value, (InputRef, ArtifactRef, DecisionDependencyRef)):
+        _collect_typed_reference(
+            value,
+            role_prefix,
+            collected,
+            source_refs_by_id=source_refs_by_id,
+            source_refs_by_role=source_refs_by_role,
+        )
+        return
+
     if isinstance(value, str):
         try:
             artifact_id = ArtifactID.model_validate(value)
         except (ValidationError, ValueError, TypeError):
             return
+        source_candidates = _unique_source_refs(artifact_id, source_refs_by_id)
+        if not allow_bare_reference and not (
+            allow_source_bound_bare_reference and source_candidates
+        ):
+            return
         selected_ref = (source_refs_by_role or {}).get(role_prefix)
         if selected_ref is not None and selected_ref.artifact_id == artifact_id:
             input_ref = input_ref_from_artifact_ref(selected_ref, role=role_prefix)
         else:
-            candidates = (source_refs_by_id or {}).get(str(artifact_id), [])
-            if len(candidates) > 1:
-                raise ValueError("decision_packet_manifest_input_profile_ambiguous")
-            input_ref = (
-                input_ref_from_artifact_ref(candidates[0], role=role_prefix)
-                if candidates
-                else InputRef(artifact_id=artifact_id, role=role_prefix)
+            input_ref = _input_ref_for_artifact(
+                artifact_id,
+                role_prefix,
+                source_refs_by_id=source_refs_by_id,
             )
-        collected[(artifact_id.hex, role_prefix)] = input_ref
+        _record_manifest_input(input_ref, role_prefix, collected)
         return
 
-    if isinstance(value, list):
+    if isinstance(value, (tuple, list)):
         for idx, nested in enumerate(value):
             _collect_manifest_refs(
                 nested,
@@ -547,25 +787,46 @@ def _collect_manifest_refs(
                 collected,
                 source_refs_by_id=source_refs_by_id,
                 source_refs_by_role=source_refs_by_role,
+                allow_bare_reference=allow_bare_reference,
+                allow_source_bound_bare_reference=allow_source_bound_bare_reference,
+                reference_context=reference_context or reference_children,
             )
         return
 
-    if isinstance(value, dict):
-        ref_fields = {"artifact_id", "kind", "media_type", "manifest_profile_sha256"}
-        if {"artifact_id", "kind", "media_type"} <= value.keys():
-            ref_payload = {key: value[key] for key in ref_fields if key in value}
-            ref = ArtifactRef.model_validate(ref_payload)
-            collected[(ref.artifact_id.hex, role_prefix)] = input_ref_from_artifact_ref(
-                ref, role=role_prefix
-            )
-            return
-        for key, nested in value.items():
-            _collect_manifest_refs(
-                nested,
-                f"{role_prefix}.{key}",
+    if isinstance(value, Mapping):
+        reference = _parse_reference_mapping(
+            value,
+            declared_reference_context=reference_context,
+        )
+        if reference is not None:
+            _collect_typed_reference(
+                reference,
+                role_prefix,
                 collected,
                 source_refs_by_id=source_refs_by_id,
                 source_refs_by_role=source_refs_by_role,
+            )
+            return
+
+        for key, nested in value.items():
+            key_name = key if isinstance(key, str) else str(key)
+            is_collection = _is_ref_collection_field(key_name)
+            _collect_manifest_refs(
+                nested,
+                f"{role_prefix}.{key_name}",
+                collected,
+                source_refs_by_id=source_refs_by_id,
+                source_refs_by_role=source_refs_by_role,
+                allow_bare_reference=allow_bare_reference or _is_ref_field(key_name),
+                allow_source_bound_bare_reference=(
+                    allow_source_bound_bare_reference
+                    or key_name == "source"
+                    or key_name.endswith("_source")
+                ),
+                reference_context=(
+                    reference_children or (_is_ref_field(key_name) and not is_collection)
+                ),
+                reference_children=is_collection,
             )
 
 

@@ -13,9 +13,9 @@ from collections import deque
 from collections.abc import Callable, Iterable, Mapping
 from enum import Enum
 from pathlib import Path
-from typing import Protocol, cast
+from typing import Literal, Protocol, cast
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, model_validator
 
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
@@ -32,6 +32,12 @@ _BACKEND_ID = "causal-learn.FCI.fci+d_separation"
 _BACKEND_VERSION = "0.1.4.4"
 _FCI_SOURCE_SHA256 = "8f0f14f9d31847efa30fa056a162f1f9d21d07595880c1ad2b099ec11e544ead"
 _CIT_SOURCE_SHA256 = "0d3db11083985b7cb0edbaa44662307c28f27bc135053a65751cd52f451ddc8f"
+_FAS_SOURCE_SHA256 = "d8bb8d61ca105a449ab5132d45de7934b924a35aa623c6aaac9ba8b26b95fd5a"
+_NETWORKX_BACKEND_VERSION = "3.6.1"
+_NETWORKX_D_SEPARATION_SOURCE_SHA256 = (
+    "0e93a5d58688fbbdbf7e0509d8d2373e2ba3ec441143cc66c8040245d2e08d3c"
+)
+_WORK_ALGORITHM_ID = "causal-learn.FCI+FAS/CIT.d_separation+NetworkX.is_d_separator"
 _CANONICAL_JSON = {
     "sort_keys": True,
     "separators": (",", ":"),
@@ -57,6 +63,7 @@ class PAGMemberFamilyStatus(str, Enum):
     UNSUPPORTED = "unsupported"
     BUDGET_EXHAUSTED = "budget_exhausted"
     VALIDATION_INCOMPLETE = "validation_incomplete"
+    NOT_ESTABLISHED = "not_established"
 
 
 class PAGMemberFamilyCoverage(str, Enum):
@@ -94,6 +101,139 @@ class PAGBackendIdentity(BaseModel):
     fci_source_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
     cit_source_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
     adapter_source_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+
+
+class PAGWorkEstimateErrorCode(str, Enum):
+    """Stable reason for refusing a PAG work estimate."""
+
+    SOURCE_GRAPH_CONTENT_INVALID = "source_graph_content_invalid"
+    UNSUPPORTED_GRAPH_OR_PROFILE = "unsupported_graph_or_profile"
+    PINNED_BACKEND_IDENTITY_UNAVAILABLE = "pinned_backend_identity_unavailable"
+    WORK_LIMIT_INVALID = "work_limit_invalid"
+    ESTIMATOR_SOURCE_UNAVAILABLE = "estimator_source_unavailable"
+
+
+class PAGWorkEstimateError(RuntimeError):
+    """Fail-closed error raised when a trustworthy work estimate cannot be built."""
+
+    def __init__(
+        self,
+        code: PAGWorkEstimateErrorCode | str,
+        *,
+        detail: str | None = None,
+    ) -> None:
+        self.code = code.value if isinstance(code, PAGWorkEstimateErrorCode) else code
+        self.detail = detail
+        super().__init__(self.code)
+
+
+class PAGMemberWorkAlgorithmIdentityV1(BaseModel):
+    """Content identity for the exact backend stack used by PAG membership checks."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1"] = "1"
+    algorithm_id: Literal["causal-learn.FCI+FAS/CIT.d_separation+NetworkX.is_d_separator"] = (
+        _WORK_ALGORITHM_ID
+    )
+    causal_learn_version: Literal["0.1.4.4"] = _BACKEND_VERSION
+    networkx_version: Literal["3.6.1"] = _NETWORKX_BACKEND_VERSION
+    fci_source_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    cit_source_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    fas_source_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    networkx_d_separation_source_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    adapter_source_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+
+
+class PAGFactoredPowerV1(BaseModel):
+    """Exact power-of-two assignment space without constructing the integer."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    base: Literal[2] = 2
+    exponent: StrictInt = Field(ge=0)
+
+
+class PAGCappedBoundV1(BaseModel):
+    """Exact count up to a ceiling, then the ceiling-plus-one overflow sentinel."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    value: StrictInt = Field(ge=0)
+    ceiling: StrictInt = Field(ge=0)
+    exceeded_ceiling: StrictBool
+
+    @model_validator(mode="after")
+    def _sentinel_reconciles(self) -> PAGCappedBoundV1:
+        if self.exceeded_ceiling:
+            if self.value != self.ceiling + 1:
+                raise ValueError("exceeded_work_bound_requires_ceiling_plus_one_sentinel")
+        elif self.value > self.ceiling:
+            raise ValueError("exact_work_bound_cannot_exceed_its_ceiling")
+        return self
+
+
+class PAGMemberWorkEstimateV1(BaseModel):
+    """Method-owned, graph-derived resource bound for one finite PAG membership run."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1"] = "1"
+    profile_id: str = Field(min_length=1)
+    profile_revision: str = Field(min_length=1)
+    graph_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    budget: PAGMemberBudget
+    algorithm_identity: PAGMemberWorkAlgorithmIdentityV1
+    observed_node_count: StrictInt = Field(ge=0)
+    observed_edge_count: StrictInt = Field(ge=0)
+    circle_endpoint_count: StrictInt = Field(ge=0)
+    bidirected_edge_upper_bound: StrictInt = Field(ge=0)
+    expanded_node_upper_bound: StrictInt = Field(ge=0)
+    expanded_edge_upper_bound: StrictInt = Field(ge=0)
+    assignment_space: PAGFactoredPowerV1
+    proposal_bound: PAGCappedBoundV1
+    fci_membership_call_bound: PAGCappedBoundV1
+    d_separation_queries_per_fci_call_bound: PAGCappedBoundV1
+    d_separation_query_bound: PAGCappedBoundV1
+    d_separation_query_unit: Literal["d_separation_query_count"] = "d_separation_query_count"
+    max_estimated_dsep_queries: StrictInt = Field(ge=0)
+    expanded_graph_element_query_bound: PAGCappedBoundV1
+    expanded_graph_element_query_unit: Literal["expanded_graph_element_query_units"] = (
+        "expanded_graph_element_query_units"
+    )
+    max_estimated_expanded_graph_element_query_units: StrictInt = Field(ge=0)
+    estimator_source_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+
+    @model_validator(mode="after")
+    def _graph_and_limit_bindings_reconcile(self) -> PAGMemberWorkEstimateV1:
+        if self.assignment_space.exponent != self.circle_endpoint_count:
+            raise ValueError("assignment_power_must_bind_circle_endpoint_count")
+        if self.bidirected_edge_upper_bound > self.observed_edge_count:
+            raise ValueError("bidirected_edge_upper_bound_exceeds_observed_edges")
+        if self.expanded_node_upper_bound != (
+            self.observed_node_count + self.bidirected_edge_upper_bound
+        ):
+            raise ValueError("expanded_node_bound_does_not_reconcile")
+        if self.expanded_edge_upper_bound != (
+            self.observed_edge_count + self.bidirected_edge_upper_bound
+        ):
+            raise ValueError("expanded_edge_bound_does_not_reconcile")
+        if self.proposal_bound.ceiling != self.budget.max_proposals:
+            raise ValueError("proposal_work_bound_must_bind_producer_budget")
+        if self.fci_membership_call_bound.ceiling != self.budget.max_oracle_operations:
+            raise ValueError("fci_work_bound_must_bind_producer_budget")
+        if self.d_separation_queries_per_fci_call_bound.ceiling != (
+            self.max_estimated_dsep_queries
+        ):
+            raise ValueError("per_call_dsep_bound_must_bind_dsep_limit")
+        if self.d_separation_query_bound.ceiling != self.max_estimated_dsep_queries:
+            raise ValueError("dsep_work_bound_must_bind_dsep_limit")
+        if (
+            self.expanded_graph_element_query_bound.ceiling
+            != self.max_estimated_expanded_graph_element_query_units
+        ):
+            raise ValueError("expanded_graph_work_bound_must_bind_expanded_limit")
+        return self
 
 
 class PAGProposalRecord(BaseModel):
@@ -244,6 +384,47 @@ class PAGMemberFamilyResult(BaseModel):
                 )
         elif self.status is PAGMemberFamilyStatus.COMPLETED:
             raise ValueError("completed status must account for the entire finite proposal family")
+        elif self.status is PAGMemberFamilyStatus.NOT_ESTABLISHED:
+            if (
+                self.coverage is not PAGMemberFamilyCoverage.NOT_ESTABLISHED
+                or self.reason_code != "zero_admitted_members_not_established"
+                or self.counts.admitted != 0
+                or self.members
+                or self.counts.unattempted_proposals != "0"
+                or self.counts.assignment_space_size
+                != _decimal_text(self.counts.proposals_attempted)
+            ):
+                raise ValueError(
+                    "not_established requires a fully attempted zero-admitted proposal family"
+                )
+        exhausted_status = self.status in {
+            PAGMemberFamilyStatus.COMPLETED,
+            PAGMemberFamilyStatus.NOT_ESTABLISHED,
+        }
+        if exhausted_status:
+            expected_ordinals = tuple(range(self.counts.proposals_attempted))
+            actual_ordinals = tuple(proposal.ordinal for proposal in self.proposals)
+            if actual_ordinals != expected_ordinals:
+                raise ValueError("exhausted_proposal_ordinals_must_be_contiguous_from_zero")
+            if (
+                self.counts.unattempted_proposals != "0"
+                or self.counts.assignment_space_size
+                != _decimal_text(self.counts.proposals_attempted)
+            ):
+                raise ValueError("exhausted_proposal_partition_must_be_fully_attempted")
+            if self.counts.validation_incomplete != 0 or any(
+                proposal.disposition is PAGProposalDisposition.VALIDATION_INCOMPLETE
+                for proposal in self.proposals
+            ):
+                raise ValueError(
+                    "exhausted_proposal_partition_cannot_include_validation_incomplete"
+                )
+        if (
+            self.coverage is PAGMemberFamilyCoverage.FINITE_ENDPOINT_ASSIGNMENT_SPACE_COMPLETE
+            and not self.members
+        ):
+            raise ValueError("complete finite coverage requires positive member admission")
+
         proposal_ordinals: set[int] = set()
         admitted_links: dict[int, tuple[str, str]] = {}
         for proposal in self.proposals:
@@ -310,6 +491,36 @@ _FCICall = Callable[..., tuple[_FCIResult, object]]
 
 class _BackendUnavailableError(RuntimeError):
     """The exact pinned structural membership backend is absent or changed."""
+
+
+def _capped_power_product(
+    coefficient: int, exponent: int, factors: Iterable[int], ceiling: int
+) -> PAGCappedBoundV1:
+    """Compare coefficient times 2**exponent and factors without constructing a huge power."""
+    if coefficient < 0 or exponent < 0 or ceiling < 0:
+        raise ValueError("work_bound_inputs_must_be_nonnegative")
+    value = coefficient
+    for factor in factors:
+        if factor < 0:
+            raise ValueError("work_bound_inputs_must_be_nonnegative")
+        if factor == 0 or value == 0:
+            return PAGCappedBoundV1(value=0, ceiling=ceiling, exceeded_ceiling=False)
+        if value > ceiling // factor:
+            return PAGCappedBoundV1(value=ceiling + 1, ceiling=ceiling, exceeded_ceiling=True)
+        value *= factor
+    if value == 0:
+        return PAGCappedBoundV1(value=0, ceiling=ceiling, exceeded_ceiling=False)
+    quotient = ceiling // value
+    if exponent >= quotient.bit_length():
+        return PAGCappedBoundV1(value=ceiling + 1, ceiling=ceiling, exceeded_ceiling=True)
+    exact = value * (1 << exponent)
+    return PAGCappedBoundV1(value=exact, ceiling=ceiling, exceeded_ceiling=False)
+
+
+def _capped_exact_count(value: int, ceiling: int) -> PAGCappedBoundV1:
+    if value > ceiling:
+        return PAGCappedBoundV1(value=ceiling + 1, ceiling=ceiling, exceeded_ceiling=True)
+    return PAGCappedBoundV1(value=value, ceiling=ceiling, exceeded_ceiling=False)
 
 
 def _sha256_bytes(payload: bytes) -> str:
@@ -695,6 +906,177 @@ def _backend_identity() -> tuple[PAGBackendIdentity, _FCICall, _NumpyModule, _Ne
         raise
     except Exception as exc:
         raise _BackendUnavailableError("pinned_fci_backend_unavailable") from exc
+
+
+def pag_member_work_estimator_source_sha256() -> str:
+    """Return the content hash of the currently imported PAG producer and estimator."""
+    try:
+        return _sha256_bytes(Path(__file__).read_bytes())
+    except Exception as exc:
+        raise PAGWorkEstimateError(
+            PAGWorkEstimateErrorCode.ESTIMATOR_SOURCE_UNAVAILABLE,
+            detail=type(exc).__name__,
+        ) from exc
+
+
+def pag_member_work_algorithm_identity() -> PAGMemberWorkAlgorithmIdentityV1:
+    """Resolve and verify the pinned FCI, FAS, CIT, and NetworkX d-separation stack."""
+    try:
+        backend, _, _, _ = _backend_identity()
+        fas_module = importlib.import_module("causallearn.utils.FAS")
+        networkx_module = importlib.import_module("networkx")
+        dsep_module = importlib.import_module("networkx.algorithms.d_separation")
+        networkx_version = importlib.metadata.version("networkx")
+        fas_path = Path(fas_module.__file__ or "")
+        dsep_path = Path(dsep_module.__file__ or "")
+        fas_sha = _sha256_bytes(fas_path.read_bytes())
+        dsep_sha = _sha256_bytes(dsep_path.read_bytes())
+        if (
+            fas_sha != _FAS_SOURCE_SHA256
+            or networkx_version != _NETWORKX_BACKEND_VERSION
+            or dsep_sha != _NETWORKX_D_SEPARATION_SOURCE_SHA256
+            or getattr(networkx_module, "is_d_separator", None)
+            is not getattr(dsep_module, "is_d_separator", None)
+        ):
+            raise PAGWorkEstimateError(
+                PAGWorkEstimateErrorCode.PINNED_BACKEND_IDENTITY_UNAVAILABLE,
+                detail="pinned_fas_or_networkx_dsep_identity_mismatch",
+            )
+        return PAGMemberWorkAlgorithmIdentityV1(
+            algorithm_id=_WORK_ALGORITHM_ID,
+            causal_learn_version=backend.backend_version,
+            networkx_version=networkx_version,
+            fci_source_sha256=backend.fci_source_sha256,
+            cit_source_sha256=backend.cit_source_sha256,
+            fas_source_sha256=fas_sha,
+            networkx_d_separation_source_sha256=dsep_sha,
+            adapter_source_sha256=backend.adapter_source_sha256,
+        )
+    except PAGWorkEstimateError:
+        raise
+    except Exception as exc:
+        raise PAGWorkEstimateError(
+            PAGWorkEstimateErrorCode.PINNED_BACKEND_IDENTITY_UNAVAILABLE,
+            detail=type(exc).__name__,
+        ) from exc
+
+
+def pag_member_work_estimate_sha256(estimate: PAGMemberWorkEstimateV1) -> str:
+    """Hash the canonical serialized method-owned work estimate."""
+    return _sha256_bytes(_canonical_json_bytes(estimate.model_dump(mode="json")))
+
+
+def estimate_pag_member_work(
+    graph: CausalGraphModel,
+    *,
+    profile_id: str = PROFILE_ID,
+    profile_revision: str = PROFILE_REVISION,
+    budget: PAGMemberBudget,
+    max_estimated_dsep_queries: int,
+    max_estimated_expanded_graph_element_query_units: int,
+) -> PAGMemberWorkEstimateV1:
+    """Estimate finite PAG membership work in bounded, graph-derived query units.
+
+    The d-separation bound counts unique endpoint/conditioning-set keys per full
+    FCI membership call: choose two observed endpoints and any subset of the
+    remaining observed nodes. Expanded-graph units multiply that bound by the
+    conservative expanded node-plus-edge count. Neither unit estimates elapsed
+    time or claims a count of backend instructions.
+    """
+    if type(max_estimated_dsep_queries) is not int or max_estimated_dsep_queries < 0:
+        raise PAGWorkEstimateError(PAGWorkEstimateErrorCode.WORK_LIMIT_INVALID)
+    if (
+        type(max_estimated_expanded_graph_element_query_units) is not int
+        or max_estimated_expanded_graph_element_query_units < 0
+    ):
+        raise PAGWorkEstimateError(PAGWorkEstimateErrorCode.WORK_LIMIT_INVALID)
+    try:
+        graph_sha = graph_content_sha256(graph)
+    except Exception as exc:
+        raise PAGWorkEstimateError(
+            PAGWorkEstimateErrorCode.SOURCE_GRAPH_CONTENT_INVALID,
+            detail=type(exc).__name__,
+        ) from exc
+    unsupported = _unsupported_source_reason(graph, profile_id, profile_revision)
+    if unsupported is not None:
+        raise PAGWorkEstimateError(
+            PAGWorkEstimateErrorCode.UNSUPPORTED_GRAPH_OR_PROFILE,
+            detail=unsupported,
+        )
+    try:
+        endpoint_map = _source_endpoint_map(graph)
+        circle_count = len(_circle_slots(endpoint_map))
+        algorithm_identity = pag_member_work_algorithm_identity()
+        estimator_sha = pag_member_work_estimator_source_sha256()
+    except PAGWorkEstimateError:
+        raise
+    except Exception as exc:
+        raise PAGWorkEstimateError(
+            PAGWorkEstimateErrorCode.SOURCE_GRAPH_CONTENT_INVALID,
+            detail=type(exc).__name__,
+        ) from exc
+
+    observed_nodes = len(graph.nodes)
+    observed_edges = len(graph.edges)
+    bidirected_upper = sum(
+        1 for marks in endpoint_map.values() if all(mark is not EdgeMark.TAIL for mark in marks)
+    )
+    expanded_nodes = observed_nodes + bidirected_upper
+    expanded_edges = observed_edges + bidirected_upper
+
+    proposal_demand = _capped_power_product(1, circle_count, (), budget.max_proposals)
+    proposal_count = (
+        budget.max_proposals if proposal_demand.exceeded_ceiling else proposal_demand.value
+    )
+    fci_demand_count = 0 if budget.max_members == 0 else proposal_count
+    fci_call_bound = _capped_exact_count(fci_demand_count, budget.max_oracle_operations)
+    permitted_fci_calls = min(fci_demand_count, budget.max_oracle_operations)
+
+    endpoint_pair_count = observed_nodes * (observed_nodes - 1) // 2
+    conditioning_power = max(0, observed_nodes - 2)
+    per_call_bound = _capped_power_product(
+        endpoint_pair_count,
+        conditioning_power,
+        (),
+        max_estimated_dsep_queries,
+    )
+    dsep_bound = _capped_power_product(
+        endpoint_pair_count,
+        conditioning_power,
+        (permitted_fci_calls,),
+        max_estimated_dsep_queries,
+    )
+    expanded_element_count = expanded_nodes + expanded_edges
+    expanded_bound = _capped_power_product(
+        endpoint_pair_count,
+        conditioning_power,
+        (permitted_fci_calls, expanded_element_count),
+        max_estimated_expanded_graph_element_query_units,
+    )
+    return PAGMemberWorkEstimateV1(
+        profile_id=profile_id,
+        profile_revision=profile_revision,
+        graph_sha256=graph_sha,
+        budget=budget,
+        algorithm_identity=algorithm_identity,
+        observed_node_count=observed_nodes,
+        observed_edge_count=observed_edges,
+        circle_endpoint_count=circle_count,
+        bidirected_edge_upper_bound=bidirected_upper,
+        expanded_node_upper_bound=expanded_nodes,
+        expanded_edge_upper_bound=expanded_edges,
+        assignment_space=PAGFactoredPowerV1(base=2, exponent=circle_count),
+        proposal_bound=proposal_demand,
+        fci_membership_call_bound=fci_call_bound,
+        d_separation_queries_per_fci_call_bound=per_call_bound,
+        d_separation_query_bound=dsep_bound,
+        max_estimated_dsep_queries=max_estimated_dsep_queries,
+        expanded_graph_element_query_bound=expanded_bound,
+        max_estimated_expanded_graph_element_query_units=(
+            max_estimated_expanded_graph_element_query_units
+        ),
+        estimator_source_sha256=estimator_sha,
+    )
 
 
 def _oracle_pag_endpoint_map(
@@ -1211,18 +1593,24 @@ def evaluate_pag_member_family(
         members.append(preflight_member)
         seen_members[candidate_sha] = ordinal
 
+    full_assignment_space_processed = len(proposals) == assignment_space_size
     coverage = (
         PAGMemberFamilyCoverage.FINITE_ENDPOINT_ASSIGNMENT_SPACE_COMPLETE
         if terminal_status is PAGMemberFamilyStatus.COMPLETED
-        and len(proposals) == assignment_space_size
+        and full_assignment_space_processed
+        and members
         else PAGMemberFamilyCoverage.NOT_ESTABLISHED
     )
     if (
         terminal_status is PAGMemberFamilyStatus.COMPLETED
         and coverage is PAGMemberFamilyCoverage.NOT_ESTABLISHED
     ):
-        terminal_status = PAGMemberFamilyStatus.BUDGET_EXHAUSTED
-        terminal_reason = "proposal_family_not_fully_processed"
+        if full_assignment_space_processed and not members:
+            terminal_status = PAGMemberFamilyStatus.NOT_ESTABLISHED
+            terminal_reason = "zero_admitted_members_not_established"
+        else:
+            terminal_status = PAGMemberFamilyStatus.BUDGET_EXHAUSTED
+            terminal_reason = "proposal_family_not_fully_processed"
 
     result = _make_result(
         profile_id=profile_id,

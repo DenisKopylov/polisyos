@@ -21,6 +21,9 @@ from polisyos.core.artifacts import (
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import (
     CompileRequest,
@@ -51,6 +54,7 @@ from polisyos.foundry.execute.executor import put_state_snapshot
 from polisyos.ir import ModelSpec, PolicySpec, ProblemDomain, ProblemFrame, TrinityBundle
 from polisyos.ir.governance import InterventionSpec, ScheduleSpec, SelectorPredicate
 from polisyos.ir.model_layer import SelectorOperator
+from polisyos.ir.trinity.loaders import persist_trinity_bundle_artifact
 
 build_default_registry_bundle = _core_registry_facade.build_default_registry_bundle
 load_registry_bundle_content = _core_registry_facade.load_registry_bundle_content
@@ -154,17 +158,8 @@ def build_trivial_trinity_bundle(registry_bundle_ref: str) -> TrinityBundle:
 def put_trivial_trinity_bundle(store: FileSystemCAS, bundle: TrinityBundle) -> ArtifactRef:
     """Persist a quickstart Trinity bundle into the local CAS."""
 
-    return store.put_json(
-        bundle,
-        PutOptions(
-            kind=TrinityBundle.ARTIFACT_KIND,
-            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
-            schema=SchemaInfo(
-                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
-                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
-            ),
-        ),
-    )
+    selected_ref = persist_trinity_bundle_artifact(_ensure_ir_artifact_store(store), bundle)
+    return ArtifactRef.model_validate(selected_ref.model_dump(mode="python"))
 
 
 def prepare_trivial_input_bindings(

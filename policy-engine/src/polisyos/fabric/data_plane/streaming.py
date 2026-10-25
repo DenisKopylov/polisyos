@@ -6,6 +6,7 @@ import asyncio
 import json
 import sys
 from collections import deque
+from collections.abc import Iterable, Sized
 from copy import copy
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
@@ -77,6 +78,72 @@ else:
 
 if TYPE_CHECKING:
     ConnectorRegistryProvider = Callable[[], ConnectorRegistry]
+
+
+@runtime_checkable
+class _RecordFrameSlice(Protocol):
+    """Record-oriented rows returned by a tabular frame slice."""
+
+    def to_dict(self, *, orient: Literal["records"]) -> list[dict[str, Any]]: ...
+
+
+class _RecordFrameIndexer(Protocol):
+    """Positional slice access used by record batch materialization."""
+
+    def __getitem__(self, key: slice, /) -> _RecordFrameSlice: ...
+
+
+@runtime_checkable
+class _RecordFramePayload(Protocol):
+    """Tabular input surface consumed by the record batch adapter."""
+
+    @property
+    def index(self) -> Sized: ...
+
+    @property
+    def iloc(self) -> _RecordFrameIndexer: ...
+
+    def to_dict(self, *args: object, **kwargs: object) -> object: ...
+
+
+@runtime_checkable
+class _AdmissionFramePayload(Protocol):
+    """Tabular input surface consumed by the pre-materialization row cap."""
+
+    @property
+    def index(self) -> Sized: ...
+
+    @property
+    def columns(self) -> Iterable[object]: ...
+
+    def itertuples(
+        self,
+        *,
+        index: bool = True,
+        name: str | None = "Pandas",
+    ) -> Iterable[tuple[object, ...]]: ...
+
+
+def _is_record_frame_payload(payload: object) -> TypeGuard[_RecordFramePayload]:
+    """Narrow a frame-like payload only after its consumed operations are present."""
+    if not isinstance(payload, _RecordFramePayload):
+        return False
+    return (
+        isinstance(payload.index, Sized)
+        and callable(payload.iloc.__getitem__)
+        and callable(payload.to_dict)
+    )
+
+
+def _is_admission_frame_payload(payload: object) -> TypeGuard[_AdmissionFramePayload]:
+    """Narrow a frame-like payload before its actual index is counted."""
+    if not isinstance(payload, _AdmissionFramePayload):
+        return False
+    return (
+        isinstance(payload.index, Sized)
+        and isinstance(payload.columns, Iterable)
+        and callable(payload.itertuples)
+    )
 
 
 @runtime_checkable
@@ -180,7 +247,9 @@ class StreamOwnerConflictError(RuntimeError):
 
 # AD-E02-FABRIC-N818-01 v1: preserve only the selected existing exception identities.
 # this is an N818 compatibility rationale, not an exception-class or waiver framework.
-# Decision path: `policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-21/09-fabric-exception-identities.md`.
+# Decision path (split at the directory boundary):
+# `policy-engine/docs/research/e02-cloud-test-plan/integration/`
+# `architecture-decisions-2026-10-21/09-fabric-exception-identities.md`.
 class StreamDedupeUnsupported(RuntimeError):  # noqa: N818 -- stream oracles assert this typed refusal name
     """Refuse unsupported event-key or persisted ingestion-horizon semantics."""
 
@@ -381,32 +450,35 @@ async def iter_record_batches(
     payload: object,
     *,
     batch_size: int,
-) -> AsyncIterator[list[dict[str, Any]]]:
-    """Yield record batches without blocking the event loop on large DataFrames."""
-    if hasattr(payload, "iloc") and hasattr(payload, "to_dict"):
+) -> AsyncIterator[list[object]]:
+    """Yield bounded rows while preserving non-object values for row-level quarantine."""
+    if _is_record_frame_payload(payload):
         total_rows = len(payload.index)
 
         def _slice_to_dict(start: int) -> list[dict[str, Any]]:
-            return cast(
-                "list[dict[str, Any]]",
-                payload.iloc[start : start + batch_size].to_dict(orient="records"),
-            )
+            return payload.iloc[start : start + batch_size].to_dict(orient="records")
 
         for start in range(0, total_rows, batch_size):
-            yield await run_blocking_async(_slice_to_dict, start)
+            records = await run_blocking_async(_slice_to_dict, start)
+            batch: list[object] = []
+            batch.extend(records)
+            yield batch
             await asyncio.sleep(0)
         return
 
     if isinstance(payload, list):
         for start in range(0, len(payload), batch_size):
             chunk = payload[start : start + batch_size]
-            normalized = [dict(item) if isinstance(item, dict) else item for item in chunk]
+            normalized: list[object] = [
+                dict(item) if isinstance(item, dict) else item for item in chunk
+            ]
             yield normalized
             await asyncio.sleep(0)
         return
 
     if isinstance(payload, dict):
-        yield [dict(payload)]
+        single_record_batch: list[object] = [dict(payload)]
+        yield single_record_batch
         return
 
     yield [payload]
@@ -2164,7 +2236,7 @@ def _admit_stream_input(payload: object, options: StreamRuntimeOptions) -> None:
     """
     max_rows = options.max_input_rows or options.max_buffered_rows
     max_bytes = options.max_input_bytes or options.max_buffered_bytes
-    if hasattr(payload, "itertuples") and hasattr(payload, "columns"):
+    if _is_admission_frame_payload(payload):
         count = len(payload.index)
         _admit_stream_capacity(
             stage="input",

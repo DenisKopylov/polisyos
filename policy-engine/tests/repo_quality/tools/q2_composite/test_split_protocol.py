@@ -7,6 +7,7 @@ import importlib.util
 import io
 import json
 import os
+import subprocess
 import sys
 import tarfile
 import tempfile
@@ -689,6 +690,62 @@ def write_tar(path: Path, files: dict[str, bytes], *, extra: str | None = None) 
             info.size = len(payload)
             info.mode = 0o644
             archive.addfile(info, io.BytesIO(payload))
+
+
+def _initialize_isolated_fixture_repository(product: Path) -> None:
+    subprocess.run(
+        ["git", "init", "--quiet", str(product)],
+        check=True,
+        capture_output=True,
+        text=True,
+        shell=False,
+    )
+
+
+def test_sdist_directory_include_covers_nested_force_include_source() -> None:
+    with tempfile.TemporaryDirectory() as temporary:
+        root = Path(temporary)
+        state, manifest = fixture_product(root)
+        product = Path(state["product"])
+        _initialize_isolated_fixture_repository(product)
+        hatch = product / "hatch.toml"
+        body = hatch.read_text(encoding="utf-8")
+        hatch.write_text(
+            body.replace(
+                'include = ["data/owned/g-resource.yaml"]',
+                'include = ["data"]',
+            ),
+            encoding="utf-8",
+        )
+
+        inventory = build_source_inventory(
+            product, manifest, expected_commit=state["source"], expected_tree=state["tree"]
+        )
+        assert "data/owned/g-resource.yaml" in {
+            row["source"] for row in inventory["sdist_source_rows"]
+        }
+
+
+def test_sdist_exclude_removes_nested_force_include_source() -> None:
+    with tempfile.TemporaryDirectory() as temporary:
+        root = Path(temporary)
+        state, manifest = fixture_product(root)
+        product = Path(state["product"])
+        _initialize_isolated_fixture_repository(product)
+        hatch = product / "hatch.toml"
+        body = hatch.read_text(encoding="utf-8")
+        hatch.write_text(
+            body.replace(
+                'include = ["data/owned/g-resource.yaml"]',
+                'include = ["data"]' + chr(10) + 'exclude = ["data/owned/g-resource.yaml"]',
+            ),
+            encoding="utf-8",
+        )
+
+        with pytest.raises(SplitProtocolError, match="sdist source inventory omits"):
+            build_source_inventory(
+                product, manifest, expected_commit=state["source"], expected_tree=state["tree"]
+            )
 
 
 def test_sdist_and_gcp_archives_reject_unexpected_regular_members() -> None:

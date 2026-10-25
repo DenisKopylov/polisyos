@@ -12,6 +12,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
+from polisyos.core.artifacts.protocol import require_return_selected_profile_writer
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, truncated_hash
 from polisyos.core.contracts.execution_plan import (
@@ -962,7 +963,8 @@ def persist_method_catalog_snapshot(
     *,
     inputs: list[InputRef] | None = None,
 ) -> MethodCatalogSnapshotRef:
-    """Persist a method-catalog snapshot artifact and return its typed ref."""
+    """Persist a catalog snapshot with the profile selected by this producer write."""
+    require_return_selected_profile_writer(store, "put_json")
     payload_ref = store.put_json(
         snapshot,
         PutOptions(
@@ -972,8 +974,15 @@ def persist_method_catalog_snapshot(
             inputs=list(inputs or []),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
-    return MethodCatalogSnapshotRef(artifact_id=payload_ref.artifact_id)
+    if (
+        payload_ref.kind != "foundry.method_catalog_snapshot"
+        or payload_ref.media_type != "application/json"
+        or payload_ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("method_catalog_snapshot_selected_write_ref_incomplete")
+    return MethodCatalogSnapshotRef.model_validate(payload_ref.model_dump(mode="python"))
 
 
 def build_method_capability_matrix(

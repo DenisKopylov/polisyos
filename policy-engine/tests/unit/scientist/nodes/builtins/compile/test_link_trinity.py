@@ -6,13 +6,16 @@ from polisyos.core.artifacts import (
     CanonInfo,
     PutOptions,
     SchemaInfo,
+    ensure_ir_artifact_store,
     input_ref_from_artifact_ref,
 )
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
-from polisyos.ir.trinity import TRINITY_BUNDLE_SCHEMA_VERSION, TrinityBundle
+from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir.trinity.loaders import persist_trinity_bundle_artifact
 from polisyos.scientist.nodes.builtins.compile.link_trinity import LinkTrinityNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_REGISTRY_BUNDLE_REF,
@@ -118,7 +121,7 @@ def test_link_route_refuses_trinity_bytes_with_unowned_schema_profile(
             data_snapshot_ref="sha256:" + "b" * 64,
         ),
     )
-    spec = CanonSpec(forbid_floats=False, exclude_none=False)
+    spec = CanonSpec(forbid_floats=False)
     trinity_ref = store.put_bytes(
         to_canonical_bytes(bundle, spec),
         PutOptions(
@@ -164,16 +167,5 @@ def _put_trinity_bundle(store):
             data_snapshot_ref="sha256:" + "c" * 64,
         ),
     )
-    return store.put_json(
-        bundle,
-        PutOptions(
-            kind=TrinityBundle.ARTIFACT_KIND,
-            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
-            schema=SchemaInfo(
-                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
-                version=TRINITY_BUNDLE_SCHEMA_VERSION,
-            ),
-        ),
-        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
-        return_selected_profile=True,
-    )
+    selected_ref = persist_trinity_bundle_artifact(ensure_ir_artifact_store(store), bundle)
+    return ArtifactRef.model_validate(selected_ref.model_dump(mode="python"))

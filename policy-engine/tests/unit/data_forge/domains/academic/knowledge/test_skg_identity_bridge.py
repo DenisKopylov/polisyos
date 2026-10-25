@@ -9,7 +9,8 @@ from pathlib import Path
 import duckdb
 import pytest
 
-from polisyos.core import artifacts
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+from polisyos.core import artifacts, canon
 from polisyos.data_forge.read_api import academic as bridge
 
 
@@ -59,6 +60,23 @@ def _owner(path: Path) -> bridge.SourceSnapshot:
     )
 
 
+def _put_identity_payload(store, payload, *, canon_spec=None):
+    return store.put_json(
+        payload,
+        artifacts.ArtifactWriteOptions(
+            kind="academic.source_reference_identity",
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name="academic.source_reference_identity",
+                version="1.0",
+            ),
+            producer=artifacts.ProducerInfo(component="candidate", version="1"),
+        ),
+        canon_spec=canon.CanonSpec() if canon_spec is None else canon_spec,
+        return_selected_profile=True,
+    )
+
+
 def test_source_identity_is_persisted_replayed_and_keeps_n8_blocked(source, tmp_path):
     path, selection = source
     store = artifacts.FileSystemCAS(tmp_path / "cas")
@@ -68,11 +86,34 @@ def test_source_identity_is_persisted_replayed_and_keeps_n8_blocked(source, tmp_
         store=store,
         scratch=tmp_path / "spill",
     )
+    assert ref.manifest_profile_sha256 is not None
+    manifest = store.get_manifest(ref)
+    assert (ref.artifact_id, ref.kind, ref.media_type) == (
+        manifest.artifact_id,
+        manifest.kind,
+        manifest.media_type,
+    )
+    assert (manifest.kind, manifest.media_type) == (
+        "academic.source_reference_identity",
+        "application/json",
+    )
+    assert (manifest.artifact_schema.name, manifest.artifact_schema.version) == (
+        "academic.source_reference_identity",
+        "1.0",
+    )
+    assert manifest.canon == artifacts.CanonInfo.from_spec(canon.CanonSpec())
+    raw_manifest = store.get_raw_manifest_bytes(
+        ref,
+        manifest_profile_sha256=ref.manifest_profile_sha256,
+    )
+    assert json.loads(raw_manifest)["canon"]["forbid_floats"] is True
+
+    fresh_reader = artifacts.FileSystemCAS(tmp_path / "cas")
     result = bridge.replay_source_identity_bundle(
         ref=ref,
         selection=selection,
         source=_owner(path),
-        store=store,
+        store=fresh_reader,
         scratch=tmp_path / "spill",
     )
     assert result.status == "source_reference_identity_recomputed"
@@ -82,6 +123,111 @@ def test_source_identity_is_persisted_replayed_and_keeps_n8_blocked(source, tmp_
     assert result.n8_admission == "blocked"
     assert len(result.rows) == 7
     assert result.rows[0].cells[-1].value == "percent"
+    point_estimate = next(cell for cell in result.rows[0].cells if cell.name == "point_estimate")
+    assert point_estimate.value == "2.0"
+
+
+def test_null_cell_survives_profiled_producer_and_fresh_reader(source, tmp_path):
+    path, selection = source
+    with duckdb.connect(str(path)) as con:
+        con.execute("UPDATE ac_works SET abstract=NULL")
+
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    ref = bridge.produce_source_identity_bundle(
+        source=_owner(path),
+        selection=selection,
+        store=store,
+        scratch=tmp_path / "spill",
+    )
+    assert ref.manifest_profile_sha256 is not None
+    fresh_reader = artifacts.FileSystemCAS(tmp_path / "cas")
+    result = bridge.replay_source_identity_bundle(
+        ref=ref,
+        selection=selection,
+        source=_owner(path),
+        store=fresh_reader,
+        scratch=tmp_path / "spill",
+    )
+    abstract = next(
+        cell
+        for row in result.rows
+        if row.table == "ac_works"
+        for cell in row.cells
+        if cell.name == "abstract"
+    )
+    assert abstract.value is None
+    assert result.n8_admission == "blocked"
+    assert result.production_value_eligible is False
+
+
+def test_profileless_source_identity_remains_typed_refusal(source, tmp_path):
+    path, selection = source
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    profiled_ref = bridge.produce_source_identity_bundle(
+        source=_owner(path),
+        selection=selection,
+        store=store,
+        scratch=tmp_path / "spill",
+    )
+    raw_payload = store.get_bytes(profiled_ref)
+    payload = json.loads(raw_payload)
+    assert payload["purpose"] == "source_reference_identity_only"
+    assert payload["status"] == "source_reference_identity_recomputed"
+    assert payload["n8_admission"] == "blocked"
+    profileless_ref = store.put_bytes(
+        raw_payload,
+        artifacts.ArtifactWriteOptions(
+            kind="academic.source_reference_identity",
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name="academic.source_reference_identity",
+                version="1.0",
+            ),
+            producer=artifacts.ProducerInfo(component="candidate", version="1"),
+        ),
+    )
+    raw_manifest = json.loads(store.get_raw_manifest_bytes(profileless_ref))
+    assert raw_manifest["kind"] == "academic.source_reference_identity"
+    assert raw_manifest["schema"] == {
+        "name": "academic.source_reference_identity",
+        "version": "1.0",
+    }
+    assert "canon" not in raw_manifest
+    with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_absent"):
+        bridge.replay_source_identity_bundle(
+            ref=profileless_ref,
+            selection=selection,
+            source=_owner(path),
+            store=store,
+            scratch=tmp_path / "spill",
+        )
+
+
+def test_removed_n8_marker_keeps_source_identity_fail_closed(source, tmp_path):
+    path, selection = source
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    producer_ref = bridge.produce_source_identity_bundle(
+        source=_owner(path),
+        selection=selection,
+        store=store,
+        scratch=tmp_path / "spill",
+    )
+    payload = json.loads(store.get_bytes(producer_ref))
+    del payload["n8_admission"]
+    assert payload["status"] == "source_reference_identity_recomputed"
+    assert payload["purpose"] == "source_reference_identity_only"
+    candidate_ref = _put_identity_payload(store, payload)
+
+    result = bridge.replay_source_identity_bundle(
+        ref=candidate_ref,
+        selection=selection,
+        source=_owner(path),
+        store=artifacts.FileSystemCAS(tmp_path / "cas"),
+        scratch=tmp_path / "spill",
+    )
+    assert result.status == "source_reference_identity_recomputed"
+    assert result.n8_admission == "blocked"
+    assert result.production_value_eligible is False
 
 
 @pytest.mark.parametrize(
@@ -182,14 +328,12 @@ def test_new_valid_cas_object_cannot_substitute_recomputed_identity(source, tmp_
         payload["rows"][-1]["cells"][0]["value"] = True if mutation == "bool_alias" else 1.0
     else:
         payload[mutation] = "certified"
-    forged = store.put_bytes(
-        json.dumps(payload).encode(),
-        artifacts.ArtifactWriteOptions(
-            kind="academic.source_reference_identity",
-            media_type="application/json",
-            schema=artifacts.SchemaInfo(name="academic.source_reference_identity", version="1.0"),
-            producer=artifacts.ProducerInfo(component="candidate", version="1"),
-        ),
+    forged = _put_identity_payload(
+        store,
+        payload,
+        canon_spec=canon.CanonSpec(forbid_floats=False)
+        if mutation == "float_alias"
+        else canon.CanonSpec(),
     )
     with pytest.raises(ValueError):
         bridge.replay_source_identity_bundle(

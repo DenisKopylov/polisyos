@@ -2,21 +2,24 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 
-from polisyos.fabric.connectors.base import SourceConnector
 from polisyos.fabric.connectors.capabilities import validate_protocol_compliance
-from polisyos.fabric.connectors.contracts.contract import ConnectorSchemaContract
-from polisyos.fabric.connectors.contracts.source_contract import SourceContract
 from polisyos.fabric.connectors.governance_metadata import (
     validate_connector_governance_metadata,
 )
-from polisyos.fabric.connectors.profiles.models import SourceProfile
 from polisyos.fabric.connectors.profiles.resolver import resolve_execution_policy
 from polisyos.fabric.connectors.testing.harness import ConnectorTestHarness
 from polisyos.fabric.quality.processing_guarantees import ProcessingGuarantee
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping
+
+    from polisyos.fabric.connectors.base import SourceConnector
+    from polisyos.fabric.connectors.contracts.contract import ConnectorSchemaContract
+    from polisyos.fabric.connectors.contracts.source_contract import SourceContract
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
 
 
 @dataclass(frozen=True, slots=True)
@@ -48,9 +51,9 @@ class ConformanceReport:
         return grouped
 
 
-def validate_source_conformance_v2(
+def validate_source_conformance_v2[ConnectorDataT](
     *,
-    connector_class: type[SourceConnector],
+    connector_class: type[SourceConnector[ConnectorDataT]],
     source_contract: SourceContract,
     profiles: Iterable[SourceProfile] = (),
     schema_contracts: Iterable[ConnectorSchemaContract] = (),
@@ -248,9 +251,9 @@ def _has_bounded_read_check(contract: SourceContract) -> bool:
     return "bounded_reads" in checks or "bounded_response" in checks
 
 
-def _validate_bounded_read_evidence(
+def _validate_bounded_read_evidence[ConnectorDataT](
     *,
-    connector_class: type[SourceConnector],
+    connector_class: type[SourceConnector[ConnectorDataT]],
     source_profile: SourceProfile | None,
     source_contract: SourceContract,
     issues: list[ConformanceIssue],

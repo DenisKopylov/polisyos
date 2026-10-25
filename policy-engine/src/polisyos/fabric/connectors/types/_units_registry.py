@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import threading
-from collections.abc import Mapping
 from decimal import Decimal, InvalidOperation, localcontext
 from types import MappingProxyType
 from typing import TYPE_CHECKING, ClassVar
@@ -13,7 +12,7 @@ from ._units_core import Unit
 from ._units_errors import UnitParseError
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Mapping
 
 __all__ = [
     "UnitRegistry",

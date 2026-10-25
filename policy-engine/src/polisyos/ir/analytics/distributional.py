@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Mapping
 from enum import Enum
 from typing import TYPE_CHECKING, Any, ClassVar, overload
 
@@ -19,11 +20,22 @@ from polisyos.ir.analytics.uncertainty import (
     ValueUncertaintyProjectionKind,
     value_uncertainty_output_contract,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration, CanonInfo
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import (
+    CompatibilityMode,
+    IRCompatibilityKind,
+    IRRepresentationRegistration,
+    ResolvedSchemaAdmission,
+    register_ir_representation,
+    register_schema_version,
+)
 from polisyos.ir.model_layer.canon import CanonSpec
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from polisyos.ir.artifacts import ArtifactStore, InputRef
 
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
@@ -158,15 +170,14 @@ def _persist_distributional_leaf(
     schema_version: str,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRefModel:
-    ref = put_json_artifact(
+    """Persist a distributional DTO through its declared owner."""
+    ref = _persist_distributional_owned(
         store,
-        payload.model_dump(mode="json"),
+        payload,
         kind=kind,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
-        canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=True,
     )
     return ArtifactRefModel.model_validate(ref)
 
@@ -178,24 +189,18 @@ def _load_distributional_leaf[DistributionalModelT: BaseModel](
     *,
     expected_kind: str,
     expected_schema_name: str,
-    expected_schema_version: str,
 ) -> DistributionalModelT:
-    if ref.kind != expected_kind or ref.media_type != "application/json":
-        raise ValueError("ir_distributional_leaf_owner_mismatch")
-
-    manifest = store.get_manifest(ref)
-    schema = manifest.artifact_schema
+    """Load a distributional DTO after exact owner and profile admission."""
+    owner = _DISTRIBUTIONAL_OWNERS.get(model)
     if (
-        manifest.kind != expected_kind
-        or manifest.media_type != "application/json"
-        or schema is None
-        or schema.name != expected_schema_name
-        or schema.version != expected_schema_version
+        owner is None
+        or ref.kind != expected_kind
+        or ref.media_type != "application/json"
+        or expected_kind != owner.kind
+        or expected_schema_name != owner.registry_key
     ):
         raise ValueError("ir_distributional_leaf_owner_mismatch")
-
-    payload = get_json_artifact(store, ref)
-    return model.model_validate(payload)
+    return _get_owned_json_artifact(store, ref, owner=owner)
 
 
 class DistributionalJustification(str, Enum):
@@ -1459,6 +1464,180 @@ class DistributionalReport(BaseModel):
         return False
 
 
+_DISTRIBUTIONAL_OWNERS: dict[type[BaseModel], ArtifactOwnerDeclaration[Any, Any]] = {}
+
+
+def _distributional_profile_is_supported(
+    profile: CanonInfo, registration: IRRepresentationRegistration
+) -> bool:
+    """Require the exact canonical profile used by distributional producers."""
+    return registration.profile_ref is None and profile == CanonInfo.from_spec(
+        CanonSpec(forbid_floats=False)
+    )
+
+
+def _register_distributional_owner(
+    model: type[BaseModel], *, schema_name: str, schema_version: str
+) -> ArtifactOwnerDeclaration[Any, Any]:
+    """Declare one DTO and register its exact current payload tuple."""
+    contract_id = f"ir.analytics.distributional.{model.__name__}.owner.v1"
+    policy = (f"{contract_id}.schema-version-wire-law", "1")
+    dto_fqn = f"polisyos.ir.analytics.distributional.{model.__name__}"
+
+    def payload_version_of(payload: object) -> str | None:
+        if not isinstance(payload, Mapping):
+            return None
+        value = payload.get("schema_version")
+        return value if type(value) is str else None
+
+    def validate_source(payload: object, admission: ResolvedSchemaAdmission) -> BaseModel:
+        if (
+            admission.compatibility_kind
+            not in (IRCompatibilityKind.EXACT, IRCompatibilityKind.DIRECT)
+            or admission.migration_path
+            or not isinstance(payload, Mapping)
+        ):
+            raise ValueError("distributional owner requires an exact or direct typed source")
+        expected = admission.source_registration.payload_version
+        supplied = payload.get("schema_version")
+        if type(expected) is not str or type(supplied) is not str or supplied != expected:
+            raise ValueError("distributional payload version does not match its exact row")
+        source = model.model_validate(payload)
+        if getattr(source, "schema_version", None) != expected:
+            raise ValueError("distributional DTO changed its admitted payload version")
+        return source
+
+    def project_for_consumer(source: BaseModel, _admission: ResolvedSchemaAdmission) -> BaseModel:
+        if type(source) is not model:
+            raise TypeError("distributional source DTO does not match its owner")
+        return source
+
+    owner = ArtifactOwnerDeclaration(
+        contract_id=contract_id,
+        dto_fqn=dto_fqn,
+        abi_key=f"{contract_id}.dto-abi",
+        registry_key=schema_name,
+        kind=schema_name,
+        media_type="application/json",
+        purpose="distributional_analysis_artifact",
+        policy_revision=f"{contract_id}.admission-policy.v1",
+        accepted_wire_policies=(policy,),
+        payload_version_of=payload_version_of,
+        validate_source=validate_source,
+        project_for_consumer=project_for_consumer,
+        validate_profile=_distributional_profile_is_supported,
+    )
+    register_schema_version(
+        schema_name,
+        schema_version,
+        compatibility=CompatibilityMode.NONE,
+        notes=("Owner-bound distributional tuple; unknown history remains opaque.",),
+    )
+    register_ir_representation(
+        registry_key=schema_name,
+        owner_ref=owner.contract_id,
+        dto_abi=owner.dto_fqn,
+        wire_policy_ref=policy[0],
+        wire_policy_revision=policy[1],
+        schema_name=schema_name,
+        schema_version=schema_version,
+        payload_version=schema_version,
+        profile_ref=None,
+        readable=True,
+        writable=True,
+        current=True,
+        default_write=True,
+    )
+    return owner
+
+
+for _model, _name, _version in (
+    (
+        CausalAssumptionCard,
+        _CAUSAL_ASSUMPTION_CARD_SCHEMA_NAME,
+        _CAUSAL_ASSUMPTION_CARD_SCHEMA_VERSION,
+    ),
+    (
+        DistributionalDualCertificate,
+        _DISTRIBUTIONAL_DUAL_CERTIFICATE_SCHEMA_NAME,
+        _DISTRIBUTIONAL_DUAL_CERTIFICATE_SCHEMA_VERSION,
+    ),
+    (
+        DistributionalProofArtifact,
+        _DISTRIBUTIONAL_PROOF_ARTIFACT_SCHEMA_NAME,
+        _DISTRIBUTIONAL_PROOF_ARTIFACT_SCHEMA_VERSION,
+    ),
+    (
+        DiscreteDistributionSummary,
+        _DISCRETE_DISTRIBUTION_SUMMARY_SCHEMA_NAME,
+        _DISCRETE_DISTRIBUTION_SUMMARY_SCHEMA_VERSION,
+    ),
+    (
+        DistributionalBoundsBundle,
+        _DISTRIBUTIONAL_BOUNDS_BUNDLE_SCHEMA_NAME,
+        _DISTRIBUTIONAL_BOUNDS_BUNDLE_SCHEMA_VERSION,
+    ),
+    (
+        QuantileShiftSummary,
+        _QUANTILE_SHIFT_SUMMARY_SCHEMA_NAME,
+        _QUANTILE_SHIFT_SUMMARY_SCHEMA_VERSION,
+    ),
+    (
+        TailRiskDeltaSummary,
+        _TAIL_RISK_DELTA_SUMMARY_SCHEMA_NAME,
+        _TAIL_RISK_DELTA_SUMMARY_SCHEMA_VERSION,
+    ),
+    (OTCouplingSummary, _OT_COUPLING_SUMMARY_SCHEMA_NAME, _OT_COUPLING_SUMMARY_SCHEMA_VERSION),
+    (
+        SubgroupDistributionComparison,
+        _SUBGROUP_DISTRIBUTION_COMPARISON_SCHEMA_NAME,
+        _SUBGROUP_DISTRIBUTION_COMPARISON_SCHEMA_VERSION,
+    ),
+    (
+        OrdinalPovertyReport,
+        _ORDINAL_POVERTY_REPORT_SCHEMA_NAME,
+        _ORDINAL_POVERTY_REPORT_SCHEMA_VERSION,
+    ),
+    (
+        DistributionalEffectBundle,
+        _DISTRIBUTIONAL_EFFECT_BUNDLE_SCHEMA_NAME,
+        _DISTRIBUTIONAL_EFFECT_BUNDLE_SCHEMA_VERSION,
+    ),
+    (
+        DistributionalReport,
+        _DISTRIBUTIONAL_REPORT_SCHEMA_NAME,
+        _DISTRIBUTIONAL_REPORT_SCHEMA_VERSION,
+    ),
+):
+    _DISTRIBUTIONAL_OWNERS[_model] = _register_distributional_owner(
+        _model, schema_name=_name, schema_version=_version
+    )
+
+
+def _persist_distributional_owned(
+    store: ArtifactStore,
+    payload: BaseModel,
+    *,
+    kind: str,
+    schema_name: str,
+    schema_version: str,
+    inputs: list[InputRef] | None,
+) -> dict[str, str]:
+    """Persist a declared distributional DTO through its exact owner row."""
+    owner = _DISTRIBUTIONAL_OWNERS.get(type(payload))
+    if owner is None or kind != owner.kind or schema_name != owner.registry_key:
+        raise ValueError("ir_distributional_leaf_owner_mismatch")
+    return _put_owned_json_artifact(
+        store,
+        payload.model_dump(mode="json"),
+        owner=owner,
+        schema_name=schema_name,
+        schema_version=schema_version,
+        inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+
+
 def persist_discrete_distribution_summary(
     store: ArtifactStore,
     summary: DiscreteDistributionSummary,
@@ -1487,7 +1666,6 @@ def load_discrete_distribution_summary(
         DiscreteDistributionSummary,
         expected_kind=_DISCRETE_DISTRIBUTION_SUMMARY_SCHEMA_NAME,
         expected_schema_name=_DISCRETE_DISTRIBUTION_SUMMARY_SCHEMA_NAME,
-        expected_schema_version=_DISCRETE_DISTRIBUTION_SUMMARY_SCHEMA_VERSION,
     )
 
 
@@ -1497,16 +1675,14 @@ def persist_distributional_bounds_bundle(
     *,
     inputs: list[InputRef] | None = None,
 ) -> DistributionalBoundsBundleRef:
-    """Persist a distributional bounds bundle and return its typed artifact ref."""
-
-    ref = put_json_artifact(
+    """Persist a distributional bounds bundle through its owner."""
+    ref = _persist_distributional_owned(
         store,
-        bundle.model_dump(mode="json"),
+        bundle,
         kind="ir.distributional_bounds_bundle",
         schema_name=_DISTRIBUTIONAL_BOUNDS_BUNDLE_SCHEMA_NAME,
         schema_version=_DISTRIBUTIONAL_BOUNDS_BUNDLE_SCHEMA_VERSION,
         inputs=inputs,
-        canon_spec=CanonSpec(forbid_floats=False),
     )
     return DistributionalBoundsBundleRef.model_validate(ref)
 
@@ -1515,10 +1691,14 @@ def load_distributional_bounds_bundle(
     store: ArtifactStore,
     ref: DistributionalBoundsBundleRef,
 ) -> DistributionalBoundsBundle:
-    """Load distributional bounds bundle."""
-
-    payload = get_json_artifact(store, ref)
-    return DistributionalBoundsBundle.model_validate(payload)
+    """Load a distributional bounds bundle after owner admission."""
+    return _load_distributional_leaf(
+        store,
+        ref,
+        DistributionalBoundsBundle,
+        expected_kind="ir.distributional_bounds_bundle",
+        expected_schema_name=_DISTRIBUTIONAL_BOUNDS_BUNDLE_SCHEMA_NAME,
+    )
 
 
 def persist_distributional_dual_certificate(
@@ -1527,16 +1707,14 @@ def persist_distributional_dual_certificate(
     *,
     inputs: list[InputRef] | None = None,
 ) -> DistributionalDualCertificateRef:
-    """Persist a distributional dual certificate and return its typed ref."""
-
-    ref = put_json_artifact(
+    """Persist a distributional dual certificate through its owner."""
+    ref = _persist_distributional_owned(
         store,
-        certificate.model_dump(mode="json"),
+        certificate,
         kind="ir.distributional_dual_certificate",
         schema_name=_DISTRIBUTIONAL_DUAL_CERTIFICATE_SCHEMA_NAME,
         schema_version=_DISTRIBUTIONAL_DUAL_CERTIFICATE_SCHEMA_VERSION,
         inputs=inputs,
-        canon_spec=CanonSpec(forbid_floats=False),
     )
     return DistributionalDualCertificateRef.model_validate(ref)
 
@@ -1545,10 +1723,14 @@ def load_distributional_dual_certificate(
     store: ArtifactStore,
     ref: DistributionalDualCertificateRef,
 ) -> DistributionalDualCertificate:
-    """Load distributional dual certificate."""
-
-    payload = get_json_artifact(store, ref)
-    return DistributionalDualCertificate.model_validate(payload)
+    """Load a distributional dual certificate after owner admission."""
+    return _load_distributional_leaf(
+        store,
+        ref,
+        DistributionalDualCertificate,
+        expected_kind="ir.distributional_dual_certificate",
+        expected_schema_name=_DISTRIBUTIONAL_DUAL_CERTIFICATE_SCHEMA_NAME,
+    )
 
 
 def persist_ot_coupling_summary(
@@ -1579,7 +1761,6 @@ def load_ot_coupling_summary(
         OTCouplingSummary,
         expected_kind=_OT_COUPLING_SUMMARY_SCHEMA_NAME,
         expected_schema_name=_OT_COUPLING_SUMMARY_SCHEMA_NAME,
-        expected_schema_version=_OT_COUPLING_SUMMARY_SCHEMA_VERSION,
     )
 
 
@@ -1611,7 +1792,6 @@ def load_quantile_shift_summary(
         QuantileShiftSummary,
         expected_kind=_QUANTILE_SHIFT_SUMMARY_SCHEMA_NAME,
         expected_schema_name=_QUANTILE_SHIFT_SUMMARY_SCHEMA_NAME,
-        expected_schema_version=_QUANTILE_SHIFT_SUMMARY_SCHEMA_VERSION,
     )
 
 
@@ -1643,7 +1823,6 @@ def load_tail_risk_delta_summary(
         TailRiskDeltaSummary,
         expected_kind=_TAIL_RISK_DELTA_SUMMARY_SCHEMA_NAME,
         expected_schema_name=_TAIL_RISK_DELTA_SUMMARY_SCHEMA_NAME,
-        expected_schema_version=_TAIL_RISK_DELTA_SUMMARY_SCHEMA_VERSION,
     )
 
 
@@ -1675,7 +1854,6 @@ def load_subgroup_distribution_comparison(
         SubgroupDistributionComparison,
         expected_kind=_SUBGROUP_DISTRIBUTION_COMPARISON_SCHEMA_NAME,
         expected_schema_name=_SUBGROUP_DISTRIBUTION_COMPARISON_SCHEMA_NAME,
-        expected_schema_version=_SUBGROUP_DISTRIBUTION_COMPARISON_SCHEMA_VERSION,
     )
 
 
@@ -1708,7 +1886,6 @@ def load_causal_assumption_card(
         CausalAssumptionCard,
         expected_kind=_CAUSAL_ASSUMPTION_CARD_SCHEMA_NAME,
         expected_schema_name=_CAUSAL_ASSUMPTION_CARD_SCHEMA_NAME,
-        expected_schema_version=_CAUSAL_ASSUMPTION_CARD_SCHEMA_VERSION,
     )
 
 
@@ -1741,7 +1918,6 @@ def load_distributional_proof_artifact(
         DistributionalProofArtifact,
         expected_kind=_DISTRIBUTIONAL_PROOF_ARTIFACT_SCHEMA_NAME,
         expected_schema_name=_DISTRIBUTIONAL_PROOF_ARTIFACT_SCHEMA_NAME,
-        expected_schema_version=_DISTRIBUTIONAL_PROOF_ARTIFACT_SCHEMA_VERSION,
     )
 
 
@@ -1751,15 +1927,14 @@ def persist_ordinal_poverty_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> OrdinalPovertyReportRef:
-    """Persist an ordinal multidimensional poverty report."""
-    ref = put_json_artifact(
+    """Persist an ordinal poverty report through its owner."""
+    ref = _persist_distributional_owned(
         store,
-        report.model_dump(mode="json"),
+        report,
         kind="ir.ordinal_poverty_report",
         schema_name=_ORDINAL_POVERTY_REPORT_SCHEMA_NAME,
         schema_version=_ORDINAL_POVERTY_REPORT_SCHEMA_VERSION,
         inputs=inputs,
-        canon_spec=CanonSpec(forbid_floats=False),
     )
     return OrdinalPovertyReportRef.model_validate(ref)
 
@@ -1768,9 +1943,14 @@ def load_ordinal_poverty_report(
     store: ArtifactStore,
     ref: OrdinalPovertyReportRef,
 ) -> OrdinalPovertyReport:
-    """Load ordinal multidimensional poverty report."""
-    payload = get_json_artifact(store, ref)
-    return OrdinalPovertyReport.model_validate(payload)
+    """Load an ordinal poverty report after owner admission."""
+    return _load_distributional_leaf(
+        store,
+        ref,
+        OrdinalPovertyReport,
+        expected_kind="ir.ordinal_poverty_report",
+        expected_schema_name=_ORDINAL_POVERTY_REPORT_SCHEMA_NAME,
+    )
 
 
 def persist_distributional_effect_bundle(
@@ -1779,15 +1959,14 @@ def persist_distributional_effect_bundle(
     *,
     inputs: list[InputRef] | None = None,
 ) -> DistributionalEffectBundleRef:
-    """Persist a distributional leaf-ref bundle and return its typed artifact ref."""
-    ref = put_json_artifact(
+    """Persist a distributional effect bundle through its owner."""
+    ref = _persist_distributional_owned(
         store,
-        bundle.model_dump(mode="json"),
+        bundle,
         kind="ir.distributional_effect_bundle",
         schema_name=_DISTRIBUTIONAL_EFFECT_BUNDLE_SCHEMA_NAME,
         schema_version=_DISTRIBUTIONAL_EFFECT_BUNDLE_SCHEMA_VERSION,
         inputs=inputs,
-        canon_spec=CanonSpec(forbid_floats=False),
     )
     return DistributionalEffectBundleRef.model_validate(ref)
 
@@ -1796,9 +1975,14 @@ def load_distributional_effect_bundle(
     store: ArtifactStore,
     ref: DistributionalEffectBundleRef,
 ) -> DistributionalEffectBundle:
-    """Load distributional effect bundle."""
-    payload = get_json_artifact(store, ref)
-    return DistributionalEffectBundle.model_validate(payload)
+    """Load a distributional effect bundle after owner admission."""
+    return _load_distributional_leaf(
+        store,
+        ref,
+        DistributionalEffectBundle,
+        expected_kind="ir.distributional_effect_bundle",
+        expected_schema_name=_DISTRIBUTIONAL_EFFECT_BUNDLE_SCHEMA_NAME,
+    )
 
 
 def persist_distributional_report(
@@ -1809,15 +1993,14 @@ def persist_distributional_report(
     schema_name: str = _DISTRIBUTIONAL_REPORT_SCHEMA_NAME,
     schema_version: str = _DISTRIBUTIONAL_REPORT_SCHEMA_VERSION,
 ) -> DistributionalReportRef:
-    """Persist a top-level distributional report and return its typed artifact ref."""
-    ref = put_json_artifact(
+    """Persist a distributional report through its registered owner."""
+    ref = _persist_distributional_owned(
         store,
-        report.model_dump(mode="json"),
+        report,
         kind="ir.distributional_report",
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
-        canon_spec=CanonSpec(forbid_floats=False),
     )
     return DistributionalReportRef.model_validate(ref)
 
@@ -1826,9 +2009,14 @@ def load_distributional_report(
     store: ArtifactStore,
     ref: DistributionalReportRef,
 ) -> DistributionalReport:
-    """Load distributional report."""
-    payload = get_json_artifact(store, ref)
-    return DistributionalReport.model_validate(payload)
+    """Load a distributional report after owner admission."""
+    return _load_distributional_leaf(
+        store,
+        ref,
+        DistributionalReport,
+        expected_kind="ir.distributional_report",
+        expected_schema_name=_DISTRIBUTIONAL_REPORT_SCHEMA_NAME,
+    )
 
 
 __all__ = [

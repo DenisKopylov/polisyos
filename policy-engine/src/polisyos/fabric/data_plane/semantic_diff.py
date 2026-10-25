@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -16,6 +15,9 @@ from polisyos.core.contracts.feedback import (
 )
 from polisyos.fabric.connectors.contracts.evolution import SchemaEvolution
 from polisyos.fabric.connectors.contracts.schema import DataSchema, SemanticType
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
 
 _SEMANTIC_GRAIN_TYPES = {
     SemanticType.CODE,

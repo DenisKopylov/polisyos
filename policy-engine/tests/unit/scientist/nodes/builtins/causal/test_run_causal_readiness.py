@@ -6,25 +6,29 @@ from unittest.mock import patch
 
 import pytest
 
-from polisyos.core.artifacts import (
-    ensure_ir_artifact_store as _ensure_ir_artifact_store,
-)
-from polisyos.core.artifacts import (
-    profile_bound_ref,
-)
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
     CausalGraphModel,
     GraphType,
+    load_causal_graph_model,
     persist_causal_graph_model,
 )
+from polisyos.ir.analytics.strategic import load_strategic_response_bundle
 from polisyos.ir.analytics.transportability import load_transportability_result
+from polisyos.ir.model_layer.canon import CanonViolation
 from polisyos.ir.observation.causal_readiness import load_causal_readiness_bundle
-from polisyos.ir.registry.refs import CausalReadinessBundleRef, TransportabilityResultRef
+from polisyos.ir.registry.refs import (
+    CausalGraphModelRef,
+    CausalReadinessBundleRef,
+    StrategicResponseBundleRef,
+    TransportabilityResultRef,
+)
 from polisyos.scientist.nodes.builtins.causal.run_causal_readiness import (
     _SPEC,
     RunCausalReadinessNode,
@@ -113,15 +117,82 @@ def _strategic_payload() -> dict[str, object]:
     }
 
 
+def _same_bytes_sibling_profile(store, ref):
+    """Create a test-produced view with unchanged owner profile and the same CAS bytes."""
+    manifest = store.get_manifest(ref)
+    assert manifest.canon is not None
+    selected = store.put_bytes(
+        store.get_bytes(ref),
+        ArtifactWriteOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            producer=ProducerInfo(component="tests.causal_readiness.selected_view", version="1.0"),
+            env=manifest.env,
+            inputs=list(manifest.inputs),
+            canon=manifest.canon,
+            governance=manifest.governance,
+            tenant_context=manifest.tenant_context,
+            same_input_closure=manifest.same_input_closure,
+            authority=manifest.authority,
+            warnings=list(manifest.warnings),
+        ),
+        return_selected_profile=True,
+    )
+    selected_manifest = store.get_manifest(selected)
+    assert selected_manifest.canon == manifest.canon
+    assert selected_manifest.producer == ProducerInfo(
+        component="tests.causal_readiness.selected_view", version="1.0"
+    )
+    assert str(selected.artifact_id) == str(ref.artifact_id)
+    assert selected.manifest_profile_sha256 is not None
+    assert selected.manifest_profile_sha256 != ref.manifest_profile_sha256
+    return selected
+
+
+def test_causal_graph_owner_refuses_noncanonical_selected_profile(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path, run_id="R_c4a_noncanonical_profile")
+    store = _ensure_ir_artifact_store(ctx.store)
+    canonical_ref = persist_causal_graph_model(store, _graph(), return_selected_profile=True)
+    manifest = ctx.store.get_manifest(canonical_ref)
+    assert manifest.canon is not None
+    selected = ctx.store.put_bytes(
+        ctx.store.get_bytes(canonical_ref),
+        ArtifactWriteOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            producer=manifest.producer,
+            env=manifest.env,
+            inputs=list(manifest.inputs),
+            canon=manifest.canon.model_copy(update={"max_depth": manifest.canon.max_depth + 1}),
+            governance=manifest.governance,
+            tenant_context=manifest.tenant_context,
+            same_input_closure=manifest.same_input_closure,
+            authority=manifest.authority,
+            warnings=list(manifest.warnings),
+        ),
+        return_selected_profile=True,
+    )
+    assert str(selected.artifact_id) == str(canonical_ref.artifact_id)
+    assert selected.manifest_profile_sha256 is not None
+    assert selected.manifest_profile_sha256 != canonical_ref.manifest_profile_sha256
+    with pytest.raises(CanonViolation, match="ir_owned_artifact_profile_refused"):
+        load_causal_graph_model(
+            store,
+            CausalGraphModelRef.model_validate(selected.model_dump(mode="json")),
+        )
+
+
 def test_run_causal_readiness_spec_reads_performative_loop_spec() -> None:
     assert "params.performative_loop_spec" in _SPEC.state_reads
 
 
 def test_run_causal_readiness_node_persists_bundle_and_leaf_refs(tmp_path) -> None:
     ctx = _build_ctx(tmp_path, run_id="R_c4a")
-    graph_ref = profile_bound_ref(
-        _ensure_ir_artifact_store(ctx.store),
-        persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), _graph()),
+    persisted_graph_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), _graph())
+    graph_ref = CausalGraphModelRef.model_validate(
+        _same_bytes_sibling_profile(ctx.store, persisted_graph_ref).model_dump(mode="json")
     )
     state = ExperimentState(
         run_id="R_c4a",
@@ -212,6 +283,7 @@ def test_run_causal_readiness_node_persists_bundle_and_leaf_refs(tmp_path) -> No
     assert outcome.status == "ok"
     assert ARTIFACT_CAUSAL_READINESS_BUNDLE_REF in outcome.state.artifacts_index
     assert ARTIFACT_TRANSPORTABILITY_RESULT_REF in outcome.state.artifacts_index
+
     assert ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF in outcome.state.artifacts_index
 
     bundle_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_READINESS_BUNDLE_REF]
@@ -223,6 +295,21 @@ def test_run_causal_readiness_node_persists_bundle_and_leaf_refs(tmp_path) -> No
     assert bundle.proxy_results[0].status == "identified"
     assert len(bundle.transport_results) == 1
     assert len(bundle.strategic_results) == 1
+    assert bundle.strategic_results[0].status == "ready"
+    assert bundle.strategic_results[0].strategic_response_bundle_ref is not None
+    strategic_bundle_ref = StrategicResponseBundleRef.model_validate(
+        outcome.state.artifacts_index[ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF].model_dump(
+            mode="json"
+        )
+    )
+    strategic_bundle = load_strategic_response_bundle(
+        _ensure_ir_artifact_store(ctx.store), strategic_bundle_ref
+    )
+    assert str(strategic_bundle.causal_component_ref.artifact_id) == str(graph_ref.artifact_id)
+    assert (
+        strategic_bundle.causal_component_ref.manifest_profile_sha256
+        == graph_ref.manifest_profile_sha256
+    )
     assert len(bundle.counterfactual_results) == 1
     assert len(bundle.interference_specs) == 1
     assert bundle.interference_specs[0].ready is True
@@ -240,6 +327,7 @@ def test_run_causal_readiness_node_persists_bundle_and_leaf_refs(tmp_path) -> No
 
 def test_run_causal_readiness_node_persists_privacy_transportability_metadata(tmp_path) -> None:
     ctx = _build_ctx(tmp_path, run_id="R_c4a_privacy")
+    caller_store = ctx.store
     graph_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), _graph())
     state = ExperimentState(
         run_id="R_c4a_privacy",
@@ -325,14 +413,16 @@ def test_run_causal_readiness_node_persists_privacy_transportability_metadata(tm
     outcome = RunCausalReadinessNode().execute(ctx, state)
 
     assert outcome.status == "ok"
+    assert ctx.store is caller_store
+    fresh_reader = _ensure_ir_artifact_store(FileSystemCAS(caller_store.root))
     bundle_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_READINESS_BUNDLE_REF]
     bundle = load_causal_readiness_bundle(
-        _ensure_ir_artifact_store(ctx.store),
+        fresh_reader,
         CausalReadinessBundleRef.model_validate(bundle_ref.model_dump(mode="json")),
     )
     transport_entry = bundle.transport_results[0]
     transport_result = load_transportability_result(
-        _ensure_ir_artifact_store(ctx.store),
+        fresh_reader,
         TransportabilityResultRef.model_validate(
             transport_entry.result_ref.model_dump(mode="json")
         ),
@@ -382,3 +472,48 @@ def test_run_causal_readiness_graph_assertion_is_not_swallowed(tmp_path) -> None
         pytest.raises(AssertionError, match="graph invariant"),
     ):
         RunCausalReadinessNode().execute(ctx, state)
+
+
+def test_readiness_bundle_lineage_keeps_selected_graph_profile(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path, run_id="R_c4a_selected_profile")
+    persisted_graph_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), _graph())
+    graph_ref = CausalGraphModelRef.model_validate(
+        _same_bytes_sibling_profile(ctx.store, persisted_graph_ref).model_dump(mode="json")
+    )
+    state = ExperimentState(
+        run_id="R_c4a_selected_profile",
+        artifacts_index={
+            ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: ArtifactRef.model_validate(
+                graph_ref.model_dump(mode="json")
+            )
+        },
+        params={
+            "transportability_check_bundle": {
+                "checks": [
+                    {
+                        "check_id": "same_regime",
+                        "family": "budget_flows",
+                        "treatment": "X",
+                        "outcome": "Y",
+                        "source_regime_id": "r1",
+                        "target_regime_id": "r1",
+                        "source_context": {"context_id": "UA"},
+                        "target_context": {"context_id": "UA"},
+                    }
+                ]
+            }
+        },
+    )
+
+    outcome = RunCausalReadinessNode().execute(ctx, state)
+
+    assert outcome.status == "ok", outcome.error
+    bundle_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_READINESS_BUNDLE_REF]
+    graph_inputs = [
+        edge
+        for edge in ctx.store.get_manifest(bundle_ref).inputs
+        if edge.role == "reconciled_causal_graph"
+    ]
+    assert len(graph_inputs) == 1
+    assert str(graph_inputs[0].artifact_id) == str(graph_ref.artifact_id)
+    assert graph_inputs[0].manifest_profile_sha256 == graph_ref.manifest_profile_sha256

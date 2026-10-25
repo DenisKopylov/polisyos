@@ -4,12 +4,14 @@ import logging
 from types import SimpleNamespace
 
 from polisyos.core.artifacts import (
-    ensure_ir_artifact_store as _ensure_ir_artifact_store,
-)
-from polisyos.core.artifacts import (
+    InputRef,
+    input_ref_from_artifact_ref,
     profile_bound_ref,
 )
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -18,6 +20,7 @@ from polisyos.ir.analytics.causal_graph import (
     CausalGraphModel,
     EdgeMark,
     GraphType,
+    load_causal_graph_model,
     persist_causal_graph_model,
 )
 from polisyos.ir.analytics.interference import (
@@ -27,6 +30,7 @@ from polisyos.ir.analytics.interference import (
     SpatialHodgeScaleProfile,
 )
 from polisyos.ir.registry.refs import CausalGraphModelRef
+from polisyos.runtime.http.resilience import guard_runtime_cas
 from polisyos.scientist.methods.causal import validity as validity_module
 from polisyos.scientist.methods.causal.validity import (
     _build_spatial_interference_check,
@@ -35,6 +39,16 @@ from polisyos.scientist.methods.causal.validity import (
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+
+def _bound_test_input(store: FileSystemCAS, *, label: str) -> InputRef:
+    source_ref = store.put_json(
+        {"label": label},
+        PutOptions(kind="test.selected_profile_anchor", media_type="application/json"),
+    )
+    return input_ref_from_artifact_ref(
+        profile_bound_ref(store, source_ref), role="selected_profile_anchor"
+    )
 
 
 def test_causal_validity_bundle_records_ownerless_claim_limitation(
@@ -118,24 +132,50 @@ def test_pag_refinement_preserves_selected_graph_profile_in_output_lineage(
         logger=logging.getLogger("test.causal.validity.profiled_pag"),
     )
     ir_store = _ensure_ir_artifact_store(store)
-    graph_ref = profile_bound_ref(
-        ir_store,
-        persist_causal_graph_model(
-            ir_store,
-            CausalGraphModel(
-                graph_type=GraphType.PAG,
-                nodes=["X", "Y"],
-                edges=[
-                    CausalEdge(
-                        src="X",
-                        dst="Y",
-                        mark_src=EdgeMark.CIRCLE,
-                        mark_dst=EdgeMark.CIRCLE,
-                    )
-                ],
-            ),
-        ),
+    graph = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=["X", "Y"],
+        edges=[
+            CausalEdge(
+                src="X",
+                dst="Y",
+                mark_src=EdgeMark.CIRCLE,
+                mark_dst=EdgeMark.CIRCLE,
+            )
+        ],
     )
+    graph_ref = persist_causal_graph_model(
+        ir_store,
+        graph,
+        inputs=[_bound_test_input(store, label="producer-input-selected")],
+        return_selected_profile=True,
+    )
+    latest_graph_ref = persist_causal_graph_model(
+        ir_store,
+        graph,
+        inputs=[_bound_test_input(store, label="producer-input-alternative")],
+        return_selected_profile=True,
+    )
+    current_default_graph_ref = profile_bound_ref(
+        store, graph_ref.model_copy(update={"manifest_profile_sha256": None})
+    )
+    assert str(graph_ref.artifact_id) == str(latest_graph_ref.artifact_id)
+    assert store.get_bytes(graph_ref) == store.get_bytes(latest_graph_ref)
+    assert graph_ref.manifest_profile_sha256 is not None
+    assert latest_graph_ref.manifest_profile_sha256 is not None
+    assert graph_ref.manifest_profile_sha256 != latest_graph_ref.manifest_profile_sha256
+    selected_graph_ref = next(
+        candidate_ref
+        for candidate_ref in (graph_ref, latest_graph_ref)
+        if candidate_ref.manifest_profile_sha256
+        != current_default_graph_ref.manifest_profile_sha256
+    )
+    assert selected_graph_ref.manifest_profile_sha256 is not None
+    assert (
+        selected_graph_ref.manifest_profile_sha256
+        != current_default_graph_ref.manifest_profile_sha256
+    )
+    graph_ref = selected_graph_ref
     state = ExperimentState(
         run_id="R_causal_validity_profiled_pag",
         artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
@@ -187,6 +227,7 @@ def test_pag_refinement_preserves_selected_graph_profile_in_output_lineage(
     )
 
     assert bundle_ref is not None
+    assert load_causal_graph_model(ir_store, graph_ref) == graph
     bundle_inputs = store.get_manifest(bundle_ref).inputs
     refined_edge = next(
         edge for edge in bundle_inputs if edge.role == "causal_validity_refined_pag_graph"
@@ -204,7 +245,11 @@ def test_pag_refinement_preserves_selected_graph_profile_in_output_lineage(
         edge for edge in refined_inputs if edge.role == "causal_validity_input_graph"
     )
     assert str(source_edge.artifact_id) == str(graph_ref.artifact_id)
+    assert str(source_edge.artifact_id) == str(current_default_graph_ref.artifact_id)
+    assert source_edge.manifest_profile_sha256 is not None
     assert source_edge.manifest_profile_sha256 == graph_ref.manifest_profile_sha256
+    assert source_edge.manifest_profile_sha256 != current_default_graph_ref.manifest_profile_sha256
+    assert load_causal_graph_model(ir_store, refined_ref).graph_type is GraphType.PAG
 
 
 def test_spatial_interference_check_prefers_typed_fields_over_metadata() -> None:
@@ -284,3 +329,14 @@ def test_spatial_interference_check_prefers_typed_fields_over_metadata() -> None
     assert check["status"] == "success"
     assert check["declared_scale_id"] == "district"
     assert check["blocker_codes"] == []
+
+
+def test_local_cas_root_recognizes_guarded_runtime_store(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    guarded = guard_runtime_cas(store)
+
+    assert validity_module._local_cas_root(SimpleNamespace(store=guarded)) == tmp_path
+    assert (
+        validity_module._local_cas_root(SimpleNamespace(store=SimpleNamespace(root=tmp_path)))
+        is None
+    )

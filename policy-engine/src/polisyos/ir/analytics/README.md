@@ -314,3 +314,38 @@ Use `load_hte_outcome`, `load_hte_point_result`, `load_hte_result_v2`,
 profile-selected reads. The runtime summary is scalar-only; consumers resolve
 full per-row values from the bounded point-result artifact when that content is
 within their authorized read path.
+
+## Phase-4 ABM owner admission
+
+phase4_dynamics.py declares the four source-owned ABMResult tuples explicitly:
+the ir.abm_result and polisyos.ir.ABMResult manifest identities, each at payload
+versions 1.3 and 1.4. The shared analytics owner helper binds those rows to the
+same strict ABMResult parser and identity-preserving consumer projection. The
+existing FULL planning rule for outer schema 1.0 retains its exact note; it
+does not admit an undeclared manifest schema version or payload representation.
+The existing source-captured canonical profile callback and historical payload
+bytes remain unchanged.
+
+abm_bridge.py uses the same owner declaration and JSON admission path for
+ABMAlignmentReport. Typed readers refuse unknown manifest history before
+payload reads, while the generic JSON reader remains available for opaque
+inspection. Resource references remain typed payload data and are not selected
+through a central resource allowlist. These checks establish typed
+representation admission, not resource existence, provenance, or authority.
+
+
+## Phase-4 report and causal certificate owner admission
+
+The dynamic microsimulation report, temporal graph certificate, and space-time
+certificate use the shared analytics owner helper for both persistence and
+typed reads. Each owner registers only the producer-selected 1.0 manifest and
+embedded payload versions, with its existing FULL planning rule and exact
+schema-registry note. A FULL planning rule does not grant typed access to an
+undeclared payload version or outer schema version. Generic JSON inspection
+remains available for opaque history.
+
+The owner validates the actual declared schema_version field before CAS writes,
+binds reads to the exact owner row and canonical profile, and returns the same
+strict DTO type. References carried inside reports and certificates are
+preserved as typed payload data; the owner does not enumerate resource IDs or
+claim those resources exist.

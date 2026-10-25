@@ -6,16 +6,19 @@ import hashlib
 import json
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import replace
+from datetime import UTC, datetime
 from decimal import Decimal
 from enum import Enum
-from typing import Any, Literal, TypeGuard
+from typing import Any, Literal, Protocol, TypeGuard, runtime_checkable
 from uuid import uuid4
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.ir import TypedFailureCard
 from polisyos.scientist.methods.search.contracts import EvaluationBundle
 from polisyos.scientist.methods.search.funnel.types import (
+    CheapSignalVector,
     DegradationMode,
     FunnelCostOrigin,
     FunnelEvaluationStatus,
@@ -25,7 +28,8 @@ from polisyos.scientist.methods.search.funnel.types import (
     FunnelStageResult,
     FunnelTicket,
     FunnelTraceStep,
-    TypedFailureCard,
+    FunnelWorkPacketStatus,
+    RoutingAction,
     UncertaintyEnvelope,
 )
 from polisyos.scientist.methods.search.lessons import (
@@ -36,6 +40,7 @@ from polisyos.scientist.methods.search.lessons import (
 from polisyos.scientist.methods.search.objective import (
     _POLICY_RUNTIME_INVOCATION_FIELDS,
     ObjectiveScoreAdmission,
+    ObjectiveScoreAssessment,
     ObjectiveScoreStatus,
     SourceMetricObservation,
     _policy_runtime_invocation_bindings_status,
@@ -51,20 +56,64 @@ from polisyos.scientist.methods.search.sentinels import (
 from polisyos.scientist.methods.search.stages import CorrelationTracker
 from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
 from polisyos.scientist.methods.search.uncertainty import (
-    load_search_uncertainty_observation,
+    SearchOwnedAttemptAssociationResolver,
+    SearchOwnedHistoricalAttemptAssociationResolver,
+    SearchUncertaintyCurrentRead,
+    SearchUncertaintyOwnerTaskContext,
+    SearchUncertaintyTicketState,
     load_source_bound_risk_observation,
+    persist_search_uncertainty_v2,
     persist_source_bound_risk_observation,
+    produce_search_task_admission,
+    resolve_search_uncertainty_store,
 )
 from polisyos.scientist.methods.search.voi_scheduler import (
     ParetoSnapshot,
     PredictiveVOIScheduler,
+    SchedulingDecision,
     SimpleVOIScheduler,
+    VOICostOrigin,
     _policy_evaluation_vector_source_chain_matches_store,
     _VOIWorkPacketClaim,
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetState
 
 logger = get_logger(__name__)
+
+
+@runtime_checkable
+class _VOIStageResultObserver(Protocol):
+    """Describe the optional base stage-result observation callback."""
+
+    def observe_stage_result(
+        self,
+        *,
+        candidate_id: str,
+        task_family: str = "policy",
+        domain: str = "",
+        tenant_hash: str = "",
+        stage_level: int,
+        frontier_position: str = "unknown",
+        cheap_signal: CheapSignalVector | None = None,
+        actual_objective_value: float | None,
+        score_assessment: ObjectiveScoreAssessment | None = None,
+        objective_source: Mapping[str, object] | None = None,
+        actual_promising: bool,
+        duration_seconds: float,
+        compute_cost_usd: float | None,
+        compute_cost_origin: VOICostOrigin,
+        timeout_occurred: bool = False,
+        disagreement: float | None = None,
+        metadata: dict[str, object] | None = None,
+    ) -> None: ...
+
+
+@runtime_checkable
+class _VOICalibrationStateUpdater(Protocol):
+    """Describe the optional calibration-state update callback."""
+
+    def update_calibration_state(self, metrics: Mapping[str, object]) -> None: ...
+
 
 AdvancePolicy = Literal["stage_a", "full", "burn_in"]
 _CONTINUABLE_ACTIONS = frozenset({"defer", "retry_cheaper"})
@@ -278,13 +327,14 @@ def _reconcile_funnel_score(result: FunnelStageResult) -> FunnelStageResult:
                 score_admission=admission,
             )
 
+    candidate_only_promise = result.is_promising and _candidate_score_limited(result)
     feedback = dict(result.feedback)
     if result.objective_value is not None:
         feedback.setdefault("unbound_objective_diagnostic", result.objective_value)
     return replace(
         result,
         objective_value=None,
-        is_promising=False,
+        is_promising=candidate_only_promise,
         score_status=admission.status,
         score_assessment=assessment,
         score_admission=admission,
@@ -327,20 +377,29 @@ def _finalize_terminal_completion(ticket: FunnelTicket) -> None:
         ticket.final_action = "defer"
         return
     reconciled = _reconcile_funnel_score(result)
-    result_level = max(ticket.stage_results)
-    ticket.stage_results[result_level] = reconciled
-    for step in reversed(ticket.trace):
-        if step.fidelity_level == result_level and step.stage_name == result.stage_name:
-            step.objective_value = reconciled.objective_value
-            step.is_promising = reconciled.is_promising
-            step.score_status = reconciled.score_status
-            step.score_assessment = reconciled.score_assessment
-            step.score_admission = reconciled.score_admission
-            break
     admission = _funnel_score_admission(reconciled)
     if admission.status is ObjectiveScoreStatus.AVAILABLE:
-        return
-    ticket.final_action = "reject" if admission.status is ObjectiveScoreStatus.INVALID else "defer"
+        terminal_result = reconciled
+    else:
+        ticket.final_action = (
+            "reject" if admission.status is ObjectiveScoreStatus.INVALID else "defer"
+        )
+        terminal_result = replace(
+            reconciled,
+            is_promising=False,
+            terminal_action=ticket.final_action,
+        )
+
+    result_level = max(ticket.stage_results)
+    ticket.stage_results[result_level] = terminal_result
+    for step in reversed(ticket.trace):
+        if step.fidelity_level == result_level and step.stage_name == result.stage_name:
+            step.objective_value = terminal_result.objective_value
+            step.is_promising = terminal_result.is_promising
+            step.score_status = terminal_result.score_status
+            step.score_assessment = terminal_result.score_assessment
+            step.score_admission = terminal_result.score_admission
+            break
 
 
 def _aggregate_funnel_cost(
@@ -359,6 +418,76 @@ def _aggregate_funnel_cost(
     return total, origin
 
 
+def _admit_search_uncertainty_task(
+    *,
+    funnel_ticket_id: str,
+    owner_context: SearchUncertaintyOwnerTaskContext,
+    context: Mapping[str, Any],
+    owned_attempt_association_resolver: SearchOwnedAttemptAssociationResolver | None,
+    owned_historical_attempt_association_resolver: (
+        SearchOwnedHistoricalAttemptAssociationResolver | None
+    ),
+) -> tuple[str | None, int | None, ArtifactRef | None, str | None]:
+    """Persist the actual pre-dispatch Search owner context and numeric-free obligation."""
+    raw_store = context.get("store")
+    if raw_store is None:
+        return None, None, None, "artifact_store_missing"
+    store = resolve_search_uncertainty_store(raw_store)
+    if store is None:
+        return None, None, None, "artifact_store_incompatible"
+    try:
+        state = SearchUncertaintyTicketState(
+            store,
+            owned_attempt_association_resolver=owned_attempt_association_resolver,
+            owned_historical_attempt_association_resolver=(
+                owned_historical_attempt_association_resolver
+            ),
+        )
+        ticket_id = funnel_ticket_id
+        owner_context_ref = persist_search_uncertainty_v2(store, owner_context)
+        row = state.initialize(ticket_id)
+        if row.task_admission_ref is not None:
+            selected = state.read_current_snapshot(ticket_id)
+            if (
+                selected is not None
+                and selected.task_admission is not None
+                and selected.task_admission.owner_context_ref == owner_context_ref
+            ):
+                binding_ref = row.current_binding_ref
+                return ticket_id, row.ticket_generation, binding_ref, None
+            row = state.bump_ticket_generation(
+                ticket_id,
+                expected_generation=row.ticket_generation,
+            )
+        elif row.owner_context_ref is not None and row.owner_context_ref != owner_context_ref:
+            row = state.bump_ticket_generation(
+                ticket_id,
+                expected_generation=row.ticket_generation,
+            )
+        generation = row.ticket_generation
+        _, _, admission_ref, _ = produce_search_task_admission(
+            store,
+            owner_context,
+            ticket_id=ticket_id,
+            ticket_generation=generation,
+            selected_at=datetime.now(UTC),
+        )
+        selected_row = state.record_task_admission(
+            ticket_id=ticket_id,
+            expected_generation=generation,
+            expected_projection_revision=row.projection_revision,
+            admission_ref=admission_ref,
+        )
+        binding_ref = state.publish_task_binding(
+            ticket_id,
+            expected_generation=selected_row.ticket_generation,
+            expected_projection_revision=selected_row.projection_revision,
+        )
+        return ticket_id, selected_row.ticket_generation, binding_ref, None
+    except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        return None, None, None, f"task_admission:{type(exc).__name__}"
+
+
 class FunnelOrchestrator:
     """Orchestrates candidates through a stateful multi-level funnel."""
 
@@ -373,6 +502,12 @@ class FunnelOrchestrator:
         frontier: ParetoSnapshot | None = None,
         correlation_tracker: CorrelationTracker | None = None,
         lesson_registry: LessonRegistry | None = None,
+        search_uncertainty_attempt_association_resolver: (
+            SearchOwnedAttemptAssociationResolver | None
+        ) = None,
+        search_uncertainty_historical_attempt_association_resolver: (
+            SearchOwnedHistoricalAttemptAssociationResolver | None
+        ) = None,
     ) -> None:
         self._stages = sorted(stages, key=lambda stage: stage.fidelity_level)
         self._max_level = max_level
@@ -385,6 +520,12 @@ class FunnelOrchestrator:
         self._frontier = frontier or ParetoSnapshot()
         self._correlation_tracker = correlation_tracker
         self._lesson_registry = lesson_registry
+        self._search_uncertainty_attempt_association_resolver = (
+            search_uncertainty_attempt_association_resolver
+        )
+        self._search_uncertainty_historical_attempt_association_resolver = (
+            search_uncertainty_historical_attempt_association_resolver
+        )
         stage_costs = {
             stage.fidelity_level: self._decimal_from_float(stage.estimated_cost_usd)
             for stage in self._stages
@@ -403,6 +544,8 @@ class FunnelOrchestrator:
         self,
         candidate: dict[str, Any],
         context: dict[str, Any],
+        *,
+        search_uncertainty_owner_context: SearchUncertaintyOwnerTaskContext | None = None,
     ) -> FunnelTicket:
         """Submit a candidate to the orchestrator and return a reusable ticket."""
 
@@ -410,14 +553,19 @@ class FunnelOrchestrator:
         sentinel_meta = extract_sentinel_metadata(candidate) or {}
         ticket_context = dict(context)
         metric_projection_basis = ticket_context.pop("_funnel_method_metric_projection_basis", None)
+        cache_context = dict(ticket_context)
+        if search_uncertainty_owner_context is not None:
+            cache_context["search_uncertainty_owner_context"] = (
+                search_uncertainty_owner_context.model_dump(mode="json", exclude_none=False)
+            )
         if sentinel_meta:
             ticket_context.update(sentinel_meta)
             ticket_context["is_sentinel"] = True
-        continuation_key = self._continuation_context_key(candidate, ticket_context)
+        continuation_key = self._continuation_context_key(candidate, cache_context)
         routing_mode = self._routing_mode(ticket_context)
         cache_key = self._ticket_cache_key(
             candidate,
-            context,
+            cache_context,
             sentinel_meta=sentinel_meta,
             routing_mode=routing_mode,
         )
@@ -436,6 +584,27 @@ class FunnelOrchestrator:
 
         previous_ticket = self._latest_ticket(candidate_hash, continuation_key=continuation_key)
         ticket_id = str(uuid4())
+        uncertainty_ticket_id: str | None = None
+        uncertainty_generation: int | None = None
+        uncertainty_binding_ref: ArtifactRef | None = None
+        uncertainty_admission_failure: str | None = None
+        if search_uncertainty_owner_context is not None:
+            (
+                uncertainty_ticket_id,
+                uncertainty_generation,
+                uncertainty_binding_ref,
+                uncertainty_admission_failure,
+            ) = _admit_search_uncertainty_task(
+                funnel_ticket_id=ticket_id,
+                owner_context=search_uncertainty_owner_context,
+                context=ticket_context,
+                owned_attempt_association_resolver=(
+                    self._search_uncertainty_attempt_association_resolver
+                ),
+                owned_historical_attempt_association_resolver=(
+                    self._search_uncertainty_historical_attempt_association_resolver
+                ),
+            )
         ticket = FunnelTicket(
             ticket_id=ticket_id,
             candidate_hash=candidate_hash,
@@ -444,7 +613,12 @@ class FunnelOrchestrator:
             next_level=self._first_level(),
             cache_key=cache_key,
             lineage=(ticket_id,),
+            search_uncertainty_ticket_id=uncertainty_ticket_id,
+            search_uncertainty_generation=uncertainty_generation,
+            search_uncertainty_task_binding_ref=uncertainty_binding_ref,
         )
+        if uncertainty_admission_failure is not None:
+            ticket.context["search_uncertainty_admission_failure"] = uncertainty_admission_failure
         ticket._set_method_metric_projection_basis(metric_projection_basis)
         if previous_ticket is not None:
             ticket.parent_ticket_id = previous_ticket.ticket_id
@@ -726,52 +900,79 @@ class FunnelOrchestrator:
             uncertainty_envelope = UncertaintyEnvelope.unknown()
 
         outcome_stage_results = dict(resolved_ticket.stage_results)
-        admitted_envelopes: list[UncertaintyEnvelope] = []
         observation_refs: list[ArtifactRef] = []
         intake_failures: list[str] = []
         store = resolved_ticket.context.get("store")
-        basis_ref = resolved_ticket.context.get("uncertainty_basis_ref")
         subject_ref = resolved_ticket.context.get("policy_candidate_ref")
-        for result in ordered_results:
-            ref = result.uncertainty_observation_ref
-            if (
-                ref is None
-                or store is None
-                or not isinstance(basis_ref, ArtifactRef)
-                or not isinstance(subject_ref, ArtifactRef)
-            ):
-                intake_failures.append(f"{result.stage_name}:producer_observation_missing")
-                continue
-            try:
-                observation = load_search_uncertainty_observation(
-                    store, ref, basis_ref, result.uncertainty_envelope, subject_ref
+        current_read: SearchUncertaintyCurrentRead | None = None
+        current_uncertainty: UncertaintyEnvelope | None = None
+        search_ticket_id = resolved_ticket.search_uncertainty_ticket_id
+        if store is not None and search_ticket_id is not None:
+            search_store = resolve_search_uncertainty_store(store)
+            if search_store is None:
+                intake_failures.append("fresh_current_read:artifact_store_incompatible")
+            else:
+                try:
+                    current_read = SearchUncertaintyTicketState(
+                        search_store,
+                        owned_attempt_association_resolver=(
+                            self._search_uncertainty_attempt_association_resolver
+                        ),
+                        owned_historical_attempt_association_resolver=(
+                            self._search_uncertainty_historical_attempt_association_resolver
+                        ),
+                    ).read_current_snapshot(search_ticket_id)
+                except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+                    intake_failures.append(f"fresh_current_read:{type(exc).__name__}")
+            if current_read is None and search_store is not None:
+                intake_failures.append("fresh_current_read:ticket_state_missing")
+            elif current_read is not None and current_read.status == "not_established":
+                intake_failures.append(
+                    "fresh_current_read:"
+                    + (current_read.reason_code or "owner_projection_not_selected")
                 )
-            except (
-                AttributeError,
-                OSError,
-                RuntimeError,
-                TypeError,
-                ValueError,
-            ) as exc:
-                intake_failures.append(f"{result.stage_name}:{exc}")
-                continue
-            admitted_envelopes.append(observation.envelope)
-            observation_refs.append(ref)
-        current_uncertainty = (
-            UncertaintyEnvelope.merge_max(admitted_envelopes)
-            if admitted_envelopes and not intake_failures
-            else None
-        )
+            elif current_read is not None and current_read.task_admission is None:
+                intake_failures.append("task_admission_missing")
+            elif (
+                current_read is not None
+                and current_read.task_admission is not None
+                and current_read.task_admission.status == "not_established"
+            ):
+                intake_failures.extend(current_read.task_admission.missing_slices)
+            elif current_read is not None and current_read.projection is not None:
+                observation_refs.extend(current_read.projection.unassessed_observation_refs)
+                observation_refs.extend(
+                    successor.observation_ref
+                    for obligation in current_read.projection.current_obligations
+                    for successor in obligation.successors
+                )
+                if current_read.projection.active_unknown_obligation_ids:
+                    intake_failures.append("native_method_assessment_pending")
+                if current_read.projection.incomplete_obligation_ids:
+                    intake_failures.append("same_generation_successor_conflict")
+        else:
+            intake_failures.append(
+                resolved_ticket.context.get(
+                    "search_uncertainty_admission_failure",
+                    "pre_dispatch_owner_context_or_store_missing",
+                )
+            )
+        if any(result.uncertainty_observation_ref is not None for result in ordered_results):
+            intake_failures.append("legacy_v1_observations_route_only")
         final_result = resolved_ticket.last_result
         if final_result is not None:
             feedback = dict(final_result.feedback or {})
-            feedback["uncertainty_current"] = (
-                None if current_uncertainty is None else current_uncertainty.model_dump(mode="json")
-            )
+            feedback["uncertainty_current"] = None
             feedback["uncertainty_current_status"] = (
-                "not_established" if current_uncertainty is None else "basis_bound_routing_only"
+                "not_established"
+                if current_read is None or current_read.status != "available_as_of_task_epoch"
+                else current_read.admission_status
             )
-            feedback["uncertainty_refinement_status"] = "producer_law_not_established"
+            feedback["search_uncertainty_current_read"] = (
+                None
+                if current_read is None
+                else current_read.model_dump(mode="json", exclude_none=False)
+            )
             feedback["uncertainty_historical_max"] = uncertainty_envelope.model_dump(mode="json")
             final_result = replace(final_result, feedback=feedback)
             for level, result in outcome_stage_results.items():
@@ -828,6 +1029,7 @@ class FunnelOrchestrator:
             current_uncertainty_envelope=current_uncertainty,
             uncertainty_observation_refs=_dedupe_artifact_refs(observation_refs),
             uncertainty_intake_failures=intake_failures,
+            search_uncertainty_current_read=current_read,
         )
 
     def evaluate(
@@ -1730,7 +1932,7 @@ class FunnelOrchestrator:
             or result.objective_value is None
             or result.score_assessment is None
             or _funnel_score_admission(result).status is not ObjectiveScoreStatus.AVAILABLE
-            or not hasattr(self._voi_scheduler, "observe_stage_result")
+            or not isinstance(self._voi_scheduler, _VOIStageResultObserver)
         ):
             return
         transfer_context = resolve_transfer_context(
@@ -1792,12 +1994,13 @@ class FunnelOrchestrator:
                 ticket_id=ticket.ticket_id,
                 work_packet_claim=work_packet_claim,
             )
+            self._voi_scheduler.observe_stage_result(**observation_args)
+            return
         self._voi_scheduler.observe_stage_result(**observation_args)
 
     def _maybe_update_voi_calibration_state(self) -> None:
-        if self._correlation_tracker is None or not hasattr(
-            self._voi_scheduler,
-            "update_calibration_state",
+        if self._correlation_tracker is None or not isinstance(
+            self._voi_scheduler, _VOICalibrationStateUpdater
         ):
             return
         self._voi_scheduler.update_calibration_state(self._correlation_tracker.compute_metrics())
@@ -1847,7 +2050,15 @@ class FunnelOrchestrator:
                             context=transfer_context,
                         )
                     )
-        elif 4 in ticket.stage_results and ticket.stage_results[4].is_promising:
+        elif (
+            ticket.final_action == "complete"
+            and 4 in ticket.stage_results
+            and ticket.stage_results[4].is_promising
+            and (
+                _funnel_score_admission(ticket.stage_results[4]).status
+                is ObjectiveScoreStatus.AVAILABLE
+            )
+        ):
             outcome = self.get_outcome(ticket)
             lesson = success_lesson_from_outcome(
                 outcome,

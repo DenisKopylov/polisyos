@@ -6,8 +6,11 @@ import contextlib
 import json
 import os
 import tempfile
-from collections.abc import Callable, Iterator
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator
 
 try:  # pragma: no cover - exercised on POSIX CI/dev hosts
     import fcntl

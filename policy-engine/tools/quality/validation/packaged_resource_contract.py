@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Derive and verify the package resources required by their runtime owners.
 
-The source inventory is built from the catalog resource profile, the selected
-dependency-registry reader, and the DoWhy worker's runtime-required asset set.
-This module is also executable from an isolated installed interpreter to prove
-that ``importlib.resources`` can read the same bytes from an installed wheel.
+The source inventory exercises the catalog resource profile, dependency-registry
+reader, DoWhy worker assets, and package resources read by the runtime OpenAPI
+example consumer. The isolated installed mode repeats those owner reads from a
+built wheel and proves that ``importlib.resources`` resolves the same bytes.
 """
 
 from __future__ import annotations
@@ -28,6 +28,38 @@ _SCHEMA = "polisyos.packaged-resource-contract.v1"
 
 class ResourceContractError(ValueError):
     """A package resource inventory is incomplete or differs from its owner."""
+
+
+class _ObservedResource:
+    """Record the package path and bytes read by an actual runtime owner."""
+
+    def __init__(
+        self,
+        delegate: Traversable,
+        package_name: str | None,
+        parts: tuple[str, ...],
+        reads: list[tuple[str | None, tuple[str, ...], Path | None, bytes]],
+    ) -> None:
+        self._delegate = delegate
+        self._package_name = package_name
+        self._parts = parts
+        self._reads = reads
+
+    def joinpath(self, *descendants: str) -> _ObservedResource:
+        if any(type(part) is not str or not part for part in descendants):
+            raise ResourceContractError("runtime owner used a malformed package resource path")
+        return _ObservedResource(
+            self._delegate.joinpath(*descendants),
+            self._package_name,
+            (*self._parts, *descendants),
+            self._reads,
+        )
+
+    def read_bytes(self) -> bytes:
+        data = self._delegate.read_bytes()
+        path = self._delegate if isinstance(self._delegate, Path) else None
+        self._reads.append((self._package_name, self._parts, path, data))
+        return data
 
 
 def _canonical_relative(value: object, *, label: str) -> PurePosixPath:
@@ -60,12 +92,16 @@ def _module_path(module: ModuleType, *, source_anchor: Path, label: str) -> Path
     return resolved
 
 
-def _load_owner_modules() -> tuple[ModuleType, ModuleType, ModuleType, ModuleType]:
+def _load_owner_modules() -> tuple[
+    ModuleType, ModuleType, ModuleType, ModuleType, ModuleType, ModuleType
+]:
     package = importlib.import_module("polisyos")
     catalog = importlib.import_module("polisyos.data_forge.domains.catalog._resources")
     authority = importlib.import_module("polisyos.foundry.methods.catalog.dependency_authority")
     worker = importlib.import_module("polisyos.foundry.methods.catalog.causal._dowhy_worker")
-    return package, catalog, authority, worker
+    runtime_http = importlib.import_module("polisyos.runtime.http")
+    openapi = importlib.import_module("polisyos.runtime.http.openapi_contract")
+    return package, catalog, authority, worker, runtime_http, openapi
 
 
 def _target_from_module_file(module_file: Path, anchor: Path, *parts: str) -> str:
@@ -86,12 +122,52 @@ def _target_from_resource_path(path: Path, anchor: Path, *, label: str) -> str:
     return PurePosixPath(relative).as_posix()
 
 
+def _invoke_openapi_example_reader(
+    openapi: ModuleType,
+) -> list[tuple[str | None, tuple[str, ...], Path | None, bytes]]:
+    reader = getattr(openapi, "_confidence_ledger_risk_spend_example", None)
+    if not callable(reader):
+        raise ResourceContractError("runtime OpenAPI example owner has no executable reader")
+    clear_cache = getattr(reader, "cache_clear", None)
+    if callable(clear_cache):
+        clear_cache()
+    original_files = getattr(openapi, "files", None)
+    if not callable(original_files):
+        raise ResourceContractError(
+            "runtime OpenAPI example owner has no importlib.resources reader"
+        )
+
+    reads: list[tuple[str | None, tuple[str, ...], Path | None, bytes]] = []
+
+    def observed_files(package: object) -> _ObservedResource:
+        package_name = package if type(package) is str else getattr(package, "__name__", None)
+        if package_name is not None and type(package_name) is not str:
+            package_name = None
+        return _ObservedResource(original_files(package), package_name, (), reads)
+
+    openapi.files = observed_files
+    try:
+        example = reader()
+    except Exception as error:
+        raise ResourceContractError(
+            "runtime OpenAPI example reader could not read and admit its package resource"
+        ) from error
+    finally:
+        openapi.files = original_files
+
+    if type(example) is not dict or not reads:
+        raise ResourceContractError("runtime OpenAPI example reader produced no observed resource")
+    return reads
+
+
 def _owner_rows(
     *,
     package: ModuleType,
     catalog: ModuleType,
     authority: ModuleType,
     worker: ModuleType,
+    runtime_http: ModuleType,
+    openapi: ModuleType,
     package_anchor: Path,
     product_root: Path | None,
 ) -> dict[str, Any]:
@@ -103,6 +179,60 @@ def _owner_rows(
     )
     _module_path(authority, source_anchor=package_anchor, label="dependency registry owner")
     worker_file = _module_path(worker, source_anchor=package_anchor, label="DoWhy worker owner")
+    runtime_http_file = _module_path(
+        runtime_http, source_anchor=package_anchor, label="runtime HTTP resource package"
+    )
+    openapi_file = _module_path(
+        openapi, source_anchor=package_anchor, label="runtime OpenAPI example owner"
+    )
+    if runtime_http_file.parent != openapi_file.parent:
+        raise ResourceContractError("runtime OpenAPI owner is outside its resource package")
+
+    openapi_rows_by_target: dict[str, dict[str, Any]] = {}
+    for package_name, parts, read_path, read_bytes in _invoke_openapi_example_reader(openapi):
+        if package_name != runtime_http.__name__ or not parts:
+            raise ResourceContractError(
+                "runtime OpenAPI reader did not select a resource from its own package"
+            )
+        resource_path = PurePosixPath(*parts)
+        _canonical_relative(resource_path.as_posix(), label="OpenAPI runtime resource")
+        wheel = _target_from_module_file(openapi_file, package_anchor, *resource_path.parts)
+        source_path = package_anchor.joinpath(*PurePosixPath(wheel).parts)
+        if read_path is None or read_path.is_symlink() or source_path.is_symlink():
+            raise ResourceContractError("runtime OpenAPI resource is not a regular package file")
+        try:
+            resolved_read = read_path.resolve(strict=True)
+            resolved_source = source_path.resolve(strict=True)
+            resolved_source.relative_to(package_anchor)
+        except (OSError, RuntimeError, ValueError) as error:
+            raise ResourceContractError(
+                "runtime OpenAPI resource escaped its selected package anchor"
+            ) from error
+        if resolved_read != resolved_source or not resolved_source.is_file():
+            raise ResourceContractError(
+                "runtime OpenAPI reader selected a different package resource"
+            )
+        try:
+            source_bytes = resolved_source.read_bytes()
+        except OSError as error:
+            raise ResourceContractError("runtime OpenAPI resource is missing") from error
+        if source_bytes != read_bytes:
+            raise ResourceContractError("runtime OpenAPI reader bytes differ from its owner path")
+        previous = openapi_rows_by_target.get(wheel)
+        row = {
+            "name": resource_path.as_posix(),
+            "source_path": resolved_source,
+            "wheel": wheel,
+        }
+        if previous is not None:
+            if previous != row:
+                raise ResourceContractError("runtime OpenAPI reader selected conflicting resources")
+            continue
+        openapi_rows_by_target[wheel] = row
+    openapi_rows = list(openapi_rows_by_target.values())
+    if not openapi_rows:
+        raise ResourceContractError("runtime OpenAPI example owner exposed no package resources")
+
     catalog_rows = []
     for name in get_args(catalog.CatalogDefaultResource):
         if type(name) is not str or Path(name).name != name:
@@ -143,7 +273,7 @@ def _owner_rows(
             }
         )
 
-    groups = [catalog_rows, [registry_row], worker_rows]
+    groups = [catalog_rows, [registry_row], worker_rows, openapi_rows]
     all_rows = [row for group in groups for row in group]
     wheels = [row["wheel"] for row in all_rows]
     if len(wheels) != len(set(wheels)):
@@ -172,15 +302,22 @@ def _owner_rows(
     catalog_inventory = [serialize_owner_row(row) for row in catalog_rows]
     registry_inventory = serialize_owner_row(registry_row)
     worker_inventory = [serialize_owner_row(row) for row in worker_rows]
+    openapi_inventory = [serialize_owner_row(row) for row in openapi_rows]
     owners = {
         "catalog_defaults": catalog_inventory,
         "digest_registry": registry_inventory,
         "worker_profile_assets": worker_inventory,
+        "openapi_example_resources": openapi_inventory,
     }
     asset_root = product_root if product_root is not None else package_anchor
     assets = [
         _asset_record(asset_root, row["source"], row["wheel"])
-        for row in (*catalog_inventory, registry_inventory, *worker_inventory)
+        for row in (
+            *catalog_inventory,
+            registry_inventory,
+            *worker_inventory,
+            *openapi_inventory,
+        )
     ]
     return {
         "schema": _SCHEMA,
@@ -219,12 +356,14 @@ def source_resource_inventory(product_root: str | Path) -> dict[str, Any]:
         )
     sys.path.insert(0, str(package_anchor))
     try:
-        package, catalog, authority, worker = _load_owner_modules()
+        package, catalog, authority, worker, runtime_http, openapi = _load_owner_modules()
         for module, label in (
             (package, "polisyos"),
             (catalog, "catalog resource owner"),
             (authority, "dependency registry owner"),
             (worker, "DoWhy worker owner"),
+            (runtime_http, "runtime HTTP resource package"),
+            (openapi, "runtime OpenAPI example owner"),
         ):
             _module_path(module, source_anchor=package_anchor, label=label)
         return _owner_rows(
@@ -232,6 +371,8 @@ def source_resource_inventory(product_root: str | Path) -> dict[str, Any]:
             catalog=catalog,
             authority=authority,
             worker=worker,
+            runtime_http=runtime_http,
+            openapi=openapi,
             package_anchor=package_anchor,
             product_root=product,
         )
@@ -243,9 +384,8 @@ def validate_manifest_resources(
     owner_inventory: dict[str, Any],
     manifest_assets: object,
     force_include: object,
-    sdist_include: object,
 ) -> None:
-    """Require manifest, wheel mappings, and sdist inputs to equal runtime owners."""
+    """Require manifest and wheel mappings to equal runtime-owned resources."""
     if owner_inventory.get("schema") != _SCHEMA:
         raise ResourceContractError("runtime owner inventory has an unsupported schema")
     owner_assets = owner_inventory.get("assets")
@@ -253,8 +393,6 @@ def validate_manifest_resources(
         raise ResourceContractError("runtime owners supplied no package resources")
     if type(manifest_assets) is not list or type(force_include) is not dict:
         raise ResourceContractError("manifest assets or Hatch wheel mapping are malformed")
-    if not isinstance(sdist_include, (set, frozenset, list, tuple)):
-        raise ResourceContractError("Hatch sdist source set is malformed")
 
     def rows_by_source(rows: list[Any], label: str) -> dict[str, dict[str, Any]]:
         result: dict[str, dict[str, Any]] = {}
@@ -287,11 +425,6 @@ def validate_manifest_resources(
     expected_force = {source: row["wheel"] for source, row in expected.items()}
     if force_include != expected_force:
         raise ResourceContractError("Hatch wheel mapping differs from runtime-owned resource set")
-    missing_sdist = set(expected) - set(sdist_include)
-    if missing_sdist:
-        raise ResourceContractError(
-            f"Hatch sdist omits runtime-owned resource sources: {sorted(missing_sdist)}"
-        )
 
 
 def verify_source_resource_bytes(product_root: str | Path, assets: list[dict[str, Any]]) -> None:
@@ -405,7 +538,7 @@ def installed_resource_inventory(
                 f"installed interpreter can import from a source root: {path}"
             )
 
-    package, catalog, authority, worker = _load_owner_modules()
+    package, catalog, authority, worker, runtime_http, openapi = _load_owner_modules()
     package_dir = Path(package.__file__).resolve(strict=True).parent
     if not package_dir.is_relative_to(expected_purelib):
         raise ResourceContractError("PolicyOS package did not load from selected installed purelib")
@@ -414,6 +547,8 @@ def installed_resource_inventory(
         (catalog, "catalog resource owner"),
         (authority, "dependency registry owner"),
         (worker, "DoWhy worker owner"),
+        (runtime_http, "runtime HTTP resource package"),
+        (openapi, "runtime OpenAPI example owner"),
     ):
         _module_path(module, source_anchor=expected_purelib, label=label)
 
@@ -422,6 +557,8 @@ def installed_resource_inventory(
         catalog=catalog,
         authority=authority,
         worker=worker,
+        runtime_http=runtime_http,
+        openapi=openapi,
         package_anchor=expected_purelib,
         product_root=None,
     )
@@ -455,6 +592,23 @@ def installed_resource_inventory(
     if not registry.statement.domains:
         raise ResourceContractError("installed dependency registry consumer returned no domains")
     canonical_readers["dependency-authority:digest-registry"] = str(registry_path)
+
+    runtime_http_root = Path(runtime_http.__file__).resolve(strict=True).parent
+    runtime_http_parts = tuple(runtime_http.__name__.split("."))
+    for owner_row in actual_owners["owners"]["openapi_example_resources"]:
+        target = PurePosixPath(owner_row["wheel"])
+        if target.parts[: len(runtime_http_parts)] != runtime_http_parts:
+            raise ResourceContractError("OpenAPI resource target is outside its runtime package")
+        resource_parts = target.parts[len(runtime_http_parts) :]
+        if not resource_parts:
+            raise ResourceContractError("OpenAPI resource target does not name a file")
+        owner_path = runtime_http_root.joinpath(*resource_parts).resolve(strict=True)
+        expected = package_resources.joinpath(*target.parts[1:])
+        if not isinstance(expected, Path) or owner_path != expected.resolve(strict=True):
+            raise ResourceContractError(
+                f"OpenAPI reader does not select installed target: {owner_row['name']}"
+            )
+        canonical_readers[f"openapi-example:{owner_row['name']}"] = str(owner_path)
 
     worker_dir = Path(worker._worker_directory()).resolve(strict=True)
     first_worker_target = PurePosixPath(

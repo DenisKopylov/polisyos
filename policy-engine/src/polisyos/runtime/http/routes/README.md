@@ -51,5 +51,15 @@ translate requests to service calls, set authz context, and return contract-back
 
 ## Run-bound predictive-calibration routes
 
+The runs router also exposes GET /api/v1/runs/{run_id}/decision-packets/{packet_id}/candidate-hte.
+This candidate-only DecisionPacket view requires a resource-bound RUNS_REVIEW grant for the packet
+owner run, resolves packet/profile selectors from that run's indexed outputs, and reads the exact
+profile through the bounded Core JSON reader. The persisted HTE summary and full owner association
+must match a fresh completed-method HTE owner projection, with only aware ordered verified_at time
+allowed to advance. The route currently accepts only same-owning-run source identities; cross-run
+packet selectors return cross_run_authorization_not_established until a separate source-run
+authorization owner exists. Publication authorization and live source currentness remain
+not_established. Generic artifact content remains blocked by its closeout-authority gate.
+
 The runs router exposes POST and GET predictive-calibration operations under exact owned-run bindings. POST reuses the existing RUNS_FEEDBACK_EVALUATE permission for an owner-bound candidate diagnostic write; GET uses RUNS_REVIEW for the same run ownership. Both permission/resource pairs are explicit Rego contracts and default deny remains in force. POST appends an immutable association ref only after the ForecastOwner, empirical bridge, and S10 paths complete. GET verifies the event payload hash, reopens the association and evidence, and recomputes S10. Neither endpoint promotes prediction evidence into causal credibility.
 

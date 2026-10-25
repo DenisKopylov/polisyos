@@ -5,6 +5,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 import polisyos.ir as ir
 import polisyos.ir.analytics as analytics
 import polisyos.ir.kernel as kernel
@@ -99,20 +101,58 @@ print(json.dumps({
     }
 
 
-def test_lazy_export_access_imports_only_requested_module_group() -> None:
-    loaded = _subprocess_json(
+def _assert_facade_import_footprint_matches_owner(
+    facade_modules: list[str], owner_modules: list[str]
+) -> None:
+    extra_modules = set(facade_modules).difference(owner_modules)
+    assert not extra_modules, (
+        f"analytics facade imported modules outside the owner footprint: {sorted(extra_modules)}"
+    )
+
+
+def test_lazy_export_access_stays_within_requested_owner_footprint() -> None:
+    owner_modules = _subprocess_json(
+        "import json, sys; "
+        "from polisyos.ir.analytics.hte import HTEResult; "
+        "assert HTEResult.__module__ == 'polisyos.ir.analytics.hte'; "
+        "print(json.dumps(sorted("
+        "name for name in sys.modules "
+        "if name.startswith('polisyos.ir.analytics.')"
+        ")))"
+    )
+    facade_modules = _subprocess_json(
         "import json, sys; import polisyos.ir.analytics as analytics; "
-        "_ = analytics.HTEResult; "
+        "facade = analytics.HTEResult; "
+        "owner = sys.modules['polisyos.ir.analytics.hte'].HTEResult; "
+        "assert facade is owner; "
+        "assert facade.__module__ == 'polisyos.ir.analytics.hte'; "
         "print(json.dumps(sorted("
         "name for name in sys.modules "
         "if name.startswith('polisyos.ir.analytics.')"
         ")))"
     )
 
-    assert "polisyos.ir.analytics.hte" in loaded
-    assert "polisyos.ir.analytics.strategic" not in loaded
-    assert "polisyos.ir.analytics.alignment_certification" not in loaded
-    assert len(loaded) < 20
+    assert "polisyos.ir.analytics.hte" in owner_modules
+    assert "polisyos.ir.analytics.hte" in facade_modules
+    assert "polisyos.ir.analytics.strategic" not in facade_modules
+    assert "polisyos.ir.analytics.alignment_certification" not in facade_modules
+    _assert_facade_import_footprint_matches_owner(facade_modules, owner_modules)
+
+    # Mutation witness: preserve the HTE facade identity, but add an unrelated
+    # analytics group. The same behavioral comparison must reject that eager load.
+    eager_facade_modules = _subprocess_json(
+        "import json, sys; import polisyos.ir.analytics as analytics; "
+        "facade = analytics.HTEResult; "
+        "assert facade is sys.modules['polisyos.ir.analytics.hte'].HTEResult; "
+        "import polisyos.ir.analytics.strategic; "
+        "print(json.dumps(sorted("
+        "name for name in sys.modules "
+        "if name.startswith('polisyos.ir.analytics.')"
+        ")))"
+    )
+    assert "polisyos.ir.analytics.strategic" in eager_facade_modules
+    with pytest.raises(AssertionError, match="outside the owner footprint"):
+        _assert_facade_import_footprint_matches_owner(eager_facade_modules, owner_modules)
 
 
 def test_analytics_facade_exports_performative_loop_contracts() -> None:

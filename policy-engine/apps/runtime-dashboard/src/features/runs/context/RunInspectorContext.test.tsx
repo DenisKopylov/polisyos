@@ -30,7 +30,12 @@ import {
 function Probe() {
   const summary = useRunInspector();
 
-  return <div data-testid="transport-status">{summary.transportStatus}</div>;
+  return (
+    <>
+      <div data-testid="transport-status">{summary.transportStatus}</div>
+      <div data-testid="live-transport">{String(summary.liveTransport)}</div>
+    </>
+  );
 }
 
 describe("RunInspectorContext", () => {
@@ -40,9 +45,10 @@ describe("RunInspectorContext", () => {
     useRunLiveUpdatesMock.mockReset();
   });
 
-  it("passes live connectivity into useRunDetailSummary and exposes the summary", () => {
+  it("subscribes by validated Core ID and exposes the live connection state", () => {
     useRunLiveUpdatesMock.mockReturnValue({ isLiveConnected: true });
     useRunDetailSummaryMock.mockReturnValue({
+      coreRunId: "core-run-1",
       transportStatus: "live",
     });
 
@@ -52,16 +58,16 @@ describe("RunInspectorContext", () => {
       </RunInspectorProvider>,
     );
 
-    expect(useRunLiveUpdatesMock).toHaveBeenCalledWith("run-1");
-    expect(useRunDetailSummaryMock).toHaveBeenCalledWith("run-1", tMock, {
-      liveTransport: true,
-    });
+    expect(useRunLiveUpdatesMock).toHaveBeenCalledWith("core-run-1");
+    expect(useRunDetailSummaryMock).toHaveBeenCalledWith("run-1", tMock);
     expect(screen.getByTestId("transport-status")).toHaveTextContent("live");
+    expect(screen.getByTestId("live-transport")).toHaveTextContent("true");
   });
 
-  it("keeps liveTransport disabled when the live layer is disconnected", () => {
+  it("does not open a run stream until the summary has a Core identity", () => {
     useRunLiveUpdatesMock.mockReturnValue({ isLiveConnected: false });
     useRunDetailSummaryMock.mockReturnValue({
+      coreRunId: undefined,
       transportStatus: "polling",
     });
 
@@ -71,10 +77,10 @@ describe("RunInspectorContext", () => {
       </RunInspectorProvider>,
     );
 
-    expect(useRunDetailSummaryMock).toHaveBeenCalledWith("run-2", tMock, {
-      liveTransport: false,
-    });
+    expect(useRunLiveUpdatesMock).toHaveBeenCalledWith(undefined);
+    expect(useRunDetailSummaryMock).toHaveBeenCalledWith("run-2", tMock);
     expect(screen.getByTestId("transport-status")).toHaveTextContent("polling");
+    expect(screen.getByTestId("live-transport")).toHaveTextContent("false");
   });
 
   it("throws when useRunInspector is read outside the provider", () => {

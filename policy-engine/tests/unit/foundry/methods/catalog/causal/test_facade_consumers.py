@@ -17,6 +17,8 @@ from types import ModuleType
 
 import pytest
 
+from benchmarks.harness import BenchmarkCase, BenchmarkHarness
+from benchmarks.interference import policy_did_interference
 from polisyos.foundry.methods.catalog.causal import causal_engine, interference
 from polisyos.foundry.methods.catalog.causal.causal_engine import identification
 from polisyos.foundry.methods.catalog.causal.id_engine import (
@@ -142,6 +144,7 @@ def test_interference_serialized_result_consumed_via_supported_facade() -> None:
             CausalEdge(src=src, dst=dst, mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)
             for src, dst in [("T_1", "Y_1"), ("T_2", "Y_2"), ("T_1", "Y_2")]
         ],
+        metadata={"cluster_partition": [["T_1", "Y_1"], ["T_2", "Y_2"]]},
     )
     result = interference.identify_interference_effect(graph, treatment="T_1", outcome="Y_1")
     rebuilt = interference.InterferenceIdentificationResult.model_validate_json(
@@ -150,8 +153,15 @@ def test_interference_serialized_result_consumed_via_supported_facade() -> None:
     assert rebuilt == result
     assert rebuilt.interference_detected
     assert rebuilt.sutva_violated
+    assert rebuilt.schema_version == "1.1"
+    assert rebuilt.status == "oracle_needed"
+    assert rebuilt.identification_method == "unsupported_exposure_law"
+    assert rebuilt.base_identification_status is None
+    assert rebuilt.estimand_ast is None
+    assert rebuilt.negative_certificate is None
     assert isinstance(rebuilt.augmented_graph, interference.InterferenceAugmentedGraph)
-    assert rebuilt.augmented_graph.exposure_nodes == ("E__u0",)
+    assert rebuilt.augmented_graph.exposure_nodes == ()
+    assert rebuilt.augmented_graph.augmented_graph == graph
 
 
 def test_repository_literal_facade_imports_resolve() -> None:
@@ -217,3 +227,154 @@ def test_repository_literal_facade_imports_resolve() -> None:
             sort_keys=True,
         )
     )
+
+
+def test_benchmark_aggregate_and_json_report_preserve_unknown_topology() -> None:
+    """The real benchmark aggregation and report serializer preserve nullable topology."""
+    unknown_graph = CausalGraphModel(
+        graph_type=GraphType.ADMG,
+        nodes=["T_1", "Y_1"],
+        edges=[CausalEdge(src="T_1", dst="Y_1", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)],
+        metadata={"dataset_ref": "unknown-unit-partition"},
+    )
+    unknown_artifact = interference.identify_interference_effect(
+        unknown_graph,
+        treatment="T_1",
+        outcome="Y_1",
+    )
+    assert unknown_artifact.status == "oracle_needed"
+    assert unknown_artifact.interference_detected is None
+    assert unknown_artifact.sutva_violated is None
+
+    known_graph = CausalGraphModel(
+        graph_type=GraphType.ADMG,
+        nodes=["T_1", "Y_1", "T_2", "Y_2"],
+        edges=[
+            CausalEdge(src="T_1", dst="Y_1", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+            CausalEdge(src="T_2", dst="Y_2", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+        ],
+        metadata={
+            "dataset_ref": "known-no-cross-unit",
+            "cluster_partition": [["T_1", "Y_1"], ["T_2", "Y_2"]],
+        },
+    )
+    known_artifact = interference.identify_interference_effect(
+        known_graph,
+        treatment="T_1",
+        outcome="Y_1",
+    )
+    assert known_artifact.status == "identified"
+    assert known_artifact.interference_detected is False
+    assert known_artifact.sutva_violated is False
+
+    harness = BenchmarkHarness()
+    for name, artifact in (
+        ("unknown_partition", unknown_artifact),
+        ("known_no_cross_unit", known_artifact),
+    ):
+        harness.register(
+            BenchmarkCase(
+                name=f"interference::{name}",
+                circuit=policy_did_interference.CIRCUIT,
+                runner=lambda value=artifact, case_name=name: {
+                    "artifact": value,
+                    "artifact_kind": "interference_detection",
+                    "design": case_name,
+                },
+                checker=lambda _result: True,
+            )
+        )
+    report = harness.run(circuit=policy_did_interference.CIRCUIT)
+    aggregate = policy_did_interference._aggregate_metrics(report)
+    rows = {row["case"]: row for row in aggregate["case_rows"]}
+
+    unknown_row = rows["interference::unknown_partition"]
+    assert unknown_row["interference_detected"] is None
+    assert unknown_row["sutva_violated"] is None
+    known_row = rows["interference::known_no_cross_unit"]
+    assert known_row["interference_detected"] is False
+    assert known_row["sutva_violated"] is False
+    assert aggregate["n_detected_spillover_cases"] == 0
+    assert aggregate["n_unknown_topology_cases"] == 1
+    assert aggregate["flagship_scorecard"]["checks"]["spillover_detection"] is None
+    assert aggregate["flagship_scorecard"]["passes_all"] is False
+
+    known_only = BenchmarkHarness()
+    known_only.register(
+        BenchmarkCase(
+            name="interference::known_no_cross_unit_only",
+            circuit=policy_did_interference.CIRCUIT,
+            runner=lambda: {
+                "artifact": known_artifact,
+                "artifact_kind": "interference_detection",
+                "design": "known_no_cross_unit",
+            },
+            checker=lambda _result: True,
+        )
+    )
+    known_only_aggregate = policy_did_interference._aggregate_metrics(
+        known_only.run(circuit=policy_did_interference.CIRCUIT)
+    )
+    assert known_only_aggregate["flagship_scorecard"]["checks"]["spillover_detection"] is False
+    assert known_only_aggregate["n_unknown_topology_cases"] == 0
+
+    cross_graph = CausalGraphModel(
+        graph_type=GraphType.ADMG,
+        nodes=["T_1", "Y_1", "T_2", "Y_2"],
+        edges=[
+            CausalEdge(src="T_1", dst="Y_1", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+            CausalEdge(src="T_2", dst="Y_2", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+            CausalEdge(src="T_1", dst="Y_2", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+        ],
+        metadata={
+            "dataset_ref": "known-cross-unit",
+            "cluster_partition": [["T_1", "Y_1"], ["T_2", "Y_2"]],
+        },
+    )
+    positive_artifact = interference.identify_interference_effect(
+        cross_graph,
+        treatment="T_1",
+        outcome="Y_1",
+    )
+    assert positive_artifact.interference_detected is True
+    assert positive_artifact.sutva_violated is True
+    mixed_positive = BenchmarkHarness()
+    for case_name, artifact in (
+        ("unknown_partition", unknown_artifact),
+        ("known_cross_unit", positive_artifact),
+    ):
+        mixed_positive.register(
+            BenchmarkCase(
+                name=f"interference::{case_name}",
+                circuit=policy_did_interference.CIRCUIT,
+                runner=lambda value=artifact: {
+                    "artifact": value,
+                    "artifact_kind": "interference_detection",
+                },
+                checker=lambda _result: True,
+            )
+        )
+    mixed_positive_aggregate = policy_did_interference._aggregate_metrics(
+        mixed_positive.run(circuit=policy_did_interference.CIRCUIT)
+    )
+    assert mixed_positive_aggregate["flagship_scorecard"]["checks"]["spillover_detection"] is True
+    assert mixed_positive_aggregate["n_detected_spillover_cases"] == 1
+    assert mixed_positive_aggregate["n_unknown_topology_cases"] == 1
+
+    report_payload = policy_did_interference._report_to_dict(
+        report,
+        mode="smoke",
+        preflight={"run_id": "unknown-topology-aggregate", "data_source": "synthetic"},
+    )
+    wire = json.loads(json.dumps(report_payload))
+    wire_aggregate = wire["aggregate_metrics"]
+    wire_rows = {row["case"]: row for row in wire_aggregate["case_rows"]}
+    assert wire_rows["interference::unknown_partition"]["interference_detected"] is None
+    assert wire_rows["interference::unknown_partition"]["sutva_violated"] is None
+    assert wire_aggregate["n_unknown_topology_cases"] == 1
+    serialized_unknown = next(
+        case for case in wire["cases"] if case["case_id"] == "interference::unknown_partition"
+    )
+    serialized_artifact = serialized_unknown["result_payload"]["artifact"]
+    assert serialized_artifact["interference_detected"] is None
+    assert serialized_artifact["sutva_violated"] is None

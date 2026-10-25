@@ -1378,9 +1378,9 @@ def _refs_from_value(value: object) -> tuple[str, ...]:
     if isinstance(value, Mapping):
         ref = next(
             (
-                text
+                reference_text
                 for key in _REFERENCE_VALUE_KEYS
-                if (text := _reference_text(value.get(key))) is not None
+                if (reference_text := _reference_text(value.get(key))) is not None
             ),
             None,
         )

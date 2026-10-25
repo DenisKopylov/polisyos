@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Callable
 from datetime import UTC, datetime
 from types import SimpleNamespace
 
@@ -25,8 +26,10 @@ from polisyos.fabric.connectors.resilience import (
     MockFallback,
     RateLimiter,
     RateLimiterConfig,
+    ResilienceConfig,
     RetryExhaustedError,
     RetryPolicy,
+    apply_resilience,
 )
 from polisyos.fabric.connectors.resilience.circuit_breaker import (
     CircuitAttemptLease,
@@ -970,3 +973,64 @@ def test_bounded_registry_pressure_preserves_open_circuit_state() -> None:
     )
 
     assert current.is_open()
+
+
+@pytest.mark.asyncio
+async def test_apply_resilience_preserves_target_on_error_keyword() -> None:
+    request = FetchRequest(dataset_id="test.dataset", retryable=False)
+    observed_callbacks: list[Callable[[Exception, int, int], None]] = []
+    callback_calls: list[tuple[Exception, int, int]] = []
+
+    def target_callback(error: Exception, attempt: int, maximum: int) -> None:
+        callback_calls.append((error, attempt, maximum))
+
+    async def fetch(
+        *,
+        request: FetchRequest,
+        on_error: Callable[[Exception, int, int], None],
+    ) -> str:
+        observed_callbacks.append(on_error)
+        raise ValueError(request.dataset_id)
+
+    wrapped = apply_resilience(
+        fetch,
+        config=ResilienceConfig(retry_policy=RetryPolicy(max_attempts=3, base_delay=0.0)),
+    )
+
+    with pytest.raises(ValueError, match="test.dataset"):
+        await wrapped(request=request, on_error=target_callback)
+
+    assert observed_callbacks == [target_callback]
+    assert callback_calls == []
+
+
+@pytest.mark.asyncio
+async def test_apply_resilience_keeps_retry_request_and_connector_context() -> None:
+    metrics = _RetryMetricsStub()
+    policy = RetryPolicy(
+        max_attempts=2,
+        base_delay=0.0,
+        jitter_max=0.0,
+        metrics=metrics,
+    )
+    handle = ConnectionHandle(
+        connector_id="test.connector",
+        config=ConnectionConfig(url="fixture://retry"),
+    )
+    request = FetchRequest(dataset_id="test.dataset", retryable=True)
+    calls = 0
+
+    async def fetch(*, handle: ConnectionHandle, request: FetchRequest) -> str:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            raise ConnectionError("retry this request")
+        return request.dataset_id
+
+    wrapped = apply_resilience(fetch, config=ResilienceConfig(retry_policy=policy))
+
+    assert await wrapped(handle=handle, request=request) == "test.dataset"
+    assert calls == 2
+    assert metrics.connector_retry_attempts_total.calls == [
+        (1, {"attempt": "1", "connector_id": "test.connector"})
+    ]

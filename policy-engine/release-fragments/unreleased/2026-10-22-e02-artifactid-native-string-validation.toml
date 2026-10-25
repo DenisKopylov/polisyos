@@ -1,9 +1,9 @@
 id = "2026-10-22-e02-artifactid-native-string-validation"
-title = "Harden Core and IR artifact identity and reader boundaries"
+title = "Harden Core and IR artifact identity, schema, and reader boundaries"
 type = "fixed"
 component = "core and IR artifacts"
 owner = "team-polisyos"
-summary = "Core and IR artifact IDs validate native text, while IR reference normalization and pass/lineage consumers enforce typed boundaries."
+summary = "Core and IR ArtifactIDs enforce the SHA-256 wire grammar and typed reader boundaries; generated schemas now describe validation and serialization constraints."
 evidence = [
   "src/polisyos/core/artifacts/ids.py",
   "src/polisyos/ir/artifacts/contracts.py",
@@ -15,14 +15,23 @@ evidence = [
   "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
   "tests/unit/ir/registry/test_refs.py",
   "tests/unit/ir/test_phase2_passes.py",
+  "architecture/generated_artifacts.toml",
+  "schemas/snapshots/ir/_manifest.json",
+  "docs/reference/ir/schema-catalog.md",
+  "docs/reference/schemas.md",
+  "schemas/runtime_api_v1.openapi.json",
+  "packages/runtime-api-client/types.ts",
+  "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+  "packages/runtime-api-client/canonicalRuntimeApiClient.js",
+  "apps/runtime-dashboard/src/api/types.ts",
 ]
-compatibility = "Valid native ArtifactID text and persisted artifact schemas remain unchanged. The documented IR reference normalizer now refuses malformed mapping, model, or dataclass selector metadata before read or persistence; callers relying on malformed selectors may fail closed. PassContext.require_as is additive, and the lineage builder now types its reader dependency through a narrow structural protocol."
-change_class = "python-public-api"
-surface_classification = "public_stable: polisyos.core.artifacts and polisyos.ir"
-migration = "No persisted artifact or schema migration is required. Callers should provide string-keyed, schema-conforming references and well-formed dataclass selectors; there is no automatic rewrite of existing stored artifacts."
-api = "The source slice changes Python-visible behavior in the public Core and IR artifact boundaries: native-string ArtifactID validation is hardened, normalize_artifact_ref rejects malformed selector projections, PassContext gains require_as, and build_artifact_lineage_graph is typed against the private _ArtifactManifestReader protocol. No module-level facade export, DTO schema, or persisted artifact format is changed. Public-surface inventory review remains pending."
-limitations = "These typed checks do not establish producer provenance, store authority, legal truth, or global E02 readiness. The commit adds no public-surface inventory regeneration; public_surface_inventory_reviewed remains false until the owner reviews/regenerates the inventory. Full generated/installed consumer and whole-repository verification remain separate."
-generated_client_compatibility = "not_applicable"
+compatibility = "Canonical sha256:<64 lowercase hex> values and persisted bytes remain unchanged. ArtifactID validation schemas accept uppercase or lowercase hex and existing validators normalize accepted input; serialization schemas constrain the canonical lowercase wire form to exactly 71 characters. ArtifactID-bearing IR schemas and Runtime OpenAPI components therefore gain explicit constraints. A trailing newline is rejected rather than stripped; callers must correct such input. No historical valid artifact is rewritten."
+change_class = "python-public-api; persisted-artifact-format; schema-openapi-abi; js-package-api"
+surface_classification = "public_stable: polisyos.core.artifacts and polisyos.ir; registered IR schemas; Runtime OpenAPI and generated clients"
+migration = "Canonical existing sha256:<64 lowercase hex> values and stored bytes remain valid and unchanged. Callers that supplied a trailing newline or another malformed ArtifactID must correct it; no automatic trimming, rewrite, or migration is performed. After the source freeze, regenerate registered IR ABI snapshots and catalogs, Runtime OpenAPI, and both declared generated client families from their canonical owners; do not hand-edit generated outputs."
+api = "Core and IR ArtifactID validation and serialization schemas now constrain the prefixed SHA-256 string grammar and exact length (71 characters for sha256:). Validation accepts uppercase or lowercase hex as the existing validators do; serialization emits the canonical lowercase form. This changes registered IR schema snapshots and owner-qualified Runtime OpenAPI constraints while preserving the generic ArtifactID alias, string wire type, routes, and canonical valid values. Regenerate the ABI/schema catalog, Runtime OpenAPI, runtime API client, and dashboard API types with their registered owners. Public-surface inventory review remains pending."
+limitations = "The generated ABI, OpenAPI, and client families are required companions and remain pending until regenerated and reviewed from the frozen source; this candidate does not claim they are complete. No inventory of legacy malformed stored IDs or external generated-client deployments is established, and no external status is claimed. These checks do not establish producer provenance, store authority, legal truth, or global E02 readiness. public_surface_inventory_reviewed remains false pending its owner review."
+generated_client_compatibility = "requires_regeneration"
 public_surface_inventory_reviewed = false
 migration_docs = []
 runbook_docs = []
@@ -35,8 +44,52 @@ surface = "public_stable: polisyos.core.artifacts and polisyos.ir"
 owner = "team-polisyos"
 version_owner = "team-polisyos"
 deprecation_window = "not_applicable"
-release_note = "Harden Core and IR ArtifactID and reference validation, add typed pass-context access, and bind lineage reads to the typed reader protocol without changing persisted schemas."
+release_note = "Harden Core and IR ArtifactID and reference validation, add typed pass-context access, and bind lineage reads to the typed reader protocol."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = false
 migration_docs = []
 runbook_docs = []
+
+
+[[compatibility_change]]
+id = "artifactid-ir-schema-regeneration"
+change_class = "persisted-artifact-format"
+impact = "requires_regeneration"
+surface = "public_stable: registered IR persisted-artifact JSON Schemas containing ArtifactID"
+owner = "team-polisyos"
+version_owner = "team-ir"
+deprecation_window = "2 minor releases"
+release_note = "Regenerate the registered IR ABI snapshots so ArtifactID fields publish their accepted validation and canonical serialization grammar; canonical existing values remain valid."
+
+[[compatibility_change]]
+id = "artifactid-runtime-openapi-regeneration"
+change_class = "schema-openapi-abi"
+impact = "requires_regeneration"
+surface = "public_stable: Runtime API OpenAPI ArtifactID components"
+owner = "team-polisyos"
+version_owner = "team-runtime"
+deprecation_window = "2 minor releases"
+release_note = "Regenerate Runtime OpenAPI with the exact Core and IR ArtifactID schema constraints while preserving the generic alias and owner-qualified components."
+generated_client_compatibility = "requires_regeneration"
+
+[[compatibility_change]]
+id = "artifactid-runtime-client-regeneration"
+change_class = "js-package-api"
+impact = "requires_regeneration"
+surface = "public_stable: @polisyos/runtime-api-client generated from Runtime OpenAPI"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "2 minor releases"
+release_note = "Regenerate and verify the Runtime API client from the updated OpenAPI snapshot; string wire types remain strings."
+generated_client_compatibility = "requires_regeneration"
+
+[[compatibility_change]]
+id = "artifactid-dashboard-types-regeneration"
+change_class = "js-package-api"
+impact = "requires_regeneration"
+surface = "internal: runtime-dashboard generated API types"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "2 minor releases"
+release_note = "Regenerate and verify dashboard API types from the updated OpenAPI snapshot; string wire types remain strings."
+generated_client_compatibility = "requires_regeneration"

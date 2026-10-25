@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import re
 from decimal import Decimal
-
-from polisyos.ir.world.doc import DocMeta
+from typing import TYPE_CHECKING
 
 from ..canonicalize import canonical_unit, canonicalize_id
 from ..types import ChunkContext, ClaimCandidate, ClaimExtractOptions
+
+if TYPE_CHECKING:
+    from polisyos.ir.world.doc import DocMeta
 
 _LEFT_SIDE_RE = re.compile(r"^(?P<predicate>.+?)\s*\((?P<subject>[^()]*)\)\s*$")
 _RIGHT_SIDE_RE = re.compile(r"^(?P<value>.*?)(?:\s*\[(?P<unit>[^\[\]]+)\])?$")

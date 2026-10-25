@@ -19,6 +19,10 @@ import {
 } from "@/shared/lib/utils";
 import { JanusGlyph } from "@/shared/brand/JanusGlyph";
 import { ProvenanceStrip } from "@/shared/ui";
+import HTEOutcomeView, {
+  InvalidHTEOutcomeView,
+} from "../components/HTEOutcomeView";
+import { parseDecisionPacketHTEProjection } from "../domain/decisionPacketHte";
 import {
   AuthoredText,
   normalizeAuthoredNarrativeBlock,
@@ -801,6 +805,19 @@ export function buildDecisionPacketDocument(
     );
   }
 
+  const hteProjection = parseDecisionPacketHTEProjection(record);
+  if (hteProjection.status !== "absent") {
+    documentSections.push(
+      buildDocumentSection(outline, {
+        fallbackTitle: "HTE outcome",
+        fallbackType: "evidence",
+        hteProjection,
+        id: "hte_outcome",
+        paragraphs: [],
+      }),
+    );
+  }
+
   if (documentSections.length === 0) {
     return null;
   }
@@ -871,6 +888,12 @@ function SectionBody({
             />
           ) : null}
         </AuthoredText>
+      ) : null}
+
+      {section.hteProjection?.status === "valid" ? (
+        <HTEOutcomeView outcome={section.hteProjection.outcome} />
+      ) : section.hteProjection?.status === "invalid" ? (
+        <InvalidHTEOutcomeView />
       ) : null}
 
       {section.pullQuote ? <PullQuote>{section.pullQuote}</PullQuote> : null}

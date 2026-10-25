@@ -8,9 +8,21 @@ import { Badge, Button, Card } from "@polisyos/atlas-ui";
 export default function ClerkRunSummaryPage() {
   const { locale, t } = useI18n();
   const { runId } = useParams<{ runId: string }>();
-  const runQuery = useRunDetails(runId ?? "");
+  const runQuery = useRunDetails(runId ?? "", { resolveCurrentAlias: true });
+  const cachedRun = runQuery.data?.run;
+  const resolvingCurrentAlias =
+    typeof cachedRun?.run_id === "string" &&
+    cachedRun.run_id !== runId &&
+    runQuery.isFetching;
+  const run =
+    !runQuery.isError &&
+    !resolvingCurrentAlias &&
+    cachedRun?.source_kind === "core_run" &&
+    cachedRun.run_id.trim().length > 0
+      ? cachedRun
+      : undefined;
 
-  if (runQuery.isLoading) {
+  if (runQuery.isLoading || resolvingCurrentAlias) {
     return (
       <Card className="p-8">
         <p className="text-[var(--slate)]">{t("common.loading")}</p>
@@ -18,15 +30,13 @@ export default function ClerkRunSummaryPage() {
     );
   }
 
-  if (runQuery.isError || !runQuery.data) {
+  if (runQuery.isError || !run) {
     return (
       <Card className="p-8">
         <p className="text-[var(--danger)]">{t("common.requestFailed")}</p>
       </Card>
     );
   }
-
-  const { run } = runQuery.data;
 
   return (
     <div className="mx-auto flex max-w-[860px] flex-col gap-6">

@@ -1,6 +1,7 @@
 import type { GlyphStrokeStyle } from "@/shared/brand/Glyph";
 import type { GlyphName } from "@/shared/brand/glyph-vocabulary";
 import type { AuthoredTextAuthor } from "@/shared/ui/authored-text";
+import type { DecisionPacketHTEProjection } from "../domain/decisionPacketHte";
 
 export type DecisionPacketSectionType =
   | "problem"
@@ -61,6 +62,9 @@ export type ReadingViewSection = {
   marginNotes?: ReadingViewMarginNote[];
   footnotes?: ReadingViewFootnote[];
   provenanceItems?: ReadingViewProvenanceItem[];
+  hteProjection?:
+    | { status: "invalid" }
+    | { status: "valid"; outcome: DecisionPacketHTEProjection };
 };
 
 export type ReadingViewDocument = {

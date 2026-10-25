@@ -21,7 +21,6 @@ from polisyos.ir import (
     TransportMode,
     TransportPrivacyContext,
     apply_transport_privacy_context,
-    compute_manski_bounds,
     compute_outer_objective,
     run_outer_search,
 )
@@ -198,20 +197,22 @@ def _apply_partial_identification_fallback(
 ) -> tuple[TransportabilityResult, Any | None]:
     if tr_result.status is not TransportabilityStatus.UNSUPPORTED:
         return tr_result, None
-    partial_identification = _build_manski_fallback(tr_result=tr_result, state=state)
-    if partial_identification.is_informative:
-        warnings.append("partial_identification_informative:manski_bounds")
-        tr_result = tr_result.model_copy(
-            update={
-                "status": TransportabilityStatus.BOUNDED_NON_IDENTIFIED,
-                "transport_mode": TransportMode.BOUNDS_ONLY,
-                "identification_engine": "bounds_only",
-                "unsupported_reason": None,
-            }
-        )
-    else:
-        warnings.append("partial_identification_non_informative:manski_bounds")
-    return tr_result, partial_identification
+
+    # P*(Z) alignment and proxy confidence are not target outcome moments.
+    # This resolver owns no typed target-moment basis, so the fallback must
+    # retain the solver's refusal and explain why candidate bounds are absent.
+    del state
+    missing_basis = "manski_target_basis_missing"
+    unsupported_cases = list(tr_result.unsupported_cases)
+    if missing_basis not in unsupported_cases:
+        unsupported_cases.append(missing_basis)
+    warning = "partial_identification_unavailable:manski_target_basis_missing"
+    if warning not in warnings:
+        warnings.append(warning)
+    return (
+        tr_result.model_copy(update={"unsupported_cases": unsupported_cases}),
+        None,
+    )
 
 
 def _append_outer_search_annotations(
@@ -425,31 +426,6 @@ def _build_alignment_certificates(state: ResolutionState) -> list[AlignmentCerti
             evidence_refs=["fallback:contextual_alignment"],
         )
     ]
-
-
-def _build_manski_fallback(
-    *,
-    tr_result: TransportabilityResult,
-    state: ResolutionState,
-):
-    confidences = [float(item.confidence) for item in state.p_star_values.values()]
-    avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
-    half_width = max(0.2, 0.5 - (0.3 * avg_conf))
-    outcome_support = (0.5 - half_width, 0.5 + half_width)
-    uplift = 0.1 * avg_conf
-    outcome_conditioned = [max(0.0, 0.5 - uplift), min(1.0, 0.5 + uplift)]
-    treatment_probs = [0.5, 0.5]
-    fallback = compute_manski_bounds(
-        outcome_conditioned=outcome_conditioned,
-        treatment_probs=treatment_probs,
-        outcome_support=outcome_support,
-    )
-    return fallback.model_copy(
-        update={
-            "assumptions_used": list(fallback.assumptions_used)
-            + [f"transport_status={tr_result.status.value}"],
-        }
-    )
 
 
 def _build_three_graph_lineage(

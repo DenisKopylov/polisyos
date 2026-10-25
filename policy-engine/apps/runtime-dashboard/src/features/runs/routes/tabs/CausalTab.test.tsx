@@ -60,9 +60,14 @@ vi.mock("@/shared/charts", () => ({
 
 vi.mock("@/features/causal", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/features/causal")>();
-
   return {
     ...actual,
+    createCausalDraftIdentificationDisplay: (label: string) =>
+      Object.freeze({
+        label,
+        purpose: "interaction_only" as const,
+        authorityPurpose: "candidate_display" as const,
+      }),
     AdjustmentSetHighlight: () => null,
     CausalGraphCanvas: ({
       edges,
@@ -98,6 +103,12 @@ vi.mock("@/features/causal", async (importOriginal) => {
 });
 
 import { createCausalDraftIdentificationDisplay } from "@/features/causal";
+import {
+  parseRunConditionalTransportCandidateProjection,
+  runDetailsSchema,
+  type RunConditionalTransportCandidateProjectionView,
+} from "@/api/validators";
+import { r5RunHteSelectedProjection } from "@/features/runs/domain/__test__/runExecutionHteFixtures";
 
 import CausalTab, {
   createCausalDraftPersistence,
@@ -181,6 +192,71 @@ function graph(label = "Candidate node"): CausalArtifactPayload {
       },
     ],
   };
+}
+
+function conditionalTransportCandidate(
+  overrides: Partial<RunConditionalTransportCandidateProjectionView> = {},
+): RunConditionalTransportCandidateProjectionView {
+  return {
+    candidate_scope: "candidate_only",
+    candidate_disposition: "partial",
+    requested_profile_id: "pag.no_selection.finite_member_sensitivity",
+    requested_profile_revision: "1",
+    selection_identity: "selection:pag-family-1",
+    reason_code: "member_evaluation_partial",
+    proposal_count: 4,
+    member_evaluation_count: 4,
+    completed_valid_member_count: 2,
+    identified_member_fraction: 0.5,
+    identified_member_fraction_basis: "selected_completed_valid_members",
+    source_currentness: "unknown",
+    interpretation_limit:
+      "selected_family_member_outcomes_do_not_establish_whole_pag_class_probability_calibration_legal_applicability_or_protected_eligibility",
+    ...overrides,
+  };
+}
+
+function runDetailsTransportPayload(candidate: unknown) {
+  return {
+    meta: {
+      generated_at: "2026-10-24T00:00:00.000Z",
+      request_id: "req-conditional-transport",
+      source_kinds: ["core_run"],
+    },
+    temporal_scope: null,
+    run: {
+      conditional_transport_candidate: candidate,
+      run_id: "run-conditional-transport",
+      source_kind: "core_run",
+      status: "succeeded",
+    },
+  };
+}
+
+function renderCausalTabWithRunDetails(
+  runId: string,
+  details: Record<string, unknown>,
+) {
+  useRunDetailsMock.mockReturnValue({
+    data: {
+      run: {
+        artifacts: [],
+        ...details,
+        run_id: runId,
+        source_kind: "core_run",
+        status: "succeeded",
+      },
+    },
+    isError: false,
+    isLoading: false,
+  });
+  return render(
+    <MemoryRouter initialEntries={["/runs/" + runId + "/causal"]}>
+      <Routes>
+        <Route path="/runs/:runId/causal" element={<CausalTab />} />
+      </Routes>
+    </MemoryRouter>,
+  );
 }
 
 describe("causal draft persistence", () => {
@@ -486,6 +562,267 @@ describe("CausalTab", () => {
       screen.queryByTestId("method-visualization"),
     ).not.toBeInTheDocument();
     expect(screen.getByText("phase32.causal.draft")).toBeInTheDocument();
+  });
+
+  it("withholds the causal editor while the stable route selector refreshes a cached attempt", () => {
+    useRunDetailsMock.mockReturnValue({
+      data: {
+        run: {
+          artifacts: [
+            {
+              kind: "causal_graph",
+              payload: {
+                edges: [],
+                nodes: [
+                  { id: "old-attempt", kind: "confounder", label: "Old" },
+                ],
+              },
+            },
+          ],
+          run_id: "core-attempt-1",
+          source_kind: "core_run",
+        },
+      },
+      isError: false,
+      isFetching: true,
+      isLoading: false,
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/runs/control-run-alias/causal"]}>
+        <Routes>
+          <Route path="/runs/:runId/causal" element={<CausalTab />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(useRunDetailsMock).toHaveBeenCalledWith("control-run-alias", {
+      resolveCurrentAlias: true,
+    });
+    expect(screen.queryByTestId("causal-atlas-editor")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("causal-draft-nodes")).not.toBeInTheDocument();
+  });
+
+  it("shows the owner-selected R5 HTE point and limitations from RunDetails GET", async () => {
+    const selectedProjection = r5RunHteSelectedProjection();
+    const selectedHte = selectedProjection.selection.hte;
+    const selectedResource = selectedHte.resource_evidence as Record<
+      string,
+      unknown
+    >;
+    expect(selectedProjection.selection.method_fqn).toBe(
+      selectedHte.method_fqn,
+    );
+    expect(selectedProjection.selection.point_result_ref).toEqual(
+      selectedHte.point_result_ref,
+    );
+    expect(selectedResource.owner_policy_revision).toBe("r5");
+    expect(selectedResource.owner_policy_method_profile_id).toBe(
+      "econml.dml.point_only@2.0",
+    );
+    expect(selectedHte.point_estimate).toBe(0.25);
+
+    useRunDetailsMock.mockReturnValue({
+      data: {
+        run: {
+          artifacts: [],
+          method_execution_selection: selectedProjection,
+          run_id: "run-hte",
+          source_kind: "core_run",
+          status: "succeeded",
+        },
+      },
+      isLoading: false,
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/runs/run-hte/causal"]}>
+        <Routes>
+          <Route path="/runs/:runId/causal" element={<CausalTab />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const panel = await screen.findByTestId("run-hte-execution-summary");
+    expect(panel).toHaveTextContent("0.25");
+    expect(panel).toHaveTextContent("r5");
+    expect(panel).toHaveTextContent("not_established");
+    expect(panel).toHaveTextContent(
+      "foundry.hte.physical_source_materialization_binding",
+    );
+    expect(useRunDetailsMock).toHaveBeenCalledWith("run-hte", {
+      resolveCurrentAlias: true,
+    });
+  });
+
+  it("renders the RunDetails selected-family candidate with its limits", async () => {
+    const candidate = conditionalTransportCandidate();
+    expect(
+      runDetailsSchema.safeParse(runDetailsTransportPayload(candidate)).success,
+    ).toBe(true);
+
+    renderCausalTabWithRunDetails("run-conditional-transport", {
+      conditional_transport_candidate: candidate,
+    });
+
+    const panel = await screen.findByRole("region", {
+      name: "conditionalTransport.title",
+    });
+    expect(panel).toHaveAttribute(
+      "data-testid",
+      "conditional-transport-candidate-summary",
+    );
+    expect(panel).toHaveTextContent("conditionalTransport.candidateOnly");
+    expect(panel).toHaveTextContent("conditionalTransport.disposition.partial");
+    expect(panel).toHaveTextContent(
+      "pag.no_selection.finite_member_sensitivity",
+    );
+    expect(panel).toHaveTextContent("selection:pag-family-1");
+    expect(panel).toHaveTextContent("50%");
+    expect(panel).toHaveTextContent("4");
+    expect(panel).toHaveTextContent("2");
+    expect(panel).toHaveTextContent(
+      "conditionalTransport.completedValidMemberCount",
+    );
+  });
+
+  it("omits the candidate summary when RunDetails has no projection", () => {
+    renderCausalTabWithRunDetails("run-without-transport-candidate", {});
+
+    expect(
+      screen.queryByTestId("conditional-transport-candidate-summary"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("omits an explicit null candidate projection", () => {
+    renderCausalTabWithRunDetails("run-null-transport-candidate", {
+      conditional_transport_candidate: null,
+    });
+
+    expect(
+      screen.queryByTestId("conditional-transport-candidate-summary"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders an unsupported candidate disposition as a limited diagnostic", async () => {
+    const candidate = conditionalTransportCandidate({
+      candidate_disposition: "unsupported",
+      completed_valid_member_count: 0,
+      identified_member_fraction: null,
+      member_evaluation_count: 0,
+      proposal_count: 0,
+      reason_code: "pag_profile_unsupported",
+    });
+    expect(
+      runDetailsSchema.safeParse(runDetailsTransportPayload(candidate)).success,
+    ).toBe(true);
+
+    renderCausalTabWithRunDetails("run-unsupported-transport", {
+      conditional_transport_candidate: candidate,
+    });
+
+    const panel = await screen.findByRole("region", {
+      name: "conditionalTransport.title",
+    });
+    expect(panel).toHaveTextContent(
+      "conditionalTransport.disposition.unsupported",
+    );
+    expect(panel).toHaveTextContent("pag_profile_unsupported");
+    expect(panel).toHaveTextContent("conditionalTransport.fractionUnavailable");
+    expect(panel).toHaveTextContent("conditionalTransport.candidateOnly");
+  });
+
+  it.each([
+    [
+      "completed count exceeds evaluations",
+      conditionalTransportCandidate({
+        completed_valid_member_count: 3,
+        member_evaluation_count: 2,
+      }),
+    ],
+    [
+      "fraction exceeds one",
+      conditionalTransportCandidate({
+        identified_member_fraction: 1.01,
+      }),
+    ],
+    [
+      "fraction is below zero",
+      conditionalTransportCandidate({
+        identified_member_fraction: -0.01,
+      }),
+    ],
+    [
+      "profile id is empty",
+      conditionalTransportCandidate({
+        requested_profile_id: "",
+      }),
+    ],
+    [
+      "profile id is too long",
+      conditionalTransportCandidate({
+        requested_profile_id: "p".repeat(161),
+      }),
+    ],
+    [
+      "profile revision is empty",
+      conditionalTransportCandidate({
+        requested_profile_revision: "",
+      }),
+    ],
+    [
+      "profile revision is too long",
+      conditionalTransportCandidate({
+        requested_profile_revision: "r".repeat(81),
+      }),
+    ],
+    [
+      "selection identity is empty",
+      conditionalTransportCandidate({
+        selection_identity: "",
+      }),
+    ],
+    [
+      "selection identity is too long",
+      conditionalTransportCandidate({
+        selection_identity: "s".repeat(241),
+      }),
+    ],
+    [
+      "reason code is not a bounded code",
+      conditionalTransportCandidate({
+        reason_code: "Free text reason",
+      }),
+    ],
+    [
+      "fraction is supplied without a denominator",
+      conditionalTransportCandidate({
+        completed_valid_member_count: 0,
+        identified_member_fraction: 0,
+      }),
+    ],
+    [
+      "raw graph detail is added",
+      {
+        ...conditionalTransportCandidate(),
+        graph: { edges: [], nodes: ["private"] },
+      },
+    ],
+  ])("rejects and withholds a malformed projection: %s", (_case, candidate) => {
+    expect(
+      runDetailsSchema.safeParse(runDetailsTransportPayload(candidate)).success,
+    ).toBe(false);
+    expect(
+      parseRunConditionalTransportCandidateProjection(candidate),
+    ).toBeNull();
+
+    renderCausalTabWithRunDetails("run-invalid-transport", {
+      conditional_transport_candidate: candidate,
+    });
+
+    expect(
+      screen.queryByTestId("conditional-transport-candidate-summary"),
+    ).not.toBeInTheDocument();
   });
 
   it("separates delimiter-colliding scopes before paint and before persistence", async () => {

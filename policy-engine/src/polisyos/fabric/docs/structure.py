@@ -10,7 +10,6 @@ from __future__ import annotations
 import re
 from dataclasses import asdict
 from datetime import UTC, datetime
-from pathlib import Path
 from typing import TYPE_CHECKING, Literal, TypedDict
 
 from polisyos.core.artifacts.ids import ArtifactID
@@ -44,6 +43,7 @@ from polisyos.ir.world.ids import doc_fragment_id, world_event_id_from_payload
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+    from pathlib import Path
 
     from polisyos.ir.loading import Fact
 

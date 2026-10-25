@@ -8,7 +8,8 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.protocol import ArtifactStore
+from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.contracts.foundry import (
     CompileRequest,
     CompileResult,
@@ -55,11 +56,11 @@ class DefaultFoundryPort(FoundryPort):
         if self._gatekeeper is None and self._settings.tee_enabled:
             self._gatekeeper = TEEGatekeeper.from_settings(settings=self._settings)
 
-    def compile(self, store: FileSystemCAS, request: CompileRequest) -> CompileResult:
+    def compile(self, store: ArtifactStore, request: CompileRequest) -> CompileResult:
         """Compile a Trinity/registry request through `polisyos.foundry.compile.api.compile`."""
         return compile_foundry(store, request)
 
-    def execute(self, store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
+    def execute(self, store: ArtifactStore, request: ExecuteRequest) -> ExecuteResult:
         """Execute a lowered program through Foundry and attach TEE/SBOM derived artifacts."""
         attestation: AttestationResult | None = None
         if self._gatekeeper is not None:
@@ -83,7 +84,7 @@ class DefaultFoundryPort(FoundryPort):
         return _maybe_attach_sbom(result=with_attestation, store=store, settings=self._settings)
 
 
-def _persist_attestation(store: FileSystemCAS, attestation: AttestationResult) -> ArtifactRef:
+def _persist_attestation(store: ArtifactStore, attestation: AttestationResult) -> ArtifactRef:
     return store.put_json(
         attestation.model_dump(mode="json"),
         PutOptions(
@@ -97,7 +98,7 @@ def _persist_attestation(store: FileSystemCAS, attestation: AttestationResult) -
 def _maybe_attach_sbom(
     *,
     result: ExecuteResult,
-    store: FileSystemCAS,
+    store: ArtifactStore,
     settings: SecuritySettings,
 ) -> ExecuteResult:
     if not settings.POLISYOS_SBOM_ENABLED:

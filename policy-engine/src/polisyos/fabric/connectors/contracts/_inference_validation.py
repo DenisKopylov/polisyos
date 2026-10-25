@@ -22,10 +22,13 @@ from polisyos.fabric.connectors.contracts.schema import (
 )
 from polisyos.fabric.numerics.finite import is_finite_number
 
-from ._inference_config import InferenceConfig, SchemaHints
-
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+    from pandas._libs.missing import NAType
+
+    from ._inference_config import InferenceConfig, SchemaHints
+
 from ._inference_engine import SchemaInference
 
 logger = get_logger(__name__)
@@ -352,8 +355,8 @@ def _coerce_boolean(series: pd.Series) -> pd.Series:
         "f": False,
     }
 
-    def _to_bool(value: object) -> bool | type(pd.NA):
-        if pd.isna(value):
+    def _to_bool(value: object) -> bool | NAType:
+        if value is None or value is pd.NA or value is pd.NaT or not pd.api.types.is_scalar(value):
             return pd.NA
         if isinstance(value, bool):
             return value

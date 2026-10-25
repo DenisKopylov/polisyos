@@ -7,10 +7,10 @@ ranking sources, and determining the optimal fetch strategy.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from polisyos.common.logger import get_logger
 from polisyos.fabric.connectors.base import FetchRequest
-from polisyos.fabric.connectors.contracts.registry import SchemaRegistry
-from polisyos.fabric.connectors.federation.ranker import SourceRanker
 from polisyos.fabric.connectors.federation.types import (
     CompositionRequest,
     CompositionStrategy,
@@ -20,9 +20,13 @@ from polisyos.fabric.connectors.federation.types import (
     PlanningError,
     RankedSource,
 )
-from polisyos.fabric.connectors.quality.report import DataQualityReport
 from polisyos.fabric.connectors.registry import ConnectorPreferences, ConnectorRegistry
 from polisyos.fabric.data_plane.temporal import utc_now
+
+if TYPE_CHECKING:
+    from polisyos.fabric.connectors.contracts.registry import SchemaRegistry
+    from polisyos.fabric.connectors.federation.ranker import SourceRanker
+    from polisyos.fabric.connectors.quality.report import DataQualityReport
 
 logger = get_logger(__name__)
 

@@ -4,14 +4,16 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.fabric.data_plane.tabular import payload_to_dataframe
-from polisyos.ir.connectors import FetchResult
 
 from .detector import PresidioConfig, PresidioDetector
 from .models import PIIScanResult
+
+if TYPE_CHECKING:
+    from polisyos.ir.connectors import FetchResult
 
 logger = get_logger(__name__)
 

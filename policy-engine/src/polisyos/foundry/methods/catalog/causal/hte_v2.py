@@ -10,14 +10,15 @@ from __future__ import annotations
 import base64
 import csv
 import hashlib
+import inspect
 import json
 import math
 import re
 import sys
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from importlib.metadata import PackageNotFoundError, distribution, version
 from pathlib import Path
-from typing import Any, ClassVar, Literal
+from typing import Any, ClassVar, Literal, Protocol, TypeGuard, runtime_checkable
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, model_validator
@@ -39,7 +40,10 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-from polisyos.foundry.methods.catalog.causal._econml_adapter import build_hte_data
+from polisyos.foundry.methods.catalog.causal._econml_adapter import (
+    HTEData,
+    build_hte_data,
+)
 from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
 from polisyos.ir.analytics.causal import CausalMethod
 from polisyos.ir.analytics.hte import (
@@ -80,6 +84,70 @@ _METHOD_PROFILE_BY_FQN = {
     "causal.hte.meta_learner@2.0.0": "econml.meta_learner.point_only@2.0",
     "causal.hte.forest_dr@2.0.0": "econml.forest_dr.native_mean@2.0",
 }
+
+
+type _HTEMethodProfileId = Literal[
+    "econml.causal_forest_dml.native_mean@2.0",
+    "econml.dml.point_only@2.0",
+    "econml.meta_learner.point_only@2.0",
+    "econml.forest_dr.native_mean@2.0",
+]
+type _HTENativeIntervalMethodProfileId = Literal[
+    "econml.causal_forest_dml.native_mean@2.0",
+    "econml.forest_dr.native_mean@2.0",
+]
+type _HTEDiagnosticCode = Literal[
+    "hte_input_invalid",
+    "contrast_not_established",
+    "empty_selected_input",
+    "econml_unavailable",
+    "joblib_unavailable",
+    "resource_profile_invalid",
+    "dml_profile_invalid",
+    "meta_profile_invalid",
+    "hte_execution_failed",
+    "hte_fit_failed",
+    "hte_point_estimate_invalid",
+]
+type _HTEProfileKind = Literal["causal_forest", "forest_dr", "point_only"]
+type _HTENativeIntervalProfileKind = Literal["causal_forest", "forest_dr"]
+type _EstimatorFactory = Callable[..., object]
+
+
+@runtime_checkable
+class _HTEFitPort(Protocol):
+    """The fitted-estimator operation used at the EconML boundary."""
+
+    def fit(
+        self,
+        y: np.ndarray,
+        treatment: np.ndarray,
+        *,
+        X: np.ndarray,
+        W: np.ndarray | None,
+        inference: str | None = None,
+    ) -> object: ...
+
+
+@runtime_checkable
+class _HTEEffectPort(Protocol):
+    """The point-effect operation required from a fitted EconML estimator."""
+
+    def effect(self, X: np.ndarray, *, T0: float, T1: float) -> object: ...
+
+
+@runtime_checkable
+class _NativeMeanInferencePort(Protocol):
+    """Runtime surface of the source-qualified native mean inference result."""
+
+    pred: object
+    pred_stderr: object
+
+    def conf_int_mean(self, *, alpha: float) -> tuple[object, object]: ...
+
+
+def _is_registered_method_profile_id(value: object) -> TypeGuard[_HTEMethodProfileId]:
+    return isinstance(value, str) and value in _METHOD_PROFILE_BY_FQN.values()
 
 
 def _validate_successor_identity(method_fqn: str, method_abi: str, profile_id: str) -> None:
@@ -423,8 +491,12 @@ class _EstimatorObservationPairV1(BaseModel):
         return self
 
 
+class _InvalidJoblibEffectiveJobs(ValueError):
+    """A Joblib backend returned a value outside its integer contract."""
+
+
 def _not_started_resource_receipt(
-    method_profile_id: str,
+    method_profile_id: _HTEMethodProfileId,
 ) -> HTEProducerResourceReceiptV1:
     """Describe a selected but not-entered method resource scope."""
     return HTEProducerResourceReceiptV1(
@@ -438,13 +510,21 @@ def _capture_joblib_observation() -> dict[str, Any]:
     try:
         from importlib.metadata import version as package_version
 
-        from joblib import effective_n_jobs
+        import joblib
         from joblib.parallel import get_active_backend
     except (ImportError, PackageNotFoundError) as exc:
         raise ValueError("hte_joblib_resource_profile_unavailable") from exc
-    # Resolve joblib's active context value. Calling this without an argument
-    # defaults to n_jobs=-1 and measures host capacity, not the configured cap.
-    effective_jobs = effective_n_jobs(n_jobs=None)
+    # Explicit None asks Joblib to resolve the thread-local parallel_config value;
+    # omitting it uses the API default n_jobs=-1 and measures host capacity.
+    effective_n_jobs_api: object = getattr(joblib, "effective_n_jobs", None)
+    if not callable(effective_n_jobs_api):
+        raise ValueError("hte_joblib_resource_profile_unavailable")
+    raw_effective_jobs: object = effective_n_jobs_api(n_jobs=None)
+    if type(raw_effective_jobs) is not int:
+        raise _InvalidJoblibEffectiveJobs("hte_joblib_resource_profile_invalid")
+    if raw_effective_jobs < 1:
+        raise _InvalidJoblibEffectiveJobs("hte_joblib_resource_profile_invalid")
+    effective_jobs: int = raw_effective_jobs
     backend = get_active_backend()[0]
     backend_fqn = f"{type(backend).__module__}.{type(backend).__qualname__}"
     joblib_version = package_version("joblib")
@@ -470,7 +550,7 @@ def _capture_estimator_observation(estimator: Any) -> dict[str, Any]:
     """Recompute the actual estimator class and complete deep parameters."""
     getter = getattr(estimator, "get_params", None)
     if not callable(getter):
-        raise ValueError("hte_estimator_n_jobs_not_one")
+        return _capture_pinned_econml_constructor_observation(estimator)
     params = getter(deep=True)
     if not isinstance(params, Mapping):
         raise ValueError("hte_estimator_n_jobs_not_one")
@@ -481,6 +561,72 @@ def _capture_estimator_observation(estimator: Any) -> dict[str, Any]:
         "class_fqn": f"{type(estimator).__module__}.{type(estimator).__qualname__}",
         "n_jobs": n_jobs,
         "params_sha256": _sha256(_json_value(params)),
+    }
+
+
+def _pinned_econml_constructor_values(estimator: object) -> dict[str, object]:
+    """Read every named constructor field from one source-pinned EconML instance."""
+    try:
+        from econml.dml.causal_forest import CausalForestDML
+        from econml.dr._drlearner import ForestDRLearner
+    except (ImportError, ModuleNotFoundError) as exc:
+        raise ValueError("hte_estimator_n_jobs_not_one") from exc
+
+    estimator_type = type(estimator)
+    if estimator_type is CausalForestDML:
+        relative_source = "econml/dml/causal_forest.py"
+    elif estimator_type is ForestDRLearner:
+        relative_source = "econml/dr/_drlearner.py"
+    else:
+        raise ValueError("hte_estimator_n_jobs_not_one")
+
+    distribution_root = _installed_econml_distribution_root()
+    initializer = getattr(estimator_type, "__init__", None)
+    if (
+        distribution_root is None
+        or not _source_module_matches(estimator_type, distribution_root, relative_source)
+        or not callable(initializer)
+        or not _source_module_matches(initializer, distribution_root, relative_source)
+    ):
+        raise ValueError("hte_estimator_n_jobs_not_one")
+    try:
+        parameters = inspect.signature(initializer).parameters
+    except (TypeError, ValueError) as exc:
+        raise ValueError("hte_estimator_n_jobs_not_one") from exc
+
+    constructor_values: dict[str, object] = {}
+    for name, parameter in parameters.items():
+        if name == "self":
+            continue
+        if parameter.kind not in {
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.KEYWORD_ONLY,
+        } or not hasattr(estimator, name):
+            raise ValueError("hte_estimator_n_jobs_not_one")
+        constructor_values[name] = getattr(estimator, name)
+    n_jobs = constructor_values.get("n_jobs")
+    if type(n_jobs) is not int or n_jobs != 1:
+        raise ValueError("hte_estimator_n_jobs_not_one")
+    try:
+        _canonical_json_bytes(_json_value(constructor_values))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("hte_estimator_n_jobs_not_one") from exc
+    return constructor_values
+
+
+def _capture_pinned_econml_constructor_observation(estimator: object) -> dict[str, Any]:
+    """Capture class and complete constructor-parameter digest for pinned EconML."""
+    constructor_values = _pinned_econml_constructor_values(estimator)
+    estimator_type = type(estimator)
+    n_jobs = constructor_values["n_jobs"]
+    try:
+        params_sha256 = _sha256(_json_value(constructor_values))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("hte_estimator_n_jobs_not_one") from exc
+    return {
+        "class_fqn": f"{estimator_type.__module__}.{estimator_type.__qualname__}",
+        "n_jobs": n_jobs,
+        "params_sha256": params_sha256,
     }
 
 
@@ -497,21 +643,22 @@ def _safe_estimator_observation(estimator: Any | None) -> dict[str, Any] | None:
 def _writer_output_with_estimator_observation(
     output: dict[str, Any],
     *,
-    method_profile_id: str,
+    method_profile_id: _HTEMethodProfileId,
     before: Mapping[str, Any] | None,
     estimator: Any | None,
 ) -> dict[str, Any]:
     """Carry actual estimator observations until the complete joblib receipt is closed."""
-    if method_profile_id not in {
-        "econml.causal_forest_dml.native_mean@2.0",
-        "econml.forest_dr.native_mean@2.0",
-    }:
+    if method_profile_id == "econml.causal_forest_dml.native_mean@2.0":
+        interval_profile_id: _HTENativeIntervalMethodProfileId = method_profile_id
+    elif method_profile_id == "econml.forest_dr.native_mean@2.0":
+        interval_profile_id = method_profile_id
+    else:
         return output
     after = _safe_estimator_observation(estimator)
     if before is None or after is None:
         return output
     pair = _EstimatorObservationPairV1(
-        method_profile_id=method_profile_id,
+        method_profile_id=interval_profile_id,
         before=_EstimatorConfigurationV1.model_validate(before, strict=True),
         after=_EstimatorConfigurationV1.model_validate(after, strict=True),
     )
@@ -583,9 +730,11 @@ def _resource_receipt(
 class _JoblibProfileFailure(ValueError):
     """Carry a measured rejected joblib scope to the typed refusal output."""
 
+    diagnostic_code: _HTEDiagnosticCode
+
     def __init__(
         self,
-        diagnostic_code: str,
+        diagnostic_code: _HTEDiagnosticCode,
         receipt: HTEProducerResourceReceiptV1,
         output: Mapping[str, Any] | None = None,
     ):
@@ -595,11 +744,11 @@ class _JoblibProfileFailure(ValueError):
         super().__init__(diagnostic_code)
 
 
-def _run_with_joblib_profile(
-    callback: Any,
+def _run_with_joblib_profile[OutputT: Mapping[str, object]](
+    callback: Callable[[], OutputT],
     *,
-    method_profile_id: str,
-) -> tuple[Any, HTEProducerResourceReceiptV1]:
+    method_profile_id: _HTEMethodProfileId,
+) -> tuple[OutputT, HTEProducerResourceReceiptV1]:
     """Run a complete HTE producer under a thread-local one-job context."""
     try:
         from joblib import parallel_config
@@ -607,10 +756,11 @@ def _run_with_joblib_profile(
         raise ValueError("hte_joblib_resource_profile_unavailable") from exc
     entry: dict[str, Any] | None = None
     exit_observation: dict[str, Any] | None = None
-    output: Any = None
+    output: OutputT | None = None
     estimator_observation: _EstimatorObservationPairV1 | None = None
     failure_code: str | None = None
     callback_error: Exception | None = None
+    callback_started = False
     try:
         with parallel_config(n_jobs=1):
             try:
@@ -618,6 +768,7 @@ def _run_with_joblib_profile(
                 if entry["effective_jobs"] != 1:
                     failure_code = "resource_profile_invalid"
                 else:
+                    callback_started = True
                     try:
                         output = callback()
                     except Exception as exc:
@@ -651,12 +802,23 @@ def _run_with_joblib_profile(
                         ):
                             failure_code = "resource_profile_invalid"
             finally:
-                exit_observation = _capture_joblib_observation()
+                if entry is not None:
+                    exit_observation = _capture_joblib_observation()
             if callback_error is not None:
                 # Let the exception cross the context manager so its receipt
                 # records a raised producer lifecycle, then convert it to a
                 # typed refusal below.
                 raise callback_error
+    except _InvalidJoblibEffectiveJobs as exc:
+        if callback_started:
+            # Receipt v1 requires integer observations at both endpoints. Once
+            # the method callback ran, do not manufacture a completed receipt
+            # or downgrade the producer to a not_started refusal.
+            raise ValueError("hte_joblib_resource_observation_invalid_after_start") from exc
+        raise _JoblibProfileFailure(
+            "resource_profile_invalid",
+            _not_started_resource_receipt(method_profile_id),
+        ) from exc
     except Exception:
         failure_code = failure_code or "hte_execution_failed"
         status: Literal["returned", "raised"] = "raised"
@@ -692,6 +854,8 @@ def _run_with_joblib_profile(
             receipt,
             output if isinstance(output, Mapping) else None,
         )
+    if output is None:
+        raise ValueError("hte_joblib_callback_did_not_return_mapping")
     return output, receipt
 
 
@@ -921,7 +1085,10 @@ class HTEWriterReadyPointV1(_WriterReadyBase):
             "not_requested": {"inference_not_requested"},
             "unavailable": {"native_inference_unavailable"},
             "unsupported": {"selection_uses_outcomes", "contrast_not_established"},
-            "not_qualified": {"method_profile_not_qualified", "request_alpha_not_established"},
+            "not_qualified": {
+                "method_profile_not_qualified",
+                "request_alpha_not_established",
+            },
             "failed": {"native_inference_invalid"},
         }
         if self.inference_reason not in expected_reasons[self.inference_status]:
@@ -1026,6 +1193,7 @@ class HTEWriterReadyRefusalV1(BaseModel):
         "invalid_point_estimate",
         "method_execution_failed",
         "required_input_unavailable",
+        "invalid_selected_input",
         "method_profile_unavailable",
     ]
     diagnostic_code: Literal[
@@ -1162,7 +1330,9 @@ def _method_params(params: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
-def _row_identity_hashes(source_data: HTEObservationalData) -> tuple[str, str, str | None, str]:
+def _row_identity_hashes(
+    source_data: HTEObservationalData,
+) -> tuple[str, str, str | None, str]:
     n_rows = int(source_data.outcome.shape[0])
     if source_data.sample_ids is None:
         row_keys: list[Any] = list(range(n_rows))
@@ -1591,7 +1761,7 @@ def _contains_boolean(value: Any) -> bool:
     return False
 
 
-def _finite_effect(values: Any, *, n_rows: int) -> np.ndarray:
+def _finite_effect(values: object, *, n_rows: int) -> np.ndarray:
     if _contains_boolean(values):
         raise ValueError("point_estimate_invalid")
     try:
@@ -1651,17 +1821,16 @@ def _fitted_nuisance_classes(model: Any) -> tuple[str, ...]:
 
 
 def _method_result(
-    data: Any,
+    data: HTEData,
     source_data: HTEObservationalData,
     params: Mapping[str, Any],
     *,
     method_fqn: str,
     method_abi: str,
-    method_profile_id: str,
+    method_profile_id: _HTEMethodProfileId,
     method_enum: CausalMethod,
-    estimator_factory: Any,
-    estimator_class: str,
-    profile_kind: Literal["causal_forest", "forest_dr", "point_only"],
+    estimator_factory: _EstimatorFactory,
+    profile_kind: _HTEProfileKind,
     estimator_params: dict[str, Any],
     runtime_context: OwnedAttemptAnchorDispatchContext | None,
 ) -> dict[str, Any]:
@@ -1698,7 +1867,7 @@ def _method_result(
         )
         return {"hte_outcome_write_ready": refusal.model_dump(mode="json")}
 
-    model: Any | None = None
+    model: _HTEFitPort | _HTEEffectPort | None = None
     estimator_before: Mapping[str, Any] | None = None
 
     def output_with_observation(output: dict[str, Any]) -> dict[str, Any]:
@@ -1710,7 +1879,15 @@ def _method_result(
         )
 
     try:
-        model = estimator_factory(**estimator_params)
+        constructor_params = (
+            {name: value for name, value in estimator_params.items() if name != "inference"}
+            if profile_kind == "forest_dr"
+            else estimator_params
+        )
+        candidate: object = estimator_factory(**constructor_params)
+        if not isinstance(candidate, _HTEFitPort):
+            raise TypeError("hte_estimator_fit_port_unavailable")
+        model = candidate
         if method_profile_id in {
             "econml.causal_forest_dml.native_mean@2.0",
             "econml.forest_dr.native_mean@2.0",
@@ -1718,7 +1895,16 @@ def _method_result(
             estimator_before = _safe_estimator_observation(model)
             if estimator_before is None or estimator_before["n_jobs"] != 1:
                 raise ValueError("hte_estimator_n_jobs_not_one")
-        model.fit(data.y, data.t, X=data.x, W=data.w)
+        if profile_kind == "forest_dr":
+            model.fit(
+                data.y,
+                data.t,
+                X=data.x,
+                W=data.w,
+                inference=estimator_params["inference"],
+            )
+        else:
+            model.fit(data.y, data.t, X=data.x, W=data.w)
     except Exception:
         refusal = HTEWriterReadyRefusalV1(
             method_fqn=method_fqn,
@@ -1735,6 +1921,8 @@ def _method_result(
         return output_with_observation({"hte_outcome_write_ready": refusal.model_dump(mode="json")})
 
     try:
+        if not isinstance(model, _HTEEffectPort):
+            raise TypeError("hte_estimator_effect_port_unavailable")
         raw_cate = model.effect(data.x, T0=facts.control_value, T1=facts.treated_value)
         cate = _finite_effect(raw_cate, n_rows=facts.n_selected_rows)
         point = _one_scalar(float(np.mean(cate)), name="point_estimate")
@@ -1762,7 +1950,7 @@ def _method_result(
     )
     if not inference_requested:
         point_reason = "inference_not_requested"
-    elif profile_kind in {"causal_forest", "forest_dr"}:
+    elif profile_kind == "causal_forest" or profile_kind == "forest_dr":
         native_capture, point_reason = _native_interval_candidate(
             model,
             data.x,
@@ -1770,7 +1958,6 @@ def _method_result(
             facts=facts,
             params=params,
             estimator_params=estimator_params,
-            estimator_class=estimator_class,
             profile_kind=profile_kind,
             method_fqn=method_fqn,
             method_abi=method_abi,
@@ -1908,7 +2095,7 @@ def _installed_econml_distribution_root() -> Path | None:
         installed = distribution("econml")
         if installed.version != "0.17.0":
             return None
-        root = Path(installed.locate_file("")).resolve()
+        root = Path(str(installed.locate_file(""))).resolve()
     except (PackageNotFoundError, OSError, TypeError):
         return None
     return root if _econml_source_profile_digest(root) is not None else None
@@ -1944,7 +2131,7 @@ def _native_extraction_entry(
     inference_owner: Any,
     inference_result: Any | None,
     *,
-    profile_kind: Literal["causal_forest", "forest_dr"],
+    profile_kind: _HTENativeIntervalProfileKind,
     distribution_root: Path,
 ) -> tuple[str, str, str] | None:
     """Require exact installed classes and methods for one native extraction route."""
@@ -2034,15 +2221,14 @@ def _native_extraction_entry(
 
 
 def _native_interval_candidate(
-    model: Any,
+    model: object,
     x: np.ndarray,
     *,
     cate: np.ndarray,
     facts: _CaptureFactsV1,
     params: Mapping[str, Any],
     estimator_params: Mapping[str, Any],
-    estimator_class: str,
-    profile_kind: Literal["causal_forest", "forest_dr"],
+    profile_kind: _HTENativeIntervalProfileKind,
     method_fqn: str,
     method_abi: str,
     nuisance_model_classes: tuple[str, ...],
@@ -2068,7 +2254,8 @@ def _native_interval_candidate(
         )
     except ValueError:
         return None, "method_profile_not_qualified"
-    if estimator_class != selected_profile.estimator_class:
+    actual_estimator_class = f"{type(model).__module__}.{type(model).__qualname__}"
+    if actual_estimator_class != selected_profile.estimator_class:
         return None, "method_profile_not_qualified"
     if profile_kind == "causal_forest":
         if (
@@ -2123,7 +2310,7 @@ def _native_interval_candidate(
     if not callable(native_inference_method):
         return None, "native_inference_unavailable"
     try:
-        inference = native_inference_method(
+        inference_value: object = native_inference_method(
             x,
             T0=float(facts.control_value),
             T1=float(facts.treated_value),
@@ -2131,16 +2318,19 @@ def _native_interval_candidate(
         extraction = _native_extraction_entry(
             model,
             inference_owner,
-            inference,
+            inference_value,
             profile_kind=profile_kind,
             distribution_root=distribution_root,
         )
         if extraction is None:
             return None, "method_profile_not_qualified"
-        conf_int_mean = getattr(inference, "conf_int_mean", None)
+        conf_int_mean = getattr(inference_value, "conf_int_mean", None)
         if not callable(conf_int_mean):
             return None, "native_inference_unavailable"
-        raw_lower, raw_upper = conf_int_mean(alpha=float(alpha))
+        if not isinstance(inference_value, _NativeMeanInferencePort):
+            return None, "native_inference_unavailable"
+        inference = inference_value
+        raw_lower, raw_upper = inference.conf_int_mean(alpha=float(alpha))
         lower = _one_scalar(raw_lower, name="native_lower_bound")
         upper = _one_scalar(raw_upper, name="native_upper_bound")
         pred = _finite_effect(inference.pred, n_rows=x.shape[0])
@@ -2187,7 +2377,7 @@ def _native_interval_candidate(
         "method_abi": method_abi,
         "method_abi_digest": facts.method_abi_digest,
         "method_profile_id": facts.method_profile_id,
-        "estimator_class": estimator_class,
+        "estimator_class": actual_estimator_class,
         "inference_class": inference_class,
         "econml_version": econml_version,
         "econml_source_profile_sha256": source_profile_digest,
@@ -2272,7 +2462,7 @@ def _signature(name: str, parameters: tuple[ParameterSpec, ...]) -> MethodSignat
         parameters=parameters,
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
-        backend=ComputeBackend.NUMPY,
+        backend=ComputeBackend("numpy"),
         supports_jit=False,
         supports_vmap=False,
         supports_grad=False,
@@ -2335,11 +2525,16 @@ def _attach_resource_receipt(
     if updated.get("kind") in {"point_estimate", "interval_estimate"}:
         try:
             _validate_numeric_resource_receipt(receipt.method_profile_id, receipt)
-        except ValueError:
+        except ValueError as exc:
+            raw_method_profile_id: object = updated.get(
+                "method_profile_id", receipt.method_profile_id
+            )
+            if not _is_registered_method_profile_id(raw_method_profile_id):
+                raise ValueError("hte_method_identity_profile_mismatch") from exc
             refusal = _refusal_output(
                 str(updated.get("method_fqn", "causal.hte.unknown@2.0.0")),
                 str(updated.get("method_abi", "2.0.0")),
-                str(updated.get("method_profile_id", receipt.method_profile_id)),
+                raw_method_profile_id,
                 diagnostic_code="resource_profile_invalid",
                 resource_receipt=receipt,
                 capture=updated.get("capture"),
@@ -2356,11 +2551,9 @@ def _execute_with_profile(
     *,
     method_name: str,
     method_abi: str,
-    method_profile_id: str,
+    method_profile_id: _HTEMethodProfileId,
     method_enum: CausalMethod,
-    estimator_class: str,
-    estimator_factory: Any,
-    profile_kind: Literal["causal_forest", "forest_dr", "point_only"],
+    profile_kind: _HTEProfileKind,
     runtime_context: OwnedAttemptAnchorDispatchContext | None = None,
 ) -> dict[str, Any]:
     """Run every v2 producer under its owner-selected one-job method scope."""
@@ -2373,8 +2566,6 @@ def _execute_with_profile(
                 method_abi=method_abi,
                 method_profile_id=method_profile_id,
                 method_enum=method_enum,
-                estimator_class=estimator_class,
-                estimator_factory=estimator_factory,
                 profile_kind=profile_kind,
                 runtime_context=runtime_context,
             ),
@@ -2420,11 +2611,9 @@ def _execute_with_profile_unscoped(
     *,
     method_name: str,
     method_abi: str,
-    method_profile_id: str,
+    method_profile_id: _HTEMethodProfileId,
     method_enum: CausalMethod,
-    estimator_class: str,
-    estimator_factory: Any,
-    profile_kind: Literal["causal_forest", "forest_dr", "point_only"],
+    profile_kind: _HTEProfileKind,
     runtime_context: OwnedAttemptAnchorDispatchContext | None = None,
 ) -> dict[str, Any]:
     method_fqn = f"causal.hte.{method_name}@{method_abi}"
@@ -2441,6 +2630,9 @@ def _execute_with_profile_unscoped(
             raise ValueError("random_state_must_be_int")
     except Exception:
         return _preparation_refusal(method_fqn, method_abi, method_profile_id, "hte_input_invalid")
+
+    estimator_factory: _EstimatorFactory
+    profile_id: _HTEMethodProfileId = method_profile_id
 
     # Explicitly materialize the complete config. The profile gate below checks
     # these values and the live fitted inference object; it never infers a config
@@ -2468,7 +2660,6 @@ def _execute_with_profile_unscoped(
             "inference": "auto",
         }
         profile_id = "econml.causal_forest_dml.native_mean@2.0"
-        actual_estimator_class = "econml.dml.CausalForestDML"
         estimator_factory = CausalForestDML
     elif profile_kind == "forest_dr":
         try:
@@ -2500,7 +2691,6 @@ def _execute_with_profile_unscoped(
             "inference": "auto",
         }
         profile_id = "econml.forest_dr.native_mean@2.0"
-        actual_estimator_class = "econml.dr.ForestDRLearner"
         estimator_factory = ForestDRLearner
     elif method_name == "double_ml":
         try:
@@ -2510,14 +2700,19 @@ def _execute_with_profile_unscoped(
                 method_fqn, method_abi, method_profile_id, "econml_unavailable"
             )
         model_type = str(resolved.get("model_type", "linear")).lower()
-        model_types = {"linear": LinearDML, "sparse": SparseLinearDML, "kernel": KernelDML}
+        model_types: dict[str, _EstimatorFactory] = {
+            "linear": LinearDML,
+            "sparse": SparseLinearDML,
+            "kernel": KernelDML,
+        }
         estimator_factory = model_types.get(model_type)
         if estimator_factory is None:
             return _preparation_refusal(
                 method_fqn, method_abi, method_profile_id, "dml_profile_invalid"
             )
+        # `model_type` selects a constructor; it remains in the resolved
+        # caller/owner capture but is not an EconML constructor parameter.
         config = {
-            "model_type": model_type,
             "model_y": resolved.get("model_y", "auto"),
             "model_t": resolved.get("model_t", "auto"),
             "cv": resolved.get("cv_folds", 3),
@@ -2529,7 +2724,6 @@ def _execute_with_profile_unscoped(
         if model_type != "kernel":
             config["random_state"] = seed
         profile_id = method_profile_id
-        actual_estimator_class = f"econml.dml.{estimator_factory.__name__}"
     else:
         from polisyos.foundry.methods.catalog.causal.meta_learners import (
             _build_learner,
@@ -2552,7 +2746,7 @@ def _execute_with_profile_unscoped(
                 selection_objective=str(resolved.get("selection_objective", "r_risk")),
             )
             base_estimator = _make_base_model(base_model, seed)
-            estimator, method_enum, actual_estimator_class = _build_learner(
+            estimator, method_enum, _ = _build_learner(
                 learner_type,
                 base_estimator,
                 seed=seed,
@@ -2564,8 +2758,10 @@ def _execute_with_profile_unscoped(
         profile_id = method_profile_id
         config = {"learner_type": learner_type, "base_model": base_model}
 
-        def estimator_factory(**_kwargs: Any) -> Any:
+        def build_meta_estimator(**_kwargs: object) -> object:
             return estimator
+
+        estimator_factory = build_meta_estimator
 
     try:
         candidate_profile_id = profile_id
@@ -2583,7 +2779,6 @@ def _execute_with_profile_unscoped(
                 method_profile_id=candidate_profile_id,
                 method_enum=method_enum,
                 estimator_factory=estimator_factory,
-                estimator_class=actual_estimator_class,
                 profile_kind=profile_kind,
                 estimator_params=config,
                 runtime_context=runtime_context,
@@ -2636,9 +2831,9 @@ def _forest_dr_profile_matches(config: Mapping[str, Any]) -> bool:
 def _refusal_output(
     method_fqn: str,
     method_abi: str,
-    method_profile_id: str,
+    method_profile_id: _HTEMethodProfileId,
     *,
-    diagnostic_code: str,
+    diagnostic_code: _HTEDiagnosticCode,
     resource_receipt: HTEProducerResourceReceiptV1,
     capture: Mapping[str, Any] | _CaptureFactsV1 | None = None,
     limitations: tuple[str, ...] | list[str] = (),
@@ -2657,7 +2852,22 @@ def _refusal_output(
         method_abi=method_abi,
         method_profile_id=method_profile_id,
         resource_receipt=resource_receipt,
-        capture=capture,
+        capture=(
+            capture
+            if isinstance(capture, _CaptureFactsV1)
+            else _CaptureFactsV1.model_validate_json(
+                json.dumps(
+                    dict(capture),
+                    ensure_ascii=False,
+                    allow_nan=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ),
+                strict=True,
+            )
+            if capture is not None
+            else None
+        ),
         limitations=tuple(dict.fromkeys((*limitations, "method_resource_profile_not_qualified"))),
         kind="refusal",
         refusal_stage=stage,
@@ -2670,8 +2880,8 @@ def _refusal_output(
 def _preparation_refusal(
     method_fqn: str,
     method_abi: str,
-    method_profile_id: str,
-    diagnostic_code: str,
+    method_profile_id: _HTEMethodProfileId,
+    diagnostic_code: _HTEDiagnosticCode,
 ) -> dict[str, Any]:
     """Return a nonnumeric refusal without fabricated success-path evidence."""
     if diagnostic_code == "hte_input_invalid":
@@ -2690,21 +2900,18 @@ def _preparation_refusal(
         reason = "method_profile_unavailable"
     else:
         reason = "required_input_unavailable"
-    return {
-        "hte_outcome_write_ready": {
-            "kind": "refusal",
-            "method_fqn": method_fqn,
-            "method_abi": method_abi,
-            "method_profile_id": method_profile_id,
-            "resource_receipt": _not_started_resource_receipt(method_profile_id).model_dump(
-                mode="json"
-            ),
-            "limitations": ("selected_input_or_method_profile_not_established",),
-            "refusal_stage": "prepare",
-            "refusal_reason": reason,
-            "diagnostic_code": diagnostic_code,
-        }
-    }
+    refusal = HTEWriterReadyRefusalV1(
+        kind="refusal",
+        method_fqn=method_fqn,
+        method_abi=method_abi,
+        method_profile_id=method_profile_id,
+        resource_receipt=_not_started_resource_receipt(method_profile_id),
+        limitations=("selected_input_or_method_profile_not_established",),
+        refusal_stage="prepare",
+        refusal_reason=reason,
+        diagnostic_code=diagnostic_code,
+    )
+    return {"hte_outcome_write_ready": refusal.model_dump(mode="json")}
 
 
 @foundry_method(namespace="causal.hte", version="2.0.0", tags={"causal", "hte", "causal-forest"})
@@ -2713,7 +2920,7 @@ class CausalForestEstimatorV2:
 
     owned_hte_method_fqn: ClassVar[str] = "causal.hte.causal_forest@2.0.0"
     owned_hte_method_abi: ClassVar[str] = "2.0.0"
-    owned_hte_profile_id: ClassVar[str] = "econml.causal_forest_dml.native_mean@2.0"
+    owned_hte_profile_id: ClassVar[_HTEMethodProfileId] = "econml.causal_forest_dml.native_mean@2.0"
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     signature: ClassVar[MethodSignature] = _signature(
         "causal_forest",
@@ -2741,8 +2948,6 @@ class CausalForestEstimatorV2:
             method_abi="2.0.0",
             method_profile_id=CausalForestEstimatorV2.owned_hte_profile_id,
             method_enum=CausalMethod.CAUSAL_FOREST,
-            estimator_class="econml.dml.CausalForestDML",
-            estimator_factory=None,
             profile_kind="causal_forest",
         )
 
@@ -2760,8 +2965,6 @@ class CausalForestEstimatorV2:
             method_abi="2.0.0",
             method_profile_id=CausalForestEstimatorV2.owned_hte_profile_id,
             method_enum=CausalMethod.CAUSAL_FOREST,
-            estimator_class="econml.dml.CausalForestDML",
-            estimator_factory=None,
             profile_kind="causal_forest",
             runtime_context=runtime_context,
         )
@@ -2773,7 +2976,7 @@ class DoubleMachineLearningV2:
 
     owned_hte_method_fqn: ClassVar[str] = "causal.hte.double_ml@2.0.0"
     owned_hte_method_abi: ClassVar[str] = "2.0.0"
-    owned_hte_profile_id: ClassVar[str] = "econml.dml.point_only@2.0"
+    owned_hte_profile_id: ClassVar[_HTEMethodProfileId] = "econml.dml.point_only@2.0"
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     signature: ClassVar[MethodSignature] = _signature(
         "double_ml",
@@ -2796,8 +2999,6 @@ class DoubleMachineLearningV2:
             method_abi="2.0.0",
             method_profile_id=DoubleMachineLearningV2.owned_hte_profile_id,
             method_enum=CausalMethod.DOUBLE_ML,
-            estimator_class="econml.dml.DML",
-            estimator_factory=None,
             profile_kind="point_only",
         )
 
@@ -2815,8 +3016,6 @@ class DoubleMachineLearningV2:
             method_abi="2.0.0",
             method_profile_id=DoubleMachineLearningV2.owned_hte_profile_id,
             method_enum=CausalMethod.DOUBLE_ML,
-            estimator_class="econml.dml.DML",
-            estimator_factory=None,
             profile_kind="point_only",
             runtime_context=runtime_context,
         )
@@ -2828,7 +3027,7 @@ class MetaLearnerEstimatorV2:
 
     owned_hte_method_fqn: ClassVar[str] = "causal.hte.meta_learner@2.0.0"
     owned_hte_method_abi: ClassVar[str] = "2.0.0"
-    owned_hte_profile_id: ClassVar[str] = "econml.meta_learner.point_only@2.0"
+    owned_hte_profile_id: ClassVar[_HTEMethodProfileId] = "econml.meta_learner.point_only@2.0"
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     signature: ClassVar[MethodSignature] = _signature(
         "meta_learner",
@@ -2850,8 +3049,6 @@ class MetaLearnerEstimatorV2:
             method_abi="2.0.0",
             method_profile_id=MetaLearnerEstimatorV2.owned_hte_profile_id,
             method_enum=CausalMethod.X_LEARNER,
-            estimator_class="econml.metalearners.XLearner",
-            estimator_factory=None,
             profile_kind="point_only",
         )
 
@@ -2869,8 +3066,6 @@ class MetaLearnerEstimatorV2:
             method_abi="2.0.0",
             method_profile_id=MetaLearnerEstimatorV2.owned_hte_profile_id,
             method_enum=CausalMethod.X_LEARNER,
-            estimator_class="econml.metalearners.XLearner",
-            estimator_factory=None,
             profile_kind="point_only",
             runtime_context=runtime_context,
         )
@@ -2882,7 +3077,7 @@ class ForestDRLearnerEstimatorV2:
 
     owned_hte_method_fqn: ClassVar[str] = "causal.hte.forest_dr@2.0.0"
     owned_hte_method_abi: ClassVar[str] = "2.0.0"
-    owned_hte_profile_id: ClassVar[str] = "econml.forest_dr.native_mean@2.0"
+    owned_hte_profile_id: ClassVar[_HTEMethodProfileId] = "econml.forest_dr.native_mean@2.0"
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
     signature: ClassVar[MethodSignature] = _signature(
         "forest_dr",
@@ -2917,8 +3112,6 @@ class ForestDRLearnerEstimatorV2:
             method_abi="2.0.0",
             method_profile_id=ForestDRLearnerEstimatorV2.owned_hte_profile_id,
             method_enum=CausalMethod.FOREST_DR,
-            estimator_class="econml.dr.ForestDRLearner",
-            estimator_factory=None,
             profile_kind="forest_dr",
         )
 
@@ -2936,8 +3129,6 @@ class ForestDRLearnerEstimatorV2:
             method_abi="2.0.0",
             method_profile_id=ForestDRLearnerEstimatorV2.owned_hte_profile_id,
             method_enum=CausalMethod.FOREST_DR,
-            estimator_class="econml.dr.ForestDRLearner",
-            estimator_factory=None,
             profile_kind="forest_dr",
             runtime_context=runtime_context,
         )

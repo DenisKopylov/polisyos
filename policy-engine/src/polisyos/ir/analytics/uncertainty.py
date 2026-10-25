@@ -5,7 +5,7 @@ from __future__ import annotations
 import inspect
 import math
 import re
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from enum import Enum
 from hashlib import sha256
@@ -18,16 +18,24 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_valida
 from polisyos.common import serialization
 from polisyos.ir.artifacts import (
     ArtifactID,
-    ArtifactStore,
-    InputRef,
     get_json_artifact,
     normalize_artifact_ref,
-    put_json_artifact,
 )
 from polisyos.ir.artifacts.contracts import (
+    ArtifactOwnerDeclaration,
     ArtifactSelector,
+    CanonInfo,
     _is_string_root_model,
     _normalize_scalar_artifact_id,
+)
+from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
+from polisyos.ir.migrations.base import (
+    CompatibilityMode,
+    IRCompatibilityKind,
+    IRRepresentationRegistration,
+    ResolvedSchemaAdmission,
+    register_ir_representation,
+    register_schema_version,
 )
 from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
 from polisyos.ir.registry.refs import ArtifactRefModel, UncertaintyEnvelopeRef
@@ -35,6 +43,8 @@ from polisyos.ir.registry.refs import ArtifactRefModel, UncertaintyEnvelopeRef
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from polisyos.ir.artifacts import ArtifactStore
+    from polisyos.ir.artifacts._lineage import InputRefLike
     from polisyos.ir.kernel.trust import TrustPolicySpec
 
 
@@ -1368,6 +1378,8 @@ def _scope_from_shape(
 class UncertaintyEnvelope(BaseModel):
     """Unified uncertainty contract shared across PolicyOS IR artifacts."""
 
+    SCHEMA_VERSION: ClassVar[Literal["1.1"]] = "1.1"
+
     model_config = ConfigDict(
         extra="forbid",
         frozen=True,
@@ -1377,7 +1389,7 @@ class UncertaintyEnvelope(BaseModel):
         },
     )
 
-    schema_version: str = Field("1.1", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field(SCHEMA_VERSION, pattern=r"^\d+\.\d+$")
     numeric_policy: NumericPolicySpec = Field(default_factory=NumericPolicySpec)
 
     point_estimate: float
@@ -1589,6 +1601,7 @@ def join_envelopes(
     )
 
     return UncertaintyEnvelope(
+        schema_version=UncertaintyEnvelope.SCHEMA_VERSION,
         numeric_policy=representative.numeric_policy,
         point_estimate=float(point_estimate),
         confidence_interval=(float(lower), float(upper)),
@@ -1852,6 +1865,7 @@ def push_forward_envelope(
         notes={"cert_policy": cert_policy},
     )
     return UncertaintyEnvelope(
+        schema_version=UncertaintyEnvelope.SCHEMA_VERSION,
         numeric_policy=envelope.numeric_policy,
         point_estimate=float(point_estimate),
         confidence_interval=(float(min(lower, upper)), float(max(lower, upper))),
@@ -1994,6 +2008,7 @@ def pull_back_envelope(
         notes=notes,
     )
     return UncertaintyEnvelope(
+        schema_version=UncertaintyEnvelope.SCHEMA_VERSION,
         numeric_policy=envelope.numeric_policy,
         point_estimate=float(point_estimate),
         confidence_interval=(float(min(lower, upper)), float(max(lower, upper))),
@@ -2096,6 +2111,7 @@ def combine_envelopes(
         notes={"summary_combination_method": method.value},
     )
     return UncertaintyEnvelope(
+        schema_version=UncertaintyEnvelope.SCHEMA_VERSION,
         numeric_policy=representative.numeric_policy,
         point_estimate=point_estimate,
         confidence_interval=combined_interval,
@@ -2129,25 +2145,119 @@ def envelope_meets_trust_policy(
     return envelope.confidence_level >= policy.min_confidence
 
 
+_UNCERTAINTY_ENVELOPE_WIRE_POLICY = ("ir.analytics.uncertainty_envelope.schema-version-law", "1")
+
+
+def _uncertainty_envelope_payload_version(payload: object) -> str | None:
+    if not isinstance(payload, Mapping):
+        return None
+    value = payload.get("schema_version")
+    return value if type(value) is str else None
+
+
+def _validate_uncertainty_envelope_source(
+    payload: object, admission: ResolvedSchemaAdmission
+) -> UncertaintyEnvelope:
+    if (
+        admission.compatibility_kind not in (IRCompatibilityKind.EXACT, IRCompatibilityKind.DIRECT)
+        or admission.migration_path
+        or not isinstance(payload, Mapping)
+    ):
+        raise ValueError("uncertainty envelope requires an exact or direct typed source")
+    expected = admission.source_registration.payload_version
+    supplied = payload.get("schema_version")
+    if type(expected) is not str or type(supplied) is not str or supplied != expected:
+        raise ValueError("uncertainty envelope payload version does not match its exact row")
+    source = UncertaintyEnvelope.model_validate(payload)
+    if source.schema_version != expected:
+        raise ValueError("uncertainty envelope DTO changed its admitted payload version")
+    return source
+
+
+def _project_uncertainty_envelope_for_consumer(
+    source: UncertaintyEnvelope, _admission: ResolvedSchemaAdmission
+) -> UncertaintyEnvelope:
+    if type(source) is not UncertaintyEnvelope:
+        raise TypeError("uncertainty envelope source DTO does not match its owner")
+    return source
+
+
+def _validate_uncertainty_envelope_profile(
+    profile: CanonInfo, registration: IRRepresentationRegistration
+) -> bool:
+    """Require the exact profile selected by uncertainty-envelope producers."""
+    return registration.profile_ref is None and profile == CanonInfo.from_spec(
+        CanonSpec(forbid_floats=False)
+    )
+
+
+_UNCERTAINTY_ENVELOPE_OWNER = ArtifactOwnerDeclaration(
+    contract_id="ir.analytics.uncertainty_envelope",
+    dto_fqn="polisyos.ir.analytics.uncertainty.UncertaintyEnvelope",
+    abi_key="ir.uncertainty_envelope",
+    registry_key="ir.uncertainty_envelope",
+    kind="ir.uncertainty_envelope",
+    media_type="application/json",
+    purpose="uncertainty_projection",
+    policy_revision="ir.analytics.uncertainty_envelope.owner-admission.v1",
+    accepted_wire_policies=(_UNCERTAINTY_ENVELOPE_WIRE_POLICY,),
+    payload_version_of=_uncertainty_envelope_payload_version,
+    validate_source=_validate_uncertainty_envelope_source,
+    project_for_consumer=_project_uncertainty_envelope_for_consumer,
+    validate_profile=_validate_uncertainty_envelope_profile,
+)
+register_schema_version(
+    _UNCERTAINTY_ENVELOPE_OWNER.registry_key,
+    UncertaintyEnvelope.SCHEMA_VERSION,
+    compatibility=CompatibilityMode.NONE,
+    notes=("Owner-bound uncertainty-envelope tuple; unknown history remains opaque.",),
+)
+register_ir_representation(
+    registry_key=_UNCERTAINTY_ENVELOPE_OWNER.registry_key,
+    owner_ref=_UNCERTAINTY_ENVELOPE_OWNER.contract_id,
+    dto_abi=_UNCERTAINTY_ENVELOPE_OWNER.dto_fqn,
+    wire_policy_ref=_UNCERTAINTY_ENVELOPE_WIRE_POLICY[0],
+    wire_policy_revision=_UNCERTAINTY_ENVELOPE_WIRE_POLICY[1],
+    schema_name=_UNCERTAINTY_ENVELOPE_OWNER.registry_key,
+    schema_version=UncertaintyEnvelope.SCHEMA_VERSION,
+    payload_version=UncertaintyEnvelope.SCHEMA_VERSION,
+    profile_ref=None,
+    readable=True,
+    writable=True,
+    current=True,
+    default_write=True,
+)
+
+
 def persist_uncertainty_envelope(
     store: ArtifactStore,
     envelope: UncertaintyEnvelope,
     *,
-    inputs: list[InputRef] | None = None,
+    inputs: Sequence[InputRefLike] | None = None,
     schema_name: str = "ir.uncertainty_envelope",
-    schema_version: str = "1.1",
+    schema_version: str = UncertaintyEnvelope.SCHEMA_VERSION,
     return_selected_profile: bool = False,
 ) -> UncertaintyEnvelopeRef:
-    """Persist an uncertainty envelope as a typed JSON artifact reference."""
-    ref = put_json_artifact(
+    """Persist a typed uncertainty envelope through its owner registration.
+
+    The return_selected_profile argument remains accepted for call compatibility. Owner-bound
+    writes always require and retain the selected profile receipt.
+    """
+    if type(return_selected_profile) is not bool:
+        raise TypeError("return_selected_profile must be a bool")
+    if (
+        type(envelope) is not UncertaintyEnvelope
+        or schema_name != _UNCERTAINTY_ENVELOPE_OWNER.registry_key
+    ):
+        raise ValueError("ir_uncertainty_envelope_owner_mismatch")
+    ref = _put_owned_json_artifact(
         store,
         envelope.model_dump(mode="python", round_trip=True),
-        kind="ir.uncertainty_envelope",
+        owner=_UNCERTAINTY_ENVELOPE_OWNER,
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=return_selected_profile,
     )
     return UncertaintyEnvelopeRef.model_validate(ref)
 
@@ -2156,9 +2266,10 @@ def load_uncertainty_envelope(
     store: ArtifactStore,
     ref: UncertaintyEnvelopeRef,
 ) -> UncertaintyEnvelope:
-    """Load an uncertainty envelope from artifact storage."""
-    payload = get_json_artifact(store, ref)
-    return UncertaintyEnvelope.model_validate(payload)
+    """Load an uncertainty envelope after exact owner and profile admission."""
+    if ref.kind != _UNCERTAINTY_ENVELOPE_OWNER.kind or ref.media_type != "application/json":
+        raise ValueError("ir_uncertainty_envelope_owner_mismatch")
+    return _get_owned_json_artifact(store, ref, owner=_UNCERTAINTY_ENVELOPE_OWNER)
 
 
 @dataclass(frozen=True, slots=True)
@@ -2220,7 +2331,9 @@ def load_simulation_result_uncertainty_admission(
     current propagation producer does not persist successful draw-to-input
     identity rows or a linked trusted verifier receipt, so even a complete
     producer-declared denominator remains limited and is never returned as an
-    admitted numeric envelope.
+    admitted numeric envelope. Generic IR inspection does not invoke Core or
+    Science source validators and always retains
+    source_owner_validation_not_performed.
 
     Args:
         store: Artifact store holding the persisted simulation artifacts.
@@ -2246,10 +2359,11 @@ def load_simulation_result_uncertainty_admission(
             prefix="simulation_result",
             limitations=limitations,
         )
-        simulation_payload = get_json_artifact(
-            store,
-            simulation_reference,
-        )
+        # Generic IR inspection does not invoke either source owner validator.
+        # Only the fixed Science bridge can reconcile this limitation after both
+        # selected-profile owner validators succeed.
+        limitations.append("source_owner_validation_not_performed")
+        simulation_payload = get_json_artifact(store, simulation_reference)
         if not isinstance(simulation_payload, dict):
             return PersistedUncertaintyAdmission(None, ("simulation_result_payload_invalid",))
         payload_version = simulation_payload.get("schema_version")
@@ -2286,7 +2400,7 @@ def load_simulation_result_uncertainty_admission(
             envelope_reference,
             expected_kind="ir.uncertainty_envelope",
             expected_schema="ir.uncertainty_envelope",
-            expected_version="1.1",
+            expected_version=None,
             prefix="metric_envelope",
             limitations=limitations,
         )
@@ -2295,11 +2409,8 @@ def load_simulation_result_uncertainty_admission(
             prefix="metric_envelope",
             limitations=limitations,
         )
-        envelope = UncertaintyEnvelope.model_validate(
-            get_json_artifact(
-                store,
-                envelope_reference,
-            )
+        envelope = load_uncertainty_envelope(
+            store, UncertaintyEnvelopeRef.model_validate(envelope_reference)
         )
 
         report_raw = simulation_payload.get("propagation_report_ref")
@@ -2344,10 +2455,7 @@ def load_simulation_result_uncertainty_admission(
             metric_id=metric_id,
             limitations=limitations,
         )
-        report_payload = get_json_artifact(
-            store,
-            report_reference,
-        )
+        report_payload = get_json_artifact(store, report_reference)
         if not isinstance(report_payload, dict):
             return PersistedUncertaintyAdmission(
                 None,
@@ -2462,8 +2570,9 @@ def _load_state_slot_uncertainty_projection(
             prefix="simulation_result",
             limitations=limitations,
         )
-        if not simulation_reference.get("manifest_profile_sha256"):
-            limitations.append("simulation_result_selected_profile_missing")
+        # Generic IR inspection does not invoke the source owners. Only the
+        # fixed Science wrapper can reconcile this after both validators run.
+        limitations.append("source_owner_validation_not_performed")
         simulation_payload = get_json_artifact(store, simulation_reference)
         if not isinstance(simulation_payload, dict):
             return _state_slot_projection_failure(
@@ -2500,11 +2609,13 @@ def _load_state_slot_uncertainty_projection(
             envelope_reference,
             expected_kind="ir.uncertainty_envelope",
             expected_schema="ir.uncertainty_envelope",
-            expected_version="1.1",
+            expected_version=None,
             prefix="state_slot_envelope",
             limitations=limitations,
         )
-        envelope = UncertaintyEnvelope.model_validate(get_json_artifact(store, envelope_reference))
+        envelope = load_uncertainty_envelope(
+            store, UncertaintyEnvelopeRef.model_validate(envelope_reference)
+        )
         envelope_ref = UncertaintyEnvelopeRef.model_validate(envelope_reference)
 
         raw_report_ref = simulation_payload.get("propagation_report_ref")

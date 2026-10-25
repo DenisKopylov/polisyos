@@ -8,19 +8,19 @@ import re
 import shutil
 import tempfile
 from collections import defaultdict, deque
-from collections.abc import Sequence
 from dataclasses import dataclass
 from numbers import Integral
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Protocol, TypeGuard
 
 from polisyos.common.logger import get_logger
-from polisyos.fabric.io.db import SimulationDB
 
 from .errors import WorldKuzuNotAvailable, WorldMaterializationError, WorldSchemaError
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Hashable, Mapping
+    from collections.abc import Callable, Hashable, Mapping, Sequence
+
+    from polisyos.fabric.io.db import SimulationDB
 
 
 logger = get_logger(__name__)

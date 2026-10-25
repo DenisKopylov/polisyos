@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 import json
+from collections import UserList
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from decimal import Decimal
+from enum import Enum
 from hashlib import sha256
 from pathlib import Path
 from types import MappingProxyType
 from typing import Annotated, Any, ClassVar, Protocol, get_args, get_origin
+from uuid import UUID
 
 import pytest
 from pydantic import (
@@ -17,8 +20,10 @@ from pydantic import (
     Field,
     GetCoreSchemaHandler,
     PlainValidator,
+    PrivateAttr,
     RootModel,
     WithJsonSchema,
+    model_serializer,
 )
 from pydantic_core import CoreSchema, core_schema
 
@@ -2443,3 +2448,694 @@ def test_adapter_rejects_fake_scalar_root_markers_with_rogue_property_before_byt
 
     assert reader.payload_reads == 0
     assert projection_calls == []
+
+
+def test_selected_write_reconciles_manifest_against_frozen_core_options(
+    tmp_path: Path,
+) -> None:
+    target = FileSystemCAS(tmp_path / "selected-options-reconciliation")
+
+    class MutatingStore:
+        put_calls = 0
+
+        def __getattr__(self, name: str) -> object:
+            return getattr(target, name)
+
+        def put_bytes(
+            self,
+            data: bytes,
+            opts: ArtifactWriteOptions,
+            *,
+            return_selected_profile: bool = False,
+        ) -> CoreArtifactRef:
+            self.put_calls += 1
+            assert return_selected_profile is True
+            assert opts.tenant_context is not None
+            opts.tenant_context.tenant_id = "tenant-mutated-by-store"
+            return target.put_bytes(
+                data,
+                opts,
+                return_selected_profile=return_selected_profile,
+            )
+
+    store = MutatingStore()
+    options = ArtifactWriteOptions(
+        kind="test.selected-options-reconciliation",
+        media_type="application/json",
+        schema=CoreSchemaInfo(name="test.selected-options-reconciliation", version="1.0"),
+        tenant_context=ArtifactTenantContextInfo(
+            tenant_id="tenant-frozen-before-emission",
+            cell_id="cell-selected-options",
+        ),
+        same_input_closure=ArtifactSameInputClosureInfo(
+            closure_id="closure-selected-options",
+            status="candidate_only",
+            run_id="run-selected-options",
+            job_id="job-selected-options",
+            tenant_id="tenant-frozen-before-emission",
+            cell_id="cell-selected-options",
+        ),
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="artifact_write_selected_manifest_options_mismatch",
+    ):
+        CoreToIRArtifactStoreAdapter(store).put_bytes(
+            b'{"selected":true}',
+            options,
+            return_selected_profile=True,
+        )
+
+    assert store.put_calls == 1
+
+
+def test_selected_write_preserves_existing_sequence_and_model_subclass_carriers(
+    tmp_path: Path,
+) -> None:
+    """Core's existing Sequence and raw BaseModel carrier law survives IR admission."""
+
+    class CompatibleInputRef(CoreInputRef):
+        pass
+
+    store = FileSystemCAS(tmp_path / "sequence-carrier-compatibility")
+    source_id = CoreArtifactID.from_sha256_hex(sha256(b"sequence carrier source").hexdigest())
+    options = ArtifactWriteOptions(
+        kind="test.sequence-carrier-compatibility",
+        media_type="application/json",
+        inputs=UserList([CompatibleInputRef(artifact_id=source_id, role="source")]),
+        warnings=UserList([WarningRecord(code="retained", msg="sequence carrier")]),
+    )
+
+    selected_ref = CoreToIRArtifactStoreAdapter(store).put_bytes(
+        b'{"sequence":"retained"}',
+        options,
+        return_selected_profile=True,
+    )
+
+    assert selected_ref.manifest_profile_sha256 is not None
+    manifest = FileSystemCAS(tmp_path / "sequence-carrier-compatibility").get_manifest(selected_ref)
+    assert manifest.inputs is not None
+    assert manifest.inputs[0].artifact_id == source_id
+    assert manifest.inputs[0].role == "source"
+    assert manifest.warnings is not None
+    assert [warning.code for warning in manifest.warnings] == ["retained"]
+
+
+def test_selected_write_rejects_declared_extra_input_fields_without_model_dump(
+    tmp_path: Path,
+) -> None:
+    """Declared subclass data cannot hide behind a projection or reach CAS."""
+
+    model_dump_calls: list[str] = []
+
+    class LyingInputRef(CoreInputRef):
+        private_owner_note: str
+
+        def model_dump(self, *, mode: str = "python", **kwargs: object) -> dict[str, object]:
+            model_dump_calls.append(mode)
+            return {
+                "artifact_id": str(self.artifact_id),
+                "role": self.role,
+                "manifest_profile_sha256": self.manifest_profile_sha256,
+            }
+
+    target = FileSystemCAS(tmp_path / "extra-input-subclass")
+    source_id = CoreArtifactID.from_sha256_hex(sha256(b"extra carrier source").hexdigest())
+
+    class CountingStore:
+        put_calls = 0
+
+        def __getattr__(self, name: str) -> object:
+            return getattr(target, name)
+
+        def put_bytes(
+            self,
+            data: bytes,
+            opts: ArtifactWriteOptions,
+            *,
+            return_selected_profile: bool = False,
+        ) -> CoreArtifactRef:
+            self.put_calls += 1
+            return target.put_bytes(
+                data,
+                opts,
+                return_selected_profile=return_selected_profile,
+            )
+
+    store = CountingStore()
+    options = ArtifactWriteOptions(
+        kind="test.extra-input-subclass",
+        media_type="application/json",
+        inputs=UserList(
+            [
+                LyingInputRef(
+                    artifact_id=source_id,
+                    role="source",
+                    private_owner_note="must not be projected away",
+                )
+            ]
+        ),
+    )
+
+    with pytest.raises(TypeError, match="Invalid owned artifact write options"):
+        CoreToIRArtifactStoreAdapter(store).put_bytes(
+            b'{"sequence":"rejected"}',
+            options,
+            return_selected_profile=True,
+        )
+
+    assert store.put_calls == 0
+    assert model_dump_calls == []
+
+
+def test_selected_write_preserves_core_native_json_values_in_warning_data(
+    tmp_path: Path,
+) -> None:
+    """Selected IR writes retain Core's real manifest serialization for native values."""
+
+    class Signal(Enum):
+        READY = "ready"
+
+    payload = b'{"native":"values"}'
+    options = ArtifactWriteOptions(
+        kind="test.core-native-warning-values",
+        media_type="application/json",
+        warnings=[
+            WarningRecord(
+                code="native-values",
+                msg="preserve Core JSON values",
+                data={
+                    "date": date(2026, 10, 24),
+                    "datetime": datetime(2026, 10, 24, 12, 30, tzinfo=UTC),
+                    "decimal": Decimal("1234.50"),
+                    "enum": Signal.READY,
+                    "bytes": b"valid utf-8",
+                    "uuid": UUID("f2e38d50-80ee-4a1e-98be-153cdf026030"),
+                },
+            )
+        ],
+    )
+
+    direct_store = FileSystemCAS(tmp_path / "direct-core-native-values")
+    routed_store = FileSystemCAS(tmp_path / "ir-core-native-values")
+    direct_ref = direct_store.put_bytes(
+        payload,
+        options,
+        return_selected_profile=True,
+    )
+    routed_ref = CoreToIRArtifactStoreAdapter(routed_store).put_bytes(
+        payload,
+        options,
+        return_selected_profile=True,
+    )
+
+    direct_manifest = direct_store.get_manifest(direct_ref)
+    routed_manifest = routed_store.get_manifest(routed_ref)
+    assert direct_ref.manifest_profile_sha256 is not None
+    assert routed_ref.manifest_profile_sha256 == direct_ref.manifest_profile_sha256
+    assert direct_manifest.warnings is not None
+    assert routed_manifest.warnings is not None
+    assert routed_manifest.warnings[0].model_dump(mode="json") == (
+        direct_manifest.warnings[0].model_dump(mode="json")
+    )
+    assert routed_manifest.warnings[0].data == {
+        "date": "2026-10-24",
+        "datetime": "2026-10-24T12:30:00Z",
+        "decimal": "1234.50",
+        "enum": "ready",
+        "bytes": "valid utf-8",
+        "uuid": "f2e38d50-80ee-4a1e-98be-153cdf026030",
+    }
+
+
+@pytest.mark.parametrize(
+    "typed_options",
+    [
+        pytest.param(
+            {"schema": {"name": date(2026, 10, 24), "version": "1.0"}},
+            id="schema-name-date",
+        ),
+        pytest.param(
+            {"tenant_context": {"tenant_id": UUID("f2e38d50-80ee-4a1e-98be-153cdf026030")}},
+            id="tenant-id-uuid",
+        ),
+    ],
+)
+def test_selected_write_rejects_native_values_in_typed_string_fields_before_cas(
+    tmp_path: Path,
+    typed_options: dict[str, object],
+) -> None:
+    """Native JSON values cannot be serialized into a typed string slot before validation."""
+    store = FileSystemCAS(tmp_path / "typed-native-rejection")
+    options = {
+        "kind": "test.typed-native-rejection",
+        "media_type": "application/json",
+        **typed_options,
+    }
+
+    with pytest.raises(TypeError, match="Invalid owned artifact write options"):
+        CoreToIRArtifactStoreAdapter(store).put_bytes(
+            b'{"typed":"value"}',
+            options,
+            return_selected_profile=True,
+        )
+
+    assert list(store.iter_artifact_ids()) == []
+
+
+def test_selected_write_rejects_unknown_warning_value_before_core_cas(
+    tmp_path: Path,
+) -> None:
+    """Unknown warning leaves fail through trusted serialization without duck dumps."""
+
+    class LyingSerializer:
+        calls = 0
+
+        def model_dump(self, **kwargs: object) -> dict[str, str]:
+            self.calls += 1
+            return {"laundered": "value"}
+
+    value = LyingSerializer()
+    store = FileSystemCAS(tmp_path / "unknown-warning-value")
+    options = ArtifactWriteOptions(
+        kind="test.unknown-warning-value",
+        media_type="application/json",
+        warnings=[
+            WarningRecord(
+                code="unknown-value",
+                msg="reject unsupported terminal value",
+                data={"value": value},
+            )
+        ],
+    )
+
+    with pytest.raises(TypeError, match="Invalid owned artifact write options"):
+        CoreToIRArtifactStoreAdapter(store).put_bytes(
+            b'{"unknown":"value"}',
+            options,
+            return_selected_profile=True,
+        )
+
+    assert value.calls == 0
+    assert list(store.iter_artifact_ids()) == []
+
+
+def test_selected_write_preserves_nested_model_aliases_exclusions_and_snapshot(
+    tmp_path: Path,
+) -> None:
+    class NestedPayload(BaseModel):
+        public: str = Field(serialization_alias="wire_name")
+        private: str = Field(exclude=True)
+
+    payload = b'{"nested":"model"}'
+    nested = NestedPayload(public="before", private="sensitive")
+    options = ArtifactWriteOptions(
+        kind="test.nested-model-wire-semantics",
+        media_type="application/json",
+        warnings=[
+            WarningRecord(
+                code="nested-model",
+                msg="preserve nested Pydantic JSON semantics",
+                data={"nested": nested},
+            )
+        ],
+    )
+    direct_store = FileSystemCAS(tmp_path / "direct-nested-model-wire-semantics")
+    routed_target = FileSystemCAS(tmp_path / "routed-nested-model-wire-semantics")
+
+    class MutatingStore:
+        def __getattr__(self, name: str) -> object:
+            return getattr(routed_target, name)
+
+        def put_bytes(
+            self,
+            data: bytes,
+            write_options: ArtifactWriteOptions,
+            *,
+            return_selected_profile: bool = False,
+        ) -> CoreArtifactRef:
+            nested.public = "changed after owner preflight"
+            nested.private = "changed secret"
+            return routed_target.put_bytes(
+                data,
+                write_options,
+                return_selected_profile=return_selected_profile,
+            )
+
+    direct_ref = direct_store.put_bytes(
+        payload,
+        options,
+        return_selected_profile=True,
+    )
+    routed_ref = CoreToIRArtifactStoreAdapter(MutatingStore()).put_bytes(
+        payload,
+        options,
+        return_selected_profile=True,
+    )
+    direct_manifest = direct_store.get_manifest(direct_ref)
+    routed_manifest = routed_target.get_manifest(routed_ref)
+
+    assert nested.public == "changed after owner preflight"
+    assert direct_ref.manifest_profile_sha256 is not None
+    assert routed_ref.manifest_profile_sha256 == direct_ref.manifest_profile_sha256
+    assert direct_manifest.warnings is not None
+    assert routed_manifest.warnings is not None
+    expected_data = {"nested": {"wire_name": "before"}}
+    assert direct_manifest.warnings[0].data == expected_data
+    assert routed_manifest.warnings[0].data == expected_data
+    assert direct_store.get_bytes(direct_ref) == payload
+    assert routed_target.get_bytes(routed_ref) == payload
+
+
+def test_selected_write_preserves_nested_model_serializer_without_duck_dump(
+    tmp_path: Path,
+) -> None:
+    class SerializedPayload(BaseModel):
+        value: str
+        untrusted_dump_calls: ClassVar[int] = 0
+        untrusted_copy_calls: ClassVar[int] = 0
+        untrusted_deepcopy_calls: ClassVar[int] = 0
+
+        @model_serializer(mode="plain")
+        def serialize_payload(self) -> dict[str, str]:
+            return {"declared_wire_value": self.value}
+
+        def model_dump(self, **kwargs: object) -> dict[str, str]:
+            type(self).untrusted_dump_calls += 1
+            return {"laundered": "value"}
+
+        def __copy__(self) -> SerializedPayload:
+            type(self).untrusted_copy_calls += 1
+            return type(self)(value="copied")
+
+        def __deepcopy__(self, memo: dict[int, object]) -> SerializedPayload:
+            type(self).untrusted_deepcopy_calls += 1
+            return type(self)(value="deepcopied")
+
+    payload = b'{"custom":"serializer"}'
+    options = ArtifactWriteOptions(
+        kind="test.nested-model-serializer",
+        media_type="application/json",
+        warnings=[
+            WarningRecord(
+                code="nested-serializer",
+                msg="preserve registered Pydantic serializer",
+                data={"nested": SerializedPayload(value="retained")},
+            )
+        ],
+    )
+    direct_store = FileSystemCAS(tmp_path / "direct-nested-model-serializer")
+    routed_store = FileSystemCAS(tmp_path / "routed-nested-model-serializer")
+
+    direct_ref = direct_store.put_bytes(
+        payload,
+        options,
+        return_selected_profile=True,
+    )
+    SerializedPayload.untrusted_copy_calls = 0
+    SerializedPayload.untrusted_deepcopy_calls = 0
+    routed_ref = CoreToIRArtifactStoreAdapter(routed_store).put_bytes(
+        payload,
+        options,
+        return_selected_profile=True,
+    )
+    direct_manifest = direct_store.get_manifest(direct_ref)
+    routed_manifest = routed_store.get_manifest(routed_ref)
+
+    assert SerializedPayload.untrusted_dump_calls == 0
+    assert SerializedPayload.untrusted_copy_calls == 0
+    assert SerializedPayload.untrusted_deepcopy_calls == 0
+    assert direct_ref.manifest_profile_sha256 is not None
+    assert routed_ref.manifest_profile_sha256 == direct_ref.manifest_profile_sha256
+    assert direct_manifest.warnings is not None
+    assert routed_manifest.warnings is not None
+    expected_data = {"nested": {"declared_wire_value": "retained"}}
+    assert direct_manifest.warnings[0].data == expected_data
+    assert routed_manifest.warnings[0].data == expected_data
+    assert direct_store.get_bytes(direct_ref) == payload
+    assert routed_store.get_bytes(routed_ref) == payload
+
+
+def test_selected_write_preserves_core_serializable_nested_mapping_keys(
+    tmp_path: Path,
+) -> None:
+    payload = b'{"mapping":"keys"}'
+    options = ArtifactWriteOptions(
+        kind="test.nested-mapping-keys",
+        media_type="application/json",
+        warnings=[
+            WarningRecord(
+                code="nested-mapping",
+                msg="preserve Pydantic JSON key conversion",
+                data={"nested": {1: "one", "2": "two"}},
+            )
+        ],
+    )
+    direct_store = FileSystemCAS(tmp_path / "direct-nested-mapping-keys")
+    routed_store = FileSystemCAS(tmp_path / "routed-nested-mapping-keys")
+
+    direct_ref = direct_store.put_bytes(
+        payload,
+        options,
+        return_selected_profile=True,
+    )
+    routed_ref = CoreToIRArtifactStoreAdapter(routed_store).put_bytes(
+        payload,
+        options,
+        return_selected_profile=True,
+    )
+    direct_manifest = direct_store.get_manifest(direct_ref)
+    routed_manifest = routed_store.get_manifest(routed_ref)
+
+    assert direct_ref.manifest_profile_sha256 is not None
+    assert routed_ref.manifest_profile_sha256 == direct_ref.manifest_profile_sha256
+    assert direct_manifest.warnings is not None
+    assert routed_manifest.warnings is not None
+    expected_data = {"nested": {"1": "one", "2": "two"}}
+    assert direct_manifest.warnings[0].data == expected_data
+    assert routed_manifest.warnings[0].data == expected_data
+    assert direct_store.get_bytes(direct_ref) == payload
+    assert routed_store.get_bytes(routed_ref) == payload
+
+
+def test_selected_write_preserves_nested_model_extras_and_private_serializer_state(
+    tmp_path: Path,
+) -> None:
+    class ContextPayload(BaseModel):
+        model_config = ConfigDict(extra="allow")
+        public: str
+        _private_state: str = PrivateAttr()
+
+        @model_serializer(mode="plain")
+        def serialize_payload(self) -> dict[str, str]:
+            return {
+                "public": self.public,
+                "extension": self.extension,
+                "private_state": self._private_state,
+            }
+
+    nested = ContextPayload.model_validate({"public": "retained", "extension": "declared-extra"})
+    nested._private_state = "declared-private"
+    payload = b'{"private":"state"}'
+    options = ArtifactWriteOptions(
+        kind="test.nested-model-private-state",
+        media_type="application/json",
+        warnings=[
+            WarningRecord(
+                code="nested-private-state",
+                msg="preserve Pydantic extra and private serializer inputs",
+                data={"nested": nested},
+            )
+        ],
+    )
+    direct_store = FileSystemCAS(tmp_path / "direct-nested-model-private-state")
+    routed_store = FileSystemCAS(tmp_path / "routed-nested-model-private-state")
+
+    direct_ref = direct_store.put_bytes(
+        payload,
+        options,
+        return_selected_profile=True,
+    )
+    routed_ref = CoreToIRArtifactStoreAdapter(routed_store).put_bytes(
+        payload,
+        options,
+        return_selected_profile=True,
+    )
+    direct_manifest = direct_store.get_manifest(direct_ref)
+    routed_manifest = routed_store.get_manifest(routed_ref)
+
+    assert direct_ref.manifest_profile_sha256 is not None
+    assert routed_ref.manifest_profile_sha256 == direct_ref.manifest_profile_sha256
+    assert direct_manifest.warnings is not None
+    assert routed_manifest.warnings is not None
+    expected_data = {
+        "nested": {
+            "public": "retained",
+            "extension": "declared-extra",
+            "private_state": "declared-private",
+        }
+    }
+    assert direct_manifest.warnings[0].data == expected_data
+    assert routed_manifest.warnings[0].data == expected_data
+    assert direct_store.get_bytes(direct_ref) == payload
+    assert routed_store.get_bytes(routed_ref) == payload
+
+
+def test_selected_write_preserves_core_root_model_bridges(tmp_path: Path) -> None:
+    """Declared ArtifactID and ComponentId RootModels retain Core validation."""
+    payload = b'{"roots":"typed"}'
+    component = ComponentId("polisyos.tests@1.0.0")
+    source_id = CoreArtifactID.from_sha256_hex(sha256(b"typed root bridge source").hexdigest())
+    options = ArtifactWriteOptions(
+        kind="test.core-root-model-bridges",
+        media_type="application/json",
+        producer=ProducerInfo(component=component, version="1.0.0"),
+        inputs=[CoreInputRef(artifact_id=source_id, role="source")],
+    )
+    direct_store = FileSystemCAS(tmp_path / "direct-core-root-model-bridges")
+    routed_store = FileSystemCAS(tmp_path / "routed-core-root-model-bridges")
+
+    direct_ref = direct_store.put_bytes(
+        payload,
+        options,
+        return_selected_profile=True,
+    )
+    routed_ref = CoreToIRArtifactStoreAdapter(routed_store).put_bytes(
+        payload,
+        options,
+        return_selected_profile=True,
+    )
+
+    assert direct_ref.manifest_profile_sha256 is not None
+    assert routed_ref.manifest_profile_sha256 == direct_ref.manifest_profile_sha256
+    direct_manifest = direct_store.get_manifest(direct_ref)
+    routed_manifest = routed_store.get_manifest(routed_ref)
+    assert direct_manifest.producer is not None
+    assert routed_manifest.producer is not None
+    assert direct_manifest.producer.component == component
+    assert routed_manifest.producer.component == component
+    assert direct_manifest.inputs is not None
+    assert routed_manifest.inputs is not None
+    assert direct_manifest.inputs[0].artifact_id == source_id
+    assert routed_manifest.inputs[0].artifact_id == source_id
+
+
+def test_selected_write_preserves_custom_root_model_serializer_in_warning_any(
+    tmp_path: Path,
+) -> None:
+    """RootModel Any values use their registered Core serializer, not raw roots."""
+
+    class SerializedRoot(RootModel[str]):
+        dump_calls: ClassVar[int] = 0
+        copy_calls: ClassVar[int] = 0
+        deepcopy_calls: ClassVar[int] = 0
+        _secret: str = PrivateAttr(default="retained-private")
+
+        @model_serializer(mode="plain")
+        def serialize_root(self) -> dict[str, str]:
+            return {"wire_value": self.root, "private": self._secret}
+
+        def model_dump(self, **kwargs: object) -> dict[str, str]:
+            type(self).dump_calls += 1
+            return {"laundered": "value"}
+
+        def __copy__(self) -> SerializedRoot:
+            type(self).copy_calls += 1
+            return type(self)("copied")
+
+        def __deepcopy__(self, memo: dict[int, object]) -> SerializedRoot:
+            type(self).deepcopy_calls += 1
+            return type(self)("deepcopied")
+
+    payload = b'{"roots":"warning"}'
+    options = ArtifactWriteOptions(
+        kind="test.warning-root-model-any",
+        media_type="application/json",
+        warnings=[
+            WarningRecord(
+                code="root-model-any",
+                msg="use the declared serializer",
+                data={"nested": SerializedRoot("retained")},
+            )
+        ],
+    )
+    direct_store = FileSystemCAS(tmp_path / "direct-warning-root-model-any")
+    routed_store = FileSystemCAS(tmp_path / "routed-warning-root-model-any")
+
+    direct_ref = direct_store.put_bytes(
+        payload,
+        options,
+        return_selected_profile=True,
+    )
+    SerializedRoot.copy_calls = 0
+    SerializedRoot.deepcopy_calls = 0
+    routed_ref = CoreToIRArtifactStoreAdapter(routed_store).put_bytes(
+        payload,
+        options,
+        return_selected_profile=True,
+    )
+
+    assert SerializedRoot.dump_calls == 0
+    assert SerializedRoot.copy_calls == 0
+    assert SerializedRoot.deepcopy_calls == 0
+    assert direct_ref.manifest_profile_sha256 is not None
+    assert routed_ref.manifest_profile_sha256 == direct_ref.manifest_profile_sha256
+    direct_manifest = direct_store.get_manifest(direct_ref)
+    routed_manifest = routed_store.get_manifest(routed_ref)
+    assert direct_manifest.warnings is not None
+    assert routed_manifest.warnings is not None
+    expected_data = {"nested": {"wire_value": "retained", "private": "retained-private"}}
+    assert direct_manifest.warnings[0].data == expected_data
+    assert routed_manifest.warnings[0].data == expected_data
+    assert direct_store.get_bytes(direct_ref) == payload
+    assert routed_store.get_bytes(routed_ref) == payload
+
+
+def test_selected_write_rejects_foreign_root_model_in_typed_string_field_before_cas(
+    tmp_path: Path,
+) -> None:
+    """A foreign string RootModel cannot be projected into an owned str field."""
+
+    class ForeignString(RootModel[str]):
+        pass
+
+    options = {
+        "kind": "test.typed-foreign-root-model",
+        "media_type": "application/json",
+        "schema": {"name": ForeignString("must-not-coerce"), "version": "1.0"},
+    }
+    with pytest.raises(TypeError, match="Invalid adapter option 'schema'"):
+        core_ir_adapter._coerce_write_options(options)
+
+    target = FileSystemCAS(tmp_path / "typed-foreign-root-model")
+
+    class CountingStore:
+        put_calls = 0
+
+        def __getattr__(self, name: str) -> object:
+            return getattr(target, name)
+
+        def put_bytes(
+            self,
+            data: bytes,
+            write_options: ArtifactWriteOptions,
+            *,
+            return_selected_profile: bool = False,
+        ) -> CoreArtifactRef:
+            self.put_calls += 1
+            return target.put_bytes(
+                data,
+                write_options,
+                return_selected_profile=return_selected_profile,
+            )
+
+    store = CountingStore()
+    with pytest.raises(TypeError, match="Invalid owned artifact write options"):
+        CoreToIRArtifactStoreAdapter(store).put_bytes(
+            b'{"typed":"root"}',
+            options,
+            return_selected_profile=True,
+        )
+    assert store.put_calls == 0
+    assert list(target.iter_artifact_ids()) == []

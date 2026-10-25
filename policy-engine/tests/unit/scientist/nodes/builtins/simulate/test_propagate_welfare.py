@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import math
+from pathlib import Path
 from types import SimpleNamespace
 
 import jax.numpy as jnp
@@ -105,6 +106,7 @@ from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.registry.refs import ArtifactRefModel, UncertaintyEnvelopeRef
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir.trinity.loaders import persist_trinity_bundle_artifact
 from polisyos.scientist.feedback.core import build_parameter_override_bundle
 from polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment import (
     _build_welfare_section,
@@ -657,7 +659,7 @@ def test_propagate_welfare_node_fails_on_singular_ge_operator(tmp_path) -> None:
     assert outcome.error.code == "ERROR_GE_OPERATOR_SINGULAR"
 
 
-def test_propagate_welfare_node_persists_channel_decomposition_artifact(tmp_path) -> None:
+def test_welfare_report_producer_persists_channel_decomposition_artifact(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
     run = RunContext.start(
@@ -665,65 +667,14 @@ def test_propagate_welfare_node_persists_channel_decomposition_artifact(tmp_path
     )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.welfare.channels"))
 
-    env_ref = persist_uncertainty_envelope(
-        _ensure_ir_artifact_store(store),
-        UncertaintyEnvelope(
-            point_estimate=0.52,
-            confidence_interval=(0.40, 0.64),
-            confidence_level=0.95,
-            distribution_family=DistributionFamily.NORMAL,
-            source=UncertaintySource.TRUST,
-            propagation_method=PropagationMethod.NONE,
-            interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
-            metadata={"param_name": "policy_value"},
-        ),
-    )
-    snapshot_ref = store.put_json(
-        {"state": {}},
-        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
-    )
-    data_snapshot_ref = store.put_json(
-        DataSnapshot(data_ref=snapshot_ref, uncertainty_envelope_ref=env_ref),
-        PutOptions(
-            kind="fabric.data_snapshot",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.1.0"),
-        ),
-    )
-    exec_plan_ref = store.put_json(
-        {
-            "program_ref": {
-                "artifact_id": "sha256:" + "1" * 64,
-                "kind": "foundry.program_graph",
-                "media_type": "application/json",
-            },
-            "order": [],
-        },
-        PutOptions(kind="foundry.exec_plan", media_type="application/json"),
-    )
-    metrics_ref = store.put_json(
-        Metrics(values={"policy_value": 1.52}),
-        PutOptions(kind="foundry.metrics", media_type="application/json"),
-        canon_spec=CanonSpec(forbid_floats=False),
-    )
-    sim_result_ref = store.put_json(
-        SimulationResult(
-            exec_plan_ref=ExecPlanRef(artifact_id=exec_plan_ref.artifact_id),
-            metrics_ref=MetricsRef(artifact_id=metrics_ref.artifact_id),
-        ),
-        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+    from polisyos.scientist.nodes.builtins.simulate.welfare_reports import (
+        _maybe_build_channel_decomposition_ref,
     )
 
-    state = ExperimentState(
-        run_id="R_welfare_channels",
-        inputs={
-            INPUT_DATA_SNAPSHOT_REF: DataSnapshotRef(artifact_id=data_snapshot_ref.artifact_id),
-        },
-        artifacts_index={ARTIFACT_SIMULATION_RESULT_REF: sim_result_ref},
-        params={
-            "welfare_metric_order": ["policy_value"],
-            "welfare_weights": {"policy_value": 1.0},
-            "welfare_channel_decomposition": {
+    channel_ref = _maybe_build_channel_decomposition_ref(
+        ctx,
+        welfare_params={
+            "channel_decomposition": {
                 "target_kind": "social_welfare",
                 "baseline_microdata": {
                     "overlap_ok": True,
@@ -756,22 +707,17 @@ def test_propagate_welfare_node_persists_channel_decomposition_artifact(tmp_path
                     "overid_stats": {"hansen_pvalue": 0.31},
                 },
                 "total_vector": [0.52],
-            },
+            }
         },
+        total_vector=np.asarray([0.52], dtype=float),
     )
+    assert channel_ref is not None
 
-    outcome = PropagateWelfareNode().execute(ctx, state)
-    assert outcome.status == "ok"
-
-    bundle = load_welfare_bundle(
-        _ensure_ir_artifact_store(store), outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF]
-    )
-    assert bundle.channel_decomposition_ref is not None
-
-    artifact = load_channel_decomposition_artifact(
-        _ensure_ir_artifact_store(store), bundle.channel_decomposition_ref
-    )
-    assert artifact.identification_status.value == "identified"
+    artifact = load_channel_decomposition_artifact(_ensure_ir_artifact_store(store), channel_ref)
+    assert artifact.identification_status.value == "blocked"
+    assert "upstream_input_owner_not_established" in artifact.blocking_reasons
+    assert artifact.diagnostic_summary["candidate_identification_status"] == "identified"
+    assert artifact.diagnostic_summary["input_owner_status"] == "not_established"
     assert artifact.mechanical_vector == (0.6,)
     assert artifact.behavioral_vector == (-0.24,)
     assert artifact.fiscal_feedback_vector == (0.16,)
@@ -1290,19 +1236,12 @@ def _build_b197_tied_execution_source(store: FileSystemCAS):
         ],
         return_selected_profile=True,
     )
-    policy_ref = store.put_json(
+    selected_policy_ref = persist_trinity_bundle_artifact(
+        _ensure_ir_artifact_store(store),
         policy,
-        PutOptions(
-            kind=TrinityBundle.ARTIFACT_KIND,
-            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
-            schema=SchemaInfo(
-                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
-                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
-            ),
-            inputs=[input_ref_from_artifact_ref(candidate_ref, role="policy_candidate")],
-        ),
-        return_selected_profile=True,
+        inputs=[input_ref_from_artifact_ref(candidate_ref, role="policy_candidate")],
     )
+    policy_ref = ArtifactRef.model_validate(selected_policy_ref.model_dump(mode="python"))
     compiled = compile_foundry(
         store,
         CompileRequest(
@@ -1775,19 +1714,12 @@ def _b197_execute_calibration_source(
         ],
         return_selected_profile=True,
     )
-    policy_ref = store.put_json(
+    selected_policy_ref = persist_trinity_bundle_artifact(
+        _ensure_ir_artifact_store(store),
         policy,
-        PutOptions(
-            kind=TrinityBundle.ARTIFACT_KIND,
-            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
-            schema=SchemaInfo(
-                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
-                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
-            ),
-            inputs=[input_ref_from_artifact_ref(candidate_ref, role="policy_candidate")],
-        ),
-        return_selected_profile=True,
+        inputs=[input_ref_from_artifact_ref(candidate_ref, role="policy_candidate")],
     )
+    policy_ref = ArtifactRef.model_validate(selected_policy_ref.model_dump(mode="python"))
     compiled = compile_foundry(
         store,
         CompileRequest(
@@ -2051,6 +1983,12 @@ def test_b197_source_join_requires_selected_parameter_bytes_and_fresh_consumer_a
     assert basis.program_graph_status == "selected_source_matched"
     assert basis.exec_plan_source_status == "selected_source_matched"
     assert basis.base_state_source_status == "selected_source_matched"
+    base_state_binding = next(
+        item for item in basis.runtime_input_roster if item.input_name == "base_state"
+    )
+    assert base_state_binding.status == "selected_source_matched"
+    assert base_state_binding.value_sha256 == base_state_binding.source_payload_sha256
+    assert base_state_binding.value_sha256 != basis.base_state_checksum_sha256
     assert basis.registry_bundle_status == "selected_source_matched"
     assert basis.mechanism_registry_status == "selected_source_matched"
     assert basis.unit_registry_status == "selected_source_matched"
@@ -2233,6 +2171,56 @@ def test_runtime_input_binding_recomputes_selected_registry_content() -> None:
     )
 
 
+def test_runtime_input_binding_recomputes_selected_base_state_value() -> None:
+    from polisyos.foundry.calibration.execution_basis import canonical_input_sha256
+
+    selected = GlobalState.empty(n_agents=1, n_firms=1).replace(tax_rate=jnp.asarray(0.125))
+    altered = selected.replace(tax_rate=jnp.asarray(0.25))
+    selected_ref = ArtifactRef(
+        artifact_id=ArtifactID.from_sha256_hex("a" * 64),
+        kind="foundry.state_snapshot",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "b" * 64,
+    )
+    limitations: set[str] = set()
+
+    binding = calibrator_module._runtime_input_binding(
+        name="base_state",
+        usage="fit_required",
+        source_role="selected_base_state_snapshot",
+        value=altered,
+        active=True,
+        selected_ref=selected_ref,
+        selected_value=selected,
+        limitations=limitations,
+    )
+
+    assert binding.status == "selected_source_mismatch"
+    assert binding.source_ref == selected_ref
+    assert binding.value_sha256 == canonical_input_sha256(altered)
+    assert binding.source_payload_sha256 == canonical_input_sha256(selected)
+    assert "runtime_input_selected_source_mismatch:base_state" in limitations
+
+
+def test_calibration_state_blob_checksum_refuses_corrupt_bytes(tmp_path) -> None:
+    from polisyos.core.artifacts.store import ArtifactIntegrityError
+
+    store = FileSystemCAS(tmp_path)
+    snapshot_ref = put_state_snapshot(
+        store,
+        state=GlobalState.empty(n_agents=1, n_firms=1),
+        step=0,
+        return_selected_profile=True,
+    )
+    snapshot_manifest = store.get_manifest(snapshot_ref)
+    state_blob_edge = next(edge for edge in snapshot_manifest.inputs if edge.role == "state_blob")
+    blob_path, _manifest_path = store._paths(state_blob_edge.artifact_id)
+    blob_path.write_bytes(b"corrupt state bytes")
+
+    with pytest.raises(ArtifactIntegrityError, match="Blob sha256 mismatch"):
+        calibrator_module._state_snapshot_blob_digest(store, snapshot_ref)
+
+
 def test_persisted_basis_uses_pre_fit_input_snapshot(tmp_path, monkeypatch) -> None:
     from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY
 
@@ -2297,7 +2285,16 @@ def test_fresh_welfare_recomputes_complete_runtime_registry_member_content(tmp_p
     from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY
 
     original_spec = DEFAULT_SLOT_REGISTRY.slots["government.balance"]
-    altered_spec = original_spec.model_copy(update={"state_path": "agents.income"})
+    altered_spec = original_spec.model_copy(
+        update={"description": "Government balance stock (content probe)"}
+    )
+    assert altered_spec.description != original_spec.description
+    assert altered_spec.scope == original_spec.scope
+    assert altered_spec.value_type == original_spec.value_type
+    assert altered_spec.unit == original_spec.unit
+    assert altered_spec.kind == original_spec.kind
+    assert altered_spec.state_path == original_spec.state_path == "government_balance"
+    assert altered_spec.reset_rule == original_spec.reset_rule
     altered_slot_registry = DEFAULT_SLOT_REGISTRY.model_copy(
         update={
             "slots": {
@@ -2314,7 +2311,7 @@ def test_fresh_welfare_recomputes_complete_runtime_registry_member_content(tmp_p
         basis,
         simulation_ref,
         _node_id,
-        _initial_basis,
+        initial_basis,
     ) = _b197_execute_calibration_source(
         tmp_path,
         slot_registry_override=altered_slot_registry,
@@ -2329,9 +2326,12 @@ def test_fresh_welfare_recomputes_complete_runtime_registry_member_content(tmp_p
     )
     selected_registry = load_registry_bundle_content(store, registry_ref)
     selected_slot_digest = canonical_input_sha256(selected_registry.slot_registry)
+    assert basis.registry_bundle_ref == initial_basis.runtime_registry_ref
+    assert slot_binding.source_ref == initial_basis.runtime_registry_members.slot_registry
     assert slot_binding.status == "selected_source_mismatch"
     assert slot_binding.source_payload_sha256 == selected_slot_digest
     assert slot_binding.value_sha256 == canonical_input_sha256(altered_slot_registry)
+    assert slot_binding.value_sha256 != slot_binding.source_payload_sha256
 
     original_welfare = _run_b197_welfare(
         store,
@@ -3625,25 +3625,31 @@ def test_delta_report_binds_selected_input_envelope_profile_through_fresh_cas_re
         ),
         metadata={"param_name": "C.rate", "std": 1.0},
     )
-    envelope_payload = envelope.model_dump(mode="python", round_trip=True)
-    envelope_options = PutOptions(
-        kind="ir.uncertainty_envelope",
-        media_type="application/json",
-        schema=SchemaInfo(name="ir.uncertainty_envelope", version="1.1"),
+    selected_ref = persist_uncertainty_envelope(
+        _ensure_ir_artifact_store(store),
+        envelope,
+        return_selected_profile=True,
     )
-    default_view = store.put_json(
-        envelope_payload,
-        envelope_options,
-        canon_spec=CanonSpec(forbid_floats=False, max_depth=128),
-    )
-    selected_view = store.put_json(
-        envelope_payload,
-        envelope_options,
+    assert selected_ref.manifest_profile_sha256 is not None
+
+    core_profile_payload_ref = store.put_json(
+        envelope.model_dump(mode="python", round_trip=True),
+        PutOptions(
+            kind="ir.uncertainty_envelope",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="ir.uncertainty_envelope",
+                version=UncertaintyEnvelope.SCHEMA_VERSION,
+            ),
+        ),
         canon_spec=CanonSpec(forbid_floats=False, max_depth=64),
+        return_selected_profile=True,
     )
-    assert selected_view.artifact_id == default_view.artifact_id
-    assert selected_view.manifest_profile_sha256 != default_view.manifest_profile_sha256
-    selected_ref = UncertaintyEnvelopeRef.model_validate(selected_view.model_dump(mode="python"))
+    core_profile_ref = UncertaintyEnvelopeRef.model_validate(
+        core_profile_payload_ref.model_dump(mode="python")
+    )
+    assert core_profile_ref.artifact_id == selected_ref.artifact_id
+    assert core_profile_ref.manifest_profile_sha256 != selected_ref.manifest_profile_sha256
 
     outcome, bundle = _run_b197_welfare(
         store,
@@ -3680,6 +3686,14 @@ def test_delta_report_binds_selected_input_envelope_profile_through_fresh_cas_re
     )
 
     fresh_store = _RecordingFileSystemCAS(tmp_path)
+    assert fresh_store.get_bytes(core_profile_ref.artifact_id) == fresh_store.get_bytes(
+        selected_ref.artifact_id
+    )
+    from polisyos.ir.model_layer.canon import CanonViolation
+
+    with pytest.raises(CanonViolation, match="ir_owned_artifact_profile_refused"):
+        load_uncertainty_envelope(_ensure_ir_artifact_store(fresh_store), core_profile_ref)
+
     fresh_report = from_canonical_bytes(fresh_store.get_bytes(report_ref))
     assert fresh_report["schema_version"] == "1.0"
     fresh_manifest = fresh_store.get_manifest(report_ref)
@@ -3700,7 +3714,7 @@ def test_delta_report_binds_selected_input_envelope_profile_through_fresh_cas_re
     corrupt_ref = selected_ref.model_copy(
         update={"manifest_profile_sha256": "sha256:" + ("0" * 64)}
     )
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(CanonViolation, match="ir_owned_artifact_read_refused"):
         load_uncertainty_envelope(_ensure_ir_artifact_store(fresh_store), corrupt_ref)
 
 
@@ -4894,3 +4908,208 @@ def test_welfare_draw_failure_scope_uses_shared_foundry_classifier(monkeypatch) 
             "additional_global_error_types": (welfare_types_module._WelfareNodeFailure,),
         }
     ]
+
+
+def test_actual_welfare_node_1_1_tuple_flows_through_phase3_and_protected_packet(
+    tmp_path: Path,
+) -> None:
+    from polisyos.foundry.methods.catalog.microsim.protocols import MicrosimResult
+    from polisyos.ir.analytics.welfare import (
+        ChannelIdentificationStatus,
+        load_welfare_bundle,
+    )
+    from polisyos.ir.registry.refs import WelfareBundleRef
+    from polisyos.scientist.nodes.builtins.decide.build_decision_packet import (
+        BuildDecisionPacketNode,
+    )
+    from polisyos.scientist.nodes.builtins.state_keys import (
+        INPUT_REGISTRY_BUNDLE_REF,
+        INPUT_TRINITY_BUNDLE_REF,
+    )
+
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_welfare_current_tuple_e2e",
+    )
+    ctx = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.welfare.current_tuple"),
+    )
+    snapshot_ref = store.put_json(
+        {"state": {}},
+        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
+    )
+    exec_plan_ref = store.put_json(
+        {
+            "program_ref": {
+                "artifact_id": str(snapshot_ref.artifact_id),
+                "kind": "foundry.program_graph",
+                "media_type": "application/json",
+            },
+            "order": [],
+        },
+        PutOptions(kind="foundry.exec_plan", media_type="application/json"),
+    )
+    metrics_ref = store.put_json(
+        Metrics(values={"policy_value": 10.0}),
+        PutOptions(kind="foundry.metrics", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    simulation_ref = store.put_json(
+        SimulationResult(
+            exec_plan_ref=ExecPlanRef.model_validate(exec_plan_ref.model_dump(mode="python")),
+            metrics_ref=MetricsRef.model_validate(metrics_ref.model_dump(mode="python")),
+        ),
+        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    state = ExperimentState(
+        run_id="R_welfare_current_tuple_e2e",
+        artifacts_index={
+            ARTIFACT_SIMULATION_RESULT_REF: SimulationResultRef.model_validate(
+                simulation_ref.model_dump(mode="python")
+            )
+        },
+        params={
+            "welfare_weights": {"policy_value": 1.0},
+            "welfare_input_envelopes": {
+                "policy_value": {
+                    "point_estimate": 10.0,
+                    "confidence_interval": [9.0, 11.0],
+                    "confidence_level": 0.95,
+                    "distribution_family": "normal",
+                    "source": "manual",
+                    "propagation_method": "none",
+                    "interval_semantics": "confidence_interval",
+                }
+            },
+            "propagation_config": {"preferred_method": "delta"},
+            "welfare_channel_decomposition": {
+                "target_kind": "social_welfare",
+                "baseline_microdata": {
+                    "overlap_ok": True,
+                    "overlap_stats": {"min_propensity": 0.15},
+                },
+                "policy_basis": {
+                    "basis_labels": ["delta_tax_rate", "delta_transfer"],
+                    "step_vector": [0.02, 1.0],
+                    "policy_class": "local_affine_tax_transfer",
+                    "policy_rank_ok": True,
+                    "timing_assumptions": ["policy -> behavior -> closure"],
+                },
+                "mechanical_inputs": {"mechanical_vector": [0.6]},
+                "behavior_model": {
+                    "behavioral_vector": [-0.24],
+                    "first_stage_ok": True,
+                    "first_stage_stats": {"behavior_f": 18.0},
+                },
+                "fiscal_state_model": {
+                    "fiscal_feedback_vector": [0.16],
+                    "first_stage_ok": True,
+                    "first_stage_stats": {"fiscal_f": 14.0},
+                },
+                "instrument_set": {
+                    "overid_ok": True,
+                    "timing_ok": True,
+                    "overid_stats": {"hansen_pvalue": 0.31},
+                },
+                "total_vector": [0.52],
+            },
+        },
+    )
+
+    outcome = PropagateWelfareNode().execute(ctx, state)
+
+    assert outcome.status == "ok", outcome.events
+    welfare_ref = WelfareBundleRef.model_validate(
+        outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF].model_dump(mode="json")
+    )
+    fresh_store = FileSystemCAS(tmp_path)
+    fresh_ir_store = _ensure_ir_artifact_store(fresh_store)
+    bundle = load_welfare_bundle(fresh_ir_store, welfare_ref)
+    bundle_manifest = fresh_store.get_manifest(welfare_ref)
+    bundle_payload = from_canonical_bytes(fresh_store.get_bytes(welfare_ref.artifact_id))
+    assert bundle.schema_version == "1.1"
+    assert bundle_manifest.artifact_schema.name == "ir.welfare_bundle"
+    assert bundle_manifest.artifact_schema.version == "1.1"
+    assert bundle_payload["schema_version"] == "1.1"
+    assert bundle.channel_decomposition_ref is not None
+
+    channel = load_channel_decomposition_artifact(fresh_ir_store, bundle.channel_decomposition_ref)
+    assert channel.identification_status is ChannelIdentificationStatus.BLOCKED
+    assert channel.diagnostic_summary["candidate_identification_status"] == "identified"
+    assert channel.diagnostic_summary["input_owner_status"] == "not_established"
+    assert channel.mechanical_vector == pytest.approx((0.6,))
+    assert channel.behavioral_vector == pytest.approx((-0.24,))
+    assert channel.fiscal_feedback_vector == pytest.approx((0.16,))
+    assert channel.total_vector == pytest.approx((0.52,))
+
+    phase3_state = ExperimentState(
+        run_id="R_welfare_current_tuple_e2e",
+        artifacts_index={ARTIFACT_WELFARE_BUNDLE_REF: welfare_ref},
+        params={
+            "microsim_result": MicrosimResult(
+                disposable_income=[10.0],
+                tax_liability=[1.0],
+                benefit_income=[0.0],
+                weighted_mean_disposable_income=10.0,
+                weighted_gini=0.1,
+                policy_revenue=1.0,
+            ).model_dump(mode="json")
+        },
+    )
+    gate = resolve_phase3_gate(ctx, phase3_state)
+    assert gate.gate_passed is False
+    assert "phase3.welfare_channel_input_owner_not_established" in gate.blocking_reasons
+    assert gate.fiscal_feedback_required is False
+    assert gate.fiscal_feedback_ref is None
+
+    trinity_bundle = TrinityBundle(
+        problem_frame=ProblemFrame(problem_id="welfare_packet", domain=ProblemDomain.FISCAL),
+        policy_spec=PolicySpec(policy_id="welfare_packet"),
+        model_spec=ModelSpec(
+            model_id="welfare_packet",
+            data_snapshot_ref=str(snapshot_ref.artifact_id),
+            registry_bundle_ref=str(registry_bundle.artifact_id),
+        ),
+    )
+    selected_trinity_ref = persist_trinity_bundle_artifact(
+        _ensure_ir_artifact_store(store), trinity_bundle
+    )
+    trinity_ref = ArtifactRef.model_validate(selected_trinity_ref.model_dump(mode="python"))
+    packet_data_snapshot = store.put_json(
+        {
+            "data_ref": {
+                "artifact_id": str(snapshot_ref.artifact_id),
+                "kind": "foundry.state_snapshot",
+                "media_type": "application/json",
+            }
+        },
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    packet_state = ExperimentState(
+        run_id="R_welfare_current_tuple_e2e",
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+            INPUT_REGISTRY_BUNDLE_REF: registry_bundle,
+            INPUT_DATA_SNAPSHOT_REF: packet_data_snapshot,
+        },
+        artifacts_index={ARTIFACT_WELFARE_BUNDLE_REF: welfare_ref},
+    )
+    packet_outcome = BuildDecisionPacketNode().execute(ctx, packet_state)
+    assert packet_outcome.artifacts
+    packet_payload = from_canonical_bytes(store.get_bytes(packet_outcome.artifacts[0].artifact_id))
+    protected_channel = packet_payload["welfare"]["channel_decomposition_artifact"]
+    assert protected_channel["identification_status"] == "blocked"
+    assert protected_channel["authority_status"] == "not_established"
+    for field in (
+        "mechanical_vector",
+        "behavioral_vector",
+        "fiscal_feedback_vector",
+        "total_vector",
+    ):
+        assert field not in protected_channel

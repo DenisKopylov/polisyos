@@ -559,6 +559,10 @@ def _freeze_reference_payload(value: object) -> object:
 
     if isinstance(value, _FrozenReferenceMapping):
         return value
+    if type(value) is dict and not value:
+        empty_snapshot = _FrozenReferenceMapping(MappingProxyType({}), True, (), None)
+        object.__setattr__(empty_snapshot, "_wire_json_cache", "{}")
+        return empty_snapshot
     captured_nodes: set[int] = set()
     captured = _capture_reference_payload(
         value,
@@ -1485,6 +1489,25 @@ def derive_data_forge_variable_alignment_edge(
 ) -> CredalReferenceEdge:
     """Derive status for one Data Forge raw-to-canonical variable alignment."""
 
+    return _derive_data_forge_variable_alignment_edge(
+        row,
+        variable_names=variable_names,
+        provenance_version=provenance_version,
+        selected_catalog_source_profile_hash=None,
+        compute_content_hash=True,
+    )
+
+
+def _derive_data_forge_variable_alignment_edge(
+    row: Mapping[str, Any],
+    *,
+    variable_names: set[str],
+    provenance_version: str,
+    selected_catalog_source_profile_hash: str | None,
+    compute_content_hash: bool,
+) -> CredalReferenceEdge:
+    """Build one Data Forge edge after final source provenance is known."""
+
     dataset_id = str(row.get("dataset_id") or "").strip()
     raw_variable = str(row.get("raw_variable") or "").strip()
     canonical = str(row.get("canonical_var") or "").strip()
@@ -1511,6 +1534,8 @@ def derive_data_forge_variable_alignment_edge(
             "proxy_penalty": proxy_penalty,
         },
     }
+    if selected_catalog_source_profile_hash is not None:
+        provenance["selected_catalog_source_profile_hash"] = selected_catalog_source_profile_hash
     if not dataset_id or not raw_variable or not canonical:
         return _edge(
             "L2_DATA_FORGE_VARIABLE_ALIGNMENT",
@@ -1518,6 +1543,7 @@ def derive_data_forge_variable_alignment_edge(
             "incomplete",
             _incomplete_completions("data_forge_alignment_endpoint_missing"),
             provenance,
+            compute_content_hash=compute_content_hash,
         )
     if canonical not in variable_names:
         return _edge(
@@ -1526,6 +1552,7 @@ def derive_data_forge_variable_alignment_edge(
             "incomplete",
             _incomplete_completions("data_forge_alignment_canonical_not_in_l2"),
             provenance,
+            compute_content_hash=compute_content_hash,
         )
     if confidence >= 0.8 and not is_proxy and proxy_penalty <= 0.0:
         return _confirmed_edge(
@@ -1533,6 +1560,7 @@ def derive_data_forge_variable_alignment_edge(
             edge_id,
             value,
             provenance,
+            compute_content_hash=compute_content_hash,
         )
     if confidence >= 0.55:
         return _edge(
@@ -1552,6 +1580,7 @@ def derive_data_forge_variable_alignment_edge(
                 ),
             ),
             provenance,
+            compute_content_hash=compute_content_hash,
         )
     return _edge(
         "L2_DATA_FORGE_VARIABLE_ALIGNMENT",
@@ -1559,6 +1588,7 @@ def derive_data_forge_variable_alignment_edge(
         "incomplete",
         _incomplete_completions("data_forge_alignment_low_confidence"),
         provenance,
+        compute_content_hash=compute_content_hash,
     )
 
 
@@ -1813,22 +1843,35 @@ def _iter_selected_l2_edges(
         version=selected.version,
         catalog_source=catalog_source,
         existing_edge_index=existing_edge_index,
+        defer_data_forge_hash=True,
     ):
-        provenance = dict(edge.provenance)
+        provenance: Mapping[str, Any] = edge.provenance
+        provenance_changed = False
         if provenance.get("owner") == "L2":
             if selected_source_profile_snapshot is None:
                 selected_source_profile_snapshot = _freeze_reference_payload(
                     selected.profile.model_dump(mode="json")
                 )
-            provenance["selected_source_profile"] = selected_source_profile_snapshot
+            if provenance.get("selected_source_profile") != selected_source_profile_snapshot:
+                provenance = dict(provenance)
+                provenance["selected_source_profile"] = selected_source_profile_snapshot
+                provenance_changed = True
         if synthetic:
-            provenance.update(
-                {
-                    "synthetic": True,
-                    "synthetic_scope": "snapshot_contains_constructed_raw_support",
-                }
-            )
-        yield replace(edge, provenance=provenance, content_hash="").with_content_hash()
+            synthetic_provenance = {
+                "synthetic": True,
+                "synthetic_scope": "snapshot_contains_constructed_raw_support",
+            }
+            if any(provenance.get(key) != value for key, value in synthetic_provenance.items()):
+                if not isinstance(provenance, dict):
+                    provenance = dict(provenance)
+                provenance.update(synthetic_provenance)
+                provenance_changed = True
+        if provenance_changed:
+            edge = replace(edge, provenance=provenance, content_hash="")
+        if edge.content_hash:
+            yield edge
+        else:
+            yield edge.with_content_hash()
 
 
 def _iter_l2_source_edges(
@@ -1838,6 +1881,7 @@ def _iter_l2_source_edges(
     version: str,
     catalog_source: _PreparedDataForgeCatalogSource | None = None,
     existing_edge_index: dict[EdgeKey, CredalReferenceEdge] | None = None,
+    defer_data_forge_hash: bool = False,
 ) -> Iterable[CredalReferenceEdge]:
     """Derive the complete SKG-owned K_ref denominator from guarded row streams."""
     if str(rows.version_id) != version:
@@ -1888,6 +1932,7 @@ def _iter_l2_source_edges(
         variable_names=variable_names,
         catalog_source=catalog_source,
         existing_edge_index=existing_edge_index,
+        defer_hash=defer_data_forge_hash,
     )
 
     contested_edges, contested_claims = _l2_contested_memberships(row_reader.iter_contested_edges())
@@ -2074,6 +2119,7 @@ def _iter_data_forge_variable_alignment_edges(
     variable_names: set[str],
     catalog_source: _PreparedDataForgeCatalogSource | None = None,
     existing_edge_index: dict[EdgeKey, CredalReferenceEdge] | None = None,
+    defer_hash: bool = False,
 ) -> Iterable[CredalReferenceEdge]:
     """Derive all selected catalog rows, checking encoded collisions on insertion."""
 
@@ -2086,12 +2132,13 @@ def _iter_data_forge_variable_alignment_edges(
                 variable_names=variable_names,
                 catalog_source=selected,
                 existing_edge_index=existing_edge_index,
+                defer_hash=defer_hash,
             )
         return
 
     seen_keys: set[EdgeKey] | None = None if existing_edge_index is not None else set()
     for row in catalog_source.iter_rows():
-        edge = derive_data_forge_variable_alignment_edge(
+        edge = _derive_data_forge_variable_alignment_edge(
             {
                 "canonical_var": row[2],
                 "confidence": row[4],
@@ -2104,6 +2151,8 @@ def _iter_data_forge_variable_alignment_edges(
             },
             variable_names=variable_names,
             provenance_version=catalog_source.profile.source_version,
+            selected_catalog_source_profile_hash=catalog_source.profile.content_hash,
+            compute_content_hash=not defer_hash,
         )
         if existing_edge_index is not None:
             previous = existing_edge_index.get(edge.key)
@@ -2113,9 +2162,7 @@ def _iter_data_forge_variable_alignment_edges(
             if edge.key in seen_keys:
                 raise ValueError("credal_reference_data_forge_alignment_edge_identity_collision")
             seen_keys.add(edge.key)
-        provenance = dict(edge.provenance)
-        provenance["selected_catalog_source_profile_hash"] = catalog_source.profile.content_hash
-        yield replace(edge, provenance=provenance, content_hash="").with_content_hash()
+        yield edge
 
 
 def _profile_data_forge_alignment_rows(
@@ -3575,8 +3622,9 @@ def _edge(
     *,
     unit: str | None = None,
     scale: str | None = None,
+    compute_content_hash: bool = True,
 ) -> CredalReferenceEdge:
-    return CredalReferenceEdge(
+    edge = CredalReferenceEdge(
         modality=modality,
         edge_id=str(edge_id),
         status=status,
@@ -3584,7 +3632,8 @@ def _edge(
         provenance=provenance,
         unit=unit,
         scale=scale,
-    ).with_content_hash()
+    )
+    return edge.with_content_hash() if compute_content_hash else edge
 
 
 def _confirmed_edge(
@@ -3595,6 +3644,7 @@ def _confirmed_edge(
     *,
     unit: str | None = None,
     scale: str | None = None,
+    compute_content_hash: bool = True,
 ) -> CredalReferenceEdge:
     return _edge(
         modality,
@@ -3604,6 +3654,7 @@ def _confirmed_edge(
         provenance,
         unit=unit,
         scale=scale,
+        compute_content_hash=compute_content_hash,
     )
 
 

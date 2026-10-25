@@ -13,7 +13,7 @@ from collections.abc import Callable, Iterable, Mapping
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, field_validator, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.runtime import LineageRef as RuntimeLineageRef
@@ -35,6 +35,7 @@ TypedGapState = Literal[
 QualityStatus = Literal["passed", "warning", "failed", "unknown_quality"]
 LineageStatus = Literal["verified", "pending", "disputed", "untraced"]
 ReplayStatus = Literal["replayable", "non_replayable", "unknown"]
+_FLOAT_ADAPTER = TypeAdapter(float)
 
 
 class _RuntimeTemporalScopeLike(Protocol):
@@ -310,6 +311,10 @@ class LineageRef(BaseModel):
             raise ValueError("lineage provenance requires an artifact_ref")
         if self.artifact_ref is not None and self.artifact_ref.manifest_profile_sha256 is None:
             raise ValueError("lineage artifact_ref must select a manifest profile")
+        if self.source_run_id is not None and self.artifact_ref is None:
+            raise ValueError("source_run_id requires a selected artifact profile")
+        if self.source_run_id is not None and self.artifact_ref_provenance is None:
+            raise ValueError("source_run_id requires selected profile provenance")
         if self.artifact_ref_provenance == "run_output_ref" and self.source_run_id is None:
             raise ValueError("run_output_ref provenance requires source_run_id")
         return self
@@ -579,8 +584,9 @@ def fabric_fact_to_quantity_value(
     metric_id = _first_present(payload, "metric_id", "field_id", "fact_id", "id")
     label = _first_present(payload, "label", "name", "title")
     resolved_unit = UnitRef.model_validate(unit or payload.get("unit") or {"code": "1"})
+    point_value = _FLOAT_ADAPTER.validate_python(point) if point is not None else None
     return FabricQuantityValue(
-        point=float(point) if point is not None else None,
+        point=point_value,
         unit=resolved_unit,
         semantic_type=semantic_type or _as_optional_str(payload.get("semantic_type")),
         metric_id=_as_optional_str(metric_id),
@@ -728,21 +734,43 @@ def _gaps_for_lineage(lineage: LineageRef) -> list[TypedGap]:
     ]
 
 
-def _model_dump(value: object) -> dict[str, Any]:
+def _model_dump(value: object) -> dict[str, object]:
+    """Normalize supported model, mapping, or structural payloads without guessing.
+
+    The structural-object branch preserves the legacy caller contract. Present
+    model serializers and mappings must produce string-keyed objects; malformed
+    supplied payloads raise instead of becoming an empty/default projection.
+    """
     if value is None:
         return {}
-    if hasattr(value, "model_dump"):
-        return value.model_dump(mode="python")
+    serializer = getattr(value, "model_dump", None)
+    if serializer is not None:
+        if not callable(serializer):
+            raise TypeError("decision_data_model_dump_not_callable")
+        payload: object = serializer(mode="python")
+        if not isinstance(payload, Mapping):
+            raise TypeError("decision_data_model_dump_not_mapping")
+        return _string_keyed_object_mapping(payload)
     if isinstance(value, Mapping):
-        return dict(value)
-    return {
-        key: getattr(value, key)
-        for key in dir(value)
-        if not key.startswith("_") and not callable(getattr(value, key))
-    }
+        return _string_keyed_object_mapping(value)
+    fields: dict[str, object] = {}
+    for key in dir(value):
+        if key.startswith("_") or callable(getattr(value, key)):
+            continue
+        fields[key] = getattr(value, key)
+    return fields
 
 
-def _first_present(payload: Mapping[str, Any], *keys: str) -> object | None:
+def _string_keyed_object_mapping(value: Mapping[object, object]) -> dict[str, object]:
+    payload: dict[str, object] = {}
+    for key, item in value.items():
+        if not isinstance(key, str):
+            raise TypeError("decision_data_mapping_key_not_text")
+        payload[key] = item
+    return payload
+
+
+def _first_present(payload: Mapping[str, object], *keys: str) -> object | None:
     for key in keys:
         value = payload.get(key)
         if value is not None:

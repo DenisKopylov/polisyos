@@ -9,13 +9,15 @@ envelope when compilation cannot produce an executable plan.
 
 from __future__ import annotations
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts.manifest import InputRef
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.compiler.report import CompileReport, put_compile_report
 from polisyos.core.contracts.foundry import CompileRequest, CompileResult
+from polisyos.foundry._artifact_capabilities import resolve_core_json_profile_store
 
 
-def compile(store: FileSystemCAS, request: CompileRequest) -> CompileResult:
+def compile(store: ArtifactStore, request: CompileRequest) -> CompileResult:
     """Compile a Trinity bundle into a Foundry execution plan.
 
     The current public surface accepts only Trinity-backed compile requests and
@@ -57,9 +59,12 @@ def compile(store: FileSystemCAS, request: CompileRequest) -> CompileResult:
 
     try:
         _resolve_compiler(request)
+        core_json_store = resolve_core_json_profile_store(store)
+        if core_json_store is None:
+            raise CanonicalProfileRefusalError("canon_profile_raw_manifest_unavailable")
         from .trinity_compiler import compile_trinity
 
-        return compile_trinity(store, request)
+        return compile_trinity(core_json_store, request)
     except Exception as exc:
         return _compile_exception(store, request, exc)
 
@@ -84,11 +89,12 @@ def _resolve_compiler(request: CompileRequest) -> str:
 
 
 def _compile_exception(
-    store: FileSystemCAS, request: CompileRequest, exc: Exception
+    store: ArtifactStore, request: CompileRequest, exc: Exception
 ) -> CompileResult:
     """Persist a compile failure report and return the corresponding envelope."""
     notes = [f"compile_exception:{type(exc).__name__}:{exc}"]
     compile_report = CompileReport(
+        schema_version="1.0",
         ok=False,
         policy_ref=request.policy_ref,
         registry_bundle_ref=request.registry_bundle_ref,
@@ -101,6 +107,7 @@ def _compile_exception(
         )
     compile_report_ref = put_compile_report(store, compile_report, inputs=inputs)
     return CompileResult(
+        schema_version="1.0",
         ok=False,
         exec_plan_ref=None,
         compile_report_ref=compile_report_ref,

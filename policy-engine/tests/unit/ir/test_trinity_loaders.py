@@ -25,6 +25,7 @@ from polisyos.ir.trinity.loaders import (
 )
 
 ZERO_REF = "sha256:" + "0" * 64
+TRINITY_OWNER_CANON_SPEC = CanonSpec(forbid_floats=False)
 
 
 def _minimal_trinity_payload() -> dict[str, object]:
@@ -161,6 +162,7 @@ def test_load_trinity_bundle_artifact_uses_selected_owner_manifest(tmp_path) -> 
         kind=TrinityBundle.ARTIFACT_KIND,
         schema_name="polisyos.ir.OtherPayload",
         schema_version="9.0",
+        canon_spec=TRINITY_OWNER_CANON_SPEC,
     )
     selected_ref = put_json_artifact(
         store,
@@ -168,6 +170,7 @@ def test_load_trinity_bundle_artifact_uses_selected_owner_manifest(tmp_path) -> 
         kind=TrinityBundle.ARTIFACT_KIND,
         schema_name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
         schema_version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+        canon_spec=TRINITY_OWNER_CANON_SPEC,
         return_selected_profile=True,
     )
 
@@ -201,6 +204,7 @@ def test_load_trinity_bundle_artifact_requires_matching_payload_and_manifest_ver
         kind=TrinityBundle.ARTIFACT_KIND,
         schema_name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
         schema_version=manifest_version,
+        canon_spec=TRINITY_OWNER_CANON_SPEC,
         return_selected_profile=True,
     )
 
@@ -240,17 +244,18 @@ def test_load_trinity_bundle_artifact_refuses_wrong_owner_metadata(
         kind=kind,
         media_type=media_type,
         schema=SchemaInfo(name=schema_name, version=schema_version),
-        canon=CanonInfo.from_spec(CanonSpec()),
+        canon=CanonInfo.from_spec(TRINITY_OWNER_CANON_SPEC),
     )
     if media_type == "application/json":
         selected_ref = core_store.put_json(
             _minimal_trinity_payload(),
             options,
+            canon_spec=TRINITY_OWNER_CANON_SPEC,
             return_selected_profile=True,
         )
     else:
         selected_ref = core_store.put_bytes(
-            to_canonical_bytes(_minimal_trinity_payload(), CanonSpec()),
+            to_canonical_bytes(_minimal_trinity_payload(), TRINITY_OWNER_CANON_SPEC),
             options,
             return_selected_profile=True,
         )

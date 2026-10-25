@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import time
-from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, ClassVar, TypedDict, TypeGuard
+from typing import TYPE_CHECKING, Any, ClassVar, TypedDict, TypeGuard
 from urllib.parse import urlparse
 
 from polisyos.fabric.connectors.base import (
@@ -45,6 +44,9 @@ from polisyos.ir.connectors import (
     TrustLevel,
     capabilities_from_flags,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
 
 
 class _FileTabularState(TypedDict):

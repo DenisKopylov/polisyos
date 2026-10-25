@@ -97,7 +97,16 @@ def test_owned_reader_accepts_actual_evidence_bundle_producer_families(
     ir_store = ensure_ir_artifact_store(core_store)
     bundle = _bundle_for_schema(version)
 
-    ref = persist_causal_evidence_bundle(ir_store, bundle)
+    if version == "1.0":
+        ref = _put_json_view(
+            ir_store,
+            bundle,
+            kind=_BUNDLE_OWNER.kind,
+            media_type=_BUNDLE_OWNER.media_type,
+            schema=SchemaInfo(name=_BUNDLE_SCHEMA_NAME, version=version),
+        )
+    else:
+        ref = persist_causal_evidence_bundle(ir_store, bundle)
     # The old generic reader remains usable for candidate reads without an owner claim.
     assert validate_core_model_json_artifact(EvidenceBundle, ir_store, ref) == bundle
     result = validate_owned_core_model_json_artifact(

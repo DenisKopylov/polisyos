@@ -8,6 +8,7 @@ import os
 import threading
 import time
 import uuid
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import StrEnum
@@ -29,7 +30,7 @@ from polisyos.runtime.http.services.human_decision_contracts import (
 from polisyos.runtime.quality.authority import GovernanceMetadata
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator, Mapping
+    from collections.abc import Callable, Iterator
     from contextlib import AbstractContextManager
     from pathlib import Path
     from typing import Protocol
@@ -55,6 +56,13 @@ if TYPE_CHECKING:
     class _ExposureArtifactStore(Protocol):
         def has(self, artifact_ref: str) -> bool: ...
 
+        def ownership_evidence(
+            self,
+            *,
+            tenant_id: str | None,
+            cell_id: str | None,
+        ) -> Mapping[str, object]: ...
+
         def get_signature(
             self,
             artifact_ref: artifacts.ArtifactID,
@@ -78,6 +86,13 @@ if TYPE_CHECKING:
 
     class _ExposureAuthoritySink(Protocol):
         def has_artifact(self, artifact_ref: str) -> bool: ...
+
+        def ownership_evidence(
+            self,
+            *,
+            tenant_id: str | None,
+            cell_id: str | None,
+        ) -> Mapping[str, object]: ...
 
         def write_authority_artifact(
             self,
@@ -600,10 +615,37 @@ def _reservation_matches_prepared(
     )
 
 
+def _selected_exposure_owner_cell_id(
+    ownership_evidence: Callable[..., Mapping[str, object]],
+    *,
+    expected_tenant_id: str,
+) -> str | None:
+    """Resolve the selected store owner scope and bind it to the event tenant."""
+    try:
+        evidence = ownership_evidence(tenant_id=None, cell_id=None)
+    except Exception as exc:
+        raise RuntimeAuthorizationAuditError(
+            "Human-decision exposure selected owner scope is unavailable"
+        ) from exc
+    if not isinstance(evidence, Mapping) or evidence.get("tenant_id") != expected_tenant_id:
+        raise RuntimeAuthorizationAuditError(
+            "Human-decision exposure selected tenant owner scope does not match"
+        )
+    cell_id = evidence.get("cell_id")
+    if cell_id is not None and (
+        not isinstance(cell_id, str) or not cell_id or cell_id != cell_id.strip()
+    ):
+        raise RuntimeAuthorizationAuditError(
+            "Human-decision exposure selected cell owner scope is invalid"
+        )
+    return cell_id
+
+
 def _exposure_authority_write_inputs(
     event: HumanDecisionExposureAuditEvent,
     *,
     has_artifact: Callable[[str], bool],
+    cell_id: str | None,
 ) -> tuple[dict[str, Any], str, artifacts.ArtifactWriteOptions, dict[str, Any]]:
     """Build the one canonical receipt write used by direct and service seams."""
     canon_spec = canon.CanonSpec(forbid_floats=False)
@@ -627,6 +669,7 @@ def _exposure_authority_write_inputs(
                 {
                     "event_id": event.event_id,
                     "tenant_id": event.tenant_id,
+                    "cell_id": cell_id,
                     "run_id": event.run_id,
                     "session_ref": event.session_ref,
                     "artifact_id": event.artifact_id,
@@ -664,7 +707,7 @@ def _exposure_authority_write_inputs(
         "reader_contract": "runtime.http.human_decision_exposure_event.reader",
         "reader_contract_version": "1.0",
         "tenant_id": event.tenant_id,
-        "cell_id": None,
+        "cell_id": cell_id,
         "run_id": event.run_id,
         "job_id": job_id,
         "trace_id": f"trace-{event.event_id}",
@@ -681,7 +724,7 @@ def _exposure_authority_write_inputs(
             "run_id": event.run_id,
             "job_id": job_id,
             "tenant_id": event.tenant_id,
-            "cell_id": None,
+            "cell_id": cell_id,
             "effective_mode_ref": "runtime://human-decision/evidence-delivery",
             "degradation_ledger_ref": None,
             "evidence_input_refs": input_refs,
@@ -756,8 +799,14 @@ def prepare_human_decision_exposure_event(
     )
     writer = authority_artifacts.write_runtime_authority_artifact
 
+    cell_id = _selected_exposure_owner_cell_id(
+        artifact_store.ownership_evidence,
+        expected_tenant_id=event.tenant_id,
+    )
     payload, payload_ref, options, authority_fields = _exposure_authority_write_inputs(
-        event, has_artifact=artifact_store.has
+        event,
+        has_artifact=artifact_store.has,
+        cell_id=cell_id,
     )
     result = writer(
         artifact_store,
@@ -783,9 +832,14 @@ def prepare_human_decision_exposure_event_through_sink(
         raise TypeError("event must be a HumanDecisionExposureAuditEvent")
     if event.event_receipt_ref is not None:
         raise ValueError("an exposure event must be prepared without a receipt ref")
+    cell_id = _selected_exposure_owner_cell_id(
+        authority_sink.ownership_evidence,
+        expected_tenant_id=event.tenant_id,
+    )
     payload, payload_ref, options, authority_fields = _exposure_authority_write_inputs(
         event,
         has_artifact=authority_sink.has_artifact,
+        cell_id=cell_id,
     )
     result = authority_sink.write_authority_artifact(
         payload,

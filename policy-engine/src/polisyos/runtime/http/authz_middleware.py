@@ -1572,17 +1572,9 @@ class AuthzMiddleware:
                 )
             )
         except RuntimeHTTPError as exc:
-            audit_failure = await self._audit_optional_action(
-                request,
-                route=route,
-                child_scope=child_scope,
-                requirement=requirement,
-                bound_resource=None,
-                outcome=RuntimeAuthorizationOutcome.DENY,
-                denial_reason=exc.code or exc.error,
-            )
-            if audit_failure is not None:
-                return None, audit_failure
+            # The canonical owner guard owns a confirmed run refusal and its
+            # single caller-scoped data-access event. Do not emit a provisional
+            # binding denial that could duplicate that event or replace its 403.
             owner_error = await to_thread.run_sync(
                 partial(
                     _recheck_optional_run_owner,
@@ -1596,6 +1588,17 @@ class AuthzMiddleware:
                     response=_response_for_runtime_error(request, owner_error),
                     reason=owner_error.code or owner_error.error,
                 )
+            audit_failure = await self._audit_optional_action(
+                request,
+                route=route,
+                child_scope=child_scope,
+                requirement=requirement,
+                bound_resource=None,
+                outcome=RuntimeAuthorizationOutcome.DENY,
+                denial_reason=exc.code or exc.error,
+            )
+            if audit_failure is not None:
+                return None, audit_failure
             return None, _AuthorizationFailure(
                 response=_response_for_runtime_error(request, exc),
                 reason=exc.code or exc.error,

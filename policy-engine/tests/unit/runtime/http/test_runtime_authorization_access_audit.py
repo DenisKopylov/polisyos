@@ -1200,6 +1200,7 @@ def test_human_decision_exposure_is_a_top_level_completed_event(tmp_path) -> Non
         HUMAN_DECISION_EXPOSURE_EVENT_ARTIFACT_KIND,
         HUMAN_DECISION_EXPOSURE_EVENT_MANIFEST_VERSION,
         HumanDecisionExposureAuditEvent,
+        RuntimeAuthorizationAuditError,
         RuntimeDataAccessAuditTrail,
         complete_human_decision_exposure_event,
         prepare_human_decision_exposure_event,
@@ -1321,6 +1322,30 @@ def test_human_decision_exposure_is_a_top_level_completed_event(tmp_path) -> Non
     durable = control_store.list_diagnostic_events(event_id=diagnostic.event_id)
     assert len(durable) == 1
     assert durable[0].event == diagnostic
+    assert manifest.tenant_context is not None
+    assert manifest.tenant_context.tenant_id == "tenant-a"
+    assert manifest.tenant_context.cell_id == "cell-a"
+    assert manifest.same_input_closure is not None
+    assert manifest.same_input_closure.cell_id == "cell-a"
+
+    owned_artifact_count = artifact_store.ownership_evidence(
+        tenant_id=None,
+        cell_id=None,
+    )["tenant_artifact_count"]
+    wrong_owner_event = unsigned_core.model_copy(update={"tenant_id": "tenant-b"})
+    with pytest.raises(
+        RuntimeAuthorizationAuditError,
+        match="selected tenant owner scope does not match",
+    ):
+        prepare_human_decision_exposure_event(
+            event=wrong_owner_event,
+            artifact_store=artifact_store,
+            event_log=event_log,
+        )
+    assert (
+        artifact_store.ownership_evidence(tenant_id=None, cell_id=None)["tenant_artifact_count"]
+        == owned_artifact_count
+    )
 
 
 def test_exposure_signature_failure_leaves_no_completed_row(tmp_path) -> None:

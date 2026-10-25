@@ -2109,6 +2109,12 @@ def test_exposure_session_is_issued_for_and_resolved_by_exact_live_subject(
         bound_permission=gate_permission,
     )
 
+    manifest = fixture.store.get_manifest(issued.session_ref)
+    assert manifest.tenant_context is not None
+    assert manifest.tenant_context.tenant_id == gate_input.tenant_id
+    assert manifest.tenant_context.cell_id == "cell-a"
+    assert manifest.same_input_closure is not None
+    assert manifest.same_input_closure.cell_id == "cell-a"
     assert issued.session.principal_subject == gate_permission.verification.subject
     assert issued.session.principal_binding_ref == gate_input.principal_binding_ref
     assert issued.session_ref == issued.session_digest

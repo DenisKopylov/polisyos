@@ -1485,12 +1485,27 @@ class HumanDecisionService:
         signer_identity = self._custody.signer_identity
         if signer is None or verifier is None or signer_identity is None:
             raise HumanDecisionPersistenceError("exposure-session custody producer is unavailable")
+        from polisyos.runtime.http.access_audit import (
+            RuntimeAuthorizationAuditError,
+            _selected_exposure_owner_cell_id,
+        )
+
+        try:
+            owner_cell_id = _selected_exposure_owner_cell_id(
+                self._sink.ownership_evidence,
+                expected_tenant_id=session.tenant_id,
+            )
+        except RuntimeAuthorizationAuditError as exc:
+            raise HumanDecisionPersistenceError(
+                "exposure-session selected owner scope is unavailable"
+            ) from exc
         payload = session.model_dump(mode="json")
         expected_ref = _sha256_ref(payload)
         job_id = f"exposure-session-{session.session_id}"
         closure_hash = _sha256_ref(
             {
                 "tenant_id": session.tenant_id,
+                "cell_id": owner_cell_id,
                 "run_id": session.run_id,
                 "session_id": session.session_id,
                 "input_refs": input_refs,
@@ -1509,7 +1524,7 @@ class HumanDecisionService:
                 "reader_contract": "runtime_quality.human_decision_exposure_session.reader",
                 "reader_contract_version": "1.0",
                 "tenant_id": session.tenant_id,
-                "cell_id": None,
+                "cell_id": owner_cell_id,
                 "run_id": session.run_id,
                 "job_id": job_id,
                 "trace_id": f"trace-{session.session_id}",
@@ -1526,7 +1541,7 @@ class HumanDecisionService:
                     "run_id": session.run_id,
                     "job_id": job_id,
                     "tenant_id": session.tenant_id,
-                    "cell_id": None,
+                    "cell_id": owner_cell_id,
                     "effective_mode_ref": "runtime://human-decision/exposure-session",
                     "degradation_ledger_ref": None,
                     "evidence_input_refs": input_refs,
@@ -1583,7 +1598,7 @@ class HumanDecisionService:
         report = self._sink.reconcile_authority_artifact(
             session_ref,
             expected_tenant_id=session.tenant_id,
-            expected_cell_id=None,
+            expected_cell_id=owner_cell_id,
             expected_run_id=session.run_id,
             expected_job_id=job_id,
         )

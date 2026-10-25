@@ -6,7 +6,7 @@ This runner is prepared but has not been executed. It proves the three actual co
 2. wheel rebuilt from the source distribution after unpacking;
 3. wheel rebuilt from the GCP package archive after unpacking.
 
-The final SHA and tree are not known here. The manifest records `077a572ff5880b3f50a85d3e3db6a232d277659a` as the candidate baseline for the source-derived resource byte digests (11 in this current route); that baseline is not a freeze parameter and need not equal the branch's current `HEAD`. The caller must pass the final full commit and tree values supplied after source freeze. The runner rejects a detached checkout, a mismatched `HEAD`/tree, or any tracked working-tree edits before it allocates run output.
+The final SHA and tree are not known here. The checked-in generated primary manifest is stale for the current source: it contains 11 resource rows while the current Hatch/runtime-owner inventory contains 12, including the nested OpenAPI resource. Its recorded baseline `077a572ff5880b3f50a85d3e3db6a232d277659a` is historical, not a freeze parameter. After the final source commit, regenerate primary and supplemental manifests from the source audit, preserve all 12 owner-derived resources, and require an exact `check`; never hand-edit generated rows. The caller must pass the final full commit/tree and exact manifest path plus SHA-256. The runner rejects a detached checkout, a mismatched `HEAD`/tree, or any tracked working-tree edits before it allocates run output.
 
 ## Exact schema-version admission
 
@@ -38,9 +38,31 @@ After the final `prepare` for a source commit, point `supplemental_manifest` at 
 
 Every count-bearing JSON field used to admit this source freeze or a consumer result must be an exact JSON integer (`type(value) is int`), not a boolean, equal-valued float, numeric string, negative value, or a mismatched integer. This applies to selected-node and resource counts, the original baseline denominator, supplemental counts, per-asset byte lengths, captured command/stream byte counts, and consumer receipt counts. The source-audit exact-status predicate and the installed runner independently apply the same rule; a count alias must make the audit stale/limited before any build.
 
-The current 8070 source readback is a candidate that still requires source-audit regeneration: two of the eleven resource rows and eight of the fifteen primary test-module pins are stale, and the separate supplemental file still carries an old test-source digest. Keep the full primary and supplemental selectors and all eleven owner-derived resources. `prepare` must derive the replacement proposals from the canonical test collection, `hatch.toml`, and runtime resource owner; review and apply the complete proposals, then run `prepare` again and require an exact `check`. Do not edit counts or resource hashes by hand, and do not treat a matching selector count as source reconciliation.
+The earlier 8070 readback is historical: its two stale-of-eleven resource rows, eight stale-of-fifteen primary test-module pins, and old supplemental test-source digest do not describe this current source composition. The current Hatch/runtime-owner inventory has 12 resources, including OpenAPI, while the checked-in manifest has 11. Keep the full primary/supplemental selectors and all 12 owner-derived resources. `prepare` must derive current proposals from the canonical test collection, `hatch.toml`, and runtime resource owner; review and apply complete proposals, then run `prepare` again and require an exact `check`. Do not edit counts or resource hashes by hand, and do not treat a matching selector count as source reconciliation.
 
 Before final source freeze, run the source-owned build-tool helper tests in the locked app test environment. The source-audit `prepare`/`check` then binds the helper, external profile, and their tests, computes the current primary selector IDs and six supplemental selector IDs from actual collection, and derives the entire force-include mapping from `hatch.toml` and the canonical runtime resource owner. The retained 15-path/135-ID primary declaration and six-selector supplemental declaration are prior candidate values until that exact current-source check passes.
+
+After committing the Q2 implementation and companion test, run the full focused Q2 unit module from `policy-engine/`. The module resolves the repository root from its own source path, so the command works from this product-root workdir without changing the runner's `--repo` contract. `audit.bind_audit_helper` deliberately compares source bytes to the current commit; do not stub it or use an uncommitted source delta. Give the harness a fresh authorized RAW output root and retain every artifact:
+
+```sh
+set -eu
+repo=/absolute/path/to/polisyos
+product="$repo/policy-engine"
+run_parent="$product/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-focused-unit-runs"
+mkdir -p "$run_parent"
+write_root="$(mktemp -d "$run_parent/q2-focused-unit.XXXXXXXX")"
+mkdir "$write_root/tmp" "$write_root/pytest-temp" "$write_root/pytest-cache"
+export TMPDIR="$write_root/tmp"
+cd "$product"
+"$product/.venv/bin/python" -B -m pytest -c "$product/pytest.ini" \
+  -o "cache_dir=$write_root/pytest-cache" \
+  --basetemp="$write_root/pytest-temp" \
+  --benchmark-storage="file://$write_root/benchmarks" \
+  --junitxml="$write_root/junit.xml" \
+  docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py
+```
+
+When invoked directly as a script, the JSON harness report and all per-case captures stay beneath `TMPDIR`; under pytest, results are retained in JUnit/stdout while the same test-generated case directories, temporary fixtures, cache, and benchmark data stay under `write_root`. This unit replay is not a built-archive or installed-consumer receipt.
 
 The 2026-10-15 run-contract JSON remains a historical, immutable input record. Its command/source digests predate this source delta and cannot authorize a later launch; after the reviewed source patch is applied and frozen, create a new complete run contract from the final source and current worker readback.
 

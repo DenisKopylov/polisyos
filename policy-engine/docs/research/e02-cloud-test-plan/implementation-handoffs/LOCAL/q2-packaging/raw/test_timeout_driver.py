@@ -16,6 +16,7 @@ import sys
 import tarfile
 import tempfile
 import time
+import tomllib
 import unittest
 import xml.etree.ElementTree as ET
 import zipfile
@@ -62,7 +63,50 @@ def _run_test_process(
 
 HERE = Path(__file__).resolve().parent
 PRODUCT_ROOT = HERE.parents[6]
+REPO_ROOT = PRODUCT_ROOT.parent
 RESOURCE_CONTRACT_PATH = PRODUCT_ROOT / "tools/quality/validation/packaged_resource_contract.py"
+
+
+def _task_temp_root() -> Path:
+    """Resolve the explicit task temp root, honoring TMPDIR and never using source paths."""
+    configured = os.environ.get("TMPDIR")
+    root = Path(configured) if configured else Path(tempfile.gettempdir())
+    if not root.is_absolute():
+        raise RuntimeError("Q2 test TMPDIR must be an absolute path")
+    try:
+        root.mkdir(parents=True, exist_ok=True)
+        resolved = root.resolve(strict=True)
+    except OSError as error:
+        raise RuntimeError(f"Q2 test TMPDIR is not available: {root}") from error
+    if not resolved.is_dir():
+        raise RuntimeError(f"Q2 test TMPDIR is not a directory: {resolved}")
+    return resolved
+
+
+def _new_harness_output_dir(prefix: str) -> Path:
+    """Create a private, retained harness output directory below TMPDIR."""
+    return Path(tempfile.mkdtemp(prefix=prefix, dir=_task_temp_root()))
+
+
+def _flatten_owner_groups(owners: Any) -> list[dict[str, Any]]:
+    """Flatten every declared runtime owner group without enumerating group names."""
+    if not isinstance(owners, dict) or not owners:
+        raise AssertionError("runtime owner inventory must be a nonempty mapping")
+    rows: list[dict[str, Any]] = []
+    for name, group in owners.items():
+        if isinstance(group, list):
+            group_rows = group
+        elif isinstance(group, dict):
+            group_rows = [group]
+        else:
+            raise AssertionError(f"runtime owner group {name!r} must be a list or one row")
+        for row in group_rows:
+            if not isinstance(row, dict):
+                raise AssertionError(f"runtime owner group {name!r} contains a non-object row")
+            if not isinstance(row.get("source"), str) or not isinstance(row.get("wheel"), str):
+                raise AssertionError(f"runtime owner group {name!r} lacks source/wheel bindings")
+            rows.append(row)
+    return rows
 spec = importlib.util.spec_from_file_location(
     "q2_timeout_driver_under_test", HERE / "timeout_driver.py"
 )
@@ -124,52 +168,42 @@ def test_source_resource_contract_derives_complete_set_from_runtime_owners(
     source_resource_inventory: dict[str, Any],
 ) -> None:
     inventory = source_resource_inventory
-    owners = inventory["owners"]
+    owner_rows = _flatten_owner_groups(inventory["owners"])
     assets = inventory["assets"]
-    assert len(assets) == len(owners["catalog_defaults"]) + 1 + len(owners["worker_profile_assets"])
-    owner_sources = (
-        {row["source"] for row in owners["catalog_defaults"]}
-        | {owners["digest_registry"]["source"]}
-        | {row["source"] for row in owners["worker_profile_assets"]}
-    )
-    assert {row["source"] for row in assets} == owner_sources
+    owner_bindings = {(row["source"], row["wheel"]) for row in owner_rows}
+    asset_bindings = {(row["source"], row["wheel"]) for row in assets}
+    assert len(owner_rows) == len(owner_bindings)
+    assert len(assets) == len(asset_bindings)
+    assert asset_bindings == owner_bindings
     assert len({row["wheel"] for row in assets}) == len(assets)
     assert all(row["bytes"] >= 0 and len(row["sha256"]) == 64 for row in assets)
 
 
-def test_owner_inventory_blocks_manifest_mapping_sdist_and_byte_omissions(
+def test_owner_inventory_blocks_manifest_mapping_and_byte_omissions(
     source_resource_inventory: dict[str, Any],
 ) -> None:
     assets = source_resource_inventory["assets"]
     force_include = {row["source"]: row["wheel"] for row in assets}
-    sdist_include = set(force_include)
     manifest_assets = [{**row, "archive": "policy-engine/" + row["source"]} for row in assets]
     resource_contract_api.validate_manifest_resources(
-        source_resource_inventory, manifest_assets, force_include, sdist_include
+        source_resource_inventory, manifest_assets, force_include
     )
 
     with pytest.raises(resource_contract_api.ResourceContractError, match="runtime owners"):
         resource_contract_api.validate_manifest_resources(
-            source_resource_inventory, manifest_assets[:-1], force_include, sdist_include
+            source_resource_inventory, manifest_assets[:-1], force_include
         )
     missing_target = dict(force_include)
     missing_target.pop(assets[-1]["source"])
     with pytest.raises(resource_contract_api.ResourceContractError, match="Hatch wheel mapping"):
         resource_contract_api.validate_manifest_resources(
-            source_resource_inventory, manifest_assets, missing_target, sdist_include
-        )
-    with pytest.raises(resource_contract_api.ResourceContractError, match="Hatch sdist omits"):
-        resource_contract_api.validate_manifest_resources(
-            source_resource_inventory,
-            manifest_assets,
-            force_include,
-            sdist_include - {assets[-1]["source"]},
+            source_resource_inventory, manifest_assets, missing_target
         )
     tampered = [dict(row) for row in manifest_assets]
     tampered[-1]["sha256"] = "0" * 64
     with pytest.raises(resource_contract_api.ResourceContractError, match="byte bindings"):
         resource_contract_api.validate_manifest_resources(
-            source_resource_inventory, tampered, force_include, sdist_include
+            source_resource_inventory, tampered, force_include
         )
     malformed_digest = [dict(row) for row in manifest_assets]
     malformed_digest[-1]["sha256"] = "z" * 64
@@ -177,7 +211,7 @@ def test_owner_inventory_blocks_manifest_mapping_sdist_and_byte_omissions(
         resource_contract_api.ResourceContractError, match="byte binding is malformed"
     ):
         resource_contract_api.validate_manifest_resources(
-            source_resource_inventory, malformed_digest, force_include, sdist_include
+            source_resource_inventory, malformed_digest, force_include
         )
 
 
@@ -185,6 +219,18 @@ def test_primary_runner_admits_only_the_owner_derived_source_resource_manifest(
     source_resource_inventory: dict[str, Any],
 ) -> None:
     assets = source_resource_inventory["assets"]
+    sdist_include = set(
+        tomllib.loads((PRODUCT_ROOT / "hatch.toml").read_text(encoding="utf-8"))["build"][
+            "targets"
+        ]["sdist"]["include"]
+    )
+    parent_selected_assets = [
+        row
+        for row in assets
+        if any(row["source"].startswith(f"{entry.rstrip('/')}/") for entry in sdist_include)
+    ]
+    assert parent_selected_assets, "the source fixture must be selected through a Hatch directory"
+    assert any(row["source"] not in sdist_include for row in parent_selected_assets)
     manifest = {
         "schema_version": 1,
         "candidate_baseline": {
@@ -309,20 +355,61 @@ def test_archive_reader_refuses_one_omitted_runtime_owned_asset(
 
 
 def test_audit_recomputes_frozen_resource_hashes_from_the_checkout() -> None:
-    repo = Path.cwd()
+    repo = REPO_ROOT
     source_sha = _run_test_process(
         [_git_executable(), "-C", str(repo), "rev-parse", "HEAD"]
     ).stdout.strip()
     assets, receipt = audit_api.asset_rows_from_config(repo, source_sha, {})
     assert assets
     assert receipt["wheel_force_include_count"] == len(assets)
+    assert receipt["sdist_inclusion_status"] == "deferred_to_actual_archive_member_check"
     assert all(len(asset["sha256"]) == 64 for asset in assets)
+
+
+def test_audit_accepts_nested_source_selected_by_hatch_directory(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo = REPO_ROOT
+    source_sha = _run_test_process(
+        [_git_executable(), "-C", str(repo), "rev-parse", "HEAD"]
+    ).stdout.strip()
+    source = "src/polisyos/__init__.py"
+    wheel = "polisyos/_resources/q2-source-preflight-nested.py"
+    sdist_include = ["src/polisyos"]
+    hatch = (
+        "[build.targets.wheel.force-include]\n"
+        f'"{source}" = "{wheel}"\n\n'
+        "[build.targets.sdist]\n"
+        f"include = {json.dumps(sdist_include)}\n"
+    ).encode()
+    original = audit_api.read_commit_blob
+
+    def read_source(repository: Path, commit: str, relative: str) -> bytes:
+        if relative == audit_api.HATCH_REL:
+            return hatch
+        return original(repository, commit, relative)
+
+    monkeypatch.setattr(audit_api, "read_commit_blob", read_source)
+    rows, receipt = audit_api.asset_rows_from_config(repo, source_sha, {})
+    source_bytes = original(repo, source_sha, f"policy-engine/{source}")
+    assert source not in sdist_include
+    assert any(source.startswith(f"{entry.rstrip('/')}/") for entry in sdist_include)
+    assert rows == [
+        {
+            "source": source,
+            "archive": f"policy-engine/{source}",
+            "wheel": wheel,
+            "bytes": len(source_bytes),
+            "sha256": hashlib.sha256(source_bytes).hexdigest(),
+        }
+    ]
+    assert receipt["sdist_inclusion_status"] == "deferred_to_actual_archive_member_check"
 
 
 def test_freeze_audit_binds_supplemental_sources_and_linux_capture_hook(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    repo = Path.cwd().resolve()
+    repo = REPO_ROOT
     source_sha, helper_record, git_profile = _current_audit_binding(repo)
     supplemental_runner = (HERE / "supplemental_run.py").read_bytes()
     supplemental_manifest = (HERE / "supplemental-manifest.json").read_bytes()
@@ -371,7 +458,7 @@ def test_freeze_audit_binds_supplemental_sources_and_linux_capture_hook(
 def test_freeze_audit_refuses_missing_tracked_supplemental_manifest(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    repo = Path.cwd().resolve()
+    repo = REPO_ROOT
     source_sha, helper_record, git_profile = _current_audit_binding(repo)
     supplemental_runner = (HERE / "supplemental_run.py").read_bytes()
     supplemental_manifest_rel = f"{audit_api.HANDOFF_REL}/raw/supplemental-manifest.json"
@@ -402,7 +489,7 @@ def test_freeze_audit_refuses_missing_tracked_supplemental_manifest(
 def test_freeze_audit_refuses_missing_tracked_linux_capture_hook(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    repo = Path.cwd().resolve()
+    repo = REPO_ROOT
     source_sha, helper_record, git_profile = _current_audit_binding(repo)
     originals = audit_api.read_commit_blob
 
@@ -432,7 +519,7 @@ def test_freeze_audit_refuses_missing_tracked_linux_capture_hook(
 def test_freeze_audit_refuses_missing_runtime_resource_contract(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    repo = Path.cwd().resolve()
+    repo = REPO_ROOT
     source_sha, helper_record, git_profile = _current_audit_binding(repo)
     supplemental_manifest = (HERE / "supplemental-manifest.json").read_bytes()
     source_objects = {
@@ -781,9 +868,7 @@ def write_profile_receipt(
 
 class TimeoutDriverTests(unittest.TestCase):
     def setUp(self) -> None:
-        runs_root = HERE / "timeout-driver-harness"
-        runs_root.mkdir(parents=True, exist_ok=True)
-        self.run_root = runs_root / f"case-{time.time_ns()}"
+        self.run_root = _new_harness_output_dir("q2-timeout-driver-case-")
         (self.run_root / "frozen-source" / "policy-engine").mkdir(parents=True)
         self.runner = SyntheticRunner()
         self.manifest = _manifest()
@@ -900,7 +985,7 @@ class TimeoutDriverTests(unittest.TestCase):
         primary_runner = importlib.util.module_from_spec(module_spec)
         module_spec.loader.exec_module(primary_runner)
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        product = Path.cwd() / "policy-engine"
+        product = PRODUCT_ROOT
         expected_original = primary_runner.baseline_node_ids(product, manifest)
         selected = manifest["current_primary_suite"]["selected_node_ids"]
         binding = primary_runner.verify_transitive_test_bindings(
@@ -1114,7 +1199,8 @@ class TimeoutDriverTests(unittest.TestCase):
         symlink_path.symlink_to(regular_target)
         directory_path = self.run_root / "directory-path"
         directory_path.mkdir()
-        socket_dir = Path(tempfile.mkdtemp(prefix="q2-socket-", dir=tempfile.gettempdir()))
+        socket_dir = self.run_root / "socket-fixture"
+        socket_dir.mkdir()
         socket_path = socket_dir / "s"
         listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         listener.bind(str(socket_path))
@@ -1138,8 +1224,6 @@ class TimeoutDriverTests(unittest.TestCase):
                     }
         finally:
             listener.close()
-            socket_path.unlink(missing_ok=True)
-            socket_dir.rmdir()
         TERMINAL_EVIDENCE_RECEIPTS["nonregular_file_family"] = family_receipt
 
         log_stem = self.run_root / "regular-control" / "consumer-suite"
@@ -1259,8 +1343,9 @@ if __name__ == "__main__":
         "successful": result.wasSuccessful(),
         "terminal_evidence_receipts": TERMINAL_EVIDENCE_RECEIPTS,
     }
-    report_path = HERE / "timeout-driver-harness" / f"report-{time.time_ns()}.json"
-    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_root = _new_harness_output_dir("q2-timeout-driver-report-")
+    report_path = report_root / "report.json"
+    report["harness_output_root"] = str(report_root)
     report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     raise SystemExit(0 if result.wasSuccessful() else 1)
 
@@ -1284,8 +1369,8 @@ def _replace_count(
 
 
 def test_all_source_manifest_count_guards_reject_numeric_aliases(tmp_path: Path) -> None:
-    repo = Path.cwd()
-    product = repo / "policy-engine"
+    repo = REPO_ROOT
+    product = PRODUCT_ROOT
     manifest = json.loads(
         (HERE.parent / "installed-wave-manifest.json").read_text(encoding="utf-8")
     )
@@ -1340,8 +1425,8 @@ def test_all_source_manifest_count_guards_reject_numeric_aliases(tmp_path: Path)
 
 
 def test_audit_status_and_supplemental_count_guards_reject_aliases(tmp_path: Path) -> None:
-    repo = Path.cwd()
-    product = repo / "policy-engine"
+    repo = REPO_ROOT
+    product = PRODUCT_ROOT
     primary = json.loads((HERE.parent / "installed-wave-manifest.json").read_text(encoding="utf-8"))
     original_ids = runner_api.baseline_node_ids(product, primary)
     current_ids = runner_api.current_primary_suite_ids(primary, original_ids)
@@ -2049,7 +2134,7 @@ def test_source_audit_manifest_parser_rejects_schema_version_aliases() -> None:
 def test_source_audit_entrypoint_rejects_primary_schema_alias_before_collection(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    repo = Path.cwd().resolve()
+    repo = REPO_ROOT
     source_sha, _, _ = _current_audit_binding(repo)
     source_tree = _run_test_process(
         [_git_executable(), "-C", str(repo), "rev-parse", f"{source_sha}^{{tree}}"]
@@ -2100,7 +2185,7 @@ def test_source_audit_entrypoint_rejects_primary_schema_alias_before_collection(
 def test_audit_helper_refuses_a_noncanonical_invocation_path(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    repo = Path.cwd().resolve()
+    repo = REPO_ROOT
     source_sha, _, _ = _current_audit_binding(repo)
     monkeypatch.setattr(audit_api, "__file__", str(tmp_path / "copied-audit-helper.py"))
     with pytest.raises(audit_api.AuditFailure, match="canonical source path"):

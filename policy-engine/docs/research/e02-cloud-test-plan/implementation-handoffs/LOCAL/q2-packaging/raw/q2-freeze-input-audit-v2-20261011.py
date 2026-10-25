@@ -4250,7 +4250,6 @@ def asset_rows_from_config(
     hatch = tomllib.loads(read_commit_blob(repo, source_sha, HATCH_REL).decode("utf-8"))
     build = hatch["build"]["targets"]
     force_include = build["wheel"]["force-include"]
-    sdist_include = set(build["sdist"]["include"])
     if not isinstance(force_include, dict) or not force_include:
         raise AuditFailure("frozen hatch.toml must define a nonempty wheel force-include map")
     rows: list[dict[str, Any]] = []
@@ -4259,8 +4258,6 @@ def asset_rows_from_config(
             raise AuditFailure("wheel force-include entries must map strings to strings")
         source_rel = f"policy-engine/{safe_relative(source).as_posix()}"
         archive = f"policy-engine/{source}"
-        if source not in sdist_include:
-            raise AuditFailure(f"source distribution omits wheel resource source: {source}")
         data = read_commit_blob(repo, source_sha, source_rel)
         rows.append(
             {
@@ -4274,7 +4271,7 @@ def asset_rows_from_config(
     return rows, {
         "hatch_config_sha256": sha256(read_commit_blob(repo, source_sha, HATCH_REL)),
         "wheel_force_include_count": len(rows),
-        "sdist_include_reconciled": True,
+        "sdist_inclusion_status": "deferred_to_actual_archive_member_check",
         "force_include_map_sha256": canonical_json_sha256(force_include),
         "asset_targets_sha256": canonical_json_sha256(rows),
         "source_derived_resource_count": len(rows),

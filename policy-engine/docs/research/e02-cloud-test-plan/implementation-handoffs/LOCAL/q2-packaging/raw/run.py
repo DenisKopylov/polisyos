@@ -799,10 +799,6 @@ def read_asset_manifest(
             "frozen hatch.toml force-include map differs from the complete content-bound manifest; "
             "reconcile the manifest before running the wave"
         )
-    sdist_include = set(config["build"]["targets"]["sdist"]["include"])
-    missing_sdist = sorted(set(expected_mapping) - sdist_include)
-    if missing_sdist:
-        raise WaveFailure(f"frozen sdist config omits force-include source files: {missing_sdist}")
     if owner_inventory is not None:
         contract = load_resource_contract_module(frozen_product)
         try:
@@ -810,7 +806,6 @@ def read_asset_manifest(
                 owner_inventory,
                 assets,
                 force_include,
-                sdist_include,
             )
             contract.verify_source_resource_bytes(frozen_product, owner_inventory["assets"])
         except (OSError, ValueError, TypeError, KeyError) as error:

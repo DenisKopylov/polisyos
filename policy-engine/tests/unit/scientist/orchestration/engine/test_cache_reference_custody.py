@@ -215,7 +215,22 @@ def test_selected_view_identity_removal_probe_rejects_verified_default_reuse(tmp
     except Exception as exc:
         load_error = {"type": type(exc).__name__, "message": str(exc)}
 
+    # Freeze all offer-stage observations before the independent readback.
+    offer_stage_snapshot = (
+        len(store.entry_reads),
+        tuple(store.manifest_profiles),
+    )
+    entry_reads_during_second_offer, manifest_profiles_seen_during_second_offer = (
+        offer_stage_snapshot
+    )
+    offered_profile_read = (
+        alternate.manifest_profile_sha256 in manifest_profiles_seen_during_second_offer
+    )
     cached = cache.get("a" * 64)
+    entry_reads_during_independent_readback = (
+        len(store.entry_reads) - entry_reads_during_second_offer
+    )
+    manifest_profiles_after_independent_readback = list(store.manifest_profiles)
     observation = {
         "observation_schema": "e02.prepared_b.removal_observation.v1",
         "case_id": "selected-view-identity",
@@ -227,9 +242,13 @@ def test_selected_view_identity_removal_probe_rejects_verified_default_reuse(tmp
         ),
         "default_profile": ref.manifest_profile_sha256,
         "offered_profile": alternate.manifest_profile_sha256,
-        "manifest_profiles_seen_during_second_offer": list(store.manifest_profiles),
-        "offered_profile_read": alternate.manifest_profile_sha256 in store.manifest_profiles,
-        "entry_reads_during_second_offer": len(store.entry_reads),
+        "manifest_profiles_seen_during_second_offer": list(
+            manifest_profiles_seen_during_second_offer
+        ),
+        "offered_profile_read": offered_profile_read,
+        "entry_reads_during_second_offer": entry_reads_during_second_offer,
+        "entry_reads_during_independent_readback": entry_reads_during_independent_readback,
+        "manifest_profiles_after_independent_readback": manifest_profiles_after_independent_readback,
         "load_returned": loaded_alternate,
         "load_error": load_error,
         "verified_default_outcome_still_available": cached is not None,

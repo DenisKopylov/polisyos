@@ -4,10 +4,12 @@ from __future__ import annotations
 
 from datetime import datetime, tzinfo
 from pathlib import Path
+from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from pydantic import ValidationError
 
 from polisyos.core.artifacts._integrity_ops import ArtifactIntegrityError
 from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
@@ -37,6 +39,66 @@ from polisyos.ir.artifacts.io import get_json_artifact
 from polisyos.runtime.http.resilience import guard_runtime_cas
 
 _FAKE_ID = "sha256:" + "aa" * 32
+
+
+class _CapabilityLimitedStore:
+    """Delegate an ArtifactStore while withholding one optional cache capability."""
+
+    def __init__(self, store: Any, missing_capability: str) -> None:
+        self._store = store
+        self._missing_capability = missing_capability
+
+    def __getattr__(self, name: str) -> Any:
+        if name == self._missing_capability:
+            raise AttributeError(name)
+        return getattr(self._store, name)
+
+
+class _OwnerManifestReadFailureStore:
+    """Record a durable write, then fail one selected owner-manifest read."""
+
+    def __init__(self, store: Any, failure_method: str) -> None:
+        self._store = store
+        self._failure_method = failure_method
+        self.committed = False
+        self.last_ref: Any = None
+
+    def __getattr__(self, name: str) -> Any:
+        if name == self._failure_method and self.committed:
+
+            def fail_manifest_read(*args: Any, **kwargs: Any) -> Any:
+                raise OSError("durable owner selected manifest read unavailable")
+
+            return fail_manifest_read
+        if name in {"put_bytes", "put_json"}:
+            method = getattr(self._store, name)
+
+            def commit_then_mark(*args: Any, **kwargs: Any) -> Any:
+                result = method(*args, **kwargs)
+                self.last_ref = result
+                self.committed = True
+                return result
+
+            return commit_then_mark
+        return getattr(self._store, name)
+
+
+def _install_manifest_timestamps(
+    monkeypatch: pytest.MonkeyPatch,
+    *timestamps: str,
+) -> None:
+    values = iter(datetime.fromisoformat(value) for value in timestamps)
+    original_build = ManifestLifecycle.build
+
+    def build_with_timestamp(*, created_at=None, **kwargs):
+        timestamp = created_at if created_at is not None else next(values)
+        return original_build(**kwargs, created_at=timestamp)
+
+    monkeypatch.setattr(
+        ManifestLifecycle,
+        "build",
+        staticmethod(build_with_timestamp),
+    )
 
 
 def test_cache_write_through_returns_remote_selected_profile(tmp_path: Path) -> None:
@@ -399,6 +461,305 @@ class TestCachingArtifactStore:
         assert ManifestLifecycle.profile_sha256(
             local.get_manifest(ref)
         ) == ManifestLifecycle.profile_sha256(remote.get_manifest(ref))
+
+    @pytest.mark.parametrize("failure_policy", ["warn", "raise"])
+    def test_put_bytes_preserves_durable_write_when_cache_population_fails(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        failure_policy: str,
+    ) -> None:
+        local = FileSystemCAS(tmp_path / "write-failure-local")
+        remote = FileSystemCAS(tmp_path / "write-failure-remote")
+        monkeypatch.setattr(
+            local,
+            "import_exact_view",
+            MagicMock(side_effect=OSError("cache disk unavailable")),
+        )
+        store = CachingArtifactStore(
+            remote=remote,
+            local=local,
+            cache_population_failure_policy=failure_policy,
+        )
+        payload = b"durable write survives cache failure"
+
+        if failure_policy == "raise":
+            with pytest.raises(OSError, match="cache disk unavailable"):
+                store.put_bytes(
+                    payload,
+                    PutOptions(kind="cache.write-failure", media_type="text/plain"),
+                )
+        else:
+            returned_ref = store.put_bytes(
+                payload,
+                PutOptions(kind="cache.write-failure", media_type="text/plain"),
+            )
+
+        durable_ids = remote.iter_artifact_ids()
+        assert len(durable_ids) == 1
+        durable_ref = durable_ids[0]
+        assert remote.get_bytes(durable_ref) == payload
+        if failure_policy == "warn":
+            assert returned_ref.artifact_id == durable_ref
+
+    @pytest.mark.parametrize("operation", ["put_bytes", "put_json"])
+    @pytest.mark.parametrize("failure_method", ["get_manifest", "get_manifest_bytes"])
+    @pytest.mark.parametrize("failure_policy", ["warn", "raise"])
+    def test_postcommit_owner_manifest_read_failure_obeys_degradation_policy(
+        self,
+        tmp_path: Path,
+        failure_policy: str,
+        failure_method: str,
+        operation: str,
+    ) -> None:
+        durable = FileSystemCAS(tmp_path / "owner-read-failure-remote")
+        local = FileSystemCAS(tmp_path / "owner-read-failure-local")
+        remote = _OwnerManifestReadFailureStore(durable, failure_method)
+        store = CachingArtifactStore(
+            remote=remote,
+            local=local,
+            cache_population_failure_policy=failure_policy,
+        )
+        opts = PutOptions(kind="cache.owner-read-failure", media_type="application/json")
+        value = {"committed": True, "operation": operation}
+        expected = to_canonical_bytes(value) if operation == "put_json" else b"committed bytes"
+
+        def write() -> ArtifactRef:
+            if operation == "put_json":
+                return store.put_json(value, opts)
+            return store.put_bytes(expected, opts)
+
+        if failure_policy == "raise":
+            with pytest.raises(
+                OSError,
+                match="durable owner selected manifest read unavailable",
+            ):
+                write()
+        else:
+            returned_ref = write()
+            assert remote.committed is True
+            assert returned_ref == remote.last_ref
+
+        assert remote.committed is True
+        durable_ids = durable.iter_artifact_ids()
+        assert len(durable_ids) == 1
+        assert durable.get_bytes(durable_ids[0]) == expected
+        assert not local.has(durable_ids[0])
+
+    @pytest.mark.parametrize("operation", ["put_bytes", "put_json"])
+    @pytest.mark.parametrize(
+        "missing_side",
+        ["remote_raw_manifest", "local_exact_import"],
+    )
+    @pytest.mark.parametrize("failure_policy", ["warn", "raise"])
+    def test_write_through_skips_cache_without_exact_copy_capabilities(
+        self,
+        tmp_path: Path,
+        operation: str,
+        missing_side: str,
+        failure_policy: str,
+    ) -> None:
+        durable = FileSystemCAS(tmp_path / "missing-exact-cap-remote")
+        local_storage = FileSystemCAS(tmp_path / "missing-exact-cap-local")
+        local_import = MagicMock(wraps=local_storage.import_exact_view)
+        local_storage.import_exact_view = local_import
+        remote_manifest_reader = MagicMock(wraps=durable.get_manifest_bytes)
+        durable.get_manifest_bytes = remote_manifest_reader
+        remote = (
+            _CapabilityLimitedStore(durable, "get_manifest_bytes")
+            if missing_side == "remote_raw_manifest"
+            else durable
+        )
+        local = (
+            _CapabilityLimitedStore(local_storage, "import_exact_view")
+            if missing_side == "local_exact_import"
+            else local_storage
+        )
+        store = CachingArtifactStore(
+            remote=remote,
+            local=local,
+            cache_population_failure_policy=failure_policy,
+        )
+        opts = PutOptions(
+            kind="cache.missing-exact-capability",
+            media_type="application/json" if operation == "put_json" else "text/plain",
+            producer=ProducerInfo(component="tests.cache", version=missing_side),
+        )
+        value = {"written": True, "missing_side": missing_side}
+        payload = to_canonical_bytes(value) if operation == "put_json" else b"exact owner bytes"
+
+        def write() -> ArtifactRef:
+            if operation == "put_json":
+                return store.put_json(value, opts, return_selected_profile=True)
+            return store.put_bytes(payload, opts, return_selected_profile=True)
+
+        if failure_policy == "raise":
+            with pytest.raises(RuntimeError, match="exact selected"):
+                write()
+        else:
+            returned_ref = write()
+            assert returned_ref.manifest_profile_sha256 is not None
+
+        durable_ids = durable.iter_artifact_ids()
+        assert len(durable_ids) == 1
+        durable_ref = durable_ids[0]
+        durable_manifest = durable.get_manifest(durable_ref)
+        selected_ref = ArtifactRef(
+            artifact_id=durable_ref,
+            kind=durable_manifest.kind,
+            media_type=durable_manifest.media_type,
+            manifest_profile_sha256=ManifestLifecycle.profile_sha256(durable_manifest),
+        )
+        assert durable.get_bytes(durable_ref) == payload
+        assert durable.get_manifest(selected_ref) == durable_manifest
+        assert not local_storage.has_manifest_view(
+            durable_ref,
+            selected_ref.manifest_profile_sha256,
+        )
+        local_import.assert_not_called()
+        if missing_side == "remote_raw_manifest":
+            remote_manifest_reader.assert_not_called()
+        if failure_policy == "warn":
+            assert returned_ref.artifact_id == durable_ref
+            assert returned_ref.manifest_profile_sha256 == selected_ref.manifest_profile_sha256
+
+    @pytest.mark.parametrize(
+        "missing_side",
+        ["remote_raw_manifest", "local_exact_import"],
+    )
+    @pytest.mark.parametrize("failure_policy", ["warn", "raise"])
+    def test_readthrough_skips_cache_without_exact_copy_capabilities(
+        self,
+        tmp_path: Path,
+        missing_side: str,
+        failure_policy: str,
+    ) -> None:
+        durable = FileSystemCAS(tmp_path / "readthrough-missing-cap-remote")
+        local_storage = FileSystemCAS(tmp_path / "readthrough-missing-cap-local")
+        payload = b"readthrough stays owned by the durable store"
+        ref = durable.put_bytes(
+            payload,
+            PutOptions(kind="cache.readthrough-missing-capability", media_type="text/plain"),
+        )
+        remote_bytes = MagicMock(wraps=durable.get_bytes)
+        durable.get_bytes = remote_bytes
+        remote_manifest_reader = MagicMock(wraps=durable.get_manifest_bytes)
+        durable.get_manifest_bytes = remote_manifest_reader
+        local_import = MagicMock(wraps=local_storage.import_exact_view)
+        local_storage.import_exact_view = local_import
+        remote = (
+            _CapabilityLimitedStore(durable, "get_manifest_bytes")
+            if missing_side == "remote_raw_manifest"
+            else durable
+        )
+        local = (
+            _CapabilityLimitedStore(local_storage, "import_exact_view")
+            if missing_side == "local_exact_import"
+            else local_storage
+        )
+        store = CachingArtifactStore(
+            remote=remote,
+            local=local,
+            cache_population_failure_policy=failure_policy,
+        )
+
+        if failure_policy == "raise":
+            with pytest.raises(RuntimeError, match="exact selected"):
+                store.get_bytes(ref.artifact_id)
+        else:
+            assert store.get_bytes(ref.artifact_id) == payload
+
+        remote_bytes.assert_called_once()
+        assert not local_storage.has(ref.artifact_id)
+        local_import.assert_not_called()
+        if missing_side == "remote_raw_manifest":
+            remote_manifest_reader.assert_not_called()
+        assert store.get_manifest(ref.artifact_id) == durable.get_manifest(ref.artifact_id)
+        if missing_side == "remote_raw_manifest":
+            with pytest.raises(TypeError, match="get_manifest_bytes"):
+                store.get_manifest_bytes(ref.artifact_id)
+        else:
+            assert store.get_manifest_bytes(ref.artifact_id) == durable.get_manifest_bytes(
+                ref.artifact_id
+            )
+
+    def test_malformed_durable_manifest_is_not_cache_degradation(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        durable = FileSystemCAS(tmp_path / "malformed-owner-remote")
+        local = FileSystemCAS(tmp_path / "malformed-owner-local")
+        malformed = MagicMock(side_effect=lambda selected: b"{malformed manifest")
+        monkeypatch.setattr(durable, "get_manifest_bytes", malformed)
+        store = CachingArtifactStore(remote=durable, local=local)
+
+        with pytest.raises(ValidationError):
+            store.put_bytes(
+                b"durable write with malformed owner view",
+                PutOptions(kind="cache.malformed-owner-view", media_type="text/plain"),
+            )
+
+        durable_ids = durable.iter_artifact_ids()
+        assert len(durable_ids) == 1
+        assert durable.get_bytes(durable_ids[0]) == b"durable write with malformed owner view"
+        assert not local.has(durable_ids[0])
+
+    def test_same_profile_raw_record_mismatch_is_not_cache_degradation(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        durable = FileSystemCAS(tmp_path / "raw-record-mismatch-remote")
+        local = FileSystemCAS(tmp_path / "raw-record-mismatch-local")
+        store = CachingArtifactStore(remote=durable, local=local)
+        original_get_manifest_bytes = durable.get_manifest_bytes
+        original_put = durable.put_bytes
+
+        def put_then_change_record(
+            data: bytes,
+            opts: PutOptions,
+            *,
+            return_selected_profile: bool = False,
+        ) -> ArtifactRef:
+            ref = original_put(
+                data,
+                opts,
+                return_selected_profile=return_selected_profile,
+            )
+            manifest = durable.get_manifest(ref).model_copy(
+                update={"created_at": datetime.fromisoformat("2026-10-25T00:00:22+00:00")}
+            )
+            monkeypatch.setattr(
+                durable,
+                "get_manifest_bytes",
+                lambda selected: manifest.model_dump_json().encode("utf-8"),
+            )
+            return ref
+
+        monkeypatch.setattr(durable, "put_bytes", put_then_change_record)
+        with pytest.raises(ArtifactIntegrityError, match="raw manifest differs"):
+            store.put_bytes(
+                b"same profile, different owner record",
+                PutOptions(
+                    kind="cache.same-profile-record-mismatch",
+                    media_type="text/plain",
+                    producer=ProducerInfo(component="tests.cache", version="same"),
+                ),
+            )
+        durable_ids = durable.iter_artifact_ids()
+        assert len(durable_ids) == 1
+        owner_manifest = durable.get_manifest(durable_ids[0])
+        changed_manifest = owner_manifest.model_copy(
+            update={"created_at": datetime.fromisoformat("2026-10-25T00:00:22+00:00")}
+        )
+        assert durable.get_manifest_bytes(durable_ids[0]) != original_get_manifest_bytes(
+            durable_ids[0]
+        )
+        assert ManifestLifecycle.profile_sha256(owner_manifest) == ManifestLifecycle.profile_sha256(
+            changed_manifest
+        )
+        assert not local.has(durable_ids[0])
 
     def test_put_bytes_no_write_through(self):
         """write_through=False: only writes to local."""
@@ -893,7 +1254,14 @@ class TestCachingArtifactStore:
         tmp_path: Path,
         operation: str,
         seed_local_default: bool,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
+        _install_manifest_timestamps(
+            monkeypatch,
+            "2026-10-25T00:00:00+00:00",
+            "2026-10-25T00:00:01+00:00",
+            "2026-10-25T00:00:02+00:00",
+        )
         local = FileSystemCAS(tmp_path / "write-local")
         remote = FileSystemCAS(tmp_path / "write-remote")
         payload = {"shared": "write-through payload"} if operation == "put_json" else b"shared"
@@ -908,11 +1276,29 @@ class TestCachingArtifactStore:
 
         seeded_store = local if seed_local_default else remote
         if operation == "put_json":
-            seeded_store.put_json(payload, options("existing-default"))
+            seeded_ref = seeded_store.put_json(payload, options("existing-default"))
         else:
-            seeded_store.put_bytes(payload, options("existing-default"))
+            seeded_ref = seeded_store.put_bytes(payload, options("existing-default"))
 
         store = CachingArtifactStore(remote=remote, local=local)
+        original_import = local.import_exact_view
+
+        def import_after_remote_commit(
+            data: bytes,
+            manifest_bytes: bytes,
+            *,
+            artifact_id,
+            signature_bytes: bytes | None = None,
+        ):
+            assert remote.has(artifact_id) is True
+            return original_import(
+                data,
+                manifest_bytes,
+                artifact_id=artifact_id,
+                signature_bytes=signature_bytes,
+            )
+
+        monkeypatch.setattr(local, "import_exact_view", import_after_remote_commit)
         if operation == "put_json":
             written_ref = store.put_json(payload, options("new-view"))
         else:
@@ -927,8 +1313,48 @@ class TestCachingArtifactStore:
             manifest_profile_sha256=ManifestLifecycle.profile_sha256(remote_manifest),
         )
         assert local.get_manifest(exact_remote_view) == remote_manifest
+        assert local.get_manifest_bytes(exact_remote_view) == remote.get_manifest_bytes(written_ref)
+        if seed_local_default:
+            assert local.get_manifest(seeded_ref).producer.version == "existing-default"
+        else:
+            assert remote.get_manifest(seeded_ref).producer.version == "existing-default"
         assert store.get_manifest(written_ref).producer.version == "new-view"
         assert store.verify(written_ref).ok is True
+
+    def test_selected_manifest_read_returns_owner_creation_time_when_profiles_match(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        _install_manifest_timestamps(
+            monkeypatch,
+            "2026-10-25T00:00:10+00:00",
+            "2026-10-25T00:00:11+00:00",
+        )
+        payload = b"same selected view with independent owner timestamps"
+        options = PutOptions(
+            kind="cache.same-profile",
+            media_type="application/octet-stream",
+            producer=ProducerInfo(component="tests.cache", version="same"),
+        )
+        local = FileSystemCAS(tmp_path / "same-profile-local")
+        remote = FileSystemCAS(tmp_path / "same-profile-remote")
+        local_ref = local.put_bytes(payload, options, return_selected_profile=True)
+        remote_ref = remote.put_bytes(payload, options, return_selected_profile=True)
+        local_manifest = local.get_manifest(local_ref)
+        remote_manifest = remote.get_manifest(remote_ref)
+
+        assert local_ref.manifest_profile_sha256 == remote_ref.manifest_profile_sha256
+        assert local_manifest.created_at != remote_manifest.created_at
+        assert local_manifest.model_dump(mode="json", exclude={"created_at"}) == (
+            remote_manifest.model_dump(mode="json", exclude={"created_at"})
+        )
+
+        store = CachingArtifactStore(remote=remote, local=local)
+        assert store.get_bytes(remote_ref) == payload
+        selected = store.get_manifest(remote_ref)
+
+        assert selected == remote_manifest
 
     def test_remote_child_read_skips_cache_when_input_view_is_not_locally_admitted(
         self,

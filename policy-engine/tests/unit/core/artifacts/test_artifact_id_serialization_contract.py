@@ -680,21 +680,21 @@ def test_independent_tenant_writers_preserve_claims_and_ambient_reads_refuse(
     release_first = threading.Event()
     second_started = threading.Event()
     second_loaded = threading.Event()
-    original_load = ownership_module.ArtifactOwnershipIndex._load_payload
+    original_load = ownership_module.ArtifactOwnershipIndex._load_snapshot
 
     def pause_first_snapshot(index: ownership_module.ArtifactOwnershipIndex):
-        payload = original_load(index)
+        snapshot = original_load(index)
         if index is index_a:
             first_loaded.set()
             if not release_first.wait(timeout=5):
                 raise AssertionError("first ownership write was not released")
         elif index is index_b:
             second_loaded.set()
-        return payload
+        return snapshot
 
     monkeypatch.setattr(
         ownership_module.ArtifactOwnershipIndex,
-        "_load_payload",
+        "_load_snapshot",
         pause_first_snapshot,
     )
 

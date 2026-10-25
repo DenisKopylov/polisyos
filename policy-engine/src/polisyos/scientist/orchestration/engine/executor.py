@@ -17,7 +17,13 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_valida
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ArtifactWriteOptions, FileSystemCAS
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, ProducerInfo, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    ProducerInfo,
+    SchemaInfo,
+    artifact_ref_identity_key,
+)
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, CanonViolation, to_canonical_bytes
 from polisyos.core.contracts.skip_blockers import (
@@ -191,6 +197,35 @@ class NodeRunRecord(BaseModel):
         if self.status == "skip" and self.skip_blocker is None:
             raise ValueError("NodeRunRecord.skip_blocker must be set when status=skip")
         return self
+
+
+def _selected_successful_node_output_refs(
+    records: list[NodeRunRecord],
+    selected_artifacts: Iterable[ArtifactRef],
+    existing_outputs: Iterable[ArtifactRef] = (),
+) -> list[ArtifactRef]:
+    """Select only exact output refs retained by the final successful state.
+
+    ``NodeOutcome.artifacts`` is a typed producer declaration. It does not by
+    itself prove that a reference survived state merge or rollback. This helper
+    reconciles the declaration against the actual selected state by complete
+    artifact-view identity and removes outputs already registered by the run.
+    Callers still resolve and verify each returned view before owner mapping.
+    """
+    selected_by_identity = {artifact_ref_identity_key(ref): ref for ref in selected_artifacts}
+    registered_identities = {artifact_ref_identity_key(ref) for ref in existing_outputs}
+    selected_outputs: list[ArtifactRef] = []
+    for record in records:
+        if record.status != "ok":
+            continue
+        for declared_ref in record.artifacts:
+            identity = artifact_ref_identity_key(declared_ref)
+            selected_ref = selected_by_identity.get(identity)
+            if selected_ref is None or identity in registered_identities:
+                continue
+            selected_outputs.append(selected_ref)
+            registered_identities.add(identity)
+    return selected_outputs
 
 
 class _WorkflowReportCanonicalizationError(ValueError):
@@ -2128,6 +2163,30 @@ class WorkflowExecutor:
                 duration_ms=int((time.perf_counter() - workflow_started) * 1000),
                 node_count=len(records),
             )
+        run_manifest = getattr(self._ctx.run, "run_manifest", None)
+        registered_outputs = getattr(run_manifest, "outputs", ())
+        for output_ref in _selected_successful_node_output_refs(
+            records,
+            selected_artifacts=state.artifacts_index.values(),
+            existing_outputs=registered_outputs,
+        ):
+            try:
+                verification = self._ctx.store.verify(output_ref)
+            except _EXECUTOR_DEGRADED_ERRORS as exc:
+                self._ctx.logger.warning(
+                    "Skipping unverified selected node output for run_id=%s: %s",
+                    state.run_id,
+                    exc,
+                )
+                continue
+            if not verification.ok:
+                self._ctx.logger.warning(
+                    "Skipping selected node output with failed CAS verification for run_id=%s: %s",
+                    state.run_id,
+                    verification.error,
+                )
+                continue
+            self._ctx.run.add_output(output_ref)
         prior_state_ref = self._persist_state(state, return_selected_profile=True)
         self._ctx.run.add_output(prior_state_ref)
         report = WorkflowReport(

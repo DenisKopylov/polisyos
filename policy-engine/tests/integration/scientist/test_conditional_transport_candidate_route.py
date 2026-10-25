@@ -272,6 +272,7 @@ def _run(
     source_context: ContextProfile | str | None = None,
     node_timeout_s: float | None = None,
     fail_candidate_report_persist: bool = False,
+    selected_report_lineage_probe: str | None = None,
     node_params_override: dict[str, Any] | None = None,
     monkeypatch: pytest.MonkeyPatch | None = None,
 ) -> dict[str, Any]:
@@ -358,10 +359,24 @@ def _run(
     )
     spawned_report_fault_marker = None
     if fail_candidate_report_persist:
+        assert selected_report_lineage_probe is None
         assert monkeypatch is not None
         spawned_report_fault_marker = _install_spawned_report_persistence_fault(
             root,
             monkeypatch,
+        )
+
+    spawned_report_lineage_marker = None
+    if selected_report_lineage_probe is not None:
+        assert selected_report_lineage_probe in {
+            "competing_default",
+            "wrong_selected_ref",
+        }
+        assert monkeypatch is not None
+        spawned_report_lineage_marker = _install_spawned_selected_report_lineage_probe(
+            root,
+            monkeypatch,
+            mode=selected_report_lineage_probe,
         )
 
     execution = WorkflowExecutor(ctx, registry).execute(workflow, state)
@@ -376,6 +391,7 @@ def _run(
         "source": source_context,
         "target": target,
         "spawned_report_fault_marker": spawned_report_fault_marker,
+        "spawned_report_lineage_marker": spawned_report_lineage_marker,
     }
 
 
@@ -1145,3 +1161,270 @@ def test_solver_property_removal_with_identified_marker_fails_math_oracle() -> N
     assert refs[0].intervention_set == ()
     with pytest.raises(AssertionError):
         _assert_g06_math(forward_graph, marker_only)
+
+
+def _install_spawned_selected_report_lineage_probe(
+    root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    mode: str,
+) -> Path:
+    """Seed a valid alternate selected lineage view through normal typed writers."""
+    from polisyos.scientist.nodes.builtins.causal import resolve_transport
+
+    capsule_dir = root / "selected-report-lineage-startup-capsule"
+    capsule_dir.mkdir(parents=True, exist_ok=True)
+    marker = root / "selected-report-lineage-witness.json"
+    source_root = Path(resolve_transport.__file__).resolve().parents[5]
+    candidate_source = (
+        Path(__file__).resolve().parents[3]
+        / "src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py"
+    )
+    prior_pythonpath = os.environ.get("PYTHONPATH")
+    pythonpath = [str(capsule_dir), str(source_root)]
+    if prior_pythonpath:
+        pythonpath.append(prior_pythonpath)
+    monkeypatch.setenv("PYTHONPATH", os.pathsep.join(pythonpath))
+    monkeypatch.setenv("POLICYOS_TEST_REPORT_LINEAGE_MODE", mode)
+    monkeypatch.setenv("POLICYOS_TEST_REPORT_LINEAGE_MARKER", str(marker))
+    module_name = "polisyos.scientist.nodes.builtins.causal.resolve_transport"
+    mode_key = json.dumps("POLICYOS_TEST_REPORT_LINEAGE_MODE")
+    marker_key = json.dumps("POLICYOS_TEST_REPORT_LINEAGE_MARKER")
+    startup_lines = [
+        "import importlib.util",
+        "import json",
+        "import os",
+        "import sys",
+        "from pathlib import Path",
+        "",
+        f"_candidate_source = {json.dumps(str(candidate_source))}",
+        f"_module_name = {json.dumps(module_name)}",
+        "import polisyos.scientist.nodes.builtins.causal as _causal_package",
+        "_spec = importlib.util.spec_from_file_location(_module_name, _candidate_source)",
+        "if _spec is None or _spec.loader is None:",
+        "    raise RuntimeError('candidate_transport_source_overlay_unavailable')",
+        "_module = importlib.util.module_from_spec(_spec)",
+        "sys.modules[_module_name] = _module",
+        "_spec.loader.exec_module(_module)",
+        "_causal_package.resolve_transport = _module",
+        "from polisyos.scientist.orchestration.engine import component_identity",
+        "_candidate_owner = component_identity._owner(_module.RunTransportabilityNode)",
+        "component_identity._OWNERS[_candidate_owner.component_id] = _candidate_owner",
+        "",
+        "from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle",
+        "",
+        "_original_report_writer = _module.persist_causal_effect_report",
+        "_original_result_writer = _module.persist_transportability_result",
+        "",
+        "def _profile(manifest):",
+        "    return ManifestLifecycle.profile_sha256(manifest)",
+        "",
+        "def _lineage_profiles(manifest):",
+        "    return [",
+        "        edge.manifest_profile_sha256",
+        "        for edge in manifest.inputs",
+        "        if edge.role == 'transportability_result'",
+        "    ]",
+        "",
+        "def _seed_selected_report_view(*args, **kwargs):",
+        "    report = args[1]",
+        "    if kwargs.get('schema_version') != '1.1' or report.transport_result is None:",
+        "        return _original_report_writer(*args, **kwargs)",
+        "    store = args[0]",
+        "    actual_inputs = list(kwargs.get('inputs') or [])",
+        "    result_edges = [",
+        "        edge for edge in actual_inputs if edge.role == 'transportability_result'",
+        "    ]",
+        "    if len(result_edges) != 1:",
+        "        raise RuntimeError('lineage_probe_result_edge_count_invalid')",
+        "    actual_result_edge = result_edges[0]",
+        "    if actual_result_edge.manifest_profile_sha256 is None:",
+        "        raise RuntimeError('lineage_probe_actual_result_profile_missing')",
+        "    actual_result_manifest = store.get_manifest_by_profile(",
+        "        actual_result_edge.artifact_id, actual_result_edge.manifest_profile_sha256",
+        "    )",
+        "    alternate_inputs = list(reversed(actual_result_manifest.inputs))",
+        "    if alternate_inputs == list(actual_result_manifest.inputs):",
+        "        raise RuntimeError('lineage_probe_needs_multiple_distinct_inputs')",
+        "    alternate_result_ref = _original_result_writer(",
+        "        store,",
+        "        report.transport_result,",
+        "        inputs=alternate_inputs,",
+        "        schema_version=report.transport_result.schema_version,",
+        "        return_selected_profile=True,",
+        "    )",
+        "    if str(alternate_result_ref.artifact_id) != str(actual_result_edge.artifact_id):",
+        "        raise RuntimeError('lineage_probe_result_payload_identity_changed')",
+        "    alternate_profile = alternate_result_ref.manifest_profile_sha256",
+        "    if alternate_profile is None or alternate_profile == actual_result_edge.manifest_profile_sha256:",
+        "        raise RuntimeError('lineage_probe_alternate_result_profile_not_distinct')",
+        "    alternate_report_inputs = [",
+        "        edge.model_copy(update={'manifest_profile_sha256': alternate_profile})",
+        "        if edge.role == 'transportability_result'",
+        "        else edge",
+        "        for edge in actual_inputs",
+        "    ]",
+        "    seed_kwargs = dict(kwargs)",
+        "    seed_kwargs['inputs'] = alternate_report_inputs",
+        "    seed_kwargs['return_selected_profile'] = True",
+        "    wrong_lineage_ref = _original_report_writer(*args, **seed_kwargs)",
+        "    if wrong_lineage_ref.manifest_profile_sha256 is None:",
+        "        raise RuntimeError('lineage_probe_seed_report_profile_missing')",
+        "    if os.environ.get(" + mode_key + ") == 'wrong_selected_ref':",
+        "        returned_ref = wrong_lineage_ref",
+        "    else:",
+        "        returned_ref = _original_report_writer(*args, **kwargs)",
+        "        if str(returned_ref.artifact_id) != str(wrong_lineage_ref.artifact_id):",
+        "            raise RuntimeError('lineage_probe_report_payload_identity_changed')",
+        "    default_manifest = store.get_manifest(returned_ref.artifact_id)",
+        "    selected_manifest = store.get_manifest(returned_ref)",
+        "    default_profile = _profile(default_manifest)",
+        "    selected_profile = returned_ref.manifest_profile_sha256",
+        "    if selected_profile is None or _profile(selected_manifest) != selected_profile:",
+        "        raise RuntimeError('lineage_probe_selected_manifest_not_resolved')",
+        "    marker_payload = {",
+        "        'mode': os.environ.get(" + mode_key + "),",
+        "        'worker_pid': os.getpid(),",
+        "        'report_artifact_id': str(returned_ref.artifact_id),",
+        "        'default_report_profile': default_profile,",
+        "        'selected_report_profile': selected_profile,",
+        "        'actual_result_profile': actual_result_edge.manifest_profile_sha256,",
+        "        'alternate_result_profile': alternate_profile,",
+        "        'default_result_edge_profiles': _lineage_profiles(default_manifest),",
+        "        'selected_result_edge_profiles': _lineage_profiles(selected_manifest),",
+        "    }",
+        f"    Path(os.environ[{marker_key}]).write_text(",
+        "        json.dumps(marker_payload, sort_keys=True), encoding='utf-8'",
+        "    )",
+        "    return returned_ref",
+        "",
+        "_module.persist_causal_effect_report = _seed_selected_report_view",
+    ]
+    startup_source = "\n".join(startup_lines) + "\n"
+    (capsule_dir / "sitecustomize.py").write_text(startup_source, encoding="utf-8")
+    return marker
+
+
+def _load_candidate_transport_module_for_test(
+    monkeypatch: pytest.MonkeyPatch,
+) -> Any:
+    """Use the same candidate source and builtin owner in parent and worker."""
+    import importlib.util
+    import sys
+
+    import polisyos.scientist.nodes.builtins.causal as causal_package
+    from polisyos.scientist.orchestration.engine import component_identity
+
+    module_name = "polisyos.scientist.nodes.builtins.causal.resolve_transport"
+    candidate_source = (
+        Path(__file__).resolve().parents[3]
+        / "src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py"
+    )
+    spec = importlib.util.spec_from_file_location(module_name, candidate_source)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, module_name, module)
+    spec.loader.exec_module(module)
+    monkeypatch.setattr(causal_package, "resolve_transport", module)
+    owner = component_identity._owner(module.RunTransportabilityNode)
+    monkeypatch.setitem(component_identity._OWNERS, owner.component_id, owner)
+    monkeypatch.setattr(
+        sys.modules[__name__], "RunTransportabilityNode", module.RunTransportabilityNode
+    )
+    return module
+
+
+def test_conditional_report_guard_uses_the_selected_manifest_lineage(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Use exact selected manifest edges even when a valid default view differs."""
+    from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
+
+    _load_candidate_transport_module_for_test(monkeypatch)
+    positive = _run(
+        tmp_path / "competing-default",
+        selected_report_lineage_probe="competing_default",
+        monkeypatch=monkeypatch,
+    )
+    marker = positive["spawned_report_lineage_marker"]
+    assert isinstance(marker, Path) and marker.is_file()
+    positive_witness = json.loads(marker.read_text(encoding="utf-8"))
+    assert positive_witness["mode"] == "competing_default"
+    assert positive_witness["worker_pid"] != os.getpid()
+    assert positive_witness["default_report_profile"] != positive_witness["selected_report_profile"]
+    assert positive_witness["default_result_edge_profiles"] == [
+        positive_witness["alternate_result_profile"]
+    ]
+    assert positive_witness["selected_result_edge_profiles"] == [
+        positive_witness["actual_result_profile"]
+    ]
+    assert positive_witness["actual_result_profile"] != positive_witness["alternate_result_profile"]
+    if positive["execution"].report.status != "ok":
+        pytest.fail(
+            json.dumps(positive["execution"].report.model_dump(mode="json"), sort_keys=True)
+        )
+    _assert_supervised_worker_trace(positive)
+    _store, result_ref, report_ref, result, report = _fresh(positive)
+    _assert_outer_refusal(result)
+    assert report.transport_result == result
+    assert result_ref.manifest_profile_sha256 == positive_witness["actual_result_profile"]
+    selected_manifest = _store.get_manifest(report_ref)
+    default_manifest = _store.get_manifest(report_ref.artifact_id)
+    assert ManifestLifecycle.profile_sha256(selected_manifest) == report_ref.manifest_profile_sha256
+    assert (
+        ManifestLifecycle.profile_sha256(default_manifest)
+        == positive_witness["default_report_profile"]
+    )
+    selected_edges = [
+        edge for edge in selected_manifest.inputs if edge.role == "transportability_result"
+    ]
+    default_edges = [
+        edge for edge in default_manifest.inputs if edge.role == "transportability_result"
+    ]
+    assert len(selected_edges) == len(default_edges) == 1
+    assert selected_edges[0].manifest_profile_sha256 == result_ref.manifest_profile_sha256
+    assert default_edges[0].manifest_profile_sha256 != result_ref.manifest_profile_sha256
+
+    negative = _run(
+        tmp_path / "wrong-selected-edge",
+        selected_report_lineage_probe="wrong_selected_ref",
+        monkeypatch=monkeypatch,
+    )
+    negative_marker = negative["spawned_report_lineage_marker"]
+    assert isinstance(negative_marker, Path) and negative_marker.is_file()
+    negative_witness = json.loads(negative_marker.read_text(encoding="utf-8"))
+    assert negative_witness["mode"] == "wrong_selected_ref"
+    assert negative_witness["selected_report_profile"] == negative_witness["default_report_profile"]
+    assert negative_witness["selected_result_edge_profiles"] == [
+        negative_witness["alternate_result_profile"]
+    ]
+    assert negative_witness["alternate_result_profile"] != negative_witness["actual_result_profile"]
+    negative_dump = negative["execution"].report.model_dump(mode="json")
+    assert negative["execution"].report.status == "fail", negative_dump
+    dead_letter_events = [
+        json.loads(line)
+        for line in negative["trace_path"].read_text(encoding="utf-8").splitlines()
+        if line.strip() and json.loads(line).get("event") == "NODE_DEAD_LETTER"
+    ]
+    assert len(dead_letter_events) == 1
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.scientist.replay import load_dead_letter
+
+    dead_letter_ref = ArtifactRef.model_validate(dead_letter_events[0]["refs"]["outputs"][0])
+    negative_store = FileSystemCAS(
+        negative["cas_root"],
+        tenant_id=_TENANT_ID,
+        cell_id=_CELL_ID,
+    )
+    dead_letter = load_dead_letter(negative_store, dead_letter_ref.artifact_id)
+    assert (
+        dead_letter.error_message
+        == "ValueError: conditional_transport_report_result_edge_profile_mismatch"
+    )
+    assert _assert_supervised_worker_trace(negative, expected_node_event="NODE_FAIL") == []
+    negative_state = negative["execution"].state
+    assert _ref_identity(
+        negative_state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF]
+    ) == _ref_identity(negative["report_ref"])
+    assert ARTIFACT_TRANSPORTABILITY_RESULT_REF not in negative_state.artifacts_index

@@ -2627,6 +2627,13 @@ def test_completed_attempt_projection_matches_full_association_without_output_pa
     assert routed_basis["completed_hte_authority_purpose"] == "candidate_method_evidence"
     assert routed_basis["completed_hte_publication_authorization"] == "not_established"
 
+    routed_owner = runtime_api_env["app"].state.runtime_api_ctx.run_index.get_run(routed_run_id)
+    assert routed_owner.details.tenant_id == runtime_api_env["tenant_a"]
+    assert routed_owner.decision_packet_ref is not None
+    assert artifact_ref_identity_key(routed_owner.decision_packet_ref) == artifact_ref_identity_key(
+        routed_packet_ref
+    )
+
     routed_content = runtime_api_env["client"].get(
         f"/api/v1/artifacts/{routed_packet_ref.artifact_id!s}/content"
     )
@@ -2662,6 +2669,22 @@ def test_completed_attempt_projection_matches_full_association_without_output_pa
     assert routed_decision["consumed_authority_boundary"] is False
     assert store.get_manifest(routed_packet_ref) == routed_manifest
     assert store.get_bytes(routed_packet_ref) == routed_packet_bytes
+
+    unscoped_ref = store.put_json(
+        {"producer_output": "unlinked"},
+        PutOptions(
+            kind="scientist.decision_packet",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.DecisionPacket", version="3.4"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    unscoped_content = runtime_api_env["client"].get(
+        f"/api/v1/artifacts/{unscoped_ref.artifact_id!s}/content"
+    )
+    assert unscoped_content.status_code == 403, unscoped_content.text
+    assert unscoped_content.json()["code"] == "artifact_tenant_unscoped"
 
     for mutation in (
         "remove_owner_association",

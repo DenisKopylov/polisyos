@@ -3419,7 +3419,7 @@ class RunTransportabilityNode:
                 mode="json"
             ) or persisted_report.model_dump(mode="json") != updated_report.model_dump(mode="json"):
                 raise ValueError("conditional_transport_selected_output_content_mismatch")
-            report_manifest = ctx.store.get_manifest(updated_report_ref.artifact_id)
+            report_manifest = ctx.store.get_manifest(updated_report_ref)
             result_edges = [
                 edge for edge in report_manifest.inputs if edge.role == "transportability_result"
             ]

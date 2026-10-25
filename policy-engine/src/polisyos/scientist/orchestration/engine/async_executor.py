@@ -67,6 +67,7 @@ from polisyos.scientist.orchestration.engine.executor import (
     _log_node_events,
     _merge_cached_outcome_state,
     _outcome_skip_reason,
+    _selected_successful_node_output_refs,
     _should_cache,
     _skip_blocker_for_engine_skip,
     _skip_blocker_for_outcome,
@@ -826,6 +827,31 @@ class AsyncWorkflowExecutor:
                 workflow_id=workflow.workflow_id,
                 state=overall_status,
             )
+
+        run_manifest = getattr(self._ctx.run, "run_manifest", None)
+        registered_outputs = getattr(run_manifest, "outputs", ())
+        for output_ref in _selected_successful_node_output_refs(
+            records,
+            selected_artifacts=state.artifacts_index.values(),
+            existing_outputs=registered_outputs,
+        ):
+            try:
+                verification = await self._async_store.verify(output_ref)
+            except _EXECUTOR_DEGRADED_ERRORS as exc:
+                self._ctx.logger.warning(
+                    "Skipping unverified selected node output for run_id=%s: %s",
+                    state.run_id,
+                    exc,
+                )
+                continue
+            if not verification.ok:
+                self._ctx.logger.warning(
+                    "Skipping selected node output with failed CAS verification for run_id=%s: %s",
+                    state.run_id,
+                    verification.error,
+                )
+                continue
+            self._ctx.run.add_output(output_ref)
 
         prior_state_ref = await self._persist_state(state, return_selected_profile=True)
         self._ctx.run.add_output(prior_state_ref)

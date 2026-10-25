@@ -5,7 +5,8 @@ import logging
 
 import pytest
 
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo, artifact_ref_identity_key
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.skip_blockers import SKIP_BLOCKER_REQUIRED_FIELDS
 from polisyos.core.registry import build_default_registry_bundle
@@ -14,7 +15,13 @@ from polisyos.core.run.context import RunContext
 from polisyos.scientist.orchestration.engine.builtins import builtin_nodes
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.errors import CycleDetectedError, UnknownNodeError
-from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
+from polisyos.scientist.orchestration.engine.executor import (
+    WorkflowExecutor,
+)
+from polisyos.scientist.orchestration.engine.idempotency import (
+    NodeResultCache,
+    compute_idempotency_key,
+)
 from polisyos.scientist.orchestration.engine.protocol import (
     NodeError,
     NodeEvent,
@@ -23,6 +30,7 @@ from polisyos.scientist.orchestration.engine.protocol import (
 )
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 
@@ -170,6 +178,71 @@ class ExecuteLookupFailNode:
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         raise KeyError("missing dependency")
+
+
+class SelectedArtifactOutputNode:
+    """Test node that persists an artifact and selects it in workflow state."""
+
+    def __init__(
+        self,
+        *,
+        node_name: str = "selected_output",
+        payload: object | None = None,
+        declared_refs: list[ArtifactRef] | None = None,
+        selected_refs: dict[str, ArtifactRef] | None = None,
+        status: str = "ok",
+    ) -> None:
+        self.payload = payload
+        self.declared_refs = declared_refs
+        self.selected_refs = selected_refs
+        self.status = status
+        self.calls = 0
+        self._spec = NodeSpec(
+            metadata=ComponentMetadata(
+                component_id=ComponentId.parse(f"scientist.node_{node_name}@1.0.0"),
+                kind=ComponentKind.SCIENTIST_NODE,
+                abi_targets={"world_abi": "1.x"},
+                display_name="Selected output test",
+                description="Persists and returns a selected output artifact",
+                capabilities=Capability.SCIENTIST_NODE,
+            ),
+            state_writes=["artifacts_index"],
+        )
+
+    @property
+    def spec(self) -> NodeSpec:
+        return self._spec
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        self.calls += 1
+        persisted_ref = None
+        if self.payload is not None:
+            persisted_ref = ctx.store.put_json(
+                self.payload,
+                PutOptions(
+                    kind="test.selected_output",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="test.SelectedOutput", version="1.0"),
+                ),
+                return_selected_profile=True,
+            )
+        declared_refs = self.declared_refs
+        if declared_refs is None:
+            declared_refs = [persisted_ref] if persisted_ref is not None else []
+        selected_refs = self.selected_refs
+        if selected_refs is None and persisted_ref is not None:
+            selected_refs = {"selected_output": persisted_ref}
+        next_state = state.model_copy(deep=True)
+        for key, ref in (selected_refs or {}).items():
+            next_state.artifacts_index[key] = ref
+        if self.status == "fail":
+            return NodeOutcome(
+                status="fail",
+                state=next_state,
+                artifacts=declared_refs,
+                error=NodeError(code="node.test_failure", message="expected test failure"),
+            )
+        return NodeOutcome(status="ok", state=next_state, artifacts=declared_refs)
 
 
 class FailingProvenanceDag:
@@ -568,3 +641,215 @@ def test_executor_reports_lookup_runtime_failure_as_typed_node_error(tmp_path):
     assert record.error.code == "node.exception"
     assert record.error.details["type"] == "KeyError"
     assert result.state.params == {}
+
+
+def test_executor_publishes_only_verified_selected_node_output_views(tmp_path):
+    store, bundle, ctx, registry = _ctx_and_registry(tmp_path, return_selected_profile=True)
+    node = SelectedArtifactOutputNode(payload={"outcome": "selected"})
+    registry.register(node)
+    state = ExperimentState(run_id="R_test", inputs={"registry_bundle_ref": bundle.bundle_ref})
+    workflow = WorkflowSpec(
+        workflow_id="selected_output_publish",
+        nodes=[NodeInvocation(alias="produce", node_id=node.spec.metadata.component_id)],
+    )
+
+    result = WorkflowExecutor(ctx, registry).execute(workflow, state)
+
+    assert result.report.status == "ok"
+    produced_ref = result.report.nodes[0].artifacts[0]
+    assert produced_ref.manifest_profile_sha256 is not None
+    assert store.verify(produced_ref).ok
+    output_identities = [artifact_ref_identity_key(ref) for ref in ctx.run.run_manifest.outputs]
+    assert output_identities.count(artifact_ref_identity_key(produced_ref)) == 1
+
+
+def test_executor_refuses_nonexistent_and_wrong_selected_profile_outputs(tmp_path):
+    store, bundle, ctx, registry = _ctx_and_registry(tmp_path, return_selected_profile=True)
+    options_v1 = PutOptions(
+        kind="test.selected_output",
+        media_type="application/json",
+        schema=SchemaInfo(name="test.SelectedOutput", version="1.0"),
+    )
+    options_v2 = PutOptions(
+        kind="test.selected_output",
+        media_type="application/json",
+        schema=SchemaInfo(name="test.SelectedOutput", version="2.0"),
+    )
+    payload = {"same_blob": True}
+    selected_ref = store.put_json(payload, options_v1, return_selected_profile=True)
+    wrong_profile_ref = store.put_json(payload, options_v2, return_selected_profile=True)
+    assert selected_ref.artifact_id == wrong_profile_ref.artifact_id
+    assert selected_ref.manifest_profile_sha256 != wrong_profile_ref.manifest_profile_sha256
+
+    profile_node = SelectedArtifactOutputNode(
+        node_name="wrong_profile",
+        declared_refs=[wrong_profile_ref],
+        selected_refs={"selected_output": selected_ref},
+    )
+    registry.register(profile_node)
+    workflow = WorkflowSpec(
+        workflow_id="reject_unbound_outputs",
+        nodes=[
+            NodeInvocation(alias="wrong_profile", node_id=profile_node.spec.metadata.component_id),
+        ],
+    )
+
+    result = WorkflowExecutor(ctx, registry).execute(
+        workflow,
+        ExperimentState(run_id="R_test", inputs={"registry_bundle_ref": bundle.bundle_ref}),
+    )
+
+    assert result.report.status == "ok"
+    output_identities = {artifact_ref_identity_key(ref) for ref in ctx.run.run_manifest.outputs}
+    assert artifact_ref_identity_key(selected_ref) not in output_identities
+    assert artifact_ref_identity_key(wrong_profile_ref) not in output_identities
+
+
+def test_executor_rejects_nonexistent_node_output_before_manifest_mapping(tmp_path):
+    _, bundle, ctx, registry = _ctx_and_registry(tmp_path, return_selected_profile=True)
+    fake_ref = ArtifactRef(
+        artifact_id="sha256:" + "ab" * 32,
+        kind="test.selected_output",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "cd" * 32,
+    )
+    node = SelectedArtifactOutputNode(
+        node_name="nonexistent_output",
+        declared_refs=[fake_ref],
+        selected_refs={"nonexistent": fake_ref},
+    )
+    registry.register(node)
+    workflow = WorkflowSpec(
+        workflow_id="reject_nonexistent_node_output",
+        nodes=[NodeInvocation(alias="nonexistent", node_id=node.spec.metadata.component_id)],
+    )
+
+    result = WorkflowExecutor(ctx, registry).execute(
+        workflow,
+        ExperimentState(run_id="R_test", inputs={"registry_bundle_ref": bundle.bundle_ref}),
+    )
+
+    assert result.report.status == "fail"
+    assert result.report.nodes[0].status == "fail"
+    assert artifact_ref_identity_key(fake_ref) not in {
+        artifact_ref_identity_key(ref) for ref in ctx.run.run_manifest.outputs
+    }
+
+
+def test_executor_publishes_selected_successful_refs_including_replayed_input(tmp_path):
+    store, bundle, ctx, registry = _ctx_and_registry(tmp_path, return_selected_profile=True)
+    preseed_only_ref = store.put_json(
+        {"preseed": True},
+        PutOptions(kind="test.selected_output", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    replayed_ref = store.put_json(
+        {"replayed": True},
+        PutOptions(kind="test.selected_output", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    unselected_ref = store.put_json(
+        {"unselected": True},
+        PutOptions(kind="test.selected_output", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    successful = SelectedArtifactOutputNode(
+        node_name="successful_sibling",
+        payload={"sibling": "committed"},
+    )
+    replayed = SelectedArtifactOutputNode(
+        node_name="successful_replayed_input",
+        declared_refs=[replayed_ref],
+        selected_refs={"replayed_output": replayed_ref},
+    )
+    unselected = SelectedArtifactOutputNode(
+        node_name="unselected_intermediate",
+        declared_refs=[unselected_ref],
+        selected_refs={},
+    )
+    failed = SelectedArtifactOutputNode(
+        node_name="failed_sibling",
+        declared_refs=[preseed_only_ref],
+        selected_refs={"failed_output": preseed_only_ref},
+        status="fail",
+    )
+    for node in (successful, replayed, unselected, failed):
+        registry.register(node)
+    workflow = WorkflowSpec(
+        workflow_id="successful_output_survives_failed_sibling",
+        error_policy="continue",
+        nodes=[
+            NodeInvocation(alias="successful", node_id=successful.spec.metadata.component_id),
+            NodeInvocation(alias="replayed", node_id=replayed.spec.metadata.component_id),
+            NodeInvocation(alias="unselected", node_id=unselected.spec.metadata.component_id),
+            NodeInvocation(alias="failed", node_id=failed.spec.metadata.component_id),
+        ],
+    )
+    initial_state = ExperimentState(
+        run_id="R_test",
+        inputs={"registry_bundle_ref": bundle.bundle_ref},
+        artifacts_index={
+            "preseed_only": preseed_only_ref,
+            "replayed_input": replayed_ref,
+        },
+    )
+
+    result = WorkflowExecutor(ctx, registry).execute(workflow, initial_state)
+
+    assert result.report.status == "fail"
+    output_identities = {artifact_ref_identity_key(ref) for ref in ctx.run.run_manifest.outputs}
+    selected_ref = result.report.nodes[0].artifacts[0]
+    assert artifact_ref_identity_key(selected_ref) in output_identities
+    assert artifact_ref_identity_key(replayed_ref) in output_identities
+    assert artifact_ref_identity_key(preseed_only_ref) not in output_identities
+    assert artifact_ref_identity_key(unselected_ref) not in output_identities
+
+
+def test_executor_publishes_selected_outputs_from_verified_cache_hit(tmp_path):
+    store, bundle, ctx, registry = _ctx_and_registry(tmp_path, return_selected_profile=True)
+    node = SelectedArtifactOutputNode(node_name="cached_output")
+    registry.register(node)
+    state = ExperimentState(
+        run_id="R_test",
+        inputs={"registry_bundle_ref": bundle.bundle_ref},
+        params={"seed": "cache-output"},
+    )
+    produced_ref = store.put_json(
+        {"cached": "producer-output"},
+        PutOptions(
+            kind="test.selected_output",
+            media_type="application/json",
+            schema=SchemaInfo(name="test.SelectedOutput", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    cached_state = branch_state(state, write_paths=("artifacts_index",)).state
+    cached_state.artifacts_index["selected_output"] = produced_ref
+    cached_outcome = NodeOutcome(
+        status="ok",
+        state=cached_state,
+        artifacts=[produced_ref],
+    )
+    cache_key = compute_idempotency_key(node.spec, state, {})
+    cache_entry_ref = NodeResultCache(store, run_id=state.run_id).put(
+        cache_key,
+        node_id=str(node.spec.metadata.component_id),
+        outcome=cached_outcome,
+    )
+
+    result = WorkflowExecutor(
+        ctx,
+        registry,
+        checkpoint_cache_seed_refs=[cache_entry_ref],
+    ).execute(
+        WorkflowSpec(
+            workflow_id="cache_selected_output",
+            nodes=[NodeInvocation(alias="cached", node_id=node.spec.metadata.component_id)],
+        ),
+        state,
+    )
+
+    assert result.report.status == "ok"
+    assert node.calls == 0
+    output_identities = [artifact_ref_identity_key(ref) for ref in ctx.run.run_manifest.outputs]
+    assert output_identities.count(artifact_ref_identity_key(produced_ref)) == 1

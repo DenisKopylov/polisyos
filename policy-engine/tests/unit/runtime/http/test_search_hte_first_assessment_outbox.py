@@ -565,6 +565,7 @@ def test_search_post_snapshot_survives_same_generation_worker_admission(
 
     from _helpers.control_worker import dispatch_one_control_job, stop_embedded_control_worker
 
+    from polisyos.core.artifacts.ownership import ArtifactOwnershipError
     from polisyos.core.contracts.runtime import ObservationalRunIntent
     from polisyos.scientist.compute.runner import MethodExecutionWork
     from tests.unit.runtime.http.test_runtime_api_authz import (
@@ -637,6 +638,23 @@ def test_search_post_snapshot_survives_same_generation_worker_admission(
     first_job_id = first_response.json()["job_id"]
     second_job_id = second_response.json()["job_id"]
     assert first_job_id != second_job_id
+
+    wrong_tenant_id = str(runtime_api_env["tenant_b"])
+    assert wrong_tenant_id != tenant_id
+    first_queued_job = service._control_store.get_job(first_job_id)
+    assert first_queued_job is not None
+    first_payload_ref = service._require_control_job_payload_ref(first_queued_job)
+    with (
+        tenant_scope(None, tenant_id=wrong_tenant_id, cell_id=cell_id),
+        pytest.raises(ArtifactOwnershipError) as refused,
+    ):
+        service._load_payload_ref(
+            first_payload_ref,
+            kind="runtime.control_job_payload.workflow_run",
+        )
+    assert (
+        f"payload is not readable by tenant {wrong_tenant_id}/{cell_id} for read_raw_manifest"
+    ) in str(refused.value)
 
     queued: list[tuple[str, ArtifactRef, ObservationalRunIntent]] = []
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
@@ -894,27 +912,28 @@ def test_owned_hte_outbox_records_first_assessment_without_authority_promotion(
     from polisyos.core.contracts.runtime import ObservationalRunIntent
 
     queued_intents = []
-    for accepted in (first_accepted, second_accepted):
-        queued_job = service._control_store.get_job(accepted["job_id"])
-        assert queued_job is not None
-        queued_payload = service._load_payload_ref(
-            service._require_control_job_payload_ref(queued_job),
-            kind="runtime.control_job_payload.workflow_run",
-        )
-        _, queued_intent_ref, queued_digest, queued_intent = (
-            service._read_validated_observational_method_job_intent(
-                job=queued_job,
-                payload=queued_payload,
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        for accepted in (first_accepted, second_accepted):
+            queued_job = service._control_store.get_job(accepted["job_id"])
+            assert queued_job is not None
+            queued_payload = service._load_payload_ref(
+                service._require_control_job_payload_ref(queued_job),
+                kind="runtime.control_job_payload.workflow_run",
             )
-        )
-        assert type(queued_intent) is ObservationalRunIntent
-        assert queued_intent.schema_version == "polisyos.runtime.observational_run_intent.v3"
-        assert queued_intent.selection_digest() == queued_digest
-        assert queued_intent.search_binding_admission is not None
-        assert queued_intent.search_binding_admission.binding_ref == binding_ref
-        assert queued_intent.search_binding_admission.selected_method_input_ref == source_ref
-        assert queued_intent_ref.manifest_profile_sha256 is not None
-        queued_intents.append((queued_job.job_id, queued_digest))
+            _, queued_intent_ref, queued_digest, queued_intent = (
+                service._read_validated_observational_method_job_intent(
+                    job=queued_job,
+                    payload=queued_payload,
+                )
+            )
+            assert type(queued_intent) is ObservationalRunIntent
+            assert queued_intent.schema_version == "polisyos.runtime.observational_run_intent.v3"
+            assert queued_intent.selection_digest() == queued_digest
+            assert queued_intent.search_binding_admission is not None
+            assert queued_intent.search_binding_admission.binding_ref == binding_ref
+            assert queued_intent.search_binding_admission.selected_method_input_ref == source_ref
+            assert queued_intent_ref.manifest_profile_sha256 is not None
+            queued_intents.append((queued_job.job_id, queued_digest))
     assert queued_intents[0][0] == first_accepted["job_id"]
     assert queued_intents[1][0] == second_accepted["job_id"]
 

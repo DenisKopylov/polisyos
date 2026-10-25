@@ -16,8 +16,12 @@ from unittest.mock import AsyncMock, MagicMock, Mock
 import pytest
 
 from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    SchemaInfo,
+    artifact_ref_identity_key,
+)
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run import context as run_context
@@ -31,10 +35,14 @@ from polisyos.scientist.orchestration.engine.budget import (
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.errors import WorkflowTimeoutError
-from polisyos.scientist.orchestration.engine.idempotency import NodeResultCache
+from polisyos.scientist.orchestration.engine.idempotency import (
+    NodeResultCache,
+    compute_idempotency_key,
+)
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 _FAKE_SHA = "sha256:" + "ab" * 32
@@ -119,6 +127,61 @@ class _CacheTestNode:
         return NodeOutcome(status="ok", state=state)
 
 
+class _AsyncSelectedArtifactOutputNode:
+    """Synchronous test producer exercised through the async executor path."""
+
+    def __init__(
+        self,
+        *,
+        node_name: str,
+        payload: object | None = None,
+        declared_refs: list[ArtifactRef] | None = None,
+        selected_refs: dict[str, ArtifactRef] | None = None,
+        status: str = "ok",
+    ) -> None:
+        self.payload = payload
+        self.declared_refs = declared_refs
+        self.selected_refs = selected_refs
+        self.status = status
+        self.calls = 0
+        self.spec = _cache_node_spec(
+            f"scientist.node_{node_name}@1.0.0",
+            state_reads=[],
+            state_writes=["artifacts_index"],
+        )
+
+    def execute(self, ctx, state):
+        self.calls += 1
+        persisted_ref = None
+        if self.payload is not None:
+            persisted_ref = ctx.store.put_json(
+                self.payload,
+                PutOptions(
+                    kind="test.async_selected_output",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="test.AsyncSelectedOutput", version="1.0"),
+                ),
+                return_selected_profile=True,
+            )
+        declared_refs = self.declared_refs
+        if declared_refs is None:
+            declared_refs = [persisted_ref] if persisted_ref is not None else []
+        selected_refs = self.selected_refs
+        if selected_refs is None and persisted_ref is not None:
+            selected_refs = {"selected_output": persisted_ref}
+        next_state = state.model_copy(deep=True)
+        for key, ref in (selected_refs or {}).items():
+            next_state.artifacts_index[key] = ref
+        if self.status == "fail":
+            return NodeOutcome(
+                status="fail",
+                state=next_state,
+                artifacts=declared_refs,
+                error=NodeError(code="node.test_failure", message="expected test failure"),
+            )
+        return NodeOutcome(status="ok", state=next_state, artifacts=declared_refs)
+
+
 def _make_real_store_ctx(
     tmp_path: Path,
 ) -> tuple[FileSystemCAS, ExecutionContext]:
@@ -136,6 +199,22 @@ def _make_real_store_ctx(
         logger=logging.getLogger("async_executor_test"),
     )
     return store, ctx
+
+
+def _make_owned_run_context(
+    tmp_path: Path,
+    *,
+    run_id: str,
+) -> tuple[FileSystemCAS, object, ExecutionContext]:
+    store = FileSystemCAS(tmp_path / "owned-cas")
+    bundle = build_default_registry_bundle(store, return_selected_profile=True)
+    run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id=run_id)
+    ctx = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("async_executor_selected_output_test"),
+    )
+    return store, bundle, ctx
 
 
 def _artifact_id_strings(store: FileSystemCAS) -> set[str]:
@@ -1159,3 +1238,159 @@ class TestAsyncFailFastAdmission:
         assert first.calls == 1
         assert second.calls == 1
         assert metrics.record_semaphore_wait.call_count >= 1
+
+
+class TestAsyncSelectedOutputPublication:
+    @pytest.mark.asyncio
+    async def test_publishes_only_verified_selected_successful_output_views(self, tmp_path):
+        run_id = "async-selected-output"
+        store, bundle, ctx = _make_owned_run_context(tmp_path, run_id=run_id)
+        selected_ref = store.put_json(
+            {"same_blob": True},
+            PutOptions(
+                kind="test.async_selected_output",
+                media_type="application/json",
+                schema=SchemaInfo(name="test.AsyncSelectedOutput", version="1.0"),
+            ),
+            return_selected_profile=True,
+        )
+        wrong_profile_ref = store.put_json(
+            {"same_blob": True},
+            PutOptions(
+                kind="test.async_selected_output",
+                media_type="application/json",
+                schema=SchemaInfo(name="test.AsyncSelectedOutput", version="2.0"),
+            ),
+            return_selected_profile=True,
+        )
+        preseed_ref = store.put_json(
+            {"preseed": True},
+            PutOptions(kind="test.async_selected_output", media_type="application/json"),
+            return_selected_profile=True,
+        )
+        replayed_only_ref = store.put_json(
+            {"replayed_only": True},
+            PutOptions(kind="test.async_selected_output", media_type="application/json"),
+            return_selected_profile=True,
+        )
+        fake_ref = ArtifactRef(
+            artifact_id="sha256:" + "ef" * 32,
+            kind="test.async_selected_output",
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "12" * 32,
+        )
+        producer = _AsyncSelectedArtifactOutputNode(
+            node_name="real_output",
+            payload={"produced": "in-node"},
+        )
+        replayed = _AsyncSelectedArtifactOutputNode(
+            node_name="replayed_input",
+            declared_refs=[selected_ref],
+            selected_refs={"replayed_output": selected_ref},
+        )
+        unselected = _AsyncSelectedArtifactOutputNode(
+            node_name="unselected_output",
+            declared_refs=[wrong_profile_ref],
+            selected_refs={},
+        )
+        nonexistent = _AsyncSelectedArtifactOutputNode(
+            node_name="nonexistent_output",
+            declared_refs=[fake_ref],
+            selected_refs={"nonexistent": fake_ref},
+        )
+        failed = _AsyncSelectedArtifactOutputNode(
+            node_name="failed_output",
+            declared_refs=[preseed_ref],
+            selected_refs={"failed": preseed_ref},
+            status="fail",
+        )
+        registry = NodeRegistry()
+        for node in (producer, replayed, unselected, nonexistent, failed):
+            registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="async_selected_output_publish",
+            error_policy="continue",
+            nodes=[
+                NodeInvocation(alias="producer", node_id=producer.spec.metadata.component_id),
+                NodeInvocation(alias="replayed", node_id=replayed.spec.metadata.component_id),
+                NodeInvocation(alias="unselected", node_id=unselected.spec.metadata.component_id),
+                NodeInvocation(alias="nonexistent", node_id=nonexistent.spec.metadata.component_id),
+                NodeInvocation(alias="failed", node_id=failed.spec.metadata.component_id),
+            ],
+        )
+        state = ExperimentState(
+            run_id=run_id,
+            inputs={"registry_bundle_ref": bundle.bundle_ref},
+            artifacts_index={
+                "preseed_only": preseed_ref,
+                "profile_selected": selected_ref,
+                "replayed_only": replayed_only_ref,
+            },
+        )
+
+        result = await AsyncWorkflowExecutor(ctx, registry).execute(workflow, state)
+
+        assert result.report.status == "fail"
+        assert selected_ref.artifact_id == wrong_profile_ref.artifact_id
+        assert selected_ref.manifest_profile_sha256 != wrong_profile_ref.manifest_profile_sha256
+        produced_ref = result.report.nodes[0].artifacts[0]
+        assert store.verify(produced_ref).ok
+        output_identities = {artifact_ref_identity_key(ref) for ref in ctx.run.run_manifest.outputs}
+        assert artifact_ref_identity_key(produced_ref) in output_identities
+        assert artifact_ref_identity_key(selected_ref) in output_identities
+        assert artifact_ref_identity_key(wrong_profile_ref) not in output_identities
+        assert artifact_ref_identity_key(preseed_ref) not in output_identities
+        assert artifact_ref_identity_key(replayed_only_ref) not in output_identities
+        assert artifact_ref_identity_key(fake_ref) not in output_identities
+
+    @pytest.mark.asyncio
+    async def test_publishes_selected_outputs_from_verified_cache_hit(self, tmp_path):
+        run_id = "async-selected-output-cache"
+        store, bundle, ctx = _make_owned_run_context(tmp_path, run_id=run_id)
+        node = _AsyncSelectedArtifactOutputNode(node_name="cache_output")
+        registry = NodeRegistry()
+        registry.register(node)
+        state = ExperimentState(
+            run_id=run_id,
+            inputs={"registry_bundle_ref": bundle.bundle_ref},
+            params={"seed": "async-cache-output"},
+        )
+        produced_ref = store.put_json(
+            {"cached": "producer-output"},
+            PutOptions(
+                kind="test.async_selected_output",
+                media_type="application/json",
+                schema=SchemaInfo(name="test.AsyncSelectedOutput", version="1.0"),
+            ),
+            return_selected_profile=True,
+        )
+        cached_state = branch_state(state, write_paths=("artifacts_index",)).state
+        cached_state.artifacts_index["selected_output"] = produced_ref
+        cached_outcome = NodeOutcome(
+            status="ok",
+            state=cached_state,
+            artifacts=[produced_ref],
+        )
+        cache_key = compute_idempotency_key(node.spec, state, {})
+        cache_entry_ref = NodeResultCache(store, run_id=run_id).put(
+            cache_key,
+            node_id=str(node.spec.metadata.component_id),
+            outcome=cached_outcome,
+        )
+
+        result = await AsyncWorkflowExecutor(
+            ctx,
+            registry,
+            checkpoint_cache_seed_refs=[cache_entry_ref],
+        ).execute(
+            WorkflowSpec(
+                workflow_id="async_cache_selected_output",
+                nodes=[NodeInvocation(alias="cached", node_id=node.spec.metadata.component_id)],
+            ),
+            state,
+        )
+
+        assert result.report.status == "ok"
+        assert node.calls == 0
+        output_identities = [artifact_ref_identity_key(ref) for ref in ctx.run.run_manifest.outputs]
+        assert output_identities.count(artifact_ref_identity_key(produced_ref)) == 1

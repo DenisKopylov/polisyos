@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Literal
 
 from polisyos.common.logger import get_logger
@@ -24,6 +25,11 @@ logger = get_logger(__name__)
 
 CacheDegradationPolicy = Literal["warn", "raise"]
 
+
+class _CachePopulationUnavailableError(RuntimeError):
+    """Exact local cache population is unavailable without changing owner data."""
+
+
 if TYPE_CHECKING:
     from .._integrity_ops import ArtifactBoundedManifestRead
     from ..protocol import CoreJSONArtifactBoundedMemberAttempt
@@ -41,7 +47,8 @@ class CachingArtifactStore:
     * **Manifest reads**: resolve selector-free defaults at the durable owner (remote for
       write-through stores, local for local-only stores); exact write-through views are
       admitted by the durable owner before a local cache hit.
-    * **Writes**: write to local, then replicate to remote (if ``write_through``).
+    * **Writes**: publish at the durable remote owner first, then cache its exact
+      selected view locally when write-through is enabled.
     * **Verify**: selector-free defaults use the durable owner; selected write-through views
       use a local hit only after durable-owner admission.
     * **Strict bounded reads**: the exact selected ref is forwarded only to the
@@ -85,15 +92,18 @@ class CachingArtifactStore:
     def get_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
         aid, _profile_sha256, ref = artifact_reference_parts(artifact_id)
         selected = ref or artifact_id
+        cache_import_ref = selected
         artifact_label = _artifact_label(aid)
+        owner_manifest: ArtifactManifest | None = None
         owner_selected_ref: ArtifactRef | None = None
         owner_default_ref: ArtifactRef | ArtifactID | None = None
+        if _is_selector_free_default(ref):
+            owner_default_ref = ref or aid
         if self._write_through:
             # Resolve and admit the durable-owner view before consulting local bytes.
-            _owner_manifest, owner_selected_ref = self._resolve_write_through_view(selected)
-            if _is_selector_free_default(ref):
-                owner_default_ref = ref or aid
+            owner_manifest, owner_selected_ref = self._resolve_write_through_view(selected)
             selected = owner_selected_ref
+            cache_import_ref = owner_selected_ref
         try:
             if owner_selected_ref is not None and not _has_manifest_view(
                 self._local,
@@ -116,142 +126,157 @@ class CachingArtifactStore:
                 exc,
             )
         data = self._remote.get_bytes(selected)
-        # Cache locally for subsequent reads.  We need the original
-        # ``PutOptions`` to write to the local store, but since CAS is
-        # content-addressed the manifest already exists remotely.
-        # Prefer the storage owner's exact-byte transfer seam when available;
-        # simpler stores retain the typed put_bytes fallback below.
         try:
-            raw_manifest_reader = getattr(self._remote, "get_manifest_bytes", None)
-            exact_view_importer = getattr(self._local, "import_exact_view", None)
-            raw_manifest_bytes = (
-                raw_manifest_reader(selected) if callable(raw_manifest_reader) else None
-            )
-            if isinstance(raw_manifest_bytes, bytes) and callable(exact_view_importer):
-                manifest = ArtifactManifest.model_validate_json(raw_manifest_bytes)
-                if not self._manifest_input_views_match(manifest):
-                    message = (
-                        "Local CAS cannot admit one or more input views "
-                        + "for this remote artifact"
-                    )
-                    if self._cache_population_failure_policy == "raise":
-                        raise RuntimeError(message)
-                    logger.warning(
-                        "Skipping local cache population for %s: %s",
-                        artifact_label,
-                        message,
-                    )
-                    return bytes(data)
-                signature_bytes: bytes | None = None
-                signature_reader = getattr(self._remote, "get_signature_bytes", None)
-                if callable(signature_reader):
-                    try:
-                        candidate_signature_bytes = signature_reader(selected)
-                    except FileNotFoundError:
-                        candidate_signature_bytes = None
-                        default_manifest_reader = getattr(
-                            self._remote,
-                            "get_manifest_bytes",
-                            None,
-                        )
-                        if (
-                            owner_selected_ref is not None
-                            and owner_default_ref is not None
-                            and callable(default_manifest_reader)
-                        ):
-                            # Some owners sign the selector-free default and do
-                            # not duplicate its sidecar under the exact profile
-                            # selector. Reuse those exact signature bytes only
-                            # while the durable default still resolves to the
-                            # manifest bytes already pinned for this read. The
-                            # importer independently checks the signature's
-                            # manifest digest before persisting it.
-                            try:
-                                current_default_bytes = default_manifest_reader(owner_default_ref)
-                            except (FileNotFoundError, KeyError):
-                                current_default_bytes = None
-                            if current_default_bytes == raw_manifest_bytes:
-                                try:
-                                    candidate_signature_bytes = signature_reader(owner_default_ref)
-                                except FileNotFoundError:
-                                    candidate_signature_bytes = None
-                            else:
-                                logger.warning(
-                                    "Not copying a default signature for %s: "
-                                    "the durable default no longer matches the pinned view",
-                                    artifact_label,
-                                )
-                    if isinstance(candidate_signature_bytes, bytes):
-                        signature_bytes = candidate_signature_bytes
-                imported_ref = exact_view_importer(
-                    data,
-                    raw_manifest_bytes,
-                    artifact_id=selected,
-                    signature_bytes=signature_bytes,
-                )
-                if imported_ref.artifact_id != aid:
-                    raise ArtifactIntegrityError(
-                        "Local cache imported an exact manifest view for another artifact"
-                    )
-                if ref is not None and (
-                    ref.manifest_profile_sha256 is not None
-                    and imported_ref.manifest_profile_sha256 != ref.manifest_profile_sha256
-                ):
-                    raise ArtifactIntegrityError(
-                        "Local cache cannot reproduce the selected remote view"
-                    )
-                return bytes(data)
-
-            manifest = self._remote.get_manifest(selected)
-            if not self._manifest_input_views_match(manifest):
-                message = "Local CAS cannot admit one or more input views for this remote artifact"
-                if self._cache_population_failure_policy == "raise":
-                    raise RuntimeError(message)
-                logger.warning(
-                    "Skipping local cache population for %s: %s",
-                    artifact_label,
-                    message,
-                )
-                return bytes(data)
-            opts = PutOptions(
-                kind=manifest.kind,
-                media_type=manifest.media_type,
-                schema=manifest.artifact_schema,
-                producer=manifest.producer,
-                env=manifest.env,
-                inputs=manifest.inputs,
-                canon=manifest.canon,
-                governance=manifest.governance,
-                tenant_context=manifest.tenant_context,
-                same_input_closure=manifest.same_input_closure,
-                authority=manifest.authority,
-                warnings=manifest.warnings,
-            )
-            local_ref = self._local.put_bytes(data, opts)
-            local_manifest = self._local.get_manifest(local_ref)
-            if _manifest_view_identity(local_manifest) != _manifest_view_identity(manifest):
+            raw_reader, exact_importer = self._exact_cache_copy_capabilities()
+            if owner_manifest is None:
+                owner_manifest = self._remote.get_manifest(selected)
+                owner_selected_ref = _manifest_view_ref(owner_manifest)
+            if owner_selected_ref is None:
                 raise ArtifactIntegrityError(
-                    "Local cache persisted a different manifest profile than the remote view"
+                    "Durable owner did not resolve a selected manifest view"
                 )
+            self._copy_exact_owner_view_to_local_cache(
+                bytes(data),
+                owner_manifest,
+                owner_selected_ref,
+                import_artifact_id=cache_import_ref,
+                raw_manifest_reader=raw_reader,
+                exact_view_importer=exact_importer,
+                owner_default_ref=owner_default_ref,
+            )
         except PermissionError:
             raise
-        except (
-            FileNotFoundError,
-            KeyError,
-            OSError,
-            RuntimeError,
-            TypeError,
-            ValueError,
-        ) as exc:
-            logger.warning(
-                "Local artifact cache population failed for %s under policy=%s: %s",
-                artifact_label,
-                self._cache_population_failure_policy,
-                exc,
-            )
-            if self._cache_population_failure_policy == "raise":
-                raise
+        except (OSError, KeyError, RuntimeError) as exc:
+            self._handle_cache_population_failure(artifact_label, exc)
         return bytes(data)
+
+    def _exact_cache_copy_capabilities(
+        self,
+    ) -> tuple[Callable[..., Any], Callable[..., ArtifactRef]]:
+        """Return the owner-export and local-import methods needed for exact copying."""
+        raw_manifest_reader = getattr(self._remote, "get_manifest_bytes", None)
+        if not callable(raw_manifest_reader):
+            raise _CachePopulationUnavailableError(
+                "Durable owner cannot export its exact selected manifest bytes"
+            )
+        exact_view_importer = getattr(self._local, "import_exact_view", None)
+        if not callable(exact_view_importer):
+            raise _CachePopulationUnavailableError(
+                "Local cache cannot import an exact selected manifest view"
+            )
+        return raw_manifest_reader, exact_view_importer
+
+    def _copy_exact_owner_view_to_local_cache(
+        self,
+        data: bytes,
+        owner_manifest: ArtifactManifest,
+        owner_selected_ref: ArtifactRef,
+        *,
+        import_artifact_id: ArtifactID | ArtifactRef | str,
+        raw_manifest_reader: Callable[..., bytes],
+        exact_view_importer: Callable[..., ArtifactRef],
+        owner_default_ref: ArtifactRef | ArtifactID | None,
+    ) -> None:
+        """Copy the durable owner's complete selected record into the local cache."""
+        raw_manifest_bytes = raw_manifest_reader(owner_selected_ref)
+        if not isinstance(raw_manifest_bytes, bytes):
+            raise TypeError("Artifact owner get_manifest_bytes() must return bytes")
+        manifest = ArtifactManifest.model_validate_json(raw_manifest_bytes)
+        if manifest != owner_manifest:
+            raise ArtifactIntegrityError(
+                "Durable owner raw manifest differs from its selected typed view"
+            )
+        if (
+            owner_selected_ref.artifact_id != manifest.artifact_id
+            or owner_selected_ref.kind != manifest.kind
+            or owner_selected_ref.media_type != manifest.media_type
+            or owner_selected_ref.manifest_profile_sha256
+            != ManifestLifecycle.profile_sha256(manifest)
+        ):
+            raise ArtifactIntegrityError(
+                "Durable owner raw manifest does not match its selected reference"
+            )
+        if not self._manifest_input_views_match(manifest):
+            raise _CachePopulationUnavailableError(
+                "Local CAS cannot admit one or more input views for this remote artifact"
+            )
+
+        signature_bytes: bytes | None = None
+        signature_reader = getattr(self._remote, "get_signature_bytes", None)
+        if callable(signature_reader):
+            try:
+                candidate_signature_bytes = signature_reader(owner_selected_ref)
+            except (FileNotFoundError, KeyError):
+                candidate_signature_bytes = None
+                default_manifest_reader = getattr(self._remote, "get_manifest_bytes", None)
+                if owner_default_ref is not None and callable(default_manifest_reader):
+                    try:
+                        current_default_bytes = default_manifest_reader(owner_default_ref)
+                    except (FileNotFoundError, KeyError):
+                        current_default_bytes = None
+                    if current_default_bytes == raw_manifest_bytes:
+                        try:
+                            candidate_signature_bytes = signature_reader(owner_default_ref)
+                        except (FileNotFoundError, KeyError):
+                            candidate_signature_bytes = None
+            if candidate_signature_bytes is not None:
+                if not isinstance(candidate_signature_bytes, bytes):
+                    raise TypeError("Artifact owner get_signature_bytes() must return bytes")
+                signature_bytes = candidate_signature_bytes
+
+        imported_ref = exact_view_importer(
+            data,
+            raw_manifest_bytes,
+            artifact_id=import_artifact_id,
+            signature_bytes=signature_bytes,
+        )
+        _aid, requested_profile, _ref = artifact_reference_parts(import_artifact_id)
+        owner_profile = owner_selected_ref.manifest_profile_sha256
+        if (
+            not isinstance(imported_ref, ArtifactRef)
+            or imported_ref.artifact_id != owner_selected_ref.artifact_id
+            or imported_ref.kind != owner_selected_ref.kind
+            or imported_ref.media_type != owner_selected_ref.media_type
+            or (
+                imported_ref.manifest_profile_sha256 is not None
+                and imported_ref.manifest_profile_sha256 != owner_profile
+            )
+            or (
+                requested_profile is not None
+                and imported_ref.manifest_profile_sha256 != owner_profile
+            )
+        ):
+            raise ArtifactIntegrityError(
+                "Local cache cannot reproduce the durable owner's selected view"
+            )
+        local_raw_reader = getattr(self._local, "get_manifest_bytes", None)
+        if callable(local_raw_reader):
+            local_manifest_bytes = local_raw_reader(owner_selected_ref)
+            if not isinstance(local_manifest_bytes, bytes):
+                raise TypeError("Local cache get_manifest_bytes() must return bytes")
+            if local_manifest_bytes != raw_manifest_bytes:
+                raise ArtifactIntegrityError(
+                    "Local cache did not preserve the durable owner's raw manifest bytes"
+                )
+        elif not _has_manifest_view(self._local, owner_selected_ref):
+            raise ArtifactIntegrityError(
+                "Local cache cannot prove admission of the durable owner's selected view"
+            )
+
+    def _handle_cache_population_failure(
+        self,
+        artifact_label: str,
+        failure: OSError | KeyError | RuntimeError,
+    ) -> None:
+        """Apply cache degradation policy after an owner write or successful read."""
+        logger.warning(
+            "Local artifact cache population failed for %s under policy=%s: %s",
+            artifact_label,
+            self._cache_population_failure_policy,
+            failure,
+        )
+        if self._cache_population_failure_policy == "raise":
+            raise failure
 
     def _manifest_input_views_match(self, manifest: ArtifactManifest) -> bool:
         """Check that local cache can resolve the lineage views named by a manifest.
@@ -308,7 +333,9 @@ class CachingArtifactStore:
                 raise ArtifactIntegrityError(
                     "Local cache returned a different manifest view than the durable owner"
                 )
-            return local_manifest
+            # The profile projection excludes creation time, while the typed
+            # manifest still exposes the durable owner's actual creation time.
+            return local_manifest if local_manifest == owner_manifest else owner_manifest
         try:
             return self._local.get_manifest(selected)
         except (FileNotFoundError, KeyError):
@@ -435,6 +462,39 @@ class CachingArtifactStore:
 
         raise FileNotFoundError(f"Selected manifest profile not found for {aid}")
 
+    def _populate_local_cache_after_write(
+        self,
+        remote_ref: ArtifactRef,
+        data: bytes | None,
+        *,
+        return_selected_profile: bool,
+    ) -> None:
+        """Populate the local cache from the durable owner's selected view."""
+        del return_selected_profile  # Exact import preserves the selected owner view directly.
+        aid, _profile_sha256, requested_ref = artifact_reference_parts(remote_ref)
+        owner_default_ref: ArtifactRef | ArtifactID | None = None
+        if _is_selector_free_default(requested_ref):
+            owner_default_ref = requested_ref or aid
+        artifact_label = _artifact_label(aid)
+
+        try:
+            raw_reader, exact_importer = self._exact_cache_copy_capabilities()
+            owner_manifest, owner_selected_ref = self._resolve_write_through_view(remote_ref)
+            payload = data if data is not None else self._remote.get_bytes(owner_selected_ref)
+            self._copy_exact_owner_view_to_local_cache(
+                bytes(payload),
+                owner_manifest,
+                owner_selected_ref,
+                import_artifact_id=remote_ref,
+                raw_manifest_reader=raw_reader,
+                exact_view_importer=exact_importer,
+                owner_default_ref=owner_default_ref,
+            )
+        except PermissionError:
+            raise
+        except (OSError, KeyError, RuntimeError) as exc:
+            self._handle_cache_population_failure(artifact_label, exc)
+
     def put_bytes(
         self,
         data: bytes,
@@ -443,28 +503,31 @@ class CachingArtifactStore:
         return_selected_profile: bool = False,
     ) -> ArtifactRef:
         _validate_return_selected_profile(return_selected_profile)
-        if return_selected_profile:
-            _require_return_selected_profile_writer(self._local, "put_bytes")
-            if self._write_through:
-                _require_return_selected_profile_writer(self._remote, "put_bytes")
-            ref = self._local.put_bytes(data, opts, return_selected_profile=True)
-            _require_selected_profile_ref(ref)
-        else:
-            ref = self._local.put_bytes(data, opts)
-        if self._write_through:
-            remote_ref = (
-                self._remote.put_bytes(data, opts, return_selected_profile=True)
-                if return_selected_profile
-                else self._remote.put_bytes(data, opts)
-            )
+        if not self._write_through:
             if return_selected_profile:
-                _require_selected_profile_ref(remote_ref)
-            if not self._same_manifest_view(ref, remote_ref):
-                raise ArtifactIntegrityError(
-                    "Local and remote CAS owners returned different manifest views"
-                )
-            return remote_ref
-        return ref
+                _require_return_selected_profile_writer(self._local, "put_bytes")
+                ref = self._local.put_bytes(data, opts, return_selected_profile=True)
+                _require_selected_profile_ref(ref)
+                return ref
+            return self._local.put_bytes(data, opts)
+
+        if return_selected_profile:
+            # Keep preflight before the durable write so the selected-ref
+            # contract is known to both configured owners.
+            _require_return_selected_profile_writer(self._local, "put_bytes")
+            _require_return_selected_profile_writer(self._remote, "put_bytes")
+            remote_ref = self._remote.put_bytes(data, opts, return_selected_profile=True)
+            _require_selected_profile_ref(remote_ref)
+        else:
+            remote_ref = self._remote.put_bytes(data, opts)
+
+        # Cache the supplied bytes against the durable owner's exact manifest.
+        self._populate_local_cache_after_write(
+            remote_ref,
+            data,
+            return_selected_profile=return_selected_profile,
+        )
+        return remote_ref
 
     def put_json(
         self,
@@ -475,28 +538,42 @@ class CachingArtifactStore:
         return_selected_profile: bool = False,
     ) -> ArtifactRef:
         _validate_return_selected_profile(return_selected_profile)
-        if return_selected_profile:
-            _require_return_selected_profile_writer(self._local, "put_json")
-            if self._write_through:
-                _require_return_selected_profile_writer(self._remote, "put_json")
-            ref = self._local.put_json(obj, opts, canon_spec, return_selected_profile=True)
-            _require_selected_profile_ref(ref)
-        else:
-            ref = self._local.put_json(obj, opts, canon_spec)
-        if self._write_through:
-            remote_ref = (
-                self._remote.put_json(obj, opts, canon_spec, return_selected_profile=True)
-                if return_selected_profile
-                else self._remote.put_json(obj, opts, canon_spec)
-            )
+        if not self._write_through:
             if return_selected_profile:
-                _require_selected_profile_ref(remote_ref)
-            if not self._same_manifest_view(ref, remote_ref):
-                raise ArtifactIntegrityError(
-                    "Local and remote CAS owners returned different manifest views"
+                _require_return_selected_profile_writer(self._local, "put_json")
+                ref = self._local.put_json(
+                    obj,
+                    opts,
+                    canon_spec,
+                    return_selected_profile=True,
                 )
-            return remote_ref
-        return ref
+                _require_selected_profile_ref(ref)
+                return ref
+            return self._local.put_json(obj, opts, canon_spec)
+
+        if return_selected_profile:
+            # Keep preflight before the durable write so the selected-ref
+            # contract is known to both configured owners.
+            _require_return_selected_profile_writer(self._local, "put_json")
+            _require_return_selected_profile_writer(self._remote, "put_json")
+            remote_ref = self._remote.put_json(
+                obj,
+                opts,
+                canon_spec,
+                return_selected_profile=True,
+            )
+            _require_selected_profile_ref(remote_ref)
+        else:
+            remote_ref = self._remote.put_json(obj, opts, canon_spec)
+
+        # Fetch the owner's serialized blob, then use its exact selected
+        # manifest instead of serializing a second local record.
+        self._populate_local_cache_after_write(
+            remote_ref,
+            None,
+            return_selected_profile=return_selected_profile,
+        )
+        return remote_ref
 
     def read_raw_manifest_bytes_bounded(
         self,
@@ -634,18 +711,6 @@ class CachingArtifactStore:
     def _default_manifest_owner(self) -> ArtifactStore:
         """Return the owner whose writes define selector-free defaults."""
         return self._remote if self._write_through else self._local
-
-    def _same_manifest_view(
-        self,
-        local_ref: ArtifactRef,
-        remote_ref: ArtifactRef,
-    ) -> bool:
-        """Compare owner-resolved profiles, independent of default selectors."""
-        if local_ref.artifact_id != remote_ref.artifact_id:
-            return False
-        local_manifest = self._local.get_manifest(local_ref)
-        remote_manifest = self._remote.get_manifest(remote_ref)
-        return _manifest_view_identity(local_manifest) == _manifest_view_identity(remote_manifest)
 
     def iter_artifact_ids(self) -> list[ArtifactID]:
         """List IDs whose selector-free views belong to the configured write owner."""

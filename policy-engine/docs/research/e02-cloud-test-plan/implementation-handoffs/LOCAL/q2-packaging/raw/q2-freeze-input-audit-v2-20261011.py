@@ -3485,6 +3485,43 @@ def collection_origin_receipt_fields(
     }
 
 
+def collection_record_search_roots(
+    sys_path: list[str],
+    repo: Path,
+    active_site_roots: list[Path],
+    stdlib_roots: list[Path],
+    bootstrap_paths: set[Path],
+) -> list[Path]:
+    """Select visible RECORD roots using validated interpreter path roles.
+
+    Active site roots take precedence over the broader checkout boundary because
+    a selected virtual environment may live beneath the repository itself.
+    """
+    record_search_roots: set[Path] = set()
+    for value in sys_path:
+        if not isinstance(value, str) or not Path(value).is_absolute():
+            raise AuditFailure("pytest collection report has a non-absolute sys.path entry")
+        entry = Path(os.path.abspath(value)).resolve(strict=False)
+        if entry in bootstrap_paths:
+            continue
+        if any(entry.is_relative_to(root) for root in active_site_roots):
+            try:
+                search_root = Path(value).resolve(strict=True)
+            except OSError:
+                continue
+            if search_root.is_dir():
+                record_search_roots.add(search_root)
+            continue
+        if any(entry.is_relative_to(root) for root in stdlib_roots):
+            continue
+        if entry.is_relative_to(repo):
+            continue
+        raise AuditFailure(
+            f"pytest import path is outside the reconciled source/runtime roots: {entry}"
+        )
+    return sorted(record_search_roots)
+
+
 def bind_collection_origins(
     repo: Path,
     source_sha: str,
@@ -3519,26 +3556,13 @@ def bind_collection_origins(
         for value in bootstrap_values
         if isinstance(value, str) and Path(value).is_absolute()
     }
-    python_roots = active_site_roots + stdlib_roots
-    record_search_roots: set[Path] = set()
-    for value in sys_path:
-        if not isinstance(value, str) or not Path(value).is_absolute():
-            raise AuditFailure("pytest collection report has a non-absolute sys.path entry")
-        entry = Path(os.path.abspath(value)).resolve(strict=False)
-        if entry.is_relative_to(repo) or entry in bootstrap_paths:
-            continue
-        if any(entry.is_relative_to(root) for root in python_roots):
-            if any(entry.is_relative_to(root) for root in active_site_roots):
-                try:
-                    search_root = Path(value).resolve(strict=True)
-                except OSError:
-                    continue
-                if search_root.is_dir():
-                    record_search_roots.add(search_root)
-            continue
-        raise AuditFailure(
-            f"pytest import path is outside the reconciled source/runtime roots: {entry}"
-        )
+    record_search_roots = collection_record_search_roots(
+        sys_path,
+        repo,
+        active_site_roots,
+        stdlib_roots,
+        bootstrap_paths,
+    )
 
     def retain_record(record: dict[str, Any], module_name: str | None = None) -> None:
         key = str(record.get("origin", f"intrinsic:{record.get('module')}"))
@@ -5591,6 +5615,85 @@ def self_test_record_origin_inventory() -> dict[str, bool]:
         return record_path, metadata_path, record_bytes, metadata_bytes
 
     cases: dict[str, bool] = {}
+    with tempfile.TemporaryDirectory(prefix="q2-nested-site-root-") as scratch:
+        root = Path(scratch)
+        nested_repo = root / "checkout"
+        nested_site = nested_repo / "policy-engine/.venv/lib/python3.14/site-packages"
+        nested_source = nested_repo / "policy-engine/src"
+        false_site = nested_repo / "policy-engine/.venv/lib/python3.14/site-packages-shadow"
+        nested_site.mkdir(parents=True)
+        nested_source.mkdir(parents=True)
+        false_site.mkdir(parents=True)
+        selected_roots = collection_record_search_roots(
+            [str(nested_site), str(nested_source), str(false_site)],
+            nested_repo,
+            [nested_site],
+            [],
+            set(),
+        )
+        cases["repo-nested-active-site-root-included-source-and-prefix-sibling-excluded"] = (
+            selected_roots == [nested_site]
+        )
+        unprofiled_site = root / "unprofiled-venv/site-packages"
+        unprofiled_site.mkdir(parents=True)
+        try:
+            collection_record_search_roots(
+                [str(unprofiled_site)], nested_repo, [nested_site], [], set()
+            )
+        except AuditFailure:
+            cases["outside-unprofiled-site-root-rejected"] = True
+        else:
+            cases["outside-unprofiled-site-root-rejected"] = False
+
+        nested_bytes = b"nested installed interpreter entry module\n"
+        nested_info = nested_site / "pkg-1.0.dist-info"
+        make_record(nested_info, "pkg", "1.0", {"pkg/__main__.py": nested_bytes})
+        nested_origin = nested_site / "pkg" / "__main__.py"
+        nested_capture = capture_for(nested_site)
+        nested_distribution = distribution_for("__main__", nested_origin, nested_capture)
+        nested_inventory, _nested_evidence = physical_record_claim_inventory(
+            selected_roots, [nested_site]
+        )
+        if nested_distribution is None:
+            cases["repo-nested-actual-record-positive"] = False
+            cases["repo-nested-counterfeit-owner-rejected"] = False
+        else:
+            try:
+                nested_bound = locked_distribution_record(
+                    nested_distribution,
+                    {"pkg": {"1.0"}},
+                    [nested_site],
+                    "nested repo-contained site root __main__ positive",
+                    record_owner_inventory=nested_inventory,
+                    file_origin=nested_origin,
+                    file_bytes=nested_bytes,
+                )
+                cases["repo-nested-actual-record-positive"] = bool(
+                    nested_bound.get("distribution") == "pkg"
+                    and nested_bound.get("version") == "1.0"
+                )
+            except AuditFailure:
+                cases["repo-nested-actual-record-positive"] = False
+            shadow_info = nested_site / "shadow-9.0.dist-info"
+            make_record(shadow_info, "shadow", "9.0", {"pkg/__main__.py": nested_bytes})
+            contested_inventory, _contested_evidence = physical_record_claim_inventory(
+                selected_roots, [nested_site]
+            )
+            try:
+                locked_distribution_record(
+                    nested_distribution,
+                    {"pkg": {"1.0"}},
+                    [nested_site],
+                    "counterfeit competing RECORD claim negative",
+                    record_owner_inventory=contested_inventory,
+                    file_origin=nested_origin,
+                    file_bytes=nested_bytes,
+                )
+            except AuditFailure:
+                cases["repo-nested-counterfeit-owner-rejected"] = True
+            else:
+                cases["repo-nested-counterfeit-owner-rejected"] = False
+
     plugin_module_name = "q2_plugin_class_origin_control"
     prior_plugin_module = sys.modules.get(plugin_module_name)
     plugin_module = types.ModuleType(plugin_module_name)

@@ -15,7 +15,6 @@ import subprocess
 import sys
 import tarfile
 import tempfile
-import time
 import tomllib
 import unittest
 import xml.etree.ElementTree as ET
@@ -88,7 +87,7 @@ def _new_harness_output_dir(prefix: str) -> Path:
     return Path(tempfile.mkdtemp(prefix=prefix, dir=_task_temp_root()))
 
 
-def _flatten_owner_groups(owners: Any) -> list[dict[str, Any]]:
+def _flatten_owner_groups(owners: object) -> list[dict[str, Any]]:
     """Flatten every declared runtime owner group without enumerating group names."""
     if not isinstance(owners, dict) or not owners:
         raise AssertionError("runtime owner inventory must be a nonempty mapping")
@@ -107,6 +106,8 @@ def _flatten_owner_groups(owners: Any) -> list[dict[str, Any]]:
                 raise AssertionError(f"runtime owner group {name!r} lacks source/wheel bindings")
             rows.append(row)
     return rows
+
+
 spec = importlib.util.spec_from_file_location(
     "q2_timeout_driver_under_test", HERE / "timeout_driver.py"
 )
@@ -1203,9 +1204,15 @@ class TimeoutDriverTests(unittest.TestCase):
         socket_dir.mkdir()
         socket_path = socket_dir / "s"
         listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        listener.bind(str(socket_path))
+        original_cwd = Path.cwd()
         family_receipt = {}
         try:
+            try:
+                os.chdir(socket_dir)
+                listener.bind(socket_path.name)
+            finally:
+                os.chdir(original_cwd)
+            assert Path.cwd() == original_cwd
             nonregular_paths = [
                 symlink_path,
                 directory_path,
@@ -1369,7 +1376,6 @@ def _replace_count(
 
 
 def test_all_source_manifest_count_guards_reject_numeric_aliases(tmp_path: Path) -> None:
-    repo = REPO_ROOT
     product = PRODUCT_ROOT
     manifest = json.loads(
         (HERE.parent / "installed-wave-manifest.json").read_text(encoding="utf-8")
@@ -1425,7 +1431,6 @@ def test_all_source_manifest_count_guards_reject_numeric_aliases(tmp_path: Path)
 
 
 def test_audit_status_and_supplemental_count_guards_reject_aliases(tmp_path: Path) -> None:
-    repo = REPO_ROOT
     product = PRODUCT_ROOT
     primary = json.loads((HERE.parent / "installed-wave-manifest.json").read_text(encoding="utf-8"))
     original_ids = runner_api.baseline_node_ids(product, primary)
@@ -2304,6 +2309,21 @@ def test_timeout_driver_cli_preserves_status_output(
     assert driver.main() == 1
     failure = capsys.readouterr()
     assert failure.err == "Q2 timeout driver failed: timeout-cli-control\n"
+
+
+def test_record_owner_search_roots_keep_nested_site_and_reject_spoof() -> None:
+    cases = audit_api.self_test_record_origin_inventory()
+    required = {
+        "repo-nested-active-site-root-included-source-and-prefix-sibling-excluded",
+        "outside-unprofiled-site-root-rejected",
+        "repo-nested-actual-record-positive",
+        "repo-nested-counterfeit-owner-rejected",
+        "parent-census-rejects-valid-row-with-reentered-competitor",
+    }
+    assert cases, cases
+    assert all(type(value) is bool for value in cases.values()), cases
+    assert all(cases.values()), cases
+    assert required <= cases.keys(), cases
 
 
 def test_collection_capture_binds_external_nonmodules_through_receipt_and_fails_removal() -> None:

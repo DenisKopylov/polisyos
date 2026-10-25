@@ -5742,6 +5742,9 @@ class ControlPlaneService(
                 expected_owner_context_ref=admitted_snapshot.owner_context_ref,
                 expected_tenant_id=tenant_id,
                 expected_cell_id=cell_id,
+                owned_historical_attempt_association_resolver=(
+                    self.resolve_owned_attempt_anchor_association
+                ),
             )
         if type(resolution) is not SearchUncertaintyTaskBindingResolution:
             raise TypeError("search_task_binding_resolution_type_invalid")
@@ -6958,7 +6961,7 @@ class ControlPlaneService(
     def resolve_owned_attempt_anchor_association(
         self,
         *,
-        anchor_ref: OwnedAttemptAnchorRef,
+        anchor_ref: ArtifactRef,
         expected_completed_event_id: int | None = None,
         expected_job_id: str | None = None,
         expected_tenant_id: str | None = None,
@@ -6970,7 +6973,16 @@ class ControlPlaneService(
             resolve_owned_attempt_anchor_association,
         )
 
-        if type(anchor_ref) is not OwnedAttemptAnchorRef:
+        if type(anchor_ref) is OwnedAttemptAnchorRef:
+            typed_anchor_ref = anchor_ref
+        elif type(anchor_ref) is ArtifactRef:
+            try:
+                typed_anchor_ref = OwnedAttemptAnchorRef.model_validate(
+                    anchor_ref.model_dump(mode="python"), strict=True
+                )
+            except (TypeError, ValueError) as exc:
+                raise TypeError("method_execution_owned_anchor_ref_invalid") from exc
+        else:
             raise TypeError("method_execution_owned_anchor_ref_invalid")
         if (
             expected_cell_id is not _RUN_LIFECYCLE_OWNER_SCOPE_UNSET
@@ -6984,18 +6996,21 @@ class ControlPlaneService(
             and expected_tenant_id is None
             and expected_cell_id is _RUN_LIFECYCLE_OWNER_SCOPE_UNSET
         ):
-            return resolve_owned_attempt_anchor_association(service=self, anchor_ref=anchor_ref)
+            return resolve_owned_attempt_anchor_association(
+                service=self,
+                anchor_ref=typed_anchor_ref,
+            )
         if expected_cell_id is _RUN_LIFECYCLE_OWNER_SCOPE_UNSET:
             return resolve_owned_attempt_anchor_association(
                 service=self,
-                anchor_ref=anchor_ref,
+                anchor_ref=typed_anchor_ref,
                 expected_completed_event_id=expected_completed_event_id,
                 expected_job_id=expected_job_id,
                 expected_tenant_id=expected_tenant_id,
             )
         return resolve_owned_attempt_anchor_association(
             service=self,
-            anchor_ref=anchor_ref,
+            anchor_ref=typed_anchor_ref,
             expected_completed_event_id=expected_completed_event_id,
             expected_job_id=expected_job_id,
             expected_tenant_id=expected_tenant_id,

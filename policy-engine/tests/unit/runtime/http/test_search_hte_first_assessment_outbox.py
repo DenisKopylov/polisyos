@@ -7,6 +7,7 @@ import signal
 import threading
 import time
 from datetime import UTC, datetime
+from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -34,6 +35,7 @@ from polisyos.scientist.methods.search.uncertainty import (
     SearchInputDependency,
     SearchOwnerSelectedSourceGraph,
     SearchRuntimeStageConfiguration,
+    SearchUncertaintyAdmissionError,
     SearchUncertaintyHTERequestProjection,
     SearchUncertaintyOwnerTaskContext,
     SearchUncertaintySemanticScope,
@@ -933,7 +935,7 @@ def test_owned_hte_outbox_records_first_assessment_without_authority_promotion(
             assert queued_intent.search_binding_admission.binding_ref == binding_ref
             assert queued_intent.search_binding_admission.selected_method_input_ref == source_ref
             assert queued_intent_ref.manifest_profile_sha256 is not None
-            queued_intents.append((queued_job.job_id, queued_digest))
+            queued_intents.append((queued_job.job_id, queued_digest, queued_intent))
     assert queued_intents[0][0] == first_accepted["job_id"]
     assert queued_intents[1][0] == second_accepted["job_id"]
 
@@ -943,8 +945,137 @@ def test_owned_hte_outbox_records_first_assessment_without_authority_promotion(
     )
 
     snapshots = []
-    for accepted in (first_accepted, second_accepted):
+    native_lineage = []
+    dispatched_job_ids = []
+    job_states = []
+    for accepted_index, accepted in enumerate((first_accepted, second_accepted)):
         job_id = accepted["job_id"]
+        if accepted_index == 1:
+            # Resolve the second, already-admitted POST against the first
+            # completion through Runtime's genuine historical owner API.
+            second_intent = queued_intents[1][2]
+            second_snapshot = second_intent.search_binding_admission
+            request_context = second_intent.owned_hte_request_context
+            assert second_snapshot is not None
+            assert request_context is not None
+            assert artifact_ref_identity_key(
+                request_context.search_uncertainty_task_binding_ref
+            ) == artifact_ref_identity_key(binding_ref)
+
+            resolve_second_admission = partial(
+                service._resolve_search_uncertainty_binding,
+                binding_ref=binding_ref,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                request_context=request_context,
+                method_fqn=second_intent.method_fqn,
+                method_version=second_intent.method_version,
+                method_abi_digest=second_intent.method_abi_digest,
+                resolved_params=second_intent.resolved_params,
+                seed=second_intent.seed,
+                inference_profile_id=second_intent.resource_policy.method_profile_id,
+                selected_method_input_ref=second_intent.requested_source_ref,
+                selected_method_input_content_sha256=(
+                    second_intent.requested_source_ref.artifact_id.hex
+                ),
+                admitted_snapshot=second_snapshot,
+            )
+
+            first_snapshot = snapshots[0]
+            assert first_snapshot.resolved_projection is not None
+            first_successor = (
+                first_snapshot.resolved_projection.current_obligations[0].successors[0].observation
+            )
+            with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+                successor_anchor_ref = first_successor.owned_attempt_anchor_ref
+                assert type(successor_anchor_ref) is ArtifactRef
+                owner_association = service.resolve_owned_attempt_anchor_association(
+                    anchor_ref=successor_anchor_ref,
+                    expected_job_id=first_successor.job_id,
+                    expected_completed_event_id=first_successor.completed_event_id,
+                    expected_tenant_id=tenant_id,
+                    expected_cell_id=cell_id,
+                )
+                for invalid_anchor_ref in (
+                    successor_anchor_ref.model_copy(update={"kind": "runtime.foreign_anchor"}),
+                    successor_anchor_ref.model_copy(update={"media_type": "text/plain"}),
+                    successor_anchor_ref.model_copy(update={"manifest_profile_sha256": None}),
+                ):
+                    with pytest.raises(
+                        TypeError, match="method_execution_owned_anchor_ref_invalid"
+                    ):
+                        service.resolve_owned_attempt_anchor_association(
+                            anchor_ref=invalid_anchor_ref,
+                            expected_job_id=first_successor.job_id,
+                            expected_completed_event_id=first_successor.completed_event_id,
+                            expected_tenant_id=tenant_id,
+                            expected_cell_id=cell_id,
+                        )
+                wrong_profile_ref = successor_anchor_ref.model_copy(
+                    update={"manifest_profile_sha256": "sha256:" + "e" * 64}
+                )
+                with pytest.raises((OSError, ValueError)):
+                    service.resolve_owned_attempt_anchor_association(
+                        anchor_ref=wrong_profile_ref,
+                        expected_job_id=first_successor.job_id,
+                        expected_completed_event_id=first_successor.completed_event_id,
+                        expected_tenant_id=tenant_id,
+                        expected_cell_id=cell_id,
+                    )
+                foreign_anchor_ref = ArtifactRef(
+                    artifact_id="sha256:" + "f" * 64,
+                    kind=successor_anchor_ref.kind,
+                    media_type=successor_anchor_ref.media_type,
+                    manifest_profile_sha256=successor_anchor_ref.manifest_profile_sha256,
+                )
+                with pytest.raises((OSError, TypeError, ValueError)):
+                    service.resolve_owned_attempt_anchor_association(
+                        anchor_ref=foreign_anchor_ref,
+                        expected_job_id=first_successor.job_id,
+                        expected_completed_event_id=first_successor.completed_event_id,
+                        expected_tenant_id=tenant_id,
+                        expected_cell_id=cell_id,
+                    )
+                assert resolve_second_admission() == second_snapshot
+
+                with monkeypatch.context() as missing_owner:
+                    missing_owner.setattr(
+                        service,
+                        "resolve_owned_attempt_anchor_association",
+                        lambda **_kwargs: None,
+                    )
+                    with pytest.raises(SearchUncertaintyAdmissionError) as missing_association:
+                        resolve_second_admission()
+                    assert (
+                        missing_association.value.reason_code
+                        == "runtime_attempt_association_unavailable"
+                    )
+
+                mismatched_association = owner_association.model_copy(
+                    update={"job_id": "foreign-" + owner_association.job_id}
+                )
+                with monkeypatch.context() as forged_owner:
+                    forged_owner.setattr(
+                        service,
+                        "resolve_owned_attempt_anchor_association",
+                        lambda association=mismatched_association, **_kwargs: association,
+                    )
+                    with pytest.raises(
+                        SearchUncertaintyAdmissionError
+                    ) as mismatched_association_error:
+                        resolve_second_admission()
+                    assert (
+                        mismatched_association_error.value.reason_code
+                        == "runtime_attempt_association_mismatch"
+                    )
+                from unittest.mock import Mock
+
+                worker_owner_reader = Mock(wraps=service.resolve_owned_attempt_anchor_association)
+                monkeypatch.setattr(
+                    service,
+                    "resolve_owned_attempt_anchor_association",
+                    worker_owner_reader,
+                )
         assert (
             dispatch_one_control_job(
                 store=service._control_store,
@@ -953,11 +1084,28 @@ def test_owned_hte_outbox_records_first_assessment_without_authority_promotion(
             )
             == job_id
         )
+        dispatched_job_ids.append(job_id)
         record = service._control_store.get_job(job_id)
         assert record is not None
-        assert record.state == "completed", (
-            f"state={record.state!r}, error={record.error_message!r}"
-        )
+        job_states.append((job_id, record.state, record.error_message))
+        if record.state != "completed":
+            with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+                current = SearchUncertaintyTicketState(
+                    store,
+                    completion_owner=service,
+                ).read_current_snapshot(ticket_id)
+            assert current is not None
+            snapshots.append(current)
+            continue
+        if accepted_index == 1:
+            assert any(
+                call.kwargs.get("expected_job_id") == first_successor.job_id
+                and call.kwargs.get("expected_completed_event_id")
+                == first_successor.completed_event_id
+                and call.kwargs.get("expected_tenant_id") == tenant_id
+                and call.kwargs.get("expected_cell_id") == cell_id
+                for call in worker_owner_reader.call_args_list
+            )
         completed_event = service._control_store.get_job_terminal_source_event_record(job_id)
         assert completed_event.event_type == "job_completed"
 
@@ -980,11 +1128,7 @@ def test_owned_hte_outbox_records_first_assessment_without_authority_promotion(
         with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
             outcome = load_hte_outcome(ir_store, outcome_ref).root
             inference_basis = load_ate_inference_basis(ir_store, inference_basis_ref)
-        assert outcome.kind == "interval_estimate"
-        assert inference_basis.fit_eval_relation == "same_selected_rows"
-        assert inference_basis.fit_rows_sha256 == outcome.selected_row_order_sha256
-        assert inference_basis.eval_rows_sha256 == outcome.selected_row_order_sha256
-        assert inference_basis.fit_rows_sha256 != outcome.selected_rows_sha256
+        native_lineage.append((job_id, outcome_ref, inference_basis_ref, outcome, inference_basis))
         assert get_current_tenant_id_or_none() is None
         assert get_current_cell_id() is None
         service.reconcile_pending_search_hte_completion_events()
@@ -1011,6 +1155,59 @@ def test_owned_hte_outbox_records_first_assessment_without_authority_promotion(
             for observation in current.resolved_projection.selected_unassessed_observations
         )
         snapshots.append(current)
+
+    assert dispatched_job_ids == [first_accepted["job_id"], second_accepted["job_id"]]
+    lineage_facts = [
+        {
+            "job_id": job_id,
+            "outcome_ref": outcome_ref.model_dump(mode="json"),
+            "inference_basis_ref": inference_basis_ref.model_dump(mode="json"),
+            "outcome_rows": {
+                "n_selected_rows": outcome.n_selected_rows,
+                "selected_rows_sha256": outcome.selected_rows_sha256,
+                "selected_row_order_sha256": outcome.selected_row_order_sha256,
+            },
+            "basis_rows": {
+                "n_selected_rows": inference_basis.n_selected_rows,
+                "selected_rows_sha256": inference_basis.selected_rows_sha256,
+                "selected_row_order_sha256": inference_basis.selected_row_order_sha256,
+                "fit_rows_sha256": inference_basis.fit_rows_sha256,
+                "eval_rows_sha256": inference_basis.eval_rows_sha256,
+                "sample_ids_status": inference_basis.sample_ids_status,
+                "sample_ids_sha256": inference_basis.sample_ids_sha256,
+                "fit_eval_relation": inference_basis.fit_eval_relation,
+            },
+        }
+        for job_id, outcome_ref, inference_basis_ref, outcome, inference_basis in native_lineage
+    ]
+    snapshot_facts = [
+        {
+            "ticket_id": snapshot.ticket_id,
+            "ticket_generation": snapshot.ticket_generation,
+            "projection_revision": snapshot.projection_revision,
+            "status": snapshot.status,
+            "admission_status": snapshot.admission_status,
+            "reason_code": snapshot.reason_code,
+        }
+        for snapshot in snapshots
+    ]
+    assert job_states == [
+        (first_accepted["job_id"], "completed", None),
+        (second_accepted["job_id"], "completed", None),
+    ], (
+        f"dispatched_job_ids={dispatched_job_ids!r}; job_states={job_states!r}; "
+        f"snapshots={snapshot_facts!r}; native_lineage={lineage_facts!r}"
+    )
+    assert len(native_lineage) == 2
+    for job_id, outcome_ref, inference_basis_ref, outcome, inference_basis in native_lineage:
+        assert job_id in dispatched_job_ids
+        assert type(outcome_ref) is HTEOutcomeRef
+        assert type(inference_basis_ref) is ATEInferenceBasisRef
+        assert outcome.kind == "interval_estimate"
+        assert inference_basis.fit_eval_relation == "same_selected_rows"
+        assert inference_basis.fit_rows_sha256 == outcome.selected_row_order_sha256
+        assert inference_basis.eval_rows_sha256 == outcome.selected_row_order_sha256
+        assert inference_basis.fit_rows_sha256 != outcome.selected_rows_sha256
 
     first = snapshots[0]
     assert first.projection is not None and first.resolved_projection is not None
@@ -1047,13 +1244,18 @@ def test_owned_hte_outbox_records_first_assessment_without_authority_promotion(
         predecessor.observation.obligation_id,
     )
     assert predecessor.observation_ref in contested.projection.unassessed_observation_refs
-    assert {item.observation_ref for item in contested_obligation.successors}.issubset(
-        set(contested.projection.historical_observation_refs)
+    assert {
+        artifact_ref_identity_key(item.observation_ref) for item in contested_obligation.successors
+    }.issubset(
+        artifact_ref_identity_key(ref) for ref in contested.projection.historical_observation_refs
     )
     assert contested.projection.live_currentness_status == "not_established"
 
     assessed_successor = first_obligation.successors[0]
-    with pytest.raises(ValidationError):
+    with (
+        tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id),
+        pytest.raises(ValidationError),
+    ):
         SearchUncertaintyTicketState(
             store,
             completion_owner=service,

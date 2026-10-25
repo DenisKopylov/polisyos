@@ -3947,6 +3947,9 @@ def resolve_admitted_search_uncertainty_task_binding(
     expected_owner_context_ref: ArtifactRef,
     expected_tenant_id: str,
     expected_cell_id: str | None,
+    owned_historical_attempt_association_resolver: (
+        SearchOwnedHistoricalAttemptAssociationResolver | None
+    ) = None,
 ) -> SearchUncertaintyTaskBindingResolution:
     """Recompute a previously admitted binding against the same live task epoch.
 
@@ -3977,7 +3980,12 @@ def resolve_admitted_search_uncertainty_task_binding(
     if binding.tenant_id != expected_tenant_id or binding.cell_id != expected_cell_id:
         raise ValueError("Search task binding differs from the selected task scope")
 
-    state = SearchUncertaintyTicketState(store)
+    state = SearchUncertaintyTicketState(
+        store,
+        owned_historical_attempt_association_resolver=(
+            owned_historical_attempt_association_resolver
+        ),
+    )
     with state._locked(binding.ticket_id):
         row = state._read_row(binding.ticket_id)
         if row is None:

@@ -1305,35 +1305,6 @@ def _install_spawned_selected_report_lineage_probe(
     return marker
 
 
-def _load_candidate_transport_module_for_test(
-    monkeypatch: pytest.MonkeyPatch,
-) -> Any:
-    """Use the same candidate source and builtin owner in parent and worker."""
-    import importlib.util
-    import sys
-
-    import polisyos.scientist.nodes.builtins.causal as causal_package
-    from polisyos.scientist.orchestration.engine import component_identity
-
-    module_name = "polisyos.scientist.nodes.builtins.causal.resolve_transport"
-    candidate_source = (
-        Path(__file__).resolve().parents[3]
-        / "src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py"
-    )
-    spec = importlib.util.spec_from_file_location(module_name, candidate_source)
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    monkeypatch.setitem(sys.modules, module_name, module)
-    spec.loader.exec_module(module)
-    monkeypatch.setattr(causal_package, "resolve_transport", module)
-    owner = component_identity._owner(module.RunTransportabilityNode)
-    monkeypatch.setitem(component_identity._OWNERS, owner.component_id, owner)
-    monkeypatch.setattr(
-        sys.modules[__name__], "RunTransportabilityNode", module.RunTransportabilityNode
-    )
-    return module
-
-
 def test_conditional_report_guard_uses_the_selected_manifest_lineage(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -1341,7 +1312,6 @@ def test_conditional_report_guard_uses_the_selected_manifest_lineage(
     """Use exact selected manifest edges even when a valid default view differs."""
     from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 
-    _load_candidate_transport_module_for_test(monkeypatch)
     positive = _run(
         tmp_path / "competing-default",
         selected_report_lineage_probe="competing_default",

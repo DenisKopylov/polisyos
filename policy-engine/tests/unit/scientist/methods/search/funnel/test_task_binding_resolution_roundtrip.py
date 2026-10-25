@@ -8,6 +8,7 @@ from pydantic import ValidationError
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.methods.search.uncertainty import (
+    SearchOwnedHistoricalAttemptAssociationResolver,
     SearchUncertaintyTaskBinding,
     SearchUncertaintyTaskBindingResolution,
     SearchUncertaintyTicketState,
@@ -100,6 +101,9 @@ def _resolve_admitted(
     *,
     tenant_id: str | None = None,
     task_epoch_ref: ArtifactRef | None = None,
+    owned_historical_attempt_association_resolver: (
+        SearchOwnedHistoricalAttemptAssociationResolver | None
+    ) = None,
 ) -> SearchUncertaintyTaskBindingResolution:
     return resolve_admitted_search_uncertainty_task_binding(
         store=store,
@@ -116,6 +120,9 @@ def _resolve_admitted(
         expected_owner_context_ref=binding.owner_context_ref,
         expected_tenant_id=binding.tenant_id if tenant_id is None else tenant_id,
         expected_cell_id=binding.cell_id,
+        owned_historical_attempt_association_resolver=(
+            owned_historical_attempt_association_resolver
+        ),
     )
 
 
@@ -164,7 +171,26 @@ def test_admitted_binding_handoff_accepts_same_generation_history_and_rejects_re
     assert advanced.current_binding_ref is None
     assert binding_ref in advanced.historical_binding_refs
 
-    historical = _resolve_admitted(store, binding_ref, binding)
+    historical_resolver_calls: list[ArtifactRef] = []
+
+    def record_historical_lookup(
+        *,
+        anchor_ref: ArtifactRef,
+        expected_job_id: str,
+        expected_completed_event_id: int,
+        expected_tenant_id: str,
+        expected_cell_id: str | None | object = None,
+    ) -> None:
+        del expected_job_id, expected_completed_event_id, expected_tenant_id, expected_cell_id
+        historical_resolver_calls.append(anchor_ref)
+
+    historical = _resolve_admitted(
+        store,
+        binding_ref,
+        binding,
+        owned_historical_attempt_association_resolver=record_historical_lookup,
+    )
+    assert historical_resolver_calls == []
     assert historical.resolution_status == "historical"
     assert historical.binding == binding
 

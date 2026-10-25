@@ -6,7 +6,7 @@ import hashlib
 import re
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Literal, Protocol
+from typing import TYPE_CHECKING, Literal, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict
 
@@ -338,6 +338,106 @@ class EvaluationSafetyReplayMaterial:
     revision_nodes: tuple[EvalSafetyCertificateRevisionNode, ...]
     decision_evaluated_at: datetime
     revalidated_at: datetime
+
+
+class EvaluationSafetyAuthoritiesSourceRefusalError(AuthorityReconciliationError):
+    """Typed fail-closed refusal for a present but unresolvable selected source."""
+
+
+@runtime_checkable
+class EvaluationSafetyAuthoritiesSource(Protocol):
+    """Trusted server-side source for selected C01 pack material and replay.
+
+    The source is supplied only by the runtime composition root. It must use the
+    existing owner-profile reader for present Core artifacts; selected refs and
+    payload self-labels do not define their own owner contract.
+    """
+
+    @property
+    def authority_resolver(self) -> EvalSafetyAuthorityResolver:
+        """Return the configured authority resolver used by admission and replay."""
+
+    @property
+    def appointment_resolver(self) -> EvalSafetyVerifierAppointmentResolver:
+        """Return the configured appointment resolver used by admission and replay."""
+
+    @property
+    def verifier_registry(self) -> EvalSafetyVerifierRegistry:
+        """Return the configured evidence-verifier registry."""
+
+    def resolve_for_attempt(
+        self,
+        *,
+        artifact_store: core_artifacts.ArtifactStore,
+        intake: EvaluationAttemptIntake,
+    ) -> EvaluationSafetyAttemptAuthorities:
+        """Resolve the exact selected pack and its nested material for one intake.
+
+        A missing ``domain_pack_ref`` is handled by the caller as absence. Once
+        a ref is present, malformed, wrong-profile, or unreadable source material
+        must raise ``EvaluationSafetyAuthoritiesSourceRefusalError`` rather than return
+        empty authorities.
+        """
+
+    def resolve_for_replay(
+        self,
+        *,
+        artifact_store: core_artifacts.ArtifactStore,
+        intake_ref: EvalSafetyArtifactRef,
+        intake: EvaluationAttemptIntake,
+        request_ref: EvalSafetyArtifactRef,
+        request: EvaluationAttemptRequest,
+    ) -> EvaluationSafetyAttemptAuthorities:
+        """Reload the exact persisted selection and nested authority inputs."""
+
+
+def _bind_evaluation_safety_authorities_source_result(
+    *,
+    authorities: EvaluationSafetyAttemptAuthorities,
+    intake: EvaluationAttemptIntake,
+    authority_resolver: EvalSafetyAuthorityResolver,
+    appointment_resolver: EvalSafetyVerifierAppointmentResolver,
+    verifier_registry: EvalSafetyVerifierRegistry,
+) -> EvaluationSafetyAttemptAuthorities:
+    """Bind typed source output to its selected ref and canonical runtime ports."""
+    selected_pack_ref = intake.domain_pack_ref
+    pack = authorities.pack
+    if (
+        selected_pack_ref is None
+        or pack is None
+        or authorities.pack_ref != selected_pack_ref
+        or pack.content_hash != selected_pack_ref.content_hash
+    ):
+        raise EvaluationSafetyAuthoritiesSourceRefusalError(
+            "evaluation_safety_selected_pack_not_established",
+            "The selected domain safety pack could not be bound to the intake.",
+        )
+    if (
+        authorities.mode_basis_ref is None
+        or authorities.mode_basis is None
+        or authorities.mode_basis_ref != pack.mode_basis_ref
+        or authorities.mode_basis.content_hash != authorities.mode_basis_ref.content_hash
+    ):
+        raise EvaluationSafetyAuthoritiesSourceRefusalError(
+            "evaluation_safety_selected_mode_basis_not_established",
+            "The pack's selected mode basis could not be reloaded exactly.",
+        )
+    if (
+        authorities.semantic_facet_denominator_receipt_ref
+        != pack.semantic_facet_denominator_receipt_ref
+        or authorities.facet_registry is None
+        or authorities.facet_denominator is None
+    ):
+        raise EvaluationSafetyAuthoritiesSourceRefusalError(
+            "evaluation_safety_selected_facet_basis_not_established",
+            "The pack's embedded facet basis could not be reloaded exactly.",
+        )
+    return replace(
+        authorities,
+        authority_resolver=authority_resolver,
+        appointment_resolver=appointment_resolver,
+        verifier_registry=verifier_registry,
+    )
 
 
 class EvaluationSafetyCurrentStateResolver(Protocol):
@@ -1621,6 +1721,54 @@ class EvaluationSafetyPersistenceService:
             )
         return tuple(full_entries)
 
+    def _complete_revision_nodes(
+        self, certificate: EvalSafetyCertificate
+    ) -> tuple[EvalSafetyCertificateRevisionNode, ...]:
+        """Reload the complete selected certificate revision lineage from canonical CAS."""
+        identity = EVALUATION_SAFETY_ARTIFACT_IDENTITIES["certificate_revision"]
+        nodes: list[EvalSafetyCertificateRevisionNode] = []
+        for artifact_id in self._artifact_store.iter_artifact_ids():
+            typed_id = core_artifacts.ArtifactID.model_validate(artifact_id)
+            manifest = read_core_manifest_profile(self._artifact_store, typed_id)[0]
+            schema = manifest.artifact_schema
+            if (
+                manifest.kind != identity.kind
+                or schema is None
+                or schema.name != identity.schema
+                or schema.version != "1.0"
+            ):
+                continue
+            raw = EvalSafetyCertificateRevision.model_validate(
+                read_core_json_artifact(self._artifact_store, typed_id).value
+            )
+            if raw.revision_lineage_id != certificate.revision_lineage_id:
+                continue
+            revision_ref = _eval_ref(
+                typed_id,
+                identity=identity,
+                semantic_hash=raw.content_hash,
+            )
+            persisted = self._read_model(
+                revision_ref,
+                key="certificate_revision",
+                model_type=EvalSafetyCertificateRevision,
+            )
+            nodes.append(
+                EvalSafetyCertificateRevisionNode(
+                    revision_ref=revision_ref,
+                    revision=persisted,
+                )
+            )
+        return tuple(
+            sorted(
+                nodes,
+                key=lambda node: (
+                    node.revision.effective_at,
+                    node.revision_ref.artifact_id,
+                ),
+            )
+        )
+
     def reconcile_persisted_attempt(
         self,
         *,
@@ -2212,52 +2360,8 @@ class EvaluationSafetyAdmissionVerifier:
     def _complete_revision_nodes(
         self, certificate: EvalSafetyCertificate
     ) -> tuple[EvalSafetyCertificateRevisionNode, ...]:
-        identity = EVALUATION_SAFETY_ARTIFACT_IDENTITIES["certificate_revision"]
-        nodes: list[EvalSafetyCertificateRevisionNode] = []
-        for artifact_id in self._persistence_service._artifact_store.iter_artifact_ids():
-            typed_id = core_artifacts.ArtifactID.model_validate(artifact_id)
-            manifest = read_core_manifest_profile(
-                self._persistence_service._artifact_store,
-                typed_id,
-            )[0]
-            schema = manifest.artifact_schema
-            if (
-                manifest.kind != identity.kind
-                or schema is None
-                or schema.name != identity.schema
-                or schema.version != "1.0"
-            ):
-                continue
-            raw = EvalSafetyCertificateRevision.model_validate(
-                read_core_json_artifact(self._persistence_service._artifact_store, typed_id).value
-            )
-            if raw.revision_lineage_id != certificate.revision_lineage_id:
-                continue
-            revision_ref = _eval_ref(
-                typed_id,
-                identity=identity,
-                semantic_hash=raw.content_hash,
-            )
-            persisted = self._persistence_service._read_model(
-                revision_ref,
-                key="certificate_revision",
-                model_type=EvalSafetyCertificateRevision,
-            )
-            nodes.append(
-                EvalSafetyCertificateRevisionNode(
-                    revision_ref=revision_ref,
-                    revision=persisted,
-                )
-            )
-        return tuple(
-            sorted(
-                nodes,
-                key=lambda node: (
-                    node.revision.effective_at,
-                    node.revision_ref.artifact_id,
-                ),
-            )
-        )
+        """Reuse the canonical persistence reader for the full revision lineage."""
+        return self._persistence_service._complete_revision_nodes(certificate)
 
     def _decision_evaluated_at(self, decision_ref: EvalSafetyArtifactRef) -> datetime:
         decision = self._persistence_service._read_model(

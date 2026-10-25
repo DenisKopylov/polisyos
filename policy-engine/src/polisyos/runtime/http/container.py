@@ -63,6 +63,9 @@ if TYPE_CHECKING:
     from polisyos.core.contracts import CatalogRunProfile
     from polisyos.runtime.http.execution_policy import ResolvedExecutionPolicy
     from polisyos.runtime.http.security import RuntimeSecurityConfig
+    from polisyos.runtime.http.services.control.evaluation_safety import (
+        EvaluationSafetyAuthoritiesSource,
+    )
     from polisyos.runtime.http.services.human_decisions import HumanDecisionService
     from polisyos.runtime.http.services.public_decision_verification import (
         PublicDecisionVerificationService,
@@ -191,6 +194,7 @@ class RuntimeContainerOverrides:
     runtime_api_context: RuntimeApiContext | None = None
     review_collaboration_hub: ReviewCollaborationHub | None = None
     control_service: ControlPlaneService | None = None
+    evaluation_safety_authorities_source: EvaluationSafetyAuthoritiesSource | None = None
     runtime_metrics: Any | None = None
     runtime_tracer: Any | None = None
     runtime_access_audit: RuntimeDataAccessAuditTrail | None = None
@@ -356,8 +360,15 @@ class RuntimeServiceContainer:
         runtime_security: RuntimeSecurityConfig,
     ) -> RuntimeServiceContainer:
         """Construct a container with lazy startup for heavyweight services."""
-        common_async_tools.configure_shared_executor_profile(config.shared_executor_profile())
         overrides = config.overrides
+        if (
+            overrides.control_service is not None
+            and overrides.evaluation_safety_authorities_source is not None
+        ):
+            raise ValueError(
+                "evaluation_safety_authorities_source_conflicts_with_prebuilt_control_service"
+            )
+        common_async_tools.configure_shared_executor_profile(config.shared_executor_profile())
         if type(config.candidate_simulation_profiles) is not tuple:
             raise TypeError("candidate_simulation_profiles_must_be_tuple")
         if type(config.candidate_simulation_model_declarations) is not tuple:
@@ -737,6 +748,9 @@ class RuntimeServiceContainer:
                     tracer=self.runtime_tracer,
                     artifact_store=self.runtime_api_context.store,
                     signature_verifier=self.runtime_api_context.signature_verifier,
+                    evaluation_safety_authorities_source=(
+                        self.config.overrides.evaluation_safety_authorities_source
+                    ),
                     async_artifact_store=self.runtime_api_context.async_store,
                     registry_providers=self.control_registry_providers,
                     decision_validity_service=self.decision_validity_service,

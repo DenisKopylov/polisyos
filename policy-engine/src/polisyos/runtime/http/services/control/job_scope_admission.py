@@ -28,6 +28,7 @@ from polisyos.runtime.http.services.control.evaluation_safety import (
     EvaluationSafetyReplayMaterial,
     PersistedEvaluationSafetyAttempt,
     PersistedEvaluationSafetyProjection,
+    _bind_evaluation_safety_authorities_source_result,
 )
 from polisyos.runtime.http.services.control.response_shapes import (
     _decision_validity_dedupe_payload,
@@ -573,22 +574,43 @@ class ControlJobScopeAdmissionMixin:
             payload=payload,
             execution_scope=execution_scope,
         )
-        authorities = EvaluationSafetyAttemptAuthorities(
-            mode_basis_ref=None,
-            mode_basis=None,
-            pack_ref=None,
-            pack=None,
-            semantic_facet_denominator_receipt_ref=None,
-            facet_registry=None,
-            facet_denominator=None,
-            authority_resolver=self._evaluation_safety_authority_resolver,
-            appointment_resolver=self._evaluation_safety_appointment_resolver,
-            verifier_registry=self._evaluation_safety_verifier_registry,
-            evidence=(),
-            classification_offer=None,
-            classification=None,
-            certificate_issue_cause_ref=None,
-        )
+        selected_source = self._evaluation_safety_authorities_source
+        selected_mode = intake.mode_resolution.canonical_mode
+        if (
+            selected_source is not None
+            and intake.mode_resolution.status == "accepted"
+            and selected_mode not in {None, "simulate_only"}
+            and intake.domain_pack_ref is not None
+            and intake.requested_rule_version is not None
+        ):
+            sourced_authorities = selected_source.resolve_for_attempt(
+                artifact_store=self._artifact_store,
+                intake=intake,
+            )
+            authorities = _bind_evaluation_safety_authorities_source_result(
+                authorities=sourced_authorities,
+                intake=intake,
+                authority_resolver=self._evaluation_safety_authority_resolver,
+                appointment_resolver=self._evaluation_safety_appointment_resolver,
+                verifier_registry=self._evaluation_safety_verifier_registry,
+            )
+        else:
+            authorities = EvaluationSafetyAttemptAuthorities(
+                mode_basis_ref=None,
+                mode_basis=None,
+                pack_ref=None,
+                pack=None,
+                semantic_facet_denominator_receipt_ref=None,
+                facet_registry=None,
+                facet_denominator=None,
+                authority_resolver=self._evaluation_safety_authority_resolver,
+                appointment_resolver=self._evaluation_safety_appointment_resolver,
+                verifier_registry=self._evaluation_safety_verifier_registry,
+                evidence=(),
+                classification_offer=None,
+                classification=None,
+                certificate_issue_cause_ref=None,
+            )
         persisted = self._evaluation_safety_persistence_service.compose_and_persist_attempt(
             intake=intake,
             authorities=authorities,

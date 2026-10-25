@@ -152,11 +152,13 @@ from polisyos.runtime.http.services.control.bounded_wait import (
 from polisyos.runtime.http.services.control.capabilities import CapabilityManifestMixin
 from polisyos.runtime.http.services.control.evaluation_safety import (
     EvaluationSafetyAdmissionVerifier,
+    EvaluationSafetyAuthoritiesSource,
     EvaluationSafetyDecisionEvidence,
     EvaluationSafetyPersistenceService,
     EvaluationSafetyPromotionSourceContext,
     EvaluationSafetyPromotionSourceSlot,
     EvaluationSafetyReplayMaterial,
+    _bind_evaluation_safety_authorities_source_result,
 )
 from polisyos.runtime.http.services.control.job_attempt_publication import (
     _EVALUATION_SAFETY_EXECUTION_CONTEXT_KEY,
@@ -205,6 +207,7 @@ from polisyos.runtime.quality.acquisition_route_loop import (
 )
 from polisyos.runtime.quality.authority import GovernanceMetadata
 from polisyos.runtime.quality.authority_reconciliation import (
+    AuthorityReconciliationError,
     AuthorityReconciliationReport,
     reconcile_authority_ref,
     resolve_authority_diagnostic_event_ref,
@@ -224,7 +227,14 @@ from polisyos.runtime.quality.epoch_validity_cascade import (
 from polisyos.runtime.quality.evaluation_safety import (
     EvalSafetyAppointmentResolution,
     EvalSafetyAuthorityResolution,
+    EvalSafetyAuthorityResolver,
+    EvalSafetyCertificate,
+    EvalSafetyVerifierAppointmentResolver,
+    EvalSafetyVerifierRegistry,
+    EvaluationAttemptIntake,
+    EvaluationAttemptRequest,
     EvaluationExecutionContext,
+    EvaluationSafetyDecisionEvent,
     evaluation_execution_context_hash,
 )
 from polisyos.runtime.quality.event_log import (
@@ -1834,12 +1844,37 @@ class _ControlEvaluationSafetyVerifierRegistry:
         return None
 
 
-class _ControlEvaluationSafetyCurrentStateResolver:
-    """Immediate exact-context replay cache, never an authority producer."""
+@dataclass(frozen=True, slots=True)
+class _ControlEvaluationSafetyReplayPointers:
+    """Only durable C01 refs retained between attempt and immediate replay."""
 
-    def __init__(self) -> None:
+    intake_ref: ArtifactRef
+    request_ref: ArtifactRef
+    decision_ref: ArtifactRef
+    certificate_ref: ArtifactRef
+    revision_head_ref: ArtifactRef | None
+
+
+class _ControlEvaluationSafetyCurrentStateResolver:
+    """Reload C01 CAS and selected source material for the exact immediate context."""
+
+    def __init__(
+        self,
+        *,
+        persistence_service: EvaluationSafetyPersistenceService,
+        authorities_source: EvaluationSafetyAuthoritiesSource | None,
+        authority_resolver: EvalSafetyAuthorityResolver,
+        appointment_resolver: EvalSafetyVerifierAppointmentResolver,
+        verifier_registry: EvalSafetyVerifierRegistry,
+    ) -> None:
+        self._persistence_service = persistence_service
+        self._authorities_source = authorities_source
+        self._authority_resolver = authority_resolver
+        self._appointment_resolver = appointment_resolver
+        self._verifier_registry = verifier_registry
         self._material_by_context: dict[
-            tuple[str, str, str | None], EvaluationSafetyReplayMaterial
+            tuple[str, str, str | None],
+            EvaluationSafetyReplayMaterial | _ControlEvaluationSafetyReplayPointers,
         ] = {}
 
     @staticmethod
@@ -1866,18 +1901,118 @@ class _ControlEvaluationSafetyCurrentStateResolver:
             or material.certificate_ref != context.eval_safety_certificate_ref
         ):
             raise ValueError("evaluation_safety_current_state_binding_mismatch")
-        self._material_by_context[self._key(context)] = material
+        if (
+            self._authorities_source is not None
+            and material.request_ref is not None
+            and material.certificate_ref is not None
+        ):
+            revision_head = (
+                material.revision_nodes[-1].revision_ref if material.revision_nodes else None
+            )
+            entry: EvaluationSafetyReplayMaterial | _ControlEvaluationSafetyReplayPointers = (
+                _ControlEvaluationSafetyReplayPointers(
+                    intake_ref=material.intake_ref,
+                    request_ref=material.request_ref,
+                    decision_ref=material.decision_ref,
+                    certificate_ref=material.certificate_ref,
+                    revision_head_ref=revision_head,
+                )
+            )
+        else:
+            entry = material
+        self._material_by_context[self._key(context)] = entry
 
     def resolve(self, context: EvaluationExecutionContext) -> EvaluationSafetyReplayMaterial | None:
-        material = self._material_by_context.get(self._key(context))
-        if material is None:
+        entry = self._material_by_context.get(self._key(context))
+        if isinstance(entry, EvaluationSafetyReplayMaterial):
+            expected_head = entry.revision_nodes[-1].revision_ref if entry.revision_nodes else None
+            if expected_head != context.eval_safety_revision_head_ref:
+                return None
+            return entry
+        source = self._authorities_source
+        if source is None or entry is None:
             return None
-        expected_head = (
-            material.revision_nodes[-1].revision_ref if material.revision_nodes else None
-        )
-        if expected_head != context.eval_safety_revision_head_ref:
+        if (
+            entry.intake_ref != context.intake_ref
+            or entry.certificate_ref != context.eval_safety_certificate_ref
+            or entry.revision_head_ref != context.eval_safety_revision_head_ref
+        ):
             return None
-        return material
+        persistence = self._persistence_service
+        try:
+            certificate = persistence._read_model(
+                entry.certificate_ref,
+                key="certificate",
+                model_type=EvalSafetyCertificate,
+            )
+            intake = persistence._read_model(
+                entry.intake_ref,
+                key="intake",
+                model_type=EvaluationAttemptIntake,
+            )
+            request = persistence._read_model(
+                entry.request_ref,
+                key="request",
+                model_type=EvaluationAttemptRequest,
+            )
+            decision = persistence._read_model(
+                entry.decision_ref,
+                key="decision",
+                model_type=EvaluationSafetyDecisionEvent,
+            )
+            if (
+                certificate.request_ref != entry.request_ref
+                or certificate.decision_ref != entry.decision_ref
+                or certificate.domain_pack_ref != request.domain_pack_ref
+                or request.intake_ref != entry.intake_ref
+                or request.domain_pack_ref != intake.domain_pack_ref
+            ):
+                raise ValueError("evaluation_safety_current_state_binding_mismatch")
+            revision_nodes = persistence._complete_revision_nodes(certificate)
+            current_head = revision_nodes[-1].revision_ref if revision_nodes else None
+            if current_head != context.eval_safety_revision_head_ref:
+                return None
+            authorities = source.resolve_for_replay(
+                artifact_store=persistence._artifact_store,
+                intake_ref=entry.intake_ref,
+                intake=intake,
+                request_ref=entry.request_ref,
+                request=request,
+            )
+            authorities = _bind_evaluation_safety_authorities_source_result(
+                authorities=authorities,
+                intake=intake,
+                authority_resolver=self._authority_resolver,
+                appointment_resolver=self._appointment_resolver,
+                verifier_registry=self._verifier_registry,
+            )
+            return EvaluationSafetyReplayMaterial(
+                intake_ref=entry.intake_ref,
+                request_ref=entry.request_ref,
+                mode_basis_ref=authorities.mode_basis_ref,
+                mode_basis=authorities.mode_basis,
+                pack_ref=authorities.pack_ref,
+                pack=authorities.pack,
+                facet_registry=authorities.facet_registry,
+                facet_denominator=authorities.facet_denominator,
+                authority_resolver=self._authority_resolver,
+                appointment_resolver=self._appointment_resolver,
+                verifier_registry=self._verifier_registry,
+                evidence=authorities.evidence,
+                classification=authorities.classification,
+                decision_ref=entry.decision_ref,
+                certificate_ref=entry.certificate_ref,
+                revision_nodes=revision_nodes,
+                decision_evaluated_at=decision.safety.evaluated_at,
+                revalidated_at=datetime.now(UTC),
+            )
+        except AuthorityReconciliationError:
+            raise
+        except (OSError, TypeError, ValueError) as exc:
+            raise AuthorityReconciliationError(
+                "evaluation_safety_authority_source_replay_not_established",
+                "The selected C01 source could not be freshly reloaded for replay.",
+            ) from exc
 
 
 @dataclass(frozen=True, slots=True)
@@ -3810,6 +3945,7 @@ class ControlPlaneService(
         promotion_runtime: PromotionRuntime | None = None,
         epoch_claim_lifecycle_bridge: EpochClaimLifecycleBridgeService | None = None,
         evaluation_safety_persistence_service: EvaluationSafetyPersistenceService | None = None,
+        evaluation_safety_authorities_source: EvaluationSafetyAuthoritiesSource | None = None,
         evaluation_safety_promotion_source_slot: EvaluationSafetyPromotionSourceSlot | None = None,
         published_signature_population_provider: PublicSignaturePopulationProvider | None = None,
         normative_authority_trust: NormativeAuthorityTrust | None = None,
@@ -4024,10 +4160,35 @@ class ControlPlaneService(
                 raise ValueError("evaluation_safety_persistence_owner_mismatch")
             self._diagnostic_event_log = supplied_event_log
             self._evaluation_safety_persistence_service = evaluation_safety_persistence_service
-        self._evaluation_safety_state_resolver = _ControlEvaluationSafetyCurrentStateResolver()
-        self._evaluation_safety_authority_resolver = _ControlEvaluationSafetyAuthorityResolver()
-        self._evaluation_safety_appointment_resolver = _ControlEvaluationSafetyAppointmentResolver()
-        self._evaluation_safety_verifier_registry = _ControlEvaluationSafetyVerifierRegistry()
+        if evaluation_safety_authorities_source is not None and not isinstance(
+            evaluation_safety_authorities_source,
+            EvaluationSafetyAuthoritiesSource,
+        ):
+            raise ValueError("evaluation_safety_authorities_source_invalid")
+        self._evaluation_safety_authorities_source = evaluation_safety_authorities_source
+        if evaluation_safety_authorities_source is None:
+            self._evaluation_safety_authority_resolver = _ControlEvaluationSafetyAuthorityResolver()
+            self._evaluation_safety_appointment_resolver = (
+                _ControlEvaluationSafetyAppointmentResolver()
+            )
+            self._evaluation_safety_verifier_registry = _ControlEvaluationSafetyVerifierRegistry()
+        else:
+            self._evaluation_safety_authority_resolver = (
+                evaluation_safety_authorities_source.authority_resolver
+            )
+            self._evaluation_safety_appointment_resolver = (
+                evaluation_safety_authorities_source.appointment_resolver
+            )
+            self._evaluation_safety_verifier_registry = (
+                evaluation_safety_authorities_source.verifier_registry
+            )
+        self._evaluation_safety_state_resolver = _ControlEvaluationSafetyCurrentStateResolver(
+            persistence_service=self._evaluation_safety_persistence_service,
+            authorities_source=evaluation_safety_authorities_source,
+            authority_resolver=self._evaluation_safety_authority_resolver,
+            appointment_resolver=self._evaluation_safety_appointment_resolver,
+            verifier_registry=self._evaluation_safety_verifier_registry,
+        )
         self._evaluation_safety_admission_verifier = EvaluationSafetyAdmissionVerifier(
             persistence_service=self._evaluation_safety_persistence_service,
             current_state_resolver=self._evaluation_safety_state_resolver,

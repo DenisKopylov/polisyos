@@ -53,6 +53,9 @@ from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 from polisyos.runtime.http.resilience import run_guarded_dependency_operation
 from polisyos.runtime.http.services.control import ControlPlaneService
+from polisyos.runtime.http.services.control.evaluation_safety import (
+    EvaluationSafetyAuthoritiesSource,
+)
 from polisyos.runtime.http.services.control_registry_providers import (
     ControlRegistryProviders,
 )
@@ -841,6 +844,9 @@ def _build_runtime_api_env_for_fixture_data(
                     {
                         "signature_verifier": container.runtime_api_context.signature_verifier,
                         "async_artifact_store": container.runtime_api_context.async_store,
+                        "evaluation_safety_authorities_source": (
+                            container.config.overrides.evaluation_safety_authorities_source
+                        ),
                         "registry_providers": container.control_registry_providers,
                         "decision_validity_service": container.decision_validity_service,
                         "epoch_certificate_issuance_owner": container.epoch_certificate_issuance_owner,
@@ -2227,6 +2233,7 @@ def _build_control_service(
     candidate_simulation_model_declarations=(),
     catalog_run_profile: str | None = None,
     repo_root: Path | None = None,
+    evaluation_safety_authorities_source: EvaluationSafetyAuthoritiesSource | None = None,
 ) -> ControlPlaneService:
     store = artifact_store if artifact_store is not None else FileSystemCAS(tmp_path / ".polisyos")
     admission_owner = cycle_substrate_context_admission_owner
@@ -2258,6 +2265,7 @@ def _build_control_service(
         policy_resolver=resolver,
         registry_providers=_build_registry_providers(catalog_run_profile=catalog_run_profile),
         cycle_substrate_context_admission_owner=admission_owner,
+        evaluation_safety_authorities_source=evaluation_safety_authorities_source,
     )
 
 

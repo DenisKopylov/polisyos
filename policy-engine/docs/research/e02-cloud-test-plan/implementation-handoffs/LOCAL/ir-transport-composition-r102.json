@@ -1,0 +1,857 @@
+{
+  "schema": "policyos.e02.local_implementation_boundary.v1",
+  "slice_id": "ir-transport-composition-r102",
+  "slice_base": {
+    "commit": "fd5cecd59c881654d9ca40f69377fef1fe38eb50"
+  },
+  "candidate_source": {
+    "commit": "d464b7c68d4a93f373cefe9989f92df443b6d4b5",
+    "tree": "4fb0adcc974e7ab427fb48889778ec7b18bfbf46"
+  },
+  "parents": [
+    "fd5cecd59c881654d9ca40f69377fef1fe38eb50"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "source_freeze": false,
+  "global_source_freeze": false,
+  "code_acceptance": false,
+  "source_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/caching_store.py",
+      "change": "M",
+      "git_blob": "deb2b948e6e0d0dda06ff9b573f9af39dcb1c9b6",
+      "sha256": "baf1bf2cdb5c27be300af8ad7d1d982be3a6f7103bf082885ea76a5399a03e91",
+      "roles": [
+        "product_source"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py",
+      "change": "M",
+      "git_blob": "3e325d22cb15b1b9b4a2c7bf9826aa9986be0c86",
+      "sha256": "859b669ebbe9fc87bd3406518e6f8b97ca9605e8bb327dc5abefcd313b3bdac8",
+      "roles": [
+        "product_source"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "change": "M",
+      "git_blob": "57045f2d5233655fea35d8029c8ac565807a1622",
+      "sha256": "1a09deae5b3876b53199dc5901e1af51850d4a0d050124d1a928dbfcb7be903f",
+      "roles": [
+        "product_source"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+      "change": "M",
+      "git_blob": "86ecccbcd5db282439682541cf18d7cfd9ce844f",
+      "sha256": "f204f831a7b4fa30e37cfed97bd794d213882ff4259cdb79c27ce1c2f4fa282c",
+      "roles": [
+        "product_source"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/test_conditional_transport_candidate_route.py",
+      "change": "M",
+      "git_blob": "99b12ace8154f1e4d5bcd492a130f8459c8661de",
+      "sha256": "5317f0ef34b1bb2d3753a84bc3bb61936dd39e0c771e6bdd0cd1c88540c806d2",
+      "roles": [
+        "test"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_caching_store.py",
+      "change": "M",
+      "git_blob": "e410708273197f8774b5cafa093940c0ff38ccc7",
+      "sha256": "a84f10d0fa7762aaf42bc3ad5d901aa9afbd230964193f39d8f7b7b15695a70d",
+      "roles": [
+        "test"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+      "change": "M",
+      "git_blob": "bbfcb5a2ce4b15b93f3114de351ef0d5d2c6588f",
+      "sha256": "5e34fcfd50ee7b2bb05731110808e1aff963570d6a8acfa49f0b492e15099e25",
+      "roles": [
+        "test"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_owned_attempt_anchor_associations.py",
+      "change": "M",
+      "git_blob": "e48805da54899a4bdd4b7479d67fde5015c22441",
+      "sha256": "838ba236850629b5f5d7cb32319da2c4ca820d22472ab152f59f45408ffcab6d",
+      "roles": [
+        "test"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py",
+      "change": "M",
+      "git_blob": "274a97395182b8ebd808d8bff93710d7c0cdd50c",
+      "sha256": "ad447844b6d6b37abb9ab08e8624c95af96d5a3fa6ae39baa179dcf75c5bee3a",
+      "roles": [
+        "test"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "change": "M",
+      "git_blob": "90a2f4402bdf786b5619b2653dd16ba2245583bc",
+      "sha256": "8e59ec7258478def4e8f811d1eaf8c7e32acab1ea1e41bb48527971353963235",
+      "roles": [
+        "test"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_v0.py",
+      "change": "M",
+      "git_blob": "406f0551ccae2ab734bb6a15877dce4cf8637abe",
+      "sha256": "67a95ab4b18a97ed2a09ae75555960472a81a43aa0cd1b13b01048218d003b8f",
+      "roles": [
+        "test"
+      ]
+    }
+  ],
+  "source_footprint_summary": {
+    "tracked_commit_diff_paths": 11,
+    "change_status_counts": {
+      "M": 11
+    },
+    "source_files": 4,
+    "test_files": 7,
+    "scope": "Exact Git diff fd5..d464; each path has committed blob and content hash. RAW evidence is referenced, not embedded."
+  },
+  "selected_inputs": [
+    {
+      "identity": "R102 source commit and remote readback",
+      "status": "verified",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/implementation-source-commit-r102-20261025-r1/readback.json@ba13c484eead4e25d11d22117e68c7b2e6d12f17943d428641917bc4400d0836"
+    },
+    {
+      "identity": "R102 source frame",
+      "status": "verified",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/implementation-source-commit-r102-20261025-r1/full-composed-source-frame.json@655ad1aaec5f62f265eba6bd1f7d159bdfd6885014a4c34408aa9ba4126e5a98"
+    },
+    {
+      "identity": "R102 composed Mac aggregate",
+      "status": "red",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/composed-r102-aggregate-independent-r1/aggregate.json@3c4455ef000bb23bfaa38cfe2bca279951faea837ec8fa508bd295cb582446ee"
+    },
+    {
+      "identity": "R102 Linux unit/Kuzu/GCM wave",
+      "status": "pass_with_one_skip",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/linux-r102-execution-r1/final-report-r3/final-summary.json@ff0bbe2dda764f00f50d166149f6b02374b09190217f06a8a0a687fea4913f8d"
+    },
+    {
+      "identity": "R102 served GET and Dashboard client consumer",
+      "status": "pass_client_only",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/served-oracle/runtime-dashboard-r102-client-consumer-r1/results.json@347063a6202c2ca867fd4140540518a9ed762f57811f38c1427e88c3d98d9d60"
+    },
+    {
+      "identity": "R102 bounded composition review",
+      "status": "go_to_compose_only",
+      "locators": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/composed-r102-admission-proposal-r1/manifest.json@cd4b9b1504d626b49beedaee74c6787d12f4e65fbbe8f947bb93810cd20fd24f",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/composed-r102-independent-admission-r2/peer-admission-r2.json@4d10f41f19a7c4db0c41ce2bdcc9b522518b43ebafa9fb39ed013b0d9eeb4a63"
+      ]
+    },
+    {
+      "identity": "R102 full native product/workspace Ruff check and format",
+      "status": "pass",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/native-ruff-r102-r1/matrix.json@4c55c784b7813c595d20b8f1f1a38e04635085cb886ca1c94a7260ada61a65aa"
+    },
+    {
+      "identity": "R102 generated-results importer check",
+      "status": "pass",
+      "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/results-import-r102-check-r1/check/receipt.json@eb464546a6f3d66a03f9568aafa6e50c75f11764b7691f01232ebae270049e37"
+    }
+  ],
+  "backend_profile": {
+    "mac": {
+      "stages": 10,
+      "modules": 338,
+      "cases": 4788,
+      "pass": 4705,
+      "fail": 2,
+      "error": 0,
+      "skip": 81,
+      "deciding_outputs": 40,
+      "configuration_input_pins": 379,
+      "source_freeze": false
+    },
+    "linux": {
+      "total": 210,
+      "pass": 209,
+      "fail": 0,
+      "error": 0,
+      "skip": 1,
+      "stages": {
+        "gcm": {
+          "status": "passed",
+          "stage_result_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/linux-r102-execution-r1/gcm-stage-r1/kuzu_gcm/runs/gcm/stage-result.json",
+          "stage_result_sha256": "c6e58ceb05fecadbb179954e42ceabc3c51b70ea31c0381c9df06886250d4f67"
+        },
+        "kuzu": {
+          "status": "passed",
+          "stage_result_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/linux-r102-execution-r1/kuzu-stage-r1/kuzu_gcm/runs/kuzu/stage-result.json",
+          "stage_result_sha256": "7fccb0f71bd7f30bb5aeb354d7898d1493bd05879a547a2042b2cf57147a9f16"
+        },
+        "unit": {
+          "status": "passed",
+          "stage_result_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/linux-r102-execution-r1/unit/runs/unit/stage-result.json",
+          "stage_result_sha256": "aa6f64ad8a5e5a8248abe3ae53a73d52c25b803edb6c5a665c6f0810a3908cad"
+        }
+      },
+      "worker": {
+        "DoWhy_worker": "3.12.12 /scratch/dowhy-venv/bin/python3.12",
+        "app_python": "3.14.0 /scratch/root-venv/bin/python",
+        "context": "colima-e02-local",
+        "id": "83e03bd5958658e5d6d10f09ed6e654d3c7cc371cea6e2b4fcab5497cd192155",
+        "name": "e02-linux-worker-two-whole-eb3c990-r1"
+      }
+    },
+    "fast_delta": {
+      "tests": 116,
+      "pass": 116,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "ruff_check_exit": 0,
+      "changed_scope_no_cache_format_exit": 0,
+      "reconciliation_sha256": "5ecf0fa55c53bc56511302ebcb6e3176c9943500653268c59d39ba240d6e332a"
+    },
+    "native_ruff_full_r102": {
+      "status": "pass",
+      "matrix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/native-ruff-r102-r1/matrix.json@4c55c784b7813c595d20b8f1f1a38e04635085cb886ca1c94a7260ada61a65aa",
+      "outer_execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/native-ruff-r102-r1/execution/receipt.json@4b4cb3895319a2d888caa9ad28f316250d0c751c4aa26a0315ed68cf32fc0f82",
+      "checks": [
+        {
+          "name": "product_check",
+          "exit_code": 0,
+          "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/native-ruff-r102-r1/product_check.stdout@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "workspace_check",
+          "exit_code": 0,
+          "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/native-ruff-r102-r1/workspace_check.stdout@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "product_format",
+          "exit_code": 0,
+          "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/native-ruff-r102-r1/product_format.stdout@2ca41469f798d8a3a1aa749f291771024cb1a57b38dc9dc38f152a74ea245a8b",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "workspace_format",
+          "exit_code": 0,
+          "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/native-ruff-r102-r1/workspace_format.stdout@2ca41469f798d8a3a1aa749f291771024cb1a57b38dc9dc38f152a74ea245a8b",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "format_file_counts": {
+        "product_format": 6620,
+        "workspace_format": 6620
+      },
+      "source_unchanged": true,
+      "source_binding": {
+        "head": "d464b7c68d4a93f373cefe9989f92df443b6d4b5",
+        "source_frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/implementation-source-commit-r102-20261025-r1/full-composed-source-frame.json@655ad1aaec5f62f265eba6bd1f7d159bdfd6885014a4c34408aa9ba4126e5a98"
+      },
+      "scope": "Actual current canonical product/root Ruff check and format; four commands rerun on d464. Earlier ruff-composed-r3 findings are historical, not current or established inherited debt.",
+      "source_freeze": false,
+      "closure_ids": []
+    }
+  },
+  "commands": [
+    {
+      "name": "R102 fast delta tests",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/pytest.ini",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/canonical-r102-precommit-fast-r1/cache",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/canonical-r102-precommit-fast-r1/temp",
+        "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/canonical-r102-precommit-fast-r1/benchmarks",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/canonical-r102-precommit-fast-r1/junit.xml",
+        "tests/unit/core/artifacts/backends/test_caching_store.py",
+        "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py",
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_v0.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_search_post_snapshot_survives_same_generation_worker_admission"
+      ],
+      "exit_code": 0,
+      "cases": 116,
+      "pass": 116,
+      "qualification": "Selected fast canonical test command only."
+    },
+    {
+      "name": "R102 Linux native run",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/linux-r102-execution-r1/final-report-r3/final-summary.json@ff0bbe2dda764f00f50d166149f6b02374b09190217f06a8a0a687fea4913f8d",
+      "total": 210,
+      "pass": 209,
+      "skip": 1,
+      "qualification": "Unit/Kuzu/GCM; no Linux failures/errors."
+    },
+    {
+      "name": "R102 actual GET/client",
+      "argv": [
+        "/opt/homebrew/bin/corepack",
+        "pnpm",
+        "--dir",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/served-oracle/runtime-dashboard-r102-client-consumer-r1/vitest.raw.config.mjs",
+        "--configLoader",
+        "runner",
+        "--dir",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/served-oracle/runtime-dashboard-r102-client-consumer-r1",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/served-oracle/runtime-dashboard-r102-client-consumer-r1/conditionalTransportR102ActualGet.test.ts"
+      ],
+      "exit_code": 0,
+      "tests_passed": 6,
+      "http_status": 200,
+      "qualification": "Actual GET plus client query/strict decoder; no browser run."
+    },
+    {
+      "name": "R102 composed Mac replay",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/composed-r102-aggregate-independent-r1/aggregate.json@3c4455ef000bb23bfaa38cfe2bca279951faea837ec8fa508bd295cb582446ee",
+      "stages": 10,
+      "modules": 338,
+      "cases": 4788,
+      "pass": 4705,
+      "fail": 2,
+      "skip": 81,
+      "qualification": "Complete listed composed modules; red."
+    },
+    {
+      "name": "R102 full native Ruff check and format",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/native-ruff-r102-r1/matrix.json@4c55c784b7813c595d20b8f1f1a38e04635085cb886ca1c94a7260ada61a65aa",
+      "outer_execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/native-ruff-r102-r1/execution/receipt.json@4b4cb3895319a2d888caa9ad28f316250d0c751c4aa26a0315ed68cf32fc0f82",
+      "checks": [
+        {
+          "name": "product_check",
+          "exit_code": 0,
+          "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/native-ruff-r102-r1/product_check.stdout@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "workspace_check",
+          "exit_code": 0,
+          "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/native-ruff-r102-r1/workspace_check.stdout@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "product_format",
+          "exit_code": 0,
+          "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/native-ruff-r102-r1/product_format.stdout@2ca41469f798d8a3a1aa749f291771024cb1a57b38dc9dc38f152a74ea245a8b",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "workspace_format",
+          "exit_code": 0,
+          "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/native-ruff-r102-r1/workspace_format.stdout@2ca41469f798d8a3a1aa749f291771024cb1a57b38dc9dc38f152a74ea245a8b",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "format_file_counts": {
+        "product_format": 6620,
+        "workspace_format": 6620
+      },
+      "qualification": "All four canonical product/workspace Ruff commands were executed on the R102 source frame; both format checks report 6620 files already formatted."
+    },
+    {
+      "name": "R102 generated-results importer check",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/results-import-r102-check-r1/check/receipt.json@eb464546a6f3d66a03f9568aafa6e50c75f11764b7691f01232ebae270049e37",
+      "invocation": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/results-import-r102-check-r1/check/invocation.json@be3bad62ad9cbd5caa5edf7bddca20c829ed33c6e1ea8d192d2a33fff38214a0",
+      "exit_code": 0,
+      "mode": "--check",
+      "files": [
+        "cells.tsv",
+        "properties.tsv",
+        "events.jsonl",
+        "gates.json",
+        "routes.tsv",
+        "verification.json"
+      ],
+      "qualification": "All six generated result files are current according to the check output; no capability closure is inferred from historical reports."
+    }
+  ],
+  "failures": [
+    {
+      "nodeid": "tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_owned_hte_outbox_records_first_assessment_without_authority_promotion",
+      "stage": "critical-search-outbox",
+      "observed_failure": "AssertionError: state='failed', error='shared_execution_failed:runtime.observational_method_execution:shared_execution_failed'\nassert 'failed' == 'completed'\n  \n  - completed\n  + failed",
+      "observed_worker_exception": "builtins.ValueError from shared runtime.observational_method_execution worker",
+      "persisted_phase": "direct_method_execution",
+      "no_persisted_outputs_before_failure": true,
+      "no_fit_probe": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/r102-native-outbox-failure-diagnosis-r1/probe-r4/probe-result.json",
+        "sha256": "a9df3d0f2a0356a3c8205b5fb83c454a54541b463b6615e4fd46263a95afc1fc",
+        "fit_invoked": false,
+        "runtime_search_store_gate": "passed",
+        "resolution_status": "failed",
+        "resolution_exception": "('Runtime-owned attempt association reader is not installed',)"
+      },
+      "cause_status": "not_established",
+      "interpretation": "Original ValueError is at a shared pre-output execution boundary; this diagnostic probe does not establish that its resolution error caused the original failure. No production fix is in d464.",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/r102-native-outbox-failure-diagnosis-r1/diagnosis.json@d3e9194a2ca9ff905d89b716536537464106c3d57259567fdbb15098c2028e19"
+    },
+    {
+      "nodeid": "tests/integration/scientist/test_conditional_transport_candidate_route.py::test_conditional_report_guard_uses_the_selected_manifest_lineage",
+      "stage": "spawned_runtime_served_native_g06",
+      "observed_failure": "AssertionError: assert (True and False)\n +  where True = isinstance(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cl...runtime_served_native_g06/temp/test_conditional_report_guard_0/competing-default/selected-report-lineage-witness.json'), Path)\n +  and   False = is_file()\n +    where is_file = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cl...runtime_served_native_g06/temp/test_conditional_report_guard_0/competing-default/selected-report-lineage-witness.json').is_file",
+      "test_failure_interpretation": "Selected-lineage witness was absent in the original canonical test run; independent review identified duplicate parent import/rebound owner identity in the test fixture.",
+      "test_only_candidate": {
+        "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/r102-canonical-selected-lineage-test-companion-r1/final-packet-r1/manifest-r1.json",
+        "manifest_sha256": "7f4a7497171d26e16cb19b6d9d2af0d87d72055b5a1ce818c2628f461ce2d2b9",
+        "patch_sha256": "ea846584ce93de7185749f7c073b8b7be4141708a081007b7c3c55f1fb15e3dd",
+        "independent_review_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/r102-canonical-selected-lineage-test-companion-independent-r1/review.json",
+        "independent_review_sha256": "412e7ef8f06a50ddc8dbfabf594b584d190aaad6fb9c42a68da47954d82b1174",
+        "review_verdict": "GO_FOR_ROOT_APPLICATION",
+        "cases": 15,
+        "passed": 15,
+        "applied_to_d464": false,
+        "production_source_changes": []
+      },
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/r102-canonical-selected-lineage-test-companion-independent-r1/review.json@412e7ef8f06a50ddc8dbfabf594b584d190aaad6fb9c42a68da47954d82b1174"
+    }
+  ],
+  "chain": {
+    "contract": "Typed conditional transport request, result/report and artifact reference contracts.",
+    "producer": "Canonical transport node and selected causal transport solver path.",
+    "artifact": "Candidate result and linked report persisted through CAS with typed schemas and lineage.",
+    "bridge": "WorkflowExecutor/worker, attempt binding and successful output publication.",
+    "consumer": "Runtime GET and Dashboard query/strict decoder.",
+    "verification": "Actual route, persistence and served consumer tests are included; two Mac failures remain, one with cause not established.",
+    "surface": "Runtime GET and client-side Dashboard consumer; browser is out of scope in this record.",
+    "semantic_test": "Real workflow and served-response tests plus whole composed replay; full wave remains red.",
+    "capability_status": "verification_missing"
+  },
+  "consumer_surface": {
+    "consumer_id": "runtime-dashboard-r102-client-query-and-strict-decoder",
+    "run_id": "R_4225b1d6b03820a1",
+    "http_status": 200,
+    "body_bytes": 4729,
+    "body_sha256": "94a1d1753cbb5a069540d2eef8ec50f425bd62a7d693cbb7d86690094878fb46",
+    "metadata_sha256": "7b466a7163afd8197f2038d4cc05b2814f200ca78c3086c362224e6fad599d25",
+    "candidate_scope": "candidate_only",
+    "disposition": "completed",
+    "source_currentness": "unknown",
+    "proposal_count": 4,
+    "selected_member_evaluations": 3,
+    "completed_valid_members": 3,
+    "identified_member_fraction": 1.0,
+    "fraction_basis": "selected_completed_valid_members",
+    "interpretation_limit": "selected_family_member_outcomes_do_not_establish_whole_pag_class_probability_calibration_legal_applicability_or_protected_eligibility",
+    "browser_tested": false
+  },
+  "controls": [
+    {
+      "kind": "candidate_authority",
+      "property": "Served output remains candidate_only with source_currentness unknown; selected-member fraction does not establish whole-PAG probability, legal applicability or protected eligibility.",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/served-oracle/runtime-dashboard-r102-client-consumer-r1/results.json@347063a6202c2ca867fd4140540518a9ed762f57811f38c1427e88c3d98d9d60",
+      "P40_bucket": "same-class candidate/authority separation"
+    },
+    {
+      "kind": "outbox_failure",
+      "property": "Do not infer an exact source operation from the broad persisted worker phase.",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/r102-native-outbox-failure-diagnosis-r1/diagnosis.json@d3e9194a2ca9ff905d89b716536537464106c3d57259567fdbb15098c2028e19",
+      "P40_bucket": "same worker execution failure boundary, deeper admitted POST"
+    },
+    {
+      "kind": "fixture_failure",
+      "property": "Reviewed 15-case test-only candidate remains unapplied and makes no production source claim.",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/r102-canonical-selected-lineage-test-companion-independent-r1/review.json@412e7ef8f06a50ddc8dbfabf594b584d190aaad6fb9c42a68da47954d82b1174",
+      "P40_bucket": "test fixture/import identity issue"
+    }
+  ],
+  "limitations": [
+    "Source checkpoint only; no code acceptance, freeze, global freeze or closure is asserted.",
+    "R102 Mac aggregate is NOT_GREEN: 2 failures, 0 errors, 81 skips across 338 modules / 10 stages; cause attribution is bounded below.",
+    "The outbox ValueError's exact originating operation is not established; read-only no-fit diagnostics are not proof of original cause, and source fix is not in d464.",
+    "The second failure has a test-only candidate reviewed for root application (15/15 scoped cases) but it is not applied to d464.",
+    "Linux run passes 209/210 with one skip. Dashboard evidence is actual GET plus client query/decoder only; no browser rendering or deployment.",
+    "R102 full native Ruff checks and formats pass for the product and workspace scopes; both format invocations report 6620 files already formatted.",
+    "Source frame records 1054 rows/795 Python and four expected-absent release fragments.",
+    "Commit remote readback is verified; the broader worktree is not claimed clean.",
+    "R97 draft/review remain preserved as prior checkpoint artifacts and are not overwritten.",
+    "R102 generated-results importer --check passes for cells.tsv, properties.tsv, events.jsonl, gates.json, routes.tsv, and verification.json. This does not establish historical input reports as current capability closures."
+  ],
+  "decision_refs": [],
+  "proposal_state": "implementation_delivered_assessment_pending",
+  "formal_closure_ids": [],
+  "historical_decisions": "R102 proposal and corrected peer review are composition-only; no formal G acceptance/closure is introduced.",
+  "G_checkpoint_observed": {
+    "status": "no_new_G_acceptance",
+    "scope": "Independent G adjudication remains separate."
+  },
+  "phase": "implementation_source_delivery_before_final_property_verification",
+  "assessment_occurrence_bindings": [],
+  "assessment_ids": [],
+  "proposal_ids": [],
+  "proposal_occurrences": [],
+  "closure_ids": [],
+  "handoff": {
+    "what_changed": "R102 committed four source changes and seven tests for cache selected-view ownership, transport report lineage, engine output custody and mirrored runtime/artifact behavior.",
+    "why_now": "This checkpoint binds the exact implementation composition and its scoped evidence in a reviewable ordinary commit; remaining failures are explicitly retained for separate repairs.",
+    "owner_path": "Policy-engine artifact, Runtime/search, scientist orchestration/transport, and Dashboard subsystem maintainers. The handoff reference names @platform-owners; individual fallback/escalation contacts were not queried.",
+    "operational_surface": "Actual Runtime GET and Dashboard client query/strict decoder were exercised; no browser, deployment, alerting, or production monitoring claim.",
+    "rollback_or_exit_path": "Do not promote or deploy while the full composed wave is red. Keep follow-ups in separate reviewed commits and rerun the composed wave; inspect descendants before any ordinary revert. No migration or rollout occurred.",
+    "known_risks": "The second admitted POST fails before outputs with a ValueError of unestablished source; selected-lineage test fixture failed through parent import/owner identity and has a separate reviewed test-only patch not yet applied.",
+    "validation": "Mac: 4705 pass, 2 fail, 81 skip/4788 across 338 modules; Linux: 209 pass, 1 skip; fast delta 116 pass; selected R102 GET/client tests 6 pass; full native product/workspace Ruff check and format all pass (6620 files already formatted in each format invocation); generated-results importer --check passes for all six files.",
+    "follow_up": [
+      {
+        "owner": "Runtime/Search owner",
+        "item": "Establish the exact cause of the second POST failure with a bounded no-fit/read-only check and repair the owned source only after exact operation is identified.",
+        "due": "before acceptance"
+      },
+      {
+        "owner": "transport test owner",
+        "item": "Apply the reviewed selected-lineage test-only fix separately and rerun its full canonical module.",
+        "due": "before accepting that test"
+      },
+      {
+        "owner": "source integrator",
+        "item": "Run a new source-bound composed replay after both deltas, with all stage outputs read back.",
+        "due": "before acceptance or rollout"
+      },
+      {
+        "owner": "independent reviewer",
+        "item": "Review the 11-path source inventory and the remaining red evidence separately from implementation delivery.",
+        "due": "before acceptance"
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/implementation-source-commit-r102-20261025-r1-manifest.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "48e5d745ed12c9cdeb08cae9ff7aeee65fd6a8da3a249d68ad487907423fa56c",
+      "bytes": 8455
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/implementation-source-commit-r102-20261025-r1/readback.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "ba13c484eead4e25d11d22117e68c7b2e6d12f17943d428641917bc4400d0836",
+      "bytes": 2832
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/implementation-source-commit-r102-20261025-r1/full-composed-source-frame.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "655ad1aaec5f62f265eba6bd1f7d159bdfd6885014a4c34408aa9ba4126e5a98",
+      "bytes": 202160
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/push-source-r102-20261025-r1/receipt.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "7afa486c48456c96e9238e3c0ee98bb17ff65a003fc6c17916c5be8fbe74ad34",
+      "bytes": 1798
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/composed-r102-aggregate-independent-r1/aggregate.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "3c4455ef000bb23bfaa38cfe2bca279951faea837ec8fa508bd295cb582446ee",
+      "bytes": 3230865
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/linux-r102-execution-r1/final-report-r3/final-summary.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "ff0bbe2dda764f00f50d166149f6b02374b09190217f06a8a0a687fea4913f8d",
+      "bytes": 11285
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/served-oracle/runtime-dashboard-r102-client-consumer-r1/results.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "347063a6202c2ca867fd4140540518a9ed762f57811f38c1427e88c3d98d9d60",
+      "bytes": 9891
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/canonical-r102-precommit-fast-r1/reconciliation.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "5ecf0fa55c53bc56511302ebcb6e3176c9943500653268c59d39ba240d6e332a",
+      "bytes": 1253
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/canonical-r102-precommit-fast-r1/ruff-check.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "4bc4f3c662a2c46119f986d4cd059879a0f34af76870350195fcde038ed99da0",
+      "bytes": 2185
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/canonical-r102-precommit-fast-r1/format-no-cache/receipt.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "7599cf39932fbff54183b4ccb1b7842248354cc6e9f208b120c6bf81431c6074",
+      "bytes": 394
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/canonical-r102-precommit-fast-r1/canonical-delta-tests.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "979aa714ec4696d90b1f43ac14815ca59152c5363282962c407602ae12ee6520",
+      "bytes": 2078
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/composed-r102-admission-proposal-r1/manifest.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "cd4b9b1504d626b49beedaee74c6787d12f4e65fbbe8f947bb93810cd20fd24f",
+      "bytes": 11796
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/composed-r102-independent-admission-r2/peer-admission-r2.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "4d10f41f19a7c4db0c41ce2bdcc9b522518b43ebafa9fb39ed013b0d9eeb4a63",
+      "bytes": 13650
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/r102-native-outbox-failure-diagnosis-r1/diagnosis.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "d3e9194a2ca9ff905d89b716536537464106c3d57259567fdbb15098c2028e19",
+      "bytes": 14084
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/r102-native-outbox-failure-diagnosis-r1/probe-r4/probe-result.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "a9df3d0f2a0356a3c8205b5fb83c454a54541b463b6615e4fd46263a95afc1fc",
+      "bytes": 2088
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/r102-canonical-selected-lineage-test-companion-r1/final-packet-r1/manifest-r1.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "7f4a7497171d26e16cb19b6d9d2af0d87d72055b5a1ce818c2628f461ce2d2b9",
+      "bytes": 17909
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/r102-canonical-selected-lineage-test-companion-independent-r1/review.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "412e7ef8f06a50ddc8dbfabf594b584d190aaad6fb9c42a68da47954d82b1174",
+      "bytes": 5383
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/handoff-source-r97-draft-r1/ir-transport-composition-r97.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "f983b794f3742c96e1f26982ea464b821472d2eda0d58254d92f7a852cfb611c",
+      "bytes": 256765
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/handoff-source-r97-draft-r1/manifest.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "b0cc5b7d6fff696587fdbd61e5413228c1170b60a87252be5daf42dd3c56285b",
+      "bytes": 6572
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/handoff-source-r97-independent-review-r1/review.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "01aced6b77f3f21a34ca32dfb427ced0e436fa90dfd2ad0c3c71ca1e50a01d3f",
+      "bytes": 8944
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/native-ruff-r102-r1/matrix.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "4c55c784b7813c595d20b8f1f1a38e04635085cb886ca1c94a7260ada61a65aa",
+      "bytes": 5139
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/native-ruff-r102-r1/execution/receipt.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "4b4cb3895319a2d888caa9ad28f316250d0c751c4aa26a0315ed68cf32fc0f82",
+      "bytes": 392
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/native-ruff-r102-r1/product_check.stdout",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/native-ruff-r102-r1/workspace_check.stdout",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/native-ruff-r102-r1/product_format.stdout",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "2ca41469f798d8a3a1aa749f291771024cb1a57b38dc9dc38f152a74ea245a8b",
+      "bytes": 29
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/native-replay/native-ruff-r102-r1/workspace_format.stdout",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "2ca41469f798d8a3a1aa749f291771024cb1a57b38dc9dc38f152a74ea245a8b",
+      "bytes": 29
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/results-import-r102-check-r1/check/receipt.json",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "eb464546a6f3d66a03f9568aafa6e50c75f11764b7691f01232ebae270049e37",
+      "bytes": 393
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/results-import-r102-check-r1/check/stdout",
+      "storage": "ignored_local_raw",
+      "availability": "available_local_readback",
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+      "bytes": 112
+    }
+  ],
+  "native_decision": "NOT_GREEN",
+  "native_summary": {
+    "modules": 338,
+    "stages": 10,
+    "cases": 4788,
+    "pass": 4705,
+    "fail": 2,
+    "error": 0,
+    "skip": 81,
+    "deciding_outputs": 40,
+    "input_pins": 379
+  },
+  "repository_state": {
+    "commit": "d464b7c68d4a93f373cefe9989f92df443b6d4b5",
+    "tree": "4fb0adcc974e7ab427fb48889778ec7b18bfbf46",
+    "parent": "fd5cecd59c881654d9ca40f69377fef1fe38eb50",
+    "branch": "codex/e02-unified-local-20261009",
+    "push_readback_verified": true,
+    "source_freeze": false,
+    "global_source_freeze": false,
+    "closure_ids": [],
+    "remaining_known_dirty_paths_reported_at_readback": 1,
+    "worktree_cleanliness_claimed": false
+  },
+  "source_frame": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/implementation-source-commit-r102-20261025-r1/full-composed-source-frame.json",
+    "sha256": "655ad1aaec5f62f265eba6bd1f7d159bdfd6885014a4c34408aa9ba4126e5a98",
+    "selected_paths": 1054,
+    "selected_python_files": 795,
+    "expected_absent_paths": [
+      "policy-engine/docs/release-fragments/unreleased/2026-10-20-e02-shared-method-admission.toml",
+      "policy-engine/docs/release-fragments/unreleased/2026-10-21-e02-hte-outcome-wire.toml",
+      "policy-engine/docs/release-fragments/unreleased/2026-10-21-e02-hte-physical-source-binding.toml",
+      "policy-engine/docs/release-fragments/unreleased/2026-10-21-e02-legacy-execution-lineage.toml"
+    ]
+  },
+  "composition_review": {
+    "root_proposal": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/composed-r102-admission-proposal-r1/manifest.json",
+      "sha256": "cd4b9b1504d626b49beedaee74c6787d12f4e65fbbe8f947bb93810cd20fd24f",
+      "decision": "GO_TO_COMPOSE for one bounded 338-whole-module IR/transport replay after root source/input/backend freeze, or concrete blocking delta.",
+      "code_acceptance": false,
+      "closure_ids": []
+    },
+    "independent_peer": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/composed-r102-independent-admission-r2/peer-admission-r2.json",
+      "sha256": "4d10f41f19a7c4db0c41ce2bdcc9b522518b43ebafa9fb39ed013b0d9eeb4a63",
+      "semantic_verdict_preserved": "GO_TO_COMPOSE",
+      "superseded_peer_sha256": "3d32d1e857d198fa84b36cffe93caf85ad77b9ad6dc5f1a888b67381f9fd63e2"
+    },
+    "R97_prior_packet": {
+      "draft_sha256": "f983b794f3742c96e1f26982ea464b821472d2eda0d58254d92f7a852cfb611c",
+      "manifest_sha256": "b0cc5b7d6fff696587fdbd61e5413228c1170b60a87252be5daf42dd3c56285b",
+      "review_sha256": "01aced6b77f3f21a34ca32dfb427ced0e436fa90dfd2ad0c3c71ca1e50a01d3f",
+      "review_verdict": "GO_TO_HANDOFF_APPLY",
+      "preserved_unchanged": true
+    }
+  },
+  "pattern_pass": {
+    "ids": [
+      "P01",
+      "P02",
+      "P04",
+      "P05",
+      "P29",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "risks": [
+      "P01/P02: keep producer, artifact, bridge and consumer connected.",
+      "P04/P05: preserve candidate status and exact owner binding.",
+      "P29/P38: test real worker and GET/client properties, not markers.",
+      "P40/P41: do not infer a cause or inherited status from a red aggregate."
+    ],
+    "target": "Reuse existing typed artifacts and execution/consumer paths while isolating each remaining failure to its owned contract.",
+    "missing_capability_labels": [
+      "verification_missing"
+    ],
+    "acceptance_signal": "Reviewed repair deltas and a later source-bound composed replay with required platform and consumer checks, followed by independent adjudication."
+  },
+  "generated_results_import_r102": {
+    "status": "pass",
+    "mode": "--check",
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/results-import-r102-check-r1/check/receipt.json@eb464546a6f3d66a03f9568aafa6e50c75f11764b7691f01232ebae270049e37",
+    "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/results-import-r102-check-r1/check/stdout@eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+    "exit_code": 0,
+    "files": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv",
+        "sha256": "afbf14fc428d89e20e409cd7f18db0a52bf17e2c0ecde1a2a5e33626c8b49152",
+        "bytes": 451094
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/properties.tsv",
+        "sha256": "c3406a53d35dce5f785adcfadd5c06b8c0bd4a4dd70da770b9cd62ae4d807c78",
+        "bytes": 10226
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/events.jsonl",
+        "sha256": "71819c4589f3c838282cf3b5904af7f68b01825fb75711966190fa8770aa9e15",
+        "bytes": 258107
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/gates.json",
+        "sha256": "0ccb720dfa525e3b7dee956ec0c177c2b19ffb926fed0b6edf18b92cafbfd5c9",
+        "bytes": 7050
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv",
+        "sha256": "30755ddca05267c4aeec56154c1c9282ee985c3414b76991aecb99d0ecf59da2",
+        "bytes": 280085
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/verification.json",
+        "sha256": "26fcc44ff5094586402edf421cb04faf944578be3f628edd2577f5ed589d2c17",
+        "bytes": 13971
+      }
+    ],
+    "qualification": "The importer check confirms these six generated result files are current; historical input reports are not thereby established as current capability closures."
+  }
+}

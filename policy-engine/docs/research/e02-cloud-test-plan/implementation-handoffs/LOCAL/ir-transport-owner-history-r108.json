@@ -1,0 +1,385 @@
+{
+ "schema": "policyos.e02.local_implementation_boundary.v1",
+ "slice_id": "ir-transport-owner-history-r108",
+ "slice_base": {
+  "commit": "d464b7c68d4a93f373cefe9989f92df443b6d4b5"
+ },
+ "candidate_source": {
+  "commit": "f60536ff4189a5316d2d778064624b3569de5ff3",
+  "tree": "693e9fb00565c4c03f0ab65f860a682e19a46cd4"
+ },
+ "parents": [
+  "d464b7c68d4a93f373cefe9989f92df443b6d4b5"
+ ],
+ "branch": "codex/e02-unified-local-20261009",
+ "source_freeze": false,
+ "global_source_freeze": false,
+ "code_acceptance": false,
+ "source_footprint": [
+  {
+   "path": "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+   "status": "M",
+   "sha256": "133e976223638930b54cc450fa61b695edb9d855a10313bd2424b99feffb82b9"
+  },
+  {
+   "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+   "status": "M",
+   "sha256": "a3deff4674f154333f874185246ae55baa283ce8a24557155ee43942c81b4b94"
+  },
+  {
+   "path": "policy-engine/tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py",
+   "status": "M",
+   "sha256": "9c00af8227e0809077c1f9a05a701bddfcbc6a2f58b28c3552e140c9256ff402"
+  },
+  {
+   "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_task_binding_resolution_roundtrip.py",
+   "status": "M",
+   "sha256": "abd3a4e765cb7285ba577f81aea8c04cfb44ea7e7e3f5d18d5ab460ad1d1d3f3"
+  },
+  {
+   "path": "policy-engine/tests/integration/scientist/test_conditional_transport_candidate_route.py",
+   "status": "M",
+   "sha256": "d9fe5854aed241df992973ebe918a6764a7e3ed9943a413924edc3fbbf14ff07"
+  }
+ ],
+ "source_footprint_summary": {
+  "tracked_commit_diff_paths": 5,
+  "M": 5,
+  "source_files": 2,
+  "test_files": 3,
+  "scope": "Inject existing verified historical-owner resolver into admitted Search binding; lifecycle binds strict typed artifact refs to existing owned attempt anchors; three canonical tests."
+ },
+ "selected_inputs": [
+  {
+   "identity": "Delivered commit/tree/branch/push and five-byte readback",
+   "status": "verified",
+   "evidence_ids": [
+    "commit_manifest",
+    "commit_readback",
+    "committed_source_frame",
+    "push_receipt"
+   ]
+  },
+  {
+   "identity": "Fresh R108 Mac run input/profile/config",
+   "status": "actual_run",
+   "evidence_ids": [
+    "r108_run_frame",
+    "r108_config",
+    "r108_run"
+   ]
+  },
+  {
+   "identity": "Five-file R104/R105 receipt reuse",
+   "status": "qualified_reuse_only",
+   "evidence_ids": [
+    "r107_reconciliation",
+    "r104_success",
+    "r105_success"
+   ]
+  },
+  {
+   "identity": "Native product/workspace Ruff check/format",
+   "status": "four_scoped_invocations_pass",
+   "evidence_ids": [
+    "ruff"
+   ]
+  },
+  {
+   "identity": "Independent owner/scope reviews and supporting projection probe",
+   "status": "review_or_support_only",
+   "evidence_ids": [
+    "owner_history_review",
+    "r108_scope_review",
+    "support_probe"
+   ]
+  }
+ ],
+ "evidence_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1",
+ "backend_profile": {
+  "mac": {
+   "python": "3.14.3",
+   "platform": "macOS-27.0.1-arm64",
+   "distributions": 304,
+   "numerical_threads": 1,
+   "normal_canonical_imports": true,
+   "evidence_id": "r108_run"
+  },
+  "linux": "not_replayed_after_restart_in_this_slice"
+ },
+ "commands": [
+  {
+   "name": "R108 admitted-search-native",
+   "argv_locator": "r108_run/inputs.json",
+   "targets": [
+    "tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py",
+    "tests/unit/scientist/methods/search/funnel/test_task_binding_resolution_roundtrip.py"
+   ],
+   "timeout_seconds": 1200,
+   "exit_code": 0,
+   "seconds": 149.704,
+   "output_group": "r108_run"
+  },
+  {
+   "name": "Canonical native Ruff product/workspace check and format",
+   "argv_locator": "ruff/matrix.json",
+   "results_locator": "ruff/matrix.json.checks",
+   "exit_codes": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "output_group": "ruff"
+  }
+ ],
+ "failures": [
+  {
+   "round": "R104",
+   "kind": "wrong_http_exception_expectation",
+   "observed": "Expected observational_method_search_admission_not_reconciled; actual earlier error was runtime-owned attempt association reader not installed.",
+   "exit_code": 1,
+   "evidence_id": "r104_failure",
+   "classification": "Preserved local historical harness failure; not classified inherited or external (P41)."
+  },
+  {
+   "round": "R105",
+   "kind": "invented_artifact_kind",
+   "observed": "Assertion expected ir.hte_result; canonical output kind was ir.hte_outcome.",
+   "exit_code": 1,
+   "evidence_id": "r105_failure",
+   "classification": "Preserved local historical harness failure; not classified inherited or external (P41)."
+  },
+  {
+   "round": "R106",
+   "kind": "unhashable_artifact_ref_set_assumption",
+   "observed": "ArtifactRef was unhashable when used as a set element.",
+   "exit_code": 1,
+   "evidence_id": "r106_failure",
+   "classification": "Preserved local historical harness failure; not classified inherited or external (P41)."
+  },
+  {
+   "round": "R107",
+   "kind": "missing_fixture_owner_scope",
+   "observed": "CAS ownership failed before intended predecessor ValidationError because fixture tenant/cell scope was absent.",
+   "exit_code": 1,
+   "evidence_id": "r107_failure",
+   "classification": "Preserved local historical harness failure; not classified inherited or external (P41)."
+  }
+ ],
+ "chain": {
+  "contract": "Existing immutable v3 intents and strict CoreArtifactRef / OwnedAttemptAnchorRef; no new authority type.",
+  "producer": "Canonical node producer/loader and existing verified historical-owner resolver; no duplicate parent class.",
+  "artifact": "Selected CAS outcome plus basis/owner anchors; durable completed event and published outbox record.",
+  "bridge": "Two immutable v3 HTTP POST intents, manually dispatched with dispatch_one_control_job. Not autonomous BOOT0 proof.",
+  "consumer": "Fresh Search snapshot uses current owner-bound outcome: first assessed, next contested; historical refs retained.",
+  "verification": "Fresh R108 7/7 across two whole files; five other whole files are qualified R104/R105 reuse, not one fresh seven-file wave.",
+  "surface": "Existing Search API consumer path exercised; no deployment/browser proof.",
+  "semantic_test": "Real producer/lifecycle/Search path with exact ref identity/history and wrong kind/media/profile/scope/owner/basis/predecessor controls.",
+  "capability_status": "verification_missing"
+ },
+ "consumer_surface": {
+  "consumer_id": "admitted Search current-snapshot consumer",
+  "dispositions": [
+   "assessed",
+   "contested"
+  ],
+  "historical_refs_retained": true,
+  "unit": "unknown",
+  "score": "unavailable",
+  "source_currentness": "not_established",
+  "authority_promotion": false,
+  "browser_tested": false
+ },
+ "controls": [
+  "Reject wrong ref kind/media/profile, foreign anchor, missing/forged owner and wrong basis even with markers.",
+  "Exercise invalid assessed predecessor under genuine fixture tenant/cell scope so intended ValidationError is reached after CAS ownership succeeds.",
+  "Preserve current-only POST and original-row/routing/currentness-authority guards.",
+  "Supporting projection probe checks identity subset, removed successor history and wrong-profile same payload; not whole-test/currentness evidence."
+ ],
+ "limitations": [
+  "No code acceptance, source/global freeze, formal closure or new IDs.",
+  "R108: two whole Mac test files, 7 pass/0 fail/0 error/0 skip, 12 warnings. R104 15/15 and R105 56/56 are qualified reuse for five unchanged files; not a single fresh seven-file run.",
+  "R104-R107 failed admitted-search-native harness receipts remain distinct and unclassified as inherited/external.",
+  "No full backend verify, CI parity, architecture guardrail, post-restart Linux replay, deployment or browser test in this slice.",
+  "Manual dispatch only; autonomous BOOT0 and external ordinary T1/T2, Prepared B13, whole-SOTA coverage and Q2 installed state are unproven.",
+  "Currentness is not established; unit is unknown, score unavailable, and no policy authority is promoted.",
+  "Readback reports one remaining known dirty path; worktree cleanliness is not claimed."
+ ],
+ "evidence": {
+  "root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1",
+  "individual_ids": [
+   "commit_manifest",
+   "commit_readback",
+   "committed_source_frame",
+   "push_receipt",
+   "push_stdout",
+   "push_stderr",
+   "r108_run_frame",
+   "r108_config",
+   "r104_config",
+   "r105_config",
+   "r107_reconciliation",
+   "post_restart_backend",
+   "support_probe",
+   "owner_history_review",
+   "r108_scope_review",
+   "canonical_lineage_review",
+   "r105_contract_review",
+   "r106_schema_review",
+   "r107_refs_review",
+   "r107_hash_census"
+  ],
+  "output_group_ids": [
+   "r108_run",
+   "r104_success",
+   "r105_success",
+   "r104_failure",
+   "r105_failure",
+   "r106_failure",
+   "r107_failure",
+   "ruff"
+  ]
+ },
+ "native_decision": "SCOPED_R108_PASS_WITH_QUALIFIED_REUSE; OVERALL_ASSESSMENT_PENDING",
+ "native_summary": {
+  "fresh_files": 2,
+  "qualified_reuse_files": 5,
+  "single_fresh_seven_file_wave": false,
+  "R108_cases": {
+   "pass": 7,
+   "fail": 0,
+   "error": 0,
+   "skip": 0,
+   "warnings": 12
+  },
+  "qualified_prior_passes": {
+   "R104": 15,
+   "R105": 56
+  },
+  "source_frame_rows_equal": {
+   "rows_each": 1054,
+   "added": 0,
+   "removed": 0,
+   "changed": 0,
+   "python_files": 795
+  },
+  "evidence_ids": [
+   "r108_run",
+   "r104_success",
+   "r105_success",
+   "r107_reconciliation"
+  ],
+  "R104_R105_frame_reconciliation": {
+   "evidence_id": "r107_reconciliation",
+   "method": "Complete path-to-SHA row maps compared for 1,054 rows in each historical/current source frame; actual current hashes/presence reconciled.",
+   "rows_each": 1054,
+   "R104_to_current": {
+    "changed_rows": 1,
+    "changed_path": "policy-engine/tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py",
+    "unchanged_rows": 1053
+   },
+   "R105_to_current": {
+    "changed_rows": 1,
+    "changed_path": "policy-engine/tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py",
+    "unchanged_rows": 1053
+   },
+   "R104_to_R105": {
+    "changed_rows": 1,
+    "changed_path": "policy-engine/tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py",
+    "other_rows_identical": 1053
+   },
+   "changed_test_absent_from_both_prior_selected_target_sets": true,
+   "qualification": "This supports exact five-file R104/R105 reuse only. Stage commands, configs, input sets and target lists differ; it is not one fresh seven-file wave."
+  }
+ },
+ "repository_state": {
+  "commit": "f60536ff4189a5316d2d778064624b3569de5ff3",
+  "tree": "693e9fb00565c4c03f0ab65f860a682e19a46cd4",
+  "parent": "d464b7c68d4a93f373cefe9989f92df443b6d4b5",
+  "branch": "codex/e02-unified-local-20261009",
+  "push_readback_verified": true,
+  "source_freeze": false,
+  "global_source_freeze": false,
+  "closure_ids": [],
+  "remaining_known_dirty_paths_reported_at_readback": 1,
+  "worktree_cleanliness_claimed": false
+ },
+ "source_frame": {
+  "evidence_id": "committed_source_frame",
+  "sha256": "9c3a06e32373b1139784ee641fd2c7f220a4439e138f48af04d39c706153112f",
+  "selected_paths": 1054,
+  "selected_python_files": 795,
+  "mismatches": [],
+  "R108_run_frame_id": "r108_run_frame"
+ },
+ "G_checkpoint_observed": {
+  "status": "unchanged_as_supplied",
+  "reference": "2a07cd8a16bad0191b302f71c699b3bf9082ebac",
+  "scope": "Pass-through only; not re-adjudicated by this draft author."
+ },
+ "decision_refs": [
+  "G528ec2576393e8aa9a0238ae4172336ccf76a057",
+  "G798bd1ab9646378f49fd127b3f04ebe71aca67d2",
+  "Gd40bca270ef5c456e8233196e4d8d65e099777a7"
+ ],
+ "historical_decisions": "G refs/checkpoint are carried forward without reassessment; historical B198/B199 closures unaffected. No new IDs or closure.",
+ "proposal_state": "implementation_delivered_assessment_pending",
+ "formal_closure_ids": [],
+ "assessment_occurrence_bindings": [],
+ "assessment_ids": [],
+ "proposal_ids": [],
+ "proposal_occurrences": [],
+ "closure_ids": [],
+ "handoff": {
+  "what_changed": "Resolve admitted Search owner history through the existing verified resolver; bind strict CoreArtifactRef to existing owned attempt anchor after kind/media/profile/scope guards.",
+  "why_now": "Prior Search reader could receive owner history without binding it to the task; independent review found one missing canonical-reader injection.",
+  "owner_path": [
+   "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+   "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py"
+  ],
+  "operational_surface": "Existing Search current-snapshot consumer and lifecycle outbox.",
+  "intended_tracked_destination_after_independent_root_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/ir-transport-owner-history-r108.json",
+  "draft_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/handoff-source-r108-draft-r1/ir-transport-owner-history-r108.json",
+  "rollback_or_exit_path": "Any reversal uses a new scoped revert commit; preserve evidence and leave history/closure IDs unchanged.",
+  "validation": "Five changed-path hashes match commit/worktree; R108 7/7; R104/R105 qualified reuse; four Ruff invocations exit 0.",
+  "follow_up": "Independent root review before tracked handoff; acceptance/full verification/closure pending."
+ },
+ "pattern_pass": {
+  "ids": [
+   "P01",
+   "P02",
+   "P04",
+   "P05",
+   "P10",
+   "P12",
+   "P27",
+   "P29",
+   "P31",
+   "P32",
+   "P33",
+   "P34",
+   "P41"
+  ],
+  "existing_anti_patterns_found": [
+   "R107 negative lacked genuine tenant/cell scope, so CAS ownership masked intended validation; R104-R106 had wrong exception/kind and unhashable-ref harness assumptions."
+  ],
+  "target": "Extend canonical owner resolver, enforce content-bound typed refs and existing anchor ownership, prove producer→artifact→lifecycle→Search with adversarial controls.",
+  "missing_capability_labels": [
+   "verification_missing"
+  ],
+  "acceptance_signal": "Real owner-bound outbox state is produced and consumed; identity/profile/scope/owner/basis/predecessor controls fail while historical/current and candidate-authority boundaries remain distinct. Fresh R108 evidence covers two files; full seven-file and Linux verification remain pending."
+ },
+ "source_selection_decisions": {
+  "owner_history_candidate": {
+   "evidence_id": "owner_history_review",
+   "decision": "GO_FOR_CANONICAL_TRIAL",
+   "scope": "Read-only review of the exact frozen four-path candidate; no test run or canonical write."
+  },
+  "R108_owner_scope": {
+   "evidence_id": "r108_scope_review",
+   "decision": "GO_FOR_APPLICATION",
+   "scope": "One test-only tenant/cell fixture-scope wrapper for the wrong-predecessor negative; review did not itself apply the patch or run tests."
+  }
+ }
+}

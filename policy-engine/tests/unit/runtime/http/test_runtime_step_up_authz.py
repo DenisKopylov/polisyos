@@ -215,7 +215,15 @@ def _production_approval_test_context(
         _fixture_bearer,
     )
 
+    bearer = _fixture_bearer(suffix)
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=opa_client if opa_client is not None else _AllowOPA(),
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
     store = FileSystemCAS(runtime_api_env["cas_root"])
+    scorecard_writer = store.for_tenant(runtime_api_env["tenant_a"], cell.cell_id)
     scorecard_payload = {
         "schema_version": "policyos.quality_scorecard.v1",
         "run_id": runtime_api_env["core_run_id"],
@@ -226,26 +234,13 @@ def _production_approval_test_context(
         "quality_gates": [],
         "evidence_refs": {},
     }
-    scorecard_ref = store.put_json(
+    scorecard_ref = scorecard_writer.put_json(
         scorecard_payload,
         ArtifactWriteOptions(
             kind="runtime.quality_scorecard",
             media_type="application/json",
         ),
         canon_spec=CanonSpec(forbid_floats=False),
-    )
-    bearer = _fixture_bearer(suffix)
-    client, cell, provider = _build_secure_client(
-        runtime_api_env,
-        opa_client=opa_client if opa_client is not None else _AllowOPA(),
-        claims_by_token={},
-        raise_server_exceptions=False,
-    )
-    store.record_artifact_owner(
-        scorecard_ref.artifact_id,
-        tenant_id=runtime_api_env["tenant_a"],
-        cell_id=cell.cell_id,
-        writer="tests.ds20.step_up",
     )
     claims = _claims(
         tenant_id=runtime_api_env["tenant_a"],
@@ -259,11 +254,38 @@ def _production_approval_test_context(
     )
     return {
         "bearer": bearer,
+        "cell_id": cell.cell_id,
         "client": client,
         "scorecard_ref": str(scorecard_ref.artifact_id),
         "scorecard_payload": scorecard_payload,
         "store": store,
     }
+
+
+def test_production_approval_scorecard_profile_view_is_owned_by_tenant(runtime_api_env) -> None:
+    from polisyos.common.canonical_profile import require_declared_profile
+    from polisyos.core.artifacts import ArtifactOwnershipError, read_core_json_artifact
+    from polisyos.core.artifacts.store import FileSystemCAS
+
+    context = _production_approval_test_context(
+        runtime_api_env,
+        suffix="scorecard-tenant-profile-owner",
+    )
+    owner_store = FileSystemCAS(runtime_api_env["cas_root"]).for_tenant(
+        runtime_api_env["tenant_a"],
+        context["cell_id"],
+    )
+    assert (
+        require_declared_profile(read_core_json_artifact(owner_store, context["scorecard_ref"]))
+        == context["scorecard_payload"]
+    )
+
+    wrong_tenant_store = FileSystemCAS(runtime_api_env["cas_root"]).for_tenant(
+        runtime_api_env["tenant_b"],
+        context["cell_id"],
+    )
+    with pytest.raises(ArtifactOwnershipError):
+        read_core_json_artifact(wrong_tenant_store, context["scorecard_ref"])
 
 
 def _production_approval_body(

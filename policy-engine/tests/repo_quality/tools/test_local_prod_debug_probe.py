@@ -250,11 +250,15 @@ def test_debug_probe_strict_bundle_authenticates_and_enforces_exact_grant(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     request: pytest.FixtureRequest,
+    runtime_api_env: dict[str, Any],
 ) -> None:
     import jwt
     from cryptography.hazmat.primitives.asymmetric import rsa
     from fastapi.testclient import TestClient
 
+    from polisyos.core.security.cell import CellSpec, CellTier
+    from polisyos.runtime.http import app as app_module
+    from tests._helpers.runtime_http import _put_json, _record_fixture_owner
     from tests.unit.runtime.http.deployment_security_test_support import (
         LocalJWKSStub,
     )
@@ -273,15 +277,69 @@ def test_debug_probe_strict_bundle_authenticates_and_enforces_exact_grant(
         '{"allow": data.polisyos.authz.decision.allow, '
         '"deny_reasons": data.polisyos.authz.decision.deny_reasons}'
     )
+    opa_decisions: list[dict[str, Any]] = []
 
     def _evaluate_opa(payload: dict[str, Any]) -> dict[str, Any]:
         decision = _opa_eval(opa_query, input_value=payload)
         assert isinstance(decision, dict)
+        opa_decisions.append(decision)
         return decision
 
     opa_server = _LocalOPAStub(_evaluate_opa)
     opa_url = opa_server.start()
     request.addfinalizer(opa_server.close)
+
+    tenant_id = str(runtime_api_env["tenant_a"])
+    cell = CellSpec(
+        cell_id="018f47a0-0000-7000-8000-000000000001",
+        tier=CellTier.SHARED,
+        region="eu-central-1",
+        max_tenants=10,
+    )
+    fixture_app = cast("Any", runtime_api_env["app"])
+    fixture_context = fixture_app.state.runtime_api_ctx
+    store = fixture_context.store
+    registry_ref = _put_json(
+        store,
+        {
+            "registry": "local-debug-probe-readable-run",
+            "tenant_id": tenant_id,
+            "cell_id": cell.cell_id,
+        },
+        kind="core.registry_bundle",
+    )
+    owned_output_ref = _put_json(
+        store,
+        {
+            "fixture": "local-debug-probe-readable-run",
+            "nonce": time.time_ns(),
+            "tenant_id": tenant_id,
+            "cell_id": cell.cell_id,
+        },
+        kind="test.local_debug_probe_owned_run",
+    )
+    before_runs, _ = fixture_context.run_index.list_runs(limit=200, tenant_id=tenant_id)
+    _record_fixture_owner(
+        store,
+        owned_output_ref,
+        runtime_api_env={"app": fixture_app, "registry_bundle_ref": registry_ref},
+        tenant_id=tenant_id,
+        cell_id=cell.cell_id,
+    )
+    fixture_context.run_index.refresh(force=True)
+    after_runs, after_page = fixture_context.run_index.list_runs(limit=200, tenant_id=tenant_id)
+    assert after_page.next_cursor is None
+    before_ids = {item.run_id for item in before_runs}
+    created_ids = {item.run_id for item in after_runs} - before_ids
+    assert len(created_ids) == 1
+    owned_run_id = next(iter(created_ids))
+    owned_run = fixture_context.run_index.get_run(owned_run_id)
+    assert owned_run.source_kind == "core_run"
+    assert owned_run.details.tenant_id == tenant_id
+    assert owned_run.details.cell_id == cell.cell_id
+    assert {str(ref.artifact_id) for ref in owned_run.details.root_artifacts} == {
+        str(owned_output_ref.artifact_id)
+    }
 
     raw_config = _config_mapping(tmp_path)
     identity_config = raw_config["identity_verifier"]
@@ -290,6 +348,25 @@ def test_debug_probe_strict_bundle_authenticates_and_enforces_exact_grant(
     opa_config = raw_config["opa"]
     assert isinstance(opa_config, dict)
     opa_config["url"] = opa_url
+    registry_path = tmp_path / "runtime-cells.json"
+    registry_path.write_text(
+        json.dumps(
+            {
+                "cells": [cell.model_dump(mode="json")],
+                "tenants": [
+                    {
+                        "tenant_id": tenant_id,
+                        "name": "Runtime tenant",
+                        "tier": cell.tier.value,
+                        "region": cell.region,
+                        "cell_id": cell.cell_id,
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    raw_config["cell_registry_path"] = str(registry_path)
     principals = raw_config["service_principals"]
     assert isinstance(principals, list)
     valid_principal = principals[0]
@@ -297,15 +374,13 @@ def test_debug_probe_strict_bundle_authenticates_and_enforces_exact_grant(
     valid_principal.update(
         {
             "subject": "runtime-debug-probe",
+            "tenant_id": tenant_id,
+            "cell_id": cell.cell_id,
             "permissions": ["runs.view"],
         }
     )
     principals.append(
-        {
-            **valid_principal,
-            "subject": "runtime-debug-no-view",
-            "permissions": ["runs.launch"],
-        }
+        {**valid_principal, "subject": "runtime-debug-no-view", "permissions": ["runs.launch"]}
     )
     principals.append(
         {
@@ -316,25 +391,28 @@ def test_debug_probe_strict_bundle_authenticates_and_enforces_exact_grant(
     )
     config_path = tmp_path / "runtime-security.json"
     config_path.write_text(json.dumps(raw_config), encoding="utf-8")
-    monkeypatch.setenv(
-        "POLISYOS_RUNTIME_SERVICE_PRINCIPAL_GRANTS_PATH",
-        str(config_path),
-    )
+    monkeypatch.setenv("POLISYOS_RUNTIME_SERVICE_PRINCIPAL_GRANTS_PATH", str(config_path))
     monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "research")
     monkeypatch.setenv("POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE", "1")
     monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "embedded")
     monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
-    monkeypatch.setenv(
-        "POLISYOS_CONTROL_SQLITE_PATH",
-        str(tmp_path / "control.sqlite3"),
-    )
+    control_sqlite_path = tmp_path / "control.sqlite3"
+    monkeypatch.setenv("POLISYOS_CONTROL_SQLITE_PATH", str(control_sqlite_path))
     context = local_prod_debug_probe.ProbeContext.for_tests(
         repo_root=tmp_path,
-        sqlite_path=tmp_path / "control.sqlite3",
+        sqlite_path=control_sqlite_path,
     )
+    fixture_cas_root = cast("Path", runtime_api_env["cas_root"])
+    original_create_app = app_module.create_runtime_api_app
+
+    def _create_app_over_fixture_run(**kwargs: Any) -> Any:
+        kwargs["cas_root"] = fixture_cas_root
+        kwargs["core_runs_root"] = fixture_cas_root / "runs"
+        return original_create_app(**kwargs)
+
+    monkeypatch.setattr(app_module, "create_runtime_api_app", _create_app_over_fixture_run)
     app = local_prod_debug_probe._build_production_dry_run_app(context)
     deployment_security = cast("Any", app).state.runtime_deployment_security
-
     now = int(time.time())
 
     def _token(
@@ -348,8 +426,8 @@ def test_debug_probe_strict_bundle_authenticates_and_enforces_exact_grant(
                 "iss": "https://idp.example",
                 "aud": "polisyos-runtime",
                 "sub": subject,
-                "tenant_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-                "cell_id": "018f47a0-0000-7000-8000-000000000001",
+                "tenant_id": tenant_id,
+                "cell_id": cell.cell_id,
                 "realm_access": {"roles": [role]},
                 "amr": ["pwd", "mfa"],
                 "iat": now,
@@ -380,8 +458,8 @@ def test_debug_probe_strict_bundle_authenticates_and_enforces_exact_grant(
             )
         assert rejected_bearer not in str(exc.value)
 
-    path = "/api/v1/runs/local-prod-debug-probe"
-    tenant_header = {"X-Tenant-ID": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"}
+    path = f"/api/v1/runs/{owned_run_id}"
+    tenant_header = {"X-Tenant-ID": tenant_id}
     wrong_key = rsa.generate_private_key(public_exponent=65_537, key_size=2_048)
     with TestClient(app) as client:
         invalid = client.get(
@@ -400,25 +478,54 @@ def test_debug_probe_strict_bundle_authenticates_and_enforces_exact_grant(
         )
         authorized = client.get(
             path,
-            headers={
-                **tenant_header,
-                "Authorization": f"Bearer {valid_bearer}",
-            },
+            headers={**tenant_header, "Authorization": f"Bearer {valid_bearer}"},
         )
         assert client.portal is not None
+        cast("Any", app).state.runtime_api_ctx.run_index.refresh(force=True)
+        fresh_authorized = client.get(
+            path,
+            headers={**tenant_header, "Authorization": f"Bearer {valid_bearer}"},
+        )
         client.portal.call(deployment_security.opa_client.close)
 
     assert invalid.status_code == 401
     assert missing_grant.status_code == 403
-    assert authorized.status_code == 404
-    assert len(opa_server.inputs) == 2
-    assert opa_server.inputs[0]["identity"]["sub"] == "runtime-debug-no-view"
-    assert opa_server.inputs[0]["identity"]["permissions"] == ["runs.launch"]
-    assert opa_server.inputs[1]["identity"]["sub"] == "runtime-debug-probe"
-    assert opa_server.inputs[1]["identity"]["permissions"] == ["runs.view"]
-    assert opa_server.inputs[1]["identity"]["authorization_source"] == (
-        "deployment_service_principal"
-    )
+    assert authorized.status_code == 200
+    assert fresh_authorized.status_code == 200
+    authorized_run = authorized.json()["run"]
+    fresh_run = fresh_authorized.json()["run"]
+    for run_payload in (authorized_run, fresh_run):
+        assert run_payload["run_id"] == owned_run_id
+        assert run_payload["source_kind"] == "core_run"
+        assert run_payload["tenant_id"] == tenant_id
+
+    assert len(opa_server.inputs) == len(opa_decisions)
+    assert len(opa_server.inputs) >= 2
+    assert opa_decisions[0] == {
+        "allow": False,
+        "deny_reasons": ["SERVICE_READ_PERMISSION_DENY"],
+    }
+    assert all(decision == {"allow": True, "deny_reasons": []} for decision in opa_decisions[1:])
+    missing_input = opa_server.inputs[0]
+    assert missing_input["request"]["method"] == "GET"
+    assert missing_input["request"]["path"] == path
+    assert missing_input["request"]["headers"]["x-tenant-id"] == tenant_id
+    assert "authorization" not in missing_input["request"]["headers"]
+    assert missing_input["action"] == {"permission": "runs.view"}
+    assert missing_input["identity"]["sub"] == "runtime-debug-no-view"
+    assert missing_input["identity"]["permissions"] == ["runs.launch"]
+    assert missing_input["resource"]["tenant_id"] == tenant_id
+    authorized_inputs = opa_server.inputs[1:]
+    assert authorized_inputs
+    for authz_input in authorized_inputs:
+        assert authz_input["request"]["path"] == path
+        assert authz_input["action"] == {"permission": "runs.view"}
+        assert authz_input["identity"]["sub"] == "runtime-debug-probe"
+        assert authz_input["identity"]["permissions"] == ["runs.view"]
+        assert authz_input["identity"]["authorization_source"] == "deployment_service_principal"
+        assert authz_input["identity"]["tenant_id"] == tenant_id
+        assert authz_input["identity"]["cell_id"] == cell.cell_id
+        assert authz_input["resource"]["tenant_id"] == tenant_id
 
 
 def test_parse_checks_expands_quick_without_live_or_workflow_heavy_checks() -> None:
@@ -1212,9 +1319,25 @@ def test_production_data_scenario_contract_checker_reports_projection_findings_w
         "production_msme_panel",
         "regional_displacement_indicators",
     ]
-    assert {finding["code"] for finding in report["findings"]} == {
-        "production_data_scenario_family_missing"
-    }
+    finding_codes = [finding["code"] for finding in report["findings"]]
+    assert finding_codes.count("production_data_scenario_family_missing") == 2
+    assert finding_codes.count("production_data_requirement_basis_candidate_only") == 1
+    basis = report["requirement_basis"]
+    assert basis["state"] == "established"
+    assert basis["source"] == "explicit_scenario_family_declaration"
+    assert basis["basis_grade"] == "consumer_asserted"
+    assert basis["reason_codes"] == ["explicit_scenario_family_declaration_candidate_only"]
+    candidate_finding = next(
+        finding
+        for finding in report["findings"]
+        if finding["code"] == "production_data_requirement_basis_candidate_only"
+    )
+    assert candidate_finding["severity"] == "warning"
+    assert candidate_finding["status"] == "candidate"
+    assert candidate_finding["root_cause_class"] == "production_data_requirement_basis"
+    assert report["summary"]["candidate_limitations"] == 1
+    assert report["summary"]["finding_count"] == 3
+    assert report["authority_eligible"] is False
     assert {finding["expected_family"] for finding in report["findings"]} >= {
         "production_msme_panel",
         "regional_displacement_indicators",

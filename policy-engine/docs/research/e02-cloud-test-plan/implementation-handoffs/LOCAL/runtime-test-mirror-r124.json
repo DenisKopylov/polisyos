@@ -1,0 +1,669 @@
+{
+  "schema": "policyos.e02.local_implementation_boundary.v1",
+  "slice_id": "runtime-test-mirror-r124",
+  "slice_base": {
+    "commit": "e3cda11db0cd9e6f36a8b3a14d6a8c67214669ff",
+    "tree": "9c8b7965590abd80230bffef387c7ba0b494f83c"
+  },
+  "candidate_source": {
+    "commit": "70d2d9a397544434c309b1b026c0239b30f22805",
+    "tree": "cb69249c3e9e66624accd44fd2d0f0c1cacdbc3e",
+    "parents": [
+      "e3cda11db0cd9e6f36a8b3a14d6a8c67214669ff"
+    ],
+    "branch": "codex/e02-unified-local-20261009"
+  },
+  "parents": [
+    "e3cda11db0cd9e6f36a8b3a14d6a8c67214669ff"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "source_freeze": false,
+  "global_source_freeze": false,
+  "code_acceptance": false,
+  "source_footprint": [
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_deployment_security.py",
+      "status": "M",
+      "sha256": "a6ab80179e3008d10a5c1222e0670720911546896ab6e322a58281ef2b53d29d"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_step_up_authz.py",
+      "status": "M",
+      "sha256": "55e40fe0e770033274e8e6d01e2df2692be2c58ed04852caffee0d3b71e1b0e1"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_deployment_security.py",
+      "status": "A",
+      "sha256": "faeec15e54b982e70bb52922e8bfc4e4f9b6f626085267d16bd502186357fba9"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_step_up.py",
+      "status": "A",
+      "sha256": "8ceac74680c0c475348e00385988907951c12f4687371f6f282ce80a2df7504d"
+    },
+    {
+      "path": "policy-engine/architecture/tests/ratchets.toml",
+      "status": "M",
+      "sha256": "5d50a66a79383c0c1809686ac0d909eaf86a4c8d451148ef3d8f8da5c751ec20"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/architecture/test_test_ratchets_contract.py",
+      "status": "M",
+      "sha256": "70d1f30ee833084011754ea65b66a39a3c34ed908ccaeea8c5ad41021c271b71"
+    }
+  ],
+  "source_footprint_summary": {
+    "tracked_commit_diff_paths": 6,
+    "change_status_counts": {
+      "M": 4,
+      "A": 2
+    },
+    "python_test_files": 5,
+    "configuration_files": 1,
+    "production_source_files": 0,
+    "scope": "Move 21 existing behavior-test cases into runtime unit-owner paths; retire the expired runtime loose-mirror exception after the unchanged floor is met; tighten structural ratchet assertions. No production source path changed."
+  },
+  "selected_inputs": [
+    {
+      "identity": "R124 delivered commit/tree and six-path readback",
+      "status": "verified_from_Git_and_readback",
+      "evidence_ids": [
+        "commit_manifest",
+        "commit_readback",
+        "committed_source_frame"
+      ]
+    },
+    {
+      "identity": "Reviewed R124 application and independent R5 delta review",
+      "status": "application_readback_matches_candidate; review_GO_with_receipt_path_caveat",
+      "evidence_ids": [
+        "reviewed_application_plan",
+        "reviewed_application_intent",
+        "application_readback",
+        "candidate_precommit_frame",
+        "independent_delta_review"
+      ]
+    },
+    {
+      "identity": "Actual R124 default-profile replay with complete failure routing",
+      "status": "371_collected_347_pass_23_fail_1_skip; no inherited attribution",
+      "evidence_ids": [
+        "followup_assignment_index",
+        "replay_input",
+        "replay_root_result",
+        "replay_outer_result",
+        "capture_result",
+        "collection",
+        "module_origins",
+        "junit",
+        "captured_cases",
+        "capture_progress",
+        "replay_stdout",
+        "replay_stderr",
+        "failure_routing"
+      ]
+    },
+    {
+      "identity": "Native Ruff, whole ratchet report, and numeric-floor control",
+      "status": "Ruff_pass; aggregate_report_exit_1; semantic_control_recomputes_floor_failure",
+      "evidence_ids": [
+        "native_gate_root_result",
+        "ratchet_report",
+        "ratchet_stdout",
+        "ratchet_stderr",
+        "ruff_check_stdout",
+        "ruff_check_stderr",
+        "ruff_format_stdout",
+        "ruff_format_stderr",
+        "floor_control",
+        "floor_control_invocation",
+        "floor_control_receipt",
+        "floor_control_stdout",
+        "floor_control_stderr",
+        "floor_control_profile"
+      ]
+    },
+    {
+      "identity": "SOTA contract-only output",
+      "status": "27_expired_exception_findings; full_native_child_wave_not_run",
+      "evidence_ids": [
+        "sota_contract",
+        "sota_stdout",
+        "sota_stderr"
+      ]
+    },
+    {
+      "identity": "Earlier routing ledger and exception-retirement context",
+      "status": "historical_context_not_current_denominator",
+      "evidence_ids": [
+        "prior_routing_ledger",
+        "prior_exception_retirement_decision"
+      ]
+    }
+  ],
+  "evidence_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1",
+  "backend_profile": {
+    "host": "macOS sandbox-exec",
+    "python_executable": "policy-engine/.venv/bin/python",
+    "python_version": "not recorded in pinned collector profile; no version inferred",
+    "pytest_config": "policy-engine/pytest.ini",
+    "pytest_addopts": [
+      "-ra",
+      "-q",
+      "--import-mode=importlib",
+      "--strict-markers",
+      "--benchmark-storage=file://./_cache/benchmarks"
+    ],
+    "import_mode": "importlib",
+    "strict_markers": true,
+    "target_module_count": 16,
+    "collected_case_count": 371,
+    "module_origin_observation": "No unresolved origins; no loaded product module outside the source root.",
+    "gated_skip": "One optional Postgres lifecycle probe skipped because it is gated by POLISYOS_LOCAL_PROD_DEBUG_TEST_POSTGRES_DSN."
+  },
+  "commands": [
+    {
+      "name": "R124 affected-importer and changed-module default-profile pytest replay",
+      "wrapper_argv": [
+        "/usr/bin/sandbox-exec",
+        "-f",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/root-runtime-mirror-r124-replay-r1/child-scope.sb",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-c",
+        "import runpy;runpy.run_path('/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/root-runtime-mirror-r124-replay-r1/capture_runner.py',run_name=\"__main__\")"
+      ],
+      "effective_pytest_argv": [
+        "-ra",
+        "-q",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "--benchmark-storage=file://./_cache/benchmarks",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/root-runtime-mirror-r124-replay-r1/capture/pytest-cache",
+        "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/root-runtime-mirror-r124-replay-r1/capture/benchmarks",
+        "--maxfail=0",
+        "--tb=short",
+        "--color=no",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/root-runtime-mirror-r124-replay-r1/capture/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/root-runtime-mirror-r124-replay-r1/capture/pytest-basetemp",
+        "tests/integration/core_runtime/test_acquisition_authority_provider.py",
+        "tests/repo_quality/architecture/test_test_ratchets_contract.py",
+        "tests/repo_quality/tools/test_local_prod_debug_probe.py",
+        "tests/unit/runtime/http/services/test_acquisition_authority_provider.py",
+        "tests/unit/runtime/http/test_acquisition_authority_deployment.py",
+        "tests/unit/runtime/http/test_deployment_security.py",
+        "tests/unit/runtime/http/test_ds20_seeded_negatives.py",
+        "tests/unit/runtime/http/test_epoch_issuance_composition.py",
+        "tests/unit/runtime/http/test_runtime_authorization_access_audit.py",
+        "tests/unit/runtime/http/test_runtime_deployment_security.py",
+        "tests/unit/runtime/http/test_runtime_service_container.py",
+        "tests/unit/runtime/http/test_runtime_step_up_authz.py",
+        "tests/unit/runtime/http/test_step_up.py",
+        "tests/unit/runtime/quality/test_agent_action_authority.py",
+        "tests/unit/runtime/quality/test_promotion_epoch_deployment.py",
+        "tests/unit/tools/test_local_production_canary.py"
+      ],
+      "target_list_ref": "root-runtime-mirror-r124-replay-r1/input.json@c38e8d90d35a39278b5426fe41472e2fcdeb96d595bb6c2f8cd3269b89554b0b",
+      "started_at": "2026-10-25T16:44:36.557990+00:00",
+      "wall_seconds": 329.3234274170027,
+      "result": {
+        "collected": 371,
+        "passed": 347,
+        "failed": 23,
+        "errors": 0,
+        "skipped": 1,
+        "exit_code": 1
+      },
+      "output_refs": [
+        "replay_root_result",
+        "replay_outer_result",
+        "capture_result",
+        "collection",
+        "module_origins",
+        "junit",
+        "captured_cases",
+        "capture_progress",
+        "replay_stdout",
+        "replay_stderr",
+        "failure_routing"
+      ]
+    },
+    {
+      "name": "Ruff check and format check on five changed Python paths",
+      "commands_ref": "root-runtime-mirror-r124-native-gates-r1/root-result.json@2427e4eaf7eedf88856de18216fff1ee716c42ff64758ef04c2e7a32c41817c5",
+      "check": {
+        "return_code": 0,
+        "wall_seconds": 0.5430042079970008,
+        "stdout_ref": "ruff_check_stdout",
+        "stderr_ref": "ruff_check_stderr"
+      },
+      "format_check": {
+        "return_code": 0,
+        "wall_seconds": 0.56616058399959,
+        "stdout_ref": "ruff_format_stdout",
+        "stderr_ref": "ruff_format_stderr"
+      }
+    },
+    {
+      "name": "Whole repository ratchet owner report",
+      "argv": [
+        "/usr/bin/sandbox-exec",
+        "-f",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/root-runtime-mirror-r124-native-gates-r1/write-scope.sb",
+        "/Users/deniskopylov/.local/bin/uv",
+        "run",
+        "--no-sync",
+        "python",
+        "tools/quality/testing/report_test_ratchets.py",
+        "--format",
+        "json",
+        "--fail-on-regression",
+        "--output",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/root-runtime-mirror-r124-native-gates-r1/ratchet-report.json"
+      ],
+      "return_code": 1,
+      "status": "command_failed",
+      "report_ref": "ratchet_report",
+      "stdout_ref": "ratchet_stdout",
+      "stderr_ref": "ratchet_stderr",
+      "scope_note": "Aggregate report exits 1; the runtime package individually clears its floor. Other package floor regressions and a helper-topology count regression remain."
+    },
+    {
+      "name": "Runtime numeric-floor semantic control through the actual reporter",
+      "invocation_ref": "floor_control_invocation",
+      "receipt_ref": "floor_control_receipt",
+      "normal": {
+        "source_modules": 322,
+        "loose_mirrored": 231,
+        "ratio": 0.7174,
+        "floor": 0.7152,
+        "status": "at_or_above_target"
+      },
+      "control": {
+        "only_changed_field": "runtime.ratchet_floor",
+        "floor": 0.95,
+        "ratio_unchanged": true,
+        "status": "floor_regression"
+      },
+      "output_refs": [
+        "floor_control",
+        "floor_control_stdout",
+        "floor_control_stderr",
+        "floor_control_profile"
+      ],
+      "property_limit": "Exercises the structural floor predicate in the actual reporter; it is not semantic runtime-coverage evidence."
+    },
+    {
+      "name": "Repository SOTA contract-only metadata check",
+      "argv": [
+        "/usr/bin/sandbox-exec",
+        "-f",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/root-runtime-mirror-r124-native-gates-r1/write-scope.sb",
+        "/Users/deniskopylov/.local/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "workspace",
+        "repository-sota-closeout",
+        "--contract-only",
+        "--output-json",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/root-runtime-mirror-r124-native-gates-r1/sota-contract.json"
+      ],
+      "return_code": 1,
+      "status": "failed_contract_only",
+      "finding_count": 27,
+      "finding_gate_counts": {
+        "phase6.5-exceptions": 27
+      },
+      "output_refs": [
+        "sota_contract",
+        "sota_stdout",
+        "sota_stderr"
+      ],
+      "scope_note": "The full native child wave was not run; this is not a full SOTA result."
+    }
+  ],
+  "failures": {
+    "count": 23,
+    "classification_scope": "Diagnostic routing by actual deciding output, not root-cause adjudication or inherited-red classification.",
+    "P41": "not_established",
+    "inherited": false,
+    "routing_bucket_counts": {
+      "acquisition_snapshot_manifest_lineage": 1,
+      "local_probe_contract_composition": 2,
+      "scorecard_request_tenant_fixture_or_binding": 12,
+      "epoch_legacy_output_and_selected_ref": 3,
+      "authorization_audit_decision_composition": 5
+    },
+    "note": "The 23 failures are separate composition outputs. This receipt assigns no root cause and calls none inherited; case identities and deciding trace hashes remain in the cited routing output.",
+    "evidence_id": "failure_routing"
+  },
+  "chain": {
+    "contract": "Existing runtime test-ratchet contract uses owner-path/name matching and declared cross-module behavior mappings; R124 updates the runtime mapping assertion and removes the expired runtime loose-mirror exception after the current metric clears its unchanged floor.",
+    "producer": "Existing repository ratchet reporter computes source-module and test-path mirror metrics.",
+    "artifact": "Existing JSON ratchet report; no new product artifact type.",
+    "bridge": "Repo-quality contract test binds integration-coverage mappings and runtime floor/exception behavior to reporter output.",
+    "consumer": "Repository quality/ratchet report only; not a runtime policy decision surface.",
+    "verification": "Actual 371-case targeted replay, five-file Ruff checks, whole ratchet report, and real-reporter numeric-floor control are separately recorded.",
+    "surface": "Structural package quality report and repo-quality test only.",
+    "semantic_test": "Twenty-one moved existing runtime behavior cases passed in their new owner-path files; the aggregate replay still has 23 failures and one gated skip. No semantic-coverage claim is made for all runtime modules.",
+    "capability_status": "no_new_runtime_capability_claim; whole_slice_verification_missing"
+  },
+  "consumer_surface": {
+    "changed_behavior": "No production behavior changed; existing test bodies/helper APIs were moved to owner-aligned runtime unit files and ratchet contract assertions were tightened.",
+    "runtime_mirror": {
+      "loose": {
+        "matches": 231,
+        "source_modules": 322,
+        "ratio": 0.7174,
+        "unchanged_floor": 0.7152,
+        "status": "at_or_above_target"
+      },
+      "strict": {
+        "matches": 167,
+        "source_modules": 322,
+        "ratio": 0.5186,
+        "status": "no_regression"
+      }
+    },
+    "metric_boundary": "Loose/strict mirror ratios are structural filename/path metrics; they do not show every module executes or has semantic coverage.",
+    "moved_cases": {
+      "deployment_security": 1,
+      "step_up": 20,
+      "all_passed_in_R124_JUnit": true
+    }
+  },
+  "controls": [
+    "R124 commit contains five Python test paths and one TOML ratchet contract; no production src path changed.",
+    "The expired runtime exception was removed after current loose ratio cleared the unchanged 0.7152 floor; no floor, baseline, date, or other exception was renewed.",
+    "The actual reporter control raises only runtime.ratchet_floor to 0.95; measured ratio stays unchanged and status becomes floor_regression.",
+    "The full replay counts the moved 1+20 cases as passing while retaining 23 separately routed failures and one DSN-gated skip."
+  ],
+  "limitations": [
+    "The 23 target-replay failures remain root-cause-unadjudicated and P41 not_established; none is labeled inherited.",
+    "One optional Postgres lifecycle probe skipped under its DSN gate.",
+    "Mirror metrics are structural path/name evidence, not behavioral coverage; 91 runtime source modules remain unmatched under the loose metric.",
+    "The whole ratchet report exits 1 despite the runtime package clearing its own floor; other package regressions and a helper-topology count regression remain.",
+    "The SOTA command is contract-only and reports 27 expired phase6.5-exceptions findings; the full native child wave was not run.",
+    "No global source freeze, code acceptance, G acceptance, or formal closure is claimed.",
+    "A later local Q2 packaging commit is present after R124 on the branch; it is out of slice and does not change pinned R124 candidate evidence."
+  ],
+  "decision_refs": [
+    "prior_routing_ledger",
+    "prior_exception_retirement_decision"
+  ],
+  "historical_decisions": "The earlier routing ledger held the runtime loose-floor exception on its then-current 313-module denominator; it is historical context, not the R124 denominator. R124 recomputed 231/322 above the unchanged floor and removed only the expired runtime mirror exception. No unrelated exception or expiry date was renewed.",
+  "G_checkpoint_observed": {
+    "status": "not_adjudicated_by_this_draft",
+    "reference": null
+  },
+  "proposal_state": "implementation_delivered_assessment_pending",
+  "author_proposal": "Independently assess the narrow structural runtime-mirror exception retirement against R124 evidence. Keep the 23 routed failures, full SOTA result, and broad semantic coverage open; no closure is proposed by this receipt.",
+  "formal_closure_ids": [],
+  "assessment_occurrence_bindings": [],
+  "assessment_ids": [],
+  "proposal_ids": [],
+  "proposal_occurrences": [],
+  "closure_ids": [],
+  "review_refs": [
+    {
+      "ref": "handoff-source-r108-independent-r1/native-runtime-mirror-r5-delta-independent-20261025-r1/review.json@eee4c42508983373b0122d0b68a99529d5dbc918f574d1d74f2c6d6454ab72de",
+      "disposition": "GO_BOUNDED_WITH_RECEIPT_PATH_CAVEAT",
+      "scope": "R5 formatting-only delta over R4; no replay rerun. Reviewer found the physical ratchets.toml postimage absent from its postimages directory although patch-derived bytes matched the manifest. The review file also has trailing literal \\n bytes and fails strict JSON parsing; retain both receipt limitations. R124 application readback and committed blobs are separately pinned."
+    }
+  ],
+  "source_selection_decisions": {
+    "runtime_mirror_r5_delta": {
+      "evidence_id": "independent_delta_review",
+      "decision": "GO_BOUNDED_WITH_RECEIPT_PATH_CAVEAT",
+      "scope": "Delta review only; not full semantic coverage or final repository-quality acceptance."
+    },
+    "runtime_mirror_exception_retirement": {
+      "evidence_id": "ratchet_report",
+      "decision": "author_proposed_narrow_retirement",
+      "scope": "Measured R124 runtime ratio clears unchanged floor; whole report remains failed and formal acceptance is absent."
+    }
+  },
+  "native_decision": "R124_RUNTIME_STRUCTURAL_MIRROR_ABOVE_FLOOR; 21_MOVED_CASES_PASS; TARGETED_REPLAY_HAS_23_UNADJUDICATED_FAILURES_AND_1_SKIP; FULL_SOTA_NATIVE_WAVE_UNRUN; OVERALL_ASSESSMENT_PENDING",
+  "native_summary": {
+    "target_modules": 16,
+    "collected": 371,
+    "passed": 347,
+    "failed": 23,
+    "errors": 0,
+    "skipped": 1,
+    "moved_cases_passed": 21,
+    "moved_case_breakdown": {
+      "test_deployment_security": 1,
+      "test_step_up": 20
+    },
+    "failure_buckets": {
+      "acquisition_snapshot_manifest_lineage": 1,
+      "local_probe_contract_composition": 2,
+      "scorecard_request_tenant_fixture_or_binding": 12,
+      "epoch_legacy_output_and_selected_ref": 3,
+      "authorization_audit_decision_composition": 5
+    },
+    "P41": "not_established",
+    "loose_runtime_mirror": {
+      "matches": 231,
+      "modules": 322,
+      "ratio": 0.7174,
+      "floor": 0.7152,
+      "status": "at_or_above_target"
+    },
+    "strict_runtime_mirror": {
+      "matches": 167,
+      "modules": 322,
+      "ratio": 0.5186,
+      "status": "no_regression"
+    },
+    "ruff": {
+      "check": "pass",
+      "format_check": "pass",
+      "changed_python_paths": 5
+    },
+    "whole_ratchet_report": {
+      "exit_code": 1,
+      "floor_regressions": 2,
+      "helper_topology_status": "regression",
+      "runtime_package_status": "at_or_above_target"
+    },
+    "runtime_floor_control": {
+      "normal": "at_or_above_target",
+      "control_floor": 0.95,
+      "control": "floor_regression",
+      "ratio_unchanged": true
+    },
+    "sota_contract_only": {
+      "status": "failed",
+      "expired_exception_findings": 27,
+      "full_native_wave_run": false
+    },
+    "source_frame": {
+      "precommit_paths": 1078,
+      "precommit_python_files": 808,
+      "commit_frame_paths": 1078,
+      "precommit_commit_maps_identical": true
+    },
+    "source_freeze": false,
+    "global_source_freeze": false,
+    "code_acceptance": false,
+    "closure_ids": []
+  },
+  "repository_state": {
+    "slice_candidate_commit": "70d2d9a397544434c309b1b026c0239b30f22805",
+    "slice_candidate_tree": "cb69249c3e9e66624accd44fd2d0f0c1cacdbc3e",
+    "slice_parent": "e3cda11db0cd9e6f36a8b3a14d6a8c67214669ff",
+    "branch": "codex/e02-unified-local-20261009",
+    "observed_local_head_after_R124": "1d04d66aef583d03c02c91d5931d7e3674f73753",
+    "observed_local_tree_after_R124": "106bce6360f5689ed5a1f06bd58599f8be4300db",
+    "observed_local_parents_after_R124": [
+      "70d2d9a397544434c309b1b026c0239b30f22805"
+    ],
+    "later_out_of_slice_commit": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-recipe.md",
+        "status": "M",
+        "sha256": "a37d87fd68c8045a9c7338fa6b1be0b815f338e8343e9f333cc3469d0c8938c5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+        "status": "M",
+        "sha256": "7a30cbef90fc5ab8ebcac734343eda1d263307af65bd5e641d240fa9a10a08f7"
+      }
+    ],
+    "later_out_of_slice_scope_note": "Observed local HEAD is a separate Q2 packaging helper/recipe commit directly after R124. It is recorded separately and not part of the candidate evidence; no remote push/current-remote claim is made.",
+    "source_freeze": false,
+    "global_source_freeze": false,
+    "code_acceptance": false,
+    "closure_ids": [],
+    "worktree_cleanliness_claimed": false
+  },
+  "source_frame": {
+    "candidate_precommit": {
+      "base": "e3cda11db0cd9e6f36a8b3a14d6a8c67214669ff",
+      "ref": "integration/runtime-mirror-r5-reviewed-application-r124/full-composed-source-frame.json@870ee64e2579cdac1f6dcbc46d9e29fb8c94cd87bdb5f38feb98018427697122",
+      "selected_paths": 1078,
+      "selected_python_files": 808,
+      "mismatches": []
+    },
+    "committed_candidate": {
+      "commit": "70d2d9a397544434c309b1b026c0239b30f22805",
+      "tree": "cb69249c3e9e66624accd44fd2d0f0c1cacdbc3e",
+      "ref": "implementation-commit-r124-20261025-r1/full-composed-source-frame.json@2bb8a4451025bcd98a296bb90718937d7c7afcf27cadef2a1892dcd757de2b6b",
+      "selected_paths": 1078,
+      "selected_python_files": 808,
+      "precommit_map_identical": true
+    }
+  },
+  "pattern_pass": {
+    "ids": [
+      "P10",
+      "P38",
+      "P41"
+    ],
+    "existing_anti_patterns_found": [
+      "Structural filename/path mirror ratios are proxies for semantic coverage (P10/P38). The 23 replay failures cannot be called inherited without exact slice-base replay and a zero-intersection proof (P41)."
+    ],
+    "target": "Keep recomputed structural ratio separate from behavior coverage; place meaningful tests with true owners; route the full failure set without unsupported inherited ownership.",
+    "missing_capability_labels": [
+      "verification_missing"
+    ],
+    "acceptance_signal": "Independent root review of the R124 metadata and candidate-bound evidence; preserve the 23-case P41 not_established boundary and do not claim full SOTA."
+  },
+  "handoff": {
+    "what_changed": "Align existing runtime deployment-security and step-up behavior test bodies with runtime unit owner paths, tighten ratchet contract assertions, and remove the expired runtime loose-mirror exception after the unchanged floor is met.",
+    "why_now": "The earlier routing ledger held runtime exception retirement pending a floor-meeting measurement; the R124 candidate reports 231/322 against 0.7152.",
+    "owner_path": [
+      "policy-engine/tests/unit/runtime/http/test_runtime_deployment_security.py",
+      "policy-engine/tests/unit/runtime/http/test_runtime_step_up_authz.py",
+      "policy-engine/tests/unit/runtime/http/test_deployment_security.py",
+      "policy-engine/tests/unit/runtime/http/test_step_up.py",
+      "policy-engine/architecture/tests/ratchets.toml",
+      "policy-engine/tests/repo_quality/architecture/test_test_ratchets_contract.py"
+    ],
+    "operational_surface": "Repository runtime test ownership and package mirror ratchet report only; no production runtime surface changed.",
+    "intended_tracked_destination_after_independent_root_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/runtime-test-mirror-r124.json",
+    "draft_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/handoff-source-r124-draft-r1/runtime-test-mirror-r124.json",
+    "rollback_or_exit_path": "Any later reversal uses a new scoped source commit and preserves this evidence; do not restore an expired exception without a fresh owner decision.",
+    "follow_up": "Independent root review; full target failures, aggregate report, and full native SOTA wave remain pending."
+  },
+  "evidence": {
+    "root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1",
+    "individual_ids": [
+      "commit_manifest",
+      "commit_readback",
+      "committed_source_frame",
+      "reviewed_application_plan",
+      "reviewed_application_intent",
+      "application_readback",
+      "candidate_precommit_frame",
+      "independent_delta_review",
+      "followup_assignment_index",
+      "replay_input",
+      "replay_root_result",
+      "replay_outer_result",
+      "capture_result",
+      "collection",
+      "module_origins",
+      "junit",
+      "captured_cases",
+      "capture_progress",
+      "replay_stdout",
+      "replay_stderr",
+      "failure_routing",
+      "native_gate_root_result",
+      "ratchet_report",
+      "ratchet_stdout",
+      "ratchet_stderr",
+      "ruff_check_stdout",
+      "ruff_check_stderr",
+      "ruff_format_stdout",
+      "ruff_format_stderr",
+      "floor_control",
+      "floor_control_invocation",
+      "floor_control_receipt",
+      "floor_control_stdout",
+      "floor_control_stderr",
+      "floor_control_profile",
+      "sota_contract",
+      "sota_stdout",
+      "sota_stderr"
+    ],
+    "refs": {
+      "commit_manifest": "implementation-commit-r124-20261025-manifest.json@1af0181f20c549ee4b18abdab36e951e8c1c2f45a15eddc42e300c5ce3b99214",
+      "commit_readback": "implementation-commit-r124-20261025-r1/readback.json@58b81ebf37b86dd7162b64a374412700f45eb7c86c32cc51f8bb86820c1834f7",
+      "committed_source_frame": "implementation-commit-r124-20261025-r1/full-composed-source-frame.json@2bb8a4451025bcd98a296bb90718937d7c7afcf27cadef2a1892dcd757de2b6b",
+      "reviewed_application_plan": "integration/runtime-mirror-r5-reviewed-application-r124-plan.json@18821f4c47f86e82148e7d8f667635ea2860f693dc4498fe8452e0ae0d56d2cd",
+      "reviewed_application_intent": "integration/runtime-mirror-r5-reviewed-application-r124/intent.json@e99386b7b901f591355fc235caf5254e9fe7890ffcd585bb2601949cca733048",
+      "application_readback": "integration/runtime-mirror-r5-reviewed-application-r124/readback.json@824e94819cde27a48b474455bb4359f975ef3963b3b8c0d4d32da40b371b069e",
+      "candidate_precommit_frame": "integration/runtime-mirror-r5-reviewed-application-r124/full-composed-source-frame.json@870ee64e2579cdac1f6dcbc46d9e29fb8c94cd87bdb5f38feb98018427697122",
+      "independent_delta_review": "handoff-source-r108-independent-r1/native-runtime-mirror-r5-delta-independent-20261025-r1/review.json@eee4c42508983373b0122d0b68a99529d5dbc918f574d1d74f2c6d6454ab72de",
+      "followup_assignment_index": "runtime-r124-followup-assignment-index.json@0264aac24c340be1a4a7778fa24438e2fa0b0ae896e2ff65b2c479e8042e85eb",
+      "replay_input": "root-runtime-mirror-r124-replay-r1/input.json@c38e8d90d35a39278b5426fe41472e2fcdeb96d595bb6c2f8cd3269b89554b0b",
+      "replay_root_result": "root-runtime-mirror-r124-replay-r1/root-result.json@a3604854a0806012d961a4e2b388483a16a726078aaf546a62fc167715dc6713",
+      "replay_outer_result": "root-runtime-mirror-r124-replay-r1/outer-result.json@79ff8a893a2c03c07ea2d4a323e119419ae495ba73acae7b4bc6d0e53c1f0b50",
+      "capture_result": "root-runtime-mirror-r124-replay-r1/capture/capture-result.json@da7464570407a0a442d34913ee3d5ad872d416ed3a5896e12884ffcc57ec688e",
+      "collection": "root-runtime-mirror-r124-replay-r1/capture/collection.json@f19c770312a4e23b3ddc02373ccb3cb9179d23df118a7d507aa0040d06b885f6",
+      "module_origins": "root-runtime-mirror-r124-replay-r1/capture/module-origins.json@7058c27298a26915cde290a04a2803a6be53c2e7ec6f2d337e12d74d4fcb924c",
+      "junit": "root-runtime-mirror-r124-replay-r1/capture/junit.xml@45234c817bd52dee5293acea27c44c1f445bf3e8b4ba0636588ab129b7181679",
+      "captured_cases": "root-runtime-mirror-r124-replay-r1/capture/cases.jsonl@a165d9fe9b7eb3e574ee699e531885fbf745a9104d0b67dcf8fce10f0df2374c",
+      "capture_progress": "root-runtime-mirror-r124-replay-r1/capture/progress.jsonl@30ff796c3efd7ce679e117871b6816876700bf6dd5e1047ceb29348cd80eb4d8",
+      "replay_stdout": "root-runtime-mirror-r124-replay-r1/runtime-mirror-affected-importers.stdout.txt@a9bcd389d8ed6532e3b3cca06626ec5022fc890751039fc72664458845b988ed",
+      "replay_stderr": "root-runtime-mirror-r124-replay-r1/runtime-mirror-affected-importers.stderr.txt@cac246557f41f69633f58d838e666821f128a69865a37bdf25e835258563db64",
+      "failure_routing": "root-runtime-mirror-r124-replay-r1/complete-failure-routing.json@050deae28cc042f98bfa4f423db968824700caf4a69c8d2d8606dd6fb7cbe56f",
+      "native_gate_root_result": "root-runtime-mirror-r124-native-gates-r1/root-result.json@2427e4eaf7eedf88856de18216fff1ee716c42ff64758ef04c2e7a32c41817c5",
+      "ratchet_report": "root-runtime-mirror-r124-native-gates-r1/ratchet-report.json@e0fdcc0a0dd05fe7fff554159e90335b2b2cc2b72d2427b96e9f87a3aa096f20",
+      "ratchet_stdout": "root-runtime-mirror-r124-native-gates-r1/ratchet-owner-report.stdout.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ratchet_stderr": "root-runtime-mirror-r124-native-gates-r1/ratchet-owner-report.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ruff_check_stdout": "root-runtime-mirror-r124-native-gates-r1/ruff-check.stdout.txt@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "ruff_check_stderr": "root-runtime-mirror-r124-native-gates-r1/ruff-check.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ruff_format_stdout": "root-runtime-mirror-r124-native-gates-r1/ruff-format.stdout.txt@f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1",
+      "ruff_format_stderr": "root-runtime-mirror-r124-native-gates-r1/ruff-format.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "floor_control": "root-runtime-mirror-r124-native-gates-r1/runtime-floor-semantic-control.json@0d6d50e9096867354f5f0ee1d0beb8f3e3cc5ee29fc5cdf8a6a971c31061288b",
+      "floor_control_invocation": "root-runtime-mirror-r124-native-gates-r1/runtime-floor-semantic-control/invocation.json@6e072bf594414b9b9ff446dbff3b6cfd894954353b591a88d6a1a50d19240cba",
+      "floor_control_receipt": "root-runtime-mirror-r124-native-gates-r1/runtime-floor-semantic-control/receipt.json@58b3ffd6e638eb4a14b6bf117f7365f097c1afa1336ab7ea407f7498e06c8f34",
+      "floor_control_stdout": "root-runtime-mirror-r124-native-gates-r1/runtime-floor-semantic-control/stdout@f2e3c55dd5984b7e5a6fb5deb6082f04fc14c47be8dfcdcb5103036581586cd2",
+      "floor_control_stderr": "root-runtime-mirror-r124-native-gates-r1/runtime-floor-semantic-control/stderr@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "floor_control_profile": "root-runtime-mirror-r124-native-gates-r1/runtime-floor-semantic-control/profile.sb@c7ca445c1ee898e4c45dce2cc3bd4df87ba52891eed89a7bfb0125c6ebccc0d5",
+      "sota_contract": "root-runtime-mirror-r124-native-gates-r1/sota-contract.json@c2e2e77af4284ef7fa73457ad27c5f61fd066536360def59fe17d4f224b120fc",
+      "sota_stdout": "root-runtime-mirror-r124-native-gates-r1/sota-contract-only.stdout.txt@c7025872884e3178cae6d249061c506d69dc28e1cb4ff55037653e41212d0b1d",
+      "sota_stderr": "root-runtime-mirror-r124-native-gates-r1/sota-contract-only.stderr.txt@e8ee4f3bfa178b190ef52d97b3cb1d8ae342ea9392b8743c935a73ea9bfe7fa2",
+      "prior_routing_ledger": "../../dx0-native/ratchet-repair-routing-current.md@a54c4e42702850227a0d3d95ceca04e36e922b67b37833fd1bc485eeae0112c1",
+      "prior_exception_retirement_decision": "../../decisions/green-ratchet-exception-retirement.md@6277ec096004e4b561a4b8b696942c8b8710832471e7a07bd2d0520c55f23e3f"
+    },
+    "output_group_ids": [
+      "replay_root_result",
+      "failure_routing",
+      "native_gate_root_result",
+      "ratchet_report",
+      "floor_control",
+      "sota_contract"
+    ]
+  },
+  "draft_revision": 1,
+  "supersedes_raw_draft": null,
+  "metadata_scope_note": "RAW-only draft for root review. No tracked handoff write, commit, push, code acceptance, global freeze, or closure was performed by this author."
+}

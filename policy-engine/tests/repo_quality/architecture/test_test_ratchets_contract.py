@@ -206,6 +206,9 @@ def test_phase_6_2_pytest_benchmark_and_fixture_contracts_are_explicit() -> None
     assert normalizations["runtime-http-cross-module-behavior"]["test_path"] == (
         "tests/unit/runtime/http"
     )
+    assert normalizations["runtime-http-cross-module-behavior"]["counts_toward"] == (
+        "integration_coverage_decision"
+    )
     assert normalizations["data-forge-domain-flow-characterization"]["package"] == "data_forge"
     assert normalizations["fabric-connector-and-data-plane-characterization"]["package"] == (
         "fabric"
@@ -236,6 +239,11 @@ def test_phase_6_2_reporter_renders_package_mirror_and_property_summary() -> Non
     )
     assert payload["summary"]["property_regressions"] == 0
     assert payload["summary"]["property_file_delta_total"] >= 0
+    runtime_report = next(
+        package for package in payload["packages"] if package["package"] == "runtime"
+    )
+    assert runtime_report["loose_name_mirror_ratio"] >= runtime_report["ratchet_floor"]
+    assert package_contracts["runtime"].get("mirror_regression_exception") is not True
 
     for package in payload["packages"]:
         if package["mirror_status"] in {"floor_regression_exception", "floor_exception"}:

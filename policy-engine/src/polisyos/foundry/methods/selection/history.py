@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import logging
 import math
+import os
+import sys
 import threading
 import time
 from collections import defaultdict, deque
@@ -388,14 +390,110 @@ class RuntimePredictor:
         return self._fitted
 
 
-_DEFAULT_HISTORY_PATH = (
-    Path(__file__).resolve().parents[4]
-    / "_build"
-    / "benchmark-results"
-    / "foundry"
-    / "selection_history"
-    / "executions.jsonl"
-)
+_STATE_HOME_ENV = "POLISYOS_FOUNDRY_STATE_HOME"
+
+
+def _resolve_configured_state_path(value: str | Path, *, setting: str) -> Path:
+    """Resolve one configured state path, allowing only a genuinely missing tail."""
+    try:
+        raw_path = os.fspath(value)
+    except TypeError as exc:
+        raise ValueError(f"{setting} must be a string or path") from exc
+    if not isinstance(raw_path, str):
+        raise ValueError(f"{setting} must be a string or path")
+    if not raw_path.strip():
+        raise ValueError(f"{setting} must be a non-empty absolute path")
+    if "\x00" in raw_path:
+        raise ValueError(f"{setting} must not contain a NUL byte")
+
+    try:
+        candidate = Path(raw_path).expanduser()
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise ValueError(f"{setting} could not be expanded") from exc
+    if not candidate.is_absolute():
+        raise ValueError(f"{setting} must be an absolute path")
+
+    missing_tail: list[str] = []
+    existing = candidate
+    while True:
+        try:
+            existing.stat()
+        except FileNotFoundError:
+            try:
+                existing.lstat()
+            except FileNotFoundError:
+                if existing.parent == existing:
+                    # No ancestor remains to probe; preserve the path refusal without ENOENT context.
+                    raise ValueError(f"{setting} has no resolvable filesystem ancestor") from None
+                missing_tail.append(existing.name)
+                existing = existing.parent
+                continue
+            except (OSError, RuntimeError, ValueError) as exc:
+                raise ValueError(f"{setting} is not physically resolvable") from exc
+            # lstat found the dangling link; stat's ENOENT is expected, not a separate cause.
+            raise ValueError(f"{setting} contains a dangling or unresolvable symlink") from None
+        except (OSError, RuntimeError, ValueError) as exc:
+            raise ValueError(f"{setting} is not physically resolvable") from exc
+
+        try:
+            resolved = existing.resolve(strict=True)
+        except (OSError, RuntimeError, ValueError) as exc:
+            raise ValueError(f"{setting} is not physically resolvable") from exc
+        break
+
+    for component in reversed(missing_tail):
+        resolved /= component
+    return resolved
+
+
+def _default_selection_history_path() -> Path:
+    """Resolve persistent user state without depending on the package location."""
+    configured_home = os.environ.get(_STATE_HOME_ENV)
+    if configured_home is not None:
+        state_home = _resolve_configured_state_path(
+            configured_home,
+            setting=_STATE_HOME_ENV,
+        )
+    elif sys.platform == "darwin":
+        state_home = _resolve_configured_state_path(
+            Path.home() / "Library" / "Application Support" / "PolicyOS",
+            setting="user state home",
+        )
+    elif sys.platform.startswith("linux"):
+        xdg_state_home = os.environ.get("XDG_STATE_HOME")
+        if xdg_state_home is None:
+            state_home = _resolve_configured_state_path(
+                Path.home() / ".local" / "state" / "polisyos",
+                setting="user state home",
+            )
+        else:
+            state_home = (
+                _resolve_configured_state_path(
+                    xdg_state_home,
+                    setting="XDG_STATE_HOME",
+                )
+                / "polisyos"
+            )
+    elif sys.platform == "win32":
+        local_app_data = os.environ.get("LOCALAPPDATA")
+        if local_app_data is None:
+            raise RuntimeError("LOCALAPPDATA is required for Foundry selection history")
+        state_home = (
+            _resolve_configured_state_path(
+                local_app_data,
+                setting="LOCALAPPDATA",
+            )
+            / "PolicyOS"
+        )
+    else:
+        raise RuntimeError(f"persistent selection history is unsupported on {sys.platform!r}")
+
+    return _resolve_configured_state_path(
+        state_home / "foundry" / "selection_history" / "executions.jsonl",
+        setting="Foundry selection-history output",
+    )
+
+
 _GLOBAL_HISTORY_LOCK = threading.Lock()
 _GLOBAL_HISTORY: SelectionHistoryStore | None = None
 
@@ -406,7 +504,7 @@ def get_global_selection_history() -> SelectionHistoryStore:
     with _GLOBAL_HISTORY_LOCK:
         if _GLOBAL_HISTORY is None:
             _GLOBAL_HISTORY = SelectionHistoryStore(
-                persist_path=_DEFAULT_HISTORY_PATH,
+                persist_path=_default_selection_history_path(),
                 auto_persist=True,
             )
     return _GLOBAL_HISTORY

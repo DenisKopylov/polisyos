@@ -1,0 +1,21 @@
+id = "2026-10-25-foundry-selection-history-state-path"
+title = "Keep selection-history output outside package roots"
+type = "fixed"
+component = "foundry"
+owner = "team-policyos-runtime"
+summary = "Route process-global selection-history JSONL to durable per-user state through one physical-path validator, independent of checkout and installation paths."
+evidence = [
+  "src/polisyos/foundry/methods/selection/history.py",
+  "tests/unit/foundry/methods/selection/test_history_paths.py",
+  "src/polisyos/foundry/methods/selection/README.md",
+]
+compatibility = "The MethodExecutionRecord schema, SelectionHistoryStore explicit persist_path, import/export APIs, and MethodDispatcher(runtime_history=...) remain unchanged. The global getter does not auto-import earlier checkout-origin rows."
+change_class = "internal"
+surface_classification = "Internal Foundry runtime-output placement with one operator-facing absolute path override; request/response, persisted record schema, and generated client surfaces are unchanged."
+migration = "No automatic move or import occurs. A later operator-reviewed adoption requires quiesced writers, an absent destination, explicit import/export, count and representative-field verification, an unchanged source SHA-256, and retention of the original. Do not repeat import_jsonl into an existing destination because imports append."
+api = "POLISYOS_FOUNDRY_STATE_HOME selects an absolute root before the first global history access. Otherwise macOS uses ~/Library/Application Support/PolicyOS, Linux uses absolute XDG_STATE_HOME/polisyos or ~/.local/state/polisyos, and Windows uses LOCALAPPDATA/PolicyOS. The owner appends foundry/selection_history/executions.jsonl. Empty, relative, unexpandable, NUL-containing, cyclic, dangling, or otherwise physically unresolvable configured paths refuse; no path fallback is attempted."
+limitations = "The resolver permits missing output-tail components and canonicalizes valid existing symlinks. It does not preflight writability or replace the existing append-error reporting boundary; a failed append remains a SelectionHistoryPersistenceIssue. The proposed RAW test simulates installed-package origin; a real wheel-install smoke remains a release check."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/methods/selection/README.md"]
+runbook_docs = []

@@ -42,3 +42,16 @@ parser, evidence authority, or change to this internal implementation's maturity
 Selector context v4 binds the complete effective constraint. Selection receipt v2
 retains its existing shape and authority labels. Prior context hashes remain
 historical; replay requiring current semantics recomputes the v4 context from source.
+
+## Persistent selection history
+
+The process-global execution history is runtime learning telemetry. It is durable user state, not a disposable cache or an authority record. Its default output location is independent of the checkout and installed package:
+
+- macOS: `~/Library/Application Support/PolicyOS/foundry/selection_history/executions.jsonl`
+- Linux: `$XDG_STATE_HOME/polisyos/foundry/selection_history/executions.jsonl` when `XDG_STATE_HOME` is absolute; otherwise set it to an absolute path or leave it unset to use `~/.local/state/polisyos/foundry/selection_history/executions.jsonl`.
+- Windows: `%LOCALAPPDATA%/PolicyOS/foundry/selection_history/executions.jsonl`; `LOCALAPPDATA` must be set to an absolute path.
+
+Set `POLISYOS_FOUNDRY_STATE_HOME` to an absolute root to choose a different location. The history owner appends `foundry/selection_history/executions.jsonl` beneath that root. Set the override before the first `get_global_selection_history()` call in each process. Empty, relative, unexpandable, or physically unresolvable roots raise a typed error; they never fall back to another directory. Existing symlink roots resolve to their physical target. Missing output directories are created only by the existing persistence writer.
+
+The getter does not discover or import history from an earlier checkout path. To adopt old rows, stop all writers, verify the destination does not already exist, explicitly import the old JSONL with `SelectionHistoryStore.import_jsonl(path=...)`, and export to the new store. Verify the count and representative successful, failed, and telemetry fields; compare the old file hash and retain the original. `import_jsonl()` is append-oriented, so review before repeating it. Existing explicit `persist_path` and `MethodDispatcher(runtime_history=...)` behavior is unchanged. Failed appends remain visible through the store's persistence issues instead of selecting a fallback path.
+

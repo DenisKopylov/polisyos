@@ -62,6 +62,7 @@ from __future__ import annotations
 import base64
 import csv
 import email.parser
+import _imp
 import importlib.machinery
 import hashlib
 import io
@@ -74,12 +75,378 @@ import site
 import stat
 import sys
 import sysconfig
+import _thread
 import types
 from pathlib import Path, PurePosixPath
 
+_NATIVE_ORIGINAL_CREATE = _imp.create_dynamic
+_NATIVE_ORIGINAL_EXEC = _imp.exec_dynamic
+_NATIVE_CREATE_BY_ID = {}
+_NATIVE_EXEC_STACKS = {}
+_NATIVE_EXEC_LOCK = _thread.allocate_lock()
+_NATIVE_EXEC_ACTIVE = {}
+_NATIVE_EXEC_NEXT_SCOPE_ID = 0
+_NATIVE_EXEC_NEXT_EVENT_ORDER = 0
+_NATIVE_EXEC_EVENTS = []
+
+
+def _native_value_identity(value):
+    value_type = type(value)
+    identity = {}
+    try:
+        module_name = type.__getattribute__(value_type, "__module__")
+        qualname = type.__getattribute__(value_type, "__qualname__")
+    except (AttributeError, TypeError):
+        module_name = qualname = None
+    if type(module_name) is str and module_name and type(qualname) is str and qualname:
+        identity["type"] = [module_name, qualname]
+    else:
+        # Opaque runtime types are recorded as a bounded limitation, never as owner evidence.
+        identity["opaque_runtime_type"] = True
+    if value is None:
+        identity["value"] = ["none"]
+    elif value_type is bool:
+        identity["value"] = ["bool", value]
+    elif value_type is int:
+        identity["value"] = ["int", str(value)]
+    elif value_type is float:
+        identity["value"] = ["float", value.hex()]
+    elif value_type is str:
+        identity["value"] = ["str", value]
+    elif value_type is bytes:
+        identity["value"] = ["bytes", base64.b64encode(value).decode("ascii")]
+    elif value_type is types.FunctionType:
+        code = value.__code__
+        if type(code) is types.CodeType:
+            identity["function_code_sha256"] = hashlib.sha256(marshal.dumps(code)).hexdigest()
+        else:
+            identity["opaque_function_code"] = True
+    elif value_type is types.BuiltinFunctionType:
+        module_name = value.__module__
+        qualname = value.__qualname__
+        if type(module_name) is str and type(qualname) is str:
+            identity["builtin_callable"] = [module_name, qualname]
+    elif value_type is type:
+        try:
+            module_name = type.__getattribute__(value, "__module__")
+            qualname = type.__getattribute__(value, "__qualname__")
+            name = type.__getattribute__(value, "__name__")
+        except (AttributeError, TypeError):
+            module_name = qualname = name = None
+        if all(type(item) is str and item for item in (module_name, qualname, name)):
+            identity["class_identity"] = [module_name, qualname, name]
+        else:
+            identity["opaque_class_identity"] = True
+    elif value_type is types.ModuleType:
+        name = types.ModuleType.__getattribute__(value, "__dict__").get("__name__")
+        if type(name) is str:
+            identity["module_name"] = name
+    return identity
+
+
+def _native_module_state(module):
+    if type(module) is not types.ModuleType:
+        raise TypeError("native scope target is not an exact ModuleType")
+    namespace = types.ModuleType.__getattribute__(module, "__dict__")
+    rows = []
+    live_rows = []
+    opaque_count = 0
+    for name, value in sorted(namespace.items()):
+        if type(name) is not str:
+            raise TypeError("native scope namespace contains a non-string key")
+        identity = _native_value_identity(value)
+        opaque_count += int(
+            "opaque_runtime_type" in identity
+            or "opaque_class_identity" in identity
+            or "opaque_function_code" in identity
+        )
+        rows.append({"name": name, **identity})
+        live_rows.append({"name": name, "value_identity": id(value), **identity})
+    encoded = json.dumps(
+        rows, ensure_ascii=True, sort_keys=True, separators=(",", ":")
+    ).encode("ascii")
+    live_encoded = json.dumps(
+        live_rows, ensure_ascii=True, sort_keys=True, separators=(",", ":")
+    ).encode("ascii")
+    return (
+        hashlib.sha256(encoded).hexdigest(),
+        hashlib.sha256(live_encoded).hexdigest(),
+        opaque_count,
+    )
+
+
+def _native_module_state_sha256(module):
+    return _native_module_state(module)[0]
+
+
+def _native_originless_module_names():
+    names = []
+    for name, module in tuple(sys.modules.copy().items()):
+        if type(name) is not str or type(module) is not types.ModuleType:
+            continue
+        namespace = types.ModuleType.__getattribute__(module, "__dict__")
+        if (
+            namespace.get("__file__") is None
+            and namespace.get("__path__") is None
+            and namespace.get("__spec__") is None
+        ):
+            names.append(name)
+    return sorted(names)
+
+
+def _native_originless_snapshot():
+    rows = {}
+    for name, module in tuple(sys.modules.copy().items()):
+        if type(name) is not str or type(module) is not types.ModuleType:
+            continue
+        namespace = types.ModuleType.__getattribute__(module, "__dict__")
+        if (
+            namespace.get("__file__") is None
+            and namespace.get("__path__") is None
+            and namespace.get("__spec__") is None
+        ):
+            rows[name] = (module, *_native_module_state(module))
+    return rows
+
+
+def _native_spec_identity(spec):
+    if type(spec) is not importlib.machinery.ModuleSpec:
+        return None
+    namespace = vars(spec)
+    name = namespace.get("name")
+    origin = namespace.get("origin")
+    if type(name) is not str or not name or type(origin) is not str or not origin:
+        return None
+    try:
+        path = Path(origin)
+        if not path.is_absolute() or not path.is_file():
+            return None
+        physical = path.resolve(strict=True)
+        if physical != path:
+            return None
+    except (OSError, RuntimeError, ValueError):
+        return None
+    return {"module": name, "origin": str(path)}
+
+
+def _native_created_module(spec, *args, **kwargs):
+    module = _NATIVE_ORIGINAL_CREATE(spec, *args, **kwargs)
+    identity = _native_spec_identity(spec)
+    if type(module) is types.ModuleType and identity is not None:
+        with _NATIVE_EXEC_LOCK:
+            _NATIVE_CREATE_BY_ID[id(module)] = (module, identity)
+    return module
+
+
+def _native_exec_module(*args, **kwargs):
+    global _NATIVE_EXEC_NEXT_SCOPE_ID, _NATIVE_EXEC_NEXT_EVENT_ORDER
+    module = args[-1] if args else None
+    if type(module) is not types.ModuleType:
+        return _NATIVE_ORIGINAL_EXEC(*args, **kwargs)
+    namespace = types.ModuleType.__getattribute__(module, "__dict__")
+    producer = _native_spec_identity(namespace.get("__spec__"))
+    thread_id = _thread.get_ident()
+    with _NATIVE_EXEC_LOCK:
+        created = _NATIVE_CREATE_BY_ID.get(id(module))
+        stack = _NATIVE_EXEC_STACKS.setdefault(thread_id, [])
+        chain = [*(frame["producer"] for frame in stack), producer]
+        _NATIVE_EXEC_NEXT_SCOPE_ID += 1
+        scope_id = _NATIVE_EXEC_NEXT_SCOPE_ID
+        summary = {"scope_id": scope_id, "thread_id": thread_id, "producer": producer}
+        scope = {
+            "summary": summary,
+            "scope_id": scope_id,
+            "thread_id": thread_id,
+            "producer": producer,
+            "overlapping_scopes": {},
+        }
+        for other in _NATIVE_EXEC_ACTIVE.values():
+            if other["thread_id"] != thread_id:
+                scope["overlapping_scopes"][other["scope_id"]] = other["summary"]
+                other["overlapping_scopes"][scope_id] = summary
+        _NATIVE_EXEC_ACTIVE[scope_id] = scope
+        stack.append(scope)
+    paired = bool(
+        created is not None
+        and created[0] is module
+        and producer is not None
+        and created[1] == producer
+    )
+    before = _native_originless_snapshot()
+    try:
+        return _NATIVE_ORIGINAL_EXEC(*args, **kwargs)
+    finally:
+        after = _native_originless_snapshot()
+        changes = []
+        for name, (target, after_sha, after_live_sha, opaque_count) in after.items():
+            prior = before.get(name)
+            before_sha = prior[1] if prior is not None and prior[0] is target else None
+            before_live_sha = prior[2] if prior is not None and prior[0] is target else None
+            if (
+                prior is not None
+                and prior[0] is target
+                and before_sha == after_sha
+                and before_live_sha == after_live_sha
+            ):
+                continue
+            changes.append(
+                {
+                    "target": name,
+                    "target_module": target,
+                    "target_identity": id(target),
+                    "event_kind": "appearance" if before_sha is None else "namespace_delta",
+                    "before_sha256": before_sha,
+                    "after_sha256": after_sha,
+                    "before_live_identity_sha256": before_live_sha,
+                    "after_live_identity_sha256": after_live_sha,
+                    "opaque_runtime_value_count": opaque_count,
+                }
+            )
+        with _NATIVE_EXEC_LOCK:
+            stack = _NATIVE_EXEC_STACKS.get(thread_id)
+            if not stack or stack[-1] is not scope:
+                raise RuntimeError(
+                    "native execution scopes did not close in thread-local LIFO order"
+                )
+            stack.pop()
+            if not stack:
+                _NATIVE_EXEC_STACKS.pop(thread_id, None)
+            if _NATIVE_EXEC_ACTIVE.pop(scope_id, None) is not scope:
+                raise RuntimeError("native execution scope lost its active interval record")
+            overlaps = sorted(
+                scope["overlapping_scopes"].values(), key=lambda row: row["scope_id"]
+            )
+            for change in changes:
+                _NATIVE_EXEC_NEXT_EVENT_ORDER += 1
+                _NATIVE_EXEC_EVENTS.append(
+                    {
+                        **change,
+                        "event_order": _NATIVE_EXEC_NEXT_EVENT_ORDER - 1,
+                        "scope_id": scope_id,
+                        "thread_id": thread_id,
+                        "overlapping_scopes": overlaps,
+                        "scope_depth": len(chain),
+                        "scope_chain": chain,
+                        "producer": producer,
+                        "producer_paired_create": paired,
+                    }
+                )
+
+
+_NATIVE_SITE_ENTRY_ORIGINLESS_MODULE_NAMES = sys.__dict__.pop(
+    "_polisyos_q2_site_entry_originless_module_names", None
+)
+_NATIVE_TRACKER_INSTALL_ORIGINLESS_MODULE_NAMES = _native_originless_module_names()
+_imp.create_dynamic = _native_created_module
+_imp.exec_dynamic = _native_exec_module
 import pytest
 
 _STARTUP_MODULES = sys.modules.copy()
+
+
+def _native_exec_scope_observations(module_rows):
+    final_names = {
+        row["module"]
+        for row in module_rows
+        if row.get("origin") is None
+        and row.get("search_locations") == []
+        and row.get("runtime_generated_data", {}).get("exact_module_type") is True
+    }
+    selected = []
+    for name in sorted(final_names):
+        target = sys.modules.get(name)
+        if type(target) is not types.ModuleType:
+            continue
+        current = []
+        for event in _NATIVE_EXEC_EVENTS:
+            if event["target"] == name and event["target_module"] is target:
+                current.append(event)
+        if not current:
+            continue
+        grouped = {}
+        for event in current:
+            key = (
+                event["target_identity"],
+                event["event_kind"],
+                event["before_sha256"],
+                event["after_sha256"],
+                event["before_live_identity_sha256"],
+                event["after_live_identity_sha256"],
+            )
+            grouped.setdefault(key, []).append(event)
+        for key, duplicates in sorted(grouped.items(), key=lambda item: repr(item[0])):
+            if any(event["overlapping_scopes"] for event in duplicates):
+                competing = {}
+                for event in duplicates:
+                    own = {
+                        "scope_id": event["scope_id"],
+                        "thread_id": event["thread_id"],
+                        "producer": event["producer"],
+                    }
+                    competing[own["scope_id"]] = own
+                    for other in event["overlapping_scopes"]:
+                        competing[other["scope_id"]] = other
+                event = min(duplicates, key=lambda row: row["event_order"])
+                selected.append(
+                    {
+                        "target": name,
+                        "target_identity": id(target),
+                        "event_order": event["event_order"],
+                        "event_kind": event["event_kind"],
+                        "before_sha256": event["before_sha256"],
+                        "after_sha256": event["after_sha256"],
+                        "before_live_identity_sha256": event["before_live_identity_sha256"],
+                        "after_live_identity_sha256": event["after_live_identity_sha256"],
+                        "opaque_runtime_value_count": event["opaque_runtime_value_count"],
+                        "ambiguous_concurrent_scopes": True,
+                        "competing_scopes": sorted(
+                            competing.values(), key=lambda row: row["scope_id"]
+                        ),
+                        "same_live_object": sys.modules.get(name) is target,
+                    }
+                )
+                continue
+            depth = max(event["scope_depth"] for event in duplicates)
+            deepest = [event for event in duplicates if event["scope_depth"] == depth]
+            producers = {
+                json.dumps(event["producer"], sort_keys=True, separators=(",", ":"))
+                for event in deepest
+            }
+            if len(producers) != 1:
+                selected.append(
+                    {
+                        "target": name,
+                        "target_identity": id(target),
+                        "ambiguous_deepest_scope": True,
+                        "scope_depth": depth,
+                    }
+                )
+                continue
+            event = deepest[0]
+            selected.append(
+                {
+                    "target": name,
+                    "target_identity": id(target),
+                    "event_order": event["event_order"],
+                    "event_kind": event["event_kind"],
+                    "before_sha256": event["before_sha256"],
+                    "after_sha256": event["after_sha256"],
+                    "before_live_identity_sha256": event["before_live_identity_sha256"],
+                    "after_live_identity_sha256": event["after_live_identity_sha256"],
+                    "opaque_runtime_value_count": event["opaque_runtime_value_count"],
+                    "scope_depth": depth,
+                    "scope_chain": event["scope_chain"],
+                    "scope_id": event["scope_id"],
+                    "thread_id": event["thread_id"],
+                    "ambiguous_concurrent_scopes": False,
+                    "competing_scopes": [],
+                    "producer": event["producer"],
+                    "producer_paired_create": event["producer_paired_create"],
+                    "same_live_object": sys.modules.get(name) is target,
+                    "suppressed_outer_observation_count": len(duplicates) - 1,
+                }
+            )
+    return sorted(selected, key=lambda row: (row["target"], row.get("event_order", 0)))
 
 
 def _intrinsic_origin_evidence(name, module, module_namespace, module_file, spec, spec_origin):
@@ -890,6 +1257,21 @@ def _module_rows(metadata, module_items=None):
                     "file_is_none": module_file is None,
                     "path_is_none": module_namespace.get("__path__") is None,
                     "spec_is_none": module_namespace.get("__spec__") is None,
+                    "namespace_snapshot_sha256": (
+                        _native_module_state(module)[0]
+                        if type(module) is type(sys)
+                        else None
+                    ),
+                    "namespace_live_identity_sha256": (
+                        _native_module_state(module)[1]
+                        if type(module) is type(sys)
+                        else None
+                    ),
+                    "namespace_state_opaque_value_count": (
+                        _native_module_state(module)[2]
+                        if type(module) is type(sys)
+                        else None
+                    ),
                     "parent_bindings": sorted(
                         parent_bindings.get(id(module), []),
                         key=lambda item: (item["parent"], item["attribute"]),
@@ -1015,6 +1397,13 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
         },
         "plugins": sorted(plugins, key=lambda row: (str(row["name"]), str(row["module"]))),
         **module_inventory,
+        "native_exec_scope_observations": _native_exec_scope_observations(
+            module_inventory["module_origins"]
+        ),
+        "native_site_entry_originless_module_names": _NATIVE_SITE_ENTRY_ORIGINLESS_MODULE_NAMES,
+        "native_tracker_install_originless_module_names": (
+            _NATIVE_TRACKER_INSTALL_ORIGINLESS_MODULE_NAMES
+        ),
         "config_origin": str(Path(config.inifile).absolute()) if config.inifile else None,
         "startup_files": _startup_files(),
     }
@@ -1976,6 +2365,520 @@ def environment_mapping(value: object, context: str) -> dict[str, str]:
     ):
         raise AuditFailure(f"{context} contains a malformed environment key or value")
     return value
+
+
+PYTHON_NATIVE_ORIGINLESS_PROFILE_PROBE = """\\
+import sys
+import types
+
+
+def native_originless_module_names():
+    names = []
+    for name, module in tuple(sys.modules.copy().items()):
+        if type(name) is not str or type(module) is not types.ModuleType:
+            continue
+        namespace = types.ModuleType.__getattribute__(module, "__dict__")
+        if (
+            namespace.get("__file__") is None
+            and namespace.get("__path__") is None
+            and namespace.get("__spec__") is None
+        ):
+            names.append(name)
+    return sorted(names)
+
+
+native_site_entry_originless_module_names = native_originless_module_names()
+import base64
+import hashlib
+import importlib
+import importlib.machinery
+import json
+import marshal
+import math
+import os
+import site
+import sys
+import sysconfig
+import _imp
+import _thread
+import types
+from pathlib import Path
+
+def value_identity(value):
+    value_type = type(value)
+    identity = {}
+    try:
+        module_name = type.__getattribute__(value_type, "__module__")
+        qualname = type.__getattribute__(value_type, "__qualname__")
+    except (AttributeError, TypeError):
+        module_name = qualname = None
+    if type(module_name) is str and module_name and type(qualname) is str and qualname:
+        identity["type"] = [module_name, qualname]
+    else:
+        identity["opaque_runtime_type"] = True
+    if value is None:
+        identity["value"] = ["none"]
+    elif value_type is bool:
+        identity["value"] = ["bool", value]
+    elif value_type is int:
+        identity["value"] = ["int", str(value)]
+    elif value_type is float:
+        if not math.isfinite(value):
+            raise TypeError("native replay found a nonfinite float")
+        identity["value"] = ["float", value.hex()]
+    elif value_type is str:
+        identity["value"] = ["str", value]
+    elif value_type is bytes:
+        identity["value"] = ["bytes", base64.b64encode(value).decode("ascii")]
+    elif value_type is types.FunctionType:
+        code = value.__code__
+        if type(code) is types.CodeType:
+            identity["function_code_sha256"] = hashlib.sha256(marshal.dumps(code)).hexdigest()
+        else:
+            identity["opaque_function_code"] = True
+    elif value_type is types.BuiltinFunctionType:
+        module_name = value.__module__
+        qualname = value.__qualname__
+        if type(module_name) is str and type(qualname) is str:
+            identity["builtin_callable"] = [module_name, qualname]
+    elif value_type is type:
+        try:
+            module_name = type.__getattribute__(value, "__module__")
+            qualname = type.__getattribute__(value, "__qualname__")
+            name = type.__getattribute__(value, "__name__")
+        except (AttributeError, TypeError):
+            module_name = qualname = name = None
+        if all(type(item) is str and item for item in (module_name, qualname, name)):
+            identity["class_identity"] = [module_name, qualname, name]
+        else:
+            identity["opaque_class_identity"] = True
+    elif value_type is types.ModuleType:
+        name = types.ModuleType.__getattribute__(value, "__dict__").get("__name__")
+        if type(name) is str:
+            identity["module_name"] = name
+    return identity
+
+
+def module_state(module):
+    if type(module) is not types.ModuleType:
+        raise TypeError("native replay target is not an exact ModuleType")
+    rows = []
+    live_rows = []
+    opaque_count = 0
+    for name, value in sorted(vars(module).items()):
+        if type(name) is not str:
+            raise TypeError("native replay target has a non-string namespace key")
+        identity = value_identity(value)
+        opaque_count += int(
+            "opaque_runtime_type" in identity
+            or "opaque_class_identity" in identity
+            or "opaque_function_code" in identity
+        )
+        rows.append({"name": name, **identity})
+        live_rows.append({"name": name, "value_identity": id(value), **identity})
+    encoded = json.dumps(
+        rows, ensure_ascii=True, sort_keys=True, separators=(",", ":")
+    ).encode("ascii")
+    live_encoded = json.dumps(
+        live_rows, ensure_ascii=True, sort_keys=True, separators=(",", ":")
+    ).encode("ascii")
+    return (
+        hashlib.sha256(encoded).hexdigest(),
+        hashlib.sha256(live_encoded).hexdigest(),
+        opaque_count,
+    )
+
+
+def module_state_sha256(module):
+    return module_state(module)[0]
+
+
+def module_data_digest(module):
+    def data_value(value, active=None):
+        value_type = type(value)
+        if value is None:
+            return ["none"]
+        if value_type is bool:
+            return ["bool", value]
+        if value_type is int:
+            return ["int", str(value)]
+        if value_type is float:
+            if not math.isfinite(value):
+                raise TypeError("non-finite float")
+            return ["float", value.hex()]
+        if value_type is str:
+            return ["str", value]
+        if value_type is bytes:
+            return ["bytes", base64.b64encode(value).decode("ascii")]
+        if value_type in (list, tuple, dict):
+            active = set() if active is None else active
+            identity = id(value)
+            if identity in active:
+                raise TypeError("cyclic runtime data")
+            active.add(identity)
+            try:
+                if value_type is list:
+                    return ["list", [data_value(item, active) for item in value]]
+                if value_type is tuple:
+                    return ["tuple", [data_value(item, active) for item in value]]
+                rows = [
+                    [data_value(key, active), data_value(item, active)]
+                    for key, item in value.items()
+                ]
+                rows.sort(
+                    key=lambda row: json.dumps(
+                        row[0], ensure_ascii=True, sort_keys=True, separators=(",", ":")
+                    )
+                )
+                return ["dict", rows]
+            finally:
+                active.remove(identity)
+        raise TypeError("unsupported data value")
+    try:
+        data = json.dumps(
+            data_value(vars(module)),
+            ensure_ascii=True,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ).encode("ascii")
+    except (RecursionError, TypeError, ValueError):
+        return {"supported": False, "bytes": None, "sha256": None}
+    return {"supported": True, "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+
+def runtime_profile():
+    paths = {
+        key: str(Path(value).absolute())
+        for key, value in sorted(sysconfig.get_paths().items())
+        if isinstance(value, str) and value
+    }
+    prefix = Path(sys.prefix).absolute()
+    base_prefix = Path(sys.base_prefix).absolute()
+    cfg_path = prefix / "pyvenv.cfg"
+    cfg_data = cfg_path.read_bytes() if cfg_path.is_file() else None
+    pyvenv_cfg = {
+        "path": str(cfg_path),
+        "bytes": len(cfg_data),
+        "sha256": hashlib.sha256(cfg_data).hexdigest(),
+    } if cfg_data is not None else None
+    site_roots = sorted({
+        str(Path(value).absolute())
+        for value in [*site.getsitepackages(), paths.get("purelib"), paths.get("platlib")]
+        if isinstance(value, str) and value
+    })
+    stdlib_roots = sorted({
+        paths[key] for key in ("stdlib", "platstdlib") if key in paths
+    })
+    return {
+        "executable": str(Path(sys.executable).absolute()),
+        "resolved_executable": str(Path(sys.executable).resolve(strict=True)),
+        "version": sys.version,
+        "implementation": sys.implementation.name,
+        "sysconfig_paths": paths,
+        "prefix": str(prefix),
+        "base_prefix": str(base_prefix),
+        "pyvenv_cfg": pyvenv_cfg,
+        "site_roots": site_roots,
+        "stdlib_roots": stdlib_roots,
+    }
+
+def startup_files():
+    rows = {}
+    for directory in site.getsitepackages():
+        root = Path(directory)
+        if not root.is_dir():
+            continue
+        for path in sorted(root.glob("*.pth")):
+            data = path.read_bytes()
+            rows[str(path)] = {
+                "label": "site_pth",
+                "origin": str(path),
+                "sha256": hashlib.sha256(data).hexdigest(),
+            }
+        for name in ("sitecustomize.py", "usercustomize.py"):
+            path = root / name
+            if path.is_file():
+                data = path.read_bytes()
+                rows[str(path)] = {
+                    "label": name.removesuffix(".py"),
+                    "origin": str(path),
+                    "sha256": hashlib.sha256(data).hexdigest(),
+                }
+    return [rows[key] for key in sorted(rows)]
+
+def originless_targets(names):
+    result = {}
+    for name in names:
+        module = sys.modules.get(name)
+        if type(module) is not types.ModuleType:
+            continue
+        namespace = vars(module)
+        if (
+            namespace.get("__file__") is None
+            and namespace.get("__path__") is None
+            and namespace.get("__spec__") is None
+        ):
+            result[name] = (module, *module_state(module))
+    return result
+
+def producer_identity(module):
+    spec = vars(module).get("__spec__")
+    if type(spec) is not importlib.machinery.ModuleSpec:
+        return None
+    name = vars(spec).get("name")
+    origin = vars(spec).get("origin")
+    if type(name) is not str or not name or type(origin) is not str or not origin:
+        return None
+    path = Path(origin)
+    if not path.is_absolute():
+        return None
+    try:
+        if path.resolve(strict=True) != path or not path.is_file():
+            return None
+    except (OSError, RuntimeError, ValueError):
+        return None
+    return {"module": name, "origin": str(path)}
+
+request = json.load(sys.stdin)
+if not isinstance(request, dict) or set(request) != {"imports", "targets"}:
+    raise RuntimeError("native replay request differs from its schema")
+imports = request["imports"]
+targets = request["targets"]
+if not isinstance(imports, list) or not isinstance(targets, list):
+    raise RuntimeError("native replay requests are not lists")
+if any(not isinstance(row, dict) or set(row) != {"module", "origin", "sha256"} for row in imports):
+    raise RuntimeError("native replay import row is malformed")
+if any(
+    not isinstance(row, dict)
+    or set(row) != {"module", "namespace_snapshot_sha256", "expected_bindings"}
+    for row in targets
+):
+    raise RuntimeError("native replay target row is malformed")
+target_names = [row["module"] for row in targets]
+if target_names != sorted(set(target_names)):
+    raise RuntimeError("native replay target set is not unique and ordered")
+initial_profile = runtime_profile()
+initial_sys_path = [str(Path(item or os.getcwd()).absolute()) for item in sys.path]
+initial_startup = startup_files()
+initial_environment = dict(sorted(os.environ.items()))
+
+original_create = _imp.create_dynamic
+original_exec = _imp.exec_dynamic
+created_by_id = {}
+exec_stacks = {}
+scope_lock = _thread.allocate_lock()
+active_scopes = {}
+next_scope_id = 0
+next_event_order = 0
+events = []
+
+def created(spec, *args, **kwargs):
+    module = original_create(spec, *args, **kwargs)
+    if type(module) is types.ModuleType:
+        identity = producer_identity(module) if vars(module).get("__spec__") is not None else None
+        if identity is None and type(spec) is importlib.machinery.ModuleSpec:
+            name = vars(spec).get("name")
+            origin = vars(spec).get("origin")
+            if type(name) is str and type(origin) is str:
+                path = Path(origin)
+                if path.is_absolute():
+                    try:
+                        if path.resolve(strict=True) == path and path.is_file():
+                            identity = {"module": name, "origin": str(path)}
+                    except (OSError, RuntimeError, ValueError):
+                        identity = None
+        if identity is not None:
+            with scope_lock:
+                created_by_id[id(module)] = (module, identity)
+    return module
+
+def executed(*args, **kwargs):
+    global next_scope_id, next_event_order
+    module = args[-1] if args else None
+    if type(module) is not types.ModuleType:
+        return original_exec(*args, **kwargs)
+    producer = producer_identity(module)
+    thread_id = _thread.get_ident()
+    with scope_lock:
+        created_row = created_by_id.get(id(module))
+        stack = exec_stacks.setdefault(thread_id, [])
+        chain = [*(frame["producer"] for frame in stack), producer]
+        next_scope_id += 1
+        scope_id = next_scope_id
+        summary = {"scope_id": scope_id, "thread_id": thread_id, "producer": producer}
+        scope = {
+            "summary": summary,
+            "scope_id": scope_id,
+            "thread_id": thread_id,
+            "producer": producer,
+            "overlapping_scopes": {},
+        }
+        for other in active_scopes.values():
+            if other["thread_id"] != thread_id:
+                scope["overlapping_scopes"][other["scope_id"]] = other["summary"]
+                other["overlapping_scopes"][scope_id] = summary
+        active_scopes[scope_id] = scope
+        stack.append(scope)
+    paired = bool(
+        created_row is not None
+        and created_row[0] is module
+        and created_row[1] == producer
+    )
+    before = originless_targets(target_names)
+    try:
+        return original_exec(*args, **kwargs)
+    finally:
+        after = originless_targets(target_names)
+        changes = []
+        for name, (target, after_sha, after_live_sha, opaque_count) in after.items():
+            prior = before.get(name)
+            before_sha = prior[1] if prior is not None and prior[0] is target else None
+            before_live_sha = prior[2] if prior is not None and prior[0] is target else None
+            if (
+                prior is not None
+                and prior[0] is target
+                and before_sha == after_sha
+                and before_live_sha == after_live_sha
+            ):
+                continue
+            changes.append({
+                "target": name,
+                "target_module": target,
+                "target_identity": id(target),
+                "event_kind": "appearance" if before_sha is None else "namespace_delta",
+                "before_sha256": before_sha,
+                "after_sha256": after_sha,
+                "before_live_identity_sha256": before_live_sha,
+                "after_live_identity_sha256": after_live_sha,
+                "opaque_runtime_value_count": opaque_count,
+            })
+        with scope_lock:
+            stack = exec_stacks.get(thread_id)
+            if not stack or stack[-1] is not scope:
+                raise RuntimeError(
+                    "native execution scopes did not close in thread-local LIFO order"
+                )
+            stack.pop()
+            if not stack:
+                exec_stacks.pop(thread_id, None)
+            if active_scopes.pop(scope_id, None) is not scope:
+                raise RuntimeError("native execution scope lost its active interval record")
+            overlaps = sorted(
+                scope["overlapping_scopes"].values(), key=lambda row: row["scope_id"]
+            )
+            for change in changes:
+                next_event_order += 1
+                events.append({
+                    **change,
+                    "event_order": next_event_order - 1,
+                    "scope_id": scope_id,
+                    "thread_id": thread_id,
+                    "overlapping_scopes": overlaps,
+                    "scope_depth": len(chain),
+                    "scope_chain": chain,
+                    "producer": producer,
+                    "producer_paired_create": paired,
+                })
+
+native_tracker_install_originless_module_names = native_originless_module_names()
+_imp.create_dynamic = created
+_imp.exec_dynamic = executed
+import_errors = []
+imported = []
+for row in imports:
+    name = row["module"]
+    if (
+        not isinstance(name, str)
+        or not name
+        or any(not part.isidentifier() for part in name.split("."))
+    ):
+        raise RuntimeError("native replay import name is invalid")
+    module = importlib.import_module(name)
+    if type(module) is not types.ModuleType or vars(module).get("__name__") != name:
+        raise RuntimeError("native replay imported a different module object")
+    origin = vars(module).get("__file__")
+    spec = vars(module).get("__spec__")
+    if type(spec) is importlib.machinery.ModuleSpec and origin is None:
+        origin = vars(spec).get("origin")
+    if origin != row["origin"] or not isinstance(origin, str):
+        raise RuntimeError("native replay module origin differs from the captured source row")
+    if origin in {"built-in", "frozen"}:
+        if row["sha256"] is not None:
+            raise RuntimeError("native replay intrinsic import carries file bytes")
+        imported.append({"module": name, "origin": origin, "sha256": None})
+        continue
+    path = Path(origin)
+    if not path.is_absolute() or path.resolve(strict=True) != path:
+        raise RuntimeError("native replay module origin is not canonical")
+    data = path.read_bytes()
+    digest = hashlib.sha256(data).hexdigest()
+    if digest != row["sha256"]:
+        raise RuntimeError("native replay module bytes differ from the captured source row")
+    imported.append({"module": name, "origin": str(path), "sha256": digest})
+
+parent_names = sorted(
+    {parent for row in targets for parent, _attribute in row["expected_bindings"]}
+)
+bindings_by_target = {name: [] for name in target_names}
+for parent_name in parent_names:
+    parent = sys.modules.get(parent_name)
+    if type(parent) is not types.ModuleType or vars(parent).get("__name__") != parent_name:
+        raise RuntimeError("native replay binding parent is absent or changed")
+    for attribute, child in vars(parent).items():
+        if type(attribute) is not str or type(child) is not types.ModuleType:
+            continue
+        child_name = vars(child).get("__name__")
+        if child_name in bindings_by_target and sys.modules.get(child_name) is child:
+            if (
+                vars(child).get("__file__") is None
+                and vars(child).get("__path__") is None
+                and vars(child).get("__spec__") is None
+            ):
+                bindings_by_target[child_name].append([parent_name, attribute])
+
+targets_out = []
+for requested in targets:
+    name = requested["module"]
+    module = sys.modules.get(name)
+    if type(module) is not types.ModuleType:
+        targets_out.append({"module": name, "present": False})
+        continue
+    namespace = vars(module)
+    present = (
+        namespace.get("__file__") is None
+        and namespace.get("__path__") is None
+        and namespace.get("__spec__") is None
+        and namespace.get("__name__") == name
+    )
+    data = module_data_digest(module)
+    targets_out.append({
+        "module": name,
+        "present": present,
+        "exact_module_type": type(module) is types.ModuleType,
+        "namespace_snapshot_sha256": module_state(module)[0],
+        "namespace_live_identity_sha256": module_state(module)[1],
+        "namespace_state_opaque_value_count": module_state(module)[2],
+        "data": data,
+        "parent_bindings": sorted(bindings_by_target[name]),
+        "expected_bindings": requested["expected_bindings"],
+    })
+
+for event in events:
+    event["same_live_object"] = sys.modules.get(event["target"]) is event.pop("target_module")
+print(json.dumps({
+    "runtime_profile": initial_profile,
+    "sys_path": initial_sys_path,
+    "startup_files": initial_startup,
+    "effective_environment": initial_environment,
+    "native_site_entry_originless_module_names": native_site_entry_originless_module_names,
+    "native_tracker_install_originless_module_names": (
+        native_tracker_install_originless_module_names
+    ),
+    "imports": imported,
+    "targets": targets_out,
+    "native_exec_scope_observations": events,
+}, ensure_ascii=True, sort_keys=True, separators=(",", ":")))
+"""
 
 
 PYTHON_RUNTIME_PROFILE_PROBE = """\\
@@ -3568,7 +4471,13 @@ def reconcile_generated_module_rows(
     candidates = {
         name: row
         for name, row in modules.items()
-        if row.get("origin") is None and row.get("search_locations") == []
+        if row.get("origin") is None
+        and row.get("search_locations") == []
+        and isinstance(row.get("runtime_generated_data"), dict)
+        and row["runtime_generated_data"].get("exact_module_type") is True
+        and row["runtime_generated_data"].get("supported") is True
+        and isinstance(row["runtime_generated_data"].get("parent_bindings"), list)
+        and row["runtime_generated_data"]["parent_bindings"]
     }
     if not candidates and not intrinsic_claims:
         return []
@@ -3582,6 +4491,9 @@ def reconcile_generated_module_rows(
             "file_is_none",
             "path_is_none",
             "spec_is_none",
+            "namespace_snapshot_sha256",
+            "namespace_live_identity_sha256",
+            "namespace_state_opaque_value_count",
             "parent_bindings",
             "supported",
             "bytes",
@@ -3837,6 +4749,1040 @@ def reconcile_generated_module_rows(
         record["parent_bindings"].sort(key=lambda item: (item["parent"], item["attribute"]))
         record["parent_sources"].sort(key=lambda item: item["module"])
     return [records_by_module[name] for name in sorted(records_by_module)]
+
+
+def native_source_import_descriptor(
+    module_name: str,
+    modules: dict[str, dict[str, Any]],
+    source_records: dict[str, dict[str, Any]],
+    *,
+    require_file: bool = False,
+) -> dict[str, Any]:
+    """Bind a replay import to a module row whose source bytes were already admitted."""
+    module = modules.get(module_name)
+    record = source_records.get(module_name)
+    if not isinstance(module, dict) or not isinstance(record, dict):
+        raise AuditFailure(f"native replay import has no admitted module source: {module_name}")
+    origin = module.get("origin")
+    kind = record.get("kind")
+    if kind == "python_builtin_or_frozen":
+        if require_file or origin not in {"built-in", "frozen"}:
+            raise AuditFailure(
+                f"native replay source is not an admissible file owner: {module_name}"
+            )
+        return {"module": module_name, "origin": origin, "sha256": None}
+    allowed_kinds = {
+        "locked_python_distribution",
+        "selected_python_standard_library",
+        "tracked_source_commit_blob",
+        "locally_selected_recomputed_generator_site_artifact",
+    }
+    if kind not in allowed_kinds or not isinstance(origin, str) or not Path(origin).is_absolute():
+        raise AuditFailure(
+            f"native replay source role is not an admitted file owner: {module_name}"
+        )
+    digest = record.get("sha256")
+    if (
+        not isinstance(digest, str)
+        or not re.fullmatch(r"[0-9a-f]{64}", digest)
+        or module.get("sha256") != digest
+        or type(record.get("bytes")) is not int
+        or record["bytes"] < 0
+    ):
+        raise AuditFailure(f"native replay source bytes are not bound: {module_name}")
+    try:
+        physical = Path(origin).resolve(strict=True)
+    except (OSError, RuntimeError, ValueError) as error:
+        raise AuditFailure(f"native replay source is unavailable: {module_name}") from error
+    if physical != Path(origin):
+        raise AuditFailure(f"native replay source path is not canonical: {module_name}")
+    if kind == "locked_python_distribution" and (
+        not isinstance(record.get("distribution_record_sha256"), str)
+        or not re.fullmatch(r"[0-9a-f]{64}", record["distribution_record_sha256"])
+    ):
+        raise AuditFailure(f"native replay wheel RECORD is not bound: {module_name}")
+    return {"module": module_name, "origin": origin, "sha256": digest}
+
+
+def _native_scope_competitor_sources(
+    scopes: object,
+    modules: dict[str, dict[str, Any]],
+    source_records: dict[str, dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Bind every overlapping native scope to its admitted source and RECORD owner."""
+    if type(scopes) is not list or not scopes:
+        raise AuditFailure("overlapping native scope evidence is empty or malformed")
+    if any(
+        type(scope) is not dict
+        or set(scope) != {"scope_id", "thread_id", "producer"}
+        or type(scope.get("scope_id")) is not int
+        or scope["scope_id"] <= 0
+        or type(scope.get("thread_id")) is not int
+        or scope["thread_id"] <= 0
+        or not isinstance(scope.get("producer"), dict)
+        or set(scope["producer"]) != {"module", "origin"}
+        or type(scope["producer"].get("module")) is not str
+        or not scope["producer"]["module"]
+        or type(scope["producer"].get("origin")) is not str
+        or not Path(scope["producer"]["origin"]).is_absolute()
+        for scope in scopes
+    ):
+        raise AuditFailure("overlapping native scope identity is malformed")
+    scope_ids = [scope["scope_id"] for scope in scopes]
+    if scope_ids != sorted(set(scope_ids)) or len({scope["thread_id"] for scope in scopes}) < 2:
+        raise AuditFailure("overlapping native scopes do not establish distinct concurrent threads")
+    bound = []
+    for scope in scopes:
+        producer = scope["producer"]
+        descriptor = native_source_import_descriptor(
+            producer["module"], modules, source_records, require_file=True
+        )
+        if descriptor["origin"] != producer["origin"]:
+            raise AuditFailure("overlapping native scope differs from its bound source owner")
+        record = source_records[producer["module"]]
+        bound.append(
+            {
+                "scope_id": scope["scope_id"],
+                "thread_id": scope["thread_id"],
+                "module": descriptor["module"],
+                "origin": descriptor["origin"],
+                "source_sha256": descriptor["sha256"],
+                "source_kind": record["kind"],
+                "distribution_record_sha256": record.get("distribution_record_sha256"),
+            }
+        )
+    return bound
+
+
+def _native_scope_overlap_witness(
+    observations: object,
+    target_name: str,
+    modules: dict[str, dict[str, Any]],
+    source_records: dict[str, dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Bind all competing producers from capture rows or raw replay intervals."""
+    if type(observations) is not list or not observations:
+        raise AuditFailure("overlapping native scope transitions are malformed")
+    scopes_by_id: dict[int, dict[str, Any]] = {}
+    transitions = []
+    for observation in observations:
+        if (
+            not isinstance(observation, dict)
+            or observation.get("target") != target_name
+            or type(observation.get("event_order")) is not int
+            or observation["event_order"] < 0
+            or observation.get("event_kind") not in {"appearance", "namespace_delta"}
+        ):
+            raise AuditFailure("overlapping native scope transition identity is malformed")
+        if observation.get("ambiguous_concurrent_scopes") is True:
+            participants = observation.get("competing_scopes")
+        else:
+            overlapping = observation.get("overlapping_scopes")
+            if type(overlapping) is not list or not overlapping:
+                raise AuditFailure("raw native scope overlap set is absent or malformed")
+            participants = [
+                {
+                    "scope_id": observation.get("scope_id"),
+                    "thread_id": observation.get("thread_id"),
+                    "producer": observation.get("producer"),
+                },
+                *overlapping,
+            ]
+        if type(participants) is not list:
+            raise AuditFailure("overlapping native scope participants are malformed")
+        for scope in participants:
+            if not isinstance(scope, dict) or type(scope.get("scope_id")) is not int:
+                raise AuditFailure("overlapping native scope participant identity is malformed")
+            prior = scopes_by_id.setdefault(scope["scope_id"], scope)
+            if prior != scope:
+                raise AuditFailure("overlapping native scope participant changed identity")
+        transitions.append(
+            {
+                "event_order": observation["event_order"],
+                "event_kind": observation["event_kind"],
+                "before_sha256": observation.get("before_sha256"),
+                "after_sha256": observation.get("after_sha256"),
+                "competing_scope_ids": sorted(scope["scope_id"] for scope in participants),
+            }
+        )
+    bound = _native_scope_competitor_sources(
+        [scopes_by_id[key] for key in sorted(scopes_by_id)], modules, source_records
+    )
+    return bound, transitions
+
+
+def _native_observer_boundary_names(value: object, context: str) -> list[str]:
+    """Validate one complete, sorted native-observer startup module-name set."""
+    if (
+        type(value) is not list
+        or any(type(name) is not str or not name for name in value)
+        or value != sorted(set(value))
+    ):
+        raise AuditFailure(f"{context} is not a sorted unique module-name list")
+    return value
+
+
+def _validate_native_observer_boundary(
+    module_name: str,
+    site_entry_names: list[str],
+    tracker_install_names: list[str],
+) -> None:
+    """Refuse a native scope when the candidate predates observation in this process."""
+    if module_name in site_entry_names or module_name in tracker_install_names:
+        raise AuditFailure(
+            f"parentless module existed before native observer installation: {module_name}"
+        )
+
+
+def _native_event_signature(row: dict[str, Any]) -> tuple[Any, ...]:
+    """Compare stable execution evidence across processes, not process-local identities."""
+    return (
+        row.get("event_kind"),
+        row.get("before_sha256"),
+        row.get("after_sha256"),
+        row.get("opaque_runtime_value_count"),
+        row.get("scope_depth"),
+        json.dumps(row.get("scope_chain"), sort_keys=True, separators=(",", ":")),
+        json.dumps(row.get("producer"), sort_keys=True, separators=(",", ":")),
+        row.get("producer_paired_create"),
+        row.get("same_live_object"),
+        row.get("suppressed_outer_observation_count"),
+        row.get("ambiguous_concurrent_scopes"),
+        len(row.get("competing_scopes", []))
+        if isinstance(row.get("competing_scopes"), list)
+        else None,
+    )
+
+
+def _validate_native_scope_transition_chain(
+    module_name: str,
+    events: list[dict[str, Any]],
+    final_state_sha256: str,
+    final_live_identity_sha256: str,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Bind nested pre-appearance scopes and later updates to one module lifecycle."""
+    if not events:
+        raise AuditFailure(f"parentless module has no native scope observations: {module_name}")
+    appearance_events = [event for event in events if event.get("event_kind") == "appearance"]
+    if len(appearance_events) != 1:
+        raise AuditFailure(
+            f"parentless module has an ambiguous first-appearance boundary: {module_name}"
+        )
+    appearance = appearance_events[0]
+    if (
+        appearance.get("before_sha256") is not None
+        or appearance.get("before_live_identity_sha256") is not None
+    ):
+        raise AuditFailure(f"parentless module appearance has a prior state: {module_name}")
+    covered_nested = [event for event in events if event["event_order"] < appearance["event_order"]]
+    for event in covered_nested:
+        if (
+            event.get("event_kind") != "namespace_delta"
+            or event.get("after_sha256") != appearance.get("after_sha256")
+            or event.get("after_live_identity_sha256")
+            != appearance.get("after_live_identity_sha256")
+            or event.get("scope_chain", [])[: len(appearance.get("scope_chain", []))]
+            != appearance.get("scope_chain")
+        ):
+            raise AuditFailure(
+                f"pre-appearance nested scope is not contained by the first appearance: "
+                f"{module_name}"
+            )
+    later_events = [event for event in events if event["event_order"] > appearance["event_order"]]
+    prior_sha = appearance["after_sha256"]
+    prior_live_sha = appearance["after_live_identity_sha256"]
+    for event in later_events:
+        after_sha = event.get("after_sha256")
+        if (
+            event.get("event_kind") != "namespace_delta"
+            or event.get("before_sha256") != prior_sha
+            or event.get("before_live_identity_sha256") != prior_live_sha
+            or not isinstance(after_sha, str)
+            or not re.fullmatch(r"[0-9a-f]{64}", after_sha)
+        ):
+            raise AuditFailure(
+                f"parentless module scope transitions are discontinuous: {module_name}"
+            )
+        prior_sha = after_sha
+        prior_live_sha = event["after_live_identity_sha256"]
+    if prior_sha != final_state_sha256 or prior_live_sha != final_live_identity_sha256:
+        raise AuditFailure(
+            f"parentless module final namespace differs from its scope: {module_name}"
+        )
+    return appearance, later_events
+
+
+def _select_replayed_native_events(
+    events: object,
+    target_name: str,
+) -> list[dict[str, Any]]:
+    """Select the deepest unique exec scope for each observed object-state transition."""
+    if type(events) is not list:
+        raise AuditFailure("selected-profile native replay omits its execution observations")
+    matching = [row for row in events if isinstance(row, dict) and row.get("target") == target_name]
+    groups: dict[tuple[Any, ...], list[dict[str, Any]]] = {}
+    for row in matching:
+        overlaps = row.get("overlapping_scopes")
+        if type(overlaps) is not list:
+            raise AuditFailure(
+                f"selected-profile native overlap evidence is malformed: {target_name}"
+            )
+        scope_id = row.get("scope_id")
+        thread_id = row.get("thread_id")
+        if (
+            type(scope_id) is not int
+            or scope_id <= 0
+            or type(thread_id) is not int
+            or thread_id <= 0
+        ):
+            raise AuditFailure(
+                f"selected-profile native scope identity is malformed: {target_name}"
+            )
+        if overlaps:
+            raise AuditFailure(
+                f"selected-profile native replay has overlapping concurrent scopes: {target_name}"
+            )
+        if (
+            type(row.get("target_identity")) is not int
+            or row["target_identity"] <= 0
+            or type(row.get("event_order")) is not int
+            or row["event_order"] < 0
+            or row.get("event_kind") not in {"appearance", "namespace_delta"}
+            or not isinstance(row.get("after_sha256"), str)
+            or not re.fullmatch(r"[0-9a-f]{64}", row["after_sha256"])
+            or (
+                row.get("before_sha256") is not None
+                and (
+                    not isinstance(row.get("before_sha256"), str)
+                    or not re.fullmatch(r"[0-9a-f]{64}", row["before_sha256"])
+                )
+            )
+            or (
+                row.get("before_live_identity_sha256") is not None
+                and (
+                    not isinstance(row.get("before_live_identity_sha256"), str)
+                    or not re.fullmatch(r"[0-9a-f]{64}", row["before_live_identity_sha256"])
+                )
+            )
+            or not isinstance(row.get("after_live_identity_sha256"), str)
+            or not re.fullmatch(r"[0-9a-f]{64}", row["after_live_identity_sha256"])
+            or type(row.get("opaque_runtime_value_count")) is not int
+            or row["opaque_runtime_value_count"] < 0
+            or type(row.get("scope_depth")) is not int
+            or row["scope_depth"] < 1
+            or type(row.get("producer_paired_create")) is not bool
+            or row.get("producer_paired_create") is not True
+            or type(row.get("same_live_object")) is not bool
+            or row.get("same_live_object") is not True
+        ):
+            raise AuditFailure(f"selected-profile native observation is malformed: {target_name}")
+        chain = row.get("scope_chain")
+        producer = row.get("producer")
+        if (
+            not isinstance(chain, list)
+            or len(chain) != row["scope_depth"]
+            or not isinstance(producer, dict)
+            or set(producer) != {"module", "origin"}
+            or chain[-1] != producer
+            or any(
+                not isinstance(item, dict)
+                or set(item) != {"module", "origin"}
+                or not isinstance(item.get("module"), str)
+                or not item["module"]
+                or not isinstance(item.get("origin"), str)
+                or not Path(item["origin"]).is_absolute()
+                for item in chain
+            )
+        ):
+            raise AuditFailure(f"selected-profile native scope chain is malformed: {target_name}")
+        if row["event_kind"] == "appearance" and (
+            row.get("before_sha256") is not None
+            or row.get("before_live_identity_sha256") is not None
+        ):
+            raise AuditFailure(f"native appearance has a prior namespace state: {target_name}")
+        if row["event_kind"] == "namespace_delta" and (
+            row.get("before_sha256") is None or row.get("before_live_identity_sha256") is None
+        ):
+            raise AuditFailure(f"native namespace delta has no prior state: {target_name}")
+        key = (
+            row["target_identity"],
+            row["event_kind"],
+            row.get("before_sha256"),
+            row["after_sha256"],
+            row.get("before_live_identity_sha256"),
+            row.get("after_live_identity_sha256"),
+        )
+        groups.setdefault(key, []).append(row)
+    selected = []
+    for duplicates in groups.values():
+        depth = max(row["scope_depth"] for row in duplicates)
+        deepest = [row for row in duplicates if row["scope_depth"] == depth]
+        producer_keys = {
+            json.dumps(row["producer"], sort_keys=True, separators=(",", ":")) for row in deepest
+        }
+        if len(producer_keys) != 1:
+            raise AuditFailure(f"native replay has competing deepest scopes: {target_name}")
+        chosen = min(deepest, key=lambda row: row["event_order"])
+        selected.append(
+            {
+                key: chosen[key]
+                for key in (
+                    "target",
+                    "target_identity",
+                    "event_order",
+                    "event_kind",
+                    "before_sha256",
+                    "after_sha256",
+                    "before_live_identity_sha256",
+                    "after_live_identity_sha256",
+                    "opaque_runtime_value_count",
+                    "scope_depth",
+                    "scope_chain",
+                    "producer",
+                    "producer_paired_create",
+                    "same_live_object",
+                    "scope_id",
+                    "thread_id",
+                )
+            }
+            | {
+                "ambiguous_concurrent_scopes": False,
+                "competing_scopes": [],
+                "suppressed_outer_observation_count": len(duplicates) - 1,
+            }
+        )
+    return sorted(selected, key=lambda row: row["event_order"])
+
+
+def selected_python_native_originless_rows(
+    python: Path,
+    cwd: Path,
+    effective_environment: dict[str, str],
+    expected_runtime_profile: dict[str, Any],
+    expected_sys_path: list[str],
+    expected_startup_files: list[dict[str, Any]],
+    imports: list[dict[str, Any]],
+    targets: list[dict[str, Any]],
+    python_executable: dict[str, Any],
+    timeout_seconds: float,
+) -> dict[str, Any]:
+    """Replay actual candidate parents in the validated selected site profile."""
+    if not python.is_absolute() or not cwd.is_absolute() or not cwd.is_dir():
+        raise AuditFailure("native replay requires the selected launcher and collection cwd")
+    if not imports or not targets:
+        raise AuditFailure("native replay requires source-bound imports and target modules")
+    if (
+        isinstance(timeout_seconds, bool)
+        or not isinstance(timeout_seconds, (int, float))
+        or timeout_seconds <= 0
+    ):
+        raise AuditFailure("native replay timeout must be positive")
+    if python_executable_record(python) != python_executable:
+        raise AuditFailure("native replay launcher differs from its bound Python executable")
+    payload = json.dumps(
+        {"imports": imports, "targets": targets},
+        ensure_ascii=True,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    try:
+        result = subprocess.run(  # noqa: S603 -- exact launcher, bound imports, and captured environment.
+            [str(python), "-B", "-c", PYTHON_NATIVE_ORIGINLESS_PROFILE_PROBE],
+            cwd=cwd,
+            env=effective_environment,
+            input=payload,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=timeout_seconds,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        raise AuditFailure("selected-profile native originless replay did not complete") from error
+    if result.returncode:
+        raise AuditFailure("selected-profile native originless replay exited unsuccessfully")
+    try:
+        report = json.loads(result.stdout)
+    except json.JSONDecodeError as error:
+        raise AuditFailure("selected-profile native replay returned malformed JSON") from error
+    if not isinstance(report, dict) or set(report) != {
+        "runtime_profile",
+        "sys_path",
+        "startup_files",
+        "effective_environment",
+        "native_site_entry_originless_module_names",
+        "native_tracker_install_originless_module_names",
+        "imports",
+        "targets",
+        "native_exec_scope_observations",
+    }:
+        raise AuditFailure("selected-profile native replay schema differs")
+    if report.get("runtime_profile") != expected_runtime_profile:
+        raise AuditFailure("native replay runtime profile differs from actual collection")
+    if report.get("sys_path") != expected_sys_path:
+        raise AuditFailure("native replay sys.path differs from actual collection")
+    if report.get("startup_files") != expected_startup_files:
+        raise AuditFailure("native replay startup-file closure differs from actual collection")
+    if report.get("effective_environment") != effective_environment:
+        raise AuditFailure("native replay environment differs from actual collection")
+    _native_observer_boundary_names(
+        report.get("native_site_entry_originless_module_names"),
+        "native replay site-entry originless modules",
+    )
+    _native_observer_boundary_names(
+        report.get("native_tracker_install_originless_module_names"),
+        "native replay tracker-install originless modules",
+    )
+    if report.get("imports") != imports:
+        raise AuditFailure("native replay did not bind every requested source import")
+    if python_executable_record(python) != python_executable:
+        raise AuditFailure("selected launcher changed during native originless replay")
+    return report
+
+
+def reconcile_native_originless_rows(
+    modules: dict[str, dict[str, Any]],
+    source_records: dict[str, dict[str, Any]],
+    report: dict[str, Any],
+    python: Path,
+    collection_cwd: Path,
+    python_executable: dict[str, Any],
+    timeout_seconds: float,
+) -> list[dict[str, Any]]:
+    """Route exact originless modules through complete parent or native-scope custody."""
+    exact_candidates = {
+        name: row
+        for name, row in modules.items()
+        if row.get("origin") is None
+        and row.get("search_locations") == []
+        and isinstance(row.get("runtime_generated_data"), dict)
+        and row["runtime_generated_data"].get("exact_module_type") is True
+    }
+    selected_rows: dict[str, dict[str, Any]] = {}
+    expected_bindings: dict[str, list[dict[str, str]]] = {}
+    parent_names: set[str] = set()
+    parentless_names: set[str] = set()
+    for module_name, row in exact_candidates.items():
+        if row.get("runtime_module_name") != module_name:
+            raise AuditFailure(
+                f"originless module key differs from its live object name: {module_name}"
+            )
+        evidence = row["runtime_generated_data"]
+        if set(evidence) != {
+            "exact_module_type",
+            "file_is_none",
+            "path_is_none",
+            "spec_is_none",
+            "namespace_snapshot_sha256",
+            "namespace_live_identity_sha256",
+            "namespace_state_opaque_value_count",
+            "parent_bindings",
+            "supported",
+            "bytes",
+            "sha256",
+        }:
+            raise AuditFailure(f"originless module runtime evidence schema differs: {module_name}")
+        if any(
+            evidence.get(field) is not True
+            for field in ("exact_module_type", "file_is_none", "path_is_none", "spec_is_none")
+        ):
+            raise AuditFailure(f"originless module is not an exact no-path module: {module_name}")
+        state_sha = evidence.get("namespace_snapshot_sha256")
+        live_state_sha = evidence.get("namespace_live_identity_sha256")
+        if (
+            not isinstance(state_sha, str)
+            or not re.fullmatch(r"[0-9a-f]{64}", state_sha)
+            or not isinstance(live_state_sha, str)
+            or not re.fullmatch(r"[0-9a-f]{64}", live_state_sha)
+        ):
+            raise AuditFailure(f"originless module namespace state is unbound: {module_name}")
+        opaque_count = evidence.get("namespace_state_opaque_value_count")
+        if type(opaque_count) is not int or opaque_count < 0:
+            raise AuditFailure(
+                f"originless module namespace opacity count is malformed: {module_name}"
+            )
+        supported = evidence.get("supported")
+        if type(supported) is not bool:
+            raise AuditFailure(f"originless module data support state is malformed: {module_name}")
+        if supported:
+            if (
+                type(evidence.get("bytes")) is not int
+                or evidence["bytes"] < 0
+                or not isinstance(evidence.get("sha256"), str)
+                or not re.fullmatch(r"[0-9a-f]{64}", evidence["sha256"])
+            ):
+                raise AuditFailure(f"originless module data digest is malformed: {module_name}")
+        elif evidence.get("bytes") is not None or evidence.get("sha256") is not None:
+            raise AuditFailure(f"unsupported originless data digest carries values: {module_name}")
+        bindings = evidence.get("parent_bindings")
+        if not isinstance(bindings, list) or any(
+            not isinstance(binding, dict)
+            or set(binding) != {"parent", "attribute"}
+            or not isinstance(binding.get("parent"), str)
+            or not binding["parent"]
+            or not isinstance(binding.get("attribute"), str)
+            or not binding["attribute"]
+            for binding in bindings
+        ):
+            raise AuditFailure(f"originless module bindings are malformed: {module_name}")
+        ordered = sorted(bindings, key=lambda binding: (binding["parent"], binding["attribute"]))
+        if bindings != ordered or len(
+            {(binding["parent"], binding["attribute"]) for binding in bindings}
+        ) != len(bindings):
+            raise AuditFailure(
+                f"originless module bindings are repeated or unordered: {module_name}"
+            )
+        if supported and bindings:
+            # The established strict-data parent route remains in the isolated verifier.
+            continue
+        selected_rows[module_name] = row
+        expected_bindings[module_name] = bindings
+        if bindings:
+            parent_names.update(binding["parent"] for binding in bindings)
+        else:
+            parentless_names.add(module_name)
+
+    if not selected_rows:
+        if exact_candidates:
+            return []
+        return []
+
+    capture_site_entry_names = _native_observer_boundary_names(
+        report.get("native_site_entry_originless_module_names"),
+        "collection site-entry originless modules",
+    )
+    capture_tracker_install_names = _native_observer_boundary_names(
+        report.get("native_tracker_install_originless_module_names"),
+        "collection tracker-install originless modules",
+    )
+    for module_name in parentless_names:
+        _validate_native_observer_boundary(
+            module_name, capture_site_entry_names, capture_tracker_install_names
+        )
+
+    native_observations = report.get("native_exec_scope_observations")
+    if not isinstance(native_observations, list):
+        raise AuditFailure("collection report omits native execution-scope observations")
+    capture_events_by_target: dict[str, list[dict[str, Any]]] = {}
+    for observation in native_observations:
+        if not isinstance(observation, dict) or not isinstance(observation.get("target"), str):
+            raise AuditFailure("collection native execution observation is malformed")
+        target_name = observation["target"]
+        if target_name in parentless_names:
+            capture_events_by_target.setdefault(target_name, []).append(observation)
+
+    imports_by_name: dict[str, dict[str, Any]] = {}
+
+    def bind_import(name: str, *, require_file: bool = False) -> dict[str, Any]:
+        descriptor = native_source_import_descriptor(
+            name, modules, source_records, require_file=require_file
+        )
+        existing = imports_by_name.setdefault(name, descriptor)
+        if existing != descriptor:
+            raise AuditFailure(f"native replay source has conflicting rows: {name}")
+        return descriptor
+
+    for bindings in expected_bindings.values():
+        for binding in bindings:
+            bind_import(binding["parent"])
+    captured_native_by_target: dict[str, list[dict[str, Any]]] = {}
+    for module_name in sorted(parentless_names):
+        observations = capture_events_by_target.get(module_name, [])
+        if not observations:
+            raise AuditFailure(
+                f"parentless originless module has no observed native execution scope: "
+                f"{module_name}"
+            )
+        normalized = []
+        concurrent_observations = [
+            observation
+            for observation in observations
+            if isinstance(observation, dict)
+            and observation.get("ambiguous_concurrent_scopes") is True
+        ]
+        if concurrent_observations:
+            competitor_rows: dict[int, dict[str, Any]] = {}
+            transition_rows = []
+            for observation in concurrent_observations:
+                required_ambiguous_fields = {
+                    "target",
+                    "target_identity",
+                    "event_order",
+                    "event_kind",
+                    "before_sha256",
+                    "after_sha256",
+                    "before_live_identity_sha256",
+                    "after_live_identity_sha256",
+                    "opaque_runtime_value_count",
+                    "ambiguous_concurrent_scopes",
+                    "competing_scopes",
+                    "same_live_object",
+                }
+                if (
+                    set(observation) != required_ambiguous_fields
+                    or observation.get("target") != module_name
+                    or type(observation.get("target_identity")) is not int
+                    or observation["target_identity"] <= 0
+                    or type(observation.get("event_order")) is not int
+                    or observation["event_order"] < 0
+                    or observation.get("event_kind") not in {"appearance", "namespace_delta"}
+                    or not isinstance(observation.get("after_sha256"), str)
+                    or not re.fullmatch(r"[0-9a-f]{64}", observation["after_sha256"])
+                    or observation.get("same_live_object") is not True
+                ):
+                    raise AuditFailure(
+                        "parentless module concurrent scope observation is malformed: "
+                        f"{module_name}"
+                    )
+                competitors = _native_scope_competitor_sources(
+                    observation.get("competing_scopes"), modules, source_records
+                )
+                for competitor in competitors:
+                    prior_competitor = competitor_rows.setdefault(
+                        competitor["scope_id"], competitor
+                    )
+                    if prior_competitor != competitor:
+                        raise AuditFailure(
+                            f"parentless module concurrent scope identity changed: {module_name}"
+                        )
+                transition_rows.append(
+                    {
+                        "event_order": observation["event_order"],
+                        "event_kind": observation["event_kind"],
+                        "before_sha256": observation.get("before_sha256"),
+                        "after_sha256": observation["after_sha256"],
+                        "competing_scope_ids": [row["scope_id"] for row in competitors],
+                    }
+                )
+            observed_overlap = json.dumps(
+                {
+                    "transitions": transition_rows,
+                    "competing_sources": sorted(
+                        competitor_rows.values(), key=lambda row: row["scope_id"]
+                    ),
+                },
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+            raise AuditFailure(
+                "parentless originless module has overlapping cross-thread native scopes: "
+                f"{module_name}; observed={observed_overlap}"
+            )
+        for observation in observations:
+            if observation.get("ambiguous_deepest_scope") is True:
+                raise AuditFailure(
+                    f"parentless originless module has ambiguous deepest scope: {module_name}"
+                )
+            required_fields = {
+                "target",
+                "target_identity",
+                "event_order",
+                "event_kind",
+                "before_sha256",
+                "after_sha256",
+                "before_live_identity_sha256",
+                "after_live_identity_sha256",
+                "opaque_runtime_value_count",
+                "scope_depth",
+                "scope_chain",
+                "scope_id",
+                "thread_id",
+                "ambiguous_concurrent_scopes",
+                "competing_scopes",
+                "producer",
+                "producer_paired_create",
+                "same_live_object",
+                "suppressed_outer_observation_count",
+            }
+            if set(observation) != required_fields or observation.get("target") != module_name:
+                raise AuditFailure(
+                    f"parentless originless scope evidence differs from schema: {module_name}"
+                )
+            if (
+                type(observation.get("target_identity")) is not int
+                or observation["target_identity"] <= 0
+                or type(observation.get("event_order")) is not int
+                or type(observation.get("scope_depth")) is not int
+                or type(observation.get("scope_id")) is not int
+                or observation["scope_id"] <= 0
+                or type(observation.get("thread_id")) is not int
+                or observation["thread_id"] <= 0
+                or observation.get("ambiguous_concurrent_scopes") is not False
+                or observation.get("competing_scopes") != []
+                or type(observation.get("suppressed_outer_observation_count")) is not int
+                or observation["suppressed_outer_observation_count"] < 0
+                or observation.get("producer_paired_create") is not True
+                or observation.get("same_live_object") is not True
+                or type(observation.get("opaque_runtime_value_count")) is not int
+                or observation["opaque_runtime_value_count"] < 0
+                or (
+                    observation.get("before_live_identity_sha256") is not None
+                    and (
+                        not isinstance(observation.get("before_live_identity_sha256"), str)
+                        or not re.fullmatch(
+                            r"[0-9a-f]{64}", observation["before_live_identity_sha256"]
+                        )
+                    )
+                )
+                or not isinstance(observation.get("after_live_identity_sha256"), str)
+                or not re.fullmatch(r"[0-9a-f]{64}", observation["after_live_identity_sha256"])
+            ):
+                raise AuditFailure(f"parentless scope evidence is not object-bound: {module_name}")
+            producer = observation.get("producer")
+            chain = observation.get("scope_chain")
+            if (
+                not isinstance(producer, dict)
+                or set(producer) != {"module", "origin"}
+                or not isinstance(producer.get("module"), str)
+                or not isinstance(producer.get("origin"), str)
+                or not isinstance(chain, list)
+                or len(chain) != observation["scope_depth"]
+                or chain[-1] != producer
+            ):
+                raise AuditFailure(f"parentless scope producer is malformed: {module_name}")
+            root_scope = chain[0]
+            for scope in chain:
+                source = native_source_import_descriptor(
+                    scope["module"], modules, source_records, require_file=True
+                )
+                if source["origin"] != scope["origin"]:
+                    raise AuditFailure(
+                        f"parentless scope chain differs from its bound source: {module_name}"
+                    )
+            bind_import(root_scope["module"], require_file=True)
+            normalized.append(observation)
+        normalized.sort(key=lambda row: row["event_order"])
+        if len({row["event_order"] for row in normalized}) != len(normalized):
+            raise AuditFailure(f"parentless scope event order repeats: {module_name}")
+        evidence = selected_rows[module_name]["runtime_generated_data"]
+        _validate_native_scope_transition_chain(
+            module_name,
+            normalized,
+            evidence["namespace_snapshot_sha256"],
+            evidence["namespace_live_identity_sha256"],
+        )
+        captured_native_by_target[module_name] = normalized
+
+    targets = []
+    for module_name, row in sorted(selected_rows.items()):
+        evidence = row["runtime_generated_data"]
+        targets.append(
+            {
+                "module": module_name,
+                "namespace_snapshot_sha256": evidence["namespace_snapshot_sha256"],
+                "expected_bindings": [
+                    [binding["parent"], binding["attribute"]]
+                    for binding in expected_bindings[module_name]
+                ],
+            }
+        )
+    replay = selected_python_native_originless_rows(
+        python,
+        collection_cwd,
+        environment_mapping(
+            report.get("effective_environment"), "effective collection environment"
+        ),
+        report.get("python", {}).get("runtime_profile"),
+        report.get("python", {}).get("sys_path"),
+        report.get("startup_files"),
+        [imports_by_name[name] for name in sorted(imports_by_name)],
+        targets,
+        python_executable,
+        timeout_seconds,
+    )
+    replay_site_entry_names = _native_observer_boundary_names(
+        replay.get("native_site_entry_originless_module_names"),
+        "selected-profile replay site-entry originless modules",
+    )
+    replay_tracker_install_names = _native_observer_boundary_names(
+        replay.get("native_tracker_install_originless_module_names"),
+        "selected-profile replay tracker-install originless modules",
+    )
+    for module_name in parentless_names:
+        _validate_native_observer_boundary(
+            module_name, replay_site_entry_names, replay_tracker_install_names
+        )
+    replay_targets = replay.get("targets")
+    if not isinstance(replay_targets, list) or [
+        target.get("module") for target in replay_targets if isinstance(target, dict)
+    ] != sorted(selected_rows):
+        raise AuditFailure("selected-profile replay target set differs from the routed module set")
+    replay_by_name = {target["module"]: target for target in replay_targets}
+    for module_name, row in selected_rows.items():
+        evidence = row["runtime_generated_data"]
+        observed = replay_by_name[module_name]
+        if (
+            observed.get("present") is not True
+            or observed.get("exact_module_type") is not True
+            or observed.get("namespace_snapshot_sha256") != evidence["namespace_snapshot_sha256"]
+            or observed.get("namespace_state_opaque_value_count")
+            != evidence["namespace_state_opaque_value_count"]
+            or observed.get("parent_bindings")
+            != [
+                [binding["parent"], binding["attribute"]]
+                for binding in expected_bindings[module_name]
+            ]
+        ):
+            raise AuditFailure(
+                f"selected-profile originless object or complete bindings differ: {module_name}"
+            )
+        observed_data = observed.get("data")
+        if not isinstance(observed_data, dict) or observed_data != {
+            "supported": evidence["supported"],
+            "bytes": evidence["bytes"],
+            "sha256": evidence["sha256"],
+        }:
+            raise AuditFailure(f"selected-profile originless module digest differs: {module_name}")
+        if module_name in parentless_names:
+            replay_events = replay.get("native_exec_scope_observations")
+            replay_overlaps = (
+                [
+                    event
+                    for event in replay_events
+                    if isinstance(event, dict)
+                    and event.get("target") == module_name
+                    and event.get("overlapping_scopes")
+                ]
+                if isinstance(replay_events, list)
+                else []
+            )
+            if replay_overlaps:
+                competitor_sources, transition_rows = _native_scope_overlap_witness(
+                    replay_overlaps, module_name, modules, source_records
+                )
+                observed_overlap = json.dumps(
+                    {
+                        "transitions": transition_rows,
+                        "competing_sources": competitor_sources,
+                    },
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )
+                raise AuditFailure(
+                    "selected-profile replay target has overlapping cross-thread native scopes: "
+                    f"{module_name}; observed={observed_overlap}"
+                )
+            replay_selected = _select_replayed_native_events(replay_events, module_name)
+            capture_selected = captured_native_by_target[module_name]
+            replay_appearance = [
+                event for event in replay_selected if event.get("event_kind") == "appearance"
+            ]
+            if len(replay_appearance) != 1:
+                raise AuditFailure(
+                    f"selected-profile replay has an ambiguous appearance: {module_name}"
+                )
+            replay_later = [
+                event
+                for event in replay_selected
+                if event["event_order"] > replay_appearance[0]["event_order"]
+            ]
+            replay_final_sha = (
+                replay_later[-1]["after_sha256"]
+                if replay_later
+                else replay_appearance[0]["after_sha256"]
+            )
+            replay_final_live_sha = (
+                replay_later[-1]["after_live_identity_sha256"]
+                if replay_later
+                else replay_appearance[0]["after_live_identity_sha256"]
+            )
+            if replay_final_sha != observed.get(
+                "namespace_snapshot_sha256"
+            ) or replay_final_live_sha != observed.get("namespace_live_identity_sha256"):
+                raise AuditFailure(
+                    f"selected-profile replay state is not bound to its live scope: {module_name}"
+                )
+            if [_native_event_signature(event) for event in capture_selected] != [
+                _native_event_signature(event) for event in replay_selected
+            ]:
+                raise AuditFailure(
+                    f"selected-profile native execution scope differs from collection: "
+                    f"{module_name}"
+                )
+
+    records = []
+    for module_name, row in sorted(selected_rows.items()):
+        evidence = row["runtime_generated_data"]
+        bindings = expected_bindings[module_name]
+        parent_sources = []
+        for binding in bindings:
+            parent = modules[binding["parent"]]
+            source = source_records[binding["parent"]]
+            parent_sources.append(
+                {
+                    "module": binding["parent"],
+                    "origin": parent.get("origin"),
+                    "sha256": source.get("sha256"),
+                    "kind": source.get("kind"),
+                }
+            )
+        record: dict[str, Any] = {
+            "kind": (
+                "selected_profile_originless_complete_parent_binding"
+                if bindings
+                else "selected_profile_originless_native_exec_scope"
+            ),
+            "module": module_name,
+            "parent_bindings": bindings,
+            "parent_sources": parent_sources,
+            "namespace_snapshot_sha256": evidence["namespace_snapshot_sha256"],
+            "namespace_state_opaque_value_count": evidence["namespace_state_opaque_value_count"],
+            "data_supported": evidence["supported"],
+            "data_bytes": evidence["bytes"],
+            "data_sha256": evidence["sha256"],
+            "selected_runtime_profile_predicate": "independently_reconciled",
+            "native_execution_scope_predicate": (
+                "recomputed_observed_exec_dynamic_scope"
+                if module_name in parentless_names
+                else "not_required_for_parent_binding"
+            ),
+            "native_scope_concurrency_predicate": (
+                "recomputed_interval_overlap_free"
+                if module_name in parentless_names
+                else "not_required_for_parent_binding"
+            ),
+            "live_execution_provenance": (
+                "recomputed_observed_scope_not_sole_writer_proof"
+                if module_name in parentless_names
+                else "not_established"
+            ),
+            "python_executable_sha256": python_executable["sha256"],
+        }
+        if module_name in parentless_names:
+            record["native_scope_observations"] = [
+                {
+                    key: event[key]
+                    for key in (
+                        "event_kind",
+                        "before_sha256",
+                        "after_sha256",
+                        "before_live_identity_sha256",
+                        "after_live_identity_sha256",
+                        "opaque_runtime_value_count",
+                        "scope_depth",
+                        "scope_chain",
+                        "scope_id",
+                        "thread_id",
+                        "ambiguous_concurrent_scopes",
+                        "competing_scopes",
+                        "producer",
+                        "producer_paired_create",
+                        "suppressed_outer_observation_count",
+                    )
+                }
+                for event in captured_native_by_target[module_name]
+            ]
+        records.append(record)
+    routed_names = set(selected_rows) | {
+        name
+        for name, row in exact_candidates.items()
+        if row["runtime_generated_data"].get("supported") is True
+        and row["runtime_generated_data"].get("parent_bindings")
+    }
+    if routed_names != set(exact_candidates):
+        raise AuditFailure("originless exact-module route partition is incomplete")
+    return records
 
 
 def collection_profile_directories(python_profile: dict[str, Any], field: str) -> list[Path]:
@@ -4432,6 +6378,7 @@ def bind_collection_origins(
     environment_creator_profile: dict[str, Any],
     selected_creator: dict[str, Any],
     timeout_seconds: float,
+    declared_environment: dict[str, str],
 ) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
     """Bind every loaded module, config, startup file, plugin, and conftest origin."""
     python_profile = report.get("python")
@@ -4439,6 +6386,14 @@ def bind_collection_origins(
     if not isinstance(python_profile, dict) or not isinstance(modules, list):
         raise AuditFailure("pytest collection report omits its runtime or module-origin inventory")
     module_rows, non_module_sys_modules = bind_collection_module_inventory(report)
+    site_entry_originless_names = _native_observer_boundary_names(
+        report.get("native_site_entry_originless_module_names"),
+        "collection site-entry originless modules",
+    )
+    tracker_install_originless_names = _native_observer_boundary_names(
+        report.get("native_tracker_install_originless_module_names"),
+        "collection tracker-install originless modules",
+    )
     sys_path = python_profile.get("sys_path")
     if not isinstance(sys_path, list):
         raise AuditFailure("pytest collection report omits its effective import path")
@@ -4473,7 +6428,15 @@ def bind_collection_origins(
                 record["modules"] = [module_name]
             origin_rows[key] = record
 
-    origin_rows: dict[str, dict[str, Any]] = {}
+    origin_rows: dict[str, dict[str, Any]] = {
+        "native-import-observer-startup-boundary": {
+            "kind": "native_import_observer_startup_boundary",
+            "site_entry_originless_module_names": site_entry_originless_names,
+            "tracker_install_originless_module_names": tracker_install_originless_names,
+            "site_entry_predicate": "recomputed_from_direct_sys_modules_objects",
+            "tracker_install_predicate": "recomputed_from_direct_sys_modules_objects",
+        }
+    }
     distribution_record_cache: dict[tuple[str, ...], dict[str, Any]] = {}
     distribution_record_rows_cache: dict[
         tuple[str, ...], dict[str, list[tuple[str, str, bool]]]
@@ -4706,16 +6669,6 @@ def bind_collection_origins(
             **class_record,
         }
 
-    for record in reconcile_generated_module_rows(
-        module_rows,
-        source_records,
-        expected_runtime_profile,
-        python,
-        python_executable,
-        timeout_seconds,
-    ):
-        retain_record(record, record["module"])
-
     plugin_rows = report.get("plugins")
     if not isinstance(plugin_rows, list):
         raise AuditFailure("pytest collection report omits the loaded plugin inventory")
@@ -4831,6 +6784,33 @@ def bind_collection_origins(
             or existing.get("sha256") != record_evidence["sha256"]
         ):
             raise AuditFailure(f"installed RECORD changed during complete ownership census: {key}")
+    bound_environment = bound_pytest_environment(report, list(origin_rows.values()), lock_versions)
+    reconcile_effective_collection_environment(
+        declared_environment,
+        expected_runtime_profile.get("startup_environment"),
+        bound_environment,
+        report.get("effective_environment"),
+    )
+    for record in reconcile_generated_module_rows(
+        module_rows,
+        source_records,
+        expected_runtime_profile,
+        python,
+        python_executable,
+        timeout_seconds,
+    ):
+        retain_record(record, record["module"])
+    for record in reconcile_native_originless_rows(
+        module_rows,
+        source_records,
+        report,
+        python,
+        repo / "policy-engine",
+        python_executable,
+        timeout_seconds,
+    ):
+        origin_rows[f"originless-module:{record['module']}"] = record
+
     return [origin_rows[key] for key in sorted(origin_rows)], non_module_sys_modules
 
 
@@ -5018,11 +6998,7 @@ def collect_ids(
     )
     if isolated_runtime_before["launcher_record"] != python_before:
         raise AuditFailure("selected Python launcher changed before isolated profile capture")
-    args = [
-        str(python),
-        "-B",
-        "-m",
-        "pytest",
+    pytest_arguments = [
         "-p",
         "no:cacheprovider",
         "-p",
@@ -5041,6 +7017,27 @@ def collect_ids(
         str(product),
         *selectors,
     ]
+    entrypoint_source = (
+        "import sys\n"
+        "import types\n"
+        "def _q2_originless_module_names():\n"
+        "    values = []\n"
+        "    for key, module in tuple(sys.modules.copy().items()):\n"
+        "        if type(key) is not str or type(module) is not types.ModuleType:\n"
+        "            continue\n"
+        "        namespace = types.ModuleType.__getattribute__(module, '__dict__')\n"
+        "        if (namespace.get('__file__') is None and namespace.get('__path__') is None "
+        "and namespace.get('__spec__') is None):\n"
+        "            values.append(key)\n"
+        "    return sorted(values)\n"
+        "sys.__dict__['_polisyos_q2_site_entry_originless_module_names'] = "
+        "_q2_originless_module_names()\n"
+        "import importlib\n"
+        "import runpy\n"
+        f"importlib.import_module({COLLECTION_PLUGIN_NAME!r})\n"
+        "runpy.run_module('pytest', run_name='__main__', alter_sys=True)\n"
+    )
+    args = [str(python), "-B", "-c", entrypoint_source, *pytest_arguments]
     started = time.monotonic()
     try:
         result = subprocess.run(  # noqa: S603 -- explicit Python profile and fixed pytest collection argv.
@@ -5130,6 +7127,7 @@ def collect_ids(
         environment_creator_profile,
         selected_creator,
         timeout_seconds,
+        environment,
     )
     if not any(row.get("kind") == "helper_generated_collection_plugin" for row in origins):
         raise AuditFailure("the source-bound collection capture plugin was not loaded")
@@ -7474,6 +9472,488 @@ def self_test_record_origin_inventory() -> dict[str, bool]:
     return cases
 
 
+def self_test_native_originless_scope() -> dict[str, bool]:
+    """Exercise the native-scope source path with nested and counterfeit module objects."""
+    import _imp
+    import importlib.machinery
+    import threading
+    import types
+
+    plugin_namespace: dict[str, Any] = {"__name__": "q2_native_scope_self_test"}
+    prior_pytest = sys.modules.get("pytest")
+    pytest_stub = types.ModuleType("pytest")
+    pytest_stub.hookimpl = lambda **_kwargs: (lambda function: function)
+    sys.modules["pytest"] = pytest_stub
+    target_name = "q2_native_scope_fixture.target"
+    prior_target = sys.modules.get(target_name)
+    cases: dict[str, bool] = {}
+    for case_name, site_names, tracker_names in (
+        ("site-entry-existing-target-refuses-scope", [target_name], []),
+        ("tracker-install-existing-target-refuses-scope", [], [target_name]),
+    ):
+        try:
+            _validate_native_observer_boundary(target_name, site_names, tracker_names)
+        except AuditFailure as error:
+            cases[case_name] = (
+                "parentless module existed before native observer installation" in str(error)
+            )
+        else:
+            cases[case_name] = False
+    cases["empty-observer-boundaries-are-valid"] = (
+        _native_observer_boundary_names([], "self-test boundary") == []
+    )
+    try:
+        _native_observer_boundary_names(["z", "a"], "self-test boundary")
+    except AuditFailure as error:
+        cases["unsorted-observer-boundary-refuses"] = "sorted unique module-name list" in str(error)
+    else:
+        cases["unsorted-observer-boundary-refuses"] = False
+    try:
+        exec(  # noqa: S102 -- executes only the exact capture plugin in this in-memory test.
+            compile(COLLECTION_PLUGIN_SOURCE, "q2-native-scope-self-test", "exec"),
+            plugin_namespace,
+        )
+        plugin_namespace["_NATIVE_CREATE_BY_ID"].clear()
+        plugin_namespace["_NATIVE_EXEC_EVENTS"].clear()
+
+        outer_spec = importlib.machinery.ModuleSpec(
+            "q2_native_scope_fixture.outer", loader=None, origin=str(Path(__file__).resolve())
+        )
+        inner_spec = importlib.machinery.ModuleSpec(
+            "q2_native_scope_fixture.inner", loader=None, origin=str(Path(__file__).resolve())
+        )
+        outer_spec.name = "q2_native_scope_fixture.outer"
+        inner_spec.name = "q2_native_scope_fixture.inner"
+        created = plugin_namespace["_native_created_module"]
+        executed = plugin_namespace["_native_exec_module"]
+
+        def fake_create(
+            spec: importlib.machinery.ModuleSpec,
+            *_args: object,
+            **_kwargs: object,
+        ) -> types.ModuleType:
+            module = types.ModuleType(spec.name)
+            module.__spec__ = spec
+            return module
+
+        def fake_exec(
+            module: types.ModuleType,
+            *_args: object,
+            **_kwargs: object,
+        ) -> None:
+            module_name = vars(module).get("__name__")
+            if module_name == "q2_native_scope_fixture.outer":
+                target = types.ModuleType(target_name)
+                target.value = 0
+                sys.modules[target_name] = target
+                nested = created(inner_spec)
+                return executed(nested)
+            target = sys.modules[target_name]
+            target.value = 1
+            target.callable = lambda: 1
+            return None
+
+        plugin_namespace["_NATIVE_ORIGINAL_CREATE"] = fake_create
+        plugin_namespace["_NATIVE_ORIGINAL_EXEC"] = fake_exec
+        outer = created(outer_spec)
+        executed(outer)
+        target = sys.modules[target_name]
+        rows = [
+            {
+                "module": target_name,
+                "origin": None,
+                "search_locations": [],
+                "runtime_generated_data": {"exact_module_type": True},
+            }
+        ]
+        observations = plugin_namespace["_native_exec_scope_observations"](rows)
+        replay_events = []
+        for event in plugin_namespace["_NATIVE_EXEC_EVENTS"]:
+            replay_event = {key: value for key, value in event.items() if key != "target_module"}
+            replay_event["same_live_object"] = (
+                sys.modules.get(target_name) is event["target_module"]
+            )
+            replay_events.append(replay_event)
+        selected_observations = _select_replayed_native_events(replay_events, target_name)
+        cases["normalized_event_retains_live_target_identity"] = bool(
+            selected_observations
+        ) and all(type(row.get("target_identity")) is int for row in selected_observations)
+        appearance = [row for row in observations if row.get("event_kind") == "appearance"]
+        nested_deltas = [row for row in observations if row.get("event_kind") == "namespace_delta"]
+        cases["outer_absent_to_present_scope_binds_live_object"] = (
+            len(appearance) == 1
+            and appearance[0].get("producer")
+            == {
+                "module": "q2_native_scope_fixture.outer",
+                "origin": str(Path(__file__).resolve()),
+            }
+            and appearance[0].get("same_live_object") is True
+            and appearance[0].get("producer_paired_create") is True
+        )
+        cases["nested_partial_state_is_contained_not_false_creator"] = (
+            len(nested_deltas) == 1
+            and nested_deltas[0]["event_order"] < appearance[0]["event_order"]
+            and nested_deltas[0]["scope_depth"] > appearance[0]["scope_depth"]
+            and nested_deltas[0]["scope_chain"][: len(appearance[0]["scope_chain"])]
+            == appearance[0]["scope_chain"]
+            and nested_deltas[0]["after_sha256"] == appearance[0]["after_sha256"]
+        )
+
+        def concurrent_scope_case(first_module: str) -> bool:
+            concurrent_target = f"{target_name}.{first_module}.target"
+            entered = {
+                "q2_native_scope_fixture.concurrent_a": threading.Event(),
+                "q2_native_scope_fixture.concurrent_b": threading.Event(),
+            }
+            target_ready = threading.Event()
+            errors: list[str] = []
+            concurrent_specs = {
+                name: importlib.machinery.ModuleSpec(
+                    name, loader=None, origin=str(Path(__file__).resolve())
+                )
+                for name in entered
+            }
+
+            def concurrent_exec(
+                module: types.ModuleType, *_args: object, **_kwargs: object
+            ) -> None:
+                module_name = vars(module).get("__name__")
+                if module_name not in entered:
+                    raise RuntimeError(f"unexpected concurrent producer: {module_name}")
+                other_name = next(name for name in entered if name != module_name)
+                entered[module_name].set()
+                if not entered[other_name].wait(3):
+                    raise RuntimeError("concurrent native scope did not enter")
+                if module_name == "q2_native_scope_fixture.concurrent_a":
+                    target = types.ModuleType(concurrent_target)
+                    target.value = 1
+                    sys.modules[concurrent_target] = target
+                    target_ready.set()
+                elif not target_ready.wait(3):
+                    raise RuntimeError("target producer did not publish the module")
+
+            plugin_namespace["_NATIVE_CREATE_BY_ID"].clear()
+            plugin_namespace["_NATIVE_EXEC_EVENTS"].clear()
+            plugin_namespace["_NATIVE_ORIGINAL_EXEC"] = concurrent_exec
+            created_modules = {name: created(spec) for name, spec in concurrent_specs.items()}
+
+            def execute_concurrently(module: types.ModuleType) -> None:
+                try:
+                    executed(module)
+                except BaseException as error:
+                    errors.append(f"{type(error).__name__}: {error}")
+
+            first = threading.Thread(
+                target=execute_concurrently,
+                args=(created_modules[first_module],),
+                name=f"q2-native-{first_module}",
+            )
+            second_module = next(name for name in created_modules if name != first_module)
+            second = threading.Thread(
+                target=execute_concurrently,
+                args=(created_modules[second_module],),
+                name=f"q2-native-{second_module}",
+            )
+            first.start()
+            first_entered = entered[first_module].wait(3)
+            second.start()
+            first.join(5)
+            second.join(5)
+            rows = [
+                {
+                    "module": concurrent_target,
+                    "origin": None,
+                    "search_locations": [],
+                    "runtime_generated_data": {"exact_module_type": True},
+                }
+            ]
+            observed = plugin_namespace["_native_exec_scope_observations"](rows)
+            concurrent = [row for row in observed if row.get("ambiguous_concurrent_scopes") is True]
+            scopes = concurrent[0].get("competing_scopes", []) if len(concurrent) == 1 else []
+            producer_names = {
+                item.get("producer", {}).get("module")
+                for item in scopes
+                if isinstance(item, dict) and isinstance(item.get("producer"), dict)
+            }
+            scope_ids = [item.get("scope_id") for item in scopes if isinstance(item, dict)]
+            thread_ids = [item.get("thread_id") for item in scopes if isinstance(item, dict)]
+            try:
+                _select_replayed_native_events(observed, concurrent_target)
+            except AuditFailure as error:
+                replay_refused = "concurrent" in str(error) or "overlap" in str(error)
+            else:
+                replay_refused = False
+            result = (
+                first_entered
+                and not first.is_alive()
+                and not second.is_alive()
+                and not errors
+                and len(concurrent) == 1
+                and "producer" not in concurrent[0]
+                and producer_names == set(entered)
+                and len(scope_ids) == len(set(scope_ids)) == 2
+                and len(thread_ids) == len(set(thread_ids)) == 2
+                and replay_refused
+            )
+            sys.modules.pop(concurrent_target, None)
+            return result
+
+        cases["cross-thread-first-a-refuses-ambiguous-attribution"] = concurrent_scope_case(
+            "q2_native_scope_fixture.concurrent_a"
+        )
+        cases["cross-thread-first-b-refuses-ambiguous-attribution"] = concurrent_scope_case(
+            "q2_native_scope_fixture.concurrent_b"
+        )
+        owner_names = (
+            "q2_native_scope_fixture.concurrent_owner_a",
+            "q2_native_scope_fixture.concurrent_owner_b",
+        )
+        owner_path = str(Path(__file__).resolve())
+        owner_bytes = Path(owner_path).read_bytes()
+        owner_sha = hashlib.sha256(owner_bytes).hexdigest()
+        record_shas = {owner_names[0]: "a" * 64, owner_names[1]: "b" * 64}
+        owner_modules = {name: {"origin": owner_path, "sha256": owner_sha} for name in owner_names}
+        owner_records = {
+            name: {
+                "kind": "locked_python_distribution",
+                "sha256": owner_sha,
+                "bytes": len(owner_bytes),
+                "distribution_record_sha256": record_shas[name],
+            }
+            for name in owner_names
+        }
+        competing_scopes = [
+            {
+                "scope_id": index + 41,
+                "thread_id": 101 + index,
+                "producer": {"module": name, "origin": owner_path},
+            }
+            for index, name in enumerate(owner_names)
+        ]
+        ambiguous_row = {
+            "target": target_name,
+            "target_identity": 123,
+            "event_order": 0,
+            "event_kind": "appearance",
+            "before_sha256": None,
+            "after_sha256": "c" * 64,
+            "before_live_identity_sha256": None,
+            "after_live_identity_sha256": "d" * 64,
+            "opaque_runtime_value_count": 0,
+            "ambiguous_concurrent_scopes": True,
+            "competing_scopes": competing_scopes,
+            "same_live_object": True,
+        }
+        target_evidence = {
+            "exact_module_type": True,
+            "file_is_none": True,
+            "path_is_none": True,
+            "spec_is_none": True,
+            "namespace_snapshot_sha256": "c" * 64,
+            "namespace_live_identity_sha256": "d" * 64,
+            "namespace_state_opaque_value_count": 0,
+            "parent_bindings": [],
+            "supported": False,
+            "bytes": None,
+            "sha256": None,
+        }
+        target_row = {
+            "runtime_module_name": target_name,
+            "origin": None,
+            "search_locations": [],
+            "runtime_generated_data": target_evidence,
+        }
+        ambiguous_report = {
+            "native_site_entry_originless_module_names": [],
+            "native_tracker_install_originless_module_names": [],
+            "native_exec_scope_observations": [ambiguous_row],
+        }
+
+        def reconcile_ambiguous_target(
+            admitted_modules: dict[str, dict[str, Any]],
+            admitted_sources: dict[str, dict[str, Any]],
+        ) -> str | None:
+            try:
+                reconcile_native_originless_rows(
+                    {**admitted_modules, target_name: target_row},
+                    admitted_sources,
+                    ambiguous_report,
+                    Path(sys.executable).resolve(),
+                    Path.cwd(),
+                    {},
+                    1.0,
+                )
+            except AuditFailure as error:
+                return str(error)
+            return None
+
+        overlap_error = reconcile_ambiguous_target(owner_modules, owner_records)
+        replay_overlap_event = {
+            "target": target_name,
+            "scope_id": competing_scopes[0]["scope_id"],
+            "thread_id": competing_scopes[0]["thread_id"],
+            "producer": competing_scopes[0]["producer"],
+            "overlapping_scopes": [competing_scopes[1]],
+            "event_order": 0,
+            "event_kind": "appearance",
+            "before_sha256": None,
+            "after_sha256": "c" * 64,
+        }
+        replay_bound, replay_transitions = _native_scope_overlap_witness(
+            [replay_overlap_event], target_name, owner_modules, owner_records
+        )
+        cases["replay-overlap-witness-binds-every-competitor-record"] = (
+            [row["scope_id"] for row in replay_bound] == [41, 42]
+            and len(replay_transitions) == 1
+            and all(row["source_sha256"] == owner_sha for row in replay_bound)
+            and {row["distribution_record_sha256"] for row in replay_bound}
+            == set(record_shas.values())
+        )
+        cases["overlap-refusal-binds-all-competing-source-and-record-bytes"] = (
+            overlap_error is not None
+            and "overlapping cross-thread native scopes" in overlap_error
+            and all(name in overlap_error for name in owner_names)
+            and all(owner_sha in overlap_error for _name in owner_names)
+            and all(record_sha in overlap_error for record_sha in record_shas.values())
+            and all(str(index + 41) in overlap_error for index in range(len(owner_names)))
+        )
+        counterfeit_modules = {
+            **owner_modules,
+            owner_names[1]: {**owner_modules[owner_names[1]], "sha256": "e" * 64},
+        }
+        counterfeit_error = reconcile_ambiguous_target(counterfeit_modules, owner_records)
+        cases["overlap-refusal-rejects-counterfeit-competitor-source-digest"] = (
+            counterfeit_error is not None
+            and "native replay source bytes are not bound" in counterfeit_error
+            and "overlapping cross-thread native scopes" not in counterfeit_error
+        )
+        same_thread_scopes = [dict(row, thread_id=101) for row in competing_scopes]
+        try:
+            _native_scope_competitor_sources(same_thread_scopes, owner_modules, owner_records)
+        except AuditFailure as error:
+            cases["scope-list-without-distinct-threads-is-rejected"] = (
+                "distinct concurrent threads" in str(error)
+            )
+        else:
+            cases["scope-list-without-distinct-threads-is-rejected"] = False
+        root_scope = {
+            "module": "q2_native_scope_fixture.outer",
+            "origin": str(Path(__file__).resolve()),
+        }
+        inner_scope = {
+            "module": "q2_native_scope_fixture.inner",
+            "origin": str(Path(__file__).resolve()),
+        }
+        nested_transition = {
+            "event_order": 2,
+            "event_kind": "namespace_delta",
+            "before_sha256": "1" * 64,
+            "after_sha256": "2" * 64,
+            "before_live_identity_sha256": "4" * 64,
+            "after_live_identity_sha256": "5" * 64,
+            "scope_chain": [root_scope, inner_scope],
+        }
+        outer_appearance = {
+            "event_order": 3,
+            "event_kind": "appearance",
+            "before_sha256": None,
+            "after_sha256": "2" * 64,
+            "before_live_identity_sha256": None,
+            "after_live_identity_sha256": "5" * 64,
+            "scope_chain": [root_scope],
+        }
+        later_transition = {
+            "event_order": 4,
+            "event_kind": "namespace_delta",
+            "before_sha256": "2" * 64,
+            "after_sha256": "3" * 64,
+            "before_live_identity_sha256": "5" * 64,
+            "after_live_identity_sha256": "6" * 64,
+            "scope_chain": [root_scope],
+        }
+        valid_chain = [nested_transition, outer_appearance, later_transition]
+        try:
+            selected_appearance, selected_later = _validate_native_scope_transition_chain(
+                target_name, valid_chain, "3" * 64, "6" * 64
+            )
+            cases["nested_delta_before_appearance_is_contained"] = (
+                selected_appearance is outer_appearance and selected_later == [later_transition]
+            )
+        except AuditFailure:
+            cases["nested_delta_before_appearance_is_contained"] = False
+        counterfeit_chain = [dict(nested_transition, after_sha256="9" * 64), outer_appearance]
+        try:
+            _validate_native_scope_transition_chain(
+                target_name, counterfeit_chain, "2" * 64, "5" * 64
+            )
+        except AuditFailure as error:
+            cases["divergent_preappearance_delta_fails_closed"] = (
+                "pre-appearance nested scope is not contained" in str(error)
+            )
+        else:
+            cases["divergent_preappearance_delta_fails_closed"] = False
+        try:
+            _validate_native_scope_transition_chain(
+                target_name, [nested_transition], "2" * 64, "5" * 64
+            )
+        except AuditFailure as error:
+            cases["missing_appearance_fails_closed"] = "ambiguous first-appearance boundary" in str(
+                error
+            )
+        else:
+            cases["missing_appearance_fails_closed"] = False
+        alternate_process_event = dict(
+            outer_appearance,
+            target_identity=999,
+            before_live_identity_sha256="8" * 64,
+            after_live_identity_sha256="9" * 64,
+        )
+        cases["independent_replay_ignores_process_local_identity_ids"] = _native_event_signature(
+            outer_appearance
+        ) == _native_event_signature(alternate_process_event)
+        counterfeit = types.ModuleType(target_name)
+        counterfeit.__dict__.update(vars(target))
+        sys.modules[target_name] = counterfeit
+        counterfeit_observations = plugin_namespace["_native_exec_scope_observations"](rows)
+        cases["same_name_same_namespace_counterfeit_has_no_live_scope"] = (
+            counterfeit is not target
+            and vars(counterfeit).keys() == vars(target).keys()
+            and counterfeit_observations == []
+        )
+        sys.modules[target_name] = target
+
+        before_state = plugin_namespace["_native_module_state"](target)
+        target.callable = lambda: 2
+        after_state = plugin_namespace["_native_module_state"](target)
+        cases["same_module_object_namespace_mutation_changes_state"] = (
+            sys.modules[target_name] is target
+            and before_state[0] != after_state[0]
+            and before_state[1] != after_state[1]
+        )
+        plugin_namespace["_NATIVE_EXEC_EVENTS"].clear()
+        cases["remove_property_keep_module_markers_fails_closed"] = (
+            plugin_namespace["_native_exec_scope_observations"](rows) == []
+            and vars(target).get("__name__") == target_name
+            and vars(target).get("__file__") is None
+            and vars(target).get("__spec__") is None
+        )
+    finally:
+        _imp.create_dynamic = plugin_namespace.get("_NATIVE_ORIGINAL_CREATE", _imp.create_dynamic)
+        _imp.exec_dynamic = plugin_namespace.get("_NATIVE_ORIGINAL_EXEC", _imp.exec_dynamic)
+        if prior_target is None:
+            sys.modules.pop(target_name, None)
+        else:
+            sys.modules[target_name] = prior_target
+        if prior_pytest is None:
+            sys.modules.pop("pytest", None)
+        else:
+            sys.modules["pytest"] = prior_pytest
+    failures = sorted(name for name, passed in cases.items() if not passed)
+    if failures:
+        raise AuditFailure("native originless scope self-test failed: " + ", ".join(failures))
+    return cases
+
+
 def self_test() -> dict[str, Any]:
     """Exercise manifest drift controls without a repository, build, or test suite."""
     baseline = {"tests/unit/test_source.py::test_baseline"}
@@ -7624,38 +10104,38 @@ def self_test() -> dict[str, Any]:
     for name, expected_failure, mutate in (
         (
             "corrupt-count-mismatch",
-            "selected_node_count does not equal the declared ID list length",
+            "primary selected-node declaration node ID count differs from its declared ID list",
             lambda value: value["current_primary_suite"].update(
                 selected_node_count=len(actual) + 1
             ),
         ),
         (
             "float-count-alias",
-            "selected_node_count does not equal the declared ID list length",
+            "primary selected-node declaration node ID count differs from its declared ID list",
             lambda value: value["current_primary_suite"].update(
                 selected_node_count=float(len(actual))
             ),
         ),
         (
             "boolean-count-alias",
-            "selected_node_count does not equal the declared ID list length",
+            "primary selected-node declaration node ID count differs from its declared ID list",
             lambda value: value["current_primary_suite"].update(selected_node_count=True),
         ),
         (
             "string-count-alias",
-            "selected_node_count does not equal the declared ID list length",
+            "primary selected-node declaration node ID count differs from its declared ID list",
             lambda value: value["current_primary_suite"].update(
                 selected_node_count=str(len(actual))
             ),
         ),
         (
             "negative-count",
-            "selected_node_count does not equal the declared ID list length",
+            "primary selected-node declaration node ID count differs from its declared ID list",
             lambda value: value["current_primary_suite"].update(selected_node_count=-1),
         ),
         (
             "corrupt-digest",
-            "selected_node_ids_sha256 does not recompute from the ID list",
+            "primary selected-node declaration node ID digest differs from its declared ID list",
             lambda value: value["current_primary_suite"].update(selected_node_ids_sha256="0" * 64),
         ),
         # Keep the selector marker, but remove one independently collected ID.
@@ -8442,6 +10922,10 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
     subparsers.add_parser("self-test", help="run lightweight in-memory drift controls")
+    subparsers.add_parser(
+        "native-self-test",
+        help="run focused nested native-scope and object-identity controls",
+    )
     for command in ("prepare", "check"):
         sub = subparsers.add_parser(
             command, help="collect source IDs and rebind source-object inputs"
@@ -8481,6 +10965,11 @@ def main() -> int:
     args = parser.parse_args()
     if args.command == "self-test":
         sys.stdout.write(json.dumps(self_test(), indent=2, sort_keys=True) + "\n")
+        return 0
+    if args.command == "native-self-test":
+        sys.stdout.write(
+            json.dumps(self_test_native_originless_scope(), indent=2, sort_keys=True) + "\n"
+        )
         return 0
     output = Path(args.output_root).resolve()
     output_was_present = output.exists()

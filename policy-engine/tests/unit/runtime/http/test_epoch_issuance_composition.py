@@ -8,6 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from polisyos.core import artifacts
+from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.quality.epoch_certificate_issuance import (
@@ -15,6 +16,7 @@ from polisyos.runtime.quality.epoch_certificate_issuance import (
     NoEpochCertificateIssuanceInputResolver,
 )
 from polisyos.runtime.quality.epoch_transition_verification import CanonicalEpochTransitionVerifier
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 from tests.unit.runtime.http.test_runtime_deployment_security import (
     _config_mapping,
@@ -39,6 +41,7 @@ def test_container_propagates_exact_owner_to_actual_legacy_launch(
 
     def capture_launch(payload, **kwargs):
         captured.update(payload=payload, **kwargs)
+        return ExperimentState(run_id=payload["run_id"]).model_dump()
 
     monkeypatch.setattr("polisyos.scientist.api.run_experiment", capture_launch)
     with TestClient(app) as client:
@@ -79,13 +82,28 @@ def test_startup_verifier_provenance_is_readable_in_actual_tenant_scope(tmp_path
             b"refused candidate",
             artifacts.ArtifactWriteOptions(kind="test.transition", media_type="text/plain"),
         )
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=r"^signature_unverified$"):
             verifier.verify(
                 transition_artifact_ref=transition,
                 requested_query_context_ref="sha256:" + "a" * 64,
                 expected_authority_purpose="decision_validity_epoch_transition",
             )
-        assert store.get_bytes(verifier.verifier_provenance_ref.artifact_id)
+        assert verifier.verifier_provenance_ref.manifest_profile_sha256 is not None
+        assert store.get_bytes(verifier.verifier_provenance_ref)
+    with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-b"):
+        with pytest.raises(ArtifactOwnershipError):
+            store.get_bytes(verifier.verifier_provenance_ref)
+        tenant_b_transition = store.put_bytes(
+            b"refused candidate in tenant-b",
+            artifacts.ArtifactWriteOptions(kind="test.transition", media_type="text/plain"),
+        )
+        with pytest.raises(ValueError, match=r"^signature_unverified$"):
+            verifier.verify(
+                transition_artifact_ref=tenant_b_transition,
+                requested_query_context_ref="sha256:" + "a" * 64,
+                expected_authority_purpose="decision_validity_epoch_transition",
+            )
+        assert store.get_bytes(verifier.verifier_provenance_ref)
 
 
 def test_issuance_inventory_is_partitioned_by_active_tenant(tmp_path, monkeypatch) -> None:

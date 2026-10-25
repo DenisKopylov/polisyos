@@ -116,7 +116,7 @@ class CanonicalEpochTransitionVerifier:
     def _persist_execution_provenance(self) -> artifacts.ArtifactRef:
         # Re-emitting our own canonical bytes uses the ordinary CAS writer in the
         # active tenant/cell scope. It never grants access to someone else's input.
-        return self._store.put_bytes(
+        ref = self._store.put_bytes(
             canon.to_canonical_bytes(
                 {
                     "canonical_verifier": f"{type(self).__module__}.{type(self).__qualname__}",
@@ -128,7 +128,11 @@ class CanonicalEpochTransitionVerifier:
             artifacts.ArtifactWriteOptions(
                 kind="chronology.epoch_transition_verifier", media_type="application/json"
             ),
+            return_selected_profile=True,
         )
+        if ref.manifest_profile_sha256 is None:
+            raise ValueError("verifier_provenance_selected_profile_missing")
+        return ref
 
     def verify(
         self,

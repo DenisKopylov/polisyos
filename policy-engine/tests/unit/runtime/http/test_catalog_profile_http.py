@@ -239,6 +239,135 @@ def test_catalog_profile_http_selects_published_plan_through_fresh_reader(
 
 
 @pytest.mark.skipif(TestClient is None, reason="fastapi is not installed")
+def test_catalog_profile_http_recomputes_same_id_profile_drift_for_real_consumers(
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+) -> None:
+    """A live same-ID profile edit withholds stale published rows from real readers."""
+    from polisyos.data_forge.domains.catalog.batch.pipeline import (
+        current_catalog_publish_receipt,
+    )
+    from tests._helpers.runtime_http import close_runtime_api_env
+
+    fixture = _build_complete_published_fixture(tmp_path / "published", monkeypatch)
+    profile_registry = fixture.profile_registry
+    environments: list[dict[str, object]] = []
+    original_profile = profile_registry.get("worldbank_wdi")
+    try:
+        assert original_profile is not None
+        assert original_profile.profile_id == "worldbank_wdi"
+
+        baseline_env, _selection = _build_api_env(
+            tmp_path / "baseline-reader",
+            monkeypatch,
+            snapshot_root=fixture.snapshot_root,
+        )
+        environments.append(baseline_env)
+        baseline_client = baseline_env["client"]
+        assert baseline_client is not None
+        baseline = _resolve(baseline_client, baseline_env)
+        assert baseline.status_code == 200, baseline.text
+        baseline_body = baseline.json()
+        assert len(baseline_body["fetch_plans"]) == 1
+        assert baseline_body["candidates"][0]["metadata"]["source_currentness"] == "current"
+
+        receipt = current_catalog_publish_receipt(
+            fixture.database_path,
+            run_profile=_PROFILE,
+        )
+        assert receipt["state"] == "current"
+        profile_coverage = receipt["profile_input_coverage"]
+        assert isinstance(profile_coverage, dict)
+        assert profile_coverage["profiles"][original_profile.profile_id] == "none"
+
+        drifted_profile = original_profile.model_copy(
+            update={
+                "base_url": f"{original_profile.base_url.rstrip('/')}/e02-profile-drift",
+            },
+            deep=True,
+        )
+        assert drifted_profile.profile_id == original_profile.profile_id
+        assert drifted_profile.base_url != original_profile.base_url
+        profile_registry.register(drifted_profile, override=True)
+
+        warm = _resolve(baseline_client, baseline_env)
+        assert warm.status_code == 200, warm.text
+        warm_body = warm.json()
+        assert warm_body["fetch_plans"] == []
+        assert warm_body["candidates"]
+        assert warm_body["candidates"][0]["metadata"]["source_currentness"] != "current"
+        assert any(
+            warning.startswith(("catalog_source_stale:", "catalog_source_not_established:"))
+            for warning in warm_body["warnings"]
+        )
+
+        fresh_env, _fresh_selection = _build_api_env(
+            tmp_path / "fresh-drift-reader",
+            monkeypatch,
+            snapshot_root=fixture.snapshot_root,
+        )
+        environments.append(fresh_env)
+        fresh_client = fresh_env["client"]
+        assert fresh_client is not None
+        fresh = _resolve(fresh_client, fresh_env)
+        assert fresh.status_code == 200, fresh.text
+        fresh_body = fresh.json()
+        assert fresh_body["fetch_plans"] == []
+        assert fresh_body["candidates"]
+        assert fresh_body["candidates"][0]["metadata"]["source_currentness"] != "current"
+
+        # Removing the recomputed gate makes the persisted old dataset selectable.
+        # The receipt coverage below came from the real current producer receipt.
+        warm_control = baseline_env["app"].state._control_service._retrieval
+        with monkeypatch.context() as removal_control:
+            removal_control.setattr(
+                warm_control,
+                "_catalog_publish_admission",
+                lambda _catalog, _run_profile: (
+                    "current",
+                    "removed_live_profile_currentness_gate",
+                    profile_coverage,
+                ),
+            )
+            without_gate = _resolve(baseline_client, baseline_env)
+        assert without_gate.status_code == 200, without_gate.text
+        stale_plans = without_gate.json()["fetch_plans"]
+        assert len(stale_plans) == 1
+        assert stale_plans[0]["dataset_id"] == "scope_dataset"
+        warm_retrieval = baseline_env["app"].state._control_service._retrieval
+        persisted = warm_retrieval._dataset_catalog
+        assert persisted is not None
+        persisted_titles = {
+            result.title for result in persisted.search_datasets("scope metric", top_k=20)
+        }
+        assert stale_plans[0]["metadata"]["catalog_title"] in persisted_titles
+
+        # Restore the exact captured owner profile; currentness must recover from
+        # actual source content, without editing the published receipt or manifest.
+        profile_registry.register(original_profile, override=True)
+        restored_env, _restored_selection = _build_api_env(
+            tmp_path / "restored-reader",
+            monkeypatch,
+            snapshot_root=fixture.snapshot_root,
+        )
+        environments.append(restored_env)
+        restored_client = restored_env["client"]
+        assert restored_client is not None
+        restored = _resolve(restored_client, restored_env)
+        assert restored.status_code == 200, restored.text
+        restored_body = restored.json()
+        assert len(restored_body["fetch_plans"]) == 1
+        assert restored_body["candidates"][0]["metadata"]["source_currentness"] == "current"
+    finally:
+        if original_profile is not None:
+            profile_registry.register(original_profile, override=True)
+        for environment in reversed(environments):
+            close_runtime_api_env(environment)
+        fixture.producer_graph.close()
+        fixture.close()
+
+
+@pytest.mark.skipif(TestClient is None, reason="fastapi is not installed")
 def test_catalog_profile_http_refuses_absent_conflicting_and_malformed_selection(
     tmp_path: Path,
     monkeypatch: MonkeyPatch,

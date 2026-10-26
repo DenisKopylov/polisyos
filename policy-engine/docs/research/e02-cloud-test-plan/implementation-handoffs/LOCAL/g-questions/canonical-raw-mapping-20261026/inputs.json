@@ -1,0 +1,330 @@
+{
+  "compatibility": {
+    "governance": "Neither profile nor reader policy attests authority, provenance, creation time, currentness, permission, or publication status.",
+    "historical": "All .2 tag-bearing bytes continue to decode under current selected tag rules. The bytes do not attest which Python object produced them. Preserve exact originals; any source-qualified migration is a new artifact/view with lineage and actual time.",
+    "option_a": "Reader-first .3 rollout; writer enablement only after installed/no-checkout consumers verify; rollback disables writers first and retains readers for emitted .3 artifacts.",
+    "option_b": "Keep .2 wire law and readers; enforce early API admission with typed refusal and no store/cache side effects."
+  },
+  "current_source_hashes_sha256": {
+    "policy-engine/src/polisyos/common/canonical.py": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41",
+    "policy-engine/src/polisyos/core/artifacts/manifest.py": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+    "policy-engine/src/polisyos/core/canon/canon_json.py": "0d4cfb58210f8ae4254d4915ace7dc886cd42de2ecd76f701f697da8aecaa37c",
+    "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py": "511ffa1967c0c833b57ee3b6df41ea3e1eec9fc7f237bd2709e6e9e7baa538ab",
+    "policy-engine/src/polisyos/foundry/methods/compiler/specialization.py": "1279266088b008660dd9a36757daa2d4ea2cc972fc0b65a6acf85dfa90a5b4b7",
+    "policy-engine/src/polisyos/ir/artifacts/contracts.py": "e90869b1ae2ed3b0d3693e91c9542c35ccfe96e154168a32ec336d6cccc29841",
+    "policy-engine/src/polisyos/ir/model_layer/canon.py": "974cb9e6001b99a8dfe0cf0855b558b96d2d709efdc14eb0186c0068c5e8fbba",
+    "policy-engine/src/polisyos/scientist/api.py": "d22c6c6b4d773ee02843dea38d2d051716f5ee3ec26f1e9fba406a6004edf450",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py": "1a09deae5b3876b53199dc5901e1af51850d4a0d050124d1a928dbfcb7be903f",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py": "ef30d956f8aa58254bd8bd3a67c55e79d20c16e60497143d536576ec94103fe9",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py": "f204f831a7b4fa30e37cfed97bd794d213882ff4259cdb79c27ce1c2f4fa282c",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py": "12cfb068a2f9d563be46396caa48631a6a5cca19ff435af1d0e3bf7926694eac",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/producer_currentness.py": "d2ab6854798016c170fe12f6cc294cdabfcf0494bbd443c5aaf2f0361d61a740",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py": "335125a09166458c151d749ca1f8a8548df356f349d288db584c63f2a9000e0f",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py": "71c84670b45157861cb46ddafc79d03d52a3b3e383b1bfcb7560b5142bffa7fa",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/state.py": "7f02ad147eae494e905a984dd6eb1d5282e315122d40c37146ce66a0e9e180a9",
+    "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py": "ce3c658f22492536908e50975cb0825e9521a6b2ccccd9848900f86dd3a23428",
+    "policy-engine/tests/unit/core/phase0/test_canon_json.py": "96541c1d85e91caabb4748e168d3ca677dc00c23ca564d54490f171102f9cb7e",
+    "policy-engine/tests/unit/foundry/methods/test_compiler.py": "b7056c42e0a00a15631767321511595cb47509be49d8769de8432f0688ba87fe",
+    "policy-engine/tests/unit/ir/test_canon_hardening.py": "83670ce43832ad084ab49bc992b18634188f37b5a18f229118f26451be599776",
+    "policy-engine/tests/unit/scientist/facade/test_api.py": "b76cfe6d54f505ae37fea41d2db53e5ded3227de351936fe18213de77e8b50b6",
+    "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py": "146b37a906170f96fd54428961b02f6b3c3a08ef80ff9770144ef26cc5bbb5f6"
+  },
+  "decision_request": {
+    "excluded_options": [
+      ".2 tagless-only history reader",
+      "new producer-attestation or reader-policy field",
+      "IR widening to Core-only tags",
+      "directly importing worker-wire tag policy into canonical grammar",
+      "automatic CAS rewrite/readdressing or profileless mapping import",
+      "new status or authority/time semantics"
+    ],
+    "option_a": "Add a .3.0 mapping escape in the existing canonical owner(s), patterned on runner mapping/entries. Readers first; preserve .2 readers and bytes. Keep every other Core/IR tag policy separate. Invalidate or generation-separate old in-memory Foundry specialization cache entries across rollout. Never infer .2 producer intent or rewrite CAS.",
+    "option_a_cache_requirement": "Version or generation-separate Foundry specialization keys/cache entries across rollout; the current equality hash has a raw-map/native-value predecessor collision.",
+    "option_a_producer_requirement": "The new mapping envelope must not be asked to recover input type after a producer converted both raw Mapping and Decimal/bytes/float to plain dictionaries. Update Foundry's converter to retain native values or an explicit internal typed carrier.",
+    "option_b": "Document and validate reserved-map refusal at run_experiment, direct state/checkpoint/cache persistence, and Foundry static params before conversion/lookup; propagate typed refusal past the broad exception fallback. No profile bump, but public API domain narrows.",
+    "question": "Should ordinary mappings containing literal _type be a losslessly representable value in persisted canonical artifacts and Foundry static-cache keys, or should accepted runtime inputs be narrowed under .2 before persistence/cache lookup?",
+    "recommended_option": "A, new versioned mapping escape"
+  },
+  "disposition": "draft_for_G_decision_pending_independent_review; not accepted; no formal closure",
+  "input_denominator": {
+    "paths": [
+      {
+        "fact": "JsonPrimitive includes Decimal; JsonValue includes dict[str, Any]; params accepts dict[str, JsonValue].",
+        "lines": "18-19, 53",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state.py"
+      },
+      {
+        "fact": "run_experiment accepts Mapping or ExperimentState; initial Mapping is model-validated.",
+        "lines": "71-88, 220-235",
+        "path": "policy-engine/src/polisyos/scientist/api.py"
+      },
+      {
+        "fact": "Sync _persist_state calls put_json on state.model_dump() with Core CanonSpec.",
+        "lines": "2327-2345",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py"
+      },
+      {
+        "fact": "Async _persist_state calls _put_workflow_artifact on state.model_dump() with Core CanonSpec.",
+        "lines": "2678-2695",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py"
+      },
+      {
+        "fact": "NodeOutcome.state is ExperimentState.",
+        "lines": "65-75",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py"
+      },
+      {
+        "fact": "NodeResultCache hashes model-dumped outcome payload using Core bytes and stores NodeCacheEntry by put_json; source-derived path, not executed.",
+        "lines": "181-218, 793-831",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py"
+      },
+      {
+        "fact": "Sync and async checkpoints pass Python-mode state to put_json.",
+        "lines": "907-925, 980-995, 1762-1772, 1861-1904",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py"
+      },
+      {
+        "fact": "Static hash conversion recursively maps Decimal to the same tag object; broad except Exception fallback surrounds canonical encoding.",
+        "lines": "312-371, 374-395",
+        "path": "policy-engine/src/polisyos/foundry/methods/compiler/specialization.py"
+      },
+      {
+        "fact": "build_specialization computes the hash before _cache.get / single-flight lookup.",
+        "lines": "566-585",
+        "path": "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py"
+      },
+      {
+        "fact": "Separate worker-wire maps containing _type are escaped to mapping/entries and decode back to dict.",
+        "lines": "341-348, 1001-1017, 1034-1042",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py"
+      },
+      {
+        "fact": "Actual outcome transport test preserves user_mapping {'_type':'decimal','value':'ordinary user text'} beside native Decimal.",
+        "lines": "67-92",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py"
+      },
+      {
+        "fact": "state_read_projection uses model_dump(mode='json') and is excluded from the collision class.",
+        "lines": "217-252",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/producer_currentness.py"
+      }
+    ],
+    "scope": "Complete question-specific denominator only, not a repository-wide callsite census.",
+    "tag_family": {
+      "core_materializing_tags": [
+        "bytes",
+        "bytes_hex",
+        "date",
+        "datetime",
+        "decimal",
+        "float",
+        "float_hex"
+      ],
+      "core_only_opaque": "array_digest returns a dictionary under Core .2; IR .2 rejects it.",
+      "core_registered_count": 8,
+      "core_registered_tags": [
+        "array_digest",
+        "bytes",
+        "bytes_hex",
+        "date",
+        "datetime",
+        "decimal",
+        "float",
+        "float_hex"
+      ],
+      "envelope_rule": "Unescaped unknown/malformed typed envelopes continue to refuse; a new escaped mapping is decoded as map data, including inner content that resembles an unknown or malformed tag.",
+      "ir_materializing_tags": [
+        "bytes",
+        "date",
+        "datetime",
+        "decimal",
+        "float"
+      ],
+      "ir_registered_count": 5,
+      "ir_registered_tags": [
+        "bytes",
+        "date",
+        "datetime",
+        "decimal",
+        "float"
+      ],
+      "key_controls": "Only exact one-underscore _type is reserved. __type__ with two leading underscores is ordinary mapping data.",
+      "materializing_count": 7,
+      "materializing_decoder_family": [
+        "bytes",
+        "bytes_hex",
+        "date",
+        "datetime",
+        "decimal",
+        "float",
+        "float_hex"
+      ],
+      "owner_support_rule": "The seven-name family is the cross-owner union used to test escaped raw mappings. Native typed round trips remain limited to each owner's existing supported tags; IR is not widened to bytes_hex or float_hex.",
+      "union_materializing_tags": [
+        "bytes",
+        "bytes_hex",
+        "date",
+        "datetime",
+        "decimal",
+        "float",
+        "float_hex"
+      ]
+    }
+  },
+  "limits": [
+    "No full CAN suite or complete repository callsite census.",
+    "No installed/no-checkout consumers or production artifact reads/writes.",
+    "NodeResultCache/checkpoint effects are source-traced only; Foundry hash and codec behavior were exercised in memory.",
+    "Only Decimal was used as the direct materializing collision probe; the complete seven-tag denominator was derived from the current shared decoder, and family tests are mandatory before source approval.",
+    "No source code, canonical profile, tests, environment, manifest, or source data changed.",
+    "Option A needs a Foundry producer change in addition to canonical readers/writers; a profile-only edit is insufficient because the current static-parameter converter erases input type.",
+    "Historical current-head stdout field state_projection_core_bytes_equal is a naming error: the command computes inequality, so true means the projection payloads differ; R4 corrects interpretation only and preserves the original probe."
+  ],
+  "pattern_pass": {
+    "acceptance_signal": "Option A preserves map/native distinction through new profile writer, persisted artifact/cache key and fresh reader; Option B refuses the map before every named side effect and never swallows refusal.",
+    "capability_state": "canonical arbitrary-map value capability absent/unallocated under .2; runner-wire escape is separate implemented owner",
+    "p40": "same class as r9, deeper at explicitly admitted state/cache inputs; choice is lossless new grammar vs documented early refusal",
+    "relevant": [
+      "P04",
+      "P05",
+      "P07",
+      "P10",
+      "P27",
+      "P29",
+      "P31",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40"
+    ]
+  },
+  "probes": [
+    {
+      "id": "current-head-codec-state",
+      "interpretation_correction": {
+        "do_not_rewrite_historical_probe": true,
+        "exact_expression_in_invocation": "cenc(raw_j)!=cenc(dec_j)",
+        "invocation_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/can-raw-mapping-choice-r1/current-head-probe-r1-20261026/invocation.json",
+        "invocation_sha256": "d73e14aa78710fceb38aea5730c9190ab21efbbee1f7effef576e8fb15b6c93f",
+        "meaning": "projection canonical bytes differ",
+        "misnamed_stdout_field": "state_projection_core_bytes_equal",
+        "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/can-raw-mapping-choice-r1/current-head-probe-r1-20261026/receipt.json",
+        "receipt_sha256": "d7762a58328bc190f34a9829b60e2e045ed4c5f12a7441782d9b60ed36ce9eea",
+        "stdout_sha256": "765bdbcff1f6233b2cba7811a8b6d1a3b854924a86cc31bf858acf5c9b206156",
+        "stdout_value": true
+      },
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/can-raw-mapping-choice-r1/current-head-probe-r1-20261026",
+      "receipt_sha256": "d7762a58328bc190f34a9829b60e2e045ed4c5f12a7441782d9b60ed36ce9eea",
+      "result": "Probe ran at source HEAD 580d625. Core and IR raw decimal-tag map bytes equal Decimal bytes and both readers return Decimal. In Python-mode ExperimentState payload, the two inputs are distinct before encoding but Core canonical bytes compare equal (the field state_python_dump_core_bytes_equal=true means EQUAL). JSON-mode dumps differ. The historical output field state_projection_core_bytes_equal is misnamed: the exact invocation computes cenc(raw_j)!=cenc(dec_j), so its stdout true means the projection bytes DIFFER.",
+      "stdout_sha256": "765bdbcff1f6233b2cba7811a8b6d1a3b854924a86cc31bf858acf5c9b206156"
+    },
+    {
+      "id": "foundry-static-hash",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/can-raw-mapping-choice-r1/foundry-hash-probe-r1-20261026",
+      "receipt_sha256": "19dd3fa51654531b90be230466f5a108e4c60d1ac25abde140b2c673c6d1bd74",
+      "result": "Current compute_static_params_hash returns the same hash 98ca27689bf22ddf3b430fe7c242ad16 for raw nested mapping and Decimal.",
+      "stdout_sha256": "4a64a4609cb0c18654bb5006ecec41c17532a31a2f462cfbb267ecbf1452a4cb"
+    },
+    {
+      "id": "state-json-projection-exclusion",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/can-raw-mapping-choice-r1/json-projection-probe-r1-20261026",
+      "receipt_sha256": "c1f5e5c641e967eb137d8135061d171ea6c4f849729232b88c2e31312a11212a",
+      "result": "JSON mode keeps raw map as object and emits Decimal as string '1'; projections differ. This falsifies applying the collision to state_read_projection.",
+      "stdout_sha256": "6a40414a5371aa72d7cc3286e32b7162db0b0ad07e698cd7c4877e09ae534625"
+    },
+    {
+      "id": "codec-controls-current-head",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/can-raw-mapping-choice-r1/canonical-controls-head-580-r1-20261026",
+      "receipt_sha256": "bd7c22c8899fdb4a3fa91f97b7531d5029e0a17e3b970ed30b8f0361c18aa9e9",
+      "result": "Core array_digest stays a dict; IR refuses; __type__ remains a dict; unknown tags and known tag with extra key refuse.",
+      "stdout_sha256": "fd20e29ebf0cc0fc293e0d2c0f6e99bc3ece42cec49bd84459c000b8a310f44a"
+    }
+  ],
+  "r4_corrections": [
+    {
+      "evidence": "Exact invocation script, stdout, and receipt SHA256 values are recorded in probes[current-head-codec-state].interpretation_correction; the immutable original RAW probe remains untouched.",
+      "finding": "The field state_projection_core_bytes_equal is misnamed; its expression is inequality and stdout true means projection bytes differ."
+    },
+    {
+      "evidence": "Core current tag set count 8 and IR current tag set count 5 are separately retained; escaped-map data tests cover the seven union forms, while native tests obey each owner's support.",
+      "finding": "Seven materializing forms are the union of Core and IR tag families, not a native typed round-trip obligation for each owner."
+    }
+  ],
+  "record_kind": "g_decision_question_raw_mapping_profile",
+  "record_version": "1.0",
+  "selected_law": [
+    {
+      "binding": "Core and IR share mechanics but keep strict owner-specific tag policies; no universal registry or decoder fallback; Core array_digest acceptance and IR refusal are compatible; a future universal value grammar needs a separately versioned semantic contract and migration; profile declaration is not producer attestation.",
+      "blob": "72263bd36853ac5aa7b8a38da3f1ed8ee234a31c",
+      "commit": "798bd1ab9646378f49fd127b3f04ebe71aca67d2",
+      "id": "AD-E02-05",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-21/05-canonical-profile-and-context.md",
+      "tree": "957fddc0fb2d6bc32fc34932427b5e9c7aae1930"
+    },
+    {
+      "binding": "_type is reserved for canonical typed envelopes; unknown tags refuse; ordinary mappings preserve explicit None. This does not add a validator to ExperimentState's unrestricted dict[str, Any] admission.",
+      "id": "ADR-0104",
+      "path": "policy-engine/docs/adr/0104-ir-canonical-cas-policy.md",
+      "sha256": "25a3a62caee2045eef0b325f63c634312b1d359c04792b82b7b68c9a5c887ddb"
+    },
+    {
+      "binding": "Historical reads preserve source semantics; no auto-conversion or blanket grandfathering; any persisted migration is a new artifact/view with lineage and actual time; readers-first rollout and writer-first rollback.",
+      "commit": "528ec2576393e8aa9a0238ae4172336ccf76a057",
+      "id": "IR-Q1/Q2",
+      "sources": [
+        {
+          "blob": "73a2b8a1fa80c9944156c05603a044535855735a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/01-ir-owner-contract.md"
+        },
+        {
+          "blob": "6fdffb7ca57a09dfa9e74ecc0ef9b6274244a369",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-23/02-ir-version-compatibility.md"
+        }
+      ]
+    }
+  ],
+  "source_frame": {
+    "all_source_hash_pins_match_current_head": true,
+    "current_source_hash_pin_count": 22,
+    "head": "f3635dedb8eb8115e62f139ac077165f3b529fad",
+    "no_cas_or_production_persistence_run": true,
+    "relevant_staged_source_diff_exit_code": 0,
+    "relevant_tracked_source_diff_exit_code": 0,
+    "repository": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "source_changes_by_this_agent": false,
+    "source_pin_revalidation": "All 22 existing source/test SHA256 pins were recomputed from this HEAD and matched; the intervening change is receipt-only.",
+    "tests_run": false,
+    "tree": "5366ce42efd8e3fe1d8867ebfeb370f01e604e20"
+  },
+  "supersedes": {
+    "correction": "Earlier refusal-only packet called the raw map out of contract/no behavior change. This draft corrects that classification: the runtime DTOs and entrypoints admit the map and a separate worker-wire owner explicitly preserves it.",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/can-raw-mapping-choice-r1/decision-r1-20261026/assessment.json",
+    "sha256": "6fcdb424973aca85fa72a5acddc946b57fe9e8eeb1444fab142d212f1cb03a21"
+  },
+  "supersedes_r1": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/can-raw-mapping-choice-r1/g-question-r1-20261026/question.md",
+    "reason": "R3 makes the mandatory Foundry pre-conversion type-preservation requirement explicit; a map escape alone cannot restore information already converted to plain tag dictionaries.",
+    "sha256": "eddb754188b2f08279a5dbe7d80a3070d5a2f7b77c3631d39a6e9a593e11c478"
+  },
+  "supersedes_r4_base": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/can-raw-mapping-choice-r1/g-question-r3-20261026/question.md",
+    "reason": "R4 corrects the misnamed projection equality output and distinguishes the seven-form cross-owner raw-map test union from each owner's narrower native typed support.",
+    "sha256": "0ed2d2f8431a0d24cb6d9ea2d732f2c3cb1ee3f97e2780e00598205160926e44"
+  },
+  "publication_entry": {
+    "head": "bf27d45ebfe490f32b3fb97c6f152aa764ad2bfd",
+    "tree": "a12466bd0540c5747fe5d69f8bb92fcd9bb22a5c",
+    "question_specific_source_pins_revalidated": 22,
+    "selected_source_unchanged": true,
+    "global_source_freeze": false
+  },
+  "code_acceptance": false,
+  "closure_ids": [],
+  "architecture_selection": "pending_G",
+  "independent_review": {
+    "reviewer": "/root/native_expiry_debt_semantics",
+    "verdict": "GO after two precision edits",
+    "scope": "genuine mapping API compatibility choice; .2 reader law retained; corrected inequality-field interpretation and owner-specific supported native types"
+  }
+}

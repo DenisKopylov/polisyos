@@ -1,0 +1,123 @@
+{
+  "schema_version": "e02.g_architecture_research_inputs.v1",
+  "decision_id": "AD-E02-B09-01",
+  "review_date": "2026-10-26",
+  "integration_document_base": "8f8a0bf53e687c07c8de62d934a61c98448e5530",
+  "packet": {
+    "commit": "123eb4c215a76736deaa7018688e0aeace8efa90",
+    "files": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/acquisition-source-only-20261026/README.md",
+        "sha256": "ce7d03aa4d47f3918404ebcd38ca426a9fb223bdc8e372d8cd6aee888a24ff90"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/acquisition-source-only-20261026/01-question.md",
+        "sha256": "ad771db53273921c0a402027763e75232f02fd217effc7ad739d107c7d4ed7da"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/acquisition-source-only-20261026/inputs.json",
+        "sha256": "65618ab500bc246af7d01b2ac0288e15e43c8970cc38625fba04d5bd4fefda63"
+      }
+    ]
+  },
+  "implementation_source": {
+    "commit": "6ad021abaaec967ce48122e5f94985112dc19e59",
+    "tree": "1f8efd8f9818735a9f4157a6400be1b442de151a",
+    "source_pin_manifest": {
+      "commit": "123eb4c215a76736deaa7018688e0aeace8efa90",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/acquisition-source-only-20261026/inputs.json",
+      "sha256": "65618ab500bc246af7d01b2ac0288e15e43c8970cc38625fba04d5bd4fefda63"
+    },
+    "qualification": "Committed source frame plus separately verified exact known-WIP postimages; no global freeze or acceptance."
+  },
+  "additional_source_pins": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py",
+      "commit": "6ad021abaaec967ce48122e5f94985112dc19e59",
+      "sha256": "a910dc78ef2bec5c0022d947a9659f04b317783f7fc68089501c335741bb0a8f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/cycle_substrate.py",
+      "commit": "6ad021abaaec967ce48122e5f94985112dc19e59",
+      "sha256": "fa41b25c7d0c78d4482e99f73a6dc773820c5eebd81f48b6bb57022532b6f5ac"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/candidate_simulation.py",
+      "commit": "6ad021abaaec967ce48122e5f94985112dc19e59",
+      "sha256": "f0fffbd512b061aa340a7ba9d72c11210d8a6c61a5e85fb912e079ec9d0a7a9d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/world_model_record.py",
+      "commit": "6ad021abaaec967ce48122e5f94985112dc19e59",
+      "sha256": "1012298d2158696ea1f6156755b29ee5a6eb53f68b584086091da95b0ce658e1"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CYC-03.md",
+      "commit": "6ad021abaaec967ce48122e5f94985112dc19e59",
+      "sha256": "1a5eedfe561bdff222dd474abd79f335a098b2344f7cfb0875ad8c007438f96c"
+    }
+  ],
+  "ignored_raw_inputs": {
+    "resident_checkout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "known_wip_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b09-architecture-source-availability-r1/known-wip-input-delta.patch",
+      "sha256": "82de87f7e54c9728f2bbc6967ba86e7ccd35756d1e9f8dd910246e8d7a0b5a51",
+      "bytes": 35989,
+      "availability": "resident ignored RAW on this Mac; not published source or code acceptance; committed baselines in every source row are fetchable",
+      "scope": "exact five tracked working-file deltas against6ad; retained to reconstruct those five frozen proposal inputs if later authoring advances"
+    },
+    "fixture_artifacts": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/v3-second-source-epoch-20261026-r1/v3-fixture-r3d-source-positive/manifest.json",
+        "sha256": "34bc51a990f39ac79134d630219512cea0166c6797f9655d1779ad89ae6cc1ef"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/v3-second-source-epoch-20261026-r1/v3-fixture-r3d-source-positive/proposal.patch",
+        "sha256": "a7e003d6a1ee62deb08a784d1e064e4237828e0fb0fe1655ade516a26e1dd63f"
+      }
+    ],
+    "qualification": "Resident RAW checked by content hash; not Git-published source. No RAW payload copied into this decision pack."
+  },
+  "performed_checks": {
+    "packet_manifest_denominator": {
+      "selector": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/acquisition-source-only-20261026/inputs.json at 123eb4c215a76736deaa7018688e0aeace8efa90",
+      "file_types": "Every sources entry (Python files), no sampling",
+      "committed_source_count": 14,
+      "known_wip_postimage_count": 5
+    },
+    "method": "Git blob SHA256 plus strict in-memory application of exact known-WIP patch; no product import or process, no candidate file writes.",
+    "fixture_hashes_checked": 2,
+    "local_check_receipt": {
+      "path": "policy-engine/_build/e02-g-b09-source-review-20261026/packet-check.json",
+      "sha256": "cc4011433c64bc1798c3e670fddf4de71a348ce1572fe84b98a96190fb928e6d"
+    },
+    "subagents_used": 0,
+    "product_imports": false,
+    "runtime_tests": "UNRUN",
+    "fixture_execution": "UNRUN",
+    "performance_measurements": "UNRUN",
+    "production_data_read": false
+  },
+  "primary_research": [
+    {
+      "url": "https://www.w3.org/TR/prov-dm/",
+      "use": "Separate source/evaluation entities and occurrence lineage; not an equivalence or authority proof."
+    },
+    {
+      "url": "https://docs.dagster.io/guides/build/assets/asset-versioning-and-caching",
+      "use": "Separate data/code/occurrence versions and respect stochastic execution limits; no Dagster dependency proposed."
+    },
+    {
+      "url": "https://www.rfc-editor.org/rfc/rfc9110.html#name-if-match",
+      "use": "Lost-update prevention analogy for existing owner conditional selectors; no new HTTP If-Match requirement."
+    }
+  ],
+  "delivery_scope": {
+    "documentation_only": true,
+    "code_acceptance": false,
+    "closure_ids": [],
+    "source_only_positive": "not_established",
+    "new_comparison_producer": "not_implemented_by_this_work",
+    "system_design_decisions_changed": false
+  }
+}

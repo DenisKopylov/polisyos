@@ -1,0 +1,115 @@
+[package]
+id = "runtime-quality"
+module = "polisyos.runtime.quality"
+name = "runtime.quality"
+owner = "team-runtime-quality"
+contract_status = "draft"
+gate_mode = "report_only"
+primary_contract = true
+description = "Runtime Quality's nested public facade for candidate quality artifacts, semantic binding, replay, and closeout diagnostics."
+legacy_aggregate_mirrors = [
+  "architecture/packages/boundaries.toml",
+  "architecture/public_surface/contract.toml",
+  "architecture/imports/contracts.toml",
+]
+
+[layout]
+status = "active_nested_facade"
+layout_owner = "team-runtime-quality"
+source_root = "src/polisyos/runtime/quality"
+readme = "src/polisyos/runtime/quality/README.md"
+root_facade_policy = "separately declared nested eager-export facade; Runtime root remains the replay and API parent."
+implementation_roots = ["src/polisyos/runtime/quality"]
+legacy_layout_mirror = ""
+
+[boundaries]
+public_facade = "polisyos.runtime.quality"
+allowed_dependencies = ["public_facades_only"]
+forbidden_dependencies = [
+  "polisyos.data_forge.kernel",
+  "polisyos.data_forge.domains",
+  "polisyos.lex.batch",
+  "polisyos.lex.corpus",
+  "polisyos.academic",
+  "polisyos.datasets",
+  "polisyos.ukraine_data",
+  "polisyos.batch_common",
+  "polisyos.batch_snapshot",
+]
+import_boundary_report = "architecture/imports/reports.toml"
+
+[public_surface]
+classification = "public_experimental"
+facade_mode = "eager_exports"
+registry_owner = "team-polisyos"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.runtime.quality"]
+major_subsystem = false
+notes = "Experimental runtime-quality contract facade; compatibility changes require an explicit release fragment and inventory review."
+
+[tests]
+status = "report_only"
+unit_roots = ["tests/unit/runtime/quality"]
+contract_roots = []
+integration_required = false
+integration_roots = []
+property_required = false
+property_roots = []
+minimum_expectations = [
+  "Selected-source and semantic-binding changes keep Runtime Quality refusal tests.",
+  "Public facade changes preserve the defining owner objects and public-export checks.",
+]
+
+[slo_runbook]
+status = "covered_by_parent"
+slo_files = ["ops/components/runtime/slo.yaml", "ops/observability/slo/runtime.yaml"]
+runbooks = [
+  "docs/runbooks/runtime-api-outage.md",
+  "docs/runbooks/canary-rollback-or-promotion-failure.md",
+  "docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md",
+  "docs/runbooks/cache-rebuild-storm.md",
+]
+runbook_expectation = "Runtime Quality incidents use the existing Runtime operability bundle unless separately promoted to a Runtime component."
+
+[observability]
+status = "covered_by_parent"
+metrics_owner = "team-runtime"
+metric_surfaces = ["ops/components/runtime/runtime-contract.toml", "ops/observability/slo/runtime.yaml"]
+trace_expectation = "Runtime-owned traces retain route, tenant_id, run_id, decision_id, and job_id across parent Runtime paths."
+
+[name_collisions]
+status = "declared"
+owner = "team-runtime-quality"
+registry = "architecture/name_registry.toml"
+allowed = ["quality"]
+
+[[allowed_name_collision]]
+name = "quality"
+scope = "nested public surface"
+reason = "Runtime Quality is the explicitly supported nested Runtime child; its scope is already allowed in the Runtime name registry."
+owner = "team-runtime-quality"
+
+[exceptions]
+status = "declared"
+owner = "team-runtime-quality"
+registries = ["architecture/tooling/static_analysis_overrides.toml"]
+
+[[exception]]
+id = "runtime-quality-ruff-ratchet"
+owner = "team-runtime-quality"
+kind = "lint_ratchet"
+reason = "Runtime-quality dynamic CAS/Pydantic/tool payload annotations stay owned while boundary DTOs and protocols narrow ANN401 debt by module."
+sunset = "2026-12-31"
+issue = "docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md"
+registry = "architecture/tooling/static_analysis_overrides.toml"
+
+[sunsets]
+status = "none"
+owner = "team-architecture"
+
+[extension_host]
+status = "none"
+owner = "team-runtime-quality"
+extension_points = []
+registry = "architecture/extension_points.toml"
+notes = "Runtime Quality consumes Runtime extension and producer contracts; it does not host a separate extension point."

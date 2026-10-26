@@ -248,7 +248,11 @@ register_schema_version(
     _OWNER_SCHEMA_VERSION,
     compatibility=CompatibilityMode.NONE,
     notes=(
-        "MicrosimCalibrationReport current owner-admitted representation; historical predecessors are not registered.",
+        (
+            "MicrosimCalibrationReport current owner-admitted rep"
+            "resentation; historical predecessors are not registe"
+            "red."
+        ),
     ),
 )
 register_ir_representation(
@@ -294,7 +298,7 @@ def persist_microsim_calibration_report(
 def load_microsim_calibration_report(
     store: ArtifactStore, ref: MicrosimCalibrationReportRef
 ) -> MicrosimCalibrationReport:
-    """Read MicrosimCalibrationReport only after its trusted owner admits the stored representation."""
+    "Read MicrosimCalibrationReport only after its trusted owner admits the stored representation."
     return _get_owned_json_artifact(store, ref, owner=_microsimcalibrationreport_owner)
 
 

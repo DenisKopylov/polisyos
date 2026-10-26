@@ -87,3 +87,28 @@ class GaugeProxy:
         key = tuple(sorted(attrs.items()))
         with self._lock:
             self._values[key] = float(value)
+
+    def remove(self, attributes: dict[str, Any] | None = None) -> None:
+        """Remove the observation for exactly one attribute set."""
+        attrs = attributes or {}
+        key = tuple(sorted(attrs.items()))
+        with self._lock:
+            self._values.pop(key, None)
+
+    def remove_matching(self, attributes: dict[str, Any]) -> None:
+        """Remove observations containing every supplied attribute pair.
+
+        An empty selector removes all observations. The callback takes the same
+        lock, so it cannot export a partially-mutated internal mapping.
+        """
+        selected = dict(attributes)
+        with self._lock:
+            matching = []
+            for key in self._values:
+                labels = dict(key)
+                if all(
+                    name in labels and labels[name] == value for name, value in selected.items()
+                ):
+                    matching.append(key)
+            for key in matching:
+                del self._values[key]

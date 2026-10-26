@@ -234,11 +234,7 @@ class ConnectorTestHarness:
         rather than connection_handle directly.
         """
         yield connector_instance, connection_handle
-        # Guaranteed teardown -- even if the test body raises
-        try:
-            await connector_instance.disconnect(connection_handle)
-        except Exception:  # pragma: no cover -- best-effort teardown
-            pass
+        await connector_instance.disconnect(connection_handle)
 
     # ==================================================================
     # 1. PROTOCOL COMPLIANCE

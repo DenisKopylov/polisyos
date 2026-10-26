@@ -16,8 +16,8 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-from polisyos.ir.artifacts import ArtifactStore
-from polisyos.ir.artifacts._lineage import InputRefLike
+from polisyos.ir.artifacts import ArtifactStore  # noqa: TC001
+from polisyos.ir.artifacts._lineage import InputRefLike  # noqa: TC001
 from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration, CanonInfo
 from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.migrations.base import (

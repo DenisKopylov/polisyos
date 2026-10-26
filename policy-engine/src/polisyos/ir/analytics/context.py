@@ -144,9 +144,9 @@ class ContextProfile(BaseModel):
 
     def enrich_from_datasources(
         self,
-        wgi: Any,
-        wvs: Any,
-        wdi: Any,
+        wgi: object,
+        wvs: object,
+        wdi: object,
         year: int | None = None,
     ) -> ContextProfile:
         """
@@ -299,7 +299,7 @@ def _invalid_payload_result(
 
 
 def _safe_get_indicators(
-    client: Any,
+    client: object,
     source: str,
     context_id: str,
     year: int,
@@ -340,7 +340,7 @@ def _safe_get_indicators(
     return _DatasourceFetchResult(payload=payload)
 
 
-def _safe_get_wvs_indicators(client: Any, context_id: str, year: int) -> _DatasourceFetchResult:
+def _safe_get_wvs_indicators(client: object, context_id: str, year: int) -> _DatasourceFetchResult:
     if client is None:
         return _DatasourceFetchResult()
     finder = getattr(client, "find_closest_in_wave", None)

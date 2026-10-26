@@ -78,13 +78,6 @@ known-first-party = ["polisyos"]
   "TC003",
   "UP047",
 ]
-"src/polisyos/ir/**" = [
-  "ANN401",
-  "TC001",
-  "TC003",
-  "E501",
-  "SIM102",
-] # IR contracts rely on runtime-visible annotations for Pydantic model rebuilds.
 "tests/unit/ir/**" = [
   "ANN",
   "B017",
@@ -419,29 +412,40 @@ known-first-party = ["polisyos"]
 # formatting/import sorting is fail-closed now, while legacy dynamic connector
 # payloads, runtime Pydantic annotations, and generated SQL builders are
 # narrowed by local ignores instead of repo-wide rule suppression.
-"src/polisyos/fabric/**" = [
-  "ANN",
-  "E501",
-  "SIM102",
-  "SIM117",
-  "TC001",
-  "TC002",
-  "TC003",
-  "UP046",
-  "UP047",
-]
-"src/polisyos/fabric/claims/conflicts/**" = ["S608"]
+# owner: team-fabric
+# permanent rationale: the generated question-mark count is derived from a nonempty identifier list; claim IDs remain bound query parameters.
+"src/polisyos/fabric/claims/conflicts/detect.py" = ["S608"]
+
+# owner: team-fabric
+# permanent rationale: generated question-mark counts shape batch lookups; claim, document-version, conflict, and fragment values are passed separately as bound parameters.
+"src/polisyos/fabric/claims/conflicts/resolve.py" = ["S608"]
 "src/polisyos/fabric/connectors/cache/_store_index.py" = ["S608"]
 "src/polisyos/fabric/connectors/sources/eurostat.py" = ["N817"]
 "src/polisyos/fabric/connectors/sources/sql_query.py" = ["S608"]
 "src/polisyos/fabric/connectors/registry_core_parts.py" = ["SIM118"]
-"src/polisyos/fabric/connectors/testing/**" = ["S101", "S110", "SIM105"]
+# owner: team-fabric
+# permanent rationale: this connector conformance module uses assertions as executable checks; assertion failure is the intended test result.
+"src/polisyos/fabric/connectors/testing/conformance.py" = ["S101"]
+
+# owner: team-fabric
+# permanent rationale: this connector test harness uses assertions as executable checks; assertion failure is the intended test result.
+"src/polisyos/fabric/connectors/testing/harness.py" = ["S101"]
+
+# owner: team-fabric
+# permanent rationale: this connector simulator uses assertions as executable checks; assertion failure is the intended test result.
+"src/polisyos/fabric/connectors/testing/simulator.py" = ["S101"]
 "src/polisyos/fabric/connectors/transform/aggregator.py" = ["F402"]
 "src/polisyos/fabric/data_plane/cli.py" = ["T201"]
 "src/polisyos/fabric/docs/normalize.py" = ["S110"]
 "src/polisyos/fabric/quality/__init__.py" = ["S608"]
 "src/polisyos/fabric/storage/duckdb_adapter.py" = ["S608"]
-"src/polisyos/fabric/world/materialize/**" = ["S112", "S608"]
+# owner: team-fabric
+# permanent rationale: interpolated table identifiers pass quote_sql_identifier and temporary relation names come from registered dataframes; row values stay in dataframe bindings.
+"src/polisyos/fabric/world/materialize/duckdb.py" = ["S608"]
+
+# owner: team-fabric
+# permanent rationale: interpolated table and column identifiers pass quote_sql_identifier, and temporary relation names come from registered dataframes; row values stay dataframe-bound.
+"src/polisyos/fabric/world/materialize/projections.py" = ["S608"]
 "src/polisyos/fabric/world/store/snapshots.py" = ["S608"]
 "src/polisyos/fabric/world/query.py" = ["S608"]
 "tests/unit/fabric/**" = [

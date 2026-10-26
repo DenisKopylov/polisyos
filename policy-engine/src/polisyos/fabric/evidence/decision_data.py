@@ -16,13 +16,19 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, field_validator, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.contracts.runtime import LineageRef as RuntimeLineageRef
-from polisyos.core.contracts.runtime import QuantityValue as RuntimeQuantityValue
-from polisyos.core.contracts.runtime import TemporalRef as RuntimeTemporalRef
-from polisyos.core.contracts.runtime import TemporalScope as RuntimeTemporalScope
+
+# Runtime bindings for TemporalRef.from_runtime_scope (AD-E02-FABRIC-REFLECTION-01;
+# FABRIC-TC001-010/011).
+from polisyos.core.contracts.runtime import TemporalRef as RuntimeTemporalRef  # noqa: TC001
+from polisyos.core.contracts.runtime import TemporalScope as RuntimeTemporalScope  # noqa: TC001
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    # Private helper annotations only; converters do not dispatch on these aliases.
+    # Keep them type-checking-only without claiming supported reflection (FABRIC-TC001-008/009).
+    from polisyos.core.contracts.runtime import LineageRef as RuntimeLineageRef
+    from polisyos.core.contracts.runtime import QuantityValue as RuntimeQuantityValue
 
 DecisionDataKind = Literal["quantity", "authored_text", "fact", "event", "claim"]
 TypedGapState = Literal[

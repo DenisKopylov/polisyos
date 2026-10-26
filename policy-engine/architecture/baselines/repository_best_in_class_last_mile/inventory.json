@@ -253,9 +253,9 @@
         "decision": "canonical_interface_plus_package_adapters",
         "implementation_locations": [
           {
-            "kind": "module",
+            "kind": "package",
             "package": "common",
-            "path": "src/polisyos/common/config.py"
+            "path": "src/polisyos/common/config"
           },
           {
             "kind": "module",
@@ -465,38 +465,21 @@
       "metadata": {
         "by_package": {
           "berl": [
-            "src/polisyos/berl/persistence.py",
-            "src/polisyos/berl/perturbations.py",
-            "src/polisyos/berl/service.py"
+            "src/polisyos/berl/persistence.py"
           ],
           "calibration": [
-            "src/polisyos/calibration/_sklearn_compat.py",
-            "src/polisyos/calibration/adapters.py",
-            "src/polisyos/calibration/continuous.py",
-            "src/polisyos/calibration/curve.py",
-            "src/polisyos/calibration/diagnostics.py",
-            "src/polisyos/calibration/forecast_bridge.py",
-            "src/polisyos/calibration/multiclass.py",
-            "src/polisyos/calibration/recalibration.py"
+            "src/polisyos/calibration/forecast_bridge.py"
           ],
           "common": [
             "src/polisyos/common/_selected_artifact_intake.py",
-            "src/polisyos/common/async_tools.py",
             "src/polisyos/common/canonical.py",
             "src/polisyos/common/canonical_profile.py",
-            "src/polisyos/common/config.py",
-            "src/polisyos/common/env_parsing.py",
             "src/polisyos/common/hashing.py",
-            "src/polisyos/common/jax_env.py",
-            "src/polisyos/common/logger.py",
             "src/polisyos/common/markdown.py",
-            "src/polisyos/common/serialization.py",
-            "src/polisyos/common/timestamps.py"
+            "src/polisyos/common/text.py"
           ],
           "data_forge": [
-            "src/polisyos/data_forge/_ukraine_release_contracts.py",
-            "src/polisyos/data_forge/_version.py",
-            "src/polisyos/data_forge/errors.py"
+            "src/polisyos/data_forge/_ukraine_release_contracts.py"
           ],
           "data_requirement": [
             "src/polisyos/data_requirement/compiler.py"
@@ -505,35 +488,22 @@
             "src/polisyos/fabric/api.py"
           ],
           "foundry": [
-            "src/polisyos/foundry/_quickstart.py",
-            "src/polisyos/foundry/_registry.py",
+            "src/polisyos/foundry/_artifact_capabilities.py",
             "src/polisyos/foundry/api.py"
           ],
           "ir": [
             "src/polisyos/ir/api.py"
           ],
           "lex": [
-            "src/polisyos/lex/api.py",
-            "src/polisyos/lex/artifacts.py",
-            "src/polisyos/lex/common.py",
-            "src/polisyos/lex/errors.py",
-            "src/polisyos/lex/factlog.py",
-            "src/polisyos/lex/intervention_artifacts.py",
-            "src/polisyos/lex/interventions.py",
-            "src/polisyos/lex/provenance.py",
-            "src/polisyos/lex/types.py"
+            "src/polisyos/lex/api.py"
           ],
           "obligation_rules": [
             "src/polisyos/obligation_rules/catalog.py"
           ],
           "runtime": [
             "src/polisyos/runtime/api.py",
-            "src/polisyos/runtime/manifest.py",
             "src/polisyos/runtime/manifest_migrations.py",
             "src/polisyos/runtime/replay.py"
-          ],
-          "schemas": [
-            "src/polisyos/schemas/abi_models.py"
           ],
           "scholar": [
             "src/polisyos/scholar/api.py"
@@ -654,20 +624,12 @@
       }
     },
     {
-      "count": 28,
+      "count": 27,
       "current_status": "observed",
       "finding_id": "LM-007",
       "kind": "large_module_ratchet",
       "metadata": {
         "modules": [
-          {
-            "current_lines": 3080,
-            "owner": "team-architecture",
-            "package": "tools-quality-validation",
-            "path": "tools/quality/validation/architecture_report_only_contracts.py",
-            "sunset": "2026-12-31",
-            "target_lines": 1000
-          },
           {
             "current_lines": 3281,
             "owner": "team-fabric",
@@ -908,7 +870,6 @@
         "src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py",
         "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
         "src/polisyos/scientist/validation/fairness_audit.py",
-        "tools/quality/validation/architecture_report_only_contracts.py",
         "tools/quality/validation/check_docs_lifecycle.py",
         "tools/quality/validation/check_package_import_gates.py",
         "tools/quality/validation/decomposition_preflight.py",
@@ -1040,7 +1001,7 @@
       }
     },
     {
-      "count": 53,
+      "count": 62,
       "current_status": "needs_review",
       "finding_id": "LM-011",
       "kind": "integration_bridge_coverage_gap",
@@ -1056,12 +1017,15 @@
         "tests/integration/core_runtime/test_acquisition_tenant_custody.py",
         "tests/integration/core_runtime/test_acquisition_world_growth_chain.py",
         "tests/integration/core_runtime/test_config_security_startup_bridge.py",
+        "tests/integration/core_runtime/test_predictive_calibration_profile_owner_binding.py",
         "tests/integration/data_forge/domains/academic/batch/test_claim_adjudication_pipeline.py",
         "tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py",
         "tests/integration/data_forge_runtime/test_legal_grounding_query_consumers.py",
         "tests/integration/data_forge_runtime/test_legal_runtime_material_entrypoints.py",
         "tests/integration/data_forge_runtime/test_legal_source_relation_authority_surfaces.py",
         "tests/integration/fabric_ir/test_connector_observation_bridge.py",
+        "tests/integration/foundry/test_compiled_method_metric_projection.py",
+        "tests/integration/foundry/uncertainty/test_artifact_aware_aggregation.py",
         "tests/integration/foundry/uncertainty/test_posterior_summary_persistence.py",
         "tests/integration/foundry_calibration/test_method_calibration_bridge.py",
         "tests/integration/foundry_scientist/test_method_node_bridge.py",
@@ -1071,15 +1035,19 @@
         "tests/integration/runtime_frontend/test_capability_discovery_free_growth.py",
         "tests/integration/runtime_frontend/test_ds15_acquisition_route_contract_bridge.py",
         "tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py",
+        "tests/integration/runtime_quality/test_b10_alternative_candidate_served.py",
         "tests/integration/runtime_quality/test_chronology_protocol_conformance.py",
+        "tests/integration/runtime_quality/test_conditional_transport_candidate_served.py",
         "tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
         "tests/integration/runtime_quality/test_data_state_substrate.py",
         "tests/integration/runtime_quality/test_e02_recursive_budget_frontier.py",
         "tests/integration/runtime_quality/test_evaluation_safety_admission.py",
+        "tests/integration/runtime_quality/test_evaluation_safety_authorities_source.py",
         "tests/integration/runtime_quality/test_evaluation_safety_promotion_bridge.py",
         "tests/integration/runtime_quality/test_generic_credal_source_attempt_served.py",
         "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
         "tests/integration/runtime_quality/test_gy_s2_knowledge_substrate_lift.py",
+        "tests/integration/runtime_quality/test_n7_fabric_capture_served.py",
         "tests/integration/runtime_quality/test_published_signature_custody.py",
         "tests/integration/runtime_quality/test_recursive_joint_interaction_served.py",
         "tests/integration/runtime_quality/test_workflow_post_data_view_profile_binding.py",
@@ -1093,10 +1061,12 @@
         "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
         "tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
         "tests/integration/scientist/test_checkpoint_resume.py",
+        "tests/integration/scientist/test_conditional_transport_candidate_route.py",
         "tests/integration/scientist/test_res_03_real_simulation_route.py",
         "tests/integration/scientist/test_workflow_reliability_scenarios.py",
         "tests/integration/scientist/test_workflow_tracing.py",
         "tests/integration/scientist/test_y0_transportability_proof_boundary.py",
+        "tests/integration/scientist_berl/test_explanation_persisted_service_bridge.py",
         "tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
         "tests/integration/test_c7_synthetic_full_pipeline.py",
         "tests/integration/test_human_gate_audit.py",
@@ -1156,7 +1126,7 @@
       "suggested_target": "data/<documented-local-role>"
     },
     {
-      "count": 16,
+      "count": 15,
       "current_status": "observed",
       "finding_id": "LM-015",
       "kind": "cross_cutting_concern_duplicate",
@@ -1166,12 +1136,10 @@
             "name": "adapters",
             "packages": [
               "berl",
-              "calibration",
               "scientist"
             ],
             "paths": [
               "src/polisyos/berl/adapters",
-              "src/polisyos/calibration/adapters.py",
               "src/polisyos/scientist/adapters"
             ]
           },
@@ -1211,7 +1179,7 @@
             ],
             "paths": [
               "src/polisyos/fabric/provenance",
-              "src/polisyos/lex/provenance.py"
+              "src/polisyos/lex/provenance"
             ]
           },
           {
@@ -1244,7 +1212,6 @@
       "paths": [
         "src/polisyos/berl/adapters",
         "src/polisyos/berl/contracts",
-        "src/polisyos/calibration/adapters.py",
         "src/polisyos/core/contracts",
         "src/polisyos/core/governance",
         "src/polisyos/core/registry",
@@ -1255,7 +1222,7 @@
         "src/polisyos/foundry/contracts",
         "src/polisyos/ir/governance",
         "src/polisyos/ir/registry",
-        "src/polisyos/lex/provenance.py",
+        "src/polisyos/lex/provenance",
         "src/polisyos/scientist/adapters",
         "src/polisyos/scientist/governance"
       ],
@@ -1276,7 +1243,7 @@
       "suggested_target": "src/polisyos/scientist/<canonical-family>/"
     },
     {
-      "count": 37,
+      "count": 33,
       "current_status": "observed",
       "finding_id": "LM-017",
       "kind": "repeated_cross_package_name",
@@ -1286,12 +1253,10 @@
             "name": "adapters",
             "packages": [
               "berl",
-              "calibration",
               "scientist"
             ],
             "paths": [
               "src/polisyos/berl/adapters",
-              "src/polisyos/calibration/adapters.py",
               "src/polisyos/scientist/adapters"
             ]
           },
@@ -1313,7 +1278,7 @@
               "fabric"
             ],
             "paths": [
-              "src/polisyos/common/config.py",
+              "src/polisyos/common/config",
               "src/polisyos/fabric/config"
             ]
           },
@@ -1341,19 +1306,6 @@
               "src/polisyos/core/contracts",
               "src/polisyos/ddm/contracts",
               "src/polisyos/foundry/contracts"
-            ]
-          },
-          {
-            "name": "errors",
-            "packages": [
-              "core",
-              "data_forge",
-              "lex"
-            ],
-            "paths": [
-              "src/polisyos/core/errors",
-              "src/polisyos/data_forge/errors.py",
-              "src/polisyos/lex/errors.py"
             ]
           },
           {
@@ -1407,7 +1359,7 @@
             ],
             "paths": [
               "src/polisyos/fabric/provenance",
-              "src/polisyos/lex/provenance.py"
+              "src/polisyos/lex/provenance"
             ]
           },
           {
@@ -1462,15 +1414,12 @@
       "paths": [
         "src/polisyos/berl/adapters",
         "src/polisyos/berl/contracts",
-        "src/polisyos/calibration/adapters.py",
-        "src/polisyos/common/config.py",
+        "src/polisyos/common/config",
         "src/polisyos/common/migrations",
         "src/polisyos/core/contracts",
-        "src/polisyos/core/errors",
         "src/polisyos/core/governance",
         "src/polisyos/core/registry",
         "src/polisyos/core/security",
-        "src/polisyos/data_forge/errors.py",
         "src/polisyos/data_forge/extensions",
         "src/polisyos/ddm/calibration",
         "src/polisyos/ddm/contracts",
@@ -1488,9 +1437,8 @@
         "src/polisyos/ir/governance",
         "src/polisyos/ir/migrations",
         "src/polisyos/ir/registry",
-        "src/polisyos/lex/errors.py",
         "src/polisyos/lex/extensions",
-        "src/polisyos/lex/provenance.py",
+        "src/polisyos/lex/provenance",
         "src/polisyos/runtime/extensions",
         "src/polisyos/runtime/quality",
         "src/polisyos/scientist/adapters",
@@ -1604,7 +1552,7 @@
       "suggested_target": "src/polisyos/schemas or generated schema artifacts"
     },
     {
-      "count": 61,
+      "count": 67,
       "current_status": "needs_review",
       "finding_id": "LM-023",
       "kind": "test_helper_duplication_surface",
@@ -1615,16 +1563,19 @@
         "tests/_helpers/AUTHORING.md",
         "tests/_helpers/README.md",
         "tests/_helpers/__init__.py",
+        "tests/_helpers/academic_claim_evidence.py",
         "tests/_helpers/academic_skg.py",
         "tests/_helpers/acquisition_chain.py",
         "tests/_helpers/acquisition_epoch_production.py",
         "tests/_helpers/acquisition_human_decision.py",
         "tests/_helpers/acquisition_movement.py",
         "tests/_helpers/acquisition_production.py",
+        "tests/_helpers/acquisition_served_history.py",
         "tests/_helpers/acquisition_supplier.py",
         "tests/_helpers/artifacts.py",
         "tests/_helpers/b61_timeout_worker.py",
         "tests/_helpers/c7_synthetic_data.py",
+        "tests/_helpers/candidate_cycle_source_profile.py",
         "tests/_helpers/causal_scm_fixtures.py",
         "tests/_helpers/chronology_qualification.py",
         "tests/_helpers/control_worker.py",
@@ -1632,6 +1583,7 @@
         "tests/_helpers/custody_markdown.py",
         "tests/_helpers/generic_n4_served_replay.py",
         "tests/_helpers/hds_quality.py",
+        "tests/_helpers/hte_privacy.py",
         "tests/_helpers/measurement_execution_binding.py",
         "tests/_helpers/mirror_contracts.py",
         "tests/_helpers/observability.py",
@@ -1640,11 +1592,13 @@
         "tests/_helpers/run_lifecycle.py",
         "tests/_helpers/runtime_api/legal_search_profile_fixture.py",
         "tests/_helpers/runtime_http.py",
-        "tests/_helpers/same_candidate_history_fixture.py",
+        "tests/_helpers/runtime_test_identity.py",
         "tests/_helpers/scientist_runtime.py",
         "tests/_helpers/search_strategies.py",
+        "tests/_helpers/selected_substrate_source_context.py",
         "tests/_helpers/semantic_epoch_native.py",
         "tests/_helpers/ukraine_foundry_intake.py",
+        "tests/_helpers/world_model_record.py",
         "tests/conftest.py",
         "tests/contract/conftest.py",
         "tests/property/foundry/methods/conftest.py",
@@ -1696,7 +1650,7 @@
       }
     },
     {
-      "count": 192,
+      "count": 194,
       "current_status": "needs_review",
       "finding_id": "LM-025",
       "kind": "stale_frontend_path_reference",
@@ -1846,12 +1800,14 @@
         "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-proposal-report-20261015.json",
         "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-reviewed-successor-proposals-20261017.json",
         "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/legal-discovery-current-candidate-delivery-20261017.json",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-full-id-source-cut-3c13-20261020.json",
         "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/full-id-C-assessment.json",
         "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/full-id-C-current-source-delta.json",
         "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/full-id-C-current-source-delta.md",
         "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-original-criterion-bucket2-independent-r1-20261012/independent-bucket2-review.json",
         "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source41-c12-v3-actual-boundary-results-r1558-20261014.json",
         "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/structural-boundary.json",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification-supported-owner-12-full-consumers-postfix-r2-20261019.json",
         "docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-seventh-wave/reviews/1800-D-deciding-stress.md",
         "docs/research/e02-cloud-test-plan/integration/checks/g-environment.json",
         "docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.md",
@@ -2155,6 +2111,28 @@
         "target_phase": "0.4"
       },
       {
+        "decision": "canonical_home_with_adapters",
+        "name": "config",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/common/config"
+            ],
+            "package": "common"
+          },
+          {
+            "locations": [
+              "src/polisyos/fabric/config"
+            ],
+            "package": "fabric"
+          }
+        ],
+        "rationale": "The Phase 1.5 configuration decision and package ownership contracts name polisyos.common.config as the canonical runtime-agnostic home; Fabric catalog/data-directory settings and Data Forge pipeline profile/secret contracts remain package-owned.",
+        "sunset": "none",
+        "target_phase": "0.4/1.5"
+      },
+      {
         "decision": "scoped_ok",
         "name": "connectors",
         "owner": "team-architecture",
@@ -2424,6 +2402,28 @@
       },
       {
         "decision": "scoped_ok",
+        "name": "provenance",
+        "owner": "team-architecture",
+        "packages": [
+          {
+            "locations": [
+              "src/polisyos/fabric/provenance"
+            ],
+            "package": "fabric"
+          },
+          {
+            "locations": [
+              "src/polisyos/lex/provenance"
+            ],
+            "package": "lex"
+          }
+        ],
+        "rationale": "Fabric owns evidence and world-event provenance; Lex provides legal-evidence provenance adapters backed by Fabric. These are distinct package-qualified roles.",
+        "sunset": "none",
+        "target_phase": "0.4"
+      },
+      {
+        "decision": "scoped_ok",
         "name": "quality",
         "owner": "team-architecture",
         "packages": [
@@ -2467,9 +2467,9 @@
         "target_phase": "0.4/1.5"
       },
       {
-        "decision": "sunset_shim",
+        "decision": "scoped_ok",
         "name": "runtime",
-        "owner": "team-runtime",
+        "owner": "team-architecture",
         "packages": [
           {
             "locations": [
@@ -2484,9 +2484,9 @@
             "package": "runtime"
           }
         ],
-        "rationale": "polisyos.runtime is canonical; Foundry runtime remains package-local glue pending rename or facade fold-in.",
-        "sunset": "2026-10-01",
-        "target_phase": "0.4/2.2"
+        "rationale": "Top-level polisyos.runtime owns lifecycle, replay, verification, and HTTP; polisyos.foundry.runtime owns execution utilities; polisyos.data_forge.kernel.runtime remains kernel-local. This scoped collision does not authorize cross-package private imports.",
+        "sunset": "none",
+        "target_phase": "0.4"
       },
       {
         "decision": "scoped_ok",
@@ -2661,6 +2661,6 @@
     "needs_review_count": 8,
     "not_observed_count": 8,
     "observed_count": 10,
-    "path_count": 438
+    "path_count": 449
   }
 }

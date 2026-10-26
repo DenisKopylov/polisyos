@@ -8,6 +8,7 @@ import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.scientist.evidence.provenance.run_dag import RunProvenanceDAG
 from polisyos.scientist.methods.search.stages import CorrelationTracker, StageResult
@@ -72,9 +73,27 @@ class _FakeMetricsRegistry:
         self.slo_dag_duration_seconds = _InstrumentRecorder()
         self.trace_calls: list[dict[str, str | None]] = []
         self.alert_calls: list[dict[str, str | None]] = []
+        self.workflow_completion_calls: list[dict[str, str | int]] = []
 
     def ensure_initialized(self) -> None:
         self.ensure_initialized_calls += 1
+
+    def record_workflow_completed(
+        self,
+        *,
+        workflow_id: str,
+        status: str,
+        duration_ms: int,
+        node_count: int,
+    ) -> None:
+        self.workflow_completion_calls.append(
+            {
+                "workflow_id": workflow_id,
+                "status": status,
+                "duration_ms": duration_ms,
+                "node_count": node_count,
+            }
+        )
 
     def get_exporter_health(self) -> dict[str, dict[str, object]]:
         return {"metrics": {"status": "ok", "failures": []}}
@@ -116,12 +135,8 @@ class _FakeMetricsRegistry:
         )
 
 
-def _registry_bundle_ref() -> ArtifactRef:
-    return ArtifactRef(
-        artifact_id="sha256:" + "d" * 64,
-        kind="core.registry_bundle",
-        media_type="application/json",
-    )
+def _registry_bundle_ref(store: FileSystemCAS) -> ArtifactRef:
+    return build_default_registry_bundle(store, return_selected_profile=True).bundle_ref
 
 
 def _stage_result(*, score: float, passed: bool, stage_name: str) -> StageResult:
@@ -175,15 +190,21 @@ def test_metrics_exporter_operational_signal(monkeypatch: pytest.MonkeyPatch) ->
     assert registry.scientist_node_duration_seconds.calls
     assert registry.scientist_node_executions_total.calls
     assert registry.scientist_node_retry_count.calls
-    assert registry.slo_dag_runs_total.calls
-    assert registry.slo_dag_duration_seconds.calls
+    assert registry.workflow_completion_calls == [
+        {
+            "workflow_id": "wf_reliability",
+            "status": "ok",
+            "duration_ms": 250,
+            "node_count": 5,
+        }
+    ]
 
 
 def test_trace_correlation_operational_signal(monkeypatch, tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     run = RunContext.start(
         store=store,
-        registry_bundle=_registry_bundle_ref(),
+        registry_bundle=_registry_bundle_ref(store),
         run_id="R_trace_operational",
     )
     metrics = build_engine_metrics(max_trace_correlations=8)
@@ -226,7 +247,7 @@ async def test_dlq_replay_operational_signal(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     run = RunContext.start(
         store=store,
-        registry_bundle=_registry_bundle_ref(),
+        registry_bundle=_registry_bundle_ref(store),
         run_id="R_dlq_operational",
     )
     ctx = ExecutionContext(

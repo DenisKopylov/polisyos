@@ -41,30 +41,6 @@ move_policy = "Moved files emit cleanup warnings; deleted files remain visible a
 fail_closed_not_before = "2026-10-01"
 
 [[override_scope]]
-id = "fabric-ruff-package-ratchet"
-package = "fabric"
-owner = "team-fabric"
-tool = "ruff"
-config = "ruff.generated.toml"
-pattern = "src/polisyos/fabric/**"
-mode = "report_only"
-sunset = "2026-10-01"
-issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-55---tool-config-split-and-overrides-lane"
-expectation = "No new blanket package-level ignores; shrink by connector and data-plane slices."
-
-[[override_scope]]
-id = "ir-ruff-package-ratchet"
-package = "ir"
-owner = "team-ir"
-tool = "ruff"
-config = "ruff.generated.toml"
-pattern = "src/polisyos/ir/**"
-mode = "report_only"
-sunset = "2026-10-01"
-issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-55---tool-config-split-and-overrides-lane"
-expectation = "IR root-facade moves keep per-file ignores explicit while schema and annotation contracts stabilize."
-
-[[override_scope]]
 id = "data-forge-source-ruff-ratchet"
 package = "data_forge"
 owner = "team-data-forge"

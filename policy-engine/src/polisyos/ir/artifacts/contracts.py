@@ -115,7 +115,7 @@ def _add_artifact_id_json_schema_constraints(schema: dict[str, Any], model: type
     )
 
 
-def _is_schema_only_string_annotation(annotation: Any) -> bool:
+def _is_schema_only_string_annotation(annotation: object) -> bool:
     """Recognize string annotations carrying JSON Schema metadata only."""
     if annotation is str:
         return True

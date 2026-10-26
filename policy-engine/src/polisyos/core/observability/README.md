@@ -16,7 +16,7 @@ still works through noop implementations.
 
 - **Tracer facade** - `tracer.py` centralizes span creation and sampling helpers.
 - **Decorators** - `traced` and `traced_method` make instrumentation easy to apply.
-- **Metrics registry** - `metrics_parts.py` carries the real registry and domain recording helpers.
+- **Metrics registry** - `metrics_parts.py` carries the real registry and domain recording helpers. `GaugeProxy.remove_matching()` clears cached observations by a label selector when a cohort is replaced. Fabric's legacy materialization-lag series is a selected valid-time-end age with an explicit completeness companion; it does not measure source-availability delay.
 - **Structured logging** - `logs.py` keeps trace correlation in log output.
 - **Propagation** - `propagation.py` handles header/thread/async context transfer.
 - **Pricing and determinism** - `pricing.py` and `determinism.py` keep execution metadata consistent.

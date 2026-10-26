@@ -252,9 +252,9 @@
       "decision": "canonical_interface_plus_package_adapters",
       "implementation_locations": [
         {
-          "kind": "module",
+          "kind": "package",
           "package": "common",
-          "path": "src/polisyos/common/config.py"
+          "path": "src/polisyos/common/config"
         },
         {
           "kind": "module",

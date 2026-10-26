@@ -2,6 +2,8 @@
 
 Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
+Selected Python runtime annotation boundaries are documented in [Fabric runtime annotation compatibility](runtime-annotations.md); that page does not widen the supported facade set.
+
 Freshness: 2026-10-14
 Owner: `@fabric-owners`
 Source pin: `78a7b7b9cdab2b16e9d4ecd56c15bece38728f3b`

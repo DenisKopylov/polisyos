@@ -9,12 +9,23 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from polisyos.common.logger import get_logger
-from polisyos.fabric.connectors.base import ConnectionHandle, SourceConnectorValue
-from polisyos.fabric.connectors.contracts import ConnectorSchemaContract, EvolutionReport
+
+# Runtime bindings for supported invalidation signatures (AD-E02-FABRIC-REFLECTION-01;
+# FABRIC-TC001-001 through FABRIC-TC001-004). Suppressions are alias-local.
+from polisyos.fabric.connectors.base import (
+    ConnectionHandle,  # noqa: TC001
+    SourceConnectorValue,  # noqa: TC001
+)
+from polisyos.fabric.connectors.contracts import (
+    ConnectorSchemaContract,  # noqa: TC001
+    EvolutionReport,  # noqa: TC001
+)
 from polisyos.fabric.connectors.types import FreshnessStatus
 from polisyos.ir.connectors import ConnectorCapability, DataVersion
 
-from .store import ConnectorCacheStore
+# Runtime binding for both supported cache constructors (AD-E02-FABRIC-REFLECTION-01;
+# FABRIC-TC001-005).
+from .store import ConnectorCacheStore  # noqa: TC001
 
 logger = get_logger(__name__)
 

@@ -402,22 +402,127 @@ class TestAlertingRules:
 
     def test_alerting_rules_yaml_valid(self) -> None:
         rules_path = (
-            Path(__file__).resolve().parents[4]
+            Path(__file__).resolve().parents[5]
             / "ops"
             / "observability"
             / "prometheus"
             / "rules"
             / "scientist-alerts.yml"
         )
-        if not rules_path.exists():
-            pytest.skip("Alerting rules file not found")
-        data = yaml.safe_load(rules_path.read_text())
-        assert "groups" in data
-        group = data["groups"][0]
-        assert group["name"] == "scientist_slo"
-        alert_names = [r["alert"] for r in group["rules"]]
-        assert "ScientistNodeP95LatencyHigh" in alert_names
-        assert "ScientistWorkflowFailRate" in alert_names
-        assert "ScientistBudgetNearExhaustion" in alert_names
-        assert "ScientistTierQueueDepthHigh" in alert_names
-        assert "ScientistSemaphoreWaitHigh" in alert_names
+        assert rules_path.is_file(), f"Required Prometheus alert rules are missing: {rules_path}"
+        data = yaml.safe_load(rules_path.read_text(encoding="utf-8"))
+        groups = [group for group in data["groups"] if group["name"] == "scientist_slo"]
+        assert len(groups) == 1
+        alert_rules = {rule["alert"]: rule for rule in groups[0]["rules"]}
+        expected_names = {
+            "ScientistNodeP95LatencyHigh",
+            "ScientistWorkflowFailRate",
+            "ScientistBudgetNearExhaustion",
+            "ScientistTierQueueDepthHigh",
+            "ScientistSemaphoreWaitHigh",
+        }
+        assert expected_names <= alert_rules.keys()
+        expected_fail_rate_expr = """
+            (
+              sum by (workflow_id, env) (
+                rate(polisyos_slo_dag_runs_total{
+                  measurement_scope="scientist_engine",
+                  status="fail"
+                }[10m])
+              )
+              /
+              sum by (workflow_id, env) (
+                rate(polisyos_slo_dag_runs_total{
+                  measurement_scope="scientist_engine",
+                  status=~"ok|fail"
+                }[10m])
+              )
+            ) > 0.1
+            and on (workflow_id, env)
+            (
+              sum by (workflow_id, env) (
+                rate(polisyos_slo_dag_runs_total{
+                  measurement_scope="scientist_engine",
+                  status=~"ok|fail"
+                }[10m])
+              ) > 0
+            )
+        """
+        actual_fail_rate_expr = " ".join(
+            str(alert_rules["ScientistWorkflowFailRate"]["expr"]).split()
+        )
+        assert actual_fail_rate_expr == " ".join(expected_fail_rate_expr.split())
+
+
+def test_otel_engine_completion_delegates_to_registry_owner(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.core.observability import MetricsRegistry
+    from polisyos.scientist.orchestration.engine.metrics_otel import OTelEngineMetrics
+
+    registry = MetricsRegistry()
+    calls: list[dict[str, object]] = []
+    monkeypatch.setattr(
+        registry,
+        "record_workflow_completed",
+        lambda **kwargs: calls.append(kwargs),
+    )
+
+    OTelEngineMetrics(metrics=registry).record_workflow_completed(
+        workflow_id="scientist_default",
+        status="fail",
+        duration_ms=25,
+        node_count=1,
+    )
+
+    assert calls == [
+        {
+            "workflow_id": "scientist_default",
+            "status": "fail",
+            "duration_ms": 25,
+            "node_count": 1,
+        }
+    ]
+
+
+@pytest.mark.parametrize("environment", ["test", "staging"])
+def test_core_registry_engine_completion_has_engine_scope(
+    monkeypatch: pytest.MonkeyPatch,
+    environment: str,
+) -> None:
+    from polisyos.core.observability import get_metrics
+
+    class Counter:
+        def __init__(self) -> None:
+            self.points: list[tuple[int, dict[str, object]]] = []
+
+        def add(self, value: int, attributes: dict[str, object]) -> None:
+            self.points.append((value, attributes))
+
+    class Histogram:
+        def __init__(self) -> None:
+            self.points: list[tuple[float, dict[str, object]]] = []
+
+        def record(self, value: float, attributes: dict[str, object]) -> None:
+            self.points.append((value, attributes))
+
+    registry = get_metrics()
+    monkeypatch.setattr(registry, "_ensure_initialized", lambda: None)
+    monkeypatch.setattr(registry, "_default_env", lambda: environment)
+    registry.slo_dag_runs_total = Counter()  # type: ignore[assignment]
+    registry.slo_dag_duration_seconds = Histogram()  # type: ignore[assignment]
+    registry.record_workflow_completed(
+        workflow_id="scientist_default",
+        status="fail",
+        duration_ms=25,
+        node_count=1,
+    )
+
+    expected = {
+        "measurement_scope": "scientist_engine",
+        "workflow_id": "scientist_default",
+        "status": "fail",
+        "env": environment,
+    }
+    assert registry.slo_dag_runs_total.points == [(1, expected)]
+    assert registry.slo_dag_duration_seconds.points == [(0.025, {**expected, "node_count": "1"})]

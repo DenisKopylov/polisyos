@@ -3,6 +3,7 @@
 - Owner: team-data-forge
 - Purpose: shared Data Forge kernel primitives used by domain ingestion, normalization, and pipeline orchestration.
 - Allowed contents: stable kernel APIs, internal helpers, runtime contracts, and kernel-local fixtures that are required by package tests.
+- The `polisyos.data_forge.kernel.runtime` child is kernel-local runtime support; it is distinct from Foundry execution utilities and the top-level Runtime lifecycle/API package.
 - Embedding extraction in `embeddings.py` accepts prepared `(id, text)` rows
   and owns the shared encode/index mechanics. Academic and Catalog wrappers
   retain their distinct SQL/text profiles; generation publication and reader

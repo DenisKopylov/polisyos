@@ -1320,7 +1320,10 @@ _INTERVENTION_QUERY_OWNER = _declare_owned_model(
     payload_version="1.0",
     purpose="ir_intervention_query",
     notes=(
-        "InterventionQuery 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+        (
+            "InterventionQuery 1.0 is the source-proven current r"
+            "epresentation; unsupported tuples remain closed."
+        ),
     ),
 )
 
@@ -1336,7 +1339,11 @@ _INTERVENTION_CERTIFICATE_OWNER = _declare_owned_model(
     payload_version="1.0",
     purpose="ir_intervention_certificate",
     notes=(
-        "InterventionCertificate 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+        (
+            "InterventionCertificate 1.0 is the source-proven cur"
+            "rent representation; unsupported tuples remain close"
+            "d."
+        ),
     ),
 )
 

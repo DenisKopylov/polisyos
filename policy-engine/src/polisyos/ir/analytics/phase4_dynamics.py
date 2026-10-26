@@ -15,7 +15,7 @@ from polisyos.ir.analytics._owner_admission import (
     declare_model_owner,
     owner_profile_for_spec,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts import ArtifactStore, InputRef  # noqa: TC001
 from polisyos.ir.artifacts.contracts import CanonInfo
 from polisyos.ir.artifacts.io import _get_owned_json_artifact_with_bytes, _put_owned_json_artifact
 from polisyos.ir.migrations.base import CompatibilityMode, IRRepresentationKey

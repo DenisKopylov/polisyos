@@ -41,6 +41,7 @@ class MetricsRegistry(MetricsRegistryBase):
         """Context manager for Scientist DAG SLO latency."""
         self._ensure_initialized()
         attrs = self._with_env(attributes)
+        attrs["measurement_scope"] = "scientist_api"
         return HistogramTimer(self.slo_dag_duration_seconds, attrs)
 
     def record_workflow_run(
@@ -122,8 +123,12 @@ class MetricsRegistry(MetricsRegistryBase):
         self._ensure_initialized()
         if self.slo_dag_runs_total is None:
             return
-        attrs = {"status": status, "workflow_id": workflow_id}
-        attrs["env"] = env or self._default_env()
+        attrs = {
+            "measurement_scope": "scientist_api",
+            "status": status,
+            "workflow_id": workflow_id,
+            "env": env or self._default_env(),
+        }
         self.slo_dag_runs_total.add(1, attrs)
 
     def record_slo_run_cost(
@@ -277,7 +282,13 @@ class MetricsRegistry(MetricsRegistryBase):
     ) -> None:
         """Record Scientist workflow completion through the SLO DAG instruments."""
         self._ensure_initialized()
-        attrs = {"workflow_id": workflow_id, "status": status}
+        attrs = self._with_env(
+            {
+                "measurement_scope": "scientist_engine",
+                "workflow_id": workflow_id,
+                "status": status,
+            }
+        )
         if self.slo_dag_runs_total is not None:
             self.slo_dag_runs_total.add(1, attrs)
         if self.slo_dag_duration_seconds is not None:
@@ -424,23 +435,41 @@ class MetricsRegistry(MetricsRegistryBase):
         if row_count is not None and self.fabric_query_rows_total is not None and row_count >= 0:
             self.fabric_query_rows_total.add(int(row_count), attrs)
 
+    def clear_fabric_materialization_lag(self, *, scope: str = "world") -> None:
+        """Clear cached age and completeness observations for a new scope snapshot."""
+        self._ensure_initialized()
+        attrs = {"scope": scope}
+        if self.fabric_materialization_lag_seconds is not None:
+            self.fabric_materialization_lag_seconds.remove_matching(attrs)
+        if self.fabric_materialization_valid_time_age_complete is not None:
+            self.fabric_materialization_valid_time_age_complete.remove_matching(attrs)
+
     def set_fabric_materialization_lag(
         self,
-        lag_seconds: float,
+        lag_seconds: float | None,
         *,
         scope: str = "world",
         tenant_id: str | None = None,
     ) -> None:
+        """Record selected valid-time-end age, or an incomplete measurement.
+
+        `None` removes the numeric observation and records an incomplete scope.
+        This metric does not represent source availability or materialization delay.
+        """
         self._ensure_initialized()
-        if self.fabric_materialization_lag_seconds is None:
+        age_gauge = self.fabric_materialization_lag_seconds
+        complete_gauge = self.fabric_materialization_valid_time_age_complete
+        if age_gauge is None or complete_gauge is None:
             return
         attrs = {"scope": scope}
         if tenant_id:
             attrs["tenant_id"] = tenant_id
-        self.fabric_materialization_lag_seconds.set(
-            max(0.0, float(lag_seconds)),
-            attrs,
-        )
+        if lag_seconds is None:
+            age_gauge.remove(attrs)
+            complete_gauge.set(0.0, attrs)
+            return
+        age_gauge.set(max(0.0, float(lag_seconds)), attrs)
+        complete_gauge.set(1.0, attrs)
 
     def set_fabric_segment_count(
         self,

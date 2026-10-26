@@ -55,3 +55,15 @@ promtool check rules ops/observability/prometheus/rules/runtime_operability_aler
 promtool check rules ops/observability/prometheus/rules/scientist-alerts.yml
 promtool check rules ops/observability/prometheus/rules/mtls-rules.yaml
 ```
+
+## Recording Rule Semantic Tests
+
+Run the Scientist SLO fixture from `policy-engine/` with the pinned Prometheus 2.50.0 `promtool`:
+
+```bash
+promtool test rules tests/contract/fixtures/prometheus/scientist_slo_recording_rules.test.yml
+```
+
+The fixture loads `ops/observability/prometheus/slo_recording_rules.yml` and `ops/observability/prometheus/rules/scientist-alerts.yml` directly. It exercises absent and zero-rate API/engine series, API success/error traffic, engine ok/fail traffic, mixed API/engine populations, and API-versus-engine histogram buckets. Assertions inspect actual recording-rule and alert-rule outputs, including no SLI without eligible traffic and scope-bound engine failure alerts; they do not duplicate PromQL calculations in a separate oracle.
+
+Runtime API rule/alert fixture: promtool test rules tests/contract/fixtures/prometheus/runtime_api_slo_rules.test.yml

@@ -11,7 +11,7 @@ from polisyos.ir.analytics._owner_admission import (
     declare_model_owner,
     owner_profile_for_spec,
 )
-from polisyos.ir.artifacts import ArtifactStore
+from polisyos.ir.artifacts import ArtifactStore  # noqa: TC001
 from polisyos.ir.artifacts.io import (
     _get_owned_json_artifact,
     _put_owned_json_artifact,
@@ -62,7 +62,10 @@ _TRINITY_BUNDLE_OWNER = declare_model_owner(
             profile_ref=None,
             compatibility=CompatibilityMode.NONE,
             notes=(
-                "Exact owner-bound TrinityBundle JSON representation; unknown history remains opaque.",
+                (
+                    "Exact owner-bound TrinityBundle JSON representation;"
+                    " unknown history remains opaque."
+                ),
             ),
             readable=True,
             writable=True,
@@ -232,7 +235,8 @@ def _trinity_owner_error(exc: CanonViolation) -> TrinityLoadError:
         "ir_owned_artifact_representation_unreadable",
     }:
         return TrinityLoadError(
-            "Unsupported schema_version; TrinityBundle payload is not an admitted owner representation"
+            "Unsupported schema_version; TrinityBundle payload is"
+            " not an admitted owner representation"
         )
     return TrinityLoadError("TrinityBundle artifact failed IR owner admission")
 

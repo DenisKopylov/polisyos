@@ -49,9 +49,11 @@ in a deployed system.
 | Surface | Contract |
 | --- | --- |
 | Trace names | `FABRIC_TRACE_NAMES`, including connector fetch, retry, circuit, cache, transform, data-plane, materialization, and query spans |
-| Metric names | `FABRIC_METRIC_NAMES`, including connector latency/rows/bytes, query latency, materialization lag, quality score, freshness age, lineage graph size, DLQ count, SLI value, and error-budget burn |
+| Metric names | `FABRIC_METRIC_NAMES`, including connector latency/rows/bytes, query latency, selected valid-time-end age and coverage, quality score, freshness age, lineage graph size, DLQ count, SLI value, and error-budget burn |
 | Cardinality | `FABRIC_LABEL_CARDINALITY_LIMITS` caps connector, namespace, operation, status, component, and severity labels |
 | Error taxonomy | `FABRIC_ERROR_TAXONOMY` normalizes validation, timeout, rate-limit, stale-data, lineage, uncertain-state, and internal-error reasons |
+
+The legacy `polisyos_fabric_materialization_lag_seconds` series reports the age, sampled when materialization is invoked, of the newest parseable valid-time end in its selected manifest scope. The companion `polisyos_fabric_materialization_valid_time_age_complete` is `1` only when every selected manifest has a usable string `time_end`; `0` means the selected scope is incomplete, and the numeric series is removed. An empty cohort also has no numeric value and reports `0`. The value is not source-availability delay, persisted-world currentness, or a materialization gate. A true availability-to-materialization delay still needs typed source-availability evidence and a materialization-completion event bound to the same segment; neither is established by this metric.
 
 ## Connector Governance Metadata
 

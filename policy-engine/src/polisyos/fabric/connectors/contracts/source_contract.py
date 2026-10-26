@@ -16,8 +16,8 @@ from polisyos.fabric.quality.processing_guarantees import (
     default_processing_contract_for_connector,
 )
 
-# Runtime binding keeps public method annotations resolvable by typing.get_type_hints.
-from polisyos.ir.connectors import ConnectorMetadataSpec
+# Existing runtime reflection commitment (AD-E02-FABRIC-REFLECTION-01; FABRIC-TC001-006).
+from polisyos.ir.connectors import ConnectorMetadataSpec  # noqa: TC001
 from polisyos.ir.model_layer.canon import CanonSpec, to_canonical_bytes
 
 from .contract import CONTRACT_ID_PATTERN, ConnectorSchemaContract

@@ -120,14 +120,13 @@ class OTelEngineMetrics:
         duration_ms: int,
         node_count: int,
     ) -> None:
-        # Leverage existing slo_dag_runs_total + slo_dag_duration_seconds
-        if self._m.slo_dag_runs_total is not None:
-            self._m.slo_dag_runs_total.add(1, {"workflow_id": workflow_id, "status": status})
-        if self._m.slo_dag_duration_seconds is not None:
-            self._m.slo_dag_duration_seconds.record(
-                duration_ms / 1000.0,
-                {"workflow_id": workflow_id, "status": status},
-            )
+        # Keep engine lifecycle samples separate from the public API SLI population.
+        self._m.record_workflow_completed(
+            workflow_id=workflow_id,
+            status=status,
+            duration_ms=duration_ms,
+            node_count=node_count,
+        )
 
     def record_backpressure(
         self,

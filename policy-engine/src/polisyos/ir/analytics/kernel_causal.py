@@ -336,7 +336,10 @@ _KERNEL_ESTIMATOR_SPEC_OWNER = _declare_owned_model(
     payload_version="1.0",
     purpose="ir_kernel_estimator_spec",
     notes=(
-        "KernelEstimatorSpec 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+        (
+            "KernelEstimatorSpec 1.0 is the source-proven current"
+            " representation; unsupported tuples remain closed."
+        ),
     ),
 )
 
@@ -352,7 +355,10 @@ _OPERATOR_EFFECT_BUNDLE_OWNER = _declare_owned_model(
     payload_version="1.0",
     purpose="ir_operator_effect_bundle",
     notes=(
-        "OperatorEffectBundle 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+        (
+            "OperatorEffectBundle 1.0 is the source-proven curren"
+            "t representation; unsupported tuples remain closed."
+        ),
     ),
 )
 

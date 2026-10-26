@@ -87,16 +87,6 @@ REVIEWED_RAW_SQL_INTERPOLATION_SITES = {
         "bcdca1705dd514d8": "temporary table is generated and registered internally",
         "c8ee3ae2768cd962": "temporary tables are generated and registered internally",
     },
-    "src/polisyos/fabric/world/materialize/sql.py": {
-        "1d8472965fa8c6f4": "internal SQL templates compose fixed Fabric world DDL/DML",
-        "34ef96fe23793fdf": "internal SQL templates compose fixed Fabric world DDL/DML",
-        "6d45c2e30d11c83b": "internal SQL templates compose fixed Fabric world DDL/DML",
-        "85bc27ec9f37387a": "internal SQL templates compose fixed Fabric world DDL/DML",
-        "8b4240f5f9a84f50": "internal SQL templates compose fixed Fabric world DDL/DML",
-        "deaa8ac71057781e": "internal SQL templates compose fixed Fabric world DDL/DML",
-        "e1142f31413815c0": "internal SQL templates compose fixed Fabric world DDL/DML",
-        "e62d158b9d32a778": "internal SQL templates compose fixed Fabric world DDL/DML",
-    },
     "src/polisyos/fabric/world/store/snapshots.py": {
         "0f74d87a62ae6af2": "world table identifiers are validated/quoted",
         "1720efc5689addfd": "world table/column identifiers are validated or quoted",

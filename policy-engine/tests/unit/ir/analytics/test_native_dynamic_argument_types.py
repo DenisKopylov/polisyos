@@ -166,3 +166,111 @@ def test_composability_certificate_model_revalidation_and_rederivation_are_proje
     assert rederivation.witness_index_ref == witness_ref
     assert rederivation.proof_support_projection_hash == "projection-b"
     assert rederivation.invalidated_by_graph_hashes == ["graph-b"]
+
+
+def test_public_ir_annotations_resolve_for_cold_runtime_consumers() -> None:
+    repo_root = Path(__file__).resolve().parents[4]
+    source_root = repo_root / "src"
+    probe = textwrap.dedent(
+        """\
+        import importlib
+        import sys
+        from collections.abc import Iterable, Sequence
+        from pathlib import Path
+        from types import SimpleNamespace
+        from typing import get_type_hints
+
+        root = Path(sys.argv[1]).resolve()
+        module_names = (
+            "polisyos.ir.analytics.abm_bridge",
+            "polisyos.ir.analytics.causal_run_snapshot",
+            "polisyos.ir.analytics.transportability",
+            "polisyos.ir.observation.causal_readiness",
+            "polisyos.ir.analytics.dual_certificate",
+            "polisyos.ir.analytics.hte",
+        )
+        assert all(name not in sys.modules for name in module_names)
+        from polisyos.ir.artifacts import ArtifactStore, InputRef
+        from polisyos.ir.artifacts._lineage import InputRefLike
+
+        modules = {name: importlib.import_module(name) for name in module_names}
+        assert all(Path(module.__file__).resolve().is_relative_to(root) for module in modules.values())
+
+        abm = modules["polisyos.ir.analytics.abm_bridge"]
+        abm_hints = get_type_hints(abm.persist_abm_alignment_report)
+        assert abm_hints["store"] is ArtifactStore
+        assert abm_hints["inputs"] == list[InputRef] | None
+
+        snapshot = modules["polisyos.ir.analytics.causal_run_snapshot"]
+        build_hints = get_type_hints(snapshot.CausalRunSnapshot.build)
+        assert build_hints["graph"] == snapshot._JsonModelDump | None
+        assert build_hints["estimation_steps"] == Iterable[object]
+        assert build_hints["compilation_steps"] == Sequence[object]
+        assert "run_id" in snapshot.CausalRunSnapshot.model_json_schema()["properties"]
+
+        transportability = modules["polisyos.ir.analytics.transportability"]
+        transport_hints = get_type_hints(transportability.persist_transportability_result)
+        assert transport_hints["store"] is ArtifactStore
+        assert transport_hints["inputs"] == Sequence[InputRefLike] | None
+
+        readiness = modules["polisyos.ir.observation.causal_readiness"]
+        readiness_hints = get_type_hints(readiness.persist_causal_readiness_bundle)
+        assert readiness_hints["store"] is ArtifactStore
+        assert readiness_hints["inputs"] == Sequence[InputRefLike] | None
+        assert readiness.CausalReadinessBundle.model_json_schema()["properties"]
+
+        dual = modules["polisyos.ir.analytics.dual_certificate"]
+        solver_hints = get_type_hints(dual._build_single_certificate)
+        assert solver_hints["result"] is dual._LPResultLike
+        result = SimpleNamespace(
+            x=dual.np.asarray([1.0, 0.0]),
+            eqlin=SimpleNamespace(marginals=dual.np.asarray([1.0])),
+            lower=SimpleNamespace(marginals=dual.np.asarray([0.0, 0.0])),
+            status=0,
+            message="optimal",
+        )
+        certificate = dual._build_single_certificate(
+            problem_fingerprint="test-fingerprint",
+            bound_direction="lower",
+            objective=dual.np.asarray([1.0, 0.0]),
+            result=result,
+            b_eq=dual.np.asarray([1.0]),
+        )
+        assert certificate.solver_status == "optimal"
+        assert certificate.objective_primal == certificate.objective_dual == 1.0
+
+        status_only_result = SimpleNamespace(
+            x=dual.np.asarray([1.0, 0.0]),
+            eqlin=SimpleNamespace(marginals=dual.np.asarray([1.0])),
+            lower=SimpleNamespace(marginals=dual.np.asarray([0.0, 0.0])),
+            status=0,
+        )
+        fallback_certificate = dual._build_single_certificate(
+            problem_fingerprint="status-only-fingerprint",
+            bound_direction="lower",
+            objective=dual.np.asarray([1.0, 0.0]),
+            result=status_only_result,
+            b_eq=dual.np.asarray([1.0]),
+        )
+        assert fallback_certificate.solver_status == "0"
+
+        hte = modules["polisyos.ir.analytics.hte"]
+        assert get_type_hints(hte._get_hte_owned_json_artifact)["ref"] == hte.ArtifactSelector
+        print("resolved IR runtime annotations, Pydantic schemas, and LP result protocol consumer")
+        """
+    )
+    env = os.environ.copy()
+    inherited_pythonpath = env.get("PYTHONPATH")
+    env["PYTHONPATH"] = os.pathsep.join(
+        [str(source_root), inherited_pythonpath] if inherited_pythonpath else [str(source_root)]
+    )
+    result = subprocess.run(
+        [sys.executable, "-c", probe, str(source_root)],
+        cwd=repo_root,
+        env=env,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr or result.stdout
+    assert "resolved IR runtime annotations" in result.stdout

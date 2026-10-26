@@ -3,13 +3,23 @@ version: 1
 owner: team-scientist
 objectives:
   - name: scientist_dag_success_rate
-    sli: rate(polisyos_slo_dag_runs_total{status="success"}[30m]) / rate(polisyos_slo_dag_runs_total[30m])
+    sli: >-
+      (
+        (
+          sum by (workflow_id, env) (rate(polisyos_slo_dag_runs_total{measurement_scope="scientist_api",status="success"}[30m]))
+          or on (workflow_id, env)
+          (0 * sum by (workflow_id, env) (rate(polisyos_slo_dag_runs_total{measurement_scope="scientist_api",status=~"success|error"}[30m])))
+        )
+        / sum by (workflow_id, env) (rate(polisyos_slo_dag_runs_total{measurement_scope="scientist_api",status=~"success|error"}[30m]))
+      )
+      and on (workflow_id, env)
+      (sum by (workflow_id, env) (rate(polisyos_slo_dag_runs_total{measurement_scope="scientist_api",status=~"success|error"}[30m])) > 0)
     threshold: ">= 0.95"
     window: 28d
     owner: team-scientist
     runbook: docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md
   - name: scientist_p99_duration
-    sli: histogram_quantile(0.99, rate(polisyos_slo_dag_duration_seconds_bucket[30m]))
+    sli: histogram_quantile(0.99, sum by (le, workflow_id, env) (rate(polisyos_slo_dag_duration_seconds_bucket{measurement_scope="scientist_api"}[30m])))
     threshold: "< 300s"
     window: 28d
     owner: team-scientist

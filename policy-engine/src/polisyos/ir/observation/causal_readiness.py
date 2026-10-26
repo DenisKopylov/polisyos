@@ -8,14 +8,14 @@ runners can block, downgrade, or proceed with a causal execution bundle.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Sequence  # noqa: TC003
 from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 from pydantic import Field, model_validator
 
 from polisyos.ir._internal.validation import ensure_non_empty_dotted_path, ensure_unique_ids
-from polisyos.ir.artifacts import ArtifactStore
-from polisyos.ir.artifacts._lineage import InputRefLike
+from polisyos.ir.artifacts import ArtifactStore  # noqa: TC001
+from polisyos.ir.artifacts._lineage import InputRefLike  # noqa: TC001
 from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration, CanonInfo
 from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.kernel.base import KernelModel
@@ -284,7 +284,10 @@ register_schema_version(
     _OWNER_SCHEMA_VERSION,
     compatibility=CompatibilityMode.NONE,
     notes=(
-        "CausalReadinessBundle current owner-admitted representation; historical predecessors are not registered.",
+        (
+            "CausalReadinessBundle current owner-admitted represe"
+            "ntation; historical predecessors are not registered."
+        ),
     ),
 )
 register_ir_representation(

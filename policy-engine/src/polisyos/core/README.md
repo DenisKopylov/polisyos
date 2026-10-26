@@ -83,6 +83,10 @@ inputs/outputs, but cannot terminalize or release its inherited parent lease.
 - Cross-package component discovery belongs in `components/` and `registry/`;
   do not create package-specific registries in Core without an architecture
   contract.
+- The basename `discovery` is scoped: `polisyos.core.discovery` owns plugin and
+  entry-point primitives, while Scientist causal graph discovery lives under
+  `polisyos.scientist.methods.discovery`. Keep imports package-qualified; this
+  namesake does not relax cross-package import boundaries.
 
 ## Extension Points
 

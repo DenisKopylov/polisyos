@@ -27,7 +27,7 @@ from polisyos.ir.analytics.causal_queries import (
     CausalResultKind,
     _causal_distribution_envelope,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts import ArtifactStore, InputRef  # noqa: TC001
 from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration, CanonInfo
 from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.migrations.base import (

@@ -4,9 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Mapping
 from itertools import product
-from typing import Annotated, Any, Literal
+from typing import TYPE_CHECKING, Annotated, Any, Literal, Protocol
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, model_validator
@@ -25,6 +24,24 @@ from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_a
 from polisyos.ir.migrations.base import CompatibilityMode, ResolvedSchemaAdmission
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import DualCertificateRef
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+
+class _LPMarginals(Protocol):
+    """Exact solver subobject consumed by dual-certificate construction."""
+
+    marginals: np.ndarray
+
+
+class _LPResultLike(Protocol):
+    """Structural contract returned by the solver used for bound certificates."""
+
+    x: np.ndarray
+    eqlin: _LPMarginals
+    lower: _LPMarginals
+    status: int
 
 
 class SparsePrimalEntry(BaseModel):
@@ -448,7 +465,7 @@ def _build_single_certificate(
     problem_fingerprint: str,
     bound_direction: Literal["lower", "upper"],
     objective: np.ndarray,
-    result: Any,
+    result: _LPResultLike,
     b_eq: np.ndarray,
     sparse_tol: float = 1e-12,
 ) -> LPDualCertificate:
@@ -485,8 +502,8 @@ def build_response_function_dual_certificate_bundle(
     monotone: bool,
     target_index: int,
     reference_index: int,
-    lower_result: Any,
-    upper_result: Any,
+    lower_result: _LPResultLike,
+    upper_result: _LPResultLike,
 ) -> BoundsDualCertificateBundle:
     """Build a validated exact-LP certificate bundle from HiGHS results."""
 
@@ -511,8 +528,8 @@ def build_response_function_dual_certificate_bundle(
 def build_binary_iv_dual_certificate_bundle(
     *,
     joint: np.ndarray,
-    lower_result: Any,
-    upper_result: Any,
+    lower_result: _LPResultLike,
+    upper_result: _LPResultLike,
 ) -> BoundsDualCertificateBundle:
     """Build a validated exact-LP certificate bundle for binary Balke-Pearl bounds."""
 
@@ -533,8 +550,8 @@ def build_general_iv_dual_certificate_bundle(
     treatment_target: int,
     treatment_ref: int,
     outcome_scale: float,
-    lower_result: Any,
-    upper_result: Any,
+    lower_result: _LPResultLike,
+    upper_result: _LPResultLike,
 ) -> BoundsDualCertificateBundle:
     """Build a validated exact-LP certificate bundle for multi-valued IV bounds."""
 
@@ -562,8 +579,8 @@ def _build_certificate_bundle_from_problem(
         "binary_iv_lp_bounds",
         "general_iv_lp_bounds",
     ],
-    lower_result: Any,
-    upper_result: Any,
+    lower_result: _LPResultLike,
+    upper_result: _LPResultLike,
 ) -> BoundsDualCertificateBundle:
     if int(getattr(lower_result, "status", -1)) != 0:
         raise ValueError("lower_result must be optimal to build a dual certificate")
@@ -896,7 +913,7 @@ def load_dual_certificate_bundle(
 
 def hydrate_bounds_bundle_with_dual_certificate(
     store: ArtifactStore,
-    bundle: Any,
+    bundle: object,
     certificate_payload: CertifiedBoundsCertificateBundle | dict[str, Any] | None,
     *,
     inputs: list[InputRef] | None = None,

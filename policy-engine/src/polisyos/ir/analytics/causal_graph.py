@@ -17,8 +17,8 @@ from polisyos.ir._internal.runtime_protocols import protocol_declared_callables_
 
 if TYPE_CHECKING:
     import networkx as nx
-from polisyos.ir.artifacts import ArtifactStore
-from polisyos.ir.artifacts._lineage import InputRefLike
+from polisyos.ir.artifacts import ArtifactStore  # noqa: TC001
+from polisyos.ir.artifacts._lineage import InputRefLike  # noqa: TC001
 from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration, CanonInfo
 from polisyos.ir.artifacts.io import (
     _get_owned_json_artifact,

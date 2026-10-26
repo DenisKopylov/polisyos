@@ -9,7 +9,7 @@ import itertools
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
 
@@ -26,9 +26,8 @@ from polisyos.ir.analytics._owner_admission import (
 from polisyos.ir.analytics.abstraction import AbstractionPreservationType
 from polisyos.ir.analytics.causal_queries import InterventionSpec, InterventionType
 from polisyos.ir.analytics.dynamic_regime import RuntimeSupportStatus
-from polisyos.ir.artifacts import ArtifactStore
-from polisyos.ir.artifacts._lineage import InputRefLike
-from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration
+from polisyos.ir.artifacts import ArtifactStore  # noqa: TC001
+from polisyos.ir.artifacts._lineage import InputRefLike  # noqa: TC001
 from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.kernel.base import ComputeBudget
 from polisyos.ir.migrations.base import CompatibilityMode
@@ -42,6 +41,10 @@ from polisyos.ir.registry.refs import (
     StrategicResponseBundleRef,
     StrategicSCMRef,
 )
+
+if TYPE_CHECKING:
+    from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration
+
 
 _STRATEGIC_PAYOFF_TABLE_SCHEMA_NAME = "ir.strategic_payoff_table"
 _STRATEGIC_PAYOFF_TABLE_SCHEMA_VERSION = "1.0"

@@ -1,0 +1,38 @@
+id = "2026-10-25-e02-fabric-runtime-annotations"
+title = "Specify Fabric runtime annotation compatibility for selected APIs"
+type = "changed"
+component = "fabric"
+owner = "team-polisyos"
+summary = "Preserve runtime annotation bindings for the selected supported Fabric callables and WorldQueryRequest; replace broad TC001/TC003 reliance with local rationale-bearing suppressions and document bounded mode-module compatibility."
+evidence = [
+  "src/polisyos/fabric/connectors/cache/invalidation.py",
+  "src/polisyos/fabric/connectors/contracts/source_contract.py",
+  "src/polisyos/fabric/data_plane/modes.py",
+  "src/polisyos/fabric/evidence/decision_data.py",
+  "src/polisyos/fabric/world/query.py",
+  "docs/reference/fabric/runtime-annotations.md",
+]
+compatibility = "No symbol or DTO is added and no supported facade export changes. The selected callable and WorldQueryRequest annotations remain resolvable through ordinary supported-facade imports. The four documented mode functions retain their direct polisyos.fabric.data_plane.modes route and ConnectionConfig runtime binding, but are not promoted to exports from polisyos.fabric.data_plane. Internal RuntimeLineageRef and RuntimeQuantityValue helper annotations are static-only; their ordinary conversion behavior is unchanged."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.fabric selected world-query and TemporalRef members; polisyos.fabric.connectors selected invalidation members; polisyos.fabric.data_plane query_world_table alias; bounded documented direct-module compatibility: polisyos.fabric.data_plane.modes; internal: polisyos.fabric.evidence.decision_data helper reflection"
+migration = "No caller migration is required for the selected supported facade objects. The documented mode routes remain direct-module compatibility paths and receive no new facade export. Consumers of unsupported decision_data helper reflection must not rely on the former runtime-only annotation bindings; conversion calls and value handling remain unchanged."
+api = "No new Python symbol, facade route, DTO, or nominal type is introduced. Runtime type resolution is scoped to the exact callable and class surfaces in docs/reference/fabric/runtime-annotations.md; get_type_hints is not a source-authority or backend-readiness signal."
+limitations = "The selected annotation contract applies only under the declared Python >=3.14,<3.15 range and the supported Fabric dependency profile recorded by the final test receipt. Optional-backend availability, source truth, data suitability, and PolicyOS authority are outside this contract."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/fabric/runtime-annotations.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-fabric-runtime-annotation-compatibility"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "public_stable: selected objects on polisyos.fabric, polisyos.fabric.connectors, and polisyos.fabric.data_plane; bounded direct-module compatibility: polisyos.fabric.data_plane.modes; internal: polisyos.fabric.evidence.decision_data helper reflection"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Selected Fabric callable and WorldQueryRequest annotations remain runtime-resolvable through their supported facades. Existing four data-plane mode routes remain documented at polisyos.fabric.data_plane.modes without new facade exports. Internal decision-data converter behavior is unchanged; reflection of the two annotation-only internal Runtime types is not a supported guarantee."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/fabric/runtime-annotations.md"]
+runbook_docs = []

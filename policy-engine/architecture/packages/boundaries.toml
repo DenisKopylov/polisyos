@@ -255,6 +255,23 @@ forbidden_dependencies = [
 ]
 
 [[package]]
+module = "polisyos.runtime.quality"
+owner = "team-runtime-quality"
+public_facade = "polisyos.runtime.quality"
+allowed_dependencies = ["public_facades_only"]
+forbidden_dependencies = [
+  "polisyos.data_forge.kernel",
+  "polisyos.data_forge.domains",
+  "polisyos.lex.batch",
+  "polisyos.lex.corpus",
+  "polisyos.academic",
+  "polisyos.datasets",
+  "polisyos.ukraine_data",
+  "polisyos.batch_common",
+  "polisyos.batch_snapshot",
+]
+
+[[package]]
 module = "polisyos.obligation_rules"
 owner = "team-policyos-runtime"
 public_facade = "polisyos.obligation_rules"

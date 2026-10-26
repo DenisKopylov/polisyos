@@ -461,7 +461,11 @@ _LOCAL_INDEPENDENCE_OWNER = _declare_owned_model(
     payload_version="1.0",
     purpose="ir_local_independence_weighting_certificate",
     notes=(
-        "LocalIndependenceWeightingCertificate 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+        (
+            "LocalIndependenceWeightingCertificate 1.0 is the sou"
+            "rce-proven current representation; unsupported tuple"
+            "s remain closed."
+        ),
     ),
 )
 

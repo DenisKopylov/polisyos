@@ -81,13 +81,12 @@ validation_roots = [
 ]
 compatibility_shim_roots = [
   "src/polisyos/scientist/backtesting",
-  "src/polisyos/scientist/discovery",
 ]
 phase2_2_semantic_duplicate_root_status = "resolved_with_sunset_shims"
 phase2_2_closeout_registry = "architecture/name_registry.toml#phase2_2_scientist_parallel_closeout"
 phase2_2_shim_registry = "architecture/shims.toml"
 phase2_2_smoke_test = "tests/unit/scientist/methods/test_import_shims.py"
-phase2_2_active_root_rule = "claims, search, discovery, and backtesting are compatibility roots only; provenance, workflows, research_dag, human_review, and engine legacy roots were retired after reaching tiny non-compat usage."
+phase2_2_active_root_rule = "claims, search, and backtesting are compatibility roots only; Scientist discovery is canonical under methods/discovery; provenance, workflows, research_dag, human_review, and engine legacy roots were retired after reaching tiny non-compat usage."
 legacy_layout_mirror = "architecture/packages/layout.toml"
 legacy_layout_status = "resolved_root_facade"
 
@@ -155,6 +154,8 @@ supported_entrypoints = [
   "polisyos.scientist.replay",
   "polisyos.scientist.replay.deterministic",
   "polisyos.scientist.validation.policy_verified",
+  "polisyos.scientist.agent",
+  "polisyos.scientist.policy_design",
 ]
 major_subsystem = true
 notes = "Workflow orchestration and policy-verified artifact facades, including typed legal retrieval status on candidate packs."

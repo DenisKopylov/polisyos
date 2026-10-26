@@ -346,7 +346,10 @@ _INTERACTION_COMPLEX_OWNER = _declare_owned_model(
     payload_version="1.0",
     purpose="ir_interaction_complex",
     notes=(
-        "InteractionComplex 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+        (
+            "InteractionComplex 1.0 is the source-proven current "
+            "representation; unsupported tuples remain closed."
+        ),
     ),
 )
 
@@ -362,7 +365,11 @@ _INTERFERENCE_CERTIFICATE_OWNER = _declare_owned_model(
     payload_version="1.0",
     purpose="ir_interference_certificate",
     notes=(
-        "InterferenceCertificate 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+        (
+            "InterferenceCertificate 1.0 is the source-proven cur"
+            "rent representation; unsupported tuples remain close"
+            "d."
+        ),
     ),
 )
 
@@ -936,7 +943,11 @@ _MAUP_INVARIANCE_CERTIFICATE_OWNER = _declare_owned_model(
     payload_version="1.0",
     purpose="ir_maup_invariance_certificate",
     notes=(
-        "MAUPInvarianceCertificate 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+        (
+            "MAUPInvarianceCertificate 1.0 is the source-proven c"
+            "urrent representation; unsupported tuples remain clo"
+            "sed."
+        ),
     ),
 )
 
@@ -952,6 +963,10 @@ _SPATIAL_HODGE_DIAGNOSTICS_OWNER = _declare_owned_model(
     payload_version="1.0",
     purpose="ir_spatial_hodge_diagnostics",
     notes=(
-        "SpatialHodgeDiagnostics 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+        (
+            "SpatialHodgeDiagnostics 1.0 is the source-proven cur"
+            "rent representation; unsupported tuples remain close"
+            "d."
+        ),
     ),
 )

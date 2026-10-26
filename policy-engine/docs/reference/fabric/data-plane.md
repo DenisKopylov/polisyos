@@ -69,6 +69,13 @@ live-provider-to-persisted-result flow.
 | `run_streaming_windowed` | Persists fetched chunks and can assemble a manifest, evidence bundle, and snapshot. | The full local-source artifact chain is tested by the named `test_streaming_snapshot_uses_owner_tenant_store_for_the_full_artifact_chain` case above. |
 | `process_stream_dataset` | Runs a streaming session with resumable state, dedupe/frontier handling, capacity limits, and schema-bound CDC handling. | `policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py` contains focused restart, backpressure, frontier, and CDC cases; these are behavioral tests, not deployment-readiness evidence. |
 
+The four mode functions in the table above remain documented direct-module
+compatibility routes at `polisyos.fabric.data_plane.modes`; they are not exports
+from the supported `polisyos.fabric.data_plane` facade. The selected
+`ConnectionConfig` reflection boundary and supported facade members are listed in
+[Fabric runtime annotation compatibility](runtime-annotations.md). This narrow
+route clarification was checked against source frame `8533003b91961cf9ba1305ec296dab7f3ed40e4b`; it does not change the older source pin above for the other claims on this page.
+
 Related components have narrower contracts: `policy-engine/src/polisyos/fabric/data_plane/quarantine.py`
 persists, reports, and reprocesses quarantine records;
 `policy-engine/src/polisyos/fabric/data_plane/semantic_diff.py` compares

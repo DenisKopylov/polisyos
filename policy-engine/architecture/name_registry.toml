@@ -222,6 +222,15 @@ target_phase = "1C"
 sunset = "none"
 
 [[shared_name]]
+name = "discovery"
+allowed_in = ["core", "scientist"]
+semantic_axis = "Core plugin-discovery primitives versus Scientist causal graph-discovery methods"
+disambiguation = "qualified imports required; polisyos.core.discovery owns plugin and entry-point primitives while polisyos.scientist.methods.discovery owns causal graph-discovery workflows; scoped names do not grant cross-package private imports"
+owner = "team-architecture"
+target_phase = "1C/4.7"
+sunset = "none"
+
+[[shared_name]]
 name = "ddl"
 allowed_in = ["fabric", "ir"]
 semantic_axis = "schema/DDL helpers per storage or IR context"
@@ -439,9 +448,9 @@ sunset = "none"
 
 [[shared_name]]
 name = "runtime"
-allowed_in = ["data_forge", "runtime"]
-semantic_axis = "top-level runtime package plus data_forge kernel runtime internals"
-disambiguation = "qualified imports required; package-local runtime directories in scientist/foundry require backlog coverage"
+allowed_in = ["data_forge", "foundry", "runtime"]
+semantic_axis = "top-level Runtime lifecycle, replay, verification, and HTTP; Foundry execution utilities; and Data Forge kernel runtime internals"
+disambiguation = "qualified imports required; polisyos.runtime owns lifecycle, replay, verification, and HTTP; polisyos.foundry.runtime owns execution utilities; polisyos.data_forge.kernel.runtime remains kernel-local; scoped names do not grant cross-package private imports"
 owner = "team-architecture"
 target_phase = "1C"
 sunset = "none"
@@ -554,33 +563,6 @@ owner = "team-fabric"
 target_phase = "3.1"
 sunset = "2026-12-31"
 
-[[rename_backlog]]
-name = "discovery"
-packages = ["core", "foundry", "scientist"]
-locations = [
-  "src/polisyos/core/discovery",
-  "src/polisyos/foundry/discovery",
-  "src/polisyos/scientist/discovery",
-]
-action = "Scientist discovery moved to src/polisyos/scientist/methods/discovery in Phase 4.7; src/polisyos/scientist/discovery remains a time-boxed compatibility shim while core/foundry merge-versus-bounded-context decisions continue separately."
-replacement = "src/polisyos/scientist/methods/discovery for Scientist; docs/plans/active/DECOMPOSITION_BLUEPRINT.md#discovery for remaining core/foundry backlog"
-owner = "team-architecture"
-target_phase = "3A/5/6; scientist closed in 4.7"
-sunset = "2026-10-01"
-
-[[rename_backlog]]
-name = "runtime"
-packages = ["foundry", "scientist"]
-locations = [
-  "src/polisyos/foundry/runtime",
-  "src/polisyos/scientist/runtime",
-]
-action = "Rename inner runtime packages to _runtime_glue or fold facades into package APIs; reserve runtime/ for the top-level package."
-replacement = "docs/plans/active/DECOMPOSITION_BLUEPRINT.md#runtime"
-owner = "team-foundry/team-scientist"
-target_phase = "5/6"
-sunset = "2026-10-01"
-
 [[phase0_4_name_decision]]
 name = "_internal"
 decision = "scoped_ok"
@@ -646,6 +628,14 @@ sunset = "none"
 rationale = "Fabric claim processing and Scientist claim reasoning are package-local concerns."
 
 [[phase0_4_name_decision]]
+name = "config"
+decision = "canonical_home_with_adapters"
+owner = "team-architecture"
+target_phase = "0.4/1.5"
+sunset = "none"
+rationale = "The Phase 1.5 configuration decision and package ownership contracts name polisyos.common.config as the canonical runtime-agnostic home; Fabric catalog/data-directory settings and Data Forge pipeline profile/secret contracts remain package-owned."
+
+[[phase0_4_name_decision]]
 name = "connectors"
 decision = "scoped_ok"
 owner = "team-architecture"
@@ -671,11 +661,11 @@ rationale = "Fabric and Foundry data-plane names describe separate execution con
 
 [[phase0_4_name_decision]]
 name = "discovery"
-decision = "sunset_shim"
+decision = "scoped_ok"
 owner = "team-architecture"
-target_phase = "0.4/2.2"
-sunset = "2026-10-01"
-rationale = "polisyos.core.discovery owns plugin discovery; Scientist discovery moves under methods/discovery with the first-level root retained only as a dated shim."
+target_phase = "0.4"
+sunset = "none"
+rationale = "Core plugin and entry-point discovery remains in polisyos.core.discovery; Scientist causal graph discovery remains in polisyos.scientist.methods.discovery. They are distinct qualified bounded contexts, and no first-level Scientist or Foundry discovery package is present."
 
 [[phase0_4_name_decision]]
 name = "evidence"
@@ -763,7 +753,7 @@ decision = "scoped_ok"
 owner = "team-architecture"
 target_phase = "0.4"
 sunset = "none"
-rationale = "Fabric and Scientist provenance packages track separate bounded-context artifacts."
+rationale = "Fabric owns evidence and world-event provenance; Lex provides legal-evidence provenance adapters backed by Fabric. These are distinct package-qualified roles."
 
 [[phase0_4_name_decision]]
 name = "quality"
@@ -783,11 +773,11 @@ rationale = "polisyos.core.registry owns generic registry primitives; Fabric, Fo
 
 [[phase0_4_name_decision]]
 name = "runtime"
-decision = "sunset_shim"
-owner = "team-runtime"
-target_phase = "0.4/2.2"
-sunset = "2026-10-01"
-rationale = "polisyos.runtime is canonical; Foundry runtime remains package-local glue pending rename or facade fold-in."
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4"
+sunset = "none"
+rationale = "Top-level polisyos.runtime owns lifecycle, replay, verification, and HTTP; polisyos.foundry.runtime owns execution utilities; polisyos.data_forge.kernel.runtime remains kernel-local. This scoped collision does not authorize cross-package private imports."
 
 [[phase0_4_name_decision]]
 name = "schemas"

@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import time
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+import yaml
 
 from polisyos.core.observability import get_metrics
 
@@ -75,7 +77,12 @@ def test_slo_metric_recording_helpers(monkeypatch) -> None:
     with metrics.time_slo_dag({"workflow_id": "wf"}):
         time.sleep(0.001)
 
-    assert dag_runs.calls[-1][1] == {"status": "success", "workflow_id": "wf", "env": "test"}
+    assert dag_runs.calls[-1][1] == {
+        "measurement_scope": "scientist_api",
+        "status": "success",
+        "workflow_id": "wf",
+        "env": "test",
+    }
     assert run_cost.calls[-1][1] == {"workflow_id": "wf", "env": "test"}
     assert nan_counter.calls[-1][1] == {"method": "jax_scan", "env": "test"}
     assert sim_runs.calls[-1][1] == {"status": "ok", "method": "jax_scan", "env": "test"}
@@ -114,4 +121,52 @@ def test_slo_metric_recording_helpers(monkeypatch) -> None:
         "status": "success",
         "env": "test",
     }
-    assert dag_duration.calls and dag_duration.calls[-1][1] == {"workflow_id": "wf", "env": "test"}
+    assert dag_duration.calls and dag_duration.calls[-1][1] == {
+        "workflow_id": "wf",
+        "env": "test",
+        "measurement_scope": "scientist_api",
+    }
+
+
+def test_scientist_sli_scopes_api_and_hides_zero_eligible_traffic() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    for path in (
+        repo_root / "ops/components/scientist/slo.yaml",
+        repo_root / "ops/observability/slo/scientist.yaml",
+    ):
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        objective = next(
+            item for item in data["objectives"] if item["name"] == "scientist_dag_success_rate"
+        )
+        expression = objective["sli"]
+        assert 'measurement_scope="scientist_api"' in expression
+        assert 'status=~"success|error"' in expression
+        assert "and on (workflow_id, env)" in expression
+        assert "> 0" in expression
+        assert "clamp_min" not in expression
+
+    rules_data = yaml.safe_load(
+        (repo_root / "ops/observability/prometheus/slo_recording_rules.yml").read_text(
+            encoding="utf-8"
+        )
+    )
+    rules = {
+        rule["record"]: rule["expr"] for group in rules_data["groups"] for rule in group["rules"]
+    }
+    for name in ("polisyos:slo_dag_success_rate:rate5m", "polisyos:slo_dag_success_rate:rate30m"):
+        expression = rules[name]
+        assert 'measurement_scope="scientist_api"' in expression
+        assert 'status=~"success|error"' in expression
+        assert "and on (workflow_id, env)" in expression
+        assert "> 0" in expression
+        assert "clamp_min" not in expression
+
+    def observed_ratio(success_rate: float | None, eligible_rate: float | None) -> float | None:
+        if eligible_rate is None or eligible_rate <= 0:
+            return None
+        return (success_rate or 0.0) / eligible_rate
+
+    assert observed_ratio(None, None) is None
+    assert observed_ratio(None, 0.0) is None
+    assert observed_ratio(0.0, 2.0) == 0.0
+    assert observed_ratio(1.0, 2.0) == 0.5

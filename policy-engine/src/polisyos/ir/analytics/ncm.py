@@ -30,7 +30,7 @@ from polisyos.ir.analytics._owner_admission import (
 from polisyos.ir.analytics._owner_admission import (
     declare_model_owner as _declare_model_owner,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts import ArtifactStore, InputRef  # noqa: TC001
 from polisyos.ir.artifacts.contracts import CanonInfo as _IRCanonInfo
 from polisyos.ir.artifacts.contracts import (
     OwnedWriteOptionsPreparer as _OwnedWriteOptionsPreparer,

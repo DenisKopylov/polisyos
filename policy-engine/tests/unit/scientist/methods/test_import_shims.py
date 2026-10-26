@@ -50,6 +50,13 @@ def test_zero_noncompat_shims_are_removed_from_import_surface() -> None:
     for module_name in removed_imports:
         assert _find_spec(module_name) is None, module_name
 
+    scientist_package = tomllib.loads(
+        (REPO_ROOT / "architecture" / "packages" / "scientist.toml").read_text(encoding="utf-8")
+    )
+    declared_roots = set(scientist_package["layout"]["compatibility_shim_roots"])
+    assert "src/polisyos/scientist/discovery" not in declared_roots
+    assert "src/polisyos/scientist/backtesting" in declared_roots
+
 
 def test_tiny_batch_a_shims_are_removed_from_import_surface() -> None:
     removed_imports = (

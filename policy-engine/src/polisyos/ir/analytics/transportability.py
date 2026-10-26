@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-from collections.abc import Sequence
+from collections.abc import Sequence  # noqa: TC003
 from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any, ClassVar, Literal
@@ -31,7 +31,7 @@ from polisyos.ir.analytics.uncertainty import (
     value_uncertainty_output_contract,
 )
 from polisyos.ir.artifacts import ArtifactStore, InputRef
-from polisyos.ir.artifacts._lineage import InputRefLike
+from polisyos.ir.artifacts._lineage import InputRefLike  # noqa: TC001
 from polisyos.ir.artifacts.io import (
     _get_owned_json_artifact,
     _put_owned_json_artifact,
@@ -761,11 +761,14 @@ class TransportabilityCandidatePhaseBudgetV1(BaseModel):
                 for limit in self.effective_limits
                 if limit.resource == "max_elapsed_seconds" and limit.unit == "seconds"
             ]
-            if elapsed_limits and self.elapsed_seconds > min(elapsed_limits):
-                if self.termination not in {"budget_exhausted", "error"} or self.reason is None:
-                    raise ValueError(
-                        "candidate_elapsed_overrun_requires_truthful_non_success_termination"
-                    )
+            if (
+                elapsed_limits
+                and self.elapsed_seconds > min(elapsed_limits)
+                and (self.termination not in {"budget_exhausted", "error"} or self.reason is None)
+            ):
+                raise ValueError(
+                    "candidate_elapsed_overrun_requires_truthful_non_success_termination"
+                )
         if self.admission == "admitted":
             if self.admission_source not in {
                 "existing_compute_permit",
@@ -1048,7 +1051,11 @@ class TransportabilityCandidateDiagnosticV1(BaseModel):
     candidate_scope: Literal["candidate_only"] = "candidate_only"
     interpretation_limit: Literal[
         "selected_family_member_outcomes_do_not_establish_whole_pag_class_probability_calibration_legal_applicability_or_protected_eligibility"
-    ] = "selected_family_member_outcomes_do_not_establish_whole_pag_class_probability_calibration_legal_applicability_or_protected_eligibility"
+    ] = (
+        "selected_family_member_outcomes_do_not_establish_who"
+        "le_pag_class_probability_calibration_legal_applicabi"
+        "lity_or_protected_eligibility"
+    )
 
     @model_validator(mode="before")
     @classmethod

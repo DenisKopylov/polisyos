@@ -42,7 +42,7 @@ from polisyos.ir.analytics.latent_bridge_synthesis import (
     LatentBridgeSynthesisPolicy,
     synthesize_latent_bridge,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts import ArtifactStore, InputRef  # noqa: TC001
 from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec, to_canonical_bytes

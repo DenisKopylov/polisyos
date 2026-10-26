@@ -435,7 +435,11 @@ register_schema_version(
     _OWNER_SCHEMA_VERSION,
     compatibility=CompatibilityMode.NONE,
     notes=(
-        "SurveyQualityCertificate current owner-admitted representation; historical predecessors are not registered.",
+        (
+            "SurveyQualityCertificate current owner-admitted repr"
+            "esentation; historical predecessors are not register"
+            "ed."
+        ),
     ),
 )
 register_ir_representation(
@@ -481,7 +485,7 @@ def persist_survey_quality_certificate(
 def load_survey_quality_certificate(
     store: ArtifactStore, ref: SurveyQualityCertificateRef
 ) -> SurveyQualityCertificate:
-    """Read SurveyQualityCertificate only after its trusted owner admits the stored representation."""
+    "Read SurveyQualityCertificate only after its trusted owner admits the stored representation."
     return _get_owned_json_artifact(store, ref, owner=_surveyqualitycertificate_owner)
 
 

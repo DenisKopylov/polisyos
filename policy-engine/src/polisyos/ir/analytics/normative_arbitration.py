@@ -17,7 +17,7 @@ from polisyos.ir.analytics._owner_admission import (
 from polisyos.ir.analytics._owner_admission import (
     owner_profile_for_spec as _owner_profile_for_spec,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts import ArtifactStore, InputRef  # noqa: TC001
 from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.migrations.base import CompatibilityMode as _CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
@@ -245,7 +245,10 @@ _NORMATIVE_ARBITRATION_RESULT_OWNER = _declare_model_owner(
             profile_ref=None,
             compatibility=_CompatibilityMode.NONE,
             notes=(
-                "Exact owner-bound normative arbitration result tuple; unknown history remains opaque.",
+                (
+                    "Exact owner-bound normative arbitration result tuple"
+                    "; unknown history remains opaque."
+                ),
             ),
             readable=True,
             writable=True,

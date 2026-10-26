@@ -36,7 +36,7 @@ from polisyos.ir.analytics._owner_admission import (
 from polisyos.ir.analytics._owner_admission import (
     owner_profile_for_spec as _owner_profile_for_spec,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts import ArtifactStore, InputRef  # noqa: TC001
 from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.migrations.base import CompatibilityMode as _CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
@@ -896,7 +896,10 @@ _INTERVENTION_COST_MANIFOLD_OWNER = _declare_model_owner(
             profile_ref=None,
             compatibility=_CompatibilityMode.NONE,
             notes=(
-                "Exact owner-bound intervention cost manifold tuple; unknown history remains opaque.",
+                (
+                    "Exact owner-bound intervention cost manifold tuple; "
+                    "unknown history remains opaque."
+                ),
             ),
             readable=True,
             writable=True,
@@ -933,7 +936,10 @@ _OPTIMAL_RECOURSE_QUERY_OWNER = _declare_model_owner(
             profile_ref=None,
             compatibility=_CompatibilityMode.NONE,
             notes=(
-                "Exact owner-bound optimal recourse intervention query tuple; unknown history remains opaque.",
+                (
+                    "Exact owner-bound optimal recourse intervention quer"
+                    "y tuple; unknown history remains opaque."
+                ),
             ),
             readable=True,
             writable=True,
@@ -1007,7 +1013,10 @@ _RECOURSE_FEASIBILITY_CERTIFICATE_OWNER = _declare_model_owner(
             profile_ref=None,
             compatibility=_CompatibilityMode.NONE,
             notes=(
-                "Exact owner-bound recourse feasibility certificate tuple; unknown history remains opaque.",
+                (
+                    "Exact owner-bound recourse feasibility certificate t"
+                    "uple; unknown history remains opaque."
+                ),
             ),
             readable=True,
             writable=True,
@@ -1044,7 +1053,10 @@ _OPTIMAL_RECOURSE_BUNDLE_OWNER = _declare_model_owner(
             profile_ref=None,
             compatibility=_CompatibilityMode.NONE,
             notes=(
-                "Exact owner-bound optimal recourse intervention bundle tuple; unknown history remains opaque.",
+                (
+                    "Exact owner-bound optimal recourse intervention bund"
+                    "le tuple; unknown history remains opaque."
+                ),
             ),
             readable=True,
             writable=True,

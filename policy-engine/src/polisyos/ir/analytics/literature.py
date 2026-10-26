@@ -2229,7 +2229,10 @@ _ARTICLE_EXTRACTION_OWNER_REF = "ir.analytics.literature.article_extraction_resu
 _ARTICLE_EXTRACTION_LEGACY_WIRE = (_ARTICLE_EXTRACTION_OWNER_REF + ".wire.legacy", "1")
 _ARTICLE_EXTRACTION_CURRENT_WIRE = (_ARTICLE_EXTRACTION_OWNER_REF + ".wire.current", "1")
 _ARTICLE_EXTRACTION_NOTES = (
-    "ArticleExtractionResult producer stamps manifest 1.2; legacy payload 1.0 remains explicit and versioned.",
+    (
+        "ArticleExtractionResult producer stamps manifest 1.2"
+        "; legacy payload 1.0 remains explicit and versioned."
+    ),
 )
 _ARTICLE_EXTRACTION_REPRESENTATIONS = (
     OwnedJSONRepresentation(

@@ -4,7 +4,7 @@
 acquisition, document and claim pipelines, data-plane orchestration,
 provenance, retrieval, and world materialization.
 
-- Last updated: 2026-05-07
+- Last updated: 2026-10-25
 
 ## Purpose
 
@@ -55,7 +55,9 @@ maps the current bridges and their gaps.
 
 `polisyos.fabric.__all__` is the stable public facade. Catalog and semantic
 discovery surfaces live under `polisyos.fabric.catalog` and are linked from the
-retrieval README rather than being part of the root facade contract.
+retrieval README rather than being part of the root facade contract. The scoped
+runtime annotation contract for selected facade callables and class fields is
+documented in [Fabric runtime annotation compatibility](../../../docs/reference/fabric/runtime-annotations.md); it does not add facade exports or make annotations evidence of source authority.
 `fabric_get_data` continues probing independent providers after an unselected provider has a malformed
 registry; if no provider matches and any registry probe failed, it raises the typed
 `CatalogRegistrySchemaError` refusal instead of reporting absence. A selected WVS
@@ -188,6 +190,7 @@ Run from the repository root (`policy-engine/`).
 - [Fabric reference index](../../../docs/reference/fabric/index.md)
 - [Fabric connectors reference](../../../docs/reference/fabric/connectors.md)
 - [Fabric data-plane reference](../../../docs/reference/fabric/data-plane.md)
+- [Fabric runtime annotation compatibility](../../../docs/reference/fabric/runtime-annotations.md)
 - [Fabric lineage reference](../../../docs/reference/fabric/lineage.md)
 - [Connector CONTRIBUTING guide](../../../docs/connectors/CONTRIBUTING.md)
 - [Add data source](../../../docs/how-to/add-data-source.md)

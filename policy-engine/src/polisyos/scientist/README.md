@@ -30,9 +30,10 @@ governance, and publishes replayable decision artifacts across the `ir`,
 - Workflow specs in [`orchestration/workflows/`](orchestration/workflows/): inspect builtin DAG layouts before changing routing or nodes
 - Search, discovery, and research-DAG implementations live under
   `src/polisyos/scientist/methods/`. Use the `polisyos.scientist.methods.*`
-  namespace for new imports. Repository metadata and the checked-in
-  import-contract tests disagree about package-root compatibility imports, so
-  this guide does not treat first-level legacy roots as supported.
+  namespace for new imports. Scientist causal graph discovery is distinct from
+  Core plugin and entry-point discovery in `polisyos.core.discovery`; keep each
+  route package-qualified. The retired `polisyos.scientist.discovery` root is
+  negative-tested and is not declared as an active compatibility root.
 - Governance helpers in [`governance/preflight.py`](governance/preflight.py) and [`governance/postflight.py`](governance/postflight.py): pre/post-flight validation surfaces
 - Governance pass discovery via `load_governance_passes()` and `build_governance_pipeline()` in [`api.py`](api.py): explicit `polisyos.scientist_governance_passes` extension path with builtin fallbacks
 - Bounded agent adapter support via the root facade: `ToolRegistry`,

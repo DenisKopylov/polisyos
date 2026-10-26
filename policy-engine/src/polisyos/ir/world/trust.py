@@ -46,7 +46,7 @@ class TrustAssessment(KernelModel):
 
     @model_validator(mode="before")
     @classmethod
-    def reject_floats(cls, value: Any) -> Any:
+    def reject_floats(cls, value: object) -> object:
         reject_floats_deep(value)
         return value
 

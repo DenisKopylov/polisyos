@@ -82,6 +82,10 @@ supported_entrypoints = [
   "polisyos.fabric.connectors",
   "polisyos.fabric.data_plane",
   "polisyos.fabric.world",
+  "polisyos.fabric.docs",
+  "polisyos.fabric.ingestion",
+  "polisyos.fabric.retrieval",
+  "polisyos.fabric.product_integration",
 ]
 major_subsystem = true
 notes = "Connector-backed ingestion, world queries, and catalog surfaces."
@@ -140,18 +144,9 @@ reason = "Fabric config owns catalog and data-directory settings, separate from 
 owner = "team-fabric"
 
 [exceptions]
-status = "declared"
+status = "none"
 owner = "team-fabric"
-registries = ["architecture/tooling/static_analysis_overrides.toml"]
-
-[[exception]]
-id = "fabric-ruff-ratchet"
-owner = "team-fabric"
-kind = "lint_ratchet"
-reason = "Phase 4B keeps Fabric on explicit Ruff per-file and package ratchets while connector payload typing is narrowed."
-sunset = "2026-10-01"
-issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
-registry = "architecture/tooling/static_analysis_overrides.toml"
+registries = []
 
 [sunsets]
 status = "declared"

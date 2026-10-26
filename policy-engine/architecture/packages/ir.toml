@@ -71,7 +71,7 @@ classification = "public_stable"
 facade_mode = "lazy_facade"
 registry_owner = "team-polisyos"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.ir", "polisyos.ir.analytics", "polisyos.ir.analytics.calibration_diagnostics", "polisyos.ir.api", "polisyos.ir.governance", "polisyos.ir.observation"]
+supported_entrypoints = ["polisyos.ir", "polisyos.ir.analytics", "polisyos.ir.analytics.calibration_diagnostics", "polisyos.ir.api", "polisyos.ir.governance", "polisyos.ir.observation", "polisyos.ir.connectors", "polisyos.ir.kernel", "polisyos.ir.loading", "polisyos.ir.model_layer", "polisyos.ir.registry", "polisyos.ir.trinity", "polisyos.ir.world"]
 major_subsystem = true
 notes = "Primary compatibility boundary for policy, governance, analytics, and observation contracts; api.py owns public-surface helper metadata."
 

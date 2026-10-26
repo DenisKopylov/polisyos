@@ -42,8 +42,11 @@ from polisyos.ir.analytics._owner_admission import (
 from polisyos.ir.analytics._owner_admission import (
     validate_owner_payload as _validate_owner_payload,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef
-from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration
+from polisyos.ir.artifacts import ArtifactStore, InputRef  # noqa: TC001
+from polisyos.ir.artifacts.contracts import (
+    ArtifactOwnerDeclaration,
+    ArtifactSelector,
+)
 from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.migrations.base import CompatibilityMode as _CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec, CanonViolation
@@ -167,11 +170,11 @@ class HTEResult(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _normalize_payload(cls, payload: Any) -> Any:
+    def _normalize_payload(cls, payload: object) -> object:
         return cls.normalize_payload(payload)
 
     @classmethod
-    def normalize_payload(cls, payload: Any) -> Any:
+    def normalize_payload(cls, payload: object) -> object:
         """Return an HTE payload with explicit derived defaults filled.
 
         This helper is the supported normalization boundary for loaded legacy
@@ -192,7 +195,7 @@ class HTEResult(BaseModel):
         return normalized
 
     @classmethod
-    def from_estimates(cls, **payload: Any) -> HTEResult:
+    def from_estimates(cls, **payload: object) -> HTEResult:
         """Construct an HTE result after applying explicit derived defaults."""
 
         return cls.model_validate(cls.normalize_payload(payload))
@@ -1322,9 +1325,9 @@ class _HTEOutcomeBase(BaseModel):
         if (
             self.request_target_scope is not None
             and self.target_relation.scope_disposition == "satisfied"
+            and self.request_target_scope != "selected_evaluation_rows"
         ):
-            if self.request_target_scope != "selected_evaluation_rows":
-                raise ValueError("a stronger requested scope cannot be marked satisfied")
+            raise ValueError("a stronger requested scope cannot be marked satisfied")
         return self
 
 
@@ -1638,7 +1641,7 @@ class HTEOutcome(RootModel[_HTEOutcomeVariant]):
         """Return the outcome branch discriminator."""
         return self.root.kind
 
-    def __getattr__(self, name: str) -> Any:
+    def __getattr__(self, name: str) -> Any:  # noqa: ANN401
         """Forward common branch-field reads to the validated root variant."""
         if name.startswith("_"):
             raise AttributeError(name)
@@ -1847,7 +1850,7 @@ def persist_hte_outcome(
 
 def _get_hte_owned_json_artifact[OwnerSourceT, OwnerConsumerT](
     store: ArtifactStore,
-    ref: Any,
+    ref: ArtifactSelector,
     *,
     owner: ArtifactOwnerDeclaration[OwnerSourceT, OwnerConsumerT],
 ) -> OwnerConsumerT:
@@ -2057,11 +2060,11 @@ class PolicyRecommendation(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _normalize_payload(cls, payload: Any) -> Any:
+    def _normalize_payload(cls, payload: object) -> object:
         return cls.normalize_payload(payload)
 
     @classmethod
-    def normalize_payload(cls, payload: Any) -> Any:
+    def normalize_payload(cls, payload: object) -> object:
         """Return a recommendation payload with explicit derived efficiency."""
 
         if not isinstance(payload, dict):
@@ -2079,7 +2082,7 @@ class PolicyRecommendation(BaseModel):
         return normalized
 
     @classmethod
-    def from_totals(cls, **payload: Any) -> PolicyRecommendation:
+    def from_totals(cls, **payload: object) -> PolicyRecommendation:
         """Construct a recommendation after applying explicit derived defaults."""
 
         return cls.model_validate(cls.normalize_payload(payload))

@@ -8,7 +8,13 @@ document/claim ingestion, then this module exposes the materialized result table
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping, Sequence
+# Runtime bindings preserve supported world-query reflection (AD-E02-FABRIC-REFLECTION-01;
+# FABRIC-TC003-012 through FABRIC-TC003-014).
+from collections.abc import (
+    Iterable,  # noqa: TC003
+    Mapping,  # noqa: TC003
+    Sequence,  # noqa: TC003
+)
 from contextlib import AbstractContextManager, contextmanager, nullcontext
 from dataclasses import dataclass
 from pathlib import Path

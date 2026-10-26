@@ -125,6 +125,7 @@ class _MetricsRegistryBase:
     fabric_query_duration_seconds: metrics.Histogram | None = None
     fabric_query_rows_total: metrics.Counter | None = None
     fabric_materialization_lag_seconds: GaugeProxy | None = None
+    fabric_materialization_valid_time_age_complete: GaugeProxy | None = None
     fabric_segment_count: GaugeProxy | None = None
     fabric_quality_score: GaugeProxy | None = None
     fabric_freshness_age_seconds: GaugeProxy | None = None
@@ -627,8 +628,21 @@ class _MetricsRegistryBase:
         self.fabric_materialization_lag_seconds = GaugeProxy(
             self._meter,
             name="polisyos_fabric_materialization_lag_seconds",
-            description="Lag between world segment availability and materialization",
+            description=(
+                "Age of the newest selected fact-segment valid-time end, sampled at "
+                "materialization invocation; "
+                "not arrival-to-materialization delay or a freshness gate"
+            ),
             unit="s",
+        )
+        self.fabric_materialization_valid_time_age_complete = GaugeProxy(
+            self._meter,
+            name="polisyos_fabric_materialization_valid_time_age_complete",
+            description=(
+                "1 when every selected fact-segment manifest in scope has a parseable "
+                "valid-time end at materialization invocation, 0 otherwise"
+            ),
+            unit="1",
         )
         self.fabric_segment_count = GaugeProxy(
             self._meter,
@@ -719,12 +733,12 @@ class _MetricsRegistryBase:
         # SLO metrics
         self.slo_dag_runs_total = self._meter.create_counter(
             name="polisyos_slo_dag_runs_total",
-            description="Scientist DAG runs by outcome",
+            description="Scientist DAG runs by outcome and measurement scope",
             unit="1",
         )
         self.slo_dag_duration_seconds = self._meter.create_histogram(
             name="polisyos_slo_dag_duration_seconds",
-            description="Scientist DAG end-to-end duration",
+            description="Scientist DAG duration by measurement scope",
             unit="s",
         )
         self.slo_run_cost_usd = self._meter.create_histogram(

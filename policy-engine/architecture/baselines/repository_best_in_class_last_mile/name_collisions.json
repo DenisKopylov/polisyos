@@ -236,6 +236,28 @@
       "target_phase": "0.4"
     },
     {
+      "decision": "canonical_home_with_adapters",
+      "name": "config",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/common/config"
+          ],
+          "package": "common"
+        },
+        {
+          "locations": [
+            "src/polisyos/fabric/config"
+          ],
+          "package": "fabric"
+        }
+      ],
+      "rationale": "The Phase 1.5 configuration decision and package ownership contracts name polisyos.common.config as the canonical runtime-agnostic home; Fabric catalog/data-directory settings and Data Forge pipeline profile/secret contracts remain package-owned.",
+      "sunset": "none",
+      "target_phase": "0.4/1.5"
+    },
+    {
       "decision": "scoped_ok",
       "name": "connectors",
       "owner": "team-architecture",
@@ -505,6 +527,28 @@
     },
     {
       "decision": "scoped_ok",
+      "name": "provenance",
+      "owner": "team-architecture",
+      "packages": [
+        {
+          "locations": [
+            "src/polisyos/fabric/provenance"
+          ],
+          "package": "fabric"
+        },
+        {
+          "locations": [
+            "src/polisyos/lex/provenance"
+          ],
+          "package": "lex"
+        }
+      ],
+      "rationale": "Fabric owns evidence and world-event provenance; Lex provides legal-evidence provenance adapters backed by Fabric. These are distinct package-qualified roles.",
+      "sunset": "none",
+      "target_phase": "0.4"
+    },
+    {
+      "decision": "scoped_ok",
       "name": "quality",
       "owner": "team-architecture",
       "packages": [
@@ -548,9 +592,9 @@
       "target_phase": "0.4/1.5"
     },
     {
-      "decision": "sunset_shim",
+      "decision": "scoped_ok",
       "name": "runtime",
-      "owner": "team-runtime",
+      "owner": "team-architecture",
       "packages": [
         {
           "locations": [
@@ -565,9 +609,9 @@
           "package": "runtime"
         }
       ],
-      "rationale": "polisyos.runtime is canonical; Foundry runtime remains package-local glue pending rename or facade fold-in.",
-      "sunset": "2026-10-01",
-      "target_phase": "0.4/2.2"
+      "rationale": "Top-level polisyos.runtime owns lifecycle, replay, verification, and HTTP; polisyos.foundry.runtime owns execution utilities; polisyos.data_forge.kernel.runtime remains kernel-local. This scoped collision does not authorize cross-package private imports.",
+      "sunset": "none",
+      "target_phase": "0.4"
     },
     {
       "decision": "scoped_ok",

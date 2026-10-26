@@ -318,7 +318,7 @@ def test_phase1_3_module_size_budget_sets_defaults_and_shrinking_god_module_budg
 def test_phase1_3_report_only_validator_scopes_package_mirror_property(tmp_path: Path) -> None:
     packages_report = phase1_3.build_report(REPO_ROOT, report="packages")
     assert packages_report["mode"] == "report_only"
-    assert packages_report["contract_error_count"] > 0
+    source_contracts = _package_contracts_by_module(REPO_ROOT)
     package_contract_errors = [
         item for item in packages_report["contract_errors"] if item["check"] == "package-contract"
     ]
@@ -330,14 +330,10 @@ def test_phase1_3_report_only_validator_scopes_package_mirror_property(tmp_path:
         ("architecture/packages/calibration.toml", "2026-08-01"),
         ("architecture/packages/common.toml", "2026-08-01"),
         ("architecture/packages/ddm.toml", "2026-08-01"),
-        ("architecture/packages/fabric.toml", "2026-10-01"),
     ]
-    assert any(
-        item["subject"] == "polisyos.runtime.quality"
-        and item["message"] == "aggregate package has no primary package contract file"
-        for item in package_contract_errors
-    )
-    assert packages_report["summary"]["package_contract_count"] >= 16
+    assert package_contract_errors == expired
+    assert "polisyos.runtime.quality" in source_contracts
+    assert packages_report["summary"]["package_contract_count"] == len(source_contracts)
     invalid_gate_dates = [
         item
         for item in packages_report["contract_errors"]
@@ -348,13 +344,23 @@ def test_phase1_3_report_only_validator_scopes_package_mirror_property(tmp_path:
     assert packages_report["summary"]["report_only_gate_count"] == 14
 
     mirror_report = phase1_3.build_report(REPO_ROOT, report="package-mirrors")
-    family_check = mirror_report["summary"]["generated_family_checks"][
+    family = mirror_report["summary"]["generated_family_checks"][
         "architecture-package-contract-aggregates"
     ]
-    assert family_check["status"] == "failed"
-    _assert_unmapped_public_surface_fails_closed(family_check)
-    assert mirror_report["contract_error_count"] > 0
-    assert any(item["check"] == "package-contract" for item in mirror_report["contract_errors"])
+    assert family["status"] == "passed"
+    assert family["error_count"] == 0
+    assert family["errors"] == []
+    assert not any(item["check"] == "package-mirror" for item in mirror_report["contract_errors"])
+    assert [
+        (item["subject"], item["detail"])
+        for item in mirror_report["contract_errors"]
+        if item["check"] == "package-contract" and "invalid or expired date" in item["message"]
+    ] == [
+        ("architecture/packages/berl.toml", "2026-08-01"),
+        ("architecture/packages/calibration.toml", "2026-08-01"),
+        ("architecture/packages/common.toml", "2026-08-01"),
+        ("architecture/packages/ddm.toml", "2026-08-01"),
+    ]
 
     output = tmp_path / "phase1_3_report.json"
     assert (
@@ -369,17 +375,20 @@ def test_phase1_3_report_only_validator_scopes_package_mirror_property(tmp_path:
                 str(output),
             ]
         )
-        == 1
+        == 0
     )
     payload = json.loads(output.read_text(encoding="utf-8"))
     assert (
         payload["summary"]["generated_family_checks"]["architecture-package-contract-aggregates"][
             "status"
         ]
-        == "failed"
+        == "passed"
     )
-    _assert_unmapped_public_surface_fails_closed(
-        payload["summary"]["generated_family_checks"]["architecture-package-contract-aggregates"]
+    assert (
+        payload["summary"]["generated_family_checks"]["architecture-package-contract-aggregates"][
+            "errors"
+        ]
+        == []
     )
     assert (
         phase1_3.run_cli(
@@ -399,8 +408,12 @@ def _read_toml(path: Path) -> dict[str, Any]:
     return tomllib.loads(path.read_text(encoding="utf-8"))
 
 
-def _assert_unmapped_public_surface_fails_closed(family_check: dict[str, Any]) -> None:
-    module = "polisyos.runtime.quality"
+def _assert_unmapped_public_surface_fails_closed(
+    family_check: dict[str, Any],
+    module: str,
+    *,
+    parent_entrypoint_declared: bool,
+) -> None:
     row = family_check["unmapped_public_surface_rows"][module]
     public_rows = _read_toml(REPO_ROOT / "architecture" / "public_surface" / "contract.toml")[
         "package"
@@ -408,9 +421,9 @@ def _assert_unmapped_public_surface_fails_closed(family_check: dict[str, Any]) -
     matching_rows = [item for item in public_rows if item["module"] == module]
     assert len(matching_rows) == 1
     source_row = matching_rows[0]
-
     assert family_check["status"] == "failed"
     assert row["status"] == "not_established"
+    assert row["parent_entrypoint_declared"] is parent_entrypoint_declared
     assert row["unverified_fields"] == sorted(set(source_row) - {"module"})
     assert any(
         finding["subject"] == "architecture/public_surface/contract.toml"
@@ -435,6 +448,7 @@ def _copy_package_mirror_fixture(destination: Path) -> Path:
     shutil.copytree(REPO_ROOT / "architecture" / "packages", architecture / "packages")
     for relative in (
         "generated_artifacts.toml",
+        "extension_points.toml",
         "public_surface/contract.toml",
         "tests/topology.toml",
     ):
@@ -785,7 +799,9 @@ def test_package_mirror_reconciles_every_source_and_preserves_declared_nested_en
         for entry in data["public_surface"].get("supported_entrypoints", [])
         if type(entry) is str and entry
     }
-    assert "polisyos.runtime.quality" in initial_unmapped
+    assert "polisyos.runtime.quality" in source_contracts
+    assert set(initial_rows) == set(source_contracts)
+    assert initial_unmapped == set()
     assert "polisyos.runtime.quality" in declared_entrypoints
 
     # Establish a clean control from source-owned values rather than freezing
@@ -882,6 +898,85 @@ def test_package_mirror_reconciles_every_source_and_preserves_declared_nested_en
         for row in _read_toml(missing_repo / "architecture/packages/layout.toml")["package"]
     }
     assert actual_layout == expected_layout
+
+
+def test_package_mirror_requires_complete_runtime_quality_source_contract(
+    tmp_path: Path,
+) -> None:
+    repo = _copy_package_mirror_fixture(tmp_path / "missing-runtime-quality-source")
+    child_path = repo / "architecture/packages/runtime-quality.toml"
+    assert child_path.is_file()
+    child_path.unlink()
+
+    # A parent-level entrypoint declaration must not stand in for the nested
+    # package's complete typed source contract.
+    runtime_path = repo / "architecture/packages/runtime.toml"
+    runtime_text = runtime_path.read_text(encoding="utf-8")
+    old = 'supported_entrypoints = ["polisyos.runtime"]'
+    replacement = 'supported_entrypoints = ["polisyos.runtime", "polisyos.runtime.quality"]'
+    assert runtime_text.count(old) == 1
+    runtime_path.write_text(runtime_text.replace(old, replacement, 1), encoding="utf-8")
+
+    contract_findings = phase1_3._validate_package_contracts(repo)
+    assert any(
+        item.subject == "polisyos.runtime.quality"
+        and item.message == "aggregate package has no primary package contract file"
+        for item in contract_findings
+    )
+    findings, summary = phase1_3._validate_package_mirror_projection(repo)
+    family = {
+        "status": "failed",
+        "errors": [item.as_dict() for item in findings],
+        "unmapped_public_surface_rows": summary["unmapped_public_surface_rows"],
+    }
+    _assert_unmapped_public_surface_fails_closed(
+        family,
+        "polisyos.runtime.quality",
+        parent_entrypoint_declared=True,
+    )
+    assert any(
+        item.subject == "architecture/public_surface/contract.toml"
+        and item.message == "public surface row has no complete source contract"
+        for item in findings
+    )
+
+
+def test_runtime_quality_primary_declares_existing_ruff_ratchet() -> None:
+    child = _read_toml(REPO_ROOT / "architecture/packages/runtime-quality.toml")
+    static = _read_toml(REPO_ROOT / "architecture/tooling/static_analysis_overrides.toml")
+    scopes = [
+        item
+        for item in static["override_scope"]
+        if item.get("id") == "runtime-quality-ruff-ratchet"
+    ]
+    assert len(scopes) == 1
+    scope = scopes[0]
+
+    # Keep the existing Runtime package-tree label; matching uses the exact child path pattern.
+    assert scope["package"] == "runtime"
+    assert scope["owner"] == "team-runtime-quality"
+    assert scope["tool"] == "ruff"
+    assert scope["config"] == "ruff.generated.toml"
+    assert scope["pattern"] == "src/polisyos/runtime/quality/**"
+    assert scope["mode"] == "report_only"
+    assert scope["sunset"] == "2026-12-31"
+    assert scope["issue"] == "docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md"
+
+    exception = {
+        "id": scope["id"],
+        "owner": scope["owner"],
+        "kind": "lint_ratchet",
+        "reason": scope["expectation"],
+        "sunset": scope["sunset"],
+        "issue": scope["issue"],
+        "registry": "architecture/tooling/static_analysis_overrides.toml",
+    }
+    assert child["exceptions"] == {
+        "status": "declared",
+        "owner": "team-runtime-quality",
+        "registries": ["architecture/tooling/static_analysis_overrides.toml"],
+    }
+    assert child["exception"] == [exception]
 
 
 def _replace_table_field_value(path: Path, *, table: str, field: str, value: Any) -> None:

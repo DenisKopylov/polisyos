@@ -1211,7 +1211,11 @@ _REGIME_SHIFT_CERTIFICATE_OWNER = _declare_owned_model(
     payload_version="1.0",
     purpose="ir_regime_shift_identification_certificate",
     notes=(
-        "RegimeShiftIdentificationCertificate 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+        (
+            "RegimeShiftIdentificationCertificate 1.0 is the sour"
+            "ce-proven current representation; unsupported tuples"
+            " remain closed."
+        ),
     ),
 )
 

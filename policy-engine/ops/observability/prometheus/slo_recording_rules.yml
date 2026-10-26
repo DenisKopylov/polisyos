@@ -4,28 +4,38 @@ groups:
     rules:
       - record: polisyos:slo_dag_runs:rate30m
         expr: |
-          sum by (workflow_id, env) (rate(polisyos_slo_dag_runs_total[30m]))
-
+          sum by (workflow_id, env) (rate(polisyos_slo_dag_runs_total{measurement_scope="scientist_api",status=~"success|error"}[30m]))
       - record: polisyos:slo_dag_success_rate:rate5m
         expr: |
-          sum by (workflow_id, env) (rate(polisyos_slo_dag_runs_total{status="success"}[5m]))
-          /
-          clamp_min(sum by (workflow_id, env) (rate(polisyos_slo_dag_runs_total[5m])), 1e-9)
-
+          (
+            (
+              sum by (workflow_id, env) (rate(polisyos_slo_dag_runs_total{measurement_scope="scientist_api",status="success"}[5m]))
+              or on (workflow_id, env)
+              (0 * sum by (workflow_id, env) (rate(polisyos_slo_dag_runs_total{measurement_scope="scientist_api",status=~"success|error"}[5m])))
+            )
+            / sum by (workflow_id, env) (rate(polisyos_slo_dag_runs_total{measurement_scope="scientist_api",status=~"success|error"}[5m]))
+          )
+          and on (workflow_id, env)
+          (sum by (workflow_id, env) (rate(polisyos_slo_dag_runs_total{measurement_scope="scientist_api",status=~"success|error"}[5m])) > 0)
       - record: polisyos:slo_dag_success_rate:rate30m
         expr: |
-          sum by (workflow_id, env) (rate(polisyos_slo_dag_runs_total{status="success"}[30m]))
-          /
-          clamp_min(sum by (workflow_id, env) (rate(polisyos_slo_dag_runs_total[30m])), 1e-9)
-
+          (
+            (
+              sum by (workflow_id, env) (rate(polisyos_slo_dag_runs_total{measurement_scope="scientist_api",status="success"}[30m]))
+              or on (workflow_id, env)
+              (0 * sum by (workflow_id, env) (rate(polisyos_slo_dag_runs_total{measurement_scope="scientist_api",status=~"success|error"}[30m])))
+            )
+            / sum by (workflow_id, env) (rate(polisyos_slo_dag_runs_total{measurement_scope="scientist_api",status=~"success|error"}[30m]))
+          )
+          and on (workflow_id, env)
+          (sum by (workflow_id, env) (rate(polisyos_slo_dag_runs_total{measurement_scope="scientist_api",status=~"success|error"}[30m])) > 0)
       - record: polisyos:slo_dag_p99_latency_seconds:5m
         expr: |
           histogram_quantile(0.99,
             sum by (le, workflow_id, env) (
-              rate(polisyos_slo_dag_duration_seconds_bucket[5m])
+              rate(polisyos_slo_dag_duration_seconds_bucket{measurement_scope="scientist_api"}[5m])
             )
           )
-
       - record: polisyos:slo_run_cost_usd_p95:5m
         expr: |
           histogram_quantile(0.95,
@@ -61,36 +71,45 @@ groups:
 
       - record: polisyos:runtime_api_requests:rate30m
         expr: |
-          sum by (route, method, env) (rate(polisyos_runtime_api_requests_total[30m]))
+          sum by (route, method, env) (rate(polisyos_runtime_api_requests_total{route!="unmatched"}[30m]))
 
       - record: polisyos:runtime_api_success_rate:rate30m
         expr: |
-          sum by (route, method, env) (
-            rate(polisyos_runtime_api_requests_total{status!~"5.."}[30m])
+          (
+            (
+              sum by (route, method, env) (rate(polisyos_runtime_api_requests_total{route!="unmatched",status!~"5.."}[30m]))
+              or on (route, method, env)
+              (0 * sum by (route, method, env) (rate(polisyos_runtime_api_requests_total{route!="unmatched"}[30m])))
+            )
+            / sum by (route, method, env) (rate(polisyos_runtime_api_requests_total{route!="unmatched"}[30m]))
           )
-          /
-          clamp_min(
-            sum by (route, method, env) (
-              rate(polisyos_runtime_api_requests_total[30m])
-            ),
-            1e-9
-          )
+          and on (route, method, env)
+          (sum by (route, method, env) (rate(polisyos_runtime_api_requests_total{route!="unmatched"}[30m])) > 0)
 
       - record: polisyos:runtime_api_p95_latency_seconds:5m
         expr: |
-          histogram_quantile(0.95,
-            sum by (le, route, method, env) (
-              rate(polisyos_runtime_api_duration_seconds_bucket[5m])
-            )
-          )
+          histogram_quantile(0.95, sum by (le, route, method, env) (rate(polisyos_runtime_api_duration_seconds_bucket{route!="unmatched"}[5m])))
 
       - record: polisyos:runtime_api_p99_latency_seconds:5m
         expr: |
-          histogram_quantile(0.99,
-            sum by (le, route, method, env) (
-              rate(polisyos_runtime_api_duration_seconds_bucket[5m])
+          histogram_quantile(0.99, sum by (le, route, method, env) (rate(polisyos_runtime_api_duration_seconds_bucket{route!="unmatched"}[5m])))
+
+      - record: polisyos:runtime_api_service_error_rate:rate5m
+        expr: |
+          (
+            (
+              sum by (env) (rate(polisyos_runtime_api_requests_total{route!="unmatched",status=~"5.."}[5m]))
+              or on (env)
+              (0 * sum by (env) (rate(polisyos_runtime_api_requests_total{route!="unmatched"}[5m])))
             )
+            / sum by (env) (rate(polisyos_runtime_api_requests_total{route!="unmatched"}[5m]))
           )
+          and on (env)
+          (sum by (env) (rate(polisyos_runtime_api_requests_total{route!="unmatched"}[5m])) > 0)
+
+      - record: polisyos:runtime_api_service_p95_latency_seconds:5m
+        expr: |
+          histogram_quantile(0.95, sum by (le, env) (rate(polisyos_runtime_api_duration_seconds_bucket{route!="unmatched"}[5m])))
 
       - record: polisyos:control_plane_job_admissions:rate30m
         expr: |

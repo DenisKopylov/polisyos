@@ -1,0 +1,17 @@
+id = "2026-10-26-fabric-valid-time-age-diagnostic"
+title = "Report Fabric materialization input valid-time age honestly"
+type = "changed"
+component = "fabric"
+owner = "team-polisyos"
+summary = "Keep the legacy materialization-lag metric name while defining it as selected valid-time-end age, adding an explicit cohort-completeness metric, and removing stale numeric label observations when a new scope snapshot is incomplete."
+evidence = ["tests/unit/fabric/test_world_materialization_metrics.py"]
+compatibility = "The existing metric and setter names remain. The setter accepts None to mean unknown, removes the numeric observation, and emits completeness 0; valid numeric values are accompanied by completeness 1. Consumers that interpreted the old description as source-availability delay must stop doing so and read the companion metric."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.observability.MetricsRegistry; public_stable: Fabric OpenTelemetry metric names"
+migration = "Treat the numeric series as age of the newest selected valid-time end only when polisyos_fabric_materialization_valid_time_age_complete is 1. A missing numeric series or a companion value of 0 is unknown/incomplete; neither series is a currentness or protected-decision signal."
+api = "Adds a companion completeness gauge and a scope-clear operation to GaugeProxy-backed materialization metrics. It does not add an availability timestamp or a materialization-completion event."
+limitations = "Controlled source-checkout tests verify cohort completeness, scope replacement, and typed UTC-boundary refusals; this is not production attainment. The metric is sampled when materialization is invoked and is not source availability-to-materialization delay, persisted-world freshness, an SLO, or a protected gate. A true lag producer requires typed source-availability evidence and a materialization-completion event bound to the same segment."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/fabric/observability-governance.md", "src/polisyos/core/observability/README.md"]
+runbook_docs = []

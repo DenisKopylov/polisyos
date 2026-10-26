@@ -20,7 +20,10 @@ from polisyos.common.async_tools import run_blocking_async, run_coro_sync
 from polisyos.common.logger import get_logger
 from polisyos.core.contracts.cursor import CursorState, WatermarkType, WindowStrategy
 from polisyos.fabric.connectors._async_iterators import resolve_async_iterator
-from polisyos.fabric.connectors.base import ConnectionConfig
+
+# Runtime binding preserves four documented mode routes (AD-E02-FABRIC-REFLECTION-01;
+# FABRIC-TC001-007).
+from polisyos.fabric.connectors.base import ConnectionConfig  # noqa: TC001
 from polisyos.fabric.data_plane.orchestrator import IngestionResult
 from polisyos.fabric.data_plane.quarantine import (
     IndexedArtifactStore,

@@ -9,7 +9,7 @@ identification argument sound.
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -18,8 +18,7 @@ from polisyos.ir.analytics._owner_admission import (
     declare_model_owner,
     owner_profile_for_spec,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef
-from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration
+from polisyos.ir.artifacts import ArtifactStore, InputRef  # noqa: TC001
 from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
@@ -27,6 +26,9 @@ from polisyos.ir.registry.refs import (
     BridgePlausibilityReportRef,
     ProximalIdentificationCertificateRef,
 )
+
+if TYPE_CHECKING:
+    from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration
 
 
 class SpatialProxySpec(BaseModel):

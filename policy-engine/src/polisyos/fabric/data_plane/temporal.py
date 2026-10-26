@@ -30,12 +30,21 @@ def from_unix_timestamp_utc(value: int | float) -> datetime:
 
 
 def ensure_aware_utc(value: datetime, *, what: str = "datetime") -> datetime:
-    """Return a UTC-aware datetime, interpreting naive inputs as UTC."""
+    """Return a UTC-aware datetime, interpreting naive inputs as UTC.
+
+    Raises:
+        TemporalValidationError: If an aware value cannot be represented in UTC.
+    """
     if not isinstance(value, datetime):
         raise TemporalValidationError(f"{what} must be a datetime")
     if value.tzinfo is None or value.utcoffset() is None:
         return value.replace(tzinfo=UTC)
-    return value.astimezone(UTC)
+    try:
+        return value.astimezone(UTC)
+    except OverflowError as exc:
+        raise TemporalValidationError(
+            f"{what} falls outside the representable UTC datetime range"
+        ) from exc
 
 
 def parse_datetime_utc(value: datetime | str, *, what: str = "datetime") -> datetime:

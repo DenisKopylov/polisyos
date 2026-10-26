@@ -76,8 +76,8 @@ groups:
 
       - alert: SLO_RuntimeApiAvailabilityBreach
         expr: |
-          polisyos:runtime_api_success_rate:rate30m{method="GET",route!="unmatched"} < 0.995
-          and on (route, method, env) polisyos:runtime_api_requests:rate30m{method="GET",route!="unmatched"} > 0
+          polisyos:runtime_api_success_rate:rate30m{route!="unmatched"} < 0.995
+          and on (route, method, env) polisyos:runtime_api_requests:rate30m{route!="unmatched"} > 0
         for: 10m
         labels:
           severity: warning
@@ -91,8 +91,8 @@ groups:
 
       - alert: SLO_RuntimeApiLatencyP95High
         expr: |
-          polisyos:runtime_api_p95_latency_seconds:5m{method="GET",route!="unmatched"} > 0.75
-          and on (route, method, env) polisyos:runtime_api_requests:rate30m{method="GET",route!="unmatched"} > 0
+          polisyos:runtime_api_p95_latency_seconds:5m{route!="unmatched"} > 0.75
+          and on (route, method, env) polisyos:runtime_api_requests:rate30m{route!="unmatched"} > 0
         for: 15m
         labels:
           severity: warning
@@ -106,8 +106,8 @@ groups:
 
       - alert: SLO_RuntimeApiLatencyP99High
         expr: |
-          polisyos:runtime_api_p99_latency_seconds:5m{method="GET",route!="unmatched"} > 1.5
-          and on (route, method, env) polisyos:runtime_api_requests:rate30m{method="GET",route!="unmatched"} > 0
+          polisyos:runtime_api_p99_latency_seconds:5m{route!="unmatched"} > 1.5
+          and on (route, method, env) polisyos:runtime_api_requests:rate30m{route!="unmatched"} > 0
         for: 10m
         labels:
           severity: critical

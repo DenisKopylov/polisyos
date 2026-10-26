@@ -5,7 +5,7 @@ Source pin: `af387828fbf27dce6dec8665286180df0dd10d1c`
 Source of truth: `docs/adr/0006-slo-definitions.md`
 
 This page translates the decision text in the [source ADR](../../adr/0006-slo-definitions.md), whose SHA-256 is
-`6e9a0ef9b3cdf9b044f3cd002d909cf804eab8a1d3dee2fdfabbfffef68c570e`.
+`fa3d26c488cb74ac3f098b6ed72aca42d9b55ccc3ce80d22b3adfa1fe6a33298`
 The generated ADR index reports the source status as `accepted` at the source
 pin. This derivative does not ratify or revise the decision and does not
 establish that the decision was implemented.
@@ -75,3 +75,8 @@ Add a Grafana dashboard: `ops/observability/grafana/dashboards/slo-overview.json
 
 - Extended by: ADR-0116 (OTel-first observability).
 - Related: ADR-0127 (repository hygiene gates).
+
+
+## E02 measurement-scope clarification (2026-10-25)
+
+The Scientist API SLI population begins after observability-provider resolution, input/state validation, and workflow_id resolution, before selected-workflow dispatch. It records success/error inside that wrapper; failures before it are outside the denominator. Its duration covers selected-workflow dispatch/execution, excluding provider/state/workflow resolution and result serialization. API instruments use measurement_scope=scientist_api; engine lifecycle instruments use measurement_scope=scientist_engine with ok/fail status. For this API SLI, the earlier clamp_min mitigation is replaced by a positive-eligible-rate filter: absent or zero eligible rates stay absent, while positive error-only traffic yields zero success without success samples. This controlled wiring does not establish production profile selection or attainment.

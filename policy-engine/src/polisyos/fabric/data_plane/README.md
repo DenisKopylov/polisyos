@@ -4,7 +4,7 @@
 record/replay, streaming and CDC, quarantine, semantic diffs, and benchmark
 reports.
 
-Last updated: 2026-04-17.
+Last updated: 2026-10-25.
 
 ## Purpose
 
@@ -29,7 +29,7 @@ do the operational recovery surfaces for quarantine and schema-drift evidence.
   [../claims/README.md](../claims/README.md), and
   [../world/README.md](../world/README.md) when you need the full pipeline.
 
-## Public Entrypoints
+## Documented Entrypoints
 
 | Entrypoint                                                                        | Description                                                                 |
 | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
@@ -41,6 +41,14 @@ do the operational recovery surfaces for quarantine and schema-drift evidence.
 | `QuarantineRecord`, `list_quarantine_records()`, `reprocess_quarantine_records()` | CAS-backed poison-record storage and reprocessing API.                      |
 | `compare_historical_rows()` / `persist_historical_semantic_diff_report()`         | Historical schema-evolution diff helpers.                                   |
 | `python -m polisyos.fabric.data_plane.cli`                                        | Package-local CLI for quarantine report and replay operations.              |
+
+This list includes supported facade names and documented direct-module routes.
+`run_batch_incremental`, `run_record_mode`, `run_replay_mode`, and
+`run_streaming_windowed` remain bounded compatibility routes at
+`polisyos.fabric.data_plane.modes`; they are not exports from the supported
+`polisyos.fabric.data_plane` facade. Their runtime `ConnectionConfig` annotations
+are covered by [Fabric runtime annotation compatibility](../../../../docs/reference/fabric/runtime-annotations.md).
+This documentation does not add facade exports.
 
 The quarantine report/replay CLI stores its JSONL index beneath the CAS root. It
 requires the indexed-store protocol, including a filesystem `Path` root and the
@@ -110,6 +118,7 @@ Run from the repository root (`policy-engine/`).
 ## Reference Docs
 
 - [Fabric data-plane reference](../../../../docs/reference/fabric/data-plane.md)
+- [Fabric runtime annotation compatibility](../../../../docs/reference/fabric/runtime-annotations.md)
 - [Fabric lineage reference](../../../../docs/reference/fabric/lineage.md)
 - [Fabric time-travel reference](../../../../docs/reference/fabric/time-travel.md)
 - [Cache rebuild storm runbook](../../../../docs/runbooks/cache-rebuild-storm.md)

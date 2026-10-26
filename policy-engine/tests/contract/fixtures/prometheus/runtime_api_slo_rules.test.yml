@@ -1,0 +1,146 @@
+# Controlled Prometheus witness; not a production attainment receipt.
+rule_files:
+  - ../../../../ops/observability/prometheus/slo_recording_rules.yml
+  - ../../../../ops/observability/prometheus/slo_alerts.yml
+evaluation_interval: 1m
+tests:
+  - name: all resolved methods are eligible; unmatched is not
+    interval: 1m
+    input_series:
+      - series: 'polisyos_runtime_api_requests_total{env="test",method="GET",route="/api/v1/runs/{run_id}",status="200"}'
+        values: '0+10x30'
+      - series: 'polisyos_runtime_api_requests_total{env="test",method="POST",route="/api/v1/control/runs",status="201"}'
+        values: '0+1x30'
+      - series: 'polisyos_runtime_api_requests_total{env="test",method="POST",route="/api/v1/control/runs",status="500"}'
+        values: '0+1x30'
+      - series: 'polisyos_runtime_api_requests_total{env="slow_post",method="POST",route="/api/v1/control/runs",status="200"}'
+        values: '0+1x30'
+      - series: 'polisyos_runtime_api_requests_total{env="test",method="POST",route="unmatched",status="500"}'
+        values: '0+100x30'
+      - series: 'polisyos_runtime_api_requests_total{env="zero",method="GET",route="/api/v1/runs/{run_id}",status="200"}'
+        values: '0x30'
+      - series: 'polisyos_runtime_api_requests_total{env="error_only",method="POST",route="/api/v1/control/runs",status="500"}'
+        values: '0+1x30'
+      - series: 'polisyos_runtime_api_duration_seconds_bucket{env="test",le="0.5",method="GET",route="/api/v1/runs/{run_id}"}'
+        values: '0+10x30'
+      - series: 'polisyos_runtime_api_duration_seconds_bucket{env="test",le="1",method="GET",route="/api/v1/runs/{run_id}"}'
+        values: '0+10x30'
+      - series: 'polisyos_runtime_api_duration_seconds_bucket{env="test",le="+Inf",method="GET",route="/api/v1/runs/{run_id}"}'
+        values: '0+10x30'
+      - series: 'polisyos_runtime_api_duration_seconds_bucket{env="test",le="0.5",method="POST",route="/api/v1/control/runs"}'
+        values: '0x30'
+      - series: 'polisyos_runtime_api_duration_seconds_bucket{env="test",le="1",method="POST",route="/api/v1/control/runs"}'
+        values: '0+2x30'
+      - series: 'polisyos_runtime_api_duration_seconds_bucket{env="test",le="+Inf",method="POST",route="/api/v1/control/runs"}'
+        values: '0+2x30'
+      - series: 'polisyos_runtime_api_duration_seconds_bucket{env="slow_post",le="0.5",method="POST",route="/api/v1/control/runs"}'
+        values: '0x30'
+      - series: 'polisyos_runtime_api_duration_seconds_bucket{env="slow_post",le="1",method="POST",route="/api/v1/control/runs"}'
+        values: '0x30'
+      - series: 'polisyos_runtime_api_duration_seconds_bucket{env="slow_post",le="5",method="POST",route="/api/v1/control/runs"}'
+        values: '0+1x30'
+      - series: 'polisyos_runtime_api_duration_seconds_bucket{env="slow_post",le="+Inf",method="POST",route="/api/v1/control/runs"}'
+        values: '0+1x30'
+      - series: 'polisyos_runtime_api_duration_seconds_bucket{env="test",le="0.5",method="POST",route="unmatched"}'
+        values: '0x30'
+      - series: 'polisyos_runtime_api_duration_seconds_bucket{env="test",le="1",method="POST",route="unmatched"}'
+        values: '0x30'
+      - series: 'polisyos_runtime_api_duration_seconds_bucket{env="test",le="5",method="POST",route="unmatched"}'
+        values: '0+100x30'
+      - series: 'polisyos_runtime_api_duration_seconds_bucket{env="test",le="+Inf",method="POST",route="unmatched"}'
+        values: '0+100x30'
+    promql_expr_test:
+      - expr: 'abs(polisyos:runtime_api_service_error_rate:rate5m{env="test"} - 0.08333333333333333) < bool 1e-12'
+        eval_time: 30m
+        exp_samples:
+          - labels: '{env="test"}'
+            value: 1
+      - expr: 'abs(polisyos:runtime_api_service_p95_latency_seconds:5m{env="test"} - 0.85) < bool 1e-12'
+        eval_time: 30m
+        exp_samples:
+          - labels: '{env="test"}'
+            value: 1
+      - expr: 'polisyos:runtime_api_success_rate:rate30m{route="/api/v1/control/runs",method="POST",env="test"}'
+        eval_time: 30m
+        exp_samples:
+          - labels: '{__name__="polisyos:runtime_api_success_rate:rate30m",env="test",method="POST",route="/api/v1/control/runs"}'
+            value: 0.5
+      - expr: 'polisyos:runtime_api_service_error_rate:rate5m{env="zero"}'
+        eval_time: 30m
+        exp_samples: []
+      - expr: 'polisyos:runtime_api_service_error_rate:rate5m{env="absent"}'
+        eval_time: 30m
+        exp_samples: []
+      - expr: 'polisyos:runtime_api_service_error_rate:rate5m{env="error_only"}'
+        eval_time: 30m
+        exp_samples:
+          - labels: '{__name__="polisyos:runtime_api_service_error_rate:rate5m",env="error_only"}'
+            value: 1
+      - expr: 'polisyos:runtime_api_success_rate:rate30m{route="/api/v1/control/runs",method="POST",env="error_only"}'
+        eval_time: 30m
+        exp_samples:
+          - labels: '{__name__="polisyos:runtime_api_success_rate:rate30m",env="error_only",method="POST",route="/api/v1/control/runs"}'
+            value: 0
+      - expr: 'polisyos:runtime_api_requests:rate30m{route="unmatched",method="POST",env="test"}'
+        eval_time: 30m
+        exp_samples: []
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: SLO_RuntimeApiAvailabilityBreach
+        exp_alerts:
+          - exp_labels:
+              env: test
+              method: POST
+              route: /api/v1/control/runs
+              severity: warning
+              team: runtime
+              slo: runtime_api_availability
+            exp_annotations:
+              summary: "SLO Breach: Runtime API availability < 99.5%"
+              description: "Runtime route POST /api/v1/control/runs in env=test\nhas success rate 0.5000 over the last 30m.\n"
+          - exp_labels:
+              env: error_only
+              method: POST
+              route: /api/v1/control/runs
+              severity: warning
+              team: runtime
+              slo: runtime_api_availability
+            exp_annotations:
+              summary: "SLO Breach: Runtime API availability < 99.5%"
+              description: "Runtime route POST /api/v1/control/runs in env=error_only\nhas success rate 0.0000 over the last 30m.\n"
+      - eval_time: 20m
+        alertname: SLO_RuntimeApiLatencyP95High
+        exp_alerts:
+          - exp_labels:
+              env: slow_post
+              method: POST
+              route: /api/v1/control/runs
+              severity: warning
+              team: runtime
+              slo: runtime_api_latency_p95
+            exp_annotations:
+              summary: "SLO Breach: Runtime API p95 latency > 750ms"
+              description: "Runtime route POST /api/v1/control/runs in env=slow_post\nhas p95 latency 4.800s.\n"
+          - exp_labels:
+              env: test
+              method: POST
+              route: /api/v1/control/runs
+              severity: warning
+              team: runtime
+              slo: runtime_api_latency_p95
+            exp_annotations:
+              summary: "SLO Breach: Runtime API p95 latency > 750ms"
+              description: "Runtime route POST /api/v1/control/runs in env=test\nhas p95 latency 0.975s.\n"
+      - eval_time: 20m
+        alertname: SLO_RuntimeApiLatencyP99High
+        exp_alerts:
+          - exp_labels:
+              env: slow_post
+              method: POST
+              route: /api/v1/control/runs
+              severity: critical
+              team: runtime
+              slo: runtime_api_latency_p99
+            exp_annotations:
+              summary: "CRITICAL SLO Breach: Runtime API p99 latency > 1.5s"
+              description: "Runtime route POST /api/v1/control/runs in env=slow_post\nhas p99 latency 4.960s.\n"

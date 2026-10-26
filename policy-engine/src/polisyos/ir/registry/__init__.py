@@ -401,7 +401,7 @@ if TYPE_CHECKING:
 __all__ = sorted(REGISTRY_FACADE_EXPORTS)
 
 
-def __getattr__(name: str) -> Any:
+def __getattr__(name: str) -> Any:  # noqa: ANN401
     return resolve_lazy_export(name, namespace=globals(), exports=REGISTRY_FACADE_EXPORTS)
 
 

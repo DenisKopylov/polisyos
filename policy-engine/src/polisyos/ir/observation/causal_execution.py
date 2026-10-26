@@ -319,7 +319,10 @@ register_schema_version(
     _OWNER_SCHEMA_VERSION,
     compatibility=CompatibilityMode.NONE,
     notes=(
-        "CausalExecutionBundle current owner-admitted representation; historical predecessors are not registered.",
+        (
+            "CausalExecutionBundle current owner-admitted represe"
+            "ntation; historical predecessors are not registered."
+        ),
     ),
 )
 register_ir_representation(

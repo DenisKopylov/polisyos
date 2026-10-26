@@ -17,6 +17,7 @@ if TYPE_CHECKING:
 import datetime as dt
 import json
 import re
+import tokenize
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
@@ -369,8 +370,10 @@ def _validate_static_analysis_overrides(
 def _inline_override_counts(
     repo_root: Path, *, _services: ArchitectureReportServices
 ) -> dict[str, int]:
-    type_ignore = re.compile(r"#\s*type:\s*ignore")
-    noqa = re.compile(r"#\s*noqa(?::|\b)")
+    # Count direct inline directives from Python comment tokens only.
+    # This excludes docstrings, fixtures, and generated-code strings.
+    type_ignore = re.compile(r"^#\s*type:\s*ignore\b")
+    noqa = re.compile(r"^#\s*noqa(?::|\b)")
     counts = {
         "inline_type_ignore_count": 0,
         "inline_noqa_count": 0,
@@ -382,9 +385,26 @@ def _inline_override_counts(
         for path in root.rglob("*.py"):
             if "__pycache__" in path.parts:
                 continue
-            text = path.read_text(encoding="utf-8", errors="ignore")
-            counts["inline_type_ignore_count"] += len(type_ignore.findall(text))
-            counts["inline_noqa_count"] += len(noqa.findall(text))
+            try:
+                with tokenize.open(path) as source:
+                    for token in tokenize.generate_tokens(source.readline):
+                        if token.type != tokenize.COMMENT:
+                            continue
+                        if type_ignore.match(token.string):
+                            counts["inline_type_ignore_count"] += 1
+                        if noqa.match(token.string):
+                            counts["inline_noqa_count"] += 1
+            except (
+                LookupError,
+                OSError,
+                SyntaxError,
+                UnicodeError,
+                tokenize.TokenError,
+            ) as exc:
+                relative_path = path.relative_to(repo_root)
+                raise ValueError(
+                    f"inline override source tokenization failed: {relative_path}"
+                ) from exc
     return counts
 
 

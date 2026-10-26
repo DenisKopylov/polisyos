@@ -74,6 +74,11 @@ clients, dashboards, and operator tooling.
   inputs. Use its README when working on HTTP wiring, security middleware, or
   generated-client drift.
 
+The similarly named `polisyos.foundry.runtime` contains Foundry execution
+utilities, while `polisyos.data_forge.kernel.runtime` remains kernel-local.
+Neither name changes this package's lifecycle, replay, verification, and HTTP
+ownership or grants cross-package private imports.
+
 ## Internal Layout
 
 - `__init__.py` and `replay.py` preserve the root compatibility facade; the

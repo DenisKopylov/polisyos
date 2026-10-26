@@ -1,0 +1,134 @@
+# Exercises actual Scientist SLO recording and alert rules using the Prometheus rule engine.
+# promtool 2.50.0 resolves rule_files relative to this fixture.
+rule_files:
+  - ../../../../ops/observability/prometheus/slo_recording_rules.yml
+  - ../../../../ops/observability/prometheus/rules/scientist-alerts.yml
+evaluation_interval: 1m
+tests:
+  - name: scientist API SLI scope and zero-traffic behavior
+    interval: 1m
+    input_series:
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_api",status="success",workflow_id="success_only"}'
+        values: '0+1x30'
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_api",status="error",workflow_id="error_only"}'
+        values: '0+1x30'
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_api",status="success",workflow_id="mixed_api_engine"}'
+        values: '0+1x30'
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_api",status="error",workflow_id="mixed_api_engine"}'
+        values: '0+1x30'
+      # Current engine outcomes use ok/fail; overlapping status values ensure the
+      # explicit scope selector, not coincidentally distinct statuses, excludes it.
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_engine",status="ok",workflow_id="mixed_api_engine"}'
+        values: '0+100x30'
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_engine",status="fail",workflow_id="mixed_api_engine"}'
+        values: '0+100x30'
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_engine",status="success",workflow_id="mixed_api_engine"}'
+        values: '0+100x30'
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_engine",status="error",workflow_id="mixed_api_engine"}'
+        values: '0+100x30'
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_api",status="success",workflow_id="zero_rate"}'
+        values: '0x30'
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_api",status="error",workflow_id="zero_rate"}'
+        values: '0x30'
+      # API observations sit in the first bucket [0,1]; unfiltered engine
+      # observations move the merged p99 toward 5.
+      - series: 'polisyos_slo_dag_duration_seconds_bucket{env="test",le="1",measurement_scope="scientist_api",workflow_id="mixed_api_engine"}'
+        values: '0+1x30'
+      - series: 'polisyos_slo_dag_duration_seconds_bucket{env="test",le="5",measurement_scope="scientist_api",workflow_id="mixed_api_engine"}'
+        values: '0+1x30'
+      - series: 'polisyos_slo_dag_duration_seconds_bucket{env="test",le="+Inf",measurement_scope="scientist_api",workflow_id="mixed_api_engine"}'
+        values: '0+1x30'
+      - series: 'polisyos_slo_dag_duration_seconds_bucket{env="test",le="1",measurement_scope="scientist_engine",workflow_id="mixed_api_engine"}'
+        values: '0x30'
+      - series: 'polisyos_slo_dag_duration_seconds_bucket{env="test",le="5",measurement_scope="scientist_engine",workflow_id="mixed_api_engine"}'
+        values: '0+100x30'
+      - series: 'polisyos_slo_dag_duration_seconds_bucket{env="test",le="+Inf",measurement_scope="scientist_engine",workflow_id="mixed_api_engine"}'
+        values: '0+100x30'
+    promql_expr_test:
+      - expr: polisyos:slo_dag_success_rate:rate5m
+        eval_time: 30m
+        exp_samples:
+          - labels: '{__name__="polisyos:slo_dag_success_rate:rate5m",env="test",workflow_id="error_only"}'
+            value: 0
+          - labels: '{__name__="polisyos:slo_dag_success_rate:rate5m",env="test",workflow_id="mixed_api_engine"}'
+            value: 0.5
+          - labels: '{__name__="polisyos:slo_dag_success_rate:rate5m",env="test",workflow_id="success_only"}'
+            value: 1
+      - expr: polisyos:slo_dag_success_rate:rate30m
+        eval_time: 30m
+        exp_samples:
+          - labels: '{__name__="polisyos:slo_dag_success_rate:rate30m",env="test",workflow_id="error_only"}'
+            value: 0
+          - labels: '{__name__="polisyos:slo_dag_success_rate:rate30m",env="test",workflow_id="mixed_api_engine"}'
+            value: 0.5
+          - labels: '{__name__="polisyos:slo_dag_success_rate:rate30m",env="test",workflow_id="success_only"}'
+            value: 1
+      - expr: 'polisyos:slo_dag_success_rate:rate5m{workflow_id="zero_rate"}'
+        eval_time: 30m
+        exp_samples: []
+      - expr: 'polisyos:slo_dag_success_rate:rate5m{workflow_id="absent"}'
+        eval_time: 30m
+        exp_samples: []
+      - expr: abs(polisyos:slo_dag_p99_latency_seconds:5m - 0.99) < bool 1e-12
+        eval_time: 30m
+        exp_samples:
+          - labels: '{env="test",workflow_id="mixed_api_engine"}'
+            value: 1
+
+  - name: scientist engine fail alert scope and no-traffic behavior
+    interval: 1m
+    input_series:
+      # API errors dominate one workflow while engine failures are 50%;
+      # the engine-scoped alert must fire on the engine population.
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_api",status="success",workflow_id="mixed_high_engine_fail"}'
+        values: '0+10x20'
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_api",status="error",workflow_id="mixed_high_engine_fail"}'
+        values: '0+90x20'
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_engine",status="fail",workflow_id="mixed_high_engine_fail"}'
+        values: '0+5x20'
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_engine",status="ok",workflow_id="mixed_high_engine_fail"}'
+        values: '0+5x20'
+      # API errors remain 90%, but the engine fail rate is only 5%.
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_api",status="success",workflow_id="mixed_low_engine_fail"}'
+        values: '0+10x20'
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_api",status="error",workflow_id="mixed_low_engine_fail"}'
+        values: '0+90x20'
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_engine",status="fail",workflow_id="mixed_low_engine_fail"}'
+        values: '0+1x20'
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_engine",status="ok",workflow_id="mixed_low_engine_fail"}'
+        values: '0+19x20'
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_api",status="error",workflow_id="api_error_only"}'
+        values: '0+10x20'
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_api",status="success",workflow_id="api_success_only"}'
+        values: '0+10x20'
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_engine",status="ok",workflow_id="engine_success_only"}'
+        values: '0+10x20'
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_engine",status="fail",workflow_id="engine_fail_only"}'
+        values: '0+10x20'
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_engine",status="ok",workflow_id="engine_zero_rate"}'
+        values: '0x20'
+      - series: 'polisyos_slo_dag_runs_total{env="test",measurement_scope="scientist_engine",status="fail",workflow_id="engine_zero_rate"}'
+        values: '0x20'
+      # Legacy/unscoped fail and ok series must not be attributed to engine.
+      - series: 'polisyos_slo_dag_runs_total{env="test",status="fail",workflow_id="unscoped_legacy"}'
+        values: '0+10x20'
+      - series: 'polisyos_slo_dag_runs_total{env="test",status="ok",workflow_id="unscoped_legacy"}'
+        values: '0+10x20'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: ScientistWorkflowFailRate
+        exp_alerts:
+          - exp_labels:
+              env: test
+              severity: critical
+              workflow_id: engine_fail_only
+            exp_annotations:
+              summary: "Scientist workflow failure rate exceeds 10%"
+              description: "Workflow engine_fail_only fail rate is 100%."
+          - exp_labels:
+              env: test
+              severity: critical
+              workflow_id: mixed_high_engine_fail
+            exp_annotations:
+              summary: "Scientist workflow failure rate exceeds 10%"
+              description: "Workflow mixed_high_engine_fail fail rate is 50%."

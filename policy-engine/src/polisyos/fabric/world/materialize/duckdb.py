@@ -22,6 +22,7 @@ from polisyos.ir.world.predicates import WORLD_REL_PREFIX
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
+    from datetime import datetime
 
     import duckdb
 
@@ -234,6 +235,7 @@ def ensure_world_materialized(
     manifests = list(fact_manifests)
     policy = refresh_policy or WorldMaterializationPolicy()
     resolved = resolve_world_observability(tracer=tracer, metrics=metrics)
+    _record_fabric_materialization_valid_time_age(resolved.metrics, manifests)
     with resolved.tracer.start_as_current_span(
         FABRIC_TRACE_NAMES["materialize"],
         attributes={"world.segment_count": len(manifests)},
@@ -284,21 +286,6 @@ def ensure_world_materialized(
                     )
             else:
                 resolved.metrics.set_fabric_segment_count(float(stats.segments_total))
-        lag_seconds = _materialization_lag_seconds(manifests)
-        if lag_seconds is not None and getattr(
-            resolved.metrics, "set_fabric_materialization_lag", None
-        ):
-            tenant_groups = _group_manifests_by_tenant(manifests)
-            if len(tenant_groups) == 1:
-                tenant_id, tenant_manifests = next(iter(tenant_groups.items()))
-                tenant_lag_seconds = _materialization_lag_seconds(tenant_manifests)
-                if tenant_lag_seconds is not None:
-                    resolved.metrics.set_fabric_materialization_lag(
-                        tenant_lag_seconds,
-                        tenant_id=tenant_id,
-                    )
-            else:
-                resolved.metrics.set_fabric_materialization_lag(lag_seconds)
         return stats
 
 
@@ -544,18 +531,44 @@ def _load_applied_segments(db: SimulationDB) -> dict[str, str]:
     return {row[0]: row[1] for row in rows}
 
 
+def _record_fabric_materialization_valid_time_age(
+    metrics: object,
+    manifests: Sequence[FactSegmentManifest],
+) -> None:
+    """Replace the cached age measurement for this selected manifest cohort."""
+    record = getattr(metrics, "set_fabric_materialization_lag", None)
+    clear = getattr(metrics, "clear_fabric_materialization_lag", None)
+    if not callable(record) or not callable(clear):
+        return
+    clear()
+    tenant_groups = _group_manifests_by_tenant(manifests)
+    grouped_count = sum(len(items) for items in tenant_groups.values())
+    if len(tenant_groups) == 1 and grouped_count == len(manifests):
+        tenant_id, tenant_manifests = next(iter(tenant_groups.items()))
+        record(_materialization_lag_seconds(tenant_manifests), tenant_id=tenant_id)
+        return
+    record(_materialization_lag_seconds(manifests))
+
+
 def _materialization_lag_seconds(manifests: Iterable[FactSegmentManifest]) -> float | None:
-    latest = None
+    """Return selected valid-time-end age, or None when any selected end is unusable.
+
+    The legacy helper name is retained for compatibility. This is not an
+    availability-to-materialization delay: `time_end` is a valid-time field.
+    """
+    latest: datetime | None = None
+    has_members = False
     for manifest in manifests:
-        if not isinstance(manifest.time_end, str) or not manifest.time_end:
-            continue
+        has_members = True
+        if not isinstance(manifest.time_end, str) or not manifest.time_end.strip():
+            return None
         try:
             candidate = parse_datetime_utc(manifest.time_end, what="world segment time_end")
-        except Exception:
-            continue
+        except ValueError:
+            return None
         if latest is None or candidate > latest:
             latest = candidate
-    if latest is None:
+    if not has_members or latest is None:
         return None
     return max((utc_now() - latest).total_seconds(), 0.0)
 
@@ -612,8 +625,13 @@ def _cleanup_projection_backups(db: SimulationDB, backups: dict[str, str]) -> No
         try:
             backup_sql = quote_sql_identifier(backup_name, what="projection backup table")
             db.conn.execute(f"DROP TABLE IF EXISTS {backup_sql}")
-        except Exception:
-            continue
+        except Exception as exc:
+            logger.warning(
+                "Failed to clean up world projection backup table",
+                backup_table=backup_name,
+                error=str(exc),
+                error_type=type(exc).__name__,
+            )
 
 
 def build_world_materialization_plan(

@@ -15,8 +15,8 @@ from polisyos.ir.analytics._owner_admission import (
     owner_profile_for_spec,
 )
 from polisyos.ir.analytics.transportability import TransportMode
-from polisyos.ir.artifacts import ArtifactStore
-from polisyos.ir.artifacts._lineage import InputRefLike
+from polisyos.ir.artifacts import ArtifactStore  # noqa: TC001
+from polisyos.ir.artifacts._lineage import InputRefLike  # noqa: TC001
 from polisyos.ir.artifacts.io import (
     _get_owned_json_artifact,
     _put_owned_json_artifact,
@@ -1150,7 +1150,10 @@ _CROSS_GRAPH_EVIDENCE_PROFILE_OWNER = declare_model_owner(
             profile_ref=None,
             compatibility=CompatibilityMode.NONE,
             notes=(
-                "Source-pinned manifest/payload alias retained for selected-profile writer behavior.",
+                (
+                    "Source-pinned manifest/payload alias retained for se"
+                    "lected-profile writer behavior."
+                ),
             ),
             readable=True,
             writable=True,

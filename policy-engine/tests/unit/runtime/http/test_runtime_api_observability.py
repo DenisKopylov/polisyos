@@ -7,7 +7,7 @@ from contextlib import contextmanager
 import pytest
 from polisyos_tests_runtime_http_conftest import build_runtime_api_env
 
-from polisyos.core.contracts.control import DataSourceBinding, WorkflowRunRequest
+from polisyos.core.contracts.control import WorkflowDataSourceBinding, WorkflowRunRequest
 from polisyos.core.observability import get_tracer
 from polisyos.runtime.http import container as runtime_container
 from polisyos.runtime.http.services.control import ControlPlaneService
@@ -228,7 +228,7 @@ def test_control_plane_admission_metrics_record_success(
     service._metrics = metrics
     response = service.launch_workflow_run(
         WorkflowRunRequest(
-            data_source=DataSourceBinding(
+            data_source=WorkflowDataSourceBinding(
                 data_snapshot_ref=runtime_api_env["root_artifact_id"],
             )
         )
@@ -258,7 +258,7 @@ def test_control_plane_admission_metrics_record_errors(
     with pytest.raises(RuntimeError, match="boom"):
         service.launch_workflow_run(
             WorkflowRunRequest(
-                data_source=DataSourceBinding(
+                data_source=WorkflowDataSourceBinding(
                     data_snapshot_ref=runtime_api_env["root_artifact_id"],
                 )
             )
@@ -539,7 +539,7 @@ def test_control_job_execution_metrics_preserve_trace_context(
             parent_trace_id = tracer.get_current_trace_id()
             response = service.launch_workflow_run(
                 WorkflowRunRequest(
-                    data_source=DataSourceBinding(
+                    data_source=WorkflowDataSourceBinding(
                         data_snapshot_ref=env["root_artifact_id"],
                     )
                 ),
@@ -588,3 +588,101 @@ def test_human_decision_gate_records_distinct_data_access_resource(tmp_path) -> 
         call["resource_kind"] == "runtime.run.human_decision_gate"
         for call in metrics.data_access_calls
     )
+
+
+def test_runtime_slo_producer_emits_get_and_post_to_real_otel_metrics(
+    monkeypatch: pytest.MonkeyPatch,
+    runtime_api_env,
+) -> None:
+    from opentelemetry import metrics as otel_metrics
+    from opentelemetry.sdk.metrics import MeterProvider
+    from opentelemetry.sdk.metrics.export import InMemoryMetricReader
+    from opentelemetry.sdk.resources import Resource
+
+    from polisyos.core.observability import _metrics_registry_base as registry_base
+    from polisyos.core.observability.config import (
+        MetricsExporterType,
+        OTelConfig,
+        ResourceConfig,
+    )
+    from polisyos.core.observability.metrics_parts import MetricsRegistry
+
+    reader = InMemoryMetricReader()
+    provider = MeterProvider(
+        resource=Resource.create({"service.name": "polisyos-runtime-api-slo-test"}),
+        metric_readers=[reader],
+    )
+    config = OTelConfig(
+        enabled=True,
+        metrics_exporter=MetricsExporterType.NONE,
+        environment="test",
+    )
+    monkeypatch.setattr(registry_base, "get_default_config", lambda: config)
+    monkeypatch.setattr(
+        registry_base,
+        "get_resource_config",
+        lambda _: ResourceConfig(
+            service_name="polisyos-runtime-api-slo-test",
+            service_version="test",
+        ),
+    )
+    monkeypatch.setattr(otel_metrics, "get_meter", provider.get_meter)
+    monkeypatch.setattr(otel_metrics, "set_meter_provider", lambda _: None)
+    monkeypatch.setattr(registry_base.MetricsRegistryBase, "_instance", None)
+    monkeypatch.setattr(registry_base.MetricsRegistryBase, "_initialized", False)
+
+    metrics = MetricsRegistry()
+    metrics.ensure_initialized()
+    app = runtime_api_env["app"]
+    app.state.runtime_metrics = metrics
+    app.state.runtime_container.runtime_metrics = metrics
+
+    client = runtime_api_env["client"]
+    get_response = client.get(f"/api/v1/runs/{runtime_api_env['core_run_id']}")
+    post_response = client.post("/api/v1/control/runs", json=_launch_payload(runtime_api_env))
+    assert get_response.status_code == 200
+    assert post_response.status_code == 200
+
+    request_counts: dict[tuple[tuple[str, str], ...], int] = {}
+    duration_counts: dict[tuple[tuple[str, str], ...], int] = {}
+    observed_names: set[str] = set()
+    for resource_metrics in reader.get_metrics_data().resource_metrics:
+        for scope_metrics in resource_metrics.scope_metrics:
+            for metric in scope_metrics.metrics:
+                if metric.name not in {
+                    "polisyos_runtime_api_requests_total",
+                    "polisyos_runtime_api_duration_seconds",
+                }:
+                    continue
+                observed_names.add(metric.name)
+                for point in metric.data.data_points:
+                    labels = tuple(
+                        sorted((str(key), str(value)) for key, value in point.attributes.items())
+                    )
+                    if metric.name == "polisyos_runtime_api_requests_total":
+                        request_counts[labels] = int(point.value)
+                    else:
+                        duration_counts[labels] = int(point.count)
+
+    expected = (
+        {
+            "env": "test",
+            "method": "GET",
+            "route": "/api/v1/runs/{run_id}",
+            "status": "200",
+        },
+        {
+            "env": "test",
+            "method": "POST",
+            "route": "/api/v1/control/runs",
+            "status": "200",
+        },
+    )
+    assert observed_names == {
+        "polisyos_runtime_api_requests_total",
+        "polisyos_runtime_api_duration_seconds",
+    }
+    for labels in expected:
+        key = tuple(sorted(labels.items()))
+        assert request_counts.get(key, 0) >= 1
+        assert duration_counts.get(key, 0) >= 1

@@ -359,9 +359,13 @@ else:
                 del operation, duration_seconds, row_count, status
                 return None
 
+            def clear_fabric_materialization_lag(self, *, scope: str = "world") -> None:
+                del scope
+                return None
+
             def set_fabric_materialization_lag(
                 self,
-                lag_seconds: float,
+                lag_seconds: float | None,
                 *,
                 scope: str = "world",
                 tenant_id: str | None = None,

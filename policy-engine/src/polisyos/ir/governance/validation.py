@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts import ArtifactStore, InputRef  # noqa: TC001
 from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration, CanonInfo
 from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.migrations.base import (
@@ -238,7 +238,10 @@ register_schema_version(
     _OWNER_SCHEMA_VERSION,
     compatibility=CompatibilityMode.NONE,
     notes=(
-        "ValidationReport current owner-admitted representation; historical predecessors are not registered.",
+        (
+            "ValidationReport current owner-admitted representati"
+            "on; historical predecessors are not registered."
+        ),
     ),
 )
 register_ir_representation(

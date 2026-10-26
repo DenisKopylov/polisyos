@@ -23,6 +23,162 @@ from tools.quality.validation.decomposition_preflight import (
     validate_reexport_shim_shapes,
 )
 
+_TEST_DYNAMIC_IMPORT_REVIEW_METADATA = {
+    "review_owner": "test-architecture-owner",
+    "reviewed_at": "2025-01-02",
+    "review_expires": "2025-12-31",
+}
+
+
+def _render_dynamic_imports_toml(entries: list[dict[str, object]]) -> str:
+    return preflight.render_dynamic_imports_toml(
+        entries,
+        review_metadata=_TEST_DYNAMIC_IMPORT_REVIEW_METADATA,
+    )
+
+
+def test_dynamic_import_renderer_separates_owner_review_metadata() -> None:
+    metadata = {
+        "review_owner": "owner-supplied-reviewer",
+        "reviewed_at": "2001-02-03",
+        "review_expires": "2001-04-05",
+    }
+    rendered = preflight.render_dynamic_imports_toml([], review_metadata=metadata)
+    header = tomllib.loads(rendered)["dynamic_imports"]
+    assert {field: header[field] for field in metadata} == metadata
+
+    omitted = tomllib.loads(preflight.render_dynamic_imports_toml([]))["dynamic_imports"]
+    assert set(omitted).isdisjoint(preflight.DYNAMIC_IMPORT_REVIEW_FIELDS)
+    assert "2026-05-06" not in rendered
+    assert "2026-08-04" not in rendered
+
+
+@pytest.mark.parametrize(
+    "metadata",
+    [
+        {"review_owner": "owner"},
+        {
+            "review_owner": "owner",
+            "reviewed_at": "2026-8-4",
+            "review_expires": "2027-08-04",
+        },
+        {
+            "review_owner": "   ",
+            "reviewed_at": "2026-08-04",
+            "review_expires": "2027-08-04",
+        },
+    ],
+)
+def test_dynamic_import_renderer_rejects_malformed_review_metadata(metadata) -> None:
+    with pytest.raises(preflight.DynamicImportReviewMetadataError):
+        preflight.render_dynamic_imports_toml([], review_metadata=metadata)
+
+
+def test_dynamic_import_validator_requires_valid_owner_review_metadata(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry_path = tmp_path / "dynamic.toml"
+    monkeypatch.setattr(preflight, "DYNAMIC_IMPORTS_PATH", registry_path)
+    monkeypatch.setattr(preflight, "collect_dynamic_imports", lambda: [])
+
+    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    missing = preflight.validate_dynamic_imports()
+    assert {
+        finding.detail.rsplit(".", 1)[-1]
+        for finding in missing
+        if finding.message == "dynamic import registry header field is missing"
+        and finding.detail
+        in {f"dynamic_imports.{field}" for field in preflight.DYNAMIC_IMPORT_REVIEW_FIELDS}
+    } == set(preflight.DYNAMIC_IMPORT_REVIEW_FIELDS)
+
+    malformed_registry = (
+        '[dynamic_imports]\nversion = 1\nstatus = "fail_closed"\n'
+        'owner = "team-architecture"\nphase = "3A"\n'
+        'review_owner = "owner-supplied-reviewer"\nreviewed_at = "2026-08-04"\n'
+        'review_expires = "not-a-date"\n'
+    )
+    registry_path.write_text(malformed_registry, encoding="utf-8")
+    malformed = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message == "dynamic import review metadata is malformed"
+        and finding.detail == "dynamic_imports.review_expires"
+        for finding in malformed
+    )
+
+
+def _stub_phase3a_writer_inputs(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    registry_path: Path,
+) -> Path:
+    repo_root = tmp_path / "repo"
+    baseline = repo_root / "architecture/baselines/structure_remediation"
+    monkeypatch.setattr(preflight, "REPO_ROOT", repo_root)
+    monkeypatch.setattr(preflight, "BASELINE_DIR", baseline)
+    monkeypatch.setattr(preflight, "DYNAMIC_IMPORTS_PATH", registry_path)
+    monkeypatch.setattr(
+        preflight, "LAZY_IMPORTS_PATH", repo_root / "architecture/imports/lazy.toml"
+    )
+    monkeypatch.setattr(preflight, "SCHEMA_BASELINE_PATH", baseline / "schema.json")
+    monkeypatch.setattr(preflight, "PUBLIC_SURFACE_BASELINE_PATH", baseline / "public.json")
+    monkeypatch.setattr(preflight, "IMPORT_GRAPH_BASELINE_PATH", baseline / "graph.json")
+    monkeypatch.setattr(preflight, "IMPORT_TIME_BASELINE_PATH", baseline / "time.json")
+    monkeypatch.setattr(preflight, "PICKLE_INVENTORY_PATH", baseline / "pickle.json")
+    monkeypatch.setattr(preflight, "BLUEPRINT_PATH", repo_root / "docs/blueprint.md")
+    monkeypatch.setattr(preflight, "CHECKPOINT_FIXTURE_ROOT", tmp_path / "fixtures")
+    snapshot = object()
+    monkeypatch.setattr(preflight, "_collect_import_source_snapshot", lambda: snapshot)
+    monkeypatch.setattr(preflight, "collect_import_graph", lambda **_: {})
+    monkeypatch.setattr(preflight, "collect_dynamic_imports", lambda: [])
+    monkeypatch.setattr(preflight, "create_checkpoint_fixtures", lambda: None)
+    monkeypatch.setattr(preflight, "collect_pickle_inventory", lambda: {})
+    monkeypatch.setattr(preflight, "collect_public_surface_snapshot", lambda: {})
+    monkeypatch.setattr(preflight, "collect_schema_baseline", lambda: {})
+    monkeypatch.setattr(preflight, "_import_graph_input_receipt", lambda _: {})
+    monkeypatch.setattr(preflight, "generate_blueprint", lambda **_: "")
+    return baseline
+
+
+def test_phase3a_generator_preserves_existing_review_metadata(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry_path = tmp_path / "repo/architecture/imports/dynamic.toml"
+    registry_path.parent.mkdir(parents=True)
+    metadata = {
+        "review_owner": "owner-supplied-reviewer",
+        "reviewed_at": "2001-02-03",
+        "review_expires": "2001-04-05",
+    }
+    registry_path.write_text(
+        preflight.render_dynamic_imports_toml([], review_metadata=metadata),
+        encoding="utf-8",
+    )
+    _stub_phase3a_writer_inputs(monkeypatch, tmp_path, registry_path)
+
+    preflight.write_phase3a_artifacts(include_import_time=False)
+
+    generated = tomllib.loads(registry_path.read_text(encoding="utf-8"))["dynamic_imports"]
+    assert {field: generated[field] for field in metadata} == metadata
+
+
+def test_phase3a_generator_refuses_malformed_review_before_any_artifact_write(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry_path = tmp_path / "repo/architecture/imports/dynamic.toml"
+    registry_path.parent.mkdir(parents=True)
+    malformed_registry = '[dynamic_imports]\nreview_owner = "partial-owner-only"\n'
+    registry_path.write_text(malformed_registry, encoding="utf-8")
+    baseline = _stub_phase3a_writer_inputs(monkeypatch, tmp_path, registry_path)
+
+    with pytest.raises(preflight.DynamicImportReviewMetadataError):
+        preflight.write_phase3a_artifacts(include_import_time=False)
+
+    assert not baseline.exists()
+    assert registry_path.read_text(encoding="utf-8") == malformed_registry
+
 
 def test_dynamic_imports_gate_resolves_registered_targets() -> None:
     findings = validate_dynamic_imports()
@@ -41,7 +197,7 @@ def test_dynamic_imports_gate_rejects_registry_and_target_corruption(
 
     def validate_entries(entries: list[dict[str, object]]):
         registry_path.write_text(
-            preflight.render_dynamic_imports_toml(entries),
+            _render_dynamic_imports_toml(entries),
             encoding="utf-8",
         )
         return preflight.validate_dynamic_imports()
@@ -116,7 +272,7 @@ def test_dynamic_imports_gate_rejects_every_canonical_row_field_corruption(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     source_entries = preflight.collect_dynamic_imports()
-    canonical_text = preflight.render_dynamic_imports_toml(source_entries)
+    canonical_text = _render_dynamic_imports_toml(source_entries)
     canonical_rows = tomllib.loads(canonical_text)["pattern"]
     assert canonical_rows
     registry_path = tmp_path / "dynamic.toml"
@@ -131,7 +287,7 @@ def test_dynamic_imports_gate_rejects_every_canonical_row_field_corruption(
         corrupted_rows = [dict(entry) for entry in canonical_rows]
         corrupted_rows[0][field] = _corrupt_dynamic_value(value)
         registry_path.write_text(
-            preflight.render_dynamic_imports_toml(corrupted_rows),
+            _render_dynamic_imports_toml(corrupted_rows),
             encoding="utf-8",
         )
         findings = preflight.validate_dynamic_imports()
@@ -158,7 +314,7 @@ def test_dynamic_imports_gate_rejects_every_stable_header_field_corruption(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     source_entries = preflight.collect_dynamic_imports()
-    canonical_text = preflight.render_dynamic_imports_toml(source_entries)
+    canonical_text = _render_dynamic_imports_toml(source_entries)
     canonical_header = tomllib.loads(canonical_text)["dynamic_imports"]
     external_review_fields = {"review_owner", "reviewed_at", "review_expires"}
     registry_path = tmp_path / "dynamic.toml"
@@ -313,7 +469,7 @@ def test_dynamic_imports_gate_rejects_incomplete_and_open_row_schemas(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     source_entries = preflight.collect_dynamic_imports()
-    canonical_text = preflight.render_dynamic_imports_toml(source_entries)
+    canonical_text = _render_dynamic_imports_toml(source_entries)
     canonical_rows = tomllib.loads(canonical_text)["pattern"]
     registry_path = tmp_path / "dynamic.toml"
     monkeypatch.setattr(preflight, "DYNAMIC_IMPORTS_PATH", registry_path)
@@ -4046,7 +4202,7 @@ def __getattr__(name):
         "polisyos.demo.beta",
     ]
     monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
     source_path.write_text(
@@ -4132,7 +4288,7 @@ def _dynamic_import_validator_refusal(
     monkeypatch: pytest.MonkeyPatch,
 ) -> list[preflight.Finding]:
     registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
     return preflight.validate_dynamic_imports()
 
 
@@ -4182,12 +4338,12 @@ def variable_tuple[*Ts = importlib.import_module("functools")]():
     }
     assert {str(entry["pattern"]) for entry in entries} == expected_patterns
 
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
     for entry in entries:
         remaining = [candidate for candidate in entries if candidate["id"] != entry["id"]]
-        registry_path.write_text(preflight.render_dynamic_imports_toml(remaining), encoding="utf-8")
+        registry_path.write_text(_render_dynamic_imports_toml(remaining), encoding="utf-8")
         findings = preflight.validate_dynamic_imports()
         assert any(
             finding.message == "dynamic import call is not registered"
@@ -4221,7 +4377,7 @@ def test_dynamic_import_type_parameter_fields_resolve_late_module_binding(
 
     entries = preflight.collect_dynamic_imports()
     assert [entry["pattern"] for entry in entries] == ["itertools"]
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
     namespace = runpy.run_path(str(tmp_path / "src" / "dynamic_fixture.py"))
     assert namespace["late_bound"].__type_params__[0].__bound__.__name__ == "itertools"
@@ -4236,7 +4392,7 @@ def test_dynamic_import_type_parameter_annotation_scope_shadows_outer_binding(
         monkeypatch,
         "import importlib\ndef shadowed[importlib: importlib.import_module('math')]():\n    pass\n",
     )
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
 
     assert preflight.collect_dynamic_imports() == []
     assert preflight.validate_dynamic_imports() == []
@@ -4258,7 +4414,7 @@ def test_dynamic_import_method_type_parameter_uses_enclosing_class_namespace(
         monkeypatch,
         source,
     )
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
 
     assert preflight.collect_dynamic_imports() == []
     assert preflight.validate_dynamic_imports() == []
@@ -4304,12 +4460,12 @@ def test_dynamic_import_type_parameter_scanner_refuses_unknown_ast_carrier(
         decorator_list=[],
         type_params=[parameter],
     )
-    tree = ast.Module(body=[function], type_ignores=[])
+    tree = ast.fix_missing_locations(ast.Module(body=[function], type_ignores=[]))
     registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, "")
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
-    monkeypatch.setattr(preflight.ast, "parse", lambda *_args, **_kwargs: tree)
-
-    findings = preflight.validate_dynamic_imports()
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
+    with monkeypatch.context() as parser_patch:
+        parser_patch.setattr(preflight.ast, "parse", lambda *_args, **_kwargs: tree)
+        findings = preflight.validate_dynamic_imports()
 
     assert any(
         finding.message == "dynamic import source inventory is incomplete"
@@ -4375,11 +4531,11 @@ def closes_over_alias():
     builtin_entry = next(entry for entry in entries if entry["pattern"] == "builtin_alias")
     assert builtin_entry["call"] == "__import__"
 
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
     registry_path.write_text(
-        preflight.render_dynamic_imports_toml(
+        _render_dynamic_imports_toml(
             [entry for entry in entries if entry["pattern"] != "direct_alias"]
         ),
         encoding="utf-8",
@@ -4445,6 +4601,24 @@ def test_dynamic_import_collector_resolves_reflection_roots(
 
     assert [entry["pattern"] for entry in entries] == ["private.module"]
     assert [entry["call"] for entry in entries] == [expected_call]
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        'import sys\nsys.modules["importlib.metadata"].entry_points()',
+        'import sys\nsys.modules["importlib"].metadata.entry_points()',
+    ],
+)
+def test_dynamic_import_collector_resolves_registry_submodule_names(source: str) -> None:
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py", relative_path="src/probe.py"
+    )
+
+    entries = scanner.scan(ast.parse(source))
+
+    assert len(entries) == 1
+    assert entries[0]["call"] == "metadata.entry_points"
 
 
 def test_dynamic_import_scanner_returns_exact_sink_ast_nodes() -> None:
@@ -4690,7 +4864,7 @@ def test_dynamic_import_validator_fails_closed_on_nonignored_directory_symlinks(
     repository = tmp_path / "repo"
     repository.mkdir()
     registry_path = _dynamic_import_fixture(repository, monkeypatch, "")
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
     source_root = repository / scope
 
     if target_kind == "outside":
@@ -4726,7 +4900,7 @@ def test_dynamic_import_validator_keeps_named_ignored_symlink_subtrees_excluded(
     repository = tmp_path / "repo"
     repository.mkdir()
     registry_path = _dynamic_import_fixture(repository, monkeypatch, "")
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
     ignored_target = tmp_path / "ignored-source"
     ignored_target.mkdir()
     (ignored_target / "hidden_dynamic_source.py").write_text(
@@ -4750,7 +4924,7 @@ def test_dynamic_import_validator_fails_closed_when_selected_root_is_symlink(
     repository = tmp_path / "repo"
     repository.mkdir()
     registry_path = _dynamic_import_fixture(repository, monkeypatch, "")
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
     source_root = repository / scope
     shutil.rmtree(source_root)
     external_root = tmp_path / "external-source-root"
@@ -4776,7 +4950,7 @@ def test_dynamic_import_validator_reports_typed_source_traversal_failure(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, "")
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
 
     def failed_walk(*_args, onerror, **_kwargs):
         onerror(PermissionError("fixture subtree is unreadable"))
@@ -4859,10 +5033,10 @@ loader("same_origin_expression_branch")
 
     entries = preflight.collect_dynamic_imports()
     assert [entry["pattern"] for entry in entries] == ["same_origin_expression_branch"]
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
     findings = preflight.validate_dynamic_imports()
     assert any(
         finding.message == "dynamic import call is not registered"
@@ -4908,7 +5082,7 @@ def resolve(owner, name):
     return globals().get(target_name)
 """
     registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
 
     assert preflight.collect_dynamic_imports() == []
     assert preflight.validate_dynamic_imports() == []
@@ -4934,7 +5108,7 @@ def resolve(owner, name):
     return globals().get(target_name)("registry_hidden_importer")
 """
     registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
 
     entries = preflight.collect_dynamic_imports()
 
@@ -5005,7 +5179,7 @@ def resolve(owner, name):
     return globals().get(target_name)("unguarded_registry_lookup")
 """
     registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
 
     assert preflight.collect_dynamic_imports() == []
     assert preflight.validate_dynamic_imports() == []
@@ -5038,7 +5212,7 @@ def resolve(owner, name):
     return globals().get(target_name)("unchecked_registry_lookup")
 """
     registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
 
     entries = preflight.collect_dynamic_imports()
     assert [entry["pattern"] for entry in entries] == ["unchecked_registry_lookup"]
@@ -5062,10 +5236,10 @@ def resolve(owner, name):
         for finding in missing_row_findings
     )
 
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
     removed_row_findings = preflight.validate_dynamic_imports()
     assert any(
         finding.message == "dynamic import call is not registered"
@@ -5088,6 +5262,463 @@ def _dynamic_import_internal_modules_fixture(
         module_path.parent.mkdir(parents=True, exist_ok=True)
         module_path.write_text(source, encoding="utf-8")
     return registry_path
+
+
+def test_dynamic_import_collector_ignores_ambiguous_class_call_and_keeps_import_alias(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry_path = _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.__init__": "",
+            "polisyos.core.__init__": "from . import artifacts\n",
+            "polisyos.core.artifacts": "from pydantic import BaseModel\n\nclass ArtifactID(BaseModel):\n    value: str\n",
+        },
+    )
+    source = """
+from importlib import import_module as load_module
+from polisyos.core import artifacts
+
+record_ref = artifacts.ArtifactID.model_validate({"value": "fixture"})
+load_module("collector_alias_positive")
+"""
+    source_path = tmp_path / "apps/runtime-dashboard/e2e/fixtures/serve_public_verification_api.py"
+    source_path.parent.mkdir(parents=True)
+    source_path.write_text(source, encoding="utf-8")
+
+    entries = preflight.collect_dynamic_imports()
+
+    assert [entry["pattern"] for entry in entries] == ["collector_alias_positive"]
+    monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
+    assert preflight.validate_dynamic_imports() == []
+
+    source_path.write_text(
+        source.replace('load_module("collector_alias_positive")', ""),
+        encoding="utf-8",
+    )
+    stale_source_findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message == "registered dynamic import call no longer exists"
+        and "collector_alias_positive" in finding.detail
+        for finding in stale_source_findings
+    )
+
+    source_path.write_text(source, encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
+    removed_row_findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message == "dynamic import call is not registered"
+        and "collector_alias_positive" in finding.detail
+        for finding in removed_row_findings
+    )
+
+
+@pytest.mark.parametrize(
+    ("source", "expected_patterns"),
+    [
+        (
+            """
+import subprocess
+
+def _run_git(*args):
+    return subprocess.run(
+        ("/usr/bin/git", *args),
+        check=True,
+        stdout=subprocess.PIPE,
+        text=True,
+    ).stdout.strip()
+
+head = _run_git("rev-parse", "HEAD")
+""",
+            [],
+        ),
+        (
+            """
+from importlib import import_module
+
+def invoke(*callbacks):
+    callbacks[0]("variadic_body_importer")
+
+invoke(import_module)
+""",
+            ["variadic_body_importer"],
+        ),
+        (
+            """
+from importlib import import_module
+
+def invoke(*callbacks):
+    callbacks[0]("starred_forwarded_varargs_body")
+
+def forward(*callbacks):
+    invoke(*callbacks)
+
+forward(*(import_module,))
+""",
+            ["starred_forwarded_varargs_body"],
+        ),
+        (
+            """
+from importlib import import_module
+
+def invoke(**callbacks):
+    callbacks["loader"]("keyword_variadic_body_importer")
+
+invoke(loader=import_module)
+""",
+            ["keyword_variadic_body_importer"],
+        ),
+        (
+            """
+from importlib import import_module
+
+def invoke(**callbacks):
+    callbacks["loader"]("expanded_kwargs_forwarded_body")
+
+def forward(**callbacks):
+    invoke(**callbacks)
+
+forward(**{"loader": import_module})
+""",
+            ["expanded_kwargs_forwarded_body"],
+        ),
+        (
+            """
+from importlib import import_module
+
+def invoke(label, callback):
+    callback("dict_star_duplicate_keys")
+
+invoke(*{"label": "first", "label": "last"}, import_module)
+""",
+            ["dict_star_duplicate_keys"],
+        ),
+        (
+            """
+from importlib import import_module
+
+def invoke(**callbacks):
+    callbacks["loader"]("dict_double_star_last_value")
+
+invoke(**{"loader": None, "loader": import_module})
+""",
+            ["dict_double_star_last_value"],
+        ),
+        (
+            """
+from importlib import import_module
+
+def invoke(**callbacks):
+    callbacks["loader"]("overwritten_importer_is_not_called")
+
+invoke(**{"loader": import_module, "loader": None})
+""",
+            [],
+        ),
+        (
+            """
+from importlib import import_module
+
+routes = {"loader": None, "loader": import_module}
+routes["loader"]("dict_subscript_last_value")
+""",
+            ["dict_subscript_last_value"],
+        ),
+        (
+            """
+from importlib import import_module
+
+routes = {1: None, True: import_module}
+routes[1]("dict_python_bool_int_key_alias")
+""",
+            ["dict_python_bool_int_key_alias"],
+        ),
+        (
+            """
+from importlib import import_module
+
+routes = {"loader": import_module, "loader": None}
+routes["loader"]("dict_subscript_overwritten_importer")
+""",
+            [],
+        ),
+        (
+            """
+from importlib import import_module
+
+def invoke(label, /, callback):
+    callback("positional_only_callback")
+
+invoke("local", import_module)
+""",
+            ["positional_only_callback"],
+        ),
+        (
+            """
+from importlib import import_module
+
+def invoke(callback, mode="safe"):
+    callback("positional_or_keyword_default")
+
+invoke(import_module)
+""",
+            ["positional_or_keyword_default"],
+        ),
+        (
+            """
+from importlib import import_module
+
+def invoke(*, mode="safe", loader):
+    loader("keyword_only_importer")
+
+invoke(loader=import_module)
+""",
+            ["keyword_only_importer"],
+        ),
+    ],
+    ids=[
+        "benign-git-helper-varargs",
+        "varargs-body-importer",
+        "starred-varargs-forward-to-body",
+        "kwargs-body-importer",
+        "expanded-kwargs-forward-to-body",
+        "dict-star-collapses-duplicate-keys",
+        "dict-double-star-last-value-wins",
+        "dict-double-star-overwrites-importer",
+        "dict-subscript-last-value",
+        "dict-python-bool-int-key-alias",
+        "dict-subscript-overwritten-importer",
+        "positional-only-callback",
+        "positional-or-keyword-default",
+        "keyword-only-with-default",
+    ],
+)
+def test_dynamic_import_collector_binds_complete_local_call_argument_shapes(
+    source: str,
+    expected_patterns: list[str],
+) -> None:
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py",
+        relative_path="src/probe.py",
+    )
+
+    entries = scanner.scan(ast.parse(source))
+
+    assert [entry["pattern"] for entry in entries] == expected_patterns
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        """
+def invoke(*callbacks):
+    callbacks[0]("unknown_starred_importer")
+
+invoke(*unresolved_values)
+""",
+        """
+def invoke(**callbacks):
+    callbacks["loader"]("unknown_keyword_importer")
+
+invoke(**unresolved_mapping)
+""",
+    ],
+    ids=["unknown-star-expansion", "unknown-double-star-expansion"],
+)
+def test_dynamic_import_collector_refuses_unbounded_local_call_expansions(
+    source: str,
+) -> None:
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py",
+        relative_path="src/probe.py",
+    )
+
+    with pytest.raises(
+        preflight.DynamicImportCollectionError,
+        match=r"starred local function argument|expanded local function keyword mapping",
+    ):
+        scanner.scan(ast.parse(source))
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        """
+from importlib import import_module
+
+def identity(*callbacks):
+    return callbacks[0]
+
+selected = identity(*(import_module,))
+""",
+        """
+from importlib import import_module
+
+def identity(**callbacks):
+    return callbacks["loader"]
+
+selected = identity(**{"loader": import_module})
+""",
+    ],
+    ids=["varargs-return", "kwargs-return"],
+)
+def test_dynamic_import_collector_keeps_local_importer_return_escape_guard(
+    source: str,
+) -> None:
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py",
+        relative_path="src/probe.py",
+    )
+
+    with pytest.raises(
+        preflight.DynamicImportCollectionError,
+        match="guarded importer value escapes through a function return",
+    ):
+        scanner.scan(ast.parse(source))
+
+
+def test_dynamic_import_collector_refuses_unresolved_literal_mapping_key() -> None:
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py",
+        relative_path="src/probe.py",
+    )
+
+    with pytest.raises(
+        preflight.DynamicImportCollectionError,
+        match="dynamic importer binding is ambiguous or unresolved through reflective subscript access",
+    ):
+        scanner.scan(
+            ast.parse(
+                "from importlib import import_module\n"
+                "routes = {unresolved_name: import_module}\n"
+                "routes['loader']('unknown_literal_mapping_key')\n"
+            )
+        )
+
+
+def test_dynamic_import_collector_allows_ambiguous_nonimporter_return(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _dynamic_import_fixture(
+        tmp_path,
+        monkeypatch,
+        """VALUES = ("one", "two")
+
+def choose(index):
+    return VALUES[index]
+""",
+    )
+
+    assert preflight.collect_dynamic_imports() == []
+
+
+def test_dynamic_import_collector_ignores_sys_path_setup(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _dynamic_import_fixture(
+        tmp_path,
+        monkeypatch,
+        """import sys
+
+sys.path.insert(0, "fixture-root")
+""",
+    )
+
+    assert preflight.collect_dynamic_imports() == []
+
+
+def test_dynamic_import_collector_allows_unrelated_importlib_utility_call() -> None:
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py", relative_path="src/probe.py"
+    )
+
+    entries = scanner.scan(
+        ast.parse("import importlib.util\nimportlib.util.find_spec('polisyos.core')")
+    )
+
+    assert entries == []
+
+
+def test_dynamic_import_collector_rejects_reflection_from_importer_namespace_mapping(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _dynamic_import_fixture(
+        tmp_path,
+        monkeypatch,
+        """import importlib
+
+attribute_name = unresolved_name
+getattr(vars(importlib), attribute_name)("reflected_dynamic_target")
+""",
+    )
+
+    with pytest.raises(
+        preflight.DynamicImportCollectionError,
+        match="computed reflection has unresolved importer provenance",
+    ):
+        preflight.collect_dynamic_imports()
+
+
+def test_dynamic_import_collector_rejects_reflection_from_importer_namespace(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _dynamic_import_fixture(
+        tmp_path,
+        monkeypatch,
+        """import importlib
+
+attribute_name = unresolved_name
+getattr(importlib, attribute_name)("reflected_dynamic_target")
+""",
+    )
+
+    with pytest.raises(
+        preflight.DynamicImportCollectionError,
+        match="computed reflection has unresolved importer provenance",
+    ):
+        preflight.collect_dynamic_imports()
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        'import sys\nmodule_name = unresolved_name\nsys.modules[module_name].import_module("private.module")',
+        "import sys\nmodule_name = unresolved_name\nsys.modules[module_name].metadata.entry_points()",
+        'import sys\nmodule_name = unresolved_name\nsys.modules[module_name].eval("unmodeled code")',
+        'import sys\nmodule_name = unresolved_name\nsys.modules[module_name].getattr(None, "import_module")',
+    ],
+)
+def test_dynamic_import_collector_rejects_unresolved_registry_callable_members(
+    source: str,
+) -> None:
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py", relative_path="src/probe.py"
+    )
+
+    with pytest.raises(
+        preflight.DynamicImportCollectionError,
+        match="dynamic importer binding is ambiguous or unresolved",
+    ):
+        scanner.scan(ast.parse(source))
+
+
+def test_dynamic_import_collector_ignores_unknown_registry_nonimporter_method() -> None:
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py", relative_path="src/probe.py"
+    )
+
+    entries = scanner.scan(
+        ast.parse("import sys\nmodule_name = unresolved_name\nsys.modules[module_name].get_name()")
+    )
+
+    assert entries == []
 
 
 def _dynamic_import_internal_map_consumer(source: str) -> str:
@@ -5129,10 +5760,10 @@ carrier.loader("constructed_object_hidden_import")
     entries = preflight.collect_dynamic_imports()
 
     assert [entry["pattern"] for entry in entries] == ["constructed_object_hidden_import"]
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
     findings = preflight.validate_dynamic_imports()
     assert any(
         finding.message == "dynamic import call is not registered"
@@ -5164,10 +5795,10 @@ carrier.loader("local_constructed_object_hidden_import")
     entries = preflight.collect_dynamic_imports()
 
     assert [entry["pattern"] for entry in entries] == ["local_constructed_object_hidden_import"]
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
     findings = preflight.validate_dynamic_imports()
     assert any(
         finding.message == "dynamic import call is not registered"
@@ -5399,7 +6030,7 @@ def replacement(self, name):
             + "\n",
         },
     )
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
 
     findings = preflight.validate_dynamic_imports()
 
@@ -5708,12 +6339,12 @@ ROUTE_TABLE = DECLARED_ROUTES
             ),
         },
     )
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
 
     entries = preflight.collect_dynamic_imports()
 
     assert [entry["pattern"] for entry in entries] == ["cross-module-map-hidden-import"]
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
 
@@ -5819,7 +6450,7 @@ public_builder()
 """,
         },
     )
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
 
     entries = preflight.collect_dynamic_imports()
 
@@ -5873,7 +6504,7 @@ public_builder()
     assert entries[0]["source_file"] == "src/polisyos/catalog/facade.py"
     assert entries[0]["call"] == "importlib.import_module"
     assert entries[0]["pattern"] == "module_name"
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
 
     child_probe = """import importlib.util
 import json
@@ -5965,7 +6596,7 @@ loader("pep562-mapped-importer")
 """,
         },
     )
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
 
     entries = preflight.collect_dynamic_imports()
 
@@ -5973,7 +6604,7 @@ loader("pep562-mapped-importer")
         "module_name",
         "pep562-mapped-importer",
     }
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
 
@@ -5999,7 +6630,7 @@ loader("json")
 """,
         },
     )
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
 
     external_root = tmp_path / "external"
     external_root.mkdir()
@@ -6082,7 +6713,7 @@ loader("json")
 """,
         },
     )
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
 
     external_root = tmp_path / "external"
     external_root.mkdir()
@@ -6202,7 +6833,7 @@ loader("json")
 """,
         },
     )
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
 
     external_root = tmp_path / "external"
     external_root.mkdir()
@@ -6283,7 +6914,7 @@ loader("json")
 """,
         },
     )
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
     (tmp_path / "src/polisyos/__init__.py").write_text("", encoding="utf-8")
     (tmp_path / "src/polisyos/probe/__init__.py").write_text("", encoding="utf-8")
 
@@ -6330,7 +6961,7 @@ loader("polisyos.catalog.private_target")
 """,
         },
     )
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
 
     with pytest.raises(preflight.DynamicImportCollectionError):
         preflight.collect_dynamic_imports()
@@ -6349,12 +6980,12 @@ def resolve():
     return globals().get("_selected_importer")("scope-setdefault-hidden-import")
 """
     registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
 
     entries = preflight.collect_dynamic_imports()
 
     assert [entry["pattern"] for entry in entries] == ["scope-setdefault-hidden-import"]
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
     removed_source = source.replace(
@@ -6426,7 +7057,7 @@ def test_dynamic_import_validator_reports_outside_source_symlink_as_typed_input_
     repository = tmp_path / "repo"
     repository.mkdir()
     registry_path = _dynamic_import_fixture(repository, monkeypatch, "")
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
     outside_path = tmp_path / "outside.py"
     outside_path.write_text(
         'import importlib\nimportlib.import_module("outside_symlink_call")\n',
@@ -6492,10 +7123,10 @@ def test_dynamic_import_guarded_provenance_survives_container_consumers(
     entries = preflight.collect_dynamic_imports()
     assert [entry["pattern"] for entry in entries] == [expected_pattern]
 
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
     findings = preflight.validate_dynamic_imports()
     assert any(
         finding.message == "dynamic import call is not registered"
@@ -6536,7 +7167,7 @@ def test_dynamic_import_guarded_transfer_allows_unrelated_callable_values(
         "for loader in ordinary_loaders:\n"
         "    loader()\n",
     )
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
 
     assert preflight.collect_dynamic_imports() == []
     assert preflight.validate_dynamic_imports() == []
@@ -6617,7 +7248,7 @@ def test_dynamic_imports_gate_uses_effective_duplicate_literal_value(
     assert len(entries) == 1
     assert entries[0]["allowed_targets"] == ["polisyos.demo.beta"]
     monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
     reordered = _immutable_import_map_source(
@@ -6763,7 +7394,7 @@ globals().get(target_name)(\"python_hashable_collision_import\")
 
     if expects_importer:
         assert [entry["pattern"] for entry in entries] == ["python_hashable_collision_import"]
-        registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+        registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
         assert preflight.validate_dynamic_imports() == []
     else:
         assert entries == []
@@ -6826,30 +7457,148 @@ globals().get(ROUTES[["not_hashable"]])("unhashable_mapping_key")
         preflight.collect_dynamic_imports()
 
 
+def test_dynamic_import_mapping_get_selects_exact_default_importer(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = """\
+from importlib import import_module
+
+routes = {None: None}
+routes.get(False, import_module)("exact_mapping_default_importer")
+"""
+    _dynamic_import_fixture(tmp_path, monkeypatch, source)
+
+    entries = preflight.collect_dynamic_imports()
+
+    assert [entry["pattern"] for entry in entries] == ["exact_mapping_default_importer"]
+
+
+_DYNAMIC_MAPPING_LITERAL_CROSSPRODUCT_VALUES: tuple[object, ...] = (
+    None,
+    False,
+    True,
+    0,
+    1,
+    -1,
+    0.0,
+    -0.0,
+    1.0,
+    0j,
+    1 + 0j,
+    "",
+    "catalog",
+    b"catalog",
+    Ellipsis,
+    ("catalog", True),
+    ("catalog", 1),
+    ("catalog", 2),
+    ("catalog", 1.0),
+    ("other", 1),
+)
+
+
+def test_dynamic_mapping_ast_constants_resolve_subscript_and_get() -> None:
+    source = """\
+from importlib import import_module
+
+routes = {0: import_module}
+routes[False]("polisyos.literal.bool_subscript")
+routes.get(False, print)("polisyos.literal.bool_get")
+
+none_routes = {None: import_module}
+none_routes[None]("polisyos.literal.none_subscript")
+none_routes.get(None, print)("polisyos.literal.none_get")
+
+tuple_routes = {("key", None, False): import_module}
+tuple_routes[("key", None, 0)]("polisyos.literal.tuple_alias")
+
+empty_routes = {}
+empty_routes.get(False, import_module)("polisyos.literal.bool_default")
+empty_routes.get(None, import_module)("polisyos.literal.none_default")
+"""
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py",
+        relative_path="src/probe.py",
+    )
+
+    entries = scanner.scan(ast.parse(source))
+
+    assert sorted(entry["pattern"] for entry in entries) == [
+        "polisyos.literal.bool_default",
+        "polisyos.literal.bool_get",
+        "polisyos.literal.bool_subscript",
+        "polisyos.literal.none_default",
+        "polisyos.literal.none_get",
+        "polisyos.literal.none_subscript",
+        "polisyos.literal.tuple_alias",
+    ]
+
+
+@pytest.mark.parametrize("lookup", ["routes[query]", "routes.get(query, print)"])
+def test_dynamic_mapping_lookup_does_not_treat_computed_boolean_as_literal(
+    lookup: str,
+) -> None:
+    source = f"""\
+from importlib import import_module
+
+query = isinstance(unresolved_value, int)
+routes = {{0: import_module}}
+{lookup}("polisyos.literal.computed_boolean")
+"""
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py",
+        relative_path="src/probe.py",
+    )
+
+    with pytest.raises(
+        preflight.DynamicImportCollectionError,
+        match=r"ambiguous|unresolved",
+    ):
+        scanner.scan(ast.parse(source))
+
+
+def test_dynamic_mapping_lookup_source_literal_crossproduct_matches_python_dict() -> None:
+    values = _DYNAMIC_MAPPING_LITERAL_CROSSPRODUCT_VALUES
+    source_lines = ["from importlib import import_module"]
+    expected_patterns: list[str] = []
+    case_index = 0
+    for first_value in values:
+        for second_value in values:
+            for query_value in values:
+                first_literal = "..." if first_value is Ellipsis else repr(first_value)
+                second_literal = "..." if second_value is Ellipsis else repr(second_value)
+                query_literal = "..." if query_value is Ellipsis else repr(query_value)
+                target = f"polisyos.literal_crossproduct.case_{case_index}"
+                expected = {
+                    first_value: "importer",
+                    second_value: "ordinary",
+                }.get(query_value, "ordinary")
+                source_lines.append(
+                    f"({{{first_literal}: import_module, {second_literal}: print}})"
+                    f".get({query_literal}, print)({target!r})"
+                )
+                if expected == "importer":
+                    expected_patterns.append(target)
+                case_index += 1
+
+    source = "\n".join(source_lines)
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py",
+        relative_path="src/probe.py",
+    )
+
+    entries = scanner.scan(ast.parse(source))
+    observed_patterns = [entry["pattern"] for entry in entries]
+
+    assert case_index == len(values) ** 3
+    assert len(observed_patterns) == len(expected_patterns)
+    assert set(observed_patterns) == set(expected_patterns)
+
+
 def test_dynamic_mapping_lookup_exact_literal_crossproduct_matches_python_dict() -> None:
     """Exact literal lookup agrees with Python dict selection across the bounded key domain."""
-    literal_values: tuple[object, ...] = (
-        None,
-        False,
-        True,
-        0,
-        1,
-        -1,
-        0.0,
-        -0.0,
-        1.0,
-        0j,
-        1 + 0j,
-        "",
-        "catalog",
-        b"catalog",
-        Ellipsis,
-        ("catalog", True),
-        ("catalog", 1),
-        ("catalog", 2),
-        ("catalog", 1.0),
-        ("other", 1),
-    )
+    literal_values = _DYNAMIC_MAPPING_LITERAL_CROSSPRODUCT_VALUES
     importer = preflight._DynamicImportBinding("callable", "polisyos.demo.importer", guarded=True)
     ordinary = preflight._DynamicImportBinding("callable", "ordinary_loader")
     default = preflight._DynamicImportBinding("callable", "ordinary_default")
@@ -6882,6 +7631,44 @@ def test_dynamic_mapping_lookup_exact_literal_crossproduct_matches_python_dict()
                 )
                 comparisons += 1
     assert comparisons == len(literal_values) ** 3
+
+    default_importer = preflight._DynamicImportBinding(
+        "callable",
+        "polisyos.demo.default_importer",
+        guarded=True,
+    )
+    exact_mapping = preflight._dynamic_immutable_literal_mapping_binding(
+        preflight._dynamic_mapping_binding(
+            (key_binding(None),),
+            (ordinary,),
+            guarded=True,
+        )
+    )
+    assert (
+        preflight._dynamic_mapping_lookup(
+            exact_mapping,
+            key_binding(False),
+            default=default_importer,
+        )
+        == default_importer
+    )
+
+    unknown_key_importer = preflight._DynamicImportBinding(
+        "callable",
+        "importlib.import_module",
+        guarded=True,
+    )
+    unknown_key_mapping = preflight._dynamic_mapping_binding(
+        (preflight._DYNAMIC_UNKNOWN,),
+        (unknown_key_importer,),
+        guarded=True,
+    )
+    unknown_key_result = preflight._dynamic_mapping_lookup(
+        unknown_key_mapping,
+        key_binding("missing"),
+        default=default,
+    )
+    assert preflight._is_unresolved_importer_binding(unknown_key_result)
 
     abstract_mapping = preflight._dynamic_immutable_literal_mapping_binding(
         preflight._dynamic_mapping_binding(
@@ -6939,7 +7726,7 @@ def test_dynamic_imports_gate_rejects_stale_registry_after_exact_lookup_changes(
     assert len(entries) == 1
     assert entries[0]["allowed_targets"] == ["polisyos.demo.selected"]
     monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
     source_path.write_text(source_for(changed_body), encoding="utf-8")
@@ -7005,7 +7792,7 @@ def test_dynamic_import_type_checking_does_not_prune_scope_rebinding(
     entries = preflight.collect_dynamic_imports()
 
     assert any(entry["pattern"] == expected_pattern for entry in entries)
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
     source_path = tmp_path / "src" / "dynamic_fixture.py"
@@ -7030,7 +7817,7 @@ if TYPE_ONLY:
     source_loader("polisyos.snapshot_only")
 """
     registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
 
     assert preflight.collect_dynamic_imports() == []
     assert preflight.validate_dynamic_imports() == []
@@ -7047,7 +7834,7 @@ def test_dynamic_import_type_checking_imported_value_is_pruned_only_with_source_
         "from importlib import import_module as loader\n"
         'if TYPE_ONLY:\n    loader("polisyos.type_only")\n',
     )
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
 
     assert preflight.collect_dynamic_imports() == []
     assert preflight.validate_dynamic_imports() == []
@@ -7067,7 +7854,7 @@ def test_dynamic_import_type_checking_lookalike_is_not_pruned(
     entries = preflight.collect_dynamic_imports()
 
     assert [entry["pattern"] for entry in entries] == ["polisyos.runtime_branch"]
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
 
@@ -7139,7 +7926,7 @@ def test_dynamic_import_type_checking_module_effects_are_not_pruned(
     entries = preflight.collect_dynamic_imports()
 
     assert [entry["pattern"] for entry in entries] == [expected_pattern]
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
     source_path = tmp_path / "src" / "dynamic_fixture.py"
@@ -7167,7 +7954,7 @@ def test_dynamic_import_type_checking_scalar_reflection_does_not_prune(
     entries = preflight.collect_dynamic_imports()
 
     assert [entry["pattern"] for entry in entries] == ["polisyos.reflected_binding"]
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
     source_path = tmp_path / "src" / "dynamic_fixture.py"
@@ -7195,7 +7982,7 @@ def test_dynamic_import_type_checking_builtins_namespace_access_does_not_prune(
     monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
     entries = preflight.collect_dynamic_imports()
     assert [entry["pattern"] for entry in entries] == ["polisyos.builtins_reflection"]
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
 
@@ -7251,7 +8038,7 @@ def test_dynamic_import_type_checking_scalar_cross_scope_writes_are_not_pruned(
     entries = preflight.collect_dynamic_imports()
 
     assert [entry["pattern"] for entry in entries] == [module]
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
     source_path = tmp_path / "src" / "dynamic_fixture.py"
@@ -7334,7 +8121,7 @@ def test_dynamic_import_type_checking_origin_union_removal_keeps_registry_marker
 
     entries = preflight.collect_dynamic_imports()
     assert [entry["pattern"] for entry in entries] == ["polisyos.origin_union_removal"]
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     registered_bytes = registry_path.read_bytes()
     assert preflight.validate_dynamic_imports() == []
 
@@ -7410,7 +8197,7 @@ def test_dynamic_import_type_checking_effect_summary_spans_source_set_and_refres
     # deliberately overcounts a possible shared-singleton effect rather than
     # silently assuming that module is unreachable.
     assert "unreachable_mutator" not in guarded_source
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
     mutation_path.write_text(f"import {module_name} as typing_alias\n", encoding="utf-8")
@@ -7434,7 +8221,7 @@ def test_dynamic_import_type_checking_complete_source_set_without_effect_still_p
         "from typing import TYPE_CHECKING as TYPE_ONLY\nSNAPSHOT = TYPE_ONLY\n",
         encoding="utf-8",
     )
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
 
     assert preflight.collect_dynamic_imports() == []
     assert preflight.validate_dynamic_imports() == []
@@ -7488,7 +8275,7 @@ def test_dynamic_import_postponed_annotations_allow_lazy_type_resolution_and_rem
     entries = preflight.collect_dynamic_imports()
 
     assert [entry["pattern"] for entry in entries] == ["json"]
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
     import importlib
@@ -7551,7 +8338,7 @@ def test_dynamic_import_postponed_annotated_assignment_preserves_fail_closed_con
 
     entries = preflight.collect_dynamic_imports()
     assert entries == []
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     assert preflight.validate_dynamic_imports() == []
 
     registered_bytes = registry_path.read_bytes()
@@ -7848,7 +8635,7 @@ def test_dynamic_import_source_class_identity_escape_to_mutable_mapping_fails_cl
             ),
         },
     )
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
 
     findings = preflight.validate_dynamic_imports()
 
@@ -7902,7 +8689,7 @@ import_module("polisyos.fixture_target")
         ("importlib.import_module", "polisyos.fixture_target"),
         ("importlib.import_module", "polisyos.fixture_target"),
     ]
-    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml(entries), encoding="utf-8")
     monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
     assert preflight.validate_dynamic_imports() == []
 
@@ -7975,7 +8762,7 @@ imported_target = path_value("polisyos.hidden_target").__name__
             "polisyos.hidden_target": "class HiddenTarget: pass\n",
         },
     )
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
     (tmp_path / "src/polisyos/__init__.py").write_text("", encoding="utf-8")
 
     external_root = tmp_path / "deps"

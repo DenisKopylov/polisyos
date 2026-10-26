@@ -20,7 +20,7 @@ import logging
 import sys
 
 # Keep the public factory annotations resolvable for runtime signature inspection.
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Sequence  # noqa: TC003
 from datetime import UTC, datetime
 from functools import cached_property
 from pathlib import Path

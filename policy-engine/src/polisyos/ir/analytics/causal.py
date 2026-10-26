@@ -36,8 +36,8 @@ from polisyos.ir.analytics.dynamic_causal_semantics import (
 from polisyos.ir.analytics.estimand import EstimandAST, SideConditionKind
 from polisyos.ir.analytics.negative_certificate import NegativeCertificate
 from polisyos.ir.analytics.proximal import (
-    ProximalIdentificationCertificate,
-    ProximalMediationCertificate,
+    ProximalIdentificationCertificate,  # noqa: TC001
+    ProximalMediationCertificate,  # noqa: TC001
 )
 from polisyos.ir.analytics.recoverability import (
     JointDecisionCertificate,
@@ -60,7 +60,7 @@ from polisyos.ir.analytics.uncertainty import (
     ValueUncertaintyProjectionKind,
     value_uncertainty_output_contract,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts import ArtifactStore, InputRef  # noqa: TC001
 from polisyos.ir.artifacts.io import (
     _get_owned_json_artifact,
     _put_owned_json_artifact,
@@ -829,7 +829,10 @@ _PROOF_BUNDLE_OWNER = _declare_model_owner(
             profile_ref=None,
             compatibility=_CompatibilityMode.NONE,
             notes=(
-                "Current exact split tuple retained by the existing writer: manifest 1.0, payload 1.1.",
+                (
+                    "Current exact split tuple retained by the existing w"
+                    "riter: manifest 1.0, payload 1.1."
+                ),
             ),
             readable=True,
             writable=True,

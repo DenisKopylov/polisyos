@@ -12,9 +12,31 @@ groups:
           description: "Node {{ $labels.node_id }} P95 latency is {{ $value }}s."
 
       - alert: ScientistWorkflowFailRate
-        expr: >
-          rate(polisyos_slo_dag_runs_total{status="fail"}[10m])
-          / rate(polisyos_slo_dag_runs_total[10m]) > 0.1
+        expr: |
+          (
+            sum by (workflow_id, env) (
+              rate(polisyos_slo_dag_runs_total{
+                measurement_scope="scientist_engine",
+                status="fail"
+              }[10m])
+            )
+            /
+            sum by (workflow_id, env) (
+              rate(polisyos_slo_dag_runs_total{
+                measurement_scope="scientist_engine",
+                status=~"ok|fail"
+              }[10m])
+            )
+          ) > 0.1
+          and on (workflow_id, env)
+          (
+            sum by (workflow_id, env) (
+              rate(polisyos_slo_dag_runs_total{
+                measurement_scope="scientist_engine",
+                status=~"ok|fail"
+              }[10m])
+            ) > 0
+          )
         for: 5m
         labels:
           severity: critical

@@ -774,7 +774,10 @@ _MECHANISM_FAMILY_SPEC_OWNER = _declare_owned_model(
     payload_version="1.0",
     purpose="ir_mechanism_family_spec",
     notes=(
-        "MechanismFamilySpec 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+        (
+            "MechanismFamilySpec 1.0 is the source-proven current"
+            " representation; unsupported tuples remain closed."
+        ),
     ),
 )
 
@@ -790,7 +793,11 @@ _INCENTIVE_COMPATIBILITY_OWNER = _declare_owned_model(
     payload_version="1.0",
     purpose="ir_incentive_compatibility_certificate",
     notes=(
-        "IncentiveCompatibilityCertificate 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+        (
+            "IncentiveCompatibilityCertificate 1.0 is the source-"
+            "proven current representation; unsupported tuples re"
+            "main closed."
+        ),
     ),
 )
 
@@ -806,7 +813,11 @@ _MECHANISM_WELFARE_LOSS_BOUND_OWNER = _declare_owned_model(
     payload_version="1.0",
     purpose="ir_mechanism_welfare_loss_bound",
     notes=(
-        "MechanismWelfareLossBound 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+        (
+            "MechanismWelfareLossBound 1.0 is the source-proven c"
+            "urrent representation; unsupported tuples remain clo"
+            "sed."
+        ),
     ),
 )
 

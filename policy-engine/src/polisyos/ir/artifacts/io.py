@@ -11,7 +11,7 @@ from dataclasses import dataclass, fields, is_dataclass
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
-from typing import Any, NoReturn, Protocol, cast
+from typing import TYPE_CHECKING, Any, NoReturn, Protocol, cast
 from uuid import UUID
 
 import numpy as np
@@ -32,7 +32,10 @@ from polisyos.ir.model_layer.canon import (
     to_canonical_bytes,
 )
 
-from ._lineage import InputRefLike
+if TYPE_CHECKING:
+    from polisyos.ir.migrations.base import ResolvedSchemaAdmission
+
+from ._lineage import InputRefLike  # noqa: TC001  # noqa: TC001
 from .contracts import (
     ArtifactID,
     ArtifactOwnerDeclaration,
@@ -550,7 +553,7 @@ def _owner_source_from_snapshot[OwnerSourceT, OwnerConsumerT](
     declaration: ArtifactOwnerDeclaration[OwnerSourceT, OwnerConsumerT],
     raw_payload_bytes: bytes,
     spec: CanonSpec,
-    admission: Any,
+    admission: ResolvedSchemaAdmission,
 ) -> OwnerSourceT:
     """Validate a private payload decode and refuse a mutating owner validator."""
     payload = _decode_owner_callback_payload(
@@ -579,7 +582,7 @@ def _owner_source_from_snapshot[OwnerSourceT, OwnerConsumerT](
 def _project_owner_source[OwnerSourceT, OwnerConsumerT](
     declaration: ArtifactOwnerDeclaration[OwnerSourceT, OwnerConsumerT],
     source: OwnerSourceT,
-    admission: Any,
+    admission: ResolvedSchemaAdmission,
 ) -> OwnerConsumerT:
     """Project a private source copy and reject mutation of the callback input."""
     try:

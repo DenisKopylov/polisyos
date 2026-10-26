@@ -7,7 +7,7 @@ than a string-only diagnostic attached to a generic negative certificate.
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -17,12 +17,14 @@ from polisyos.ir.analytics._owner_admission import (
     owner_profile_for_spec,
 )
 from polisyos.ir.analytics.negative_certificate import NegativeCertificate
-from polisyos.ir.artifacts import ArtifactStore, InputRef
-from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration
+from polisyos.ir.artifacts import ArtifactStore, InputRef  # noqa: TC001
 from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
 from polisyos.ir.registry.refs import JointDecisionCertificateRef, RecoverabilityCertificateRef
+
+if TYPE_CHECKING:
+    from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration
 
 
 class RecoverabilityCertificateStatus(str, Enum):

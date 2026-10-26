@@ -888,7 +888,11 @@ _LATENT_BRIDGE_HYPOTHESIS_OWNER = _declare_owned_model(
     payload_version="1.0",
     purpose="ir_latent_bridge_hypothesis",
     notes=(
-        "LatentBridgeHypothesis 1.0 is the source-proven current representation; unsupported tuples remain closed.",
+        (
+            "LatentBridgeHypothesis 1.0 is the source-proven curr"
+            "ent representation; unsupported tuples remain closed"
+            "."
+        ),
     ),
 )
 

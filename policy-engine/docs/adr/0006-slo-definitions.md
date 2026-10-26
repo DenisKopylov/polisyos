@@ -60,3 +60,8 @@
 
 - Extended by: ADR-0116 (OTel-first observability).
 - Related: ADR-0127 (repository hygiene gates).
+
+
+## E02 clarification — measurement scope (2026-10-25)
+
+The public Scientist API SLI population begins after observability-provider resolution, input/state validation, and workflow_id resolution, immediately before selected-workflow dispatch. It records success/error for results and exceptions caught inside that dispatch wrapper; failures before the wrapper are outside the denominator. The API duration histogram measures selected-workflow dispatch and execution only; it excludes provider/state/workflow resolution and result serialization. API instruments use measurement_scope=scientist_api; orchestration lifecycle observations use measurement_scope=scientist_engine with statuses ok/fail. The API SLO selects only the API scope. For this API SLI, the clamp_min mitigation described above is replaced by a positive-eligible-rate filter: absent or zero eligible rates produce no series, while positive error-only traffic yields zero success when success samples are absent. Other SLI rules retain their existing behavior. This controlled instrumentation change makes no claim about deployed profile selection or production attainment.

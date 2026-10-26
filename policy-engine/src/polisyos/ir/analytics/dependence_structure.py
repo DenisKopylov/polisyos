@@ -269,7 +269,10 @@ register_schema_version(
     _OWNER_SCHEMA_VERSION,
     compatibility=CompatibilityMode.NONE,
     notes=(
-        "DependenceStructure current owner-admitted representation; historical predecessors are not registered.",
+        (
+            "DependenceStructure current owner-admitted represent"
+            "ation; historical predecessors are not registered."
+        ),
     ),
 )
 register_ir_representation(

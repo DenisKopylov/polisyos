@@ -204,6 +204,9 @@ FABRIC_METRIC_NAMES = {
     "query_latency": "polisyos_fabric_query_duration_seconds",
     "query_rows": "polisyos_fabric_query_rows_total",
     "materialization_lag": "polisyos_fabric_materialization_lag_seconds",
+    "materialization_valid_time_age_complete": (
+        "polisyos_fabric_materialization_valid_time_age_complete"
+    ),
     "segment_count": "polisyos_fabric_segment_count",
     "quality_score": "polisyos_fabric_quality_score",
     "freshness_age": "polisyos_fabric_freshness_age_seconds",

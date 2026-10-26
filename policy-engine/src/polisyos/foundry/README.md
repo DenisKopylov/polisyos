@@ -15,6 +15,12 @@ Everything else in this package tree exists to support that facade: runtime
 contracts, method catalogs, calibration flows, reproducibility hooks, and
 agent-sim tooling.
 
+The package-local `polisyos.foundry.runtime` modules provide execution helpers
+for fingerprints, numeric and NaN safeguards, profiles, and tracing. They remain
+distinct from top-level `polisyos.runtime`, which owns lifecycle, replay,
+verification, and HTTP. The shared basename does not relax cross-package import
+boundaries.
+
 ## Where to Start
 
 - [_internal/quickstart.py](_internal/quickstart.py) for an internal

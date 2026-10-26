@@ -11,7 +11,7 @@
       {
         "name": "environment",
         "type": "query",
-        "query": "label_values(polisyos_slo_dag_runs_total, env)",
+        "query": "label_values(polisyos_slo_dag_runs_total{measurement_scope=\"scientist_api\"}, env)",
         "current": { "text": "development", "value": "development" },
         "includeAll": false,
         "multi": false
@@ -19,7 +19,7 @@
       {
         "name": "workflow_id",
         "type": "query",
-        "query": "label_values(polisyos_slo_dag_runs_total{env=\"$environment\"}, workflow_id)",
+        "query": "label_values(polisyos_slo_dag_runs_total{measurement_scope=\"scientist_api\",env=\"$environment\"}, workflow_id)",
         "current": { "text": "scientist_default", "value": "scientist_default" },
         "includeAll": true,
         "multi": true
@@ -208,7 +208,7 @@
       "gridPos": { "h": 7, "w": 9, "x": 0, "y": 11 },
       "targets": [
         {
-          "expr": "sum by (le) (rate(polisyos_slo_dag_duration_seconds_bucket{env=\"$environment\",workflow_id=~\"$workflow_id\"}[5m]))",
+          "expr": "sum by (le) (rate(polisyos_slo_dag_duration_seconds_bucket{measurement_scope=\"scientist_api\",env=\"$environment\",workflow_id=~\"$workflow_id\"}[5m]))",
           "format": "heatmap"
         }
       ]

@@ -143,6 +143,127 @@ def test_unbound_first_claim_preserves_source_context_and_records_local_owner(
     assert reopened.verify(imported).ok
 
 
+def test_two_tenant_first_unbound_import_race_has_one_local_default_owner(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The first receiver-local claim wins; it conveys no source transfer authority."""
+    source = FileSystemCAS(tmp_path / "source")
+    ref = source.put_bytes(PAYLOAD, _options(None))
+    source_manifest = source.get_manifest_bytes(ref)
+    assert source.get_manifest(ref).tenant_context is None
+    package = source.export_subgraph([ref], tmp_path / "package")
+
+    target_root = tmp_path / "target"
+    shared = FileSystemCAS(target_root)
+    tenants = {
+        "tenant-a": shared.for_tenant("tenant-a"),
+        "tenant-b": shared.for_tenant("tenant-b"),
+    }
+    start = threading.Barrier(3)
+    worker = threading.local()
+    stage_labels: list[str | None] = []
+    publication_labels: list[str | None] = []
+    publication_snapshots: dict[str | None, dict[str, bytes]] = {}
+    make_stage = store_module.tempfile.mkdtemp
+    publish = FileSystemCAS._publish_staged_import
+
+    def persisted_snapshot() -> dict[str, bytes]:
+        return {
+            path.relative_to(target_root).as_posix(): path.read_bytes()
+            for path in target_root.rglob("*")
+            if path.is_file()
+            and not path.name.endswith(".lock")
+            and not any(
+                part.startswith(".cas-import-") for part in path.relative_to(target_root).parts
+            )
+        }
+
+    def observe_stage(*args: Any, **kwargs: Any) -> str:
+        path = make_stage(*args, **kwargs)
+        if str(kwargs.get("prefix", "")).startswith(".cas-import"):
+            stage_labels.append(getattr(worker, "tenant", None))
+        return path
+
+    def observe_publication(
+        store: FileSystemCAS,
+        staging_root: Path,
+        members: set[str],
+        artifact_ids: set[str],
+    ) -> Any:
+        label = getattr(worker, "tenant", None)
+        publication_labels.append(label)
+        result = publish(store, staging_root, members, artifact_ids)
+        publication_snapshots[label] = persisted_snapshot()
+        return result
+
+    monkeypatch.setattr(store_module.tempfile, "mkdtemp", observe_stage)
+    monkeypatch.setattr(FileSystemCAS, "_publish_staged_import", observe_publication)
+
+    def import_for_tenant(label: str) -> tuple[str, Any]:
+        worker.tenant = label
+        try:
+            start.wait(timeout=10)
+            report = tenants[label].import_subgraph(package.output_path, verify_integrity=True)
+            return ("published", report)
+        except ArtifactOwnershipError as exc:
+            return ("refused", exc)
+        finally:
+            worker.tenant = None
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        futures = {label: pool.submit(import_for_tenant, label) for label in tenants}
+        start.wait(timeout=10)
+        outcomes = {label: future.result(timeout=20) for label, future in futures.items()}
+
+    winners = [
+        (label, result)
+        for label, (status, result) in outcomes.items()
+        if status == "published" and isinstance(result, transfer.ImportReport)
+    ]
+    losers = [
+        (label, result)
+        for label, (status, result) in outcomes.items()
+        if status == "refused" and isinstance(result, ArtifactOwnershipError)
+    ]
+    assert len(winners) == len(losers) == 1
+    winner, report = winners[0]
+    loser, refusal = losers[0]
+    assert winner != loser
+    assert len(report.published_refs) == 1
+    assert report.published_refs[0].artifact_id == ref.artifact_id
+    # Publication receipts identify immutable manifest bytes; default selection
+    # remains available separately through imported_refs and the fresh receiver.
+    assert ref in report.imported_refs
+    published = report.published_refs[0]
+    assert published.manifest_profile_sha256 == source._manifests.profile_sha256(
+        source.get_manifest(ref)
+    )
+    assert len(stage_labels) == len(publication_labels) == 1
+    assert stage_labels == publication_labels == [winner]
+    assert set(publication_snapshots) == {winner}
+    assert persisted_snapshot() == publication_snapshots[winner]
+    assert "exact view is not owned" in str(refusal)
+
+    fresh_winner = FileSystemCAS(target_root, tenant_id=winner)
+    fresh_loser = FileSystemCAS(target_root, tenant_id=loser)
+    assert fresh_winner.get_bytes(ref) == PAYLOAD
+    assert fresh_winner.get_manifest_bytes(ref) == source_manifest
+    assert fresh_winner.get_manifest_bytes(published) == source_manifest
+    assert fresh_winner.get_bytes(published) == PAYLOAD
+    assert fresh_winner.verify(published).ok
+    assert fresh_winner.get_manifest(ref).tenant_context is None
+    assert fresh_winner.verify(ref).ok
+    assert fresh_winner._ownership_index.is_owned_by(
+        ref.artifact_id, tenant_id=winner, cell_id=None
+    )
+    assert not fresh_loser._ownership_index.is_owned_by(
+        ref.artifact_id, tenant_id=loser, cell_id=None
+    )
+    assert not fresh_loser.has(ref)
+    with pytest.raises(ArtifactOwnershipError):
+        fresh_loser.get_bytes(ref)
+
+
 @pytest.mark.parametrize("consumer", ["directory", "archive", "exact"])
 @pytest.mark.parametrize("cell", [None, "cell-a"])
 def test_exact_same_owner_import_is_a_real_noop(

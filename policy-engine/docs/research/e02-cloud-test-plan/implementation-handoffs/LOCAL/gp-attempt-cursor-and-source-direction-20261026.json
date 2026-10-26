@@ -1,0 +1,232 @@
+{
+  "schema_version": "1",
+  "artifact_type": "bounded_implementation_receipt",
+  "receipt_id": "gp-attempt-cursor-and-source-direction-20261026",
+  "publication_target": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/gp-attempt-cursor-and-source-direction-20261026.json",
+  "purpose": "Record bounded implementation and verification evidence for attempted MethodJob cursor progression and source-objective direction binding.",
+  "source_slice": {
+    "branch": "codex/e02-unified-local-20261009",
+    "base_commit": "c2bdceffaa6b418a2c6eb07ddf4db2e55f4566df",
+    "base_tree": "99799f88f2afd5874b7951fedb843914819f69d8",
+    "candidate_commit": "ce165a7e36e5ce1da5154a8ff376a859b600088f",
+    "candidate_tree": "dc32d6072c916e8f8359e03e9c22526029f5e87f",
+    "parent_commits": [
+      "c2bdceffaa6b418a2c6eb07ddf4db2e55f4566df"
+    ],
+    "commit_subject": "fix(scientist): advance Sobol cursor across attempted MethodJob history",
+    "footprint": {
+      "derivation": "Complete git diff-tree -r changed-path set for candidate_commit",
+      "total_paths": 3,
+      "source_python_paths": 2,
+      "unit_test_python_paths": 1,
+      "paths": [
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "base_sha256": "60f89f6c175c267ee8e51c05040ee4db74ce50994679df067ecc1cd1f78df663",
+          "candidate_sha256": "51635c530d94f185049a559016fa92c3e98da2cae4452ccc342162228b195c15"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "base_sha256": "fa867d08ed6c4f9cb8ada9591cb54087f7b217719f5e0c1832e331df8d0e7f88",
+          "candidate_sha256": "060a92bea9849686976a991c185641469f773d8b0ef2f5f21ffb7985d0dd2a75"
+        },
+        {
+          "path": "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+          "base_sha256": "ae7921fc87ef4b2b287af2de9eb7262b3701657948083c2e404c72fd34d09a35",
+          "candidate_sha256": "85519f588b95cb4d5330162e45b0d519a5c8c9f9ce2c307a57be60102115a975"
+        }
+      ],
+      "branch_readback": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-gp-attempt-cursor-implementation-commit-r1/branch-readback.json",
+        "sha256": "87d28015912d9df78589beca77062eca0bf0fcb2705c685ff1ebd906bc468d23"
+      }
+    },
+    "change_summary": [
+      "The candidate generator passes raw MethodJob history length as attempted_count to the exact native BayesianOptimizer.",
+      "BayesianOptimizer validates attempted_count and advances proposal position using the maximum of attempted history, evaluation count, effective training-corpus count, and persisted Sobol cursor; score admission and GP training remain based on the separately filtered effective training corpus.",
+      "The selected source objective direction is retained separately from normalized optimizer direction and is used for configured source metric binding and objective fingerprint validation."
+    ]
+  },
+  "focused_native_evidence": {
+    "status": "passed",
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "selected_tests": [
+      "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_native_methodjob_unitless_ate_explores_without_gp_admission",
+      "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_native_source_bound_methodjob_direct_l4_matches_l3_to_l4"
+    ],
+    "junit_wall_seconds": 7.956,
+    "enclosing_process_wall_seconds": 11.593727499988745,
+    "peak_sampled_process_tree_rss_bytes": 828030976,
+    "minimum_sampled_disk_free_bytes": 9814085632,
+    "resource_profile": {
+      "RSS_limit_bytes": 3221225472,
+      "disk_floor_bytes": 8589934592,
+      "numeric_threads": 1,
+      "deadline_per_group_seconds": 240
+    },
+    "source_binding": {
+      "run_head": "123eb4c215a76736deaa7018688e0aeace8efa90",
+      "run_tree": "8a0ce3a96aeef39cba22ed180d074ac09cd95586",
+      "candidate_commit": "ce165a7e36e5ce1da5154a8ff376a859b600088f",
+      "candidate_tree": "dc32d6072c916e8f8359e03e9c22526029f5e87f",
+      "full_composed_source_frame": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-g978-b09-architecture-admission-composition-r1/full-composed-source-frame.json",
+        "sha256": "ab62cd70fc4aa18de3860dee6ade0a1bf84bc2e67ab89719d34e26394b498038"
+      },
+      "source_profile_freeze": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-accelerated-composed-native-20261026-b-r1/source-profile-freeze.json",
+        "sha256": "73b5d31bc393590d0ec9553ead8ae088f477c4c903e8db06665f6e464bca44f1"
+      },
+      "selected_changed_path_bytes_match_candidate": true,
+      "whole_run_tree_matches_candidate_tree": false,
+      "global_source_freeze": false
+    },
+    "deciding_artifacts": [
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-accelerated-composed-native-20261026-b-r1/gp-native-attempt-cursor/admission.json",
+        "sha256": "aacbe2ef0451754a431f7339779c201135cefdccd1e0779c6da39f213cc915bb"
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-accelerated-composed-native-20261026-b-r1/gp-native-attempt-cursor/pytest.xml",
+        "sha256": "87a062a8892c514319fcc0a18a14691ed8d6f443ad50f9deea0c2183e695b458"
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-accelerated-composed-native-20261026-b-r1/gp-native-attempt-cursor/gp-native-attempt-cursor.stdout.txt",
+        "sha256": "6cd2b23d8c0eb213d3a9c18144c32b7ec511810230d6a596c66929ee74959df0"
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-accelerated-composed-native-20261026-b-r1/gp-native-attempt-cursor/gp-native-attempt-cursor.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-accelerated-composed-native-20261026-b-r1/results.json",
+        "sha256": "f793eef092bc0b72dbba2136f98c8f89f1785ecc5b7a4f4e7ce949b8c471ee08"
+      }
+    ]
+  },
+  "focused_quality_evidence": {
+    "claim_scope": "Four product/workspace Ruff check and format-check commands only.",
+    "source_profile": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-quality-semantic-identity-native-20261026-a-r1/source-profile-freeze.json",
+      "sha256": "4e035cf90a49f8344e82eb745992994f43e1f8e0cf9b33b3d6249cce913fccae",
+      "head": "c2bdceffaa6b418a2c6eb07ddf4db2e55f4566df",
+      "tree": "99799f88f2afd5874b7951fedb843914819f69d8",
+      "source_frame_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-quality-semantic-identity-and-typed-closure-composition-r1/full-composed-source-frame.json",
+      "source_frame_sha256": "69c4b02ff6528701c3533b7da1c9ae1a7e4b670eb5b9374f441f3f50132ec2a2",
+      "selected_changed_path_bytes_match_candidate": true,
+      "global_source_freeze": false
+    },
+    "result_index": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-quality-semantic-identity-native-20261026-a-r1/results.json",
+      "sha256": "66583f86fb9ecab4a569bf5951ac18ee91526df41122aa4677d202660c4943b0"
+    },
+    "runs": [
+      {
+        "id": "product-check",
+        "status": "passed",
+        "config": "policy-engine/ruff.toml",
+        "stdout_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-quality-semantic-identity-native-20261026-a-r1/product-check/product-check.stdout.txt",
+        "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "id": "product-format",
+        "status": "passed",
+        "config": "policy-engine/ruff.toml",
+        "stdout_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-quality-semantic-identity-native-20261026-a-r1/product-format/product-format.stdout.txt",
+        "stdout_sha256": "9d67c799638d3a83a6700213f2611aca574ca19163ae4a9c3700b14d4e002c85",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "id": "workspace-check",
+        "status": "passed",
+        "config": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "stdout_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-quality-semantic-identity-native-20261026-a-r1/workspace-check/workspace-check.stdout.txt",
+        "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "id": "workspace-format",
+        "status": "passed",
+        "config": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "stdout_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-quality-semantic-identity-native-20261026-a-r1/workspace-format/workspace-format.stdout.txt",
+        "stdout_sha256": "9d67c799638d3a83a6700213f2611aca574ca19163ae4a9c3700b14d4e002c85",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "separate_unattributed_observation": {
+      "id": "quality-selected-writer-and-source-role",
+      "status": "command_failed",
+      "attribution": "not_established for this GP slice",
+      "output_summary": "39 passed, 4 failed in tests/unit/runtime/http/test_nl_pipeline_materialization.py; failure output includes RuntimeError auto_materialization_input_basis_changed.",
+      "stdout_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-quality-semantic-identity-native-20261026-a-r1/quality-selected-writer-and-source-role/quality-selected-writer-and-source-role.stdout.txt",
+      "stdout_sha256": "4acb4a52818df9de4dce9bc2d64b857dd6a32f5a7681c0faae4691ae83870122"
+    }
+  },
+  "independent_review": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/n2-dynamic-consumer-denominator-r1/gp-independent-review-r1-final/review.json",
+    "sha256": "16074b08c5f4704aba1ef16bad679b5f9817315149d0b0df6ac949a98620a11e",
+    "decision": "GO",
+    "scope": "This code slice only; bounded attempt cursor/source direction and two selected native tests.",
+    "g_acceptance": false,
+    "closure_ids": []
+  },
+  "bounded_semantics": {
+    "confirmed": [
+      "Four real MethodJob attempts with unitless ATE yield four distinct Sobol proposals; the unscored rows remain outside the effective GP training corpus, no model is fit, and warm-start eligibility is false.",
+      "Seven history rows omitted by evaluation decoding still advance the next Sobol proposal to index 7 and leave the cursor at 8.",
+      "The separate selected test covers the same source-bound MethodJob by direct L4 and L3-to-L4 execution."
+    ],
+    "limitations": [
+      "Unitless ATE is explicitly a no-GP LIMIT, not evidence of GP fitting or warm-start success.",
+      "A direct caller that filters attempted rows before BayesianOptimizer.suggest must supply attempted_count; the default can infer only len(evaluations).",
+      "The receipt covers two selected native tests, not the full test module or broad backend behavior.",
+      "The separate unit bridge R3 remains unrun; source-unit calibration, general V5 closure, and production fact admission remain not established.",
+      "The native run used a different composed full tree from the committed candidate; only the three changed path bytes reconcile to the candidate commit."
+    ]
+  },
+  "pattern_pass": {
+    "relevant_ids": [
+      "P29",
+      "P35",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "notes": [
+      "P29: selected native tests execute the MethodJob and optimizer path and assert proposal/GP-corpus behavior, rather than checking markers alone.",
+      "P35: the slice denominator is derived from the complete commit diff-tree set: two source Python paths and one unit test path.",
+      "P37: implementation path bytes reconcile to the candidate and selected native result is measured; whole-run tree identity is explicitly false, so candidate-tree replay is not claimed.",
+      "P38: the seven skipped history rows distinguish actual proposal-index behavior from merely passing an attempt-count marker.",
+      "P40: independent GO is bounded to this three-path code slice and its two selected tests; unresolved calibration and GP-admission questions remain limitations."
+    ]
+  },
+  "claim_boundary": {
+    "capability_claim": "not_claimed",
+    "g_acceptance": false,
+    "code_acceptance": false,
+    "source_global_freeze": false,
+    "closure_ids": []
+  },
+  "closure_ids": [],
+  "formal_g_acceptance": false,
+  "proposal_fields": [
+    {
+      "finding_id": "B157",
+      "status": "limited_verification_proposal_only",
+      "scope": "Original L3-to-L4 configured execution parity plus the separately bounded attempted-history cursor behavior; no general V5 or source-unit GP closure",
+      "next_check": "Rebind original finding/occurrence denominator on final composed source; replay defining Prepared-B baseline/all affected contours and relevant native profiles",
+      "formal_closure_requested_here": false
+    }
+  ],
+  "selected_input_profile_backend": {
+    "producer": "configured source-bound native MethodJob used by the two pinned tests",
+    "input_and_execution_profile_source": "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py@85519f588b95cb4d5330162e45b0d519a5c8c9f9ce2c307a57be60102115a975",
+    "environment": "POLISYOS_RUN_NATIVE_METHODJOB_WORK=1; exact admission argv/environment linked above",
+    "backend_versions": "not established by this bounded receipt; no all-backend claim",
+    "numeric_threads": 1
+  }
+}

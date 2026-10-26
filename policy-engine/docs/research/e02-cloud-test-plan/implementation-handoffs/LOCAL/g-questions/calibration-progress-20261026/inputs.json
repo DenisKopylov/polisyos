@@ -1,0 +1,218 @@
+{
+  "schema": "policyos.e02.g_question.v1",
+  "question": "N2.calibration.foundry",
+  "architecture_selection": "proposed_for_G",
+  "code_acceptance": false,
+  "closure_ids": [],
+  "base": {
+    "head": "8f975da9c484f42bb2ef7c851ea3d5081e9124d4",
+    "tree": "3a680b4f4c9657879f852850040a92d610377b76",
+    "selected_source_equals_published_base": true,
+    "global_source_freeze": false
+  },
+  "G25": {
+    "commit": "8f8a0bf53e687c07c8de62d934a61c98448e5530",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-25/05-native-preflight-expiry-decisions.md",
+    "section": "N2"
+  },
+  "records": [
+    {
+      "path": "policy-engine/ops/components/index.toml",
+      "section": "component",
+      "selector": {
+        "id": "calibration"
+      },
+      "owner": "team-foundry",
+      "expiry_field": "exception_expires",
+      "expiry": "2026-08-01"
+    },
+    {
+      "path": "policy-engine/architecture/component_observability.toml",
+      "section": "component_contract",
+      "selector": {
+        "component": "calibration"
+      },
+      "owner": "team-foundry",
+      "expiry_field": "exception_expires",
+      "expiry": "2026-08-01"
+    },
+    {
+      "path": "policy-engine/architecture/runbook_coverage.toml",
+      "section": "component_contract",
+      "selector": {
+        "component": "calibration"
+      },
+      "owner": "team-foundry",
+      "expiry_field": "slo_exception_expires",
+      "expiry": "2026-08-01"
+    },
+    {
+      "path": "policy-engine/architecture/packages/calibration.toml",
+      "section": "exception",
+      "selector": {
+        "id": "calibration-standalone-slo-deferred"
+      },
+      "owner": "team-scientist",
+      "expiry_field": "sunset",
+      "expiry": "2026-08-01"
+    }
+  ],
+  "selected_source_sha256": {
+    "policy-engine/ops/observability/prometheus/alerts.yml": "afd2c60c00a6035057700218cc42d4ee6b99710a6db41ca6d620bd7ab8527483",
+    "policy-engine/src/polisyos/foundry/calibration/calibrator.py": "1c38c5f45e56413fcc7fe91bc72644ce60a036468a5950a8fff1c2cd3e9703a9",
+    "policy-engine/src/polisyos/core/observability/_metrics_helpers.py": "bd7a42e495a901e0083373b18cdc81c1e41d30d54d2c7da76a4379f8528bacbe",
+    "policy-engine/src/polisyos/core/observability/_metrics_registry_base.py": "026372baa1e1430ba512bdd3bf3ebe213466c58b851fba4d03a45992615def12",
+    "policy-engine/src/polisyos/scientist/api.py": "d22c6c6b4d773ee02843dea38d2d051716f5ee3ec26f1e9fba406a6004edf450",
+    "policy-engine/src/polisyos/foundry/calibration/report.py": "20bac1cb5fe858bc601338528753f613ee6615775b488a7f2c25cb358040f37c",
+    "policy-engine/ops/components/calibration/slo.yaml": "a7c05080520837c039b3ffbf4b80b8e00d6321358cc2ad2b8966a9b6c04f591b",
+    "policy-engine/ops/components/index.toml": "84b195ec99b15033e2ba3f0c82b86a21a8088a34e9f018b3dca4a088ad5c8334",
+    "policy-engine/architecture/component_observability.toml": "89fc0c1a50ce985bd7ca9022f60dd8120e9603310d72dbc897c413afbdd2bb43",
+    "policy-engine/architecture/runbook_coverage.toml": "7fcae0572dfb14d42ececf6a047023af287618437d0dad4665b84d6f7593fdce",
+    "policy-engine/architecture/packages/calibration.toml": "35fb0ec9ae8e876d3e4022a3b5b34078dd7802a28148902375e9cb1e269081ec",
+    "policy-engine/ops/components/calibration/runtime-contract.toml": "10dec6c7f8214cf754113626b733bc42aa8f3dabe7f20dc591bdb1fc0d110e6b"
+  },
+  "raw_evidence": {
+    "promtool_execution": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/n2-calibration-gauge-author-r1/native-promtool-falsifier-r3/execution.json",
+      "sha256": "e708f6894ca550ec93d9d0ea123a5ec1912a62791b1d2f0896e1e792d0049b06",
+      "availability": "retained locally; ignored RAW, not in Git"
+    },
+    "promtool_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/n2-calibration-gauge-author-r1/native-promtool-falsifier-r3/promtool-test-rules.stdout",
+      "sha256": "3c10fd735088e1c1d8807e05536fc682caa5d13cd3c301e65ae2896b4a7b4363",
+      "availability": "retained locally; ignored RAW, not in Git"
+    },
+    "promtool_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/n2-calibration-gauge-author-r1/native-promtool-falsifier-r3/promtool-test-rules.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "availability": "retained locally; ignored RAW, not in Git"
+    },
+    "container_inspect_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/n2-calibration-gauge-author-r1/native-promtool-falsifier-r3/container-postflight.stdout",
+      "sha256": "cd365dbda8587c9097e53ce75c15d6dbcda469d70451e115fc2a7a9ff1ef4f9e",
+      "availability": "retained locally; ignored RAW, not in Git"
+    },
+    "gaugeproxy_witness": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/n2-calibration-gauge-author-r1/native-falsifier-r1-gaugeproxy-witness-v1/witness.json",
+      "sha256": "a9a6bd08bddf971aab3d3f7df329bee4cfac5cbf41f6f6f5a697d55f0f17d16b",
+      "availability": "retained locally; ignored RAW, not in Git"
+    },
+    "native_author_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/n2-calibration-gauge-author-r1/decision-packet-native-r1/decision.md",
+      "sha256": "b5872f9cb87670b87b276755c1960915a000ffedde1e146159a2169d0e55605d",
+      "availability": "retained locally; ignored RAW, not in Git"
+    },
+    "semantic_discriminator": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/n2-calibration-gauge-author-r1/scope-lifecycle-r2b/decision.md",
+      "sha256": "f5117009b8eeb73071ecc70027d0ec5441c1f04a7a28c244eb5a866596b1f975",
+      "availability": "retained locally; ignored RAW, not in Git"
+    },
+    "consumer_census": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/ops-dependent-consumer-mapping-r1/final-r2/evidence.json",
+      "sha256": "2003040611560b5383b76bfc1bfbf3feb5312ac894eb3ad30f9eaca07cb0b4f3",
+      "availability": "retained locally; ignored RAW, not in Git"
+    },
+    "promtool_fixture": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/n2-calibration-gauge-author-r1/native-falsifier-r1-inputs-v4/calibration-lifecycle-promtool.test.yml",
+      "sha256": "1b9b63f79f08a8fadc4cbf44daadf07359dc2f45adf34871c29aec8b59360917",
+      "availability": "retained locally; ignored RAW, not in Git"
+    },
+    "native_input_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/n2-calibration-gauge-author-r1/native-falsifier-r1-inputs-v4/manifest.json",
+      "sha256": "c44913f4163d9ab462ccbbc8859e940f505f6a7a2184241634b9d29ca6205a6b",
+      "availability": "retained locally; ignored RAW, not in Git"
+    },
+    "counterfactual_rule": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/n2-calibration-gauge-author-r1/native-falsifier-r1-inputs-v4/calibration-stuck-r1-lifecycle-control.rules.yml",
+      "sha256": "962046ec554f663db17ed2fa8be2f9ddd561bb7b2b9a5d239fc1ee75b482ad87",
+      "availability": "retained locally; ignored RAW, not in Git"
+    },
+    "two_lifecycle_worlds": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/n2-calibration-gauge-author-r1/native-falsifier-r1-inputs-v4/worlds.json",
+      "sha256": "ff136db9a95e84213668bd017c9cede9616efed733725e3bc538aca13cb180d8",
+      "availability": "retained locally; ignored RAW, not in Git"
+    }
+  },
+  "native_profile": {
+    "docker_context": "colima-e02-local",
+    "daemon_id": "c45675c7-a221-476f-93c1-79a43c027bd7",
+    "docker": "29.5.2",
+    "image": "prom/prometheus:v2.50.0",
+    "image_id": "sha256:042258e3578a558ce41b036104dfa997b2d25151ab6889a3f4d6187e27b1176c",
+    "container": "n2-calibration-lifecycle-falsifier-r2",
+    "container_id": "7ce1cf1b750d1b49f8d7bd5239507cb5a9547795c9ddff1042ba375dd3a3230d",
+    "exit_code": 0,
+    "cpu": 1,
+    "memory_bytes": 536870912,
+    "network": "none",
+    "root_read_only": true,
+    "source_mounts_read_only": true,
+    "empty_prometheus_mount_read_only": true,
+    "tmpfs": {
+      "path": "/tmp",
+      "size_bytes": 67108864
+    }
+  },
+  "native_command": {
+    "label": "promtool-test-rules",
+    "argv": [
+      "/opt/homebrew/bin/docker",
+      "--context",
+      "colima-e02-local",
+      "run",
+      "--name",
+      "n2-calibration-lifecycle-falsifier-r2",
+      "--cpus=1",
+      "--memory=512m",
+      "--memory-swap=512m",
+      "--pids-limit=64",
+      "--network=none",
+      "--read-only",
+      "--tmpfs",
+      "/tmp:rw,nosuid,noexec,size=64m",
+      "--cap-drop=ALL",
+      "--security-opt",
+      "no-new-privileges",
+      "--mount",
+      "type=bind,source=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/ops/observability/prometheus,target=/rules,readonly",
+      "--mount",
+      "type=bind,source=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/n2-calibration-gauge-author-r1/native-falsifier-r1-inputs-v4,target=/tests,readonly",
+      "--mount",
+      "type=bind,source=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/n2-calibration-gauge-author-r1/native-falsifier-r1-inputs-v4/prometheus-empty,target=/prometheus,readonly",
+      "--workdir",
+      "/tests",
+      "--entrypoint",
+      "/bin/promtool",
+      "prom/prometheus:v2.50.0",
+      "test",
+      "rules",
+      "/tests/calibration-lifecycle-promtool.test.yml"
+    ],
+    "exit_code": 0,
+    "stdout": "Unit Testing:  /tests/calibration-lifecycle-promtool.test.yml\n  SUCCESS\n\n",
+    "stderr": "",
+    "wall_seconds": 0.15342395899642725
+  },
+  "limits": [
+    "controlled rule-engine and GaugeProxy witness; not full Calibrator/JAX or production/deployed attainment",
+    "semantic four-point discriminator is arithmetic, not native Prometheus test",
+    "configured alert surface exists; actual lifecycle consumer and identity remain incomplete",
+    "availability work and N2.calibration.runtime continue independently; no exception renewed or closed"
+  ],
+  "independent_review": {
+    "reviewer": "/root/cleanup_final_oracle",
+    "verdict": "GO for corrected narrow question; initial RAW draft held for record binding/scope",
+    "final_tracked_draft_review": {
+      "reviewer": "/root/cleanup_final_oracle",
+      "verdict": "GO after two stated receipt edits; both applied",
+      "reviewed_readme_sha256": "97a3ea3cc1aab545f4cc5d6acb0f02db1bf48605780c4954e46e314fdfbb0f69",
+      "reviewed_inputs_sha256": "7351d817069059fbe0ea70fbfe10ca0e9e74f48f4703b83977746791fac91ed3",
+      "verified_scope": "12 current source pins, four unique record selectors, 12 RAW evidence references; native runs not repeated",
+      "applied_edits": [
+        "record this completed independent review",
+        "state complete tracked-Python source census denominator for calibration identity emission claim"
+      ],
+      "formal_G_acceptance": false
+    }
+  }
+}

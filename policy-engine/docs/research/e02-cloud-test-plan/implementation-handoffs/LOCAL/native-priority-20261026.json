@@ -1,0 +1,2390 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "slice": "G25-native-priority-20261026",
+  "author": "LOCAL unified executor",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base": "b13cf563f7d739bcf297fb8f78199602ea93315b",
+  "candidate": "1b6eccce5c8fb2eef32587e4bd8ea99ebe7314b2",
+  "candidate_tree": "7efc4a6523308cb0a778fa64134d48d2f596d728",
+  "candidate_parents": [
+    "b13cf563f7d739bcf297fb8f78199602ea93315b"
+  ],
+  "architecture_input": {
+    "commit": "8f8a0bf53e687c07c8de62d934a61c98448e5530",
+    "architecture_selection": "selected_by_G",
+    "code_acceptance": false,
+    "published_G_checkpoint_at_readback": "2a07cd8a16bad0191b302f71c699b3bf9082ebac",
+    "boundary": "Selected G25 documentation is committed in protected local G branch ahead4 of remote, human-authorized. No remote publication or additional G code acceptance claimed; no G checkout authored."
+  },
+  "source_freeze": {
+    "scope": "144 changed implementation/code/test/config/resource/documentation paths at candidate, read back from branch",
+    "global": false,
+    "footprint": [
+      {
+        "path": "policy-engine/architecture/baselines/repository_best_in_class_last_mile/cross_cutting_concerns.json",
+        "before_sha256": "05910790944d85f1074ca45b4a3faaa2529f2f2c7650a585d5808da096f21ed9",
+        "after_sha256": "6b4cc570d13acb6c4ed66770ba487c276343003f8527c1fd8c8c669c7d41b400"
+      },
+      {
+        "path": "policy-engine/architecture/baselines/repository_best_in_class_last_mile/inventory.json",
+        "before_sha256": "15f28ebaf820cc4138e203eb0472f72d4755712809b0accf44471bc6be5a5397",
+        "after_sha256": "c47a1c7e5a881f976ef68aac001b87613bdc44b598076374fd7f8862425a7483"
+      },
+      {
+        "path": "policy-engine/architecture/baselines/repository_best_in_class_last_mile/name_collisions.json",
+        "before_sha256": "014cfa55c2b08199047f8677a2473fc24c9c3bd8f347447a7d406daf941b9b06",
+        "after_sha256": "4d856809685a5cf7a2fce59750aead40e1a9fd390964d8157ead662835a41cd9"
+      },
+      {
+        "path": "policy-engine/architecture/name_registry.toml",
+        "before_sha256": "609b27dddc630966f0060eee0e0923c783530804d73933450aa50c3e13eb57df",
+        "after_sha256": "2ea7871124deb39ef707d77f48dbdc77f634cd49e59b041bec9cc642b4977554"
+      },
+      {
+        "path": "policy-engine/architecture/packages/boundaries.toml",
+        "before_sha256": "1eeca6d5e7e23455568d7b03322a17a0029e42b86c3254ed1f24dd8a222bea7d",
+        "after_sha256": "22108eb4a14da6eb98172cba083d1a42ab0cb6fd633231b97558c47798d33cc7"
+      },
+      {
+        "path": "policy-engine/architecture/packages/core.toml",
+        "before_sha256": "adc89cfd43cc8b9d3ef3eb102e2e5fdbc7d3ab40fdf12469c90083db32c0246e",
+        "after_sha256": "1fe985d0fee691d1830f1d2907de3cc3a47095727a9a7c47400ed0d5784d926f"
+      },
+      {
+        "path": "policy-engine/architecture/packages/data_forge.toml",
+        "before_sha256": "f74177fbc3f5d9f799faa904da8e8bae809d2b87c3cd9a0afe8c6cc6cb386fbd",
+        "after_sha256": "2e8565e59540c5eabd30832f9eab542acee13b216ced391525b4743dea233f4d"
+      },
+      {
+        "path": "policy-engine/architecture/packages/fabric.toml",
+        "before_sha256": "6aeaf944374fff90f4e181f454a779838022acf20d288b949aa463dd818e6b62",
+        "after_sha256": "a39f825d540588aadc3b4dc7e30b280d87cb8ebf851631d208792e92d7a0637c"
+      },
+      {
+        "path": "policy-engine/architecture/packages/ir.toml",
+        "before_sha256": "408c06d5be429baf1e723a8f07e009077f9d03e798c8b401970427f3352c3161",
+        "after_sha256": "19342e66ca43fb84b64ec433f3529beed2eacf6c1632d5514cc1f850b647e7a6"
+      },
+      {
+        "path": "policy-engine/architecture/packages/runtime-quality.toml",
+        "before_sha256": null,
+        "after_sha256": "e9e4e956dd6d25ecc8765e2a8be35e819a4bd8a2de2e121e9216f822f1355490"
+      },
+      {
+        "path": "policy-engine/architecture/packages/runtime.toml",
+        "before_sha256": "634b1a927f456a17e003f0dff09696efad6478df380e733d05c2b0edd970af88",
+        "after_sha256": "9989073b4d3e6e475126dd95683bbd5fadce18da77e579ed77d3c9c0b5b83d87"
+      },
+      {
+        "path": "policy-engine/architecture/packages/scientist.toml",
+        "before_sha256": "3fc5f6559e608747843c89100e575ee1fcbb51eea23f0b4ebeb59617e0027489",
+        "after_sha256": "c23210a5fe9a22e191d8561ec53771ff1a142508ed2cfda6b55311e0e96a5cb4"
+      },
+      {
+        "path": "policy-engine/architecture/public_surface/inventory.json",
+        "before_sha256": "483f74bc8c7b61b4a3d48f8dd46c55de0e747ec825f5bae4ed3b01c28288039f",
+        "after_sha256": "64e7ed8a3a7dd213c9b70e8f935f17d2956982592d0d154b8c0e2e41efacf3a2"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/per-file-ignores/10-tests-ir.toml",
+        "before_sha256": "e6a9a107b15f46ead1037d523c959a26184652ccf4f4753d68fbbc189386a37e",
+        "after_sha256": "3e95c8ed9afeb25bb2ea68d6e059ff84caaead98690a67d340fd13698cd378d4"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/per-file-ignores/50-fabric.toml",
+        "before_sha256": "1d078d9dbc27e88da11b70e04efe40a52113bb54c3d7e819fc46c6d34e886f6c",
+        "after_sha256": "ba15fd427a9487cc24f9590a512fbf2f7c4f7066c3ceb0177ded051b9502e965"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "before_sha256": "1f21f4ac118c6e056a3509bcc7440dfadd28cb0155b0fab777e05354c4c107b1",
+        "after_sha256": "2cc164e43c7c336fc11ced00cf6c3a9e88ca7fa22341b372440420f9178d3b74"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/static_analysis_overrides.toml",
+        "before_sha256": "7bda5aa6e7611efe6ed989a4434558ce7e9935fd5d2e4529a628a2ef5bd138c8",
+        "after_sha256": "ec4d6295a6c89cf8bcedb95f92702af5e2df8e663cbf0fa57b4f69aa089387e6"
+      },
+      {
+        "path": "policy-engine/docs/adr/0006-slo-definitions.md",
+        "before_sha256": "6e9a0ef9b3cdf9b044f3cd002d909cf804eab8a1d3dee2fdfabbfffef68c570e",
+        "after_sha256": "fa3d26c488cb74ac3f098b6ed72aca42d9b55ccc3ce80d22b3adfa1fe6a33298"
+      },
+      {
+        "path": "policy-engine/docs/explanation/adr-readings/adr-0006-slo-definitions.md",
+        "before_sha256": "cbc4cb4de4852aef6fa585d99de4bfb693052cea397f31044b57ad0ae276c7da",
+        "after_sha256": "37aa52d4b13dc99dc2c9ace65536b5a3e09cb979564cba1f28d1d97e8659f163"
+      },
+      {
+        "path": "policy-engine/docs/reference/fabric/data-plane.md",
+        "before_sha256": "ce01739b3f6392810c97c90744afdccbb259193d51060de6ef5f576429dce0b8",
+        "after_sha256": "63d58109d70267b027d9f8431d2c95fcb8956bd9b43a54ea6d1d3fb870660f93"
+      },
+      {
+        "path": "policy-engine/docs/reference/fabric/index.md",
+        "before_sha256": "7fd98c1f09ed81329c7d4ed96995198c3fa7883433e6af117e0921f2a2853496",
+        "after_sha256": "d9bd194187843aa2cdea88c26de1a1a89bf9b524c1a807464b6be015c3726046"
+      },
+      {
+        "path": "policy-engine/docs/reference/fabric/observability-governance.md",
+        "before_sha256": "9e505b2cdf5b94d1765ed995a124f5bcb4f8ebcac2b541ecced8c205c747751a",
+        "after_sha256": "f3026745a01c765ed6c47b3020b4ab96709de793db141157596d94673b53240c"
+      },
+      {
+        "path": "policy-engine/docs/reference/fabric/runtime-annotations.md",
+        "before_sha256": null,
+        "after_sha256": "dfa0e3a3867eb2de03e648ff4d44cdc1a79ab9db8881657a7337d84e8049ca00"
+      },
+      {
+        "path": "policy-engine/docs/reference/public-surface.md",
+        "before_sha256": "5c8b4e8aa1dcb05b79391c39dce05593d2499b36f52ee3595204a53ebf2e9964",
+        "after_sha256": "018a318e4386f3f4898963f26cb12f01a02ad520c2f3ab7f0119f9a268572e3b"
+      },
+      {
+        "path": "policy-engine/docs/reference/scientist/index.md",
+        "before_sha256": "f18f209374c3672004d2c3560bc23c6045366676cb223af16ee5074e10e340cc",
+        "after_sha256": "8293c905fc4da33154169fc01ba3efa90fc2d91de107239c673a4317133da325"
+      },
+      {
+        "path": "policy-engine/ops/components/runtime/slo.yaml",
+        "before_sha256": "bd6782527bd1186332997d6963656f57cdd37b07df3d207ce370776f1725a964",
+        "after_sha256": "5d5ab08896737b669ad793a0500ea04e177d457edfbe231f750e1a3307fe4e43"
+      },
+      {
+        "path": "policy-engine/ops/components/scientist/slo.yaml",
+        "before_sha256": "5b215df9bd2a54d75035c23b1c580005bc2f26d63122cc21dc83c71e5b42be63",
+        "after_sha256": "306722069dad59c24c8c152b71e1dee53de6bb781fa610fad304ff8673967592"
+      },
+      {
+        "path": "policy-engine/ops/observability/grafana/dashboards/slo-overview.json",
+        "before_sha256": "a5c146bcdcdcf65e5229b3169b3b97bcb8319e764a2d2bd2e99ee30ce6a19d48",
+        "after_sha256": "49ae042b34b2d77b5247ccec5689c5db4d372230bd2ff3abb682ea418592f629"
+      },
+      {
+        "path": "policy-engine/ops/observability/prometheus/README.md",
+        "before_sha256": "bf98c173c6630c987fed95c88c82e4779a8af130e41e6413acbce25161292ac3",
+        "after_sha256": "b006627901c7cd393f348e0f0751ac03f1f57fd187bd77e0da68eeed39a4cd42"
+      },
+      {
+        "path": "policy-engine/ops/observability/prometheus/rules/scientist-alerts.yml",
+        "before_sha256": "45dc4c9f65e1580abf1bf723350196f64d8f42aa834deea3e47e123cf9fd9c4c",
+        "after_sha256": "61e8bd4f8321b38ee6098dd2e0c54d2c677f254c68213abbcacaa805f765eaea"
+      },
+      {
+        "path": "policy-engine/ops/observability/prometheus/slo_alerts.yml",
+        "before_sha256": "ae7ac426676f537cfdd39b4d34014f34d137fbcf8d84297726eb377aeab63f97",
+        "after_sha256": "4555df89863337da39d76130ddcceb95560befba8afe0cb06cff0697dae8160f"
+      },
+      {
+        "path": "policy-engine/ops/observability/prometheus/slo_recording_rules.yml",
+        "before_sha256": "2a9b445a772b6f0d206c25bd115cfb81b82db0a6b67499cece42b456c8d763a7",
+        "after_sha256": "4bdbe92d3a643e8e9073beaa73dc81ee7a4e4a562e33e323f619bffb23519048"
+      },
+      {
+        "path": "policy-engine/ops/observability/slo/runtime.yaml",
+        "before_sha256": "7137a7082e7b2d3a30c7afe16fca001182bdc60718271d99eac13e81382bf86a",
+        "after_sha256": "97b5d12248fe88c6915697476056a4cee8b86128139e772a3f646e2de4009bb0"
+      },
+      {
+        "path": "policy-engine/ops/observability/slo/scientist.yaml",
+        "before_sha256": "1e17a879eeb4438b793324a4caca513b50122cec18259ff7ddfbd05a37d4408e",
+        "after_sha256": "1019f119b343a38aebb57bef2b6688bf926b4330f862eb5d3cbc7cd699d3fe2d"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-25-e02-fabric-runtime-annotations.toml",
+        "before_sha256": null,
+        "after_sha256": "f7525775d6bdd0510fdc1d27baf147e2afaa5d1cb5279de3058561120eef6d4f"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-26-fabric-valid-time-age-diagnostic.toml",
+        "before_sha256": null,
+        "after_sha256": "4a5ee26a75059b48a74e51aaa8f0c5ae4d751c890dd3d1a70bb6aa698bb66b28"
+      },
+      {
+        "path": "policy-engine/ruff.generated.toml",
+        "before_sha256": "2588ad9d525a27230928e3d75eedc34b4c3968898bbf8546aa6976c4063a44e8",
+        "after_sha256": "759cad425eac3718d5161d1f6fd4bfe52a57f2d28a77cc408d0bc30b955bf2c6"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/README.md",
+        "before_sha256": "2670fc51e4babf206d13b8f0866298d8d343b7c5502a036c0dea4cedd33cbd2e",
+        "after_sha256": "5b663b23b937b79442bdfd0398a16407e5859d084330ddad37942d623faed93a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/observability/README.md",
+        "before_sha256": "1060b7993a3a4fcdff74cc7855be2811c5b1708d62555b237d1e9d9d1f28c7ec",
+        "after_sha256": "8dde18546b6b5bdacfd6b9c6ec65a09591f00d7657c499ce5b427cd845f230b0"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/observability/__init__.py",
+        "before_sha256": "13e425237dd9ce7dfc45a18eb5a57f77cad6196d72a97f30450bcb19fdf61377",
+        "after_sha256": "b0dfb0934dc4d335ee1b68e1e593a853a8a368676ed2174053cc792b229f84cf"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/observability/_metrics_helpers.py",
+        "before_sha256": "d168be218d7a3e9dfbb457342127d088d65ee31b417d5766d6a5bc4588964355",
+        "after_sha256": "bd7a42e495a901e0083373b18cdc81c1e41d30d54d2c7da76a4379f8528bacbe"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/observability/_metrics_registry_base.py",
+        "before_sha256": "922eac01d723a6e30070fd887f469b8c6c0c735d922b1fb76185cb0e47d62f85",
+        "after_sha256": "026372baa1e1430ba512bdd3bf3ebe213466c58b851fba4d03a45992615def12"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/observability/metrics_parts.py",
+        "before_sha256": "45d3d3183677aeed557e0d410cdce412387c29e526bc33c81c16ad324a4287ac",
+        "after_sha256": "5778679961d6aaede97b78be0639694abca3053ef27e7eea9803df7450e7ae37"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/kernel/README.md",
+        "before_sha256": "fe190888d318009de46b34ffadc88df599b6c83ee5839692266ed3371562e98c",
+        "after_sha256": "e8e096f8443d9415fefd59f7d32a6d40e53d7f2893d56725035886ec6f4902f3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/README.md",
+        "before_sha256": "cedb9fdefffb787d773193a13ac60e5c29366dc33fb0f5c14caf39406d583083",
+        "after_sha256": "1d6ffa46ea84254fa7134f7420767c1bb622f81ddef97841c44ee44adef6ac7f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/_adapters/observability.py",
+        "before_sha256": "70b19970cfaf67bd87b5559b83aed2abaa6b17f3341d403dceaaaf9e26dc00c3",
+        "after_sha256": "9f2bd142f80259ffd356b0e8b18646f1ef6881c0a77d49fc2b726310f35d9517"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/cache/invalidation.py",
+        "before_sha256": "9b79e2cf067629425de0820fb336705ebcdfe8de2a969e0754dcc1f9493a3ffe",
+        "after_sha256": "0a14daede30774243a3a205c35b2b02d0679f627f06d9acd59676411f264c70d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/contracts/source_contract.py",
+        "before_sha256": "1c9ba073eba4788a21cefe269a2838808207aaf37fe79cc8389cc84095cda0fe",
+        "after_sha256": "1425b3dc85a57e27bbd555c769f764eaa5258a6b0048653e316698e17c7f00a9"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/testing/harness.py",
+        "before_sha256": "51d79d2b5fb7ed0360d6481bdd8d177d8e750f48989840600e59985b832768b8",
+        "after_sha256": "614bd4fac6c06a6d481c002ad1dfb52a0bb37cbda3679286bee2715c58148355"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/README.md",
+        "before_sha256": "156b1eb691930706ee734f128bf6352ee52185f263d89e4773158a92a8095a88",
+        "after_sha256": "d13e753366461a60e06bf4635650173a7a9a95bd4a4be7086c7c2661a129314f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+        "before_sha256": "623fe90d4abc3f8303f4ff7acac1d903b1929e81055b44daa38c67add788a07c",
+        "after_sha256": "c6013d69f691f65407db72f24a362ef411a635a189b51e137129575824f081b7"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/temporal.py",
+        "before_sha256": "6d6b0cbf3413fb520b2828db86e2fba20fb18b40497891bbc7ff9f26e3d104be",
+        "after_sha256": "7c2f9ef36bf2326e3db211c72feb19d82b4f241ff76f09d8294610cc2ec61492"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/evidence/decision_data.py",
+        "before_sha256": "75e02988e3f682118bc535ea5545973cef8a3df73d20706696d45a780e7d41fb",
+        "after_sha256": "0ea9a738b3c49e94c3b21055d42adb6ad83d255f73d0d1d1499ce198dd3f3c63"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/world/materialize/duckdb.py",
+        "before_sha256": "b1ee09587c9666af3380e9e1809ffda5fd1dd93a425f5a22e751d037e5da8958",
+        "after_sha256": "4e7f11e1d36f6221de8f99fde6f6de9570bbc82d45e9af65209057fab7f4a31f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/world/materialize/sql.py",
+        "before_sha256": "2b13c45596324748dfd2f858a097b867bdf45d05dbd8539b83d0f6adc729165f",
+        "after_sha256": "72737ac3e913d12a13b6af4c4f3adda3500be2331142a33ec43801fd72751cf8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/world/query.py",
+        "before_sha256": "28f00f19e7fa71d8770ea9289fb50f658cda02526d7266d2ef6fc49396162970",
+        "after_sha256": "837c362614cf49ea41cb4e99209ee50f42b2e3dbc64980b5fcc9094931063062"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/README.md",
+        "before_sha256": "2c45eda57c36954170dbd52413da6d5cd36ed6f02277ee979ac19f3733453e52",
+        "after_sha256": "ed938cc4afa5ecca0d59b1083ded2a5f5bfe4e62a852f73688702862a74e0cbc"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/__init__.py",
+        "before_sha256": "e1f844542ef65dd5145b1f33de788176c0c12f457ebee592a7b2326b61d6aa15",
+        "after_sha256": "e3f0dd7f5625fbb453c3e085c953fb3f6b168e7be7af129dc83aa7fd8d46ea0a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/abm_bridge.py",
+        "before_sha256": "5b439963b6c294f9e154006234c13596f3e06b8c900b3dcd1329c46a5a860e6a",
+        "after_sha256": "d12e141c922e40dd99e866e48216e60ac795625930a608376f9d6997d34ff600"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/abstraction.py",
+        "before_sha256": "dce91f9c6dce7e33f30b6c53888bd7e9197f6204a920a28f852e60ea5671ae2d",
+        "after_sha256": "67c8a677a80507d3b0bf3bd30c5a4f4a20428ac211c02fa62ba5eb2c581d5137"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/alignment_certification.py",
+        "before_sha256": "d7745f1c0a2b64f4c7073e0e36f8d5fb83ca6d338671cb4b7e617c0844ce6c53",
+        "after_sha256": "dae96077064ca6e29157fd17e2db94f16add7a1f9012d4e1e4b0a6a3bbaa754e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+        "before_sha256": "d4aa6a71a3d9b457b8771e8eb3e533286bc7eb4bbc823b5e6faf300dcf6ec7a0",
+        "after_sha256": "5fc6db3c90220efd194175e6a6cab7d0a11f1a526a0e4182e011d4a3b42c7480"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "before_sha256": "41ea18ddcbcade047e6e6a8cb0d6948e591ce1192615b993251ed2908da8a5ea",
+        "after_sha256": "70eb563ecf417ef467bf651a1e84921d2a3e07dced337cfb270445cd1194f249"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal_capabilities.py",
+        "before_sha256": "2f58046a80f9466195b9936754d79c7f0a91d22bfb3ef535cc1f20fe4ed701c1",
+        "after_sha256": "b588d71de9b5c2d544caef4bffc46d9adf15ef8d4690d14e574f184b254d285e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal_discovery.py",
+        "before_sha256": "178d5b8829050d45981616969b5ecf2827ab9cf02cf38642d77de6e388583072",
+        "after_sha256": "5ab16c2eb1d4a8915cbbec412807c4b04d3406d3448585927f1f819e250ab729"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal_ensemble.py",
+        "before_sha256": "248fcdde875ced39d7c54e955674f16de78c9bb5b3840ede39dd7f2be7762ea4",
+        "after_sha256": "867a677e47930fac0234f347947d65d5435adf9af956d827cb2a24e388df5d0c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+        "before_sha256": "7b37046af0c48d10949f3c23299bc4dd45d08793730468db195ef4e0afa8cf60",
+        "after_sha256": "2facb531db2ea4bbb6361f9bd7ccf66c14a7f0213d7647b92620a879efa4db5a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+        "before_sha256": "49d22b6f1a0c29512d416830438165ad8c59e648ba58e16a67d34edcbd8479e7",
+        "after_sha256": "88a47978d959d5d9386bfc31756eda150c6b4d30eb69f884e4d8f4d83d6a005f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal_run_snapshot.py",
+        "before_sha256": "525c679c89498565f09764f530b60421ab178b4dbf199a6637ef8a8551a01168",
+        "after_sha256": "a0dfd8dd0301653fa213116833eae4ab022fd8d118b1f7320ad3beccae48805a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/context.py",
+        "before_sha256": "cebc097fb9ce6a37ff899808de5f200f11489d59432934a279360855a23bd282",
+        "after_sha256": "3a6a899541db927446838ac62477c18fcfaab08c7e74c639cd348afeedb6e2bf"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/cross_graph.py",
+        "before_sha256": "4f25e9546a4b34f1be223586e4f9fae383f73977baea2f6d8424f45d9e505564",
+        "after_sha256": "a0033556c1309da490853f8fffbddb550edac0d77acc806f05520cb40aedff92"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/decision_layer.py",
+        "before_sha256": "b62a6802ef0ee0e11a978f22394052aaaa2a5f2590a0f6924e0622f41cf9ef1d",
+        "after_sha256": "9441391312db7550e3a1d0feca1153e8926725f0497475be0519d735932803fb"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/dependence_structure.py",
+        "before_sha256": "dde6a450295efade16813729828893e68a0aed11242982f6396d6985374bbfcb",
+        "after_sha256": "3951dd98d86f0a555b09a0af615a46b4a90baae7b76cd84a63bdf9eda8028b0e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/dp_robustness.py",
+        "before_sha256": "14d98e8a322bcbf8dd8314a6d6ab3d1394a98690f67ffd9dccaa85fd684ee678",
+        "after_sha256": "60f8bbd2e8a29707bf0766535da812922829058125388cc828a8e8e6fe3e4561"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/dual_certificate.py",
+        "before_sha256": "ae2c4d72369b07d99f7e638ba251f5da5d6dedd8deddd9826fbf23c58e752a27",
+        "after_sha256": "7c48cae5865c2fe53c0c6737450910b2441e43d2b8b0f6a238b0caef75366536"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/dynamic_causal_semantics.py",
+        "before_sha256": "01c62df69b4c282b5de280726ddf4a53f1643bc8de572041b02b09c60e8ccc79",
+        "after_sha256": "b5d0fda7e6865f97fb579f0d960a8a19e935cccac19b19f3d854098f4f3fbf89"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/dynamic_regime.py",
+        "before_sha256": "3d00c4146142f681ff893be5928d1c04e118f32d177ef6c1ddb3b132ca0ea014",
+        "after_sha256": "e1ebd287c438cc93ddb4542e121ff725ec0f2a0c4c48f7db31a20f21583981e8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/endogenous_inequality.py",
+        "before_sha256": "15cf2b4f35d342ba934d96b8089ef0fc7e6420f31821e4498e720f5dc33930b6",
+        "after_sha256": "29def876d8003e76b2f048c9f1c8ce0a67427c1b9549776e1d6097763e504e6b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/estimand.py",
+        "before_sha256": "f03887c688eb58978d4c03d6c645685c603860db2421eee9df640e390f268d44",
+        "after_sha256": "a1720128b93b70bbaa3b23877cc376c4f84709f5627d409896091d050c8a082a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/evidence_bundle.py",
+        "before_sha256": "3e9bdffda728bbb712f3c026dd0cef831a0e28bbb81aad8652c98b72704836eb",
+        "after_sha256": "8f1701bd2474d14b89e968abd3c3304d4668901dcdefe4815ed7709a77ae2292"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/fairness_audit_report.py",
+        "before_sha256": "773f27d38281a1fed17f95f71cbb33c58775c56ab379f2360e9ec4b50357d8ce",
+        "after_sha256": "5f92d036009e66b38ad7017f7646c3011f350c319bda86fa5027aa16f7a05814"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/forecasting_uncertainty.py",
+        "before_sha256": "4a4d5d468358ba5ad96cd96f49ccce9b610079193313a7bb0d60c39a567e0934",
+        "after_sha256": "4a345f42418dff9be57c8808b60d3188623760031213c3e87df6d26a872b2a5e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/frontier.py",
+        "before_sha256": "1266b7cf96749706eac896d354bd87befcc98c2e60b7c8e01cc53db93ba1ea32",
+        "after_sha256": "c4185ff7a767934445ab16e61deaa96e08bd4151074126a23dc2575031f2ebbb"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/hte.py",
+        "before_sha256": "d01604cd3dadc98cf4c007a572f2680d2ed604d182240f7215db80ac936ec5bd",
+        "after_sha256": "11932c68be5b58ab62edec1cabe6459ef7ffa04785fcf24e8bf6fb40ac113ee6"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/interference.py",
+        "before_sha256": "2cf05de0997da7092cb224e0d0537f379d562448ba8632a34406e43284484ccf",
+        "after_sha256": "854ba5adcc8c2058747f709719cc74e0949d3705c47127dd457dcd69a8dafa07"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/interventions.py",
+        "before_sha256": "dfb3501896e21f6b58cb43e3a8064101d853af7733ab6e89e9a0db953bdd2814",
+        "after_sha256": "ebbcad58c19f7807a863914d767213ed572d7fc87a6b62a7afefa49bcfc8f8fb"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/invariance.py",
+        "before_sha256": "f2f84aff4c63269448ad05ee3542827f7514101dacea1f8143a615efa1d6f0cb",
+        "after_sha256": "2c41a66cd06bc4a80990f9d615223280722077db55f59ad4b58d1e3a155c2e65"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/kernel_causal.py",
+        "before_sha256": "5e554422a86cf8e3cdbc9e853342e029e744bbe5087fc2f01e94e986a05fd7ab",
+        "after_sha256": "8f7a8248f278f679e9bd9b2a1cfcb8b5ea044ba3cf4b3c3e78bb34e40f0579ae"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/latent_bridge_synthesis.py",
+        "before_sha256": "12a7db0a977a7fb06af7cc21a9251eab945692f7292c561056c38bb14cdb7e19",
+        "after_sha256": "afcad482bf727fce28f48b0e886f4bc223535860ed66851dbf3d1256c248f911"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/literature.py",
+        "before_sha256": "9f1eb785e025e1f9ef70b74420cbd872ae86fa804b5f67cd653967b3a0351e9f",
+        "after_sha256": "d479300a76604a1d5d605e8cd2da0a0afe36486b7537da3f97a94562cea4eee3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/local_independence.py",
+        "before_sha256": "5d434de0055a60c7aa3df388db8ca580511962abc9449f410d418b33af637f9d",
+        "after_sha256": "ea1e18299a5fc34de35c785ddf405dc96471d9632c4ae8d4a89e852c64db3260"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/mechanism_design.py",
+        "before_sha256": "1ffce54975fecd626fe320d2250893da003b0a1a42cc9f18978377e0553c583e",
+        "after_sha256": "60953bb5dac018ce63951c3d9ccdfbb61cb448575ad17e689ee12221425d9d40"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/metric_validation_report.py",
+        "before_sha256": "c3f431ff788f682dfda4db07e42f49b39be7ae22f09abaa1844cbd1e6161338c",
+        "after_sha256": "6c3b1ae2f8c4374d170a02db6af444e5a0d7ce7e0690f654b91b68ba831a0882"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/microsim_calibration.py",
+        "before_sha256": "a4cbbe72cd0aca3ef2618c4798cf9f956c694850187bdef86c29b3927a6d9ef1",
+        "after_sha256": "7d5770bb1d036cd8bffeea7fb3e880a03292ce4539a8e84ccba676fc247d5256"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/mobility.py",
+        "before_sha256": "445575271f6367b8afa7705c81b08aef13e266c43e2660b04369567a5426d7b9",
+        "after_sha256": "51d0c2a99ac8d7301a602563a3d2a214585315322c2bb600e753a3fc7916589c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/ncm.py",
+        "before_sha256": "74055a3f3fa8ee9cdd74d7cbb675a6b4d0db385f3432c6a993eada887fdd59a2",
+        "after_sha256": "42ac7720dd047ee57075511a2a73c7e4eeff3d6eca3384473136c492189bd401"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/negative_certificate.py",
+        "before_sha256": "b0652882b1c83c58490498dd06d2d02c79b14fdb1d88e80138a6c49846754ffd",
+        "after_sha256": "55183517e06fa77ad6cdb1db866f9d2f1c5e001605413e498f4e0dbadfead2a4"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/network_generative.py",
+        "before_sha256": "31bd032baedbee16ae3135bd0681e49e010427c6c0fcd79b629f104f05c46373",
+        "after_sha256": "069cf5911734e5bdd3bfd746cdb94b7758ce76ccb36efeb56babea011017c5de"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/normative_arbitration.py",
+        "before_sha256": "d86d5c1bf505cb2af10c44825da444cb925c1a14d68c9280da1c326106a20d7c",
+        "after_sha256": "621f63aeb4a16979966b3d83ab640823de6025fdca35d986c94bac1342c70348"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/phase4_dynamics.py",
+        "before_sha256": "3398127ef5234781c472c0e91a5e07bcfc37add58be81ee9838bb4f8dd3ec388",
+        "after_sha256": "7d2a8adcb20aeed4ff3f8ce0f2bd4407c6a1f02f1cb6291688c66d64b43b54fa"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/proximal.py",
+        "before_sha256": "1b21ca632b6c7028dabdff980da77265bd6bd299bb4eeded25b01127024f81c0",
+        "after_sha256": "5718020eaf17d3800adbcc9497b8caff24a4b5478119671671e64cb873a4be8f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/recourse_manifold.py",
+        "before_sha256": "039a3110501151c4c1ff0706ccb7fb85abfb3797e4e3ba58075770e4c2a9a418",
+        "after_sha256": "c06e2b51d80aca1443b7f3d6b0ac17fb77a0d2beee3cc09da1812d0f10a8e915"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/recoverability.py",
+        "before_sha256": "598f306d79a290c415f3b4df2a8516aa81b1920438584cd1339c5d3e7296f035",
+        "after_sha256": "0506397fec0abfed5a699fad28cb4becf75bb1a837b5f078c855626fd2a40f98"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/regime_shift_forecast.py",
+        "before_sha256": "654891304091eb6c6feee249aa7656755fa62a884594c0d84faa7a580a8c6f66",
+        "after_sha256": "ad3365551696356699b5ef38cdfe86072c6e37073711bfa2608fede1b9e4f6cc"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/rough_path_semantics.py",
+        "before_sha256": "ce04c080cb57ad831097d873aa5428c5e14115d3c97048885f0b7d3033cb1632",
+        "after_sha256": "88e36a7d219f54105e34e26c241a7b75d29ff150744ea86db17083a5ce1f9635"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/shift_diagnostics.py",
+        "before_sha256": "5c2705358b3773f7cec9255cd5d2caf04c4d603aba0be2a3477e1e1f5529e2d3",
+        "after_sha256": "3a1146b7b7b59772991fe64ebe642ffc40548c825eab0c0f86d9258252931a7c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/strategic.py",
+        "before_sha256": "4018091221efde48a8c72ae441a971cfe9910138ddf08d59956b29fcad5ec30f",
+        "after_sha256": "900936f62a08ed5e8b40b443afa09905f20fef40dbc7baebfa7c54d01be8ef0f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+        "before_sha256": "c5913afd77990e42587f094f534aba2399c8560c315621995971855bf766b6d4",
+        "after_sha256": "48cc3cd1cd5461cd34c1a520ef2d78e0b0139578f518b747fabace9f4ff09601"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/survey_quality.py",
+        "before_sha256": "5c53331b55d1a6728518ae37fedb457ee6229f796f1193e700e97e00b20c9fa3",
+        "after_sha256": "f5ca3b2ac0b32b0ec2726fb39c4c06150f8ea021cb61799216a879f177fac448"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/transportability.py",
+        "before_sha256": "2b9813462f755573cb8dd49072d89eaa828e3d98348d83fc5691fcb90300535d",
+        "after_sha256": "33d690f10cc7c71220d5f8a97490952b10caae591f88d6e6d0eb95fcec0883cc"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/twin_network.py",
+        "before_sha256": "a73922840f08533f9f4c499aa990bf19a89efb2576640f2e9103d3d057847a84",
+        "after_sha256": "d6641a8ec6d7230d25f008e1035bc65be948ca4e024449fcdf58f615b4fd9333"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+        "before_sha256": "86e0fcfd164e776c63ccdb8f74dd4d99d04b814a2062bbe2a8a3f2883f1023a0",
+        "after_sha256": "e90869b1ae2ed3b0d3693e91c9542c35ccfe96e154168a32ec336d6cccc29841"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+        "before_sha256": "717424dc74396730917396ea46f01d114435f174ef38a349b26f80a3580a80ba",
+        "after_sha256": "a3b88c3202b6b367014431a142f956b348e6c9eacb52f2b4bd831f762dadcaf9"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/governance/validation.py",
+        "before_sha256": "6350e3dc26ba4c1b9c959246517d19368eaf72b3b8ac0191fc80c59895e7ed55",
+        "after_sha256": "3c86c2f874c3fd8ee15d508e5f7b184ff69cb4f3e2bdbd55036fbef536e212b6"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/observation/causal_execution.py",
+        "before_sha256": "644cc2fbed1bfa45208688e98f61caeadc01d1aaa7e9a7a906095b09f1b7709d",
+        "after_sha256": "aa715a065fd3aa7a7b436bc33e96e5e2cee0acb84cfbaca021f7e57bfd7c6f6e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/observation/causal_readiness.py",
+        "before_sha256": "11cd11d35a1a62914b97719d4fa68d8fe3742e8fd65d0d03484a22506c3685a9",
+        "after_sha256": "facfa1d0b7e34762f50f9f3a001c37aa6045bc0083bd63f04d459630339cde5a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/registry/__init__.py",
+        "before_sha256": "6d32a8df3421ebd9b090df6b2c9e7dcce8a4162ac1050c0bd98d49ad546f36c5",
+        "after_sha256": "7a8c7374a5dda8e7f25b246bf689da2b1896a44ba15b0e13c4d5b85751990277"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/trinity/loaders.py",
+        "before_sha256": "eef716162351b66dbeb171cc555c53a8aa2b0ebc0fc0e05a0b8e88e52bafc0c6",
+        "after_sha256": "e7a3fea7ade69aeebd25d9a3a1e6f6507e8abbd93770b8adf889d0c59bbb81eb"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/world/conflict.py",
+        "before_sha256": "ebb0f9076abfea5e8788e246e8c1bf1c892fdd6fb1e39d6b0e1252d5339c9409",
+        "after_sha256": "5325b336c5665e5031e5062220359d05d518611d2abee104962dd1f3a3ccf9ef"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/world/quality.py",
+        "before_sha256": "5fcc98454f8f8701ea16e654bab866cfa0e84fd92f6461223780726c2fd8ae10",
+        "after_sha256": "b2be605eec16f228d12cbc7a4421f13823e04c3336bec9a50b3ff1fefaaa0ff6"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/world/trust.py",
+        "before_sha256": "05c785d7ac4cbe38c88da25b639e2be6fc5d8c22c31b24d41adce92aaffd640d",
+        "after_sha256": "3bb180ff05bb28c1fed5dc2c946e7e3994cd46f70518bcc7f9b3db783f7e1ff9"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/README.md",
+        "before_sha256": "98889b88e9adb0cdddbd75dca9facbb7448cd43292e0627ff884c59f034b7dba",
+        "after_sha256": "f1375a263f82323d801eff1b96fd393963ab06561a2f18441aa2db4f3fd407c8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/README.md",
+        "before_sha256": "5dd6c783656a28d79f67946820eedf691e33fd3fdfb51dd5d4a01016d86d97fb",
+        "after_sha256": "e37b67bcd4aed7dc6bbb103cd3edb102a157db0809a9da071b28936d498edbd7"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/metrics_otel.py",
+        "before_sha256": "f89f8c921ca4fa759cdde60d7ccd182d32f3033a9e63d6e4affc05bea78a69d0",
+        "after_sha256": "fad8361c6f7d8a43fb4a0f3b5c8da3184e0cfe67844d4565cc394268abbff2e9"
+      },
+      {
+        "path": "policy-engine/tests/contract/fixtures/prometheus/runtime_api_slo_rules.test.yml",
+        "before_sha256": null,
+        "after_sha256": "1d44edd57208711263db1b77afa294081c20a61063d4601a2b321733f1818c65"
+      },
+      {
+        "path": "policy-engine/tests/contract/fixtures/prometheus/scientist_slo_recording_rules.test.yml",
+        "before_sha256": null,
+        "after_sha256": "4bd981a3e367700d1a3382d9a4d7551d98a1d1df02f84307a35d5bcbfb13a985"
+      },
+      {
+        "path": "policy-engine/tests/contract/test_slo_metrics.py",
+        "before_sha256": "7914f41faea1478e57093c925336fb41f7b1b0f9ff18e6491f55fcc322a358db",
+        "after_sha256": "2640038571800d9a89f57e4484189bd3c6491945cf97a48eadce246be0a80ed9"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+        "before_sha256": "40e10d0abeeefb29f00478fe2510bcdf73c78d64d99e0fdebba6936af559d19b",
+        "after_sha256": "1c6b4ceb146e9bd692f13cc97a7731df7b2e79ed0b0269e7a424554609f19f1d"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+        "before_sha256": "ba0d478fc8e6420cac3e065b8354ba38312a9f89191feab74be329726980918d",
+        "after_sha256": "4bd3415e2c0d384574a2ad92cef57d164641914588cb9c1cce9f13174392c672"
+      },
+      {
+        "path": "policy-engine/tests/unit/architecture/test_inline_override_comment_counts.py",
+        "before_sha256": null,
+        "after_sha256": "ed57216c9b752a7705bc6bd562bdde45dc38b11d5887e6d8d0f2eadf88e383b7"
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/connectors/testing/test_harness_fixture_teardown.py",
+        "before_sha256": null,
+        "after_sha256": "69c6db533b667e74ffa4efc859ca4d0965b770a7dce5e038d45e20596241f520"
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/test_facade_runtime_reflection.py",
+        "before_sha256": null,
+        "after_sha256": "0f51ce89762aa7c6f78811a041a19cb6f26474e8835efb47fdc6ef71003808d9"
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/test_security_integrity_phase1.py",
+        "before_sha256": "9b16a87f6528c45e097d59685f15523a87b3028362fa78f96682506b23452b2a",
+        "after_sha256": "f8fea83c2941fcfa02c02f75b37719f7b301eadaad8f40bed0bacb5e8e0afb3b"
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/test_temporal.py",
+        "before_sha256": null,
+        "after_sha256": "879e22dee508a4f6a5b18bb50e1f058d102ae2951902ecf92bb5207b74da7188"
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/test_world_materialization_metrics.py",
+        "before_sha256": null,
+        "after_sha256": "2718935a86a44b4fcf3058a5b54e6a54429e287d51dd97d56ec43d7c568d5fe3"
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/test_world_materialize_sql_identifiers.py",
+        "before_sha256": null,
+        "after_sha256": "af6a9041d79836dc39078c74b03005516b3d5fd6d06ee328db25679bc9a9e514"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/analytics/test_native_dynamic_argument_types.py",
+        "before_sha256": "c0b1c0e5e89815bfdf88c92e107f95f713cd7c77a0087e23ad0694d4404e63d8",
+        "after_sha256": "1163666a2f4262b16e13ec56b591dfc958856a2762359fcfe5fbd4fcfa9e545c"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_observability.py",
+        "before_sha256": "0255cb013d03992c6801449cfe468212c4b5a44039dec418c7b0391df5d19170",
+        "after_sha256": "ea147ec187732c6aba7357468a57176e0c3aac0f8b4f94c5203edf4e16d51bf5"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/test_import_shims.py",
+        "before_sha256": "ab07b704665d7e86a5c4768870ff8fb0377449090968e9ee0bc233d670e7c453",
+        "after_sha256": "a81ca75580d44b94946eee782ba08f471d5092377dfca347ea7939baad7830b7"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_metrics_slo.py",
+        "before_sha256": "41951f4036c829c28fc1396b9e4b0b234675d4b39901cea20e6594b1c98c0987",
+        "after_sha256": "51236f6a4dc982ca88984aba931f1585c39475a5f0542833ac3636305edb9195"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_reliability_operational_evidence.py",
+        "before_sha256": "918c3449f837fbc06c3efd8075c8d04eda75be62b848d97981913796c9afad88",
+        "after_sha256": "920f96f341a7fc1a213d354860b10e064d2c1b5ec6716fda555f240316589fd1"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_scientist_api_slo_scope.py",
+        "before_sha256": null,
+        "after_sha256": "d697e4af5a00c9a1f02616ffee37531952fef5c03793ff935ab86dab60aa9d5a"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/architecture_report_surface.py",
+        "before_sha256": "9d97d8f041603fd79105edae229f809f11ecc7f1a6cd825c3bc603b4eb4511b7",
+        "after_sha256": "dc5ebf8f168cc8462874fef488320210c2b20694a8dc6f9a405393203a16dffe"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/decomposition_preflight.py",
+        "before_sha256": "25cd590f71ea1f4c4fbe3472775f8981f592c9918d734d7607442b477dcfef3c",
+        "after_sha256": "6dd9644ccee1ce48ea7e7411d4bfb08392f82c1f7d5ba6966b828194e5fdc5f7"
+      }
+    ]
+  },
+  "code_acceptance": false,
+  "closure_ids": [],
+  "finding_proposals": {
+    "DX0": "bounded native remediation evidence; whole-property remains open",
+    "Q0": "source/validator composition evidence; full E02 finding adjudication pending",
+    "other_ids": "No new formal closures inferred from test/task success; historical findings/occurrences/B198 decisions unchanged."
+  },
+  "pattern_pass": {
+    "ids": [
+      "P01",
+      "P05",
+      "P27",
+      "P29",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "target": "Actual producer→artifact/observation→bridge→consumer with negative controls; no metadata/exit-only authority.",
+    "P40": "Finite source target resolution remains N1 engineering; generic opaque Python call effects are an explicit analysis limitation and not absence proof. Stop callback ladder repairs. Engine env join fixed across both producers by one existing Core recorder.",
+    "P41": "No inherited-red claim. Architecture diagnostic attribution0new WIP edges is bounded, not exact-slice-base proof; see correction addendum."
+  },
+  "selected_environment": {
+    "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+    "executable": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "real_executable": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "packages": {
+      "mypy": "1.19.1",
+      "pydantic": "2.12.5",
+      "ruff": "0.14.10",
+      "pytest": "9.0.2"
+    }
+  },
+  "input_backend_freeze": {
+    "controlled_profiles": [
+      "OTel test",
+      "OTel staging",
+      "current process Common shared executor selected-profile receipt",
+      "Runtime ASGI TestClient selected controlled configuration"
+    ],
+    "backends": [
+      "macOS arm64 existing locked venv",
+      "real DuckDB",
+      "real OTel SDK InMemoryMetricReader",
+      "cached Prometheus2.50 Linux container constrainedCPU1/memory512MiB networknone read-only mounts"
+    ],
+    "numerical_threads": 1,
+    "heavy_Mac_slots": 1,
+    "production_inputs": "No production mutation or authority/currentness positive claimed",
+    "global_source_input_backend_freeze": false,
+    "installed_wheel_and_rebuilt_sdist": "UNRUN for this composed candidate; required Q2 closeout remains"
+  },
+  "stream_proposals": {
+    "N1": {
+      "proposal": "open",
+      "verified": "Renderer preserves valid externally supplied review fields, omits missing values, refuses malformed supplied values; does not mint or renew a review. Controlled source analysis/binder regressions pass.",
+      "remaining": "Last full selected3334input collector ERROR at standalone_verifier_template.py:86; registry unregenerated and review remains expired. Current later env slice has no complete N1 collection verdict. R32/R34 are unapplied RAW and not source. Finite declaring-source target resolution and actual plugin discovery/ABI/origin checks remain engineering work; actual architecture owner review remains external.",
+      "next_check": "Known finite source targets in their own module namespace; full newly frozen collector; source/registry drift; genuine installed candidate provider positive + wrong ABI/origin controls; then independent source-qualified owner review."
+    },
+    "N2": {
+      "proposal": "19_open",
+      "verified": "Actual API→FanOut→Common executor→engine→real OTel reader emits distinct populations and selected test/staging env;29 tests pass. Source-derived Prometheus Scientist+Runtime fixture passes with isolated POST-only, unmatched, and zero-traffic removal controls.",
+      "remaining": "No admission of all five component coverage relations or production SLO attainment. BERL producer→phase5 bridge missing; DDM has no runtime invocation/persistence bridge; Foundry calibration lacks external caller and has increase() over loss gauge; Common has multiple consuming operations. Runtime 503 OPA outage is observed; security correctness remains a hard invariant separate from availability. Generic Ops relation proposal remains RAW/source-only and rejects unbound runtime witness.",
+      "next_check": "Compose actual scoped operation/profile→host→instrumentation→objective/runbook→replayable witness/fresh consumer in existing Ops gate; preserve all uncovered operations, then replace only satisfied records. No blanket renewal."
+    },
+    "N3": {
+      "proposal": "bounded_remediation_proposed",
+      "verified": "Preserve supported runtime annotations and exact nominal owner identities, eight callables/request fields plus bounded mode compatibility; fresh get_type_hints/Pydantic/consumer and adversarial controls. Quote actual SQL identifiers; real DuckDB semantics/removal. Surface disconnect teardown errors through actual pytest reporting. Narrow seven exact Fabric ignores after full affected census; preserve N818 seven identities.",
+      "remaining": "Full installed-wheel/rebuilt-sdist composed consumer proof and independent G acceptance pending. Scope does not authorize new mode exports or guarantee every optional backend."
+    },
+    "N4": {
+      "proposal": "broad_ignore_removal_proposed",
+      "verified": "196-file IR dual full-profile Ruff proof and current97changed-file dual profiles;89 pinned IR/ref/schema/harness tests pass. Preserve runtime-evaluated types; static-only imports separated; truthful opaque object/Protocol boundaries; no scientific/status change.",
+      "remaining": "These selected semantic tests do not establish every scientific backend or whole-property finding; final composed installed consumers and native source freeze replay pending."
+    },
+    "N5": {
+      "proposal": "bounded_retirement_proposed",
+      "verified": "Already committed source78911d7/receiptB13: remove exact3Fabric module ignore_errors;3intentional schema override line residuals. Current composed strict4target MyPy passes; prior additional assignment error visible.",
+      "remaining": "Local BaseModel compatibility residuals remain; no full strict-typing or formal G closure claim."
+    },
+    "N6": {
+      "proposal": "bounded_retirement_proposed",
+      "verified": "Already committed source78911d7/receiptB13: remove exactIR refs module ignore_errors; intentional Mapping key iterator override remains local. Real Mapping/profile tests and current composed strict4target MyPy pass.",
+      "remaining": "Local BaseModel iterator compatibility residual remains; not full IR typing acceptance."
+    },
+    "N7": {
+      "proposal": "scoped_naming_retirement_proposed",
+      "verified": "G25 explicitly selects Core plugin discovery vs Scientist causal discovery scoped_ok. Complete relevant path/import census; official four-output family regenerated, recomputing positives and all4corrupt-field controls pass; actual private-import rejection ARCH007 still passes.",
+      "remaining": "Inventory is first-level scoped/read_only_inventory; no all-depth collision claim or LM finding closure."
+    },
+    "N8": {
+      "proposal": "scoped_naming_retirement_proposed",
+      "verified": "Preserve six Foundry execution helpers and Root Runtime lifecycle/HTTP; declared Foundry bounded context replaces stale rename backlog. Same official family, qualified-import and boundary controls apply.",
+      "remaining": "No physical moves, dependency-boundary relaxation, or global source freeze."
+    }
+  },
+  "individual_G25_occurrence_proposals": [
+    {
+      "original_occurrence": {
+        "registry": "architecture/imports/dynamic.toml",
+        "section": "dynamic_imports",
+        "record": "team-architecture",
+        "field": "review_expires",
+        "value": "2026-08-04",
+        "owner": "team-architecture",
+        "decision": "N1"
+      },
+      "G_selected_action": "Substantive review plus renderer repair that preserves owner-supplied review metadata across generation; do not renew the expiry by default.",
+      "stream": "N1",
+      "author_outcome_ref": "stream_proposals.N1",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "architecture/packages/berl.toml",
+        "section": "exception",
+        "record": "berl-standalone-slo-deferred",
+        "field": "sunset",
+        "value": "2026-08-01",
+        "owner": "team-scientist",
+        "decision": "N2"
+      },
+      "G_selected_action": "Use user-visible operations as the SLO unit. For helper/library components prove content-bound covered_by_dependents relations; for actual standalone execution define a concrete SLI/SLO with instrumentation and runbook. Preserve security invariants separately.",
+      "stream": "N2",
+      "author_outcome_ref": "stream_proposals.N2",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "architecture/packages/calibration.toml",
+        "section": "exception",
+        "record": "calibration-standalone-slo-deferred",
+        "field": "sunset",
+        "value": "2026-08-01",
+        "owner": "team-scientist",
+        "decision": "N2"
+      },
+      "G_selected_action": "Use user-visible operations as the SLO unit. For helper/library components prove content-bound covered_by_dependents relations; for actual standalone execution define a concrete SLI/SLO with instrumentation and runbook. Preserve security invariants separately.",
+      "stream": "N2",
+      "author_outcome_ref": "stream_proposals.N2",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "architecture/packages/common.toml",
+        "section": "exception",
+        "record": "common-dependent-slo",
+        "field": "sunset",
+        "value": "2026-08-01",
+        "owner": "team-core",
+        "decision": "N2"
+      },
+      "G_selected_action": "Use user-visible operations as the SLO unit. For helper/library components prove content-bound covered_by_dependents relations; for actual standalone execution define a concrete SLI/SLO with instrumentation and runbook. Preserve security invariants separately.",
+      "stream": "N2",
+      "author_outcome_ref": "stream_proposals.N2",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "architecture/packages/ddm.toml",
+        "section": "exception",
+        "record": "ddm-standalone-slo-deferred",
+        "field": "sunset",
+        "value": "2026-08-01",
+        "owner": "team-scientist",
+        "decision": "N2"
+      },
+      "G_selected_action": "Use user-visible operations as the SLO unit. For helper/library components prove content-bound covered_by_dependents relations; for actual standalone execution define a concrete SLI/SLO with instrumentation and runbook. Preserve security invariants separately.",
+      "stream": "N2",
+      "author_outcome_ref": "stream_proposals.N2",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "architecture/packages/fabric.toml",
+        "section": "exception",
+        "record": "fabric-ruff-ratchet",
+        "field": "sunset",
+        "value": "2026-10-01",
+        "owner": "team-fabric",
+        "decision": "N3"
+      },
+      "G_selected_action": "Remove the blanket Fabric ratchet while preserving only semantically necessary runtime imports, after checking the complete effective production ignore set and its consumers.",
+      "stream": "N3",
+      "author_outcome_ref": "stream_proposals.N3",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "architecture/tooling/static_analysis_overrides.toml",
+        "section": "override_scope",
+        "record": "fabric-ruff-package-ratchet",
+        "field": "sunset",
+        "value": "2026-10-01",
+        "owner": "team-fabric",
+        "decision": "N3"
+      },
+      "G_selected_action": "Remove the blanket Fabric ratchet while preserving only semantically necessary runtime imports, after checking the complete effective production ignore set and its consumers.",
+      "stream": "N3",
+      "author_outcome_ref": "stream_proposals.N3",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "architecture/tooling/static_analysis_overrides.toml",
+        "section": "override_scope",
+        "record": "fabric-mypy-module-ratchet",
+        "field": "sunset",
+        "value": "2026-10-01",
+        "owner": "team-fabric",
+        "decision": "N5"
+      },
+      "G_selected_action": "Fix the three actual Fabric modules and retire module-wide ignore_errors; retain only narrow, semantically justified code-level residuals.",
+      "stream": "N5",
+      "author_outcome_ref": "stream_proposals.N5",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "architecture/tooling/static_analysis_overrides.toml",
+        "section": "override_scope",
+        "record": "ir-ruff-package-ratchet",
+        "field": "sunset",
+        "value": "2026-10-01",
+        "owner": "team-ir",
+        "decision": "N4"
+      },
+      "G_selected_action": "Separate runtime schema/reflection obligations from static-only imports, then remove the blanket IR ratchet without moving runtime imports behind TYPE_CHECKING until consumers and model rebuild behavior are checked.",
+      "stream": "N4",
+      "author_outcome_ref": "stream_proposals.N4",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "architecture/tooling/static_analysis_overrides.toml",
+        "section": "override_scope",
+        "record": "ir-mypy-module-ratchet",
+        "field": "sunset",
+        "value": "2026-10-01",
+        "owner": "team-ir",
+        "decision": "N6"
+      },
+      "G_selected_action": "Fix polisyos.ir.registry.refs and retire its module-wide ignore_errors while preserving selected IR semantics.",
+      "stream": "N6",
+      "author_outcome_ref": "stream_proposals.N6",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "architecture/component_observability.toml",
+        "section": "component_contract",
+        "record": "common",
+        "field": "exception_expires",
+        "value": "2026-08-01",
+        "owner": "team-core",
+        "decision": "N2"
+      },
+      "G_selected_action": "Use user-visible operations as the SLO unit. For helper/library components prove content-bound covered_by_dependents relations; for actual standalone execution define a concrete SLI/SLO with instrumentation and runbook. Preserve security invariants separately.",
+      "stream": "N2",
+      "author_outcome_ref": "stream_proposals.N2",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "architecture/component_observability.toml",
+        "section": "component_contract",
+        "record": "berl",
+        "field": "exception_expires",
+        "value": "2026-08-01",
+        "owner": "team-architecture",
+        "decision": "N2"
+      },
+      "G_selected_action": "Use user-visible operations as the SLO unit. For helper/library components prove content-bound covered_by_dependents relations; for actual standalone execution define a concrete SLI/SLO with instrumentation and runbook. Preserve security invariants separately.",
+      "stream": "N2",
+      "author_outcome_ref": "stream_proposals.N2",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "architecture/component_observability.toml",
+        "section": "component_contract",
+        "record": "ddm",
+        "field": "exception_expires",
+        "value": "2026-08-01",
+        "owner": "team-architecture",
+        "decision": "N2"
+      },
+      "G_selected_action": "Use user-visible operations as the SLO unit. For helper/library components prove content-bound covered_by_dependents relations; for actual standalone execution define a concrete SLI/SLO with instrumentation and runbook. Preserve security invariants separately.",
+      "stream": "N2",
+      "author_outcome_ref": "stream_proposals.N2",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "architecture/component_observability.toml",
+        "section": "component_contract",
+        "record": "calibration",
+        "field": "exception_expires",
+        "value": "2026-08-01",
+        "owner": "team-foundry",
+        "decision": "N2"
+      },
+      "G_selected_action": "Use user-visible operations as the SLO unit. For helper/library components prove content-bound covered_by_dependents relations; for actual standalone execution define a concrete SLI/SLO with instrumentation and runbook. Preserve security invariants separately.",
+      "stream": "N2",
+      "author_outcome_ref": "stream_proposals.N2",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "architecture/component_observability.toml",
+        "section": "component_contract",
+        "record": "security",
+        "field": "exception_expires",
+        "value": "2026-08-01",
+        "owner": "team-security",
+        "decision": "N2"
+      },
+      "G_selected_action": "Use user-visible operations as the SLO unit. For helper/library components prove content-bound covered_by_dependents relations; for actual standalone execution define a concrete SLI/SLO with instrumentation and runbook. Preserve security invariants separately.",
+      "stream": "N2",
+      "author_outcome_ref": "stream_proposals.N2",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "ops/components/index.toml",
+        "section": "component",
+        "record": "common",
+        "field": "exception_expires",
+        "value": "2026-08-01",
+        "owner": "team-core",
+        "decision": "N2"
+      },
+      "G_selected_action": "Use user-visible operations as the SLO unit. For helper/library components prove content-bound covered_by_dependents relations; for actual standalone execution define a concrete SLI/SLO with instrumentation and runbook. Preserve security invariants separately.",
+      "stream": "N2",
+      "author_outcome_ref": "stream_proposals.N2",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "ops/components/index.toml",
+        "section": "component",
+        "record": "berl",
+        "field": "exception_expires",
+        "value": "2026-08-01",
+        "owner": "team-architecture",
+        "decision": "N2"
+      },
+      "G_selected_action": "Use user-visible operations as the SLO unit. For helper/library components prove content-bound covered_by_dependents relations; for actual standalone execution define a concrete SLI/SLO with instrumentation and runbook. Preserve security invariants separately.",
+      "stream": "N2",
+      "author_outcome_ref": "stream_proposals.N2",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "ops/components/index.toml",
+        "section": "component",
+        "record": "ddm",
+        "field": "exception_expires",
+        "value": "2026-08-01",
+        "owner": "team-architecture",
+        "decision": "N2"
+      },
+      "G_selected_action": "Use user-visible operations as the SLO unit. For helper/library components prove content-bound covered_by_dependents relations; for actual standalone execution define a concrete SLI/SLO with instrumentation and runbook. Preserve security invariants separately.",
+      "stream": "N2",
+      "author_outcome_ref": "stream_proposals.N2",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "ops/components/index.toml",
+        "section": "component",
+        "record": "calibration",
+        "field": "exception_expires",
+        "value": "2026-08-01",
+        "owner": "team-foundry",
+        "decision": "N2"
+      },
+      "G_selected_action": "Use user-visible operations as the SLO unit. For helper/library components prove content-bound covered_by_dependents relations; for actual standalone execution define a concrete SLI/SLO with instrumentation and runbook. Preserve security invariants separately.",
+      "stream": "N2",
+      "author_outcome_ref": "stream_proposals.N2",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "ops/components/index.toml",
+        "section": "component",
+        "record": "security",
+        "field": "exception_expires",
+        "value": "2026-08-01",
+        "owner": "team-security",
+        "decision": "N2"
+      },
+      "G_selected_action": "Use user-visible operations as the SLO unit. For helper/library components prove content-bound covered_by_dependents relations; for actual standalone execution define a concrete SLI/SLO with instrumentation and runbook. Preserve security invariants separately.",
+      "stream": "N2",
+      "author_outcome_ref": "stream_proposals.N2",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "architecture/runbook_coverage.toml",
+        "section": "component_contract",
+        "record": "common",
+        "field": "slo_exception_expires",
+        "value": "2026-08-01",
+        "owner": "team-core",
+        "decision": "N2"
+      },
+      "G_selected_action": "Use user-visible operations as the SLO unit. For helper/library components prove content-bound covered_by_dependents relations; for actual standalone execution define a concrete SLI/SLO with instrumentation and runbook. Preserve security invariants separately.",
+      "stream": "N2",
+      "author_outcome_ref": "stream_proposals.N2",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "architecture/runbook_coverage.toml",
+        "section": "component_contract",
+        "record": "security",
+        "field": "slo_exception_expires",
+        "value": "2026-08-01",
+        "owner": "team-security",
+        "decision": "N2"
+      },
+      "G_selected_action": "Use user-visible operations as the SLO unit. For helper/library components prove content-bound covered_by_dependents relations; for actual standalone execution define a concrete SLI/SLO with instrumentation and runbook. Preserve security invariants separately.",
+      "stream": "N2",
+      "author_outcome_ref": "stream_proposals.N2",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "architecture/runbook_coverage.toml",
+        "section": "component_contract",
+        "record": "calibration",
+        "field": "slo_exception_expires",
+        "value": "2026-08-01",
+        "owner": "team-foundry",
+        "decision": "N2"
+      },
+      "G_selected_action": "Use user-visible operations as the SLO unit. For helper/library components prove content-bound covered_by_dependents relations; for actual standalone execution define a concrete SLI/SLO with instrumentation and runbook. Preserve security invariants separately.",
+      "stream": "N2",
+      "author_outcome_ref": "stream_proposals.N2",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "architecture/runbook_coverage.toml",
+        "section": "component_contract",
+        "record": "berl",
+        "field": "slo_exception_expires",
+        "value": "2026-08-01",
+        "owner": "team-architecture",
+        "decision": "N2"
+      },
+      "G_selected_action": "Use user-visible operations as the SLO unit. For helper/library components prove content-bound covered_by_dependents relations; for actual standalone execution define a concrete SLI/SLO with instrumentation and runbook. Preserve security invariants separately.",
+      "stream": "N2",
+      "author_outcome_ref": "stream_proposals.N2",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "architecture/runbook_coverage.toml",
+        "section": "component_contract",
+        "record": "ddm",
+        "field": "slo_exception_expires",
+        "value": "2026-08-01",
+        "owner": "team-architecture",
+        "decision": "N2"
+      },
+      "G_selected_action": "Use user-visible operations as the SLO unit. For helper/library components prove content-bound covered_by_dependents relations; for actual standalone execution define a concrete SLI/SLO with instrumentation and runbook. Preserve security invariants separately.",
+      "stream": "N2",
+      "author_outcome_ref": "stream_proposals.N2",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "architecture/name_registry.toml",
+        "section": "rename_backlog",
+        "record": "discovery",
+        "field": "sunset",
+        "value": "2026-10-01",
+        "owner": "team-architecture",
+        "decision": "N7"
+      },
+      "G_selected_action": "Use scoped_ok for the separate Core plugin-discovery primitive and causal Scientist discovery methods; remove stale locations/backlog only after a complete current path/import census. Do not merge or invent wrappers without an actual collision.",
+      "stream": "N7",
+      "author_outcome_ref": "stream_proposals.N7",
+      "formal_G_closure": false
+    },
+    {
+      "original_occurrence": {
+        "registry": "architecture/name_registry.toml",
+        "section": "rename_backlog",
+        "record": "runtime",
+        "field": "sunset",
+        "value": "2026-10-01",
+        "owner": "team-foundry/team-scientist",
+        "decision": "N8"
+      },
+      "G_selected_action": "Use scoped_ok for Foundry execution utilities; add their bounded context to the existing shared-name decision and reconcile disambiguation/backlog/package docs. Do not absorb them into top-level lifecycle/HTTP Runtime.",
+      "stream": "N8",
+      "author_outcome_ref": "stream_proposals.N8",
+      "formal_G_closure": false
+    }
+  ],
+  "verification": {
+    "source_bound_commands": [
+      {
+        "id": "tool-config-check",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/results.json",
+          "sha256": "e4b1721cfe7a336013033bddad7a8baac8c9ecc67d6f73f3e091d301de21a4c1",
+          "availability": "local ignored RAW; complete deciding output retained"
+        },
+        "row": 0,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "return_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "wall_seconds": 4.174357416006387,
+        "peak_rss_bytes": 61456384,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/tool-config-check.stdout.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "availability": "local ignored RAW; complete deciding output retained"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/tool-config-check.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "availability": "local ignored RAW; complete deciding output retained"
+          }
+        },
+        "note": "Nonzero expected removal controls and incomplete native gates are classified below; do not sum overlapping test waves.",
+        "command": {
+          "exact_argv": "command_record at row (retained verbatim)",
+          "argv_prefix": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "tools.devx.workspace.tool_configs",
+            "--check",
+            "--json-output",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/tool-config-check.json"
+          ],
+          "argument_count": 10,
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "tools.devx.workspace.tool_configs",
+            "--check",
+            "--json-output",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/tool-config-check.json"
+          ]
+        }
+      },
+      {
+        "id": "ruff-current-product",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/results.json",
+          "sha256": "e4b1721cfe7a336013033bddad7a8baac8c9ecc67d6f73f3e091d301de21a4c1",
+          "availability": "local ignored RAW; complete deciding output retained"
+        },
+        "row": 1,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "return_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "wall_seconds": 1.0657149580074474,
+        "peak_rss_bytes": 3883008,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/ruff-current-product.stdout.txt",
+            "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+            "availability": "local ignored RAW; complete deciding output retained"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/ruff-current-product.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "availability": "local ignored RAW; complete deciding output retained"
+          }
+        },
+        "note": "Nonzero expected removal controls and incomplete native gates are classified below; do not sum overlapping test waves.",
+        "command": {
+          "exact_argv": "command_record at row (retained verbatim)",
+          "argv_prefix": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "ruff",
+            "check",
+            "--no-cache",
+            "--config",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/ruff.toml",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/core/observability/__init__.py"
+          ],
+          "argument_count": 108,
+          "explicit_argument_note": "Long selected paths are not duplicated; read full argv in content-pinned command_record row and source frozen footprint."
+        }
+      },
+      {
+        "id": "ruff-current-format",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/results.json",
+          "sha256": "e4b1721cfe7a336013033bddad7a8baac8c9ecc67d6f73f3e091d301de21a4c1",
+          "availability": "local ignored RAW; complete deciding output retained"
+        },
+        "row": 2,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "return_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "wall_seconds": 1.056346666009631,
+        "peak_rss_bytes": 3883008,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/ruff-current-format.stdout.txt",
+            "sha256": "c0e5e25bab31b3d55ca20587ad32a798a72f9d0cca80c542239bf4d1472695fc",
+            "availability": "local ignored RAW; complete deciding output retained"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/ruff-current-format.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "availability": "local ignored RAW; complete deciding output retained"
+          }
+        },
+        "note": "Nonzero expected removal controls and incomplete native gates are classified below; do not sum overlapping test waves.",
+        "command": {
+          "exact_argv": "command_record at row (retained verbatim)",
+          "argv_prefix": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "ruff",
+            "format",
+            "--check",
+            "--no-cache",
+            "--config",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/ruff.toml"
+          ],
+          "argument_count": 109,
+          "explicit_argument_note": "Long selected paths are not duplicated; read full argv in content-pinned command_record row and source frozen footprint."
+        }
+      },
+      {
+        "id": "ruff-current-workspace",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/results.json",
+          "sha256": "e4b1721cfe7a336013033bddad7a8baac8c9ecc67d6f73f3e091d301de21a4c1",
+          "availability": "local ignored RAW; complete deciding output retained"
+        },
+        "row": 3,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+        "return_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "wall_seconds": 1.0740055829955963,
+        "peak_rss_bytes": 3932160,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/ruff-current-workspace.stdout.txt",
+            "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+            "availability": "local ignored RAW; complete deciding output retained"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/ruff-current-workspace.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "availability": "local ignored RAW; complete deciding output retained"
+          }
+        },
+        "note": "Nonzero expected removal controls and incomplete native gates are classified below; do not sum overlapping test waves.",
+        "command": {
+          "exact_argv": "command_record at row (retained verbatim)",
+          "argv_prefix": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "ruff",
+            "check",
+            "--no-cache",
+            "--config",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/architecture/tooling/ruff/workspace_root.toml",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/core/observability/__init__.py"
+          ],
+          "argument_count": 108,
+          "explicit_argument_note": "Long selected paths are not duplicated; read full argv in content-pinned command_record row and source frozen footprint."
+        }
+      },
+      {
+        "id": "current-strict-four-mypy",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/results.json",
+          "sha256": "e4b1721cfe7a336013033bddad7a8baac8c9ecc67d6f73f3e091d301de21a4c1",
+          "availability": "local ignored RAW; complete deciding output retained"
+        },
+        "row": 4,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "return_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "wall_seconds": 25.122203750011977,
+        "peak_rss_bytes": 1069858816,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/current-strict-four-mypy.stdout.txt",
+            "sha256": "71144743c83babea384888a735db0c4daba3d4d7b7942b6839984bd5c21b52bb",
+            "availability": "local ignored RAW; complete deciding output retained"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/current-strict-four-mypy.stderr.txt",
+            "sha256": "4f39f906c43e708245f42be3c31ace5e311d1dbafdc04093ad6820dfa6b37a16",
+            "availability": "local ignored RAW; complete deciding output retained"
+          }
+        },
+        "note": "Nonzero expected removal controls and incomplete native gates are classified below; do not sum overlapping test waves.",
+        "command": {
+          "exact_argv": "command_record at row (retained verbatim)",
+          "argv_prefix": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "mypy",
+            "--config-file",
+            "architecture/tooling/mypy/generated.ini",
+            "--no-incremental",
+            "--cache-dir=/dev/null",
+            "src/polisyos/fabric/connectors/contracts/_inference_result.py"
+          ],
+          "argument_count": 15,
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "mypy",
+            "--config-file",
+            "architecture/tooling/mypy/generated.ini",
+            "--no-incremental",
+            "--cache-dir=/dev/null",
+            "src/polisyos/fabric/connectors/contracts/_inference_result.py",
+            "src/polisyos/fabric/connectors/contracts/contract.py",
+            "src/polisyos/fabric/connectors/contracts/registry.py",
+            "src/polisyos/ir/registry/refs.py"
+          ]
+        }
+      },
+      {
+        "id": "n7-family-positive-and-drift",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/results.json",
+          "sha256": "e4b1721cfe7a336013033bddad7a8baac8c9ecc67d6f73f3e091d301de21a4c1",
+          "availability": "local ignored RAW; complete deciding output retained"
+        },
+        "row": 5,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "return_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "wall_seconds": 31.31704870800604,
+        "peak_rss_bytes": 556728320,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/n7-family-positive-and-drift.stdout.txt",
+            "sha256": "8da6a052abb9ae23928d63dd6351d16fce9cc8c8d38b294f7284d911a22383eb",
+            "availability": "local ignored RAW; complete deciding output retained"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/n7-family-positive-and-drift.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "availability": "local ignored RAW; complete deciding output retained"
+          }
+        },
+        "note": "Nonzero expected removal controls and incomplete native gates are classified below; do not sum overlapping test waves.",
+        "command": {
+          "exact_argv": "command_record at row (retained verbatim)",
+          "argv_prefix": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/n7-probe.py",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static"
+          ],
+          "argument_count": 7,
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/n7-probe.py",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static"
+          ]
+        }
+      },
+      {
+        "id": "results-import-check",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/results.json",
+          "sha256": "e4b1721cfe7a336013033bddad7a8baac8c9ecc67d6f73f3e091d301de21a4c1",
+          "availability": "local ignored RAW; complete deciding output retained"
+        },
+        "row": 6,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "return_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "wall_seconds": 1.0728027500008466,
+        "peak_rss_bytes": 3866624,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/results-import-check.stdout.txt",
+            "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+            "availability": "local ignored RAW; complete deciding output retained"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/results-import-check.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "availability": "local ignored RAW; complete deciding output retained"
+          }
+        },
+        "note": "Nonzero expected removal controls and incomplete native gates are classified below; do not sum overlapping test waves.",
+        "command": {
+          "exact_argv": "command_record at row (retained verbatim)",
+          "argv_prefix": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "docs/research/e02-cloud-test-plan/results/import_results.py",
+            "--check"
+          ],
+          "argument_count": 7,
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r4-final-source-static/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "docs/research/e02-cloud-test-plan/results/import_results.py",
+            "--check"
+          ]
+        }
+      },
+      {
+        "id": "engine-env-runtime-and-importers",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-engine-real-registry-fixture-r1/actual-r2-runtime/results.json",
+          "sha256": "ecf60e33746f372a69a831ed3d3c8297dd7d26e5f0e200d4d3f6bfbb2d621b97",
+          "availability": "local ignored RAW; complete deciding output retained"
+        },
+        "row": 0,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "return_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "wall_seconds": 11.519481750001432,
+        "peak_rss_bytes": 903282688,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-engine-real-registry-fixture-r1/actual-r2-runtime/engine-env-runtime-and-importers.stdout.txt",
+            "sha256": "56d36a3db17dbf7efd6748da287a4c2a50fa24ef9d8cae0ac3b8d057c4f7219a",
+            "availability": "local ignored RAW; complete deciding output retained"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-engine-real-registry-fixture-r1/actual-r2-runtime/engine-env-runtime-and-importers.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "availability": "local ignored RAW; complete deciding output retained"
+          }
+        },
+        "note": "Nonzero expected removal controls and incomplete native gates are classified below; do not sum overlapping test waves.",
+        "command": {
+          "exact_argv": "command_record at row (retained verbatim)",
+          "argv_prefix": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-engine-real-registry-fixture-r1/actual-r2-runtime/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-p",
+            "no:cacheprovider",
+            "-p"
+          ],
+          "argument_count": 21,
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-engine-real-registry-fixture-r1/actual-r2-runtime/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-p",
+            "no:cacheprovider",
+            "-p",
+            "no:benchmark",
+            "--basetemp",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-engine-real-registry-fixture-r1/actual-r2-runtime/pytest-temp",
+            "--tb=native",
+            "-rA",
+            "-q",
+            "tests/unit/scientist/orchestration/engine/test_metrics_slo.py",
+            "tests/unit/scientist/orchestration/engine/test_scientist_api_slo_scope.py",
+            "tests/unit/scientist/orchestration/engine/test_reliability_operational_evidence.py"
+          ]
+        }
+      },
+      {
+        "id": "engine-env-removal-real-otel",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-engine-environment-join-r1/actual-r3-env-removal/results.json",
+          "sha256": "5d301c81a36554a6056fb56f4598f867d5f68b1c7cf3ec9f9bb3483328970d63",
+          "availability": "local ignored RAW; complete deciding output retained"
+        },
+        "row": 0,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "return_code": 1,
+        "complete": true,
+        "aborted_reason": null,
+        "wall_seconds": 9.426512958001695,
+        "peak_rss_bytes": 919912448,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-engine-environment-join-r1/actual-r3-env-removal/engine-env-removal-real-otel.stdout.txt",
+            "sha256": "c8cebcdb929a340b44a907d42e416b30d564ae0537e85b8f5137138bc4f618dd",
+            "availability": "local ignored RAW; complete deciding output retained"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-engine-environment-join-r1/actual-r3-env-removal/engine-env-removal-real-otel.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "availability": "local ignored RAW; complete deciding output retained"
+          }
+        },
+        "note": "Nonzero expected removal controls and incomplete native gates are classified below; do not sum overlapping test waves.",
+        "command": {
+          "exact_argv": "command_record at row (retained verbatim)",
+          "argv_prefix": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-engine-environment-join-r1/actual-r3-env-removal/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-p",
+            "no:cacheprovider",
+            "-p"
+          ],
+          "argument_count": 22,
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-engine-environment-join-r1/actual-r3-env-removal/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-p",
+            "no:cacheprovider",
+            "-p",
+            "no:benchmark",
+            "-p",
+            "env_removed_plugin",
+            "--basetemp",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-engine-environment-join-r1/actual-r3-env-removal/pytest-temp",
+            "--tb=short",
+            "-rA",
+            "-q",
+            "tests/unit/scientist/orchestration/engine/test_scientist_api_slo_scope.py::test_scientist_api_and_engine_observations_have_distinct_scopes[test]",
+            "tests/unit/scientist/orchestration/engine/test_scientist_api_slo_scope.py::test_scientist_api_and_engine_observations_have_distinct_scopes[staging]"
+          ]
+        }
+      },
+      {
+        "id": "ir-public-types-schema-context-and-fixture",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-harness-composition-r1/actual-r1-ir-and-fixture/results.json",
+          "sha256": "168604fee6d8ba21c2311c50f93db0483ae35f262e25e6b4a194c8fd2d902cb2",
+          "availability": "local ignored RAW; complete deciding output retained"
+        },
+        "row": 0,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "return_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "wall_seconds": 10.412125250004465,
+        "peak_rss_bytes": 663355392,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-harness-composition-r1/actual-r1-ir-and-fixture/ir-public-types-schema-context-and-fixture.stdout.txt",
+            "sha256": "4de6a242ae088db3dd3d2c256c3d0ad64e04742e538a2dc55dcbd11900af3e82",
+            "availability": "local ignored RAW; complete deciding output retained"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-harness-composition-r1/actual-r1-ir-and-fixture/ir-public-types-schema-context-and-fixture.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "availability": "local ignored RAW; complete deciding output retained"
+          }
+        },
+        "note": "Nonzero expected removal controls and incomplete native gates are classified below; do not sum overlapping test waves.",
+        "command": {
+          "exact_argv": "command_record at row (retained verbatim)",
+          "argv_prefix": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-harness-composition-r1/actual-r1-ir-and-fixture/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-p",
+            "no:cacheprovider",
+            "-p"
+          ],
+          "argument_count": 25,
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-harness-composition-r1/actual-r1-ir-and-fixture/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-p",
+            "no:cacheprovider",
+            "-p",
+            "no:benchmark",
+            "--basetemp",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-harness-composition-r1/actual-r1-ir-and-fixture/pytest-temp",
+            "-rA",
+            "-q",
+            "tests/unit/fabric/connectors/testing/test_harness_fixture_teardown.py",
+            "tests/unit/ir/analytics/test_native_dynamic_argument_types.py",
+            "tests/unit/ir/artifacts/test_owned_admission.py",
+            "tests/unit/ir/registry/test_refs.py",
+            "tests/unit/ir/mirror_contracts/test_context.py",
+            "tests/unit/ir/mirror_contracts/test_dual_certificate.py",
+            "tests/unit/ir/mirror_contracts/test_quality_report.py",
+            "tests/unit/ir/mirror_contracts/test_trust.py"
+          ]
+        }
+      },
+      {
+        "id": "materializer-gauges-temporal-reflection-and-slo",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-lag-composition-r1/actual-r1-metrics-and-reflection/results.json",
+          "sha256": "9e674185c4f92b4f451092211f0415fd0d0276efeb8eda51aeaba2c3003207bc",
+          "availability": "local ignored RAW; complete deciding output retained"
+        },
+        "row": 0,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "return_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "wall_seconds": 26.091304958004912,
+        "peak_rss_bytes": 1109999616,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-lag-composition-r1/actual-r1-metrics-and-reflection/materializer-gauges-temporal-reflection-and-slo.stdout.txt",
+            "sha256": "a9ebbfb5516ddd92f5e180bc2432d177c5fe0fd097474d68848ba4fc1c0b6c26",
+            "availability": "local ignored RAW; complete deciding output retained"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-lag-composition-r1/actual-r1-metrics-and-reflection/materializer-gauges-temporal-reflection-and-slo.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "availability": "local ignored RAW; complete deciding output retained"
+          }
+        },
+        "note": "Nonzero expected removal controls and incomplete native gates are classified below; do not sum overlapping test waves.",
+        "command": {
+          "exact_argv": "command_record at row (retained verbatim)",
+          "argv_prefix": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-lag-composition-r1/actual-r1-metrics-and-reflection/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-p",
+            "no:cacheprovider",
+            "-p"
+          ],
+          "argument_count": 22,
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-lag-composition-r1/actual-r1-metrics-and-reflection/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-p",
+            "no:cacheprovider",
+            "-p",
+            "no:benchmark",
+            "--basetemp",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-lag-composition-r1/actual-r1-metrics-and-reflection/pytest-temp",
+            "-rA",
+            "-q",
+            "tests/unit/fabric/test_world_materialization_metrics.py",
+            "tests/unit/fabric/test_temporal.py",
+            "tests/unit/fabric/test_facade_runtime_reflection.py",
+            "tests/unit/scientist/orchestration/engine/test_metrics_slo.py",
+            "tests/contract/test_slo_metrics.py"
+          ]
+        }
+      },
+      {
+        "id": "materializer-gauge-removal",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-lag-composition-r1/actual-r3-gauge-removal/results.json",
+          "sha256": "339850c0f9ab47edfcfa9239b43304c164c6e4c851b57c89bc9f5f44873401bf",
+          "availability": "local ignored RAW; complete deciding output retained"
+        },
+        "row": 0,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "return_code": 1,
+        "complete": true,
+        "aborted_reason": null,
+        "wall_seconds": 3.1415625410008943,
+        "peak_rss_bytes": 265043968,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-lag-composition-r1/actual-r3-gauge-removal/materializer-gauge-removal.stdout.txt",
+            "sha256": "12d27f736290e76f639edbaeee197df27836e082d3b49c860ff5f1ca79fcc2e4",
+            "availability": "local ignored RAW; complete deciding output retained"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-lag-composition-r1/actual-r3-gauge-removal/materializer-gauge-removal.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "availability": "local ignored RAW; complete deciding output retained"
+          }
+        },
+        "note": "Nonzero expected removal controls and incomplete native gates are classified below; do not sum overlapping test waves.",
+        "command": {
+          "exact_argv": "command_record at row (retained verbatim)",
+          "argv_prefix": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-lag-composition-r1/actual-r3-gauge-removal/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-c",
+            "from polisyos.core.observability._metrics_helpers import GaugeProxy; GaugeProxy.remove_matching=lambda self,attributes: None; import pytest; raise SystemExit(pytest.main(['-o','addopts=','-p','no:cacheprovider','-p','no:benchmark','--basetemp','/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/actual-r3-gauge-removal/pytest-mutant-temp','-rA','-q','tests/unit/fabric/test_world_materialization_metrics.py::test_materialization_age_metric_clears_unknown_and_replaced_scope_observations']))"
+          ],
+          "argument_count": 7,
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-lag-composition-r1/actual-r3-gauge-removal/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-c",
+            "from polisyos.core.observability._metrics_helpers import GaugeProxy; GaugeProxy.remove_matching=lambda self,attributes: None; import pytest; raise SystemExit(pytest.main(['-o','addopts=','-p','no:cacheprovider','-p','no:benchmark','--basetemp','/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/actual-r3-gauge-removal/pytest-mutant-temp','-rA','-q','tests/unit/fabric/test_world_materialization_metrics.py::test_materialization_age_metric_clears_unknown_and_replaced_scope_observations']))"
+          ]
+        }
+      },
+      {
+        "id": "actual-api-engine-otel-scopes",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-lag-composition-r1/actual-r4-api-task-protocol/results.json",
+          "sha256": "a4be94d5ed6dbf27367f0c063f031cb7e7e329a2f42e85f447915f7109ef1b1a",
+          "availability": "local ignored RAW; complete deciding output retained"
+        },
+        "row": 0,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "return_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "wall_seconds": 9.383511708998412,
+        "peak_rss_bytes": 921075712,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-lag-composition-r1/actual-r4-api-task-protocol/actual-api-engine-otel-scopes.stdout.txt",
+            "sha256": "5b3d4cc551b5408e7c0b1d6dc65df092c09a7fa1e7fa807f8d9ef03916ae58d0",
+            "availability": "local ignored RAW; complete deciding output retained"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-lag-composition-r1/actual-r4-api-task-protocol/actual-api-engine-otel-scopes.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "availability": "local ignored RAW; complete deciding output retained"
+          }
+        },
+        "note": "Nonzero expected removal controls and incomplete native gates are classified below; do not sum overlapping test waves.",
+        "command": {
+          "exact_argv": "command_record at row (retained verbatim)",
+          "argv_prefix": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-lag-composition-r1/actual-r4-api-task-protocol/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-p",
+            "no:cacheprovider",
+            "-p"
+          ],
+          "argument_count": 18,
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-lag-composition-r1/actual-r4-api-task-protocol/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-p",
+            "no:cacheprovider",
+            "-p",
+            "no:benchmark",
+            "--basetemp",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-lag-composition-r1/actual-r4-api-task-protocol/pytest-temp",
+            "-rA",
+            "-q",
+            "tests/unit/scientist/orchestration/engine/test_scientist_api_slo_scope.py"
+          ]
+        }
+      },
+      {
+        "id": "new-controlled-source-producers-and-runtime-dto",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-unknown-ast-fixture-companion-r1/actual-r4-new-controlled-tests-and-dto/results.json",
+          "sha256": "7e50b6956fc30414ba2b60210e4fa705356b614a1a46a900a28288b672743be6",
+          "availability": "local ignored RAW; complete deciding output retained"
+        },
+        "row": 0,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "return_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "wall_seconds": 28.150963417007006,
+        "peak_rss_bytes": 1224081408,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-unknown-ast-fixture-companion-r1/actual-r4-new-controlled-tests-and-dto/new-controlled-source-producers-and-runtime-dto.stdout.txt",
+            "sha256": "92220ed33e201168fdaf077a3a25548c2749dd71b9e331cea89fc5e4dc5d36db",
+            "availability": "local ignored RAW; complete deciding output retained"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-unknown-ast-fixture-companion-r1/actual-r4-new-controlled-tests-and-dto/new-controlled-source-producers-and-runtime-dto.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "availability": "local ignored RAW; complete deciding output retained"
+          }
+        },
+        "note": "Nonzero expected removal controls and incomplete native gates are classified below; do not sum overlapping test waves.",
+        "command": {
+          "exact_argv": "command_record at row (retained verbatim)",
+          "argv_prefix": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-unknown-ast-fixture-companion-r1/actual-r4-new-controlled-tests-and-dto/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-p",
+            "no:cacheprovider",
+            "-p"
+          ],
+          "argument_count": 45,
+          "explicit_argument_note": "Long selected paths are not duplicated; read full argv in content-pinned command_record row and source frozen footprint."
+        }
+      },
+      {
+        "id": "private-cross-package-negative",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r2-architecture/results.json",
+          "sha256": "3047f9371c375caec7ede8df8b420439fbb9269e61765887efee1aee206f29b3",
+          "availability": "local ignored RAW; complete deciding output retained"
+        },
+        "row": 0,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "return_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "wall_seconds": 2.081497124992893,
+        "peak_rss_bytes": 112050176,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r2-architecture/private-cross-package-negative.stdout.txt",
+            "sha256": "144e6bcbedce3d14dc2db70b21f6c71c204f423425999a4df8176a988b07a9f9",
+            "availability": "local ignored RAW; complete deciding output retained"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r2-architecture/private-cross-package-negative.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "availability": "local ignored RAW; complete deciding output retained"
+          }
+        },
+        "note": "Nonzero expected removal controls and incomplete native gates are classified below; do not sum overlapping test waves.",
+        "command": {
+          "exact_argv": "command_record at row (retained verbatim)",
+          "argv_prefix": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r2-architecture/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-p",
+            "no:cacheprovider",
+            "-p"
+          ],
+          "argument_count": 19,
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r2-architecture/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-p",
+            "no:cacheprovider",
+            "-p",
+            "no:benchmark",
+            "--basetemp",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r2-architecture/pytest-temp",
+            "--tb=native",
+            "-rA",
+            "-q",
+            "tests/repo_quality/tools/test_lint_imports_phase3.py::test_lint_imports_rejects_sibling_of_registered_narrowing"
+          ]
+        }
+      },
+      {
+        "id": "native-architecture-guardrails",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r2-architecture/results.json",
+          "sha256": "3047f9371c375caec7ede8df8b420439fbb9269e61765887efee1aee206f29b3",
+          "availability": "local ignored RAW; complete deciding output retained"
+        },
+        "row": 1,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "return_code": 2,
+        "complete": true,
+        "aborted_reason": null,
+        "wall_seconds": 109.38047179099522,
+        "peak_rss_bytes": 415219712,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r2-architecture/native-architecture-guardrails.stdout.txt",
+            "sha256": "0ebe5dad053a4c1ae631733c2d002368d3d3e2d644019669ded51b8618f6e7f4",
+            "availability": "local ignored RAW; complete deciding output retained"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r2-architecture/native-architecture-guardrails.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "availability": "local ignored RAW; complete deciding output retained"
+          }
+        },
+        "note": "Nonzero expected removal controls and incomplete native gates are classified below; do not sum overlapping test waves.",
+        "command": {
+          "exact_argv": "command_record at row (retained verbatim)",
+          "argv_prefix": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r2-architecture/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "tools.devx.architecture.guardrails",
+            "check"
+          ],
+          "argument_count": 8,
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r2-architecture/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "tools.devx.architecture.guardrails",
+            "check"
+          ]
+        }
+      },
+      {
+        "id": "native-sota-contract-preflight",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r3-preflight-metadata/results.json",
+          "sha256": "124d455fec8124f84b4ae08acb9c4efb11914b2d2f14d130f027c8db3d532847",
+          "availability": "local ignored RAW; complete deciding output retained"
+        },
+        "row": 0,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "return_code": 1,
+        "complete": true,
+        "aborted_reason": null,
+        "wall_seconds": 1.0477241250046063,
+        "peak_rss_bytes": 3866624,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r3-preflight-metadata/native-sota-contract-preflight.stdout.txt",
+            "sha256": "b52e8a509ddfdb31f0a3ec6aa5898e2c7c53d78e57409dd1375cbba4ab873861",
+            "availability": "local ignored RAW; complete deciding output retained"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r3-preflight-metadata/native-sota-contract-preflight.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "availability": "local ignored RAW; complete deciding output retained"
+          }
+        },
+        "note": "Nonzero expected removal controls and incomplete native gates are classified below; do not sum overlapping test waves.",
+        "command": {
+          "exact_argv": "command_record at row (retained verbatim)",
+          "argv_prefix": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r3-preflight-metadata/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "tools.devx.workspace.repository_sota_closeout",
+            "--contract-only"
+          ],
+          "argument_count": 8,
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-r3-preflight-metadata/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "tools.devx.workspace.repository_sota_closeout",
+            "--contract-only"
+          ]
+        }
+      },
+      {
+        "id": "public-surface-sync",
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-public-surface-env-regeneration-r1/results.json",
+          "sha256": "e57ae246b08bcdb23595405250f5458bdb1238a7c7d83e0938c5ac36fbecc7cf",
+          "availability": "local ignored RAW; complete deciding output retained"
+        },
+        "row": 0,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "return_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "wall_seconds": 31.319922583003063,
+        "peak_rss_bytes": 163512320,
+        "outputs": {
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-public-surface-env-regeneration-r1/public-surface-sync.stdout.txt",
+            "sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8",
+            "availability": "local ignored RAW; complete deciding output retained"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-public-surface-env-regeneration-r1/public-surface-sync.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "availability": "local ignored RAW; complete deciding output retained"
+          }
+        },
+        "note": "Nonzero expected removal controls and incomplete native gates are classified below; do not sum overlapping test waves.",
+        "command": {
+          "exact_argv": "command_record at row (retained verbatim)",
+          "argv_prefix": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-public-surface-env-regeneration-r1/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "tools/devx/architecture/guardrails.py",
+            "sync",
+            "--skip-deep-import-baseline"
+          ],
+          "argument_count": 8,
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-f",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-public-surface-env-regeneration-r1/child.sb",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "tools/devx/architecture/guardrails.py",
+            "sync",
+            "--skip-deep-import-baseline"
+          ]
+        }
+      }
+    ],
+    "extra_deciding_and_review_records": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/admission.json",
+        "sha256": "68934323b9f2bc123762f52591985e63c7fc813314ff5409a862766dab0c554f",
+        "availability": "local ignored RAW; complete deciding output retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-final-index-r1/implementation-branch-readback.json",
+        "sha256": "c559aa838ad1ef082d0d518f63e21ff6713f052096557c2dd8bbf13d9493b46f",
+        "availability": "local ignored RAW; complete deciding output retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/G-ref-readback.json",
+        "sha256": "87ccaeccbea210d3cd1f5e6ff382451e734ce652b2f0758f0386a1faeeb3dfc7",
+        "availability": "local ignored RAW; complete deciding output retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/receipt-layer-inputs.json",
+        "sha256": "4b7b2033aad84fe5751926ea2b06fae38ad88274a580c8cefa285fedbaf2fc5c",
+        "availability": "local ignored RAW; complete deciding output retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/n2-composed-runtime-native-r1/wave4-postreadback-r2/wave4-readback.json",
+        "sha256": "eb21878b82cf1ea4081312e1e58aa0937d16a62f1b3987046dcd617012ced34a",
+        "availability": "local ignored RAW; complete deciding output retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/fabric-n818-ruf100-independent-r1/n818-fullprofiles-20261026-r3/evidence.json",
+        "sha256": "92701ce64f01b933c58c90ed76fe52db3483386627b6749958c8e012ee768469",
+        "availability": "local ignored RAW; complete deciding output retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/harness-teardown-author/n3-actual-pytest-reporting-postprocess-20261026-r3/probe-result.json",
+        "sha256": "b5234534b324ba51c0df0466be686df876e59c1a83cba9d5f524e758abf95706",
+        "availability": "local ignored RAW; complete deciding output retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-native-architecture-classification-20261026-r5/classification.json",
+        "sha256": "674b573f3b88b67c226a8d6b479e9920f9f541101cbebe0f88df5df71137c31d",
+        "availability": "local ignored RAW; complete deciding output retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/actual-native-architecture-correction-addendum-20261026-r5/correction.md",
+        "sha256": "7a192448d287b2fc6f1a490f7cd32de92b1c14d9767477804fc43c0223cd5f9c",
+        "availability": "local ignored RAW; complete deciding output retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-composition-r1/actual-r3-r31-complete-source-collector-3gib/collector-result.json",
+        "sha256": "4a4d8d6419e2fdd00db738921a8fe9fe8e27f531f1fb4068f006e6347e9f7f61",
+        "availability": "local ignored RAW; complete deciding output retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/ops-dependent-consumer-mapping-r1/final-r2/evidence.json",
+        "sha256": "2003040611560b5383b76bfc1bfbf3feb5312ac894eb3ad30f9eaca07cb0b4f3",
+        "availability": "local ignored RAW; complete deciding output retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/n1-real-plugin-discovery-r1/proposal-r1/n1-plugin-discovery-proposal.md",
+        "sha256": "69201b342d439b1e59d1bc2e0148ce6cdb85d52204fdae5c90db535fcb5e8c0f",
+        "availability": "local ignored RAW; complete deciding output retained"
+      }
+    ],
+    "layer_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-priority-freeze-checks-r1/receipt-layer-inputs.json",
+      "sha256": "4b7b2033aad84fe5751926ea2b06fae38ad88274a580c8cefa285fedbaf2fc5c",
+      "availability": "local ignored RAW; complete deciding output retained"
+    },
+    "complete_outputs": "Every listed command stdout/stderr retained in ignoredRAW at path@sha; no tracked source dumps. Native Prometheus and teardown/N818 records contain complete per-control commands/outputs.",
+    "fresh_final_static": "97 changed Python files; product Ruff, workspace Ruff, format, strict4MyPy, tool-config--check, whole naming-family recomputation and4corrupt-fieldcontrols, results/import_results.py--check pass.",
+    "negative_classification": {
+      "engine_env_removal": "Expected2fail at real observed engine point env absent; API labels remain; markers/source unchanged.",
+      "Prometheus": "CanonicalPASS; threeisolated property removalsFAIL (POST alerts absent; unmatched population added; zero-volumeNaN).",
+      "teardown": "Actual2teardownerrors survive separatebodyfailure; suppressionremoval keepsbodyfailurebut0teardownerrors. Exit1alone is not deciding signal.",
+      "gauge": "remove_matching no-op leaves old tenant series; actual runtime semantic assertionFAIL.",
+      "N818": "14full-profile controls pass; eighthN818andunusednoqa/RUF100 refused.",
+      "MyPy": "Prior9path unchangedselectedtargets: extraassignmentnegative exactly1visibleassignment error; no broadmoduleignore."
+    },
+    "final_layers": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-engine-environment-join-r1/composition.json",
+        "sha256": "af989f26c1f5c32c7709e383736fab64e52381b7d9ef91daeb4b3355765abd19"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-engine-real-registry-fixture-r1/composition.json",
+        "sha256": "0e704dc355bcfa57242008120d158cbeb9aefaa326a1b699f2eb854d1c3a43ef"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-public-surface-env-regeneration-r1/composition.json",
+        "sha256": "9aee4401934790e9edb3e2e5b59873f36ce034d0fcad9125a3eb8962216dac79"
+      }
+    ]
+  },
+  "native_gate_outcomes": {
+    "repository_sota_contract_preflight": "FAIL:20expired obligations=1N1+19N2. Dates unchanged. This command is metadata contract-only, not full subprocess native green.",
+    "architecture_guardrails": "UNRUN/incomplete exit2:4requiredgeneratedmeasurements shareisolatedenvironmentfailure; complete partial findings retained. Missing vendorwheel mirror input is investigated and R5repairRAWreviewed, not yet source.",
+    "architecture_partial_findings": "254 unique deep-import delta edges; 6 unresolved facade/export totals; 1 calibration facade mode drift. In architecture-classification-20261026-r5, the 19 mismatch claims were false and its ledger pin mixed snapshots. The hash-pinned correction found 73 matching entries, 19 absent frame entries, and 0 differing entries; all 19 absent entries match B13. The partial frame is not the complete generator denominator. Other recorded diagnostic-family/edge counts remain valid; no inherited-red claim.",
+    "N1_full_collector": "ERROR last full3334inputR31run at standalone_verifier_template:86; not completed and not refreshed by current env slice. No registry regeneration/expiry renewal.",
+    "earlier_failed_attempts": "N1 2GiB resource cap abort and wholefamily5FAIL15PASS thenpytestINTERNALERROR retained. Root fixed unsupported-AST fixture/testexpectation;49newcontrolledtests+DTOpassed, not wholeN1family green. Engine initial27PASS2FAIL persistedfake-registryfixture corrected; fresh29PASS.",
+    "skips": "Earlier metrics/reflection wave1SKIP due stale alert locator; locator repaired and actual alert module subsequently exercised. No skipped backend relabeledPASS; optional fullbackend/Q2waves stillUNRUN."
+  },
+  "remaining_verification": [
+    "Apply reviewed isolated lock dependency source mirror repair, actual focusedtests and all4requiredgeneratedmeasurements; solve actualfacade/importdiagnostics viaexistingowners, no blanketbaselineacceptance.",
+    "N1knownforeignsource function targets with declaringmoduleenvironment; actualfullcollector and truthfulinventoryreview/installedprovider origin-ABI positives/negatives.",
+    "N2actual19coverage relations and runtimewitnessconsumer; concreteBERL/DDM/calibration/Common bridges, exactobjectives andsecurityhardinvariants.",
+    "PreparedB all13contours onactualcomposition, C05/C12 source-serving, IR/transport/runtime/authority/scientificremainingqueue and per282IDs/291occurrences fullproposal report.",
+    "Final independentfreeze reviews, explicitinput/backendfreeze, onecomposedreplay, authenticread-onlycloseout, canonicalregeneration/nativeSOTA row-by-row, exactinstalledwheel/rebuiltsdist consumers."
+  ],
+  "adjudication": "Author proposals only; integration/main publication, independent code acceptance, formal finding closure remain G."
+}

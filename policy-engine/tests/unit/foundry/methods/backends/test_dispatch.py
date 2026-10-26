@@ -152,6 +152,10 @@ class _FakeMetrics:
     def __init__(self) -> None:
         self.slo_run_cost_usd = _FakeMetricRecorder()
         self.degraded_paths: list[dict[str, Any]] = []
+        self.foundry_dispatch_outcomes: list[tuple[str, float]] = []
+
+    def record_foundry_method_dispatch(self, *, status: str, duration_seconds: float) -> None:
+        self.foundry_dispatch_outcomes.append((status, duration_seconds))
 
     def record_degraded_path(
         self,
@@ -274,6 +278,9 @@ def test_dispatcher_emits_dispatch_trace_and_cost_attribution(monkeypatch) -> No
     assert tracer.spans[0].attributes["foundry.determinism_tier"] == "library_deterministic"
     assert metrics.slo_run_cost_usd.calls
     assert metrics.degraded_paths == []
+    assert len(metrics.foundry_dispatch_outcomes) == 1
+    assert metrics.foundry_dispatch_outcomes[0][0] == "success"
+    assert metrics.foundry_dispatch_outcomes[0][1] >= 0.0
     assert "dispatch_contract_degraded:jax->numpy" in result.warnings
 
 
@@ -592,15 +599,22 @@ def test_dispatcher_records_degraded_recovery_when_profile_backend_fails(monkeyp
             "error_type": None,
         }
     ]
+    assert len(metrics.foundry_dispatch_outcomes) == 1
+    assert metrics.foundry_dispatch_outcomes[0][0] == "success"
+    assert metrics.foundry_dispatch_outcomes[0][1] >= 0.0
 
 
-def test_dispatcher_fail_closes_on_unclassified_profile_backend_error() -> None:
+def test_dispatcher_fail_closes_on_unclassified_profile_backend_error(monkeypatch) -> None:
     history = _history_with_numpy_advantage()
     dispatcher = MethodDispatcher(runtime_history=history)
     jax_runner = _RecordingRunner(ComputeBackend.JAX)
     numpy_runner = _RecordingRunner(ComputeBackend.NUMPY, error=KeyError("unexpected lookup"))
     dispatcher.register_runner(jax_runner)
     dispatcher.register_runner(numpy_runner)
+    tracer = _FakeTracer()
+    metrics = _FakeMetrics()
+    monkeypatch.setattr("polisyos.foundry.methods.backends.dispatch.get_tracer", lambda: tracer)
+    monkeypatch.setattr("polisyos.foundry.methods.backends.dispatch.get_metrics", lambda: metrics)
 
     with pytest.raises(KeyError, match="unexpected lookup"):
         dispatcher.dispatch(
@@ -613,6 +627,9 @@ def test_dispatcher_fail_closes_on_unclassified_profile_backend_error() -> None:
 
     assert numpy_runner.calls == [ComputeBackend.NUMPY]
     assert jax_runner.calls == []
+    assert len(metrics.foundry_dispatch_outcomes) == 1
+    assert metrics.foundry_dispatch_outcomes[0][0] == "error"
+    assert metrics.foundry_dispatch_outcomes[0][1] >= 0.0
 
 
 def test_dispatcher_records_advisor_execution_context_in_runtime_history() -> None:
@@ -661,3 +678,168 @@ def test_dispatcher_records_advisor_execution_context_in_runtime_history() -> No
     assert record.selection_propensity == pytest.approx(0.5)
     assert record.advisor_score_vector["tests.dispatch.alternative@1.0.0"] == pytest.approx(11.2)
     assert record.shadow_loss_estimates["tests.dispatch.alternative@1.0.0"] == pytest.approx(0.2)
+
+
+def test_dispatcher_records_exact_monotonic_duration(monkeypatch) -> None:
+    from types import SimpleNamespace
+
+    from polisyos.foundry.methods.backends import dispatch as dispatch_module
+
+    history = SelectionHistoryStore()
+    dispatcher = MethodDispatcher(runtime_history=history)
+    runner = _RecordingRunner(ComputeBackend.JAX)
+    dispatcher.register_runner(runner)
+    tracer = _FakeTracer()
+    metrics = _FakeMetrics()
+    monkeypatch.setattr(dispatch_module, "get_tracer", lambda: tracer)
+    monkeypatch.setattr(dispatch_module, "get_metrics", lambda: metrics)
+
+    wall_clock_time = dispatch_module._time.time
+    values = iter((10.0, 10.25, 10.75, 12.5))
+    reads: list[float] = []
+
+    def controlled_monotonic_clock() -> float:
+        value = next(values)
+        reads.append(value)
+        return value
+
+    monkeypatch.setattr(
+        dispatch_module,
+        "_time",
+        SimpleNamespace(
+            perf_counter=controlled_monotonic_clock,
+            time=wall_clock_time,
+        ),
+    )
+
+    dispatcher.dispatch(
+        method_class=_DummyMethod,
+        signature=_DummyMethod.signature,
+        state={"X": np.ones((8, 2))},
+        params={},
+        seed=31,
+    )
+
+    assert reads == [10.0, 10.25, 10.75, 12.5]
+    assert metrics.foundry_dispatch_outcomes == [("success", 2.5)]
+    records = history.records_for(_DummyMethod.signature.fqn)
+    assert len(records) == 1
+    assert records[0].success is True
+
+
+def test_prometheus_exporter_emits_real_dispatch_counter_series(monkeypatch) -> None:
+    from opentelemetry import metrics as otel_metrics
+    from opentelemetry.sdk.metrics import MeterProvider
+
+    from polisyos.core.observability import _metrics_registry_base as registry_base
+    from polisyos.core.observability._metrics_registry_base import MetricsRegistryBase
+    from polisyos.core.observability.config import (
+        MetricsExporterType,
+        OTelConfig,
+        ResourceConfig,
+    )
+    from polisyos.core.observability.metrics_parts import MetricsRegistry
+    from polisyos.foundry.methods.backends import dispatch as dispatch_module
+
+    exporter_module = pytest.importorskip("opentelemetry.exporter.prometheus")
+    prometheus_client = pytest.importorskip("prometheus_client")
+    reader = None
+    provider = None
+    try:
+        reader = exporter_module.PrometheusMetricReader(disable_target_info=True)
+        provider = MeterProvider(metric_readers=[reader])
+        config = OTelConfig(
+            enabled=True,
+            metrics_exporter=MetricsExporterType.NONE,
+            environment="test",
+            service_name="dispatch-exporter-test",
+            service_version="test",
+        )
+        monkeypatch.setattr(registry_base, "get_default_config", lambda: config)
+        monkeypatch.setattr(
+            registry_base,
+            "get_resource_config",
+            lambda _: ResourceConfig(
+                service_name="dispatch-exporter-test",
+                service_version="test",
+            ),
+        )
+        monkeypatch.setattr(otel_metrics, "get_meter", provider.get_meter)
+        monkeypatch.setattr(otel_metrics, "set_meter_provider", lambda _: None)
+        monkeypatch.setattr(MetricsRegistryBase, "_instance", None)
+        monkeypatch.setattr(MetricsRegistryBase, "_initialized", False)
+        metrics = MetricsRegistry()
+        monkeypatch.setattr(dispatch_module, "get_metrics", lambda: metrics)
+        monkeypatch.setattr(dispatch_module, "get_tracer", lambda: _FakeTracer())
+
+        success_dispatcher = MethodDispatcher(
+            runtime_history=SelectionHistoryStore(),
+            enable_runtime_selection=False,
+        )
+        success_dispatcher.register_runner(_RecordingRunner(ComputeBackend.JAX))
+        success_dispatcher.dispatch(
+            method_class=_DummyMethod,
+            signature=_DummyMethod.signature,
+            state={"X": np.ones((8, 2))},
+            params={},
+            seed=32,
+        )
+
+        CircuitBreakerRegistry.reset_instance()
+        error_dispatcher = MethodDispatcher(
+            runtime_history=SelectionHistoryStore(),
+            enable_runtime_selection=False,
+        )
+        primary_error = RuntimeError("primary failed")
+        fallback_error = RuntimeError("fallback failed")
+        primary_runner = _RecordingRunner(ComputeBackend.JAX, error=primary_error)
+        fallback_runner = _RecordingRunner(ComputeBackend.NUMPY, error=fallback_error)
+        error_dispatcher.register_runner(primary_runner)
+        error_dispatcher.register_runner(fallback_runner)
+        with pytest.raises(RuntimeError, match="primary failed") as exc_info:
+            error_dispatcher.dispatch(
+                method_class=_DummyMethod,
+                signature=_DummyMethod.signature,
+                state={"X": np.ones((8, 2))},
+                params={},
+                seed=33,
+            )
+        assert exc_info.value is primary_error
+        assert primary_runner.calls == [ComputeBackend.JAX]
+        assert fallback_runner.calls == []
+
+        CircuitBreakerRegistry.reset_instance()
+        history = _history_with_numpy_advantage()
+        numpy_runner = _RecordingRunner(ComputeBackend.NUMPY, fail=True)
+        jax_runner = _RecordingRunner(ComputeBackend.JAX)
+        fallback_dispatcher = MethodDispatcher(runtime_history=history)
+        fallback_dispatcher.register_runner(jax_runner)
+        fallback_dispatcher.register_runner(numpy_runner)
+        recovered = fallback_dispatcher.dispatch(
+            method_class=_DummyMethod,
+            signature=_DummyMethod.signature,
+            state={"X": np.ones((64, 4))},
+            params={},
+            seed=34,
+        )
+        assert recovered.output["backend"] == "jax"
+        assert numpy_runner.calls == [ComputeBackend.NUMPY]
+        assert jax_runner.calls == [ComputeBackend.JAX]
+
+        exposition = prometheus_client.generate_latest(prometheus_client.REGISTRY).decode("utf-8")
+
+        def exported_count(status: str) -> float:
+            prefix = f'polisyos_foundry_method_dispatch_total{{env="test",status="{status}"}} '
+            matches = [
+                line[len(prefix) :] for line in exposition.splitlines() if line.startswith(prefix)
+            ]
+            assert len(matches) == 1, exposition
+            return float(matches[0])
+
+        assert exported_count("success") == 2.0
+        assert exported_count("error") == 1.0
+    finally:
+        if provider is not None:
+            provider.shutdown()
+        elif reader is not None:
+            reader.shutdown()

@@ -10,9 +10,10 @@ from __future__ import annotations
 
 import threading
 import time as _time
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, replace
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from functools import wraps
+from typing import TYPE_CHECKING, Any, Literal, ParamSpec, Protocol, runtime_checkable
 
 from polisyos.core.backends import BackendDispatcher
 from polisyos.core.backends import BackendNotAvailableError as CoreBackendNotAvailableError
@@ -65,6 +66,7 @@ if TYPE_CHECKING:
     from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorDispatchContext
 
 _log = get_foundry_logger("foundry.backends.dispatch")
+_DISPATCH_ARGS = ParamSpec("_DISPATCH_ARGS")
 _OWNER_CONTEXT_METHOD_FQNS = frozenset(
     {
         "causal.hte.causal_forest@2.0.0",
@@ -79,6 +81,37 @@ _USD_PER_MS = {
     ComputeBackend.SOLVER: 1.2e-6,
     ComputeBackend.BAYESIAN: 1.5e-6,
 }
+
+
+def _observe_foundry_method_dispatch(
+    function: Callable[_DISPATCH_ARGS, MethodResult],
+) -> Callable[_DISPATCH_ARGS, MethodResult]:
+    """Record one outcome around the complete resolved dispatcher call."""
+
+    @wraps(function)
+    def wrapped(
+        *args: _DISPATCH_ARGS.args,
+        **kwargs: _DISPATCH_ARGS.kwargs,
+    ) -> MethodResult:
+        started = _time.perf_counter()
+        status: Literal["success", "error"] = "error"
+        try:
+            result = function(*args, **kwargs)
+            status = "success"
+            return result
+        finally:
+            try:
+                get_metrics().record_foundry_method_dispatch(
+                    status=status,
+                    duration_seconds=max(_time.perf_counter() - started, 0.0),
+                )
+            except Exception as exc:
+                _log.warning(
+                    "foundry_method_dispatch_metric_record_failed",
+                    error_type=type(exc).__name__,
+                )
+
+    return wrapped
 
 
 def _consumed_raw_output_keys(
@@ -506,6 +539,7 @@ class MethodDispatcher:
         with self._runner_lock:
             return self._dispatcher.available_backends()
 
+    @_observe_foundry_method_dispatch
     def dispatch(
         self,
         *,

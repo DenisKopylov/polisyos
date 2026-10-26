@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import threading
-from typing import Any, cast
+from typing import Any, Literal, cast
 
 from ._metrics_helpers import GaugeProxy, HistogramTimer
 from ._metrics_registry_base import MetricsRegistryBase
@@ -185,6 +185,25 @@ class MetricsRegistry(MetricsRegistryBase):
             "env": env or self._default_env(),
         }
         self.slo_connector_requests_total.add(1, attrs)
+
+    def record_foundry_method_dispatch(
+        self,
+        *,
+        status: Literal["success", "error"],
+        duration_seconds: float,
+    ) -> None:
+        """Record one resolved Foundry dispatch outcome and its elapsed time."""
+        if status not in {"success", "error"}:
+            raise ValueError(f"invalid Foundry dispatch status: {status}")
+        self._ensure_initialized()
+        attributes = self._with_env({"status": status})
+        if self.foundry_method_dispatch_total is not None:
+            self.foundry_method_dispatch_total.add(1, attributes)
+        if self.foundry_method_dispatch_duration_seconds is not None:
+            self.foundry_method_dispatch_duration_seconds.record(
+                max(float(duration_seconds), 0.0),
+                attributes,
+            )
 
     def record_node_started(
         self,

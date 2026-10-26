@@ -146,6 +146,8 @@ class _MetricsRegistryBase:
     slo_simulation_nan_total: metrics.Counter | None = None
     slo_simulation_runs_total: metrics.Counter | None = None
     slo_connector_requests_total: metrics.Counter | None = None
+    foundry_method_dispatch_total: metrics.Counter | None = None
+    foundry_method_dispatch_duration_seconds: metrics.Histogram | None = None
     knowledge_bundle_age_seconds: GaugeProxy | None = None
     knowledge_bundle_staleness_ratio: GaugeProxy | None = None
     knowledge_bundle_status: GaugeProxy | None = None
@@ -760,6 +762,16 @@ class _MetricsRegistryBase:
             name="polisyos_slo_connector_requests_total",
             description="Connector request outcomes",
             unit="1",
+        )
+        self.foundry_method_dispatch_total = self._meter.create_counter(
+            name="polisyos_foundry_method_dispatch_total",
+            description="Resolved Foundry method dispatch outcomes",
+            unit="1",
+        )
+        self.foundry_method_dispatch_duration_seconds = self._meter.create_histogram(
+            name="polisyos_foundry_method_dispatch_duration_seconds",
+            description="Wall-clock duration of resolved Foundry method dispatches",
+            unit="s",
         )
 
         # Scientist engine node-level metrics

@@ -1,0 +1,26 @@
+id = "2026-10-26-e02-foundry-resolved-dispatch-sli"
+title = "Observe resolved Foundry dispatcher outcomes"
+type = "added"
+component = "foundry"
+owner = "team-foundry"
+summary = "Resolved dispatcher calls emit one success or error observation, including successful recovery, consumed by guarded Foundry SLO rules and alerts."
+evidence = [
+  "src/polisyos/foundry/methods/backends/dispatch.py",
+  "src/polisyos/core/observability/_metrics_registry_base.py",
+  "src/polisyos/core/observability/metrics_parts.py",
+  "ops/observability/prometheus/slo_recording_rules.yml",
+  "ops/observability/prometheus/slo_alerts.yml",
+  "tests/unit/foundry/methods/backends/test_dispatch.py",
+  "tests/contract/test_slo_metrics.py",
+  "tests/contract/fixtures/prometheus/foundry_method_dispatch_slo.test.yml",
+]
+compatibility = "Dispatcher return values, original errors, fallback rules and execution history retain their existing behavior. SLO objective mirrors consume the guarded recorded ratio; absent or zero traffic does not establish an SLI."
+change_class = "observability"
+surface_classification = "internal: dispatcher instrumentation; operational Prometheus metric and existing SLO objective surfaces"
+migration = "Load the updated configured recording and alert rule files together. No persisted artifact, HTTP DTO or generated-client migration is required."
+api = "The measurement covers completed calls that entered the canonical resolved dispatcher. Status and environment are bounded labels; method FQNs are not added as labels."
+limitations = "Unknown-method resolution before dispatcher entry is outside this denominator. Controlled SDK and Prometheus fixtures do not establish a qualifying production workload or production SLO attainment."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = ["ops/observability/prometheus/README.md"]

@@ -44,6 +44,8 @@ def test_slo_metric_recording_helpers(monkeypatch) -> None:
     runtime_duration = _FakeHistogram()
     control_admissions = _FakeCounter()
     control_admission_duration = _FakeHistogram()
+    foundry_dispatch = _FakeCounter()
+    foundry_dispatch_duration = _FakeHistogram()
 
     metrics.slo_dag_runs_total = dag_runs  # type: ignore[assignment]
     metrics.slo_run_cost_usd = run_cost  # type: ignore[assignment]
@@ -56,6 +58,8 @@ def test_slo_metric_recording_helpers(monkeypatch) -> None:
     metrics.runtime_api_duration_seconds = runtime_duration  # type: ignore[assignment]
     metrics.control_plane_job_admissions_total = control_admissions  # type: ignore[assignment]
     metrics.control_plane_job_admission_duration_seconds = control_admission_duration  # type: ignore[assignment]
+    metrics.foundry_method_dispatch_total = foundry_dispatch  # type: ignore[assignment]
+    metrics.foundry_method_dispatch_duration_seconds = foundry_dispatch_duration  # type: ignore[assignment]
 
     metrics.record_slo_dag_run("success", workflow_id="wf")
     metrics.record_slo_run_cost(1.23, workflow_id="wf")
@@ -74,6 +78,7 @@ def test_slo_metric_recording_helpers(monkeypatch) -> None:
         status="success",
         duration_seconds=0.12,
     )
+    metrics.record_foundry_method_dispatch(status="success", duration_seconds=0.12)
     with metrics.time_slo_dag({"workflow_id": "wf"}):
         time.sleep(0.001)
 
@@ -121,6 +126,11 @@ def test_slo_metric_recording_helpers(monkeypatch) -> None:
         "status": "success",
         "env": "test",
     }
+    assert foundry_dispatch.calls[-1] == (1, {"status": "success", "env": "test"})
+    assert foundry_dispatch_duration.calls[-1] == (
+        0.12,
+        {"status": "success", "env": "test"},
+    )
     assert dag_duration.calls and dag_duration.calls[-1][1] == {
         "workflow_id": "wf",
         "env": "test",
@@ -170,3 +180,19 @@ def test_scientist_sli_scopes_api_and_hides_zero_eligible_traffic() -> None:
     assert observed_ratio(None, 0.0) is None
     assert observed_ratio(0.0, 2.0) == 0.0
     assert observed_ratio(1.0, 2.0) == 0.5
+
+
+def test_foundry_method_dispatch_slo_mirrors_use_guarded_recording_rule() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    expected_sli = "polisyos:foundry_method_dispatch_error_rate:rate5m"
+    for path in (
+        repo_root / "ops/components/foundry/slo.yaml",
+        repo_root / "ops/observability/slo/foundry.yaml",
+    ):
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        objective = next(
+            item
+            for item in data["objectives"]
+            if item["name"] == "foundry_method_dispatch_error_rate"
+        )
+        assert objective["sli"] == expected_sli

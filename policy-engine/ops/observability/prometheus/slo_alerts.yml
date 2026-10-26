@@ -59,6 +59,16 @@ groups:
           description: |
             NaN rate {{ $value | printf "%.4f" }} for env={{ $labels.env }}.
 
+      - alert: SLO_FoundryMethodDispatchErrorRateBreach
+        expr: polisyos:foundry_method_dispatch_error_rate:rate5m >= 0.01
+        labels:
+          severity: warning
+          team: foundry
+          slo: method_dispatch_error_rate
+        annotations:
+          summary: "SLO Breach: Foundry method dispatch error rate >= 1%"
+          description: 'Resolved dispatch error rate is {{ $value | printf "%.4f" }} for env={{ $labels.env }} over 5m; target is <0.01.'
+
       - alert: SLO_ConnectorErrorRateBreach
         expr: |
           polisyos:slo_connector_error_rate:rate5m > 0.01

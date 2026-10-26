@@ -54,6 +54,32 @@ groups:
           /
           clamp_min(sum by (env) (rate(polisyos_slo_simulation_runs_total[5m])), 1e-9)
 
+      - record: polisyos:foundry_method_dispatch_error_rate:rate5m
+        expr: |
+          (
+            (
+              sum by (env) (
+                rate(polisyos_foundry_method_dispatch_total{status="error"}[5m])
+              )
+              or on (env)
+              (
+                0 * sum by (env) (
+                  rate(polisyos_foundry_method_dispatch_total{status=~"success|error"}[5m])
+                )
+              )
+            )
+            /
+            sum by (env) (
+              rate(polisyos_foundry_method_dispatch_total{status=~"success|error"}[5m])
+            )
+          )
+          and on (env)
+          (
+            sum by (env) (
+              rate(polisyos_foundry_method_dispatch_total{status=~"success|error"}[5m])
+            ) > 0
+          )
+
       - record: polisyos:slo_connector_requests:rate30m
         expr: |
           sum by (connector_id, env) (rate(polisyos_slo_connector_requests_total[30m]))

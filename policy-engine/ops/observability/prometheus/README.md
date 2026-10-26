@@ -4,21 +4,23 @@ Scrape configuration, recording rules, and alerting for the PolicyOS observabili
 
 Source inspection: snapshot `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` (2026-10-14); `prometheus.yml`, the configured rule files, and `ops/docker/observability.compose.yml` were read. `promtool` and Docker Compose were not run.
 
+Rule counts below were recomputed on 2026-10-26 from all 8 configured YAML rule files; this does not extend the historical runtime inspection above.
+
 ## Contents
 
 | File                                   | Purpose                                          |
 | -------------------------------------- | ------------------------------------------------ |
 | `prometheus.yml`                       | global interval, `scrape_configs`, `rule_files`  |
 | `recording_rules.yml`                  | operational precompute (6 rules)                 |
-| `slo_recording_rules.yml`              | SLO precompute (16 rules)                        |
+| `slo_recording_rules.yml`              | SLO precompute (19 rules)                        |
 | `alerts.yml`                           | operational + security alerts (18)               |
-| `slo_alerts.yml`                       | SLO alerts (10)                                  |
+| `slo_alerts.yml`                       | SLO alerts (11)                                  |
 | `rules/audit_chain_alerts.yml`         | audit-chain/tenant-boundary alerts (4)           |
 | `rules/runtime_operability_alerts.yml` | runtime operability alerts (7)                   |
 | `rules/scientist-alerts.yml`           | Scientist SLO alerts (5)                         |
 | `rules/mtls-rules.yaml`                | Linkerd mTLS alerts (2, enabled by default)      |
 
-By default, `prometheus.yml` loads 22 recording rules and 46 alerts, including all rule files named in the component observability contracts.
+By default, `prometheus.yml` loads 25 recording rules and 47 alerts, including all rule files named in the component observability contracts.
 
 ## Scrape jobs
 
@@ -67,3 +69,5 @@ promtool test rules tests/contract/fixtures/prometheus/scientist_slo_recording_r
 The fixture loads `ops/observability/prometheus/slo_recording_rules.yml` and `ops/observability/prometheus/rules/scientist-alerts.yml` directly. It exercises absent and zero-rate API/engine series, API success/error traffic, engine ok/fail traffic, mixed API/engine populations, and API-versus-engine histogram buckets. Assertions inspect actual recording-rule and alert-rule outputs, including no SLI without eligible traffic and scope-bound engine failure alerts; they do not duplicate PromQL calculations in a separate oracle.
 
 Runtime API rule/alert fixture: promtool test rules tests/contract/fixtures/prometheus/runtime_api_slo_rules.test.yml
+
+Foundry resolved-dispatch rule/alert fixture: `promtool test rules tests/contract/fixtures/prometheus/foundry_method_dispatch_slo.test.yml`. It checks eligible success/error traffic, recovered fallback, and absent or zero traffic using the configured rules.

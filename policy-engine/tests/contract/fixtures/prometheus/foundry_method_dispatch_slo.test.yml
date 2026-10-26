@@ -1,0 +1,68 @@
+# Controlled Prometheus witness; not a production attainment receipt.
+rule_files:
+  - ../../../../ops/observability/prometheus/slo_recording_rules.yml
+  - ../../../../ops/observability/prometheus/slo_alerts.yml
+evaluation_interval: 1m
+tests:
+  - name: resolved dispatch outcomes preserve the SLO denominator
+    interval: 1m
+    input_series:
+      - series: 'polisyos_foundry_method_dispatch_total{env="bad",status="success"}'
+        values: '0+99x30'
+      - series: 'polisyos_foundry_method_dispatch_total{env="bad",status="error"}'
+        values: '0+1x30'
+      - series: 'polisyos_foundry_method_dispatch_total{env="good",status="success"}'
+        values: '0+100x30'
+      - series: 'polisyos_foundry_method_dispatch_total{env="error_only",status="error"}'
+        values: '0+1x30'
+      - series: 'polisyos_foundry_method_dispatch_total{env="fallback",status="success"}'
+        values: '0+1x30'
+      - series: 'polisyos_foundry_method_dispatch_total{env="zero",status="success"}'
+        values: '0x30'
+    promql_expr_test:
+      - expr: 'abs(polisyos:foundry_method_dispatch_error_rate:rate5m{env="bad"} - 0.01) < bool 1e-12'
+        eval_time: 30m
+        exp_samples:
+          - labels: '{env="bad"}'
+            value: 1
+      - expr: 'polisyos:foundry_method_dispatch_error_rate:rate5m{env="good"}'
+        eval_time: 30m
+        exp_samples:
+          - labels: '{__name__="polisyos:foundry_method_dispatch_error_rate:rate5m",env="good"}'
+            value: 0
+      - expr: 'polisyos:foundry_method_dispatch_error_rate:rate5m{env="fallback"}'
+        eval_time: 30m
+        exp_samples:
+          - labels: '{__name__="polisyos:foundry_method_dispatch_error_rate:rate5m",env="fallback"}'
+            value: 0
+      - expr: 'polisyos:foundry_method_dispatch_error_rate:rate5m{env="error_only"}'
+        eval_time: 30m
+        exp_samples:
+          - labels: '{__name__="polisyos:foundry_method_dispatch_error_rate:rate5m",env="error_only"}'
+            value: 1
+      - expr: 'polisyos:foundry_method_dispatch_error_rate:rate5m{env="zero"}'
+        eval_time: 30m
+        exp_samples: []
+      - expr: 'polisyos:foundry_method_dispatch_error_rate:rate5m{env="absent"}'
+        eval_time: 30m
+        exp_samples: []
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: SLO_FoundryMethodDispatchErrorRateBreach
+        exp_alerts:
+          - exp_labels:
+              env: bad
+              severity: warning
+              team: foundry
+              slo: method_dispatch_error_rate
+            exp_annotations:
+              summary: "SLO Breach: Foundry method dispatch error rate >= 1%"
+              description: 'Resolved dispatch error rate is 0.0100 for env=bad over 5m; target is <0.01.'
+          - exp_labels:
+              env: error_only
+              severity: warning
+              team: foundry
+              slo: method_dispatch_error_rate
+            exp_annotations:
+              summary: "SLO Breach: Foundry method dispatch error rate >= 1%"
+              description: 'Resolved dispatch error rate is 1.0000 for env=error_only over 5m; target is <0.01.'

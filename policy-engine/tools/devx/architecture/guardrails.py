@@ -24,7 +24,7 @@ from collections.abc import Callable, Iterator, Sequence
 from dataclasses import MISSING, dataclass
 from dataclasses import field as dataclass_field
 from dataclasses import fields as dataclass_fields
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any, Literal, Protocol, get_args, get_origin, get_type_hints
 
 import yaml
@@ -7096,6 +7096,440 @@ def _trust_claim_posture_compiler_inputs(repo_root: Path) -> tuple[Path, ...]:
     return tuple(sorted(observed))
 
 
+def _locked_probe_local_path_sources(
+    repo_root: Path,
+    *,
+    local_only_roots: frozenset[Path],
+) -> tuple[tuple[Path, Path], ...]:
+    """Resolve local package sources pinned by the selected Python lockfile."""
+    lock_path, _lock_relative = _resolve_probe_member(
+        repo_root,
+        Path("uv.lock"),
+        required=True,
+    )
+    try:
+        lock = tomllib.loads(lock_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, tomllib.TOMLDecodeError) as error:
+        raise OSError(f"unable to read locked probe package sources: {lock_path}") from error
+
+    packages = lock.get("package")
+    if not isinstance(packages, list):
+        raise OSError(f"uv.lock has no package table for probe source selection: {lock_path}")
+
+    selected: dict[Path, Path] = {}
+    for package in packages:
+        if not isinstance(package, dict):
+            raise OSError(f"uv.lock contains a malformed package entry: {lock_path}")
+        source = package.get("source")
+        if source is None:
+            continue
+        if not isinstance(source, dict):
+            raise OSError(f"uv.lock contains a malformed package source: {lock_path}")
+        if "path" not in source:
+            continue
+        raw_path = source["path"]
+        if not isinstance(raw_path, str) or not raw_path.strip():
+            raise OSError(f"uv.lock contains a malformed local package path: {lock_path}")
+
+        source_path = Path(raw_path)
+        if (
+            source_path.is_absolute()
+            or PurePosixPath(raw_path).is_absolute()
+            or PureWindowsPath(raw_path).is_absolute()
+        ):
+            raise OSError(
+                f"locked package source path must be relative for isolated mirroring: {raw_path}"
+            )
+        path, relative = _resolve_probe_member(
+            repo_root,
+            source_path,
+            required=True,
+        )
+        if relative == Path("."):
+            raise OSError(
+                "locked local package source resolves to the mirror root; "
+                "the family input basis must remain bounded"
+            )
+        if _is_local_only_probe_path(relative, local_only_roots):
+            raise OSError(f"locked package source is governed local-only state: {relative}")
+        if any(
+            relative == runtime or runtime in relative.parents for runtime in _PROBE_RUNTIME_LINKS
+        ):
+            raise OSError(f"locked package source is inside a runtime dependency tree: {relative}")
+        selected[relative] = path
+
+    return tuple(sorted(selected.items(), key=lambda item: item[0].as_posix()))
+
+
+def _hatchling_wheel_probe_sources(
+    repo_root: Path,
+    *,
+    local_only_roots: frozenset[Path],
+) -> tuple[tuple[Path, Path], ...]:
+    """Resolve literal source paths consumed by the active Hatchling wheel build."""
+    repository = repo_root.resolve()
+    pyproject_path, _pyproject_relative = _resolve_probe_member(
+        repository, Path("pyproject.toml"), required=True
+    )
+    hatch_path, _hatch_relative = _resolve_probe_member(
+        repository, Path("hatch.toml"), required=True
+    )
+    try:
+        project_config = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))
+        external_hatch_config = tomllib.loads(hatch_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, tomllib.TOMLDecodeError) as error:
+        raise OSError("unable to read Hatchling wheel probe configuration") from error
+
+    build_system = project_config.get("build-system")
+    if not isinstance(build_system, dict) or build_system.get("build-backend") != "hatchling.build":
+        raise OSError(
+            "isolated wheel source mirroring requires the standard hatchling.build backend"
+        )
+    backend_paths = build_system.get("backend-path", [])
+    if not isinstance(backend_paths, list) or any(
+        not isinstance(value, str) or not value for value in backend_paths
+    ):
+        raise OSError("pyproject.toml has a malformed Hatchling backend-path declaration")
+    if backend_paths:
+        raise OSError("custom Hatchling backend paths are not source-enumerable")
+
+    tool_config = project_config.get("tool", {})
+    if not isinstance(tool_config, dict):
+        raise OSError("pyproject.toml has a malformed tool table")
+    project_hatch_config = tool_config.get("hatch", {})
+    if not isinstance(project_hatch_config, dict):
+        raise OSError("pyproject.toml has a malformed tool.hatch table")
+    if not isinstance(external_hatch_config, dict):
+        raise OSError("hatch.toml must contain a table")
+
+    # Hatchling overlays hatch.toml at the top level of tool.hatch. In particular, an
+    # external `build` table replaces the project table instead of merging its children.
+    hatch_config = dict(project_hatch_config)
+    hatch_config.update(external_hatch_config)
+    build_config = hatch_config.get("build", {})
+    if not isinstance(build_config, dict):
+        raise OSError("effective Hatchling build configuration must be a table")
+    target_configs = build_config.get("targets", {})
+    if not isinstance(target_configs, dict):
+        raise OSError("effective Hatchling build targets must be a table")
+    wheel_config = target_configs.get("wheel", {})
+    if not isinstance(wheel_config, dict):
+        raise OSError("effective Hatchling wheel target must be a table")
+
+    # Admitted from Hatchling 1.27.0 BuilderConfig/WheelBuilderConfig. Keep the
+    # selected input schema closed so a new upstream source field cannot be ignored.
+    global_build_fields = frozenset(
+        {
+            "artifacts",
+            "dependencies",
+            "dev-mode-dirs",
+            "dev-mode-exact",
+            "directory",
+            "exclude",
+            "force-include",
+            "hooks",
+            "ignore-vcs",
+            "include",
+            "only-packages",
+            "only-include",
+            "packages",
+            "reproducible",
+            "require-runtime-dependencies",
+            "require-runtime-features",
+            "skip-excluded-dirs",
+            "sources",
+            "strict-naming",
+            "targets",
+        }
+    )
+    wheel_target_fields = (global_build_fields - {"targets"}) | frozenset(
+        {
+            "bypass-selection",
+            "core-metadata-version",
+            "extra-metadata",
+            "macos-max-compat",
+            "shared-data",
+            "shared-scripts",
+            "versions",
+        }
+    )
+    for scope, config, admitted_fields in (
+        ("global", build_config, global_build_fields),
+        ("wheel target", wheel_config, wheel_target_fields),
+    ):
+        unknown_fields = set(config).difference(admitted_fields)
+        if unknown_fields:
+            raise OSError(
+                f"Hatchling {scope} config has unsupported fields: "
+                + ", ".join(sorted(unknown_fields))
+            )
+
+        for field in (
+            "dependencies",
+            "dev-mode-dirs",
+            "exclude",
+            "require-runtime-features",
+            "versions",
+        ):
+            if field not in config:
+                continue
+            values = config[field]
+            if not isinstance(values, list) or any(
+                not isinstance(value, str) or not value for value in values
+            ):
+                raise OSError(f"Hatchling {scope} {field} must be a non-empty-string array")
+            if field == "dependencies":
+                for requirement in values:
+                    direct_reference = requirement.strip().rsplit("@", 1)[-1].strip()
+                    windows_reference = PureWindowsPath(direct_reference)
+                    if (
+                        direct_reference.lower().startswith(
+                            ("file:", "git+file:", "./", "../", "~/", "/")
+                        )
+                        or windows_reference.drive
+                        or windows_reference.root
+                    ):
+                        raise OSError(
+                            "local Hatchling build dependencies are not source-enumerable"
+                        )
+
+        for field in (
+            "dev-mode-exact",
+            "ignore-vcs",
+            "only-packages",
+            "reproducible",
+            "require-runtime-dependencies",
+            "skip-excluded-dirs",
+            "strict-naming",
+            "bypass-selection",
+            "macos-max-compat",
+        ):
+            if field in config and not isinstance(config[field], bool):
+                raise OSError(f"Hatchling {scope} {field} must be a boolean")
+
+        for field in ("directory", "core-metadata-version"):
+            if field in config and not isinstance(config[field], str):
+                raise OSError(f"Hatchling {scope} {field} must be a string")
+
+        sources = config.get("sources")
+        if sources is not None:
+            valid_sources = (
+                isinstance(sources, list)
+                and all(isinstance(value, str) and value for value in sources)
+            ) or (
+                isinstance(sources, dict)
+                and all(
+                    isinstance(source, str) and isinstance(target, str)
+                    for source, target in sources.items()
+                )
+            )
+            if not valid_sources:
+                raise OSError(f"Hatchling {scope} sources must be a string array or mapping")
+
+    metadata_config = hatch_config.get("metadata", {})
+    if not isinstance(metadata_config, dict):
+        raise OSError("effective Hatchling metadata configuration must be a table")
+    metadata_fields = frozenset({"allow-direct-references", "allow-ambiguous-features", "hooks"})
+    unknown_metadata_fields = set(metadata_config).difference(metadata_fields)
+    if unknown_metadata_fields:
+        raise OSError(
+            "Hatchling metadata config has unsupported fields: "
+            + ", ".join(sorted(unknown_metadata_fields))
+        )
+    for field in ("allow-direct-references", "allow-ambiguous-features"):
+        if field in metadata_config and not isinstance(metadata_config[field], bool):
+            raise OSError(f"Hatchling metadata {field} must be a boolean")
+    metadata_hooks = metadata_config.get("hooks", {})
+    if not isinstance(metadata_hooks, dict):
+        raise OSError("Hatchling metadata hooks must be a table")
+    if metadata_hooks:
+        raise OSError("Hatchling metadata hooks are not source-enumerable for isolated mirroring")
+
+    for scope, config in (("global", build_config), ("wheel", wheel_config)):
+        hooks = config.get("hooks", {})
+        if not isinstance(hooks, dict):
+            raise OSError(f"Hatchling {scope} build hooks must be a table")
+        if hooks:
+            raise OSError(
+                f"Hatchling {scope} build hooks are not source-enumerable for isolated mirroring"
+            )
+
+    source_declarations: list[tuple[str, str]] = []
+    for field in ("include", "packages", "only-include", "artifacts"):
+        config = wheel_config if field in wheel_config else build_config
+        values = config.get(field, [])
+        if not isinstance(values, list):
+            raise OSError(f"Hatchling wheel {field} must be an array of literal source paths")
+        for value in values:
+            if not isinstance(value, str) or not value.strip():
+                raise OSError(f"Hatchling wheel {field} contains a malformed source path")
+            source_declarations.append((field, value))
+
+    force_include = (
+        wheel_config["force-include"]
+        if "force-include" in wheel_config
+        else build_config.get("force-include", {})
+    )
+    if not isinstance(force_include, dict):
+        raise OSError("Hatchling wheel force-include must be a source-to-target mapping")
+    for source, target in force_include.items():
+        if not isinstance(source, str) or not source.strip():
+            raise OSError("Hatchling wheel force-include contains a malformed source path")
+        if not isinstance(target, str) or not target.strip():
+            raise OSError(f"Hatchling wheel force-include target is malformed for {source!r}")
+        source_declarations.append(("force-include", source))
+
+    for field in ("shared-data", "shared-scripts", "extra-metadata"):
+        source_map = wheel_config.get(field, {})
+        if not isinstance(source_map, dict):
+            raise OSError(f"Hatchling wheel {field} must be a source-to-target mapping")
+        for source, target in source_map.items():
+            if not isinstance(source, str) or not source.strip():
+                raise OSError(f"Hatchling wheel {field} contains a malformed source path")
+            if not isinstance(target, str) or not target.strip():
+                raise OSError(f"Hatchling wheel {field} contains a malformed target path")
+            source_declarations.append((field, source))
+
+    dev_mode_config = wheel_config if "dev-mode-dirs" in wheel_config else build_config
+    for source in dev_mode_config.get("dev-mode-dirs", []):
+        source_declarations.append(("dev-mode-dirs", source))
+
+    project_metadata = project_config.get("project", {})
+    if not isinstance(project_metadata, dict):
+        raise OSError("pyproject.toml has a malformed project metadata table")
+    dynamic_metadata = project_metadata.get("dynamic", [])
+    if not isinstance(dynamic_metadata, list) or any(
+        not isinstance(value, str) for value in dynamic_metadata
+    ):
+        raise OSError("pyproject.toml has malformed dynamic project metadata")
+    if dynamic_metadata:
+        raise OSError(
+            "dynamic Hatchling project metadata is not source-enumerable: "
+            + ", ".join(sorted(dynamic_metadata))
+        )
+
+    readme = project_metadata.get("readme")
+    if isinstance(readme, str):
+        source_declarations.append(("project.readme", readme))
+    elif readme is not None:
+        if not isinstance(readme, dict):
+            raise OSError("project.readme must be a literal path or a table")
+        has_file = "file" in readme
+        has_text = "text" in readme
+        if has_file == has_text:
+            raise OSError("project.readme must declare exactly one of file or text")
+        if has_file:
+            value = readme["file"]
+            if not isinstance(value, str) or not value.strip():
+                raise OSError("project.readme.file must be a literal source path")
+            source_declarations.append(("project.readme", value))
+        elif not isinstance(readme["text"], str):
+            raise OSError("project.readme.text must be a string")
+
+    license_config = project_metadata.get("license")
+    if isinstance(license_config, dict):
+        has_file = "file" in license_config
+        has_text = "text" in license_config
+        if has_file == has_text:
+            raise OSError("project.license must declare exactly one of file or text")
+        if has_file:
+            value = license_config["file"]
+            if not isinstance(value, str) or not value.strip():
+                raise OSError("project.license.file must be a literal source path")
+            source_declarations.append(("project.license", value))
+        elif not isinstance(license_config["text"], str):
+            raise OSError("project.license.text must be a string")
+    elif license_config is not None and not isinstance(license_config, str):
+        raise OSError("project.license must be a string or a table")
+
+    license_files: object = project_metadata.get(
+        "license-files", ["LICEN[CS]E*", "COPYING*", "NOTICE*", "AUTHORS*"]
+    )
+    if isinstance(license_files, dict):
+        license_files = license_files.get("globs", license_files.get("paths", []))
+    if not isinstance(license_files, list):
+        raise OSError("project.license-files must be an array of source paths")
+    for pattern in license_files:
+        if not isinstance(pattern, str) or not pattern.strip():
+            raise OSError("project.license-files contains a malformed source path")
+        if any(character in pattern for character in "*?[]"):
+            windows_pattern = PureWindowsPath(pattern)
+            if (
+                "/" in pattern
+                or "\\" in pattern
+                or pattern.startswith("!")
+                or Path(pattern).is_absolute()
+                or PurePosixPath(pattern).is_absolute()
+                or windows_pattern.is_absolute()
+                or windows_pattern.drive
+                or windows_pattern.root
+                or ".." in PurePosixPath(pattern).parts
+            ):
+                raise OSError("license-file globs must be bounded root-level patterns: " + pattern)
+            for match in sorted(repository.glob(pattern), key=lambda path: path.as_posix()):
+                if match.is_file() or match.is_symlink():
+                    source_declarations.append(
+                        (
+                            "project.license-files",
+                            match.relative_to(repository).as_posix(),
+                        )
+                    )
+        else:
+            source_declarations.append(("project.license-files", pattern))
+
+    if not source_declarations:
+        raise OSError("Hatchling wheel source selection has no literal path basis")
+
+    selected: dict[Path, Path] = {}
+    for field, raw_path in source_declarations:
+        windows_path = PureWindowsPath(raw_path)
+        posix_path = PurePosixPath(raw_path)
+        if raw_path.startswith("~"):
+            raise OSError(f"Hatchling wheel source path cannot use home expansion: {raw_path}")
+        if (
+            Path(raw_path).is_absolute()
+            or posix_path.is_absolute()
+            or windows_path.is_absolute()
+            or windows_path.drive
+            or windows_path.root
+        ):
+            raise OSError(
+                f"Hatchling wheel source path must be relative for isolated mirroring: {raw_path}"
+            )
+        if "\\" in raw_path or ".." in Path(raw_path).parts or ".." in posix_path.parts:
+            raise OSError(
+                f"Hatchling wheel source path must be a normalized relative path: {raw_path}"
+            )
+        if raw_path.startswith("!") or any(character in raw_path for character in "*?[]"):
+            raise OSError(f"Hatchling wheel {field} requires a literal source path: {raw_path}")
+
+        optional = field == "project.license-files"
+        path, relative = _resolve_probe_member(repository, Path(raw_path), required=not optional)
+        if optional and not path.is_file():
+            continue
+        if field in {"project.readme", "project.license"} and not path.is_file():
+            raise OSError(f"Hatchling {field} source is not a file: {path}")
+        if field == "dev-mode-dirs" and not path.is_dir():
+            raise OSError(f"Hatchling {field} source is not a directory: {path}")
+        if relative == Path("."):
+            raise OSError(
+                "Hatchling wheel source resolves to the mirror root; "
+                "the family input basis must remain bounded"
+            )
+        if _is_local_only_probe_path(relative, local_only_roots):
+            raise OSError(f"Hatchling wheel source is governed local-only state: {relative}")
+        if any(
+            relative == runtime or runtime in relative.parents for runtime in _PROBE_RUNTIME_LINKS
+        ):
+            raise OSError(f"Hatchling wheel source is inside a runtime dependency tree: {relative}")
+        mode = path.lstat().st_mode
+        if not (stat.S_ISREG(mode) or stat.S_ISDIR(mode)):
+            raise OSError(f"Hatchling wheel source is not a file or directory: {path}")
+        selected[relative] = path
+
+    return tuple(sorted(selected.items(), key=lambda item: item[0].as_posix()))
+
+
 def _selected_probe_roots(
     repo_root: Path,
     families: tuple[_ProbeInputFamily, ...],
@@ -7187,6 +7621,33 @@ def _selected_probe_roots(
             for path in _trust_claim_posture_compiler_inputs(repo_root):
                 _resolved, relative = _resolve_probe_member(repo_root, path, required=True)
                 required.add(relative)
+    if Path("uv.lock") in required:
+        for relative, source in _locked_probe_local_path_sources(
+            repo_root,
+            local_only_roots=local_only_roots,
+        ):
+            if relative in required or any(
+                relative == root or root in relative.parents for root in roots
+            ):
+                continue
+            if source.is_dir():
+                roots[relative] = source
+            else:
+                required.add(relative)
+
+    if Path("hatch.toml") in required:
+        for relative, source in _hatchling_wheel_probe_sources(
+            repo_root, local_only_roots=local_only_roots
+        ):
+            if relative in required or any(
+                relative == root or root in relative.parents for root in roots
+            ):
+                continue
+            if source.is_dir():
+                roots[relative] = source
+            else:
+                required.add(relative)
+
     runtime_inventory_digest = None
     if runtime_links:
         if Path("node_modules") not in runtime_links:

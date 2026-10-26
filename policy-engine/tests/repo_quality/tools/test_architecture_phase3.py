@@ -3,6 +3,8 @@ from __future__ import annotations
 import argparse
 import ast
 import datetime as dt
+import hashlib
+import json
 import os
 import re
 import subprocess
@@ -325,7 +327,7 @@ def test_supported_fromlist_rejects_a_bound_name_omitted_from_declared_exports(
     edges = _collect_temporary_fromlist_edges(
         tmp_path,
         monkeypatch,
-        facade_source=('__all__ = ["other"]\nconnectors = None\n'),
+        facade_source=('__all__ = ["other"]\nother = None\nconnectors = None\n'),
         consumer_sources={"consumer.py": "from polisyos.fabric import connectors as selected\n"},
         child_names=("connectors",),
     )
@@ -364,10 +366,11 @@ def test_supported_fromlist_rejects_ambiguous_direct_binding(
 
     assert len(edges) == 1
     assert edges[0].resolution_status == "not_established"
-    assert edges[0].resolution_reason == "declared_binding_unproven"
+    # The declared connectors export is ambiguous, so manifest resolution fails first.
+    assert edges[0].resolution_reason == "export_manifest_unresolved"
 
 
-def test_supported_fromlist_rejects_listed_lazy_name_without_static_binding(
+def test_supported_fromlist_rejects_listed_lazy_name_without_exact_child_route(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -377,9 +380,15 @@ def test_supported_fromlist_rejects_listed_lazy_name_without_static_binding(
         facade_source=(
             '__all__ = ["connectors"]\n'
             "def __getattr__(name):\n"
-            "    return resolve_lazy_export(name)\n"
+            '    if name == "connectors":\n'
+            "        from .provider import connectors\n"
+            "        return connectors\n"
+            "    raise AttributeError(name)\n"
         ),
-        consumer_sources={"consumer.py": "from polisyos.fabric import connectors as selected\n"},
+        consumer_sources={
+            "consumer.py": "from polisyos.fabric import connectors as selected\n",
+            "fabric/provider.py": "connectors = None\n",
+        },
         child_names=("connectors",),
     )
 
@@ -488,21 +497,37 @@ def test_supported_fromlist_covers_relative_and_dynamic_star_forms(
     ) in unresolved
 
 
-def test_catalog_fromlist_children_are_not_hidden_by_supported_parent(
+def test_catalog_fromlist_targets_are_declared_supported_entrypoints(
     current_deep_import_edges: tuple[guardrails.DeepImportEdge, ...],
 ) -> None:
+    expected = {"polisyos.fabric.connectors", "polisyos.fabric.data_plane"}
+    caller = (
+        guardrails.REPO_ROOT
+        / "src/polisyos/data_forge/domains/catalog/knowledge/acquisition_authority.py"
+    )
+    tree = ast.parse(caller.read_text(encoding="utf-8"))
+    observed_imports = {
+        f"{node.module}.{alias.name}"
+        for node in ast.walk(tree)
+        if isinstance(node, ast.ImportFrom) and node.module == "polisyos.fabric"
+        for alias in node.names
+    }
+    assert expected <= observed_imports
+
+    policies = guardrails._parse_public_surface(
+        guardrails.REPO_ROOT / "architecture/public_surface/contract.toml"
+    )
+    fabric = next(policy for policy in policies if policy.module == "polisyos.fabric")
+    assert expected <= set(fabric.supported_entrypoints)
+
     candidates = {
-        (edge.target_module, edge.resolution_status)
+        edge.target_module
         for edge in current_deep_import_edges
         if edge.source_file
         == "src/polisyos/data_forge/domains/catalog/knowledge/acquisition_authority.py"
-        and edge.target_module in {"polisyos.fabric.connectors", "polisyos.fabric.data_plane"}
+        and edge.target_module in expected
     }
-
-    assert candidates == {
-        ("polisyos.fabric.connectors", "not_established"),
-        ("polisyos.fabric.data_plane", "not_established"),
-    }
+    assert candidates == set()
 
 
 @pytest.mark.parametrize(
@@ -2046,6 +2071,40 @@ def _family_with_probe_basis(
     )
 
 
+def _hatchling_probe_family(
+    repo_root: Path,
+    *,
+    hatch_config: str,
+    backend: str = "hatchling.build",
+    project_hatch_build: str = "",
+    project_metadata: str = "",
+    directory_contract: str = "",
+) -> guardrails.GeneratedArtifactFamily:
+    repo_root.mkdir(parents=True, exist_ok=True)
+    (repo_root / "src").mkdir(parents=True, exist_ok=True)
+    build_system = (
+        "[build-system]\n"
+        'requires = ["hatchling>=1.27.0"]\n'
+        f"build-backend = {json.dumps(backend)}\n"
+        '\n[project]\nname = "probe"\nversion = "1.0.0"\n'
+    )
+    if project_metadata:
+        build_system += project_metadata
+    if project_hatch_build:
+        build_system += "\n[tool.hatch.build]\n" + project_hatch_build
+    (repo_root / "pyproject.toml").write_text(build_system, encoding="utf-8")
+    (repo_root / "hatch.toml").write_text(hatch_config, encoding="utf-8")
+    contract_path = repo_root / "architecture/policies/directory_contracts.toml"
+    contract_path.parent.mkdir(parents=True, exist_ok=True)
+    contract_path.write_text(directory_contract, encoding="utf-8")
+    return _family_with_probe_basis(
+        repo_root,
+        family_id="hatchling-wheel-source-closure",
+        roots=("src",),
+        required=("pyproject.toml", "hatch.toml"),
+    )
+
+
 def test_family_source_copy_skips_unselected_raw_path_before_copying_siblings(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -2162,6 +2221,568 @@ def test_family_source_copy_rejects_removed_required_input_while_contract_remain
         guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
 
     assert "probe_required_paths" in (repo / "pyproject.toml").read_text(encoding="utf-8")
+    assert not destination.exists()
+
+
+@pytest.mark.parametrize(
+    ("source_path", "is_directory"),
+    [
+        ("vendor/wheels/probe.whl", False),
+        ("vendor/source-tree/probe-package", True),
+    ],
+    ids=("wheel-file", "package-directory"),
+)
+def test_family_source_copy_includes_locked_local_path_source(
+    tmp_path: Path,
+    source_path: str,
+    is_directory: bool,
+) -> None:
+    repo = tmp_path / "repo"
+    (repo / "src").mkdir(parents=True)
+    (repo / "pyproject.toml").write_text("[project]\nname = 'probe'\n", encoding="utf-8")
+    source = repo / source_path
+    expected: dict[str, bytes]
+    if is_directory:
+        package = source / "probe_package"
+        package.mkdir(parents=True)
+        (package / "__init__.py").write_bytes(b"SOURCE = 'locked directory package'\n")
+        (package / "payload.dat").write_bytes(b"directory payload\x00\x01")
+        expected = {
+            f"{source_path}/probe_package/__init__.py": b"SOURCE = 'locked directory package'\n",
+            f"{source_path}/probe_package/payload.dat": b"directory payload\x00\x01",
+        }
+    else:
+        source.parent.mkdir(parents=True)
+        source.write_bytes(b"locked local wheel bytes\x00\x01")
+        expected = {source_path: b"locked local wheel bytes\x00\x01"}
+    (repo / "uv.lock").write_text(
+        "version = 1\n"
+        'requires-python = ">=3.14"\n'
+        "[[package]]\n"
+        'name = "probe-dependency"\n'
+        'version = "1.0.0"\n'
+        f'source = {{ path = "{source_path}" }}\n',
+        encoding="utf-8",
+    )
+    family = _family_with_probe_basis(
+        repo,
+        family_id="locked-local-path-source",
+        roots=("src",),
+        required=("pyproject.toml", "uv.lock"),
+    )
+    destination = tmp_path / "retained/source"
+
+    guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    for relative, expected_bytes in expected.items():
+        assert (destination / relative).read_bytes() == expected_bytes
+
+
+@pytest.mark.parametrize(
+    ("source_path", "failure", "error_match"),
+    [
+        ("vendor/missing.whl", "missing", "required probe input is missing"),
+        ("vendor/link.whl", "symlink", "symlink component"),
+        ("../outside.whl", "escape", "escapes the repository"),
+        ("production_data/seed.whl", "local-only", "governed local-only state"),
+        (
+            "vendor/absolute-inrepo.whl",
+            "absolute-inrepo",
+            "locked package source path must be relative",
+        ),
+        (
+            "outside-absolute.whl",
+            "absolute-outside",
+            "locked package source path must be relative",
+        ),
+        (".", "mirror-root", "resolves to the mirror root"),
+    ],
+    ids=(
+        "missing",
+        "symlink",
+        "escape",
+        "local-only",
+        "absolute-inrepo",
+        "absolute-outside",
+        "mirror-root",
+    ),
+)
+def test_family_source_copy_rejects_invalid_locked_local_path_before_destination(
+    tmp_path: Path,
+    source_path: str,
+    failure: str,
+    error_match: str,
+) -> None:
+    repo = tmp_path / "repo"
+    (repo / "src").mkdir(parents=True)
+    (repo / "pyproject.toml").write_text("[project]\nname = 'probe'\n", encoding="utf-8")
+    if failure == "symlink":
+        outside = tmp_path / "outside.whl"
+        outside.write_bytes(b"outside source")
+        link = repo / source_path
+        link.parent.mkdir(parents=True)
+        link.symlink_to(outside)
+    elif failure == "escape":
+        (tmp_path / "outside.whl").write_bytes(b"outside source")
+    elif failure == "local-only":
+        source = repo / source_path
+        source.parent.mkdir(parents=True)
+        source.write_bytes(b"local-only source")
+    locked_source_path = source_path
+    if failure == "absolute-inrepo":
+        source = repo / source_path
+        source.parent.mkdir(parents=True)
+        source.write_bytes(b"absolute in-repository source")
+        locked_source_path = source.as_posix()
+    elif failure == "absolute-outside":
+        source = tmp_path / source_path
+        source.write_bytes(b"absolute outside source")
+        locked_source_path = source.as_posix()
+    (repo / "uv.lock").write_text(
+        "version = 1\n"
+        'requires-python = ">=3.14"\n'
+        "[[package]]\n"
+        'name = "probe-dependency"\n'
+        'version = "1.0.0"\n'
+        f"source = {{ path = {json.dumps(locked_source_path)} }}\n",
+        encoding="utf-8",
+    )
+    family = _family_with_probe_basis(
+        repo,
+        family_id="invalid-locked-local-path-source",
+        roots=("src",),
+        required=("pyproject.toml", "uv.lock"),
+    )
+    destination = tmp_path / "retained/source"
+
+    with pytest.raises(OSError, match=error_match):
+        guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    assert not destination.exists()
+
+
+def test_family_source_copy_includes_effective_hatchling_wheel_inputs(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    resources = repo / "wheel-resources"
+    package_file = repo / "unlisted-package/nested/payload.bin"
+    forced_directory_file = resources / "forced-tree/nested/payload.bin"
+    source_bytes = {
+        "wheel-resources/included.bin": b"global include",
+        "unlisted-package/nested/payload.bin": b"wheel package",
+        "wheel-resources/forced.bin": b"wheel forced file",
+        "wheel-resources/forced-tree/nested/payload.bin": b"wheel forced directory",
+        "README.md": b"package readme\n",
+        "LICENSE.txt": b"package license\n",
+        "AUTHORS": b"package authors\n",
+    }
+    for relative, content in source_bytes.items():
+        path = repo / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content)
+    (resources / "global-force.bin").write_bytes(b"overridden global force")
+    (resources / "project-force.bin").write_bytes(b"overridden project force")
+    (repo / "sdist-only/payload.bin").parent.mkdir(parents=True, exist_ok=True)
+    (repo / "sdist-only/payload.bin").write_bytes(b"not a wheel source")
+    assert package_file.is_file() and forced_directory_file.is_file()
+
+    family = _hatchling_probe_family(
+        repo,
+        project_hatch_build=(
+            'force-include = { "wheel-resources/project-force.bin" = "package/project.bin" }\n'
+        ),
+        project_metadata=(
+            'readme = "README.md"\n'
+            'license = { file = "LICENSE.txt" }\n'
+            'license-files = ["AUTHORS"]\n'
+        ),
+        hatch_config=(
+            "[build]\n"
+            'include = ["wheel-resources/included.bin"]\n'
+            "[build.force-include]\n"
+            '"wheel-resources/global-force.bin" = "package/global.bin"\n'
+            "[build.targets.wheel]\n"
+            'packages = ["unlisted-package"]\n'
+            "[build.targets.wheel.force-include]\n"
+            '"wheel-resources/forced.bin" = "package/forced.bin"\n'
+            '"wheel-resources/forced-tree" = "package/forced-tree"\n'
+            "[build.targets.sdist]\n"
+            'include = ["sdist-only"]\n'
+        ),
+    )
+    destination = tmp_path / "retained/source"
+
+    guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    for relative, expected in source_bytes.items():
+        copied = (destination / relative).read_bytes()
+        assert hashlib.sha256(copied).digest() == hashlib.sha256(expected).digest()
+    assert not (destination / "wheel-resources/global-force.bin").exists()
+    assert not (destination / "wheel-resources/project-force.bin").exists()
+    assert not (destination / "sdist-only").exists()
+
+
+def test_family_source_copy_uses_global_hatchling_force_include_when_wheel_inherits_it(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    source = repo / "wheel-resources/global-force.bin"
+    source.parent.mkdir(parents=True)
+    source.write_bytes(b"global wheel force source")
+    family = _hatchling_probe_family(
+        repo,
+        hatch_config=(
+            "[build]\n"
+            'packages = ["src"]\n'
+            "[build.force-include]\n"
+            '"wheel-resources/global-force.bin" = "package/global.bin"\n'
+            "[build.targets.wheel]\n"
+        ),
+    )
+    destination = tmp_path / "retained/source"
+
+    guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    assert (destination / "wheel-resources/global-force.bin").read_bytes() == source.read_bytes()
+
+
+def test_runtime_openapi_probe_basis_resolves_every_declared_wheel_force_source() -> None:
+    families = {
+        family.family_id: family
+        for family in guardrails._parse_generated_artifacts(guardrails.DEFAULT_GENERATED_MANIFEST)
+    }
+    family = families["runtime-openapi-snapshot"]
+    roots, required, _runtime_links, _runtime_digest = guardrails._selected_probe_roots(
+        guardrails.REPO_ROOT, (family,)
+    )
+    selected_roots = {relative for _source, relative in roots}
+    selected_required = set(required)
+    hatch_config = tomllib.loads((guardrails.REPO_ROOT / "hatch.toml").read_text(encoding="utf-8"))
+    force_sources = set(hatch_config["build"]["targets"]["wheel"]["force-include"])
+    resolved_sources = guardrails._hatchling_wheel_probe_sources(
+        guardrails.REPO_ROOT,
+        local_only_roots=guardrails._local_only_probe_roots(guardrails.REPO_ROOT),
+    )
+
+    for raw_source in force_sources:
+        relative = Path(raw_source)
+        assert relative in selected_required or any(
+            relative == root or root in relative.parents for root in selected_roots
+        )
+    for relative, _source in resolved_sources:
+        assert relative in selected_required or any(
+            relative == root or root in relative.parents for root in selected_roots
+        )
+    assert Path("LICENSE") in selected_required
+
+
+@pytest.mark.parametrize(
+    ("failure", "error_match"),
+    [
+        ("missing", "required probe input is missing"),
+        ("symlink", "symlink component"),
+        ("escape", "must be a normalized relative path"),
+        ("local-only", "governed local-only state"),
+        ("absolute-inrepo", "must be relative"),
+        ("absolute-outside", "must be relative"),
+        ("tilde", "cannot use home expansion"),
+        ("pattern", "requires a literal source path"),
+        ("mirror-root", "resolves to the mirror root"),
+    ],
+    ids=(
+        "missing",
+        "symlink",
+        "escape",
+        "local-only",
+        "absolute-inrepo",
+        "absolute-outside",
+        "tilde-home-expansion",
+        "glob-pattern",
+        "mirror-root",
+    ),
+)
+def test_family_source_copy_rejects_invalid_hatchling_wheel_path_before_destination(
+    tmp_path: Path,
+    failure: str,
+    error_match: str,
+) -> None:
+    repo = tmp_path / "repo"
+    source_path = "wheel-resources/resource.bin"
+    raw_source_path = source_path
+    directory_contract = ""
+    if failure in {"absolute-inrepo", "symlink", "local-only"}:
+        source = repo / source_path
+        source.parent.mkdir(parents=True, exist_ok=True)
+        if failure == "symlink":
+            outside = tmp_path / "outside.bin"
+            outside.write_bytes(b"outside bytes")
+            source.symlink_to(outside)
+        else:
+            source.write_bytes(b"source bytes")
+        if failure == "absolute-inrepo":
+            raw_source_path = source.as_posix()
+        elif failure == "local-only":
+            raw_source_path = "production_data/resource.bin"
+            local_source = repo / raw_source_path
+            local_source.parent.mkdir(parents=True)
+            local_source.write_bytes(b"local-only bytes")
+            directory_contract = '[[contract]]\npath = "production_data"\nstatus = "local_only"\n'
+    elif failure == "escape":
+        (tmp_path / "outside.bin").write_bytes(b"outside bytes")
+        raw_source_path = "../outside.bin"
+    elif failure == "absolute-outside":
+        outside = tmp_path / "outside.bin"
+        outside.write_bytes(b"outside bytes")
+        raw_source_path = outside.as_posix()
+    elif failure == "tilde":
+        raw_source_path = "~/outside.bin"
+    elif failure == "pattern":
+        raw_source_path = "wheel-resources/*.bin"
+    elif failure == "mirror-root":
+        raw_source_path = "."
+
+    hatch_config = (
+        '[build.targets.wheel]\npackages = ["src"]\n'
+        "[build.targets.wheel.force-include]\n"
+        f'{json.dumps(raw_source_path)} = "package/resource.bin"\n'
+    )
+    family = _hatchling_probe_family(
+        repo, hatch_config=hatch_config, directory_contract=directory_contract
+    )
+    destination = tmp_path / "retained/source"
+
+    with pytest.raises(OSError, match=error_match):
+        guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    assert not destination.exists()
+
+
+@pytest.mark.parametrize("field", ["shared-data", "shared-scripts", "extra-metadata"])
+def test_family_source_copy_includes_hatchling_wheel_explicit_map_sources(
+    tmp_path: Path,
+    field: str,
+) -> None:
+    repo = tmp_path / "repo"
+    relative = f"wheel-resources/{field}.txt"
+    expected = f"{field} bytes".encode()
+    source = repo / relative
+    source.parent.mkdir(parents=True)
+    source.write_bytes(expected)
+    family = _hatchling_probe_family(
+        repo,
+        hatch_config=(
+            '[build.targets.wheel]\npackages = ["src"]\n'
+            f"[build.targets.wheel.{field}]\n"
+            f'{json.dumps(relative)} = "wheel-output/{field}.txt"\n'
+        ),
+    )
+    destination = tmp_path / "retained/source"
+
+    guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    copied = (destination / relative).read_bytes()
+    assert hashlib.sha256(copied).digest() == hashlib.sha256(expected).digest()
+
+
+def test_family_source_copy_includes_hatchling_editable_dev_mode_directories(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    relative = "editable-source/nested/module.py"
+    expected = b"VALUE = 17\n"
+    source = repo / relative
+    source.parent.mkdir(parents=True)
+    source.write_bytes(expected)
+    family = _hatchling_probe_family(
+        repo,
+        hatch_config=(
+            '[build]\ndev-mode-dirs = ["editable-source"]\n'
+            '[build.targets.wheel]\npackages = ["src"]\n'
+        ),
+    )
+    destination = tmp_path / "retained/source"
+
+    guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    assert (destination / relative).read_bytes() == expected
+
+
+@pytest.mark.parametrize(
+    ("field", "error_match"),
+    [
+        ("shared-data", "shared-data must be a source-to-target mapping"),
+        ("shared-scripts", "shared-scripts must be a source-to-target mapping"),
+        ("extra-metadata", "extra-metadata must be a source-to-target mapping"),
+    ],
+)
+def test_family_source_copy_rejects_malformed_hatchling_wheel_source_maps(
+    tmp_path: Path,
+    field: str,
+    error_match: str,
+) -> None:
+    repo = tmp_path / "repo"
+    family = _hatchling_probe_family(
+        repo,
+        hatch_config=(f'[build.targets.wheel]\npackages = ["src"]\n{field} = ["not-a-mapping"]\n'),
+    )
+    destination = tmp_path / "retained/source"
+
+    with pytest.raises(OSError, match=error_match):
+        guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    assert not destination.exists()
+
+
+def test_family_source_copy_rejects_unknown_future_wheel_source_field(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    family = _hatchling_probe_family(
+        repo,
+        hatch_config=(
+            '[build.targets.wheel]\npackages = ["src"]\n'
+            "[build.targets.wheel.future-source-map]\n"
+            '"unlisted.bin" = "wheel-output/unlisted.bin"\n'
+        ),
+    )
+    destination = tmp_path / "retained/source"
+
+    with pytest.raises(OSError, match="unsupported fields: future-source-map"):
+        guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    assert not destination.exists()
+
+
+@pytest.mark.parametrize(
+    ("hatch_config", "error_match"),
+    [
+        (
+            '[build]\ndirectory = ["output"]\n[build.targets.wheel]\npackages = ["src"]\n',
+            "Hatchling global directory must be a string",
+        ),
+        (
+            '[build.targets.wheel]\npackages = ["src"]\nstrict-naming = "false"\n',
+            "Hatchling wheel target strict-naming must be a boolean",
+        ),
+        (
+            '[metadata]\nallow-direct-references = "yes"\n'
+            '[build.targets.wheel]\npackages = ["src"]\n',
+            "Hatchling metadata allow-direct-references must be a boolean",
+        ),
+    ],
+    ids=("output-directory-type", "strict-naming-type", "metadata-flag-type"),
+)
+def test_family_source_copy_validates_hatchling_non_source_field_shapes(
+    tmp_path: Path,
+    hatch_config: str,
+    error_match: str,
+) -> None:
+    repo = tmp_path / "repo"
+    family = _hatchling_probe_family(repo, hatch_config=hatch_config)
+    destination = tmp_path / "retained/source"
+
+    with pytest.raises(OSError, match=error_match):
+        guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    assert not destination.exists()
+
+
+def test_family_source_copy_rejects_unknown_future_metadata_source_field(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    family = _hatchling_probe_family(
+        repo,
+        hatch_config=(
+            "[metadata.future-source-map]\n"
+            '"unlisted.bin" = "wheel-output/unlisted.bin"\n'
+            '[build.targets.wheel]\npackages = ["src"]\n'
+        ),
+    )
+    destination = tmp_path / "retained/source"
+
+    with pytest.raises(OSError, match="Hatchling metadata config has unsupported fields"):
+        guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    assert not destination.exists()
+
+
+def test_family_source_copy_rejects_malformed_hatchling_force_include_before_destination(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    family = _hatchling_probe_family(
+        repo,
+        hatch_config=(
+            '[build.targets.wheel]\npackages = ["src"]\nforce-include = ["not-a-mapping"]\n'
+        ),
+    )
+    destination = tmp_path / "retained/source"
+
+    with pytest.raises(OSError, match="force-include must be a source-to-target mapping"):
+        guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    assert not destination.exists()
+
+
+@pytest.mark.parametrize(
+    ("backend", "hatch_config", "error_match", "project_metadata"),
+    [
+        (
+            "setuptools.build_meta",
+            '[build.targets.wheel]\npackages = ["src"]\n',
+            "requires the standard hatchling.build backend",
+            "",
+        ),
+        (
+            "hatchling.build",
+            (
+                '[build.targets.wheel]\npackages = ["src"]\n'
+                "[build.targets.wheel.hooks.custom]\nenable-by-default = false\n"
+            ),
+            "build hooks are not source-enumerable",
+            "",
+        ),
+        (
+            "hatchling.build",
+            '[build.targets.wheel]\npackages = ["src"]\n',
+            "dynamic Hatchling project metadata is not source-enumerable",
+            'dynamic = ["version"]\n',
+        ),
+        (
+            "hatchling.build",
+            ('[build.targets.wheel]\npackages = ["src"]\n[metadata.hooks.custom]\n'),
+            "metadata hooks are not source-enumerable",
+            "",
+        ),
+    ],
+    ids=(
+        "custom-backend",
+        "dynamic-wheel-hook",
+        "dynamic-project-metadata",
+        "metadata-hook",
+    ),
+)
+def test_family_source_copy_rejects_unenumerable_hatchling_build_inputs_before_destination(
+    tmp_path: Path,
+    backend: str,
+    hatch_config: str,
+    error_match: str,
+    project_metadata: str,
+) -> None:
+    repo = tmp_path / "repo"
+    family = _hatchling_probe_family(
+        repo,
+        backend=backend,
+        hatch_config=hatch_config,
+        project_metadata=project_metadata,
+    )
+    destination = tmp_path / "retained/source"
+
+    with pytest.raises(OSError, match=error_match):
+        guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
     assert not destination.exists()
 
 

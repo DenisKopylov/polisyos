@@ -1,0 +1,165 @@
+{
+  "schema": "policyos.e02.local.b148_native_admission_handoff.v1",
+  "slice": "b148-native-admission-20261026",
+  "author": "/root",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base": "2228e3d7373edd2034075b64030ba7a93fe8bd99",
+  "candidate": "580d6256412efac3b8265592b805a9e848ec8530",
+  "candidate_tree": "46264f1c524a490828a1fbec329a8ddebd9376f9",
+  "candidate_parents": [
+    "2228e3d7373edd2034075b64030ba7a93fe8bd99"
+  ],
+  "code_acceptance": false,
+  "closure_ids": [],
+  "source_global_freeze": false,
+  "finding_proposals": [
+    {
+      "id": "B148",
+      "outcome": "limited_proposal",
+      "original_route_binding": {
+        "id": "B148",
+        "original_unit": "B",
+        "original_primary_bundle": "CAS-02",
+        "author_proposal": "held",
+        "original_criteria_pointer": "/findings/62/criterion_refs",
+        "author_source": "B",
+        "author_row_pointers": [
+          {
+            "pointer": "/rows/51"
+          },
+          {
+            "pointer": "/decisions_by_id/B148",
+            "role": "prior_status_comparison"
+          }
+        ],
+        "flows": [
+          "R",
+          "T"
+        ],
+        "next_tasks": [
+          "T1",
+          "R1"
+        ],
+        "next_decision": "resolve_named_residual_then_G_adjudication",
+        "G_closure": "not_adjudicated"
+      },
+      "claim": "Additional real FileSystemCAS first-unbound local-owner witness, verified by fresh receiver reads and foreign-owner refusals. No external permission or deterministic internal-overlap claim.",
+      "next_check": "Coordinate actual reservation contenders, then independent G adjudication against original configured permission/reuse criterion and its issuer/currentness inputs."
+    }
+  ],
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+      "before_sha256": "058cf299b45bf0a31aca2fce6c7126fd772e827d5b26c691d505140222f0186b",
+      "after_sha256": "afcadf90b097b685a7e7af105bd0a3a38d094c6d0a813ca838a9ceb1d2146766",
+      "classification": "test-only; no production source/config/export change"
+    }
+  ],
+  "selected_profile": {
+    "backend": "real temporary filesystem FileSystemCAS, two tenant-scoped views, unbound local source fixture",
+    "python": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "native_pytest": "repository pytest.ini defaults preserved; cache/basetemp/benchmark/JUnit outputs scoped to RAW",
+    "input_profile": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-prepared-b-current-criteria-r1/source-profile-freeze.json",
+      "sha256": "5ce65a193eabedee7f446ec132a6baa985783ce2f215587a702668dfa36779ac",
+      "availability": "local ignored RAW; retained on author host"
+    },
+    "resource_caps": {
+      "numeric_threads": 1,
+      "RSS_bytes": 3221225472,
+      "disk_floor_bytes": 8589934592,
+      "deadline_seconds": 240
+    }
+  },
+  "real_chain": [
+    "unbound source CAS object -> export_subgraph archive",
+    "two tenant receiver calls -> real import_subgraph reservation/staging/publication",
+    "immutable manifest profile + published receipt -> fresh FileSystemCAS receiver reads",
+    "winner content/claims verified; loser ownership absent and reads refused; source remains unbound"
+  ],
+  "verification": {
+    "command": [
+      "/usr/bin/sandbox-exec",
+      "-f",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-prepared-b-current-criteria-r1/b148-native-admission/child.sb",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-prepared-b-current-criteria-r1/b148-native-admission/pytest-cache",
+      "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-prepared-b-current-criteria-r1/b148-native-admission/benchmarks",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-prepared-b-current-criteria-r1/b148-native-admission/pytest-basetemp",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-prepared-b-current-criteria-r1/b148-native-admission/pytest.xml",
+      "--tb=short",
+      "--color=no",
+      "--maxfail=0",
+      "tests/unit/core/artifacts/test_import_admission_noop.py",
+      "tests/unit/core/artifacts/test_bound_import_preservation.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "result": {
+      "passed": 57,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "warnings": 4,
+      "warning_detail": "record_property is incompatible with JUnit xunit2 on existing parameterized lease cases",
+      "wall_seconds": 6.27105599999777,
+      "peak_sampled_RSS_bytes": 123453440,
+      "exit_code": 0
+    },
+    "full_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-prepared-b-current-criteria-r1/b148-native-admission/b148-native-admission.stdout.txt",
+      "sha256": "828e203e2fe2d27fd9a1c0cada200f0d7238cde124e2a8858f97f497900663b9",
+      "availability": "local ignored RAW; retained on author host"
+    },
+    "full_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-prepared-b-current-criteria-r1/b148-native-admission/b148-native-admission.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "availability": "local ignored RAW; retained on author host"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-prepared-b-current-criteria-r1/b148-native-admission/pytest.xml",
+      "sha256": "55c3e8c7864bb9400dd29b95a54d4196cacf6c63174e10ea1207b62a71021f7b",
+      "availability": "local ignored RAW; retained on author host"
+    },
+    "supervision_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-prepared-b-current-criteria-r1/results.json",
+      "sha256": "7660cc39d466d2ff55b67f3e40f47fb23a6c54a1e58d749529bf401dfc1b0b8d",
+      "availability": "local ignored RAW; retained on author host"
+    },
+    "branch_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b148-native-publication-r1/implementation-branch-readback.json",
+      "sha256": "549ec200d6a90490568602168d942a98b77e8edddb05bd32dd907d977ea67395",
+      "availability": "local ignored RAW; retained on author host"
+    }
+  },
+  "adversarial_controls": [
+    "Pre-stage/pre-claim refusals, malformed bound inventory and interrupted archive intake in complete modules.",
+    "Same-owner verified no-op, competing selected views, foreign-owner refusal and changed directory bytes.",
+    "Two caller threads released at a shared start barrier; one actual published owner and one ArtifactOwnershipError; fresh winner/loser/source readback."
+  ],
+  "consumer_surface": {
+    "consumer": "fresh tenant-scoped FileSystemCAS",
+    "surface": "surface_out_of_scope: internal admission tests; no new external API surface"
+  },
+  "limitations": [
+    "Start barrier precedes import_subgraph; it does not establish internal critical-section overlap. Scheduler-serial execution could satisfy this test.",
+    "Temporary local store is not a production or cross-process durability witness.",
+    "Receiver-local ownership does not create external transfer permission, legal rights, issuer authority, production currentness or T2 protected-positive facts.",
+    "57 passing cases do not close the whole B148 criterion or other findings.",
+    "No full-E02 native/backend/wheel/sdist freeze established by this slice."
+  ],
+  "P41_inherited": "not_established; no inherited-gate assertion",
+  "independent_review": {
+    "reviewer": "/root/r108_scope_peer",
+    "scope": "test-only profile-qualified receipt expectations and preserved actual CAS semantics"
+  },
+  "draft": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b148-native-publication-r1/b148-code-receipt-draft-r1/b148-code-receipt.md",
+    "sha256": "45aeb9cdba2c8d9a3a6e49d882847fd82fa4e8405624cfb61b84810773f08eee",
+    "availability": "local ignored RAW; retained on author host"
+  }
+}

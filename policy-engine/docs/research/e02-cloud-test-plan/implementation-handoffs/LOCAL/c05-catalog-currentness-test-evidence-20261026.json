@@ -1,0 +1,101 @@
+{
+  "schema": "policyos.raw-test-evidence/v1",
+  "prepared_date": "2026-10-26",
+  "evidence_root_relative_to_repository": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/",
+  "acceptance": {
+    "formal_g_acceptance": false,
+    "code_acceptance": false,
+    "closure_ids": []
+  },
+  "interpretation": "Test-slice evidence only. No product closure, production attainment, or global source freeze is claimed.",
+  "proposal_id": "C05",
+  "name": "Same-profile catalog currentness and HTTP refusal",
+  "receipt_status": "draft_evidence_only",
+  "commit": {
+    "branch": "codex/e02-unified-local-20261009",
+    "base_commit": "2af5e089bb41c72bd4576f5cc9f41a46ab7b0a8b",
+    "base_tree": "8db2bffbd2648a0b8913306817c1b4a60445538f",
+    "commit": "6ad021abaaec967ce48122e5f94985112dc19e59",
+    "tree": "1f8efd8f9818735a9f4157a6400be1b442de151a",
+    "parent": "2af5e089bb41c72bd4576f5cc9f41a46ab7b0a8b",
+    "delta": {
+      "paths": 1,
+      "file_types": {
+        ".py": 1
+      },
+      "insertions": 129,
+      "deletions": 0
+    },
+    "path": "policy-engine/tests/unit/runtime/http/test_catalog_profile_http.py",
+    "candidate_sha256": "030e7d426494fc51729fde94aabd0758fe414878ef156c88704d7ba6d00fc867",
+    "commit_intent": "root-c05-currentness-test-publication-r1/intent.json@bd24fdc757d80a3e7d6c7c286524746f4f4cfe2c246c5a09a248c9f30678b1fd",
+    "branch_readback": "root-c05-currentness-test-publication-r1/branch-readback.json@8fa61ee0efb7e655eeefffcb120d730e637aaa010e9de7daeb09bcaa19ad17b4",
+    "commit_output": [
+      "root-c05-currentness-test-publication-r1/commit.stdout@eb31fe45b3cacb5d32ae17079cbf4fe0597ea5dfdb2694bc24cfc981bfb302b2",
+      "root-c05-currentness-test-publication-r1/commit.stderr@29f04d4093a02e8bf3cd62aaa198c17608facecdcd3c5c51ac5b9e8b232305fb"
+    ],
+    "source_global_freeze": false
+  },
+  "native_execution": {
+    "result": "pass: complete target module, 5 tests, 0 failures, 0 errors, 0 skipped.",
+    "execution_head": "25da52f81b6a3c10577b14ad20f3b96b9e92f805",
+    "execution_tree": "51867e99fbc0bb8ee97fd868bbdede8b95aa9a85",
+    "execution_parent": "a3c36e7c3eb0ff2f38a47257cd53fac43643add2",
+    "candidate_tree_replay": false,
+    "command": "root-n1-r10-c05-native-composed-replay-r1/catalog-currentness-native/admission.json@da9c5043f41ae49a0d98d3ba0c144f4a7c94cc9daee2da497b22ed447cbebd11",
+    "junit": "root-n1-r10-c05-native-composed-replay-r1/catalog-currentness-native/pytest.xml@dc63c47a4e325332db7fb765a9cc1b705f58e3a262136fc7bae466a6f18dc845",
+    "stdout": "root-n1-r10-c05-native-composed-replay-r1/catalog-currentness-native/catalog-currentness-native.stdout.txt@fc751cccbf3a03cdced43504fd25d5e996b1dfe45a4fb66c012a0b8167178def",
+    "stderr": "root-n1-r10-c05-native-composed-replay-r1/catalog-currentness-native/catalog-currentness-native.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "aggregate_group_results": "root-n1-r10-c05-native-composed-replay-r1/results.json@b7137e1996843b0b417e0f7432b51adc688a47e41fd1f69b9700196fa5a4a73d",
+    "source_profile": "root-n1-r10-c05-native-composed-replay-r1/source-profile-freeze.json@ec023207e7386b1d36f27044e592f2f82891a66ebb906cee5d3a579109bd70b6",
+    "source_profile_scope": "10 direct-selected paths, source_global_freeze=false; the direct map omits the target test, but the linked complete 1,185-path source frame below pins it.",
+    "execution_source_frame": "root-n1-r10-static-collector-composition-r1/full-composed-source-frame.json@70994b607c5ac1e5bfeebe03ea77330ad3a1aa8cf569b200592a4967075fb087",
+    "frame_target_pin": "policy-engine/tests/unit/runtime/http/test_catalog_profile_http.py@030e7d426494fc51729fde94aabd0758fe414878ef156c88704d7ba6d00fc867",
+    "runner_guard": [
+      "root-n1-r10-c05-native-composed-replay-r1/run.py@2f0f395bf24351018f0731a8716499943ce7aa31ce63741e7942618032a7eb5a",
+      "root-layer-lib.py@4b381f40f830180c0aa3d1a3cc6d091bc5e5f4598660a1824894d7a188351d35"
+    ],
+    "guard_semantics": "Before each group the runner checks current branch/head/tree and hashes every path in the linked complete source frame plus known-dirty paths; that frame contains the candidate test hash above.",
+    "composition": {
+      "readback": "root-c05-currentness-http-companion-composition-r1/readback.json@43293103070436a0342e5130dc9469c691d1382589d2ff073954628dfea0a2a6",
+      "postimage_composition": "root-c05-currentness-http-companion-composition-r1/composition.json@89b7cf7b466c55c090817cb02f24d1272c77f1957643d8a91ef54a8182e79fc8",
+      "full_postimage_frame": "root-c05-currentness-http-companion-composition-r1/full-composed-source-frame.json@db94d3935e801d3b2ea729f48ef473be22af4ed50fd2406aebc7660e96e2bf71"
+    }
+  },
+  "observed_property": {
+    "test_case": "test_catalog_profile_http_recomputes_same_id_profile_drift_for_real_consumers",
+    "positive_and_control": "With same profile ID but changed base URL, warm and fresh HTTP readers withhold fetch plans and mark currentness stale/not established. Removing the recomputed admission gate exposes the stale scope_dataset plan. Restoring the exact captured profile recovers one current fetch plan without changing the published receipt or manifest.",
+    "other_module_cases": [
+      "test_catalog_profile_http_selects_published_plan_through_fresh_reader",
+      "test_catalog_profile_http_refuses_absent_conflicting_and_malformed_selection",
+      "test_catalog_profile_http_refuses_unversioned_private_profile_inputs",
+      "test_fixture_source_preflight_refuses_new_required_blocker"
+    ],
+    "evidence_class": "Behavioral HTTP consumer test with gate-removal control; commit itself is test-only."
+  },
+  "same_wave_static": {
+    "result": "four Ruff check/format commands exited 0.",
+    "commands_and_exit_codes": "root-c05-currentness-static-r1/results.json@c5c56a30aac7d91ef2ed8d6946342bcd7291072912590815039f9fca00f21dd5",
+    "stdout": [
+      "root-c05-currentness-static-r1/product-check.stdout@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "root-c05-currentness-static-r1/product-format.stdout@fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "root-c05-currentness-static-r1/workspace-check.stdout@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "root-c05-currentness-static-r1/workspace-format.stdout@fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    ],
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "claim_bounds": [
+    "The candidate commit only adds a test; it does not implement catalog currentness.",
+    "Native run exercised candidate test bytes in the pinned 25da/51867 source composition, not the entire candidate commit tree 6ad/1f8efd; no whole-candidate-tree replay or global source freeze is claimed.",
+    "The witness covers this same-profile ID/base-URL drift and controlled fixture readers; it does not establish production catalog freshness, all source profiles, or all consumers."
+  ],
+  "gate_notes": {
+    "P29": "Real HTTP readers, current producer receipt, stale plan, gate-removal leak, and restore/recovery are exercised.",
+    "P35": "Commit denominator is the complete one-path readback (one Python file); module denominator is the complete five-case JUnit report.",
+    "P37": "Candidate test bytes are pinned by the 1,185-path frame and runner guard; global source freeze remains false.",
+    "P38": "With the gate removed the stale scope_dataset row becomes selectable; with the gate active it is withheld."
+  },
+  "repository_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+  "product_root_relative_to_repository": "policy-engine",
+  "artifact_ref_convention": "Evidence refs below are relative to evidence_root_relative_to_repository; source paths are repository-relative."
+}

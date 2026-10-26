@@ -1,0 +1,78 @@
+{
+  "schema": "policyos.raw-test-evidence/v1",
+  "prepared_date": "2026-10-26",
+  "evidence_root_relative_to_repository": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/",
+  "acceptance": {
+    "formal_g_acceptance": false,
+    "code_acceptance": false,
+    "closure_ids": []
+  },
+  "interpretation": "Test-slice evidence only. No product closure, production attainment, or global source freeze is claimed.",
+  "proposal_id": "R3",
+  "name": "Exact selected CAS cost-origin witnesses",
+  "receipt_status": "draft_evidence_only",
+  "commit": {
+    "branch": "codex/e02-unified-local-20261009",
+    "base_commit": "707eb2a0e106ee6664d9f71151ef71935e1f29a8",
+    "base_tree": "8b6348192aac655862675f57c4951d3e8b0359e7",
+    "commit": "2af5e089bb41c72bd4576f5cc9f41a46ab7b0a8b",
+    "tree": "8db2bffbd2648a0b8913306817c1b4a60445538f",
+    "parent": "707eb2a0e106ee6664d9f71151ef71935e1f29a8",
+    "delta": {
+      "paths": 1,
+      "file_types": {
+        ".py": 1
+      },
+      "insertions": 107,
+      "deletions": 14
+    },
+    "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+    "candidate_sha256": "781ee8fa40b98b8a9da9e6589c1d09d504f7f2c50680153d5e95888cb6bcb9f1",
+    "commit_intent": "root-r3-exact-selected-cas-test-publication-r1/intent.json@444529599fa30ce97cfe86a588e080296469335cecdde8d19a3c2a820a6a15d6",
+    "branch_readback": "root-r3-exact-selected-cas-test-publication-r1/branch-readback.json@2eb0947fc4440356d44d06358c1d74e2f5f1f6bd3cad074646925aeb5dae915a",
+    "commit_output": [
+      "root-r3-exact-selected-cas-test-publication-r1/commit.stdout@0d2844736a1bd95b9c5f68390c789798faf9f44e0305deb5cff0f6fa5397fb70",
+      "root-r3-exact-selected-cas-test-publication-r1/commit.stderr@cd7b9f02a1e9a2d51fe5212b8e4b0ba9213ffae2467a602f6df0ee1647d02fd5"
+    ],
+    "source_global_freeze": false
+  },
+  "native_execution": {
+    "result": "pass: 69 tests, 0 failures, 0 errors, 0 skipped; selected composed suite includes both R3 test cases.",
+    "execution_head": "a0bb344e22cca6304422750f84f7cc3f0f17d6e2",
+    "execution_tree": "d80d0646085c54486e21dda82e5348ad00427d21",
+    "candidate_tree_replay": false,
+    "source_profile": "root-transport-source-role-composed-native-r1/source-profile-freeze.json@05334b144addc6df2c3215b4a75f986adce8247a443a3ca1230e98c82a2e8277",
+    "source_frame": "root-api-source-event-full-call-set-test-composition-r1/full-composed-source-frame.json@31abf698a9c6e88ed3f12c26c20585fdcdf63d3ad9a271e372f74db87790ffb5",
+    "source_profile_scope": "60 selected files; source_global_freeze=false.",
+    "exact_inputs": {
+      "test": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py@781ee8fa40b98b8a9da9e6589c1d09d504f7f2c50680153d5e95888cb6bcb9f1",
+      "producer_under_test": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py@488016d1db8e87fd965ebb0b4e840f2e14a9ef38400ee90d89a9580cd2c2a7b6"
+    },
+    "command": "root-transport-source-role-composed-native-r1/monetary-after-quality-role-native/admission.json@65e513cf9be4994d062e55d28e65c8cd5c0ec9009001d2c5bf274704e4f518ec",
+    "junit": "root-transport-source-role-composed-native-r1/monetary-after-quality-role-native/pytest.xml@00cb94ecf408f9fc9e0877ad5d5abcc617845085103c964eaad5dfd22527607b",
+    "stdout": "root-transport-source-role-composed-native-r1/monetary-after-quality-role-native/monetary-after-quality-role-native.stdout.txt@f746ab555bdd24a010617ebd318b0d1fabad000aea6f69b5fea7a0f718b4613a",
+    "stderr": "root-transport-source-role-composed-native-r1/monetary-after-quality-role-native/monetary-after-quality-role-native.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "observed_property": {
+    "test_cases": [
+      "test_simulated_nl_producer_costs_settle_and_capture_four_origins",
+      "test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen"
+    ],
+    "coverage": "Exact selected CAS view binding permits legitimate repeated reads while preserving reported, estimated, unknown, and reuse origin semantics; includes cold POST/GET and reopen/read behavior.",
+    "evidence_class": "Behavioral test evidence; no test-marker-only claim."
+  },
+  "claim_bounds": [
+    "Commit is test-only; it does not commit the NL producer source used by the native run. The run profile records that source as WIP hash 488016d1… at execution.",
+    "Native run executed at a0bb, before candidate commit 2af; candidate test bytes are pinned, but the complete candidate tree was not replayed.",
+    "No production workload, all-provider census, or global source freeze is established."
+  ],
+  "gate_notes": {
+    "P29": "The selected tests execute the NL producer and durable CAS paths.",
+    "P35": "Commit denominator is the complete one-path readback (one Python file).",
+    "P37": "Candidate test bytes and run-time producer bytes are explicitly pinned; source_global_freeze=false.",
+    "P38": "Property measured is durable origin preservation across selected-view reuse and reopen; this receipt does not generalize beyond those cases."
+  },
+  "repository_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+  "product_root_relative_to_repository": "policy-engine",
+  "artifact_ref_convention": "Evidence refs below are relative to evidence_root_relative_to_repository; source paths are repository-relative."
+}

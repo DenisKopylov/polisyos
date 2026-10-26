@@ -1,0 +1,141 @@
+{
+  "schema": "e02.b09-source-only-choice-pins.v2",
+  "source_frame": {
+    "head": "6ad021abaaec967ce48122e5f94985112dc19e59",
+    "tree": "1f8efd8f9818735a9f4157a6400be1b442de151a",
+    "branch": "codex/e02-unified-local-20261009",
+    "worktree_note": "exact committed blobs are separate from current working bytes; not a source freeze or acceptance"
+  },
+  "root_commit_delta_707_to_6ad021ab": [
+    "policy-engine/tests/unit/runtime/http/test_catalog_profile_http.py",
+    "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+  ],
+  "sources": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py",
+      "role": "route selection per epoch; delta; strict no-growth validator; per-tenant/cell overlay",
+      "committed_head_blob_sha256": "d2d2a783313a3399d01c12973872f48f60f791fa99b75792258a7aa8ca1255f8",
+      "worktree_sha256": "d2d2a783313a3399d01c12973872f48f60f791fa99b75792258a7aa8ca1255f8",
+      "worktree_status": "clean"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/acquisition_route_loop.py",
+      "role": "terminal receipt and reentry continuation",
+      "committed_head_blob_sha256": "73b173f1554b0c6b3fbe8b4f5940ebe3ca1f6b5c1aae38615d98d0d94ea07fc0",
+      "worktree_sha256": "73b173f1554b0c6b3fbe8b4f5940ebe3ca1f6b5c1aae38615d98d0d94ea07fc0",
+      "worktree_status": "clean"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/acquisition_action_service.py",
+      "role": "action orchestration/world-commit always goes to reentry",
+      "committed_head_blob_sha256": "71e543e0200600abb6f66479f3db9deb48306b65e100ac77c66154f86a16d737",
+      "worktree_sha256": "71e543e0200600abb6f66479f3db9deb48306b65e100ac77c66154f86a16d737",
+      "worktree_status": "clean"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/acquisition_surface_execution.py",
+      "role": "actual producer result bridge dispositions",
+      "committed_head_blob_sha256": "9e6b4b52faafed58ac8764dad9bf2aadec987d225ef7838e5678ccce69b83b71",
+      "worktree_sha256": "9e6b4b52faafed58ac8764dad9bf2aadec987d225ef7838e5678ccce69b83b71",
+      "worktree_status": "clean"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+      "role": "GET history DTO's current two-outcome invariant",
+      "committed_head_blob_sha256": "e6a2de614cab67cf29fb6acf662cf22e2919f478b087ab8393c693ff7d10f394",
+      "worktree_sha256": "ca113e13acededa8ecf8f2ec8940486c9f11f9f614ff8004abc0e184c339721b",
+      "worktree_status": "M policy-engine/src/polisyos/core/contracts/runtime.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "role": "durable current outcome/head validators",
+      "committed_head_blob_sha256": "d7acd2900270d1db3c7ef563c1df80ab95b24f502d405b2f938f5e80d111b4ea",
+      "worktree_sha256": "dae119cb6c82e892c395948c1a8dddac5e5574b07efd696af0a67a31f8ae793a",
+      "worktree_status": "M policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+      "role": "fresh GET current outcome projection (preexisting dirty source)",
+      "committed_head_blob_sha256": "7c785b98e2cf45e47d2c4981e5fe1e8c4e517693c3f34bd8e1b5d873673ef836",
+      "worktree_sha256": "476191a8c95996f6c166b6462929e78efe1f55a39a1970a03ffff7e9b7ceea6f",
+      "worktree_status": "M policy-engine/src/polisyos/runtime/http/routes/runs.py"
+    },
+    {
+      "path": "policy-engine/tests/integration/core_runtime/test_acquisition_authority_served.py",
+      "role": "existing source-bound e2e and B09 synthetic controls",
+      "committed_head_blob_sha256": "30f774da82576fa84f36a164c15f699a871f9c434fd9c9608dd5ac4f55bf76a4",
+      "worktree_sha256": "065271cf4bcde096aef15942f36eed5bbdaecc44253fa8c692fb4e6551283006",
+      "worktree_status": "M policy-engine/tests/integration/core_runtime/test_acquisition_authority_served.py"
+    },
+    {
+      "path": "policy-engine/tests/_helpers/acquisition_served_history.py",
+      "role": "existing POST workflow, controlled owner fixture, B09 evidence",
+      "committed_head_blob_sha256": "58b4652b7a97ed4df1f1b42c86ddb8fa82a8c77bd2cd08caf3f35e677c58495a",
+      "worktree_sha256": "8421da786369510838eda2dc5cf1c99124add2c02b117e6169e9a10338c5c4f7",
+      "worktree_status": "M policy-engine/tests/_helpers/acquisition_served_history.py"
+    },
+    {
+      "path": "policy-engine/tests/_helpers/acquisition_chain.py",
+      "role": "real WDI producer and selected epoch setup",
+      "committed_head_blob_sha256": "cc74bbf7ec45ccc3eef129f20a6271cb1cd0eaf823392629770bf42a24aed614",
+      "worktree_sha256": "cc74bbf7ec45ccc3eef129f20a6271cb1cd0eaf823392629770bf42a24aed614",
+      "worktree_status": "clean"
+    },
+    {
+      "path": "policy-engine/tests/_helpers/acquisition_epoch_production.py",
+      "role": "fixture native epoch source/admission inputs",
+      "committed_head_blob_sha256": "7287904d2a562e44a5f69309b5813ccddc7b85ebc2db2f9486dbc7c2f6a034d8",
+      "worktree_sha256": "7287904d2a562e44a5f69309b5813ccddc7b85ebc2db2f9486dbc7c2f6a034d8",
+      "worktree_status": "clean"
+    },
+    {
+      "path": "policy-engine/tests/_helpers/acquisition_production.py",
+      "role": "controlled WDI transport and source bytes",
+      "committed_head_blob_sha256": "ef1dc1bdb38edd06dded6119fe93252932104f6614b3599000350f453c7afb70",
+      "worktree_sha256": "ef1dc1bdb38edd06dded6119fe93252932104f6614b3599000350f453c7afb70",
+      "worktree_status": "clean"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "role": "N5 continuation always appends and validates a new cycle",
+      "committed_head_blob_sha256": "4d82eb434bbcb48e234ceecc5c468224c0311d85ed3c11241b27b762a69d5ba4",
+      "worktree_sha256": "4d82eb434bbcb48e234ceecc5c468224c0311d85ed3c11241b27b762a69d5ba4",
+      "worktree_status": "clean"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+      "role": "existing semantic-epoch no_change receipt; does not classify route outcome or prove exact WMR/N5 input equivalence",
+      "committed_head_blob_sha256": "37e45f3e22695761935e109acbff12f379dc5a397ac020e48095270712e28f04",
+      "worktree_sha256": "37e45f3e22695761935e109acbff12f379dc5a397ac020e48095270712e28f04",
+      "worktree_status": "clean"
+    }
+  ],
+  "fixture_candidate": {
+    "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/v3-second-source-epoch-20261026-r1/v3-fixture-r3d-source-positive/manifest.json",
+    "manifest_sha256": "34bc51a990f39ac79134d630219512cea0166c6797f9655d1779ad89ae6cc1ef",
+    "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/v3-second-source-epoch-20261026-r1/v3-fixture-r3d-source-positive/proposal.patch",
+    "patch_sha256": "a7e003d6a1ee62deb08a784d1e064e4237828e0fb0fe1655ade516a26e1dd63f",
+    "manifest_has_committed_and_worktree_preimages_for_each_five_paths": true,
+    "runtime_executed": false,
+    "source_freeze": false,
+    "claim_boundary": "UNRUN and first selected source only; independent review found it does not establish a second source/epoch. Not deciding evidence for this question."
+  },
+  "semantic_epoch_boundary": "semantic_epoch.py can report its own no_change, but that receipt does not establish equality of all WMR/N5-effective inputs, suppress generation_cycle reentry, or provide a source-occurrence terminal/history join.",
+  "code_acceptance": false,
+  "closure_ids": [],
+  "global_freeze": false,
+  "known_wip_availability": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b09-architecture-source-availability-r1/known-wip-input-delta.patch",
+    "sha256": "82de87f7e54c9728f2bbc6967ba86e7ccd35756d1e9f8dd910246e8d7a0b5a51",
+    "bytes": 35989,
+    "availability": "resident ignored RAW on this Mac; not published source or code acceptance; committed baselines in every source row are fetchable",
+    "scope": "exact five tracked working-file deltas against6ad; retained to reconstruct those five frozen proposal inputs if later authoring advances"
+  },
+  "review": {
+    "reviewer": "restart_disk_replay_audit",
+    "verdict": "G contract choice required for source-only outcome; existing semantic_epoch no_change does not establish complete WMR/N5 basis equality; 14 source pins verified",
+    "runtime_second_source_positive": "UNRUN; separate author work continues",
+    "source_only_capability": "absent/unallocated; design input only, no admitted typed source-only route chain",
+    "closure_ids": []
+  }
+}

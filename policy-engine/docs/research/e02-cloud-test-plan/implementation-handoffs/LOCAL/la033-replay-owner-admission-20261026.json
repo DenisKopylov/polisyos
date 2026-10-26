@@ -1,0 +1,356 @@
+{
+  "schema": "policyos.e02.local.replay_owner_admission_handoff.v1",
+  "slice": "la033-replay-owner-admission-20261026",
+  "author": "/root",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base": "f3635dedb8eb8115e62f139ac077165f3b529fad",
+  "candidate": "61b35053960e13c47ad30668745b2afc4ed61528",
+  "candidate_tree": "e59db16d228a07b605350b6e708d7cf40b169b54",
+  "candidate_parents": [
+    "f3635dedb8eb8115e62f139ac077165f3b529fad"
+  ],
+  "code_acceptance": false,
+  "closure_ids": [],
+  "source_global_freeze": false,
+  "finding_proposals": [
+    {
+      "id": "LA-033",
+      "outcome": "limited_proposal",
+      "claim": "Canonical replay compatibility identities retained; the real verify-and-persist path passes one already-admitted basis to the canonical private measurement helper and emits a freshly readable selected-profile report.",
+      "next_check": "Independent G original-scope adjudication; wider replay/caller and native closeout verification on the final composition."
+    }
+  ],
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/tests/unit/scientist/replay/test_deterministic_compatibility.py",
+      "before_sha256": "a503000422c2e767c9a657317fc6f4e2035f6f0225f4b2e8debdbcdf883fad8d",
+      "after_sha256": "e5abc478aeb408d9d1539656f8e06dc04f985139b2387235b1b0cc9c9e4d9fa8",
+      "role": "test-only companion; production code and API exports unchanged"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/replay/test_verification_owner_admission.py",
+      "before_sha256": "a14322add6aeea39a1d751576b9833a756be68819cbdbdbf649fb8b7f7f7e9c2",
+      "after_sha256": "768b501039733f154ce15df8944ddb7a7537efafdb557f10fdf712f60d41d52b",
+      "role": "test-only companion; production code and API exports unchanged"
+    }
+  ],
+  "selected_input_profile": {
+    "backend": "actual temporary FileSystemCAS and real replay bundle/report owner APIs",
+    "python": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "pytest": "native pytest.ini/importlib/plugin autoload; outputs only redirected",
+    "source_profile_freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/source-profile-freeze.json",
+      "sha256": "89a9374d477f75ba0dcb07d1732f54bc51b6b793f82e196bb11a42786cdab19b",
+      "availability": "local ignored RAW retained on author host"
+    },
+    "resource_caps": {
+      "RSS_bytes": 2147483648,
+      "disk_floor_bytes": 8589934592,
+      "numeric_threads": 1,
+      "deadline_seconds": 240
+    },
+    "timing": "Runtime ran on these exact postimage bytes before the ordinary implementation commit; branch blobs were read back and match."
+  },
+  "real_chain": [
+    "candidate/evaluation -> persisted selected-profile ReplayableAuditBundle",
+    "public verify_and_persist_replay_bundle -> one root basis admission",
+    "exact same store/ref/bundle/basis -> canonical private measurement helper",
+    "persisted typed report -> fresh load and nested profile/lineage verification"
+  ],
+  "consumer_surface": {
+    "consumer": "existing replay verification/promotion readers; actual report CAS load",
+    "surface": "surface_out_of_scope: test companion adds no new public surface"
+  },
+  "verification": {
+    "positive": {
+      "passed": 9,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "full_modules": [
+        "tests/unit/scientist/replay/test_deterministic_compatibility.py",
+        "tests/unit/scientist/replay/test_verification_owner_admission.py"
+      ],
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/positive-result.json",
+        "sha256": "bda72da3dbdf57e5da3245091ff1410d8ee0dc588d5d31e9c1bee94c3e3fec3a",
+        "availability": "local ignored RAW retained on author host"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/pytest-two-modules/pytest.xml",
+        "sha256": "2f05a04fcb9d02872220ccae70c02426547d8fcbf0c874a76d05c6116af2f293",
+        "availability": "local ignored RAW retained on author host"
+      }
+    },
+    "adversarial_removal": {
+      "result": "EXPECTED_RED_CONFIRMED",
+      "property": "In memory route the same measurement through the real public re-admitting wrapper, preserving canonical bytes and markers; one actual selected test fails at admission_calls=2 versus1.",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/removal-control-result.json",
+        "sha256": "914861a81e30aa91b88f8a0bc0beb8ac6cbb0d1b4bd20a911080ad64b4312211",
+        "availability": "local ignored RAW retained on author host"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/pytest-removal-public-wrapper/pytest.xml",
+        "sha256": "e2dad0df5db5b844e1939b73b36d51955601b32cd1129f8285bc0375db0b3c8b",
+        "availability": "local ignored RAW retained on author host"
+      }
+    },
+    "static": "product and workspace Ruff check/format plus exact-path git diff --check passed",
+    "complete_commands_and_outputs": [
+      {
+        "id": "ruff-full-product",
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-f",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/ruff-full-product/child.sb",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "ruff.toml",
+          "tests/unit/scientist/replay/test_deterministic_compatibility.py",
+          "tests/unit/scientist/replay/test_verification_owner_admission.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "exit_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/ruff-full-product/ruff-full-product.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "availability": "local ignored RAW retained on author host"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/ruff-full-product/ruff-full-product.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "availability": "local ignored RAW retained on author host"
+        }
+      },
+      {
+        "id": "ruff-full-workspace",
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-f",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/ruff-full-workspace/child.sb",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/scientist/replay/test_deterministic_compatibility.py",
+          "policy-engine/tests/unit/scientist/replay/test_verification_owner_admission.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+        "exit_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/ruff-full-workspace/ruff-full-workspace.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "availability": "local ignored RAW retained on author host"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/ruff-full-workspace/ruff-full-workspace.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "availability": "local ignored RAW retained on author host"
+        }
+      },
+      {
+        "id": "ruff-format-product",
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-f",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/ruff-format-product/child.sb",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "ruff.toml",
+          "tests/unit/scientist/replay/test_deterministic_compatibility.py",
+          "tests/unit/scientist/replay/test_verification_owner_admission.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "exit_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/ruff-format-product/ruff-format-product.stdout.txt",
+          "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+          "availability": "local ignored RAW retained on author host"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/ruff-format-product/ruff-format-product.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "availability": "local ignored RAW retained on author host"
+        }
+      },
+      {
+        "id": "ruff-format-workspace",
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-f",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/ruff-format-workspace/child.sb",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/scientist/replay/test_deterministic_compatibility.py",
+          "policy-engine/tests/unit/scientist/replay/test_verification_owner_admission.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+        "exit_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/ruff-format-workspace/ruff-format-workspace.stdout.txt",
+          "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+          "availability": "local ignored RAW retained on author host"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/ruff-format-workspace/ruff-format-workspace.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "availability": "local ignored RAW retained on author host"
+        }
+      },
+      {
+        "id": "git-diff-check",
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-f",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/git-diff-check/child.sb",
+          "git",
+          "-C",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "diff",
+          "--check",
+          "--",
+          "policy-engine/tests/unit/scientist/replay/test_deterministic_compatibility.py",
+          "policy-engine/tests/unit/scientist/replay/test_verification_owner_admission.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+        "exit_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/git-diff-check/git-diff-check.stdout.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "availability": "local ignored RAW retained on author host"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/git-diff-check/git-diff-check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "availability": "local ignored RAW retained on author host"
+        }
+      },
+      {
+        "id": "pytest-two-modules",
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-f",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/pytest-two-modules/child.sb",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "--basetemp",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/pytest-two-modules/basetemp",
+          "-o",
+          "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/pytest-two-modules/pytest-cache",
+          "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/pytest-two-modules/benchmarks",
+          "--junitxml",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/pytest-two-modules/pytest.xml",
+          "--tb=long",
+          "-rA",
+          "tests/unit/scientist/replay/test_deterministic_compatibility.py",
+          "tests/unit/scientist/replay/test_verification_owner_admission.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "exit_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/pytest-two-modules/pytest-two-modules.stdout.txt",
+          "sha256": "04f087511bb449f262868f5f58e24e1eafac601f641d0aa14d3b7197a1d5a4b8",
+          "availability": "local ignored RAW retained on author host"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/pytest-two-modules/pytest-two-modules.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "availability": "local ignored RAW retained on author host"
+        }
+      },
+      {
+        "id": "pytest-removal-public-wrapper",
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-f",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/pytest-removal-public-wrapper/child.sb",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-c",
+          "import pytest\nimport polisyos.scientist.replay.deterministic as owner\noriginal_private = owner._measure_replayable_audit_bundle_admission\npublic_measure = owner.measure_replayable_audit_bundle\ndef _route_through_public_wrapper(store, bundle_ref, bundle, admission):\n    owner._measure_replayable_audit_bundle_admission = original_private\n    try:\n        return public_measure(store, bundle_ref)\n    finally:\n        owner._measure_replayable_audit_bundle_admission = _route_through_public_wrapper\nowner._measure_replayable_audit_bundle_admission = _route_through_public_wrapper\nraise SystemExit(pytest.main(['--basetemp', '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/pytest-removal-public-wrapper/basetemp', '-o', 'cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/pytest-removal-public-wrapper/pytest-cache', '--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/pytest-removal-public-wrapper/benchmarks', '--junitxml', '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/pytest-removal-public-wrapper/pytest.xml', '--tb=long', '-rA', 'tests/unit/scientist/replay/test_verification_owner_admission.py::test_replay_verification_writer_returns_selected_profile_and_preserves_input_profiles']))\n"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "exit_code": 1,
+        "complete": true,
+        "aborted_reason": null,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/pytest-removal-public-wrapper/pytest-removal-public-wrapper.stdout.txt",
+          "sha256": "21c0bad42df42eac282054533e3e37c2a547b6950f243533e09a8051905ab012",
+          "availability": "local ignored RAW retained on author host"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/pytest-removal-public-wrapper/pytest-removal-public-wrapper.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "availability": "local ignored RAW retained on author host"
+        }
+      }
+    ],
+    "final_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-43b726f12b0d/final-result.json",
+      "sha256": "cd18708937cf35df5692611aca4c2e1684f15b140bb2d2b5e3db5151fb4226c0",
+      "availability": "local ignored RAW retained on author host"
+    },
+    "branch_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-implementation-publication-r1/branch-readback.json",
+      "sha256": "980c74b8bd3c7e8a5633dccd3403db2612f70809ea60945ae61b7b04b4f03748",
+      "availability": "local ignored RAW retained on author host"
+    }
+  },
+  "reviews": [
+    {
+      "reviewer": "/root/cleanup_remaining_generated_audit",
+      "scope": "two-test companion before composition; no re-admission/public alias restoration"
+    },
+    {
+      "reviewer": "/root",
+      "scope": "exact source/branch/complete native outputs; import-only formatting preserves import AST multiset and non-import body AST"
+    }
+  ],
+  "prior_attempt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-la033-native-replay-r1/attempt-05a3178ce5d8",
+    "outcome": "9 runtime PASS and expected removal red, but actual I001 lint failure; xunit2 lacks file attribute, producing a separate harness attribution error. Both were corrected and rerun. No product failure hidden."
+  },
+  "limitations": [
+    "Only the two named modules and real local CAS route were verified; no whole-E02 closure or global freeze.",
+    "Existing compatibility exports and shim retirement criteria remain under their owners; no dates renewed or G retirement decision invented.",
+    "No installed wheel/rebuilt sdist, browser, production currentness, issuer or calibration fact demonstrated by this slice."
+  ],
+  "P41_inherited": "not_established; no inherited-gate claim"
+}

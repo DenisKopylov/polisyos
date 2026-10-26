@@ -1,0 +1,529 @@
+{
+  "schema": "policyos.e02.local.native_source_inputs_handoff.v1",
+  "slice": "native-source-inputs-20261026",
+  "author": "/root",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base": "40fbd693e59ebfe910cc84b6e0d7104ef58c27bc",
+  "candidate": "b18d81e5fdf55f887aa7e4677d0695a75a7b5c09",
+  "candidate_tree": "631a0530a5d27fbbdd7902c0cc910258804e3e1f",
+  "candidate_parents": [
+    "40fbd693e59ebfe910cc84b6e0d7104ef58c27bc"
+  ],
+  "code_acceptance": false,
+  "closure_ids": [],
+  "finding_proposals": [],
+  "task_proposals": [
+    {
+      "task": "DX0",
+      "outcome": "limited_proposal",
+      "claim": "Source mirror now includes literal locked package/build inputs and rejects unsupported selection before copy; actual native generation remains to run."
+    },
+    {
+      "task": "Q2",
+      "outcome": "limited_proposal",
+      "claim": "Selected wheel/editable inputs are mirrored; installed wheel, rebuilt sdist, resource consumers and their actual byte qualification remain unrun for this slice."
+    }
+  ],
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_architecture_phase3.py",
+      "before_sha256": "78d12decba38d78764d83a1691a399b557172ed12c574a092414bdfef82805ad",
+      "after_sha256": "8bd89748fea5341677f3eacbc944f41575bb631850b8b8959e40403cbf7a8ed1",
+      "before_git_blob": "c906ec510268a5e6f75add40756aa0d6238c7224",
+      "after_git_blob": "fc44a786f35132af09f90b2d3a8763988983a5c4"
+    },
+    {
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "before_sha256": "1182790bfd00a278e4e6303a48fe1bdbfa16166da31c08799705bd8d9573abee",
+      "after_sha256": "739d5a08f6ecd23d594a7d2506dc0e9f0c3fb80bf9bc2fb727a0141c1efb1baf",
+      "before_git_blob": "df06b869916591d5e9caaadfa9d42c378ec2adca",
+      "after_git_blob": "5ae7a7e997830fdd7d6f1f1167dec77e8030eb74"
+    }
+  ],
+  "implementation": {
+    "strategy": "extend existing _selected_probe_roots and _resolve_probe_member; one owner resolver, no parallel build selector",
+    "locked_input_contract": "complete uv.lock package table: each relative package.source.path file/directory resolved and mirrored",
+    "wheel_input_contract": "effective Hatchling top-level hatch.toml overlay, global and selected wheel fields; literal paths and mapped sources; bounded metadata files",
+    "fail_closed": "missing/malformed/symlink/absolute/parent/local-only/runtime-tree paths, unknown selected fields, custom backend paths, hooks, dynamic metadata and local build dependencies refuse before destination creation",
+    "current_Hatchling_source_declarations": [
+      "src/polisyos",
+      "tools",
+      "data/dataset_catalog/seed_variable_alignments.yaml",
+      "data/dataset_catalog/proxy_metric_alignments.yaml",
+      "data/dataset_catalog/wvs_indicator_registry.yaml",
+      "data/dataset_catalog/metrics_map.yaml",
+      "src/polisyos/runtime/http/_resources/confidence_ledger_risk_spend_openapi_example.json",
+      "architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+      "workers/dowhy-014/worker.py",
+      "workers/dowhy-014/protocol.py",
+      "workers/dowhy-014/pyproject.toml",
+      "workers/dowhy-014/uv.lock",
+      "workers/dowhy-014/.python-version",
+      "workers/dowhy-014/README.md"
+    ],
+    "declaration_count": 14,
+    "declaration_count_scope": "two package roots plus every key of current force-include map; recursive file count is not claimed",
+    "locked_local_sources": [
+      {
+        "path": "policy-engine/vendor/wheels/odfpy-1.4.1-py2.py3-none-any.whl",
+        "sha256": "1d1c3ea36a422d3c5cd4c2457ea0e0be59841d6c26d28bd3d5e43f060565d11b",
+        "package": "odfpy"
+      }
+    ],
+    "runtime_consumers": "native architecture generated-artifact probe source copy; broader actual generator/build invocation unrun",
+    "surface": "surface_out_of_scope: internal DevX plumbing; existing product exports unchanged"
+  },
+  "selected_environment": {
+    "python": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "version": "CPython 3.14.3",
+    "source_mirror_owner_API": "Hatchling 1.27.0 installed API, exact files pinned in R11 author manifest",
+    "actual_native_UV_build_backend": "not_established by these mirror tests; pyproject build requirement is not an exact backend lock",
+    "pytest_profile": "focused source-copy selection, addopts cleared, cacheprovider/benchmark disabled, one cache_dir warning retained",
+    "Ruff_profiles": [
+      "product cwd policy-engine with ruff.toml",
+      "workspace cwd repository with architecture/tooling/ruff/workspace_root.toml"
+    ],
+    "resource_policy": "one heavy slot, numerical threads=1, selected 2GiB RSS and 8GiB disk floor"
+  },
+  "selected_input_pins": [
+    {
+      "path": "policy-engine/pyproject.toml",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2"
+    },
+    {
+      "path": "policy-engine/hatch.toml",
+      "sha256": "b30a89dcdcfba3e94915be920d2a060fe991f7364c4501a66e529b4bed812bef"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "sha256": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9"
+    },
+    {
+      "path": "policy-engine/architecture/policies/directory_contracts.toml",
+      "sha256": "88d74cf64f7e71c70f08dc7ed570ef0aa7ce02bb70a52f649015f2e9fec40d43"
+    },
+    {
+      "path": "policy-engine/architecture/generated_artifacts.toml",
+      "sha256": "8ecddf6c787c0c7cb792a27d7b51f5b2c4061713acde3069741df3bad3f1f033"
+    },
+    {
+      "path": "policy-engine/ruff.toml",
+      "sha256": "8ffeafd8510518f1e89e6a2028aff685817bf5466dbffbc8c8bce85d01c8a4c5"
+    },
+    {
+      "path": "policy-engine/ruff.generated.toml",
+      "sha256": "759cad425eac3718d5161d1f6fd4bfe52a57f2d28a77cc408d0bc30b955bf2c6"
+    },
+    {
+      "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "sha256": "2cc164e43c7c336fc11ced00cf6c3a9e88ca7fa22341b372440420f9178d3b74"
+    }
+  ],
+  "source_freeze": {
+    "global": false,
+    "test_wave_selected_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-fixture-companion-applied-r1/full-composed-source-frame.json",
+      "sha256": "8942a489b6852ae04560a972f11ce99490b28a5516b5808c724a1c5828f8d61f",
+      "availability": "retained locally under ignored RAW; not a tracked source copy"
+    },
+    "scope": "captured root composition includes independent N1/B148 WIP; exact owned paths match candidate",
+    "correction_to_RAW_draft": "RAW draft cites earlier R11 frame 0a2970... before the two-line test companion; actual R2 test-wave frame is 8942a489... from root journal at 07:19:24Z, before command start 07:19:37Z",
+    "selection_file": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/focused-selection.json",
+      "sha256": "5412f5ff139ef226021afa66047cf3e0dc0cd6437b3a2330c71e17db20c291c3",
+      "availability": "retained locally under ignored RAW; not a tracked source copy"
+    },
+    "selection_limit": "selector names only; its earlier module hash is not the final test input pin. Final module hash is in the footprint and actual test-wave frame."
+  },
+  "verification": [
+    {
+      "id": "source-mirror-build-input-families",
+      "argv": [
+        "/usr/bin/sandbox-exec",
+        "-f",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/actual-r2-source-mirror-families/child.sb",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "no:benchmark",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/actual-r2-source-mirror-families/pytest-temp",
+        "--tb=short",
+        "-rA",
+        "-q",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_skips_unselected_raw_path_before_copying_siblings",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_includes_ignored_untracked_file_read_by_child",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_rejects_removed_required_input_while_contract_remains",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_includes_locked_local_path_source",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_rejects_invalid_locked_local_path_before_destination",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_includes_effective_hatchling_wheel_inputs",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_uses_global_hatchling_force_include_when_wheel_inherits_it",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_runtime_openapi_probe_basis_resolves_every_declared_wheel_force_source",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_rejects_invalid_hatchling_wheel_path_before_destination",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_includes_hatchling_wheel_explicit_map_sources",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_includes_hatchling_editable_dev_mode_directories",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_rejects_malformed_hatchling_wheel_source_maps",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_rejects_unknown_future_wheel_source_field",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_validates_hatchling_non_source_field_shapes",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_rejects_unknown_future_metadata_source_field",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_rejects_malformed_hatchling_force_include_before_destination",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_rejects_unenumerable_hatchling_build_inputs_before_destination",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_rejects_missing_tracked_source_before_destination",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_rejects_symlinked_source_ancestor",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_fails_closed_on_directory_enumeration_error",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_preflights_disk_before_creating_destination",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_isolated_probe_ignores_stale_bytecode_in_the_copied_source_basis",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_unadmitted_governed_artifact_root_is_refused_before_environment_preparation",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_trust_probe_basis_includes_actual_compiler_read_receipt",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_preserves_python_files_inside_environment_layout",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_refuses_fifo_in_source_root",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_probe_runtime_links_are_typed_and_preserved_as_links",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_probe_runtime_package_link_rejects_external_resolved_target",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_probe_runtime_selector_rejects_unregistered_external_path",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_local_only_roots_follow_owner_contract_not_nested_basenames",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_preserves_python_files_inside_huggingface_layout",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_pnpm_runtime_receipt_must_match_the_declared_lockfile",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_governed_artifact_root_is_removed_when_parent_did_not_set_it",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_selected_governed_artifact_root_maps_into_the_isolated_copy",
+        "tests/repo_quality/tools/test_architecture_phase3.py::test_internal_symlink_to_unselected_path_is_rejected"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "started_at": "2026-10-26T07:19:37.126947+00:00",
+      "return_code": 0,
+      "complete": true,
+      "aborted_reason": null,
+      "scope": "35 function selectors / 59 parametrized cases; source-copy behavior only",
+      "wall_seconds": 2.089282250002725,
+      "peak_sampled_RSS_bytes": 154042368,
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/actual-r2-source-mirror-families/results.json",
+        "sha256": "ae3115e7aa642b201fc7d4a6c4c9196d4aa57a5f5b750a685a8135e1bf6393f8",
+        "availability": "retained locally under ignored RAW; not a tracked source copy"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/actual-r2-source-mirror-families/source-mirror-build-input-families.stdout.txt",
+        "sha256": "a8f5f68f1a4650b8e9e70ce222a1edbba95c438b08052b1104bd8e4725e3ff7e",
+        "availability": "retained locally under ignored RAW; not a tracked source copy"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/actual-r2-source-mirror-families/source-mirror-build-input-families.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained locally under ignored RAW; not a tracked source copy"
+      }
+    },
+    {
+      "id": "ruff-product",
+      "argv": [
+        "/usr/bin/sandbox-exec",
+        "-f",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/actual-r3-final-static/child.sb",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/ruff.toml",
+        "tools/devx/architecture/guardrails.py",
+        "tests/repo_quality/tools/test_architecture_phase3.py",
+        "tests/unit/core/artifacts/test_import_admission_noop.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "started_at": "2026-10-26T07:26:13.347246+00:00",
+      "return_code": 0,
+      "complete": true,
+      "aborted_reason": null,
+      "scope": "two owned Python paths plus the separately owned B148 test; both lint profiles and format",
+      "wall_seconds": 1.0471817079960601,
+      "peak_sampled_RSS_bytes": 3866624,
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/actual-r3-final-static/results.json",
+        "sha256": "5521e3e8900a867274194eb57f3b76b6073fc049a164bc64b0c0b31859bb5143",
+        "availability": "retained locally under ignored RAW; not a tracked source copy"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/actual-r3-final-static/ruff-product.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "availability": "retained locally under ignored RAW; not a tracked source copy"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/actual-r3-final-static/ruff-product.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained locally under ignored RAW; not a tracked source copy"
+      }
+    },
+    {
+      "id": "format-product",
+      "argv": [
+        "/usr/bin/sandbox-exec",
+        "-f",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/actual-r3-final-static/child.sb",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--no-cache",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/ruff.toml",
+        "tools/devx/architecture/guardrails.py",
+        "tests/repo_quality/tools/test_architecture_phase3.py",
+        "tests/unit/core/artifacts/test_import_admission_noop.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "started_at": "2026-10-26T07:26:14.395937+00:00",
+      "return_code": 0,
+      "complete": true,
+      "aborted_reason": null,
+      "scope": "two owned Python paths plus the separately owned B148 test; both lint profiles and format",
+      "wall_seconds": 1.052716625010362,
+      "peak_sampled_RSS_bytes": 3866624,
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/actual-r3-final-static/results.json",
+        "sha256": "5521e3e8900a867274194eb57f3b76b6073fc049a164bc64b0c0b31859bb5143",
+        "availability": "retained locally under ignored RAW; not a tracked source copy"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/actual-r3-final-static/format-product.stdout.txt",
+        "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+        "availability": "retained locally under ignored RAW; not a tracked source copy"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/actual-r3-final-static/format-product.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained locally under ignored RAW; not a tracked source copy"
+      }
+    },
+    {
+      "id": "ruff-workspace",
+      "argv": [
+        "/usr/bin/sandbox-exec",
+        "-f",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/actual-r3-final-static/child.sb",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "policy-engine/tools/devx/architecture/guardrails.py",
+        "policy-engine/tests/repo_quality/tools/test_architecture_phase3.py",
+        "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "started_at": "2026-10-26T07:26:15.452114+00:00",
+      "return_code": 0,
+      "complete": true,
+      "aborted_reason": null,
+      "scope": "two owned Python paths plus the separately owned B148 test; both lint profiles and format",
+      "wall_seconds": 1.069502291007666,
+      "peak_sampled_RSS_bytes": 3866624,
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/actual-r3-final-static/results.json",
+        "sha256": "5521e3e8900a867274194eb57f3b76b6073fc049a164bc64b0c0b31859bb5143",
+        "availability": "retained locally under ignored RAW; not a tracked source copy"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/actual-r3-final-static/ruff-workspace.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "availability": "retained locally under ignored RAW; not a tracked source copy"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/actual-r3-final-static/ruff-workspace.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained locally under ignored RAW; not a tracked source copy"
+      }
+    },
+    {
+      "id": "format-workspace",
+      "argv": [
+        "/usr/bin/sandbox-exec",
+        "-f",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/actual-r3-final-static/child.sb",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--no-cache",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "policy-engine/tools/devx/architecture/guardrails.py",
+        "policy-engine/tests/repo_quality/tools/test_architecture_phase3.py",
+        "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "started_at": "2026-10-26T07:26:16.524088+00:00",
+      "return_code": 0,
+      "complete": true,
+      "aborted_reason": null,
+      "scope": "two owned Python paths plus the separately owned B148 test; both lint profiles and format",
+      "wall_seconds": 1.0684529169957386,
+      "peak_sampled_RSS_bytes": 3866624,
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/actual-r3-final-static/results.json",
+        "sha256": "5521e3e8900a867274194eb57f3b76b6073fc049a164bc64b0c0b31859bb5143",
+        "availability": "retained locally under ignored RAW; not a tracked source copy"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/actual-r3-final-static/format-workspace.stdout.txt",
+        "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+        "availability": "retained locally under ignored RAW; not a tracked source copy"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-r11/actual-r3-final-static/format-workspace.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained locally under ignored RAW; not a tracked source copy"
+      }
+    },
+    {
+      "id": "wheel-source-hook-removed",
+      "intent": "remove runtime source-selection hook, retain tracked source/markers and selected config",
+      "argv": [
+        "/usr/bin/sandbox-exec",
+        "-f",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-property-removal-controls-r1/wheel-source-hook-removed/child.sb",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-c",
+        "import pytest,sys\nfrom tools.devx.architecture import guardrails as owner\noriginal=owner._hatchling_wheel_probe_sources\nowner._hatchling_wheel_probe_sources=lambda *args, **kwargs: ()\nraise SystemExit(pytest.main(['-o', 'addopts=', '-p', 'no:cacheprovider', '-p', 'no:benchmark', '--basetemp', '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-property-removal-controls-r1/wheel-source-hook-removed/basetemp', '--junitxml', '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-property-removal-controls-r1/wheel-source-hook-removed/pytest.xml', '--tb=short', '-rA', '-q', 'tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_includes_effective_hatchling_wheel_inputs', 'tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_includes_hatchling_wheel_explicit_map_sources', 'tests/repo_quality/tools/test_architecture_phase3.py::test_family_source_copy_includes_hatchling_editable_dev_mode_directories', 'tests/repo_quality/tools/test_architecture_phase3.py::test_runtime_openapi_probe_basis_resolves_every_declared_wheel_force_source']))\n"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "started_at": "2026-10-26T08:34:33.699059+00:00",
+      "expected_return_code": 1,
+      "return_code": 1,
+      "control_qualified": true,
+      "complete": true,
+      "aborted_reason": null,
+      "failing_case_count": 6,
+      "scope": "six real mirror positive tests become expected failures: five missing copied resource/directory bytes, one missing current-force-source selection",
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-property-removal-controls-r1/results.json",
+        "sha256": "28fd37acd7f13a5d98729583f64f364303e373d3468a2c7219449e723c06f258",
+        "availability": "retained locally under ignored RAW"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-property-removal-controls-r1/wheel-source-hook-removed/wheel-source-hook-removed.stdout.txt",
+        "sha256": "a0a84b600e57ce56a62d2e3b4ef4c04e0e2c89ca16ad148815104496e6e4ee42",
+        "availability": "retained locally under ignored RAW"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-property-removal-controls-r1/wheel-source-hook-removed/wheel-source-hook-removed.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained locally under ignored RAW"
+      },
+      "JUnit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-property-removal-controls-r1/wheel-source-hook-removed/pytest.xml",
+        "sha256": "cf4da81064353ecf37eafe333953cc6447aa2a8a07e613a23a7b9f5be7a07ff2",
+        "availability": "retained locally under ignored RAW"
+      },
+      "control": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-property-removal-controls-r1/wheel-source-hook-removed/control.json",
+        "sha256": "a6505fcabb3b22a52f1449b2d02d42c77cb4cc6e4dbcd4a3604a8fc135b5433f",
+        "availability": "retained locally under ignored RAW"
+      },
+      "source_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-property-removal-controls-r1/freeze.json",
+        "sha256": "56506af86747443644540b4302fadead524c8baf215e07651b71185194b6793b",
+        "availability": "retained locally under ignored RAW"
+      },
+      "wall_seconds": 2.08517758299422,
+      "peak_sampled_RSS_bytes": 149504000
+    }
+  ],
+  "negative_and_removal_controls": {
+    "executed": "59 real filesystem/copy behavior cases include lost required input with contract retained, byte-reading child, explicit map bytes, unknown-field and invalid-source destination-absence controls",
+    "source_mutant_remove_runtime_hook_keep_markers": "Qualified PASS for the bounded mirror gate: the in-memory selected-source hook returned no inputs while actual source/config markers remained; all six selected behavioral tests failed at the source/bytes property, exit1, no collection errors or skips.",
+    "scope": "native full generator/build/installed resource removal controls are not established by these source-copy cases"
+  },
+  "review_lineage": {
+    "reviewers": [
+      "/root/cleanup_remaining_generated_audit"
+    ],
+    "author_R11_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/locked-input-mirror-author-r1/wheel-builder-closure-r11-immutable/manifest.json",
+      "sha256": "3b0c53af8618c41623379ae0fb3c1ca129d84957e878e206d403978348c15436",
+      "availability": "retained locally under ignored RAW; not a tracked source copy"
+    },
+    "R11_semantic_postimage_review": "GO for Hatchling1.27 literal profile; no build tested",
+    "fixture_delta_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-wheel-source-closure-fixture-companion-r1/manifest.json",
+      "sha256": "8e8a0880ce813d348f5a1564f5b161fa679bb73472f4aa9fce6c32a4dc36676e",
+      "availability": "retained locally under ignored RAW; not a tracked source copy"
+    },
+    "fixture_delta_review": "GO: two-line tuple/error expectation repair, no assertions/runtime code removed",
+    "root_draft": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-native-source-inputs-handoff-draft-r1/source-mirror-handoff.md",
+      "sha256": "c4f0b2414bfe0a7c2955b124901181279a030c964da8eb8ceb8f6e3e1faf7582",
+      "availability": "retained locally under ignored RAW; not a tracked source copy"
+    },
+    "preimage_boundary": "R11 working preimages504811.../5f0d65... are intermediate composition pins, not Git-parent preimages. Applied parent hashes are read from40fbd in footprint.",
+    "fromlist_companions": "Adjacent supported-fromlist fixture updates in this two-file commit were verified in earlier 35-case focused replay; 59 source-copy cases do not prove those alias/export properties.",
+    "receipt_metadata_review": {
+      "reviewer": "/root/cleanup_final_oracle",
+      "initial_verdict": "HOLD only supplementary R3 B148 input pin; all other metadata checked",
+      "resolution": "Added exact extra input and its actual later source frame; no rerun required by reviewer",
+      "new_control_delta_review": {
+        "reviewer": "/root/cleanup_final_oracle",
+        "verdict": "GO for receipt delta; scope is source-copy mirror gate only",
+        "reviewed_receipt_sha256": "72b5e2379d7dbb8d75e6871ae1bb6b3c3c785dfb50a4aaf7e4742a17724e18ce",
+        "checks": "R3 supplementary source pin/frame and new control hashes match; JUnit6fail0error0skip; five missing bytes/directories and one missing source selection; no rerun",
+        "formal_G_acceptance": false
+      }
+    }
+  },
+  "prior_failures": {
+    "preserved_RAW_runs": [
+      "root-wheel-source-closure-r11/actual-r1-source-mirror-families",
+      "root-wheel-source-closure-r11/actual-r2-source-mirror-families"
+    ],
+    "classification": "R1 had2 fixture failures, wrong-CWD workspace Ruff findings and cache-denied format attempts. R2 repaired fixture tests and validly flagged separately owned B148 formatting; R3 passed all4 static commands after its AST-preserving formatting. No inherited-red claim."
+  },
+  "remaining_verification": [
+    "actual native four-generator wave on coherent source/input/backend freeze",
+    "actual isolated editable build under qualified backend profile",
+    "installed wheel and rebuilt sdist resource consumers, including C05 supplier byte identities and G _resources",
+    "whole-module/whole-repository native gates and final SOTA rows; targeted proof is not global green"
+  ],
+  "pattern_pass": [
+    "P27/P31 one existing resolver",
+    "P35 full selected config/lock maps, declaration count separated from recursive files",
+    "P38 actual copied bytes and refusal before destination, not path strings alone",
+    "P40 same input-closure class widened over admitted selected schema",
+    "P41 no inherited failure declaration"
+  ],
+  "adjudication": "Author proposals only; no G code acceptance, publication to integration, historical closure change or new global freeze.",
+  "verification_input_supplements": {
+    "R3_static": {
+      "source_frame": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b148-required-format-applied-r1/full-composed-source-frame.json",
+        "sha256": "473cb9d510dff67887ec1444a4762dd779f1615f8a44929513bbb6f32c838612",
+        "availability": "retained locally under ignored RAW"
+      },
+      "additional_file": {
+        "path": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+        "sha256": "afcadf90b097b685a7e7af105bd0a3a38d094c6d0a813ca838a9ceb1d2146766",
+        "outside_candidate_footprint": true,
+        "status": "separate root-owned B148 test WIP at the time; not delivered by this two-file implementation"
+      },
+      "scope": "all R3 commands include this separately owned third path; final two owned source paths also match candidate"
+    }
+  },
+  "architecture_input": {
+    "commit": "8f8a0bf53e687c07c8de62d934a61c98448e5530",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-25/05-native-preflight-expiry-decisions.md",
+    "purpose": "necessary native preflight source/environment companion; does not alter selected G semantics or dates",
+    "architecture_selection": "routine_companion_repair"
+  }
+}

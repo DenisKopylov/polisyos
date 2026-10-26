@@ -1,0 +1,272 @@
+{
+  "schema": "policyos.e02.local_slice_handoff.v1",
+  "slice": "B09 shared evaluation frontier persistence",
+  "architecture_selection": "selected_by_G",
+  "architecture_inputs": [
+    {
+      "commit": "978921662b2d89006759cdd2ae96dbccc9bdcf11",
+      "decision": "AD-E02-B09-01",
+      "status": "architecture selection; no code acceptance"
+    }
+  ],
+  "slice_base": {
+    "commit": "9caf4250ea092faa58ab16f0b3ca92c4f05a7a28",
+    "tree": "46bba1eaecd846c5efac4a67b11d02780b9776e2",
+    "parents": [
+      "ce165a7e36e5ce1da5154a8ff376a859b600088f"
+    ],
+    "status": "Store mechanism starts before its own canonical edits; other E02 WIP existed and is bound by runtime frames"
+  },
+  "implementation": {
+    "head": "eafaa5d24ae956073e064dd133b1d03981062755",
+    "tree": "56e3d0586ad42a2896d348e48dd5abf23497ff71",
+    "parents": [
+      "9caf4250ea092faa58ab16f0b3ca92c4f05a7a28"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "paths": {
+      "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py": "9e8bb9f6b964f33125e940feb338ffdf375bbd212f74c0e90da00620f7fa8690",
+      "policy-engine/tests/unit/runtime/http/test_control_plane_store_evaluation_frontier.py": "8454977e330157e92d795b6717215149316db68c934d7a56c468a6ed4c63dbef",
+      "policy-engine/tests/unit/runtime/http/test_runtime_postgres_linearizability.py": "2772bf2d03fe71f26bc65aeba467dd225380b20c0fb60c030467737b37b982ac",
+      "policy-engine/release-fragments/unreleased/2026-10-27-e02-shared-evaluation-frontier.toml": "6361fcd12f4421863d0250baf5b3703aa193731e0f89d06498fe4744e62cf9aa"
+    },
+    "source_global_freeze": false,
+    "code_acceptance": false,
+    "closure_ids": []
+  },
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "sha256": "9e8bb9f6b964f33125e940feb338ffdf375bbd212f74c0e90da00620f7fa8690",
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store_evaluation_frontier.py",
+      "sha256": "8454977e330157e92d795b6717215149316db68c934d7a56c468a6ed4c63dbef",
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_postgres_linearizability.py",
+      "sha256": "2772bf2d03fe71f26bc65aeba467dd225380b20c0fb60c030467737b37b982ac",
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-27-e02-shared-evaluation-frontier.toml",
+      "sha256": "6361fcd12f4421863d0250baf5b3703aa193731e0f89d06498fe4744e62cf9aa",
+      "role": "release/migration companion"
+    }
+  ],
+  "selected_input_profile_backend": {
+    "input": "controlled isolated job/source/action fixtures; no production payloads or authority inputs",
+    "profile": "native pytest.ini; autoload/plugins/import mode retained; output paths redirected only",
+    "pytest_ini_sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+    "sqlite_version": "3.50.4",
+    "postgres_version": "postgres (PostgreSQL) 16.15 (Homebrew)",
+    "psycopg": "3.3.2",
+    "psycopg_binary": "3.3.2",
+    "uv_lock_sha256": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
+    "driver_lock_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/b09-pg-frontier-native-oracle-20261026-r1/verify-locked-wheels-r3/receipt.json",
+      "sha256": "43ec2b6ea620f88afa6ffba1066ae2fa8776df7a2034dbdb0bdbb2fb7e8933f2",
+      "availability": "local ignored RAW; retained, not copied into Git"
+    }
+  },
+  "source_bound_verification": {
+    "sqlite_12": {
+      "command": [
+        "/usr/bin/sandbox-exec",
+        "-f",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-r24-and-formatted-frontier-slo-native-r1/shared-frontier-and-legacy-cas/child.sb",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-r24-and-formatted-frontier-slo-native-r1/shared-frontier-and-legacy-cas/pytest-cache",
+        "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-r24-and-formatted-frontier-slo-native-r1/shared-frontier-and-legacy-cas/benchmarks",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-r24-and-formatted-frontier-slo-native-r1/shared-frontier-and-legacy-cas/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-r24-and-formatted-frontier-slo-native-r1/shared-frontier-and-legacy-cas/pytest.xml",
+        "--tb=short",
+        "--color=no",
+        "--maxfail=0",
+        "tests/unit/runtime/http/test_control_plane_store_evaluation_frontier.py",
+        "tests/unit/runtime/http/test_control_plane_store.py::test_acquisition_action_head_requires_exact_predecessor",
+        "tests/unit/runtime/http/test_control_plane_store.py::test_control_plane_store_tracks_worker_leases_and_outbox",
+        "tests/unit/runtime/http/test_control_plane_store.py::test_control_worker_renews_job_lease_while_handler_runs"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "exit_code": 0,
+      "complete": true,
+      "abort": null,
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-r24-and-formatted-frontier-slo-native-r1/source-profile-freeze.json",
+        "sha256": "85781d4cc850e845bd3e0146d2f2eeea0991c8719193d9be8ad977b399edb093",
+        "availability": "local ignored RAW; retained, not copied into Git"
+      },
+      "full_run_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-r24-and-formatted-frontier-slo-native-r1/results.json",
+        "sha256": "190bc817d3daf039f75c226aa7211d9eacd701faa55afea998355a90d5657d5f",
+        "availability": "local ignored RAW; retained, not copied into Git"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-r24-and-formatted-frontier-slo-native-r1/shared-frontier-and-legacy-cas/shared-frontier-and-legacy-cas.stdout.txt",
+        "sha256": "17757756293df8c2f2f28ce42100aa85e8c7d96d3fb31ea31dd65abc176389ee",
+        "availability": "local ignored RAW; retained, not copied into Git"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-r24-and-formatted-frontier-slo-native-r1/shared-frontier-and-legacy-cas/shared-frontier-and-legacy-cas.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "local ignored RAW; retained, not copied into Git"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-r24-and-formatted-frontier-slo-native-r1/shared-frontier-and-legacy-cas/pytest.xml",
+        "sha256": "e53fcd52af8da7c0840a67c412c50459a752596c9ecec21aa13da7e1f12c98ff",
+        "availability": "local ignored RAW; retained, not copied into Git"
+      },
+      "counts": {
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "wall_seconds": 16.521406584011856,
+      "peak_rss_bytes": 1163657216
+    },
+    "sqlite_source_note": {
+      "runtime_store_sha256": "f5859d04b3920bb18039b564afaea60467e2f5e443a7cd77c2a4e53614cd66c3",
+      "delivered_store_sha256": "9e8bb9f6b964f33125e940feb338ffdf375bbd212f74c0e90da00620f7fa8690",
+      "later_delta": "PostgreSQL-only pg_attribute.attname::TEXT cast; SQLite execution path unchanged",
+      "whole_tree_at_commit_tested": false
+    },
+    "canonical_pg_and_secure_owner": {
+      "command": [
+        "/usr/bin/sandbox-exec",
+        "-f",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-canonical-pg-and-secure-owner-native-20261027-r1/canonical-pg-cas-and-secure-trinity/child.sb",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-canonical-pg-and-secure-owner-native-20261027-r1/canonical-pg-cas-and-secure-trinity/pytest-cache",
+        "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-canonical-pg-and-secure-owner-native-20261027-r1/canonical-pg-cas-and-secure-trinity/benchmarks",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-canonical-pg-and-secure-owner-native-20261027-r1/canonical-pg-cas-and-secure-trinity/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-canonical-pg-and-secure-owner-native-20261027-r1/canonical-pg-cas-and-secure-trinity/pytest.xml",
+        "--tb=short",
+        "--color=no",
+        "--maxfail=0",
+        "tests/unit/runtime/http/test_runtime_postgres_linearizability.py::test_postgres_acquisition_frontier_cas_race_is_linearizable",
+        "tests/unit/runtime/http/test_runtime_postgres_linearizability.py::test_postgres_scenario_cas_two_apps_allows_one_mutation_and_one_conflict",
+        "tests/integration/scientist/test_control_job_hierarchical_trinity_tenant_custody.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "exit_code": 0,
+      "complete": true,
+      "abort": null,
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-canonical-pg-and-secure-owner-native-20261027-r1/source-profile-freeze.json",
+        "sha256": "dd67e5661083d5d5ba2fbba5033a17cf5bd8efb4dcc5c5c7a7ff4b42d93dece5",
+        "availability": "local ignored RAW; retained, not copied into Git"
+      },
+      "full_run_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-canonical-pg-and-secure-owner-native-20261027-r1/results.json",
+        "sha256": "615e923694f3be63da38641133ec5b744a619f3d0fc7a95e2481541389eab08b",
+        "availability": "local ignored RAW; retained, not copied into Git"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-canonical-pg-and-secure-owner-native-20261027-r1/canonical-pg-cas-and-secure-trinity/canonical-pg-cas-and-secure-trinity.stdout.txt",
+        "sha256": "0bf9c084d1bc8f237f341d4cf2bc9538353e229751490cb9b30e490aaca4edd6",
+        "availability": "local ignored RAW; retained, not copied into Git"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-canonical-pg-and-secure-owner-native-20261027-r1/canonical-pg-cas-and-secure-trinity/canonical-pg-cas-and-secure-trinity.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "local ignored RAW; retained, not copied into Git"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-canonical-pg-and-secure-owner-native-20261027-r1/canonical-pg-cas-and-secure-trinity/pytest.xml",
+        "sha256": "17247c2611d237ec00419f8afd6ce3e9719b4396b689dee835a26a554af66bfa",
+        "availability": "local ignored RAW; retained, not copied into Git"
+      },
+      "counts": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "wall_seconds": 23.86191224999493,
+      "peak_rss_bytes": 1485291520
+    },
+    "canonical_scope_note": "Three canonical cases passed: new PostgreSQL frontier race, existing two-app scenario CAS, and separate secure Trinity consumer. The latter is not included in this implementation footprint.",
+    "independent_native_pg_oracle": {
+      "summary": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/b09-pg-frontier-native-oracle-20261026-r1/supervised-frontier-pg-r6/orchestration-result.json",
+        "sha256": "d8aef0888a7869f541b5bc837a57e1e31331ac8c3d7cc08d4c0f56130163b63c",
+        "availability": "local ignored RAW; retained, not copied into Git"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/b09-pg-frontier-native-oracle-20261026-r1/supervised-frontier-pg-r6/pytest.xml",
+        "sha256": "61fcea4776871da0055fd77c97f8e8aa8367ea6924d70c0560a839396265b954",
+        "availability": "local ignored RAW; retained, not copied into Git"
+      },
+      "profile": "native pytest.ini; two actual PostgreSQL cases; no skips/warnings"
+    },
+    "native_ruff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-frontier-precommit-dual-ruff-20261027-r1/results.json",
+      "sha256": "5100769779bfd2ac0e19f6615d1e4478e5d0ee91f76844dd6cf82d8cba58afea",
+      "availability": "local ignored RAW; retained, not copied into Git"
+    },
+    "runtime_composition_note": "Runtime commands ran at 9caf plus recorded E02 WIP. The four delivered implementation blobs match tested source bytes. This is not a complete-tree eafaa replay or global source/input/backend freeze."
+  },
+  "real_chain": [
+    "admitted controlled source job + live worker fence",
+    "complete_job commits selected output identity and initial shared selector in one transaction",
+    "two independent Store connections race on the same candidate/task key and expected revision/ref",
+    "one action head and replacement frontier commit together; loser produces no head or extra version",
+    "fresh Store reads current selector and resolves immutable prior selector by content ref"
+  ],
+  "adversarial_controls": [
+    "missing/stale worker fence and foreign tenant/cell refuse bootstrap",
+    "compiled selected output mismatch rolls back completion",
+    "revision and reference are checked independently",
+    "sibling reentry race yields exactly one winner",
+    "action predecessor conflict rolls back selector replacement and history",
+    "retained terminals can condition the current selector without advancing its revision"
+  ],
+  "independent_review": {
+    "canonical_test_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-frontier-canonical-companion-review-20261027-r1/root-review.json",
+      "sha256": "33c7269e2d20e37121fc93b5c6c0b087161fa3a22c34098d2566c2aeca4ea243",
+      "availability": "local ignored RAW; retained, not copied into Git"
+    },
+    "postgres_oracle_executor": "/root/boot0_ordinary_worker_actual",
+    "postgres_engine": "independent native SQL execution; initializer failure before cast and green native replay after cast retained"
+  },
+  "consumer_surface": {
+    "delivered": "internal ControlPlaneStore methods and actual SQLite/PostgreSQL consumers; existing HTTP two-app CAS regression",
+    "capability_state": "implemented_but_not_orchestrated",
+    "pending": "B09 owner Basis/Decision, prospective N6 prepare/execute, production lifecycle/GET/client/UI and 18 full acceptance scenarios are separate unaccepted companions"
+  },
+  "limitations": [
+    "Store persists owner-supplied artifact identities; full selected-profile/payload/scientific basis verification must happen in the Runtime owner before use",
+    "controlled fixtures do not establish production currentness, permission, issuer, custody, calibration or policy authority",
+    "the original R3 PostgreSQL oracle selected pyproject.toml and is engineering evidence only; R6 and canonical replay use native pytest.ini",
+    "canonical secure test had one I001 import-order failure; a subsequent one-file import-only normalization and complete dual-Ruff replay passed; Store implementation bytes did not change",
+    "native PostgreSQL schema initializer cast fixes an observed name[] versus TEXT[] error; no inherited-debt claim"
+  ],
+  "unrun": [
+    "full composed B09 retained-source path and scenarios S01-S18",
+    "complete native repository/installed-wheel/sdist closeout",
+    "authentic production workload/currentness/authority positives"
+  ],
+  "proposals": {
+    "formal_closure_ids": [],
+    "scope": "bounded persistence mechanism is ready for independent G review; no finding is automatically closed by these passes",
+    "pending_id_mapping": "final full-ID/occurrence report must rebind this slice to original criterion and companion coverage"
+  },
+  "closure_ids": [],
+  "code_acceptance": false,
+  "global_source_freeze": false
+}

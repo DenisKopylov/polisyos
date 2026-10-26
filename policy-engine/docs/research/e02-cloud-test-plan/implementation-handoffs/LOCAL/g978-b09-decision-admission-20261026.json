@@ -1,0 +1,234 @@
+{
+  "schema": "e02.local_g_decision_admission.v1",
+  "decision_id": "AD-E02-B09-01",
+  "architecture_selection": "selected_by_G",
+  "code_acceptance": false,
+  "closure_ids": [],
+  "G_selected_commit": {
+    "sha": "978921662b2d89006759cdd2ae96dbccc9bdcf11",
+    "tree": "64d6333c8366d04b7dc770ea47a01684b1b5fff6",
+    "parents": [
+      "8f8a0bf53e687c07c8de62d934a61c98448e5530"
+    ],
+    "branch": "codex/e02-integration",
+    "availability": "Local G commit supplied by user; read-only Git objects, not merged/rebased or published by this author.",
+    "files": {
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/01-decision.md": "845eef74d33469689b29f4e8b39fec07e4400d0e8b0aa8fea0a9554c1ad97128",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/02-implementation-and-checks.md": "8dd88e9c072a05471163f2e99e38fab58258c8749cdee4fd7ecddfaa7ebeb7cb",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/03-critical-review.md": "f49f3f3055ecd7098998363da979d2c070190cacc750112095a277f96bcb1ebd",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/README.md": "a076018e22a8216085034b7e1c127e423dc20691d94822c1c524447ff7030064",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/inputs.json": "3bc2cb6e370dda14b50b968907677a8293b9b73c58834b77df239a6723ea6097"
+    },
+    "file_type_denominator": {
+      "markdown": 4,
+      "json": 1,
+      "total": 5
+    },
+    "all_five_read_completely": true
+  },
+  "published_G_checkpoint_observed": {
+    "sha": "2a07cd8a16bad0191b302f71c699b3bf9082ebac",
+    "tree": "92cfaccdc0f3edb5613083f5f2ad983d5fa961b7",
+    "parents": [
+      "fb9e078b85262b69f76e24255cd25a518102a0d4"
+    ],
+    "is_ancestor_of_selected_local_commit": true,
+    "role": "publication observation only; no automatic source acceptance/freeze"
+  },
+  "actual_candidate_entry": {
+    "sha": "123eb4c215a76736deaa7018688e0aeace8efa90",
+    "tree": "8a0ce3a96aeef39cba22ed180d074ac09cd95586",
+    "parents": [
+      "a4f856920ff38566f4fa0b7e12eee3107d026264"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-rego-live-owned-projection-contracts-composition-r1/full-composed-source-frame.json",
+      "sha256": "f0b59c35950f55cf40459b1899e6f73425698269175815a15733479b54b31a99"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    },
+    "G_packet_14_worktree_pins_match": true,
+    "global_source_input_backend_freeze": false
+  },
+  "selected_contracts": {
+    "basis": "AcquisitionEvaluationBasis@1.0 / runtime_quality.acquisition_evaluation_basis / polisyos.runtime.AcquisitionEvaluationBasis",
+    "decision": "AcquisitionEvaluationDecision@1.0 / runtime_quality.acquisition_evaluation_decision / polisyos.runtime.AcquisitionEvaluationDecision",
+    "terminal": "AcquisitionRouteLoopReceipt@2.0: source_admitted_evaluation_retained; existing no-growth zero invariants and reentry meaning preserved",
+    "history": "policyos.runtime.run_candidate_simulation_acquisition_history.v3; separate admitted source and retained evaluation source"
+  },
+  "requirements": [
+    "Full owner-recomputed effective basis of every actually skipped stage; no scalar/hash-WMR/ID-time proxy",
+    "Equality and current eligibility distinct, linearized under candidate/evaluation and native admission/overlay frontier",
+    "Common preparation consumed/revalidated by execution; no WMR/context/N4/N5 created merely for comparison",
+    "Preserve original evaluation lineage, source bookkeeping, requirement state and acquisition costs; no fictitious N5 or independence/currentness/authority",
+    "Reader-first/legacy exact dispatch/emitter-disabled rollout and rollback reader preservation",
+    "Controlled real sequential sources and fresh HTTP history, matched removals/crash/revocation/concurrent controls"
+  ],
+  "path_leases": {
+    "basis_preparation_and_real_execution": {
+      "agent": "runtime_debug_r5_peer",
+      "mechanism": [
+        "runtime/quality/data_state_substrate.py",
+        "runtime/quality/cycle_substrate.py",
+        "runtime/quality/candidate_simulation.py",
+        "runtime/quality/generation_cycle.py",
+        "runtime/quality/acquisition_evaluation_basis.py"
+      ],
+      "rule": "Pure common owner preparation and one comparison; actual reentry consumes same/revalidated plan, refs/delta no whole snapshot copies."
+    },
+    "admission_decision_lifecycle_and_fold": {
+      "agent": "prepared_b_capture_route",
+      "mechanism": [
+        "runtime/quality/acquisition_world_growth.py",
+        "runtime/quality/acquisition_route_loop.py",
+        "runtime/http/services/acquisition_action_service.py",
+        "runtime/http/services/acquisition_surface_execution.py",
+        "runtime/http/services/control/run_lifecycle.py"
+      ],
+      "rule": "Positive selected admission then one shared semantic dispatcher for execute/recovery, current eligibility and protected full frontier, exhaustive v2 terminal/fold."
+    },
+    "public_readers_and_surfaces": {
+      "agent": "prepared_b_defining_baseline",
+      "mechanism": [
+        "core/contracts/runtime.py",
+        "core/contracts/__init__.py",
+        "runtime/http/routes/runs.py"
+      ],
+      "rule": "Single Core retained evaluation tuple, v3 fresh GET and required clients/UI, readers first then emitter; no Core import of Runtime."
+    },
+    "independent_semantic_oracle": {
+      "agent": "restart_disk_replay_audit",
+      "mode": "read_only",
+      "rule": "18 scenario distinctions plus real preparation/N5 consumer, time cutoffs, multi-selector race and removal checks."
+    }
+  },
+  "mandatory_companions": "Mirrored tests, owner adapters/locks if required, public/generated schema/client/UI, README/release, tracked handoff and complete outputs; root sole canonical writer; companion scope outside mechanism counts.",
+  "scenario_routes": {
+    "V3-S01": {
+      "status": "UNRUN",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/02-implementation-and-checks.md",
+      "proof": "Actual producer → CAS/action head → fresh HTTP consumer; counts overlap and do not imply findings closure"
+    },
+    "V3-S02": {
+      "status": "UNRUN",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/02-implementation-and-checks.md",
+      "proof": "Actual producer → CAS/action head → fresh HTTP consumer; counts overlap and do not imply findings closure"
+    },
+    "V3-S03": {
+      "status": "UNRUN",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/02-implementation-and-checks.md",
+      "proof": "Actual producer → CAS/action head → fresh HTTP consumer; counts overlap and do not imply findings closure"
+    },
+    "V3-S04": {
+      "status": "UNRUN",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/02-implementation-and-checks.md",
+      "proof": "Actual producer → CAS/action head → fresh HTTP consumer; counts overlap and do not imply findings closure"
+    },
+    "V3-S05": {
+      "status": "UNRUN",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/02-implementation-and-checks.md",
+      "proof": "Actual producer → CAS/action head → fresh HTTP consumer; counts overlap and do not imply findings closure"
+    },
+    "V3-S06": {
+      "status": "UNRUN",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/02-implementation-and-checks.md",
+      "proof": "Actual producer → CAS/action head → fresh HTTP consumer; counts overlap and do not imply findings closure"
+    },
+    "V3-S07": {
+      "status": "UNRUN",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/02-implementation-and-checks.md",
+      "proof": "Actual producer → CAS/action head → fresh HTTP consumer; counts overlap and do not imply findings closure"
+    },
+    "V3-S08": {
+      "status": "UNRUN",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/02-implementation-and-checks.md",
+      "proof": "Actual producer → CAS/action head → fresh HTTP consumer; counts overlap and do not imply findings closure"
+    },
+    "V3-S09": {
+      "status": "UNRUN",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/02-implementation-and-checks.md",
+      "proof": "Actual producer → CAS/action head → fresh HTTP consumer; counts overlap and do not imply findings closure"
+    },
+    "V3-S10": {
+      "status": "UNRUN",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/02-implementation-and-checks.md",
+      "proof": "Actual producer → CAS/action head → fresh HTTP consumer; counts overlap and do not imply findings closure"
+    },
+    "V3-S11": {
+      "status": "UNRUN",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/02-implementation-and-checks.md",
+      "proof": "Actual producer → CAS/action head → fresh HTTP consumer; counts overlap and do not imply findings closure"
+    },
+    "V3-S12": {
+      "status": "UNRUN",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/02-implementation-and-checks.md",
+      "proof": "Actual producer → CAS/action head → fresh HTTP consumer; counts overlap and do not imply findings closure"
+    },
+    "V3-S13": {
+      "status": "UNRUN",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/02-implementation-and-checks.md",
+      "proof": "Actual producer → CAS/action head → fresh HTTP consumer; counts overlap and do not imply findings closure"
+    },
+    "V3-S14": {
+      "status": "UNRUN",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/02-implementation-and-checks.md",
+      "proof": "Actual producer → CAS/action head → fresh HTTP consumer; counts overlap and do not imply findings closure"
+    },
+    "V3-S15": {
+      "status": "UNRUN",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/02-implementation-and-checks.md",
+      "proof": "Actual producer → CAS/action head → fresh HTTP consumer; counts overlap and do not imply findings closure"
+    },
+    "V3-S16": {
+      "status": "UNRUN",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/02-implementation-and-checks.md",
+      "proof": "Actual producer → CAS/action head → fresh HTTP consumer; counts overlap and do not imply findings closure"
+    },
+    "V3-S17": {
+      "status": "UNRUN",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/02-implementation-and-checks.md",
+      "proof": "Actual producer → CAS/action head → fresh HTTP consumer; counts overlap and do not imply findings closure"
+    },
+    "V3-S18": {
+      "status": "UNRUN",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-26-b09/02-implementation-and-checks.md",
+      "proof": "Actual producer → CAS/action head → fresh HTTP consumer; counts overlap and do not imply findings closure"
+    }
+  },
+  "pattern_pass": {
+    "patterns": [
+      "P01",
+      "P02",
+      "P03",
+      "P04",
+      "P05",
+      "P07",
+      "P08",
+      "P10",
+      "P12",
+      "P14",
+      "P27",
+      "P29",
+      "P31",
+      "P32",
+      "P33",
+      "P35",
+      "P37",
+      "P38",
+      "P39",
+      "P40",
+      "P41"
+    ],
+    "new_chain_gaps": [
+      "producer_missing",
+      "artifact_missing",
+      "bridge_missing",
+      "semantic_test_missing"
+    ],
+    "target": "One owner mechanism, verified basis+decision, conditional terminal and exhaustive history fold with two separate lineage planes."
+  },
+  "unresolved_external_facts": "No law, issuer, custody/currentness, calibration or production population fact is created by this decision; allowed limited inputs remain separate from unknown retention predicates."
+}

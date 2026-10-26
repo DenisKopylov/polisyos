@@ -1,0 +1,150 @@
+{
+  "schema": "policyos.raw-implementation-evidence/v1",
+  "state": "draft_evidence_only",
+  "prepared_date": "2026-10-26",
+  "capability": "Foundry resolved method-dispatch SLI",
+  "repository": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+  "evidence_root_relative_to_repository": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/",
+  "commit": {
+    "sha": "a0bb344e22cca6304422750f84f7cc3f0f17d6e2",
+    "tree": "d80d0646085c54486e21dda82e5348ad00427d21",
+    "parent": "215d03938b24acce2b24d399ed21100fa7bdd415",
+    "branch": "codex/e02-unified-local-20261009",
+    "branch_readback": "root-foundry-dispatch-sli-implementation-publication-r1/branch-readback.json@9c94f401968c9c6f71323f702f5628af3e5a72f439d1bf82ac5d38baf6b7aa48",
+    "source_intent_precommit": "root-foundry-dispatch-sli-implementation-publication-r1/intent.json@6245e460fcfcab8a4161f71b4ecc22a514781b02417799e581b781e2ed08104d",
+    "intent_and_branch_readback_bind_same_12_source_postimages": true,
+    "source_global_freeze": false,
+    "code_acceptance": false,
+    "closure_ids": []
+  },
+  "footprint": {
+    "path_count": 12,
+    "file_type_denominator": {
+      ".py": 5,
+      ".yaml_or_yml": 5,
+      ".md": 1,
+      ".toml": 1
+    },
+    "mechanism_path_count": 10,
+    "companion_path_count": 2,
+    "mechanism_paths": [
+      "ops/components/foundry/slo.yaml",
+      "ops/observability/prometheus/slo_alerts.yml",
+      "ops/observability/prometheus/slo_recording_rules.yml",
+      "ops/observability/slo/foundry.yaml",
+      "src/polisyos/core/observability/_metrics_registry_base.py",
+      "src/polisyos/core/observability/metrics_parts.py",
+      "src/polisyos/foundry/methods/backends/dispatch.py",
+      "tests/contract/fixtures/prometheus/foundry_method_dispatch_slo.test.yml",
+      "tests/contract/test_slo_metrics.py",
+      "tests/unit/foundry/methods/backends/test_dispatch.py"
+    ],
+    "companion_paths": [
+      "ops/observability/prometheus/README.md",
+      "release-fragments/unreleased/2026-10-26-e02-foundry-resolved-dispatch-sli.toml"
+    ],
+    "denominator_source": "Complete committed path map in branch_readback; no tracked source copies embedded here."
+  },
+  "execution_provenance": {
+    "native_runs_head": "215d03938b24acce2b24d399ed21100fa7bdd415",
+    "native_runs_tree": "4e9bbba9808c26a05ca23d05f1593f308228bbd4",
+    "relation": "Runs used qualified WIP postimages at the pre-commit HEAD; the 12 postimage hashes match the committed branch readback. This is not a whole-commit-only replay or a global source freeze.",
+    "sdk_profile": "root-corrected-consumers-gp-n1-focused-native-r1/source-profile-freeze.json@36ef740aa671cebd90fe18831e8e32ed98ccf785b8fcccb2339ed873c9227e84",
+    "sdk_profile_scope": "60 selected source/test files; it pins dispatch, registry, metric helpers, and both executed tests to the committed hashes; global_source_freeze=false.",
+    "promtool_results_source_pins": "root-foundry-dispatch-promtool-native-r1/results.json@51b493c0372797e29d3819508a749724a3e0d9346449350b8a974be56dd220c7",
+    "promtool_pinned_inputs": [
+      "foundry_method_dispatch_slo.test.yml",
+      "slo_recording_rules.yml",
+      "slo_alerts.yml"
+    ]
+  },
+  "behavior": {
+    "producer_chain": "Resolved MethodDispatcher outcomes -> MetricsRegistry counter/histogram -> SDK PrometheusMetricReader exposition.",
+    "counter": "polisyos_foundry_method_dispatch_total{env,status}, status success|error; no method identity label.",
+    "duration": "polisyos_foundry_method_dispatch_duration_seconds, seconds.",
+    "consumer": "Prometheus records polisyos:foundry_method_dispatch_error_rate:rate5m with eligible-traffic guard; alert threshold 1%; mirrored objective YAMLs reference the guarded recording rule and 28d objective window.",
+    "boundary": "SDK exporter evidence and Promtool consumer fixture are separate native executions. The controlled Prometheus fixture does not ingest the SDK exposition, so no joined live-workload or production SLI result is claimed."
+  },
+  "verification": {
+    "sdk_native": {
+      "status": "pass",
+      "result": "16 tests, 0 failures, 0 errors, 0 skipped; includes real dispatch exporter series and objective-mirror consumer binding.",
+      "command": "root-corrected-consumers-gp-n1-focused-native-r1/actual-sdk-dispatch-current/admission.json@6d91bae8a7f3cd1dae6ebb24c5dff5f5929f339ce68f36d80542d0b20b3d6a86",
+      "junit": "root-corrected-consumers-gp-n1-focused-native-r1/actual-sdk-dispatch-current/pytest.xml@3f63e48fe99ae71d2d0b4940633da70fa51536adb07b959442669327f6a7b25d",
+      "stdout": "root-corrected-consumers-gp-n1-focused-native-r1/actual-sdk-dispatch-current/actual-sdk-dispatch-current.stdout.txt@fe7d42fa4595ec28138d47b584be346fb0d7ce12eef6744104232a5c89ef0f4b",
+      "stderr": "root-corrected-consumers-gp-n1-focused-native-r1/actual-sdk-dispatch-current/actual-sdk-dispatch-current.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "same_wave_static": [
+      {
+        "name": "product-check",
+        "command": "root-corrected-consumers-gp-n1-focused-native-r1/product-check/admission.json@faeb9c798ea1551cbe7e101a5e5aeb1814d3f6bdfb40c186b41c4b1b90d27faf",
+        "stdout": "root-corrected-consumers-gp-n1-focused-native-r1/product-check/product-check.stdout.txt@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "name": "product-format",
+        "command": "root-corrected-consumers-gp-n1-focused-native-r1/product-format/admission.json@f6b106c35eda055b1377e0d581c97f77e54494939b7455fd5e471829a4f51348",
+        "stdout": "root-corrected-consumers-gp-n1-focused-native-r1/product-format/product-format.stdout.txt@5555688d20b6d738067feb4977a3cef821ec605eaa822842b54252fd1bf5a1fb"
+      },
+      {
+        "name": "workspace-check",
+        "command": "root-corrected-consumers-gp-n1-focused-native-r1/workspace-check/admission.json@63c546f855d743f6ff3b5ceb3ca2c95746741c689267e4f864cee259c88baa13",
+        "stdout": "root-corrected-consumers-gp-n1-focused-native-r1/workspace-check/workspace-check.stdout.txt@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "name": "workspace-format",
+        "command": "root-corrected-consumers-gp-n1-focused-native-r1/workspace-format/admission.json@1f1a0793c80fffe4db0ae285da992eacca62427cb38f5cfbcb1c3189539d9a43",
+        "stdout": "root-corrected-consumers-gp-n1-focused-native-r1/workspace-format/workspace-format.stdout.txt@5555688d20b6d738067feb4977a3cef821ec605eaa822842b54252fd1bf5a1fb"
+      }
+    ],
+    "promtool_native": {
+      "profile": "Prometheus 2.50.0, Linux arm64; daemon c45675c7-a221-476f-93c1-79a43c027bd7; image sha256:042258e3578a558ce41b036104dfa997b2d25151ab6889a3f4d6187e27b1176c.",
+      "environment_evidence": [
+        "root-foundry-dispatch-promtool-native-r1/daemon-id.stdout@f5b4ef83847c94f61eaf9baa8495e88a3d72c08143cb1bf6ca50d90f3ee3e811",
+        "root-foundry-dispatch-promtool-native-r1/image-id.stdout@4932d93ead47d1350c0056b20338d00dbf25134c027ecd52d6bf08c839fad7de"
+      ],
+      "version": {
+        "command": "root-foundry-dispatch-promtool-native-r1/version.command.json@b3b1a72c6f4d470f16cf8a80c1989fd76c0d9aceb53f481074e0d88dd5070431",
+        "stdout": "root-foundry-dispatch-promtool-native-r1/version.stdout@25b1d64c6f9ac3dc8c92b74783443efc7ddc64f9c03a2692eaf5c087c39d7935"
+      },
+      "rule_check": {
+        "status": "pass; 19 recording rules and 11 alerts",
+        "command": "root-foundry-dispatch-promtool-native-r1/rules-check.command.json@b8b66cecdfeeec0ccdbc610e570b77a712a0c290ceed9dd60c0c5a037a3a5040",
+        "stdout": "root-foundry-dispatch-promtool-native-r1/rules-check.stdout@e8571529529232529461f4170908e2203e4c252f7d647fba0878c0a4acda1955"
+      },
+      "fixture_test": {
+        "status": "pass",
+        "command": "root-foundry-dispatch-promtool-native-r1/fixture-test.command.json@ba9bd26c9d42e428510cb5d312c82e7ce3f2328fa786877cc3eb7431bbc3766d",
+        "stdout": "root-foundry-dispatch-promtool-native-r1/fixture-test.stdout@6c7bd178dfc68c64bffb1423ca44d41d321b788931441fc6d370da0574645394"
+      },
+      "retained_container_metadata": "root-foundry-dispatch-promtool-native-r1/results.json@51b493c0372797e29d3819508a749724a3e0d9346449350b8a974be56dd220c7",
+      "inspect": [
+        "root-foundry-dispatch-promtool-native-r1/version-inspect.stdout@8093ba0de437059c9e75b40c00109ff5087f7efd20cded46803cc164a3f38a79",
+        "root-foundry-dispatch-promtool-native-r1/rules-check-inspect.stdout@68abd85bd1bd17677fee0a14b6fd176b3b3ef2b227c81491b7e3d4e8ed2580a2",
+        "root-foundry-dispatch-promtool-native-r1/fixture-test-inspect.stdout@bd61a514904559e91b45b47e2effdef8d8db97df4b451ce6f16a73a43a181f27"
+      ],
+      "container_note": "Three stopped retained containers; no production payload, no ports, network none, read-only bind mounts."
+    },
+    "removal_control": {
+      "status": "expected semantic failure",
+      "mutation": "Bypassed only the SDK dispatch-observation wrapper in the test child; product source bytes/markers unchanged.",
+      "deciding_failure": "Real dispatch success/error/recovered-fallback calls still ran, but the expected exported success counter series was absent at test_dispatch.py:836/839.",
+      "command": "root-foundry-dispatch-sdk-removal-control-r1/attempt/admission.json@124e48f96e04835bf6976c4f74dc0c0b36db66b2e317de24fc3eb8a660232534",
+      "result": "root-foundry-dispatch-sdk-removal-control-r1/result.json@d2cbdd535d51f8f382d79004036d438eebcd6d0f72660ea4e3909d44b3b2353e",
+      "junit": "root-foundry-dispatch-sdk-removal-control-r1/attempt/pytest.xml@85aa9ffe1ef94f3e918a88d0e7e4328f4e884d701bbf8b9423ef1f552298830c",
+      "stdout": "root-foundry-dispatch-sdk-removal-control-r1/attempt/sli-sdk-observer-removal.stdout.txt@443dd65980e5197edcbdea4464ef90de6710afb3fa50c1258d62c39979569028",
+      "input_freeze": "root-foundry-dispatch-sdk-removal-control-r1/source-input-freeze.json@f08f8c0d6f6a00e5b148aa5a6ab63e7da28eca49436ac07369adcc7950ec602f"
+    }
+  },
+  "bounded_limits": [
+    "Unresolved method FQN before entry into MethodDispatcher is outside this denominator.",
+    "The Prometheus fixture is controlled synthetic input; no production scrape, actual five-minute attainment, availability claim, or SDK-to-Promtool joined workload was measured.",
+    "Expiry, renewal, and reissue behavior are not established by this implementation evidence."
+  ],
+  "pattern_and_gate_notes": {
+    "P29": "Actual dispatcher and Prometheus exporter are exercised; separate Promtool fixture exercises the rule consumer, not an end-to-end shared workload.",
+    "P35": "12 committed paths enumerated with file-type denominator.",
+    "P37": "Receipts pin command inputs and source postimages; no global source-freeze predicate is claimed.",
+    "P38": "Removal probe preserves source markers yet loses the exported series; the behavioral gate fails at the missing series.",
+    "P40": "No formal closure is claimed; closure_ids is empty."
+  }
+}

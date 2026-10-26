@@ -339,7 +339,9 @@ class BayesianCandidateGenerator:
             deps = _try_import_bayesian()
             native_optimizer_type = deps[1] if deps is not None else None
             if native_optimizer_type is not None and type(self._optimizer) is native_optimizer_type:
-                candidate = native_optimizer_type.suggest(self._optimizer, evals)
+                candidate = native_optimizer_type.suggest(
+                    self._optimizer, evals, attempted_count=len(history)
+                )
             else:
                 candidate = self._optimizer.suggest(evals)
             profile = self._build_source_profile(

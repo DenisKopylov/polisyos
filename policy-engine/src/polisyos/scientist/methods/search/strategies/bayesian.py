@@ -197,6 +197,7 @@ class BayesianOptimizer(BaseSearchStrategy):
         if selected_binding is None:
             self._selected_objective_name = None
             self._selected_objective_direction = None
+            self._selected_objective_source_direction = None
             self._selected_objective_rule_spec = None
             self._selected_objective_unit = None
         else:
@@ -205,6 +206,8 @@ class BayesianOptimizer(BaseSearchStrategy):
                 self._selected_objective_direction,
                 self._selected_objective_rule_spec,
             ) = selected_binding
+            # The selected rule uses source direction; the optimizer direction is normalized.
+            self._selected_objective_source_direction = objective_source_direction
             self._selected_objective_unit = objective_source_unit
         self._arbiter = resource_arbiter or ResourceArbiter.from_env()
         self._model: Any = None
@@ -348,16 +351,20 @@ class BayesianOptimizer(BaseSearchStrategy):
         """Bind current and historical evaluations to this run's immutable header."""
         if not context_fingerprint.strip() or not objective_fingerprint.strip():
             raise ValueError("search-run context and objective fingerprints are required")
-        if self._selected_objective_name is None or self._selected_objective_direction is None:
+        if (
+            self._selected_objective_name is None
+            or self._selected_objective_direction is None
+            or self._selected_objective_source_direction is None
+        ):
             raise ValueError("configured search runs require a selected objective rule")
         selected_binding = _configured_search_metric_binding(
             self._selected_objective_name,
-            self._selected_objective_direction.value,
+            self._selected_objective_source_direction,
             objective_unit,
         )
         expected_objective_fingerprint = _configured_search_metric_profile_fingerprint(
             self._selected_objective_name,
-            self._selected_objective_direction.value,
+            self._selected_objective_source_direction,
             objective_unit,
         )
         if (
@@ -890,13 +897,22 @@ class BayesianOptimizer(BaseSearchStrategy):
         self,
         evaluations: list[Evaluation],
         pending: list[PolicyCandidate] | None = None,
+        *,
+        attempted_count: int | None = None,
     ) -> PolicyCandidate:
-        self._iteration = len(evaluations)
+        """Suggest using attempts for exploration and admissible scores for GP fitting."""
+        if attempted_count is None:
+            attempted_count = len(evaluations)
+        elif type(attempted_count) is not int or attempted_count < 0:
+            raise ValueError("attempted_count must be a non-negative integer")
+        history_count = max(len(evaluations), attempted_count)
+        self._iteration = history_count
         pending = pending or []
         training_corpus = self._effective_training_corpus(evaluations)
+        proposal_index = max(history_count, len(training_corpus), self._sobol_cursor)
 
         if len(training_corpus) < self._config.n_initial:
-            return self._sobol_candidate(len(training_corpus), source="sobol_init")
+            return self._sobol_candidate(proposal_index, source="sobol_init")
 
         if not self._botorch_ready:
             return self._non_duplicate_random(pending, source="random_no_botorch")
@@ -944,15 +960,27 @@ class BayesianOptimizer(BaseSearchStrategy):
         return result
 
     def suggest_batch(
-        self, evaluations: list[Evaluation], batch_size: int
+        self,
+        evaluations: list[Evaluation],
+        batch_size: int,
+        *,
+        attempted_count: int | None = None,
     ) -> list[PolicyCandidate]:
+        """Suggest a batch while keeping attempt and score counts separate."""
         if batch_size < 1:
             return []
+        if attempted_count is None:
+            attempted_count = len(evaluations)
+        elif type(attempted_count) is not int or attempted_count < 0:
+            raise ValueError("attempted_count must be a non-negative integer")
+        history_count = max(len(evaluations), attempted_count)
+        self._iteration = history_count
 
         training_corpus = self._effective_training_corpus(evaluations)
+        proposal_index = max(history_count, len(training_corpus), self._sobol_cursor)
         if len(training_corpus) < self._config.n_initial:
             return [
-                self._sobol_candidate(len(training_corpus) + idx, source="sobol_init")
+                self._sobol_candidate(proposal_index + idx, source="sobol_init")
                 for idx in range(batch_size)
             ]
 

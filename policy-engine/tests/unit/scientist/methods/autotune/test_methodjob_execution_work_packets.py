@@ -50,7 +50,6 @@ from polisyos.scientist.methods.autotune.execution_work import (
     _fingerprint_method_request_material,
     fingerprint_method_input_value,
 )
-from polisyos.scientist.methods.autotune.models import SearchGPFitBasis
 from polisyos.scientist.methods.autotune.runtime import (
     MethodJobBenchmarkEvaluator,
     PydanticMutationCodec,
@@ -58,14 +57,11 @@ from polisyos.scientist.methods.autotune.runtime import (
     SequenceCandidateGenerator,
     read_method_job_execution_work_packet,
 )
-from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge
 from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreStatus,
     OptimizationDirection,
+    _configured_search_metric_profile_fingerprint,
     _configured_search_metric_rule_spec,
-)
-from polisyos.scientist.methods.search.strategies.transfer import (
-    RunFingerprint,
-    TransferLearningManager,
 )
 
 
@@ -132,25 +128,6 @@ def test_dispatch_input_fingerprint_preserves_scalar_shape_and_value() -> None:
         MethodDispatchBinding.model_validate({**scalar_binding, "schema_version": "1.1"})
     with pytest.raises(ValueError, match="non-negative"):
         type(scalar).model_validate({**scalar.model_dump(), "shape": [-1]})
-
-
-class _MethodJobVectorIndex:
-    dim = 1
-
-    def __init__(self) -> None:
-        self._records: dict[str, dict[str, Any]] = {}
-
-    def add(self, *, key: str, embedding: list[float], metadata: dict[str, Any]) -> None:
-        del embedding
-        self._records[key] = dict(metadata)
-
-    def query(
-        self,
-        embedding: list[float],
-        top_k: int,
-    ) -> list[tuple[str, float, dict[str, Any]]]:
-        del embedding
-        return [(key, 0.0, dict(metadata)) for key, metadata in list(self._records.items())[:top_k]]
 
 
 @pytest.fixture(autouse=True)
@@ -1028,7 +1005,7 @@ def test_search_loop_uses_execution_evidence_not_diagnostic_packet_as_admission(
     os.environ.get("POLISYOS_RUN_NATIVE_METHODJOB_WORK") != "1",
     reason="native GP and DR MethodJob use the serialized numerical verification slot",
 )
-def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(
+def test_native_methodjob_unitless_ate_explores_without_gp_admission(
     tmp_path,
 ) -> None:
     MethodRegistry.get_instance().register(advanced_designs.DRLearnerEstimator, override=True)
@@ -1097,7 +1074,6 @@ def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(
     fresh_reader = FileSystemCAS(tmp_path / "cas")
     observed_ate_values: list[float] = []
     observed_clipping_values: list[float] = []
-    observed_clipping_fractions: list[float] = []
     observed_method_result_refs: list[ArtifactRef] = []
     observed_evaluation_refs: list[ArtifactRef] = []
     for item in source_result.history:
@@ -1120,10 +1096,19 @@ def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(
         candidate = item.candidate
         selected_clipping = candidate["search_coordinate"]
         assert packet.schema_version == "1.3"
-        assert packet.search_method_run_profile is not None
-        assert packet.search_method_run_profile.search_parameter_bindings == {
-            "search_coordinate": "propensity_clipping"
-        }
+        run_profile = packet.search_method_run_profile
+        assert run_profile is not None
+        assert run_profile.primary_metric == "ate"
+        assert run_profile.direction == "maximize"
+        assert run_profile.unit is None
+        assert run_profile.objective_fingerprint == generator._objective_profile_fingerprint(
+            unit=run_profile.unit
+        )
+        assert generator._optimizer._selected_objective_direction is OptimizationDirection.MINIMIZE
+        assert generator._optimizer._selected_objective_rule_spec == (
+            _configured_search_metric_rule_spec("ate", "maximize")
+        )
+        assert run_profile.search_parameter_bindings == {"search_coordinate": "propensity_clipping"}
         assert packet.search_parameter_values == {"search_coordinate": selected_clipping}
         assert packet.configured_method_params["propensity_clipping"] == selected_clipping
         if not observed_clipping_values:
@@ -1142,35 +1127,13 @@ def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(
         result_body = method_output.get("result")
         assert isinstance(result_body, dict)
         assert result_body["nuisance_config"]["propensity_clipping"] == selected_clipping
+        metric_units = result_body.get("metric_units")
+        assert not isinstance(metric_units, dict) or "ate" not in metric_units
+        assert evaluation.metadata.get("metric_unit") is None
         diagnostics = result_body.get("nuisance_diagnostics")
         assert isinstance(diagnostics, dict)
-        clipping_fraction = diagnostics.get("clipping_fraction")
-        assert isinstance(clipping_fraction, (int, float))
-        assert not isinstance(clipping_fraction, bool)
-        assert np.isfinite(clipping_fraction)
-        assert 0.0 <= clipping_fraction <= 1.0
-        propensity_summary = diagnostics.get("propensity_summary")
-        assert isinstance(propensity_summary, dict)
-        propensity_min = propensity_summary.get("min")
-        propensity_max = propensity_summary.get("max")
-        assert isinstance(propensity_min, (int, float))
-        assert isinstance(propensity_max, (int, float))
-        assert not isinstance(propensity_min, bool)
-        assert not isinstance(propensity_max, bool)
-        assert np.isfinite(propensity_min)
-        assert np.isfinite(propensity_max)
-        assert 0.0 <= propensity_min <= propensity_max <= 1.0
-        touches_clip_boundary = bool(
-            np.isclose(propensity_min, selected_clipping)
-            or np.isclose(propensity_max, 1.0 - selected_clipping)
-        )
-        assert (clipping_fraction > 0.0) == touches_clip_boundary
-        if clipping_fraction == 0.0:
-            assert propensity_min > selected_clipping
-            assert propensity_max < 1.0 - selected_clipping
         observed_ate_values.append(evaluation.selection_metrics["ate"])
         observed_clipping_values.append(selected_clipping)
-        observed_clipping_fractions.append(float(clipping_fraction))
         observed_method_result_refs.append(packet.method_result_ref)
         observed_evaluation_refs.append(evaluation_ref)
         assert evaluation.promotable is False
@@ -1196,31 +1159,45 @@ def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(
         )
         == 4
     )
+    persisted_run_profile = generator._search_method_run_profile
+    assert persisted_run_profile is not None
+    invalid_profiles = (
+        persisted_run_profile.model_copy(update={"direction": "minimize"}),
+        persisted_run_profile.model_copy(update={"unit": "incompatible-unit"}),
+        persisted_run_profile.model_copy(update={"objective_fingerprint": "0" * 64}),
+    )
+    for invalid_profile in invalid_profiles:
+        with pytest.raises(ValueError, match="selected Bayesian objective basis"):
+            generator.set_search_method_run_profile(invalid_profile)
 
-    unclipped_ate_values = [
-        ate
-        for ate, fraction in zip(observed_ate_values, observed_clipping_fractions, strict=True)
-        if fraction == 0.0
-    ]
-    clipped_ate_values = [
-        ate
-        for ate, fraction in zip(observed_ate_values, observed_clipping_fractions, strict=True)
-        if fraction > 0.0
-    ]
-    assert len(unclipped_ate_values) >= 2
-    plateau_ate = unclipped_ate_values[0]
-    assert all(
-        np.isclose(value, plateau_ate, rtol=0.0, atol=1e-12) for value in unclipped_ate_values[1:]
+    run_context = generator._search_run_context_fingerprint
+    assert isinstance(run_context, str) and run_context
+    wrong_source_rule_fingerprint = _configured_search_metric_profile_fingerprint(
+        "ate", "minimize", persisted_run_profile.unit
     )
-    assert clipped_ate_values
-    assert any(
-        not np.isclose(value, plateau_ate, rtol=0.0, atol=1e-12) for value in clipped_ate_values
-    )
-    assert source_result.history[-1].candidate["_strategy_metadata"]["source"] == (
-        "bayesian_acquisition"
-    )
+    assert wrong_source_rule_fingerprint is not None
+    with pytest.raises(
+        ValueError, match="configured search run differs from selected objective rule and unit"
+    ):
+        generator._optimizer.set_search_run_profile(
+            context_fingerprint=run_context,
+            objective_fingerprint=wrong_source_rule_fingerprint,
+            objective_unit=persisted_run_profile.unit,
+        )
+    wrong_unit_fingerprint = generator._objective_profile_fingerprint(unit="incompatible-unit")
+    assert wrong_unit_fingerprint is not None
+    with pytest.raises(
+        RuntimeError, match="selected objective unit cannot change after score admission"
+    ):
+        generator._optimizer.set_search_run_profile(
+            context_fingerprint=run_context,
+            objective_fingerprint=wrong_unit_fingerprint,
+            objective_unit="incompatible-unit",
+        )
 
-    last_stage_b = source_result.history[-1].stage_b_result
+    last_history_item = source_result.history[-1]
+    assert last_history_item.candidate["_strategy_metadata"]["source"] == "sobol_init"
+    last_stage_b = last_history_item.stage_b_result
     assert last_stage_b is not None
     last_evaluation_ref = _selected_evaluation_ref(last_stage_b)
     assert last_evaluation_ref == observed_evaluation_refs[-1]
@@ -1233,96 +1210,41 @@ def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(
     profile = source_evaluation.search_source_profile
     assert profile is not None
     assert profile.profile_kind == "configured_native_gp"
-    assert profile.proposal_source == "bayesian_acquisition"
-    assert profile.gp_model_fqn == "botorch.models.gp_regression.SingleTaskGP"
-    assert profile.warm_start_eligible is True
-    assert profile.training_observation_count == 3
-    source_fit_basis_ref = ArtifactRef.model_validate(
-        source_evaluation.metadata["search_gp_fit_basis_ref"]
-    )
-    assert source_fit_basis_ref.manifest_profile_sha256 is not None
-    source_fit_basis = load_model_artifact(fresh_reader, source_fit_basis_ref, SearchGPFitBasis)
-    assert isinstance(source_fit_basis, SearchGPFitBasis)
-    assert source_fit_basis.run_profile.data_snapshot_ref == snapshot_ref
-    assert source_fit_basis.run_profile.data_ref is not None
-    assert source_fit_basis.run_profile.data_sample_count == 40
-    assert source_fit_basis.run_profile.schema_version == "2"
-    assert source_fit_basis.run_profile.search_parameter_bindings == {
-        "search_coordinate": "propensity_clipping"
-    }
-    assert source_fit_basis.run_profile.method_signature_abi_digest
-    assert source_fit_basis.training_observation_count == 3
-    assert source_fit_basis.training_evaluation_refs == observed_evaluation_refs[:3]
-    assert len(source_fit_basis.training_evaluation_refs) == 3
+    assert profile.proposal_source == "sobol_init"
+    assert profile.gp_model_fqn is None
+    assert profile.warm_start_eligible is False
+    assert profile.training_observation_count is None
+    assert "search_gp_fit_basis_ref" not in source_evaluation.metadata
 
     source_evaluations = generator._history_to_evaluations(source_result.history)
-    assert len(source_evaluations) == 4
-    assert all(evaluation.is_valid for evaluation in source_evaluations)
-    source_fingerprint = RunFingerprint(
-        run_id="b157-native-source-run",
-        space_hash=generator._search_space._native.sobol_space_fingerprint(),
-        objective_names=["ate"],
-        bounds={"search_coordinate": {"lower": 0.01, "upper": 0.49}},
-        split=BenchmarkSplit.SELECTION.value,
-        units={},
-        origin="b157-native-methodjob-test",
-        tenant_id=None,
-        objective_directions={"ate": OptimizationDirection.MINIMIZE.value},
-        objective_rule_specs={"ate": _configured_search_metric_rule_spec("ate", "maximize") or ""},
-        embedding=[1.0],
-        num_evaluations=len(source_evaluations),
+    assert len(source_evaluations) == len(source_result.history) == 4
+    assert all(evaluation.status.value == "stage_b_error" for evaluation in source_evaluations)
+    assert all(
+        evaluation.score_status is ObjectiveScoreStatus.UNAVAILABLE
+        for evaluation in source_evaluations
     )
-    transfer = TransferLearningManager(fresh_reader, _MethodJobVectorIndex())
-    assert transfer.register_run(source_fingerprint, source_evaluations) is not None
-    bridge = WarmStartBridge(transfer)
-    target_fingerprint = source_fingerprint.model_copy(update={"run_id": "b157-native-target-run"})
-    assert bridge.load_warm_start(target_fingerprint)
+    assert all(evaluation.scalar_score is None for evaluation in source_evaluations)
+    assert all(
+        evaluation.score_assessment is not None
+        and evaluation.score_assessment.limitation == "objective_rule_unit_not_established"
+        for evaluation in source_evaluations
+    )
+    assert generator._optimizer._effective_training_corpus(source_evaluations) == []
+    assert generator._optimizer._model is None
 
-    target_generator = BayesianCandidateGenerator(
-        SearchSpace(bounds=[{"name": "search_coordinate", "lower": 0.01, "upper": 0.49}]),
-        primary_metric="ate",
-        direction=MetricDirection.MAXIMIZE,
-        compare_split=BenchmarkSplit.SELECTION,
-        n_initial=2,
-        seed=23,
-    )
-    assert target_generator.botorch_available is True
-    target_result = SearchLoopRunner(
-        store=store,
-        registry=ChampionRegistry(root=tmp_path / "target-registry", store=store),
-    ).run(
-        _spec(target_generator),
-        suite_ref=suite_ref,
+    skipped_history = [{"candidate": {"unrelated_parameter": index}} for index in range(7)]
+    assert generator._history_to_evaluations(skipped_history) == []
+    candidate_after_skipped_history = generator.generate(
+        skipped_history,
+        current_best=None,
         context=context,
-        max_iterations=1,
-        warm_start_bridge=bridge,
-        warm_start_fingerprint=target_fingerprint,
     )
-    assert target_generator._warm_start_accepted_count > 0
-    target_stage_b = target_result.history[0].stage_b_result
-    assert target_stage_b is not None
-    target_evaluation = load_model_artifact(
-        FileSystemCAS(tmp_path / "cas"),
-        _selected_evaluation_ref(target_stage_b),
-        BenchmarkEvaluation,
-    )
-    assert isinstance(target_evaluation, BenchmarkEvaluation)
-    assert target_evaluation.execution_work_packet_status == "available"
-    assert target_evaluation.execution_work_packet_ref is not None
-    target_packet = read_method_job_execution_work_packet(
-        FileSystemCAS(tmp_path / "cas"), target_evaluation.execution_work_packet_ref
-    )
-    assert target_packet.schema_version == "1.3"
-    assert target_packet.actual_sample_count == 40
-    assert _work(target_packet).completed_draw_count == 40
+    expected_vector = generator._search_space.sample_sobol(n_samples=8, seed=17)[7]
+    expected_params = generator._search_space.denormalize(expected_vector)
     assert (
-        target_packet.configured_method_params["propensity_clipping"]
-        == target_packet.search_parameter_values["search_coordinate"]
+        candidate_after_skipped_history["search_coordinate"] == expected_params["search_coordinate"]
     )
-    assert target_evaluation.search_source_profile is not None
-    assert target_evaluation.search_source_profile.profile_kind == "configured_native_gp"
-    assert "ate" in target_stage_b["simulation_results"]
-    assert target_stage_b["feedback"]["promotion_decision"]["promoted"] is False
+    assert generator._optimizer._sobol_cursor == 8
 
 
 @pytest.mark.skipif(

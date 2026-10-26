@@ -1,0 +1,21 @@
+id = "2026-10-27-e02-shared-evaluation-frontier"
+title = "Persist the shared acquisition evaluation frontier atomically"
+type = "added"
+component = "runtime"
+owner = "team-policyos-runtime"
+summary = "ControlPlaneStore can bind a completed source job and an acquisition action head to one shared candidate/task frontier, compare its revision and content reference atomically, and retain immutable historical selector versions."
+evidence = [
+  "src/polisyos/runtime/http/services/control_plane_store.py",
+  "tests/unit/runtime/http/test_control_plane_store_evaluation_frontier.py",
+  "tests/unit/runtime/http/test_runtime_postgres_linearizability.py",
+]
+compatibility = "The existing job-completion and action-head paths keep their previous behavior when the optional frontier CAS is absent. SQLite and PostgreSQL add selector-head and immutable-version tables through existing startup schema initialization."
+change_class = "internal"
+surface_classification = "internal: runtime ControlPlaneStore selector persistence"
+migration = "Existing rows remain unchanged. A verified Runtime owner must explicitly supply an initial selected evaluation; absent historical basis is not manufactured. PostgreSQL primary-key introspection compares text arrays explicitly."
+api = "Frontier commits validate the live worker fence, admitted tenant/cell and source job, selected output identity, and both expected revision and reference. Action-head append and frontier replacement share a transaction; conflicts roll back both."
+limitations = "This persistence layer stores owner-supplied artifact identities; full selected-manifest, payload, evaluation-basis and current-eligibility verification belongs to the Runtime caller. The source-only retention lifecycle and public projection require their separate B09 companions. No legal authority, production currentness or formal E02 closure is asserted."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

@@ -1334,6 +1334,60 @@ class AcquisitionActionHeadRecord:
 
 
 @dataclass(frozen=True)
+class AcquisitionEvaluationFrontierKey:
+    """Owner-resolved identity for one candidate/task evaluation selector."""
+
+    tenant_id: str
+    cell_id: str
+    source_job_id: str
+    design_problem_ref: str
+    candidate_id: str
+
+
+@dataclass(frozen=True)
+class AcquisitionEvaluationFrontierValue:
+    """Content-bound selected evaluation admitted by its source owner."""
+
+    selected_evaluation_witness_ref: str
+    selected_evaluation_content_hash: str
+    basis_ref: str | None = None
+    basis_content_hash: str | None = None
+    decision_ref: str | None = None
+
+
+@dataclass(frozen=True)
+class AcquisitionEvaluationFrontierCAS:
+    """Expected frontier revision plus optional new selected evaluation."""
+
+    key: AcquisitionEvaluationFrontierKey
+    expected_revision: int
+    expected_frontier_ref: str | None
+    replacement: AcquisitionEvaluationFrontierValue | None
+
+
+@dataclass(frozen=True)
+class AcquisitionEvaluationFrontierRecord:
+    """Immutable historical selector version returned by ControlPlaneStore."""
+
+    key: AcquisitionEvaluationFrontierKey
+    revision: int
+    selected_evaluation_witness_ref: str
+    selected_evaluation_content_hash: str
+    basis_ref: str | None
+    basis_content_hash: str | None
+    decision_ref: str | None
+    frontier_ref: str
+
+
+@dataclass(frozen=True)
+class AcquisitionActionHeadFrontierCommit:
+    """Action-head append and the exact shared frontier version selected with it."""
+
+    head: AcquisitionActionHeadRecord
+    frontier: AcquisitionEvaluationFrontierRecord
+
+
+@dataclass(frozen=True)
 class ControlDeadLetterRecord:
     """Represent one terminally failed control job requiring operator review."""
 
@@ -1346,6 +1400,106 @@ class ControlDeadLetterRecord:
     failed_at: datetime
     acknowledged_at: datetime | None
     acknowledged_by: str | None
+
+
+def _validate_acquisition_evaluation_frontier_key(
+    key: AcquisitionEvaluationFrontierKey,
+) -> None:
+    if type(key) is not AcquisitionEvaluationFrontierKey:
+        raise TypeError("acquisition_evaluation_frontier_key_untyped")
+    identities = (key.tenant_id, key.cell_id, key.source_job_id, key.candidate_id)
+    if any(type(value) is not str or not value or value != value.strip() for value in identities):
+        raise ValueError("acquisition_evaluation_frontier_key_invalid")
+    if not _is_sha256_ref(key.design_problem_ref):
+        raise ValueError("acquisition_evaluation_frontier_design_problem_ref_invalid")
+
+
+def _validate_acquisition_evaluation_frontier_value(
+    value: AcquisitionEvaluationFrontierValue,
+) -> None:
+    if type(value) is not AcquisitionEvaluationFrontierValue:
+        raise TypeError("acquisition_evaluation_frontier_value_untyped")
+    if not _is_sha256_ref(value.selected_evaluation_witness_ref) or not _is_sha256_ref(
+        value.selected_evaluation_content_hash
+    ):
+        raise ValueError("acquisition_evaluation_frontier_witness_invalid")
+    if (value.basis_ref is None) != (value.basis_content_hash is None):
+        raise ValueError("acquisition_evaluation_frontier_basis_binding_incomplete")
+    if value.basis_ref is not None and (
+        not _is_sha256_ref(value.basis_ref) or not _is_sha256_ref(value.basis_content_hash)
+    ):
+        raise ValueError("acquisition_evaluation_frontier_basis_invalid")
+    if value.decision_ref is not None and not _is_sha256_ref(value.decision_ref):
+        raise ValueError("acquisition_evaluation_frontier_decision_ref_invalid")
+
+
+def _validate_acquisition_evaluation_frontier_cas(
+    frontier_cas: AcquisitionEvaluationFrontierCAS,
+    *,
+    require_replacement: bool = False,
+) -> None:
+    if type(frontier_cas) is not AcquisitionEvaluationFrontierCAS:
+        raise TypeError("acquisition_evaluation_frontier_cas_untyped")
+    _validate_acquisition_evaluation_frontier_key(frontier_cas.key)
+    if type(frontier_cas.expected_revision) is not int or frontier_cas.expected_revision < 0:
+        raise ValueError("acquisition_evaluation_frontier_revision_invalid")
+    if frontier_cas.expected_revision == 0:
+        if frontier_cas.expected_frontier_ref is not None:
+            raise ValueError("acquisition_evaluation_frontier_expected_ref_invalid")
+    elif not _is_sha256_ref(frontier_cas.expected_frontier_ref):
+        raise ValueError("acquisition_evaluation_frontier_expected_ref_invalid")
+    if frontier_cas.replacement is not None:
+        _validate_acquisition_evaluation_frontier_value(frontier_cas.replacement)
+    elif require_replacement:
+        raise ValueError("acquisition_evaluation_frontier_replacement_required")
+    elif frontier_cas.expected_revision == 0:
+        raise ValueError("acquisition_evaluation_frontier_not_established")
+
+
+def _acquisition_evaluation_frontier_ref(
+    *,
+    key: AcquisitionEvaluationFrontierKey,
+    revision: int,
+    value: AcquisitionEvaluationFrontierValue,
+) -> str:
+    payload = {
+        "schema_version": "polisyos.control.acquisition_evaluation_frontier.v1",
+        "tenant_id": key.tenant_id,
+        "cell_id": key.cell_id,
+        "source_job_id": key.source_job_id,
+        "design_problem_ref": key.design_problem_ref,
+        "candidate_id": key.candidate_id,
+        "revision": revision,
+        "selected_evaluation_witness_ref": value.selected_evaluation_witness_ref,
+        "selected_evaluation_content_hash": value.selected_evaluation_content_hash,
+        "basis_ref": value.basis_ref,
+        "basis_content_hash": value.basis_content_hash,
+        "decision_ref": value.decision_ref,
+    }
+    raw = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return "sha256:" + hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def _acquisition_evaluation_frontier_record(
+    *,
+    key: AcquisitionEvaluationFrontierKey,
+    revision: int,
+    value: AcquisitionEvaluationFrontierValue,
+) -> AcquisitionEvaluationFrontierRecord:
+    return AcquisitionEvaluationFrontierRecord(
+        key=key,
+        revision=revision,
+        selected_evaluation_witness_ref=value.selected_evaluation_witness_ref,
+        selected_evaluation_content_hash=value.selected_evaluation_content_hash,
+        basis_ref=value.basis_ref,
+        basis_content_hash=value.basis_content_hash,
+        decision_ref=value.decision_ref,
+        frontier_ref=_acquisition_evaluation_frontier_ref(
+            key=key,
+            revision=revision,
+            value=value,
+        ),
+    )
 
 
 HumanDecisionReservationState = Literal[
@@ -4073,6 +4227,283 @@ class ControlPlaneStore:
             raise ValueError("control_job_completion_ambiguous")
         return self._row_to_record(rows[0])
 
+    def _row_to_acquisition_evaluation_frontier(
+        self, row: Any
+    ) -> AcquisitionEvaluationFrontierRecord:
+        key = AcquisitionEvaluationFrontierKey(
+            tenant_id=str(row["tenant_id"]),
+            cell_id=str(row["cell_id"]),
+            source_job_id=str(row["source_job_id"]),
+            design_problem_ref=str(row["design_problem_ref"]),
+            candidate_id=str(row["candidate_id"]),
+        )
+        value = AcquisitionEvaluationFrontierValue(
+            selected_evaluation_witness_ref=str(row["selected_evaluation_witness_ref"]),
+            selected_evaluation_content_hash=str(row["selected_evaluation_content_hash"]),
+            basis_ref=(str(row["basis_ref"]) if row["basis_ref"] is not None else None),
+            basis_content_hash=(
+                str(row["basis_content_hash"]) if row["basis_content_hash"] is not None else None
+            ),
+            decision_ref=(str(row["decision_ref"]) if row["decision_ref"] is not None else None),
+        )
+        _validate_acquisition_evaluation_frontier_key(key)
+        _validate_acquisition_evaluation_frontier_value(value)
+        revision = int(row["revision"])
+        record = _acquisition_evaluation_frontier_record(
+            key=key,
+            revision=revision,
+            value=value,
+        )
+        if revision < 1 or record.frontier_ref != str(row["frontier_ref"]):
+            raise RuntimeError("acquisition_evaluation_frontier_record_corrupt")
+        return record
+
+    def get_acquisition_evaluation_frontier_by_ref(
+        self, frontier_ref: str
+    ) -> AcquisitionEvaluationFrontierRecord | None:
+        """Resolve one immutable historical frontier by its store-issued content ref."""
+
+        if not _is_sha256_ref(frontier_ref):
+            raise ValueError("acquisition_evaluation_frontier_ref_invalid")
+        row = self._fetchone(
+            """
+            SELECT tenant_id, cell_id, source_job_id, design_problem_ref, candidate_id,
+                   revision, frontier_ref, selected_evaluation_witness_ref,
+                   selected_evaluation_content_hash, basis_ref, basis_content_hash,
+                   decision_ref
+            FROM runtime_acquisition_evaluation_frontier_versions
+            WHERE frontier_ref = ?
+            """,
+            (frontier_ref,),
+        )
+        if row is None:
+            return None
+        return self._row_to_acquisition_evaluation_frontier(row)
+
+    def read_acquisition_evaluation_frontier(
+        self, key: AcquisitionEvaluationFrontierKey
+    ) -> AcquisitionEvaluationFrontierRecord | None:
+        """Read the current owner selector; missing state stays not established."""
+
+        _validate_acquisition_evaluation_frontier_key(key)
+        row = self._fetchone(
+            """
+            SELECT revision, frontier_ref
+            FROM runtime_acquisition_evaluation_frontier_heads
+            WHERE tenant_id = ? AND cell_id = ? AND source_job_id = ?
+              AND design_problem_ref = ? AND candidate_id = ?
+            """,
+            (
+                key.tenant_id,
+                key.cell_id,
+                key.source_job_id,
+                key.design_problem_ref,
+                key.candidate_id,
+            ),
+        )
+        if row is None:
+            return None
+        revision = int(row["revision"])
+        frontier_ref = row["frontier_ref"]
+        if revision == 0 and frontier_ref is None:
+            return None
+        if revision < 1 or not _is_sha256_ref(frontier_ref):
+            raise RuntimeError("acquisition_evaluation_frontier_head_corrupt")
+        record = self.get_acquisition_evaluation_frontier_by_ref(str(frontier_ref))
+        if record is None or record.key != key or record.revision != revision:
+            raise RuntimeError("acquisition_evaluation_frontier_head_history_mismatch")
+        return record
+
+    def _advance_acquisition_evaluation_frontier_in_transaction(
+        self,
+        frontier_cas: AcquisitionEvaluationFrontierCAS,
+        *,
+        require_replacement: bool = False,
+    ) -> AcquisitionEvaluationFrontierRecord:
+        """Compare and append one selected evaluation under the owning SQL transaction."""
+
+        _validate_acquisition_evaluation_frontier_cas(
+            frontier_cas,
+            require_replacement=require_replacement,
+        )
+        key = frontier_cas.key
+        key_values = (
+            key.tenant_id,
+            key.cell_id,
+            key.source_job_id,
+            key.design_problem_ref,
+            key.candidate_id,
+        )
+        self._execute(
+            """
+            INSERT INTO runtime_acquisition_evaluation_frontier_heads (
+                tenant_id, cell_id, source_job_id, design_problem_ref, candidate_id,
+                revision, frontier_ref
+            ) VALUES (?, ?, ?, ?, ?, 0, NULL)
+            ON CONFLICT (
+                tenant_id, cell_id, source_job_id, design_problem_ref, candidate_id
+            ) DO NOTHING
+            """,
+            key_values,
+        )
+        lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+        current = self._fetchone(
+            """
+            SELECT revision, frontier_ref
+            FROM runtime_acquisition_evaluation_frontier_heads
+            WHERE tenant_id = ? AND cell_id = ? AND source_job_id = ?
+              AND design_problem_ref = ? AND candidate_id = ?
+            """
+            + lock_suffix,
+            key_values,
+        )
+        if current is None:
+            raise RuntimeError("acquisition_evaluation_frontier_head_not_created")
+        current_revision = int(current["revision"])
+        current_ref = str(current["frontier_ref"]) if current["frontier_ref"] is not None else None
+        if (
+            current_revision != frontier_cas.expected_revision
+            or current_ref != frontier_cas.expected_frontier_ref
+        ):
+            raise ValueError("acquisition_evaluation_frontier_conflict")
+        if frontier_cas.replacement is None:
+            if current_revision < 1 or current_ref is None:
+                raise ValueError("acquisition_evaluation_frontier_not_established")
+            record = self.get_acquisition_evaluation_frontier_by_ref(current_ref)
+            if record is None or record.key != key or record.revision != current_revision:
+                raise RuntimeError("acquisition_evaluation_frontier_head_history_mismatch")
+            return record
+
+        next_revision = current_revision + 1
+        record = _acquisition_evaluation_frontier_record(
+            key=key,
+            revision=next_revision,
+            value=frontier_cas.replacement,
+        )
+        try:
+            self._execute(
+                """
+                INSERT INTO runtime_acquisition_evaluation_frontier_versions (
+                    tenant_id, cell_id, source_job_id, design_problem_ref, candidate_id,
+                    revision, frontier_ref, selected_evaluation_witness_ref,
+                    selected_evaluation_content_hash, basis_ref, basis_content_hash,
+                    decision_ref, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    *key_values,
+                    next_revision,
+                    record.frontier_ref,
+                    record.selected_evaluation_witness_ref,
+                    record.selected_evaluation_content_hash,
+                    record.basis_ref,
+                    record.basis_content_hash,
+                    record.decision_ref,
+                    _iso(_utc_now()),
+                ),
+            )
+        except Exception as exc:
+            if _is_unique_constraint_violation(exc):
+                raise ValueError("acquisition_evaluation_frontier_conflict") from exc
+            raise
+        if current_ref is None:
+            update_sql = """
+                UPDATE runtime_acquisition_evaluation_frontier_heads
+                SET revision = ?, frontier_ref = ?
+                WHERE tenant_id = ? AND cell_id = ? AND source_job_id = ?
+                  AND design_problem_ref = ? AND candidate_id = ?
+                  AND revision = ? AND frontier_ref IS NULL
+            """
+            update_values = (next_revision, record.frontier_ref, *key_values, current_revision)
+        else:
+            update_sql = """
+                UPDATE runtime_acquisition_evaluation_frontier_heads
+                SET revision = ?, frontier_ref = ?
+                WHERE tenant_id = ? AND cell_id = ? AND source_job_id = ?
+                  AND design_problem_ref = ? AND candidate_id = ?
+                  AND revision = ? AND frontier_ref = ?
+            """
+            update_values = (
+                next_revision,
+                record.frontier_ref,
+                *key_values,
+                current_revision,
+                current_ref,
+            )
+        if self._execute(update_sql, update_values) != 1:
+            raise ValueError("acquisition_evaluation_frontier_conflict")
+        return record
+
+    def _require_frontier_action_owner(
+        self,
+        *,
+        key: AcquisitionEvaluationFrontierKey,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        action_job_id: str,
+        fence: tuple[str, int] | None,
+    ) -> None:
+        if (
+            key.tenant_id != tenant_id
+            or key.cell_id != cell_id
+            or key.source_job_id != source_job_id
+            or action_job_id == source_job_id
+        ):
+            raise ValueError("acquisition_evaluation_frontier_action_scope_mismatch")
+        bound = self._job_execution_fence.get()
+        if (
+            fence is None
+            or bound is None
+            or bound[0] != action_job_id
+            or bound[1] != fence[0]
+            or bound[2] != fence[1]
+        ):
+            raise ControlJobLeaseLostError(
+                "acquisition_evaluation_frontier_requires_current_job_fence"
+            )
+        current_job = self.current_execution_job_record()
+        if (
+            current_job.job_id != action_job_id
+            or current_job.kind != "acquisition"
+            or current_job.state != "running"
+            or current_job.run_id != run_id
+        ):
+            raise ControlJobLeaseLostError("acquisition_evaluation_frontier_action_job_mismatch")
+        action_admission = self.current_execution_job_admission()
+        if (
+            action_admission.scope.status != "established"
+            or action_admission.scope.tenant_id != tenant_id
+            or action_admission.scope.cell_id != cell_id
+        ):
+            raise ControlJobExecutionAdmissionError(
+                "acquisition_evaluation_frontier_action_scope_not_established"
+            )
+        source_job = self.get_job(source_job_id)
+        if (
+            source_job is None
+            or source_job.job_id != source_job_id
+            or source_job.kind != "natural_language_run"
+            or source_job.state != "completed"
+            or source_job.run_id != run_id
+        ):
+            raise ControlJobExecutionAdmissionError(
+                "acquisition_evaluation_frontier_source_job_not_completed"
+            )
+        source_scope = self.historical_completed_job_execution_scope(
+            job_id=source_job_id,
+            expected_run_id=run_id,
+        )
+        if (
+            source_scope.status != "established"
+            or source_scope.tenant_id != tenant_id
+            or source_scope.cell_id != cell_id
+        ):
+            raise ControlJobExecutionAdmissionError(
+                "acquisition_evaluation_frontier_source_scope_mismatch"
+            )
+
     def get_acquisition_action_head(
         self,
         *,
@@ -4199,13 +4630,28 @@ class ControlPlaneStore:
         recovery_state: str,
         job_id: str,
         predecessor_receipt_ref: str | None,
+        frontier_cas: AcquisitionEvaluationFrontierCAS | None = None,
     ) -> AcquisitionActionHeadRecord:
-        """Append one predecessor-consistent action head under the job lease."""
+        """Append one predecessor-consistent action head under the job lease.
+
+        When a frontier CAS is supplied, its shared candidate/task selector
+        transition is part of this same SQL transaction. Legacy callers retain
+        the original route-only behavior and must not emit B09 source-retained
+        terminals.
+        """
 
         if action_generation < 1 or expected_head_generation < 0:
             raise ValueError("acquisition_action_generation_invalid")
         if receipt_ref != receipt_sha256 or not _is_sha256_ref(receipt_ref):
             raise ValueError("acquisition_action_receipt_binding_invalid")
+        if frontier_cas is not None:
+            _validate_acquisition_evaluation_frontier_cas(frontier_cas)
+            if (
+                frontier_cas.key.tenant_id != tenant_id
+                or frontier_cas.key.cell_id != cell_id
+                or frontier_cas.key.source_job_id != source_job_id
+            ):
+                raise ValueError("acquisition_evaluation_frontier_action_scope_mismatch")
         fence = self._resolve_job_execution_fence(
             job_id=job_id,
             expected_lease_owner=None,
@@ -4227,6 +4673,17 @@ class ControlPlaneStore:
                     raise ControlJobLeaseLostError(
                         f"control job lease no longer permits action-head write for {job_id}"
                     )
+            if frontier_cas is not None:
+                self._require_frontier_action_owner(
+                    key=frontier_cas.key,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                    run_id=run_id,
+                    source_job_id=source_job_id,
+                    action_job_id=job_id,
+                    fence=fence,
+                )
+                self._advance_acquisition_evaluation_frontier_in_transaction(frontier_cas)
             current = self.get_acquisition_action_head(
                 tenant_id=tenant_id,
                 cell_id=cell_id,
@@ -4307,6 +4764,62 @@ class ControlPlaneStore:
             if loaded is None or loaded.head_generation != next_generation:
                 raise RuntimeError("acquisition_action_head_readback_failed")
             return loaded
+
+    def advance_acquisition_action_head_with_frontier(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        route_id: str,
+        action_generation: int,
+        expected_head_generation: int,
+        receipt_ref: str,
+        receipt_sha256: str,
+        durable_event_id: str,
+        coarse_phase: str,
+        receipt_phase: str,
+        recovery_state: str,
+        job_id: str,
+        predecessor_receipt_ref: str | None,
+        frontier_cas: AcquisitionEvaluationFrontierCAS,
+    ) -> AcquisitionActionHeadFrontierCommit:
+        """Append an action head and condition the shared evaluation frontier atomically."""
+
+        _validate_acquisition_evaluation_frontier_cas(frontier_cas)
+        head = self.advance_acquisition_action_head(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            source_job_id=source_job_id,
+            route_id=route_id,
+            action_generation=action_generation,
+            expected_head_generation=expected_head_generation,
+            receipt_ref=receipt_ref,
+            receipt_sha256=receipt_sha256,
+            durable_event_id=durable_event_id,
+            coarse_phase=coarse_phase,
+            receipt_phase=receipt_phase,
+            recovery_state=recovery_state,
+            job_id=job_id,
+            predecessor_receipt_ref=predecessor_receipt_ref,
+            frontier_cas=frontier_cas,
+        )
+        if frontier_cas.replacement is None:
+            frontier_ref = frontier_cas.expected_frontier_ref
+        else:
+            frontier_ref = _acquisition_evaluation_frontier_ref(
+                key=frontier_cas.key,
+                revision=frontier_cas.expected_revision + 1,
+                value=frontier_cas.replacement,
+            )
+        if frontier_ref is None:
+            raise RuntimeError("acquisition_evaluation_frontier_result_ref_missing")
+        frontier = self.get_acquisition_evaluation_frontier_by_ref(frontier_ref)
+        if frontier is None or frontier.key != frontier_cas.key:
+            raise RuntimeError("acquisition_evaluation_frontier_result_not_observed")
+        return AcquisitionActionHeadFrontierCommit(head=head, frontier=frontier)
 
     def get_normative_evidence_head(self, job_id: str) -> dict[str, Any] | None:
         """Resolve the latest immutable normative admission event for one exact job."""
@@ -5221,17 +5734,25 @@ class ControlPlaneStore:
         progress: dict[str, Any] | None = None,
         method_execution_selection: object | None = None,
         method_metric_projection_admission: object | None = None,
+        selected_evaluation_frontier_cas: AcquisitionEvaluationFrontierCAS | None = None,
         expected_lease_owner: str | None = None,
         expected_attempt: int | None = None,
-    ) -> None:
-        """Mark one job completed, clear lease/error state, and emit completion events."""
+    ) -> AcquisitionEvaluationFrontierRecord | None:
+        """Complete one job and optionally select its owner-verified evaluation atomically."""
         fence = self._resolve_job_execution_fence(
             job_id=job_id,
             expected_lease_owner=expected_lease_owner,
             expected_attempt=expected_attempt,
         )
+        if selected_evaluation_frontier_cas is not None:
+            _validate_acquisition_evaluation_frontier_cas(
+                selected_evaluation_frontier_cas,
+                require_replacement=True,
+            )
+            if selected_evaluation_frontier_cas.key.source_job_id != job_id:
+                raise ValueError("acquisition_evaluation_frontier_completion_source_mismatch")
         with self._job_transaction():
-            self._complete_job_in_transaction(
+            return self._complete_job_in_transaction(
                 job_id=job_id,
                 run_id=run_id,
                 pipeline_id=pipeline_id,
@@ -5239,6 +5760,7 @@ class ControlPlaneStore:
                 progress=progress,
                 method_execution_selection=method_execution_selection,
                 method_metric_projection_admission=method_metric_projection_admission,
+                selected_evaluation_frontier_cas=selected_evaluation_frontier_cas,
                 fence=fence,
             )
 
@@ -5445,8 +5967,9 @@ class ControlPlaneStore:
         progress: dict[str, Any] | None,
         method_execution_selection: object | None,
         method_metric_projection_admission: object | None,
+        selected_evaluation_frontier_cas: AcquisitionEvaluationFrontierCAS | None,
         fence: tuple[str, int] | None,
-    ) -> None:
+    ) -> AcquisitionEvaluationFrontierRecord | None:
         """Apply one completion and all of its evidence rows in one transaction."""
         now = _utc_now()
         selection_payload: dict[str, Any] | None = None
@@ -5582,6 +6105,8 @@ class ControlPlaneStore:
             )
             completion_failure_message = _completion_failure_message(progress)
             if completion_failure_message is not None:
+                if selected_evaluation_frontier_cas is not None:
+                    raise ValueError("acquisition_evaluation_frontier_completion_not_successful")
                 self._fail_job_in_transaction(
                     job_id=job_id,
                     error_message=completion_failure_message,
@@ -5721,6 +6246,61 @@ class ControlPlaneStore:
                     run_id=source_run_id,
                     payload=request.model_dump(mode="json"),
                 )
+
+        if selected_evaluation_frontier_cas is None:
+            return None
+        cas = selected_evaluation_frontier_cas
+        if fence is None or self._job_execution_fence.get() != (job_id, fence[0], fence[1]):
+            raise ControlJobLeaseLostError(
+                "acquisition_evaluation_frontier_requires_current_job_fence"
+            )
+        proof = self._require_current_job_completion_proof()
+        completed = proof.record
+        if (
+            proof.proof_phase != "completed"
+            or proof.source_event.event_type != "job_completed"
+            or completed.job_id != job_id
+            or completed.kind != "natural_language_run"
+            or completed.state != "completed"
+            or completed.run_id != run_id
+            or run_id is None
+        ):
+            raise ControlJobExecutionAdmissionError(
+                "acquisition_evaluation_frontier_completion_source_not_verified"
+            )
+        scope = self.historical_completed_job_execution_scope(
+            job_id=job_id,
+            expected_run_id=run_id,
+        )
+        if (
+            scope.status != "established"
+            or scope.tenant_id != cas.key.tenant_id
+            or scope.cell_id != cas.key.cell_id
+        ):
+            raise ControlJobExecutionAdmissionError(
+                "acquisition_evaluation_frontier_completion_scope_mismatch"
+            )
+        compiled_id = completed.progress.get("compiled_recursive_generation_cycle_ref")
+        try:
+            compiled_ref = ArtifactRef.model_validate(
+                completed.progress.get("compiled_recursive_generation_cycle_artifact_ref")
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                "acquisition_evaluation_frontier_completed_output_not_selected"
+            ) from exc
+        selected_value = cas.replacement
+        if (
+            selected_value is None
+            or compiled_ref.kind != "runtime.compiled_recursive_generation_cycle"
+            or str(compiled_ref.artifact_id) != compiled_id
+            or selected_value.selected_evaluation_witness_ref != str(compiled_ref.artifact_id)
+        ):
+            raise ValueError("acquisition_evaluation_frontier_completed_output_mismatch")
+        return self._advance_acquisition_evaluation_frontier_in_transaction(
+            cas,
+            require_replacement=True,
+        )
 
     def fail_job(
         self,
@@ -7363,6 +7943,37 @@ class ControlPlaneStore:
                             action_generation, head_generation
                         )
                     );
+                    CREATE TABLE IF NOT EXISTS runtime_acquisition_evaluation_frontier_heads (
+                        tenant_id TEXT NOT NULL,
+                        cell_id TEXT NOT NULL,
+                        source_job_id TEXT NOT NULL,
+                        design_problem_ref TEXT NOT NULL,
+                        candidate_id TEXT NOT NULL,
+                        revision INTEGER NOT NULL,
+                        frontier_ref TEXT,
+                        PRIMARY KEY (
+                            tenant_id, cell_id, source_job_id, design_problem_ref, candidate_id
+                        )
+                    );
+                    CREATE TABLE IF NOT EXISTS runtime_acquisition_evaluation_frontier_versions (
+                        tenant_id TEXT NOT NULL,
+                        cell_id TEXT NOT NULL,
+                        source_job_id TEXT NOT NULL,
+                        design_problem_ref TEXT NOT NULL,
+                        candidate_id TEXT NOT NULL,
+                        revision INTEGER NOT NULL,
+                        frontier_ref TEXT NOT NULL UNIQUE,
+                        selected_evaluation_witness_ref TEXT NOT NULL,
+                        selected_evaluation_content_hash TEXT NOT NULL,
+                        basis_ref TEXT,
+                        basis_content_hash TEXT,
+                        decision_ref TEXT,
+                        created_at TEXT NOT NULL,
+                        PRIMARY KEY (
+                            tenant_id, cell_id, source_job_id, design_problem_ref,
+                            candidate_id, revision
+                        )
+                    );
                     CREATE TABLE IF NOT EXISTS control_worker_leases (
                         worker_id TEXT PRIMARY KEY,
                         state TEXT NOT NULL,
@@ -7776,6 +8387,45 @@ class ControlPlaneStore:
             )
             cur.execute(
                 """
+                CREATE TABLE IF NOT EXISTS runtime_acquisition_evaluation_frontier_heads (
+                    tenant_id TEXT NOT NULL,
+                    cell_id TEXT NOT NULL,
+                    source_job_id TEXT NOT NULL,
+                    design_problem_ref TEXT NOT NULL,
+                    candidate_id TEXT NOT NULL,
+                    revision INTEGER NOT NULL,
+                    frontier_ref TEXT,
+                    PRIMARY KEY (
+                        tenant_id, cell_id, source_job_id, design_problem_ref, candidate_id
+                    )
+                )
+                """
+            )
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS runtime_acquisition_evaluation_frontier_versions (
+                    tenant_id TEXT NOT NULL,
+                    cell_id TEXT NOT NULL,
+                    source_job_id TEXT NOT NULL,
+                    design_problem_ref TEXT NOT NULL,
+                    candidate_id TEXT NOT NULL,
+                    revision INTEGER NOT NULL,
+                    frontier_ref TEXT NOT NULL UNIQUE,
+                    selected_evaluation_witness_ref TEXT NOT NULL,
+                    selected_evaluation_content_hash TEXT NOT NULL,
+                    basis_ref TEXT,
+                    basis_content_hash TEXT,
+                    decision_ref TEXT,
+                    created_at TIMESTAMPTZ NOT NULL,
+                    PRIMARY KEY (
+                        tenant_id, cell_id, source_job_id, design_problem_ref,
+                        candidate_id, revision
+                    )
+                )
+                """
+            )
+            cur.execute(
+                """
                 CREATE TABLE IF NOT EXISTS control_worker_leases (
                     worker_id TEXT PRIMARY KEY,
                     state TEXT NOT NULL,
@@ -7999,7 +8649,9 @@ class ControlPlaneStore:
                         WHERE constraint_row.conrelid = 'runtime_operation_intents'::regclass
                           AND constraint_row.contype = 'p'
                           AND (
-                              SELECT array_agg(attribute_row.attname ORDER BY key_column.ordinality)
+                              SELECT array_agg(
+                                  attribute_row.attname::TEXT ORDER BY key_column.ordinality
+                              )
                               FROM unnest(constraint_row.conkey) WITH ORDINALITY
                                    AS key_column(attnum, ordinality)
                               JOIN pg_attribute AS attribute_row

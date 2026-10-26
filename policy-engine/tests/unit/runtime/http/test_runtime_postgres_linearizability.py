@@ -20,6 +20,7 @@ from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.runtime import ScenarioManifest
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+from tests.unit.runtime.http import test_control_plane_store_evaluation_frontier as frontier_helpers
 from tests.unit.runtime.http.test_runtime_api_authz import (
     _AllowOPA,
     _BarrierOPA,
@@ -472,3 +473,190 @@ def test_postgres_fresh_app_ignores_unheaded_scenario_candidate_artifact(
     assert fetched.status_code == 200, fetched.text
     assert fetched.json()["scenario"]["policy_question"] == "Authoritative PostgreSQL winner"
     assert fetched.json()["scenario"]["manifest_hash"] == head.manifest_hash
+
+
+def test_postgres_acquisition_frontier_cas_race_is_linearizable(
+    postgres_dsn: str,
+    tmp_path: Path,
+) -> None:
+    """Exercise frontier CAS through two real PostgreSQL store instances."""
+    suffix = uuid.uuid4().hex
+    stores = (
+        ControlPlaneStore(
+            backend="postgres",
+            sqlite_path=tmp_path / f"unused-frontier-first-{suffix}.sqlite3",
+            postgres_dsn=postgres_dsn,
+        ),
+        ControlPlaneStore(
+            backend="postgres",
+            sqlite_path=tmp_path / f"unused-frontier-second-{suffix}.sqlite3",
+            postgres_dsn=postgres_dsn,
+        ),
+    )
+    assert all(store.backend == "postgres" for store in stores)
+
+    _, initial, _ = frontier_helpers._bootstrap(
+        stores[0],
+        tmp_path,
+        source_job_id=f"frontier-source-{suffix}",
+    )
+    key = initial.key
+    jobs = tuple(
+        frontier_helpers._create_action_job(
+            stores[0],
+            job_id=f"frontier-action-{suffix}-{index}",
+        )
+        for index in range(2)
+    )
+    replacements = (
+        frontier_helpers._value("compiled-frontier-a", "tuple-frontier-a"),
+        frontier_helpers._value("compiled-frontier-b", "tuple-frontier-b"),
+    )
+    barrier = threading.Barrier(2)
+
+    def _compete(index: int) -> tuple[str, Any]:
+        job, worker, attempt = jobs[index]
+        barrier.wait(timeout=10)
+        try:
+            committed = frontier_helpers._append_action(
+                stores[index],
+                job=job,
+                worker_id=worker,
+                attempt=attempt,
+                key=key,
+                expected_revision=1,
+                expected_ref=initial.frontier_ref,
+                route_id=f"frontier-race-{suffix}-{index}",
+                replacement=replacements[index],
+            )
+        except ValueError as exc:
+            return "conflict", exc
+        return "committed", committed
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        outcomes = tuple(pool.map(_compete, range(2)))
+    winners = [result for outcome, result in outcomes if outcome == "committed"]
+    conflicts = [result for outcome, result in outcomes if outcome == "conflict"]
+    assert len(winners) == 1
+    assert len(conflicts) == 1
+    assert "acquisition_evaluation_frontier_conflict" in str(conflicts[0])
+
+    winning_commit = winners[0]
+    winning_index = next(
+        index for index, (outcome, _) in enumerate(outcomes) if outcome == "committed"
+    )
+    losing_index = 1 - winning_index
+    assert stores[0].read_acquisition_evaluation_frontier(key) == winning_commit.frontier
+    assert stores[1].read_acquisition_evaluation_frontier(key) == winning_commit.frontier
+    assert stores[1].get_acquisition_evaluation_frontier_by_ref(initial.frontier_ref) == initial
+    assert (
+        stores[0].get_acquisition_action_head(
+            tenant_id=key.tenant_id,
+            cell_id=key.cell_id,
+            run_id="run-a",
+            source_job_id=key.source_job_id,
+            route_id=frontier_helpers._sha(f"frontier-race-{suffix}-{winning_index}"),
+            action_generation=1,
+        )
+        is not None
+    )
+    assert (
+        stores[0].get_acquisition_action_head(
+            tenant_id=key.tenant_id,
+            cell_id=key.cell_id,
+            run_id="run-a",
+            source_job_id=key.source_job_id,
+            route_id=frontier_helpers._sha(f"frontier-race-{suffix}-{losing_index}"),
+            action_generation=1,
+        )
+        is None
+    )
+
+    psycopg = importlib.import_module("psycopg")
+    with psycopg.connect(postgres_dsn) as connection:
+        rows = connection.execute(
+            "SELECT revision, frontier_ref "
+            "FROM runtime_acquisition_evaluation_frontier_versions "
+            "WHERE tenant_id = %s AND cell_id = %s AND source_job_id = %s "
+            "AND design_problem_ref = %s AND candidate_id = %s "
+            "ORDER BY revision",
+            (
+                key.tenant_id,
+                key.cell_id,
+                key.source_job_id,
+                key.design_problem_ref,
+                key.candidate_id,
+            ),
+        ).fetchall()
+    assert rows == [
+        (1, initial.frontier_ref),
+        (2, winning_commit.frontier.frontier_ref),
+    ]
+
+    for label, expected_revision, expected_ref in (
+        ("stale-revision", 1, winning_commit.frontier.frontier_ref),
+        ("stale-ref", 2, frontier_helpers._sha("not-current-frontier")),
+    ):
+        job, worker, attempt = frontier_helpers._create_action_job(
+            stores[0],
+            job_id=f"frontier-{label}-{suffix}",
+        )
+        with pytest.raises(ValueError, match="acquisition_evaluation_frontier_conflict"):
+            frontier_helpers._append_action(
+                stores[0],
+                job=job,
+                worker_id=worker,
+                attempt=attempt,
+                key=key,
+                expected_revision=expected_revision,
+                expected_ref=expected_ref,
+                route_id=f"frontier-{label}-{suffix}",
+                replacement=None,
+            )
+        assert stores[1].read_acquisition_evaluation_frontier(key) == winning_commit.frontier
+        assert (
+            stores[1].get_acquisition_action_head(
+                tenant_id=key.tenant_id,
+                cell_id=key.cell_id,
+                run_id="run-a",
+                source_job_id=key.source_job_id,
+                route_id=frontier_helpers._sha(f"frontier-{label}-{suffix}"),
+                action_generation=1,
+            )
+            is None
+        )
+
+    rollback_job, rollback_worker, rollback_attempt = frontier_helpers._create_action_job(
+        stores[0],
+        job_id=f"frontier-rollback-{suffix}",
+    )
+    with pytest.raises(ValueError, match="acquisition_action_predecessor_conflict"):
+        frontier_helpers._append_action(
+            stores[0],
+            job=rollback_job,
+            worker_id=rollback_worker,
+            attempt=rollback_attempt,
+            key=key,
+            expected_revision=2,
+            expected_ref=winning_commit.frontier.frontier_ref,
+            route_id=f"frontier-race-{suffix}-{winning_index}",
+            replacement=frontier_helpers._value("compiled-frontier-rollback", "tuple-rollback"),
+        )
+    assert stores[1].read_acquisition_evaluation_frontier(key) == winning_commit.frontier
+    assert stores[1].get_acquisition_evaluation_frontier_by_ref(initial.frontier_ref) == initial
+    with psycopg.connect(postgres_dsn) as connection:
+        final_rows = connection.execute(
+            "SELECT revision, frontier_ref "
+            "FROM runtime_acquisition_evaluation_frontier_versions "
+            "WHERE tenant_id = %s AND cell_id = %s AND source_job_id = %s "
+            "AND design_problem_ref = %s AND candidate_id = %s "
+            "ORDER BY revision",
+            (
+                key.tenant_id,
+                key.cell_id,
+                key.source_job_id,
+                key.design_problem_ref,
+                key.candidate_id,
+            ),
+        ).fetchall()
+    assert final_rows == rows

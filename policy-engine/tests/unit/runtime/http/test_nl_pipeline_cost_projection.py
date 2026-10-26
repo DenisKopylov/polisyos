@@ -509,6 +509,11 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
     authority_envelope_default_views: list[ArtifactRef] = []
     authority_write_options = []
     production_authority_envelope_reads: list[object] = []
+    authority_envelope_read_digests: list[tuple[object, str]] = []
+    production_authority_envelope_read_digests: list[tuple[object, str]] = []
+    writer_authority_envelope_readbacks: list[object] = []
+    writer_authority_envelope_readback_digests: list[tuple[object, str]] = []
+    writer_authority_readback_id: str | None = None
     observed_authority_ids: set[str] = set()
 
     def _put_json_with_sibling_default(
@@ -542,29 +547,45 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
 
     def _recording_get_bytes(artifact_ref):
         artifact_id = str(getattr(artifact_ref, "artifact_id", artifact_ref))
-        if artifact_id in observed_authority_ids:
+        is_authority_envelope_ref = (
+            isinstance(artifact_ref, ArtifactRef)
+            and artifact_ref.kind == AUTHORITY_ENVELOPE_ARTIFACT_KIND
+        )
+        raw_payload = original_get_bytes(artifact_ref)
+        read_receipt = (artifact_ref, hashlib.sha256(raw_payload).hexdigest())
+        if writer_authority_readback_id is not None:
+            if is_authority_envelope_ref or artifact_id == writer_authority_readback_id:
+                writer_authority_envelope_readbacks.append(artifact_ref)
+                writer_authority_envelope_readback_digests.append(read_receipt)
+        elif is_authority_envelope_ref or artifact_id in observed_authority_ids:
             authority_envelope_reads.append(artifact_ref)
-        return original_get_bytes(artifact_ref)
+            authority_envelope_read_digests.append(read_receipt)
+        return raw_payload
 
     artifact_store.get_bytes = _recording_get_bytes
 
     async def _run_blocking_with_sibling_manifest(function, *args, **kwargs):
+        nonlocal writer_authority_readback_id
         result = await original_run_blocking_async(function, *args, **kwargs)
         if function is nl_pipeline_module.write_runtime_authority_artifact:
             writer_store, _event_log, _payload, writer_options = args
             assert writer_store is artifact_store
-            readback = verify_runtime_authority_artifact_identity(
-                writer_store,
-                artifact_id=result.cas_ref,
-                opts=writer_options,
-                expected_context=result.identity_context,
-            )
+            selected_ref = result.authority_envelope_ref
+            selected_id = str(selected_ref.artifact_id)
+            writer_authority_readback_id = selected_id
+            try:
+                readback = verify_runtime_authority_artifact_identity(
+                    writer_store,
+                    artifact_id=result.cas_ref,
+                    opts=writer_options,
+                    expected_context=result.identity_context,
+                )
+            finally:
+                writer_authority_readback_id = None
             assert readback.cas_ref == result.cas_ref
             assert readback.authority_envelope_ref == result.authority_envelope_ref
             assert readback.identity_context == result.identity_context
             authority_write_options.append((result, writer_options))
-            selected_ref = result.authority_envelope_ref
-            selected_id = str(selected_ref.artifact_id)
             if selected_id not in observed_authority_ids:
                 manifest = original_get_manifest(selected_ref)
                 payload_bytes = original_get_bytes(selected_ref)
@@ -704,6 +725,7 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
             for request_profile, keyword_profile in retrieval.resolve_profile_calls
         )
         production_authority_envelope_reads[:] = authority_envelope_reads
+        production_authority_envelope_read_digests[:] = authority_envelope_read_digests
         assert authority_write_options and authority_envelope_pairs
         first_result, first_options = authority_write_options[0]
         first_selected_ref, first_sibling_ref = authority_envelope_pairs[0]
@@ -840,11 +862,68 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
     assert authority_envelope_pairs
     assert authority_envelope_default_views
     assert authority_envelope_puts
-    assert [selected for selected, _sibling in authority_envelope_pairs] == authority_envelope_puts
-    assert production_authority_envelope_reads == [
-        selected for selected, _sibling in authority_envelope_pairs
-    ]
+    selected_envelope_refs = [selected for selected, _sibling in authority_envelope_pairs]
+    assert selected_envelope_refs == authority_envelope_puts
+
+    def _authority_envelope_identity(
+        ref: ArtifactRef,
+    ) -> tuple[str, str | None, str, str]:
+        return (
+            str(ref.artifact_id),
+            ref.manifest_profile_sha256,
+            ref.kind,
+            ref.media_type,
+        )
+
+    expected_envelope_identities = {
+        _authority_envelope_identity(ref) for ref in selected_envelope_refs
+    }
+    assert len(expected_envelope_identities) == len(selected_envelope_refs)
+    assert all(
+        ref.manifest_profile_sha256 is not None
+        and ref.kind == AUTHORITY_ENVELOPE_ARTIFACT_KIND
+        and ref.media_type == "application/json"
+        for ref in selected_envelope_refs
+    )
+
+    # The owner re-resolves linked authority ancestors through the selected Core
+    # refs. Repeated reads are valid; identity/profile and resolved bytes are not
+    # allowed to drift to a default or sibling view.
     assert all(isinstance(ref, ArtifactRef) for ref in production_authority_envelope_reads)
+    assert {
+        _authority_envelope_identity(cast("ArtifactRef", ref))
+        for ref in production_authority_envelope_reads
+    } == expected_envelope_identities
+    assert len(production_authority_envelope_read_digests) == len(
+        production_authority_envelope_reads
+    )
+    assert {
+        (
+            _authority_envelope_identity(cast("ArtifactRef", ref)),
+            digest,
+        )
+        for ref, digest in production_authority_envelope_read_digests
+    } == {
+        (_authority_envelope_identity(ref), ref.artifact_id.hex) for ref in selected_envelope_refs
+    }
+
+    assert all(isinstance(ref, ArtifactRef) for ref in writer_authority_envelope_readbacks)
+    assert {
+        _authority_envelope_identity(cast("ArtifactRef", ref))
+        for ref in writer_authority_envelope_readbacks
+    } == expected_envelope_identities
+    assert len(writer_authority_envelope_readback_digests) == len(
+        writer_authority_envelope_readbacks
+    )
+    assert {
+        (
+            _authority_envelope_identity(cast("ArtifactRef", ref)),
+            digest,
+        )
+        for ref, digest in writer_authority_envelope_readback_digests
+    } == {
+        (_authority_envelope_identity(ref), ref.artifact_id.hex) for ref in selected_envelope_refs
+    }
     assert all(
         selected.artifact_id == sibling.artifact_id
         and selected.kind == sibling.kind == "runtime_quality.evidence_authority_envelope"

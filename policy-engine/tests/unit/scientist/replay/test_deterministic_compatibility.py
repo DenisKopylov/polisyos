@@ -76,4 +76,7 @@ def test_scientist_replay_consumers_bind_to_the_canonical_owner() -> None:
     assert backend.build_replay_plan is canonical.build_replay_plan
     assert backend.verify_replay is canonical.verify_replay
     assert verification.CompletenessLevel is canonical.CompletenessLevel
-    assert verification.measure_replayable_audit_bundle is canonical.measure_replayable_audit_bundle
+    assert (
+        verification._measure_replayable_audit_bundle_admission
+        is canonical._measure_replayable_audit_bundle_admission
+    )

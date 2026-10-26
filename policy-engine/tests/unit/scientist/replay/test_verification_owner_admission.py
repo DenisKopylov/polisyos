@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import pytest
 
-from polisyos.core.artifacts import artifact_ref_identity_key
+import polisyos.scientist.policy_design.output as policy_design_output
+import polisyos.scientist.replay.deterministic as canonical_replay
+import polisyos.scientist.replay.verification as replay_verification
+from polisyos.core.artifacts import ArtifactStore, artifact_ref_identity_key
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo, input_ref_from_artifact_ref
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
@@ -80,7 +83,7 @@ def _same_id_foreign_profile_ref(
 
 
 def test_replay_verification_writer_returns_selected_profile_and_preserves_input_profiles(
-    store,
+    store: ArtifactStore, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     candidate_ref = store.put_json(
         {"candidate_id": "candidate-owner-profile"},
@@ -107,6 +110,50 @@ def test_replay_verification_writer_returns_selected_profile_and_preserves_input
         evaluation_ref=evaluation_ref,
     )
 
+    admission_calls: list[
+        tuple[ArtifactStore, ArtifactRef, policy_design_output._ReplayableAuditBasisAdmission]
+    ] = []
+    measurement_calls: list[
+        tuple[
+            ArtifactStore,
+            ArtifactRef,
+            ReplayableAuditBundle | None,
+            policy_design_output._ReplayableAuditBasisAdmission,
+        ]
+    ] = []
+    measurements: list[canonical_replay.ReplayBundleMeasurement] = []
+    original_admit = policy_design_output._admit_replayable_audit_bundle_basis
+    canonical_measure = canonical_replay._measure_replayable_audit_bundle_admission
+
+    def _capture_admission(
+        store_arg: ArtifactStore, bundle_ref: ArtifactRef
+    ) -> policy_design_output._ReplayableAuditBasisAdmission:
+        admission = original_admit(store_arg, bundle_ref)
+        admission_calls.append((store_arg, bundle_ref, admission))
+        return admission
+
+    def _capture_measurement(
+        store_arg: ArtifactStore,
+        bundle_ref: ArtifactRef,
+        bundle: ReplayableAuditBundle | None,
+        admission: policy_design_output._ReplayableAuditBasisAdmission,
+    ) -> canonical_replay.ReplayBundleMeasurement:
+        measurement_calls.append((store_arg, bundle_ref, bundle, admission))
+        measurement = canonical_measure(store_arg, bundle_ref, bundle, admission)
+        measurements.append(measurement)
+        return measurement
+
+    monkeypatch.setattr(
+        policy_design_output,
+        "_admit_replayable_audit_bundle_basis",
+        _capture_admission,
+    )
+    monkeypatch.setattr(
+        replay_verification,
+        "_measure_replayable_audit_bundle_admission",
+        _capture_measurement,
+    )
+
     verification_ref = verify_and_persist_replay_bundle(
         store,
         run_id="run-owner-profile",
@@ -114,6 +161,20 @@ def test_replay_verification_writer_returns_selected_profile_and_preserves_input
         candidate_ref=candidate_ref,
         evaluation_ref=evaluation_ref,
     )
+    assert len(admission_calls) == 1
+    assert len(measurement_calls) == 1
+    assert len(measurements) == 1
+    admitted_store, admitted_ref, admitted_basis = admission_calls[0]
+    measured_store, measured_ref, measured_bundle, measured_basis = measurement_calls[0]
+    measurement = measurements[0]
+    assert admitted_store is store
+    assert measured_store is admitted_store
+    assert admitted_ref is replay_ref
+    assert measured_ref is admitted_ref
+    assert admitted_basis.root.ref is admitted_ref
+    assert measured_bundle is admitted_basis.bundle
+    assert measured_basis is admitted_basis
+    assert measurement.replay_bundle_ref is replay_ref
     manifest = store.get_manifest(verification_ref)
     report = load_replay_verification_report(store, verification_ref)
 
@@ -126,8 +187,11 @@ def test_replay_verification_writer_returns_selected_profile_and_preserves_input
     )
     assert report.schema_version == "1.0"
     assert report.run_id == "run-owner-profile"
-    assert report.verification_mode == "artifact_snapshot"
-    assert report.passed is True
+    assert report.verification_mode == measurement.verification_mode == "artifact_snapshot"
+    assert report.completeness_level == measurement.completeness.level.value
+    assert report.passed is measurement.passed is True
+    assert report.overall_similarity == measurement.overall_similarity
+    assert report.reason_codes == measurement.reason_codes
     assert replay_ref.manifest_profile_sha256 is not None
     assert artifact_ref_identity_key(report.replay_bundle_ref) == artifact_ref_identity_key(
         replay_ref

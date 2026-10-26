@@ -15,6 +15,7 @@ pytest.importorskip("fastapi")
 
 from fastapi.testclient import TestClient
 
+from polisyos.core.artifacts import ensure_ir_artifact_store
 from polisyos.core.artifacts._profiled_ref import profile_bound_ref
 from polisyos.core.artifacts.manifest import (
     ArtifactAuthorityInfo,
@@ -50,6 +51,7 @@ from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.model_layer.queries import DataViewRequest
 from polisyos.ir.model_layer.types import SelectorOperator
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir.trinity.loaders import persist_trinity_bundle_artifact
 from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.http.services.debug import SimulationResultProjectionError
 from polisyos.scientist.adapters.fabric_bridge import DefaultFabricPort
@@ -459,17 +461,20 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
         registry_bundle = build_default_registry_bundle(store)
         data_view_request_ref, data_snapshot_ref = _produce_sql_snapshot(tmp_path, store)
         trinity = _build_real_trinity(registry_bundle.bundle_ref, data_snapshot_ref)
-        trinity_ref = store.put_json(
-            trinity,
-            PutOptions(
-                kind="ir.trinity_bundle",
-                media_type="application/json",
-                schema=SchemaInfo(
-                    name="polisyos.ir.TrinityBundle",
-                    version=trinity.schema_version,
-                ),
-            ),
+        trinity_tenant_context = ArtifactTenantContextInfo(
+            tenant_id=_TENANT_ID,
+            cell_id=_CELL_ID,
         )
+        trinity_selected_ref = persist_trinity_bundle_artifact(
+            ensure_ir_artifact_store(store),
+            trinity,
+            tenant_context=trinity_tenant_context,
+        )
+        trinity_ref = ArtifactRef.model_validate(trinity_selected_ref.model_dump(mode="python"))
+        trinity_manifest = store.get_manifest(trinity_ref)
+        assert trinity_manifest.tenant_context == trinity_tenant_context
+        assert trinity_manifest.canon == CanonInfo.from_spec(CanonSpec(forbid_floats=False))
+        assert store.verify(trinity_ref).ok
         app = create_runtime_api_app(
             cas_root=store.root,
             core_runs_root=store.root / "runs",

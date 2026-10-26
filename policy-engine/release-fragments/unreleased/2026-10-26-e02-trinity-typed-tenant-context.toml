@@ -1,0 +1,21 @@
+id = "2026-10-26-e02-trinity-typed-tenant-context"
+title = "Preserve tenant context on Trinity owner writes"
+type = "fixed"
+component = "ir"
+owner = "team-ir"
+summary = "Trinity persistence now carries an explicit typed tenant/cell context through selected owner writes while preserving the owner canon profile and unscoped semantics."
+evidence = [
+  "src/polisyos/ir/trinity/loaders.py",
+  "tests/unit/ir/test_trinity_owner_admission.py",
+  "tests/integration/scientist/test_res_03_real_simulation_route.py",
+]
+compatibility = "The optional context input is additive to the existing internal Trinity persistence helper. Existing calls that omit it or pass None retain the unscoped write behavior; no artifact schema, HTTP route, or generated-client contract changes."
+change_class = "internal"
+surface_classification = "internal: unlisted polisyos.ir.trinity.loaders persistence helper"
+migration = "No persisted artifact migration is required. An internal producer may pass the existing typed tenant/cell context; no stored bytes are rewritten."
+api = "The helper freezes a supplied tenant context into the existing selected owner-write options before emission. Malformed context fails option preparation, a context foreign to the store owner is refused, and None remains unscoped."
+limitations = "Tenant context remains owner metadata, not issuer authority, policy admissibility, or currentness. Fixture route results do not assert production authority or deployment attainment."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

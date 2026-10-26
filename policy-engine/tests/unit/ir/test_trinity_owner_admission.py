@@ -6,6 +6,8 @@ from types import SimpleNamespace
 import pytest
 
 from polisyos.core.artifacts import (
+    ArtifactOwnershipError,
+    ArtifactTenantContextInfo,
     CanonInfo,
     FileSystemCAS,
     InputRef,
@@ -15,7 +17,9 @@ from polisyos.core.artifacts import (
 )
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.trinity import TrinityBundleRef
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.ir.artifacts.io import get_json_artifact
+from polisyos.ir.model_layer.canon import CanonViolation
 from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.trinity.loaders import (
@@ -142,6 +146,114 @@ def test_shared_trinity_writer_binds_selected_owner_profile_and_lineage_for_fres
     profileless_payload.pop("manifest_profile_sha256")
     with pytest.raises(ValueError, match="selected_write_ref_requires_profile"):
         ArtifactRefModel.from_selected_write(profileless_payload)
+
+
+def test_trinity_writer_persists_typed_tenant_context_for_fresh_owner_reader(
+    tmp_path: Path,
+) -> None:
+    cas_root = tmp_path / "tenant-owned-cas"
+    owner_store = FileSystemCAS(cas_root).for_tenant("tenant-a", "cell-a")
+    context = ArtifactTenantContextInfo(tenant_id="tenant-a", cell_id="cell-a")
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        ref = persist_trinity_bundle_artifact(
+            ensure_ir_artifact_store(owner_store),
+            _bundle(),
+            tenant_context=context,
+        )
+        manifest = owner_store.get_manifest(ref)
+        assert manifest.tenant_context == context
+        assert manifest.canon == CanonInfo.from_spec(TRINITY_OWNER_SPEC)
+        assert owner_store.verify(ref).ok
+
+    fresh_owner_store = FileSystemCAS(cas_root).for_tenant("tenant-a", "cell-a")
+    fresh_reader = ensure_ir_artifact_store(fresh_owner_store)
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        assert load_trinity_bundle_artifact(fresh_reader, ref) == _bundle()
+
+
+def test_trinity_writer_rejects_malformed_context_without_fallback_or_publication(
+    tmp_path: Path,
+) -> None:
+    cas_root = tmp_path / "malformed-context-cas"
+    owner_store = FileSystemCAS(cas_root).for_tenant("tenant-a", "cell-a")
+
+    with (
+        tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"),
+        pytest.raises(CanonViolation, match="ir_owned_artifact_write_options_invalid"),
+    ):
+        persist_trinity_bundle_artifact(
+            ensure_ir_artifact_store(owner_store),
+            _bundle(),
+            tenant_context={"tenant_id": "tenant-a", "cell_id": "cell-a", "extra": "bad"},
+        )
+
+    assert list(owner_store.iter_artifact_ids()) == []
+
+
+def test_trinity_writer_refuses_context_foreign_to_the_active_store_owner(
+    tmp_path: Path,
+) -> None:
+    owner_store = FileSystemCAS(tmp_path / "foreign-context-cas").for_tenant("tenant-a", "cell-a")
+    foreign_context = ArtifactTenantContextInfo(tenant_id="tenant-b", cell_id="cell-b")
+
+    with (
+        tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"),
+        pytest.raises(CanonViolation, match="ir_owned_artifact_write_refused") as raised,
+    ):
+        persist_trinity_bundle_artifact(
+            ensure_ir_artifact_store(owner_store),
+            _bundle(),
+            tenant_context=foreign_context,
+        )
+
+    assert isinstance(raised.value.__cause__, ArtifactOwnershipError)
+    assert list(owner_store.iter_artifact_ids()) == []
+
+
+def test_trinity_writer_keeps_none_unscoped_under_an_ambient_tenant_scope(
+    tmp_path: Path,
+) -> None:
+    owner_store = FileSystemCAS(tmp_path / "explicitly-unscoped-cas").for_tenant(
+        "tenant-a", "cell-a"
+    )
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        ref = persist_trinity_bundle_artifact(
+            ensure_ir_artifact_store(owner_store),
+            _bundle(),
+            tenant_context=None,
+        )
+        manifest = owner_store.get_manifest(ref)
+        assert manifest.tenant_context is None
+        assert manifest.canon == CanonInfo.from_spec(TRINITY_OWNER_SPEC)
+        assert owner_store.verify(ref).ok
+
+
+def test_foreign_trinity_context_cannot_be_admitted_from_another_tenant_scope(
+    tmp_path: Path,
+) -> None:
+    cas_root = tmp_path / "foreign-owner-cas"
+    foreign_store = FileSystemCAS(cas_root).for_tenant("tenant-b", "cell-b")
+    foreign_context = ArtifactTenantContextInfo(tenant_id="tenant-b", cell_id="cell-b")
+
+    with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-b"):
+        foreign_ref = persist_trinity_bundle_artifact(
+            ensure_ir_artifact_store(foreign_store),
+            _bundle(),
+            tenant_context=foreign_context,
+        )
+        assert foreign_store.get_manifest(foreign_ref).tenant_context == foreign_context
+
+    requesting_store = FileSystemCAS(cas_root).for_tenant("tenant-a", "cell-a")
+    with (
+        tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"),
+        pytest.raises(TrinityLoadError, match="failed IR owner admission"),
+    ):
+        load_trinity_bundle_artifact(
+            ensure_ir_artifact_store(requesting_store),
+            foreign_ref,
+        )
 
 
 def test_shared_trinity_writer_refuses_profile_dropped_at_selected_write_boundary(

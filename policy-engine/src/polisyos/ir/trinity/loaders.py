@@ -11,10 +11,21 @@ from polisyos.ir.analytics._owner_admission import (
     declare_model_owner,
     owner_profile_for_spec,
 )
-from polisyos.ir.artifacts import ArtifactStore  # noqa: TC001
+from polisyos.ir.artifacts import (
+    ArtifactStore,
+    StorePutOptions,
+    normalize_input_sequence,
+)
+from polisyos.ir.artifacts import (
+    CanonInfo as ArtifactCanonInfo,
+)
+from polisyos.ir.artifacts import (
+    SchemaInfo as ArtifactSchemaInfo,
+)
 from polisyos.ir.artifacts.io import (
     _get_owned_json_artifact,
     _put_owned_json_artifact,
+    _put_owned_json_artifact_with_selected_view,
 )
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemFrame
@@ -25,6 +36,8 @@ from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.ir.trinity import TRINITY_BUNDLE_SCHEMA_VERSION, TrinityBundle
 
 if TYPE_CHECKING:
+    from pydantic import BaseModel
+
     from polisyos.ir.artifacts._lineage import InputRefLike
     from polisyos.ir.artifacts.contracts import ArtifactSelector
 
@@ -246,17 +259,45 @@ def persist_trinity_bundle_artifact(
     bundle: TrinityBundle,
     *,
     inputs: Sequence[InputRefLike] | None = None,
+    tenant_context: BaseModel | Mapping[str, Any] | None = None,
 ) -> ArtifactRefModel:
-    """Persist a Trinity bundle under its exact owner-declared JSON representation."""
-    selected_ref = _put_owned_json_artifact(
-        store,
-        bundle.model_dump(mode="json"),
-        owner=_TRINITY_BUNDLE_OWNER,
-        schema_name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
-        schema_version=TRINITY_BUNDLE_SCHEMA_VERSION,
-        inputs=inputs,
-        canon_spec=CanonSpec(forbid_floats=False),
-    )
+    """Persist a Trinity bundle under its exact owner-declared JSON representation.
+
+    A supplied context is frozen into selected owner-write options before emission.
+    Non-null values must match the store's typed tenant-context contract.
+    None remains intentionally unscoped and is never inferred from ambient scope.
+    """
+    canon_spec = CanonSpec(forbid_floats=False)
+    payload = bundle.model_dump(mode="json")
+    if tenant_context is None:
+        selected_ref = _put_owned_json_artifact(
+            store,
+            payload,
+            owner=_TRINITY_BUNDLE_OWNER,
+            schema_name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+            schema_version=TRINITY_BUNDLE_SCHEMA_VERSION,
+            inputs=inputs,
+            canon_spec=canon_spec,
+        )
+    else:
+        write_options = StorePutOptions(
+            kind=_TRINITY_BUNDLE_OWNER.kind,
+            media_type=_TRINITY_BUNDLE_OWNER.media_type,
+            schema=ArtifactSchemaInfo(
+                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                version=TRINITY_BUNDLE_SCHEMA_VERSION,
+            ),
+            inputs=normalize_input_sequence(inputs),
+            canon=ArtifactCanonInfo.from_spec(canon_spec),
+            tenant_context=tenant_context,
+        )
+        selected_ref = _put_owned_json_artifact_with_selected_view(
+            store,
+            payload,
+            owner=_TRINITY_BUNDLE_OWNER,
+            write_options=write_options,
+            canon_spec=canon_spec,
+        )
     return ArtifactRefModel.from_selected_write(selected_ref)
 
 

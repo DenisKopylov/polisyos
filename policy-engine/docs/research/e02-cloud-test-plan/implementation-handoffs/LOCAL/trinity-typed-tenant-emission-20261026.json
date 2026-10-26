@@ -1,0 +1,371 @@
+{
+  "schema": "policyos.e02.local.trinity_typed_tenant_emission_handoff.v1",
+  "slice": "trinity-typed-tenant-emission-20261026",
+  "artifact_status": "author receipt pinned to committed implementation; independent G acceptance pending",
+  "author": "root, reviewed draft by prepared_b_current_freeze",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base": "a3c36e7c3eb0ff2f38a47257cd53fac43643add2",
+  "slice_base_tree": "e2178c26e1ae68d5772837cfeed87d7427a3f12c",
+  "candidate": "25da52f81b6a3c10577b14ad20f3b96b9e92f805",
+  "candidate_tree": "51867e99fbc0bb8ee97fd868bbdede8b95aa9a85",
+  "candidate_parents": [
+    "a3c36e7c3eb0ff2f38a47257cd53fac43643add2"
+  ],
+  "candidate_commit_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/ir/trinity/loaders.py",
+      "base": {
+        "state": "present",
+        "bytes": 9603,
+        "sha256": "e7a3fea7ade69aeebd25d9a3a1e6f6507e8abbd93770b8adf889d0c59bbb81eb",
+        "git_blob": "86cf4689bd3ab621dd61b600ec0ef86945ed39b9"
+      },
+      "candidate": {
+        "bytes": 11030,
+        "sha256": "5bce5fa24770686a134568c974927e550a7d84a732775833d6be5e9ba09fc54b",
+        "git_blob": "52b7be258acd5a376602c1ff0a5473987abd94f7"
+      },
+      "live_worktree_readback": {
+        "bytes": 11030,
+        "sha256": "5bce5fa24770686a134568c974927e550a7d84a732775833d6be5e9ba09fc54b",
+        "matches_candidate_commit_bytes": true
+      }
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_trinity_owner_admission.py",
+      "base": {
+        "state": "present",
+        "bytes": 10552,
+        "sha256": "634e850c7ed2db043e33b420bc896d01709fe0259c9fa1729246c78c02d891ed",
+        "git_blob": "489b1fe4e459f5275d1b298916cc076416bb1168"
+      },
+      "candidate": {
+        "bytes": 14947,
+        "sha256": "e1ff76e458f6028d4b67acee2ac21ec3be1214296cf5cadde46089c32816d6b4",
+        "git_blob": "c1a91613e649d320a78e1fd1cb07762b4f58c485"
+      },
+      "live_worktree_readback": {
+        "bytes": 20695,
+        "sha256": "738836c3b5016a9a914e3d0616f43318719df4ac674f10c4a5e874024f384698",
+        "matches_candidate_commit_bytes": false
+      }
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py",
+      "base": {
+        "state": "present",
+        "bytes": 51754,
+        "sha256": "702f695f09a06871b94dd3e5a09169b992bdb1d065a9a1431efc0ed3f9463c32",
+        "git_blob": "c0add3401e68b9c2dc36b6a730304d44e9314c09"
+      },
+      "candidate": {
+        "bytes": 52221,
+        "sha256": "088859a1c27af118d1006dec9dba906bb2a33bf2ec613a2c05dded79c2c69e0e",
+        "git_blob": "7c3a8e19fc9173d0ca799aad212ec2f86986727e"
+      },
+      "live_worktree_readback": {
+        "bytes": 52221,
+        "sha256": "088859a1c27af118d1006dec9dba906bb2a33bf2ec613a2c05dded79c2c69e0e",
+        "matches_candidate_commit_bytes": true
+      }
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-26-e02-trinity-typed-tenant-context.toml",
+      "base": {
+        "state": "absent"
+      },
+      "candidate": {
+        "bytes": 1613,
+        "sha256": "1a5e1ee8fd4bac04ae8b933eb60348a778c65d98b3bed3ab01d9b0dbf935c895",
+        "git_blob": "2b29635149c2a0a57c9986e8a55c4d123f2377f9"
+      },
+      "live_worktree_readback": {
+        "bytes": 2335,
+        "sha256": "9be06aea13be4145ae8d4181c508db807157629ce338c4b590cd256abeb3ae98",
+        "matches_candidate_commit_bytes": false
+      }
+    }
+  ],
+  "run_source_profile": {
+    "run_head": "be8c2f986f5a1fa289b1c87ed92c5cb5eabb7e1f",
+    "run_tree": "3cbc73c400f24f04c233b857913af2199b039198",
+    "run_is_ancestor_of_candidate": true,
+    "profile_path": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/native-source-profile-freeze.json",
+      "sha256": "ae379dc44e865c540da17b40684e8a812231794e41c6f95e25d90c028e1f07df",
+      "bytes": 1708
+    },
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-provider-origin-composition-r1/full-composed-source-frame.json",
+      "sha256": "573db3939aacb5d5a111a255315927b2895a38ac9d72865c0756f91add29c575"
+    },
+    "profile_claim": "native pytest.ini defaults and plugin autoload; only output/temp redirects",
+    "global_source_freeze": false,
+    "selected_file_limit": "Seven selected inputs in hash-bound profile reconciled to candidate commit; not a complete transitive/global source freeze."
+  },
+  "run_evidence": {
+    "native_runner": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/run.py",
+      "sha256": "c0367ed518b86c5157924e5095b7b8ce06f58ba665dea4e78b9ff77fc5c7a3c1",
+      "bytes": 5324
+    },
+    "native_results_summary": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/native-results.json",
+      "sha256": "a75340c77a042568eafcc831abc567a424fcf38d9204a42899e0c537d4b3318f",
+      "bytes": 12124
+    },
+    "groups": [
+      {
+        "id": "trinity-owner-unit",
+        "kind": "positive owner-admission cohort",
+        "selector": "tests/unit/ir/test_trinity_owner_admission.py",
+        "result": {
+          "complete": true,
+          "exit_code": 0,
+          "counts": {
+            "tests": 10,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0,
+            "passed": 10
+          },
+          "wall_seconds": 11.496988124999916,
+          "max_sampled_process_tree_rss_bytes": 1051361280
+        },
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/trinity-owner-unit/admission.json",
+          "sha256": "7f5fa1c676cf4868c55b3e7aeccb7144368270295f507b81f3b06e2e7630bc1a",
+          "bytes": 3477
+        },
+        "captured_outputs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/trinity-owner-unit/admission.json",
+            "sha256": "7f5fa1c676cf4868c55b3e7aeccb7144368270295f507b81f3b06e2e7630bc1a",
+            "bytes": 3477
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/trinity-owner-unit/child.sb",
+            "sha256": "7f5ebae7441e335ad071672c33a13272c8a1244cb671ec2be9af2cc9adcbc21e",
+            "bytes": 407
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/trinity-owner-unit/controller-events.jsonl",
+            "sha256": "a7fd33bdf777974c7db58ed88365b43064be76363719dfd93d2adcdc997a0ee4",
+            "bytes": 2197
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/trinity-owner-unit/phase-output.jsonl",
+            "sha256": "e02b8552f2ad3f843391867c60764fe8264df264c7616aa55a5ee669c3610c43",
+            "bytes": 2155
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/trinity-owner-unit/process-tree.jsonl",
+            "sha256": "51da1bf2d4e40d9357b72218dc4bf00293fbe9a0e641764f29a14b6f3186a76c",
+            "bytes": 19626
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/trinity-owner-unit/pytest.xml",
+            "sha256": "45eadcccf4454d2d371c2715af216f22158b5e84df22388aa97bd8418f1ce52b",
+            "bytes": 1888
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/trinity-owner-unit/trinity-owner-unit.stdout.txt",
+            "sha256": "ae7f8115ac1e7f23d3e13d8431a149a3c091e51b37ed36181703a396681a633d",
+            "bytes": 696
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/trinity-owner-unit/trinity-owner-unit.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          }
+        ],
+        "exact_command": "Hash-bound command_record/native_results_summary; complete output refs below."
+      },
+      {
+        "id": "b13-real-sibling-failure-route",
+        "kind": "controlled route exercise",
+        "selector": [
+          "tests/unit/remediation/test_res_03.py",
+          "tests/integration/scientist/test_res_03_real_simulation_route.py::test_res_03_real_simulation_later_failure_reaches_user_route"
+        ],
+        "result": {
+          "complete": true,
+          "exit_code": 0,
+          "counts": {
+            "tests": 5,
+            "failed": 0,
+            "errors": 0,
+            "skipped": 0,
+            "passed": 5
+          },
+          "wall_seconds": 38.71152095799334,
+          "max_sampled_process_tree_rss_bytes": 1410334720
+        },
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/b13-real-sibling-failure-route/admission.json",
+          "sha256": "589f15e678802fb6b0141c251cd3997073547aa3193d345ce9731b3fdc5d0d9a",
+          "bytes": 3748
+        },
+        "captured_outputs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/b13-real-sibling-failure-route/admission.json",
+            "sha256": "589f15e678802fb6b0141c251cd3997073547aa3193d345ce9731b3fdc5d0d9a",
+            "bytes": 3748
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/b13-real-sibling-failure-route/child.sb",
+            "sha256": "0bc84e87304d6444bb634f77fa1c430fc560232c393dffd8e432e81d5c7ce300",
+            "bytes": 419
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/b13-real-sibling-failure-route/controller-events.jsonl",
+            "sha256": "c51fc9550eb6c663557b2ab3d65e640fd3d6b6a274eaa2bc69b41d1e17cf36c5",
+            "bytes": 2402
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/b13-real-sibling-failure-route/phase-output.jsonl",
+            "sha256": "5098beda30843d082f221c68378bd9f9a3b82cbd22688c4f82373c43e214a87a",
+            "bytes": 2385
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/b13-real-sibling-failure-route/process-tree.jsonl",
+            "sha256": "4458e53597798471cf8322bf8845b21e359b8676634f11a59ae54a89695f0a6d",
+            "bytes": 72693
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/b13-real-sibling-failure-route/pytest.xml",
+            "sha256": "fdfebb5caf7c8b52464973df7c3361c5a89570f55b3b44ca6797b929d5df6f82",
+            "bytes": 1014
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/b13-real-sibling-failure-route/b13-real-sibling-failure-route.stdout.txt",
+            "sha256": "905933942972c8416cd03d92b86e0491423e2a1e390d3877d11e95b9b7dfd2fb",
+            "bytes": 828
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/b13-real-sibling-failure-route/b13-real-sibling-failure-route.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          }
+        ],
+        "scope_limit": "Fixture sets allow_unscoped_artifacts=True, allow_fixture_identity=True, enable_security_middlewares=False, and uses a custom failing-sibling DAG through the low-level executor with fixture-provided job backlink. It is not a production hierarchical or NL caller route.",
+        "exact_command": "Hash-bound command_record/native_results_summary; complete output refs below."
+      },
+      {
+        "id": "tenant-context-removal",
+        "kind": "semantic-removal falsifier",
+        "selector": "tests/unit/ir/test_trinity_owner_admission.py::test_trinity_writer_persists_typed_tenant_context_for_fresh_owner_reader",
+        "result": {
+          "complete": true,
+          "exit_code": 1,
+          "counts": {
+            "tests": 1,
+            "failures": 1,
+            "errors": 0,
+            "skipped": 0,
+            "passed": 0
+          },
+          "wall_seconds": 11.465415291997488,
+          "max_sampled_process_tree_rss_bytes": 1049804800,
+          "observed_failure": "With persist_trinity_bundle_artifact tenant_context forced to None, the fresh owner-reader assertion observes manifest.tenant_context=None instead of ArtifactTenantContextInfo(tenant_id='tenant-a', cell_id='cell-a').",
+          "classification": "expected failure of the property-removal control; not a product-suite failure and not a positive test result."
+        },
+        "command_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-tenant-emission-removal-r1/result.json",
+          "sha256": "7a7a556ebeff3c4b5edb3bfcb017fd39271b90d1ec1f31f9a6c17bdfae2e73dc",
+          "bytes": 2936
+        },
+        "captured_outputs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-tenant-emission-removal-r1/admission.json",
+            "sha256": "e148d6c17d3a037470f816d49b685b2482c111a7b10fc75682de60c3370743eb",
+            "bytes": 3899
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-tenant-emission-removal-r1/child.sb",
+            "sha256": "1fb3ed26d4ed29478f17478e02cbedfef3ce3fd7ca3de9f3318e4715aff15328",
+            "bytes": 384
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-tenant-emission-removal-r1/controller-events.jsonl",
+            "sha256": "cb50f671f7104d1acc13928da166072afcd50ff4676bf7e5660f2895cec8c966",
+            "bytes": 2509
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-tenant-emission-removal-r1/phase-output.jsonl",
+            "sha256": "48a6b3105804259398a4e0e25ffb12e2be4fe5b6f1f473333a15155b5098ba3c",
+            "bytes": 2475
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-tenant-emission-removal-r1/process-tree.jsonl",
+            "sha256": "b9ea91cfd0f8e5646bc0f80562168cccdb45f40da7b47f0905091a28afc30e1b",
+            "bytes": 23808
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-tenant-emission-removal-r1/pytest.xml",
+            "sha256": "2a0f8001fac4a27cca6fa2d0c0a08cafe8836faa5f1ac8e8da838fca7ba1781a",
+            "bytes": 1381
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-tenant-emission-removal-r1/result.json",
+            "sha256": "7a7a556ebeff3c4b5edb3bfcb017fd39271b90d1ec1f31f9a6c17bdfae2e73dc",
+            "bytes": 2936
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-tenant-emission-removal-r1/tenant-context-removal.stdout.txt",
+            "sha256": "b51a40ac282f0a1d9e2756ba04cfc1195bbd39af2cc2e4e961c725ae3f07c875",
+            "bytes": 1616
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-tenant-emission-removal-r1/tenant-context-removal.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          }
+        ],
+        "run_source_head": "candidate commit 25da52f81b6a3c10577b14ad20f3b96b9e92f805, as recorded by run admission",
+        "exact_command": "Hash-bound command_record/native_results_summary; complete output refs below."
+      }
+    ],
+    "tenant_removal_result_summary": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-tenant-emission-removal-r1/result.json",
+      "sha256": "7a7a556ebeff3c4b5edb3bfcb017fd39271b90d1ec1f31f9a6c17bdfae2e73dc",
+      "bytes": 2936
+    }
+  },
+  "implementation": {
+    "strategy": "Extend the existing Trinity owner writer and selected-view persistence path with optional typed tenant context; preserve None as intentionally unscoped.",
+    "contract": "persist_trinity_bundle_artifact(store, bundle, *, tenant_context=...) accepts an existing typed context or mapping; the owner-write options preserve tenant context on the Trinity artifact manifest.",
+    "producer": "The typed persistence helper is implemented and exercised by owner unit tests.",
+    "artifact": "Persisted Trinity bundle JSON artifact with typed manifest tenant context, existing owner/schema/canon/profile bindings.",
+    "bridge": "bridge_missing for the production hierarchical-policy-search and NL producer callers: these callers do not yet propagate their selected tenant/cell context through this helper.",
+    "consumer": "Fresh tenant-scoped owner reader loads the persisted bundle and verifies manifest ownership in tests; the controlled RES03 fixture routes a later sibling failure.",
+    "verification": "10 owner-admission unit tests and 5 controlled route tests pass. A separate removal falsifier fails at the expected tenant-context assertion when the helper is forced to emit None.",
+    "surface": "surface_out_of_scope for public authority/currentness; this change carries tenant scope metadata and does not issue an authority claim.",
+    "capability_state": "implemented_but_not_orchestrated",
+    "semantic_test_state": "The selected owner-writer/property tests are exercised; actual production hierarchical/NL callers remain unverified."
+  },
+  "bounded_claims": [
+    "Typed tenant context is persisted on a Trinity artifact in the focused owner-writer test and read back by a fresh owner-scoped reader.",
+    "Removing the context from the helper output is detected by the fresh-reader manifest assertion.",
+    "The controlled RES03 sibling-failure fixture passes its selected tests with the noted fixture flags and custom DAG."
+  ],
+  "limitations": [
+    "None remains intentionally unscoped; ambient tenant context is not inferred into the manifest.",
+    "Tenant context here is metadata, not proof of authority, issuer validity, policy admissibility, artifact currentness, or production identity.",
+    "The production hierarchical and NL producer bridges still do not pass typed scope through this helper; B13/V6 capability closure is not established.",
+    "The native positive run used ancestor HEAD be8c2f9, not the later candidate commit HEAD; the seven source-profile inputs listed here match the candidate bytes, but the profile explicitly does not claim a global or complete transitive source freeze.",
+    "Two scoped worktree files differ from the candidate commit after the replay: the unit test and release fragment hashes are recorded in candidate_commit_footprint.live_worktree_readback; these later bytes are not covered by the replay evidence.",
+    "The selected RES03 fixture enables unscoped artifacts and fixture identity and disables security middleware; it is a controlled failure-route exercise, not a production caller proof."
+  ],
+  "code_acceptance": false,
+  "closure_ids": [],
+  "finding_proposals": [],
+  "task_proposals": [
+    {
+      "task": "B13 typed Trinity tenant-context emission",
+      "outcome": "limited_proposal",
+      "claim": "The owner persistence helper can emit and preserve typed tenant context in the focused owner test, but production hierarchical/NL callers remain unbridged and no authority/currentness or whole B13/V6 closure is claimed."
+    }
+  ],
+  "source_global_freeze": false
+}

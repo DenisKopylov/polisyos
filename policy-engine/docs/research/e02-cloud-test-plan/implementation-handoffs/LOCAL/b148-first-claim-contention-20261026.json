@@ -1,0 +1,257 @@
+{
+  "schema": "policyos.e02.local.b148_first_claim_contention_handoff.v1",
+  "slice": "b148-first-claim-contention-20261026",
+  "receipt_prepared_by": "root reviewed/compacted from prepared_b_capture_route RAW draft",
+  "source_author": "/root",
+  "intended_handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b148-first-claim-contention-20261026.json",
+  "slice_base": "be8c2f986f5a1fa289b1c87ed92c5cb5eabb7e1f",
+  "candidate": "a3c36e7c3eb0ff2f38a47257cd53fac43643add2",
+  "candidate_tree": "e2178c26e1ae68d5772837cfeed87d7427a3f12c",
+  "candidate_parents": [
+    "be8c2f986f5a1fa289b1c87ed92c5cb5eabb7e1f"
+  ],
+  "code_acceptance": false,
+  "closure_ids": [],
+  "source_global_freeze": false,
+  "candidate_source_status": {
+    "candidate_is_exact_committed_object": true,
+    "candidate_commit_subject": "E02: verify actual CAS first-claim contention and lock removal",
+    "candidate_commit_author_time": "2026-10-26T13:31:34+02:00",
+    "candidate_commit_changed_paths": [
+      "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py"
+    ],
+    "native_execution_binding": {
+      "base_head": "be8c2f986f5a1fa289b1c87ed92c5cb5eabb7e1f",
+      "base_tree": "3cbc73c400f24f04c233b857913af2199b039198",
+      "tested_candidate_file_sha256": "525afd8f08c2f7a8fbe5903f1652fe45744de5fe664623327cf064af018df488",
+      "note": "The native replay used the exact committed test postimage as a worktree overlay on slice base be8c...; commit a3c... captures those exact bytes. The profile does not claim a whole-tree/global freeze."
+    },
+    "later_commits_outside_candidate": [
+      {
+        "commit": "25da52f81b6a3c10577b14ad20f3b96b9e92f805",
+        "tree": "51867e99fbc0bb8ee97fd868bbdede8b95aa9a85",
+        "parents": [
+          "a3c36e7c3eb0ff2f38a47257cd53fac43643add2"
+        ],
+        "changed_paths": [
+          "policy-engine/release-fragments/unreleased/2026-10-26-e02-trinity-typed-tenant-context.toml",
+          "policy-engine/src/polisyos/ir/trinity/loaders.py",
+          "policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py",
+          "policy-engine/tests/unit/ir/test_trinity_owner_admission.py"
+        ]
+      }
+    ],
+    "current_branch_readback": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "25da52f81b6a3c10577b14ad20f3b96b9e92f805",
+      "tree": "51867e99fbc0bb8ee97fd868bbdede8b95aa9a85",
+      "other_worktree_changes_present": true,
+      "candidate_test_path_status": "clean",
+      "note": "This receipt is pinned to candidate a3c...; later commits and dirty paths are not included in its source claim."
+    }
+  },
+  "finding_proposals": [
+    {
+      "id": "B148",
+      "outcome": "limited_proposal",
+      "original_route_binding": {
+        "id": "B148",
+        "original_unit": "B",
+        "original_primary_bundle": "CAS-02",
+        "author_proposal_before_this_slice": "held",
+        "original_criteria_pointer": "/findings/62/criterion_refs",
+        "author_row_pointers": [
+          "/rows/51",
+          "/decisions_by_id/B148"
+        ],
+        "flows": [
+          "R",
+          "T"
+        ],
+        "next_tasks_before_this_slice": [
+          "T1",
+          "R1"
+        ],
+        "prior_disposition_receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b148-native-admission-20261026.json",
+          "sha256": "c23df7a22ed2a33aa8e5e8a7618aa4325736b1f0570bbebc5fbbf4a326b42f32"
+        },
+        "G_closure": "not_adjudicated"
+      },
+      "claim": "A real shared FileSystemCAS coordinator serializes two concurrent tenant-scoped imports of the same first-unbound artifact through the artifact's actual stripe while the winner has written a pending ownership intent and is paused before default-manifest publication. The contender waits; after release, exactly one owner publishes and the other receives ArtifactOwnershipError. Fresh receiver reads verify winner bytes/manifest and refuse the losing tenant.",
+      "next_check": "Independent G adjudication against the complete original B148 criterion, including issuer/currentness and any external permission or reuse claims. This slice proves one in-process local CAS contention path only."
+    }
+  ],
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+      "before_sha256": "afcadf90b097b685a7e7af105bd0a3a38d094c6d0a813ca838a9ceb1d2146766",
+      "after_sha256": "525afd8f08c2f7a8fbe5903f1652fe45744de5fe664623327cf064af018df488",
+      "classification": "one committed test-only companion; no production source, API, configuration, or export change"
+    }
+  ],
+  "selected_input_profile": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/native-source-profile-freeze.json",
+    "sha256": "ae379dc44e865c540da17b40684e8a812231794e41c6f95e25d90c028e1f07df",
+    "availability": "local ignored RAW; retained on author host"
+  },
+  "verification": {
+    "profile": {
+      "backend": "native pytest.ini defaults/importlib/plugin autoload; only output/temp redirects",
+      "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "thread_count": 1,
+      "rss_cap_bytes": 3221225472,
+      "disk_floor_bytes": 8589934592,
+      "deadline_seconds": 240
+    },
+    "positive": {
+      "id": "b148-whole-admission",
+      "result": {
+        "status": "passed",
+        "actual_exit_code": 0,
+        "expected_exit_code": 0,
+        "expected_result_observed": true,
+        "complete": true,
+        "aborted_reason": null,
+        "junit_counts": {
+          "tests": 57,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 57
+        },
+        "wall_seconds": 6.336864584009163,
+        "peak_sampled_process_tree_rss_bytes": 125239296,
+        "minimum_sampled_disk_free_bytes": 12029853696
+      },
+      "deciding_outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/b148-whole-admission/b148-whole-admission.stdout.txt",
+          "sha256": "bd36773f2b38cfca2483c982a9027e647cc6248fa3c340685b5b8a67a258e824",
+          "bytes": 1038,
+          "availability": "local ignored RAW; retained on author host"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/b148-whole-admission/b148-whole-admission.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local ignored RAW; retained on author host"
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/b148-whole-admission/pytest.xml",
+          "sha256": "6d32fecdd44f422972414c69d16ec30352aab435f3fced3cec959a2fbe0d5dab",
+          "bytes": 15699,
+          "availability": "local ignored RAW; retained on author host"
+        },
+        "admission": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/b148-whole-admission/admission.json",
+          "sha256": "60c706d5902c743841b1f7ce76f05ca811c57b1d23e3959ce6b31f7c75c4ed06",
+          "bytes": 3572,
+          "availability": "local ignored RAW; retained on author host"
+        }
+      },
+      "exact_command_and_environment": "See hash-bound deciding_outputs.admission; native-result includes supervised argv. Full deciding outputs retained separately."
+    },
+    "lock_removal_control": {
+      "id": "b148-lock-removal",
+      "result": {
+        "status": "command_failed",
+        "actual_exit_code": 1,
+        "expected_exit_code": 1,
+        "expected_result_observed": true,
+        "complete": true,
+        "aborted_reason": null,
+        "junit_counts": {
+          "tests": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 0
+        },
+        "wall_seconds": 1.0469876659917645,
+        "peak_sampled_process_tree_rss_bytes": 3866624,
+        "minimum_sampled_disk_free_bytes": 12029259776
+      },
+      "deciding_outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/b148-lock-removal/b148-lock-removal.stdout.txt",
+          "sha256": "3613b82f282fdec49b5fea72c5cbff0f852b300439bfdc077bcf7eb4c2b9a418",
+          "bytes": 894,
+          "availability": "local ignored RAW; retained on author host"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/b148-lock-removal/b148-lock-removal.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local ignored RAW; retained on author host"
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/b148-lock-removal/pytest.xml",
+          "sha256": "a074a3116010224c07b77fbeb882bad09d4bc72f56705e716393f36d4dcfe9df",
+          "bytes": 1112,
+          "availability": "local ignored RAW; retained on author host"
+        },
+        "admission": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/b148-lock-removal/admission.json",
+          "sha256": "fcf44757dbbc75cb20e13c35cd5eac9b90d657675410adf4d4ebc8608e8d6563",
+          "bytes": 3605,
+          "availability": "local ignored RAW; retained on author host"
+        }
+      },
+      "expected_failure_semantics": "The test reroutes only the competing worker to a different stripe while keeping markers and the rest of the real import path; it fails at the live publication-entered assertion before release. This is a test-owned route-around control, not a production-code deletion or a cross-process lock-removal proof.",
+      "deciding_failure": "tests/unit/core/artifacts/test_import_admission_noop.py:326: losing import entered the first-claim lease before publication completed",
+      "exact_command_and_environment": "See hash-bound deciding_outputs.admission; native-result includes supervised argv. Full deciding outputs retained separately."
+    },
+    "deciding_evidence": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/native-results.json",
+        "sha256": "a75340c77a042568eafcc831abc567a424fcf38d9204a42899e0c537d4b3318f",
+        "availability": "local ignored RAW; retained on author host"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/native-source-profile-freeze.json",
+        "sha256": "ae379dc44e865c540da17b40684e8a812231794e41c6f95e25d90c028e1f07df",
+        "availability": "local ignored RAW; retained on author host"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-b13-b148-composed-native-replay-r1/b148-property-control-verification.json",
+        "sha256": "c32b0e2fdf3a0622606d56abc27ef76a9fd1bc58a093343b1f9560e634d6dd15",
+        "availability": "local ignored RAW; retained on author host"
+      }
+    ]
+  },
+  "real_chain": [
+    "Unbound source FileSystemCAS object is exported as an import archive.",
+    "Two concurrent tenant-scoped FileSystemCAS receiver calls enter actual import_subgraph and reservation/publication code for the same artifact.",
+    "The first actual artifact lease covers the pending ownership transaction and pauses before default manifest publication; the contender attempts the same lease and is blocked.",
+    "After release, the winner publishes the manifest/owner receipt; the other import is refused as a foreign exact view.",
+    "Fresh winner and loser FileSystemCAS instances reread bytes/manifests and verify winner-only ownership and loser refusal."
+  ],
+  "adversarial_controls": [
+    "Removal control routes the competing worker to a different lock stripe; the preserved runtime markers do not hide the race and the test fails at the publication-entered assertion.",
+    "Fresh losing tenant cannot claim ownership, has no exact view, and raises ArtifactOwnershipError on read.",
+    "Winner's payload bytes and source manifest are checked after a fresh receiver open; source remains unbound.",
+    "The positive module suite retains existing malformed-input, staged-import, selected-view, foreign-owner, and integrity controls; the 57-case result is module-wide and not a count attributable solely to the new test."
+  ],
+  "consumer_surface": {
+    "consumer": "fresh tenant-scoped FileSystemCAS readers",
+    "surface": "surface_out_of_scope: internal CAS ownership/import contract; no external API/dashboard behavior asserted"
+  },
+  "pattern_pass": {
+    "P29": "The test drives the real FileSystemCAS import/publication route and fresh readers, rather than constructor or marker-only evidence.",
+    "P32": "Ownership is established by persisted intent/manifest and readback behavior, not field presence alone.",
+    "P38": "The control distinguishes a real same-artifact serialization requirement from scheduler arrival at a start barrier."
+  },
+  "limitations": [
+    "The contenders share one in-process CAS coordinator and temporary local filesystem; this does not establish cross-process or production-deployment serialization.",
+    "The adversarial control routes around the selected artifact stripe in the test; it does not remove or patch the production lease implementation.",
+    "No external transfer permission, legal right, issuer authority, production currentness, T2 protected-positive fact, or production custody claim is created.",
+    "The test does not prove internal critical-section overlap under every scheduler; it directly observes one contender attempt while the winner holds the actual stripe.",
+    "No full-E02 native/backend/installed-wheel/sdist source-input freeze is established."
+  ],
+  "P41_inherited": {
+    "status": "not_established",
+    "reason": "The changed test file is in this slice's direct verification input denominator; this is a candidate-specific replay, not an inherited green claim."
+  }
+}

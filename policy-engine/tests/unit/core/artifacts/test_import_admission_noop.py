@@ -146,7 +146,7 @@ def test_unbound_first_claim_preserves_source_context_and_records_local_owner(
 def test_two_tenant_first_unbound_import_race_has_one_local_default_owner(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """The first receiver-local claim wins; it conveys no source transfer authority."""
+    """The first scoped import owns locally; a real contender waits at the CAS lease."""
     source = FileSystemCAS(tmp_path / "source")
     ref = source.put_bytes(PAYLOAD, _options(None))
     source_manifest = source.get_manifest_bytes(ref)
@@ -164,8 +164,76 @@ def test_two_tenant_first_unbound_import_race_has_one_local_default_owner(
     stage_labels: list[str | None] = []
     publication_labels: list[str | None] = []
     publication_snapshots: dict[str | None, dict[str, bytes]] = {}
+    publication_attempted = {label: threading.Event() for label in tenants}
+    publication_entered = {label: threading.Event() for label in tenants}
+    pending_intent_written = threading.Event()
+    release_publication = threading.Event()
+    coordination_lock = threading.Lock()
+    publication_candidate: dict[str, str | None] = {"label": None}
+    publication_owner: dict[str, str | None] = {"label": None}
     make_stage = store_module.tempfile.mkdtemp
     publish = FileSystemCAS._publish_staged_import
+    publish_transaction_member = FileSystemCAS._publish_transaction_member
+    coordinator = shared._coordinator
+    original_artifact_leases = coordinator.artifact_leases
+    original_stripe = coordinator._stripe
+    default_path = shared._manifest_path_for_ref(ref.artifact_id, None)
+    remove_lock_probe = os.environ.get("POLISYOS_B148_REMOVE_FIRST_CLAIM_LOCK_PROBE")
+    if remove_lock_probe not in {None, "1"}:
+        raise ValueError("POLISYOS_B148_REMOVE_FIRST_CLAIM_LOCK_PROBE must be unset or 1")
+
+    if remove_lock_probe == "1":
+
+        def route_contender_around_publication_lock(candidate_id: Any) -> int:
+            if (
+                getattr(worker, "route_around_publication_lock", False)
+                and candidate_id == ref.artifact_id
+            ):
+                return (original_stripe(candidate_id) + 1) % len(coordinator._artifact_locks)
+            return original_stripe(candidate_id)
+
+        monkeypatch.setattr(coordinator, "_stripe", route_contender_around_publication_lock)
+
+    @contextmanager
+    def observe_artifact_leases(artifact_ids: Any, *, exclusive: bool) -> Any:
+        ids = tuple(artifact_ids)
+        tracked = (
+            getattr(worker, "in_import", False)
+            and getattr(worker, "lease_depth", 0) == 0
+            and exclusive
+            and ref.artifact_id in ids
+        )
+        if not tracked:
+            with original_artifact_leases(ids, exclusive=exclusive) as leases:
+                yield leases
+            return
+
+        label = getattr(worker, "tenant", None)
+        assert label in publication_attempted
+        with coordination_lock:
+            if publication_candidate["label"] is None:
+                publication_candidate["label"] = label
+            is_candidate = publication_candidate["label"] == label
+        publication_attempted[label].set()
+        if remove_lock_probe == "1" and not is_candidate:
+            if not pending_intent_written.wait(timeout=10):
+                raise AssertionError("first import never reached its pending transaction intent")
+            worker.route_around_publication_lock = True
+        try:
+            with original_artifact_leases(ids, exclusive=exclusive) as leases:
+                with coordination_lock:
+                    if publication_owner["label"] is None:
+                        publication_owner["label"] = label
+                    is_owner = publication_owner["label"] == label
+                if not is_owner:
+                    publication_entered[label].set()
+                worker.lease_depth = 1
+                try:
+                    yield leases
+                finally:
+                    worker.lease_depth = 0
+        finally:
+            worker.route_around_publication_lock = False
 
     def persisted_snapshot() -> dict[str, bytes]:
         return {
@@ -192,15 +260,44 @@ def test_two_tenant_first_unbound_import_race_has_one_local_default_owner(
     ) -> Any:
         label = getattr(worker, "tenant", None)
         publication_labels.append(label)
-        result = publish(store, staging_root, members, artifact_ids)
-        publication_snapshots[label] = persisted_snapshot()
-        return result
+        try:
+            return publish(store, staging_root, members, artifact_ids)
+        finally:
+            publication_snapshots[label] = persisted_snapshot()
 
+    def pause_before_default_manifest(
+        store: FileSystemCAS,
+        stage_path: Path | None,
+        final_path: Path,
+        *,
+        expected_sha256: str,
+    ) -> bool:
+        label = getattr(worker, "tenant", None)
+        if final_path == default_path and label == publication_owner["label"]:
+            intent = store._ownership_index._read_transaction_intent(ref.artifact_id)
+            assert intent is not None
+            assert intent["status"] == "pending"
+            assert intent["owner"] == {"tenant_id": label, "cell_id": None}
+            pending_intent_written.set()
+            if not release_publication.wait(timeout=10):
+                raise AssertionError("the first-owner publication was never released")
+        return publish_transaction_member(
+            store,
+            stage_path,
+            final_path,
+            expected_sha256=expected_sha256,
+        )
+
+    monkeypatch.setattr(coordinator, "artifact_leases", observe_artifact_leases)
     monkeypatch.setattr(store_module.tempfile, "mkdtemp", observe_stage)
     monkeypatch.setattr(FileSystemCAS, "_publish_staged_import", observe_publication)
+    monkeypatch.setattr(FileSystemCAS, "_publish_transaction_member", pause_before_default_manifest)
 
     def import_for_tenant(label: str) -> tuple[str, Any]:
         worker.tenant = label
+        worker.in_import = True
+        worker.lease_depth = 0
+        worker.route_around_publication_lock = False
         try:
             start.wait(timeout=10)
             report = tenants[label].import_subgraph(package.output_path, verify_integrity=True)
@@ -208,11 +305,29 @@ def test_two_tenant_first_unbound_import_race_has_one_local_default_owner(
         except ArtifactOwnershipError as exc:
             return ("refused", exc)
         finally:
-            worker.tenant = None
+            worker.in_import = False
+            worker.lease_depth = 0
+            worker.route_around_publication_lock = False
 
     with ThreadPoolExecutor(max_workers=2) as pool:
         futures = {label: pool.submit(import_for_tenant, label) for label in tenants}
         start.wait(timeout=10)
+        try:
+            assert pending_intent_written.wait(timeout=10)
+            winner = publication_owner["label"]
+            assert winner in tenants
+            loser = next(label for label in tenants if label != winner)
+            assert publication_attempted[loser].wait(timeout=10)
+            stripe_lock = coordinator._artifact_locks[original_stripe(ref.artifact_id)]
+            acquired_unexpectedly = stripe_lock.acquire(blocking=False)
+            if acquired_unexpectedly:
+                stripe_lock.release()
+            assert not acquired_unexpectedly, "the first import must hold the actual CAS stripe"
+            assert not publication_entered[loser].wait(timeout=0.1), (
+                "the losing import entered the first-claim lease before publication completed"
+            )
+        finally:
+            release_publication.set()
         outcomes = {label: future.result(timeout=20) for label, future in futures.items()}
 
     winners = [
@@ -228,6 +343,7 @@ def test_two_tenant_first_unbound_import_race_has_one_local_default_owner(
     assert len(winners) == len(losers) == 1
     winner, report = winners[0]
     loser, refusal = losers[0]
+    assert winner == publication_owner["label"]
     assert winner != loser
     assert len(report.published_refs) == 1
     assert report.published_refs[0].artifact_id == ref.artifact_id

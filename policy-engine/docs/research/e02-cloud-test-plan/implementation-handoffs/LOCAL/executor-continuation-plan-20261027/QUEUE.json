@@ -1,0 +1,1356 @@
+{
+  "schema": "policyos.e02.continuation_routes.v1",
+  "scope": "Continuation view over existing canonical queue; no new task IDs/status changes or implementation authorization. Read detailed source reports and criterion pointers before execution.",
+  "base_commit": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+  "base_tree": "df24ff6ff12e7039c0cbfbd47abc8bee82f5332e",
+  "denominator": {
+    "canonical_task_rows": 26,
+    "bundles": 127,
+    "unique_finding_ids": 282,
+    "criterion_occurrences": 291,
+    "task_finding_edges_id_level": 319,
+    "occurrence_to_row_relations_if_every_id_route_is_applied_to_every_occurrence": 331,
+    "q0_direct_ids": 206,
+    "q0_direct_occurrences": 212,
+    "all_non_q0_row_unique_ids": 81,
+    "all_non_q0_row_unique_occurrences": 84,
+    "overlap_q0_and_non_q0_ids": [
+      "B11",
+      "B201",
+      "B202",
+      "B212",
+      "LA-045"
+    ],
+    "specialist_only_ids": 76,
+    "specialist_only_occurrences": 79
+  },
+  "historical_ledger_counts": {
+    "partial": 260,
+    "open": 1,
+    "closed": 9,
+    "held": 12
+  },
+  "rows": [
+    {
+      "task_id": "S3",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S3",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/S3",
+      "original_exit": "exact identification/nativeuncertainty refs bound to recomputed resolvedsubject/unit; freshAconsumer retains4point and1to10interval; fake/mismatch/unresolvedremoval refuses; no contract-only authority",
+      "finding_ids": [
+        "B31"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains S3",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0",
+        "S1"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "B31 paired-channel witness",
+      "current_implementation_proof_and_acceptance_boundary": "e22 test delta and8020receipt bounded independent authorGO; no G S3/B31 acceptance.",
+      "incomplete_capability_label": "verification_missing",
+      "remaining": "Preserve distinct3PASS/1FAIL and affected1PASS; compose S1 join and exact paired unit consumer.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Read unchanged proof before rerun; affected-delta-only requalification of m/km point+interval through freshconsumer.",
+      "distinguishing_readiness_signal": "Exact identification/nativeuncertainty refs and resolvedsubject/unit; fake/unresolved/mismatch refuse; candidateonly and G separate.",
+      "execution_location": "hybrid",
+      "planned_slices": [
+        "W2-S3"
+      ],
+      "details": "analysis/semantics-inputs.md",
+      "historical_source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/S3/report.json",
+        "sha256": "607980c91a8070fa72e19ea2d4a75212aa58f82458d2b6f276a7f8abc2fff30e"
+      },
+      "g27_items": [],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "V6",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V6",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/V6",
+      "original_exit": "actual producer then laterindependentfailure; successfulCAS/history/debugservedreader retains typedpartial/exacterror; corruptrefrefuses",
+      "finding_ids": [
+        "B13"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains V6",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0",
+        "Q1",
+        "R1"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "debug exact-view identity",
+      "current_implementation_proof_and_acceptance_boundary": "Historical bounded realSimulationResult/sibling-failure witness accepted; G27-01 current source blocked.",
+      "incomplete_capability_label": "semantic_test_missing",
+      "remaining": "ValidA/A scoped fixture then intendedA/B red; canonical full identity across all relevant bindings; B13 separate.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Review trackedr5test; reuse artifact_ref_identity_key; reject mixed/malformed same-ID bindings and both served selectors.",
+      "distinguishing_readiness_signal": "A/A succeeds; A/B,A/absent,mixedA+B,invalid/unavailableB refuse freshGET; removal gate with markers retained fails.",
+      "execution_location": "cloud",
+      "planned_slices": [
+        "C01",
+        "W2-B13"
+      ],
+      "details": "analysis/generation-routes.md",
+      "historical_source_report": null,
+      "g27_items": [
+        "G27-01",
+        "G27-02"
+      ],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "V7",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V7",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/V7",
+      "original_exit": "measured counts->persistedevidence->freshS10/defaultHTTP; sameCI differentactualoutcomes changesgrade; predictiveonly notcausal",
+      "finding_ids": [
+        "B16",
+        "B32",
+        "LA-051"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains V7",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0",
+        "S1"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "same predictive/N7 writer",
+      "current_implementation_proof_and_acceptance_boundary": "Direct predictive receipts preserved; final served chain blocked by actual route; population/time not established.",
+      "incomplete_capability_label": "verification_missing",
+      "remaining": "After route admission, fresh sameforecast/differentobservations witness with predictive-only limitations.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "ReuseV4 writer and current calibration/validation owners; keep B16population,B32time,LA051method boundary distinct.",
+      "distinguishing_readiness_signal": "Measured counts drive persisted empirical evidence/freshS10/defaultHTTP; no causalcalibration inferred from predictive fixture.",
+      "execution_location": "hybrid",
+      "planned_slices": [
+        "C09",
+        "W2-V4V7"
+      ],
+      "details": "analysis/generation-routes.md",
+      "historical_source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/V7/report.json",
+        "sha256": "8291091047374cac66e0d47ed9691468d1e9f7709251ec6e11e0638be6f8962d"
+      },
+      "g27_items": [],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "Q0",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/Q0",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/Q0",
+      "original_exit": "exact original occurrence vs candidate-bound property/consumer/negative; no stronger invented scope; G decision separate from source merge",
+      "finding_ids": [
+        "B06",
+        "B11",
+        "B18",
+        "B23",
+        "B25",
+        "B26",
+        "LA-045",
+        "B14",
+        "B24",
+        "B37",
+        "B38",
+        "B39",
+        "B40",
+        "B42",
+        "B43",
+        "B44",
+        "B45",
+        "B46",
+        "B47",
+        "B48",
+        "B49",
+        "B50",
+        "B51",
+        "B52",
+        "B53",
+        "B55",
+        "B57",
+        "LA-057",
+        "B58",
+        "B60",
+        "B62",
+        "B63",
+        "B64",
+        "B65",
+        "B69",
+        "B70",
+        "B71",
+        "B72",
+        "B73",
+        "B75",
+        "B76",
+        "B77",
+        "B78",
+        "B90",
+        "B91",
+        "B92",
+        "B93",
+        "B94",
+        "B95",
+        "B96",
+        "B149",
+        "B150",
+        "B151",
+        "B152",
+        "B153",
+        "B155",
+        "LA-008",
+        "LA-009",
+        "LA-010",
+        "LA-011",
+        "LA-012",
+        "LA-013",
+        "B17",
+        "LA-022",
+        "LA-029",
+        "LA-030",
+        "LA-031",
+        "LA-034",
+        "LA-038",
+        "LA-039",
+        "LA-043",
+        "LA-044",
+        "LA-047",
+        "LA-048",
+        "LA-049",
+        "B81",
+        "B82",
+        "B84",
+        "B85",
+        "B86",
+        "B88",
+        "B138",
+        "B139",
+        "B140",
+        "B141",
+        "B142",
+        "B143",
+        "B144",
+        "B145",
+        "B146",
+        "B147",
+        "LA-014",
+        "LA-015",
+        "B41",
+        "B106",
+        "B107",
+        "B109",
+        "B110",
+        "B111",
+        "B112",
+        "B113",
+        "B114",
+        "B115",
+        "B116",
+        "B117",
+        "B118",
+        "B119",
+        "B120",
+        "B121",
+        "B122",
+        "B123",
+        "B124",
+        "B125",
+        "B126",
+        "B127",
+        "B128",
+        "B129",
+        "B130",
+        "B132",
+        "B133",
+        "B134",
+        "B135",
+        "B136",
+        "B156",
+        "B158",
+        "B159",
+        "B160",
+        "B162",
+        "B163",
+        "B165",
+        "LA-052",
+        "LA-056",
+        "B97",
+        "B98",
+        "B99",
+        "B100",
+        "B101",
+        "B102",
+        "B103",
+        "B104",
+        "B105",
+        "B166",
+        "B167",
+        "B168",
+        "B169",
+        "B170",
+        "B171",
+        "B174",
+        "B175",
+        "B176",
+        "B177",
+        "B178",
+        "B179",
+        "B180",
+        "B181",
+        "B182",
+        "B183",
+        "B184",
+        "B185",
+        "B186",
+        "B187",
+        "B188",
+        "B189",
+        "B191",
+        "B192",
+        "B193",
+        "B195",
+        "B196",
+        "B198",
+        "B199",
+        "B201",
+        "B202",
+        "B203",
+        "LA-001",
+        "LA-002",
+        "LA-003",
+        "LA-004",
+        "LA-007",
+        "LA-016",
+        "LA-017",
+        "LA-019",
+        "LA-020",
+        "LA-035",
+        "LA-037",
+        "B54",
+        "B204",
+        "B205",
+        "B206",
+        "B207",
+        "B208",
+        "B209",
+        "B210",
+        "B211",
+        "B212",
+        "B213",
+        "B215",
+        "B216",
+        "B217",
+        "B218",
+        "B219",
+        "B220",
+        "B221",
+        "B222",
+        "B223",
+        "B224",
+        "B225"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains Q0",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "occurrence reconciliation",
+      "current_implementation_proof_and_acceptance_boundary": "206IDs/212occurrences source-onlyA-F synthesisr2 retained; full291occurrence runtimeclosure absent.",
+      "incomplete_capability_label": "verification_missing",
+      "remaining": "Use original occurrence matrix and individual nextchecks; retain B198; B199/LA004 currentrebind; LA029Linux notlost.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Read each source-onlynextcheck through criterion-routes; appoint actualowner/proof/resource for one property; do not uniformrerun all.",
+      "distinguishing_readiness_signal": "Every291occurrence has exactoutcome/source/input/backend/consumer/negative or narrow externalinputdecision residual; Gstatus distinct.",
+      "execution_location": "hybrid",
+      "planned_slices": [
+        "W2-Q0",
+        "W4-reconcile"
+      ],
+      "details": "analysis/criteria.md",
+      "historical_source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/Q0/report.json",
+        "sha256": "94577e5aec0e38f0d2098a09e831ccf89cd5ca6c96bd8fa1871460aed3fbc08a"
+      },
+      "g27_items": [
+        "G27-02",
+        "G27-03",
+        "G27-04",
+        "G27-05",
+        "G27-07"
+      ],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "Q1",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/Q1",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/Q1",
+      "original_exit": "explicit base/candidate/tree and parents plus per-path source/test/config/companion blob owner/input manifest; canonical choices; preserve history",
+      "finding_ids": [
+        "LA-021"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains Q1",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "Core/IR canonical profiles",
+      "current_implementation_proof_and_acceptance_boundary": "Accepted.2 stable; CAN.3 selected architecture; raw_type/losslessbudget/state/Foundry/cache/installed incomplete.",
+      "incomplete_capability_label": "semantic_test_missing",
+      "remaining": "Rebind proposals to actualpreimages; one physicalpreallocation budget mechanism and exact complete representation.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Reuse canonical canonowner; .3 raw_type maps; preserve.2bytes/history; readfirst consumers; no pertype loopholes.",
+      "distinguishing_readiness_signal": "Before materialization budgetrefusal; raw_type roundtrip incl nested/adversarial; stateFoundrycache/readers/install outcomes separately.",
+      "execution_location": "cloud",
+      "planned_slices": [
+        "C08"
+      ],
+      "details": "analysis/core-native-routes.md",
+      "historical_source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/Q1/report.json",
+        "sha256": "5acdfdfe85c916aac705255341d0a7f16f7035ced9b8cd1579d20be05dce7345"
+      },
+      "g27_items": [],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "R1",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/R1",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/R1",
+      "original_exit": "prepared defining baseline/13 named affected contours/matched removals; no carry from old0bf",
+      "finding_ids": [
+        "LA-033",
+        "B13",
+        "B59",
+        "B61",
+        "B74",
+        "B148"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains R1",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0",
+        "Q1"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "runtime state/cache",
+      "current_implementation_proof_and_acceptance_boundary": "Native111 cases110PASS/1FAIL; guard-only child exit still fails; old B13 sibling witness preserved.",
+      "incomplete_capability_label": "verification_missing",
+      "remaining": "Diagnose child startup/handshake, remaining contour groups, B148 removals and B13 basis invalidation.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Prepare portable startup oracle now; local exact profile only after8GiB reserve; never wait for I2 research.",
+      "distinguishing_readiness_signal": "Observed child exit73/recovery semantics or attributed red; all13-contour denominator and matched removals; basis invalidation retains independent history.",
+      "execution_location": "hybrid",
+      "planned_slices": [
+        "L03",
+        "W2-B13"
+      ],
+      "details": "analysis/runtime-routes.md",
+      "historical_source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/R1/report.json",
+        "sha256": "53319a5d9af51a246e7ca422ef3796e41561719ce29aa528c171bb33ef3c6c59"
+      },
+      "g27_items": [
+        "G27-02"
+      ],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "I1",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/I1",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/I1",
+      "original_exit": "same-ID mutation invalidates before reuse; unchanged positive and fresh checkpoint/benchmark",
+      "finding_ids": [
+        "LA-041"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains I1",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "Catalog checkpoint/material basis",
+      "current_implementation_proof_and_acceptance_boundary": "G27-03 accepts bounded18-path bridge; earlier20/25 nodes do not execute whole eight-node matrix.",
+      "incomplete_capability_label": "verification_missing",
+      "remaining": "Review unapplied13-selector proposal; actual recovery/reason semantics and omitted/None/[] behavior.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Reuse checkpoints/pipeline owner; run eight unchanged selectors and direct malformed/legacy/interrupted retry cases; extend only demonstrated defect.",
+      "distinguishing_readiness_signal": "One immutable candidate produces actual13selector outcomes and durable recovery; stage reason from owner event/error; marker-preserving removal fails.",
+      "execution_location": "hybrid",
+      "planned_slices": [
+        "C02"
+      ],
+      "details": "analysis/runtime-routes.md",
+      "historical_source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I1/report.json",
+        "sha256": "f3aca72df2f5a8ac339cbe07fd5f50c15d8b6ddb6b7afae85acf9cf5fc6fdd02"
+      },
+      "g27_items": [
+        "G27-03",
+        "G27-04"
+      ],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "I2",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/I2",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/I2",
+      "original_exit": "two staged/two unstaged/rename/clean real records",
+      "finding_ids": [
+        "LA-005",
+        "LA-006",
+        "LA-026"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains I2",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "DevX census/installed/Linux",
+      "current_implementation_proof_and_acceptance_boundary": "DFK bounded mechanism integrated; product-rootCLI timed out420s with empty streams; nativeLinux/installed stillUNRUN.",
+      "incomplete_capability_label": "verification_missing",
+      "remaining": "Separate actual mixed-root census from portable Linux byte and package/discovery proof.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Bounded Git enumeration profile; inspect named locked worker recipe; cloudLinux can test0xff fixture without local data.",
+      "distinguishing_readiness_signal": "UnmodifiedCLI complete receipt on authentic root; Linux invalid-byte case; installed CLI/discovery/source archives on final candidate.",
+      "execution_location": "hybrid",
+      "planned_slices": [
+        "W2-I2-Linux",
+        "L04"
+      ],
+      "details": "analysis/runtime-routes.md",
+      "historical_source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I2/report.json",
+        "sha256": "41a5aa1842a563056f5e1e15851d0bf317fb5700a44ef6138d8b6fb028c30439"
+      },
+      "g27_items": [],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "S1",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S1",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/S1",
+      "original_exit": "three separate minimal decisions B31/B161/B214 with actual discriminators; reuse existing carriers/ID",
+      "finding_ids": [
+        "B07",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B31",
+        "B33",
+        "B36",
+        "LA-023",
+        "LA-032",
+        "LA-036",
+        "B161",
+        "B172",
+        "B173",
+        "B214"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains S1",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "HTE source/request/uncertainty",
+      "current_implementation_proof_and_acceptance_boundary": "HTE/B161/PAG decisions selected; partialr4/r5 unapplied; earlier funnel lacks laterownedrequest.",
+      "incomplete_capability_label": "bridge_missing",
+      "remaining": "Current source owner and actual lifecycle caller transport, then all other original S1 criteria. C07 completes only the bounded owner/oracle/proposal slice.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Rebind current indexed r4/r5 bytes; implement and test only the disjoint uncertainty/source projection and outbox owner. Return exact unapplied lifecycle transport proposal and preimage. Root applies it after C05 shared lifecycle source; never infer an earlier request.",
+      "distinguishing_readiness_signal": "First-wave owner resolves exact source/profile/assignment/arrays/unit/attempt and refuses counterfeit/removal. Actual ordinary explicit POST and fresh-consumer proof remains bridge_missing until later C05/root transport composition; earlier funnel and finite G528 route remain separate.",
+      "execution_location": "hybrid",
+      "planned_slices": [
+        "C07",
+        "W2-S1-funnel",
+        "W2-PAG"
+      ],
+      "details": "analysis/semantics-inputs.md",
+      "historical_source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/S1/report.json",
+        "sha256": "d2a180895e2324341c263a3c7af9cbf5aae266e0db634e657be3c7b0b4d3635d"
+      },
+      "g27_items": [],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "T1",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/T1",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/T1",
+      "original_exit": "internal configured owner vs external facts; actual source/ref/issuer/verifier/consumer; no stale null-owner demand",
+      "finding_ids": [
+        "B30",
+        "B67",
+        "B148",
+        "LA-027",
+        "LA-050",
+        "B108",
+        "LA-053"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains T1",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "input custody",
+      "current_implementation_proof_and_acceptance_boundary": "Bounded seven-ID source/input inventory exists; not issuer/currentness/protected-positive evidence.",
+      "incomplete_capability_label": "verification_missing",
+      "remaining": "Rebind each selected owner input; retain separate external fact limits.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Read existing T1 and L01/L02 receipts; check only named local locators; provide cloud only lawful configured fixtures.",
+      "distinguishing_readiness_signal": "Each original claim has a resolved typed source, owner/verifier/purpose and fresh consuming path or exact missing input.",
+      "execution_location": "hybrid",
+      "planned_slices": [],
+      "details": "analysis/semantics-inputs.md",
+      "historical_source_report": null,
+      "g27_items": [
+        "G27-07"
+      ],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "R2",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/R2",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/R2",
+      "original_exit": "actual handle/process closure + no premature reuse, cursor/window/CAS fresh consumer",
+      "finding_ids": [
+        "B87",
+        "B89"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains R2",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0",
+        "Q1",
+        "R1"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "provenance only",
+      "current_implementation_proof_and_acceptance_boundary": "G27-06 reports B87/B89 satisfied at65ac853; source qualification preserved.",
+      "incomplete_capability_label": "verification_missing",
+      "remaining": "Correct four related-history refs without reopening accepted behavior.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Recompute ancestry and five selected path hashes; surgically fix bindings and dependent prose.",
+      "distinguishing_readiness_signal": "Committed packet agrees with ancestry and selected source; defining property unchanged; G closure separate.",
+      "execution_location": "local",
+      "planned_slices": [
+        "L01"
+      ],
+      "details": "analysis/runtime-routes.md",
+      "historical_source_report": null,
+      "g27_items": [
+        "G27-06"
+      ],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "R3",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/R3",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/R3",
+      "original_exit": "reported/estimated/reuse/unknown events and durable outcomes remain distinct; provider/cache/retry/reopen/cancel",
+      "finding_ids": [
+        "B10",
+        "B66",
+        "B67",
+        "B68"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains R3",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0",
+        "Q1"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "LLM cache/client/ledger",
+      "current_implementation_proof_and_acceptance_boundary": "Money/IR-origin mechanisms retained; latest real-producer14cases14FAIL; author06 cache is unapplied/staticNO-GO.",
+      "incomplete_capability_label": "bridge_missing",
+      "remaining": "Repair true producer fixture provenance and align cache/client/session lifetime plus per-request observation.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Read the fourteen node failures; inspect MethodCatalog dump and tenant manifest; extend existing cache authorization and ordinary NL callers.",
+      "distinguishing_readiness_signal": "ActualPOST\u2192owner-authorized cache\u2192durable ledger\u2192freshAPI distinguishes reported/estimated/reuse/unknown; attribution/currentness/cancel/removal controls.",
+      "execution_location": "hybrid",
+      "planned_slices": [
+        "C05"
+      ],
+      "details": "analysis/source-proposals.md",
+      "historical_source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/R3/report.json",
+        "sha256": "be153de449a6fe767476b3362a77cdeb23003867af8aca433564744f002d643a"
+      },
+      "g27_items": [
+        "G27-05"
+      ],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "R4",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/R4",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/R4",
+      "original_exit": "full workload within shared cap, no lost folds/deadlock; extend existing owner only if witness disproves coverage",
+      "finding_ids": [
+        "B56"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains R4",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "shared capacity/control I/O",
+      "current_implementation_proof_and_acceptance_boundary": "G27-05 accepts configured B56 outer permit and serial folds; six/study,twelve/two studies.",
+      "incomplete_capability_label": "verification_missing",
+      "remaining": "Correct three arithmetic bindings; separately prove saturated compute permits lease/control progress.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Preserve numerical outputs; event-held cap-one witness through real guarded store; do not infer historical error cause.",
+      "distinguishing_readiness_signal": "Renewal/cancel/expiry/fencing/terminal-owner outcomes under actual saturation, with control-removal red; no arithmetic numerical replay.",
+      "execution_location": "hybrid",
+      "planned_slices": [
+        "L01",
+        "C11"
+      ],
+      "details": "analysis/runtime-routes.md",
+      "historical_source_report": null,
+      "g27_items": [
+        "G27-05"
+      ],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "I3",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/I3",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/I3",
+      "original_exit": "verified progress and durable24h replay; absent/ambiguous key typedunsupported",
+      "finding_ids": [
+        "B79",
+        "B80",
+        "B83"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains I3",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0",
+        "R2"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "Fabric progress/key/replay",
+      "current_implementation_proof_and_acceptance_boundary": "B79/B80 r7d+r8b proposal only; B83 owner semantics not implemented; two-process horizon unrun.",
+      "incomplete_capability_label": "bridge_missing",
+      "remaining": "Resolve per-source evidence/version for progress; explicit source-owned key/version and durable24h replay.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Review tracked patches as inputs; extend existing FetchResult/SourceContract/conformance/streaming, preserving R2 cleanup.",
+      "distinguishing_readiness_signal": "A9/B4\u2192A9/B5 with source-specific evidence; false binding refuses; real second process86399reject/86400accept; absent/ambiguous key typedunsupported.",
+      "execution_location": "cloud",
+      "planned_slices": [
+        "C04"
+      ],
+      "details": "analysis/runtime-routes.md",
+      "historical_source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I3/report.json",
+        "sha256": "bedca55104020c3aeab966d1dc4f6259b8b73774383f6539a8e295303b91adbf"
+      },
+      "g27_items": [],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "I4",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/I4",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/I4",
+      "original_exit": "actual request->typedprofile/encodedquery->fresh reader; wrong/missing profile refuses",
+      "finding_ids": [
+        "LA-033",
+        "LA-046",
+        "LA-028",
+        "LA-032",
+        "LA-040"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains I4",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0",
+        "I1"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "Legal/Catalog serving",
+      "current_implementation_proof_and_acceptance_boundary": "Catalog bridge accepted; Legal real-encoder receipt qualified at567c38c; flat no-selector migration unrun.",
+      "incomplete_capability_label": "verification_missing",
+      "remaining": "Fix encoder-count oracle; flat legacy migration and affected direct Legal path; original LA criteria independently routed.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Reuse existing embedder generation; deterministic encoder includes all real rows; no model download for migration.",
+      "distinguishing_readiness_signal": "Changed same-ID text reencoded under current membership; append/withdrawal/row-vector/history controls; separate LA028/032/033/REQ046/ACQ046.",
+      "execution_location": "hybrid",
+      "planned_slices": [
+        "C03",
+        "L05"
+      ],
+      "details": "analysis/runtime-routes.md",
+      "historical_source_report": null,
+      "g27_items": [
+        "G27-04"
+      ],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "V1",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V1",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/V1",
+      "original_exit": "POST->ownedcontext->N5->CAS->freshGET; synthetic configured witness remains bounded",
+      "finding_ids": [
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B08",
+        "B10",
+        "B13",
+        "B74",
+        "B154"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains V1",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0",
+        "Q1"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "controlled served fixture",
+      "current_implementation_proof_and_acceptance_boundary": "Controlled root r21+r24 plus formatting committedWIP; static review only; cheap guard/ordinary positiveUNRUN.",
+      "incomplete_capability_label": "verification_missing",
+      "remaining": "Admit exact fixture readers; ordinaryPOST\u2192ownedcontext\u2192N5\u2192CAS\u2192freshGET.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "First wrong-root falsifier; then one bounded portable positive with actual L1/L2/L3/L6 roots; local authentic roots separately.",
+      "distinguishing_readiness_signal": "Finished JUnit/readset and actual selected root evidence, persistedN5 and fresh parsedGET; no production-currentness claim.",
+      "execution_location": "hybrid",
+      "planned_slices": [
+        "L02",
+        "W2-V1"
+      ],
+      "details": "analysis/generation-routes.md",
+      "historical_source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/V1/report.json",
+        "sha256": "9bff9ad17e85aa8c4fa7042e9169a359a90a21993bca2d18b9b216532e39c062"
+      },
+      "g27_items": [
+        "G27-02",
+        "G27-04"
+      ],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "V2",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V2",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/V2",
+      "original_exit": "actual N4 two meaningful children->N6 frontier/history->freshGET/client; manual supplied graph not producer",
+      "finding_ids": [
+        "B15",
+        "B29"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains V2",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0",
+        "S1"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "N4/N6 served fixture",
+      "current_implementation_proof_and_acceptance_boundary": "Shares committed controlled-root fixture; meaningful-child/history/TCP/budget proofs unrun.",
+      "incomplete_capability_label": "verification_missing",
+      "remaining": "Execute two real N4 children and N6 frontier/history; sibling failure and budget controls.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Prepare oracle now; reuse admittedV1 substrate; run each initially alone against distinct temporary stores.",
+      "distinguishing_readiness_signal": "Real source-derived children with exact profiles; freshGET/TCP retains partial output/history and honest frontier; manual graph insufficient.",
+      "execution_location": "hybrid",
+      "planned_slices": [
+        "W2-V2"
+      ],
+      "details": "analysis/generation-routes.md",
+      "historical_source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/V2/report.json",
+        "sha256": "6878744148b923f865def54ee3eea06d5220ca59c32cc032a871c134ed81094c"
+      },
+      "g27_items": [
+        "G27-04"
+      ],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "V3",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V3",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/V3",
+      "original_exit": "admitted content change->samecandidateWMR/N5/history; ID/write-time-only control no reissue; REQ/ACQ separate",
+      "finding_ids": [
+        "B09",
+        "B12",
+        "B27",
+        "B28",
+        "LA-046"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains V3",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0",
+        "S1"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "generation basis/frontier/history",
+      "current_implementation_proof_and_acceptance_boundary": "G978 architecture selected; frontier primitives exist; retention chain/eighteen scenarios incomplete.",
+      "incomplete_capability_label": "bridge_missing",
+      "remaining": "One owner-prepared semantic basis shared by comparison/execution; reader-first retained-evaluation history and action/frontier CAS.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Implement owner basis/store/history parts in parallel with N7 research; root serializes actual generation-cycle/DTO intersections.",
+      "distinguishing_readiness_signal": "New source/history/cost/action persist while oldN5 retained only on complete equivalent basis+current eligibility; allS01-S18 and removal/race controls.",
+      "execution_location": "hybrid",
+      "planned_slices": [
+        "W2-V3"
+      ],
+      "details": "analysis/generation-routes.md",
+      "historical_source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/V3/report.json",
+        "sha256": "0e910633d32e9abb29d5b37ec9e36ea751a37ff44567037668fcb18bbffc1053"
+      },
+      "g27_items": [],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "V4",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V4",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/V4",
+      "original_exit": "CAS resolver recomputes->freshgrade/defaultHTTP; predictive coverage not causal calibration",
+      "finding_ids": [
+        "B16",
+        "B32",
+        "LA-051"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains V4",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0",
+        "S1"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "predictive/N7 route",
+      "current_implementation_proof_and_acceptance_boundary": "IRCanonSpec callsites/CLI adapter committed;8PASS/1FAIL older replay; normal route emits no planner report.",
+      "incomplete_capability_label": "semantic_test_missing",
+      "remaining": "Observe actual route limitation before projection repair; then served empirical consumer.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Apply/review bounded diagnostic only; trace normal CGF path and missing planner attachment; share one writer withV7.",
+      "distinguishing_readiness_signal": "Normal honest route reaches intended planner predicate or precise bounded limitation; sameforecast/differentholdout changes fresh grade.",
+      "execution_location": "hybrid",
+      "planned_slices": [
+        "C09",
+        "W2-V4V7"
+      ],
+      "details": "analysis/generation-routes.md",
+      "historical_source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/V4/report.json",
+        "sha256": "8b2ab11a61ba7e6d2bfefd56a5d4a4120c156fdb91137753bf08aefceb10498d"
+      },
+      "g27_items": [],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "V5",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V5",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/V5",
+      "original_exit": "exactcontext/history/quantity/CAS path; selected GP/native/injected evidence separately graded",
+      "finding_ids": [
+        "B108",
+        "B157"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains V5",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0",
+        "Q1"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "Search source-profile/metrics",
+      "current_implementation_proof_and_acceptance_boundary": "r9HOLD manifest-role escape; r13 tri-state candidate unapplied/no completedreview/nativeGP.",
+      "incomplete_capability_label": "bridge_missing",
+      "remaining": "Classify manifest+payload together; carry typed metric unit into report/history/GP; B108/B157 separate.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Review current r13bytes; extend canonical source-profile verifier; preserve scalar1.2 and refuse1.3 absent adapter.",
+      "distinguishing_readiness_signal": "Payload-erased/manifest-role-retained refuses; allclaims-erased residual falsifier; actual GP fresh consumer exact units; per-ID probes.",
+      "execution_location": "hybrid",
+      "planned_slices": [
+        "C06",
+        "L06"
+      ],
+      "details": "analysis/generation-routes.md",
+      "historical_source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/V5/report.json",
+        "sha256": "ea8be0a43b76ebe522964510cbbe069ffc83971b2ebc5b21f32bb06cd358451e"
+      },
+      "g27_items": [],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "S2",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S2",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/S2",
+      "original_exit": "attempted denominator/covariance/axis/subject identity consumed fresh; counterfeit metadata refuses",
+      "finding_ids": [
+        "LA-036",
+        "B157",
+        "B190",
+        "B194",
+        "B197",
+        "B200"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains S2",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0",
+        "S1"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "relation/effective-N/empirical",
+      "current_implementation_proof_and_acceptance_boundary": "Existing uncertainty/interpretability mechanisms retained; B200 persisted genuine relation/freshconsumer incomplete.",
+      "incomplete_capability_label": "bridge_missing",
+      "remaining": "Identify actual relationowner; persist/recomputeeffectiveN; separate B190/B194/B197/B157/LA036.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Reuse InputRef/history and selected actualsource; prepare overlap/unknown/counterfeit/removal and truthfulrequested/effective/fallback oracles.",
+      "distinguishing_readiness_signal": "Freshconsumer recomputes effectiveN/collapse reasons; requested/effective/unsupported shown honestly; no new mandatory estimator.",
+      "execution_location": "hybrid",
+      "planned_slices": [
+        "W2-S2"
+      ],
+      "details": "analysis/semantics-inputs.md",
+      "historical_source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/S2/report.json",
+        "sha256": "95869d8740db122f8153916da4a3100ee7125495688d2cbf037497979cbaa85f"
+      },
+      "g27_items": [],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "T2",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/T2",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/T2",
+      "original_exit": "valid positive + fake/foreign/stale/revoked zero effects including commit-time check",
+      "finding_ids": [
+        "B05",
+        "B08",
+        "B154",
+        "LA-018",
+        "LA-024",
+        "LA-025",
+        "B131",
+        "B137",
+        "B164",
+        "LA-054",
+        "LA-055"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains T2",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0",
+        "T1"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "protected action/authority",
+      "current_implementation_proof_and_acceptance_boundary": "Custody/protected mechanisms exist; selected authority/currentness/calibrationU1-U5 incomplete.",
+      "incomplete_capability_label": "verification_missing",
+      "remaining": "Verify ownerpermissions B131/B137, commit-timeB164 and samecontextLA054 with actual evidence.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Portable configured legitimate positive+negative oracles; local owner inputs for realfacts; never mint issuer/rights/calibration.",
+      "distinguishing_readiness_signal": "Valid protectedpositive plus fake/foreign/stale/revoked zeroeffects including commit-time race; explicit percriterion externalfact residual.",
+      "execution_location": "hybrid",
+      "planned_slices": [
+        "W2-T2"
+      ],
+      "details": "analysis/semantics-inputs.md",
+      "historical_source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/T2/report.json",
+        "sha256": "12124e863b3cbece1891de9bb7fd09e22262815d40823adcd4059bf44e287fb5"
+      },
+      "g27_items": [],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "Q2",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/Q2",
+      "upstream_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/Q2",
+      "original_exit": "frozen contracts->canonicalfamily->typedclient/defaultinstalled reader; declared supported profiles only",
+      "finding_ids": [
+        "B04",
+        "B11",
+        "B29",
+        "B30",
+        "LA-033",
+        "B34",
+        "B35",
+        "B36",
+        "LA-045",
+        "LA-005",
+        "LA-006",
+        "LA-021",
+        "LA-023",
+        "LA-026",
+        "LA-027",
+        "LA-042",
+        "LA-050",
+        "LA-053",
+        "B201",
+        "B202",
+        "B212"
+      ],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains Q2",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0",
+        "Q1"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "temporal/closure/generated/installed",
+      "current_implementation_proof_and_acceptance_boundary": "IRowner/TC/SameInputClosure selected; end-to-end exactviewrequest/DTO/API/browser/install incomplete.",
+      "incomplete_capability_label": "bridge_missing",
+      "remaining": "PrepareTC onaccepted.2 independently of.3; resolve complete members then canonicalfamily and installedproof.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Read immutable ownercontracts; TC oracle now; one canonical schema/generator/lock writer after upstream selection.",
+      "distinguishing_readiness_signal": "ExactmemberID/kind/media/profile/role+selectedtime; drift/corruption refused; typeddefaultHTTP/client/browser and wheel/rebuilt-sdist proven.",
+      "execution_location": "hybrid",
+      "planned_slices": [
+        "C10",
+        "W2-TC",
+        "W3-generated-installed"
+      ],
+      "details": "analysis/core-native-routes.md",
+      "historical_source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/Q2/report.json",
+        "sha256": "fe2abd80dd012c7aa2dea7a03efae3707aa57dd503b6c23ac3e5d8a364a135be"
+      },
+      "g27_items": [
+        "G27-01",
+        "G27-07"
+      ],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "BOOT0",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/BOOT0",
+      "upstream_pointer": null,
+      "original_exit": "attached ownbranch, exactbase/supplier identity, one writer perpath and visible runnablequeue",
+      "finding_ids": [],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains BOOT0",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "admission",
+      "current_implementation_proof_and_acceptance_boundary": "Bounded admission packet; present branch/HEAD/tree independently read back; no global freeze.",
+      "incomplete_capability_label": "verification_missing",
+      "remaining": "Preserve current source and all untracked/ignored categories; admit exact writer/input/consumer boundaries.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Read source and live journal; classify future deltas; select one author lineage.",
+      "distinguishing_readiness_signal": "Attached branch, explicit immutable source and full companion footprint; no unexplained changes.",
+      "execution_location": "local",
+      "planned_slices": [],
+      "details": "COMPOSITION.md",
+      "historical_source_report": null,
+      "g27_items": [
+        "G27-07"
+      ],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "DX0",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/DX0",
+      "upstream_pointer": null,
+      "original_exit": "full deciding commands on exactsource, honest remainingissuer decisions, source-to-installedassets bytes/origins; commoncontextdoesnotblockindependentwork",
+      "finding_ids": [],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains DX0",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "DevX native obligations",
+      "current_implementation_proof_and_acceptance_boundary": "Canonical Ruff/config/runtimeannotation repairs retained; N1-N8/all13nativeSOTA notcomplete.",
+      "incomplete_capability_label": "verification_missing",
+      "remaining": "Rebind RAW undernewidentity; expiryobligations bysubstance; native/package companions.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Target nonempty Ruff/lockbaseline; N1namespaceeffect and N2SLO consumer oracles; prepare final13row freeze withQ2.",
+      "distinguishing_readiness_signal": "Each native row realcommand/fulloutput onexactsource; no blankexpirymove/clock/hook suppression; installedasset origins.",
+      "execution_location": "hybrid",
+      "planned_slices": [
+        "W2-DX0",
+        "W3-generated-installed"
+      ],
+      "details": "analysis/core-native-routes.md",
+      "historical_source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/DX0/report.json",
+        "sha256": "d27e7af7d748750be4f4f7f699c7c92a34cb423f9310269055a00db6973f7c40"
+      },
+      "g27_items": [
+        "G27-07"
+      ],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    },
+    {
+      "task_id": "DEC0",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/DEC0",
+      "upstream_pointer": null,
+      "original_exit": "each decision has executable alternatives and exact affectedproperties; independent taskscontinuewhileGreviews",
+      "finding_ids": [],
+      "occurrence_lookup": {
+        "file": "analysis/criterion-routes.json",
+        "select": "canonical_task_rows contains DEC0",
+        "qualification": "ID routes are candidate owners; inspect each original occurrence, including repeated IDs."
+      },
+      "canonical_dependencies_unchanged": [
+        "BOOT0"
+      ],
+      "current_source": "ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a",
+      "mechanism_owner": "decisions/composition",
+      "current_implementation_proof_and_acceptance_boundary": "Six selectedGarchitecturecommits andG25/G27 boundaries binding; globalfreeze/acceptance absent.",
+      "incomplete_capability_label": "verification_missing",
+      "remaining": "Escalate only newly demonstrated semanticfork with alternatives and falsifier; do not reopen selectedchoices.",
+      "engineering_path": "wire-existing -> extend-existing; consolidate only demonstrated duplicate; build-new requires absent owner evidence",
+      "first_actions": "Read selectedGfinding IDs; decompose externalact\u2192evidence\u2192ouradmission\u2192claimreaction\u2192projection; prototype within candidateband.",
+      "distinguishing_readiness_signal": "Each unresolved decision names minimum distinguishinginput/owner and independent work continues; G alone selects newlaw/acceptance.",
+      "execution_location": "hybrid",
+      "planned_slices": [
+        "W4-G-handoff"
+      ],
+      "details": "COMPOSITION.md",
+      "historical_source_report": null,
+      "g27_items": [],
+      "runtime_evidence_index": "../executor-handover-20261027/evidence-index.json (filter task_ids, retain each run source/readset/backend/output qualification)",
+      "acceptance_owner": "G; author/reviewer/runtime receipts remain separate",
+      "closure_ids": []
+    }
+  ],
+  "closure_ids": []
+}

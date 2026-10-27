@@ -9971,6 +9971,216 @@ def test_dynamic_import_collector_scans_template_hash_functions_in_source_contex
     assert "polisyos.core.canon.hashing" in scanner._source_function_scanners
 
 
+def test_dynamic_import_allows_pure_recursive_module_time_function_return_unknown() -> None:
+    source = """\
+def descend(values: list[list[int]]) -> bool:
+    if values:
+        return descend(values[1:])
+    return False
+
+result = descend([[1], [2]])
+"""
+    namespace: dict[str, object] = {}
+    exec(compile(source, "src/probe.py", "exec"), namespace)  # noqa: S102
+    assert namespace["result"] is False  # noqa: S101
+
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py",
+        relative_path="src/probe.py",
+    )
+    entries = scanner.scan(ast.parse(source))
+
+    assert entries == []  # noqa: S101
+    result = scanner._module_environment["result"]
+    assert not preflight._is_guarded_importer_binding(result)  # noqa: S101
+
+
+def test_dynamic_import_same_state_recursive_backedge_preserves_importer_refusal() -> None:
+    source = """\
+import importlib
+
+def repeat(loader):
+    if recursive_condition:
+        return repeat(loader)
+    return loader
+
+result = repeat(importlib.import_module)
+"""
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py",
+        relative_path="src/probe.py",
+    )
+
+    with pytest.raises(
+        preflight.DynamicImportCollectionError,
+        match="guarded importer value escapes through a function return",
+    ):
+        scanner.scan(ast.parse(source))
+
+
+def test_dynamic_import_recursive_function_call_stays_in_inventory() -> None:
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py",
+        relative_path="src/probe.py",
+    )
+    entries = scanner.scan(
+        ast.parse(
+            """
+import importlib
+
+def load(depth):
+    if depth:
+        return load(depth - 1)
+    return importlib.import_module("json")
+
+result = load(1)
+"""
+        )
+    )
+
+    assert any(  # noqa: S101
+        entry["call"] == "importlib.import_module" and entry["pattern"] == "json"
+        for entry in entries
+    )
+
+
+def test_dynamic_import_recursive_function_importer_write_still_refuses() -> None:
+    source = """
+from importlib import import_module
+
+def replace_importer(depth):
+    global import_module
+    if depth:
+        return replace_importer(depth - 1)
+    import_module = None
+
+replace_importer(1)
+"""
+    namespace: dict[str, object] = {"__name__": "probe"}
+    exec(compile(source, "src/probe.py", "exec"), namespace)  # noqa: S102
+    assert namespace["import_module"] is None  # noqa: S101
+
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py",
+        relative_path="src/probe.py",
+    )
+    with pytest.raises(
+        preflight.DynamicImportCollectionError,
+        match="cross-scope write changes guarded importer binding",
+    ):
+        scanner.scan(ast.parse(source))
+
+
+def test_dynamic_import_scans_actual_chronology_anchor_recursive_closure() -> None:
+    relative_paths = (
+        "polisyos/core/security/chronology_anchor.py",
+        "polisyos/core/security/full_prefix.py",
+        "polisyos/core/contracts/__init__.py",
+        "polisyos/core/contracts/chronology.py",
+        "polisyos/core/artifacts/__init__.py",
+        "polisyos/core/artifacts/ids.py",
+        "polisyos/core/artifacts/manifest.py",
+    )
+    paths = [preflight.SRC_ROOT / path for path in relative_paths]
+    context = preflight._dynamic_read_source_context(paths)
+    bindings = preflight._DynamicImportSourceBindings(paths, source_context=context)
+    target = paths[0]
+    member = next(item for item in context.members if item.path == target)
+    scanner = preflight._DynamicImportSourceScanner(
+        target,
+        source_bindings=bindings,
+        source_context=context,
+    )
+
+    assert scanner.scan(member.tree) == []  # noqa: S101
+
+
+def test_dynamic_import_recursive_argument_transition_stays_in_inventory() -> None:
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py",
+        relative_path="src/probe.py",
+    )
+    entries = scanner.scan(
+        ast.parse(
+            """
+import importlib
+
+def select(name):
+    if name == "json":
+        return importlib.import_module("json")
+    return select("json")
+
+result = select("other")
+"""
+        )
+    )
+
+    assert any(  # noqa: S101
+        entry["call"] == "importlib.import_module" and entry["pattern"] == "json"
+        for entry in entries
+    )
+
+
+def test_dynamic_import_recursive_module_state_transition_stays_in_inventory() -> None:
+    source = """
+from importlib import import_module
+
+ready = False
+
+def select(depth):
+    global ready
+    if ready:
+        return import_module("json")
+    ready = True
+    return select(depth)
+
+result = select(None)
+"""
+    namespace: dict[str, object] = {}
+    exec(compile(source, "src/probe.py", "exec"), namespace)  # noqa: S102
+    assert namespace["result"].__name__ == "json"  # noqa: S101
+
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py",
+        relative_path="src/probe.py",
+    )
+    entries = scanner.scan(ast.parse(source))
+
+    assert any(  # noqa: S101
+        entry["call"] == "importlib.import_module" and entry["pattern"] == "json"
+        for entry in entries
+    )
+
+
+def test_dynamic_import_same_module_mutual_recursion_keeps_importer_call() -> None:
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py",
+        relative_path="src/probe.py",
+    )
+    entries = scanner.scan(
+        ast.parse(
+            """
+import importlib
+
+def left(value):
+    if value is None:
+        return importlib.import_module("json")
+    return right(None)
+
+def right(value):
+    return left(value)
+
+result = left("start")
+"""
+        )
+    )
+
+    assert any(  # noqa: S101
+        entry["call"] == "importlib.import_module" and entry["pattern"] == "json"
+        for entry in entries
+    )
+
+
 def test_dynamic_import_collector_joins_finite_function_returns_and_global_writes() -> None:
     scanner = preflight._DynamicImportSourceScanner(
         REPO_ROOT / "src" / "probe.py",
@@ -10025,67 +10235,60 @@ def test_dynamic_import_collector_keeps_foreign_function_globals_separate_from_f
         {
             "polisyos.__init__": "",
             "polisyos.core.__init__": "",
-            "polisyos.core.canon.__init__": "from .hashing import selected\n",
-            "polisyos.core.canon.hashing": (
-                'state = "foreign-initial"\n'
-                "def selected():\n"
-                "    global state\n"
-                '    state = "foreign"\n'
-                "    return state\n"
-            ),
+            "polisyos.core.canon.__init__": """from .hashing import selected
+""",
+            "polisyos.core.canon.hashing": """from importlib import import_module
+state = "foreign-initial"
+def selected():
+    global state
+    state = "json"
+    return state
+""",
         },
     )
     template = tmp_path / "src/polisyos/template.py"
     template.write_text(
-        'state = "consumer-initial"\n'
-        "try:\n"
-        "    from polisyos.core.canon import selected\n"
-        "except ImportError:\n"
-        "    def selected():\n"
-        "        global state\n"
-        '        state = "consumer"\n'
-        "        return state\n"
-        "result = selected()\n",
+        """from importlib import import_module
+state = "consumer-initial"
+try:
+    from polisyos.core.canon import selected
+except ImportError:
+    def selected():
+        global state
+        state = "consumer"
+        return state
+module_name = selected()
+result = import_module(module_name)
+""",
         encoding="utf-8",
     )
-    paths = [
-        template,
-        tmp_path / "src/polisyos/__init__.py",
-        tmp_path / "src/polisyos/core/__init__.py",
-        tmp_path / "src/polisyos/core/canon/__init__.py",
-        tmp_path / "src/polisyos/core/canon/hashing.py",
-    ]
-    context = preflight._dynamic_read_source_context(paths)
-    bindings = preflight._DynamicImportSourceBindings(paths, source_context=context)
-    scanner = preflight._DynamicImportSourceScanner(
-        template,
-        source_bindings=bindings,
-        source_context=context,
-    )
 
-    assert (
-        scanner.scan(next(member.tree for member in context.members if member.path == template))
-        == []
+    runtime = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import json, polisyos.template as consumer, polisyos.core.canon.hashing as foreign; print(json.dumps({'module_name': consumer.module_name, 'result': consumer.result.__name__, 'consumer_state': consumer.state, 'foreign_state': foreign.state}))",
+        ],
+        cwd=tmp_path,
+        env={**os.environ, "PYTHONPATH": str(tmp_path / "src")},
+        capture_output=True,
+        text=True,
+        check=True,
     )
-    result = scanner._module_environment["result"]
-    assert result.kind == "union"
-    assert {binding.name for binding in result.items or () if binding.kind == "string"} == {
-        "consumer",
-        "foreign",
+    assert json.loads(runtime.stdout) == {  # noqa: S101
+        "module_name": "json",
+        "result": "json",
+        "consumer_state": "consumer-initial",
+        "foreign_state": "json",
     }
-    caller_state = scanner._module_environment["state"]
-    assert caller_state.kind == "union"
-    assert {binding.name for binding in caller_state.items or () if binding.kind == "string"} == {
-        "consumer",
-        "consumer-initial",
-    }
-    foreign = scanner._source_function_scanners["polisyos.core.canon.hashing"]
-    foreign_state = foreign._module_environment["state"]
-    assert foreign_state.kind == "union"
-    assert {binding.name for binding in foreign_state.items or () if binding.kind == "string"} == {
-        "foreign",
-        "foreign-initial",
-    }
+
+    entries = preflight.collect_dynamic_imports()
+    assert len(entries) == 1  # noqa: S101
+    entry = entries[0]
+    assert entry["source_file"] == "src/polisyos/template.py"  # noqa: S101
+    assert entry["call"] == "importlib.import_module"  # noqa: S101
+    assert entry["pattern"] == "module_name"  # noqa: S101
+    assert entry["allowed_targets"] == []  # noqa: S101
 
 
 def test_dynamic_import_collector_refuses_mixed_known_and_opaque_function_targets() -> None:

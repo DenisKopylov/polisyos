@@ -6722,6 +6722,15 @@ class _DynamicImportSourceScanner:
         self._module_function_summaries: dict[str, _DynamicImportFunctionSummary] = {}
         self._module_time_proven_scope_ids: set[int] = set()
         self._active_module_function_stack: list[str] = []
+        self._active_module_function_invocation_states: list[
+            tuple[
+                str,
+                tuple[
+                    tuple[tuple[str, _DynamicImportBinding], ...],
+                    tuple[tuple[str, _DynamicImportBinding], ...],
+                ],
+            ]
+        ] = []
         self._active_module_environment: dict[str, _DynamicImportBinding] | None = None
         self._recorded_entry_ids: set[str] = set()
         self._recorded_sink_sites: set[tuple[int, str]] = set()
@@ -6773,6 +6782,7 @@ class _DynamicImportSourceScanner:
         self._module_function_summaries.clear()
         self._module_time_proven_scope_ids.clear()
         self._active_module_function_stack.clear()
+        self._active_module_function_invocation_states.clear()
         self._active_module_environment = None
         self._module_execution_active = False
         self._module_namespace_complete = True
@@ -10228,35 +10238,52 @@ class _DynamicImportSourceScanner:
                             summary.defaults,
                         )
                         if parameter_bindings is not None:
-                            if identity in scanner._active_module_function_stack:
-                                raise DynamicImportCollectionError(
-                                    f"{self.relative_path}:{node.lineno}: recursive module-time "
-                                    "function call is unresolved"
+                            invocation_state = (
+                                tuple(sorted(parameter_bindings.items())),
+                                tuple(sorted(branch_environment.items())),
+                            )
+                            repeated_invocation = any(
+                                active_identity == identity and active_state == invocation_state
+                                for active_identity, active_state in scanner._active_module_function_invocation_states
+                            )
+                            if repeated_invocation:
+                                # The active body already covers this same abstract
+                                # module-time state. Close the recursive return without
+                                # discarding importer provenance carried by its inputs.
+                                branch_result = _dynamic_join_with_guarded_origin(
+                                    tuple(parameter_bindings.values()),
+                                    _DYNAMIC_UNKNOWN,
                                 )
-                            if len(scanner._active_module_function_stack) >= 24:
-                                raise DynamicImportCollectionError(
-                                    f"{self.relative_path}:{node.lineno}: module-time function "
-                                    "call depth exceeds the bounded summary limit"
+                                branch_invoked = True
+                            else:
+                                if len(scanner._active_module_function_stack) >= 24:
+                                    raise DynamicImportCollectionError(
+                                        f"{self.relative_path}:{node.lineno}: module-time function "
+                                        "call depth exceeds the bounded summary limit"
+                                    )
+                                returned: list[_DynamicImportBinding] = []
+                                scanner._active_module_function_stack.append(identity)
+                                scanner._active_module_function_invocation_states.append(
+                                    (identity, invocation_state)
                                 )
-                            returned: list[_DynamicImportBinding] = []
-                            scanner._active_module_function_stack.append(identity)
-                            try:
-                                scanner._scan_function(
-                                    function,
-                                    {},
-                                    branch_environment,
-                                    return_bindings=returned,
-                                    parameter_bindings=parameter_bindings,
-                                )
-                                if not _dynamic_function_has_unmodeled_implicit_dispatch(
-                                    function,
-                                    branch_environment,
-                                ):
-                                    scanner._module_time_proven_scope_ids.add(id(function))
-                            finally:
-                                scanner._active_module_function_stack.pop()
-                            branch_result = _join_dynamic_bindings(returned or (_DYNAMIC_NONE,))
-                            branch_invoked = True
+                                try:
+                                    scanner._scan_function(
+                                        function,
+                                        {},
+                                        branch_environment,
+                                        return_bindings=returned,
+                                        parameter_bindings=parameter_bindings,
+                                    )
+                                    if not _dynamic_function_has_unmodeled_implicit_dispatch(
+                                        function,
+                                        branch_environment,
+                                    ):
+                                        scanner._module_time_proven_scope_ids.add(id(function))
+                                finally:
+                                    scanner._active_module_function_invocation_states.pop()
+                                    scanner._active_module_function_stack.pop()
+                                branch_result = _join_dynamic_bindings(returned or (_DYNAMIC_NONE,))
+                                branch_invoked = True
                 finally:
                     scanner._active_module_environment = previous_active_environment
                     if pushed_target_module:

@@ -1,0 +1,251 @@
+{
+  "schema": "policyos.e02.g27_followup.v1",
+  "reviewed_packet": "8c5efa250faa2e983b1ce7a2021b9ea135846a69",
+  "feedback": {
+    "origin": "Human-forwarded G integration review; no new published G commit was supplied.",
+    "sha256": "8a2214099ba2d66c14c2f95816ada08575e9fd767f143f03c1bba24f9ac67537",
+    "retained_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/g27-feedback/received-g-feedback.md"
+  },
+  "entry": {
+    "head": "e22f05ef1b3d70c6ed6de0ead6459f71a8239b8d",
+    "tree": "3bb7f3b72fc9bb85474e607e5fffd1a0ae39ef3b",
+    "parents": [
+      "8c5efa250faa2e983b1ce7a2021b9ea135846a69"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "global_freeze": false
+  },
+  "g_remote_observed": {
+    "head": "2a07cd8a16bad0191b302f71c699b3bf9082ebac",
+    "tree": "92cfaccdc0f3edb5613083f5f2ad983d5fa961b7",
+    "parents": [
+      "fb9e078b85262b69f76e24255cd25a518102a0d4"
+    ],
+    "adopted_into_source": false
+  },
+  "items": [
+    {
+      "id": "G27-01",
+      "task_routes": [
+        "V6",
+        "Q2"
+      ],
+      "priority": 0,
+      "current_state": "source_acceptance_blocked",
+      "accepted_or_preserved_scope": "Historical V6 witness stays valid only for its exercised cases; no A/B node profile conflict was executed by G.",
+      "remaining_work": [
+        "Reuse canonical complete ArtifactRef identity for all same-ID node bindings and the eventual selected read ref. Reject ID/kind/media/profile conflicts including profile presence/absence in the declared sensitive path. No wildcard legacy inference or fourth local comparator.",
+        "Independent review, test-only red, product fix, affected served-path replay; receipt in a separate commit."
+      ],
+      "deciding_checks": [
+        "A/A positive; A/B node-only conflict; A/absent; mixed A+B; invalid/unavailable B. Exercise explicit artifact ID and default-from-state selectors through fresh parsed GET.",
+        "Remove exact-profile gate while retaining statuses/ref markers: negative must fail."
+      ],
+      "owner": "Runtime debug/RES-03; g27_v6_ref_author; root canonical writer",
+      "pattern_pass": [
+        "P29",
+        "P31",
+        "P32",
+        "P38",
+        "P40"
+      ],
+      "code_acceptance_owner": "G",
+      "closure_ids": []
+    },
+    {
+      "id": "G27-02",
+      "task_routes": [
+        "R1",
+        "V1",
+        "V6",
+        "Q0"
+      ],
+      "priority": 1,
+      "current_state": "whole_criterion_verification_remaining",
+      "accepted_or_preserved_scope": "B13 independent sibling survival, failed-node dependent skip, CAS/history and fresh parsed GET are accepted as historical bounded witness at 8a24cc8. Browser and production corpus are not prerequisites.",
+      "remaining_work": [
+        "Reuse existing invalidation owner to bind a persisted positive to a common basis; invalidate/change that basis and read fresh. Retain independent output and history while dependent output loses validity.",
+        "Add retained-result-ref removal with successful markers preserved; distinguish from wrong/corrupt-ref controls. Do not build another invalidation engine."
+      ],
+      "deciding_checks": [
+        "Persist positive \u2192 change/invalidate common basis \u2192 fresh served reader refuses dependent validity and preserves independent result/history.",
+        "Remove retained result ref, keep success markers \u2192 served refusal."
+      ],
+      "owner": "Existing R1/V1/V6 owners; g27_b13_basis_oracle research; root assigns exact author lease after owner selection",
+      "pattern_pass": [
+        "P02",
+        "P04",
+        "P07",
+        "P29",
+        "P38"
+      ],
+      "code_acceptance_owner": "G",
+      "closure_ids": []
+    },
+    {
+      "id": "G27-03",
+      "task_routes": [
+        "I1",
+        "Q0"
+      ],
+      "priority": 1,
+      "current_state": "verification_missing",
+      "accepted_or_preserved_scope": "Bounded I1 exit accepted at a92c977/76691bd: eighteen-path composition, same-stat invalidation, unchanged skip, warm/fresh WVS/session consumers. Earlier 20 nodes were seventeen I1 plus three I4; twenty-five are a different I1 group. Module import is not testcase execution.",
+      "remaining_work": [
+        "Locate and execute all eight named existing checkpoint selectors on one immutable candidate; do not rewrite them.",
+        "Provide direct malformed stage checkpoint, checksum-free legacy manifest and interrupted-stage retry with successful persisted recovery.",
+        "Record skip/rerun/historical-only/unavailable using actual existing owner/event/error semantics. Explain omitted versus explicit-empty required_outputs behavior and a compatible migration; fix an actual collapsed owner/consumer boundary only if demonstrated."
+      ],
+      "deciding_checks": [
+        "test_changed_output_bytes_do_not_reuse_merge_stage",
+        "test_embed_resume_does_not_skip_when_selected_member_is_missing",
+        "test_empty_normalize_output_directory_is_not_reusable",
+        "test_selected_empty_generation_is_reused_without_reencoding",
+        "test_explicit_empty_required_outputs_do_not_fallback_to_recorded_outputs",
+        "test_legacy_directory_state_without_output_inventory_is_cache_miss",
+        "test_embed_resume_rejects_config_rule_and_selected_output_changes",
+        "test_interrupted_embed_state_is_never_reusable",
+        "Direct malformed stage state; checksum-free legacy manifest; interrupted retry \u2192 persisted success."
+      ],
+      "owner": "I1 checkpoint/material basis owner; g27_i1_matrix_author; root native replay",
+      "pattern_pass": [
+        "P07",
+        "P29",
+        "P35",
+        "P38"
+      ],
+      "code_acceptance_owner": "G",
+      "closure_ids": []
+    },
+    {
+      "id": "G27-04",
+      "task_routes": [
+        "I4",
+        "I1",
+        "V1",
+        "V2",
+        "Q0"
+      ],
+      "priority": 1,
+      "current_state": "verification_missing_and_original_criteria_routing",
+      "accepted_or_preserved_scope": "Catalog request/profile/fresh-reader bridge accepted at 8a24cc8. Legal encoder/direct HTTP/fresh-reader receipt remains at 567c38c with selected block qualification, not whole-process parity.",
+      "remaining_work": [
+        "Exercise flat legacy NPZ/HNSW without selector: same ID and changed text must reencode and publish a generation bound to current basis/membership. Keep legitimate append-only reuse, withdrawal, exact row/vector identity and history. Existing deterministic fixture suffices for migration predicate; no model redownload.",
+        "Choose affected direct Legal path recheck from actual dependency delta. Preserve unrelated unchanged evidence.",
+        "Route LA-028 registry/seed, LA-032 demographic layout/inventory, LA-033 replay migration and both LA-046 compiler-context/query-role occurrences separately. N7\u2192WMR acquisition work does not replace either LA-046 original criterion."
+      ],
+      "deciding_checks": [
+        "Flat NPZ/HNSW no-selector changed-text migration plus unchanged/append/withdrawal/row-vector controls.",
+        "Affected Legal direct producer/reader/provider path replay after relevant source composition.",
+        "Independent outcomes for LA-028/032/033 and both LA-046 occurrences."
+      ],
+      "owner": "I4 vector and original criterion owners; g27_i4_legacy_author; N7 writer remains V4 owner",
+      "pattern_pass": [
+        "P03",
+        "P07",
+        "P35",
+        "P36",
+        "P38"
+      ],
+      "code_acceptance_owner": "G",
+      "closure_ids": []
+    },
+    {
+      "id": "G27-05",
+      "task_routes": [
+        "R4",
+        "R3",
+        "Q0"
+      ],
+      "priority": 1,
+      "current_state": "B56_accepted_distinct_lease_verification_remaining",
+      "accepted_or_preserved_scope": "G accepts original B56 on configured source-qualified witness: shared outer permit and serial folds per admitted job. Three folds \u00d7 two repeats = six units per study; twelve total for two studies. Numerical outputs/result refs/consumer evidence preserved across caps; raw cost/time evidence differs. No new numerical run for arithmetic.",
+      "remaining_work": [
+        "Correct tracked arithmetic and dependent summaries; preserve immutable raw outputs.",
+        "Diagnose separately renew_job_lease RuntimeDependencyUnavailableError under cap one. Prior jobs ended inside sixty seconds and this is neither B56 FAIL nor proven inherited red.",
+        "Exercise saturated compute with required lease/control I/O: renewal, cancellation, expiry/fencing and actual terminal ownership. If defective, reserve existing owner service capacity or another justified mechanism; no cost-ledger permit substitution or second scheduler."
+      ],
+      "deciding_checks": [
+        "Deterministic long-running/saturated cap-one witness with actual lease I/O, cancellation and fencing/terminal-owner checks.",
+        "Distinguish measured dispatch interval from broader materialization-through-persistence capability AD-E02-02."
+      ],
+      "owner": "Runtime control worker/shared executor; g27_lease_capacity_oracle; root composes shared files with R3 cache owner",
+      "pattern_pass": [
+        "P04",
+        "P12",
+        "P38",
+        "P40",
+        "P41"
+      ],
+      "code_acceptance_owner": "G",
+      "closure_ids": []
+    },
+    {
+      "id": "G27-06",
+      "task_routes": [
+        "R2"
+      ],
+      "priority": 2,
+      "current_state": "properties_satisfied_provenance_correction_remaining",
+      "accepted_or_preserved_scope": "G reports B87/B89 satisfied at 65ac853: physical close/repeated cleanup ownership, exactly-once permit, stream recovery, fresh CAS/cursor consumer; zero R2-scoped source blockers and two race tests independently repeated.",
+      "remaining_work": [
+        "Correct four implementation.historical_commits entries f29d85e/e46cb5c/07bbb61/1eb32f0 to related history refs, not ancestors/selected dependencies. Current implementation is selected by five pinned path hashes.",
+        "Preserve exact accepted source qualification and subsequent affected-delta review; docs/test-only receipt is not code integration."
+      ],
+      "deciding_checks": [
+        "Git ancestry checks and five current pinned path hashes; read back corrected committed packet and dependent prose."
+      ],
+      "owner": "g27_provenance_docs; root commit; G owns finding register",
+      "pattern_pass": [
+        "P30",
+        "P35",
+        "P36"
+      ],
+      "code_acceptance_owner": "G",
+      "closure_ids": []
+    },
+    {
+      "id": "G27-07",
+      "task_routes": [
+        "BOOT0",
+        "T1",
+        "Q0",
+        "Q2",
+        "DX0"
+      ],
+      "priority": 1,
+      "current_state": "composition_selection_and_dependency_review_remaining",
+      "accepted_or_preserved_scope": "Cumulative acceptance follows one author lineage. None of seven receipt commits were in G ancestry at review. Scoped path comparisons are not complete dependency closure; no second implementation port or full-branch merge disguised as reviewed batch.",
+      "remaining_work": [
+        "Select an immutable candidate composition boundary on current author lineage; enumerate full mechanism/import/config/build/public companions and provenance, with accepted properties and still-unreviewed delta/ancestry separated.",
+        "Review actual transferable commit footprint and imported ancestry; a natural independent completed commit may move earlier. If mixed commits do not form a reviewed slice, choose a composition boundary with G/canonical writer. No cherry-pick, partial hidden port, decorative merge, main/G publication by author.",
+        "After G transfers a finished group append-only, rerun affected defining-property/consumer checks on new G head. Global expensive wave waits for full freeze; BOOT0/T1/docs do not."
+      ],
+      "deciding_checks": [
+        "Exact source SHA/tree/parents, full candidate-only footprint and dependency review manifest.",
+        "Remote own-topic SHA/tree/changed-byte readback; later G affected-path replay is a separate receipt."
+      ],
+      "owner": "g27_composition_inventory; root source/handoff owner; G acceptance/integration publisher",
+      "pattern_pass": [
+        "P01",
+        "P02",
+        "P30",
+        "P35",
+        "P39",
+        "P41"
+      ],
+      "code_acceptance_owner": "G",
+      "closure_ids": []
+    }
+  ],
+  "original_denominator": {
+    "task_and_decision_rows": 26,
+    "finding_ids": 282,
+    "criterion_occurrences": 291,
+    "task_finding_edges": 319
+  },
+  "count_rule": "Seven review items route into existing tasks; neither seven new tasks nor seven closures. Detailed nineteen-row assessment remains historical at its pinned source cut. V6 current source acceptance is blocked by G27-01; its old author-complete label is not a current-ready claim. S3 later test commit is outside G reviewed packet and has separate pending author receipt.",
+  "code_acceptance": false,
+  "closure_ids": [],
+  "global_freeze": false
+}

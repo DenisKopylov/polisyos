@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import math
 from collections.abc import Mapping
-from dataclasses import asdict, is_dataclass
+from dataclasses import asdict, is_dataclass, replace
 from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
@@ -32,6 +32,7 @@ from polisyos.scientist.methods.search.objective import (
     _configured_search_metric_binding,
     _configured_search_metric_profile_fingerprint,
     _evaluation_matches_selected_objectives,
+    _unestablished_score_assessment,
 )
 from polisyos.scientist.methods.search.strategies.space import (
     SearchSpace as NativeSearchSpace,
@@ -1048,6 +1049,99 @@ class BayesianCandidateGenerator:
                 self._direction.value,
                 self._selected_objective_unit,
             )
+            stage_b_metadata = _as_mapping(stage_b_result.get("metadata"))
+            history_result = _as_mapping(stage_b_result.get("simulation_results"))
+            history_units = _as_mapping(history_result.get("metric_units"))
+            selected_history_unit = history_units.get(self._primary_metric)
+            evaluation_ref_payload = stage_b_metadata.get("evaluation_artifact_ref")
+            evaluation_ref_present = evaluation_ref_payload is not None
+            proposal_metadata = _as_mapping(candidate.get("_strategy_metadata"))
+            from .source_profile_verification import (
+                _resolve_search_history_source,
+                _SearchHistorySourceDisposition,
+            )
+
+            source_resolution = _resolve_search_history_source(
+                store=self._source_store,
+                evaluation_ref=evaluation_ref_payload,
+                expected_params=params,
+                expected_scalar=(
+                    assessment.value
+                    if assessment.status is ObjectiveScoreStatus.AVAILABLE
+                    else None
+                ),
+                expected_proposal_id=proposal_metadata.get("candidate_id"),
+                expected_provenance_ref=(
+                    str(identity["provenance_ref"])
+                    if identity.get("provenance_ref") is not None
+                    else None
+                ),
+            )
+            persisted_evaluation = source_resolution.evaluation
+            method_job_claimed = (
+                source_resolution.disposition is not _SearchHistorySourceDisposition.NOT_APPLICABLE
+            )
+            verified = source_resolution.verified
+            configured_unit = self._selected_objective_unit
+            selected_unit_is_exact = (
+                isinstance(configured_unit, str)
+                and bool(configured_unit.strip())
+                and configured_unit == configured_unit.strip()
+                and selected_history_unit == configured_unit
+                and persisted_evaluation is not None
+                and persisted_evaluation.metadata.get("metric_unit") == selected_history_unit
+            )
+            if (
+                not evaluation_ref_present
+                and isinstance(configured_unit, str)
+                and configured_unit.strip()
+                and assessment.status is ObjectiveScoreStatus.AVAILABLE
+            ):
+                assessment = _unestablished_score_assessment(
+                    "search_method_result_evaluation_cas_ref_not_established"
+                )
+            if (
+                method_job_claimed
+                and not selected_unit_is_exact
+                and assessment.status is ObjectiveScoreStatus.AVAILABLE
+            ):
+                assessment = _unestablished_score_assessment(
+                    "search_method_result_unit_not_established"
+                )
+            if (
+                not method_job_claimed
+                and persisted_evaluation is not None
+                and assessment.status is ObjectiveScoreStatus.AVAILABLE
+            ):
+                # Generic output is candidate-grade producer declaration, not
+                # independently verified external measurement. Reconcile the
+                # stage view with the selected persisted producer artifact.
+                selected_metrics = persisted_evaluation.metrics_for_split(self._compare_split)
+                generic_source = {
+                    "metrics": selected_metrics,
+                    "metric_units": {
+                        self._primary_metric: persisted_evaluation.metadata.get("metric_unit")
+                    },
+                }
+                generic_assessment = _assess_search_metric(
+                    generic_source,
+                    self._primary_metric,
+                    self._direction.value,
+                    self._selected_objective_unit,
+                )
+                generic_feedback = _as_mapping(stage_b_result.get("feedback"))
+                stage_status = generic_feedback.get("status", stage_b_result.get("status"))
+                if (
+                    persisted_evaluation.status not in {"ok", "measured_candidate"}
+                    or stage_status != persisted_evaluation.status
+                    or persisted_evaluation.resolved_runtime_split_type() is not self._compare_split
+                    or generic_assessment.status is not ObjectiveScoreStatus.AVAILABLE
+                    or generic_assessment.value != assessment.value
+                    or persisted_evaluation.metadata.get("metric_unit") != selected_history_unit
+                ):
+                    assessment = _unestablished_score_assessment(
+                        "generic_benchmark_selected_source_not_reconciled"
+                    )
             has_score = (
                 assessment.status is ObjectiveScoreStatus.AVAILABLE
                 and assessment.value is not None
@@ -1090,7 +1184,6 @@ class BayesianCandidateGenerator:
 
             metadata = dict(entry_metadata)
             metadata.update(_as_mapping(candidate.get("_strategy_metadata")))
-            stage_b_metadata = _as_mapping(stage_b_result.get("metadata"))
             metadata.update(stage_b_metadata)
             for key in (
                 "warm_start_compatibility",
@@ -1105,6 +1198,8 @@ class BayesianCandidateGenerator:
                     "params_normalized": list(normalized),
                 }
             )
+            if not method_job_claimed and persisted_evaluation is not None:
+                metadata["search_source_assurance"] = "generic_producer_declared_candidate_only"
             for key, value in identity.items():
                 metadata[key] = value
             if not has_score:
@@ -1147,20 +1242,36 @@ class BayesianCandidateGenerator:
                 score_status=assessment.status,
                 score_assessment=assessment,
             )
-            evaluation_ref_payload = stage_b_metadata.get("evaluation_artifact_ref")
-            proposal_metadata = _as_mapping(candidate.get("_strategy_metadata"))
-            from .source_profile_verification import _verify_search_source_profile_receipt
-
-            verified = _verify_search_source_profile_receipt(
-                store=self._source_store,
-                evaluation_ref=evaluation_ref_payload,
-                expected_params=params,
-                expected_scalar=scalar if has_score else None,
-                expected_proposal_id=proposal_metadata.get("candidate_id"),
-                expected_provenance_ref=(
-                    str(provenance_ref) if provenance_ref is not None else None
-                ),
-            )
+            if verified is not None:
+                _, receipt, _ = verified
+                if (
+                    not has_score
+                    or selected_history_unit != receipt.get("unit")
+                    or selected_history_unit != self._selected_objective_unit
+                ):
+                    verified = None
+            if (
+                method_job_claimed
+                and verified is None
+                and (evaluation.score_status is ObjectiveScoreStatus.AVAILABLE)
+            ):
+                unavailable_assessment = _unestablished_score_assessment(
+                    "search_method_result_profile_or_cas_chain_not_established"
+                )
+                evaluation.objectives = [
+                    replace(
+                        objective,
+                        score_status=unavailable_assessment.status,
+                        score_assessment=unavailable_assessment,
+                        is_satisfied=False,
+                    )
+                    for objective in evaluation.objectives
+                ]
+                evaluation.scalar_score = None
+                evaluation.status = EvaluationStatus.STAGE_B_ERROR
+                evaluation.score_status = unavailable_assessment.status
+                evaluation.score_assessment = unavailable_assessment
+                evaluation.metadata["invalid_reason"] = unavailable_assessment.limitation
             if verified is not None:
                 profile, receipt, source_candidate_ref = verified
                 evaluation.candidate_id = str(source_candidate_ref.artifact_id)
@@ -1235,6 +1346,15 @@ def benchmark_to_evaluation(
     if dim and len(params_normalized) != dim:
         return None
 
+    from .source_profile_verification import _search_history_source_payload_claimed
+
+    # This converter has no source store. A MethodJob claim requires the
+    # selected-CAS verifier and cannot be promoted from its metadata here.
+    if _search_history_source_payload_claimed(bench) or bench.status not in {
+        "ok",
+        "measured_candidate",
+    }:
+        return None
     declared_source_unit = benchmark_metadata.get("metric_unit")
     if (
         not isinstance(expected_unit, str)
@@ -1256,6 +1376,7 @@ def benchmark_to_evaluation(
     metadata = {
         **benchmark_metadata,
         "source": "benchmark_evaluation",
+        "search_source_assurance": "generic_caller_declared_candidate_only",
         "loop_id": bench.loop_id,
         "suite_id": bench.suite_id,
         "suite_version": bench.suite_version,

@@ -445,9 +445,11 @@ def test_primary_metric_admission_uses_source_rule_and_retains_unbound_diagnosti
     sourced = generator._history_to_evaluations(
         [history_row({"simulation_results": {"score": 0.8}})]
     )[0]
-    assert sourced.is_valid
-    assert sourced.scalar_score == -0.8
-    assert sourced.objectives[0].score_status is ObjectiveScoreStatus.AVAILABLE
+    # A numeric observation without the declared source unit is diagnostic.
+    assert not sourced.is_valid
+    assert sourced.scalar_score is None
+    assert sourced.objectives[0].raw_value == -0.8
+    assert sourced.objectives[0].score_status is ObjectiveScoreStatus.UNAVAILABLE
     assert sourced.objectives[0].score_assessment is not None
     assert sourced.objectives[0].score_assessment.rule_spec is not None
     assert '"source_direction":"maximize"' in sourced.objectives[0].score_assessment.rule_spec
@@ -481,20 +483,41 @@ class TestBenchmarkToEvaluation:
             suite_id="suite1",
             candidate_ref=_ref(),
             holdout_metrics={"score": 0.8},
+            metadata={
+                "metric_unit": "dimensionless",
+                "params": {"x": 0.2, "y": 0.4, "z": 0.6},
+                "params_normalized": [0.2, 0.4, 0.6],
+            },
         )
         result = benchmark_to_evaluation(
             bench,
             primary_metric="score",
             direction=MetricDirection.MAXIMIZE,
             dim=3,
+            expected_unit="dimensionless",
         )
-        # May be None if deps unavailable
-        if result is not None:
-            assert result.scalar_score == -0.8
-            assert result.stage_a_passed is True
-            assert result.is_valid
-            assert result.score_assessment is not None
-            assert result.stage_b_result == {"metrics": {"score": 0.8}}
+        assert result is not None
+        assert result.scalar_score == -0.8
+        assert result.stage_a_passed is True
+        assert result.is_valid
+        assert result.score_assessment is not None
+        assert result.metadata["search_source_assurance"] == (
+            "generic_caller_declared_candidate_only"
+        )
+        assert result.stage_b_result == {
+            "metrics": {"score": 0.8},
+            "metric_units": {"score": "dimensionless"},
+        }
+        assert (
+            benchmark_to_evaluation(
+                bench.model_copy(update={"status": "failed"}),
+                primary_metric="score",
+                direction=MetricDirection.MAXIMIZE,
+                dim=3,
+                expected_unit="dimensionless",
+            )
+            is None
+        )
 
     def test_returns_none_for_missing_metric(self):
         bench = BenchmarkEvaluation(
@@ -522,6 +545,7 @@ class TestBenchmarkToEvaluation:
                 holdout_metrics={"score": 0.4},
                 runtime_split_type=BenchmarkSplit.SELECTION,
                 metadata={
+                    "metric_unit": "dimensionless",
                     "evaluation_id": evaluation_id,
                     "origin": origin,
                     "params": {"x": x},
@@ -536,6 +560,7 @@ class TestBenchmarkToEvaluation:
                 direction=MetricDirection.MAXIMIZE,
                 split=BenchmarkSplit.SELECTION,
                 dim=1,
+                expected_unit="dimensionless",
             )
 
             assert result is not None
@@ -555,6 +580,7 @@ class TestBenchmarkToEvaluation:
             selection_metrics={"score": 0.8},
             runtime_split_type=BenchmarkSplit.SELECTION,
             metadata={
+                "metric_unit": "dimensionless",
                 "evaluation_id": f"sha256:{'d' * 64}",
                 "origin": "benchmark-run-conflict",
                 "params": {"x": 7.0},
@@ -569,9 +595,43 @@ class TestBenchmarkToEvaluation:
             direction=MetricDirection.MAXIMIZE,
             split=BenchmarkSplit.SELECTION,
             dim=1,
+            expected_unit="dimensionless",
         )
 
         assert result is None or not result.is_valid
+
+    def test_methodjob_unit_metadata_without_cas_verifier_is_refused(self):
+        native_space = _native_space()
+        bench = BenchmarkEvaluation(
+            loop_id="loop1",
+            suite_id="suite1",
+            candidate_ref=_ref_with_id(f"sha256:{'b' * 64}"),
+            selection_metrics={"score": 0.8},
+            method_result_ref=_ref(),
+            runtime_split_type=BenchmarkSplit.SELECTION,
+            metadata={
+                "candidate_id": f"sha256:{'b' * 64}",
+                "evaluation_id": f"sha256:{'d' * 64}",
+                "origin": "benchmark-run-metadata-unit-only",
+                "params": {"x": 7.0},
+                "params_normalized": list(native_space.normalize({"x": 7.0})),
+                "split": "selection",
+                "metric_unit": "dimensionless",
+            },
+        )
+
+        assert (
+            benchmark_to_evaluation(
+                bench,
+                primary_metric="score",
+                direction=MetricDirection.MAXIMIZE,
+                split=BenchmarkSplit.SELECTION,
+                dim=1,
+                search_space=native_space,
+                expected_unit="dimensionless",
+            )
+            is None
+        )
 
     def test_merges_canonical_artifact_id_wire_identity_and_rejects_distinct_wire_id(self):
         native_space = _native_space()
@@ -589,6 +649,7 @@ class TestBenchmarkToEvaluation:
             "candidate_id": canonical_wire_id,
             "evaluation_id": f"sha256:{'d' * 64}",
             "origin": "benchmark-run-canonical-id",
+            "metric_unit": "dimensionless",
             "params": {"x": 7.0},
             "split": "selection",
         }
@@ -608,6 +669,7 @@ class TestBenchmarkToEvaluation:
             split=BenchmarkSplit.SELECTION,
             dim=1,
             search_space=native_space,
+            expected_unit="dimensionless",
         )
 
         assert accepted is not None
@@ -624,6 +686,7 @@ class TestBenchmarkToEvaluation:
             split=BenchmarkSplit.SELECTION,
             dim=1,
             search_space=native_space,
+            expected_unit="dimensionless",
         )
 
         assert rejected is None or not rejected.is_valid

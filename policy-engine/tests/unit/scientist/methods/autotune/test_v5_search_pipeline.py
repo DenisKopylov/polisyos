@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from copy import deepcopy
 from dataclasses import replace
 from pathlib import Path
 from typing import Any, ClassVar
@@ -116,6 +117,22 @@ class _V5ScoreMethod:
     @staticmethod
     def pure_step(state: Any, params: dict[str, Any]) -> dict[str, float]:
         return {"score": float(state["value"]) + float(params.get("offset", 0.0))}
+
+
+class _V5NativeGPScoreMethod(_V5ScoreMethod):
+    """Controlled MethodJob producer with an explicit Search metric unit."""
+
+    signature: ClassVar[MethodSignature] = replace(
+        _V5ScoreMethod.signature,
+        name="v5_native_gp_score",
+    )
+
+    @staticmethod
+    def pure_step(state: Any, params: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "score": float(state["value"]) + float(params.get("offset", 0.0)),
+            "metric_units": {"score": "dimensionless"},
+        }
 
 
 class _V5DeclaredUnitScoreMethod(_V5ScoreMethod):
@@ -1537,6 +1554,7 @@ def test_initial_candidate_profile_marker_does_not_create_a_source_receipt(tmp_p
 def test_fitted_native_gp_profile_round_trips_into_same_context_search(tmp_path) -> None:
     _register_method()
     MethodRegistry.get_instance().register(_V5ScoreMethodV2, override=True)
+    MethodRegistry.get_instance().register(_V5NativeGPScoreMethod, override=True)
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
     suite_ref = persist_benchmark_suite(
@@ -1545,20 +1563,24 @@ def test_fitted_native_gp_profile_round_trips_into_same_context_search(tmp_path)
     )
     generator = BayesianCandidateGenerator(
         SearchSpace(bounds=[{"name": "value", "lower": 0.0, "upper": 1.0}]),
+        primary_metric="score",
+        direction=MetricDirection.MAXIMIZE,
+        unit="dimensionless",
+        compare_split=BenchmarkSplit.SELECTION,
         n_initial=3,
         seed=31,
     )
     generator._optimizer._config.num_restarts = 1
     generator._optimizer._config.raw_samples = 16
     generator._optimizer._config.refit_interval = 1
-    policy = _policy()
+    policy = _policy(unit="dimensionless")
     spec = SearchLoopSpec(
         loop_id="v5_search",
         mutation_codec=PydanticMutationCodec(_V5Mutation),
         candidate_generator=generator,
         benchmark_evaluator=MethodJobBenchmarkEvaluator(
-            method_fqn=_V5ScoreMethod.signature.fqn,
-            method_version=_V5ScoreMethod.signature.version,
+            method_fqn=_V5NativeGPScoreMethod.signature.fqn,
+            method_version=_V5NativeGPScoreMethod.signature.version,
             method_params={"offset": 0.0},
             candidate_input_bindings={"value": "value"},
             split=BenchmarkSplit.SELECTION,
@@ -1593,6 +1615,33 @@ def test_fitted_native_gp_profile_round_trips_into_same_context_search(tmp_path)
         source_evaluation_ref,
         BenchmarkEvaluation,
     )
+    assert source_evaluation.metadata["metric_unit"] == "dimensionless"
+    assert source_evaluation.method_result_ref is not None
+    method_result = load_json_artifact(source_reader, source_evaluation.method_result_ref)
+    assert method_result["metric_units"] == {"score": "dimensionless"}
+    assert source_stage_b["simulation_results"]["metric_units"] == {"score": "dimensionless"}
+    admitted_history = generator._history_to_evaluations([source_result.history[-1]])
+    assert len(admitted_history) == 1
+    assert admitted_history[0].score_status.value == "available"
+    assert admitted_history[0].scalar_score is not None
+    assert admitted_history[0].metadata["search_source_profile_receipt"]["unit"] == (
+        "dimensionless"
+    )
+
+    missing_unit_history = deepcopy(source_result.history[-1])
+    missing_unit_history.stage_b_result["simulation_results"].pop("metric_units")
+    missing_unit_admission = generator._history_to_evaluations([missing_unit_history])[0]
+    assert missing_unit_admission.scalar_score is None
+    assert missing_unit_admission.score_status.value == "unavailable"
+    assert "search_source_profile_receipt" not in missing_unit_admission.metadata
+
+    mismatched_unit_history = deepcopy(source_result.history[-1])
+    mismatched_unit_history.stage_b_result["simulation_results"]["metric_units"] = {"score": "USD"}
+    mismatched_unit_admission = generator._history_to_evaluations([mismatched_unit_history])[0]
+    assert mismatched_unit_admission.scalar_score is None
+    assert mismatched_unit_admission.score_status.value == "invalid"
+    assert "search_source_profile_receipt" not in mismatched_unit_admission.metadata
+
     source_profile = source_evaluation.search_source_profile
     assert source_profile is not None
     assert source_profile.profile_kind == "configured_native_gp"
@@ -2186,6 +2235,60 @@ def test_reported_method_unit_must_match_selected_run_unit(tmp_path) -> None:
     )
 
 
+def test_methodjob_metric_without_selected_unit_is_not_carried_to_search_history(
+    tmp_path,
+) -> None:
+    _register_method()
+    store = FileSystemCAS(tmp_path / "cas")
+    suite_ref = persist_benchmark_suite(
+        store,
+        BenchmarkSuite(suite_id="v5_missing_unit_suite", kind="method_job"),
+    )
+    generator = BayesianCandidateGenerator(
+        SearchSpace(bounds=[{"name": "value", "lower": 0.0, "upper": 1.0}]),
+        primary_metric="score",
+        direction=MetricDirection.MAXIMIZE,
+        unit="dimensionless",
+        compare_split=BenchmarkSplit.SELECTION,
+        n_initial=2,
+        seed=20261027,
+    )
+    spec = SearchLoopSpec(
+        loop_id="v5_search",
+        mutation_codec=PydanticMutationCodec(_V5Mutation),
+        candidate_generator=generator,
+        benchmark_evaluator=MethodJobBenchmarkEvaluator(
+            method_fqn=_V5ScoreMethod.signature.fqn,
+            method_version=_V5ScoreMethod.signature.version,
+            candidate_input_bindings={"value": "value"},
+            split=BenchmarkSplit.SELECTION,
+        ),
+        promotion_policy=_policy(unit="dimensionless"),
+    )
+
+    result = SearchLoopRunner(store=store).run(
+        spec,
+        suite_ref=suite_ref,
+        initial_candidate={"loop_id": "v5_search", "value": 0.4},
+        max_iterations=1,
+    )
+
+    stage_b = result.history[0].stage_b_result
+    assert stage_b is not None
+    assert "metric_units" not in stage_b["simulation_results"]
+    evaluation = load_model_artifact(
+        FileSystemCAS(tmp_path / "cas"),
+        _selected_evaluation_ref(stage_b),
+        BenchmarkEvaluation,
+    )
+    assert evaluation.metadata.get("metric_unit") is None
+    assert evaluation.status == "metric_unavailable"
+    history = generator._history_to_evaluations([result.history[0]])
+    assert history[0].scalar_score is None
+    assert history[0].score_status.value != "available"
+    assert "search_source_profile_receipt" not in history[0].metadata
+
+
 def test_missing_primary_metric_is_not_promoted_as_zero(tmp_path) -> None:
     _register_method()
     store = FileSystemCAS(tmp_path / "cas")
@@ -2411,7 +2514,7 @@ def test_methodjob_evaluator_keeps_one_rooted_guarded_store_for_runner_and_fresh
     def check_factory_then_run(spec: JobSpec, **kwargs: Any) -> Any:
         factory = kwargs.get("store_factory")
         assert callable(factory)
-        root = kwargs["cas_root"]
+        assert "cas_root" in kwargs
         with pytest.raises(ValueError, match="methodjob_store_root_mismatch"):
             factory(tmp_path / "foreign-root")
 
@@ -2662,3 +2765,631 @@ def test_methodjob_evaluator_retains_existing_owned_guarded_handle(
     with tenant_scope(None, tenant_id="tenant-b"):
         with pytest.raises(ArtifactOwnershipError):
             evaluator.evaluate(candidate_ref, suite_ref, context)
+
+
+def test_methodjob_claims_without_method_result_ref_do_not_enter_generic_history(
+    tmp_path,
+) -> None:
+    """A reopened evaluation with remaining MethodJob claims fails closed without its result."""
+    MethodRegistry.get_instance().register(_V5NativeGPScoreMethod, override=True)
+    store = FileSystemCAS(tmp_path / "cas")
+    suite_ref = persist_benchmark_suite(
+        store,
+        BenchmarkSuite(suite_id="v5_method_result_removal_suite", kind="method_job"),
+    )
+    generator = BayesianCandidateGenerator(
+        SearchSpace(bounds=[{"name": "value", "lower": 0.0, "upper": 1.0}]),
+        unit="dimensionless",
+        compare_split=BenchmarkSplit.SELECTION,
+        n_initial=2,
+        seed=20261027,
+    )
+    spec = SearchLoopSpec(
+        loop_id="v5_search",
+        mutation_codec=PydanticMutationCodec(_V5Mutation),
+        candidate_generator=generator,
+        benchmark_evaluator=MethodJobBenchmarkEvaluator(
+            method_fqn=_V5NativeGPScoreMethod.signature.fqn,
+            method_version=_V5NativeGPScoreMethod.signature.version,
+            candidate_input_bindings={"value": "value"},
+            split=BenchmarkSplit.SELECTION,
+        ),
+        promotion_policy=_policy(unit="dimensionless"),
+    )
+    result = SearchLoopRunner(store=store).run(
+        spec,
+        suite_ref=suite_ref,
+        context={"policy_context": {"case": "method_result_identity_removal"}},
+        max_iterations=1,
+    )
+    assert result.history
+    original_entry = result.history[0]
+    assert original_entry.stage_b_result is not None
+    source_evaluation_ref = _selected_evaluation_ref(original_entry.stage_b_result)
+    source_evaluation = load_model_artifact(
+        FileSystemCAS(tmp_path / "cas"),
+        source_evaluation_ref,
+        BenchmarkEvaluation,
+    )
+    assert source_evaluation.metadata["metric_unit"] == "dimensionless"
+    positive_history = generator._history_to_evaluations([original_entry])
+    assert len(positive_history) == 1
+    assert positive_history[0].score_status.value == "available"
+    assert positive_history[0].scalar_score is not None
+    assert positive_history[0].metadata["search_source_profile_receipt"]["unit"] == "dimensionless"
+    assert source_evaluation.method_result_ref is not None
+    assert source_evaluation.method_evidence_ref is not None
+    assert source_evaluation.method_job_key
+    assert source_evaluation.search_source_profile is not None
+    assert isinstance(source_evaluation.metadata.get("method_request_basis"), dict)
+    source_receipt = source_evaluation.metadata.get("search_source_profile_receipt")
+    assert isinstance(source_receipt, dict)
+    assert source_receipt.get("method_result_ref") is not None
+    method_metadata_keys = {
+        "method_fqn",
+        "method_version",
+        "method_seed",
+        "method_job_key",
+        "method_input_bindings",
+        "method_request_basis",
+    }
+    assert method_metadata_keys.issubset(source_evaluation.metadata)
+
+    removed_result_evaluation = source_evaluation.model_copy(update={"method_result_ref": None})
+    removed_result_ref = persist_benchmark_evaluation(
+        store,
+        removed_result_evaluation,
+        inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
+        return_selected_profile=True,
+    )
+    reopened_removed_result = load_model_artifact(
+        FileSystemCAS(tmp_path / "cas"),
+        removed_result_ref,
+        BenchmarkEvaluation,
+    )
+    assert reopened_removed_result.method_result_ref is None
+    assert reopened_removed_result.method_evidence_ref == source_evaluation.method_evidence_ref
+    assert reopened_removed_result.method_job_key == source_evaluation.method_job_key
+    assert reopened_removed_result.search_source_profile == source_evaluation.search_source_profile
+    assert (
+        reopened_removed_result.metadata["method_request_basis"]
+        == source_evaluation.metadata["method_request_basis"]
+    )
+    assert (
+        reopened_removed_result.metadata["search_source_profile_receipt"]
+        == source_evaluation.metadata["search_source_profile_receipt"]
+    )
+    for key in method_metadata_keys:
+        assert reopened_removed_result.metadata[key] == source_evaluation.metadata[key]
+    removed_manifest = FileSystemCAS(tmp_path / "cas").get_manifest(removed_result_ref)
+    assert "method_evidence" in {item.role for item in removed_manifest.inputs}
+    assert "method_result" not in {item.role for item in removed_manifest.inputs}
+
+    def history_entry_with_ref(
+        entry: Any,
+        ref: ArtifactRef,
+        *,
+        keep_method_provenance: bool,
+    ) -> dict[str, Any]:
+        assert entry.stage_b_result is not None
+        stage_b_result = dict(entry.stage_b_result)
+        simulation_results = dict(stage_b_result["simulation_results"])
+        simulation_results["evaluation_ref"] = str(ref.artifact_id)
+        stage_b_result["simulation_results"] = simulation_results
+        stage_b_metadata = dict(stage_b_result["metadata"])
+        stage_b_metadata["evaluation_artifact_ref"] = ref.model_dump(mode="json")
+        stage_b_metadata["evaluation_id"] = str(ref.artifact_id)
+        if not keep_method_provenance:
+            stage_b_metadata.pop("provenance_ref", None)
+        stage_b_result["metadata"] = stage_b_metadata
+        return {
+            "candidate": entry.candidate,
+            "stage_b_result": stage_b_result,
+            "objective_value": entry.objective_value,
+            "stage_a_passed": entry.stage_a_passed,
+            "duration_seconds": entry.duration_seconds,
+        }
+
+    methodjob_history = generator._history_to_evaluations(
+        [history_entry_with_ref(original_entry, removed_result_ref, keep_method_provenance=True)]
+    )
+    assert len(methodjob_history) == 1
+    assert methodjob_history[0].scalar_score is None
+    assert methodjob_history[0].score_status.value != "available"
+    assert "search_source_profile_receipt" not in methodjob_history[0].metadata
+
+    # The typed profile by itself remains a generic profile, not MethodJob identity.
+    generic_profile_only = source_evaluation.model_copy(
+        update={
+            "method_result_ref": None,
+            "method_evidence_ref": None,
+            "method_job_key": None,
+            "execution_work_packet_ref": None,
+            "execution_work_packet_status": "unavailable",
+            "execution_work_packet_note": None,
+            "metadata": {
+                key: value
+                for key, value in source_evaluation.metadata.items()
+                if key
+                not in method_metadata_keys
+                | {
+                    "search_source_profile_receipt",
+                    "search_source_evaluation_ref",
+                    "search_gp_fit_basis_ref",
+                }
+            },
+        }
+    )
+    assert generic_profile_only.search_source_profile == source_evaluation.search_source_profile
+    assert generic_profile_only.method_result_ref is None
+    assert generic_profile_only.method_evidence_ref is None
+    assert generic_profile_only.method_job_key is None
+    generic_profile_ref = persist_benchmark_evaluation(
+        store,
+        generic_profile_only,
+        inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+        return_selected_profile=True,
+    )
+    erased_manifest = store.get_manifest(generic_profile_ref)
+    assert {edge.role for edge in erased_manifest.inputs} == {"candidate", "benchmark_suite"}
+    assert load_model_artifact(store, suite_ref, BenchmarkSuite).kind == "method_job"
+    generic_profile_history = generator._history_to_evaluations(
+        [
+            history_entry_with_ref(
+                original_entry,
+                generic_profile_ref,
+                keep_method_provenance=False,
+            )
+        ]
+    )
+    assert len(generic_profile_history) == 1
+    assert generic_profile_history[0].scalar_score is not None
+    assert generic_profile_history[0].score_status.value == "available"
+    assert "search_source_profile_receipt" not in generic_profile_history[0].metadata
+
+
+@pytest.mark.parametrize(
+    "retained_roles",
+    [
+        ("method_result",),
+        ("method_evidence",),
+        ("method_result", "method_evidence"),
+        ("execution_work_packet",),
+    ],
+)
+def test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+    retained_roles: tuple[str, ...],
+) -> None:
+    """Retained CAS MethodJob roles block generic scalar fallback after payload erasure."""
+    MethodRegistry.get_instance().register(_V5NativeGPScoreMethod, override=True)
+    store = FileSystemCAS(tmp_path / "cas")
+    suite_ref = persist_benchmark_suite(
+        store,
+        BenchmarkSuite(suite_id="v5_manifest_methodjob_roles_suite", kind="method_job"),
+    )
+    generator = BayesianCandidateGenerator(
+        SearchSpace(bounds=[{"name": "value", "lower": 0.0, "upper": 1.0}]),
+        unit="dimensionless",
+        compare_split=BenchmarkSplit.SELECTION,
+        n_initial=2,
+        seed=20261027,
+    )
+    spec = SearchLoopSpec(
+        loop_id="v5_search",
+        mutation_codec=PydanticMutationCodec(_V5Mutation),
+        candidate_generator=generator,
+        benchmark_evaluator=MethodJobBenchmarkEvaluator(
+            method_fqn=_V5NativeGPScoreMethod.signature.fqn,
+            method_version=_V5NativeGPScoreMethod.signature.version,
+            candidate_input_bindings={"value": "value"},
+            split=BenchmarkSplit.SELECTION,
+        ),
+        promotion_policy=_policy(unit="dimensionless"),
+    )
+    result = SearchLoopRunner(store=store).run(
+        spec,
+        suite_ref=suite_ref,
+        context={"policy_context": {"case": "manifest_methodjob_role_removal"}},
+        max_iterations=1,
+    )
+    assert result.history
+    original_entry = result.history[0]
+    assert original_entry.stage_b_result is not None
+    source_ref = _selected_evaluation_ref(original_entry.stage_b_result)
+    source_evaluation = load_model_artifact(store, source_ref, BenchmarkEvaluation)
+    assert source_evaluation.metadata["metric_unit"] == "dimensionless"
+    positive_history = generator._history_to_evaluations([original_entry])
+    assert len(positive_history) == 1
+    assert positive_history[0].score_status.value == "available"
+    assert positive_history[0].scalar_score is not None
+    assert positive_history[0].metadata["search_source_profile_receipt"]["unit"] == "dimensionless"
+    assert source_evaluation.method_result_ref is not None
+    assert source_evaluation.method_evidence_ref is not None
+
+    stripped_evaluation = source_evaluation.model_copy(
+        update={
+            "method_result_ref": None,
+            "method_evidence_ref": None,
+            "method_job_key": None,
+            "execution_work_packet_ref": None,
+            "execution_work_packet_status": "unavailable",
+            "execution_work_packet_note": None,
+            "search_source_profile": None,
+            "metadata": {"metric_unit": source_evaluation.metadata["metric_unit"]},
+        }
+    )
+    # The work-packet variant deliberately points to a non-packet MethodJob
+    # result: a present-but-fake claim must not make generic fallback available.
+    role_refs = {
+        "method_result": source_evaluation.method_result_ref,
+        "method_evidence": source_evaluation.method_evidence_ref,
+        "execution_work_packet": source_evaluation.method_result_ref,
+    }
+    retained_methodjob_ref = persist_benchmark_evaluation(
+        store,
+        stripped_evaluation,
+        inputs=[
+            input_ref_from_artifact_ref(suite_ref, role="benchmark_suite"),
+            *[input_ref_from_artifact_ref(role_refs[role], role=role) for role in retained_roles],
+        ],
+        return_selected_profile=True,
+    )
+    retained_manifest = store.get_manifest(retained_methodjob_ref)
+    manifest_roles = {item.role for item in retained_manifest.inputs}
+    assert manifest_roles & set(role_refs) == set(retained_roles)
+    reopened = load_model_artifact(store, retained_methodjob_ref, BenchmarkEvaluation)
+    assert reopened.method_result_ref is None
+    assert reopened.method_evidence_ref is None
+    assert reopened.method_job_key is None
+    assert reopened.metadata == {"metric_unit": "dimensionless"}
+
+    stage_b_result = dict(original_entry.stage_b_result)
+    simulation_results = dict(stage_b_result["simulation_results"])
+    simulation_results["evaluation_ref"] = str(retained_methodjob_ref.artifact_id)
+    stage_b_result["simulation_results"] = simulation_results
+    stage_b_metadata = dict(stage_b_result["metadata"])
+    stage_b_metadata["evaluation_artifact_ref"] = retained_methodjob_ref.model_dump(mode="json")
+    stage_b_metadata["evaluation_id"] = str(retained_methodjob_ref.artifact_id)
+    stage_b_result["metadata"] = stage_b_metadata
+    selected_history = {
+        "candidate": original_entry.candidate,
+        "stage_b_result": stage_b_result,
+        "objective_value": original_entry.objective_value,
+        "stage_a_passed": original_entry.stage_a_passed,
+        "duration_seconds": original_entry.duration_seconds,
+    }
+
+    history = generator._history_to_evaluations([selected_history])
+    assert len(history) == 1
+    assert history[0].scalar_score is None
+    assert history[0].score_status.value != "available"
+
+    # Removal control retains the selected manifest and reported unit.
+    from polisyos.scientist.methods.autotune import source_profile_verification
+
+    with monkeypatch.context() as control:
+        control.setattr(
+            source_profile_verification,
+            "_search_history_source_claimed",
+            lambda _evaluation, _manifest: False,
+        )
+        unguarded = generator._history_to_evaluations([selected_history])
+    assert unguarded[0].score_status.value == "available"
+    assert unguarded[0].scalar_score == positive_history[0].scalar_score
+
+
+def test_generic_benchmark_manifest_roles_remain_eligible_for_generic_history(
+    tmp_path,
+) -> None:
+    """The existing generic BenchmarkEvaluation producer keeps its scalar history path."""
+
+    class GenericBenchmarkEvaluator:
+        def evaluate(self, candidate_ref, suite_ref, context):
+            store = context["store"]
+            candidate = load_model_artifact(store, candidate_ref, _V5Mutation)
+            suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
+            score = float(candidate.value)
+            return BenchmarkEvaluation(
+                loop_id="v5_search",
+                suite_id=suite.suite_id,
+                suite_version=suite.suite_version,
+                candidate_ref=candidate_ref,
+                selection_metrics={"score": score},
+                holdout_metrics={"score": score},
+                metadata={"metric_unit": "dimensionless"},
+                sample_counts={
+                    BenchmarkSplit.SELECTION.value: 1,
+                    BenchmarkSplit.HOLDOUT.value: 1,
+                },
+                guardrails={"score_present": True},
+                promotable=True,
+                runtime_split_type=BenchmarkSplit.SELECTION,
+            )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    suite_ref = persist_benchmark_suite(
+        store,
+        BenchmarkSuite(suite_id="v5_generic_history_suite", kind="generic"),
+        return_selected_profile=True,
+    )
+    generator = BayesianCandidateGenerator(
+        SearchSpace(bounds=[{"name": "value", "lower": 0.0, "upper": 1.0}]),
+        unit="dimensionless",
+        compare_split=BenchmarkSplit.SELECTION,
+        n_initial=2,
+        seed=20261027,
+    )
+    spec = SearchLoopSpec(
+        loop_id="v5_search",
+        mutation_codec=PydanticMutationCodec(_V5Mutation),
+        candidate_generator=generator,
+        benchmark_evaluator=GenericBenchmarkEvaluator(),
+        promotion_policy=_policy(unit="dimensionless"),
+    )
+    result = SearchLoopRunner(store=store).run(
+        spec,
+        suite_ref=suite_ref,
+        context={"policy_context": {"case": "generic_history_source_roles"}},
+        max_iterations=1,
+    )
+    assert result.history
+    entry = result.history[0]
+    assert entry.stage_b_result is not None
+    evaluation_ref = _selected_evaluation_ref(entry.stage_b_result)
+    manifest = store.get_manifest(evaluation_ref)
+    assert {item.role for item in manifest.inputs} == {"candidate", "benchmark_suite"}
+
+    from polisyos.scientist.methods.autotune.source_profile_verification import (
+        _resolve_search_history_source,
+        _SearchHistorySourceDisposition,
+    )
+
+    resolution = _resolve_search_history_source(
+        store=store,
+        evaluation_ref=evaluation_ref,
+    )
+    assert resolution.disposition is _SearchHistorySourceDisposition.NOT_APPLICABLE
+    assert resolution.evaluation is not None
+    assert resolution.verified is None
+
+    history = generator._history_to_evaluations(result.history)
+    assert len(history) == 1
+    assert history[0].scalar_score is not None
+    assert history[0].score_status.value == "available"
+    assert history[0].metadata["search_source_assurance"] == (
+        "generic_producer_declared_candidate_only"
+    )
+
+    # A later stage edit cannot rewrite the selected producer's score.
+    altered = deepcopy(entry)
+    assert altered.stage_b_result is not None
+    altered.stage_b_result["simulation_results"]["score"] += 0.25
+    unbound = generator._history_to_evaluations([altered])[0]
+    assert unbound.scalar_score is None
+    assert unbound.score_status.value != "available"
+
+    # The selected candidate is the source of optimizer coordinates, not a
+    # caller-replaced X paired with the original persisted Y.
+    altered_candidate = deepcopy(entry)
+    altered_candidate.candidate["value"] = 0.0 if entry.candidate["value"] != 0.0 else 1.0
+    assert altered_candidate.stage_b_result == entry.stage_b_result
+    unbound_candidate = generator._history_to_evaluations([altered_candidate])[0]
+    assert unbound_candidate.scalar_score is None
+    assert unbound_candidate.score_status.value != "available"
+
+    # A stale/removed status and a failed source with green stage feedback
+    # cannot turn the selected evaluation into a successful observation.
+    status_removed = deepcopy(entry)
+    assert status_removed.stage_b_result is not None
+    status_removed.stage_b_result["feedback"].pop("status")
+    unbound_status = generator._history_to_evaluations([status_removed])[0]
+    assert unbound_status.scalar_score is None
+    assert unbound_status.score_status.value != "available"
+
+    selected_evaluation = load_model_artifact(store, evaluation_ref, BenchmarkEvaluation)
+    for source_status, stage_status in (("failed", "ok"), ("review_required", "review_required")):
+        limited_ref = _persist_search_benchmark_evaluation(
+            store,
+            selected_evaluation.model_copy(update={"status": source_status}),
+            suite_ref=suite_ref,
+        )
+        limited_entry = deepcopy(entry)
+        assert limited_entry.stage_b_result is not None
+        limited_entry.stage_b_result["metadata"]["evaluation_artifact_ref"] = (
+            limited_ref.model_dump(mode="json")
+        )
+        limited_entry.stage_b_result["metadata"]["evaluation_id"] = str(limited_ref.artifact_id)
+        limited_entry.stage_b_result["simulation_results"]["evaluation_ref"] = str(
+            limited_ref.artifact_id
+        )
+        limited_entry.stage_b_result["feedback"]["status"] = stage_status
+        limited_history = generator._history_to_evaluations([limited_entry])[0]
+        assert limited_history.scalar_score is None
+        assert limited_history.score_status.value != "available"
+
+
+def test_search_history_refuses_changed_selected_source_edges(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A source receipt cannot authorize another view of any required input."""
+    from polisyos.scientist.methods.autotune import source_profile_verification
+    from polisyos.scientist.methods.autotune.source_profile_verification import (
+        _resolve_search_history_source,
+        _SearchHistorySourceDisposition,
+    )
+
+    MethodRegistry.get_instance().register(_V5NativeGPScoreMethod, override=True)
+    store = FileSystemCAS(tmp_path / "cas")
+    suite_ref = persist_benchmark_suite(
+        store,
+        BenchmarkSuite(suite_id="v5_selected_edge_suite", kind="method_job"),
+    )
+    generator = BayesianCandidateGenerator(
+        SearchSpace(bounds=[{"name": "value", "lower": 0.0, "upper": 1.0}]),
+        unit="dimensionless",
+        compare_split=BenchmarkSplit.SELECTION,
+        n_initial=2,
+        seed=20261027,
+    )
+    spec = SearchLoopSpec(
+        loop_id="v5_search",
+        mutation_codec=PydanticMutationCodec(_V5Mutation),
+        candidate_generator=generator,
+        benchmark_evaluator=MethodJobBenchmarkEvaluator(
+            method_fqn=_V5NativeGPScoreMethod.signature.fqn,
+            method_version=_V5NativeGPScoreMethod.signature.version,
+            candidate_input_bindings={"value": "value"},
+            split=BenchmarkSplit.SELECTION,
+        ),
+        promotion_policy=_policy(unit="dimensionless"),
+    )
+    run = SearchLoopRunner(store=store).run(
+        spec,
+        suite_ref=suite_ref,
+        context={"policy_context": {"case": "selected_source_edge"}},
+        max_iterations=1,
+    )
+    original_entry = run.history[0]
+    assert original_entry.stage_b_result is not None
+    evaluation_ref = _selected_evaluation_ref(original_entry.stage_b_result)
+    evaluation = load_model_artifact(store, evaluation_ref, BenchmarkEvaluation)
+    assert evaluation.metadata["metric_unit"] == "dimensionless"
+    receipt = evaluation.metadata["search_source_profile_receipt"]
+    assert _verify_search_source_profile_receipt(store=store, evaluation_ref=evaluation_ref)
+    positive = generator._history_to_evaluations([original_entry])[0]
+    assert positive.score_status.value == "available"
+    assert positive.scalar_score is not None
+
+    def copy_with_manifest(
+        ref: ArtifactRef,
+        *,
+        inputs: list[InputRef] | None = None,
+        producer: ProducerInfo | None = None,
+        schema: SchemaInfo | None = None,
+    ) -> ArtifactRef:
+        manifest = store.get_manifest(ref)
+        return store.put_bytes(
+            store.get_bytes(ref),
+            ArtifactWriteOptions(
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+                schema=manifest.artifact_schema if schema is None else schema,
+                producer=manifest.producer if producer is None else producer,
+                env=manifest.env,
+                inputs=list(manifest.inputs) if inputs is None else inputs,
+                canon=manifest.canon,
+                governance=manifest.governance,
+                tenant_context=manifest.tenant_context,
+                same_input_closure=manifest.same_input_closure,
+                authority=manifest.authority,
+                warnings=manifest.warnings,
+            ),
+            return_selected_profile=True,
+        )
+
+    original_manifest = store.get_manifest(evaluation_ref)
+    assert original_manifest.artifact_schema is not None
+    foreign_writer = copy_with_manifest(
+        evaluation_ref,
+        producer=ProducerInfo(component="tests.foreign_benchmark_writer", version="1.0"),
+    )
+    foreign_schema_version = copy_with_manifest(
+        evaluation_ref,
+        schema=SchemaInfo(name=original_manifest.artifact_schema.name, version="99.0"),
+    )
+    for invalid_ref in (foreign_writer, foreign_schema_version):
+        assert invalid_ref.artifact_id == evaluation_ref.artifact_id
+        assert (
+            _verify_search_source_profile_receipt(store=store, evaluation_ref=invalid_ref) is None
+        )
+        assert (
+            _resolve_search_history_source(store=store, evaluation_ref=invalid_ref).disposition
+            is _SearchHistorySourceDisposition.REFUSED
+        )
+
+    for role, key in (
+        ("candidate", "candidate_ref"),
+        ("benchmark_suite", "suite_ref"),
+        ("method_result", "method_result_ref"),
+        ("method_evidence", "method_evidence_ref"),
+    ):
+        source_ref = ArtifactRef.model_validate(receipt[key])
+        matching = [item for item in original_manifest.inputs if item.role == role]
+        assert matching == [input_ref_from_artifact_ref(source_ref, role=role)]
+        alternative = copy_with_manifest(
+            source_ref,
+            producer=ProducerInfo(component="tests.selected_view_alternative", version="1"),
+        )
+        assert alternative.artifact_id == source_ref.artifact_id
+        assert alternative.kind == source_ref.kind
+        assert alternative.media_type == source_ref.media_type
+        assert alternative.manifest_profile_sha256 != source_ref.manifest_profile_sha256
+        altered_edge = input_ref_from_artifact_ref(alternative, role=role)
+        variants = (
+            [altered_edge if item.role == role else item for item in original_manifest.inputs],
+            list(original_manifest.inputs) + [altered_edge],
+            [
+                item.model_copy(update={"manifest_profile_sha256": None})
+                if item.role == role
+                else item
+                for item in original_manifest.inputs
+            ],
+        )
+        for inputs in variants:
+            altered_ref = copy_with_manifest(evaluation_ref, inputs=inputs)
+            assert altered_ref.artifact_id == evaluation_ref.artifact_id
+            assert altered_ref.manifest_profile_sha256 != evaluation_ref.manifest_profile_sha256
+            assert store.get_manifest(altered_ref).inputs == inputs
+            assert (
+                _verify_search_source_profile_receipt(store=store, evaluation_ref=altered_ref)
+                is None
+            )
+            resolution = _resolve_search_history_source(store=store, evaluation_ref=altered_ref)
+            assert resolution.disposition is _SearchHistorySourceDisposition.REFUSED
+            altered_entry = deepcopy(original_entry)
+            assert altered_entry.stage_b_result is not None
+            altered_entry.stage_b_result["metadata"]["evaluation_artifact_ref"] = (
+                altered_ref.model_dump(mode="json")
+            )
+            refused = generator._history_to_evaluations([altered_entry])[0]
+            assert refused.scalar_score is None
+            assert refused.score_status.value != "available"
+            assert "search_source_profile_receipt" not in refused.metadata
+
+            # Removal control restores the former role/ID-only predicate while
+            # leaving all selected refs, manifests, receipts and payloads intact.
+            with monkeypatch.context() as control:
+                control.setattr(
+                    source_profile_verification,
+                    "_search_source_manifest_input_matches",
+                    lambda manifest, selected_role, ref: any(
+                        edge.role == selected_role and edge.artifact_id == ref.artifact_id
+                        for edge in manifest.inputs
+                    ),
+                )
+                unguarded = generator._history_to_evaluations([altered_entry])[0]
+            assert unguarded.score_status.value == "available"
+            assert unguarded.scalar_score == positive.scalar_score
+
+    # The persisted metadata is a projection, not evidence by itself. Keep
+    # the selected result and receipt fixed while falsifying only that unit.
+    false_unit = evaluation.model_copy(
+        update={"metadata": {**evaluation.metadata, "metric_unit": "USD"}}
+    )
+    false_unit_ref = _persist_search_benchmark_evaluation(store, false_unit, suite_ref=suite_ref)
+    assert _verify_search_source_profile_receipt(store=store, evaluation_ref=false_unit_ref) is None
+    false_entry = deepcopy(original_entry)
+    assert false_entry.stage_b_result is not None
+    false_entry.stage_b_result["metadata"]["evaluation_artifact_ref"] = false_unit_ref.model_dump(
+        mode="json"
+    )
+    false_entry.stage_b_result["metadata"]["evaluation_id"] = str(false_unit_ref.artifact_id)
+    false_entry.stage_b_result["simulation_results"]["evaluation_ref"] = str(
+        false_unit_ref.artifact_id
+    )
+    false_history = generator._history_to_evaluations([false_entry])[0]
+    assert false_history.scalar_score is None
+    assert false_history.score_status.value != "available"

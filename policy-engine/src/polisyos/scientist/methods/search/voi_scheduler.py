@@ -333,6 +333,23 @@ class VOIModelSnapshot(BaseModel):
     calibration_state: dict[str, Any] = Field(default_factory=dict)
 
 
+def _policy_runtime_vector_schema_supported(version: str, vector: Any) -> bool:
+    """Admit only the scalar vector form currently supported by VOI.
+
+    The source producer emits PolicyEvaluationVector 1.2 when the typed
+    method_metric_observations field is absent and 1.3 when that distinct
+    method-evidence payload is present. VOI's scalar source-concordance has not
+    selected the 1.3 method-evidence admission rule, so it refuses that form.
+    """
+    from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+
+    return (
+        isinstance(vector, PolicyEvaluationVector)
+        and version == "1.2"
+        and not vector.method_metric_observations
+    )
+
+
 def _policy_runtime_source_concordance(vector: Any) -> dict[str, Any] | None:
     """Recompute the source projection and retain the typed vector for score replay.
 
@@ -442,7 +459,6 @@ def _policy_evaluation_vector_source_chain_matches_store(
             or result_manifest.artifact_schema is None
             or result_manifest.artifact_schema.name
             != "polisyos.scientist.policy_design.PolicyEvaluationVector"
-            or result_manifest.artifact_schema.version != "1.1"
             or artifact_manifest_profile_sha256(result_manifest)
             != source_result_ref.manifest_profile_sha256
         ):
@@ -452,7 +468,13 @@ def _policy_evaluation_vector_source_chain_matches_store(
         if not isinstance(payload, Mapping):
             return False
         vector = PolicyEvaluationVector.model_validate(payload)
-        if vector.model_dump(mode="json") != payload:
+        if (
+            not _policy_runtime_vector_schema_supported(
+                result_manifest.artifact_schema.version,
+                vector,
+            )
+            or vector.model_dump(mode="json") != payload
+        ):
             return False
         if vector.candidate_id != expected_candidate_id or not isinstance(
             vector.score_source, Mapping
@@ -570,7 +592,6 @@ def _work_packet_claim_matches_store(store: Any, observation: VOIObservation) ->
             or result_manifest.artifact_schema is None
             or result_manifest.artifact_schema.name
             != "polisyos.scientist.policy_design.PolicyEvaluationVector"
-            or result_manifest.artifact_schema.version != "1.1"
             or artifact_manifest_profile_sha256(result_manifest)
             != packet.source_result_ref.manifest_profile_sha256
         ):

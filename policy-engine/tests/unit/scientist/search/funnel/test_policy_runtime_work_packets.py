@@ -38,7 +38,9 @@ from polisyos.scientist.methods.search.objective import (
 )
 from polisyos.scientist.methods.search.voi_scheduler import (
     PredictiveVOIScheduler,
+    _policy_evaluation_vector_source_chain_matches_store,
     _policy_runtime_source_concordance,
+    _policy_runtime_vector_schema_supported,
 )
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_metrics import (
     _budget_deficit_measurement,
@@ -558,6 +560,43 @@ def test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations(
     )
     chain_l4_source = from_canonical_bytes(
         store.get_bytes(chain_l4_packet.source_result_ref.artifact_id)
+    )
+    direct_source_manifest = store.get_manifest(direct_packet.source_result_ref)
+    assert direct_source_manifest.kind == "scientist.policy_evaluation_vector"
+    assert direct_source_manifest.media_type == "application/json"
+    assert direct_source_manifest.artifact_schema is not None
+    assert direct_source_manifest.artifact_schema.name == (
+        "polisyos.scientist.policy_design.PolicyEvaluationVector"
+    )
+    assert direct_source_manifest.artifact_schema.version == "1.2"
+    direct_vector = PolicyEvaluationVector.model_validate(direct_source)
+    assert _policy_runtime_vector_schema_supported("1.2", direct_vector)
+    assert not _policy_runtime_vector_schema_supported("1.1", direct_vector)
+    assert not _policy_runtime_vector_schema_supported("1.3", direct_vector)
+    alternate_version_ref = store.put_json(
+        direct_vector,
+        PutOptions(
+            kind=direct_source_manifest.kind,
+            media_type=direct_source_manifest.media_type,
+            schema=SchemaInfo(
+                name=direct_source_manifest.artifact_schema.name,
+                version="1.3",
+            ),
+            producer=direct_source_manifest.producer,
+            inputs=list(direct_source_manifest.inputs),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+        return_selected_profile=True,
+    )
+    assert alternate_version_ref.artifact_id == direct_packet.source_result_ref.artifact_id
+    assert alternate_version_ref.manifest_profile_sha256 != (
+        direct_packet.source_result_ref.manifest_profile_sha256
+    )
+    assert not _policy_evaluation_vector_source_chain_matches_store(
+        store,
+        alternate_version_ref,
+        direct_packet.candidate_ref,
+        candidate.candidate_id,
     )
     for packet, source in (
         (direct_packet, direct_source),

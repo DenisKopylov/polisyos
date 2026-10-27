@@ -3752,3 +3752,92 @@ def test_direct_scalar_returned_type_matches_selected_typed_value(
     else:
         assert selected_slot is None
         assert limitation == "selected_method_scalar_return_not_fully_captured"
+
+
+def test_voi_refuses_real_producer_13_method_observation_vector(
+    public_method_metric_source: dict[str, Any],
+    cas_store: ArtifactStore,
+) -> None:
+    """VOI admits the scalar 1.2 view and refuses a real producer-emitted 1.3 view."""
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.scientist.methods.search.voi_scheduler import (
+        _policy_evaluation_vector_source_chain_matches_store,
+        _policy_runtime_source_concordance,
+        _policy_runtime_vector_schema_supported,
+    )
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_metrics import (
+        _budget_deficit_measurement,
+        _policy_runtime_execution_metadata,
+    )
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+        persist_policy_evaluation_vector_to_store,
+    )
+
+    candidate_ref = public_method_metric_source["candidate"]
+    candidate = load_core_json_artifact(cas_store, candidate_ref)
+    candidate_id = candidate["candidate_id"]
+    observation = public_method_metric_source["observation"]
+    assert observation.source_status == "observed"
+    assert observation.value == pytest.approx(1.0)
+
+    invocation = _policy_runtime_execution_metadata(
+        evaluation_attempt_id="attempt-voi-schema-boundary",
+        effective_estimation_config={"n_bootstrap": 64},
+    )
+    metrics = {"gov_balance": 0.0}
+    fiscal_measurement = _budget_deficit_measurement(metrics)
+    scalar = PolicyEvaluationVector(
+        candidate_id=candidate_id,
+        metadata={
+            "policy_runtime_invocation": invocation,
+            "policy_runtime_fiscal_measurement": fiscal_measurement,
+        },
+    )
+    scalar = scalar.with_score_source_results(
+        {
+            "objective_channels": {},
+            "metric_units": {},
+            "feasible": scalar.feasible,
+            "blocking_reasons": list(scalar.blocking_reasons),
+            "bootstrap": dict(invocation),
+            "budget_deficit_objective_usable": fiscal_measurement["usable"],
+            "budget_deficit_objective_value": fiscal_measurement["normalized_value"],
+            **metrics,
+        }
+    )
+    scalar_ref = persist_policy_evaluation_vector_to_store(
+        cas_store, candidate_ref=candidate_ref, evaluation_vector=scalar
+    )
+    scalar_manifest = cas_store.get_manifest(scalar_ref)
+    assert scalar_manifest.artifact_schema is not None
+    assert scalar_manifest.artifact_schema.version == "1.2"
+    assert _policy_runtime_source_concordance(scalar) is not None
+    assert _policy_runtime_vector_schema_supported("1.2", scalar)
+    assert _policy_evaluation_vector_source_chain_matches_store(
+        cas_store, scalar_ref, candidate_ref, candidate_id
+    )
+
+    rich = PolicyEvaluationVector.model_validate(
+        {
+            **scalar.model_dump(mode="python"),
+            "method_metric_observations": [observation],
+        }
+    )
+    rich_ref = persist_policy_evaluation_vector_to_store(
+        cas_store, candidate_ref=candidate_ref, evaluation_vector=rich
+    )
+    rich_manifest = cas_store.get_manifest(rich_ref)
+    assert rich_manifest.artifact_schema is not None
+    assert rich_manifest.artifact_schema.version == "1.3"
+    assert rich_ref.artifact_id != scalar_ref.artifact_id
+    assert load_core_json_artifact(cas_store, rich_ref)["method_metric_observations"]
+    assert {item.role for item in rich_manifest.inputs} >= {
+        "candidate",
+        "method_metric_binding_set",
+        "method_execution_bundle",
+    }
+    assert _policy_runtime_source_concordance(rich) is not None
+    assert not _policy_runtime_vector_schema_supported("1.3", rich)
+    assert not _policy_evaluation_vector_source_chain_matches_store(
+        cas_store, rich_ref, candidate_ref, candidate_id
+    )

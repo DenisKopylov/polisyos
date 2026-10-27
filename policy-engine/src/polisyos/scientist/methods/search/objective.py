@@ -1804,19 +1804,26 @@ def _fiscal_alias_source_unit_error(spec: dict[str, Any], results: dict[str, Any
     requirements = _rule_metric_unit_requirements(spec)
     if requirements is None:
         return "objective_rule_unit_binding_malformed"
+    selected_fields = _selected_measurement_fields(spec, results)
     raw_units = results.get("metric_units", _MISSING)
     if raw_units is _MISSING:
-        return None
-    if not isinstance(raw_units, dict):
+        raw_units = {}
+    elif not isinstance(raw_units, dict):
         return "objective_source_unit_malformed_or_conflicting"
 
-    selected_fields = _selected_measurement_fields(spec, results)
     selected_units: list[str] = []
     for field_name in selected_fields:
         observed_unit = raw_units.get(field_name, _MISSING)
+        expected_unit = requirements.get(field_name, _MISSING)
         if observed_unit is _INVALID:
             return "objective_source_unit_malformed_or_conflicting"
         if observed_unit is _MISSING:
+            if (
+                field_name in _DEFICIT_ALIASES
+                and expected_unit is not _MISSING
+                and expected_unit is not None
+            ):
+                return "objective_source_unit_not_established"
             continue
         if (
             not isinstance(observed_unit, str)
@@ -1824,7 +1831,6 @@ def _fiscal_alias_source_unit_error(spec: dict[str, Any], results: dict[str, Any
             or observed_unit != observed_unit.strip()
         ):
             return "objective_source_unit_malformed_or_conflicting"
-        expected_unit = requirements.get(field_name, _MISSING)
         if expected_unit is _INVALID or (
             expected_unit is not _MISSING
             and expected_unit is not None
@@ -2085,18 +2091,23 @@ def _assessment_for_rule_spec(
             else:
                 unit_error = _fiscal_alias_source_unit_error(spec, results)
                 if unit_error is not None:
-                    status = ObjectiveScoreStatus.INVALID
+                    status = (
+                        ObjectiveScoreStatus.NOT_ESTABLISHED
+                        if unit_error == "objective_source_unit_not_established"
+                        else ObjectiveScoreStatus.INVALID
+                    )
                     limitation = unit_error
+                elif deficit_score is not None:
+                    # A configured deficit operand is the selected objective input.
+                    # A balance-stock alias alone cannot establish that period measure.
+                    status = ObjectiveScoreStatus.AVAILABLE
+                    score = deficit_score
                 else:
-                    # A scalar unit and a source-provided role label cannot prove that a
-                    # stock or unqualified deficit alias is a period-flow measurement.
-                    # Keep its numeric value diagnostic-only until an owner-bound flow
-                    # contract is admitted through the typed method-metric path.
                     status = ObjectiveScoreStatus.NOT_ESTABLISHED
                     limitation = "budget_deficit_period_flow_source_not_established"
         derived_values["balance_score"] = balance_score if balance is not _INVALID else None
         derived_values["deficit_score"] = deficit_score if deficit is not _INVALID else None
-        derived_values["score"] = None
+        derived_values["score"] = score
     elif kind == "default_policy_scalar":
         gdp, gdp_status = _read_finite_numeric_metric(results, "gdp_change")
         expected_units = spec.get("expected_units")

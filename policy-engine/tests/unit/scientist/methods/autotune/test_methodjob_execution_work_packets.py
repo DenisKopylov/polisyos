@@ -469,6 +469,7 @@ def test_source_bound_methodjob_work_packet_supports_same_input_l3_to_l4_witness
             BenchmarkEvaluation,
         )
         assert isinstance(persisted_evaluation, BenchmarkEvaluation)
+        assert persisted_evaluation.metadata.get("metric_unit") is None
         assert persisted_evaluation.execution_work_packet_status == "available"
         assert persisted_evaluation.execution_work_packet_ref is not None
         evaluation_manifest = fresh_reader.get_manifest(evaluation_ref)

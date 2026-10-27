@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import asdict, dataclass
-from math import isclose, isfinite
+from dataclasses import dataclass
+from math import isfinite
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Generic, Literal, Protocol, TypeGuard, TypeVar
 from uuid import uuid4
@@ -20,14 +20,13 @@ from polisyos.core.artifacts import (
     with_ambient_ownership_enforcement_if_supported,
 )
 from polisyos.core.artifacts.manifest import (
-    ArtifactManifest,
     ArtifactRef,
     InputRef,
     ProducerInfo,
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.canon import CanonSpec, fingerprint
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import DataSnapshot
 from polisyos.scientist.compute.job_spec import JobKey, JobSpec
 from polisyos.scientist.methods.search.contracts import SearchResult
@@ -1646,7 +1645,7 @@ def _build_search_method_run_profile(
             if (
                 snapshot_manifest.kind != "fabric.data_snapshot"
                 or not _search_source_manifest_input_matches(
-                    snapshot_manifest, "data_ref", data_ref, require_profile=True
+                    snapshot_manifest, "data_ref", data_ref
                 )
             ):
                 return None
@@ -1956,7 +1955,10 @@ class SearchLoopRunner:
         ):
             projected_payload.pop("semantic", None)
         candidate = codec.decode(projected_payload)
+        from .bayesian_generator import BayesianCandidateGenerator
+
         claim_selected_profile = spec.loop_id == "claim_adjudication"
+        bayesian_selected_profile = type(generator) is BayesianCandidateGenerator
         method_job_selected_profile = isinstance(
             spec.benchmark_evaluator,
             MethodJobBenchmarkEvaluator,
@@ -1972,12 +1974,16 @@ class SearchLoopRunner:
             self._store,
             candidate,
             inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
-            return_selected_profile=claim_selected_profile or method_job_selected_profile,
+            return_selected_profile=(
+                claim_selected_profile or method_job_selected_profile or bayesian_selected_profile
+            ),
         )
         if claim_selected_profile and candidate_ref.manifest_profile_sha256 is None:
             raise ValueError("claim_adjudication_selected_profile_required:candidate")
         if method_job_selected_profile and candidate_ref.manifest_profile_sha256 is None:
             raise ValueError("methodjob_selected_profile_required:candidate")
+        if bayesian_selected_profile and candidate_ref.manifest_profile_sha256 is None:
+            raise ValueError("bayesian_selected_profile_required:candidate")
         evaluation_id = f"search-evaluation:{uuid4().hex}"
         evaluation_attempt_id = f"search-attempt:{uuid4().hex}"
         evaluation = spec.benchmark_evaluator.evaluate(
@@ -2001,8 +2007,6 @@ class SearchLoopRunner:
         )
         source_profile: BayesianSourceProfile | None = None
         proposal_receipt: dict[str, Any] | None = None
-        from .bayesian_generator import BayesianCandidateGenerator
-
         if type(generator) is BayesianCandidateGenerator and _is_method_job_benchmark_evaluator(
             spec.benchmark_evaluator
         ):
@@ -2323,7 +2327,18 @@ class SearchLoopRunner:
                 evaluation.execution_work_packet_ref.artifact_id
             )
         if primary_value is not None and isfinite(primary_value):
-            simulation_results[spec.promotion_policy.primary_metric] = primary_value
+            primary_metric = spec.promotion_policy.primary_metric
+            simulation_results[primary_metric] = primary_value
+            # This is the evaluator's existing candidate-grade projection.
+            # MethodJob source admission above independently reopens the result;
+            # history must reverify it before treating it as MethodJob evidence.
+            source_unit = evaluation.metadata.get("metric_unit")
+            if (
+                isinstance(source_unit, str)
+                and source_unit.strip()
+                and source_unit == source_unit.strip()
+            ):
+                simulation_results["metric_units"] = {primary_metric: source_unit}
         return {
             "simulation_results": simulation_results,
             "feedback": {

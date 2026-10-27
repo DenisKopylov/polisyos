@@ -8,7 +8,8 @@ without importing each other.
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
+from enum import Enum
 from math import isclose, isfinite
 from typing import Any
 
@@ -19,13 +20,13 @@ from polisyos.core.artifacts import (
     ArtifactRef,
     CoreJSONArtifactStore,
     SchemaInfo,
+    resolve_manifest_by_profile,
     validate_core_model_json_artifact,
 )
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.core.contracts import DataSnapshot
 from polisyos.scientist.compute.job_spec import JobKey, JobSpec
 from polisyos.scientist.methods.search.objective import (
-    _configured_search_metric_binding,
     _configured_search_metric_profile_fingerprint,
 )
 
@@ -97,14 +98,260 @@ def _search_source_manifest_input_matches(
     manifest: Any,
     role: str,
     ref: ArtifactRef,
-    *,
-    require_profile: bool = True,
 ) -> bool:
-    return any(
-        item.role == role
-        and item.artifact_id == ref.artifact_id
-        and (not require_profile or item.manifest_profile_sha256 == ref.manifest_profile_sha256)
-        for item in manifest.inputs
+    """Reconcile one unambiguous lineage edge with its selected reference.
+
+    An ID can have several valid manifests. The receipt's ref is subsequently
+    opened through Core, which validates kind and media type against that exact
+    selected manifest; the edge must select the very same profile. A matching
+    edge cannot excuse a second, conflicting edge with the same role.
+    """
+    matching_role = [item for item in manifest.inputs if item.role == role]
+    return (
+        len(matching_role) == 1
+        and matching_role[0].artifact_id == ref.artifact_id
+        and ref.manifest_profile_sha256 is not None
+        and matching_role[0].manifest_profile_sha256 == ref.manifest_profile_sha256
+    )
+
+
+class _SearchHistorySourceDisposition(str, Enum):
+    """Owner-resolved status for one persisted Search history source."""
+
+    NOT_APPLICABLE = "not_applicable"
+    REFUSED = "refused"
+    VERIFIED = "verified"
+
+
+@dataclass(frozen=True, slots=True)
+class _SearchHistorySourceResolution:
+    """Carry the source owner's disposition and any resolved evaluation evidence."""
+
+    disposition: _SearchHistorySourceDisposition
+    evaluation: BenchmarkEvaluation | None = None
+    verified: tuple[BayesianSourceProfile, dict[str, Any], ArtifactRef] | None = None
+
+
+_SEARCH_HISTORY_METHOD_INPUT_ROLES = frozenset(
+    {"method_result", "method_evidence", "execution_work_packet"}
+)
+_SEARCH_HISTORY_METHOD_METADATA_KEYS = frozenset(
+    {
+        "method_fqn",
+        "method_version",
+        "method_seed",
+        "method_job_key",
+        "method_input_bindings",
+        "method_result_ref",
+        "method_evidence_ref",
+        "method_request_basis",
+        _SEARCH_SOURCE_RECEIPT_KEY,
+        "search_source_evaluation_ref",
+    }
+)
+
+
+def _search_history_source_payload_claimed(evaluation: BenchmarkEvaluation) -> bool:
+    """Detect MethodJob payload assertions even without a readable manifest."""
+    return (
+        evaluation.method_result_ref is not None
+        or evaluation.method_evidence_ref is not None
+        or evaluation.method_job_key is not None
+        or evaluation.execution_work_packet_ref is not None
+        or evaluation.execution_work_packet_status != "unavailable"
+        or evaluation.execution_work_packet_note is not None
+        or any(key in evaluation.metadata for key in _SEARCH_HISTORY_METHOD_METADATA_KEYS)
+    )
+
+
+def _search_history_source_claimed(
+    evaluation: BenchmarkEvaluation,
+    manifest: ArtifactManifest,
+) -> bool:
+    """Classify persisted MethodJob claims, not a profile-only generic record."""
+    return _search_history_source_payload_claimed(evaluation) or any(
+        item.role in _SEARCH_HISTORY_METHOD_INPUT_ROLES for item in manifest.inputs
+    )
+
+
+def _search_evaluation_manifest_matches(
+    manifest: ArtifactManifest, ref: ArtifactRef, evaluation: BenchmarkEvaluation
+) -> bool:
+    """Bind selected evaluation to the existing suite-versioned writer ABI."""
+    return (
+        ref.manifest_profile_sha256 is not None
+        and manifest.artifact_id == ref.artifact_id
+        and manifest.kind == ref.kind == f"scientist.autotune.{evaluation.loop_id}.evaluation"
+        and manifest.media_type == ref.media_type == "application/json"
+        and _search_source_manifest_schema_matches(
+            manifest,
+            name="polisyos.scientist.methods.autotune.BenchmarkEvaluation",
+            version=evaluation.suite_version,
+        )
+        and manifest.producer is not None
+        and str(manifest.producer.component)
+        == "polisyos.scientist.methods.autotune.benchmark_evaluator"
+        and manifest.producer.version in {"1.0", "2.0"}
+    )
+
+
+def _resolve_search_history_source(
+    *,
+    store: CoreJSONArtifactStore | None,
+    evaluation_ref: Any,
+    expected_params: Any = None,
+    expected_scalar: Any = None,
+    expected_proposal_id: Any = None,
+    expected_provenance_ref: Any = None,
+) -> _SearchHistorySourceResolution:
+    """Resolve source ownership before a persisted scalar can use generic history fallback.
+
+    Genuine generic BenchmarkEvaluation artifacts remain applicable to the ordinary
+    candidate-history path. Any typed payload claim or persisted MethodJob input role
+    requires the full existing receipt, producer-basis, and CAS verifier; partial or
+    unreadable source claims are refused.
+    """
+    if evaluation_ref is None:
+        return _SearchHistorySourceResolution(
+            disposition=_SearchHistorySourceDisposition.NOT_APPLICABLE
+        )
+    if store is None:
+        return _SearchHistorySourceResolution(disposition=_SearchHistorySourceDisposition.REFUSED)
+
+    from polisyos.core.artifacts import load_core_json_artifact
+
+    try:
+        exact_ref = ArtifactRef.model_validate(evaluation_ref)
+        manifest = store.get_manifest(exact_ref)
+        if (
+            manifest.artifact_id != exact_ref.artifact_id
+            or not _search_source_manifest_schema_matches(
+                manifest,
+                name="polisyos.scientist.methods.autotune.BenchmarkEvaluation",
+            )
+        ):
+            return _SearchHistorySourceResolution(
+                disposition=_SearchHistorySourceDisposition.REFUSED
+            )
+        raw_evaluation = load_core_json_artifact(store, exact_ref)
+        evaluation = BenchmarkEvaluation.model_validate(raw_evaluation)
+        if not _search_evaluation_manifest_matches(manifest, exact_ref, evaluation):
+            return _SearchHistorySourceResolution(
+                disposition=_SearchHistorySourceDisposition.REFUSED
+            )
+    except Exception:
+        return _SearchHistorySourceResolution(disposition=_SearchHistorySourceDisposition.REFUSED)
+
+    if not _search_history_source_claimed(evaluation, manifest):
+        # Generic status is candidate-grade, but its optimizer coordinates must
+        # still come from the exact candidate selected by the evaluation.
+        try:
+            candidate_ref = evaluation.candidate_ref
+            if not _search_source_manifest_input_matches(manifest, "candidate", candidate_ref):
+                raise ValueError("generic_benchmark_candidate_edge_mismatch")
+            candidate_manifest = store.get_manifest(candidate_ref)
+            if (
+                candidate_manifest.kind != f"scientist.autotune.{evaluation.loop_id}.candidate"
+                or candidate_manifest.media_type != "application/json"
+                or candidate_manifest.producer is None
+                or str(candidate_manifest.producer.component)
+                != "polisyos.scientist.methods.autotune.mutation_artifact"
+                or candidate_manifest.producer.version != "1.0"
+            ):
+                raise ValueError("generic_benchmark_candidate_source_mismatch")
+            candidate_payload = load_core_json_artifact(store, candidate_ref)
+            if (
+                not isinstance(candidate_payload, Mapping)
+                or candidate_payload.get("loop_id") != evaluation.loop_id
+            ):
+                raise ValueError("generic_benchmark_candidate_payload_mismatch")
+            candidate_schema = candidate_manifest.artifact_schema
+            if (
+                candidate_schema is None
+                or not candidate_schema.name.startswith("polisyos.scientist.methods.autotune.")
+                or candidate_schema.version != candidate_payload.get("artifact_version")
+            ):
+                raise ValueError("generic_benchmark_candidate_schema_mismatch")
+            suite_edges = [edge for edge in manifest.inputs if edge.role == "benchmark_suite"]
+            candidate_suite_edges = [
+                edge for edge in candidate_manifest.inputs if edge.role == "benchmark_suite"
+            ]
+            if (
+                len(suite_edges) != 1
+                or len(candidate_suite_edges) != 1
+                or suite_edges[0] != candidate_suite_edges[0]
+                or suite_edges[0].manifest_profile_sha256 is None
+            ):
+                raise ValueError("generic_benchmark_suite_edge_mismatch")
+            suite_edge = suite_edges[0]
+            suite_manifest = resolve_manifest_by_profile(
+                store, suite_edge.artifact_id, suite_edge.manifest_profile_sha256
+            )
+            suite_ref = ArtifactRef(
+                artifact_id=suite_edge.artifact_id,
+                kind=suite_manifest.kind,
+                media_type=suite_manifest.media_type,
+                manifest_profile_sha256=suite_edge.manifest_profile_sha256,
+            )
+            suite = BenchmarkSuite.model_validate(load_core_json_artifact(store, suite_ref))
+            if (
+                suite.suite_id != evaluation.suite_id
+                or suite.suite_version != evaluation.suite_version
+                or suite_manifest.kind != f"scientist.autotune.{suite.kind}.suite"
+                or suite_manifest.media_type != "application/json"
+                or not _search_source_manifest_schema_matches(
+                    suite_manifest,
+                    name="polisyos.scientist.methods.autotune.BenchmarkSuite",
+                    version=suite.suite_version,
+                )
+            ):
+                raise ValueError("generic_benchmark_suite_source_mismatch")
+            if expected_params is not None:
+                if not isinstance(expected_params, Mapping):
+                    raise ValueError("generic_benchmark_candidate_params_invalid")
+                nested_params = candidate_payload.get("params")
+                parameter_source = (
+                    nested_params if isinstance(nested_params, Mapping) else candidate_payload
+                )
+                selected_params = {
+                    name: parameter_source[name]
+                    for name in expected_params
+                    if isinstance(name, str) and name in parameter_source
+                }
+                if (
+                    set(selected_params) != set(expected_params)
+                    or _search_source_fingerprint(selected_params) is None
+                    or _search_source_fingerprint(selected_params)
+                    != _search_source_fingerprint(dict(expected_params))
+                ):
+                    raise ValueError("generic_benchmark_candidate_params_mismatch")
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError, ValidationError):
+            return _SearchHistorySourceResolution(
+                disposition=_SearchHistorySourceDisposition.REFUSED,
+                evaluation=evaluation,
+            )
+        return _SearchHistorySourceResolution(
+            disposition=_SearchHistorySourceDisposition.NOT_APPLICABLE,
+            evaluation=evaluation,
+        )
+
+    verified = _verify_search_source_profile_receipt(
+        store=store,
+        evaluation_ref=exact_ref,
+        expected_params=expected_params,
+        expected_scalar=expected_scalar,
+        expected_proposal_id=expected_proposal_id,
+        expected_provenance_ref=expected_provenance_ref,
+    )
+    if verified is None:
+        return _SearchHistorySourceResolution(
+            disposition=_SearchHistorySourceDisposition.REFUSED,
+            evaluation=evaluation,
+        )
+    return _SearchHistorySourceResolution(
+        disposition=_SearchHistorySourceDisposition.VERIFIED,
+        evaluation=evaluation,
+        verified=verified,
     )
 
 
@@ -137,6 +384,10 @@ def _verify_search_source_profile_receipt(
             return None
         raw_evaluation = load_core_json_artifact(reader, exact_evaluation_ref)
         evaluation = BenchmarkEvaluation.model_validate(raw_evaluation)
+        if not _search_evaluation_manifest_matches(
+            evaluation_manifest, exact_evaluation_ref, evaluation
+        ):
+            return None
         receipt_value = evaluation.metadata.get(_SEARCH_SOURCE_RECEIPT_KEY)
         if not isinstance(receipt_value, Mapping):
             return None
@@ -229,12 +480,8 @@ def _verify_search_source_profile_receipt(
         elif require_warm_start_eligible:
             return None
 
-        if evaluation_manifest.kind != f"scientist.autotune.{evaluation.loop_id}.evaluation":
-            return None
         if not all(
-            _search_source_manifest_input_matches(
-                evaluation_manifest, role, ref, require_profile=False
-            )
+            _search_source_manifest_input_matches(evaluation_manifest, role, ref)
             for role, ref in (
                 ("candidate", candidate_ref),
                 ("benchmark_suite", suite_ref),
@@ -397,13 +644,21 @@ def _verify_search_source_profile_receipt(
         ):
             return None
         expected_result_inputs = {f"input:{name}": ref for name, ref in job_spec.input_refs.items()}
-        actual_result_inputs = {
-            item.role: item for item in result_manifest.inputs if item.role.startswith("input:")
-        }
-        if set(actual_result_inputs) != set(expected_result_inputs) or not all(
-            actual_result_inputs[role].artifact_id == ref.artifact_id
-            and actual_result_inputs[role].manifest_profile_sha256 == ref.manifest_profile_sha256
-            for role, ref in expected_result_inputs.items()
+        if any(ref.manifest_profile_sha256 is None for ref in expected_result_inputs.values()):
+            return None
+        result_input_edges = [
+            item for item in result_manifest.inputs if item.role.startswith("input:")
+        ]
+        actual_result_inputs = {item.role: item for item in result_input_edges}
+        if (
+            len(result_input_edges) != len(actual_result_inputs)
+            or set(actual_result_inputs) != set(expected_result_inputs)
+            or not all(
+                actual_result_inputs[role].artifact_id == ref.artifact_id
+                and actual_result_inputs[role].manifest_profile_sha256
+                == ref.manifest_profile_sha256
+                for role, ref in expected_result_inputs.items()
+            )
         ):
             return None
 
@@ -447,7 +702,12 @@ def _verify_search_source_profile_receipt(
             return None
         metric_units = metric_source.get("metric_units")
         source_unit = metric_units.get(metric) if isinstance(metric_units, Mapping) else None
-        if source_unit != receipt.get("unit"):
+        # Metadata is only a projection; the actual MethodJob output is the
+        # source. Receipt, projected unit and selected result must all agree.
+        if (
+            source_unit != receipt.get("unit")
+            or evaluation.metadata.get("metric_unit") != source_unit
+        ):
             return None
         if evaluation.metrics_for_split(split) != {metric: metric_value}:
             return None
@@ -531,7 +791,6 @@ def _verify_search_source_profile_receipt(
                 evaluation_manifest,
                 "search_gp_fit_basis",
                 fit_basis_ref,
-                require_profile=True,
             ):
                 return None
         return profile, receipt, candidate_ref
@@ -630,9 +889,7 @@ def _method_request_matches_search_run_profile(
         if (
             snapshot_manifest.kind != "fabric.data_snapshot"
             or snapshot.data_ref != data_ref
-            or not _search_source_manifest_input_matches(
-                snapshot_manifest, "data_ref", data_ref, require_profile=True
-            )
+            or not _search_source_manifest_input_matches(snapshot_manifest, "data_ref", data_ref)
         ):
             return False
         data_payload = load_core_json_artifact(reader, data_ref)
@@ -672,7 +929,6 @@ def _recompute_search_gp_fit_basis(
             evaluation_manifest,
             "search_gp_fit_basis",
             fit_basis_ref,
-            require_profile=True,
         ):
             return False
         fit_manifest = reader.get_manifest(fit_basis_ref)

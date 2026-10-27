@@ -1,0 +1,133 @@
+{
+  "packet": "N1 V65 evidence qualification: opaque external exception-registration boundary",
+  "date": "2026-10-27",
+  "supersedes": {
+    "prior_immutable_decision_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-constructor-relevance-author-r1/v61-external-registration-decision-r1/decision.json",
+    "prior_immutable_decision_sha256": "66849d92b3dc888a319a26c9bb3daf6df5412bd679e4c4776750e932ec53d75f",
+    "scope": "Qualifies current-candidate evidence only; does not edit or replace the V61 packet or its decision alternatives."
+  },
+  "canonical_observation": {
+    "head": "1fd513e8b2a7e3405d61023c2dffa22ce9a88447",
+    "product_owner_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tools/quality/validation/decomposition_preflight.py",
+    "product_owner_sha256": "061a94248ffe1334944f66fb3064a6da20eddc069e17f50f92433138d1a13aaa",
+    "test_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+    "test_sha256": "911b96b7a9a14ed6cbf636c42b07818100e0109d06c34145fe5686a19a20aac2",
+    "source_written": false
+  },
+  "v65_candidate": {
+    "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-constructor-relevance-author-r1/v65-namespace-identity-effect-provenance-candidate-r3",
+    "manifest_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-constructor-relevance-author-r1/v65-namespace-identity-effect-provenance-candidate-r3/manifest.json",
+    "manifest_sha256": "97177566b07ae2b9eb36828a1a25da1931679a99a34548c6d8da343bf257ebcf",
+    "owner_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-constructor-relevance-author-r1/v65-namespace-identity-effect-provenance-candidate-r3/decomposition_preflight.py",
+    "owner_sha256": "31cdd9655d8f1c5e92aaca316165f21473e684a3b98f026eb0af70d86ab5412c",
+    "test_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-constructor-relevance-author-r1/v65-namespace-identity-effect-provenance-candidate-r3/test_decomposition_preflight_gates.py",
+    "test_sha256": "0f9dac438b49a30b17dc773326b5df63ce8cb2a9b6b0465c8f61d852b689a164",
+    "classification": "Same selected-module namespace effect class. V65 replaces broad guarded-bit class-info refusal with explicit module-namespace-effect provenance carried through the binding graph; it adds no external package call summary or FastAPI exemption."
+  },
+  "direct_v65_verification": {
+    "focused_test_receipt": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-constructor-relevance-author-r1/v65-focused-r3/receipt.json",
+    "focused_test_receipt_sha256": "d7dab3aedc890a8d223165840fd662a3a34e21784eee841991c7d76d859a77e5",
+    "focused_test_stdout_sha256": "223c2ee6910bed00a5b18186ec660d673f2b56ecad675a740df5127aa38376f5",
+    "focused_test_result": "31 parametrized cases passed; output is 31 dots. This includes direct/module-alias/name/import-alias/reflection class-info cases, a nested tuple class-info case, custom metaclass refusal controls, and existing source-class invalidation controls.",
+    "actual_five_member_probe_receipt": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-constructor-relevance-author-r1/v65-actual-r3/receipt.json",
+    "actual_five_member_probe_receipt_sha256": "f7a7e6004bf27988c1b541297c3de5e8f1fdded10d45bdf63857f9f81683cb0a",
+    "actual_five_member_probe_stdout_sha256": "e2aea11eacf4f1bac12138c387e6b16321e4c44e48bbb2c44b10332805ebce59",
+    "actual_five_member_sources": [
+      {
+        "path": "src/polisyos/common/canonical_profile.py",
+        "sha256": "d040ecb9baab955f9372703363570f1423777b68febe5d20250113e27875ec3e"
+      },
+      {
+        "path": "src/polisyos/common/serialization/__init__.py",
+        "sha256": "9dd34967d6bb95244085410a5988d326824c017aadb3233db903eab1efb31685"
+      },
+      {
+        "path": "src/polisyos/common/serialization/_strict_json.py",
+        "sha256": "247bc24b087ea1e1f66b872f8c747f141f2331e67157833b660d9da610f30124"
+      },
+      {
+        "path": "src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py",
+        "sha256": "25387bc10dc104ae17619e97b3a1cfc5a2efb7e2cb7028bfe683888e3e2e1deb"
+      },
+      {
+        "path": "src/polisyos/runtime/http/errors.py",
+        "sha256": "fbd6a9e1efec193ef0e415c5ac1f3ff0874735c08f33d5d30d71bc0b237a23dc"
+      }
+    ],
+    "actual_five_member_result": {
+      "candidate_sha256_reported_by_probe": "31cdd9655d8f1c5e92aaca316165f21473e684a3b98f026eb0af70d86ab5412c",
+      "selected_member_count": 5,
+      "target_metaclass_proven_before_scan": true,
+      "target_invalidated_after_scan": true,
+      "target_invalidation_first_added_during": "policy-engine/src/polisyos/runtime/http/errors.py",
+      "scan_errors": []
+    },
+    "ruff_receipt": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-constructor-relevance-author-r1/v65-ruff-r3/receipt.json",
+    "ruff_receipt_sha256": "6da7cb8468e5f778fafb0303d22d8a0df9bf8688a508d615b6d5128e787dc1cd",
+    "ruff_stdout_sha256": "6b336daefa19d996bcf73a2f41e4476489079c205ea7f0abc867cd780474f98c",
+    "ruff_result": "All 8 check/format combinations passed for the two postimages under product and workspace configurations, with absolute canonical stdin filenames."
+  },
+  "opaque_external_registration_boundary": {
+    "source_call": "policy-engine/src/polisyos/runtime/http/errors.py:722 \u2014 app.add_exception_handler(CanonicalProfileRefusalError, _handle_canonical_profile_refusal)",
+    "receiver_parameter": "install_exception_handlers(app: Any)",
+    "construction_callsite": "policy-engine/src/polisyos/runtime/http/app.py constructs FastAPI() and passes app to install_exception_handlers().",
+    "pinned_environment_evidence": {
+      "fastapi": "0.128.6; dependency lock pin as recorded in the immutable V61 decision",
+      "starlette": "0.52.1; dependency lock pin as recorded in the immutable V61 decision",
+      "fastapi_declared_range": "fastapi>=0.109.0, no upper bound",
+      "pyproject_sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "uv_lock_sha256": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
+      "installed_method_fact": "The prior source-pinned review found FastAPI inherits Starlette's add_exception_handler; the measured Starlette 0.52.1 method stores exception-class-to-handler in a mapping. This proves only those pinned source files, not all versions in the declared range."
+    },
+    "what_v65_establishes": "In the actual five-member selected-source replay, the target class is still conservatively invalidated during scanning errors.py; the candidate records no scan exception in that small replay. The source-stage output localizes the invalidation to that member, and the immutable V61 source review identifies the registration call there.",
+    "what_v65_does_not_establish": "This is not a 3336-member source-collector run, does not prove the external method has no import or class effect over the supported package range, and does not authorize treating the registration call as pure. V65 adds no method-name or FastAPI-specific exemption."
+  },
+  "existing_contract_assessment": {
+    "routine_exact_receiver_closure_available": false,
+    "reason": "The installer accepts Any. The selected callsite constructs FastAPI, but the current collector has selected-source function/class summaries, not a dependency-source call-effect summary that binds a receiver to an exact installed implementation and version. A type annotation alone would not establish Starlette method identity/effects across subclass, wrapper, or replacement dispatch, and the public dependency range is open-ended.",
+    "partial_contract_available": false,
+    "reason_partial": "collect_dynamic_imports() currently returns list[dict[str, Any]] or raises DynamicImportCollectionError when selected source cannot be completely inventoried. It has no typed partial-result status; emitting a bare list with an omitted import could be consumed as complete."
+  },
+  "decision_packet": {
+    "default_until_decided": "A \u2014 preserve conservative refusal/invalidation for opaque external calls. Do not label the complete source inventory successful based on the five-member probe.",
+    "choice_A": {
+      "name": "Retain fail-closed opaque-call behavior",
+      "pattern": "Reuse the current conservative opaque-call invalidation. No product behavior changes and no false-complete collector result.",
+      "cost": "Complete inventory remains unavailable when the gate reaches an external effect it cannot prove."
+    },
+    "choice_B": {
+      "name": "Admit a source-verified external dependency effect summary",
+      "pattern": "Extend the existing call-effect summary boundary only with owner-defined package identity/version/source hashes and a proved receiver binding to the summarized implementation.",
+      "required_proof": [
+        "Admitted dependency version range is explicit and source-backed; mismatches fail closed.",
+        "Receiver provenance is proved at the selected call and does not allow unbounded subclasses, wrappers, patched methods, or alternate dispatch.",
+        "The summary proves this exact registration call only stores the exception class and handler without invoking/mutating the class or introducing dynamic imports."
+      ],
+      "minimal_missing_capability": "A selected dependency-summary owner with receiver lineage and version/source verification; current selected-module summaries do not cover external package methods.",
+      "falsifier": "A selected-source or test-only FastAPI-compatible subclass/wrapper whose add_exception_handler imports a hidden module or mutates CanonicalProfileRefusalError must cause refusal; if the summary lets it produce a complete inventory, receiver/effect binding is insufficient.",
+      "rollback": "Invalidate or remove the summary on package/source/receiver mismatch; return to conservative refusal without changing runtime handler registration semantics."
+    },
+    "choice_C": {
+      "name": "Introduce an explicitly incomplete inventory result",
+      "pattern": "Only if a consumer needs a usable partial report: add a typed incomplete status/effect reference and update every consumer/gate so absence never means complete or empty.",
+      "minimal_missing_capability": "Typed partial result artifact and consumer/lifecycle verification. Neither exists in the current list-or-error API.",
+      "acceptance": "A negative integration test must show the unresolved registration effect surfaces as incomplete and every completeness gate rejects it while a diagnostic/reporting consumer preserves the limitation.",
+      "rollback": "Keep the legacy list-or-error behavior as the default. Do not reinterpret existing lists as partial."
+    },
+    "requested_decision": "If complete inventory across opaque external dependency calls is required, choose B with the bounded receiver/version contract, or authorize C's typed partial-result contract and consumer work. Until then use A. This does not reopen the builtin class-info repair; it preserves the separate external-call boundary."
+  },
+  "limitations": {
+    "full_3336_collector_rerun_for_v65": "not run; no claim of full source acceptance",
+    "current_classification": "source call effect remains opaque for the inventory contract even though runtime handler registration behavior is outside the intended change",
+    "authorization_or_runtime_semantics_changed": false,
+    "historical_full_collector_evidence": "The V60 full 3336-member run errored before completion; it predates V65 and is historical evidence only, not a V65 result."
+  },
+  "pattern_pass": {
+    "P38": "V64 used the broad guarded bit as a proxy for selected-module identity mutation; V65 carries the specific effect provenance and distinguishes it from unrelated guarded causes.",
+    "P40": "The same namespace identity class was repaired with a generic effect-provenance path, not a per-attribute exemption. The external opaque-call boundary remains a bounded residual under Choice A.",
+    "P29": "V65 exercises candidate bindings and real selected-source files; the full collector is not claimed complete.",
+    "capability_state": "verification_missing for full 3336-member acceptance; Choice C would remain artifact/consumer/verification missing until implemented."
+  },
+  "canonical_source_written": false,
+  "source_freeze": false
+}

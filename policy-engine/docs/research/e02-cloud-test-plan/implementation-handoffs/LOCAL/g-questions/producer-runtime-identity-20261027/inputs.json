@@ -1,0 +1,228 @@
+{
+  "schema_version": "1.0",
+  "architecture_selection": "pending_G",
+  "code_acceptance": false,
+  "closure_ids": [],
+  "source": {
+    "head": "1fd513e8b2a7e3405d61023c2dffa22ce9a88447",
+    "product_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "repo": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "tree": "c3c614e7d34d33abcc9a11a2ce0b847615e24cbc"
+  },
+  "source_readset": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "sha256": "99ce5e98e88e524f19a4dd1f166aa46b2fa06edce21170280415bb8b1015e33a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "sha256": "5a91c4c8bfc5de8eb5ec5666f81c364ef5c31f852fa8d9f03e7a23036a83e4ed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/execution_work.py",
+      "sha256": "96832083c087c9300865eab0fef69b2836c6fb6acd296231c05b27a039647e40"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "sha256": "a83f8ee607349126395658143040510f4a5c4245155f8e1481f47f532e79a2ae"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/source_profile_verification.py",
+      "sha256": "270afff675c424a30fe080708c0d0103c0be58be0ef09daf450a16e781bb4348"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "sha256": "060a92bea9849686976a991c185641469f773d8b0ef2f5f21ffb7985d0dd2a75"
+    }
+  ],
+  "source_readset_denominator": {
+    "kind": "explicit manifest array of six Python files, not repo-wide",
+    "files": 6
+  },
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/dynamic-author/r20-cache-state-diagnostic-r1/r21-source-vs-runtime-identity-choice-r1/decision-packet.md",
+      "sha256": "97bd2420038e3acb6dc0854d9137bbd94e4f278e786af1d6086385a9045390fe",
+      "bytes": 11521,
+      "availability": "retained_local_read_only"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/dynamic-author/r20-cache-state-diagnostic-r1/r23-methodjob-consumer-clarification-r1/decision-packet.md",
+      "sha256": "e5370b6d34a025ccee4431d88d05aedd28263c9a62f7709bebf5cc2b3db088f3",
+      "bytes": 8142,
+      "availability": "retained_local_read_only"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/dynamic-author/r20-cache-state-diagnostic-r1/r23-methodjob-consumer-clarification-r1/manifest.json",
+      "sha256": "f1493943d40fe48c909b3f86b1b74040b69d9e4d5ff352c5a9f10b6a7598120e",
+      "bytes": 3628,
+      "availability": "retained_local_read_only"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/dynamic-author/r20-cache-state-diagnostic-r1/execution-r3/lifecycle.json",
+      "sha256": "9e73808b57f7506e0948fae379073167848c9e51a91216e207ee4894d149ed47",
+      "bytes": 1602,
+      "availability": "retained_local_read_only",
+      "content_validity": "malformed_json_trailing_literal_backslash_n",
+      "use": "historical derivative only; not parsed deciding output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/dynamic-author/r20-cache-state-diagnostic-r1/execution-r3/cache-lifecycle.stdout.txt",
+      "sha256": "9ff4031ada1bb8595fa8ddd8ede11831235e89c26e164b3fe8ec4b287bd96d22",
+      "bytes": 1329,
+      "availability": "retained_local_read_only"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/dynamic-author/r20-cache-state-diagnostic-r1/execution-r3/supervisor-result.json",
+      "sha256": "f9467b0e7fd9af442d5bf167dc776a46b478f780f4ece466a6dd360bbcc31d0d",
+      "bytes": 2905,
+      "availability": "retained_local_read_only"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/dynamic-author/r20-cache-state-diagnostic-r1/execution-r3/source-profile-freeze.json",
+      "sha256": "bad7699889f48395abf62ed39cc8873bf27d7ffa927365a3d0714dce34947e46",
+      "bytes": 3269,
+      "availability": "retained_local_read_only"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/installed-source-identity-oracle-20261027-r1/source-identity-audit-r1/report.md",
+      "sha256": "d450b8d9eaf509ed675c4e675ea2942b1522b35d7ac52b36f16ce3720268b725",
+      "bytes": 5901,
+      "availability": "retained_local_read_only"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/installed-source-identity-oracle-20261027-r1/source-identity-audit-r1/evidence-addendum.md",
+      "sha256": "dae64bbad2095da7c5707ed7874bbeb73af1fcd6f5f3445674709e3b156110e8",
+      "bytes": 1192,
+      "availability": "retained_local_read_only"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-r20-qualified-diagnostic-replay-20261027-r1/probe.py",
+      "sha256": "1dd734fa6a6642dee79dcbb019839a4a0dd03051d6c93ef4dfa155c5100ce5b8",
+      "bytes": 4781,
+      "availability": "retained_local_read_only"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-r20-qualified-diagnostic-replay-20261027-r1/source-profile-freeze.json",
+      "sha256": "78fc64b52dc8e495dab01c2763b65aaba42c550043b6e764f4990ff03684f10b",
+      "bytes": 5425,
+      "availability": "retained_local_read_only"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-r20-qualified-diagnostic-replay-20261027-r1/cache-lifecycle.stdout.txt",
+      "sha256": "45a837b1ba84e6b7946ae574e18ddb6e248ddb7157c52aece30b61407fce7de7",
+      "bytes": 1329,
+      "availability": "retained_local_read_only"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-r20-qualified-diagnostic-replay-20261027-r1/lifecycle.json",
+      "sha256": "d7303b6375ec81af231d5612dabd9d4802fd513b5cd78c18b8c92478abfb4ae0",
+      "bytes": 1601,
+      "availability": "retained_local_read_only"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-r20-qualified-diagnostic-replay-20261027-r1/supervisor-result.json",
+      "sha256": "d4c4024827fa02810540f837a01df23b899e2e4dfd58bb41bd67c0105da7a1c7",
+      "bytes": 6503,
+      "availability": "retained_local_read_only"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-r20-qualified-diagnostic-replay-20261027-r1/readback.json",
+      "sha256": "460e900622fe985f04c576217084970191421938cc91f81942f2a6be47a5ea0d",
+      "bytes": 540,
+      "availability": "retained_local_read_only"
+    }
+  ],
+  "evidence_denominator": {
+    "kind": "exact retained evidence list, not all E02 evidence",
+    "files": 15
+  },
+  "implementation_status": "RAW proposals, not adopted canonical implementation",
+  "remaining_verification": [
+    "G semantic selection",
+    "versioned owner implementation and reader-first migration",
+    "actual MethodJob consumer/status and selected-cache content controls",
+    "GP/warm-start eligibility only if selected",
+    "installed wheel and rebuilt-sdist outside checkout",
+    "native E02 closeout"
+  ],
+  "independent_review": {
+    "reviewer": "/root/can03_codec_independent_review",
+    "disposition": "split sound; current-consumer overstatement corrected by R23; no runtime acceptance"
+  },
+  "source_freeze": false,
+  "native_external_call": {
+    "decision": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-constructor-relevance-author-r1/v61-external-registration-decision-r1/decision.json",
+      "sha256": "66849d92b3dc888a319a26c9bb3daf6df5412bd679e4c4776750e932ec53d75f"
+    },
+    "qualification": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-constructor-relevance-author-r1/v65-external-registration-qualification-r1/qualification.json",
+      "sha256": "c32de4f2d89107db5573203746136959a9f761e3d1bd8d36cb4c2d576396eb95"
+    },
+    "candidate": {
+      "directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-constructor-relevance-author-r1/v65-namespace-identity-effect-provenance-candidate-r3",
+      "manifest_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-constructor-relevance-author-r1/v65-namespace-identity-effect-provenance-candidate-r3/manifest.json",
+      "manifest_sha256": "97177566b07ae2b9eb36828a1a25da1931679a99a34548c6d8da343bf257ebcf",
+      "owner_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-constructor-relevance-author-r1/v65-namespace-identity-effect-provenance-candidate-r3/decomposition_preflight.py",
+      "owner_sha256": "31cdd9655d8f1c5e92aaca316165f21473e684a3b98f026eb0af70d86ab5412c",
+      "test_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-constructor-relevance-author-r1/v65-namespace-identity-effect-provenance-candidate-r3/test_decomposition_preflight_gates.py",
+      "test_sha256": "0f9dac438b49a30b17dc773326b5df63ce8cb2a9b6b0465c8f61d852b689a164",
+      "classification": "Same selected-module namespace effect class. V65 replaces broad guarded-bit class-info refusal with explicit module-namespace-effect provenance carried through the binding graph; it adds no external package call summary or FastAPI exemption."
+    },
+    "source_readset": [
+      {
+        "path": "src/polisyos/common/canonical_profile.py",
+        "sha256": "d040ecb9baab955f9372703363570f1423777b68febe5d20250113e27875ec3e"
+      },
+      {
+        "path": "src/polisyos/common/serialization/__init__.py",
+        "sha256": "9dd34967d6bb95244085410a5988d326824c017aadb3233db903eab1efb31685"
+      },
+      {
+        "path": "src/polisyos/common/serialization/_strict_json.py",
+        "sha256": "247bc24b087ea1e1f66b872f8c747f141f2331e67157833b660d9da610f30124"
+      },
+      {
+        "path": "src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py",
+        "sha256": "25387bc10dc104ae17619e97b3a1cfc5a2efb7e2cb7028bfe683888e3e2e1deb"
+      },
+      {
+        "path": "src/polisyos/runtime/http/errors.py",
+        "sha256": "fbd6a9e1efec193ef0e415c5ac1f3ff0874735c08f33d5d30d71bc0b237a23dc"
+      }
+    ],
+    "source_readset_denominator": "all five members in this exact declared probe, not repo-wide",
+    "current_disposition": "conservative refusal; no full V65 collector replay",
+    "architecture_selection": "pending_separate_G_choice_B_or_C_if_required",
+    "code_acceptance": false,
+    "closure_ids": [],
+    "default_disposition": "A conservative refusal remains active"
+  },
+  "historical_r20_qualification": {
+    "probe_pre_run_hash_bound": false,
+    "parsed_stdout_is_valid_json": true,
+    "original_bytes_retained": true,
+    "current_deciding_diagnostic": "qualified replay below"
+  },
+  "qualified_diagnostic_replay": {
+    "selected_pin_count": 14,
+    "selected_pins_are_not_complete_import_trace": true,
+    "script_pre_run_hash_bound": true,
+    "script_and_selected_pins_unchanged": true,
+    "result": {
+      "result": "passed",
+      "return_code": 0,
+      "wall_seconds": 5.558286375016905,
+      "max_rss": 597114880,
+      "minimum_disk": 4795572224,
+      "source_pins": 14,
+      "lifecycle_sha256": "d7303b6375ec81af231d5612dabd9d4802fd513b5cd78c18b8c92478abfb4ae0",
+      "stdout_sha256": "45a837b1ba84e6b7946ae574e18ddb6e248ddb7157c52aece30b61407fce7de7",
+      "supervisor_sha256": "d4c4024827fa02810540f837a01df23b899e2e4dfd58bb41bd67c0105da7a1c7",
+      "source_freeze_sha256": "78fc64b52dc8e495dab01c2763b65aaba42c550043b6e764f4990ff03684f10b",
+      "closure_ids": []
+    },
+    "runtime_claim": "diagnostic R19 helper with explicit in-memory RLock classifier; not adopted SourceUnit/MethodJob/wheel capability"
+  }
+}

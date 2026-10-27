@@ -1,0 +1,66 @@
+{
+  "packet": "N1 opaque external exception-registration effect boundary",
+  "classification": "same P40 source-class effect/invalidation class; exact builtin read-only class predicates are a proven safe subcase, while external opaque receiver calls remain effectful/unknown",
+  "baseline": {
+    "head": "3d6e5299a8d86870b68b6b4d7118a494667dbae6",
+    "owner_sha256": "061a94248ffe1334944f66fb3064a6da20eddc069e17f50f92433138d1a13aaa",
+    "test_sha256": "911b96b7a9a14ed6cbf636c42b07818100e0109d06c34145fe5686a19a20aac2"
+  },
+  "candidate": {
+    "owner_sha256": "66018ec16141cd505be844c86722bc13970cb3b64d1d804f9a4b7e060f657293",
+    "test_sha256": "9437b265e97c3d70345d0abed7857f0927b35c4b0cedf8c0b240099a1efd0d13",
+    "manifest_sha256": "012739da26b4d8cca7b0d3b4a2237701b9c2bbcbc1fc4e481fb125041f74ee30",
+    "raw_only": true
+  },
+  "source_evidence": {
+    "canonical_profile_target": "polisyos.common.canonical_profile.CanonicalProfileRefusalError",
+    "runtime_registration": "src/polisyos/runtime/http/errors.py:599 install_exception_handlers(app: Any); registration call at line 722 app.add_exception_handler(CanonicalProfileRefusalError, _handle_canonical_profile_refusal)",
+    "actual_receiver": "src/polisyos/runtime/http/app.py:322 constructs FastAPI; current installer type remains Any and call uses dynamic receiver dispatch",
+    "installed_versions": {
+      "fastapi": "0.128.6 from uv.lock; runtime import confirms same installed version",
+      "starlette": "0.52.1 from uv.lock; runtime import confirms same installed version"
+    },
+    "declared_range": "pyproject.toml runtime-http extra specifies fastapi>=0.109.0 with no upper bound",
+    "current_pinned_source": "FastAPI subclasses Starlette and does not define add_exception_handler; installed Starlette method at applications.py:128-133 performs self.exception_handlers[exc_class_or_status_code] = handler. This is source evidence for the installed exact files only, not for the open declared range.",
+    "hashes": {
+      "registration_source": "fbd6a9e1efec193ef0e415c5ac1f3ff0874735c08f33d5d30d71bc0b237a23dc",
+      "fastapi_applications": "16f0bfff8b2175fd376686ca6d6167697d32c70244b8a705a4331349b912d6f1",
+      "starlette_applications": "c4adbc2c83f6519e59e1a418205a77de495689bb6401d0ce9cb370840485a2b3",
+      "pyproject": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "uv_lock": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9"
+    }
+  },
+  "candidate_behavior": {
+    "four_member_actual_source_probe": "With canonical_profile, serialization init, strict_json and actual decision_packet builder selected, baseline invalidates the target class; V61 proves default type metaclass, preserves the class through builder isinstance, and has no scan error.",
+    "five_member_probe": "Adding actual runtime/http/errors.py makes the same target invalidated again. Per-member probe shows the target invalidation first appears while scanning errors.py. The candidate therefore does not turn the full collector green and correctly retains the opaque registration escape.",
+    "focused_controls": "19 passed: existing 16 source-class effect controls plus default-metaclass builtin positive and parametrized custom __instancecheck__/__subclasscheck__ negatives. The negative tests execute fixture runtime and prove the metaclass hook changes Carrier.loader to importlib.import_module, imports json, then verify the collector refuses.",
+    "ruff": "All eight targeted Ruff checks passed across product and workspace profiles, for owner and test postimages, with canonical absolute stdin filenames."
+  },
+  "alternatives": [
+    {
+      "choice": "A preserve conservative refusal (recommended now)",
+      "reuse_extend_consolidate_build": "Reuse existing conservative opaque-call invalidation. No dependency summary owner currently exists; selected-source method summaries do not establish external package call effects.",
+      "behavior": "The source collector remains incomplete/refusing on the current errors.py registration path. Do not report full source inventory success while this boundary is unknown.",
+      "cost_risk": "No runtime behavior change. Keeps false-green prevention but leaves the existing full collector blocker."
+    },
+    {
+      "choice": "B admit a source-verified dependency call summary",
+      "reuse_extend_consolidate_build": "Extend the existing source-effect summary boundary only after an owner is selected. A summary must bind to exact distribution version and source-file hashes, cover FastAPI-to-Starlette resolution, and prove the method only stores the exception class as a key without invoking or mutating it.",
+      "required_receiver_proof": "The current Any receiver leaves subclass, wrapper, monkeypatch, and dynamic-dispatch behavior open. Installed package source alone is insufficient. A call-site or input contract must prove the actual receiver follows the summarized implementation; otherwise retain refusal.",
+      "version_scope": "Either pin a supported FastAPI/Starlette range and prove each admitted version, or make summary mismatch fail closed. The current lock only attests FastAPI 0.128.6 and Starlette 0.52.1; it does not narrow pyproject public range.",
+      "rollback": "Remove or invalidate the summary on source/version/hash mismatch; collector returns to conservative refusal. Existing exception handler registration and persisted application behavior remain unchanged."
+    },
+    {
+      "choice": "C publish a bounded partial collector claim",
+      "reuse_extend_consolidate_build": "No change to source effect semantics. Change only if the collector output contract can represent an explicit unknown external effect and consumers propagate it as incomplete/partial instead of treating absent imports as empty.",
+      "acceptance_boundary": "No result may be labeled complete while this opaque boundary exists. Requires an explicit typed status/lifecycle decision and downstream consumer tests; otherwise this is merely dropping an effect and is rejected."
+    }
+  ],
+  "decision_requested": "No runtime authority or exception-handling behavior decision is needed for the bounded builtin predicate repair. A separate owner decision is needed only if the project requires complete inventory across opaque external calls: choose source-summary scope and receiver/version contract, or accept a typed partial inventory. Until then keep fail-closed refusal.",
+  "known_limits": [
+    "No dependency source summary or version admission rule was added.",
+    "The run was a five-member selected-source probe, not the 3336-member full collector.",
+    "No arbitrary runtime monkeypatch guarantee is claimed beyond selected source behavior.",
+    "No canonical source bytes or production data were changed."
+  ]
+}

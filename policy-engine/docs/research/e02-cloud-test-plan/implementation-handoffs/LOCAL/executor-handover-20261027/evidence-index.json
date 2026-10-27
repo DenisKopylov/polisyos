@@ -1,0 +1,2489 @@
+{
+  "observed_at": "2026-10-27T19:38:02.188677+00:00",
+  "scope": "All immediate child audit-result.json receipts in exact admitted D directory, plus named important non-run artifacts. Not every historical E02 test run; existing canonical packets retain their own indexes.",
+  "audit_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1",
+  "audit_result_denominator": 32,
+  "overlap_rule": "Never add overlapping selected tests or prior/follow-up runs as new closures. PASS/FAIL/ERROR/SKIP/UNRUN/interrupted remain distinct.",
+  "runs": [
+    {
+      "id": "g27-v6-profile-matrix-red-r1",
+      "task_ids": [
+        "V6"
+      ],
+      "property": "Rootowned testonlyRED/diagnostic beforeproductchange; actualnativeprofile defaultplugins one thread each. Twoadmittedjobs combinedcaps3.52GiB, diskfloor6GiB, no closures.",
+      "source_head_at_run": "d50d285832599a874583a4628a940abd9450cb7e",
+      "selected_nodes": [
+        "tests/unit/runtime/http/test_debug_api.py::test_simulation_result_http_requires_exact_identity_for_every_same_id_node_ref"
+      ],
+      "input_backend_qualification": {},
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/g27-v6-profile-matrix-red-r1/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/g27-v6-profile-matrix-red-r1/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/g27-v6-profile-matrix-red-r1/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 5287,
+        "sha256": "0337a13cee099f620c759d1ed1d6c1681fb4f832c5b6a31a362ddfe0ca731e7c",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/g27-v6-profile-matrix-red-r1/source-profile-freeze.json",
+        "sha256_at_execution": "fb3d9b6918ed237e7b59452935eee31e132d1552095479978a3a7b086d268c47",
+        "available": true
+      },
+      "result": "FAIL",
+      "return_code": 1,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 62.726640959008364,
+      "peak_rss_bytes": 1109082112,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/g27-v6-profile-matrix-red-r1/readsets/input-readset-29340.json",
+          "sha256": "17347fef6873b3daca74ef3b3274126d5810795b6d469a074fea54669198fdec",
+          "python_paths": 1822,
+          "pytest_exitstatus": 1
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/g27-v6-profile-matrix-red-r1/g27-v6-profile-matrix-red-r1.stdout.txt",
+          "available": true,
+          "bytes": 3617,
+          "sha256": "8f78c38f499f37976efb3ce15983b61ae08d845df341362bab18d5153b2d04ba",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/g27-v6-profile-matrix-red-r1/g27-v6-profile-matrix-red-r1.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/g27-v6-profile-matrix-red-r1/pytest.xml",
+          "available": true,
+          "sha256": "2ab469476be7daeb2eb70fbd3a5e44cc7328def17778608619ef32344bc43071"
+        }
+      },
+      "qualification": "FAIL at first A/A fixture: 409 simulation_result_binding_unavailable; no profile mismatch case reached. Not an observed exploit or intended semantic red.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "i1-i4-catalog-current",
+      "task_ids": [
+        "I1",
+        "I4"
+      ],
+      "property": "Original I1 content-basis unchanged/mutation/removal actual checkpoint/QC/Fabric consumers + I4 selected Catalog HTTP positive/currentness/refusals. C05 source matrix is13paths not13independent capabilities. No production freshness or I4Legal encoder proof inferred.",
+      "source_head_at_run": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+      "selected_nodes": [
+        "tests/unit/data_forge/domains/catalog/batch/test_publish.py::test_publish_basis_recomputes_forged_ready_reports_against_selected_graph",
+        "tests/unit/data_forge/domains/catalog/batch/test_publish.py::test_report_basis_read_is_side_effect_free_and_detects_same_stat_drift",
+        "tests/unit/data_forge/domains/catalog/batch/test_publish.py::test_profile_input_coverage_binds_presence_without_persisting_values",
+        "tests/unit/data_forge/domains/catalog/batch/test_publish.py::test_profile_snapshot_is_the_same_basis_and_runtime_connection",
+        "tests/unit/data_forge/domains/catalog/batch/test_publish.py::test_core_receipt_reconciliation_uses_one_profile_snapshot",
+        "tests/unit/data_forge/domains/catalog/batch/test_publish.py::test_current_publish_reader_keeps_legacy_or_malformed_coverage_unknown",
+        "tests/unit/data_forge/domains/catalog/batch/test_core_profile_input_currentness.py::test_unknown_profile_basis_invalidates_all_checkpoint_reuse",
+        "tests/unit/data_forge/domains/catalog/batch/test_core_profile_input_currentness.py::test_established_profile_basis_preserves_independent_caches_without_receipt",
+        "tests/unit/data_forge/domains/catalog/batch/test_core_profile_input_currentness.py::test_core_output_receipt_currentness_requires_established_profile_basis",
+        "tests/unit/data_forge/domains/catalog/batch/test_core_profile_input_currentness.py::test_observation_fetch_deduper_scopes_requests_by_profile_and_input_basis",
+        "tests/unit/data_forge/domains/catalog/batch/test_pipeline.py::test_pipeline_uses_one_profile_snapshot_for_signature_and_core_consumer",
+        "tests/unit/data_forge/domains/catalog/batch/test_observed_support_receipt.py::test_qc_stage_receipt_invalidates_when_heatmap_or_support_artifact_changes",
+        "tests/unit/data_forge/domains/catalog/batch/test_observed_support_receipt.py::test_qc_receipt_rejects_self_consistent_inventory_missing_support_entry",
+        "tests/unit/data_forge/domains/catalog/batch/test_normalizer.py::test_default_worldbank_metric_map_uses_current_government_indicator_ids",
+        "tests/unit/fabric/test_retrieval_service_catalog.py::test_excluded_profile_value_change_is_not_current_or_reusable",
+        "tests/unit/fabric/test_retrieval_service_catalog.py::test_profile_removal_does_not_promote_unpublished_catalog_rows",
+        "tests/unit/fabric/test_retrieval_service_catalog.py::test_real_harvest_currentness_recomputes_and_fresh_catalog_consumer_sees_new_generation",
+        "tests/unit/runtime/http/test_catalog_profile_http.py::test_catalog_profile_http_selects_published_plan_through_fresh_reader",
+        "tests/unit/runtime/http/test_catalog_profile_http.py::test_catalog_profile_http_recomputes_same_id_profile_drift_for_real_consumers",
+        "tests/unit/runtime/http/test_catalog_profile_http.py::test_catalog_profile_http_refuses_absent_conflicting_and_malformed_selection"
+      ],
+      "input_backend_qualification": {},
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 10834,
+        "sha256": "7348d860723dcf7444a8a54c09ebe0ef30fe7d313d459100e89976204d9490ff",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/source-profile-freeze.json",
+        "sha256_at_execution": "fd6f173318603dec262434257dfe58de0f70ba13600f9e68a8ee47d25ec38d96",
+        "available": true
+      },
+      "result": "PASS",
+      "return_code": 0,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 20,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 171.97527674998855,
+      "peak_rss_bytes": 1330561024,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/readsets/input-readset-39953.json",
+          "sha256": "f1e20c181aefb4b629d801bc0bf8825c57cfe8cc20bdff631b5504a272fa1ef8",
+          "python_paths": 1852,
+          "pytest_exitstatus": 0
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/i1-i4-catalog-current.stdout.txt",
+          "available": true,
+          "bytes": 638,
+          "sha256": "c8fb4bb42f40050e3b0331c5104a541ca4cfd193f4a9dd7bf8c2a7a7a5b047d6",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/i1-i4-catalog-current.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/pytest.xml",
+          "available": true,
+          "sha256": "faeea59f7054127f4c13498ee37438b5184341eafc082785649a652def87c1ce"
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "i2-dfk-current",
+      "task_ids": [
+        "I2"
+      ],
+      "property": "Current DFK actual Git records/serializer behavior. Linux-only case retains platform guard and must remain explicit SKIP on Darwin; no full LA005/006/026 census or package acceptance inferred.",
+      "source_head_at_run": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+      "selected_nodes": [
+        "tests/unit/remediation/test_dfk_01.py"
+      ],
+      "input_backend_qualification": {},
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 5178,
+        "sha256": "b7f1da2fc374b78c7b39a56cca345e9251db7aca6b6a47abe29a30457dbd58ee",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current/source-profile-freeze.json",
+        "sha256_at_execution": "f4cbe432ae32bc931054f069423308440b40cc9552a5cd97295704353fc0c09c",
+        "available": true
+      },
+      "result": "FAIL",
+      "return_code": 1,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 45,
+        "failures": 31,
+        "errors": 0,
+        "skipped": 1
+      },
+      "skipped_backends_or_cases": [
+        {
+          "node": "tests.unit.remediation.test_dfk_01::test_dfk_01_census_reads_native_invalid_byte_git_filename",
+          "reason": "requires a native Linux filename containing a non-UTF-8 byte"
+        }
+      ],
+      "wall_seconds": 68.20102995799971,
+      "peak_rss_bytes": 677314560,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current/readsets/input-readset-16046.json",
+          "sha256": "50c33eff3b587053da3dc64d8190586e031ae86591d89232306759b2a4ea82f4",
+          "python_paths": 348,
+          "pytest_exitstatus": 1
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current/i2-dfk-current.stdout.txt",
+          "available": true,
+          "bytes": 31958,
+          "sha256": "c1d49df5217875176946d9f13c58163ac75777387cf5b53c01f5bc72f713fcea",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current/i2-dfk-current.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current/pytest.xml",
+          "available": true,
+          "sha256": "0f4d0f0b9f1b8f803c9cd0bb56eb35b0f958ea79c1a32551b929978fae91d33c"
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "i2-dfk-current-r2",
+      "task_ids": [
+        "I2"
+      ],
+      "property": "Same complete native DFK module. Previous run's CLI cases hit default canonical timing sink denied by audit write boundary; redirect ONLY the documented timing sink to this case, no gate/profile/source changes. Linux guard retained.",
+      "source_head_at_run": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+      "selected_nodes": [
+        "tests/unit/remediation/test_dfk_01.py"
+      ],
+      "input_backend_qualification": {
+        "POLISYOS_TOOLS_TIMING_LOG": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current-r2/timing.jsonl"
+      },
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current-r2/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current-r2/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current-r2/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 5599,
+        "sha256": "490bbcc562a169790eb6665c3480fa8de34aa7323bb79840cfd403c74fe27417",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current-r2/source-profile-freeze.json",
+        "sha256_at_execution": "3e8785ec4e65b89caa5e4e375b6971224cd190f2c8d09610e6e3aa7532ada016",
+        "available": true
+      },
+      "result": "PASS",
+      "return_code": 0,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 45,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "skipped_backends_or_cases": [
+        {
+          "node": "tests.unit.remediation.test_dfk_01::test_dfk_01_census_reads_native_invalid_byte_git_filename",
+          "reason": "requires a native Linux filename containing a non-UTF-8 byte"
+        }
+      ],
+      "wall_seconds": 85.57569195798715,
+      "peak_rss_bytes": 642514944,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current-r2/readsets/input-readset-36743.json",
+          "sha256": "3db3b16c1adc744b5c93e884c81e8f79a4095a7207478e1a70608c29337b2a3c",
+          "python_paths": 348,
+          "pytest_exitstatus": 0
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current-r2/i2-dfk-current-r2.stdout.txt",
+          "available": true,
+          "bytes": 839,
+          "sha256": "aac1027a20081044955635593b51f8c83f37fb6de611dcec4245fa34a81238a0",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current-r2/i2-dfk-current-r2.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current-r2/pytest.xml",
+          "available": true,
+          "sha256": "e9d7e7984b1b19d4a840931ae5d87cf8b248cfdb3eb2c0aacd77197f9523cf10"
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "r2-b89-closing-acquire-race",
+      "task_ids": [
+        "R2"
+      ],
+      "property": "Audit-only RAW behavioral probe, canonical ConnectionPool public acquire/close_all. Native pytest.ini/autoload preserved; RAW probe pinned separately, outside src/tests observer denominator. Read-only FD is opened and physically retired while connect races close_all; no source edits or deletion.",
+      "source_head_at_run": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+      "selected_nodes": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/test_b89_close_acquire_probe.py::test_b89_close_all_during_connect_retires_handle_and_reserved_permit"
+      ],
+      "input_backend_qualification": {},
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-closing-acquire-race/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-closing-acquire-race/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-closing-acquire-race/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 5871,
+        "sha256": "b4d9cfc0eddaf4640c2b688dd44875aeca838358674068867aaeb7ff5509b686",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-closing-acquire-race/source-profile-freeze.json",
+        "sha256_at_execution": "be4743a68f72df170fb54014aa336d56eb7ef81431d9f345b1460adf2fa21c40",
+        "available": true
+      },
+      "result": "PASS",
+      "return_code": 0,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 7.214563207991887,
+      "peak_rss_bytes": 347832320,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-closing-acquire-race/readsets/input-readset-45271.json",
+          "sha256": "866dd4f42fd783cee37b82d102ecab873d153ce91d509a449c19ab4f0bd2e1df",
+          "python_paths": 364,
+          "pytest_exitstatus": 0
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-closing-acquire-race/r2-b89-closing-acquire-race.stdout.txt",
+          "available": true,
+          "bytes": 628,
+          "sha256": "21a2d8a9f127d8a9fb631e9b4afe238d74c3a4c4a6bfff4878c30434d60fa46f",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-closing-acquire-race/r2-b89-closing-acquire-race.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-closing-acquire-race/pytest.xml",
+          "available": true,
+          "sha256": "0b2f436de6fc215e6a94363323c3871bb8ddffeb86ed99bc795467a28c4c8bc6"
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "r2-b89-post-permit-metadata-cancel",
+      "task_ids": [
+        "R2"
+      ],
+      "property": "Audit-only original B89 cancellation while waiting for metadata lock after permit acquisition. Gated real BoundedSemaphore exposes actual owner state permit_acquired=True/registered=False/pooled=None; cancellation must propagate, slot restored once, next public acquire/release/close succeeds. RAW test pinned separately; native pytest profile remains.",
+      "source_head_at_run": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+      "selected_nodes": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/test_b89_post_permit_lock_probe.py::test_b89_cancel_after_permit_before_metadata_returns_slot_once"
+      ],
+      "input_backend_qualification": {},
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-post-permit-metadata-cancel/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-post-permit-metadata-cancel/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-post-permit-metadata-cancel/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 5997,
+        "sha256": "d975f7f9d66f49fc513f2ec994214ce1ca2c22d3bf94886bb53bf3b9f1ddba47",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-post-permit-metadata-cancel/source-profile-freeze.json",
+        "sha256_at_execution": "b27a2c4554fac908ebe9566eb5a528f05b7db2d275a158d1903fdcd8c683f706",
+        "available": true
+      },
+      "result": "PASS",
+      "return_code": 0,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 7.227066416002344,
+      "peak_rss_bytes": 354664448,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-post-permit-metadata-cancel/readsets/input-readset-47159.json",
+          "sha256": "fca1d023cfa6b48c6c2be5f712e915bffd79f69c8f5885a5c3d98be6863724e7",
+          "python_paths": 364,
+          "pytest_exitstatus": 0
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-post-permit-metadata-cancel/r2-b89-post-permit-metadata-cancel.stdout.txt",
+          "available": true,
+          "bytes": 635,
+          "sha256": "d29d6872365a1ada7cafc77af7fec64ff43f5a75dde180c1480a2c329a6e7593",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-post-permit-metadata-cancel/r2-b89-post-permit-metadata-cancel.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-post-permit-metadata-cancel/pytest.xml",
+          "available": true,
+          "sha256": "8f74c1906947a98c5706e7dad2448ae2b1443997ea65babe2908263b0ac00000"
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "r2-current-full-boundaries",
+      "task_ids": [
+        "R2"
+      ],
+      "property": "Current whole R2 connector/pool/physical-stream/setup-checkpoint-rewind/recovery boundaries; fresh broader original B87/B89 coverage after earlier21PASS subset. Missing deterministic post-permit-lock/close_all-race discriminator remains explicit if tests do not cover it. I3 positive source cursor is separate.",
+      "source_head_at_run": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+      "selected_nodes": [
+        "tests/unit/fabric/connectors/test_components_bridge.py",
+        "tests/unit/fabric/connectors/test_protocol_compliance.py",
+        "tests/unit/fabric/connectors/test_registry.py",
+        "tests/unit/fabric/connectors/test_pool_e02.py",
+        "tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py",
+        "tests/unit/fabric/data_plane/test_stream_pool_physical_cleanup_oracle.py",
+        "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "tests/unit/fabric/test_semantic_group_imports.py"
+      ],
+      "input_backend_qualification": {},
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 6141,
+        "sha256": "fe272f1651c01bbf731919bda6267adf25b93167b2f4caf035c7870d3fde7c25",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/source-profile-freeze.json",
+        "sha256_at_execution": "9843a4d5bcb0895d6dc6b23fb07a3bfb7a9c134ad4cda98bbb02e2c2700ce010",
+        "available": true
+      },
+      "result": "PASS",
+      "return_code": 0,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 316,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 18.647723083995515,
+      "peak_rss_bytes": 365101056,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/readsets/input-readset-39952.json",
+          "sha256": "ba553a7336a4587bd5949848e29b26c9f3ec467808ce0f7fa8d2d3727142a181",
+          "python_paths": 431,
+          "pytest_exitstatus": 0
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/r2-current-full-boundaries.stdout.txt",
+          "available": true,
+          "bytes": 951,
+          "sha256": "3395e708a9574d8f8c8b53d3ea6b994e045b6f906c35565476c17663bea8c1b3",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/r2-current-full-boundaries.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/pytest.xml",
+          "available": true,
+          "sha256": "811198e0548171177e86a021300a81430fd9aa2dcb45f6d4cbca6933dfc60f15"
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "r2-physical-cleanup-current",
+      "task_ids": [
+        "R2"
+      ],
+      "property": "Whole current physical-file/pool cleanup and recovery modules, real task cancellation and no premature reuse, cursor/window/CAS commit/reopen controls. Does not imply source-confirmed I3 positive.",
+      "source_head_at_run": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+      "selected_nodes": [
+        "tests/unit/fabric/data_plane/test_stream_pool_physical_cleanup_oracle.py",
+        "tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py"
+      ],
+      "input_backend_qualification": {},
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-physical-cleanup-current/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-physical-cleanup-current/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-physical-cleanup-current/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 5310,
+        "sha256": "dcd748c24e5d44a40e29fb87c45d2fe8f1e555379e2ec35b5c3a4b49d9eba779",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-physical-cleanup-current/source-profile-freeze.json",
+        "sha256_at_execution": "3065903fadb91b1f3e5c7e936e3064e0c362f0194a781baaa9f29a4d319bac4a",
+        "available": true
+      },
+      "result": "PASS",
+      "return_code": 0,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 21,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 8.32382587500615,
+      "peak_rss_bytes": 341196800,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-physical-cleanup-current/readsets/input-readset-32183.json",
+          "sha256": "0e6c3e7ccf665432959bf009f0911f702d552d289512b9fa37860c05437a6538",
+          "python_paths": 377,
+          "pytest_exitstatus": 0
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-physical-cleanup-current/r2-physical-cleanup-current.stdout.txt",
+          "available": true,
+          "bytes": 629,
+          "sha256": "7370ed68261c9249bb56a14a0f0b6046c75b8ca0d62e0d27b96b09e316c24a94",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-physical-cleanup-current/r2-physical-cleanup-current.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-physical-cleanup-current/pytest.xml",
+          "available": true,
+          "sha256": "67ac86a2884592eede0055614f7bcbdc2167336317c00469279e1ee115f72da1"
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "r3-origin-ledger-lifecycle-current",
+      "task_ids": [
+        "R3"
+      ],
+      "property": "Current producer/observer/durable ledger and four cost origins plus retry/cache/cancel/reopen. Owner-injected factory reuse positive is distinguished from actual NL caller lacking authorizer; not whole B67/B68 or provider invoice proof.",
+      "source_head_at_run": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+      "selected_nodes": [
+        "tests/unit/core/llm/test_traced_client_settlement.py",
+        "tests/unit/core/llm/test_cache_settlement.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache_scope_admission.py",
+        "tests/unit/scientist/orchestration/llm/test_factory_cache_composition.py",
+        "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py::test_simulated_nl_producer_costs_settle_and_capture_four_origins",
+        "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py::test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen"
+      ],
+      "input_backend_qualification": {
+        "POLISYOS_RUN_INTEGRATION": "1",
+        "POLISYOS_TOOLS_TIMING_LOG": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-origin-ledger-lifecycle-current/timing.jsonl"
+      },
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-origin-ledger-lifecycle-current/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-origin-ledger-lifecycle-current/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-origin-ledger-lifecycle-current/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 6852,
+        "sha256": "f798bccbbadd47c2f65803aa43e87d9603a4a35e03b76c5ae584133325f5604c",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-origin-ledger-lifecycle-current/source-profile-freeze.json",
+        "sha256_at_execution": "9f2b0255ad717047105fd66b318053a38fd0d3855d1c57c21eda2df1b57fdfcf",
+        "available": true
+      },
+      "result": "FAIL",
+      "return_code": 1,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 69,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 36.44529108298593,
+      "peak_rss_bytes": 1279639552,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-origin-ledger-lifecycle-current/readsets/input-readset-32184.json",
+          "sha256": "1244f467e0b3aa243490418c23d42c389bc859d47dcb253b3ac7b746cc2b7d6f",
+          "python_paths": 1879,
+          "pytest_exitstatus": 1
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-origin-ledger-lifecycle-current/r3-origin-ledger-lifecycle-current.stdout.txt",
+          "available": true,
+          "bytes": 37103,
+          "sha256": "fe1c4a62fce19825a70569422b43e9466a09307b91dac97d397524265759b216",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-origin-ledger-lifecycle-current/r3-origin-ledger-lifecycle-current.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-origin-ledger-lifecycle-current/pytest.xml",
+          "available": true,
+          "sha256": "05bf22fa7c85371a77fd8333f34e607e2a4eb5bbfb3553afcf2c50d39d890c11"
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "ready-r2-portable-admission-races-r1",
+      "task_ids": [
+        "R2"
+      ],
+      "property": "Canonical portable tests for close-during-connect real FD retirement and cancel-after-permit-before-registration with live sibling owner. Existing R2 product bytes unchanged; no broader capability closure inferred.",
+      "source_head_at_run": "76691bd25ba10bee2caed9826e54cd9d40324ca5",
+      "selected_nodes": [
+        "tests/unit/fabric/connectors/test_pool_admission_races.py"
+      ],
+      "input_backend_qualification": {},
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/ready-r2-portable-admission-races-r1/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/ready-r2-portable-admission-races-r1/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/ready-r2-portable-admission-races-r1/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 5270,
+        "sha256": "031decc742f180c3ebd6348a1fd4bf6abe5a4d8664cd43baf79c8946d54a940b",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/ready-r2-portable-admission-races-r1/source-profile-freeze.json",
+        "sha256_at_execution": "7d695bc0846929ac9eb3540a966d21bebff598e3062b37a9ae6d80bf15eb8837",
+        "available": true
+      },
+      "result": "PASS",
+      "return_code": 0,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 63.18324095898424,
+      "peak_rss_bytes": 335560704,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/ready-r2-portable-admission-races-r1/readsets/input-readset-89973.json",
+          "sha256": "c9cc3e951b04b563a14fdc22f095096d8cda47c5d6fa923a890ecbd6593fbd67",
+          "python_paths": 378,
+          "pytest_exitstatus": 0
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/ready-r2-portable-admission-races-r1/ready-r2-portable-admission-races-r1.stdout.txt",
+          "available": true,
+          "bytes": 637,
+          "sha256": "9f80648ead77bd71a500cac43caef98d50efefacdf437d814a4dec842d5bf277",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/ready-r2-portable-admission-races-r1/ready-r2-portable-admission-races-r1.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/ready-r2-portable-admission-races-r1/pytest.xml",
+          "available": true,
+          "sha256": "ca26b513a2bf6aa059a0f5780c7af52906764b817b7a3126424cf24fed8537a2"
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "remaining19-i1-session-wvs-existing",
+      "task_ids": [
+        "I1"
+      ],
+      "property": "Existing actual WVSsamepath/samestat material mutation warm loaders/harvest rows and signature, session cache capturedprofile, resources/facades/discovery. Complements earlier20casecheckpoint/benchmark proof; no unification or wholeI1closure inferred automatically.",
+      "source_head_at_run": "a92c9774edf8049d590cd6ca6de35aa17063025a",
+      "selected_nodes": [
+        "tests/unit/remediation/test_dfi_03.py::test_warm_wvs_policy_change_updates_selected_bulk_rows_and_harvest_catalog",
+        "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation",
+        "tests/unit/data_forge/domains/catalog/batch/core_sources/test_writers.py::test_connector_session_cache_uses_one_captured_effective_profile_set",
+        "tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py::test_all_existing_default_consumers_use_original_resources",
+        "tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py::test_present_invalid_wvs_registry_refuses_all_reader_fallbacks",
+        "tests/unit/data_forge/read_api/test_wvs_indicator_registry.py",
+        "tests/unit/fabric/test_wvs_catalog_discovery.py"
+      ],
+      "input_backend_qualification": {},
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 6773,
+        "sha256": "2bf865fdfb5b9ee8d8d1942a32074d5e451fd56da1a39a89d4e590fbf1c88e9e",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/source-profile-freeze.json",
+        "sha256_at_execution": "5fc7319f2c237ec1071e7cb1ad18ce224f99476ed0546a351b11c88cfa378f8f",
+        "available": true
+      },
+      "result": "PASS",
+      "return_code": 0,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 18.940972791984677,
+      "peak_rss_bytes": 380174336,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/readsets/input-readset-59855.json",
+          "sha256": "5c851a710efd75062b396ac7bd899094b4da1f62d40ddbbf2ec7fcf19a9dddbf",
+          "python_paths": 448,
+          "pytest_exitstatus": 0
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/remaining19-i1-session-wvs-existing.stdout.txt",
+          "available": true,
+          "bytes": 639,
+          "sha256": "78646f9cf6f6ec18619b13d3e8349077bcabbbd2a37b15bde7800b5793d1adaf",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/remaining19-i1-session-wvs-existing.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/pytest.xml",
+          "available": true,
+          "sha256": "512bc9de995cf231ade1b6fe45adbb76990ad312ced2239bb84cd0814ce34b20"
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "remaining19-r1-core-state-cache",
+      "task_ids": [
+        "R1"
+      ],
+      "property": "Current exact prepared-B contour/runtime consumer replay and B148 ordinary admission. No baseline/property-removal or whole task closure inferred.",
+      "source_head_at_run": "76691bd25ba10bee2caed9826e54cd9d40324ca5",
+      "selected_nodes": [
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+        "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+        "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+        "tests/unit/scientist/orchestration/engine/test_state_merge.py"
+      ],
+      "input_backend_qualification": {},
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-r1-core-state-cache/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-r1-core-state-cache/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-r1-core-state-cache/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 5797,
+        "sha256": "b10671c31e03b7d9c4c992dc556c5330a58f144189e7a9832c8e1411f0ca4445",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-r1-core-state-cache/source-profile-freeze.json",
+        "sha256_at_execution": "2fe991589915a193d30172eed4973d566cb95c941129d3a7b8cddb3903e82609",
+        "available": true
+      },
+      "result": "FAIL",
+      "return_code": 1,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 111,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 67.6967730410106,
+      "peak_rss_bytes": 1986920448,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-r1-core-state-cache/readsets/input-readset-80640.json",
+          "sha256": "175847468c9456da504d7e1b90a316d4cc3db3f4113c582a5995640d63e028c8",
+          "python_paths": 1593,
+          "pytest_exitstatus": 1
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-r1-core-state-cache/remaining19-r1-core-state-cache.stdout.txt",
+          "available": true,
+          "bytes": 2845,
+          "sha256": "c389dbc13bf7ea32b64f031352c2a7bb7a342be786fe8bda8c5cb2645bd79348",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-r1-core-state-cache/remaining19-r1-core-state-cache.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-r1-core-state-cache/pytest.xml",
+          "available": true,
+          "sha256": "4e77d8c4ea27ff3f1aa2a69a20e5bc879cdd317e5f2bfec377be6589f0b918ec"
+        }
+      },
+      "qualification": "110 PASS/one FAIL, expected child exit73 versus SIGTERM after test join30. No OOM attribution.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "remaining19-r1-spawn-discriminator-r2",
+      "task_ids": [
+        "R1"
+      ],
+      "property": "Discriminates recursively re-entered pytest from product process-loss failure. Only runner __main__ guard changes; same native pytest/source/test child timeout.",
+      "source_head_at_run": "76691bd25ba10bee2caed9826e54cd9d40324ca5",
+      "selected_nodes": [
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py::test_incomplete_process_run_resumes_same_cache_and_one_terminal_lifecycle"
+      ],
+      "input_backend_qualification": {},
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-r1-spawn-discriminator-r2/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-r1-spawn-discriminator-r2/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-r1-spawn-discriminator-r2/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 5417,
+        "sha256": "8416631e65d48e566007b33a0db93d8bb46490f98db5c1829f253d532088017c",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-r1-spawn-discriminator-r2/source-profile-freeze.json",
+        "sha256_at_execution": "4d3103542b628e7dee8f7bb96b645231f3aa6ad9831e5c40bb5cf3ab6002fb30",
+        "available": true
+      },
+      "result": "FAIL",
+      "return_code": 1,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 175.1626136249979,
+      "peak_rss_bytes": 1308147712,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-r1-spawn-discriminator-r2/readsets/input-readset-84818.json",
+          "sha256": "c931f5821ea9114580bc3e3c894e6b22bed71203dc873e2283728e1d87608e67",
+          "python_paths": 1316,
+          "pytest_exitstatus": 1
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-r1-spawn-discriminator-r2/remaining19-r1-spawn-discriminator-r2.stdout.txt",
+          "available": true,
+          "bytes": 1401,
+          "sha256": "d103eee6c725ae00a9f11ef1dee2a3395f2a928b23809bf7b3a77b6be40825ec",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-r1-spawn-discriminator-r2/remaining19-r1-spawn-discriminator-r2.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-r1-spawn-discriminator-r2/pytest.xml",
+          "available": true,
+          "sha256": "90502140b13afa78749a9d21f4f97ceb3585b4cd4a92c7cdeea1579a40dabc0b"
+        }
+      },
+      "qualification": "One FAIL at same child timeout despite guarded launcher. Guard was insufficient; P41 inherited not established.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "remaining19-v1-dedicated-stack-r2",
+      "task_ids": [
+        "V1"
+      ],
+      "property": "Audit diagnostic only: nativepytest/profile/oneexactV1node preserved; faulthandler nowdedicatedoutputfilebeforecapture (previous stderr timer wascapturedby nativepytestfdcapture andnotvisibleafterabort). Reduced3GiB90sbudget; native sample/vmmapalreadycaptured Pythonobjectallocation/GC. NeedexactPythonowner, notsemanticPASSclaim.",
+      "source_head_at_run": "a92c9774edf8049d590cd6ca6de35aa17063025a",
+      "selected_nodes": [
+        "tests/integration/core_runtime/test_acquisition_authority_served.py::test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry"
+      ],
+      "input_backend_qualification": {
+        "POLISYOS_RUN_INTEGRATION": "1"
+      },
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-v1-dedicated-stack-r2/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-v1-dedicated-stack-r2/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-v1-dedicated-stack-r2/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 5067,
+        "sha256": "8963798318048c12a5798be37f4b3bf46c77267d3f42e0ac90acd2d0d7fb8be6",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-v1-dedicated-stack-r2/source-profile-freeze.json",
+        "sha256_at_execution": "9587e9add0559eb685c89c6bd7b3e1a804582d0a4064c03b51bcd65abcf6b8ae",
+        "available": true
+      },
+      "result": "interrupted",
+      "return_code": -15,
+      "complete": true,
+      "aborted_reason": "sampled_process_tree_rss_cap",
+      "junit_case_counts": {},
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 50.725766124989605,
+      "peak_rss_bytes": 3278487552,
+      "readsets": [],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-v1-dedicated-stack-r2/remaining19-v1-dedicated-stack-r2.stdout.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-v1-dedicated-stack-r2/remaining19-v1-dedicated-stack-r2.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-v1-dedicated-stack-r2/pytest.xml",
+          "available": false,
+          "sha256": null
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "remaining19-v1-stack-diagnostic",
+      "task_ids": [
+        "V1"
+      ],
+      "property": "Same exact V1/native pytest/profile and5GiBcap; add only faulthandler repeated5sPythonstackdiagnostic to generated hash-pinned launcher. No source/test edits, no relaxedgate. Optional read-only sample/vmmap byrootoutside child at2GiBRSS. Prior95s5.18GiBabort localized activeNLjob but exactallocator unknown.",
+      "source_head_at_run": "a92c9774edf8049d590cd6ca6de35aa17063025a",
+      "selected_nodes": [
+        "tests/integration/core_runtime/test_acquisition_authority_served.py::test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry"
+      ],
+      "input_backend_qualification": {
+        "POLISYOS_RUN_INTEGRATION": "1"
+      },
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-v1-stack-diagnostic/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-v1-stack-diagnostic/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-v1-stack-diagnostic/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 5014,
+        "sha256": "c7ab2179c94f8983cd85cd3bb51214d50b2380ccca2d73dc034790c209024786",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-v1-stack-diagnostic/source-profile-freeze.json",
+        "sha256_at_execution": "8aca308b162ac2bd0a739f4e6364dccc6853692a385b2786074ad35193a25c58",
+        "available": true
+      },
+      "result": "interrupted",
+      "return_code": -15,
+      "complete": true,
+      "aborted_reason": "overall_wall_cap",
+      "junit_case_counts": {},
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 176.11464308400173,
+      "peak_rss_bytes": 4693475328,
+      "readsets": [],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-v1-stack-diagnostic/remaining19-v1-stack-diagnostic.stdout.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-v1-stack-diagnostic/remaining19-v1-stack-diagnostic.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-v1-stack-diagnostic/pytest.xml",
+          "available": false,
+          "sha256": null
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "s3-b31-channels-current",
+      "task_ids": [
+        "S3"
+      ],
+      "property": "Current B31 actual reports/owner basis/fresh CAS and fixed-unit projection plus synthetic4/[1,10] preservation. Check individual witness limits; do not claim combined two-channel native unit witness from separate tests.",
+      "source_head_at_run": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+      "selected_nodes": [
+        "tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py::test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis",
+        "tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds",
+        "tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_cas",
+        "tests/unit/runtime/quality/test_value_gate.py::test_n8_fresh_consumer_reads_recomputed_fixed_unit_owner_projection"
+      ],
+      "input_backend_qualification": {},
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/s3-b31-channels-current/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/s3-b31-channels-current/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/s3-b31-channels-current/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 6066,
+        "sha256": "85d4d4fe535b4d5847deb1496c7aa7a00634ea58172083eda9d482a8300a52b2",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/s3-b31-channels-current/source-profile-freeze.json",
+        "sha256_at_execution": "4b1895ea0ef1be61852b8162b467fce10d160f919c97a97adedea2a44b94250f",
+        "available": true
+      },
+      "result": "FAIL",
+      "return_code": 1,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 4,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 175.5117779589782,
+      "peak_rss_bytes": 1055145984,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/s3-b31-channels-current/readsets/input-readset-44180.json",
+          "sha256": "03ff65ab3342fc114632b08e41481dbd521c817ff0e54fd878d181bab0407716",
+          "python_paths": 1655,
+          "pytest_exitstatus": 1
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/s3-b31-channels-current/s3-b31-channels-current.stdout.txt",
+          "available": true,
+          "bytes": 131923,
+          "sha256": "4e2a30d79287ddc414fa1bd2532a68d9c648d79b0f365dba7a4db349ece5fc69",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/s3-b31-channels-current/s3-b31-channels-current.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/s3-b31-channels-current/pytest.xml",
+          "available": true,
+          "sha256": "a9b3d0904ca4ac384dae2ef9a63afe76de36c0804a0a643bcd278a0380b53128"
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "v1-served-isolated-r3",
+      "task_ids": [
+        "V1"
+      ],
+      "property": "Ordinary configured POST/owned context/worker/N5/CAS/fresh GET; actual recorded N4 child derivation then N6/history, budget stop, sibling failure and history removal. Controlled source-bound local witnesses; no live production currentness or whole mapped findings closure. Isolated V1 after two resource-limit aborts; 5GiB serial cap authorized after measured free-memory check; no weakening of native profile. V2 not claimed run.",
+      "source_head_at_run": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+      "selected_nodes": [
+        "tests/integration/core_runtime/test_acquisition_authority_served.py::test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry"
+      ],
+      "input_backend_qualification": {
+        "POLISYOS_RUN_INTEGRATION": "1"
+      },
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-served-isolated-r3/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-served-isolated-r3/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-served-isolated-r3/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 5045,
+        "sha256": "e0753f29d5cd45fe1fe07f98078e65225980752d3a7ebdd1ef52af3b81ffa173",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-served-isolated-r3/source-profile-freeze.json",
+        "sha256_at_execution": "3eddd08bf02ca6b6c8ec841a58f1a6f2405a9b88ca41fb37718dfd5697681569",
+        "available": true
+      },
+      "result": "interrupted",
+      "return_code": -15,
+      "complete": true,
+      "aborted_reason": "sampled_process_tree_rss_cap",
+      "junit_case_counts": {},
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 95.368432999996,
+      "peak_rss_bytes": 5564858368,
+      "readsets": [],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-served-isolated-r3/v1-served-isolated-r3.stdout.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-served-isolated-r3/v1-served-isolated-r3.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-served-isolated-r3/pytest.xml",
+          "available": false,
+          "sha256": null
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "v1-v2-served-current",
+      "task_ids": [
+        "V1",
+        "V2"
+      ],
+      "property": "Ordinary configured POST/owned context/worker/N5/CAS/fresh GET; actual recorded N4 child derivation then N6/history, budget stop, sibling failure and history removal. Controlled source-bound local witnesses; no live production currentness or whole mapped findings closure.",
+      "source_head_at_run": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+      "selected_nodes": [
+        "tests/integration/core_runtime/test_acquisition_authority_served.py::test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry",
+        "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_original_second_capture_serves_two_meaningful_children_through_fresh_get",
+        "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_original_second_capture_tcp_reopens_partial_n5_after_sibling_failure"
+      ],
+      "input_backend_qualification": {
+        "POLISYOS_RUN_INTEGRATION": "1"
+      },
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 5549,
+        "sha256": "50f251c1d3e019ab4fa49161617a90b4ccccef942e20445710bb1be2ebaa04ae",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current/source-profile-freeze.json",
+        "sha256_at_execution": "66f0600cdae8efcbd25b1cf60ce752978180afdf7a91f23ffea0afadfaa75040",
+        "available": true
+      },
+      "result": "interrupted",
+      "return_code": -15,
+      "complete": true,
+      "aborted_reason": "sampled_process_tree_rss_cap",
+      "junit_case_counts": {},
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 20.80913383301231,
+      "peak_rss_bytes": 2784067584,
+      "readsets": [],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current/v1-v2-served-current.stdout.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current/v1-v2-served-current.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current/pytest.xml",
+          "available": false,
+          "sha256": null
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "v1-v2-served-current-r2",
+      "task_ids": [
+        "V1",
+        "V2"
+      ],
+      "property": "Ordinary configured POST/owned context/worker/N5/CAS/fresh GET; actual recorded N4 child derivation then N6/history, budget stop, sibling failure and history removal. Controlled source-bound local witnesses; no live production currentness or whole mapped findings closure. Initial run stopped by measured monitor cap at2.59GiB, no completed test verdict. This retry uses3.42GiB cap after memory_pressure measured59%free; no test/profile/source change.",
+      "source_head_at_run": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+      "selected_nodes": [
+        "tests/integration/core_runtime/test_acquisition_authority_served.py::test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry",
+        "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_original_second_capture_serves_two_meaningful_children_through_fresh_get",
+        "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_original_second_capture_tcp_reopens_partial_n5_after_sibling_failure"
+      ],
+      "input_backend_qualification": {
+        "POLISYOS_RUN_INTEGRATION": "1"
+      },
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current-r2/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current-r2/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current-r2/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 5758,
+        "sha256": "40b765972e0d40ac59c00f145957bfdd80616bf92eea8763313b9f7107e7b336",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current-r2/source-profile-freeze.json",
+        "sha256_at_execution": "21650aa305cc91ad14ab8177678cf0dedbcb514a0f0a3cef7c8e0fa910943278",
+        "available": true
+      },
+      "result": "interrupted",
+      "return_code": -15,
+      "complete": true,
+      "aborted_reason": "sampled_process_tree_rss_cap",
+      "junit_case_counts": {},
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 138.13841762501397,
+      "peak_rss_bytes": 3711942656,
+      "readsets": [],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current-r2/v1-v2-served-current-r2.stdout.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current-r2/v1-v2-served-current-r2.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current-r2/pytest.xml",
+          "available": false,
+          "sha256": null
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "v2-served-isolated",
+      "task_ids": [
+        "V2"
+      ],
+      "property": "Isolated V2 actual recorded N4 children→N6/history/freshGET plus sibling failure/budget/removal; source/config native profile unchanged. Earlier combined runs aborted within V1 and did not reach V2.",
+      "source_head_at_run": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+      "selected_nodes": [
+        "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_original_second_capture_serves_two_meaningful_children_through_fresh_get",
+        "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_original_second_capture_tcp_reopens_partial_n5_after_sibling_failure"
+      ],
+      "input_backend_qualification": {
+        "POLISYOS_RUN_INTEGRATION": "1"
+      },
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v2-served-isolated/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v2-served-isolated/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v2-served-isolated/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 5141,
+        "sha256": "8a72523c4e7f14cd4b6331ca6920ce9610e026626277af213393502c8cd925c6",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v2-served-isolated/source-profile-freeze.json",
+        "sha256_at_execution": "551d62056cb201d37f9f7cf6b993c23c1165b94c0babfe77aac1bbe67c1bbf4c",
+        "available": true
+      },
+      "result": "interrupted",
+      "return_code": -15,
+      "complete": true,
+      "aborted_reason": "sampled_process_tree_rss_cap",
+      "junit_case_counts": {},
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 32.18853154100361,
+      "peak_rss_bytes": 3249684480,
+      "readsets": [],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v2-served-isolated/v2-served-isolated.stdout.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v2-served-isolated/v2-served-isolated.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v2-served-isolated/pytest.xml",
+          "available": false,
+          "sha256": null
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "v4-v7-empirical-current",
+      "task_ids": [
+        "V4",
+        "V7"
+      ],
+      "property": "Actual predictive heldout observations to persisted CAS evidence, fresh HTTP GET and S10; same intervals/different outcomes discriminator. No causal calibration, population completeness or source-owned time authority inferred.",
+      "source_head_at_run": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+      "selected_nodes": [
+        "tests/unit/runtime/http/test_control_service_di.py::test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry",
+        "tests/unit/remediation/test_frc_02_empirical_bridge.py::test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate"
+      ],
+      "input_backend_qualification": {},
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v4-v7-empirical-current/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v4-v7-empirical-current/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v4-v7-empirical-current/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 5580,
+        "sha256": "72b80a61e4128e6cd05287f39b4cee199c9e35b0bb6e4fda59a43212dd15beaf",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v4-v7-empirical-current/source-profile-freeze.json",
+        "sha256_at_execution": "9ddec476c4eb8bddd07890bb853e81bf8d4d5966f8a7522c95fc42996b425603",
+        "available": true
+      },
+      "result": "FAIL",
+      "return_code": 1,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 23.7945847499941,
+      "peak_rss_bytes": 1279803392,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v4-v7-empirical-current/readsets/input-readset-42776.json",
+          "sha256": "c795e70f1fa6a1f3e011f55e07db3d13723b9ba0fea000af80338ff2ddcc5707",
+          "python_paths": 1858,
+          "pytest_exitstatus": 1
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v4-v7-empirical-current/v4-v7-empirical-current.stdout.txt",
+          "available": true,
+          "bytes": 9253,
+          "sha256": "b92087edaff7f6ff7f3deffbc96014b0094b250aae5f8be7981bb033a14e6e98",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v4-v7-empirical-current/v4-v7-empirical-current.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v4-v7-empirical-current/pytest.xml",
+          "available": true,
+          "sha256": "aa2e6ea24afdf625bda17187ea5ed7cb7c0b69067a59eeaa09d11e7b5440b25c"
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "v5-failure-discriminating-locals",
+      "task_ids": [
+        "V5"
+      ],
+      "property": "One-variable diagnostic followup to fresh2FAIL: retain canonical pytest.ini/default plugins and source; add only failure-local display. Determine GP prefit early-exit and executed packet rejection predicate. Both tests belong to V5/B157, not original V6 SimulationResult.",
+      "source_head_at_run": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+      "selected_nodes": [
+        "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_fitted_native_gp_profile_round_trips_into_same_context_search",
+        "tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py::test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations"
+      ],
+      "input_backend_qualification": {
+        "POLISYOS_RUN_NATIVE_GP_HEAVY": "1",
+        "PYTEST_ADDOPTS": "--showlocals"
+      },
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-failure-discriminating-locals/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-failure-discriminating-locals/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-failure-discriminating-locals/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 5830,
+        "sha256": "dc626f22fe9d5c27d1d17c3b9c341c0da286797d5b70e1b44222caf25f56f272",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-failure-discriminating-locals/source-profile-freeze.json",
+        "sha256_at_execution": "e34fbbd07d155a3cfafc711f0f2d18a00543ddef1005f9debde2c48d95c2155a",
+        "available": true
+      },
+      "result": "FAIL",
+      "return_code": 1,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 27.327148958982434,
+      "peak_rss_bytes": 1063550976,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-failure-discriminating-locals/readsets/input-readset-36742.json",
+          "sha256": "5a0acf49fd499d1b7be29531eec0d0f8ac180b7a12d0882c7ad6d3941944b7ed",
+          "python_paths": 1271,
+          "pytest_exitstatus": 1
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-failure-discriminating-locals/v5-failure-discriminating-locals.stdout.txt",
+          "available": true,
+          "bytes": 11715,
+          "sha256": "1a94e890d609c853f06948e0b227085c4c940e000d9f7bea13679bf63337047a",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-failure-discriminating-locals/v5-failure-discriminating-locals.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-failure-discriminating-locals/pytest.xml",
+          "available": true,
+          "sha256": "f3741f9d495dfba766c390100d8ff7a44e9bc030e3939ad93bf956bccb0f423b"
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "v5-native-gp-and-b157",
+      "task_ids": [
+        "V5"
+      ],
+      "property": "Actual native GP->Search/MethodJob/CAS/history/fresh reader plus original B157 directL4 vs L3->L4 caller/config invariants. Last diagnostic work-count test patches nuisance/tau and does not establish native DR fitting. No B108 fiscal authority or pending new static/cache identity law inferred.",
+      "source_head_at_run": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+      "selected_nodes": [
+        "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_fitted_native_gp_profile_round_trips_into_same_context_search",
+        "tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py::test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations",
+        "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_source_bound_methodjob_work_packet_supports_same_input_l3_to_l4_witness"
+      ],
+      "input_backend_qualification": {
+        "POLISYOS_RUN_NATIVE_GP_HEAVY": "1"
+      },
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-native-gp-and-b157/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-native-gp-and-b157/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-native-gp-and-b157/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 6025,
+        "sha256": "e84064c4185e33a58730a772ac0896b05220cfc931839caf5194ef8b69a110e3",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-native-gp-and-b157/source-profile-freeze.json",
+        "sha256_at_execution": "4d33faaa36e8d5f98e486a9c6df5ae4ff14648129595d50fc025740ecfe115b7",
+        "available": true
+      },
+      "result": "FAIL",
+      "return_code": 1,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 3,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 23.817832792003173,
+      "peak_rss_bytes": 1116962816,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-native-gp-and-b157/readsets/input-readset-16047.json",
+          "sha256": "01ced58c155e4025229273bd627ca5ad27dcdc58fcb834a7b12cafc9bdac3914",
+          "python_paths": 1272,
+          "pytest_exitstatus": 1
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-native-gp-and-b157/v5-native-gp-and-b157.stdout.txt",
+          "available": true,
+          "bytes": 6212,
+          "sha256": "91f855bb5dbe24fb4ae6456485af896ab33b30f2538c00e829c27a29f7221d46",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-native-gp-and-b157/v5-native-gp-and-b157.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-native-gp-and-b157/pytest.xml",
+          "available": true,
+          "sha256": "682e1bf53abc27ebbf8e78e870df34a6c76f665abb4d131f0dfb5d76e21f18d5"
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "v6-simulation-sibling-failure",
+      "task_ids": [
+        "V6",
+        "R1"
+      ],
+      "property": "Original V6 SimulationResult producer, actual persisted state/report, later sibling failure and fresh debug/API with corruption controls. Existing test uses custom DAG low-level executor after control-job setup; that boundary remains explicit. Distinct from R4 TMLE fold-result witness.",
+      "source_head_at_run": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+      "selected_nodes": [
+        "tests/integration/scientist/test_res_03_real_simulation_route.py::test_res_03_real_simulation_later_failure_reaches_user_route"
+      ],
+      "input_backend_qualification": {
+        "POLISYOS_RUN_INTEGRATION": "1"
+      },
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v6-simulation-sibling-failure/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v6-simulation-sibling-failure/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v6-simulation-sibling-failure/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 5471,
+        "sha256": "44c0a774847936698e8eb2eb4f75a53d02bd3ce1b1356348db66792c44ca6616",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v6-simulation-sibling-failure/source-profile-freeze.json",
+        "sha256_at_execution": "0ee4abca6cf0ed72df0beda5f9b2bb074973f6e122bab3b621d875186c54bea4",
+        "available": true
+      },
+      "result": "PASS",
+      "return_code": 0,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 45.639611374994274,
+      "peak_rss_bytes": 1570275328,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v6-simulation-sibling-failure/readsets/input-readset-42443.json",
+          "sha256": "c577e3d9f40f0b90a6ba7d17c9837b35d7f26544ef7487f1a0714fd553133561",
+          "python_paths": 2055,
+          "pytest_exitstatus": 0
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v6-simulation-sibling-failure/v6-simulation-sibling-failure.stdout.txt",
+          "available": true,
+          "bytes": 1887,
+          "sha256": "3c1830cfa8ca9ce26fbff0504b70994151e817ab02f62655c536ab8a8f1619f6",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v6-simulation-sibling-failure/v6-simulation-sibling-failure.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v6-simulation-sibling-failure/pytest.xml",
+          "available": true,
+          "sha256": "09953e4f5ac0f83928b43e6a0e22cef22c0950266e8ec9e2b62603a1db7ce544"
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "wave1-n7-source-gap-diagnostic-r2",
+      "task_ids": [
+        "V4",
+        "V7"
+      ],
+      "property": "Rootowned testonlyRED/diagnostic beforeproductchange; actualnativeprofile defaultplugins one thread each. Twoadmittedjobs combinedcaps3.52GiB, diskfloor6GiB, no closures.",
+      "source_head_at_run": "d50d285832599a874583a4628a940abd9450cb7e",
+      "selected_nodes": [
+        "tests/unit/runtime/quality/test_n7_source_gap_projection.py::test_n7_source_gap_semantics_survive_compiler_and_fresh_route_read"
+      ],
+      "input_backend_qualification": {},
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-n7-source-gap-diagnostic-r2/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-n7-source-gap-diagnostic-r2/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-n7-source-gap-diagnostic-r2/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 5364,
+        "sha256": "5e0f7478457c70cd6d8a1dceab2b11201b60b38fc25ec3c5d73ecc458c3d30e8",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-n7-source-gap-diagnostic-r2/source-profile-freeze.json",
+        "sha256_at_execution": "a766d0b144ebda2cc31d313a6ad29a8257690a6519a32ed5a69835f0a840b9b1",
+        "available": true
+      },
+      "result": "FAIL",
+      "return_code": 1,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 58.51614887500182,
+      "peak_rss_bytes": 1115340800,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-n7-source-gap-diagnostic-r2/readsets/input-readset-29341.json",
+          "sha256": "ba57eefdd0026a2c9501744fb13c4f686ea060c3c1d78d21f48775bac1d95171",
+          "python_paths": 1843,
+          "pytest_exitstatus": 1
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-n7-source-gap-diagnostic-r2/wave1-n7-source-gap-diagnostic-r2.stdout.txt",
+          "available": true,
+          "bytes": 3947,
+          "sha256": "01465567bd648a21ed1cb14a97a4b055d2e3e19e5375ed9094dfa44d5c4680e2",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-n7-source-gap-diagnostic-r2/wave1-n7-source-gap-diagnostic-r2.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-n7-source-gap-diagnostic-r2/pytest.xml",
+          "available": true,
+          "sha256": "42202a4e914b1b24ad617fa70dc5e9986f4c4b2ecd7abd75945a2fb8c6eaa1cc"
+        }
+      },
+      "qualification": "FAIL before target; cycle0 acquisition_required, candidate_cgf_shadow/grounded_shadow, value missing-data gap; no planner report. r4 extra diagnostic remains unapplied.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "wave1-n7-source-gap-red-r1",
+      "task_ids": [
+        "V4",
+        "V7"
+      ],
+      "property": "Test-only red actualnormalCGF/WDIgap→compiler/plannerCAS/freshroute before productchange; priorcyclecontrolonlycontenthashmismatch. No LA046/B13closure.",
+      "source_head_at_run": "d50d285832599a874583a4628a940abd9450cb7e",
+      "selected_nodes": [
+        "tests/unit/runtime/quality/test_n7_source_gap_projection.py::test_n7_source_gap_semantics_survive_compiler_and_fresh_route_read"
+      ],
+      "input_backend_qualification": {},
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-n7-source-gap-red-r1/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-n7-source-gap-red-r1/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-n7-source-gap-red-r1/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 5273,
+        "sha256": "e57994a931a198da8909ea961920f244edeccb0b322c222ab5fc89f665ef95a1",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-n7-source-gap-red-r1/source-profile-freeze.json",
+        "sha256_at_execution": "d1fda7571687fb70535741dd93701cb6ad3e0d519c39386dcda0e04c8d84bbbd",
+        "available": true
+      },
+      "result": "FAIL",
+      "return_code": 1,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 25.980663124995772,
+      "peak_rss_bytes": 1087995904,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-n7-source-gap-red-r1/readsets/input-readset-23343.json",
+          "sha256": "2a62cf82b8b8c20eca18e6a5b1e3faf90ad8c3b07dda5417966a9e5d5b975fe1",
+          "python_paths": 1843,
+          "pytest_exitstatus": 1
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-n7-source-gap-red-r1/wave1-n7-source-gap-red-r1.stdout.txt",
+          "available": true,
+          "bytes": 3136,
+          "sha256": "dc45212efb3e475853e37618561e1650058a29ff0e1fba7852a732cf31b6f64e",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-n7-source-gap-red-r1/wave1-n7-source-gap-red-r1.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-n7-source-gap-red-r1/pytest.xml",
+          "available": true,
+          "sha256": "52a751e1202456bf30a3bf52997b5811789ae92575fc3d82a1a12de846710d45"
+        }
+      },
+      "qualification": "FAIL before intended planner-subtype assertion: normal fixture emits no route report.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "wave1-r3-origin-b10-current-r1",
+      "task_ids": [
+        "R3"
+      ],
+      "property": "Current69-casecostproducer/ledger/cachefactory boundaries plus2actualB10controller/N5/CASconsumer witnesses. Configuredfactoryowner positive is not appNLreusebridge; latter remains separatework. Nativeprofile/defaultplugins preserved; selectedfirstwave notglobalfreeze.",
+      "source_head_at_run": "8c5efa250faa2e983b1ce7a2021b9ea135846a69",
+      "selected_nodes": [
+        "tests/unit/core/llm/test_traced_client_settlement.py",
+        "tests/unit/core/llm/test_cache_settlement.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache_scope_admission.py",
+        "tests/unit/scientist/orchestration/llm/test_factory_cache_composition.py",
+        "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py::test_simulated_nl_producer_costs_settle_and_capture_four_origins",
+        "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py::test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_b10_second_grounded_candidate_is_evaluated_with_first_blocker_preserved",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_b10_no_eligible_grounding_falls_back_with_typed_blocker_and_pending_value"
+      ],
+      "input_backend_qualification": {
+        "POLISYOS_RUN_INTEGRATION": "1",
+        "POLISYOS_TOOLS_TIMING_LOG": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-r3-origin-b10-current-r1/timing.jsonl"
+      },
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-r3-origin-b10-current-r1/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-r3-origin-b10-current-r1/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-r3-origin-b10-current-r1/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 7389,
+        "sha256": "e3e3d626cb9e182a76c0af4e34a3ece47f9457e0850398015306bf504ef20dbe",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-r3-origin-b10-current-r1/source-profile-freeze.json",
+        "sha256_at_execution": "4a9cc0d3e75a3c9675cb2c2dd5f02b16b128cc1bc90c7011ba30f0209320aa56",
+        "available": true
+      },
+      "result": "FAIL",
+      "return_code": 1,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 71,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 36.31795300001977,
+      "peak_rss_bytes": 1359265792,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-r3-origin-b10-current-r1/readsets/input-readset-43912.json",
+          "sha256": "a3e0759150569fd9eaa66f5566a6bd27bb052b0192857e2341fc9701bb7ec0b2",
+          "python_paths": 1911,
+          "pytest_exitstatus": 1
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-r3-origin-b10-current-r1/wave1-r3-origin-b10-current-r1.stdout.txt",
+          "available": true,
+          "bytes": 36028,
+          "sha256": "0f2e8394fe8012734b2b7fdab7720672b2c905ec87cfbd24bc4fc80dbbf2bc11",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-r3-origin-b10-current-r1/wave1-r3-origin-b10-current-r1.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-r3-origin-b10-current-r1/pytest.xml",
+          "available": true,
+          "sha256": "e80fcd62793b1e1303affa3a8c2da11f0a148cf7eb14d5d7129a8d77530265fa"
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "wave1-r3-real-producer-affected10-r2",
+      "task_ids": [
+        "R3"
+      ],
+      "property": "AffectedtwofixturefailuresplusalleightsharedN5helperconsumers. Prior69PASS remainqualifiedseparately, broadR3composedwaveafterpendingcachelifetimefix; nodecountnotwholeclosure.",
+      "source_head_at_run": "8020ea47980e503caab9ac8b2ecec71a11918770",
+      "selected_nodes": [
+        "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py::test_simulated_nl_producer_costs_settle_and_capture_four_origins",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_b10_second_grounded_candidate_is_evaluated_with_first_blocker_preserved",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_consumes_distinct_wmr_states_and_n8_keeps_limits",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_consumes_selected_wmr_view_and_rejects_sibling",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_consumes_selected_state_blob_view",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_rejects_state_ref_selector_removal_with_markers",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_state_handoff_removal_probe_keeps_markers_red",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_types_unknown_or_malformed_content_bound_persisted_blockers",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_refuses_profileless_selected_json_semantic_inputs",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_requires_core_json_reader_before_store_reads"
+      ],
+      "input_backend_qualification": {
+        "POLISYOS_RUN_INTEGRATION": "1"
+      },
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-r3-real-producer-affected10-r2/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-r3-real-producer-affected10-r2/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-r3-real-producer-affected10-r2/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 7870,
+        "sha256": "ca7c9f663a2b7aecd138ed40b6bdaab7e1dcde618e51ebf56fef8b0a99c30359",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-r3-real-producer-affected10-r2/source-profile-freeze.json",
+        "sha256_at_execution": "a1682ab60deea8cf5b68762f42dee5e747ea6d81de934913b180213887f5a55d",
+        "available": true
+      },
+      "result": "FAIL",
+      "return_code": 1,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 14,
+        "failures": 14,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 42.26024620901444,
+      "peak_rss_bytes": 1246576640,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-r3-real-producer-affected10-r2/readsets/input-readset-36275.json",
+          "sha256": "77fca8094167a78c5aa5ab200f49454f04118fde2d004ba6cf2ca16aed6d83a1",
+          "python_paths": 1889,
+          "pytest_exitstatus": 1
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-r3-real-producer-affected10-r2/wave1-r3-real-producer-affected10-r2.stdout.txt",
+          "available": true,
+          "bytes": 144040,
+          "sha256": "42c37cc43c9e0fb53aeea51f2c01f4cd80de52a6c76669ff66141b0950590698",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-r3-real-producer-affected10-r2/wave1-r3-real-producer-affected10-r2.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-r3-real-producer-affected10-r2/pytest.xml",
+          "available": true,
+          "sha256": "82ab27407ef46918a89083558fbe03d57cc7f1e8393522c731040588268720cc"
+        }
+      },
+      "qualification": "Ten selected expressions expanded to fourteen parameterized cases, all FAIL: NL persisted catalog equality and DataSnapshot tenant_context assertions. Preserve as fresh deciding failures; no post-stop diagnosis/repair.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "wave1-s3-channel-composition-r1",
+      "task_ids": [
+        "S3"
+      ],
+      "property": "Reviewed firstwave selected composition at root-owned source frame c7142965; native defaults retained. Not a global E02 or finding closure. Full outputs/loaded src-tests bytes recorded.",
+      "source_head_at_run": "a540cb337b50aa0d606eb33978a7d6c188ea6884",
+      "selected_nodes": [
+        "tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py::test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis",
+        "tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds",
+        "tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_cas",
+        "tests/unit/runtime/quality/test_value_gate.py::test_n8_fresh_consumer_reads_recomputed_fixed_unit_owner_projection"
+      ],
+      "input_backend_qualification": {},
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-channel-composition-r1/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-channel-composition-r1/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-channel-composition-r1/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 6104,
+        "sha256": "39df18f71c6c0764c6ee837a0e492e66a0cc7271e185657d9bcc6a095e7868b2",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-channel-composition-r1/source-profile-freeze.json",
+        "sha256_at_execution": "267d052433c89b44756fb464ff2214f95e40680aa7d3b192dcd74b757516b39c",
+        "available": true
+      },
+      "result": "FAIL",
+      "return_code": 1,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 4,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 203.62497112501296,
+      "peak_rss_bytes": 1201815552,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-channel-composition-r1/readsets/input-readset-6241.json",
+          "sha256": "cf6f2ed0110800888ad9beb737e52bf867c1ce7eb465557331beb4a9ba4994ed",
+          "python_paths": 1655,
+          "pytest_exitstatus": 1
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-channel-composition-r1/wave1-s3-channel-composition-r1.stdout.txt",
+          "available": true,
+          "bytes": 1357,
+          "sha256": "c37e44e493230913cec7ff7155bfc59534f3686ff58e94660534e3a0ff6d9f49",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-channel-composition-r1/wave1-s3-channel-composition-r1.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-channel-composition-r1/pytest.xml",
+          "available": true,
+          "sha256": "f975c716b1041544b2d7ce03bf29bd963f19e405dfcc923d0964e290317b81d7"
+        }
+      },
+      "qualification": "Three PASS, one author test API FAIL (EstimandSpec dataclass.model_dump). Only affected paired node rerun later; never sum as a single four-node green wave.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "wave1-s3-paired-unit-after-dataclass-r2",
+      "task_ids": [
+        "S3"
+      ],
+      "property": "Affected pairedunitfreshconsumer test afterdataclassAPIcorrection; old3passproperties stay separatelysourcequalified. No formalclosure/globalfreeze.",
+      "source_head_at_run": "8c5efa250faa2e983b1ce7a2021b9ea135846a69",
+      "selected_nodes": [
+        "tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_cas"
+      ],
+      "input_backend_qualification": {},
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-paired-unit-after-dataclass-r2/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-paired-unit-after-dataclass-r2/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-paired-unit-after-dataclass-r2/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 5373,
+        "sha256": "48664355f181ec33b161f1cbcd3bf4099f45e9ad665d7ec58131340330779755",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-paired-unit-after-dataclass-r2/source-profile-freeze.json",
+        "sha256_at_execution": "720c062c3892df85d7edeb94b2b2e330d26806eaf87c5273387ef72f41f894c8",
+        "available": true
+      },
+      "result": "PASS",
+      "return_code": 0,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 88.4677342500072,
+      "peak_rss_bytes": 1277755392,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-paired-unit-after-dataclass-r2/readsets/input-readset-16026.json",
+          "sha256": "bdee6415eef97491b6aa19289a69710ea1175347414d8ccf94e453ee1acecbab",
+          "python_paths": 1654,
+          "pytest_exitstatus": 0
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-paired-unit-after-dataclass-r2/wave1-s3-paired-unit-after-dataclass-r2.stdout.txt",
+          "available": true,
+          "bytes": 654,
+          "sha256": "6760c5eebce25a50e4a6a7144adb2c5cd59087bdf06a910e4789625e709a1536",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-paired-unit-after-dataclass-r2/wave1-s3-paired-unit-after-dataclass-r2.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-paired-unit-after-dataclass-r2/pytest.xml",
+          "available": true,
+          "sha256": "610fedae07c0e37888ba843460625a1a9b731e4ea8b061849885a5812d9ff346"
+        }
+      },
+      "qualification": "Separate affected paired node PASS after asdict correction; not a four-node wave or S1/B31 formal acceptance.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "wave1-v4-v7-typed-owner-consumers-r1",
+      "task_ids": [
+        "V4",
+        "V7"
+      ],
+      "property": "Reviewed firstwave selected composition at root-owned source frame c7142965; native defaults retained. Not a global E02 or finding closure. Full outputs/loaded src-tests bytes recorded.",
+      "source_head_at_run": "a540cb337b50aa0d606eb33978a7d6c188ea6884",
+      "selected_nodes": [
+        "tests/unit/runtime/http/test_control_service_di.py::test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry",
+        "tests/unit/ir/artifacts/test_owned_admission.py::test_generic_writer_rejects_malformed_present_canon_spec_before_cas",
+        "tests/unit/remediation/test_frc_02_empirical_bridge.py::test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate",
+        "tests/unit/berl/test_persistence.py::test_persistence_returns_selected_typed_ref_and_reads_its_manifest_view",
+        "tests/unit/core/phase0/test_metric_validation_cli.py::test_metric_validate_cli_emits_summary_json",
+        "tests/unit/core/artifacts/test_ir_adapter.py::test_selected_write_reconciles_manifest_against_frozen_core_options"
+      ],
+      "input_backend_qualification": {},
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-v4-v7-typed-owner-consumers-r1/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-v4-v7-typed-owner-consumers-r1/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-v4-v7-typed-owner-consumers-r1/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 6614,
+        "sha256": "1e05a12efedb5124905df88277685f470bf8fbddd1476288adf92891d3ff01b2",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-v4-v7-typed-owner-consumers-r1/source-profile-freeze.json",
+        "sha256_at_execution": "e60d33a77e7474fafc6b2f4442a0e5e94cc91aaa1030b3a8b238ab8a118265e2",
+        "available": true
+      },
+      "result": "FAIL",
+      "return_code": 1,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 9,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 29.092814417002955,
+      "peak_rss_bytes": 1206730752,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-v4-v7-typed-owner-consumers-r1/readsets/input-readset-6266.json",
+          "sha256": "c747bd1ae1780d569ac69d90a5fafd22f9ba7accdb91f6aa8a6033ce5c8ee0f2",
+          "python_paths": 1902,
+          "pytest_exitstatus": 1
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-v4-v7-typed-owner-consumers-r1/wave1-v4-v7-typed-owner-consumers-r1.stdout.txt",
+          "available": true,
+          "bytes": 5360,
+          "sha256": "d8b421968657a4150a04bcb572b735cc112dfd17ac4e4dac84c54c45b1ebda78",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-v4-v7-typed-owner-consumers-r1/wave1-v4-v7-typed-owner-consumers-r1.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-v4-v7-typed-owner-consumers-r1/pytest.xml",
+          "available": true,
+          "sha256": "86667542e1d0b4c64ef1780ae62eb453e8e137744cce1d653aeff9c82493c863"
+        }
+      },
+      "qualification": "Qualified only to exact selected nodes/input/source/profile and finite loaded-source set. No current-tree equality or full-repo closure inferred.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    },
+    {
+      "id": "wave1-v4-v7-typed-owner-consumers-r3",
+      "task_ids": [
+        "V4",
+        "V7"
+      ],
+      "property": "Full9paramcases at reviewed composed owner adapters, full typedplanner equality and realHTTPsameforecastdifferentobservations; loadedtools CLI input origins included. No globalfreeze/formalclosure.",
+      "source_head_at_run": "8c5efa250faa2e983b1ce7a2021b9ea135846a69",
+      "selected_nodes": [
+        "tests/unit/runtime/http/test_control_service_di.py::test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry",
+        "tests/unit/ir/artifacts/test_owned_admission.py::test_generic_writer_rejects_malformed_present_canon_spec_before_cas",
+        "tests/unit/remediation/test_frc_02_empirical_bridge.py::test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate",
+        "tests/unit/berl/test_persistence.py::test_persistence_returns_selected_typed_ref_and_reads_its_manifest_view",
+        "tests/unit/core/phase0/test_metric_validation_cli.py::test_metric_validate_cli_emits_summary_json",
+        "tests/unit/core/artifacts/test_ir_adapter.py::test_selected_write_reconciles_manifest_against_frozen_core_options"
+      ],
+      "input_backend_qualification": {},
+      "exact_command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-v4-v7-typed-owner-consumers-r3/audit-result.json#/result/argv",
+      "supervised_cwd_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-v4-v7-typed-owner-consumers-r3/audit-result.json#/result/cwd",
+      "audit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-v4-v7-typed-owner-consumers-r3/audit-result.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 6635,
+        "sha256": "8fb2838f6a85064597c8ef1e7ac8fc20a34831d67c9c00f6b21177fea58baa14",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "source_profile_freeze": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-v4-v7-typed-owner-consumers-r3/source-profile-freeze.json",
+        "sha256_at_execution": "add9956380fea7291a866f53edc845f13d9b01c0ff4053a2db3951cb485b4329",
+        "available": true
+      },
+      "result": "FAIL",
+      "return_code": 1,
+      "complete": true,
+      "aborted_reason": null,
+      "junit_case_counts": {
+        "tests": 9,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skipped_backends_or_cases": [],
+      "wall_seconds": 27.98569862500881,
+      "peak_rss_bytes": 1280196608,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-v4-v7-typed-owner-consumers-r3/readsets/input-readset-19905.json",
+          "sha256": "977bf3d3007fdf507fe30b555ac35f06c18d6ef778b1ee3d21e152ce7af8916b",
+          "python_paths": 1916,
+          "pytest_exitstatus": 1
+        }
+      ],
+      "current_mismatches_at_execution": [],
+      "outputs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-v4-v7-typed-owner-consumers-r3/wave1-v4-v7-typed-owner-consumers-r3.stdout.txt",
+          "available": true,
+          "bytes": 3613,
+          "sha256": "a12614cd1eff8e244f22c666490683bf0bcd3916115c2e5211bb1986888e94bb",
+          "fresh_hash": true
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-v4-v7-typed-owner-consumers-r3/wave1-v4-v7-typed-owner-consumers-r3.stderr.txt",
+          "available": true,
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "fresh_hash": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-v4-v7-typed-owner-consumers-r3/pytest.xml",
+          "available": true,
+          "sha256": "76512b265fdc9b7950258c038a6728d42e9a5fdfe6fc3aa286fd5e1ebda20f55"
+        }
+      },
+      "qualification": "Eight PASS/one FAIL. Core-to-IR CLI bridge passes with tools loaded-source observation; HTTP fails at generic planner record subtype. Later fixture restore is a further delta.",
+      "transfer_rule": "Rebind affected full input set before reuse; a new HEAD alone does not require every unchanged replay. Do not force the old runner guard to an old source."
+    }
+  ],
+  "other_evidence": [
+    {
+      "id": "last-r3-deciding-summary.json",
+      "property": "Parameterized last-run failure names and messages",
+      "actual_result": "FAIL",
+      "evidence": {
+        "path": "LOCAL/raw/executor-handover-20261027/last-r3-deciding-summary.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 8452,
+        "sha256": "4934db8b5465290a5120925297c4b810adc7afd09ee222e394d1d1da5ac8ead6",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "qualification": "Source and scope remain those stated by the referenced material; availability/hash is not new runtime verification."
+    },
+    {
+      "id": "receipt.json",
+      "property": "Actual product-root CLI timed out420s empty output; no census",
+      "actual_result": "incomplete",
+      "evidence": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I2/i2-root-census-r2/receipt.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 394,
+        "sha256": "1587bde4eea8c4c19e2509803e914db7f6b2cacfa1742363b23b2c19acf9fc7b",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "qualification": "Source and scope remain those stated by the referenced material; availability/hash is not new runtime verification."
+    },
+    {
+      "id": "root-census-timeout-diagnosis-r1.md",
+      "property": "Source-backed bounded metadata-only next check, not run",
+      "actual_result": "UNRUN",
+      "evidence": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I2/root-census-timeout-diagnosis-r1.md",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 8489,
+        "sha256": "48430225550902acf5722eded04e7cbf1e1523253badba7936ac639cb951c9de",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "qualification": "Source and scope remain those stated by the referenced material; availability/hash is not new runtime verification."
+    },
+    {
+      "id": "summary.json",
+      "property": "206 IDs/212 occurrences source-only synthesis, not runtime closure",
+      "actual_result": "source_only",
+      "evidence": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/integration-ready/q0-synthesis-r2/summary.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 67012,
+        "sha256": "6218050a1522195d0951ca7a1955b08ecc80a8292fec578faa66540e3958c733",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "qualification": "Source and scope remain those stated by the referenced material; availability/hash is not new runtime verification."
+    },
+    {
+      "id": "occurrences.json",
+      "property": "Individual direct occurrence research; repeated cards preserved",
+      "actual_result": "source_only",
+      "evidence": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/integration-ready/q0-synthesis-r2/occurrences.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 383425,
+        "sha256": "c2a13b737457159011ffdda158859043f11bc6d6fb54ce3004854e847a09b94d",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "qualification": "Source and scope remain those stated by the referenced material; availability/hash is not new runtime verification."
+    },
+    {
+      "id": "verification.json",
+      "property": "Independent G27 plan review and metadata check",
+      "actual_result": "metadata_PASS",
+      "evidence": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-review-followup-20261027/verification.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 1161,
+        "sha256": "d2deee8d8343af050759009bbc1a1c18ce08e9ef2c00a809806fd3f5438bef18",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "qualification": "Source and scope remain those stated by the referenced material; availability/hash is not new runtime verification."
+    },
+    {
+      "id": "packet.json",
+      "property": "S3 exact code/test/consumer/config and separate receipt joins",
+      "actual_result": "bounded_author_proposal",
+      "evidence": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-integration-ready-20261027/S3/packet.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 25105,
+        "sha256": "83efc419bea720138096997f0ab75d89864ce38e01dc52f909d09d2f092a7111",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "qualification": "Source and scope remain those stated by the referenced material; availability/hash is not new runtime verification."
+    },
+    {
+      "id": "native-source-inputs-20261026.json",
+      "property": "Earlier native source/input inventory; requalify exact individual rows",
+      "actual_result": "historical_manifest",
+      "evidence": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-source-inputs-20261026.json",
+        "available": true,
+        "scope": "retained local material",
+        "bytes": 37686,
+        "sha256": "0e63ed3f3562df032c17beb86c58095f6df0848994a772b1188feba423a02353",
+        "integrity_observation": "fresh small-file hash at transfer"
+      },
+      "qualification": "Source and scope remain those stated by the referenced material; availability/hash is not new runtime verification."
+    }
+  ],
+  "post_handover_product_checks_started": false
+}

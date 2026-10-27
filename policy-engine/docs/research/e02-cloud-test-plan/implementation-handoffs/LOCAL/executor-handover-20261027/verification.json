@@ -1,0 +1,32 @@
+{
+  "schema": "policyos.e02.handover_metadata_verification.v1",
+  "at": "2026-10-27T19:43:34.306898+00:00",
+  "result": "PASS for draft transfer completeness/link/integrity checks only",
+  "required_documents": [
+    "START-HERE.md",
+    "checkpoint.json",
+    "remaining-work.md",
+    "evidence-index.json",
+    "subagent-results.md",
+    "environment.md",
+    "decisions-and-pitfalls.md",
+    "continuation-prompt.md"
+  ],
+  "relative_markdown_links_checked": 12,
+  "canonical_task_rows": 26,
+  "task_finding_edges": 319,
+  "finding_ids": 282,
+  "criterion_occurrences": 291,
+  "actual_family_nodes": 570,
+  "direct_subagents": 569,
+  "visible_completed_helpers": 20,
+  "current_result_primary_hashes_checked": 20,
+  "selected_proposal_groups": 10,
+  "actual_patch_copies_checked": 12,
+  "source_head_checked": "8698293225576fc7a1ad8f6d2c1ca8834f04140c",
+  "native_checks_started": 0,
+  "new_product_work": false,
+  "unchanged_critical_recovery_manifest_sha256": "2e1f5593b0f642221135b6536f40e50c9dc7621606d87bb64b75c60106d73da2",
+  "self_review": "transfer-review.md",
+  "closure_ids": []
+}

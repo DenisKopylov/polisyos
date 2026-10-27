@@ -1,0 +1,449 @@
+--- a/policy-engine/src/polisyos/runtime/http/container.py
++++ b/policy-engine/src/polisyos/runtime/http/container.py
+@@ -210,6 +210,8 @@
+     acquisition_execution_port: Any | None = None
+     legal_query_encoder_provider: LegalQueryEncoderProvider | None = None
+     llm_producer_settlement_store: BudgetMiddleware | None = None
++    llm_cache_reuse_authorizer: Any | None = None
++    llm_prompt_cache: Any | None = None
+ 
+ 
+ @dataclass(frozen=True)
+@@ -343,6 +345,8 @@
+     generic_cycle_simulation_root_profile_id: str | None = None
+     legal_query_encoder_provider: LegalQueryEncoderProvider | None = None
+     llm_producer_settlement_store: BudgetMiddleware | None = None
++    llm_cache_reuse_authorizer: Any | None = None
++    llm_prompt_cache: Any | None = None
+     control_service: ControlPlaneService | None = None
+     epoch_certificate_issuance_owner: DecisionPacketEpochIssuanceOwner | None = None
+     human_decision_service: HumanDecisionService | None = None
+@@ -406,6 +410,20 @@
+             )
+         if type(producer_settlement_store) is not BudgetMiddleware:
+             raise TypeError("llm_producer_settlement_store_must_be_budget_middleware")
++        cache_reuse_authorizer = overrides.llm_cache_reuse_authorizer
++        if cache_reuse_authorizer is not None and not callable(
++            getattr(cache_reuse_authorizer, "authorize_reuse", None)
++        ):
++            raise TypeError("llm_cache_reuse_authorizer_invalid")
++        llm_prompt_cache = overrides.llm_prompt_cache
++        if llm_prompt_cache is not None and not all(
++            callable(getattr(llm_prompt_cache, name, None)) for name in ("get", "put")
++        ):
++            raise TypeError("llm_prompt_cache_invalid")
++        if llm_prompt_cache is None and cache_reuse_authorizer is not None:
++            from polisyos.scientist.orchestration.llm.prompt_cache import InMemoryPromptCache
++
++            llm_prompt_cache = InMemoryPromptCache()
+         try:
+             _ = producer_settlement_store.settlement_owner_identity
+         except (OSError, RuntimeError, ValueError) as exc:
+@@ -682,6 +700,8 @@
+             ),
+             legal_query_encoder_provider=overrides.legal_query_encoder_provider,
+             llm_producer_settlement_store=producer_settlement_store,
++            llm_cache_reuse_authorizer=cache_reuse_authorizer,
++            llm_prompt_cache=llm_prompt_cache,
+             control_service=overrides.control_service,
+         )
+ 
+@@ -778,9 +798,15 @@
+                         self.config.enable_contract_testing_credal_source_attempts
+                     ),
+                     llm_producer_settlement_store=self.llm_producer_settlement_store,
++                    llm_cache_reuse_authorizer=self.llm_cache_reuse_authorizer,
++                    llm_prompt_cache=self.llm_prompt_cache,
+                 )
+                 self.control_service = control_service
+             control_service.bind_llm_producer_settlement_store(self.llm_producer_settlement_store)
++            control_service.bind_llm_cache_reuse(
++                authorizer=self.llm_cache_reuse_authorizer,
++                prompt_cache=self.llm_prompt_cache,
++            )
+             self.runtime_api_context.debug.bind_producer_control_job_store(
+                 control_service._control_store
+             )
+--- a/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py
++++ b/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py
+@@ -3966,6 +3966,8 @@
+         published_signature_population_provider: PublicSignaturePopulationProvider | None = None,
+         normative_authority_trust: NormativeAuthorityTrust | None = None,
+         llm_producer_settlement_store: BudgetMiddleware | None = None,
++        llm_cache_reuse_authorizer: Any | None = None,
++        llm_prompt_cache: Any | None = None,
+         cycle_substrate_context_admission_owner: _CycleSubstrateContextAdmissionOwner | None = None,
+         generic_cycle_simulation_admission_owner: GenericCycleSimulationAdmissionOwner
+         | None = None,
+@@ -3982,6 +3984,12 @@
+         ):
+             raise TypeError("llm_producer_settlement_store_must_be_budget_middleware")
+         self._llm_producer_settlement_store = llm_producer_settlement_store
++        self._llm_cache_reuse_authorizer: Any | None = None
++        self._llm_prompt_cache: Any | None = None
++        self.bind_llm_cache_reuse(
++            authorizer=llm_cache_reuse_authorizer,
++            prompt_cache=llm_prompt_cache,
++        )
+         # The source-data root is a separate input from CAS/output roots and package
+         # resources. The default preserves module-derived behavior; an explicit root
+         # is accepted only when it is an existing absolute directory.
+@@ -4399,6 +4407,32 @@
+         if current is not None and current is not store:
+             raise ValueError("llm_producer_settlement_store_already_bound")
+         self._llm_producer_settlement_store = store
++
++    def bind_llm_cache_reuse(
++        self,
++        *,
++        authorizer: Any | None,
++        prompt_cache: Any | None,
++    ) -> None:
++        """Bind the optional app-scoped cache owner without creating authority."""
++        if authorizer is None and prompt_cache is None:
++            return
++        if authorizer is not None and not callable(getattr(authorizer, "authorize_reuse", None)):
++            raise TypeError("llm_cache_reuse_authorizer_invalid")
++        if prompt_cache is not None and not all(
++            callable(getattr(prompt_cache, name, None)) for name in ("get", "put")
++        ):
++            raise TypeError("llm_prompt_cache_invalid")
++        current_authorizer = self._llm_cache_reuse_authorizer
++        current_cache = self._llm_prompt_cache
++        if current_authorizer is not None and authorizer is not current_authorizer:
++            raise ValueError("llm_cache_reuse_authorizer_already_bound")
++        if current_cache is not None and prompt_cache is not current_cache:
++            raise ValueError("llm_prompt_cache_already_bound")
++        if authorizer is not None:
++            self._llm_cache_reuse_authorizer = authorizer
++        if prompt_cache is not None:
++            self._llm_prompt_cache = prompt_cache
+ 
+     def reconcile_epoch_validity_for_subject(
+         self,
+--- a/policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py
++++ b/policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py
+@@ -102,6 +102,7 @@
+     runtime_quality_report_owner_marker,
+ )
+ from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
++from polisyos.scientist.orchestration.llm.prompt_cache import CacheReusePrincipal
+ 
+ from .._control_contracts import (
+     _DATA_SOURCE_KEYS,
+@@ -217,6 +218,76 @@
+         PIAgent,
+     )
+     from polisyos.scientist.orchestration.engine import BudgetMiddleware
++
++
++def _nl_snapshot_cache_reuse_binding(
++    *,
++    data_source: DataSourceBinding | None,
++    execution_scope: object,
++    artifact_store: Any,
++    authorizer: object | None,
++) -> tuple[CacheReusePrincipal | None, dict[str, Any] | None]:
++    """Bind cache identity to a typed snapshot locator and the admitted job owner.
++
++    The submitted ref is only a locator. The runtime reads its exact current CAS
++    bytes and manifest profile; the injected reuse owner must independently
++    resolve those bytes and authorize the current principal/epoch before every hit.
++    """
++    from polisyos.core.artifacts import ArtifactID, artifact_manifest_profile_sha256
++    from polisyos.core.contracts.fabric import DataSnapshotRef
++    from polisyos.runtime.http.services.control_plane_store import ControlJobExecutionScope
++
++    if (
++        not callable(getattr(authorizer, "authorize_reuse", None))
++        or type(execution_scope) is not ControlJobExecutionScope
++        or execution_scope.status != "established"
++        or execution_scope.actor_authenticated is not True
++        or not execution_scope.actor_subject
++        or not execution_scope.tenant_id
++        or not execution_scope.cell_id
++        or type(data_source) is not DataSourceBinding
++        or not isinstance(data_source.data_snapshot_ref, str)
++        or not data_source.data_snapshot_ref
++    ):
++        return None, None
++    try:
++        artifact_id = ArtifactID.model_validate(data_source.data_snapshot_ref)
++        selected_ref = DataSnapshotRef(artifact_id=artifact_id)
++        manifest = artifact_store.get_manifest(selected_ref.artifact_id)
++        content = artifact_store.get_bytes(selected_ref.artifact_id)
++        version = artifact_manifest_profile_sha256(manifest)
++    except Exception:
++        return None, None
++    digest = "sha256:" + hashlib.sha256(content).hexdigest()
++    if (
++        type(content) is not bytes
++        or manifest.artifact_id != selected_ref.artifact_id
++        or manifest.kind != selected_ref.kind
++        or manifest.media_type != selected_ref.media_type
++        or manifest.integrity.sha256 != digest.removeprefix("sha256:")
++        or str(manifest.artifact_id) != digest
++        or not version
++    ):
++        return None, None
++    tenant = execution_scope.tenant_id
++    scope = f"{tenant}/{execution_scope.cell_id}"
++    principal = CacheReusePrincipal(
++        actor_id=execution_scope.actor_subject,
++        tenant=tenant,
++        scope=scope,
++    )
++    return principal, {
++        "tenant": tenant,
++        "scope": scope,
++        "purpose": "natural_language_policy_candidate",
++        "snapshot": {
++            "ref": str(selected_ref.artifact_id),
++            "version": version,
++            "immutable": True,
++            "content": content,
++            "content_hash": digest,
++        },
++    }
+ 
+ 
+ class NaturalLanguagePipelineRefusalError(RuntimeError):
+@@ -3782,6 +3853,13 @@
+         trinity_bundle_tenant_context = ArtifactTenantContextInfo(
+             tenant_id=admitted_scope.tenant_id,
+             cell_id=admitted_scope.cell_id,
++        )
++        cache_reuse_authorizer = getattr(self, "_llm_cache_reuse_authorizer", None)
++        cache_reuse_principal, cache_reuse_context = _nl_snapshot_cache_reuse_binding(
++            data_source=data_source,
++            execution_scope=admitted_scope,
++            artifact_store=self._artifact_store,
++            authorizer=cache_reuse_authorizer,
+         )
+         metric_taxonomy = build_production_metric_taxonomy()
+         metric_taxonomy_evidence = metric_taxonomy.evidence()
+@@ -8270,6 +8348,11 @@
+                         call_observer=_observe_llm_call,
+                         tracer=self._tracer,
+                         metrics=self._metrics,
++                        cache_reuse_authorizer=cache_reuse_authorizer,
++                        cache_reuse_principal=cache_reuse_principal,
++                        cache_reuse_context=cache_reuse_context,
++                        prompt_cache=getattr(self, "_llm_prompt_cache", None),
++                        require_reuse_authorization=True,
+                         producer_settlement_store=getattr(
+                             self, "_llm_producer_settlement_store", None
+                         ),
+--- a/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py
++++ b/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py
+@@ -3,6 +3,7 @@
+ from __future__ import annotations
+ 
+ import os
++from collections.abc import Mapping
+ from dataclasses import dataclass
+ from pathlib import Path
+ from typing import TYPE_CHECKING, Any
+@@ -13,11 +14,17 @@
+ 
+ from .fallback_router import EndpointConfig, FallbackRouter
+ from .gateway_client import GatewayLLMClient
+-from .prompt_cache import CachingLLMClient, InMemoryPromptCache
++from .prompt_cache import (
++    CacheReusePrincipal,
++    CachingLLMClient,
++    InMemoryPromptCache,
++    PromptCacheProtocol,
++)
+ from .simulated_gateway import DEFAULT_SIMULATED_MODEL_IDS, SimulatedGatewayLLMClient
+ 
+ if TYPE_CHECKING:
+     from collections.abc import Callable
++
+ 
+ 
+ def _as_bool(value: str | None, *, default: bool) -> bool:
+@@ -158,6 +165,10 @@
+     tracer: Any | None = None,
+     metrics: Any | None = None,
+     cache_reuse_authorizer: Any | None = None,
++    cache_reuse_principal: CacheReusePrincipal | None = None,
++    cache_reuse_context: Mapping[str, Any] | None = None,
++    prompt_cache: PromptCacheProtocol | None = None,
++    require_reuse_authorization: bool = False,
+     producer_settlement_store: Any | None = None,
+     producer_budget_key: str = "run",
+ ) -> TracedLLMClient | None:
+@@ -235,14 +246,21 @@
+     if cfg.cache_maxsize > 0 and cfg.cache_ttl_s > 0:
+         raw_client = CachingLLMClient(
+             raw_client,
+-            cache=InMemoryPromptCache(
+-                maxsize=cfg.cache_maxsize,
+-                default_ttl_s=cfg.cache_ttl_s,
++            cache=(
++                prompt_cache
++                if prompt_cache is not None
++                else InMemoryPromptCache(
++                    maxsize=cfg.cache_maxsize,
++                    default_ttl_s=cfg.cache_ttl_s,
++                )
+             ),
+             model=model_name,
+             ttl_s=cfg.cache_ttl_s,
+             inflight_timeout_s=cfg.timeout_s,
+             reuse_authorizer=cache_reuse_authorizer,
++            reuse_principal=cache_reuse_principal,
++            reuse_context=cache_reuse_context,
++            require_reuse_authorization=require_reuse_authorization,
+         )
+     cache_settlement_session = session_for_cache_client(raw_client)
+     prompt_sanitizer = PromptSanitizer() if cfg.enable_prompt_sanitizer else None
+--- a/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py
++++ b/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py
+@@ -103,6 +103,23 @@
+     model: str
+     parameters_digest: str
+     evidence: tuple[CacheReuseEvidence, ...]
++
++
++@dataclass(frozen=True, slots=True)
++class CacheReusePrincipal:
++    """Authenticated identity copied from the live control-job execution scope."""
++
++    actor_id: str
++    tenant: str
++    scope: str
++
++    def __post_init__(self) -> None:
++        """Reject incomplete identities before they reach the cache owner."""
++        if any(
++            type(value) is not str or not value or value != value.strip()
++            for value in (self.actor_id, self.tenant, self.scope)
++        ):
++            raise ValueError("cache_reuse_principal_incomplete")
+ 
+ 
+ @dataclass(frozen=True, slots=True)
+@@ -343,6 +360,9 @@
+         ttl_s: float = 300.0,
+         inflight_timeout_s: float | None = None,
+         reuse_authorizer: CacheReuseAuthorizer | Any | None = None,
++        reuse_principal: CacheReusePrincipal | None = None,
++        reuse_context: Mapping[str, Any] | None = None,
++        require_reuse_authorization: bool = False,
+     ) -> None:
+         self._client = client
+         self._cache = cache
+@@ -354,6 +374,15 @@
+         self._inflight_timeout_s = _coerce_timeout(configured_timeout)
+         self._inflight: dict[str, _CacheFlight] = {}
+         self._cache_reuse_authorizer = reuse_authorizer
++        if reuse_principal is not None and type(reuse_principal) is not CacheReusePrincipal:
++            raise TypeError("cache_reuse_principal_must_be_typed")
++        if reuse_context is not None and not isinstance(reuse_context, Mapping):
++            raise TypeError("cache_reuse_context_must_be_mapping")
++        if type(require_reuse_authorization) is not bool:
++            raise TypeError("cache_reuse_authorization_requirement_must_be_bool")
++        self._cache_reuse_principal = reuse_principal
++        self._trusted_reuse_context = dict(reuse_context) if reuse_context is not None else None
++        self._require_reuse_authorization = require_reuse_authorization
+         self._cache_settlement_session = create_cache_settlement_session(self)
+         self._producer_begin_hook: Any | None = None
+         self._producer_settle_hook: Any | None = None
+@@ -443,10 +472,27 @@
+ 
+     async def generate(self, *args: Any, **kwargs: Any) -> Any:
+         args, kwargs = _normalize_prompt_call(args, kwargs)
++        if self._require_reuse_authorization:
++            authorize = getattr(self._cache_reuse_authorizer, "authorize_reuse", None)
++            principal = self._cache_reuse_principal
++            if (
++                not callable(authorize)
++                or principal is None
++                or self._trusted_reuse_context is None
++            ):
++                _record_cache_skip(self._cache, "reuse_authorization_unavailable")
++                return await self._generate_uncached(args, kwargs)
++            metadata = kwargs.get("metadata")
++            trusted_metadata = dict(metadata) if isinstance(metadata, Mapping) else {}
++            trusted_metadata["tenant"] = principal.tenant
++            trusted_metadata["scope"] = principal.scope
++            trusted_metadata["cache_reuse"] = self._trusted_reuse_context
++            kwargs["metadata"] = trusted_metadata
+         reason = _cache_skip_reason(
+             model=self._model,
+             args=args,
+             kwargs=kwargs,
++            strict_reuse=self._require_reuse_authorization,
+         )
+         if reason is not None:
+             _record_cache_skip(self._cache, reason)
+@@ -577,19 +623,33 @@
+         snapshot = raw.get("snapshot") if isinstance(raw, Mapping) else None
+         if not isinstance(snapshot, Mapping):
+             return None
+-        try:
+-            from polisyos.core.security import get_current_access_scope_or_none
+-
+-            principal = get_current_access_scope_or_none()
+-        except Exception:
+-            principal = None
+-        if principal is None:
+-            return None
+-        actor_id = principal.spiffe_id or principal.user_sub
+-        tenant = str(raw.get("tenant", ""))
+-        scope = str(raw.get("scope", ""))
+-        if tenant != principal.tenant_id or not actor_id or not scope:
+-            return None
++        reuse_principal = self._cache_reuse_principal
++        if reuse_principal is None:
++            if self._require_reuse_authorization:
++                return None
++            try:
++                from polisyos.core.security import get_current_access_scope_or_none
++
++                ambient_principal = get_current_access_scope_or_none()
++            except Exception:
++                ambient_principal = None
++            if ambient_principal is None:
++                return None
++            actor_id = ambient_principal.spiffe_id or ambient_principal.user_sub
++            tenant = str(raw.get("tenant", ""))
++            scope = str(raw.get("scope", ""))
++            if tenant != ambient_principal.tenant_id or not actor_id or not scope:
++                return None
++        else:
++            actor_id = reuse_principal.actor_id
++            tenant = reuse_principal.tenant
++            scope = reuse_principal.scope
++            if (
++                tenant != str(raw.get("tenant", ""))
++                or scope != str(raw.get("scope", ""))
++                or not actor_id
++            ):
++                return None
+         evidence = (
+             CacheReuseEvidence(
+                 ref=str(snapshot.get("ref", "")),
+@@ -815,8 +875,11 @@
+     model: str,
+     args: tuple[Any, ...],
+     kwargs: dict[str, Any],
++    strict_reuse: bool = False,
+ ) -> str | None:
+     del model
++    if strict_reuse and kwargs.get("seed") is not None:
++        return "independent_seed"
+     if len(args) > 1:
+         return "unsupported_positional_call"
+     if kwargs.get("tools"):
+@@ -872,7 +935,7 @@
+                 "recency_days",
+             )
+         )
+-        and reuse_context is None
++        and (strict_reuse or reuse_context is None)
+     ):
+         return "retrieval_freshness_guard"
+     return None

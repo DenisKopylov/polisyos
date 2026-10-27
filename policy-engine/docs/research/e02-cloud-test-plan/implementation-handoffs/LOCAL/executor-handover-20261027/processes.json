@@ -1,0 +1,40 @@
+{
+  "scope": "Own root native sessions and exact attributed child lookups only",
+  "last_native": {
+    "case": "wave1-r3-real-producer-affected10-r2",
+    "session_id": 37093,
+    "finished": true,
+    "result": "14 FAIL, no abort",
+    "audit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-r3-real-producer-affected10-r2/audit-result.json"
+  },
+  "earlier_current_sessions": [
+    {
+      "session_id": 61526,
+      "case": "g27-v6-profile-matrix-red-r1",
+      "finished": true
+    },
+    {
+      "session_id": 71594,
+      "case": "wave1-n7-source-gap-diagnostic-r2",
+      "finished": true
+    },
+    {
+      "session_id": 16811,
+      "case": "wave1-n7-source-gap-red-r1",
+      "finished": true
+    }
+  ],
+  "orphan_lookup_observation": {
+    "path": "LOCAL/raw/executor-handover-20261027/stopped-own-orphan-lookups.json",
+    "available": true,
+    "scope": "retained local material",
+    "bytes": 2617,
+    "sha256": "407358543b08ddcecd9d9dfaf43c9d195a0aca0ec46b83e23a179261c1d7a66e",
+    "integrity_observation": "fresh small-file hash at transfer"
+  },
+  "own_active_goal": null,
+  "own_matching_automations": [],
+  "own_daybreak_enabled": null,
+  "foreign_processes": "Not stopped; app server and any unrelated/G work left alone",
+  "new_product_work_after_stop": false
+}

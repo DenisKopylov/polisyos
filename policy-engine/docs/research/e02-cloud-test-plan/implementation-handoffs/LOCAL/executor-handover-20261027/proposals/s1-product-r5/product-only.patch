@@ -1,0 +1,626 @@
+--- a/policy-engine/src/polisyos/scientist/methods/search/uncertainty.py
++++ b/policy-engine/src/polisyos/scientist/methods/search/uncertainty.py
+@@ -6974,17 +6974,18 @@
+                 "selected input resource policy differs from its owner anchor revision",
+                 reason_code="hte_content_mismatch",
+             )
++        selected_limits = CoreJsonReadLimits(
++            max_bytes=resource_policy.max_bytes,
++            max_depth=resource_policy.max_depth,
++            max_elements=resource_policy.max_elements,
++            max_manifest_bytes=resource_policy.max_manifest_bytes,
++        )
+         physical_binding = load_hte_physical_source_materialization_binding(
+             store=store,
+             binding_ref=_core_artifact_ref_from_owner_ref(physical_ref),
+             expected_submitted_ref=_core_artifact_ref_from_owner_ref(anchor.submitted_input_ref),
+             expected_effective_ref=_core_artifact_ref_from_owner_ref(anchor.effective_input_ref),
+-            limits=CoreJsonReadLimits(
+-                max_bytes=resource_policy.max_bytes,
+-                max_depth=resource_policy.max_depth,
+-                max_elements=resource_policy.max_elements,
+-                max_manifest_bytes=resource_policy.max_manifest_bytes,
+-            ),
++            limits=selected_limits,
+         )
+         if (
+             physical_binding.binding_scope != "physical_materialization_only"
+@@ -6998,6 +6999,7 @@
+                 "physical HTE materialization differs from the selected result row basis",
+                 reason_code="hte_content_mismatch",
+             )
++        return selected_limits
+ 
+     outcome_artifact = _load_hte_outcome_from_owner_ref(store, association.outcome_ref)
+     outcome = outcome_artifact.root
+@@ -7331,12 +7333,30 @@
+             "selected @2 HTE completion omitted its owner-selected physical source binding",
+             reason_code="hte_content_mismatch",
+         )
+-    verify_physical_materialization(
++    physical_read_limits = verify_physical_materialization(
+         materialization_binding_ref,
+         outcome=outcome,
+         selected_rows=outcome.n_selected_rows,
+         selected_row_order_sha256=outcome.selected_row_order_sha256,
+     )
++    source_projection_join = None
++    source_projection_refusal: str | None = None
++    if hte_result is not None and basis.unit_binding_status == "bound":
++        from polisyos.runtime.quality.hte_source_projection import (
++            HTESourceProjectionRefusal,
++            verify_hte_source_projection_join,
++        )
++
++        try:
++            source_projection_join = verify_hte_source_projection_join(
++                store=store,
++                selected_method_input_ref=binding.selected_method_input_ref,
++                basis=basis,
++                request_projection=basis.request_projection,
++                limits=physical_read_limits,
++            )
++        except HTESourceProjectionRefusal as exc:
++            source_projection_refusal = exc.reason_code
+ 
+     guarantee: Literal["candidate_point", "backend_conditional_interval"] = (
+         "backend_conditional_interval" if hte_result is not None else "candidate_point"
+@@ -7436,18 +7456,31 @@
+             interval_semantics="native_mean_confidence_interval",
+             sampling_profile_ref=basis.selected_profile_ref,
+         )
+-        unavailable_reason: Literal["scope_not_comparable", "unit_not_bound"] = (
+-            "unit_not_bound" if basis.unit_binding_status == "unknown" else "scope_not_comparable"
+-        )
+-        routing_score = _unavailable_routing_score(
+-            profile_ref=routing_profile_ref,
+-            theta=point_value,
+-            lower_bound=hte_result.ate_ci_lower,
+-            upper_bound=hte_result.ate_ci_upper,
+-            confidence_level=hte_result.confidence_level,
+-            comparison_key=comparison_key,
+-            reason=unavailable_reason,
+-        )
++        if source_projection_join is not None:
++            routing_score = compute_relative_interval_halfwidth_routing(
++                profile_ref=routing_profile_ref,
++                theta=point_value,
++                lower_bound=hte_result.ate_ci_lower,
++                upper_bound=hte_result.ate_ci_upper,
++                confidence_level=hte_result.confidence_level,
++                comparison_key=comparison_key,
++                unit_binding_status="bound",
++            )
++        else:
++            unavailable_reason: Literal["scope_not_comparable", "unit_not_bound"] = (
++                "unit_not_bound"
++                if basis.unit_binding_status == "unknown"
++                else "scope_not_comparable"
++            )
++            routing_score = _unavailable_routing_score(
++                profile_ref=routing_profile_ref,
++                theta=point_value,
++                lower_bound=hte_result.ate_ci_lower,
++                upper_bound=hte_result.ate_ci_upper,
++                confidence_level=hte_result.confidence_level,
++                comparison_key=comparison_key,
++                reason=unavailable_reason,
++            )
+     event_payload_sha256 = _canonical_owned_lifecycle_event_digest_hex(
+         association.job_completed_event
+     )
+@@ -7520,11 +7553,28 @@
+             sorted(
+                 set(outcome.limitations)
+                 | {
+-                    "source_variable_to_array_mapping_not_established",
+                     "estimand_and_contrast_not_established",
+                     "population_sampling_coverage_not_claimed",
+-                    "candidate_ordering_score_unavailable_until_scope_join",
++                    "source_semantic_alignment_not_established",
++                    "source_time_not_established",
+                 }
++                | (
++                    {
++                        "source_variable_to_array_mapping_consumer_asserted",
++                    }
++                    if source_projection_join is not None
++                    else {
++                        "source_variable_to_array_mapping_not_established",
++                        "candidate_ordering_score_unavailable_until_scope_join",
++                    }
++                )
++                | (
++                    {
++                        f"source_variable_to_array_join_refused:{source_projection_refusal}"
++                    }
++                    if source_projection_refusal is not None
++                    else set()
++                )
+                 | (
+                     {"native_interval_is_backend_conditional_on_selected_rows"}
+                     if hte_result is not None
+--- a/policy-engine/src/polisyos/runtime/quality/hte_source_projection.py
++++ b/policy-engine/src/polisyos/runtime/quality/hte_source_projection.py
+@@ -0,0 +1,481 @@
++"""Resolve candidate HTE source roles to exact selected DataForge profile rows.
++
++This adapter reuses the existing ValueOwner source-assignment and DataForge
++profile artifacts. It proves a content join for the selected HTE input only;
++the role choice remains consumer asserted, while semantic alignment and source
++time remain unestablished.
++"""
++
++from __future__ import annotations
++
++import json
++import math
++from collections import Counter, defaultdict
++from collections.abc import Sequence
++from dataclasses import dataclass
++from typing import Any, Literal, NoReturn, Protocol
++
++import numpy as np
++from pydantic import BaseModel
++
++from polisyos.common.canonical_profile import require_declared_profile
++from polisyos.core.artifacts import (
++    CoreJSONArtifactBoundedMemberReader,
++    read_core_json_artifact_bounded,
++    validate_core_model_bounded_read,
++)
++from polisyos.core.artifacts.canonical_profile import CoreJsonReadLimits
++from polisyos.core.artifacts.manifest import (
++    ArtifactRef,
++    SchemaInfo,
++    artifact_ref_identity_key,
++)
++from polisyos.data_forge.domains.catalog.knowledge.overlay import (
++    ActivatedAcquisitionObservationProjection,
++)
++from polisyos.foundry.data_plane.bindings import materialize_method_contract
++from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
++from polisyos.ir.observation.bundles import (
++    HTE_OBSERVATIONAL_DATA_CONTRACT_FQN,
++    HTE_OBSERVATIONAL_DATA_CONTRACT_ID,
++    OBSERVATION_METHOD_INPUT_KIND,
++    OBSERVATION_METHOD_INPUT_SCHEMA_NAME,
++    OBSERVATION_METHOD_INPUT_SCHEMA_VERSION,
++    ObservationMethodInputEnvelope,
++)
++
++SOURCE_VARIABLE_ASSIGNMENT_ROLE = "source_variable_assignment"
++SOURCE_VARIABLE_ASSIGNMENT_KIND = "runtime.value_owner_source_variable_assignment"
++SOURCE_VARIABLE_ASSIGNMENT_SCHEMA = SchemaInfo(
++    name="runtime.value_owner_source_variable_assignment.v1",
++    version="1.0",
++)
++VALUE_DATA_PROFILE_KIND = "runtime.value_data_profile"
++VALUE_DATA_PROFILE_SCHEMA = SchemaInfo(name="runtime.value_data_profile.v2", version="2.0")
++VALUE_SOURCE_PROJECTION_KIND = "runtime.value_owner_source_projection"
++VALUE_SOURCE_PROJECTION_SCHEMA = SchemaInfo(
++    name="runtime.value_owner_source_projection.v1",
++    version="1.0",
++)
++
++
++class HTESourceProjectionRefusal(ValueError):
++    """Typed refusal to bind selected HTE arrays to a source profile."""
++
++    def __init__(self, reason_code: str) -> None:
++        self.reason_code = reason_code
++        super().__init__(reason_code)
++
++
++class _SearchBasisSourceProjection(Protocol):
++    selected_method_input_ref: ArtifactRef
++    selected_state_input_refs: Sequence[object]
++    unit_binding_status: Literal["bound", "unknown"]
++    unit_scope_ref: ArtifactRef | None
++
++
++class _HTERequestSourceProjection(Protocol):
++    outcome_variable_id: str
++    treatment_variable_id: str
++    control_value: float
++    treated_value: float
++
++
++@dataclass(frozen=True, slots=True)
++class HTESourceProjectionJoin:
++    """Verified selected-source edge with candidate-only semantic labels."""
++
++    assignment_ref: ArtifactRef
++    outcome_profile_ref: ArtifactRef
++    role_mapping_status: Literal["consumer_asserted"] = "consumer_asserted"
++    semantic_alignment_status: Literal["not_established"] = "not_established"
++    source_time_status: Literal["not_established"] = "not_established"
++
++
++def _refuse(reason_code: str) -> NoReturn:
++    raise HTESourceProjectionRefusal(reason_code)
++
++
++def _read_model(
++    store: CoreJSONArtifactBoundedMemberReader,
++    ref: ArtifactRef,
++    *,
++    limits: CoreJsonReadLimits,
++    model_type: type[BaseModel],
++    kind: str,
++    schema: SchemaInfo,
++    failure_code: str,
++) -> tuple[object, BaseModel]:
++    try:
++        selected = read_core_json_artifact_bounded(store, ref, limits=limits)
++    except Exception as exc:
++        raise HTESourceProjectionRefusal(failure_code) from exc
++    if (
++        artifact_ref_identity_key(selected.effective_ref) != artifact_ref_identity_key(ref)
++        or selected.manifest.kind != kind
++        or selected.manifest.media_type != "application/json"
++        or selected.manifest.artifact_schema != schema
++    ):
++        _refuse(failure_code)
++    try:
++        model = validate_core_model_bounded_read(model_type, selected)
++    except Exception as exc:
++        raise HTESourceProjectionRefusal(failure_code) from exc
++    return selected, model
++
++
++def _value_ref(ref: object, *, kind: str) -> ArtifactRef:
++    try:
++        artifact_ref = ArtifactRef(
++            artifact_id=getattr(ref, "artifact_id"),
++            kind=kind,
++            media_type=getattr(ref, "media_type"),
++            manifest_profile_sha256=getattr(ref, "manifest_profile_sha256"),
++        )
++    except Exception as exc:
++        raise HTESourceProjectionRefusal("source_owner_ref_invalid") from exc
++    if artifact_ref.manifest_profile_sha256 is None:
++        _refuse("source_owner_ref_unprofiled")
++    return artifact_ref
++
++
++def _edge_key(edge: object) -> tuple[str, str, str | None]:
++    return (
++        str(getattr(edge, "artifact_id", "")),
++        str(getattr(edge, "role", "")),
++        getattr(edge, "manifest_profile_sha256", None),
++    )
++
++
++def _require_exact_inputs(manifest: object, expected: Sequence[tuple[ArtifactRef, str]]) -> None:
++    observed = getattr(manifest, "inputs", None)
++    if not isinstance(observed, Sequence) or isinstance(observed, str | bytes | bytearray):
++        _refuse("source_owner_lineage_unavailable")
++    actual_edges = Counter(_edge_key(edge) for edge in observed)
++    expected_edges = Counter(
++        (
++            str(ref.artifact_id),
++            role,
++            ref.manifest_profile_sha256,
++        )
++        for ref, role in expected
++    )
++    if actual_edges != expected_edges:
++        _refuse("source_owner_lineage_mismatch")
++
++
++def _profile_rows_from_projection(gc: Any, projection: ActivatedAcquisitionObservationProjection):
++    grouped: dict[tuple[str, int], list[tuple[float, str, str, str]]] = defaultdict(list)
++    for projected in projection.observations:
++        observation = projected.observation
++        period_id = (
++            observation.year
++            if observation.year is not None
++            else observation.survey_year
++            if observation.survey_year is not None
++            else observation.wave
++        )
++        if type(period_id) is not int:
++            _refuse("source_projection_time_coordinate_not_supported")
++        try:
++            condition = json.loads(observation.condition_json)
++        except (TypeError, ValueError) as exc:
++            raise HTESourceProjectionRefusal("source_projection_unit_not_declared") from exc
++        unit = condition.get("unit") if isinstance(condition, dict) else None
++        if not isinstance(unit, str) or not unit.strip():
++            _refuse("source_projection_unit_not_declared")
++        grouped[(observation.country_code, period_id)].append(
++            (
++                float(observation.value),
++                observation.dataset_id,
++                observation.observation_id,
++                unit,
++            )
++        )
++    if not grouped:
++        _refuse("source_projection_rows_missing")
++    return tuple(
++        gc._value_owner_row(
++            outcome=projection.variable_id,
++            unit_id=unit_id,
++            period_id=period_id,
++            source_rows=tuple(source_rows),
++        )
++        for (unit_id, period_id), source_rows in sorted(grouped.items())
++    )
++
++
++def _cell_values(profile: Any) -> dict[tuple[str, int], float]:
++    result: dict[tuple[str, int], float] = {}
++    for row in profile.rows:
++        key = (row.unit_id, row.period_id)
++        if (
++            key in result
++            or row.measurement_unit != profile.measurement_unit
++            or not math.isfinite(row.outcome_value)
++        ):
++            _refuse("source_profile_rows_invalid")
++        result[key] = float(row.outcome_value)
++    if not result:
++        _refuse("source_profile_rows_missing")
++    return result
++
++
++def verify_hte_source_projection_join(
++    *,
++    store: CoreJSONArtifactBoundedMemberReader,
++    selected_method_input_ref: ArtifactRef,
++    basis: _SearchBasisSourceProjection,
++    request_projection: _HTERequestSourceProjection,
++    limits: CoreJsonReadLimits,
++) -> HTESourceProjectionJoin:
++    """Recompute the assignment/profile/array join for one selected HTE input.
++
++    Only existing selected refs and owner rows participate. A missing or
++    mismatched edge cannot make a score available, even when a basis carries a
++    unit-scope ref.
++    """
++    if (
++        basis.unit_binding_status != "bound"
++        or basis.unit_scope_ref is None
++        or artifact_ref_identity_key(basis.selected_method_input_ref)
++        != artifact_ref_identity_key(selected_method_input_ref)
++    ):
++        _refuse("source_unit_scope_not_frozen_in_basis")
++
++    from polisyos.runtime.quality import generation_cycle as gc
++
++    if (
++        selected_method_input_ref.kind != OBSERVATION_METHOD_INPUT_KIND
++        or selected_method_input_ref.media_type != "application/json"
++        or selected_method_input_ref.manifest_profile_sha256 is None
++    ):
++        _refuse("selected_hte_input_ref_invalid")
++    source_read, envelope = _read_model(
++        store,
++        selected_method_input_ref,
++        limits=limits,
++        model_type=ObservationMethodInputEnvelope,
++        kind=OBSERVATION_METHOD_INPUT_KIND,
++        schema=SchemaInfo(
++            name=OBSERVATION_METHOD_INPUT_SCHEMA_NAME,
++            version=OBSERVATION_METHOD_INPUT_SCHEMA_VERSION,
++        ),
++        failure_code="selected_hte_input_unavailable",
++    )
++    if (
++        envelope.contract_target.contract_id != HTE_OBSERVATIONAL_DATA_CONTRACT_ID
++        or envelope.contract_target.contract_fqn != HTE_OBSERVATIONAL_DATA_CONTRACT_FQN
++    ):
++        _refuse("selected_hte_input_target_mismatch")
++    assignment_edges = [
++        edge
++        for edge in source_read.manifest.inputs
++        if edge.role == SOURCE_VARIABLE_ASSIGNMENT_ROLE
++    ]
++    if len(assignment_edges) != 1 or assignment_edges[0].manifest_profile_sha256 is None:
++        _refuse("source_assignment_edge_missing_or_ambiguous")
++    assignment_edge = assignment_edges[0]
++    assignment_ref = ArtifactRef(
++        artifact_id=assignment_edge.artifact_id,
++        kind=SOURCE_VARIABLE_ASSIGNMENT_KIND,
++        media_type="application/json",
++        manifest_profile_sha256=assignment_edge.manifest_profile_sha256,
++    )
++    selected_assignment_edges = [
++        item
++        for item in basis.selected_state_input_refs
++        if getattr(item, "role_path", None) == SOURCE_VARIABLE_ASSIGNMENT_ROLE
++    ]
++    if (
++        len(selected_assignment_edges) != 1
++        or getattr(selected_assignment_edges[0], "ref", None) is None
++        or artifact_ref_identity_key(selected_assignment_edges[0].ref)
++        != artifact_ref_identity_key(assignment_ref)
++    ):
++        _refuse("source_assignment_ref_not_frozen_in_basis")
++
++    assignment_read, assignment = _read_model(
++        store,
++        assignment_ref,
++        limits=limits,
++        model_type=gc.ValueOwnerSourceVariableAssignmentV1,
++        kind=SOURCE_VARIABLE_ASSIGNMENT_KIND,
++        schema=SOURCE_VARIABLE_ASSIGNMENT_SCHEMA,
++        failure_code="source_assignment_artifact_unavailable",
++    )
++    assignment_inputs = [
++        edge
++        for role_profile in assignment.role_profiles
++        for edge in (
++            (
++                _value_ref(role_profile.profile_ref, kind=VALUE_DATA_PROFILE_KIND),
++                f"selected_source_profile:{role_profile.role}:{role_profile.variable_id}",
++            ),
++            (
++                _value_ref(role_profile.projection_ref, kind=VALUE_SOURCE_PROJECTION_KIND),
++                f"selected_source_projection:{role_profile.role}:{role_profile.variable_id}",
++            ),
++        )
++    ]
++    _require_exact_inputs(assignment_read.manifest, assignment_inputs)
++
++    profiles: dict[str, Any] = {}
++    role_by_variable: dict[str, Any] = {}
++    for role_profile in assignment.role_profiles:
++        profile_ref = _value_ref(role_profile.profile_ref, kind=VALUE_DATA_PROFILE_KIND)
++        projection_ref = _value_ref(
++            role_profile.projection_ref,
++            kind=VALUE_SOURCE_PROJECTION_KIND,
++        )
++        projection_read, projection = _read_model(
++            store,
++            projection_ref,
++            limits=limits,
++            model_type=ActivatedAcquisitionObservationProjection,
++            kind=VALUE_SOURCE_PROJECTION_KIND,
++            schema=VALUE_SOURCE_PROJECTION_SCHEMA,
++            failure_code="source_projection_artifact_unavailable",
++        )
++        del projection_read
++        if (
++            projection.variable_id != role_profile.variable_id
++            or projection.activation_state != "active"
++            or projection.predicate_provenance != "recomputed"
++            or projection.source_time_status != "not_established"
++        ):
++            _refuse("source_projection_profile_mismatch")
++        profile_read, profile = _read_model(
++            store,
++            profile_ref,
++            limits=limits,
++            model_type=gc.ValueDataProfile,
++            kind=VALUE_DATA_PROFILE_KIND,
++            schema=VALUE_DATA_PROFILE_SCHEMA,
++            failure_code="source_profile_artifact_unavailable",
++        )
++        _require_exact_inputs(
++            profile_read.manifest,
++            ((projection_ref, "activated_source_projection"),),
++        )
++        if (
++            profile.content_hash != role_profile.profile_content_hash
++            or profile.outcome != role_profile.variable_id
++            or profile.measurement_unit != role_profile.measurement_unit
++            or tuple(profile.rows) != _profile_rows_from_projection(gc, projection)
++        ):
++            _refuse("source_profile_projection_content_mismatch")
++        profiles[role_profile.variable_id] = profile
++        role_by_variable[role_profile.variable_id] = role_profile
++
++    outcome_roles = [item for item in assignment.role_profiles if item.role == "outcome"]
++    treatment_roles = [item for item in assignment.role_profiles if item.role == "treatment"]
++    covariate_roles = [item for item in assignment.role_profiles if item.role == "covariate"]
++    if len(outcome_roles) != 1 or len(treatment_roles) != 1 or not covariate_roles:
++        _refuse("source_assignment_role_set_invalid")
++    outcome_role = outcome_roles[0]
++    treatment_role = treatment_roles[0]
++    if (
++        outcome_role.variable_id != request_projection.outcome_variable_id
++        or treatment_role.variable_id != request_projection.treatment_variable_id
++    ):
++        _refuse("source_request_role_mismatch")
++    outcome_profile_ref = _value_ref(
++        outcome_role.profile_ref,
++        kind=VALUE_DATA_PROFILE_KIND,
++    )
++    if (
++        basis.unit_scope_ref is None
++        or artifact_ref_identity_key(basis.unit_scope_ref)
++        != artifact_ref_identity_key(outcome_profile_ref)
++    ):
++        _refuse("source_unit_scope_profile_mismatch")
++
++    cell_values = {variable_id: _cell_values(profile) for variable_id, profile in profiles.items()}
++    cell_sets = [set(values) for values in cell_values.values()]
++    if not cell_sets or any(cells != cell_sets[0] for cells in cell_sets[1:]):
++        _refuse("source_profiles_do_not_share_complete_rows")
++    cells = tuple(sorted(cell_sets[0]))
++
++    try:
++        data = materialize_method_contract(
++            contract_target=envelope.contract_target,
++            contract_payload=envelope.contract_payload,
++        )
++    except Exception as exc:
++        raise HTESourceProjectionRefusal("selected_hte_input_materialization_refused") from exc
++    if type(data) is not HTEObservationalData:
++        _refuse("selected_hte_input_materializer_mismatch")
++
++    expected_sample_ids = tuple(f"{unit_id}:{period_id}" for unit_id, period_id in cells)
++    if data.sample_ids is None or tuple(np.asarray(data.sample_ids).tolist()) != expected_sample_ids:
++        _refuse("source_profile_sample_ids_mismatch")
++    expected_outcome = np.asarray(
++        [cell_values[outcome_role.variable_id][cell] for cell in cells],
++        dtype=float,
++    )
++    expected_treatment = np.asarray(
++        [cell_values[treatment_role.variable_id][cell] for cell in cells],
++        dtype=float,
++    )
++    if not np.array_equal(np.asarray(data.outcome), expected_outcome):
++        _refuse("source_outcome_array_mismatch")
++    if not np.array_equal(np.asarray(data.treatment), expected_treatment):
++        _refuse("source_treatment_array_mismatch")
++    observed_treatments = set(float(value) for value in np.asarray(data.treatment).tolist())
++    requested_treatments = {
++        float(request_projection.control_value),
++        float(request_projection.treated_value),
++    }
++    if observed_treatments != requested_treatments:
++        _refuse("source_treatment_contrast_values_mismatch")
++
++    feature_names = data.feature_names
++    if (
++        feature_names is None
++        or any(type(name) is not str or not name.strip() for name in feature_names)
++        or len(feature_names) != len(set(feature_names))
++    ):
++        _refuse("source_feature_role_names_missing_or_ambiguous")
++    confounders = data.confounders
++    confounder_names = data.confounder_names
++    if confounders is None:
++        if confounder_names not in (None, []):
++            _refuse("source_confounder_role_names_without_array")
++        confounder_names = []
++    elif (
++        confounder_names is None
++        or any(type(name) is not str or not name.strip() for name in confounder_names)
++        or len(confounder_names) != len(set(confounder_names))
++    ):
++        _refuse("source_confounder_role_names_missing_or_ambiguous")
++    all_covariate_names = tuple(feature_names) + tuple(confounder_names)
++    if (
++        len(all_covariate_names) != len(set(all_covariate_names))
++        or set(all_covariate_names) != {item.variable_id for item in covariate_roles}
++    ):
++        _refuse("source_covariate_role_map_mismatch")
++    if np.asarray(data.covariates).shape[1] != len(feature_names):
++        _refuse("source_feature_array_shape_mismatch")
++    for index, variable_id in enumerate(feature_names):
++        expected = np.asarray(
++            [cell_values[variable_id][cell] for cell in cells],
++            dtype=float,
++        )
++        if not np.array_equal(np.asarray(data.covariates)[:, index], expected):
++            _refuse("source_feature_array_mismatch")
++    if confounders is not None:
++        if np.asarray(confounders).shape[1] != len(confounder_names):
++            _refuse("source_confounder_array_shape_mismatch")
++        for index, variable_id in enumerate(confounder_names):
++            expected = np.asarray(
++                [cell_values[variable_id][cell] for cell in cells],
++                dtype=float,
++            )
++            if not np.array_equal(np.asarray(confounders)[:, index], expected):
++                _refuse("source_confounder_array_mismatch")
++
++    return HTESourceProjectionJoin(
++        assignment_ref=assignment_ref,
++        outcome_profile_ref=outcome_profile_ref,
++    )

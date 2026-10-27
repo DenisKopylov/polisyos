@@ -1,0 +1,513 @@
+--- a/src/polisyos/scientist/methods/autotune/bayesian_generator.py
++++ b/src/polisyos/scientist/methods/autotune/bayesian_generator.py
+@@ -5,7 +5,7 @@
+ import logging
+ import math
+ from collections.abc import Mapping
+-from dataclasses import asdict, is_dataclass
++from dataclasses import asdict, is_dataclass, replace
+ from datetime import UTC, datetime
+ from enum import Enum
+ from typing import Any
+@@ -32,6 +32,7 @@
+     _configured_search_metric_binding,
+     _configured_search_metric_profile_fingerprint,
+     _evaluation_matches_selected_objectives,
++    _unestablished_score_assessment,
+ )
+ from polisyos.scientist.methods.search.strategies.space import (
+     SearchSpace as NativeSearchSpace,
+@@ -49,6 +50,7 @@
+     SearchGPFitBasis,
+     SearchGPFitBound,
+     SearchGPFitConfig,
++    load_model_artifact,
+     SearchMethodRunProfile,
+ )
+ 
+@@ -1048,6 +1050,67 @@
+                 self._direction.value,
+                 self._selected_objective_unit,
+             )
++            stage_b_metadata = _as_mapping(stage_b_result.get("metadata"))
++            history_result = _as_mapping(stage_b_result.get("simulation_results"))
++            history_units = _as_mapping(history_result.get("metric_units"))
++            selected_history_unit = history_units.get(self._primary_metric)
++            evaluation_ref_payload = stage_b_metadata.get("evaluation_artifact_ref")
++            evaluation_ref_present = evaluation_ref_payload is not None
++            proposal_metadata = _as_mapping(candidate.get("_strategy_metadata"))
++            from .source_profile_verification import (
++                _SearchHistorySourceDisposition,
++                _resolve_search_history_source,
++            )
++
++            source_resolution = _resolve_search_history_source(
++                store=self._source_store,
++                evaluation_ref=evaluation_ref_payload,
++                expected_params=params,
++                expected_scalar=(
++                    assessment.value
++                    if assessment.status is ObjectiveScoreStatus.AVAILABLE
++                    else None
++                ),
++                expected_proposal_id=proposal_metadata.get("candidate_id"),
++                expected_provenance_ref=(
++                    str(identity["provenance_ref"])
++                    if identity.get("provenance_ref") is not None
++                    else None
++                ),
++            )
++            persisted_evaluation = source_resolution.evaluation
++            method_job_claimed = (
++                source_resolution.disposition
++                is not _SearchHistorySourceDisposition.NOT_APPLICABLE
++            )
++            verified = source_resolution.verified
++            configured_unit = self._selected_objective_unit
++            selected_unit_is_exact = (
++                isinstance(configured_unit, str)
++                and bool(configured_unit.strip())
++                and configured_unit == configured_unit.strip()
++                and selected_history_unit == configured_unit
++                and persisted_evaluation is not None
++                and persisted_evaluation.metric_units.get(self._primary_metric)
++                == selected_history_unit
++            )
++            if (
++                not evaluation_ref_present
++                and isinstance(configured_unit, str)
++                and configured_unit.strip()
++                and assessment.status is ObjectiveScoreStatus.AVAILABLE
++            ):
++                assessment = _unestablished_score_assessment(
++                    "search_method_result_evaluation_cas_ref_not_established"
++                )
++            if (
++                method_job_claimed
++                and not selected_unit_is_exact
++                and assessment.status is ObjectiveScoreStatus.AVAILABLE
++            ):
++                assessment = _unestablished_score_assessment(
++                    "search_method_result_unit_not_established"
++                )
+             has_score = (
+                 assessment.status is ObjectiveScoreStatus.AVAILABLE
+                 and assessment.value is not None
+@@ -1090,7 +1153,6 @@
+ 
+             metadata = dict(entry_metadata)
+             metadata.update(_as_mapping(candidate.get("_strategy_metadata")))
+-            stage_b_metadata = _as_mapping(stage_b_result.get("metadata"))
+             metadata.update(stage_b_metadata)
+             for key in (
+                 "warm_start_compatibility",
+@@ -1147,20 +1209,34 @@
+                 score_status=assessment.status,
+                 score_assessment=assessment,
+             )
+-            evaluation_ref_payload = stage_b_metadata.get("evaluation_artifact_ref")
+-            proposal_metadata = _as_mapping(candidate.get("_strategy_metadata"))
+-            from .source_profile_verification import _verify_search_source_profile_receipt
+-
+-            verified = _verify_search_source_profile_receipt(
+-                store=self._source_store,
+-                evaluation_ref=evaluation_ref_payload,
+-                expected_params=params,
+-                expected_scalar=scalar if has_score else None,
+-                expected_proposal_id=proposal_metadata.get("candidate_id"),
+-                expected_provenance_ref=(
+-                    str(provenance_ref) if provenance_ref is not None else None
+-                ),
+-            )
++            if verified is not None:
++                _, receipt, _ = verified
++                if (
++                    not has_score
++                    or selected_history_unit != receipt.get("unit")
++                    or selected_history_unit != self._selected_objective_unit
++                ):
++                    verified = None
++            if method_job_claimed and verified is None and (
++                evaluation.score_status is ObjectiveScoreStatus.AVAILABLE
++            ):
++                unavailable_assessment = _unestablished_score_assessment(
++                    "search_method_result_profile_or_cas_chain_not_established"
++                )
++                evaluation.objectives = [
++                    replace(
++                        objective,
++                        score_status=unavailable_assessment.status,
++                        score_assessment=unavailable_assessment,
++                        is_satisfied=False,
++                    )
++                    for objective in evaluation.objectives
++                ]
++                evaluation.scalar_score = None
++                evaluation.status = EvaluationStatus.STAGE_B_ERROR
++                evaluation.score_status = unavailable_assessment.status
++                evaluation.score_assessment = unavailable_assessment
++                evaluation.metadata["invalid_reason"] = unavailable_assessment.limitation
+             if verified is not None:
+                 profile, receipt, source_candidate_ref = verified
+                 evaluation.candidate_id = str(source_candidate_ref.artifact_id)
+@@ -1235,7 +1311,7 @@
+     if dim and len(params_normalized) != dim:
+         return None
+ 
+-    declared_source_unit = benchmark_metadata.get("metric_unit")
++    declared_source_unit = bench.metric_units.get(primary_metric)
+     if (
+         not isinstance(expected_unit, str)
+         or not expected_unit.strip()
+--- a/src/polisyos/scientist/methods/autotune/models.py
++++ b/src/polisyos/scientist/methods/autotune/models.py
+@@ -14,6 +14,7 @@
+     ConfigDict,
+     Field,
+     SerializerFunctionWrapHandler,
++    StrictStr,
+     model_serializer,
+ )
+ 
+@@ -573,6 +574,7 @@
+     search_source_profile: BayesianSourceProfile | None = None
+     selection_metrics: dict[str, float] = Field(default_factory=dict)
+     holdout_metrics: dict[str, float] = Field(default_factory=dict)
++    metric_units: dict[StrictStr, StrictStr] = Field(default_factory=dict)
+     sample_counts: dict[str, int] = Field(default_factory=dict)
+     guardrails: dict[str, bool] = Field(default_factory=dict)
+     promotable: bool = False
+@@ -591,6 +593,14 @@
+             self.execution_work_packet_ref is not None
+         ):
+             raise ValueError("unavailable MethodJob work cannot carry a packet ref")
++        if any(
++            not metric.strip()
++            or metric != metric.strip()
++            or not unit.strip()
++            or unit != unit.strip()
++            for metric, unit in self.metric_units.items()
++        ):
++            raise ValueError("BenchmarkEvaluation metric units must be canonical non-empty strings")
+         return self
+ 
+     def metrics_for_split(self, split: BenchmarkSplit) -> dict[str, float]:
+--- a/src/polisyos/scientist/methods/autotune/runtime.py
++++ b/src/polisyos/scientist/methods/autotune/runtime.py
+@@ -785,6 +785,11 @@
+             source_units.get(policy.primary_metric) if isinstance(source_units, Mapping) else None
+         )
+         metric_unit_matches = source_unit == policy.unit
++        metric_units = (
++            {policy.primary_metric: source_unit}
++            if isinstance(source_unit, str) and source_unit and source_unit == source_unit.strip()
++            else {}
++        )
+         metric_value: float | None = None
+         if not isinstance(raw_metric, bool) and raw_metric is not None:
+             try:
+@@ -817,6 +822,7 @@
+                 execution_work_packet_ref=execution_work_ref,
+                 execution_work_packet_status=execution_work_status,
+                 execution_work_packet_note=execution_work_note,
++                metric_units=metric_units,
+                 sample_counts=sample_counts,
+                 guardrails=guardrails,
+                 promotable=False,
+@@ -848,6 +854,7 @@
+             execution_work_packet_ref=execution_work_ref,
+             execution_work_packet_status=execution_work_status,
+             execution_work_packet_note=execution_work_note,
++            metric_units=metric_units,
+             selection_metrics=(metric_mapping if self._split == BenchmarkSplit.SELECTION else {}),
+             holdout_metrics=(metric_mapping if self._split == BenchmarkSplit.HOLDOUT else {}),
+             sample_counts=sample_counts,
+@@ -2323,7 +2330,11 @@
+                 evaluation.execution_work_packet_ref.artifact_id
+             )
+         if primary_value is not None and isfinite(primary_value):
+-            simulation_results[spec.promotion_policy.primary_metric] = primary_value
++            primary_metric = spec.promotion_policy.primary_metric
++            simulation_results[primary_metric] = primary_value
++            source_unit = evaluation.metric_units.get(primary_metric)
++            if source_unit is not None:
++                simulation_results["metric_units"] = {primary_metric: source_unit}
+         return {
+             "simulation_results": simulation_results,
+             "feedback": {
+--- a/src/polisyos/scientist/methods/autotune/source_profile_verification.py
++++ b/src/polisyos/scientist/methods/autotune/source_profile_verification.py
+@@ -8,7 +8,8 @@
+ from __future__ import annotations
+ 
+ from collections.abc import Mapping
+-from dataclasses import asdict
++from dataclasses import asdict, dataclass
++from enum import Enum
+ from math import isclose, isfinite
+ from typing import Any
+ 
+@@ -107,6 +108,136 @@
+         for item in manifest.inputs
+     )
+ 
++
++class _SearchHistorySourceDisposition(str, Enum):
++    """Owner-resolved status for one persisted Search history source."""
++
++    NOT_APPLICABLE = "not_applicable"
++    REFUSED = "refused"
++    VERIFIED = "verified"
++
++
++@dataclass(frozen=True, slots=True)
++class _SearchHistorySourceResolution:
++    """Carry the source owner's disposition and any resolved evaluation evidence."""
++
++    disposition: _SearchHistorySourceDisposition
++    evaluation: BenchmarkEvaluation | None = None
++    verified: tuple[BayesianSourceProfile, dict[str, Any], ArtifactRef] | None = None
++
++
++_SEARCH_HISTORY_METHOD_INPUT_ROLES = frozenset(
++    {"method_result", "method_evidence", "execution_work_packet"}
++)
++_SEARCH_HISTORY_METHOD_METADATA_KEYS = frozenset(
++    {
++        "method_fqn",
++        "method_version",
++        "method_seed",
++        "method_job_key",
++        "method_input_bindings",
++        "method_result_ref",
++        "method_evidence_ref",
++        "method_request_basis",
++        _SEARCH_SOURCE_RECEIPT_KEY,
++        "search_source_evaluation_ref",
++    }
++)
++
++
++def _search_history_source_claimed(
++    evaluation: BenchmarkEvaluation,
++    manifest: ArtifactManifest,
++) -> bool:
++    """Detect owner-defined MethodJob source facts that require a fresh verified chain.
++
++    A profile describes the optimizer and may appear on generic Search history. Typed
++    MethodJob payload refs, MethodJob request/receipt fields, and actual CAS input roles
++    are source claims; they can only narrow or refuse history admission.
++    """
++    return (
++        evaluation.method_result_ref is not None
++        or evaluation.method_evidence_ref is not None
++        or evaluation.method_job_key is not None
++        or evaluation.execution_work_packet_ref is not None
++        or evaluation.execution_work_packet_status != "unavailable"
++        or evaluation.execution_work_packet_note is not None
++        or any(key in evaluation.metadata for key in _SEARCH_HISTORY_METHOD_METADATA_KEYS)
++        or any(item.role in _SEARCH_HISTORY_METHOD_INPUT_ROLES for item in manifest.inputs)
++    )
++
++
++def _resolve_search_history_source(
++    *,
++    store: CoreJSONArtifactStore | None,
++    evaluation_ref: Any,
++    expected_params: Any = None,
++    expected_scalar: Any = None,
++    expected_proposal_id: Any = None,
++    expected_provenance_ref: Any = None,
++) -> _SearchHistorySourceResolution:
++    """Resolve source ownership before a persisted scalar can use generic history fallback.
++
++    Genuine generic BenchmarkEvaluation artifacts remain applicable to the ordinary
++    candidate-history path. Any typed payload claim or persisted MethodJob input role
++    requires the full existing receipt, producer-basis, and CAS verifier; partial or
++    unreadable source claims are refused.
++    """
++    if evaluation_ref is None:
++        return _SearchHistorySourceResolution(
++            disposition=_SearchHistorySourceDisposition.NOT_APPLICABLE
++        )
++    if store is None:
++        return _SearchHistorySourceResolution(
++            disposition=_SearchHistorySourceDisposition.REFUSED
++        )
++
++    from polisyos.core.artifacts import load_core_json_artifact
++
++    try:
++        exact_ref = ArtifactRef.model_validate(evaluation_ref)
++        manifest = store.get_manifest(exact_ref)
++        if (
++            manifest.artifact_id != exact_ref.artifact_id
++            or not _search_source_manifest_schema_matches(
++                manifest,
++                name="polisyos.scientist.methods.autotune.BenchmarkEvaluation",
++            )
++        ):
++            return _SearchHistorySourceResolution(
++                disposition=_SearchHistorySourceDisposition.REFUSED
++            )
++        raw_evaluation = load_core_json_artifact(store, exact_ref)
++        evaluation = BenchmarkEvaluation.model_validate(raw_evaluation)
++    except Exception:
++        return _SearchHistorySourceResolution(
++            disposition=_SearchHistorySourceDisposition.REFUSED
++        )
++
++    if not _search_history_source_claimed(evaluation, manifest):
++        return _SearchHistorySourceResolution(
++            disposition=_SearchHistorySourceDisposition.NOT_APPLICABLE,
++            evaluation=evaluation,
++        )
++
++    verified = _verify_search_source_profile_receipt(
++        store=store,
++        evaluation_ref=exact_ref,
++        expected_params=expected_params,
++        expected_scalar=expected_scalar,
++        expected_proposal_id=expected_proposal_id,
++        expected_provenance_ref=expected_provenance_ref,
++    )
++    if verified is None:
++        return _SearchHistorySourceResolution(
++            disposition=_SearchHistorySourceDisposition.REFUSED,
++            evaluation=evaluation,
++        )
++    return _SearchHistorySourceResolution(
++        disposition=_SearchHistorySourceDisposition.VERIFIED,
++        evaluation=evaluation,
++        verified=verified,
++    )
+ 
+ def _verify_search_source_profile_receipt(
+     *,
+--- a/src/polisyos/scientist/methods/search/objective.py
++++ b/src/polisyos/scientist/methods/search/objective.py
+@@ -1804,19 +1804,26 @@
+     requirements = _rule_metric_unit_requirements(spec)
+     if requirements is None:
+         return "objective_rule_unit_binding_malformed"
++    selected_fields = _selected_measurement_fields(spec, results)
+     raw_units = results.get("metric_units", _MISSING)
+     if raw_units is _MISSING:
+-        return None
+-    if not isinstance(raw_units, dict):
++        raw_units = {}
++    elif not isinstance(raw_units, dict):
+         return "objective_source_unit_malformed_or_conflicting"
+ 
+-    selected_fields = _selected_measurement_fields(spec, results)
+     selected_units: list[str] = []
+     for field_name in selected_fields:
+         observed_unit = raw_units.get(field_name, _MISSING)
++        expected_unit = requirements.get(field_name, _MISSING)
+         if observed_unit is _INVALID:
+             return "objective_source_unit_malformed_or_conflicting"
+         if observed_unit is _MISSING:
++            if (
++                field_name in _DEFICIT_ALIASES
++                and expected_unit is not _MISSING
++                and expected_unit is not None
++            ):
++                return "objective_source_unit_not_established"
+             continue
+         if (
+             not isinstance(observed_unit, str)
+@@ -1824,7 +1831,6 @@
+             or observed_unit != observed_unit.strip()
+         ):
+             return "objective_source_unit_malformed_or_conflicting"
+-        expected_unit = requirements.get(field_name, _MISSING)
+         if expected_unit is _INVALID or (
+             expected_unit is not _MISSING
+             and expected_unit is not None
+@@ -2085,18 +2091,23 @@
+             else:
+                 unit_error = _fiscal_alias_source_unit_error(spec, results)
+                 if unit_error is not None:
+-                    status = ObjectiveScoreStatus.INVALID
++                    status = (
++                        ObjectiveScoreStatus.NOT_ESTABLISHED
++                        if unit_error == "objective_source_unit_not_established"
++                        else ObjectiveScoreStatus.INVALID
++                    )
+                     limitation = unit_error
++                elif deficit_score is not None:
++                    # A configured deficit operand is the selected objective input.
++                    # A balance-stock alias alone cannot establish that period measure.
++                    status = ObjectiveScoreStatus.AVAILABLE
++                    score = deficit_score
+                 else:
+-                    # A scalar unit and a source-provided role label cannot prove that a
+-                    # stock or unqualified deficit alias is a period-flow measurement.
+-                    # Keep its numeric value diagnostic-only until an owner-bound flow
+-                    # contract is admitted through the typed method-metric path.
+                     status = ObjectiveScoreStatus.NOT_ESTABLISHED
+                     limitation = "budget_deficit_period_flow_source_not_established"
+         derived_values["balance_score"] = balance_score if balance is not _INVALID else None
+         derived_values["deficit_score"] = deficit_score if deficit is not _INVALID else None
+-        derived_values["score"] = None
++        derived_values["score"] = score
+     elif kind == "default_policy_scalar":
+         gdp, gdp_status = _read_finite_numeric_metric(results, "gdp_change")
+         expected_units = spec.get("expected_units")
+--- a/src/polisyos/scientist/methods/search/voi_scheduler.py
++++ b/src/polisyos/scientist/methods/search/voi_scheduler.py
+@@ -333,6 +333,23 @@
+     calibration_state: dict[str, Any] = Field(default_factory=dict)
+ 
+ 
++def _policy_runtime_vector_schema_supported(version: str, vector: Any) -> bool:
++    """Admit only the scalar vector form currently supported by VOI.
++
++    The source producer emits PolicyEvaluationVector 1.2 when the typed
++    method_metric_observations field is absent and 1.3 when that distinct
++    method-evidence payload is present. VOI's scalar source-concordance has not
++    selected the 1.3 method-evidence admission rule, so it refuses that form.
++    """
++    from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
++
++    return (
++        isinstance(vector, PolicyEvaluationVector)
++        and version == "1.2"
++        and not vector.method_metric_observations
++    )
++
++
+ def _policy_runtime_source_concordance(vector: Any) -> dict[str, Any] | None:
+     """Recompute the source projection and retain the typed vector for score replay.
+ 
+@@ -442,7 +459,6 @@
+             or result_manifest.artifact_schema is None
+             or result_manifest.artifact_schema.name
+             != "polisyos.scientist.policy_design.PolicyEvaluationVector"
+-            or result_manifest.artifact_schema.version != "1.1"
+             or artifact_manifest_profile_sha256(result_manifest)
+             != source_result_ref.manifest_profile_sha256
+         ):
+@@ -452,7 +468,13 @@
+         if not isinstance(payload, Mapping):
+             return False
+         vector = PolicyEvaluationVector.model_validate(payload)
+-        if vector.model_dump(mode="json") != payload:
++        if (
++            not _policy_runtime_vector_schema_supported(
++                result_manifest.artifact_schema.version,
++                vector,
++            )
++            or vector.model_dump(mode="json") != payload
++        ):
+             return False
+         if vector.candidate_id != expected_candidate_id or not isinstance(
+             vector.score_source, Mapping
+@@ -570,7 +592,6 @@
+             or result_manifest.artifact_schema is None
+             or result_manifest.artifact_schema.name
+             != "polisyos.scientist.policy_design.PolicyEvaluationVector"
+-            or result_manifest.artifact_schema.version != "1.1"
+             or artifact_manifest_profile_sha256(result_manifest)
+             != packet.source_result_ref.manifest_profile_sha256
+         ):

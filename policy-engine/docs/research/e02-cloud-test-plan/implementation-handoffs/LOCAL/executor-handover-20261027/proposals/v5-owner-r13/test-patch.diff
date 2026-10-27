@@ -1,0 +1,934 @@
+--- a/tests/unit/scientist/methods/autotune/test_bayesian_generator.py
++++ b/tests/unit/scientist/methods/autotune/test_bayesian_generator.py
+@@ -475,18 +475,33 @@
+ 
+ 
+ class TestBenchmarkToEvaluation:
++    @pytest.mark.parametrize(
++        ("metric_name", "unit"),
++        [("score", 1), (" score", "dimensionless"), ("score", " dimensionless ")],
++    )
++    def test_metric_units_are_strict_and_canonical(self, metric_name, unit):
++        with pytest.raises(ValueError):
++            BenchmarkEvaluation(
++                loop_id="loop1",
++                suite_id="suite1",
++                candidate_ref=_ref(),
++                metric_units={metric_name: unit},
++            )
++
+     def test_converts_evaluation(self):
+         bench = BenchmarkEvaluation(
+             loop_id="loop1",
+             suite_id="suite1",
+             candidate_ref=_ref(),
+             holdout_metrics={"score": 0.8},
++            metric_units={"score": "dimensionless"},
+         )
+         result = benchmark_to_evaluation(
+             bench,
+             primary_metric="score",
+             direction=MetricDirection.MAXIMIZE,
+             dim=3,
++            expected_unit="dimensionless",
+         )
+         # May be None if deps unavailable
+         if result is not None:
+@@ -494,7 +509,10 @@
+             assert result.stage_a_passed is True
+             assert result.is_valid
+             assert result.score_assessment is not None
+-            assert result.stage_b_result == {"metrics": {"score": 0.8}}
++            assert result.stage_b_result == {
++                "metrics": {"score": 0.8},
++                "metric_units": {"score": "dimensionless"},
++            }
+ 
+     def test_returns_none_for_missing_metric(self):
+         bench = BenchmarkEvaluation(
+@@ -520,6 +538,7 @@
+                 candidate_ref=_ref_with_id(candidate_id),
+                 selection_metrics={"score": 0.8},
+                 holdout_metrics={"score": 0.4},
++                metric_units={"score": "dimensionless"},
+                 runtime_split_type=BenchmarkSplit.SELECTION,
+                 metadata={
+                     "evaluation_id": evaluation_id,
+@@ -536,6 +555,7 @@
+                 direction=MetricDirection.MAXIMIZE,
+                 split=BenchmarkSplit.SELECTION,
+                 dim=1,
++                expected_unit="dimensionless",
+             )
+ 
+             assert result is not None
+@@ -547,6 +567,35 @@
+             assert result.metadata["split"] == "selection"
+ 
+     def test_rejects_metadata_split_conflicting_with_typed_runtime_split(self):
++        native_space = _native_space()
++        bench = BenchmarkEvaluation(
++            loop_id="loop1",
++            suite_id="suite1",
++            candidate_ref=_ref_with_id(f"sha256:{'b' * 64}"),
++            selection_metrics={"score": 0.8},
++            metric_units={"score": "dimensionless"},
++            runtime_split_type=BenchmarkSplit.SELECTION,
++            metadata={
++                "evaluation_id": f"sha256:{'d' * 64}",
++                "origin": "benchmark-run-conflict",
++                "params": {"x": 7.0},
++                "params_normalized": list(native_space.normalize({"x": 7.0})),
++                "split": "holdout",
++            },
++        )
++
++        result = benchmark_to_evaluation(
++            bench,
++            primary_metric="score",
++            direction=MetricDirection.MAXIMIZE,
++            split=BenchmarkSplit.SELECTION,
++            dim=1,
++            expected_unit="dimensionless",
++        )
++
++        assert result is None or not result.is_valid
++
++    def test_metadata_unit_does_not_replace_typed_metric_unit(self):
+         native_space = _native_space()
+         bench = BenchmarkEvaluation(
+             loop_id="loop1",
+@@ -555,23 +604,25 @@
+             selection_metrics={"score": 0.8},
+             runtime_split_type=BenchmarkSplit.SELECTION,
+             metadata={
++                "candidate_id": f"sha256:{'b' * 64}",
+                 "evaluation_id": f"sha256:{'d' * 64}",
+-                "origin": "benchmark-run-conflict",
++                "origin": "benchmark-run-metadata-unit-only",
+                 "params": {"x": 7.0},
+                 "params_normalized": list(native_space.normalize({"x": 7.0})),
+-                "split": "holdout",
++                "split": "selection",
++                "metric_unit": "dimensionless",
+             },
+         )
+ 
+-        result = benchmark_to_evaluation(
++        assert benchmark_to_evaluation(
+             bench,
+             primary_metric="score",
+             direction=MetricDirection.MAXIMIZE,
+             split=BenchmarkSplit.SELECTION,
+             dim=1,
+-        )
+-
+-        assert result is None or not result.is_valid
++            search_space=native_space,
++            expected_unit="dimensionless",
++        ) is None
+ 
+     def test_merges_canonical_artifact_id_wire_identity_and_rejects_distinct_wire_id(self):
+         native_space = _native_space()
+@@ -597,6 +648,7 @@
+             suite_id="suite1",
+             candidate_ref=round_tripped_ref,
+             selection_metrics={"score": 0.8},
++            metric_units={"score": "dimensionless"},
+             runtime_split_type=BenchmarkSplit.SELECTION,
+             metadata=metadata,
+         )
+@@ -608,6 +660,7 @@
+             split=BenchmarkSplit.SELECTION,
+             dim=1,
+             search_space=native_space,
++            expected_unit="dimensionless",
+         )
+ 
+         assert accepted is not None
+@@ -624,6 +677,7 @@
+             split=BenchmarkSplit.SELECTION,
+             dim=1,
+             search_space=native_space,
++            expected_unit="dimensionless",
+         )
+ 
+         assert rejected is None or not rejected.is_valid
+--- a/tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py
++++ b/tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py
+@@ -469,6 +469,7 @@
+             BenchmarkEvaluation,
+         )
+         assert isinstance(persisted_evaluation, BenchmarkEvaluation)
++        assert persisted_evaluation.metric_units == {}
+         assert persisted_evaluation.execution_work_packet_status == "available"
+         assert persisted_evaluation.execution_work_packet_ref is not None
+         evaluation_manifest = fresh_reader.get_manifest(evaluation_ref)
+--- a/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py
++++ b/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py
+@@ -1,6 +1,7 @@
+ from __future__ import annotations
+ 
+ import os
++from copy import deepcopy
+ from dataclasses import replace
+ from pathlib import Path
+ from typing import Any, ClassVar
+@@ -118,6 +119,22 @@
+         return {"score": float(state["value"]) + float(params.get("offset", 0.0))}
+ 
+ 
++class _V5NativeGPScoreMethod(_V5ScoreMethod):
++    """Controlled MethodJob producer with an explicit Search metric unit."""
++
++    signature: ClassVar[MethodSignature] = replace(
++        _V5ScoreMethod.signature,
++        name="v5_native_gp_score",
++    )
++
++    @staticmethod
++    def pure_step(state: Any, params: dict[str, Any]) -> dict[str, Any]:
++        return {
++            "score": float(state["value"]) + float(params.get("offset", 0.0)),
++            "metric_units": {"score": "dimensionless"},
++        }
++
++
+ class _V5DeclaredUnitScoreMethod(_V5ScoreMethod):
+     """Controlled method whose reported unit can be checked against run config."""
+ 
+@@ -1537,6 +1554,7 @@
+ def test_fitted_native_gp_profile_round_trips_into_same_context_search(tmp_path) -> None:
+     _register_method()
+     MethodRegistry.get_instance().register(_V5ScoreMethodV2, override=True)
++    MethodRegistry.get_instance().register(_V5NativeGPScoreMethod, override=True)
+     store = FileSystemCAS(tmp_path / "cas")
+     registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
+     suite_ref = persist_benchmark_suite(
+@@ -1545,20 +1563,24 @@
+     )
+     generator = BayesianCandidateGenerator(
+         SearchSpace(bounds=[{"name": "value", "lower": 0.0, "upper": 1.0}]),
++        primary_metric="score",
++        direction=MetricDirection.MAXIMIZE,
++        unit="dimensionless",
++        compare_split=BenchmarkSplit.SELECTION,
+         n_initial=3,
+         seed=31,
+     )
+     generator._optimizer._config.num_restarts = 1
+     generator._optimizer._config.raw_samples = 16
+     generator._optimizer._config.refit_interval = 1
+-    policy = _policy()
++    policy = _policy(unit="dimensionless")
+     spec = SearchLoopSpec(
+         loop_id="v5_search",
+         mutation_codec=PydanticMutationCodec(_V5Mutation),
+         candidate_generator=generator,
+         benchmark_evaluator=MethodJobBenchmarkEvaluator(
+-            method_fqn=_V5ScoreMethod.signature.fqn,
+-            method_version=_V5ScoreMethod.signature.version,
++            method_fqn=_V5NativeGPScoreMethod.signature.fqn,
++            method_version=_V5NativeGPScoreMethod.signature.version,
+             method_params={"offset": 0.0},
+             candidate_input_bindings={"value": "value"},
+             split=BenchmarkSplit.SELECTION,
+@@ -1593,6 +1615,37 @@
+         source_evaluation_ref,
+         BenchmarkEvaluation,
+     )
++    assert source_evaluation.metric_units == {"score": "dimensionless"}
++    assert source_evaluation.method_result_ref is not None
++    method_result = load_json_artifact(source_reader, source_evaluation.method_result_ref)
++    assert method_result["metric_units"] == {"score": "dimensionless"}
++    assert source_stage_b["simulation_results"]["metric_units"] == {
++        "score": "dimensionless"
++    }
++    admitted_history = generator._history_to_evaluations([source_result.history[-1]])
++    assert len(admitted_history) == 1
++    assert admitted_history[0].score_status.value == "available"
++    assert admitted_history[0].scalar_score is not None
++    assert admitted_history[0].metadata["search_source_profile_receipt"]["unit"] == (
++        "dimensionless"
++    )
++
++    missing_unit_history = deepcopy(source_result.history[-1])
++    missing_unit_history.stage_b_result["simulation_results"].pop("metric_units")
++    missing_unit_admission = generator._history_to_evaluations([missing_unit_history])[0]
++    assert missing_unit_admission.scalar_score is None
++    assert missing_unit_admission.score_status.value == "not_established"
++    assert "search_source_profile_receipt" not in missing_unit_admission.metadata
++
++    mismatched_unit_history = deepcopy(source_result.history[-1])
++    mismatched_unit_history.stage_b_result["simulation_results"]["metric_units"] = {
++        "score": "USD"
++    }
++    mismatched_unit_admission = generator._history_to_evaluations([mismatched_unit_history])[0]
++    assert mismatched_unit_admission.scalar_score is None
++    assert mismatched_unit_admission.score_status.value == "invalid"
++    assert "search_source_profile_receipt" not in mismatched_unit_admission.metadata
++
+     source_profile = source_evaluation.search_source_profile
+     assert source_profile is not None
+     assert source_profile.profile_kind == "configured_native_gp"
+@@ -2178,12 +2231,67 @@
+     assert evaluation.selection_metrics == {}
+     assert evaluation.promotable is False
+     assert evaluation.metadata["metric_unit"] == "USD per resident"
++    assert evaluation.metric_units == {"score": "USD per resident"}
+     request_basis = evaluation.metadata["method_request_basis"]
+     run_profile = request_basis["search_method_run_profile"]
+     assert run_profile["unit"] == "EUR per resident"
+     assert run_profile["objective_fingerprint"] == generator._objective_profile_fingerprint(
+         unit="EUR per resident"
+     )
++
++
++def test_methodjob_metric_without_selected_unit_is_not_carried_to_search_history(
++    tmp_path,
++) -> None:
++    _register_method()
++    store = FileSystemCAS(tmp_path / "cas")
++    suite_ref = persist_benchmark_suite(
++        store,
++        BenchmarkSuite(suite_id="v5_missing_unit_suite", kind="method_job"),
++    )
++    generator = BayesianCandidateGenerator(
++        SearchSpace(bounds=[{"name": "value", "lower": 0.0, "upper": 1.0}]),
++        primary_metric="score",
++        direction=MetricDirection.MAXIMIZE,
++        unit="dimensionless",
++        compare_split=BenchmarkSplit.SELECTION,
++        n_initial=2,
++        seed=20261027,
++    )
++    spec = SearchLoopSpec(
++        loop_id="v5_search",
++        mutation_codec=PydanticMutationCodec(_V5Mutation),
++        candidate_generator=generator,
++        benchmark_evaluator=MethodJobBenchmarkEvaluator(
++            method_fqn=_V5ScoreMethod.signature.fqn,
++            method_version=_V5ScoreMethod.signature.version,
++            candidate_input_bindings={"value": "value"},
++            split=BenchmarkSplit.SELECTION,
++        ),
++        promotion_policy=_policy(unit="dimensionless"),
++    )
++
++    result = SearchLoopRunner(store=store).run(
++        spec,
++        suite_ref=suite_ref,
++        initial_candidate={"loop_id": "v5_search", "value": 0.4},
++        max_iterations=1,
++    )
++
++    stage_b = result.history[0].stage_b_result
++    assert stage_b is not None
++    assert "metric_units" not in stage_b["simulation_results"]
++    evaluation = load_model_artifact(
++        FileSystemCAS(tmp_path / "cas"),
++        _selected_evaluation_ref(stage_b),
++        BenchmarkEvaluation,
++    )
++    assert evaluation.metric_units == {}
++    assert evaluation.status == "metric_unavailable"
++    history = generator._history_to_evaluations([result.history[0]])
++    assert history[0].scalar_score is None
++    assert history[0].score_status.value != "available"
++    assert "search_source_profile_receipt" not in history[0].metadata
+ 
+ 
+ def test_missing_primary_metric_is_not_promoted_as_zero(tmp_path) -> None:
+@@ -2662,3 +2770,351 @@
+     with tenant_scope(None, tenant_id="tenant-b"):
+         with pytest.raises(ArtifactOwnershipError):
+             evaluator.evaluate(candidate_ref, suite_ref, context)
++
++def test_methodjob_claims_without_method_result_ref_do_not_enter_generic_history(
++    tmp_path,
++) -> None:
++    """A reopened evaluation with remaining MethodJob claims fails closed without its result."""
++    _register_method()
++    store = FileSystemCAS(tmp_path / "cas")
++    suite_ref = persist_benchmark_suite(
++        store,
++        BenchmarkSuite(suite_id="v5_method_result_removal_suite", kind="method_job"),
++    )
++    generator = BayesianCandidateGenerator(
++        SearchSpace(bounds=[{"name": "value", "lower": 0.0, "upper": 1.0}]),
++        n_initial=2,
++        seed=20261027,
++    )
++    spec = SearchLoopSpec(
++        loop_id="v5_search",
++        mutation_codec=PydanticMutationCodec(_V5Mutation),
++        candidate_generator=generator,
++        benchmark_evaluator=MethodJobBenchmarkEvaluator(
++            method_fqn=_V5ScoreMethod.signature.fqn,
++            method_version=_V5ScoreMethod.signature.version,
++            candidate_input_bindings={"value": "value"},
++            split=BenchmarkSplit.SELECTION,
++        ),
++        promotion_policy=_policy(),
++    )
++    result = SearchLoopRunner(store=store).run(
++        spec,
++        suite_ref=suite_ref,
++        context={"policy_context": {"case": "method_result_identity_removal"}},
++        max_iterations=1,
++    )
++    assert result.history
++    original_entry = result.history[0]
++    assert original_entry.stage_b_result is not None
++    source_evaluation_ref = _selected_evaluation_ref(original_entry.stage_b_result)
++    source_evaluation = load_model_artifact(
++        FileSystemCAS(tmp_path / "cas"),
++        source_evaluation_ref,
++        BenchmarkEvaluation,
++    )
++    assert source_evaluation.method_result_ref is not None
++    assert source_evaluation.method_evidence_ref is not None
++    assert source_evaluation.method_job_key
++    assert source_evaluation.search_source_profile is not None
++    assert isinstance(source_evaluation.metadata.get("method_request_basis"), dict)
++    source_receipt = source_evaluation.metadata.get("search_source_profile_receipt")
++    assert isinstance(source_receipt, dict)
++    assert source_receipt.get("method_result_ref") is not None
++    method_metadata_keys = {
++        "method_fqn",
++        "method_version",
++        "method_seed",
++        "method_job_key",
++        "method_input_bindings",
++        "method_request_basis",
++    }
++    assert method_metadata_keys.issubset(source_evaluation.metadata)
++
++    removed_result_evaluation = source_evaluation.model_copy(
++        update={"method_result_ref": None}
++    )
++    removed_result_ref = persist_benchmark_evaluation(
++        store,
++        removed_result_evaluation,
++        inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
++        return_selected_profile=True,
++    )
++    reopened_removed_result = load_model_artifact(
++        FileSystemCAS(tmp_path / "cas"),
++        removed_result_ref,
++        BenchmarkEvaluation,
++    )
++    assert reopened_removed_result.method_result_ref is None
++    assert reopened_removed_result.method_evidence_ref == source_evaluation.method_evidence_ref
++    assert reopened_removed_result.method_job_key == source_evaluation.method_job_key
++    assert reopened_removed_result.search_source_profile == source_evaluation.search_source_profile
++    assert (
++        reopened_removed_result.metadata["method_request_basis"]
++        == source_evaluation.metadata["method_request_basis"]
++    )
++    assert (
++        reopened_removed_result.metadata["search_source_profile_receipt"]
++        == source_evaluation.metadata["search_source_profile_receipt"]
++    )
++    for key in method_metadata_keys:
++        assert reopened_removed_result.metadata[key] == source_evaluation.metadata[key]
++    removed_manifest = FileSystemCAS(tmp_path / "cas").get_manifest(removed_result_ref)
++    assert "method_evidence" in {item.role for item in removed_manifest.inputs}
++    assert "method_result" not in {item.role for item in removed_manifest.inputs}
++
++    def history_entry_with_ref(
++        entry: Any,
++        ref: ArtifactRef,
++        *,
++        keep_method_provenance: bool,
++    ) -> dict[str, Any]:
++        assert entry.stage_b_result is not None
++        stage_b_result = dict(entry.stage_b_result)
++        simulation_results = dict(stage_b_result["simulation_results"])
++        simulation_results["evaluation_ref"] = str(ref.artifact_id)
++        stage_b_result["simulation_results"] = simulation_results
++        stage_b_metadata = dict(stage_b_result["metadata"])
++        stage_b_metadata["evaluation_artifact_ref"] = ref.model_dump(mode="json")
++        stage_b_metadata["evaluation_id"] = str(ref.artifact_id)
++        if not keep_method_provenance:
++            stage_b_metadata.pop("provenance_ref", None)
++        stage_b_result["metadata"] = stage_b_metadata
++        return {
++            "candidate": entry.candidate,
++            "stage_b_result": stage_b_result,
++            "objective_value": entry.objective_value,
++            "stage_a_passed": entry.stage_a_passed,
++            "duration_seconds": entry.duration_seconds,
++        }
++
++    methodjob_history = generator._history_to_evaluations(
++        [history_entry_with_ref(original_entry, removed_result_ref, keep_method_provenance=True)]
++    )
++    assert len(methodjob_history) == 1
++    assert methodjob_history[0].scalar_score is None
++    assert methodjob_history[0].score_status.value != "available"
++    assert "search_source_profile_receipt" not in methodjob_history[0].metadata
++
++    # The typed profile by itself remains a generic profile, not MethodJob identity.
++    generic_profile_only = source_evaluation.model_copy(
++        update={
++            "method_result_ref": None,
++            "method_evidence_ref": None,
++            "method_job_key": None,
++            "execution_work_packet_ref": None,
++            "execution_work_packet_status": "unavailable",
++            "execution_work_packet_note": None,
++            "metadata": {
++                key: value
++                for key, value in source_evaluation.metadata.items()
++                if key
++                not in method_metadata_keys
++                | {
++                    "search_source_profile_receipt",
++                    "search_source_evaluation_ref",
++                    "search_gp_fit_basis_ref",
++                }
++            },
++        }
++    )
++    assert generic_profile_only.search_source_profile == source_evaluation.search_source_profile
++    assert generic_profile_only.method_result_ref is None
++    assert generic_profile_only.method_evidence_ref is None
++    assert generic_profile_only.method_job_key is None
++    generic_profile_ref = persist_benchmark_evaluation(
++        store,
++        generic_profile_only,
++        inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
++        return_selected_profile=True,
++    )
++    generic_profile_history = generator._history_to_evaluations(
++        [
++            history_entry_with_ref(
++                original_entry,
++                generic_profile_ref,
++                keep_method_provenance=False,
++            )
++        ]
++    )
++    assert len(generic_profile_history) == 1
++    assert generic_profile_history[0].scalar_score is not None
++    assert generic_profile_history[0].score_status.value == "available"
++    assert "search_source_profile_receipt" not in generic_profile_history[0].metadata
++
++
++
++def test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed(
++    tmp_path,
++) -> None:
++    """Retained CAS MethodJob roles block generic scalar fallback after payload erasure."""
++    _register_method()
++    store = FileSystemCAS(tmp_path / "cas")
++    suite_ref = persist_benchmark_suite(
++        store,
++        BenchmarkSuite(suite_id="v5_manifest_methodjob_roles_suite", kind="method_job"),
++    )
++    generator = BayesianCandidateGenerator(
++        SearchSpace(bounds=[{"name": "value", "lower": 0.0, "upper": 1.0}]),
++        n_initial=2,
++        seed=20261027,
++    )
++    spec = SearchLoopSpec(
++        loop_id="v5_search",
++        mutation_codec=PydanticMutationCodec(_V5Mutation),
++        candidate_generator=generator,
++        benchmark_evaluator=MethodJobBenchmarkEvaluator(
++            method_fqn=_V5ScoreMethod.signature.fqn,
++            method_version=_V5ScoreMethod.signature.version,
++            candidate_input_bindings={"value": "value"},
++            split=BenchmarkSplit.SELECTION,
++        ),
++        promotion_policy=_policy(),
++    )
++    result = SearchLoopRunner(store=store).run(
++        spec,
++        suite_ref=suite_ref,
++        context={"policy_context": {"case": "manifest_methodjob_role_removal"}},
++        max_iterations=1,
++    )
++    assert result.history
++    original_entry = result.history[0]
++    assert original_entry.stage_b_result is not None
++    source_ref = _selected_evaluation_ref(original_entry.stage_b_result)
++    source_evaluation = load_model_artifact(store, source_ref, BenchmarkEvaluation)
++    assert source_evaluation.method_result_ref is not None
++    assert source_evaluation.method_evidence_ref is not None
++
++    stripped_evaluation = source_evaluation.model_copy(
++        update={
++            "method_result_ref": None,
++            "method_evidence_ref": None,
++            "method_job_key": None,
++            "execution_work_packet_ref": None,
++            "execution_work_packet_status": "unavailable",
++            "execution_work_packet_note": None,
++            "search_source_profile": None,
++            "metadata": {},
++        }
++    )
++    retained_methodjob_ref = persist_benchmark_evaluation(
++        store,
++        stripped_evaluation,
++        inputs=[
++            input_ref_from_artifact_ref(suite_ref, role="benchmark_suite"),
++            input_ref_from_artifact_ref(
++                source_evaluation.method_result_ref,
++                role="method_result",
++            ),
++            input_ref_from_artifact_ref(
++                source_evaluation.method_evidence_ref,
++                role="method_evidence",
++            ),
++        ],
++        return_selected_profile=True,
++    )
++    retained_manifest = store.get_manifest(retained_methodjob_ref)
++    retained_roles = {item.role for item in retained_manifest.inputs}
++    assert {"method_result", "method_evidence"}.issubset(retained_roles)
++    reopened = load_model_artifact(store, retained_methodjob_ref, BenchmarkEvaluation)
++    assert reopened.method_result_ref is None
++    assert reopened.method_evidence_ref is None
++    assert reopened.method_job_key is None
++    assert reopened.metadata == {}
++
++    stage_b_result = dict(original_entry.stage_b_result)
++    simulation_results = dict(stage_b_result["simulation_results"])
++    simulation_results["evaluation_ref"] = str(retained_methodjob_ref.artifact_id)
++    stage_b_result["simulation_results"] = simulation_results
++    stage_b_metadata = dict(stage_b_result["metadata"])
++    stage_b_metadata["evaluation_artifact_ref"] = retained_methodjob_ref.model_dump(mode="json")
++    stage_b_metadata["evaluation_id"] = str(retained_methodjob_ref.artifact_id)
++    stage_b_result["metadata"] = stage_b_metadata
++    selected_history = {
++        "candidate": original_entry.candidate,
++        "stage_b_result": stage_b_result,
++        "objective_value": original_entry.objective_value,
++        "stage_a_passed": original_entry.stage_a_passed,
++        "duration_seconds": original_entry.duration_seconds,
++    }
++
++    history = generator._history_to_evaluations([selected_history])
++    assert len(history) == 1
++    assert history[0].scalar_score is None
++    assert history[0].score_status.value != "available"
++
++
++def test_generic_benchmark_manifest_roles_remain_eligible_for_generic_history(
++    tmp_path,
++) -> None:
++    """The existing generic BenchmarkEvaluation producer keeps its scalar history path."""
++
++    class GenericBenchmarkEvaluator:
++        def evaluate(self, candidate_ref, suite_ref, context):
++            store = context["store"]
++            candidate = load_model_artifact(store, candidate_ref, _V5Mutation)
++            suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
++            score = float(candidate.value)
++            return BenchmarkEvaluation(
++                loop_id="v5_search",
++                suite_id=suite.suite_id,
++                suite_version=suite.suite_version,
++                candidate_ref=candidate_ref,
++                selection_metrics={"score": score},
++                holdout_metrics={"score": score},
++                sample_counts={
++                    BenchmarkSplit.SELECTION.value: 1,
++                    BenchmarkSplit.HOLDOUT.value: 1,
++                },
++                guardrails={"score_present": True},
++                promotable=True,
++                runtime_split_type=BenchmarkSplit.SELECTION,
++            )
++
++    store = FileSystemCAS(tmp_path / "cas")
++    suite_ref = persist_benchmark_suite(
++        store,
++        BenchmarkSuite(suite_id="v5_generic_history_suite"),
++    )
++    generator = BayesianCandidateGenerator(
++        SearchSpace(bounds=[{"name": "value", "lower": 0.0, "upper": 1.0}]),
++        n_initial=2,
++        seed=20261027,
++    )
++    spec = SearchLoopSpec(
++        loop_id="v5_search",
++        mutation_codec=PydanticMutationCodec(_V5Mutation),
++        candidate_generator=generator,
++        benchmark_evaluator=GenericBenchmarkEvaluator(),
++        promotion_policy=_policy(),
++    )
++    result = SearchLoopRunner(store=store).run(
++        spec,
++        suite_ref=suite_ref,
++        context={"policy_context": {"case": "generic_history_source_roles"}},
++        max_iterations=1,
++    )
++    assert result.history
++    entry = result.history[0]
++    assert entry.stage_b_result is not None
++    evaluation_ref = _selected_evaluation_ref(entry.stage_b_result)
++    manifest = store.get_manifest(evaluation_ref)
++    assert {item.role for item in manifest.inputs} == {"candidate", "benchmark_suite"}
++
++    from polisyos.scientist.methods.autotune.source_profile_verification import (
++        _SearchHistorySourceDisposition,
++        _resolve_search_history_source,
++    )
++
++    resolution = _resolve_search_history_source(
++        store=store,
++        evaluation_ref=evaluation_ref,
++    )
++    assert resolution.disposition is _SearchHistorySourceDisposition.NOT_APPLICABLE
++    assert resolution.evaluation is not None
++    assert resolution.verified is None
++
++    history = generator._history_to_evaluations(result.history)
++    assert len(history) == 1
++    assert history[0].scalar_score is not None
++    assert history[0].score_status.value == "available"
+--- a/tests/unit/scientist/methods/search/test_objective.py
++++ b/tests/unit/scientist/methods/search/test_objective.py
+@@ -19,21 +19,7 @@
+ @pytest.mark.parametrize(
+     "results",
+     [
+-        {"budget_deficit": 100.0, "metric_units": {"budget_deficit": FISCAL_UNIT_FIXTURE}},
+-        {
+-            "gov_balance": None,
+-            "budget_deficit": 100.0,
+-            "metric_units": {"budget_deficit": FISCAL_UNIT_FIXTURE},
+-        },
+         {"gov_balance": 0.0, "metric_units": {"gov_balance": FISCAL_UNIT_FIXTURE}},
+-        {
+-            "gov_balance": 0.0,
+-            "budget_deficit": 0.0,
+-            "metric_units": {
+-                "gov_balance": FISCAL_UNIT_FIXTURE,
+-                "budget_deficit": FISCAL_UNIT_FIXTURE,
+-            },
+-        },
+         {"gov_balance": -5.0, "metric_units": {"gov_balance": FISCAL_UNIT_FIXTURE}},
+         {
+             "government_balance": -12.0,
+@@ -46,10 +32,10 @@
+         },
+     ],
+ )
+-def test_untyped_fiscal_aliases_do_not_establish_period_flow(
++def test_balance_stock_alias_does_not_establish_budget_deficit(
+     results: dict[str, Any],
+ ) -> None:
+-    """Raw aliases and unit or role labels cannot turn a stock into a period flow."""
++    """A scalar unit or source role label cannot turn balance stock into a deficit."""
+     evaluated = BudgetDeficitObjective(expected_unit=FISCAL_UNIT_FIXTURE).evaluate(results)
+ 
+     assert math.isnan(evaluated.raw_value)
+@@ -59,6 +45,120 @@
+         "budget_deficit_period_flow_source_not_established"
+     )
+     assert evaluated.is_satisfied is False
++
++
++@pytest.mark.parametrize(
++    "unit_view",
++    [
++        pytest.param(None, id="metric-units-absent"),
++        pytest.param({}, id="empty-unit-map"),
++        pytest.param(
++            {"deficit": FISCAL_UNIT_FIXTURE},
++            id="unit-on-other-alias-not-selected-alias",
++        ),
++    ],
++)
++def test_budget_deficit_requires_unit_evidence_for_selected_alias(
++    unit_view: dict[str, str] | None,
++) -> None:
++    """Configured direct deficit inputs need units bound to the actual selected alias."""
++    results: dict[str, Any] = {"budget_deficit": 100.0}
++    if unit_view is not None:
++        results["metric_units"] = unit_view
++    evaluated = BudgetDeficitObjective(expected_unit=FISCAL_UNIT_FIXTURE).evaluate(results)
++
++    assert math.isnan(evaluated.raw_value)
++    assert evaluated.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
++    assert evaluated.score_assessment is not None
++    assert evaluated.score_assessment.limitation == "objective_source_unit_not_established"
++    assert evaluated.is_satisfied is False
++
++
++@pytest.mark.parametrize(
++    ("results", "expected_value"),
++    [
++        (
++            {"budget_deficit": 100.0, "metric_units": {"budget_deficit": FISCAL_UNIT_FIXTURE}},
++            100.0,
++        ),
++        (
++            {
++                "gov_balance": None,
++                "budget_deficit": 100.0,
++                "metric_units": {"budget_deficit": FISCAL_UNIT_FIXTURE},
++            },
++            100.0,
++        ),
++        ({"deficit": -100.0, "metric_units": {"deficit": FISCAL_UNIT_FIXTURE}}, 100.0),
++        (
++            {
++                "gov_balance": -100.0,
++                "budget_deficit": 100.0,
++                "metric_units": {
++                    "gov_balance": FISCAL_UNIT_FIXTURE,
++                    "budget_deficit": FISCAL_UNIT_FIXTURE,
++                },
++            },
++            100.0,
++        ),
++        ({"budget_deficit": 0.0, "metric_units": {"budget_deficit": FISCAL_UNIT_FIXTURE}}, 0.0),
++        (
++            {
++                "gov_balance": 0.0,
++                "budget_deficit": 0.0,
++                "metric_units": {
++                    "gov_balance": FISCAL_UNIT_FIXTURE,
++                    "budget_deficit": FISCAL_UNIT_FIXTURE,
++                },
++            },
++            0.0,
++        ),
++    ],
++)
++def test_budget_deficit_scores_selected_unit_compatible_deficit_aliases(
++    results: dict[str, Any], expected_value: float
++) -> None:
++    """A configured direct deficit operand is scored, including null alternative and zero."""
++    evaluated = BudgetDeficitObjective(expected_unit=FISCAL_UNIT_FIXTURE).evaluate(results)
++
++    assert evaluated.raw_value == expected_value
++    assert evaluated.score_status is ObjectiveScoreStatus.AVAILABLE
++    assert evaluated.is_satisfied is True
++
++
++@pytest.mark.parametrize("value", [math.nan, math.inf, -math.inf])
++def test_budget_deficit_rejects_non_finite_deficit_aliases(value: float) -> None:
++    evaluated = BudgetDeficitObjective(expected_unit=FISCAL_UNIT_FIXTURE).evaluate(
++        {"budget_deficit": value, "metric_units": {"budget_deficit": FISCAL_UNIT_FIXTURE}}
++    )
++
++    assert math.isnan(evaluated.raw_value)
++    assert evaluated.score_status is ObjectiveScoreStatus.INVALID
++
++
++def test_budget_deficit_rejects_conflicting_deficit_aliases() -> None:
++    evaluated = BudgetDeficitObjective(expected_unit=FISCAL_UNIT_FIXTURE).evaluate(
++        {
++            "budget_deficit": 100.0,
++            "deficit": 101.0,
++            "metric_units": {
++                "budget_deficit": FISCAL_UNIT_FIXTURE,
++                "deficit": FISCAL_UNIT_FIXTURE,
++            },
++        }
++    )
++
++    assert math.isnan(evaluated.raw_value)
++    assert evaluated.score_status is ObjectiveScoreStatus.INVALID
++
++
++def test_budget_deficit_rejects_incompatible_deficit_alias_unit() -> None:
++    evaluated = BudgetDeficitObjective(expected_unit=FISCAL_UNIT_FIXTURE).evaluate(
++        {"budget_deficit": 100.0, "metric_units": {"budget_deficit": "eur"}}
++    )
++
++    assert math.isnan(evaluated.raw_value)
++    assert evaluated.score_status is ObjectiveScoreStatus.INVALID
+ 
+ 
+ def test_budget_deficit_marks_missing_metric_unusable() -> None:
+@@ -160,13 +260,19 @@
+     assert evaluated.is_satisfied is False
+ 
+ 
++@pytest.mark.parametrize(
++    ("alias", "value"),
++    [("budget_deficit", 35.0), ("gov_balance", -35.0)],
++)
+ @pytest.mark.parametrize("unit", ["usd ", "", None, True])
+-def test_budget_deficit_rejects_malformed_units_on_present_alias(unit: Any) -> None:
++def test_budget_deficit_rejects_malformed_units_on_present_alias(
++    alias: str, value: float, unit: Any
++) -> None:
+     """Malformed unit evidence remains invalid instead of being hidden by limitation."""
+     evaluated = BudgetDeficitObjective(expected_unit=FISCAL_UNIT_FIXTURE).evaluate(
+-        {"gov_balance": -35.0, "metric_units": {"gov_balance": unit}}
+-    )
+-
+-    assert math.isnan(evaluated.raw_value)
+-    assert evaluated.score_status is ObjectiveScoreStatus.INVALID
+-    assert evaluated.is_satisfied is False
++        {alias: value, "metric_units": {alias: unit}}
++    )
++
++    assert math.isnan(evaluated.raw_value)
++    assert evaluated.score_status is ObjectiveScoreStatus.INVALID
++    assert evaluated.is_satisfied is False
+--- a/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py
++++ b/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py
+@@ -38,7 +38,9 @@
+ )
+ from polisyos.scientist.methods.search.voi_scheduler import (
+     PredictiveVOIScheduler,
++    _policy_evaluation_vector_source_chain_matches_store,
+     _policy_runtime_source_concordance,
++    _policy_runtime_vector_schema_supported,
+ )
+ from polisyos.scientist.nodes.builtins.decide.policy_runtime_metrics import (
+     _budget_deficit_measurement,
+@@ -559,6 +561,43 @@
+     chain_l4_source = from_canonical_bytes(
+         store.get_bytes(chain_l4_packet.source_result_ref.artifact_id)
+     )
++    direct_source_manifest = store.get_manifest(direct_packet.source_result_ref)
++    assert direct_source_manifest.kind == "scientist.policy_evaluation_vector"
++    assert direct_source_manifest.media_type == "application/json"
++    assert direct_source_manifest.artifact_schema is not None
++    assert direct_source_manifest.artifact_schema.name == (
++        "polisyos.scientist.policy_design.PolicyEvaluationVector"
++    )
++    assert direct_source_manifest.artifact_schema.version == "1.2"
++    direct_vector = PolicyEvaluationVector.model_validate(direct_source)
++    assert _policy_runtime_vector_schema_supported("1.2", direct_vector)
++    assert not _policy_runtime_vector_schema_supported("1.1", direct_vector)
++    assert not _policy_runtime_vector_schema_supported("1.3", direct_vector)
++    alternate_version_ref = store.put_json(
++        direct_vector,
++        PutOptions(
++            kind=direct_source_manifest.kind,
++            media_type=direct_source_manifest.media_type,
++            schema=SchemaInfo(
++                name=direct_source_manifest.artifact_schema.name,
++                version="1.3",
++            ),
++            producer=direct_source_manifest.producer,
++            inputs=list(direct_source_manifest.inputs),
++        ),
++        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
++        return_selected_profile=True,
++    )
++    assert alternate_version_ref.artifact_id == direct_packet.source_result_ref.artifact_id
++    assert alternate_version_ref.manifest_profile_sha256 != (
++        direct_packet.source_result_ref.manifest_profile_sha256
++    )
++    assert not _policy_evaluation_vector_source_chain_matches_store(
++        store,
++        alternate_version_ref,
++        direct_packet.candidate_ref,
++        candidate.candidate_id,
++    )
+     for packet, source in (
+         (direct_packet, direct_source),
+         (chain_l4_packet, chain_l4_source),

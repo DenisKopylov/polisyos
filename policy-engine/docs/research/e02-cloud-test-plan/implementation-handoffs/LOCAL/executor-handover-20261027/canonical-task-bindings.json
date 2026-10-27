@@ -1,0 +1,760 @@
+{
+  "source": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+    "available": true,
+    "scope": "retained local material",
+    "bytes": 27989,
+    "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c",
+    "integrity_observation": "fresh small-file hash at transfer"
+  },
+  "coverage": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+    "available": true,
+    "scope": "retained local material",
+    "bytes": 550854,
+    "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+    "integrity_observation": "fresh small-file hash at transfer"
+  },
+  "original_denominator": {
+    "bundles": 127,
+    "findings": 282,
+    "criterion_occurrences": 291
+  },
+  "task_finding_edges": 319,
+  "historical_ledger_counts": {
+    "partial": 260,
+    "open": 1,
+    "closed": 9,
+    "held": 12
+  },
+  "B198": "Historical closed remains unchanged; no closure action in this transfer.",
+  "rows": [
+    {
+      "task_id": "S3",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S3",
+      "original_exit": "exact identification/nativeuncertainty refs bound to recomputed resolvedsubject/unit; freshAconsumer retains4point and1to10interval; fake/mismatch/unresolvedremoval refuses; no contract-only authority",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "B31"
+      ],
+      "depends": [
+        "BOOT0",
+        "S1"
+      ],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/S3/report.json",
+        "sha256": "607980c91a8070fa72e19ea2d4a75212aa58f82458d2b6f276a7f8abc2fff30e"
+      },
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "V6",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V6",
+      "original_exit": "actual producer then laterindependentfailure; successfulCAS/history/debugservedreader retains typedpartial/exacterror; corruptrefrefuses",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "B13"
+      ],
+      "depends": [
+        "BOOT0",
+        "Q1",
+        "R1"
+      ],
+      "source_report": null,
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "V7",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V7",
+      "original_exit": "measured counts->persistedevidence->freshS10/defaultHTTP; sameCI differentactualoutcomes changesgrade; predictiveonly notcausal",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "B16",
+        "B32",
+        "LA-051"
+      ],
+      "depends": [
+        "BOOT0",
+        "S1"
+      ],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/V7/report.json",
+        "sha256": "8291091047374cac66e0d47ed9691468d1e9f7709251ec6e11e0638be6f8962d"
+      },
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "Q0",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/Q0",
+      "original_exit": "exact original occurrence vs candidate-bound property/consumer/negative; no stronger invented scope; G decision separate from source merge",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "B06",
+        "B11",
+        "B18",
+        "B23",
+        "B25",
+        "B26",
+        "LA-045",
+        "B14",
+        "B24",
+        "B37",
+        "B38",
+        "B39",
+        "B40",
+        "B42",
+        "B43",
+        "B44",
+        "B45",
+        "B46",
+        "B47",
+        "B48",
+        "B49",
+        "B50",
+        "B51",
+        "B52",
+        "B53",
+        "B55",
+        "B57",
+        "LA-057",
+        "B58",
+        "B60",
+        "B62",
+        "B63",
+        "B64",
+        "B65",
+        "B69",
+        "B70",
+        "B71",
+        "B72",
+        "B73",
+        "B75",
+        "B76",
+        "B77",
+        "B78",
+        "B90",
+        "B91",
+        "B92",
+        "B93",
+        "B94",
+        "B95",
+        "B96",
+        "B149",
+        "B150",
+        "B151",
+        "B152",
+        "B153",
+        "B155",
+        "LA-008",
+        "LA-009",
+        "LA-010",
+        "LA-011",
+        "LA-012",
+        "LA-013",
+        "B17",
+        "LA-022",
+        "LA-029",
+        "LA-030",
+        "LA-031",
+        "LA-034",
+        "LA-038",
+        "LA-039",
+        "LA-043",
+        "LA-044",
+        "LA-047",
+        "LA-048",
+        "LA-049",
+        "B81",
+        "B82",
+        "B84",
+        "B85",
+        "B86",
+        "B88",
+        "B138",
+        "B139",
+        "B140",
+        "B141",
+        "B142",
+        "B143",
+        "B144",
+        "B145",
+        "B146",
+        "B147",
+        "LA-014",
+        "LA-015",
+        "B41",
+        "B106",
+        "B107",
+        "B109",
+        "B110",
+        "B111",
+        "B112",
+        "B113",
+        "B114",
+        "B115",
+        "B116",
+        "B117",
+        "B118",
+        "B119",
+        "B120",
+        "B121",
+        "B122",
+        "B123",
+        "B124",
+        "B125",
+        "B126",
+        "B127",
+        "B128",
+        "B129",
+        "B130",
+        "B132",
+        "B133",
+        "B134",
+        "B135",
+        "B136",
+        "B156",
+        "B158",
+        "B159",
+        "B160",
+        "B162",
+        "B163",
+        "B165",
+        "LA-052",
+        "LA-056",
+        "B97",
+        "B98",
+        "B99",
+        "B100",
+        "B101",
+        "B102",
+        "B103",
+        "B104",
+        "B105",
+        "B166",
+        "B167",
+        "B168",
+        "B169",
+        "B170",
+        "B171",
+        "B174",
+        "B175",
+        "B176",
+        "B177",
+        "B178",
+        "B179",
+        "B180",
+        "B181",
+        "B182",
+        "B183",
+        "B184",
+        "B185",
+        "B186",
+        "B187",
+        "B188",
+        "B189",
+        "B191",
+        "B192",
+        "B193",
+        "B195",
+        "B196",
+        "B198",
+        "B199",
+        "B201",
+        "B202",
+        "B203",
+        "LA-001",
+        "LA-002",
+        "LA-003",
+        "LA-004",
+        "LA-007",
+        "LA-016",
+        "LA-017",
+        "LA-019",
+        "LA-020",
+        "LA-035",
+        "LA-037",
+        "B54",
+        "B204",
+        "B205",
+        "B206",
+        "B207",
+        "B208",
+        "B209",
+        "B210",
+        "B211",
+        "B212",
+        "B213",
+        "B215",
+        "B216",
+        "B217",
+        "B218",
+        "B219",
+        "B220",
+        "B221",
+        "B222",
+        "B223",
+        "B224",
+        "B225"
+      ],
+      "depends": [
+        "BOOT0"
+      ],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/Q0/report.json",
+        "sha256": "94577e5aec0e38f0d2098a09e831ccf89cd5ca6c96bd8fa1871460aed3fbc08a"
+      },
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "Q1",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/Q1",
+      "original_exit": "explicit base/candidate/tree and parents plus per-path source/test/config/companion blob owner/input manifest; canonical choices; preserve history",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "LA-021"
+      ],
+      "depends": [
+        "BOOT0"
+      ],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/Q1/report.json",
+        "sha256": "5acdfdfe85c916aac705255341d0a7f16f7035ced9b8cd1579d20be05dce7345"
+      },
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "R1",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/R1",
+      "original_exit": "prepared defining baseline/13 named affected contours/matched removals; no carry from old0bf",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "LA-033",
+        "B13",
+        "B59",
+        "B61",
+        "B74",
+        "B148"
+      ],
+      "depends": [
+        "BOOT0",
+        "Q1"
+      ],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/R1/report.json",
+        "sha256": "53319a5d9af51a246e7ca422ef3796e41561719ce29aa528c171bb33ef3c6c59"
+      },
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "I1",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/I1",
+      "original_exit": "same-ID mutation invalidates before reuse; unchanged positive and fresh checkpoint/benchmark",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "LA-041"
+      ],
+      "depends": [
+        "BOOT0"
+      ],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I1/report.json",
+        "sha256": "f3aca72df2f5a8ac339cbe07fd5f50c15d8b6ddb6b7afae85acf9cf5fc6fdd02"
+      },
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "I2",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/I2",
+      "original_exit": "two staged/two unstaged/rename/clean real records",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "LA-005",
+        "LA-006",
+        "LA-026"
+      ],
+      "depends": [
+        "BOOT0"
+      ],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I2/report.json",
+        "sha256": "41a5aa1842a563056f5e1e15851d0bf317fb5700a44ef6138d8b6fb028c30439"
+      },
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "S1",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S1",
+      "original_exit": "three separate minimal decisions B31/B161/B214 with actual discriminators; reuse existing carriers/ID",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "B07",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B31",
+        "B33",
+        "B36",
+        "LA-023",
+        "LA-032",
+        "LA-036",
+        "B161",
+        "B172",
+        "B173",
+        "B214"
+      ],
+      "depends": [
+        "BOOT0"
+      ],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/S1/report.json",
+        "sha256": "d2a180895e2324341c263a3c7af9cbf5aae266e0db634e657be3c7b0b4d3635d"
+      },
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "T1",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/T1",
+      "original_exit": "internal configured owner vs external facts; actual source/ref/issuer/verifier/consumer; no stale null-owner demand",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "B30",
+        "B67",
+        "B148",
+        "LA-027",
+        "LA-050",
+        "B108",
+        "LA-053"
+      ],
+      "depends": [
+        "BOOT0"
+      ],
+      "source_report": null,
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "R2",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/R2",
+      "original_exit": "actual handle/process closure + no premature reuse, cursor/window/CAS fresh consumer",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "B87",
+        "B89"
+      ],
+      "depends": [
+        "BOOT0",
+        "Q1",
+        "R1"
+      ],
+      "source_report": null,
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "R3",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/R3",
+      "original_exit": "reported/estimated/reuse/unknown events and durable outcomes remain distinct; provider/cache/retry/reopen/cancel",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "B10",
+        "B66",
+        "B67",
+        "B68"
+      ],
+      "depends": [
+        "BOOT0",
+        "Q1"
+      ],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/R3/report.json",
+        "sha256": "be153de449a6fe767476b3362a77cdeb23003867af8aca433564744f002d643a"
+      },
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "R4",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/R4",
+      "original_exit": "full workload within shared cap, no lost folds/deadlock; extend existing owner only if witness disproves coverage",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "B56"
+      ],
+      "depends": [
+        "BOOT0"
+      ],
+      "source_report": null,
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "I3",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/I3",
+      "original_exit": "verified progress and durable24h replay; absent/ambiguous key typedunsupported",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "B79",
+        "B80",
+        "B83"
+      ],
+      "depends": [
+        "BOOT0",
+        "R2"
+      ],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I3/report.json",
+        "sha256": "bedca55104020c3aeab966d1dc4f6259b8b73774383f6539a8e295303b91adbf"
+      },
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "I4",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/I4",
+      "original_exit": "actual request->typedprofile/encodedquery->fresh reader; wrong/missing profile refuses",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "LA-033",
+        "LA-046",
+        "LA-028",
+        "LA-032",
+        "LA-040"
+      ],
+      "depends": [
+        "BOOT0",
+        "I1"
+      ],
+      "source_report": null,
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "V1",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V1",
+      "original_exit": "POST->ownedcontext->N5->CAS->freshGET; synthetic configured witness remains bounded",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B08",
+        "B10",
+        "B13",
+        "B74",
+        "B154"
+      ],
+      "depends": [
+        "BOOT0",
+        "Q1"
+      ],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/V1/report.json",
+        "sha256": "9bff9ad17e85aa8c4fa7042e9169a359a90a21993bca2d18b9b216532e39c062"
+      },
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "V2",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V2",
+      "original_exit": "actual N4 two meaningful children->N6 frontier/history->freshGET/client; manual supplied graph not producer",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "B15",
+        "B29"
+      ],
+      "depends": [
+        "BOOT0",
+        "S1"
+      ],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/V2/report.json",
+        "sha256": "6878744148b923f865def54ee3eea06d5220ca59c32cc032a871c134ed81094c"
+      },
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "V3",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V3",
+      "original_exit": "admitted content change->samecandidateWMR/N5/history; ID/write-time-only control no reissue; REQ/ACQ separate",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "B09",
+        "B12",
+        "B27",
+        "B28",
+        "LA-046"
+      ],
+      "depends": [
+        "BOOT0",
+        "S1"
+      ],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/V3/report.json",
+        "sha256": "0e910633d32e9abb29d5b37ec9e36ea751a37ff44567037668fcb18bbffc1053"
+      },
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "V4",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V4",
+      "original_exit": "CAS resolver recomputes->freshgrade/defaultHTTP; predictive coverage not causal calibration",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "B16",
+        "B32",
+        "LA-051"
+      ],
+      "depends": [
+        "BOOT0",
+        "S1"
+      ],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/V4/report.json",
+        "sha256": "8b2ab11a61ba7e6d2bfefd56a5d4a4120c156fdb91137753bf08aefceb10498d"
+      },
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "V5",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V5",
+      "original_exit": "exactcontext/history/quantity/CAS path; selected GP/native/injected evidence separately graded",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "B108",
+        "B157"
+      ],
+      "depends": [
+        "BOOT0",
+        "Q1"
+      ],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/V5/report.json",
+        "sha256": "ea8be0a43b76ebe522964510cbbe069ffc83971b2ebc5b21f32bb06cd358451e"
+      },
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "S2",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S2",
+      "original_exit": "attempted denominator/covariance/axis/subject identity consumed fresh; counterfeit metadata refuses",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "LA-036",
+        "B157",
+        "B190",
+        "B194",
+        "B197",
+        "B200"
+      ],
+      "depends": [
+        "BOOT0",
+        "S1"
+      ],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/S2/report.json",
+        "sha256": "95869d8740db122f8153916da4a3100ee7125495688d2cbf037497979cbaa85f"
+      },
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "T2",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/T2",
+      "original_exit": "valid positive + fake/foreign/stale/revoked zero effects including commit-time check",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "B05",
+        "B08",
+        "B154",
+        "LA-018",
+        "LA-024",
+        "LA-025",
+        "B131",
+        "B137",
+        "B164",
+        "LA-054",
+        "LA-055"
+      ],
+      "depends": [
+        "BOOT0",
+        "T1"
+      ],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/T2/report.json",
+        "sha256": "12124e863b3cbece1891de9bb7fd09e22262815d40823adcd4059bf44e287fb5"
+      },
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "Q2",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/Q2",
+      "original_exit": "frozen contracts->canonicalfamily->typedclient/defaultinstalled reader; declared supported profiles only",
+      "original_exit_source_key": "original_exit",
+      "finding_ids": [
+        "B04",
+        "B11",
+        "B29",
+        "B30",
+        "LA-033",
+        "B34",
+        "B35",
+        "B36",
+        "LA-045",
+        "LA-005",
+        "LA-006",
+        "LA-021",
+        "LA-023",
+        "LA-026",
+        "LA-027",
+        "LA-042",
+        "LA-050",
+        "LA-053",
+        "B201",
+        "B202",
+        "B212"
+      ],
+      "depends": [
+        "BOOT0",
+        "Q1"
+      ],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/Q2/report.json",
+        "sha256": "fe2abd80dd012c7aa2dea7a03efae3707aa57dd503b6c23ac3e5d8a364a135be"
+      },
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "BOOT0",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/BOOT0",
+      "original_exit": "attached ownbranch, exactbase/supplier identity, one writer perpath and visible runnablequeue",
+      "original_exit_source_key": "exit",
+      "finding_ids": [],
+      "depends": [],
+      "source_report": null,
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "DX0",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/DX0",
+      "original_exit": "full deciding commands on exactsource, honest remainingissuer decisions, source-to-installedassets bytes/origins; commoncontextdoesnotblockindependentwork",
+      "original_exit_source_key": "exit",
+      "finding_ids": [],
+      "depends": [
+        "BOOT0"
+      ],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/DX0/report.json",
+        "sha256": "d27e7af7d748750be4f4f7f699c7c92a34cb423f9310269055a00db6973f7c40"
+      },
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    },
+    {
+      "task_id": "DEC0",
+      "canonical_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/DEC0",
+      "original_exit": "each decision has executable alternatives and exact affectedproperties; independent taskscontinuewhileGreviews",
+      "original_exit_source_key": "exit",
+      "finding_ids": [],
+      "depends": [
+        "BOOT0"
+      ],
+      "source_report": null,
+      "status_note": "See transfer remaining-work.md for later deltas; this row binds the original task, not a new backlog."
+    }
+  ]
+}

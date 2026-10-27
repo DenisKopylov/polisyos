@@ -1,0 +1,284 @@
+--- a/policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py
++++ b/policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py
+@@ -384,7 +384,7 @@
+ 
+         assert result.datasets_fetched == 1
+         assert result.evidence_bundle_ref is not None
+-        assert result.cursor_ref is None  # No unverified promotion on the same fixture.
++        assert result.cursor_ref is not None
+         assert len(calls) == 2
+         assert all(method == "GET" and path == "/records" for method, path, _ in calls)
+         assert [query for _, _, query in calls if "since" in query] == [
+@@ -396,8 +396,12 @@
+         assert len(bundle.sources) == 1
+         persisted = ResultSerializer.deserialize(store.get_bytes(bundle.sources[0]))
+         assert persisted.data == [{"id": "row-1", "value": 7}]
+-        after = cursor_store.find_latest_cursor("rest.json", "dataset")
+-        assert after is not None and after.watermark_value == prior
++        reopened_cursor = CursorStore(FileSystemCAS(cas_root)).find_latest_cursor(
++            "rest.json",
++            "dataset",
++        )
++        assert reopened_cursor is not None
++        assert reopened_cursor.watermark_value == '"etag-next"'
+     finally:
+         server.shutdown()
+         server.server_close()
+@@ -405,10 +409,10 @@
+         registry.shutdown()
+ 
+ 
+-def test_b80_two_source_failure_keeps_predecessors_and_retry_reads_late_event(
++def test_b80_two_source_failure_advances_confirmed_source_and_retry_reads_late_event(
+     tmp_path: Path,
+ ) -> None:
+-    """A failed B fetch preserves both source cursors and replay keeps B's late row."""
++    """A confirmed A boundary advances beside failed B; B's late row survives retry."""
+     from polisyos.core.contracts.fabric import EvidenceBundle
+     from polisyos.fabric.connectors.base import HealthStatus
+     from polisyos.fabric.connectors.sources.rest_json import RestJsonConnector
+@@ -430,6 +434,14 @@
+                     "event_time": "2025-01-01T00:00:00Z",
+                 },
+             ),
++            (
++                "etag-a10",
++                {
++                    "id": "a-event-10",
++                    "source_version": "etag-a10",
++                    "event_time": "2025-01-02T00:00:00Z",
++                },
++            ),
+         ],
+         "source_b": [
+             ("etag-b4", None),
+@@ -439,6 +451,14 @@
+                     "id": "b-late-event-5",
+                     "source_version": "etag-b5",
+                     "event_time": "2024-01-01T00:00:00Z",
++                },
++            ),
++            (
++                "etag-b6",
++                {
++                    "id": "b-event-6",
++                    "source_version": "etag-b6",
++                    "event_time": "2024-01-02T00:00:00Z",
+                 },
+             ),
+         ],
+@@ -559,25 +579,27 @@
+     fixture_registry = _DirectFixtureRegistry()
+     dependencies = resolve_ingestion_dependencies(registry=fixture_registry)  # type: ignore[arg-type]
+     try:
+-        with pytest.raises(FetchError, match="temporarily unavailable"):
+-            run_batch_incremental(
+-                connector_manifest=manifest,
+-                source="e02-b80-fixture",
+-                license_name="fixture-only",
+-                cas_root=cas_root,
+-                connection_config=config,
+-                produce_snapshot=False,
+-                ingestion_dependencies=dependencies,
+-            )
++        first_result = run_batch_incremental(
++            connector_manifest=manifest,
++            source="e02-b80-fixture",
++            license_name="fixture-only",
++            cas_root=cas_root,
++            connection_config=config,
++            produce_snapshot=False,
++            ingestion_dependencies=dependencies,
++        )
++        assert first_result.evidence_bundle_ref is not None
++        assert any("source_b" in warning for warning in first_result.warnings)
+ 
+         after_failure = CursorStore(FileSystemCAS(cas_root))
+-        for _source_key, predecessor in predecessors.items():
++        for source_key, predecessor in predecessors.items():
+             actual = after_failure.find_latest_cursor(
+                 predecessor.connector_id,
+                 predecessor.dataset_id,
+             )
+             assert actual is not None
+-            assert actual.model_dump(mode="json") == predecessor.model_dump(mode="json")
++            expected = "etag-a9" if source_key == "source_a" else "etag-b4"
++            assert actual.watermark_value == expected
+ 
+         result = run_batch_incremental(
+             connector_manifest=manifest,
+@@ -592,37 +614,86 @@
+         assert observed_requests == [
+             ("source_a", "etag-a8"),
+             ("source_b", "etag-b4"),
+-            ("source_a", "etag-a8"),
++            ("source_a", "etag-a9"),
+             ("source_b", "etag-b4"),
+         ]
+ 
+-        evidence = EvidenceBundle.model_validate(
+-            from_canonical_bytes(store.get_bytes(result.evidence_bundle_ref.artifact_id))
+-        )
+         from polisyos.fabric.connectors.cache._store_serialization import ResultSerializer
+ 
+         observed_row_ids: set[str] = set()
+-        for source_ref in evidence.sources:
+-            fetched = ResultSerializer.deserialize(store.get_bytes(source_ref))
+-            observed_row_ids.update(str(row["id"]) for row in fetched.data)
++        for evidence_ref in (first_result.evidence_bundle_ref, result.evidence_bundle_ref):
++            evidence = EvidenceBundle.model_validate(
++                from_canonical_bytes(store.get_bytes(evidence_ref.artifact_id))
++            )
++            for source_ref in evidence.sources:
++                fetched = ResultSerializer.deserialize(store.get_bytes(source_ref))
++                observed_row_ids.update(str(row["id"]) for row in fetched.data)
+         expected_row_ids = {
+             row["id"]
+-            for source_events in source_events.values()
+-            for _version, row in source_events[1:]
++            for source_rows in source_events.values()
++            for _version, row in source_rows[1:2]
+             if row is not None
+         }
+         assert observed_row_ids == expected_row_ids
+         assert "b-late-event-5" in observed_row_ids
+ 
+-        # Cursor writes remain fail-closed until the independent evidence binder exists.
+         after_retry = CursorStore(FileSystemCAS(cas_root))
+-        for _source_key, predecessor in predecessors.items():
++        for source_key, predecessor in predecessors.items():
+             actual = after_retry.find_latest_cursor(
+                 predecessor.connector_id,
+                 predecessor.dataset_id,
+             )
+             assert actual is not None
+-            assert actual.model_dump(mode="json") == predecessor.model_dump(mode="json")
++            expected = "etag-a9" if source_key == "source_a" else "etag-b5"
++            assert actual.watermark_value == expected
++
++        import polisyos.fabric.ingestion.ingestion as ingestion_module
++
++        original_persist = ingestion_module.persist_provenance_graph
++
++        def _persist_with_a_binding_mismatch(store: Any, graph: Any) -> Any:
++            entity = graph.entities["dataset.fixture.source_a.events"]
++            entity.attributes["data_artifact_id"] = "mismatched-source-artifact"
++            return original_persist(store, graph)
++
++        with pytest.MonkeyPatch.context() as patcher:
++            patcher.setattr(
++                ingestion_module,
++                "persist_provenance_graph",
++                _persist_with_a_binding_mismatch,
++            )
++            negative_result = run_batch_incremental(
++                connector_manifest=manifest,
++                source="e02-b80-binding-negative",
++                license_name="fixture-only",
++                cas_root=cas_root,
++                connection_config=config,
++                produce_snapshot=False,
++                ingestion_dependencies=dependencies,
++            )
++
++        assert negative_result.evidence_bundle_ref is not None
++        assert negative_result.datasets_fetched == 2
++        assert negative_result.cursor_ref is not None
++        assert observed_requests[-2:] == [
++            ("source_a", "etag-a9"),
++            ("source_b", "etag-b5"),
++        ]
++        negative_bundle = EvidenceBundle.model_validate(
++            from_canonical_bytes(store.get_bytes(negative_result.evidence_bundle_ref.artifact_id))
++        )
++        from polisyos.fabric.connectors.cache._store_serialization import ResultSerializer
++
++        negative_row_ids: set[str] = set()
++        for source_ref in negative_bundle.sources:
++            fetched = ResultSerializer.deserialize(store.get_bytes(source_ref))
++            negative_row_ids.update(str(row["id"]) for row in fetched.data)
++        assert negative_row_ids == {"a-event-10", "b-event-6"}
++        after_mismatch = CursorStore(FileSystemCAS(cas_root))
++        cursor_a = after_mismatch.find_latest_cursor("fixture.source_a", "events")
++        cursor_b = after_mismatch.find_latest_cursor("fixture.source_b", "events")
++        assert cursor_a is not None and cursor_a.watermark_value == "etag-a9"
++        assert cursor_b is not None and cursor_b.watermark_value == "etag-b6"
+     finally:
+         registry.shutdown()
+         ConnectorRegistry.reset_instance()
+@@ -1796,6 +1867,75 @@
+ 
+ 
+ @pytest.mark.asyncio
++async def test_b83_event_stream_preserves_absent_provider_identity(
++    tmp_path: Path,
++) -> None:
++    """The EventStream producer must not turn a row position into source identity."""
++    from polisyos.fabric.connectors.base import FetchRequest
++    from polisyos.fabric.connectors.sources.event_stream import EventStreamConnector
++
++    dataset_id = "event-stream-missing-identity"
++    source_row = {"entity_id": "entity-1", "value": 1}
++    stream_path = tmp_path / "event-stream-missing-identity.jsonl"
++    stream_path.write_text(json.dumps(source_row, sort_keys=True) + "\n", encoding="utf-8")
++    connector = EventStreamConnector()
++    handle = await connector.connect(
++        ConnectionConfig(
++            url=stream_path.as_uri(),
++            headers={"X-Stream-ChunkSize": "1"},
++        )
++    )
++    rows: list[dict[str, Any]] = []
++    try:
++        async for chunk in connector.fetch_stream(handle, FetchRequest(dataset_id=dataset_id)):
++            rows.extend(chunk.data)
++    finally:
++        await connector.disconnect(handle)
++
++    assert rows == [source_row]
++
++
++@pytest.mark.asyncio
++async def test_b83_missing_owner_identity_refuses_before_checkpoint_or_artifact(
++    tmp_path: Path,
++    stream_registry: ConnectorRegistry,
++) -> None:
++    """A valid positional transport ID cannot substitute for an owner key contract."""
++    import polisyos.fabric.data_plane.streaming as streaming_module
++
++    dataset_id = "default-key-without-owner-contract"
++    stream_path = tmp_path / f"{dataset_id}.jsonl"
++    stream_path.write_text(
++        json.dumps({"entity_id": "entity-1", "value": 1}, sort_keys=True) + "\n",
++        encoding="utf-8",
++    )
++    registry = _configure_stream_registry(stream_registry, stream_path)
++    cas_root = tmp_path / f"{dataset_id}-cas"
++    store = FileSystemCAS(cas_root)
++    prior_artifact_ids = set(map(str, store.iter_artifact_ids()))
++    unsupported_type = getattr(streaming_module, "StreamDedupeUnsupported", RuntimeError)
++
++    with pytest.raises(unsupported_type) as exc_info:
++        await process_stream_dataset(
++            connector_id="stream.jsonl",
++            dataset_id=dataset_id,
++            store=store,
++            cursor_store=CursorStore(store),
++            sanitize_rows=_valid_rows,
++            runtime_options=StreamRuntimeOptions(
++                window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=1),
++            ),
++            registry=registry,
++        )
++
++    assert type(exc_info.value).__name__ == "StreamDedupeUnsupported"
++    after = CursorStore(FileSystemCAS(cas_root))
++    assert after.find_latest_stream_checkpoint("stream.jsonl", dataset_id) is None
++    assert after.find_latest_cursor("stream.jsonl", dataset_id) is None
++    assert set(map(str, FileSystemCAS(cas_root).iter_artifact_ids())) == prior_artifact_ids
++
++
++@pytest.mark.asyncio
+ async def test_b83_horizon_scope_isolated_by_connector_dataset_and_partition(
+     tmp_path: Path,
+     monkeypatch: pytest.MonkeyPatch,

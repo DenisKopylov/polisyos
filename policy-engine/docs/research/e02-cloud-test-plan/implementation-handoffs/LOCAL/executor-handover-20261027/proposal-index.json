@@ -1,0 +1,358 @@
+{
+  "proposals": [
+    {
+      "id": "g27-v6-test-r5",
+      "purpose_and_state": "G27-01 test fixture successor; unapplied, intended red UNRUN",
+      "raw_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/g27-feedback/v6-ref-author/test-only-r5",
+      "raw_available": true,
+      "patches": [
+        {
+          "original": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/g27-feedback/v6-ref-author/test-only-r5/test.patch",
+            "available": true,
+            "scope": "retained local material",
+            "bytes": 10339,
+            "sha256": "688bdf12e37252f28c15d24bed81e5bfc235c0caa2a28b4f00d4714e2b616868",
+            "integrity_observation": "fresh small-file hash at transfer"
+          },
+          "committed_copy": "proposals/g27-v6-test-r5/test.patch",
+          "sha256": "688bdf12e37252f28c15d24bed81e5bfc235c0caa2a28b4f00d4714e2b616868",
+          "bytes": 10339
+        }
+      ],
+      "manifests": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/g27-feedback/v6-ref-author/test-only-r5/manifest.json",
+          "available": true,
+          "scope": "proposal pre/post/base metadata; no native execution",
+          "bytes": 2603,
+          "sha256": "2a3ecabb70e64313a5db6174bddcfa60654fd7ce21ac03cb2997975c582ff6a4",
+          "integrity_observation": "fresh small-file hash at transfer"
+        }
+      ],
+      "postimages": "Full regular postimages retained inside the original RAW directory when produced; never treated as applied from a patch alone.",
+      "application_rule": "Inspect exact manifest/preimages, include mandatory companions, independent review then source-bound native test after separate user continuation. No automatic application during handover."
+    },
+    {
+      "id": "n7-diagnostic-r4",
+      "purpose_and_state": "Next diagnostic only, unapplied; do not call it a product repair",
+      "raw_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave1/v4-v7/v4-v7-n7-diag-r4",
+      "raw_available": true,
+      "patches": [
+        {
+          "original": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave1/v4-v7/v4-v7-n7-diag-r4/N7-route-cycle-diagnostic.patch",
+            "available": true,
+            "scope": "retained local material",
+            "bytes": 1578,
+            "sha256": "6e8192a2798e648d653809fbb2724d1e65e7924a0c227166076d49b1bd290a3d",
+            "integrity_observation": "fresh small-file hash at transfer"
+          },
+          "committed_copy": "proposals/n7-diagnostic-r4/N7-route-cycle-diagnostic.patch",
+          "sha256": "6e8192a2798e648d653809fbb2724d1e65e7924a0c227166076d49b1bd290a3d",
+          "bytes": 1578
+        }
+      ],
+      "manifests": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave1/v4-v7/v4-v7-n7-diag-r4/manifest.json",
+          "available": true,
+          "scope": "proposal pre/post/base metadata; no native execution",
+          "bytes": 1631,
+          "sha256": "bdd8cbf1c18bf3c029f3273a23fdff9f8cc310dd056c3c409146385faf273f1d",
+          "integrity_observation": "fresh small-file hash at transfer"
+        }
+      ],
+      "postimages": "Full regular postimages retained inside the original RAW directory when produced; never treated as applied from a patch alone.",
+      "application_rule": "Inspect exact manifest/preimages, include mandatory companions, independent review then source-bound native test after separate user continuation. No automatic application during handover."
+    },
+    {
+      "id": "r3-cache-author06",
+      "purpose_and_state": "Six-file cache proposal, unapplied, static NO-GO; see author08 lease correction",
+      "raw_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave2/r3-cache-bridge/author-20261027-06/candidate",
+      "raw_available": true,
+      "patches": [
+        {
+          "original": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave2/r3-cache-bridge/author-20261027-06/candidate/patches/product-only.patch",
+            "available": true,
+            "sha256": "4a85a63957c6f0750e57214ca060a9a3772aa795292595381c702ec8368ed75f",
+            "bytes": 19790
+          },
+          "committed_copy": "proposals/r3-cache-author06/product-only.patch",
+          "sha256": "4a85a63957c6f0750e57214ca060a9a3772aa795292595381c702ec8368ed75f",
+          "bytes": 19790
+        },
+        {
+          "original": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave2/r3-cache-bridge/author-20261027-06/candidate/patches/test-only.patch",
+            "available": true,
+            "sha256": "a172b044428e06bf2f6fc2b948a870f00df9134819e9462394d71c48b34fb93f",
+            "bytes": 12706
+          },
+          "committed_copy": "proposals/r3-cache-author06/test-only.patch",
+          "sha256": "a172b044428e06bf2f6fc2b948a870f00df9134819e9462394d71c48b34fb93f",
+          "bytes": 12706
+        }
+      ],
+      "manifests": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave2/r3-cache-bridge/author-20261027-06/candidate/manifest.json",
+          "available": true,
+          "scope": "proposal pre/post/base metadata; no native execution",
+          "bytes": 5965,
+          "sha256": "0a7e2832d631c8349e4596c3376c18861eb52e82a0a4a94bb282d8df6047b0ba",
+          "integrity_observation": "fresh small-file hash at transfer"
+        }
+      ],
+      "postimages": "Full regular postimages retained inside the original RAW directory when produced; never treated as applied from a patch alone.",
+      "application_rule": "Inspect exact manifest/preimages, include mandatory companions, independent review then source-bound native test after separate user continuation. No automatic application during handover."
+    },
+    {
+      "id": "i3-product-r7d",
+      "purpose_and_state": "B79/B80 product, unapplied; companion test r8b required",
+      "raw_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave2/i3/i3-author-r7d-product",
+      "raw_available": true,
+      "patches": [
+        {
+          "original": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave2/i3/i3-author-r7d-product/product-only.patch",
+            "available": true,
+            "scope": "retained local material",
+            "bytes": 24813,
+            "sha256": "2018c9554ff2da0e1be4fcfca6b4b67e4351058c0947c0bdebf9940f830977a9",
+            "integrity_observation": "fresh small-file hash at transfer"
+          },
+          "committed_copy": "proposals/i3-product-r7d/product-only.patch",
+          "sha256": "2018c9554ff2da0e1be4fcfca6b4b67e4351058c0947c0bdebf9940f830977a9",
+          "bytes": 24813
+        }
+      ],
+      "manifests": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave2/i3/i3-author-r7d-product/manifest.json",
+          "available": true,
+          "scope": "proposal pre/post/base metadata; no native execution",
+          "bytes": 2311,
+          "sha256": "3dc55f4c5f1ce8ce0aefbdccf1c67faf70c4e5777d89495bfed98265f5b1023b",
+          "integrity_observation": "fresh small-file hash at transfer"
+        }
+      ],
+      "postimages": "Full regular postimages retained inside the original RAW directory when produced; never treated as applied from a patch alone.",
+      "application_rule": "Inspect exact manifest/preimages, include mandatory companions, independent review then source-bound native test after separate user continuation. No automatic application during handover."
+    },
+    {
+      "id": "i3-test-r8b",
+      "purpose_and_state": "B79/B80 companion tests, unapplied",
+      "raw_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave2/i3/i3-author-r8b-test",
+      "raw_available": true,
+      "patches": [
+        {
+          "original": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave2/i3/i3-author-r8b-test/test-only.patch",
+            "available": true,
+            "scope": "retained local material",
+            "bytes": 12430,
+            "sha256": "87588f51b8b8f9b10763f9681ccb748db4edddb4f6d3fa498965dc629c92b5ee",
+            "integrity_observation": "fresh small-file hash at transfer"
+          },
+          "committed_copy": "proposals/i3-test-r8b/test-only.patch",
+          "sha256": "87588f51b8b8f9b10763f9681ccb748db4edddb4f6d3fa498965dc629c92b5ee",
+          "bytes": 12430
+        }
+      ],
+      "manifests": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave2/i3/i3-author-r8b-test/manifest.json",
+          "available": true,
+          "scope": "proposal pre/post/base metadata; no native execution",
+          "bytes": 1167,
+          "sha256": "6c7cafeed66d25d7436afa2c488ad7678e5caffca757eb3491f9904390672b27",
+          "integrity_observation": "fresh small-file hash at transfer"
+        }
+      ],
+      "postimages": "Full regular postimages retained inside the original RAW directory when produced; never treated as applied from a patch alone.",
+      "application_rule": "Inspect exact manifest/preimages, include mandatory companions, independent review then source-bound native test after separate user continuation. No automatic application during handover."
+    },
+    {
+      "id": "v5-owner-r13",
+      "purpose_and_state": "Tri-state owner source classification/metric GP proposal, unapplied and no completed r13 review established",
+      "raw_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave1/v5/author-final-r13",
+      "raw_available": true,
+      "patches": [
+        {
+          "original": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave1/v5/author-final-r13/product.patch",
+            "available": true,
+            "scope": "retained local material",
+            "bytes": 22270,
+            "sha256": "37321a241f49511c2d9229cad6a453abeb5664f340a09a10afcf8a3c26ccc807",
+            "integrity_observation": "fresh small-file hash at transfer"
+          },
+          "committed_copy": "proposals/v5-owner-r13/product.patch",
+          "sha256": "37321a241f49511c2d9229cad6a453abeb5664f340a09a10afcf8a3c26ccc807",
+          "bytes": 22270
+        },
+        {
+          "original": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave1/v5/author-final-r13/test-patch.diff",
+            "available": true,
+            "scope": "retained local material",
+            "bytes": 38117,
+            "sha256": "706525cfe6b41c9457d64895b3c7cea37bdd9d97f10b20d894e2e49f5f998000",
+            "integrity_observation": "fresh small-file hash at transfer"
+          },
+          "committed_copy": "proposals/v5-owner-r13/test-patch.diff",
+          "sha256": "706525cfe6b41c9457d64895b3c7cea37bdd9d97f10b20d894e2e49f5f998000",
+          "bytes": 38117
+        }
+      ],
+      "manifests": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave1/v5/author-final-r13/manifest.json",
+          "available": true,
+          "scope": "proposal pre/post/base metadata; no native execution",
+          "bytes": 6928,
+          "sha256": "89b77f264674672f4a65f2033e5330f0fd7cf76b3e59d005bfe71b14e8982645",
+          "integrity_observation": "fresh small-file hash at transfer"
+        }
+      ],
+      "postimages": "Full regular postimages retained inside the original RAW directory when produced; never treated as applied from a patch alone.",
+      "application_rule": "Inspect exact manifest/preimages, include mandatory companions, independent review then source-bound native test after separate user continuation. No automatic application during handover."
+    },
+    {
+      "id": "s1-test-r4",
+      "purpose_and_state": "Partial explicit source-binding test, unapplied, no native proof",
+      "raw_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave2/s1-b161/bridge-r4-test",
+      "raw_available": true,
+      "patches": [
+        {
+          "original": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave2/s1-b161/bridge-r4-test/test-only.patch",
+            "available": true,
+            "scope": "retained local material",
+            "bytes": 21183,
+            "sha256": "86756196ab891cb1739a8fdb7dbc4f77ba567751b2b07d84c1a00e4e2453c17c",
+            "integrity_observation": "fresh small-file hash at transfer"
+          },
+          "committed_copy": "proposals/s1-test-r4/test-only.patch",
+          "sha256": "86756196ab891cb1739a8fdb7dbc4f77ba567751b2b07d84c1a00e4e2453c17c",
+          "bytes": 21183
+        }
+      ],
+      "manifests": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave2/s1-b161/bridge-r4-test/manifest.json",
+          "available": true,
+          "scope": "proposal pre/post/base metadata; no native execution",
+          "bytes": 463,
+          "sha256": "3d34e2da9371de4b8c245c2503666c318a6998e5f0cff89214048e91522355d1",
+          "integrity_observation": "fresh small-file hash at transfer"
+        }
+      ],
+      "postimages": "Full regular postimages retained inside the original RAW directory when produced; never treated as applied from a patch alone.",
+      "application_rule": "Inspect exact manifest/preimages, include mandatory companions, independent review then source-bound native test after separate user continuation. No automatic application during handover."
+    },
+    {
+      "id": "s1-product-r5",
+      "purpose_and_state": "Partial uncertainty/adapter product, unapplied and unreviewed",
+      "raw_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave2/s1-b161/bridge-r5-product",
+      "raw_available": true,
+      "patches": [
+        {
+          "original": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave2/s1-b161/bridge-r5-product/product-only.patch",
+            "available": true,
+            "scope": "retained local material",
+            "bytes": 26174,
+            "sha256": "4927ce30287fa87a28461b49fb9c5fdca19a5850c92a12b7379a999bbf9b415c",
+            "integrity_observation": "fresh small-file hash at transfer"
+          },
+          "committed_copy": "proposals/s1-product-r5/product-only.patch",
+          "sha256": "4927ce30287fa87a28461b49fb9c5fdca19a5850c92a12b7379a999bbf9b415c",
+          "bytes": 26174
+        }
+      ],
+      "manifests": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave2/s1-b161/bridge-r5-product/manifest.json",
+          "available": true,
+          "scope": "proposal pre/post/base metadata; no native execution",
+          "bytes": 996,
+          "sha256": "5c4ac8095e21f3aa4e7d9f415a8a960831e042183f1b6a9ea52d841f40babc35",
+          "integrity_observation": "fresh small-file hash at transfer"
+        }
+      ],
+      "postimages": "Full regular postimages retained inside the original RAW directory when produced; never treated as applied from a patch alone.",
+      "application_rule": "Inspect exact manifest/preimages, include mandatory companions, independent review then source-bound native test after separate user continuation. No automatic application during handover."
+    },
+    {
+      "id": "i1-checkpoint-r4",
+      "purpose_and_state": "13-selector matrix test, unapplied, partial review",
+      "raw_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/g27-feedback/i1-checkpoint-matrix/author-r4/candidate",
+      "raw_available": true,
+      "patches": [
+        {
+          "original": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/g27-feedback/i1-checkpoint-matrix/author-r4/candidate/test-only.patch",
+            "available": true,
+            "scope": "retained local material",
+            "bytes": 7448,
+            "sha256": "d1ecf3c8066fbef39b64f8f96cb5655a0092b427de33f6ac70391c2eb14d61ef",
+            "integrity_observation": "fresh small-file hash at transfer"
+          },
+          "committed_copy": "proposals/i1-checkpoint-r4/test-only.patch",
+          "sha256": "d1ecf3c8066fbef39b64f8f96cb5655a0092b427de33f6ac70391c2eb14d61ef",
+          "bytes": 7448
+        }
+      ],
+      "manifests": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/g27-feedback/i1-checkpoint-matrix/author-r4/candidate/candidate-manifest.json",
+          "available": true,
+          "scope": "proposal pre/post/base metadata; no native execution",
+          "bytes": 7555,
+          "sha256": "1c535c7962a6bd081bf7dbb4e960d800f10f939193444722b19c10083af7a314",
+          "integrity_observation": "fresh small-file hash at transfer"
+        }
+      ],
+      "postimages": "Full regular postimages retained inside the original RAW directory when produced; never treated as applied from a patch alone.",
+      "application_rule": "Inspect exact manifest/preimages, include mandatory companions, independent review then source-bound native test after separate user continuation. No automatic application during handover."
+    },
+    {
+      "id": "i4-legacy-r2",
+      "purpose_and_state": "Legacy-vector test, unapplied, incomplete review found counting mismatch",
+      "raw_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/g27-feedback/i4-legacy-vector/author-r2",
+      "raw_available": true,
+      "patches": [
+        {
+          "original": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/g27-feedback/i4-legacy-vector/author-r2/patch.diff",
+            "available": true,
+            "scope": "retained local material",
+            "bytes": 10376,
+            "sha256": "be21279e6fee6e167026f5aad1613d57c183944034106ac2208d403473eacbbd",
+            "integrity_observation": "fresh small-file hash at transfer"
+          },
+          "committed_copy": "proposals/i4-legacy-r2/patch.diff",
+          "sha256": "be21279e6fee6e167026f5aad1613d57c183944034106ac2208d403473eacbbd",
+          "bytes": 10376
+        }
+      ],
+      "manifests": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/g27-feedback/i4-legacy-vector/author-r2/manifest.json",
+          "available": true,
+          "scope": "proposal pre/post/base metadata; no native execution",
+          "bytes": 9907,
+          "sha256": "40815fd602a290c5af72bd82327ab775aa5ef64ca2027a002e889fc7c0a1c714",
+          "integrity_observation": "fresh small-file hash at transfer"
+        }
+      ],
+      "postimages": "Full regular postimages retained inside the original RAW directory when produced; never treated as applied from a patch alone.",
+      "application_rule": "Inspect exact manifest/preimages, include mandatory companions, independent review then source-bound native test after separate user continuation. No automatic application during handover."
+    }
+  ],
+  "patches_saved_in_git": 12,
+  "local_only_note": "This is a selected current-proposal index. Superseded attempts remain untouched in RAW; not every old draft is duplicated."
+}

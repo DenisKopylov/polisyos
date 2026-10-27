@@ -1,0 +1,9 @@
+# Recovery and preservation facts
+
+Ordinary code preservation succeeded:17owned paths committed in8698293225576fc7a1ad8f6d2c1ca8834f04140c, using normal hooks. Their exact full blobs are Git-backed. This is a WIP checkpoint with known failing/unrun checks.
+
+Before commit the root also preserved actual data at `/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/executor-handover-20261027/recovery-pre-checkpoint`: tracked binary/full-index unstaged patch131,154bytes, empty staged patch, and full copies of5435nonignored regular untracked files105,603,371bytes. ManifestSHA256 `2e1f5593b0f642221135b6536f40e50c9dc7621606d87bb64b75c60106d73da2`; every copy was hashed against its unchanged source with size/mtime checks. No file was deleted or moved. The snapshot base is8020ea47980e503caab9ac8b2ecec71a11918770; after commit one of those files is now tracked, leaving5434preexisting untracked paths. Do not bulk commit mixed-owner untracked material.
+
+Selected unapplied patch bytes are Git-preserved under proposals/ with proposal-index.json. Their full original postimages/metadata remain RAW. Everything else ignored (RAW/CAS/DB/environments/localstate) stays in its original place; these are retained primary copies, not a new independent backup. No whole-worktree/chat archive was created, no iCloud download performed, no environment rebuilt.
+
+Recovery is conditional, not an instruction to restore an old tree: first compare current bytes/source/base and preserve any later work. Never reset/rebase/switch HEAD or apply the old snapshot automatically. Existing Git blobs, binary patch, full untracked copies and original RAW are enough for a controlled per-file recovery once ownership is established. The remaining historical95rollout locators were not available in the checked paths; no claim is made that their transcript bytes are in this packet.

@@ -1,0 +1,64 @@
+{
+  "decisions": [
+    {
+      "commit": "b7adafe89423bc6906a5fb86c38e579a381ad2ee",
+      "title": "2026-10-20 AD01–03",
+      "selected_meaning": "Read06-final-decisions-and-solo-review.md, AD01–03 and04implementation/verification in that exact integration package.",
+      "commit_object_available": true,
+      "acceptance": "Architecture selection only; not runtime/code acceptance or finding closure."
+    },
+    {
+      "commit": "798bd1ab9646378f49fd127b3f04ebe71aca67d2",
+      "title": "HTE/CAN/B161",
+      "selected_meaning": "Retain computed point when interval unavailable; native interval has conditional input/request/method/attempt meaning, not population-ATE evidence. Shared canonical mechanics with separate Core/IR laws. First genuine risk assessment may replace explicit unknown on same basis; preserve history/other risks/contested disagreement.",
+      "commit_object_available": true,
+      "acceptance": "Architecture selection only; not runtime/code acceptance or finding closure."
+    },
+    {
+      "commit": "d40bca270ef5c456e8233196e4d8d65e099777a7",
+      "title": "N818",
+      "selected_meaning": "Preserve all seven existing exception classes/identities/exports; point noqaN818 with rationale, remove only broad Fabric N818ignore, regenerate normally, prove eighth violation/RUF100.",
+      "commit_object_available": true,
+      "acceptance": "Architecture selection only; not runtime/code acceptance or finding closure."
+    },
+    {
+      "commit": "528ec2576393e8aa9a0238ae4172336ccf76a057",
+      "title": "IR/PAG/R4",
+      "selected_meaning": "Immutable owner contract resolution for writer/typed reader; explicitly registered representations and directed compatibility, reader-first/rollback, preserve history. Candidate mathematics distinct from legal/protected authority. Existing causal-learn seam for finite verified no-selection MAG members; member success count is not probability/calibration. Separate versioned conditional diagnostic through existing transport/CAS/fresh consumer, outer UNSUPPORTED/NONE/false unchanged.",
+      "commit_object_available": true,
+      "acceptance": "Architecture selection only; not runtime/code acceptance or finding closure."
+    },
+    {
+      "commit": "978921662b2d89006759cdd2ae96dbccc9bdcf11",
+      "title": "B09 source admission/evaluation retention",
+      "selected_meaning": "source_admitted_evaluation_retained separates source admission from skipped reevaluation. Compare complete shared prepared semantic basis, current eligibility and dependency CAS; preserve new source/history/cost/acquisition state and old N5 provenance. Eighteen scenarios remain implementation work.",
+      "commit_object_available": true,
+      "acceptance": "Architecture selection only; not runtime/code acceptance or finding closure."
+    },
+    {
+      "commit": "14bf638032063c3d5a92b29da4215b3b54951fd6",
+      "title": "CAN-01/TC-01/SameInputClosure",
+      "selected_meaning": "CANjson0.3lossless raw _type maps, old0.2unchanged. Existing TemporalScope explicitly selects valid_at/tx_at/branch/snapshot/scenario; independent domain time roles remain. Versioned closure resolves every member ID/kind/media/exact profile/role through owner; runtime-mode symbol is not CAS.",
+      "commit_object_available": true,
+      "acceptance": "Architecture selection only; not runtime/code acceptance or finding closure."
+    }
+  ],
+  "additional_selected_G25": "Fabric runtime annotations/native expiry obligations 25Oct human-forwarded package; exact source-bound docs/inputs remain in canonical G/native handoffs. Preserve runtime type resolution, eight callables/request fields and27records8streams; no import-to-TYPE_CHECKING shortcut or blanket expiry renewal.",
+  "g27_forwarded_feedback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/g27-feedback/received-g-feedback.md",
+    "available": true,
+    "scope": "retained local material",
+    "bytes": 17619,
+    "sha256": "8a2214099ba2d66c14c2f95816ada08575e9fd767f143f03c1bba24f9ac67537",
+    "integrity_observation": "fresh small-file hash at transfer"
+  },
+  "g27_dispositions": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-review-followup-20261027/dispositions.json",
+    "available": true,
+    "scope": "retained local material",
+    "bytes": 13086,
+    "sha256": "0e1337a4d5e038dbc7ea13fb82a0913f85f8bb50b34bc7fa4aad2f1c54c4082f",
+    "integrity_observation": "fresh small-file hash at transfer"
+  },
+  "new_architecture_selected_by_author": false
+}

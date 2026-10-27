@@ -1,0 +1,27 @@
+--- a/policy-engine/tests/_helpers/acquisition_production.py
++++ b/policy-engine/tests/_helpers/acquisition_production.py
+@@ -378,6 +378,9 @@
+                     "cycle_run_status": getattr(leaf.cycle_run, "status", None)
+                     if leaf.cycle_run is not None
+                     else None,
++                    "cycle_run_blocked_reason": getattr(leaf.cycle_run, "blocked_reason", None)
++                    if leaf.cycle_run is not None
++                    else None,
+                     "cycles": tuple(
+                         {
+                             "cycle_index": cycle.cycle_index,
+@@ -399,6 +402,14 @@
+                                     else None
+                                 )
+                             ),
++                            "counterexample_code": cycle.counterexample.diagnostic.code,
++                            "counterexample_class": cycle.counterexample.counterexample_class,
++                            "revision_strategy": cycle.revision_request.revision_strategy,
++                            "revision_strategy_payload_keys": tuple(
++                                sorted(cycle.revision_request.strategy_payload)
++                            ),
++                            "voi_next_action": cycle.voi_decision.next_action,
++                            "voi_reason": cycle.voi_decision.reason,
+                             "routing_report_ref": cycle.acquisition_routing_report_ref,
+                             "routing_report_status": (
+                                 cycle.acquisition_routing_report.status

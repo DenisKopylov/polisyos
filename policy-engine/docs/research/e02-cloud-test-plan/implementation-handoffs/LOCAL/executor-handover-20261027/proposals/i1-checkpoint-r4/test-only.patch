@@ -1,0 +1,187 @@
+--- a/policy-engine/tests/unit/remediation/test_dfi_03.py
++++ b/policy-engine/tests/unit/remediation/test_dfi_03.py
+@@ -2569,3 +2569,184 @@
+     assert changed["A165"][0]["sample_size"] == 3
+     assert changed["A165"][0]["value"] == 2.0
+     assert config.run_signature != signature
++
++@pytest.mark.parametrize(
++    "malformed_state",
++    [
++        pytest.param("{\n", id="invalid-json"),
++        pytest.param('{"embed":[]}\n', id="wrong-shape"),
++    ],
++)
++def test_malformed_embed_stage_state_reruns_and_recovers(
++    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, malformed_state: str
++) -> None:
++    _install_non_private_profile_registry(monkeypatch)
++    config = DatasetBatchConfig(
++        snapshot_root=tmp_path / "snapshot",
++        stages=frozenset({"embed"}),
++        resume=True,
++        embedding_model="fixture-model",
++        embedding_dimension=4,
++    )
++    _create_empty_embedding_database(config)
++    assert build_embedding_generation(
++        rows=[],
++        index_dir=config.index_dir,
++        embedding_model="fixture-model",
++        embedding_device="cpu",
++        embedding_dimension=4,
++    ) == (0, 4)
++    _record_stage_completion(config, "embed")
++    assert _should_skip_stage(config, "embed")
++
++    config.stage_state_path.write_text(malformed_state, encoding="utf-8")
++    assert not _should_skip_stage(config, "embed")
++    assert current_content_stage_receipt(config, "embed") is None
++
++    assert run_dataset_pipeline_sync(config).skipped_stages == []
++    recovered = json.loads(config.stage_state_path.read_text(encoding="utf-8"))
++    assert recovered["embed"]["status"] == "complete"
++    receipt = current_content_stage_receipt(config, "embed")
++    assert receipt is not None and receipt.get("state") == "current"
++
++    def fail_if_reembedded(*_args, **_kwargs):
++        raise AssertionError("persisted recovery was not reused")
++
++    monkeypatch.setattr(catalog_embedder, "run_embed", fail_if_reembedded)
++    assert run_dataset_pipeline_sync(config).skipped_stages == ["embed"]
++
++
++def test_checksum_free_legacy_harvest_manifest_is_not_resume_evidence_and_recovers(
++    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
++) -> None:
++    _install_non_private_profile_registry(monkeypatch)
++    registry = SourceRegistry(
++        version=1,
++        sources=(
++            SourceSpec(
++                name="source_a",
++                family="worldbank",
++                wave="A",
++                endpoint="https://example.test/a",
++                execution_tier="transport_ready",
++                run_lane="empirical",
++                publish_blocking=True,
++            ),
++        ),
++    )
++    monkeypatch.setattr(DatasetBatchConfig, "load_registry", lambda _self: registry)
++    monkeypatch.setattr(catalog_harvester, "load_metrics_map", lambda _path: {})
++    config = DatasetBatchConfig(
++        snapshot_root=tmp_path / "snapshot",
++        stages=frozenset({"harvest"}),
++        run_profile="prod_core_blocking",
++        resume=True,
++    )
++    calls: list[str] = []
++
++    async def harvest_fixture(endpoint: str, _limit: int, _timeout: int) -> list[dict]:
++        calls.append(endpoint)
++        return [{"id": "fixture", "name": "Fixture"}]
++
++    monkeypatch.setattr(catalog_harvester, "_harvest_worldbank", harvest_fixture)
++    config.resume = False
++    asyncio.run(catalog_harvester.harvest_sources(config))
++    _record_stage_completion(config, "harvest")
++    config.resume = True
++    assert _should_skip_stage(config, "harvest")
++
++    stage = json.loads((config.manifests_dir / "harvest.json").read_text(encoding="utf-8"))
++    outcome = stage["metrics"]["source_outcomes"]["source_a"]
++    manifest_path = Path(str(outcome["manifest_path"]))
++    raw = json.loads(manifest_path.read_text(encoding="utf-8"))
++    assert raw.get("sha256")
++    raw.pop("sha256")
++    manifest_path.write_text(
++        json.dumps(raw, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
++        encoding="utf-8",
++    )
++
++    assert catalog_pipeline._harvest_stage_receipt(config) is None
++    assert not _should_skip_stage(config, "harvest")
++    assert current_content_stage_receipt(config, "harvest") is None
++    assert run_dataset_pipeline_sync(config).skipped_stages == []
++    assert calls == ["https://example.test/a", "https://example.test/a"]
++    assert _should_skip_stage(config, "harvest")
++
++    repaired_stage = json.loads(
++        (config.manifests_dir / "harvest.json").read_text(encoding="utf-8")
++    )
++    repaired_outcome = repaired_stage["metrics"]["source_outcomes"]["source_a"]
++    repaired_raw = json.loads(
++        Path(str(repaired_outcome["manifest_path"])).read_text(encoding="utf-8")
++    )
++    assert repaired_raw.get("sha256")
++    receipt = current_content_stage_receipt(config, "harvest")
++    assert receipt is not None and receipt.get("state") == "current"
++
++    def fail_if_harvested(*_args, **_kwargs):
++        raise AssertionError("current harvest receipt was not reused")
++
++    monkeypatch.setattr(catalog_harvester, "_harvest_worldbank", fail_if_harvested)
++    assert run_dataset_pipeline_sync(config).skipped_stages == ["harvest"]
++
++
++def test_interrupted_embed_state_retries_and_persists_current_generation(
++    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
++) -> None:
++    _install_non_private_profile_registry(monkeypatch)
++    config = DatasetBatchConfig(
++        snapshot_root=tmp_path / "snapshot",
++        stages=frozenset({"embed"}),
++        resume=True,
++        embedding_model="fixture-model",
++        embedding_dimension=4,
++    )
++    _create_empty_embedding_database(config)
++    assert build_embedding_generation(
++        rows=[],
++        index_dir=config.index_dir,
++        embedding_model="fixture-model",
++        embedding_device="cpu",
++        embedding_dimension=4,
++    ) == (0, 4)
++    _record_stage_completion(config, "embed")
++    state = json.loads(config.stage_state_path.read_text(encoding="utf-8"))
++    state["embed"]["status"] = "running"
++    config.stage_state_path.write_text(
++        json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
++        encoding="utf-8",
++    )
++
++    assert not _should_skip_stage(config, "embed")
++    assert current_content_stage_receipt(config, "embed") is None
++    assert run_dataset_pipeline_sync(config).skipped_stages == []
++    recovered = json.loads(config.stage_state_path.read_text(encoding="utf-8"))
++    assert recovered["embed"]["status"] == "complete"
++    receipt = current_content_stage_receipt(config, "embed")
++    assert receipt is not None and receipt.get("state") == "current"
++
++    def fail_if_reembedded(*_args, **_kwargs):
++        raise AssertionError("persisted interrupted-stage recovery was not reused")
++
++    monkeypatch.setattr(catalog_embedder, "run_embed", fail_if_reembedded)
++    assert run_dataset_pipeline_sync(config).skipped_stages == ["embed"]
++
++
++def test_omitted_required_outputs_reuses_recorded_paths(tmp_path: Path) -> None:
++    state_path = tmp_path / "state.json"
++    output = tmp_path / "output.txt"
++    output.write_text("published\n", encoding="utf-8")
++    save_stage_state(
++        state_path,
++        stage="fixture",
++        status="complete",
++        input_fingerprint="fixture-input",
++        outputs=[output],
++    )
++
++    assert stage_can_skip(
++        state_path,
++        stage="fixture",
++        input_fingerprint="fixture-input",
++    )

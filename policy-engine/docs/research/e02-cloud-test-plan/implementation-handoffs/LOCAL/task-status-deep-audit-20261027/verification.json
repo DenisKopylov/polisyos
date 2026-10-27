@@ -1,0 +1,45 @@
+{
+  "status": "PASS",
+  "qualification": "Report structure/byte binding only. Semantic judgments come from cited original criteria, source, tests and independent reviews.",
+  "report_sha256": "b2c528ba881c5e3c12b6d5714d7e98b2a4d86f276fc3449b4cbb6740dec60bb1",
+  "validator_sha256": "4d90caa862a4742c36e5cf6173eabe0febee3b3e0c946facf93cb0c20f2beebd",
+  "checks": {
+    "tasks": 26,
+    "findings": 282,
+    "occurrences": 291,
+    "ready_tasks": [
+      "V6",
+      "T1",
+      "R2",
+      "R4",
+      "I4",
+      "BOOT0"
+    ],
+    "execution_receipts": 17
+  },
+  "corrupt_field_controls": {
+    "remove_task": "rejected",
+    "inflate_complete_count": "rejected",
+    "promote_without_proof": "rejected",
+    "corrupt_evidence_hash": "rejected",
+    "change_execution_FAIL_to_PASS": "rejected",
+    "invent_formal_closure": "rejected",
+    "shrink_original_denominator": "rejected"
+  },
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/e02-task-status-refresh-20261027-r1/validate_report.py",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/e02-task-status-refresh-20261027-r1/draft"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+  "exit_code": 0,
+  "full_stdout": {
+    "path": "LOCAL/raw/e02-task-status-refresh-20261027-r1/verification-r2.stdout.json",
+    "sha256": "d3c811a455c7d883033bdb8d86272ea22c6c2a259a9a3c79b5732c36615b4710"
+  },
+  "full_stderr": {
+    "path": "LOCAL/raw/e02-task-status-refresh-20261027-r1/verification-r2.stderr.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

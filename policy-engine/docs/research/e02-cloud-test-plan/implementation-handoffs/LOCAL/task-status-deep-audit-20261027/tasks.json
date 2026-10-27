@@ -1,0 +1,3089 @@
+{
+  "schema": "policyos.e02.deep_task_status_audit.v1",
+  "as_of_utc": "2026-10-27T15:05:56.478967+00:00",
+  "purpose": "Refresh all26 task statuses against original exits, mandatory next actions, actual current source and independently reviewed deciding evidence. No product changes, formal G acceptance or global closeout.",
+  "source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+    "tree": "0c84e6fdfe233833c15fa981fed2e83a98146979",
+    "parents": [
+      "1fd513e8b2a7e3405d61023c2dffa22ce9a88447"
+    ],
+    "qualification": "Code candidate and audit-specific source/profile freezes; future documentation receipt commit is deliberately not named. G decisions apply as selected inputs even if documentation commits are not ancestors."
+  },
+  "inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    {
+      "path": "LOCAL/raw/e02-task-status-refresh-20261027-r1/admission.json",
+      "sha256": "fcffdfe5b200eeac43659080dfee5042d857e2a83b768859356bcd646f361edb"
+    },
+    {
+      "path": "LOCAL/raw/e02-task-status-refresh-20261027-r1/admission-checks.json",
+      "sha256": "523c87ca2d9beb31ba447194dcf3781e0fdc9b1d2e615dc0869599d2c8a4b1e8"
+    },
+    {
+      "path": "LOCAL/raw/e02-task-status-refresh-20261027-r1/denominator.json",
+      "sha256": "fd0b8586c0616fb9228f7e7de8a4c9ace0985c1859b7b67d3064e30a5078f753"
+    }
+  ],
+  "denominator": {
+    "tasks": 26,
+    "original_connected_tasks": 23,
+    "bundles": 127,
+    "findings": 282,
+    "criterion_occurrences": 291,
+    "q0_direct_ids": 206,
+    "q0_direct_occurrences": 212
+  },
+  "summary": {
+    "primary_status_counts": {
+      "complete": 6,
+      "coordination_active": 1,
+      "implementation_remaining": 12,
+      "verification_remaining": 7
+    },
+    "author_complete_ready_tasks": [
+      "V6",
+      "T1",
+      "R2",
+      "R4",
+      "I4",
+      "BOOT0"
+    ],
+    "author_complete_count": 6,
+    "not_author_complete_count": 20,
+    "unfinished_engineering_or_verification": 19,
+    "coordination_rows": [
+      "DEC0"
+    ],
+    "no_work_estimate_from_equal_task_weights": true
+  },
+  "historical": {
+    "ledger_counts": {
+      "partial": 260,
+      "open": 1,
+      "closed": 9,
+      "held": 12
+    },
+    "B198": {
+      "ledger_status": "closed",
+      "appendix_c_status": "closed_bounded",
+      "current": "not_adjudicated"
+    },
+    "unchanged": true,
+    "author_198_proposed_closed_not_reaccepted": true
+  },
+  "parallel_review": {
+    "direct_stream_count": 20,
+    "agents": [
+      "status26_inputs_platform_20261027",
+      "status26_scientific_20261027",
+      "status26_search_simulation_20261027",
+      "deep26_authority_criterion_oracle_20261027",
+      "status26_resources_20261027",
+      "status26_served_20261027",
+      "deep26_linux_worker_admission_20261027",
+      "status26_b56_criterion_oracle_20261027",
+      "e02_remaining_queue_census_20261027",
+      "e02_native_closeout_status_20261027",
+      "e02_recent_task_completion_audit_20261027",
+      "deep20_q1_can_oracle",
+      "deep20_temporal_closure_oracle",
+      "deep20_v3_b09_oracle",
+      "deep20_s3_b31_oracle",
+      "deep20_s1_b161_oracle",
+      "deep20_s1_pag_transport_oracle",
+      "deep20_empirical_v4_v7_oracle",
+      "deep20_r2_i3_oracle",
+      "deep20_i4_catalog_legal_oracle"
+    ],
+    "one_level": true,
+    "no_product_writers": true,
+    "root_owns_native_run_scheduling": true,
+    "concurrency": "Read-only audits in parallel; at most2 bounded native execution slots,1numerical thread per process; V1 isolated5GiB attempt serial. Completed streams reused for cross-review, not kept artificially active."
+  },
+  "scope_corrections": [
+    "R4 original generic admission accepts configured portable workload; no invented production roster/issuer/SLO prerequisite.",
+    "T1 is an inventory task: unknown facts do not prevent completing the inventory; B108 local aliases/sign/units do not require a source-issued period-flow positive.",
+    "G798 already selected B161 routing, G528 selected finite PAG member/solver and IR rules, G978 B09 retained-evaluation, G14bf CAN/TC; these are implementation inputs, not recurring general questions.",
+    "Q1 exact live source frame supersedes stale647checkpoint for identity. Current.3/TC runtime remains RAW, not applied.",
+    "Q0 earlier291-row source-cut is not291semantic reassessments. DirectQ0scope206IDs/212occurrences; whole plan282/291stillrequired.",
+    "One passing task or shared route is not a finding closure. V4/V7 shareonechain; repeats retain separate original outcomes.",
+    "P41 no current FAIL is declared inherited without exact slice-base replay/disjoint complete input denominator.",
+    "A stopped configured Linux worker is recoverable/UNRUN; macOSSKIP is not proof backend impossible."
+  ],
+  "remaining_verification": [
+    "Current Prepared-B defining baseline+all13contours/matched removals and criterion-specific B61/B148.",
+    "S1 assigned original outcomes including bothLA-023/LA-032/LA-036; B161 selected bound score/consumer; B214 projection and finite member profile.",
+    "S2 source-bound relation positive and S3 combined two-channel unit witness.",
+    "V1 ordinary served witness requires local memory/cost discriminator; V2 exact current verdict if current isolated run not complete.",
+    "Selected CAN.3/TemporalScope/SameInputClosure runtime composition and generated DTO/client/UI, canonical --check/drift controls.",
+    "Full current native SOTA/architecture/Ruff/format/typing/runtime gates; main installed wheel/rebuilt-sdist exact consumers.",
+    "Q0 direct212 original outcomes plus specialist79 reconcile full291; external owner facts only at exact original claim boundaries."
+  ],
+  "rows": [
+    {
+      "task_id": "S3",
+      "primary_status": "verification_remaining",
+      "code_state": "current_existing_four_nodes_3PASS1FAIL_original_combined_witness_unestablished",
+      "achieved": [
+        "Current producer and consumer exist. Synthetic4/[1,10] is preserved through fresh CAS with source/fake/mismatch controls; actual method reports and fixed-unit owner projections have separate tests.",
+        "Fresh current native run: actual candidate bounds, synthetic4/[1,10] preservation and fixed-unit owner projection PASS. Actual two-report selected-panel rejection test FAIL; independent diagnosis pending."
+      ],
+      "remaining_local_actions": [
+        "Correct test-companion adversary seam: wrapper only overrides get_manifest_bytes, while actual Core→IR adapter reads get_raw_manifest_bytes. Current expected refusal is never injected; forbidden_runner_call sentinel fires. No production defect established from this failure.",
+        "Demonstrate original combined unit-consistent identification+native-uncertainty channels through fresh consumer; do not combine separate passing partial witnesses into a claimed positive."
+      ],
+      "missing_external_inputs": [],
+      "pending_decisions": [],
+      "next_deciding_check": "RAW-manifest mutation must refuse before runner; then one actual two-channel same-subject/unit witness with4point and[1,10]interval and negative controls.",
+      "whole_task_complete": false,
+      "capability_limit": "No external authority fact is needed for the bounded local two-channel mechanism; do not label producer_missing.",
+      "evidence_rebind": "Fresh4node native run3PASS1testcompanionFAIL,1655imported.py0mismatch. Producer defect not established; no inherited-red attribution.",
+      "title": "B31 producer-owned persisted subject join",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S3",
+      "original_exit": "exact identification/nativeuncertainty refs bound to recomputed resolvedsubject/unit; freshAconsumer retains4point and1to10interval; fake/mismatch/unresolvedremoval refuses; no contract-only authority",
+      "mandatory_next_action": "exact identification/nativeuncertainty refs bound to recomputed resolvedsubject/unit; freshAconsumer retains4point and1to10interval; fake/mismatch/unresolvedremoval refuses; no contract-only authority",
+      "assigned_finding_ids": [
+        "B31"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "not_ready_for_full_task_acceptance",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py",
+          "sha256": "5c82c343243bec517a7511fefee5ca201b9accc9b0b4e6424827a52237975951",
+          "scope": "Actual method reports/owner basis test.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+          "sha256": "e92bc1856cdcd1743acd3f7df7375ae17a5880c85a05b6267c3fd7addbfb6b41",
+          "scope": "Synthetic channel preservation and fixed-unit tests have distinct scopes.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": [
+        {
+          "case": "s3-b31-channels-current",
+          "status": "FAIL_OR_ERROR",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/s3-b31-channels-current/audit-result.json",
+            "sha256": "85d4d4fe535b4d5847deb1496c7aa7a00634ea58172083eda9d482a8300a52b2"
+          },
+          "junit": {
+            "tests": 4,
+            "failures": 1,
+            "errors": 0,
+            "skipped": 0
+          },
+          "abort_reason": null
+        }
+      ]
+    },
+    {
+      "task_id": "V6",
+      "primary_status": "complete",
+      "code_state": "actual_native_simulation_persisted_later_failure_fresh_parsed_API_verified",
+      "achieved": [
+        "Real run_simulation reads controlled SQLite-produced data; persists SimulationResult/state; later independent failure preserves simulation and scoped error, skips dependent node, allows independent sibling.",
+        "Fresh parsed TestClient GET returns typed result/error; wrong refs, payload tamper and report binding fail. Current native test PASS,2055 imported .py paths match."
+      ],
+      "remaining_local_actions": [],
+      "missing_external_inputs": [],
+      "pending_decisions": [],
+      "next_deciding_check": "Independent G review of this exact source-qualified bounded task witness.",
+      "whole_task_complete": true,
+      "capability_limit": "Custom DAG through low-level executor after control-job setup. Does not prove default23-node workflow or live production inputs; task exit does not adjudicate all B13 routes.",
+      "title": "CYC02->RES03 persisted independent simulation survives sibling failure",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V6",
+      "original_exit": "actual producer then laterindependentfailure; successfulCAS/history/debugservedreader retains typedpartial/exacterror; corruptrefrefuses",
+      "mandatory_next_action": "Select canonical simulation DTO/intake/replay reader; native successful simulation survives separate later failure; freshparsedGET/browser.",
+      "assigned_finding_ids": [
+        "B13"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "ready_for_G_original_task_exit",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py",
+          "sha256": "088859a1c27af118d1006dec9dba906bb2a33bf2ec613a2c05dded79c2c69e0e",
+          "scope": "Original B13/V6 semantic positive, later failure and corrupt ref controls.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": [
+        {
+          "case": "v6-simulation-sibling-failure",
+          "status": "PASS",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v6-simulation-sibling-failure/audit-result.json",
+            "sha256": "44c0a774847936698e8eb2eb4f75a53d02bd3ce1b1356348db66792c44ca6616"
+          },
+          "junit": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "abort_reason": null
+        }
+      ]
+    },
+    {
+      "task_id": "V7",
+      "primary_status": "implementation_remaining",
+      "code_state": "shared_V4_V7_predictive_chain_current_native_failure",
+      "achieved": [
+        "Actual heldout count→report→empirical CAS→fresh S10/HTTP mechanism exists; same shared chain as V4, not an independent implementation."
+      ],
+      "remaining_local_actions": [
+        "Correct shared product CAS boundary: predictive_calibration imports Core CanonSpec, while IR put_json_artifact requires IR CanonSpec and rejects the distinct Core type; production POST uses this same persistence path. Count as one shared V4/V7 defect.",
+        "Repair HTTP test-companion planner closure: fixture supplies scenario_source_family/data_requirement_spec/public_registry, WDI executor requires data_snapshot_release/l1_variable_availability_gap/production_snapshot_build. Preserve strict route guard.",
+        "Rerun actual measured-outcome/persisted-evidence/freshHTTP/S10 discriminator; current2FAIL reached neither final property. Record B16 population/completeness and B32 source-time limits separately."
+      ],
+      "missing_external_inputs": [],
+      "pending_decisions": [],
+      "next_deciding_check": "Replayed measured counts and persisted evidence discriminate changed outcomes under identical intervals.",
+      "whole_task_complete": false,
+      "capability_limit": "Causal authority is a separate claim; full original mapped criteria remain individually unadjudicated.",
+      "title": "EMP01->FRC02 compatible method-specific empirical producer",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V7",
+      "original_exit": "measured counts->persistedevidence->freshS10/defaultHTTP; sameCI differentactualoutcomes changesgrade; predictiveonly notcausal",
+      "mandatory_next_action": "measured counts->persistedevidence->freshS10/defaultHTTP; sameCI differentactualoutcomes changesgrade; predictiveonly notcausal",
+      "assigned_finding_ids": [
+        "B16",
+        "B32",
+        "LA-051"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "not_ready_for_full_task_acceptance",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+          "sha256": "953abaf6021ebc35629f03c4c132851515903eb96aba53a242ec450d855ca750",
+          "scope": "Fresh measured outcome coverage recomputation.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "sha256": "e246e670e007e0d9da0438fb7ec65dc4398d2b409131fac6de52b3f10de36587",
+          "scope": "Actual forecast owner.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_frc_02_empirical_bridge.py",
+          "sha256": "09d018eed152f96937aa96184092c40ad03587a6b8dee8818b4e5d82db3c06bf",
+          "scope": "Current native failure, not a reusable old green.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": [
+        {
+          "case": "v4-v7-empirical-current",
+          "status": "FAIL_OR_ERROR",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v4-v7-empirical-current/audit-result.json",
+            "sha256": "72b80a61e4128e6cd05287f39b4cee199c9e35b0bb6e4fda59a43212dd15beaf"
+          },
+          "junit": {
+            "tests": 2,
+            "failures": 2,
+            "errors": 0,
+            "skipped": 0
+          },
+          "abort_reason": null
+        }
+      ]
+    },
+    {
+      "task_id": "Q0",
+      "primary_status": "verification_remaining",
+      "code_state": "bounded_receipts_present_full_occurrence_refresh_missing",
+      "achieved": [
+        "Сохранены source-qualified частные реализации и producer→consumer свидетельства; исторические решения и повторные occurrences не изменены.",
+        "Полный знаменатель 282 IDs / 291 occurrences и маршруты задач пересчитаны в этом аудите."
+      ],
+      "remaining_local_actions": [
+        "Refresh individual whole-property/outcome/evidence/next-check for Q0 direct206IDs/212occurrences; reconcile the whole-plan282IDs/291occurrences with specialist task results.",
+        "Preserve B198/repeated occurrences and historical decisions; old291-row proposal matrix is not a completed semantic reassessment."
+      ],
+      "missing_external_inputs": [
+        "Подлинные authority/scientific inputs только для тех исходных критериев, где они действительно требуются; точные остатки должны наследоваться из T1/T2/S2."
+      ],
+      "pending_decisions": [],
+      "next_deciding_check": "Refresh Q0 direct212occurrences(206IDs), reconciled against full291-occurrence whole-plan index and individually supplied specialist outcomes.",
+      "evidence_rebind": "Task denominator freshly recomputed; prior behavioral receipts retain their own exact source qualification.",
+      "whole_task_complete": false,
+      "title": "Original criterion evaluation and closure proposals for G",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/Q0",
+      "original_exit": "exact original occurrence vs candidate-bound property/consumer/negative; no stronger invented scope; G decision separate from source merge",
+      "mandatory_next_action": "Check the exact original occurrence against the candidate-bound whole property/consumer/negative; do not invent stronger scope. Author records proposals; G separately admits source and adjudicates findings. Include declared platform-specific UKOPS/Linux verification for LA-029 or a tested supported-profile availability reason; do not end at a generic crosswalk.",
+      "assigned_finding_ids": [
+        "B06",
+        "B11",
+        "B18",
+        "B23",
+        "B25",
+        "B26",
+        "LA-045",
+        "B14",
+        "B24",
+        "B37",
+        "B38",
+        "B39",
+        "B40",
+        "B42",
+        "B43",
+        "B44",
+        "B45",
+        "B46",
+        "B47",
+        "B48",
+        "B49",
+        "B50",
+        "B51",
+        "B52",
+        "B53",
+        "B55",
+        "B57",
+        "LA-057",
+        "B58",
+        "B60",
+        "B62",
+        "B63",
+        "B64",
+        "B65",
+        "B69",
+        "B70",
+        "B71",
+        "B72",
+        "B73",
+        "B75",
+        "B76",
+        "B77",
+        "B78",
+        "B90",
+        "B91",
+        "B92",
+        "B93",
+        "B94",
+        "B95",
+        "B96",
+        "B149",
+        "B150",
+        "B151",
+        "B152",
+        "B153",
+        "B155",
+        "LA-008",
+        "LA-009",
+        "LA-010",
+        "LA-011",
+        "LA-012",
+        "LA-013",
+        "B17",
+        "LA-022",
+        "LA-029",
+        "LA-030",
+        "LA-031",
+        "LA-034",
+        "LA-038",
+        "LA-039",
+        "LA-043",
+        "LA-044",
+        "LA-047",
+        "LA-048",
+        "LA-049",
+        "B81",
+        "B82",
+        "B84",
+        "B85",
+        "B86",
+        "B88",
+        "B138",
+        "B139",
+        "B140",
+        "B141",
+        "B142",
+        "B143",
+        "B144",
+        "B145",
+        "B146",
+        "B147",
+        "LA-014",
+        "LA-015",
+        "B41",
+        "B106",
+        "B107",
+        "B109",
+        "B110",
+        "B111",
+        "B112",
+        "B113",
+        "B114",
+        "B115",
+        "B116",
+        "B117",
+        "B118",
+        "B119",
+        "B120",
+        "B121",
+        "B122",
+        "B123",
+        "B124",
+        "B125",
+        "B126",
+        "B127",
+        "B128",
+        "B129",
+        "B130",
+        "B132",
+        "B133",
+        "B134",
+        "B135",
+        "B136",
+        "B156",
+        "B158",
+        "B159",
+        "B160",
+        "B162",
+        "B163",
+        "B165",
+        "LA-052",
+        "LA-056",
+        "B97",
+        "B98",
+        "B99",
+        "B100",
+        "B101",
+        "B102",
+        "B103",
+        "B104",
+        "B105",
+        "B166",
+        "B167",
+        "B168",
+        "B169",
+        "B170",
+        "B171",
+        "B174",
+        "B175",
+        "B176",
+        "B177",
+        "B178",
+        "B179",
+        "B180",
+        "B181",
+        "B182",
+        "B183",
+        "B184",
+        "B185",
+        "B186",
+        "B187",
+        "B188",
+        "B189",
+        "B191",
+        "B192",
+        "B193",
+        "B195",
+        "B196",
+        "B198",
+        "B199",
+        "B201",
+        "B202",
+        "B203",
+        "LA-001",
+        "LA-002",
+        "LA-003",
+        "LA-004",
+        "LA-007",
+        "LA-016",
+        "LA-017",
+        "LA-019",
+        "LA-020",
+        "LA-035",
+        "LA-037",
+        "B54",
+        "B204",
+        "B205",
+        "B206",
+        "B207",
+        "B208",
+        "B209",
+        "B210",
+        "B211",
+        "B212",
+        "B213",
+        "B215",
+        "B216",
+        "B217",
+        "B218",
+        "B219",
+        "B220",
+        "B221",
+        "B222",
+        "B223",
+        "B224",
+        "B225"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "not_ready_for_full_task_acceptance",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-priority-20261026.json",
+          "sha256": "078e1b095b274c7d1ca9aaad534a6045f08eddb14a49bc3f1d0d1c9a90acaf02",
+          "scope": "Последний scoped native/occurrence packet; отдельные частные результаты не являются новой полной матрицей.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-composition-checkpoint-20261027.json",
+          "sha256": "ddb13785f23d035391fc9a0b3a6512341e390359dc0655404dca180528978549",
+          "scope": "Checkpoint явно оставляет full-ID closeout незавершённым.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+          "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+          "scope": "Canonical full denominator and original source blocks.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+          "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c",
+          "scope": "Q0 direct206IDs; task routing does not supply semantic acceptance.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": []
+    },
+    {
+      "task_id": "Q1",
+      "primary_status": "implementation_remaining",
+      "code_state": "partial_integrated_and_RAW_prepared",
+      "achieved": [
+        "В текущем source есть общий immutable owner/representation contract и направленные правила IR compatibility; selected-write refs сохраняют точный manifest profile.",
+        "Общие CAN mechanics с отдельными законами Core/IR уже составлены для существующего профиля .2.",
+        "Новые CAN .3 / TC companion packets подготовлены в RAW и отделены от применённого source."
+      ],
+      "remaining_local_actions": [
+        "Довести общий bounded projection и bounded-first manifest read на всех затронутых wrapper routes; сохранить .2 bytes и отдельные Core/IR tag laws.",
+        "Составить новые codec/state/cache/readers и TC Core companions в одном candidate; включать writers по готовности реальных readers.",
+        "Verify LA-021 and selectedG14bf acceptance: registered nondefault representation, unseen resource, old-reader/new-writer and reader-first rollback. Profileless history retains default refusal or explicit candidate-only opaque handling; no global inventory/migration/historical eligibility inferred. Refresh per-path source/test/config/companion manifest."
+      ],
+      "missing_external_inputs": [],
+      "pending_decisions": [],
+      "next_deciding_check": "На согласованной композиции real write→selected manifest/payload→typed reader→consumer, с version/profile mismatch, raw _type mapping, history/compatibility и callback/resource removal controls.",
+      "evidence": [
+        {
+          "path": "policy-engine/src/polisyos/ir/migrations/base.py",
+          "sha256": "116c5dd22a54942f29be2fbec6a206d010ff54132e9f1523ae2b1809f43ebae8",
+          "scope": "Текущий applied immutable IRRepresentationRegistration и compatibility owner.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/registry/refs.py",
+          "sha256": "ada449949adfa70690c6789eef7d2743c6850cdbf39ae67896bf74d96114d040",
+          "scope": "Текущие typed refs и selected manifest_profile_sha256.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/src/polisyos/common/canonical.py",
+          "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41",
+          "scope": "Текущая canonical реализация имеет default .2; новые .3 proposals этим файлом не считаются применёнными.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-can-tc-selection-admission-20261027.json",
+          "sha256": "66c9496b9889ec011a9906c4a332cd2f5cbeffdc937672acb7afce9e2547621a",
+          "scope": "G14bf выбран для реализации, runtime acceptance новых матриц UNRUN.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "LOCAL/raw/disk-source-overlay-preservation-20261027-r1/E02-PAUSE.json",
+          "sha256": "8cb2296fdee16db0cda088f419b93cc4ea4ef75c03725742523e891520f3690f",
+          "scope": "Последний source-qualified pause и оставшиеся CAN/TC code gaps.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "evidence_rebind": "current owner source inspected and pinned; prior runtime receipts retain their original source scope",
+      "whole_task_complete": false,
+      "capability_limit": "New .3 cohort remains implemented_but_not_orchestrated / verification_missing until canonical apply and real readers.",
+      "title": "Select exact compatible source DAG/owner blobs",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/Q1",
+      "original_exit": "explicit base/candidate/tree and parents plus per-path source/test/config/companion blob owner/input manifest; canonical choices; preserve history",
+      "mandatory_next_action": "Reconcile selected exact source DAG, code/test/config/companion paths and Core/IR typed write options and profile/content conformance. CAN/C10/C11/repaired DFK are already in the base; do not import whole old-base C05/C12/B branches. Investigate profileless history migration/legacy selector and Core/IR law ambiguity; present actual contract choices to G. LA-021 requires its original profile compatibility/legacy behavior outcome beyond source-DAG selection.",
+      "assigned_finding_ids": [
+        "LA-021"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "not_ready_for_full_task_acceptance",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "last_checks": []
+    },
+    {
+      "task_id": "R1",
+      "primary_status": "verification_remaining",
+      "code_state": "implemented_historical_all13_current_composition_unverified",
+      "achieved": [
+        "Exact Prepared-B objects и defining baseline доступны; исторически выполнены defining-baseline/all-13 и отдельные B61/B148 bounded проверки."
+      ],
+      "remaining_local_actions": [
+        "Обновить source/test/profile roster и согласовать противоречащие исторические baseline выводы по исходному defining property.",
+        "На текущем source повторить defining baseline, все 13 affected contours и matched removals; B61 mutable-content identity и B148 transactional import оценить отдельно."
+      ],
+      "missing_external_inputs": [],
+      "pending_decisions": [],
+      "next_deciding_check": "Один согласованный current composed run baseline +13contours/removals с индивидуальными B61/B148 outcomes.",
+      "evidence_rebind": "not_established for current complete13-contour composition; old test/source footprint changed.",
+      "whole_task_complete": false,
+      "title": "Prepared B exact verification and source publication",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/R1",
+      "original_exit": "prepared defining baseline/13 named affected contours/matched removals; no carry from old0bf",
+      "mandatory_next_action": "Fetch exact available1e18/a0ee objects; reconcile bounded B delta+all13affectedcontours on current G; native/removal checks and normal own-topic publication. B61 and B148 retain criterion-specific outcomes and their genuinely missing inputs; a generic 13-contour run does not clear them.",
+      "assigned_finding_ids": [
+        "LA-033",
+        "B13",
+        "B59",
+        "B61",
+        "B74",
+        "B148"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "not_ready_for_full_task_acceptance",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/prepared-b-current-thirteen-contour-readiness-20261021-r1/readiness.json",
+          "sha256": "d2536f3c23534227db010bfbe4890283067e7bdb89553e8fdd80f4f965687f2a",
+          "scope": "Полный прежний roster; имеются текущие изменения, это readiness, а не новый runtime receipt.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/prepared-b-defining-baseline-all13-deciding-r793-20261013.json",
+          "sha256": "380d5614982364568a1dcc8c37d9c07c01e879bd7659e36d7efa886aba7a0710",
+          "scope": "Исторический baseline/all13 deciding run.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b148-first-claim-contention-20261026.json",
+          "sha256": "54f2ee9e698351dd23fd7a2e2cfb8ab32c52aa43c1cf90cf094ac9b7919b5df2",
+          "scope": "Более свежий bounded in-process transactional contention witness, не все original B148 cases.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": [
+        {
+          "case": "v6-simulation-sibling-failure",
+          "status": "PASS",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v6-simulation-sibling-failure/audit-result.json",
+            "sha256": "44c0a774847936698e8eb2eb4f75a53d02bd3ce1b1356348db66792c44ca6616"
+          },
+          "junit": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "abort_reason": null
+        }
+      ]
+    },
+    {
+      "task_id": "I1",
+      "primary_status": "verification_remaining",
+      "code_state": "original_checkpoint_currentness_subslice_verified_mandatory_C05_full_composition_not_established",
+      "achieved": [
+        "Unchanged run reuses harvest/normalize/merge/graph/benchmark. Same-ID/same-size/same-mtime source mutation invalidates before reuse and changes benchmark/report/output-inventory basis.",
+        "Fresh Catalog HTTP refuses profile drift; coherent forged-ready report is refused; gate removal exposes stale plan/report.20native tests passed, no skips/source mismatch."
+      ],
+      "remaining_local_actions": [
+        "Keep mandatory C05 14owner/4facade/13supplier composition in I1. Rebind full source/resource/export matrix and fresh session/cache/WVS consumers.",
+        "Execute current session-cache/resource/facade/discovery witnesses; priorOct15session receipt has13of16sourcepins changed.",
+        "Demonstrate valid same-path WVS material drift→reuse/checkpoint invalidation→fresh consumer. Existing current nodes do not cover this whole positive; six-profile session fixture excludes WVS."
+      ],
+      "missing_external_inputs": [],
+      "pending_decisions": [],
+      "next_deciding_check": "Current captured session-cache/resource/typed facade/discovery tests, plus valid same-path selected WVS byte-drift positive through reuse/checkpoint/fresh reader; no new production authority fact required.",
+      "whole_task_complete": false,
+      "capability_limit": "Original narrow currentness exit is verified; mandatory broader C05 companion scope prevents whole I1 completion. Do not relocate explicit task next_action into Q0 merely to close the task.",
+      "original_exit_subslice": "20PASS current checkpoint/QC/Fabric/CatalogHTTP slice is ready for scoped G review; full mandatory I1 task is not complete.",
+      "title": "Effective profile/policy currentness basis",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/I1",
+      "original_exit": "same-ID mutation invalidates before reuse; unchanged positive and fresh checkpoint/benchmark",
+      "mandatory_next_action": "Compose C05 14ownedpaths+4facades with13existingdifferent suppliers; retain G _resources and existing exports; freshcurrentness/cache/session/WVS consumers.",
+      "assigned_finding_ids": [
+        "LA-041"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "not_ready_for_full_task_acceptance",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+          "sha256": "979f24af1b2f54e30b5c9ffcf5df28860a99a923613567c68f81b3cf3ded3866",
+          "scope": "Current stage basis, checkpoint reuse and benchmark/QC recomputation.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py",
+          "sha256": "5cf97c5ab3bd89c081a17c85bdf6b3a27db8cb469ac2091725b3a412726d70a7",
+          "scope": "Unchanged positive, same-stat mutation and fresh benchmark.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_catalog_profile_http.py",
+          "sha256": "030e7d426494fc51729fde94aabd0758fe414878ef156c88704d7ba6d00fc867",
+          "scope": "Fresh consumer and profile/removal refusal.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+          "sha256": "411c69ac27b003e7a5a8a97a468692a78f9694b9091afde2d48cc8b309b9334d",
+          "scope": "Current WVS material-basis implementation exists.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_writers.py",
+          "sha256": "0cdf908e75d2a8849223d6da9ec358bf5c3ae856520bd99046e3926756e00fe0",
+          "scope": "Session-cache fixture covers six profiles, not WVS; current run not established.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py",
+          "sha256": "d3f56831998818c3fb3b32e6465fb197965387897557391a71e777ae160cf54d",
+          "scope": "Existing resource/facade refusal witnesses; current outcomes unrun here.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/data_forge/read_api/test_wvs_indicator_registry.py",
+          "sha256": "e33922b599ec0bf5074f0e0c3d8aaf75bc8d7d6296832e0fed952f5e66c6b6c0",
+          "scope": "Typed WVS resource facade current test definitions.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": [
+        {
+          "case": "i1-i4-catalog-current",
+          "status": "PASS",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/audit-result.json",
+            "sha256": "7348d860723dcf7444a8a54c09ebe0ef30fe7d313d459100e89976204d9490ff"
+          },
+          "junit": {
+            "tests": 20,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "abort_reason": null
+        }
+      ]
+    },
+    {
+      "task_id": "I2",
+      "primary_status": "verification_remaining",
+      "code_state": "DFK_mechanism_native44PASS1LinuxSKIP_actual_root_release_checks_remaining",
+      "achieved": [
+        "Real Git fixtures for two staged/two unstaged, rename+next-record, clean product/repo roots and public CLI pass.44PASS/1LinuxSKIP."
+      ],
+      "remaining_local_actions": [
+        "Run full actual policy-engine/root CLI census with complete denominator; verify wheel/sdist and installed CLI/discovery and genuine historic inputs found.",
+        "Execute native invalid-byte filename on supported Linux worker. Existing stopped Colima recipe is recoverable; not starting it in this audit is UNRUN, not proved unavailable."
+      ],
+      "missing_external_inputs": [
+        "Native Linux filesystem needed only for the explicit invalid-byte case. No retirement authority inferred."
+      ],
+      "pending_decisions": [],
+      "next_deciding_check": "Full root census plus exact installed release CLI; native Linux invalid-byte positive.",
+      "whole_task_complete": false,
+      "capability_limit": "",
+      "title": "DFK two-path census companion",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/I2",
+      "original_exit": "two staged/two unstaged/rename/clean real records",
+      "mandatory_next_action": "DFK source already integrated with serializer fix. Finish original full-scope census/release/CLI companions and Linux real-byte case where supported; no retirement inference.",
+      "assigned_finding_ids": [
+        "LA-005",
+        "LA-006",
+        "LA-026"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "not_ready_for_full_task_acceptance",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+          "sha256": "7dbe0afc7a53521c7919376c80820b2677e1f9aad70d1c42e2ddd4228b0b5031",
+          "scope": "Whole45case native module.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+          "sha256": "c12cefb7dda1b82ef0f7e309421c5cbccc6804a3ab60bf27d1aa674f43df7e1a",
+          "scope": "Tools code pinned separately; runtime observer excludes tools.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": [
+        {
+          "case": "i2-dfk-current",
+          "status": "FAIL_OR_ERROR",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current/audit-result.json",
+            "sha256": "b7f1da2fc374b78c7b39a56cca345e9251db7aca6b6a47abe29a30457dbd58ee"
+          },
+          "junit": {
+            "tests": 45,
+            "failures": 31,
+            "errors": 0,
+            "skipped": 1
+          },
+          "abort_reason": null
+        },
+        {
+          "case": "i2-dfk-current-r2",
+          "status": "PASS",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current-r2/audit-result.json",
+            "sha256": "490bbcc562a169790eb6665c3480fa8de34aa7323bb79840cfd403c74fe27417"
+          },
+          "junit": {
+            "tests": 45,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          },
+          "abort_reason": null
+        }
+      ]
+    },
+    {
+      "task_id": "S1",
+      "primary_status": "implementation_remaining",
+      "code_state": "B31/B161/B214_selected_and_partly_wired_bound_unit_routing_missing",
+      "achieved": [
+        "B31 owner basis, B161 first-assessment relation/history/contested outcomes and G528 finite PAG member producer→solver paths exist; these are not missing producers or undecided general architecture.",
+        "Distinct current test definitions exist for both LA-023 occurrences, LA-032 and LA-036; their current behavioral outcomes remain UNRUN in this audit. Conditional KernelSHAP is explicitly unavailable, not fabricated."
+      ],
+      "remaining_local_actions": [
+        "Wire actual owner-bound unit/interval/scope into selected relative_interval_halfwidth_routing@1.0; current HTE candidate still emits unit_not_bound/scope_not_comparable. Bind score through fresh consumer/API surface, preserve other unknown risks and contested late outcomes.",
+        "Execute focused current source/query-specific/B161/PAG tests and record original B214 projection/extension limits independently."
+      ],
+      "missing_external_inputs": [],
+      "pending_decisions": [],
+      "next_deciding_check": "Owner-qualified interval produces recomputed routing score and first assessment on the same basis; unrelated unknown risks survive; selected finite PAG member/solver positive and membership/removal refusals.",
+      "whole_task_complete": false,
+      "capability_limit": "Selected internal routing convention does not require an outside institution. Candidate PAG mathematics does not create law or population/class probability.",
+      "title": "Subject/refinement/query-specific partial graph decisions",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S1",
+      "original_exit": "three separate minimal decisions B31/B161/B214 with actual discriminators; reuse existing carriers/ID",
+      "mandatory_next_action": "Research distinct subject B31, refinement B161 and partial-graph B214 semantics against existing contracts and actual discriminators. Validate C09 fixed kind/media/schema and typed report basis; repair internal defects, retain persisted unsupported-query limits, and submit genuinely ambiguous choices to G. Record separate outcomes for all assigned IDs including LA-023/LA-032/LA-036; the three named decisions do not cover those by implication.",
+      "assigned_finding_ids": [
+        "B07",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B31",
+        "B33",
+        "B36",
+        "LA-023",
+        "LA-032",
+        "LA-036",
+        "B161",
+        "B172",
+        "B173",
+        "B214"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "not_ready_for_full_task_acceptance",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+          "sha256": "4216f4ebc8027078e68d11f437e6148164c9d68d21bb1052d6e204a34e5555f2",
+          "scope": "Selected relation and routing helper exist; does not prove bound positive caller.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py",
+          "sha256": "9c00af8227e0809077c1f9a05a701bddfcbc6a2f58b28c3552e140c9256ff402",
+          "scope": "Current test preserves unknown-unit limitation.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/pag_member_family.py",
+          "sha256": "41a9ebc5f265e2b08107eaa55e09b28d2337cb616941020f1d1e016ec22a2f70",
+          "scope": "Selected G528 finite-member producer exists.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_transport_engine_candidate_members.py",
+          "sha256": "cb75dd85ae681b1b7cda5b618a6fc4a5a760daead2a061803d5c559b39a23b97",
+          "scope": "Actual member/solver scalar-refusal controls.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_plg_02.py",
+          "sha256": "412dd8c35175c15e22bb5f42d2f9933df696bd3e185e8ac44c9ae7f3dfd93b3c",
+          "scope": "LA-023 PLG-02 occurrence; separate from PLG-03.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_plg_03.py",
+          "sha256": "2059927de61a3bbb7b22cf439cf674cbcba1b27f51729152a0c087cc498fcd7c",
+          "scope": "LA-023 PLG-03 occurrence.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py",
+          "sha256": "76e5ba88eed68583219688f401a915469a3a1b93d63eebac40634dda1a40bd49",
+          "scope": "LA-032 inventory path.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/berl/service/test_cache_identity.py",
+          "sha256": "3bdae5212be7c92a3279b1e24f3aecb5168e40fc499528f70d5c8f2b7a34fa16",
+          "scope": "LA-036 declared unsupported conditional query.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": []
+    },
+    {
+      "task_id": "T1",
+      "primary_status": "complete",
+      "code_state": "seven_row_owner_API_authority_inventory_complete",
+      "achieved": [
+        "All seven assigned IDs have original criterion, actual source/reference/owner/verifier/consumer, internal-versus-external plane, individual limitation and next check.",
+        "Independent review corrected B108 scope inflation and LA-050 CLI-versus-validation wording; all finding closures remain false."
+      ],
+      "remaining_local_actions": [],
+      "missing_external_inputs": [],
+      "pending_decisions": [],
+      "next_deciding_check": "Independent G inventory review; T2/protected positives remain separate.",
+      "whole_task_complete": true,
+      "capability_limit": "Inventory completion only, not implementation or authority closure for its seven IDs.",
+      "title": "Latest owner input/API and authority-plane inventory",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/T1",
+      "original_exit": "internal configured owner vs external facts; actual source/ref/issuer/verifier/consumer; no stale null-owner demand",
+      "mandatory_next_action": "internal configured owner vs external facts; actual source/ref/issuer/verifier/consumer; no stale null-owner demand",
+      "assigned_finding_ids": [
+        "B30",
+        "B67",
+        "B148",
+        "LA-027",
+        "LA-050",
+        "B108",
+        "LA-053"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "ready_for_G_original_task_exit",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "LOCAL/raw/e02-task-status-refresh-20261027-r1/t1-inventory.json",
+          "sha256": "851cb0ef57876e3719054aa3c3d322696882dd88622a390c3b32090767558bbf",
+          "scope": "Seven individually reviewed owner/input/authority records.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": []
+    },
+    {
+      "task_id": "R2",
+      "primary_status": "complete",
+      "code_state": "original_R2_B87_B89_complete_current316native_and_two_explicit_state_probes",
+      "achieved": [
+        "Expanded8-module current native run316PASS0FAIL0SKIP; physical closure/no early reuse/recovery/CAS stream boundaries covered.",
+        "Independent original B89 review identified one close_all-during-connect race; an additional RAW native behavior probe nowPASS with actual read-only FD closure, wrong-generation refusal and exactly once permit retirement.",
+        "Additional original B89 post-permit/pre-registration lock cancellation probePASS: cancellation propagates, slot returned once, subsequent public acquire/release/close succeeds. Independent original-scope final review GO."
+      ],
+      "remaining_local_actions": [],
+      "missing_external_inputs": [],
+      "pending_decisions": [],
+      "next_deciding_check": "Independent G review of exact current source and full original R2/B87/B89 witness; no remaining author check for this task exit.",
+      "evidence_rebind": "Fresh current source guards/readsets match for316case native run and separately pinned RAW probe; no product changes.",
+      "whole_task_complete": true,
+      "capability_limit": "Bounded original R2 only; two RAW test probes are separately pinned, not part of316case suite. I3 source-confirmed progress remains separate.",
+      "title": "B pool/C stream physical cleanup and restart",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/R2",
+      "original_exit": "actual handle/process closure + no premature reuse, cursor/window/CAS fresh consumer",
+      "mandatory_next_action": "actual handle/process closure + no premature reuse, cursor/window/CAS fresh consumer",
+      "assigned_finding_ids": [
+        "B87",
+        "B89"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "ready_for_G_original_task_exit",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r2-stream-lifecycle-and-ir-companions-20261015.json",
+          "sha256": "e75bb80b76b9609eb51d035b09d176938bc8111c49e2911a0027870bb342838b",
+          "scope": "Историческое focused lifecycle свидетельство; affected paths позднее менялись.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r2-i3-readiness-r513-20261013.md",
+          "sha256": "887a6502d19938ce50358d72eb38983b368da158323f0c4f1c180e4947f2f288",
+          "scope": "Readiness и same-class B87/B89 bounds; не current runtime PASS.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": [
+        {
+          "case": "r2-b89-closing-acquire-race",
+          "status": "PASS",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-closing-acquire-race/audit-result.json",
+            "sha256": "b4d9cfc0eddaf4640c2b688dd44875aeca838358674068867aaeb7ff5509b686"
+          },
+          "junit": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "abort_reason": null
+        },
+        {
+          "case": "r2-b89-post-permit-metadata-cancel",
+          "status": "PASS",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-post-permit-metadata-cancel/audit-result.json",
+            "sha256": "d975f7f9d66f49fc513f2ec994214ce1ca2c22d3bf94886bb53bf3b9f1ddba47"
+          },
+          "junit": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "abort_reason": null
+        },
+        {
+          "case": "r2-current-full-boundaries",
+          "status": "PASS",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/audit-result.json",
+            "sha256": "fe272f1651c01bbf731919bda6267adf25b93167b2f4caf035c7870d3fde7c25"
+          },
+          "junit": {
+            "tests": 316,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "abort_reason": null
+        },
+        {
+          "case": "r2-physical-cleanup-current",
+          "status": "PASS",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-physical-cleanup-current/audit-result.json",
+            "sha256": "dcd748c24e5d44a40e29fb87c45d2fe8f1e555379e2ec35b5c3a4b49d9eba779"
+          },
+          "junit": {
+            "tests": 21,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "abort_reason": null
+        }
+      ]
+    },
+    {
+      "task_id": "R3",
+      "primary_status": "implementation_remaining",
+      "code_state": "monetary_lifecycle_68PASS1companionFAIL_canonical_authorized_reuse_unwired",
+      "achieved": [
+        "Current native lifecycle/durable CAS/POST/GET/reopen run:68PASS1FAIL; reported/estimated/reuse/unknown remain distinct in covered owner paths.",
+        "Real canonical NL provider differs from injected factory fixture; no billing authority fact is fabricated."
+      ],
+      "remaining_local_actions": [
+        "Repair the current test companion signature drift: _persist_test_catalog_snapshot lacks tenant_context and four-origins NL case fails before completing its witness.",
+        "Wire selected cache_reuse_authorizer into actual runtime/http/services/control/nl_pipeline.py; current authorized reuse/singleflight positive is owner-injected fixture only.",
+        "Verify original B10 first ineligible/second admissible selection and B67/B68 cache/retry/cancel/reopen through canonical producer."
+      ],
+      "missing_external_inputs": [],
+      "pending_decisions": [],
+      "next_deciding_check": "Current composed native producer→durable cost events→fresh GET/reopen плюс lifecycle/removal controls.",
+      "evidence_rebind": "Fresh native run at8a24; one observed test-companion error plus source-inspected canonical authorized-reuse gap. No inherited-red claim.",
+      "whole_task_complete": false,
+      "excluded_extra_requirements": [
+        "Внешняя фактура billing требуется для отдельного production-cost claim, а не для bounded mechanism/origin/lifecycle тестов R3."
+      ],
+      "title": "Configured monetary producer/ledger/A/D composition",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/R3",
+      "original_exit": "reported/estimated/reuse/unknown events and durable outcomes remain distinct; provider/cache/retry/reopen/cancel",
+      "mandatory_next_action": "Compose configured provider/observer/ledger/A/D events with reported/estimated/reuse/unknown outcomes; retain unknown cost. Execute retry/cancel/reopen/cache scopes and the available C08 controls on the exact selected composition.",
+      "assigned_finding_ids": [
+        "B10",
+        "B66",
+        "B67",
+        "B68"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "not_ready_for_full_task_acceptance",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r3-monetary-cas-test-evidence-20261026.json",
+          "sha256": "f77e86f19f3a91aa2faf4db38193e8310538e731e639572061d2f35b92eb9760",
+          "scope": "69-case selected-slice evidence; не whole-candidate-tree replay.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+          "sha256": "781ee8fa40b98b8a9da9e6589c1d09d504f7f2c50680153d5e95888cb6bcb9f1",
+          "scope": "Текущий physical test path для POST/GET/reopen cost projection.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+          "sha256": "cb8282cd63aac882ee2d9b6ad6ed3215d92411d2747110f81c6546d200f00031",
+          "scope": "Текущий production producer; отличается от старого run pin.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": [
+        {
+          "case": "r3-origin-ledger-lifecycle-current",
+          "status": "FAIL_OR_ERROR",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-origin-ledger-lifecycle-current/audit-result.json",
+            "sha256": "f798bccbbadd47c2f65803aa43e87d9603a4a35e03b76c5ae584133325f5604c"
+          },
+          "junit": {
+            "tests": 69,
+            "failures": 1,
+            "errors": 0,
+            "skipped": 0
+          },
+          "abort_reason": null
+        }
+      ]
+    },
+    {
+      "task_id": "R4",
+      "primary_status": "complete",
+      "code_state": "implemented_verified_original_configured_admission_scope",
+      "achieved": [
+        "Реальная цепочка Runtime/ControlWorker→Scientist→MethodBackend→TMLE→CAS/fresh consumer выполнена для двух studies при общем cap=1 и cap=2.",
+        "Оба режима сохранили все 12 fold/repeat units, одинаковые result refs и consumer-semantic outputs; измерены waiting, active workers, wall time и RSS.",
+        "Removal общего submit bridge при cap=1 дал dispatch peak=2. Все восемь объявленных runtime source-readsets (2010 уникальных .py) совпали с нынешними байтами; сохранённые deciding outputs повторно проверены без численного rerun."
+      ],
+      "remaining_local_actions": [],
+      "missing_external_inputs": [],
+      "pending_decisions": [],
+      "next_deciding_check": "Независимая G-приёмка исходного B56 common-resource свойства на exact refs. При последующем изменении этого механизма обновить affected evidence; производственная capacity-аттестация находится вне исходного B56.",
+      "evidence_rebind": "matched_unchanged_source: all8 runtime-loaded Python arrays/2010unique paths; retained result objects independently rechecked; numerical execution remains original source793f8.",
+      "whole_task_complete": true,
+      "capability_limit": "Author task completion for the original generic configured resource-admission criterion. No new formal finding closure, production capacity/SLO, host-wide CPU or causal-publication claim.",
+      "excluded_extra_requirements": [
+        "Production-authorized workload/issuer/SLO как условие завершения исходного generic B56.",
+        "Mid-compute cancellation/draining/retry и host-wide CPU cap как дополнительные условия B56; отдельные claims требуют своих проверок."
+      ],
+      "title": "Existing Runtime competing-study/fold admission witness",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/R4",
+      "original_exit": "full workload within shared cap, no lost folds/deadlock; extend existing owner only if witness disproves coverage",
+      "mandatory_next_action": "Execute a named configured competing-study/fold workload through the existing Runtime/C01 permit with a qualifying shared cap and roster; no lost folds/deadlock. A declared portable synthetic witness is valid for generic admission properties; identify any genuinely production-specific requirement separately.",
+      "assigned_finding_ids": [
+        "B56"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "ready_for_G_original_task_exit",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r4-competing-workload-witness-20261027.json",
+          "sha256": "6c321973c939d5338e17683de3d600844671c3d4baf3b9797651abada36b7522",
+          "scope": "Actual cap1/cap2/removal и CAS/consumer свидетельство; прежний held production label уточнён в этом status report.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+          "sha256": "41bdd8bfd033e7e6f36490878b023659015de498cfd22cf7cec1d9a6cd1a2a8c",
+          "scope": "Real generic configured task route, numerical/provenance equality и complete folds assertions.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "LOCAL/raw/e02-task-status-refresh-20261027-r1/r4-current-source-rebind.json",
+          "sha256": "88ee3a5164ad563500281d2d710c4cd9cd6423032516a696d6332ee24f731b76",
+          "scope": "Свежая полная сверка именно восьми retained runtime-loaded .py arrays; не repository/environment census.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "LOCAL/raw/e02-task-status-refresh-20261027-r1/r4-deciding-output-recheck.json",
+          "sha256": "fa8836d1d2ecdaa282a978445b3f7aef452b7daea757f57815026d180b18eee8",
+          "scope": "Свежая проверка полных retained result objects: numerical/semantic/profile equality и fold/cap/removal observations.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+          "scope": "Исходный B56, строки1409–1424: production issuer/roster/SLO не входят в generic admission acceptance.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": []
+    },
+    {
+      "task_id": "I3",
+      "primary_status": "implementation_remaining",
+      "code_state": "fail_closed_cursor_present_positive_source_verifier_bridge_missing",
+      "achieved": [
+        "Существующие tests/source покрывают отказ при source failure, malformed/ambiguous key и expiry при reopen store objects."
+      ],
+      "remaining_local_actions": [
+        "Связать подтверждение cursor с существующим source owner/verifier и точными dataset/run/content/event identities; подключить положительное продвижение cursor.",
+        "Проверить durable24h replay через отдельный process restart, до/в/после expiry, fake/absent/ambiguous key и fresh consumers."
+      ],
+      "missing_external_inputs": [
+        "Для выбранного реального source — его genuine event/version/dataset/run/content identity evidence; программная verifier/admission связь остаётся местной работой."
+      ],
+      "pending_decisions": [],
+      "next_deciding_check": "Реальный positive source-evidence→cursor promotion, затем независимый process replay и отрицательные controls.",
+      "evidence_rebind": "Current source/test inspected and pinned; required positive producer/replay chain remains not_established.",
+      "whole_task_complete": false,
+      "title": "Source-confirmed progress and event identity",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/I3",
+      "original_exit": "verified progress and durable24h replay; absent/ambiguous key typedunsupported",
+      "mandatory_next_action": "verified progress and durable24h replay; absent/ambiguous key typedunsupported",
+      "assigned_finding_ids": [
+        "B79",
+        "B80",
+        "B83"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "not_ready_for_full_task_acceptance",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+          "sha256": "c6013d69f691f65407db72f24a362ef411a635a189b51e137129575824f081b7",
+          "scope": "Текущий _save_confirmed_cursors; без verifier source evidence positive promotion не реализован.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+          "sha256": "24ba31d1c2c854462a2269bd516d77d7dc53ef71372c43946e47246b0ab21a46",
+          "scope": "Current отказные/expiry fixtures; independent-process positive ещё не доказан.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": []
+    },
+    {
+      "task_id": "I4",
+      "primary_status": "complete",
+      "code_state": "current_Catalog_nativePASS_Legal_real_encoder_witness_qualified_unchanged_property",
+      "achieved": [
+        "Current Catalog HTTP positive/profile drift/refusal nodesPASS, included in20caseI1/I4 run at8a24.",
+        "Real Legal producer generation/member/encoder→freshGET/POST vector search R14 witness28PASS is retained on source567. Direct Legal implementation/test bytes match current; reviewed shared container/control deltas concern evaluation safety/HTE, so unchanged Legal property is reusable with explicit source qualification.",
+        "R14 launch actually rehashed9encoder assets totaling2261765112bytes. Today no copy/rebuild or claim of fresh model rehash is made."
+      ],
+      "remaining_local_actions": [],
+      "missing_external_inputs": [],
+      "pending_decisions": [],
+      "next_deciding_check": "Independent G review of current Catalog proof and explicitly qualified unchanged-property Legal R14 evidence.",
+      "evidence_rebind": "Catalog fresh at8a24. Legal R14 remains source567 witness, not current whole-tree run; relevant Legal property and direct blobs unchanged, shared deltas reviewed. Original input asset SHA binding belongs to that historical execution. Additional transitive source trace: Legal uses local generation files/kernel.embeddings/generation_basis and HNSW/DuckDB reader. Changed Core/IR adapter/profile owners are not called by this vector path; process-wide old imports are not a Legal dispatch proof. Exclude global Core/IR semantics and any claim of fresh full8a24LegalHTTP replay.",
+      "whole_task_complete": true,
+      "capability_limit": "I4 task exit only; LA-032/LA-033/bothLA-046 occurrences remain separately evaluated. No live production currentness or legal authority inferred.",
+      "title": "Catalog/Legal serving profile bridge",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/I4",
+      "original_exit": "actual request->typedprofile/encodedquery->fresh reader; wrong/missing profile refuses",
+      "mandatory_next_action": "Wire CatalogRunProfile and immutable Legal intent through existing request/caller/encoder/fresh reader; preserve refusal code and truthful text fallback.",
+      "assigned_finding_ids": [
+        "LA-033",
+        "LA-046",
+        "LA-028",
+        "LA-032",
+        "LA-040"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "ready_for_G_original_task_exit",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/src/polisyos/core/contracts/control.py",
+          "sha256": "678b67ca20ba21d98bc17e50e5a5c98645177ad64e271212c5c88ab08ffb4b24",
+          "scope": "Текущие Catalog/Legal typed immutable request contracts.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_search_profile.py",
+          "sha256": "dcb4d235d8966a0888df3fed5ffdc1e887801a97a72b66e1a19476afcc94233a",
+          "scope": "Current selected Legal generation/intent resolver.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/integration/data_forge_runtime/test_legal_runtime_material_entrypoints.py",
+          "sha256": "f1ef2fe5dd480e17d5952855221c49c429f066701fdea19d81d2c8e0a4cad144",
+          "scope": "Current opt-in actual producer/encoder/reader integration.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/asset-file-manifest.txt",
+          "sha256": "191a71ec41bc1a69665fffccb5fa7f1c30b3f94ccd60f71cc3ed1f074ecb98ca",
+          "scope": "Существующий local real-encoder asset manifest; model bytes не скопированы в этот отчёт.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/c12-real-encoder-r14-qualified-supplement-20261021.json",
+          "sha256": "32885cb6912c11f0c90111414072a2505207180c1b78d03f3604403a20257589",
+          "scope": "Qualified28PASS real encoder/generation/fresh consumer witness with original source frame.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r14-current-567c38cc-20261021-r1-actual/result.json",
+          "sha256": "eae15cce35899826b79d66ea2b15df679f3971baf9388cc3e92def682ea397c4",
+          "scope": "Full retained actual R14 deciding result.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r14-current-567c38cc-20261021-r1-actual/origins.json",
+          "sha256": "414218c1ee21e02c4968e9565393d60f9883eedf2a2ceffd1f50318f2e188416",
+          "scope": "Old process-wide origins do include changed Core/IR modules; source trace distinguishes loaded modules from Legal-dispatched path.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+          "sha256": "5036e343aa67a6b2989bb003c3513f36d0b20e6ce59f86f91144c2daca79f343",
+          "scope": "Unchanged Legal generation file/member validation owner.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/read_api/legal.py",
+          "sha256": "6bcdec489c643fbb30633b2691be147f02ec36bd3bdbcb598c832ee3a0f797ff",
+          "scope": "Unchanged lazy Legal generation reader facade.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": [
+        {
+          "case": "i1-i4-catalog-current",
+          "status": "PASS",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/audit-result.json",
+            "sha256": "7348d860723dcf7444a8a54c09ebe0ef30fe7d313d459100e89976204d9490ff"
+          },
+          "junit": {
+            "tests": 20,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "abort_reason": null
+        }
+      ]
+    },
+    {
+      "task_id": "V1",
+      "primary_status": "verification_remaining",
+      "code_state": "ordinary_served_worker_chain_present_current_deciding_replay_missing",
+      "achieved": [
+        "В current source есть ordinary POST/owned context/worker→N5→CAS→fresh GET и source-bound configured witness."
+      ],
+      "remaining_local_actions": [
+        "Discriminate collection/import cost with isolated node and measured serial resource allowance; two aborted combined runs are neither PASS nor product FAIL.",
+        "Выполнить существующий served integration на текущих helper/test/source blobs и сохранить полный deciding output для исходного V1 exit."
+      ],
+      "missing_external_inputs": [],
+      "pending_decisions": [],
+      "next_deciding_check": "test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry: POST→actual worker/N5/CAS→fresh GET; scope configured witness, authentic currentness отдельно T1/T2.",
+      "evidence_rebind": "Two combined runs aborted within V1 at measured2.4/3.42GiB caps; isolated V1 at serial5GiB cap also aborted95.37s/5.18GiB sampled RSS. No completed verdict. No system OOM inference; do not increase cap blindly.",
+      "whole_task_complete": false,
+      "title": "Ordinary authentic source-backed served generation",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V1",
+      "original_exit": "POST->ownedcontext->N5->CAS->freshGET; synthetic configured witness remains bounded",
+      "mandatory_next_action": "Launch exact local owned serving instance with observed root/profile/context; matching release or supported versioned replacement; realPOST/N5/CAS/freshGET.",
+      "assigned_finding_ids": [
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B08",
+        "B10",
+        "B13",
+        "B74",
+        "B154"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "not_ready_for_full_task_acceptance",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/tests/_helpers/acquisition_served_history.py",
+          "sha256": "8421da786369510838eda2dc5cf1c99124add2c02b117e6169e9a10338c5c4f7",
+          "scope": "Current ordinary served request/worker/N5/CAS/fresh-GET helper.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/integration/core_runtime/test_acquisition_authority_served.py",
+          "sha256": "065271cf4bcde096aef15942f36eed5bbdaecc44253fa8c692fb4e6551283006",
+          "scope": "Текущий served test и явно ограниченный B09 changed-content positive.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": [
+        {
+          "case": "v1-served-isolated-r3",
+          "status": "ABORTED",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-served-isolated-r3/audit-result.json",
+            "sha256": "e0753f29d5cd45fe1fe07f98078e65225980752d3a7ebdd1ef52af3b81ffa173"
+          },
+          "junit": null,
+          "abort_reason": "sampled_process_tree_rss_cap"
+        },
+        {
+          "case": "v1-v2-served-current",
+          "status": "ABORTED",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current/audit-result.json",
+            "sha256": "50f251c1d3e019ab4fa49161617a90b4ccccef942e20445710bb1be2ebaa04ae"
+          },
+          "junit": null,
+          "abort_reason": "sampled_process_tree_rss_cap"
+        },
+        {
+          "case": "v1-v2-served-current-r2",
+          "status": "ABORTED",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current-r2/audit-result.json",
+            "sha256": "40b765972e0d40ac59c00f145957bfdd80616bf92eea8763313b9f7107e7b336"
+          },
+          "junit": null,
+          "abort_reason": "sampled_process_tree_rss_cap"
+        }
+      ]
+    },
+    {
+      "task_id": "V2",
+      "primary_status": "verification_remaining",
+      "code_state": "configured_N4_producer_and_N6_child_consumers_present_current_replay_missing",
+      "achieved": [
+        "Current recorded-source N4GenerationPort выводит два meaningful children через owner child-derivation; есть ordinary served/N6 history/fresh GET/TCP tests."
+      ],
+      "remaining_local_actions": [
+        "Discriminate collection/import cost with isolated node and measured serial resource allowance; two aborted combined runs are neither PASS nor product FAIL.",
+        "Выполнить exact two-child served positive, budget/sibling-failure и reopened TCP readback на текущем source с child-profile и history assertions."
+      ],
+      "missing_external_inputs": [],
+      "pending_decisions": [],
+      "next_deciding_check": "test_original_second_capture_serves_two_meaningful_children_through_fresh_get и test_original_second_capture_tcp_reopens_partial_n5_after_sibling_failure; убедиться, что children созданы N4 producer, а не подставленным graph.",
+      "evidence_rebind": "Combined runs never reached V2. Separate V2 two-node run aborted32.19s at3GiB cap, sampledRSS3249684480bytes. No completed verdict; explicit local memory/cost profiling next.",
+      "whole_task_complete": false,
+      "title": "N4 meaningful-child producer and actual recursive reader",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V2",
+      "original_exit": "actual N4 two meaningful children->N6 frontier/history->freshGET/client; manual supplied graph not producer",
+      "mandatory_next_action": "Select actual N4 producer/qualified slots and per-childprofile/owner; distinct meaningful children, budget stop, retained frontier and parsed API.",
+      "assigned_finding_ids": [
+        "B15",
+        "B29"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "not_ready_for_full_task_acceptance",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/tests/_helpers/generic_n4_served_replay.py",
+          "sha256": "724a2445dbb36f03dfdd11b48d04adbc6ebc173335a48564c97a27dc679dce90",
+          "scope": "Current source-capture→N4 producer→ordinary served helper.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+          "sha256": "e3058c8acc896a146667c48c1e45a4468ff93a31f2e0e3fcde500479a2d2131a",
+          "scope": "Current meaningful children/N6/CAS/fresh-reader assertions.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": [
+        {
+          "case": "v1-v2-served-current",
+          "status": "ABORTED",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current/audit-result.json",
+            "sha256": "50f251c1d3e019ab4fa49161617a90b4ccccef942e20445710bb1be2ebaa04ae"
+          },
+          "junit": null,
+          "abort_reason": "sampled_process_tree_rss_cap"
+        },
+        {
+          "case": "v1-v2-served-current-r2",
+          "status": "ABORTED",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current-r2/audit-result.json",
+            "sha256": "40b765972e0d40ac59c00f145957bfdd80616bf92eea8763313b9f7107e7b336"
+          },
+          "junit": null,
+          "abort_reason": "sampled_process_tree_rss_cap"
+        },
+        {
+          "case": "v2-served-isolated",
+          "status": "ABORTED",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v2-served-isolated/audit-result.json",
+            "sha256": "8a72523c4e7f14cd4b6331ca6920ce9610e026626277af213393502c8cd925c6"
+          },
+          "junit": null,
+          "abort_reason": "sampled_process_tree_rss_cap"
+        }
+      ]
+    },
+    {
+      "task_id": "V3",
+      "primary_status": "implementation_remaining",
+      "code_state": "acquisition_reentry_applied_B09_changed_content_retention_companions_RAW",
+      "achieved": [
+        "Существуют applied acquisition growth/reentry и persisted shared frontier; текущий test различает generation2 reentry и generation3 no_growth.",
+        "G978 выбрал retained-evaluation outcome, но его полный caller→basis→decision→N6/history consumer path ещё RAW."
+      ],
+      "remaining_local_actions": [
+        "Составить actual source/caller hook с тем же N4/N5 controller и typed prepared reentry plan, owner Basis/Decision и persisted selected history.",
+        "Доказать real admitted content change→тот же candidate/WMR/N5/history; при равном полном semantic evaluation basis допускать selected retained outcome с новым source receipt/lineage.",
+        "Проверить ID/time-only и unrelated-content no-reissue, concurrency/commit-time dependencies и отдельные REQ/ACQ outcomes; выполнить выбранные G978 acceptance cases."
+      ],
+      "missing_external_inputs": [],
+      "pending_decisions": [],
+      "next_deciding_check": "Обычный configured source→admission→actual same-candidate retained/reissued evaluation→fresh history/GET с changed-content positive и unchanged-basis controls.",
+      "evidence_rebind": "Applied source inspected; RAW continuation/Decision/caller positives are not current-source runtime evidence.",
+      "whole_task_complete": false,
+      "title": "Source-driven same-candidate reissue and acquisition",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V3",
+      "original_exit": "admitted content change->samecandidateWMR/N5/history; ID/write-time-only control no reissue; REQ/ACQ separate",
+      "mandatory_next_action": "admitted content change->samecandidateWMR/N5/history; ID/write-time-only control no reissue; REQ/ACQ separate",
+      "assigned_finding_ids": [
+        "B09",
+        "B12",
+        "B27",
+        "B28",
+        "LA-046"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "not_ready_for_full_task_acceptance",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py",
+          "sha256": "d2d2a783313a3399d01c12973872f48f60f791fa99b75792258a7aa8ca1255f8",
+          "scope": "Current applied growth mechanism; не полный новый B09 retained-source путь.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/integration/core_runtime/test_acquisition_authority_served.py",
+          "sha256": "065271cf4bcde096aef15942f36eed5bbdaecc44253fa8c692fb4e6551283006",
+          "scope": "Current test содержит oracle-only content-change control и unrun limitation.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/b09-n6-continuation-owner-fresh-20261027-r1/deliverables/manifest.json",
+          "sha256": "6c0c8e65b2369f90b9d14199eb216ea3a20096649c2989fbccb1ab35dd157413",
+          "scope": "RAW N6 continuation proposal, не current canonical implementation.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g978-b09-decision-admission-20261026.json",
+          "sha256": "11f0d487c2898906583a649cba049cb354c2a4d41b43cd3334fac027f30f3b1f",
+          "scope": "G978 selected architecture и обязательства реального producer/consumer.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": []
+    },
+    {
+      "task_id": "V4",
+      "primary_status": "implementation_remaining",
+      "code_state": "current_predictive_bridge_exists_current_native_route_and_IR_write_fail",
+      "achieved": [
+        "Observed-outcome producer/CAS/fresh HTTP/S10 code is present and intended to stay predictive-only; current fresh run disproves readiness."
+      ],
+      "remaining_local_actions": [
+        "Correct shared product CAS boundary: predictive_calibration imports Core CanonSpec, while IR put_json_artifact requires IR CanonSpec and rejects the distinct Core type; production POST uses this same persistence path. Count as one shared V4/V7 defect.",
+        "Repair HTTP test-companion planner closure: fixture supplies scenario_source_family/data_requirement_spec/public_registry, WDI executor requires data_snapshot_release/l1_variable_availability_gap/production_snapshot_build. Preserve strict route guard.",
+        "Rerun actual measured-outcome/persisted-evidence/freshHTTP/S10 discriminator; current2FAIL reached neither final property. Record B16 population/completeness and B32 source-time limits separately."
+      ],
+      "missing_external_inputs": [],
+      "pending_decisions": [],
+      "next_deciding_check": "Same forecast/CI with changed heldout outcomes changes recomputed fresh grade on the current ordinary route.",
+      "whole_task_complete": false,
+      "capability_limit": "One shared V4/V7 chain; predictive coverage is not causal calibration or population completeness.",
+      "title": "Compatible forecast/empirical evidence adoption",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V4",
+      "original_exit": "CAS resolver recomputes->freshgrade/defaultHTTP; predictive coverage not causal calibration",
+      "mandatory_next_action": "CAS resolver recomputes->freshgrade/defaultHTTP; predictive coverage not causal calibration",
+      "assigned_finding_ids": [
+        "B16",
+        "B32",
+        "LA-051"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "not_ready_for_full_task_acceptance",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+          "sha256": "b4be747e4d44cf89b2b12c26a9003da01d9673a4d54c4a70dbc083392404a8cc",
+          "scope": "Current role-ref persistence and HTTP bridge.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+          "sha256": "0196186328466b6485289a2d356549341f2dae62cc040d5d3e4fe5ef4a465d10",
+          "scope": "Current actual route fails before owned projection admission.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_frc_02_empirical_bridge.py",
+          "sha256": "09d018eed152f96937aa96184092c40ad03587a6b8dee8818b4e5d82db3c06bf",
+          "scope": "Current standalone case refuses invalid canon_spec.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": [
+        {
+          "case": "v4-v7-empirical-current",
+          "status": "FAIL_OR_ERROR",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v4-v7-empirical-current/audit-result.json",
+            "sha256": "72b80a61e4128e6cd05287f39b4cee199c9e35b0bb6e4fda59a43212dd15beaf"
+          },
+          "junit": {
+            "tests": 2,
+            "failures": 2,
+            "errors": 0,
+            "skipped": 0
+          },
+          "abort_reason": null
+        }
+      ]
+    },
+    {
+      "task_id": "V5",
+      "primary_status": "implementation_remaining",
+      "code_state": "current_native_failures_reveal_schema_and_unit_bridges",
+      "achieved": [
+        "Real MethodJob evaluations and CAS packets are produced, so this is not a constructor/import witness or unavailable optional GP backend.",
+        "One current work-packet witness passes; native fitted-GP and direct-L4/L3-to-L4 joined packet nodes fail on current source."
+      ],
+      "remaining_local_actions": [
+        "Reconcile PolicyEvaluationVector1.2 producer with selected consumer1.1 hard gate in voi_scheduler; preserve exact source/profile validation rather than relax shape-only.",
+        "Bind actual objective/source metric units through receiver/history; current fixture has expected unit None and runtime simulation_results drops metric_units, so admissibility removes all GP training rows.",
+        "Rerun same-context source-bound native GP fit/history/CAS receiver and B108 exact missing/null/zero/alias/sign/unit alternatives."
+      ],
+      "missing_external_inputs": [],
+      "pending_decisions": [],
+      "next_deciding_check": "Actual accepted method evidence trains native GP and reaches joined fresh Search/funnel consumer; malformed/foreign/unit/schema controls refuse.",
+      "whole_task_complete": false,
+      "capability_limit": "Two failures are localized source/test composition boundaries; no OOM or BoTorch fit failure inferred.",
+      "title": "Named configured Search/funnel consumer",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V5",
+      "original_exit": "exactcontext/history/quantity/CAS path; selected GP/native/injected evidence separately graded",
+      "mandatory_next_action": "C11 boundedhistory source present; provision supported optionalprofile then join actual Search receiver/MethodJob/CAS withselectedBcontract; no fixture-onlyreceiver.",
+      "assigned_finding_ids": [
+        "B108",
+        "B157"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "not_ready_for_full_task_acceptance",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+          "sha256": "10f16820d165f1c7ae718cf8c23ae5675170e51c5ceeed69ffac1f92a58394ec",
+          "scope": "Local alias/sign/unit semantics; extra period-flow refusal is not an original external gate.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "sha256": "060a92bea9849686976a991c185641469f773d8b0ef2f5f21ffb7985d0dd2a75",
+          "scope": "History objective admissibility path.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py",
+          "sha256": "12496b1e99c4d854156291d454c0209a3dd405476d338ad0eeaf400a61567f69",
+          "scope": "Stale1.1 predicate must be rebound to actual1.2 producer contract.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+          "sha256": "e761ac8c7ee343a63afb9ef834ae01af8bd7ca8485ad68637b4225ccb83ba77e",
+          "scope": "Native GP witness fails with model None after inadmissible unit-less rows.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py",
+          "sha256": "441257ad03ce6b10a17de6c397f1e4dc541cf85deb73da9e1d0eb989fffe2ce5",
+          "scope": "Current direct packet rejected.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": [
+        {
+          "case": "v5-failure-discriminating-locals",
+          "status": "FAIL_OR_ERROR",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-failure-discriminating-locals/audit-result.json",
+            "sha256": "dc626f22fe9d5c27d1d17c3b9c341c0da286797d5b70e1b44222caf25f56f272"
+          },
+          "junit": {
+            "tests": 2,
+            "failures": 2,
+            "errors": 0,
+            "skipped": 0
+          },
+          "abort_reason": null
+        },
+        {
+          "case": "v5-native-gp-and-b157",
+          "status": "FAIL_OR_ERROR",
+          "receipt": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-native-gp-and-b157/audit-result.json",
+            "sha256": "e84064c4185e33a58730a772ac0896b05220cfc931839caf5194ef8b69a110e3"
+          },
+          "junit": {
+            "tests": 3,
+            "failures": 2,
+            "errors": 0,
+            "skipped": 0
+          },
+          "abort_reason": null
+        }
+      ]
+    },
+    {
+      "task_id": "S2",
+      "primary_status": "implementation_remaining",
+      "code_state": "B190_B194_B197_consumers_present_B200_positive_relation_intake_missing",
+      "achieved": [
+        "B157 original nested L3/L4 configuration isolation has implementation and test evidence; no stronger default-producer or native-DR requirement is added.",
+        "B190 response basis, B194 attempted-draw denominator, B197 selected calibration source/fresh welfare path and B200 selected-view dedup/fake-relation refusals exist."
+      ],
+      "remaining_local_actions": [
+        "B200 must admit a typed source-bound relation for distinct views and consume its recomputed information basis. Current _has_unknown_dependency treats every multi-view set as unknown; effective_information_count remains None; no src caller of aggregate_envelopes was found in the complete .py source search.",
+        "Run current B190/B194/B197/B200 positives/negatives. Do not count refusal-only B200 tests as narrowing capability."
+      ],
+      "missing_external_inputs": [
+        "An actual owner-supplied dependence/overlap design is required for real-world narrowing; a local fixture can verify the programming contract without inventing independence."
+      ],
+      "pending_decisions": [],
+      "next_deciding_check": "Positive resolved independent-measurement/relation fixture→aggregate→fresh reader, plus counterfeit/removal controls.",
+      "whole_task_complete": false,
+      "capability_limit": "",
+      "title": "Actual law/draw/calibration/relationship intake",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S2",
+      "original_exit": "attempted denominator/covariance/axis/subject identity consumed fresh; counterfeit metadata refuses",
+      "mandatory_next_action": "attempted denominator/covariance/axis/subject identity consumed fresh; counterfeit metadata refuses",
+      "assigned_finding_ids": [
+        "LA-036",
+        "B157",
+        "B190",
+        "B194",
+        "B197",
+        "B200"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "not_ready_for_full_task_acceptance",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+          "sha256": "a1342fac260fa1906a94d66859f245455608d58ad8baa9906ebe0af3b2436801",
+          "scope": "Current relation/intake/consumer gap.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py",
+          "sha256": "b6132abe33c407bcf48e20e7d014bfa29138238823879248fdeae5e3e571090f",
+          "scope": "Current selected-view dedup and forged-label refusals.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+          "sha256": "8a2db8ffa8c7bd2712f1e7d18e7122d285c5e85702994ee9d9346dc849bd331d",
+          "scope": "B190 current response basis/fresh read.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+          "sha256": "8e1486869233e4f2152e757564f956c1807861823d200f9d5f39ea9e411f0a98",
+          "scope": "B194 attempted draw denominator.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+          "sha256": "d32e5ceb1537b6cebf3b0369f42cfa136c8d60d91226aebbb24f9a40d6af6d78",
+          "scope": "B197 selected source/calibration consumer.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": []
+    },
+    {
+      "task_id": "T2",
+      "primary_status": "implementation_remaining",
+      "code_state": "protected_negatives_and_some_candidate_positives_present_required_publish_revalidation_bridges_missing",
+      "achieved": [
+        "B05 conditional N5→N8 configured positive and B08 empirical missing-basis refusal exist. Runtime auth/N9 candidate-custody paths do not substitute for L6 promotion plane.",
+        "Named L01/L02 paths were rebound read-only; their ENOENT is scoped to named locators, not a global source absence claim."
+      ],
+      "remaining_local_actions": [
+        "Complete B154 required-all-ref batch publisher and B164 permit/revoke serialized commit-time bridge through actual consumer.",
+        "Rebind original LA-018/LA-024 local compatibility/transport controls separately from LA-025/B131/B137/B164/LA-054/LA-055 genuine input-dependent positive claims; preserve zero effects on counterfeit/stale/foreign/revoked."
+      ],
+      "missing_external_inputs": [
+        "Genuine rights/issuer/approved numeric reuse/source revalidation event/L6 permit/trigger/principal facts only where their original criterion requires them; local publisher/writer bridges remain engineering."
+      ],
+      "pending_decisions": [],
+      "next_deciding_check": "Source-bound protected positive with current permit and commit-time check, plus revoked/foreign/stale controls and revalidation lifecycle.",
+      "whole_task_complete": false,
+      "capability_limit": "",
+      "title": "Protected positive and revalidation consumer",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/T2",
+      "original_exit": "valid positive + fake/foreign/stale/revoked zero effects including commit-time check",
+      "mandatory_next_action": "valid positive + fake/foreign/stale/revoked zero effects including commit-time check LA-018/LA-025/B131/B137/B164 each require original issuer/currentness/input boundary or verified unavailability; a positive fixture alone is insufficient.",
+      "assigned_finding_ids": [
+        "B05",
+        "B08",
+        "B154",
+        "LA-018",
+        "LA-024",
+        "LA-025",
+        "B131",
+        "B137",
+        "B164",
+        "LA-054",
+        "LA-055"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "not_ready_for_full_task_acceptance",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/t1-t2-current-locator-rebind-r1/locator-rebind-r1/t1-t2-current-locator-rebind.json",
+          "sha256": "09ea95cff83f15889b529258f55d6487cc7e976a5d0ad019609ddcf6e5cb4af3",
+          "scope": "Actual named private locator receipts and bounded source rebind.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": []
+    },
+    {
+      "task_id": "Q2",
+      "primary_status": "implementation_remaining",
+      "code_state": "partial_applied_RAW_contract_and_consumer_companions_pending",
+      "achieved": [
+        "В source присутствует bounded mirror выбранных locked build inputs; source и installed proof разделены.",
+        "Current MethodJob consumer readset сверён; новый static producer/per-attempt cache witness пока является предложением, а не действующим admission."
+      ],
+      "remaining_local_actions": [
+        "After Q1 codec/profile runtime owners compose their contracts, update canonical DTO/schema/generated client/UI and exact installed default readers; shared dependencies are one mechanism, not extra closures.",
+        "Additional proposed MethodJob witness extension only: implement selected change if G chooses it. This pending question does not block original Q2 canonical-family/installed-reader requirements.",
+        "Выполнить canonical regeneration, --check/corrupt-field controls; собрать настоящий main wheel и rebuilt sdist, проверить default consumers и loaded byte/dependency identity вне checkout."
+      ],
+      "missing_external_inputs": [],
+      "pending_decisions": [
+        "Additional proposed scope only, not prerequisite to original Q2 exit: static producer/per-attempt fit-cache identity and GP/warm-start applicability."
+      ],
+      "next_deciding_check": "Original Q2: canonical family regeneration/check+corrupt-field refusals, typed/default consumers, exact main wheel/rebuilt-sdist readback with loaded bytes/origins. Additional pending MethodJob producer/cache witness is not a prerequisite to these original checks.",
+      "evidence_rebind": "Selected current consumer/source pins match; installed main wheel/rebuilt-sdist proof remains UNRUN/not_established.",
+      "whole_task_complete": false,
+      "title": "Canonical generated and declared installed consumers",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/Q2",
+      "original_exit": "frozen contracts->canonicalfamily->typedclient/defaultinstalled reader; declared supported profiles only",
+      "mandatory_next_action": "After selecting upstream contracts, regenerate the canonical DTO/schema/client/artifact family; verify validators --check plus corrupt-field drift refusal, normal parsed served readers and exact installed wheel/rebuilt-sdist consumers. Reconcile required Core constructors/UI/i18n companions; do not classify prior FAIL as inherited without exact slice base evidence.",
+      "assigned_finding_ids": [
+        "B04",
+        "B11",
+        "B29",
+        "B30",
+        "LA-033",
+        "B34",
+        "B35",
+        "B36",
+        "LA-045",
+        "LA-005",
+        "LA-006",
+        "LA-021",
+        "LA-023",
+        "LA-026",
+        "LA-027",
+        "LA-042",
+        "LA-050",
+        "LA-053",
+        "B201",
+        "B202",
+        "B212"
+      ],
+      "formal_closure_ids": [],
+      "author_readiness": "not_ready_for_full_task_acceptance",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/producer-runtime-identity-20261027/02-current-consumers.md",
+          "sha256": "e5370b6d34a025ccee4431d88d05aedd28263c9a62f7709bebf5cc2b3db088f3",
+          "scope": "Current versus proposed consumer semantics.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/producer-runtime-identity-20261027/inputs.json",
+          "sha256": "fd804c90af38e7c370d18e1e1620e3986e715f7b07f6cf1a9a3f6f0e6aad407a",
+          "scope": "Шесть current consumer/source pins и qualification диагностического опыта.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-source-inputs-20261026.json",
+          "sha256": "0e63ed3f3562df032c17beb86c58095f6df0848994a772b1188feba423a02353",
+          "scope": "Locked source-input mirror уже есть; main wheel/sdist consumers ещё не доказаны.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": []
+    },
+    {
+      "task_id": "BOOT0",
+      "primary_status": "complete",
+      "code_state": "admission_complete",
+      "achieved": [
+        "Собственная candidate-ветка прикреплена; HEAD/tree и контролируемый состав файлов совпали с сохранённым состоянием.",
+        "Проверки импортированных результатов и полного графа задач повторены в этом аудите и прошли.",
+        "Текущие RAW proposals и исходные свидетельства сохранены; чужие checkout не изменялись."
+      ],
+      "remaining_local_actions": [],
+      "missing_external_inputs": [],
+      "pending_decisions": [],
+      "next_deciding_check": "При возобновлении авторства повторить guard фактического HEAD/ветки/состава; это эксплуатационная проверка admission, не новая незавершённая задача.",
+      "evidence": [
+        {
+          "path": "LOCAL/raw/e02-task-status-refresh-20261027-r1/admission.json",
+          "sha256": "fcffdfe5b200eeac43659080dfee5042d857e2a83b768859356bcd646f361edb",
+          "scope": "Свежая проверка attached branch/head/tree и полного объявленного source frame.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "LOCAL/raw/e02-task-status-refresh-20261027-r1/admission-checks.json",
+          "sha256": "523c87ca2d9beb31ba447194dcf3781e0fdc9b1d2e615dc0869599d2c8a4b1e8",
+          "scope": "Свежие --check transferred results и проверка полного графа/критериев; только admission/navigation.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "evidence_rebind": "current_guard_recomputed; no runtime capability inference",
+      "whole_task_complete": true,
+      "capability_limit": "Admission task only; no product or authority acceptance.",
+      "title": "Exact local admission, saved work and recoverable source intake",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/BOOT0",
+      "original_exit": "attached ownbranch, exactbase/supplier identity, one writer perpath and visible runnablequeue",
+      "mandatory_next_action": "Read current G+INPUTS; matching candidate lane or one admitted isolation; preserve oldroots/dirtywork; check preparedB and missingORCH03 once; resume canonical work without waitingfailedVM.",
+      "assigned_finding_ids": [],
+      "formal_closure_ids": [],
+      "author_readiness": "ready_for_G_original_task_exit",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "last_checks": []
+    },
+    {
+      "task_id": "DX0",
+      "primary_status": "implementation_remaining",
+      "code_state": "native_repairs_partial_remaining_collector_and_operation_bridges",
+      "achieved": [
+        "Canonical Ruff source-root/empty-target protection, scoped runtime annotations/N818 и локальное сужение typing suppressions уже составлены.",
+        "Source-mirror repair и отдельные native operation→metric→alert/extension-wheel consumer witnesses выполнены в своих границах."
+      ],
+      "remaining_local_actions": [
+        "Составить оставшийся N1 collector/effect-analysis repair; сохранить conservative refusal до решения по opaque external-call boundary.",
+        "Довести реальные operation/instrumentation/consumer joins незакрытых N2 coverage obligations; calibration/resolved dispatch proofs не заменяют весь набор.",
+        "На согласованном source/input/backend freeze выполнить actual native SOTA row-by-row, architecture generators/import edges, Ruff/format/type/runtime и archive/resource/package gates; исправить подтверждённые локальные defects без clock/waiver/baseline suppression."
+      ],
+      "missing_external_inputs": [],
+      "pending_decisions": [
+        "N1: source/version/receiver-bound external effect summary либо честный typed partial inventory с обновлёнными consumers.",
+        "CalibrationStuck progress/diagnostic и endpoint/trend semantics: отдельный proposed_for_G вопрос, не ответ G25 по availability."
+      ],
+      "next_deciding_check": "После scoped code repairs и independent review — полный текущий collector/native preflight и architecture wave; затем main installed package gates.",
+      "evidence_rebind": "Mirror/calibration selected source pins match; resolved-dispatch older metrics pin differs; N1V65 RAW unapplied; older broad gates not asserted current or inherited.",
+      "whole_task_complete": false,
+      "title": "Native DevX, source formatting, archive/package and generated-input discipline",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/DX0",
+      "original_exit": "full deciding commands on exactsource, honest remainingissuer decisions, source-to-installedassets bytes/origins; commoncontextdoesnotblockindependentwork",
+      "mandatory_next_action": "Repair canonical Ruff root convention; actual native SOTA row-by-row; fix scopedformatdebt; package all11declaredforce-includes throughGCP/archive/wheel. Preserveproduction exclusions. No baseline/exception/clock suppression.",
+      "assigned_finding_ids": [],
+      "formal_closure_ids": [],
+      "author_readiness": "not_ready_for_full_task_acceptance",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-priority-20261026.json",
+          "sha256": "078e1b095b274c7d1ca9aaad534a6045f08eddb14a49bc3f1d0d1c9a90acaf02",
+          "scope": "N1/N2 residuals и source-qualified incomplete native wave.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-source-inputs-20261026.json",
+          "sha256": "0e63ed3f3562df032c17beb86c58095f6df0848994a772b1188feba423a02353",
+          "scope": "Применённый mirror repair и текущие ограничения actual build/generator proof.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/producer-runtime-identity-20261027/04-native-v65-qualification.json",
+          "sha256": "c32de4f2d89107db5573203746136959a9f761e3d1bd8d36cb4c2d576396eb95",
+          "scope": "Focused RAW V65 coverage; полного current 3336 collector run нет.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-composition-checkpoint-20261027.json",
+          "sha256": "ddb13785f23d035391fc9a0b3a6512341e390359dc0655404dca180528978549",
+          "scope": "Частные applied native bridges и явно не установленный global closeout.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "LOCAL/raw/disk-source-overlay-preservation-20261027-r1/E02-PAUSE.json",
+          "sha256": "8cb2296fdee16db0cda088f419b93cc4ea4ef75c03725742523e891520f3690f",
+          "scope": "N1V65 остаётся RAW unapplied в текущем source anchor.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/calibration-progress-20261026/README.md",
+          "sha256": "83add853bbc0f3ff334338b5cf7e2b13a71ed53e3efd182ed11a80dbbf9ebe1f",
+          "scope": "Source-qualified отдельный proposed semantics вопрос; поздний applied bridge требует нового delta-binding.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/foundry-resolved-dispatch-sli-20261026.json",
+          "sha256": "09ea8961432d4a971c6d96d5300db98834c8d55f94c50d3ac28460f1cad139c0",
+          "scope": "Draft-only separate producer/exporter and Prometheus executions; нынешний metrics_parts.py отличается от раннего pin.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "last_checks": []
+    },
+    {
+      "task_id": "DEC0",
+      "primary_status": "coordination_active",
+      "code_state": "selected_architectures_in_execution_new_narrow_questions_prepared",
+      "achieved": [
+        "Ранее выбранные AD01–06, N818, G528 IR/PAG/transport, G978 B09 и G14bf CAN/TC решения приняты как binding inputs.",
+        "Новый reviewed пакет из семи документов сохранён в commit 8a24cc8: static producer identity / selected execution-cache witness и opaque native external-call boundary."
+      ],
+      "remaining_local_actions": [
+        "Передать новые узкие вопросы G через exact committed candidate ref; продолжать независимые owner tasks.",
+        "По поступлении решений записать конкретный ответ и передать affected owner; не считать архитектурный ответ code acceptance."
+      ],
+      "missing_external_inputs": [],
+      "pending_decisions": [
+        "MethodJob: separate static implementation identity and selected per-attempt fit/cache evidence; does the same admission apply to GP/warm-start?",
+        "Native inventory: independently source/version/receiver-bound external effect summary versus explicitly partial typed inventory with updated consumers; conservative refusal remains until selected.",
+        "CalibrationStuck: диагностический сигнал либо progress alert; при выборе alert — endpoint versus trend semantics. Пакет от26октября требует delta-binding к позднейшему applied progress bridge."
+      ],
+      "next_deciding_check": "G выбирает конкретную семантику двух подготовленных вопросов; автор реализует через существующих owners и actual consumer/removal proofs.",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/producer-runtime-identity-20261027/README.md",
+          "sha256": "bdca424e7e988710e84639ee164f793f8a0ef687db830392aef221a7ca448ea2",
+          "scope": "Точный authored pending_G пакет; при входе в аудит commit8a был локальным, remote candidate1fd.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/producer-runtime-identity-20261027/inputs.json",
+          "sha256": "fd804c90af38e7c370d18e1e1620e3986e715f7b07f6cf1a9a3f6f0e6aad407a",
+          "scope": "Source/readset/diagnostic qualification новых вопросов.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-can-tc-selection-admission-20261027.json",
+          "sha256": "66c9496b9889ec011a9906c4a332cd2f5cbeffdc937672acb7afce9e2547621a",
+          "scope": "Уже выбранные CAN/TC решения не возвращаются на общий redesign.",
+          "availability": "local_readable_at_audit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/calibration-progress-20261026/README.md",
+          "sha256": "83add853bbc0f3ff334338b5cf7e2b13a71ed53e3efd182ed11a80dbbf9ebe1f",
+          "scope": "Отдельное proposed_for_G semantics решение; исходный вопрос имеет свой более ранний source pin, поздний bridge сам не является ответом G.",
+          "availability": "local_readable_at_audit"
+        }
+      ],
+      "evidence_rebind": "question packet tracked at entry HEAD8a24; no semantic selection or runtime implementation inferred",
+      "whole_task_complete": false,
+      "capability_limit": "Coordination row, not an additional independent software mechanism.",
+      "title": "Source-backed architecture/contract decisions for G",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/DEC0",
+      "original_exit": "each decision has executable alternatives and exact affectedproperties; independent taskscontinuewhileGreviews",
+      "mandatory_next_action": "Investigate all remaining internal ambiguities beforedeferral; alternatives reuse/extend/consolidate/build; impacts/falsifier/prototype/recommendednarrowoption. G votes; no invented external rights/law/sourceauthority.",
+      "assigned_finding_ids": [],
+      "formal_closure_ids": [],
+      "author_readiness": "not_ready_for_full_task_acceptance",
+      "finding_boundary": "Task-level assessment only; no assigned ID or repeated occurrence closes automatically. Original per-occurrence outcomes remain Q0/specialist work.",
+      "last_checks": []
+    }
+  ],
+  "executions": [
+    {
+      "case": "i1-i4-catalog-current",
+      "tasks": [
+        "I1",
+        "I4"
+      ],
+      "status": "PASS",
+      "return_code": 0,
+      "abort_reason": null,
+      "junit": {
+        "tests": 20,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skips": [],
+      "seconds": 171.97527674998855,
+      "sampled_process_tree_rss_bytes": 1330561024,
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/audit-result.json",
+        "sha256": "7348d860723dcf7444a8a54c09ebe0ef30fe7d313d459100e89976204d9490ff"
+      },
+      "imported_src_tests_paths": 1852,
+      "current_readset_mismatches": [],
+      "scope": "Original I1 content-basis unchanged/mutation/removal actual checkpoint/QC/Fabric consumers + I4 selected Catalog HTTP positive/currentness/refusals. C05 source matrix is13paths not13independent capabilities. No production freshness or I4Legal encoder proof inferred.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/i1-i4-catalog-current.stdout.txt",
+          "sha256": "c8fb4bb42f40050e3b0331c5104a541ca4cfd193f4a9dd7bf8c2a7a7a5b047d6",
+          "bytes": 638,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/i1-i4-catalog-current.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/pytest.xml",
+          "sha256": "faeea59f7054127f4c13498ee37438b5184341eafc082785649a652def87c1ce",
+          "bytes": 3788,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/source-profile-freeze.json",
+          "sha256": "fd6f173318603dec262434257dfe58de0f70ba13600f9e68a8ee47d25ec38d96",
+          "bytes": 12915,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/process-tree.jsonl",
+          "sha256": "72528bf282bc9ae7f519b4f9bd1dd4ee2da279feaf6ac2847a29ac6379312098",
+          "bytes": 788586,
+          "availability": "local_ignored_RAW_full_output"
+        }
+      ]
+    },
+    {
+      "case": "i2-dfk-current",
+      "tasks": [
+        "I2"
+      ],
+      "status": "FAIL_OR_ERROR",
+      "return_code": 1,
+      "abort_reason": null,
+      "junit": {
+        "tests": 45,
+        "failures": 31,
+        "errors": 0,
+        "skipped": 1
+      },
+      "skips": [
+        {
+          "node": "tests.unit.remediation.test_dfk_01::test_dfk_01_census_reads_native_invalid_byte_git_filename",
+          "reason": "requires a native Linux filename containing a non-UTF-8 byte"
+        }
+      ],
+      "seconds": 68.20102995799971,
+      "sampled_process_tree_rss_bytes": 677314560,
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current/audit-result.json",
+        "sha256": "b7f1da2fc374b78c7b39a56cca345e9251db7aca6b6a47abe29a30457dbd58ee"
+      },
+      "imported_src_tests_paths": 348,
+      "current_readset_mismatches": [],
+      "scope": "Current DFK actual Git records/serializer behavior. Linux-only case retains platform guard and must remain explicit SKIP on Darwin; no full LA005/006/026 census or package acceptance inferred.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current/i2-dfk-current.stdout.txt",
+          "sha256": "c1d49df5217875176946d9f13c58163ac75777387cf5b53c01f5bc72f713fcea",
+          "bytes": 31958,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current/i2-dfk-current.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current/pytest.xml",
+          "sha256": "0f4d0f0b9f1b8f803c9cd0bb56eb35b0f958ea79c1a32551b929978fae91d33c",
+          "bytes": 54052,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current/source-profile-freeze.json",
+          "sha256": "f4cbe432ae32bc931054f069423308440b40cc9552a5cd97295704353fc0c09c",
+          "bytes": 8980,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current/process-tree.jsonl",
+          "sha256": "5a4b2056046d3b0cb29c213f10b15363a38e443556d5bd7215e49274c735a5c8",
+          "bytes": 161866,
+          "availability": "local_ignored_RAW_full_output"
+        }
+      ],
+      "verdict_qualification": "Superseded harness output-context error: timing log outside allowed output root. Supported timing-log env relocation only; rerun i2-dfk-current-r2 gives44PASS1LinuxSKIP. Not31product defects."
+    },
+    {
+      "case": "i2-dfk-current-r2",
+      "tasks": [
+        "I2"
+      ],
+      "status": "PASS",
+      "return_code": 0,
+      "abort_reason": null,
+      "junit": {
+        "tests": 45,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "skips": [
+        {
+          "node": "tests.unit.remediation.test_dfk_01::test_dfk_01_census_reads_native_invalid_byte_git_filename",
+          "reason": "requires a native Linux filename containing a non-UTF-8 byte"
+        }
+      ],
+      "seconds": 85.57569195798715,
+      "sampled_process_tree_rss_bytes": 642514944,
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current-r2/audit-result.json",
+        "sha256": "490bbcc562a169790eb6665c3480fa8de34aa7323bb79840cfd403c74fe27417"
+      },
+      "imported_src_tests_paths": 348,
+      "current_readset_mismatches": [],
+      "scope": "Same complete native DFK module. Previous run's CLI cases hit default canonical timing sink denied by audit write boundary; redirect ONLY the documented timing sink to this case, no gate/profile/source changes. Linux guard retained.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current-r2/i2-dfk-current-r2.stdout.txt",
+          "sha256": "aac1027a20081044955635593b51f8c83f37fb6de611dcec4245fa34a81238a0",
+          "bytes": 839,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current-r2/i2-dfk-current-r2.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current-r2/pytest.xml",
+          "sha256": "e9d7e7984b1b19d4a840931ae5d87cf8b248cfdb3eb2c0aacd77197f9523cf10",
+          "bytes": 7402,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current-r2/source-profile-freeze.json",
+          "sha256": "3e8785ec4e65b89caa5e4e375b6971224cd190f2c8d09610e6e3aa7532ada016",
+          "bytes": 9391,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i2-dfk-current-r2/process-tree.jsonl",
+          "sha256": "43266350b4c0bd383b7f24d4cdd26105ba62a031aba4ee1a7a549f90a9801331",
+          "bytes": 205814,
+          "availability": "local_ignored_RAW_full_output"
+        }
+      ]
+    },
+    {
+      "case": "r2-b89-closing-acquire-race",
+      "tasks": [
+        "R2"
+      ],
+      "status": "PASS",
+      "return_code": 0,
+      "abort_reason": null,
+      "junit": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skips": [],
+      "seconds": 7.214563207991887,
+      "sampled_process_tree_rss_bytes": 347832320,
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-closing-acquire-race/audit-result.json",
+        "sha256": "b4d9cfc0eddaf4640c2b688dd44875aeca838358674068867aaeb7ff5509b686"
+      },
+      "imported_src_tests_paths": 364,
+      "current_readset_mismatches": [],
+      "scope": "Audit-only RAW behavioral probe, canonical ConnectionPool public acquire/close_all. Native pytest.ini/autoload preserved; RAW probe pinned separately, outside src/tests observer denominator. Read-only FD is opened and physically retired while connect races close_all; no source edits or deletion.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-closing-acquire-race/r2-b89-closing-acquire-race.stdout.txt",
+          "sha256": "21a2d8a9f127d8a9fb631e9b4afe238d74c3a4c4a6bfff4878c30434d60fa46f",
+          "bytes": 628,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-closing-acquire-race/r2-b89-closing-acquire-race.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-closing-acquire-race/pytest.xml",
+          "sha256": "0b2f436de6fc215e6a94363323c3871bb8ddffeb86ed99bc795467a28c4c8bc6",
+          "bytes": 576,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-closing-acquire-race/source-profile-freeze.json",
+          "sha256": "be4743a68f72df170fb54014aa336d56eb7ef81431d9f345b1460adf2fa21c40",
+          "bytes": 9766,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-closing-acquire-race/process-tree.jsonl",
+          "sha256": "204141cd2577a283dbbe25b0a28e7d94f34bda99d250f1db4a42851c566c5813",
+          "bytes": 16975,
+          "availability": "local_ignored_RAW_full_output"
+        }
+      ]
+    },
+    {
+      "case": "r2-b89-post-permit-metadata-cancel",
+      "tasks": [
+        "R2"
+      ],
+      "status": "PASS",
+      "return_code": 0,
+      "abort_reason": null,
+      "junit": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skips": [],
+      "seconds": 7.227066416002344,
+      "sampled_process_tree_rss_bytes": 354664448,
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-post-permit-metadata-cancel/audit-result.json",
+        "sha256": "d975f7f9d66f49fc513f2ec994214ce1ca2c22d3bf94886bb53bf3b9f1ddba47"
+      },
+      "imported_src_tests_paths": 364,
+      "current_readset_mismatches": [],
+      "scope": "Audit-only original B89 cancellation while waiting for metadata lock after permit acquisition. Gated real BoundedSemaphore exposes actual owner state permit_acquired=True/registered=False/pooled=None; cancellation must propagate, slot restored once, next public acquire/release/close succeeds. RAW test pinned separately; native pytest profile remains.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-post-permit-metadata-cancel/r2-b89-post-permit-metadata-cancel.stdout.txt",
+          "sha256": "d29d6872365a1ada7cafc77af7fec64ff43f5a75dde180c1480a2c329a6e7593",
+          "bytes": 635,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-post-permit-metadata-cancel/r2-b89-post-permit-metadata-cancel.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-post-permit-metadata-cancel/pytest.xml",
+          "sha256": "8f74c1906947a98c5706e7dad2448ae2b1443997ea65babe2908263b0ac00000",
+          "bytes": 573,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-post-permit-metadata-cancel/source-profile-freeze.json",
+          "sha256": "b27a2c4554fac908ebe9566eb5a528f05b7db2d275a158d1903fdcd8c683f706",
+          "bytes": 9928,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-b89-post-permit-metadata-cancel/process-tree.jsonl",
+          "sha256": "095d27dadd0e348508053c29e28f1e0f00aa91d821983c9142843ad34f982bf5",
+          "bytes": 17244,
+          "availability": "local_ignored_RAW_full_output"
+        }
+      ]
+    },
+    {
+      "case": "r2-current-full-boundaries",
+      "tasks": [
+        "R2"
+      ],
+      "status": "PASS",
+      "return_code": 0,
+      "abort_reason": null,
+      "junit": {
+        "tests": 316,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skips": [],
+      "seconds": 18.647723083995515,
+      "sampled_process_tree_rss_bytes": 365101056,
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/audit-result.json",
+        "sha256": "fe272f1651c01bbf731919bda6267adf25b93167b2f4caf035c7870d3fde7c25"
+      },
+      "imported_src_tests_paths": 431,
+      "current_readset_mismatches": [],
+      "scope": "Current whole R2 connector/pool/physical-stream/setup-checkpoint-rewind/recovery boundaries; fresh broader original B87/B89 coverage after earlier21PASS subset. Missing deterministic post-permit-lock/close_all-race discriminator remains explicit if tests do not cover it. I3 positive source cursor is separate.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/r2-current-full-boundaries.stdout.txt",
+          "sha256": "3395e708a9574d8f8c8b53d3ea6b994e045b6f906c35565476c17663bea8c1b3",
+          "bytes": 951,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/r2-current-full-boundaries.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/pytest.xml",
+          "sha256": "811198e0548171177e86a021300a81430fd9aa2dcb45f6d4cbca6933dfc60f15",
+          "bytes": 50835,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/source-profile-freeze.json",
+          "sha256": "9843a4d5bcb0895d6dc6b23fb07a3bfb7a9c134ad4cda98bbb02e2c2700ce010",
+          "bytes": 10746,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/process-tree.jsonl",
+          "sha256": "1306abb5282e037d22df98d9ab3cd14625f19ca0758b22188b1691e0f052d780",
+          "bytes": 44962,
+          "availability": "local_ignored_RAW_full_output"
+        }
+      ]
+    },
+    {
+      "case": "r2-physical-cleanup-current",
+      "tasks": [
+        "R2"
+      ],
+      "status": "PASS",
+      "return_code": 0,
+      "abort_reason": null,
+      "junit": {
+        "tests": 21,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skips": [],
+      "seconds": 8.32382587500615,
+      "sampled_process_tree_rss_bytes": 341196800,
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-physical-cleanup-current/audit-result.json",
+        "sha256": "dcd748c24e5d44a40e29fb87c45d2fe8f1e555379e2ec35b5c3a4b49d9eba779"
+      },
+      "imported_src_tests_paths": 377,
+      "current_readset_mismatches": [],
+      "scope": "Whole current physical-file/pool cleanup and recovery modules, real task cancellation and no premature reuse, cursor/window/CAS commit/reopen controls. Does not imply source-confirmed I3 positive.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-physical-cleanup-current/r2-physical-cleanup-current.stdout.txt",
+          "sha256": "7370ed68261c9249bb56a14a0f0b6046c75b8ca0d62e0d27b96b09e316c24a94",
+          "bytes": 629,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-physical-cleanup-current/r2-physical-cleanup-current.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-physical-cleanup-current/pytest.xml",
+          "sha256": "67ac86a2884592eede0055614f7bcbdc2167336317c00469279e1ee115f72da1",
+          "bytes": 4001,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-physical-cleanup-current/source-profile-freeze.json",
+          "sha256": "3065903fadb91b1f3e5c7e936e3064e0c362f0194a781baaa9f29a4d319bac4a",
+          "bytes": 9454,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-physical-cleanup-current/process-tree.jsonl",
+          "sha256": "ee9bd3d768ee30a51dbe86fc3be935261dcf7a11520b55ccf4901a2f4cbf814f",
+          "bytes": 17567,
+          "availability": "local_ignored_RAW_full_output"
+        }
+      ]
+    },
+    {
+      "case": "r3-origin-ledger-lifecycle-current",
+      "tasks": [
+        "R3"
+      ],
+      "status": "FAIL_OR_ERROR",
+      "return_code": 1,
+      "abort_reason": null,
+      "junit": {
+        "tests": 69,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skips": [],
+      "seconds": 36.44529108298593,
+      "sampled_process_tree_rss_bytes": 1279639552,
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-origin-ledger-lifecycle-current/audit-result.json",
+        "sha256": "f798bccbbadd47c2f65803aa43e87d9603a4a35e03b76c5ae584133325f5604c"
+      },
+      "imported_src_tests_paths": 1879,
+      "current_readset_mismatches": [],
+      "scope": "Current producer/observer/durable ledger and four cost origins plus retry/cache/cancel/reopen. Owner-injected factory reuse positive is distinguished from actual NL caller lacking authorizer; not whole B67/B68 or provider invoice proof.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-origin-ledger-lifecycle-current/r3-origin-ledger-lifecycle-current.stdout.txt",
+          "sha256": "fe1c4a62fce19825a70569422b43e9466a09307b91dac97d397524265759b216",
+          "bytes": 37103,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-origin-ledger-lifecycle-current/r3-origin-ledger-lifecycle-current.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-origin-ledger-lifecycle-current/pytest.xml",
+          "sha256": "05bf22fa7c85371a77fd8333f34e607e2a4eb5bbfb3553afcf2c50d39d890c11",
+          "bytes": 15481,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-origin-ledger-lifecycle-current/source-profile-freeze.json",
+          "sha256": "9f2b0255ad717047105fd66b318053a38fd0d3855d1c57c21eda2df1b57fdfcf",
+          "bytes": 11074,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-origin-ledger-lifecycle-current/process-tree.jsonl",
+          "sha256": "10293d6e176a1a225a5fb7ff83be8a9e5a117bf8741793409deff16526dc4891",
+          "bytes": 94291,
+          "availability": "local_ignored_RAW_full_output"
+        }
+      ],
+      "verdict_qualification": "68PASS1testcompanionFAIL: missing tenant_context parameter; canonical authorized-reuse bridge remains separately source-inspected missing."
+    },
+    {
+      "case": "s3-b31-channels-current",
+      "tasks": [
+        "S3"
+      ],
+      "status": "FAIL_OR_ERROR",
+      "return_code": 1,
+      "abort_reason": null,
+      "junit": {
+        "tests": 4,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skips": [],
+      "seconds": 175.5117779589782,
+      "sampled_process_tree_rss_bytes": 1055145984,
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/s3-b31-channels-current/audit-result.json",
+        "sha256": "85d4d4fe535b4d5847deb1496c7aa7a00634ea58172083eda9d482a8300a52b2"
+      },
+      "imported_src_tests_paths": 1655,
+      "current_readset_mismatches": [],
+      "scope": "Current B31 actual reports/owner basis/fresh CAS and fixed-unit projection plus synthetic4/[1,10] preservation. Check individual witness limits; do not claim combined two-channel native unit witness from separate tests.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/s3-b31-channels-current/s3-b31-channels-current.stdout.txt",
+          "sha256": "4e2a30d79287ddc414fa1bd2532a68d9c648d79b0f365dba7a4db349ece5fc69",
+          "bytes": 131923,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/s3-b31-channels-current/s3-b31-channels-current.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/s3-b31-channels-current/pytest.xml",
+          "sha256": "a9b3d0904ca4ac384dae2ef9a63afe76de36c0804a0a643bcd278a0380b53128",
+          "bytes": 1548,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/s3-b31-channels-current/source-profile-freeze.json",
+          "sha256": "4b1895ea0ef1be61852b8162b467fce10d160f919c97a97adedea2a44b94250f",
+          "bytes": 9759,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/s3-b31-channels-current/process-tree.jsonl",
+          "sha256": "1fc3b29196e63560f2ba24647bc25a73c56ef433e8c47f33e20736261aa5325a",
+          "bytes": 426772,
+          "availability": "local_ignored_RAW_full_output"
+        }
+      ],
+      "verdict_qualification": "3PASS1badly-wired adversarial test companion: typed-manifest override does not mutate actual raw-manifest seam. No producer defect established from this failure. Combined original two-channel/unit witness remains missing."
+    },
+    {
+      "case": "v1-served-isolated-r3",
+      "tasks": [
+        "V1"
+      ],
+      "status": "ABORTED",
+      "return_code": -15,
+      "abort_reason": "sampled_process_tree_rss_cap",
+      "junit": null,
+      "skips": [],
+      "seconds": 95.368432999996,
+      "sampled_process_tree_rss_bytes": 5564858368,
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-served-isolated-r3/audit-result.json",
+        "sha256": "e0753f29d5cd45fe1fe07f98078e65225980752d3a7ebdd1ef52af3b81ffa173"
+      },
+      "imported_src_tests_paths": 0,
+      "current_readset_mismatches": [],
+      "scope": "Ordinary configured POST/owned context/worker/N5/CAS/fresh GET; actual recorded N4 child derivation then N6/history, budget stop, sibling failure and history removal. Controlled source-bound local witnesses; no live production currentness or whole mapped findings closure. Isolated V1 after two resource-limit aborts; 5GiB serial cap authorized after measured free-memory check; no weakening of native profile. V2 not claimed run.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-served-isolated-r3/v1-served-isolated-r3.stdout.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-served-isolated-r3/v1-served-isolated-r3.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-served-isolated-r3/source-profile-freeze.json",
+          "sha256": "3eddd08bf02ca6b6c8ec841a58f1a6f2405a9b88ca41fb37718dfd5697681569",
+          "bytes": 9487,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-served-isolated-r3/process-tree.jsonl",
+          "sha256": "961a8760f5573ded2cea8418f42b72cffd2f24dce9e251b4d5e78198834060e5",
+          "bytes": 201620,
+          "availability": "local_ignored_RAW_full_output"
+        }
+      ],
+      "verdict_qualification": "No test verdict at serial5GiB cap; no further blind cap escalation. Local memory/cost profiling remains required."
+    },
+    {
+      "case": "v1-v2-served-current",
+      "tasks": [
+        "V1",
+        "V2"
+      ],
+      "status": "ABORTED",
+      "return_code": -15,
+      "abort_reason": "sampled_process_tree_rss_cap",
+      "junit": null,
+      "skips": [],
+      "seconds": 20.80913383301231,
+      "sampled_process_tree_rss_bytes": 2784067584,
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current/audit-result.json",
+        "sha256": "50f251c1d3e019ab4fa49161617a90b4ccccef942e20445710bb1be2ebaa04ae"
+      },
+      "imported_src_tests_paths": 0,
+      "current_readset_mismatches": [],
+      "scope": "Ordinary configured POST/owned context/worker/N5/CAS/fresh GET; actual recorded N4 child derivation then N6/history, budget stop, sibling failure and history removal. Controlled source-bound local witnesses; no live production currentness or whole mapped findings closure.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current/v1-v2-served-current.stdout.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current/v1-v2-served-current.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current/source-profile-freeze.json",
+          "sha256": "66f0600cdae8efcbd25b1cf60ce752978180afdf7a91f23ffea0afadfaa75040",
+          "bytes": 9806,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current/process-tree.jsonl",
+          "sha256": "0f5a218f4e4d6afccddfdac1a63b4ffef8e07557251fa0dab60ce2ae2004e2e2",
+          "bytes": 51918,
+          "availability": "local_ignored_RAW_full_output"
+        }
+      ],
+      "verdict_qualification": "No completed test verdict; active V1 fixture seen, V2 not reached. Empty observer set because sessionfinish not reached, not because no source loaded. Monitor termination is not system OOM."
+    },
+    {
+      "case": "v1-v2-served-current-r2",
+      "tasks": [
+        "V1",
+        "V2"
+      ],
+      "status": "ABORTED",
+      "return_code": -15,
+      "abort_reason": "sampled_process_tree_rss_cap",
+      "junit": null,
+      "skips": [],
+      "seconds": 138.13841762501397,
+      "sampled_process_tree_rss_bytes": 3711942656,
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current-r2/audit-result.json",
+        "sha256": "40b765972e0d40ac59c00f145957bfdd80616bf92eea8763313b9f7107e7b336"
+      },
+      "imported_src_tests_paths": 0,
+      "current_readset_mismatches": [],
+      "scope": "Ordinary configured POST/owned context/worker/N5/CAS/fresh GET; actual recorded N4 child derivation then N6/history, budget stop, sibling failure and history removal. Controlled source-bound local witnesses; no live production currentness or whole mapped findings closure. Initial run stopped by measured monitor cap at2.59GiB, no completed test verdict. This retry uses3.42GiB cap after memory_pressure measured59%free; no test/profile/source change.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current-r2/v1-v2-served-current-r2.stdout.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current-r2/v1-v2-served-current-r2.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current-r2/source-profile-freeze.json",
+          "sha256": "21650aa305cc91ad14ab8177678cf0dedbcb514a0f0a3cef7c8e0fa910943278",
+          "bytes": 10027,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-v2-served-current-r2/process-tree.jsonl",
+          "sha256": "ef308fdcdf4e97bcac45c2c58cce2db3e2045f51a950af70c1947dcce9dc3e7d",
+          "bytes": 331324,
+          "availability": "local_ignored_RAW_full_output"
+        }
+      ],
+      "verdict_qualification": "No completed test verdict; active V1 fixture seen, V2 not reached. Empty observer set because sessionfinish not reached, not because no source loaded. Monitor termination is not system OOM."
+    },
+    {
+      "case": "v2-served-isolated",
+      "tasks": [
+        "V2"
+      ],
+      "status": "ABORTED",
+      "return_code": -15,
+      "abort_reason": "sampled_process_tree_rss_cap",
+      "junit": null,
+      "skips": [],
+      "seconds": 32.18853154100361,
+      "sampled_process_tree_rss_bytes": 3249684480,
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v2-served-isolated/audit-result.json",
+        "sha256": "8a72523c4e7f14cd4b6331ca6920ce9610e026626277af213393502c8cd925c6"
+      },
+      "imported_src_tests_paths": 0,
+      "current_readset_mismatches": [],
+      "scope": "Isolated V2 actual recorded N4 children→N6/history/freshGET plus sibling failure/budget/removal; source/config native profile unchanged. Earlier combined runs aborted within V1 and did not reach V2.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v2-served-isolated/v2-served-isolated.stdout.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v2-served-isolated/v2-served-isolated.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v2-served-isolated/source-profile-freeze.json",
+          "sha256": "551d62056cb201d37f9f7cf6b993c23c1165b94c0babfe77aac1bbe67c1bbf4c",
+          "bytes": 9400,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v2-served-isolated/process-tree.jsonl",
+          "sha256": "18e1ce36e05a81b118dfa79e7a3cb1c4cef5a5f3a88188e087c5488f4d02d597",
+          "bytes": 74178,
+          "availability": "local_ignored_RAW_full_output"
+        }
+      ]
+    },
+    {
+      "case": "v4-v7-empirical-current",
+      "tasks": [
+        "V4",
+        "V7"
+      ],
+      "status": "FAIL_OR_ERROR",
+      "return_code": 1,
+      "abort_reason": null,
+      "junit": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skips": [],
+      "seconds": 23.7945847499941,
+      "sampled_process_tree_rss_bytes": 1279803392,
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v4-v7-empirical-current/audit-result.json",
+        "sha256": "72b80a61e4128e6cd05287f39b4cee199c9e35b0bb6e4fda59a43212dd15beaf"
+      },
+      "imported_src_tests_paths": 1858,
+      "current_readset_mismatches": [],
+      "scope": "Actual predictive heldout observations to persisted CAS evidence, fresh HTTP GET and S10; same intervals/different outcomes discriminator. No causal calibration, population completeness or source-owned time authority inferred.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v4-v7-empirical-current/v4-v7-empirical-current.stdout.txt",
+          "sha256": "b92087edaff7f6ff7f3deffbc96014b0094b250aae5f8be7981bb033a14e6e98",
+          "bytes": 9253,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v4-v7-empirical-current/v4-v7-empirical-current.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v4-v7-empirical-current/pytest.xml",
+          "sha256": "aa2e6ea24afdf625bda17187ea5ed7cb7c0b69067a59eeaa09d11e7b5440b25c",
+          "bytes": 3233,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v4-v7-empirical-current/source-profile-freeze.json",
+          "sha256": "9ddec476c4eb8bddd07890bb853e81bf8d4d5966f8a7522c95fc42996b425603",
+          "bytes": 9520,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v4-v7-empirical-current/process-tree.jsonl",
+          "sha256": "26d357ab0f41982616bcbb93c36440f73f1385ebef079237f1cc4f9bf2f59f5e",
+          "bytes": 52734,
+          "availability": "local_ignored_RAW_full_output"
+        }
+      ],
+      "verdict_qualification": "Shared product CoreCanonSpec→IRCanonSpec type mismatch plus independent HTTP fixture route-shape mismatch; predicates fail before final empirical-grade/S10 check. One shared product defect, not two independent closures/blockers."
+    },
+    {
+      "case": "v5-failure-discriminating-locals",
+      "tasks": [
+        "V5"
+      ],
+      "status": "FAIL_OR_ERROR",
+      "return_code": 1,
+      "abort_reason": null,
+      "junit": {
+        "tests": 2,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skips": [],
+      "seconds": 27.327148958982434,
+      "sampled_process_tree_rss_bytes": 1063550976,
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-failure-discriminating-locals/audit-result.json",
+        "sha256": "dc626f22fe9d5c27d1d17c3b9c341c0da286797d5b70e1b44222caf25f56f272"
+      },
+      "imported_src_tests_paths": 1271,
+      "current_readset_mismatches": [],
+      "scope": "One-variable diagnostic followup to fresh2FAIL: retain canonical pytest.ini/default plugins and source; add only failure-local display. Determine GP prefit early-exit and executed packet rejection predicate. Both tests belong to V5/B157, not original V6 SimulationResult.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-failure-discriminating-locals/v5-failure-discriminating-locals.stdout.txt",
+          "sha256": "1a94e890d609c853f06948e0b227085c4c940e000d9f7bea13679bf63337047a",
+          "bytes": 11715,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-failure-discriminating-locals/v5-failure-discriminating-locals.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-failure-discriminating-locals/pytest.xml",
+          "sha256": "f3741f9d495dfba766c390100d8ff7a44e9bc030e3939ad93bf956bccb0f423b",
+          "bytes": 7661,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-failure-discriminating-locals/source-profile-freeze.json",
+          "sha256": "e34fbbd07d155a3cfafc711f0f2d18a00543ddef1005f9debde2c48d95c2155a",
+          "bytes": 9815,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-failure-discriminating-locals/process-tree.jsonl",
+          "sha256": "3f7a8317d1d267a84aa3dbb621de4b09c6fc67f4396abff1dadee178fc44d84a",
+          "bytes": 61384,
+          "availability": "local_ignored_RAW_full_output"
+        }
+      ]
+    },
+    {
+      "case": "v5-native-gp-and-b157",
+      "tasks": [
+        "V5"
+      ],
+      "status": "FAIL_OR_ERROR",
+      "return_code": 1,
+      "abort_reason": null,
+      "junit": {
+        "tests": 3,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skips": [],
+      "seconds": 23.817832792003173,
+      "sampled_process_tree_rss_bytes": 1116962816,
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-native-gp-and-b157/audit-result.json",
+        "sha256": "e84064c4185e33a58730a772ac0896b05220cfc931839caf5194ef8b69a110e3"
+      },
+      "imported_src_tests_paths": 1272,
+      "current_readset_mismatches": [],
+      "scope": "Actual native GP->Search/MethodJob/CAS/history/fresh reader plus original B157 directL4 vs L3->L4 caller/config invariants. Last diagnostic work-count test patches nuisance/tau and does not establish native DR fitting. No B108 fiscal authority or pending new static/cache identity law inferred.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-native-gp-and-b157/v5-native-gp-and-b157.stdout.txt",
+          "sha256": "91f855bb5dbe24fb4ae6456485af896ab33b30f2538c00e829c27a29f7221d46",
+          "bytes": 6212,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-native-gp-and-b157/v5-native-gp-and-b157.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-native-gp-and-b157/pytest.xml",
+          "sha256": "682e1bf53abc27ebbf8e78e870df34a6c76f665abb4d131f0dfb5d76e21f18d5",
+          "bytes": 2260,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-native-gp-and-b157/source-profile-freeze.json",
+          "sha256": "4d33faaa36e8d5f98e486a9c6df5ae4ff14648129595d50fc025740ecfe115b7",
+          "bytes": 9978,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v5-native-gp-and-b157/process-tree.jsonl",
+          "sha256": "8c1009e5c1a09fe63999a120adbfec7faefa84b2ae11a6ce61bd387f2ef287f5",
+          "bytes": 56410,
+          "availability": "local_ignored_RAW_full_output"
+        }
+      ]
+    },
+    {
+      "case": "v6-simulation-sibling-failure",
+      "tasks": [
+        "V6",
+        "R1"
+      ],
+      "status": "PASS",
+      "return_code": 0,
+      "abort_reason": null,
+      "junit": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skips": [],
+      "seconds": 45.639611374994274,
+      "sampled_process_tree_rss_bytes": 1570275328,
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v6-simulation-sibling-failure/audit-result.json",
+        "sha256": "44c0a774847936698e8eb2eb4f75a53d02bd3ce1b1356348db66792c44ca6616"
+      },
+      "imported_src_tests_paths": 2055,
+      "current_readset_mismatches": [],
+      "scope": "Original V6 SimulationResult producer, actual persisted state/report, later sibling failure and fresh debug/API with corruption controls. Existing test uses custom DAG low-level executor after control-job setup; that boundary remains explicit. Distinct from R4 TMLE fold-result witness.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v6-simulation-sibling-failure/v6-simulation-sibling-failure.stdout.txt",
+          "sha256": "3c1830cfa8ca9ce26fbff0504b70994151e817ab02f62655c536ab8a8f1619f6",
+          "bytes": 1887,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v6-simulation-sibling-failure/v6-simulation-sibling-failure.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v6-simulation-sibling-failure/pytest.xml",
+          "sha256": "09953e4f5ac0f83928b43e6a0e22cef22c0950266e8ec9e2b62603a1db7ce544",
+          "bytes": 428,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v6-simulation-sibling-failure/source-profile-freeze.json",
+          "sha256": "0ee4abca6cf0ed72df0beda5f9b2bb074973f6e122bab3b621d875186c54bea4",
+          "bytes": 9437,
+          "availability": "local_ignored_RAW_full_output"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v6-simulation-sibling-failure/process-tree.jsonl",
+          "sha256": "e0a68c132cdff9fc716fee08c3844d7c9fe3417803eeac721105dcf2d36815eb",
+          "bytes": 96887,
+          "availability": "local_ignored_RAW_full_output"
+        }
+      ]
+    }
+  ],
+  "raw_availability": "Full deciding outputs retained in ignored RAW at cited local paths+SHA. No tracked source copies, production payload census, model copies or new environment installation. G is local and may read these paths; archive/export availability must be rechecked before future cleanup.",
+  "product_code_changes": [],
+  "closure_ids": [],
+  "G_code_acceptance": false,
+  "global_source_input_backend_freeze": false
+}

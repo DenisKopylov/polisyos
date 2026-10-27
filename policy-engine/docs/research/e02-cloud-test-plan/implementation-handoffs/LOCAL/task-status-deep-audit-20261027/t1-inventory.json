@@ -1,0 +1,334 @@
+{
+  "schema": "policyos.e02.task_status.t1_inventory.v1",
+  "source_head": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+  "scope": "Complete seven-ID T1 owner/API/authority-plane inventory only. Missing facts remain not_established; no individual finding closure or runtime positive inferred.",
+  "task_exit_status": "author_complete_inventory_ready_for_G_after_independent_review",
+  "rows": [
+    {
+      "id": "B30",
+      "plane": "internal_measurement_and_consumer",
+      "owner": "GenerationCycleController / StrangleReceipt",
+      "current_outcome": "Checkout-slice source census/receipt and N6 consumer exist; missing/parse-error/direct-AST caller are distinct. Build/deployment and loaded source identity are not established by that census.",
+      "external_input": "No institutional fact required to inventory or fixture-test this scanner. A concrete selected build/deployment slice is needed for the wider consumer denominator.",
+      "next_check": "Freeze the actual selected caller/build slice and exercise the ordinary receipt consumer; retain dynamic/rebinding/outside-selector boundaries.",
+      "criterion_refs": [
+        {
+          "criterion_id": "B30",
+          "document": "B_r19",
+          "lines": [
+            579,
+            592
+          ],
+          "sha256": "251d77ebefef25cd01ccd9bf1bcf331725906815dddf47212336198586f99104",
+          "card": "CYC-05"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "sha256": "4d82eb434bbcb48e234ceecc5c468224c0311d85ed3c11241b27b762a69d5ba4",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_cyc_05.py",
+          "sha256": "728ca80af9cccfc0247e628d3ecc3fa5b5c5fda4b81aa4a6a127ee970c0ffa58",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        }
+      ],
+      "individual_finding_closed": false,
+      "reference_status": "StrangleReceipt / explicit selected repository slice; no loaded deployment identity established",
+      "issuer_status": "Not applicable to scanner arithmetic; any selected deployment/issuer fact remains not_established",
+      "verifier_component": "StrangleReceipt.recompute + verify_current/source digest",
+      "consumer_component": "GenerationCycleRun and validate_generation_cycle_run"
+    },
+    {
+      "id": "B67",
+      "plane": "source_use_authorization_then_local_cache",
+      "owner": "Source-use owner via CacheReuseAuthorizer; CachingLLMClient/factory consume the decision",
+      "current_outcome": "Typed authorizer seam, conservative miss/refusal, exact ref/content/model/params/scope checks and owner-injected fixture positive exist. A production owner/authorizer is not established by the inspected traces; canonical NL caller authorizer wiring is separately unresolved.",
+      "external_input": "For actual source reuse: immutable source bytes/ref/hash, model/version/params, tenant/actor/purpose/epoch and current use rights from the source-use owner.",
+      "next_check": "Wire/configure the selected genuine authorizer to the actual caller; prove same-authorized reuse and changed-version/lost-right/denied-actor misses. Keep fixture mechanics distinct from real rights.",
+      "criterion_refs": [
+        {
+          "criterion_id": "B67",
+          "document": "B_r19",
+          "lines": [
+            1709,
+            1728
+          ],
+          "sha256": "b3d2e0fe856b77f9c1388e795a0f15adeab905c5b60d4d627e83ce23ca4c3278",
+          "card": "LLM-02"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+          "sha256": "1c0f52b9206f406f19bba51bc743883300ab954fcf3ac61d0f93dd5dbcbd67d3",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+          "sha256": "c58707ab1c705acb09ffa46ed7c362a5265f62126c3d1bac1a5a0ca3e22ade50",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_scope_admission.py",
+          "sha256": "562b2c35d1ff3956be639be4797faddeb3399e5469e8d448555fbe61aa9bcef2",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_factory_cache_composition.py",
+          "sha256": "e41d51ffea31d6a3624cf5b4cbfcaffd40425bd82ead8a6b99f1879ce25afc9b",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        }
+      ],
+      "individual_finding_closed": false,
+      "reference_status": "Exact genuine immutable source/ref/content/model/params/use tuple not selected; controlled fixture CAS refs exist",
+      "issuer_status": "Source-use owner must supply current rights; canonical NL authorizer binding not established",
+      "verifier_component": "CacheReuseAuthorizer.authorize_reuse plus access/ref/content/model/parameter/epoch equality checks",
+      "consumer_component": "CachingLLMClient.generate via create_traced_gateway_client"
+    },
+    {
+      "id": "B148",
+      "plane": "our_CAS_receipt_verification_admission_and_publication",
+      "owner": "FileSystemCAS + selected tenant/cell ArtifactOwnershipIndex",
+      "current_outcome": "Staging/snapshots, prepublication integrity/profile/ownership admission, durable publication and fresh readers exist. Trusted-key cryptographic verification is a distinct step; import presence alone is not signer authority.",
+      "external_input": "Ordinary isolated same-owner contract is fixture-capable. Genuine cross-owner policy/issuer inputs are required only for a cross-owner authority claim.",
+      "next_check": "Replay exact directory/tar positives and corrupt/malformed/profile/ownership/interruption/competing-publication controls; verify old readable generation survives.",
+      "criterion_refs": [
+        {
+          "criterion_id": "B148",
+          "document": "B_r19",
+          "lines": [
+            3917,
+            3928
+          ],
+          "sha256": "9dc24cc351838bcc7e2f1210c44c7cd4a6b6377579f500b53a677e8276e6e47a",
+          "card": "CAS-02"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+          "sha256": "ce8004a1ab0ea0ad94e71b3ed99c104247eb0ad5c576a8d14bef33b3613d4df1",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+          "sha256": "b9b83efb662542fde00cc2023c5d6deac54c9f50678d80256ca35dbcd3fe6ce9",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        },
+        {
+          "path": "policy-engine/src/polisyos/fabric/storage/tenant_cas.py",
+          "sha256": "52a76d6ffbdb08f6f40ddd90f9726fd268bfc6f2255588f90b3f44a65d9f6435",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_cas_02.py",
+          "sha256": "e93cc5988daa523bc75c7080c33c9d7370427d524262c413d26f5f2f0f045eea",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        }
+      ],
+      "individual_finding_closed": false,
+      "reference_status": "Controlled directory/archive CAS refs exist; no production/cross-owner transfer selected",
+      "issuer_status": "Selected tenant/cell ownership policy governs our admission; import alone does not authenticate a remote signer",
+      "verifier_component": "TransferMemberSnapshot, _admit_import_members, staged byte/profile checks and separate verify_signature when required",
+      "consumer_component": "FileSystemCAS selected-view reads / verify through tenant-scoped CAS"
+    },
+    {
+      "id": "LA-027",
+      "plane": "internal_package_and_supported_alias_contract",
+      "owner": "polisyos.data_forge.kernel.schemas",
+      "current_outcome": "Legacy module is a three-symbol identity-preserving alias to the canonical owner; present tests keep supported aliases importable. Full installed/external caller denominator and retirement window are not established.",
+      "external_input": "Package owner's supported alias/retirement window if retirement is proposed; no institutional authority issuer is required.",
+      "next_check": "Complete declared import/tool/config and wheel/sdist caller/export checks; preserve alias until a support-window decision is supplied.",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-027",
+          "document": "LA_r09",
+          "lines": [
+            1418,
+            1465
+          ],
+          "sha256": "a78cbc850be0ec8fdbec3076613780d16dfc169517f5f1568f42a6a80cd3e8ce",
+          "card": "DFK-01"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/__init__.py",
+          "sha256": "0ab76067bbdd73818cda5d79fbac01c24c4b6f8ac03c80835ead6403ea80b9bf",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/kernel/schemas/__init__.py",
+          "sha256": "a1699faed4cc01753760dfe569e667526e7d5ab8e01189666df99193924844ad",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+          "sha256": "7dbe0afc7a53521c7919376c80820b2677e1f9aad70d1c42e2ddd4228b0b5031",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        }
+      ],
+      "individual_finding_closed": false,
+      "reference_status": "Canonical and legacy code FQNs are identified; current source/test hashes pinned below",
+      "issuer_status": "No institutional issuer needed; package-owner support/retirement window not_established",
+      "verifier_component": "Identity-preserving re-export tests, canonical registry/FQN census and future installed-byte checks",
+      "consumer_component": "Supported Python/tool callers of data_forge.kernel.schemas and pipeline.schemas alias"
+    },
+    {
+      "id": "LA-050",
+      "plane": "internal_migration_contract_plus_authentic_historical_input",
+      "owner": "Fabric DatasetManifest/identity migrations; Common neutral migration engine",
+      "current_outcome": "Canonical CLI explicitly registers Fabric-owned v0.9→1.0 converter, which renames/stamps; strict DatasetManifest.model_validate acceptance is tested separately, not executed by the CLI converter. Common still registers its deprecated compatibility callback upon legacy module import. Exact authentic persisted historical v0.9 artifact and complete historical caller corpus are not established from named inputs.",
+      "external_input": "The exact genuine historical v0.9 artifact/manifest locator; a differently named simulation artifact does not substitute for it.",
+      "next_check": "Run current local converter/registration/CLI controls, then compare against the authentic historical artifact when available; do not infer global absence.",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-050",
+          "document": "LA_r09",
+          "lines": [
+            3397,
+            3431
+          ],
+          "sha256": "929111170bede523485d77e9bd1ae74702f9a8dfbbc4422d8c6cdc85252bac05",
+          "card": "MIG-04"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "policy-engine/src/polisyos/fabric/identity/migrations.py",
+          "sha256": "daa6691ca7eb8f0248915bf73d5edf2e1639d42c9775bc7201922abbbdd78d97",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        },
+        {
+          "path": "policy-engine/src/polisyos/fabric/identity/manifest.py",
+          "sha256": "d9b63a4ab032cfc0a3a3ffc39814fe78a59707774e12f4eb5cc08f65e9dbaaab",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        },
+        {
+          "path": "policy-engine/src/polisyos/common/migrations/manifest.py",
+          "sha256": "7d7a8ecb625f23fb9e3e0dfc66f7837b9b30353d15a587c3a23525d991b72806",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        },
+        {
+          "path": "policy-engine/tools/ops_runners/migrations/migrate.py",
+          "sha256": "1d9b11c83823f652be26055d69f26734c4a4cc48e527ca68ce00783902bc76fe",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        },
+        {
+          "path": "policy-engine/ops/migrations/migration-contracts.toml",
+          "sha256": "2ce3d51361b0ad463a094b5c0cc64676d236b5da23f1d9678f554cd616e00944",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_mig_04.py",
+          "sha256": "c7c3f2380977d9537df947054d8bc4a65239be5bda385668281b0e8b2644f0d4",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        }
+      ],
+      "individual_finding_closed": false,
+      "reference_status": "dataset_manifest v0.9→1.0 migration is registered; authentic historical v0.9 artifact ref not_established",
+      "issuer_status": "Fabric owns converter contract; genuine historical artifact custodian/input not_established",
+      "verifier_component": "Fabric converter + separately tested strict DatasetManifest target validation + Common migration engine + CLI contract binding",
+      "consumer_component": "tools.ops_runners.migrations.migrate through registered migration-contracts.toml route"
+    },
+    {
+      "id": "B108",
+      "plane": "objective_input_semantics_then_our_candidate_score",
+      "owner": "Objective/input owner defines local alias, sign and unit semantics and ordinary consumer mapping",
+      "current_outcome": "Current code/tests preserve missing/null/zero/nonfinite/conflict/unit distinctions. The current source additionally refuses unbound budget-deficit period-flow observations; that additional behavior is not a new original acceptance or G-selected law.",
+      "external_input": "Local metric/alias/sign/unit contract and ordinary objective consumer mapping remain local engineering. A declared fixture can test the original contract without a source-issued period-flow positive; genuine source/time/currentness evidence is needed only for a real-world fiscal claim.",
+      "next_check": "Exercise actual objective consumer with a valid alternative plus exact missing/null/zero/conflict/nonfinite/unit controls; distinguish current period-flow limitation from original required local behavior.",
+      "criterion_refs": [
+        {
+          "criterion_id": "B108",
+          "document": "B_r19",
+          "lines": [
+            2897,
+            2910
+          ],
+          "sha256": "f43cecf8c2c66d6cc7bce5c5174b45fe7692e5018e1364c9798302104f8e4b55",
+          "card": "OPT-01"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+          "sha256": "10f16820d165f1c7ae718cf8c23ae5675170e51c5ceeed69ffac1f92a58394ec",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/test_objective.py",
+          "sha256": "3d15744585bb92be526b7a20991e5637230d137c1fdaf994a42ba9e729e252c3",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        }
+      ],
+      "individual_finding_closed": false,
+      "reference_status": "Current SourceMetricObservation exists; an external source ref is not prerequisite to testing the original local semantics.",
+      "issuer_status": "Local Objective/input owner defines metric/alias/sign/unit behavior; no external authority grant required for fixture-level B108 verification.",
+      "verifier_component": "BudgetDeficitObjective missing/null/zero/conflict/unit guards and SourceMetricObservation basis",
+      "consumer_component": "Configured Search/objective consumer of ObjectiveScoreAssessment"
+    },
+    {
+      "id": "LA-053",
+      "plane": "internal_calibration_package_and_supported_alias_contract",
+      "owner": "polisyos.calibration curve API; Scientist backtesting path is compatibility alias",
+      "current_outcome": "Shared implementation and identity-preserving three-symbol alias exist, with public/canonical/legacy identity and package behavior tests. Full caller/notebook/generated/export/build-distribution census and support window remain separate.",
+      "external_input": "Package owner support-window decision only if retirement is proposed; no external authority fact belongs to the package identity check.",
+      "next_check": "Complete caller/export and installed wheel/sdist checks; retain compatibility until the owner specifies the supported window.",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-053",
+          "document": "LA_r09",
+          "lines": [
+            3793,
+            3815
+          ],
+          "sha256": "b8486db456080f21e07d1949996f18748785d02672e511ea8b57c273192d63a4",
+          "card": "PCL-01"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/calibration_curve.py",
+          "sha256": "3f618d669f3bb8f41a793817494bcbac59f1e0ed0712265aabf48b86ab1fdc02",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        },
+        {
+          "path": "policy-engine/src/polisyos/calibration/curve/__init__.py",
+          "sha256": "f728d338c60b866fba304bb77ac42290180112c3b1a9939625383aac6f3dadcb",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        },
+        {
+          "path": "policy-engine/src/polisyos/calibration/__init__.py",
+          "sha256": "c954e24883a1ae9b355b26c2513bbd2a71c41a55946e5b2595e337dfe5b9f786",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+          "sha256": "a024673903c01bdf0dfb9ef461132581653265cab8135e3e7799788526bf0a17",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        },
+        {
+          "path": "policy-engine/tests/unit/calibration/test_package_rehome.py",
+          "sha256": "85175ea330c47c8a342fa67c3e74a07fe4afa04c62ad6792affc0ad237eb758e",
+          "evidence_kind": "current_source_or_existing_test_readback_not_fresh_behavioral_replay"
+        }
+      ],
+      "individual_finding_closed": false,
+      "reference_status": "Canonical public calibration curve FQNs and three-symbol legacy alias identified by current source hashes",
+      "issuer_status": "No institutional issuer needed; package-owner support/retirement window not_established",
+      "verifier_component": "Public/canonical/legacy object identity and package-rehome behavioral tests",
+      "consumer_component": "Supported polisyos.calibration and Scientist backtesting calibration_curve callers"
+    }
+  ],
+  "named_private_locator_boundary": "The prior rebind records absence only at the named L01/L02 roots and11 exact paths at its check. This report makes no global absence/current production root claim.",
+  "source_and_runtime_boundary": "Current inspected source/test bytes are pinned. Tests were not run to complete this inventory; T2 and other task routes retain their actual behavioral/input requirements.",
+  "closure_ids": [],
+  "review_scope_corrections": [
+    "B108 local acceptance is not gated on an external period-flow/source grant.",
+    "LA-050 CLI conversion and strict DTO acceptance are separate; legacy Common callback retained."
+  ]
+}

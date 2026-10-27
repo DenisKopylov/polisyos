@@ -4532,6 +4532,55 @@ class ControlPlaneStore:
         )
         return self._row_to_acquisition_action_head(row) if row is not None else None
 
+    def get_acquisition_action_head_by_receipt(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        route_id: str,
+        action_generation: int,
+        receipt_ref: str,
+    ) -> AcquisitionActionHeadRecord | None:
+        """Return one exact historical action head for a receipt, if unambiguous.
+
+        Receipt lookup is scoped to the complete action identity. Missing,
+        ambiguous, or internally misbound rows produce no accepted result.
+        """
+        rows = self._fetchall(
+            """
+            SELECT tenant_id, cell_id, run_id, source_job_id, route_id,
+                   action_generation, head_generation, receipt_ref, receipt_sha256,
+                   durable_event_id, coarse_phase, receipt_phase, recovery_state,
+                   job_id, predecessor_receipt_ref, created_at
+            FROM runtime_acquisition_action_heads
+            WHERE tenant_id = ? AND cell_id = ? AND run_id = ?
+              AND source_job_id = ? AND route_id = ? AND action_generation = ?
+              AND receipt_ref = ?
+            ORDER BY head_generation
+            """,
+            (
+                tenant_id,
+                cell_id,
+                run_id,
+                source_job_id,
+                route_id,
+                action_generation,
+                receipt_ref,
+            ),
+        )
+        if len(rows) != 1:
+            return None
+        row = rows[0]
+        if (
+            row["receipt_ref"] != receipt_ref
+            or row["receipt_sha256"] != receipt_ref
+            or not _is_sha256_ref(row["receipt_ref"])
+        ):
+            return None
+        return self._row_to_acquisition_action_head(row)
+
     def list_acquisition_action_heads(
         self,
         *,

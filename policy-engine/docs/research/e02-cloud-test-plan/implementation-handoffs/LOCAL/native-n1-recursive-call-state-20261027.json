@@ -1,0 +1,202 @@
+{
+  "record_kind": "author_native_N1_recursion_mechanism_receipt",
+  "record_version": "1.0",
+  "date": "2026-10-27",
+  "slice_base": {
+    "commit": "793f8c6f3ecedf5d7d38f91ecdb24970e1eef5fb",
+    "tree": "204223a48e38330d0178054b7e04a29c0495a3b6",
+    "status": "attached branch; owned two-file V60 delta declared before tests"
+  },
+  "candidate_source": {
+    "head": "b66853b5be1205f6902398427d64a811c5fe3df9",
+    "tree": "496ae93561aaede5b559ce430a422af188c7dd2d",
+    "parents": [
+      "793f8c6f3ecedf5d7d38f91ecdb24970e1eef5fb"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "paths": {
+      "policy-engine/tools/quality/validation/decomposition_preflight.py": "061a94248ffe1334944f66fb3064a6da20eddc069e17f50f92433138d1a13aaa",
+      "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py": "911b96b7a9a14ed6cbf636c42b07818100e0109d06c34145fe5686a19a20aac2"
+    },
+    "source_global_freeze": false,
+    "code_acceptance": false,
+    "closure_ids": []
+  },
+  "footprint": {
+    "policy-engine/tools/quality/validation/decomposition_preflight.py": "061a94248ffe1334944f66fb3064a6da20eddc069e17f50f92433138d1a13aaa",
+    "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py": "911b96b7a9a14ed6cbf636c42b07818100e0109d06c34145fe5686a19a20aac2"
+  },
+  "property": "Recursively invoked module-time source functions preserve importer effects across changing abstract argument/module states; repeated same-state backedges remain bounded and do not authorize unresolved importers. No path/function-name allowlist.",
+  "selected_profile": {
+    "backend": "native product venv Python3.14.3",
+    "pytest": "policy-engine/pytest.ini with installed plugins/importlib behavior",
+    "numerical_threads": 1,
+    "input_scope": "actual owner source discovery roots src/tools/apps/packages, .py only",
+    "input_count": 3336,
+    "limits": {
+      "pytest_RSS_bytes": 2684354560,
+      "collector_RSS_bytes": 4294967296,
+      "disk_floor_bytes": 6442450944,
+      "collector_wall_seconds": 240
+    }
+  },
+  "commands_and_full_outputs": {
+    "runner": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-v60-native-composed-20261027-r1/run.py",
+      "sha256": "0595ddea9f8e0352ea8466f2023144cda2b298f47c625d656e1cfce69a8c0217",
+      "availability": "local ignored RAW, complete deciding output retained"
+    },
+    "collector": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-v60-native-composed-20261027-r1/collect.py",
+      "sha256": "4b5d2bac4f1055a4dd6c4cddc9eac22d615f7a02675ee64e8c0b38fba25c96fb",
+      "availability": "local ignored RAW, complete deciding output retained"
+    },
+    "freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-v60-native-composed-20261027-r1/source-profile-freeze.json",
+      "sha256": "8b0306ee80fc1f2946bf938e826ef14b3a135603803cb1bb021221f9d1f5ca8c",
+      "availability": "local ignored RAW, complete deciding output retained"
+    },
+    "results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-v60-native-composed-20261027-r1/results.json",
+      "sha256": "5b4c4a7a5a39369be33e4a6acc18a60dcd71ed1034e3c9c002939c9a8e35aafb",
+      "availability": "local ignored RAW, complete deciding output retained"
+    },
+    "decisions": [
+      {
+        "id": "n1-native-controls",
+        "return_code": 0,
+        "aborted_reason": null,
+        "complete": true,
+        "max_sampled_process_tree_rss_bytes": 211681280,
+        "wall_seconds": 10.932729207997909,
+        "junit_counts": {
+          "tests": 62,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "outputs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-v60-native-composed-20261027-r1/n1-native-controls/phase-output.jsonl",
+            "sha256": "9d9120b725d2defd446b4b40c627c65de30fee33cd319948ad85c9597dbb3ddd",
+            "availability": "local ignored RAW, complete deciding output retained"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-v60-native-composed-20261027-r1/n1-native-controls/n1-native-controls.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "availability": "local ignored RAW, complete deciding output retained"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-v60-native-composed-20261027-r1/n1-native-controls/pytest.xml",
+            "sha256": "3690033c175ced2f621eaacf47794565237b5fa02597178ec9c89e628e9abe1b",
+            "availability": "local ignored RAW, complete deciding output retained"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-v60-native-composed-20261027-r1/n1-native-controls/n1-native-controls.stdout.txt",
+            "sha256": "4c8b7b74b07542d1546e9189145e22fd45d079ce5907e86e60d6eff7df139a70",
+            "availability": "local ignored RAW, complete deciding output retained"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-v60-native-composed-20261027-r1/n1-native-controls/admission.json",
+            "sha256": "d34c393e156cc4a7dd2de6b1067493813c52b6d7af7754ae3a2a678a81e7bd01",
+            "availability": "local ignored RAW, complete deciding output retained"
+          }
+        ]
+      },
+      {
+        "id": "n1-full-source-collector",
+        "return_code": 1,
+        "aborted_reason": null,
+        "complete": true,
+        "max_sampled_process_tree_rss_bytes": 2999959552,
+        "wall_seconds": 133.82550091599114,
+        "outputs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-v60-native-composed-20261027-r1/n1-full-source-collector/phase-output.jsonl",
+            "sha256": "0f60cfc651472c6789c2b24a8823d59f1c1fb1b59e3d5c46fd63a87eeedbf1d9",
+            "availability": "local ignored RAW, complete deciding output retained"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-v60-native-composed-20261027-r1/n1-full-source-collector/n1-full-source-collector.stderr.txt",
+            "sha256": "637e39acdda9db33421dc8ecdbcefd02cae470caf54c15718854ace5e009f57c",
+            "availability": "local ignored RAW, complete deciding output retained"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-v60-native-composed-20261027-r1/n1-full-source-collector/collector-result.json",
+            "sha256": "68f2afd1c8ba9ab68288ad16b182f6e81ea9e4c2c34e5c13a9b8b0463a2dc638",
+            "availability": "local ignored RAW, complete deciding output retained"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-v60-native-composed-20261027-r1/n1-full-source-collector/n1-full-source-collector.stdout.txt",
+            "sha256": "66eca3171067532f3bb6ced21794b33a1fd89e5b921cb86dc770866c0ffeaa0d",
+            "availability": "local ignored RAW, complete deciding output retained"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-v60-native-composed-20261027-r1/n1-full-source-collector/admission.json",
+            "sha256": "fb96d3102d92020f62c93cd5d9903487856bcf42a20ac1abf06bc43701953d42",
+            "availability": "local ignored RAW, complete deciding output retained"
+          }
+        ]
+      }
+    ],
+    "ruff_eight_check_and_format_results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-v60-ruff-20261027-r1/full-output.json",
+      "sha256": "a55e14876ae8eb2bc21bbdf01cc6834b8cf12f0ed1cd7665e3cd25c30911511d",
+      "availability": "local ignored RAW, complete deciding output retained"
+    }
+  },
+  "source_rebind": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-v60-receipt-preparation-20261027-r1/source-branch-rebind.json",
+    "sha256": "e3d5562f4b81b04db9283dea20c49a91768d3c891af52c80aafcd0f0108085ad",
+    "availability": "local ignored RAW, complete deciding output retained"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/n1-v22-independent-review-20261026-r1/n1-v60-delta-review-r1/receipt.json",
+    "sha256": "cd1e6f5a6d6c648ba3101a3fd1ed624a6caa10302011e40b57dffc71200b953e",
+    "availability": "local ignored RAW, complete deciding output retained"
+  },
+  "author_packet": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-n1-constructor-relevance-author-r1/v60-freeze-r5/packet/manifest.json",
+    "sha256": "e9cf8d98d610c1d429f87ce2f2ce11e1a94c7fb07ff152df3971f4943c9f61ba",
+    "availability": "local ignored RAW, complete deciding output retained"
+  },
+  "semantic_controls": [
+    "Actual finite nested-list recursion returns False with no importer authority",
+    "Changed recursive argument/module states keep importer inventory",
+    "Mutual recursion retains importer call",
+    "Repeated same-state importer return is refused",
+    "Real subprocess preserves foreign/caller global-state separation and public collect_dynamic_imports inventories unresolved target with allowed_targets=[]"
+  ],
+  "consumer_surface": "Native decomposition preflight dynamic-import collector; tooling report surface, no product authority claim.",
+  "outcomes": {
+    "native_selected_tests": "62 PASS / 0 FAIL / 0 ERROR / 0 SKIP",
+    "ruff": "8 PASS (2 files x2profiles xcheck/format)",
+    "full_collector": "ERROR",
+    "full_error": {
+      "status": "ERROR",
+      "error_type": "DynamicImportCollectionError",
+      "error": "src/polisyos/common/canonical_profile.py:63: source-owned call target is neither a selected function nor a selected class",
+      "input_python_files": 3336,
+      "input_set_and_bytes_unchanged": true,
+      "wall_seconds": 108.75398275000043,
+      "global_source_freeze": false,
+      "code_acceptance": false,
+      "closure_ids": []
+    },
+    "resource_abort": false,
+    "native_N1_expiry_obligation": "OPEN; full native collector not green; no expiry renewal or waiver",
+    "remaining_verification": "Generic selected-call target model at runtime_checkable Protocol/builtin boundary; independent P40 class diagnosis and minimal falsifier before any further patch. Then affected checks plus one frozen full replay."
+  },
+  "pattern_pass": {
+    "P29": "Real source scanner and public collector exercised, not marker presence",
+    "P35": "Full3336input path/hash map retained and rebound to branch blobs",
+    "P40": "Same importer-relevance class; new error routed for structural diagnosis, not line allowlist",
+    "P41": "Not inherited; owner intersects complete gate denominator"
+  },
+  "proposals": [],
+  "historical_closures_changed": false,
+  "source_global_freeze": false,
+  "formal_g_acceptance": false,
+  "closure_ids": [],
+  "source_rebind_scope": "The linked raw readback covers the complete declared collector input denominator only:3336 .py under src/tools/apps/packages; it is not a repository/environment-wide runtime-byte claim."
+}

@@ -1,0 +1,94 @@
+{
+  "record_kind": "author_G_architecture_selection_admission",
+  "record_version": "1.0",
+  "date": "2026-10-27",
+  "architecture_commit": {
+    "commit": "14bf638032063c3d5a92b29da4215b3b54951fd6",
+    "tree": "b853958a78fdc04deb535ca361de10c2bbe322b2",
+    "parents": [
+      "978921662b2d89006759cdd2ae96dbccc9bdcf11"
+    ],
+    "only_documentation_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-27/01-lossless-raw-mappings.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-27/02-request-time-context.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-27/03-exact-view-closure.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-27/04-delivery-and-acceptance.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-27/05-research-and-review.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-27/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-27/inputs.json"
+    ]
+  },
+  "G_remote_observed": {
+    "commit": "2a07cd8a16bad0191b302f71c699b3bf9082ebac",
+    "tree": "92cfaccdc0f3edb5613083f5f2ad983d5fa961b7"
+  },
+  "G_local_checkout_head": "14bf638032063c3d5a92b29da4215b3b54951fd6",
+  "publication_qualification": "Selected G14bf commit read from local G checkout; fetched remote2a07 is distinct. No G branch or checkout was authored or published by executor.",
+  "source_entry": {
+    "commit": "793f8c6f3ecedf5d7d38f91ecdb24970e1eef5fb",
+    "tree": "204223a48e38330d0178054b7e04a29c0495a3b6",
+    "parents": [
+      "d3402349dd4c5142275bbd844f5c472d5d7320dd"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "status_tracked": "## codex/e02-unified-local-20261009...origin/codex/e02-unified-local-20261009\n"
+  },
+  "G_review_source": {
+    "commit": "7a4c713186188f5795da3a8745e42843443dcd88",
+    "tree": "f49503f969b9a3d68bf82d23e0c8435e9d20c847"
+  },
+  "complete_delta": [
+    "M\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/canonical-raw-mapping-20261026/README.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/implementation-choices-20261027/README.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/implementation-choices-20261027/inputs-limits.json",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/implementation-choices-20261027/time-context-decision.md",
+    "A\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/store-history-and-bounded-import-proof-20261027.json",
+    "M\tpolicy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+    "M\tpolicy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+    "A\tpolicy-engine/tests/unit/runtime/http/test_control_plane_store_action_head_history.py",
+    "M\tpolicy-engine/tools/quality/validation/decomposition_preflight.py"
+  ],
+  "admission_and_complete_pinned_arrays": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-g-can-tc-admission-20261027-r1/admission.json",
+    "sha256": "a8e2a02661af06b3aafd711bfbca358c4dd1448997bd53219aa57a53ba596f9a",
+    "availability": "local ignored RAW, complete deciding output retained"
+  },
+  "array_checks": {
+    "TC_source": {
+      "denominator": 13,
+      "matched": 13,
+      "scope": "exact supplied manifest array paths, not repository-wide census"
+    },
+    "CAN_current_source": {
+      "denominator": 22,
+      "matched": 22,
+      "scope": "exact supplied manifest array paths, not repository-wide census"
+    }
+  },
+  "evidence_array": {
+    "denominator": 10,
+    "matched": 10,
+    "scope": "exact supplied manifest evidence_readset array, not repository census"
+  },
+  "decisions": [
+    "CAN-01 A polisyos.canon.json@0.3.0 versioned mapping escape/native carriers/exactversion/resourcepolicy",
+    "TC-01 optional meaningful TemporalScope all5components withpresence law, request snapshotv3 and actualtemporalconsumer",
+    "Closure v2 existingowner full typedCAS/owner_value/null identities, owner-derivedmembership/hash/currentaccess andallprotectedconsumers"
+  ],
+  "execution": {
+    "CAN_codec_owner": "can03_codec_owner; common/Core/IR mechanics, facades, profiles, resource contracts",
+    "CAN_state_journal_owner": "can03_state_journal_owner; sync/async/checkpoint/directreaders + NodeResultCache/journal",
+    "CAN_foundry_cache_owner": "can03_foundry_cache_owner; conversion/hash/specialization cache generations",
+    "TC_intent_owner": "tc01_intent_owner; strict request/snapshotv3/queue/worker/temporal producer/read basis",
+    "TC_closure_owner": "tc01_closure_owner; v2closure/envelopes/registry/seals/scorecard/allprotectedconsumers/mandatoryCore companions",
+    "independent_reviewer": "can_tc_independent_oracle; read-only generic-property/sibling/falsifier review",
+    "canonical_writer": "Root alone; all author code confined to unique physical RAW roots; sequential sharedCore/runtime/B09 companion composition",
+    "writer_enable": "Actual reader cohort and explicit owner-selected resource policy required; requested.3 missingbudget refuses, legacy explicit.2 kept. TC artifact may use accepted.2.",
+    "external_facts": "No law/issuer/custody/currentness/calibration fact inferred from architecture or input identity."
+  },
+  "acceptance_matrix": "G04 C01-C14/T01-T16/I01-I12 are executable obligations; new package runtime acceptance UNRUN until actual implementation/freeze/receipts",
+  "architecture_selection": "selected_by_G",
+  "code_acceptance": false,
+  "source_global_freeze": false,
+  "closure_ids": []
+}

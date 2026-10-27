@@ -49,3 +49,7 @@ C12–C15 add independent Q0 family-F proof/oracle tasks on the same published i
 ## R1 exact native replay
 
 The uninstrumented child-resume selector passed on d550 source:1PASS,27.0732s,peak1,769,553,920 bytes,1,316 loaded Python paths and zero mismatches. Internal30-second join and product/test source were unchanged. A prior separate diagnostic measured substantial child import/unpickle time but did not establish the historical cause; that cause remains not_established. This fresh PASS covers one exact selector only. Other R1 contours, B148 controls, independent review and G acceptance remain separate. Complete compact deciding output/JUnit and execution receipt are delivered here; no unchanged broad suite was repeated.
+
+## First test-only composition
+
+C02 and C03 source review is GO for bounded checkpoint recovery and Legal legacy-vector regressions. Root composed the received test bytes with corrected receipt counts/rationale; no production owner changed. C02 retains eight existing plus five new cases (four new functions). C03 makes no mixed-projection or Legal authority claim. Their local defining-property replay and removal controls are next; source GO and cloud author summaries do not establish local runtime PASS.

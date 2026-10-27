@@ -1,0 +1,32 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___ test_explicit_empty_required_outputs_do_not_fallback_to_recorded_outputs ___
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-2/test_explicit_empty_required_o0')
+
+    def test_explicit_empty_required_outputs_do_not_fallback_to_recorded_outputs(tmp_path) -> None:
+        state_path = tmp_path / "state.json"
+        output = tmp_path / "output.txt"
+        output.write_text("published\n", encoding="utf-8")
+        save_stage_state(
+            state_path,
+            stage="fixture",
+            status="complete",
+            input_fingerprint="fixture-input",
+            outputs=[output],
+        )
+
+>       assert not stage_can_skip(
+            state_path,
+            stage="fixture",
+            input_fingerprint="fixture-input",
+            required_outputs=[],
+        )
+E       AssertionError: assert not True
+E        +  where True = stage_can_skip(PosixPath('/tmp/pytest-of-root/pytest-2/test_explicit_empty_required_o0/state.json'), stage='fixture', input_fingerprint='fixture-input', required_outputs=[])
+
+tests/unit/remediation/test_dfi_03.py:1074: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_dfi_03.py::test_explicit_empty_required_outputs_do_not_fallback_to_recorded_outputs
+
+exit_code=1

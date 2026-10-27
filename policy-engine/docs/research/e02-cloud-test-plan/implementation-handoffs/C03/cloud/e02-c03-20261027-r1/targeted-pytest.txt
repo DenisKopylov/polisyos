@@ -1,0 +1,17 @@
+$ cd policy-engine && .venv/bin/python -m pytest -q -ra tests/unit/data_forge/legal_batch/test_embed_local.py::test_legacy_flat_pair_rebuilds_changed_text_then_reuses_current_membership
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__ test_legacy_flat_pair_rebuilds_changed_text_then_reuses_current_membership __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f5b0b9c6650>
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_legacy_flat_pair_rebuilds0')
+
+    def test_legacy_flat_pair_rebuilds_changed_text_then_reuses_current_membership(
+        monkeypatch, tmp_path
+    ) -> None:
+>       import hnswlib
+E       ModuleNotFoundError: No module named 'hnswlib'
+
+tests/unit/data_forge/legal_batch/test_embed_local.py:127: ModuleNotFoundError
+=========================== short test summary info ============================
+FAILED tests/unit/data_forge/legal_batch/test_embed_local.py::test_legacy_flat_pair_rebuilds_changed_text_then_reuses_current_membership

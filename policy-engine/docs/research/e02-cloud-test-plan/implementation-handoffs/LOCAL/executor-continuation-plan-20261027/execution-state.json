@@ -580,5 +580,27 @@
   "external_residuals": [],
   "G_acceptance_new": false,
   "closure_ids": [],
-  "candidate_review_policy": "source HOLDs are uncomposed proposals; sparse repairs assigned one mechanism writer with independent reviewer; no author runtime result promoted to local composition PASS"
+  "candidate_review_policy": "source HOLDs are uncomposed proposals; sparse repairs assigned one mechanism writer with independent reviewer; no author runtime result promoted to local composition PASS",
+  "composed_candidates": [
+    {
+      "slice": "C02",
+      "input": "8db01b1076e425b7998b05a658776c991b7bd594",
+      "received_candidate_tree": "702e63a258178beca7fe689937eb313ba341a7ee",
+      "received_diff_sha256": "5923983e72ae264389aebdaa6bff769ac23f2f903f90f717247e1273b8735ebf",
+      "scope": "test-only checkpoint/recovery regression",
+      "source_review": "GO bounded",
+      "local_runtime": "UNRUN until native replay",
+      "G_acceptance": false
+    },
+    {
+      "slice": "C03",
+      "input": "8db01b1076e425b7998b05a658776c991b7bd594",
+      "received_candidate_tree": "db9e81b62d0cd23be298fcbe6a86d5392f9181fa",
+      "received_diff_sha256": "1c44dc67f6f716ef308c749d2427aa160cb99df85bc47b1bdf65c9914418149f",
+      "scope": "test-only Legal legacy vector regression",
+      "source_review": "GO bounded",
+      "local_runtime": "UNRUN until native replay",
+      "G_acceptance": false
+    }
+  ]
 }

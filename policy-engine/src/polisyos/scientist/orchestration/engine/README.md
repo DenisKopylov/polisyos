@@ -64,12 +64,22 @@ control removes only required-field admission inside the child process; the
 same consumer tests must then fail. These witnesses do not establish power-loss
 or multi-host filesystem guarantees.
 
-The ledger's current snapshot version is `1.2`. Complete valid `1.0` and `1.1`
-snapshots migrate explicitly; unknown versions, contracts and coordination modes
-are rejected. Version `1.2` retains producer settlement records, including
-pending and unknown outcomes, in the same atomic snapshot as budget state and
-spend receipts. Existing receipts keep their original accounting meaning:
-migration cannot certify a previously unknown provider cost.
+The ledger writer's current snapshot version is `1.5`; complete valid `1.0` through
+`1.4` snapshots remain readable. Unknown versions, contracts and coordination modes
+are rejected. Version `1.2` introduced producer settlement records; `1.3` added
+server-issued run binding, `1.4` added attempt attribution, and `1.5` adds an optional
+`BudgetLedgerCacheReuseAdmission`. Existing receipts keep their original accounting
+meaning: migration cannot certify a previously unknown provider cost.
+
+Cross-run reuse requires the exact live Core response proof at the new write. The
+ledger freezes its authorizer scope/epoch and content digest, recomputes the internal
+cache key and both event payloads, and requires matching tenant/cell/profile with the
+exact original physical source. The receiver retains its own key/run binding and a
+separate zero event; the source is never copied or reissued under the receiver run.
+A matching string-shaped origin without that admission still refuses. Reopen and the
+runtime budget consumer share `BudgetLedgerProducerRecord.validate_reuse_origin`.
+This is local accounting admission, not institutional permission or provider billing
+attestation. The runtime budget gate continues to require a known physical source cost.
 
 `BudgetMiddleware.settle_spend_safe(...)` records an exact producer event under
 the ledger lock and returns its immutable `BudgetLedgerSpendReceipt`. Retrying

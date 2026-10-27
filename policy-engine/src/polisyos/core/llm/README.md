@@ -54,3 +54,25 @@ telemetry, cost estimation, response parsing, and retry logic so domain packages
   provider event. Without a durable store, the acknowledgment remains `unmanaged`.
 - Durable event model and logical-route identity come from the pre-dispatch intent. Response-
   declared model/provider labels cannot change the event identity or estimate pricing basis.
+
+
+### Shared cache lifetime
+
+The exact cache owns the Core settlement session. Each request wrapper is registered
+explicitly with `bind_cache_settlement_client`; a mutable application attribute cannot
+alias another cache owner. Attestations bind the exact response object **and its content
+digest** to one settled physical origin. A different body on the same response object,
+or a later cache head paired with an earlier flight outcome, is refused.
+
+Completed-flight request state is released after its last live waiter. Retained origins
+are bounded independently of a cache adapter: the wrapper's `origin_retention_limit`
+defaults to128 entries, while the gateway factory supplies its configured cache size;
+producer TTL bounds origin retention. A shared owner's bound may tighten, never widen,
+when another wrapper binds it. Native LRU eviction/expiry/clear also removes the matching
+origin immediately. A retention miss is a physical cache miss, not an unauthenticated
+zero-cost reuse. Existing issued response proofs retain their historical meaning.
+
+Scientist's ledger owns durable cross-run admission. It verifies the live Core response
+proof and freezes the configured authorizer scope/epoch, then recomputes the cache key
+and both physical/reuse event payloads on reopen. Core does not issue external permission
+or replace the configured authorizer.

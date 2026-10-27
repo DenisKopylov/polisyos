@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -13,7 +14,12 @@ from polisyos.core.llm.traced_client import TracedLLMClient
 
 from .fallback_router import EndpointConfig, FallbackRouter
 from .gateway_client import GatewayLLMClient
-from .prompt_cache import CachingLLMClient, InMemoryPromptCache
+from .prompt_cache import (
+    CacheReusePrincipal,
+    CachingLLMClient,
+    InMemoryPromptCache,
+    PromptCacheProtocol,
+)
 from .simulated_gateway import DEFAULT_SIMULATED_MODEL_IDS, SimulatedGatewayLLMClient
 
 if TYPE_CHECKING:
@@ -158,6 +164,10 @@ def create_traced_gateway_client(
     tracer: Any | None = None,
     metrics: Any | None = None,
     cache_reuse_authorizer: Any | None = None,
+    cache_reuse_principal: CacheReusePrincipal | None = None,
+    cache_reuse_context: Mapping[str, Any] | None = None,
+    prompt_cache: PromptCacheProtocol | None = None,
+    require_reuse_authorization: bool = False,
     producer_settlement_store: Any | None = None,
     producer_budget_key: str = "run",
 ) -> TracedLLMClient | None:
@@ -235,16 +245,27 @@ def create_traced_gateway_client(
     if cfg.cache_maxsize > 0 and cfg.cache_ttl_s > 0:
         raw_client = CachingLLMClient(
             raw_client,
-            cache=InMemoryPromptCache(
-                maxsize=cfg.cache_maxsize,
-                default_ttl_s=cfg.cache_ttl_s,
+            cache=(
+                prompt_cache
+                if prompt_cache is not None
+                else InMemoryPromptCache(
+                    maxsize=cfg.cache_maxsize,
+                    default_ttl_s=cfg.cache_ttl_s,
+                )
             ),
             model=model_name,
             ttl_s=cfg.cache_ttl_s,
+            origin_retention_limit=cfg.cache_maxsize,
+            provider_route=resolved_provider or "gateway",
             inflight_timeout_s=cfg.timeout_s,
             reuse_authorizer=cache_reuse_authorizer,
+            reuse_principal=cache_reuse_principal,
+            reuse_context=cache_reuse_context,
+            require_reuse_authorization=require_reuse_authorization,
         )
-    cache_settlement_session = session_for_cache_client(raw_client)
+    cache_settlement_session = getattr(raw_client, "_cache_settlement_session", None)
+    if cache_settlement_session is None:
+        cache_settlement_session = session_for_cache_client(raw_client)
     prompt_sanitizer = PromptSanitizer() if cfg.enable_prompt_sanitizer else None
     return TracedLLMClient(
         raw_client,

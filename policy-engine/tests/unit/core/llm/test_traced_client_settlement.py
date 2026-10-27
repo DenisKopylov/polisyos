@@ -542,6 +542,45 @@ async def test_admitted_cache_reuse_is_a_separate_durable_zero_event(tmp_path: P
 
 
 @pytest.mark.asyncio
+async def test_shared_cache_keeps_origin_across_request_local_clients(tmp_path: Path) -> None:
+    """A later wrapper reuses the cache owner's origin without stealing hooks."""
+    ledger_path = tmp_path / "shared.json"
+    cache = InMemoryPromptCache(maxsize=7, default_ttl_s=30)
+    provider = _Provider(cost=0.02)
+
+    def request_client(ledger_path: Path) -> TracedLLMClient:
+        cached = CachingLLMClient(
+            provider,
+            cache=cache,
+            model="fixture-model",
+            ttl_s=30,
+            inflight_timeout_s=2,
+        )
+        return TracedLLMClient(
+            cached,
+            model_name="fixture-model",
+            tracer=_Tracer(),
+            metrics=_Metrics(),
+            producer_settlement_store=_middleware(ledger_path),
+        )
+
+    first = await request_client(ledger_path).generate(user="same policy question", temperature=0)
+    second = await request_client(ledger_path).generate(user="same policy question", temperature=0)
+
+    assert provider.calls == 1
+    assert first.settlement.event.cost_origin == "reported"
+    assert second.settlement.event.cost_origin == "reuse"
+    assert second.settlement.event.origin_event_id == first.settlement.event.event_id
+    second_record = (
+        FileBudgetLedger(ledger_path)
+        .snapshot()
+        .producer_settlements[second.settlement.event.event_id]
+    )
+    assert second_record.amount == Decimal(0)
+    assert second_record.origin_event_id == first.settlement.event.event_id
+
+
+@pytest.mark.asyncio
 async def test_nested_traced_client_preserves_the_inner_settlement_without_double_counting(
     tmp_path: Path,
 ) -> None:
@@ -1439,3 +1478,143 @@ async def test_cancelled_provider_waiter_settles_real_cost_despite_observer_fail
         budget_state=budget_state,
     )
     assert budget_state.spent["run"] == Decimal("0.02")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("logical_route", [None, "configured-logical-route"])
+async def test_authorized_shared_cache_reuse_survives_distinct_run_bindings(
+    tmp_path: Path, logical_route: str | None
+) -> None:
+    """The receiver records a zero edge to the original event, never reissues it."""
+    import hashlib
+
+    from polisyos.scientist.orchestration.engine.budget_ledger import BudgetLedgerProducerRunBinding
+    from polisyos.scientist.orchestration.llm.prompt_cache import (
+        CacheReuseDecision,
+        CacheReusePrincipal,
+    )
+
+    class CurrentOwner:
+        def authorize_reuse(self, request):
+            assert request.evidence[0].content == b"fixed local fixture"
+            return CacheReuseDecision(
+                issuer="local-test-owner",
+                epoch="epoch-1",
+                actor_id=request.actor_id,
+                tenant=request.tenant,
+                scope=request.scope,
+                purpose=request.purpose,
+                model=request.model,
+                parameters_digest=request.parameters_digest,
+                evidence=request.evidence,
+            )
+
+    path = tmp_path / "cross-run-ledger.json"
+    middleware = _middleware(path)
+    cache = InMemoryPromptCache(maxsize=2, default_ttl_s=30)
+    provider = _Provider(cost=0.02)
+    context = {
+        "tenant": "tenant-a",
+        "scope": "tenant-a/cell-a",
+        "purpose": "fixture-policy",
+        "snapshot": {
+            "ref": "artifact://local-fixture",
+            "version": "v1",
+            "immutable": True,
+            "content": b"fixed local fixture",
+            "content_hash": "sha256:" + hashlib.sha256(b"fixed local fixture").hexdigest(),
+        },
+    }
+
+    def client_and_binding(run_id):
+        binding = BudgetLedgerProducerRunBinding(
+            run_id=run_id,
+            control_job_id="job-" + run_id,
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+            profile_id="test-profile",
+        )
+        cached = CachingLLMClient(
+            provider,
+            cache=cache,
+            model="fixture-model",
+            ttl_s=30,
+            reuse_authorizer=CurrentOwner(),
+            reuse_principal=CacheReusePrincipal("actor-a", "tenant-a", "tenant-a/cell-a"),
+            reuse_context=context,
+            require_reuse_authorization=True,
+        )
+        traced = TracedLLMClient(
+            cached,
+            model_name="fixture-model",
+            tracer=_Tracer(),
+            metrics=_Metrics(),
+            producer_settlement_store=middleware,
+            provider_name=logical_route,
+            producer_budget_key="nl-run:" + run_id,
+        )
+        return traced, binding
+
+    first, first_binding = client_and_binding("source-run")
+    with middleware.producer_run_binding_scope(first_binding, control_job_attempt=1):
+        produced = await first.generate(user="same policy", temperature=0)
+    before = FileBudgetLedger(path).snapshot()
+    second, second_binding = client_and_binding("receiver-run")
+    with middleware.producer_run_binding_scope(second_binding, control_job_attempt=1):
+        reused = await second.generate(user="same policy", temperature=0)
+    reopened = FileBudgetLedger(path).snapshot()
+    source = reopened.producer_settlements[produced.settlement.event.event_id]
+    receiver = reopened.producer_settlements[reused.settlement.event.event_id]
+    assert provider.calls == 1
+    assert produced.settlement.ack.status == reused.settlement.ack.status == "committed"
+    assert source == before.producer_settlements[source.event_id]
+    assert source.key != receiver.key and source.run_binding != receiver.run_binding
+    assert source.provider == receiver.provider == (logical_route or provider.provider)
+    assert receiver.run_binding == second_binding
+    assert source.run_binding == first_binding
+    assert receiver.cost_origin == "reuse" and receiver.amount == Decimal(0)
+    assert receiver.origin_event_id == source.event_id
+    assert receiver.reuse_admission.issuer == "local-test-owner"
+    assert receiver.reuse_admission.epoch == "epoch-1"
+    assert reopened.state.spent["nl-run:source-run"] == Decimal("0.02")
+    assert reopened.state.spent["nl-run:receiver-run"] == Decimal(0)
+
+    # A matching string-shaped edge without the live Core response proof must
+    # still fail; cross-run compatibility alone is never authorization.
+    with middleware.producer_run_binding_scope(second_binding, control_job_attempt=1):
+        with pytest.raises(ValueError, match="cross_run_admission_missing"):
+            middleware.settle_producer_event_safe(
+                "forged-reuse",
+                source.request_digest,
+                receiver.payload_digest,
+                key=receiver.key,
+                model=source.model,
+                provider=source.provider,
+                amount=Decimal(0),
+                cost_origin="reuse",
+                origin_event_id=source.event_id,
+            )
+    assert "forged-reuse" not in FileBudgetLedger(path).snapshot().producer_settlements
+
+    # Present-but-fake control: copying a genuine response preserves the
+    # attestation object and all fields, but does not preserve its exact
+    # response binding. Even a retry of an existing event must verify intake.
+    import copy
+
+    counterfeit = copy.copy(reused.response)
+    with middleware.producer_run_binding_scope(second_binding, control_job_attempt=1):
+        with pytest.raises(ValueError, match="invalid_core_response"):
+            middleware.settle_producer_event_safe(
+                receiver.event_id,
+                receiver.request_digest,
+                receiver.payload_digest,
+                key=receiver.key,
+                model=receiver.model,
+                provider=receiver.provider,
+                amount=Decimal(0),
+                cost_origin="reuse",
+                origin_event_id=source.event_id,
+                cache_reuse_session=second._cache_settlement_session,
+                cache_reuse_response=counterfeit,
+            )
+    assert FileBudgetLedger(path).snapshot() == reopened

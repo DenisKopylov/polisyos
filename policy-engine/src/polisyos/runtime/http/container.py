@@ -210,6 +210,8 @@ class RuntimeContainerOverrides:
     acquisition_execution_port: Any | None = None
     legal_query_encoder_provider: LegalQueryEncoderProvider | None = None
     llm_producer_settlement_store: BudgetMiddleware | None = None
+    llm_cache_reuse_authorizer: Any | None = None
+    llm_prompt_cache: Any | None = None
 
 
 @dataclass(frozen=True)
@@ -343,6 +345,8 @@ class RuntimeServiceContainer:
     generic_cycle_simulation_root_profile_id: str | None = None
     legal_query_encoder_provider: LegalQueryEncoderProvider | None = None
     llm_producer_settlement_store: BudgetMiddleware | None = None
+    llm_cache_reuse_authorizer: Any | None = None
+    llm_prompt_cache: Any | None = None
     control_service: ControlPlaneService | None = None
     epoch_certificate_issuance_owner: DecisionPacketEpochIssuanceOwner | None = None
     human_decision_service: HumanDecisionService | None = None
@@ -406,6 +410,30 @@ class RuntimeServiceContainer:
             )
         if type(producer_settlement_store) is not BudgetMiddleware:
             raise TypeError("llm_producer_settlement_store_must_be_budget_middleware")
+        cache_reuse_authorizer = overrides.llm_cache_reuse_authorizer
+        if cache_reuse_authorizer is not None and not callable(
+            getattr(cache_reuse_authorizer, "authorize_reuse", None)
+        ):
+            raise TypeError("llm_cache_reuse_authorizer_invalid")
+        llm_prompt_cache = overrides.llm_prompt_cache
+        if llm_prompt_cache is not None and not all(
+            callable(getattr(llm_prompt_cache, name, None)) for name in ("get", "put")
+        ):
+            raise TypeError("llm_prompt_cache_invalid")
+        if llm_prompt_cache is None and cache_reuse_authorizer is not None:
+            from polisyos.scientist.orchestration.llm.factory import GatewayLLMConfig
+            from polisyos.scientist.orchestration.llm.prompt_cache import InMemoryPromptCache
+
+            cache_config = GatewayLLMConfig.from_env()
+            if (
+                cache_config is not None
+                and cache_config.cache_maxsize > 0
+                and cache_config.cache_ttl_s > 0
+            ):
+                llm_prompt_cache = InMemoryPromptCache(
+                    maxsize=cache_config.cache_maxsize,
+                    default_ttl_s=cache_config.cache_ttl_s,
+                )
         try:
             _ = producer_settlement_store.settlement_owner_identity
         except (OSError, RuntimeError, ValueError) as exc:
@@ -682,6 +710,8 @@ class RuntimeServiceContainer:
             ),
             legal_query_encoder_provider=overrides.legal_query_encoder_provider,
             llm_producer_settlement_store=producer_settlement_store,
+            llm_cache_reuse_authorizer=cache_reuse_authorizer,
+            llm_prompt_cache=llm_prompt_cache,
             control_service=overrides.control_service,
         )
 
@@ -778,9 +808,15 @@ class RuntimeServiceContainer:
                         self.config.enable_contract_testing_credal_source_attempts
                     ),
                     llm_producer_settlement_store=self.llm_producer_settlement_store,
+                    llm_cache_reuse_authorizer=self.llm_cache_reuse_authorizer,
+                    llm_prompt_cache=self.llm_prompt_cache,
                 )
                 self.control_service = control_service
             control_service.bind_llm_producer_settlement_store(self.llm_producer_settlement_store)
+            control_service.bind_llm_cache_reuse(
+                authorizer=self.llm_cache_reuse_authorizer,
+                prompt_cache=self.llm_prompt_cache,
+            )
             self.runtime_api_context.debug.bind_producer_control_job_store(
                 control_service._control_store
             )
@@ -922,6 +958,10 @@ class RuntimeServiceContainer:
                 runtime_store.close()
             if self.control_service is not None and hasattr(self.control_service, "close"):
                 self.control_service.close()
+            if self.llm_prompt_cache is not None:
+                clear_cache = getattr(self.llm_prompt_cache, "clear", None)
+                if callable(clear_cache):
+                    clear_cache()
         except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
             error = str(exc)
             self.lifecycle.mark("failed", error=error)

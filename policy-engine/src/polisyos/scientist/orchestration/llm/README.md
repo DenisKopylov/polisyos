@@ -58,3 +58,17 @@ plan ref into compilation; absent legacy refs retain prior behavior. Method retu
 slots are retained as plan declarations and fresh consumers recompute the selected
 plan/registry join. LLM method choice remains candidate intent and does not confer
 execution authority or scientific appropriateness.
+
+
+Configured runtime prompt caches live with the application; provider/traced wrappers and
+settlement hooks remain request-local. Shared cache flights use one concurrent result
+across request event loops, and followers consume an immutable snapshot of their exact
+flight rather than whichever entry is currently at the cache head. No-key and explicit
+zero-size/zero-TTL modes remain uncached. `GatewayLLMConfig.cache_maxsize` also bounds
+retained Core origins; legacy get/put-only adapters cannot cause unbounded Core history.
+The current authorizer still runs for every candidate reuse, including cache hits.
+
+Configured logical provider route is part of the cache identity, alongside model and
+request parameters. A route change produces a physical miss. The traced owner's
+explicit route configuration wins at durable begin; response-declared provider labels
+cannot rewrite physical event identity or turn a later reuse into a different route.

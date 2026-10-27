@@ -102,6 +102,7 @@ from polisyos.runtime.quality.report_registry import (
     runtime_quality_report_owner_marker,
 )
 from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
+from polisyos.scientist.orchestration.llm.prompt_cache import CacheReusePrincipal
 
 from .._control_contracts import (
     _DATA_SOURCE_KEYS,
@@ -217,6 +218,76 @@ if TYPE_CHECKING:
         PIAgent,
     )
     from polisyos.scientist.orchestration.engine import BudgetMiddleware
+
+
+def _nl_snapshot_cache_reuse_binding(
+    *,
+    data_source: DataSourceBinding | None,
+    execution_scope: object,
+    artifact_store: Any,
+    authorizer: object | None,
+) -> tuple[CacheReusePrincipal | None, dict[str, Any] | None]:
+    """Bind cache identity to a typed snapshot locator and the admitted job owner.
+
+    The submitted ref is only a locator. The runtime reads its exact current CAS
+    bytes and manifest profile; the injected reuse owner must independently
+    resolve those bytes and authorize the current principal/epoch before every hit.
+    """
+    from polisyos.core.artifacts import ArtifactID, artifact_manifest_profile_sha256
+    from polisyos.core.contracts.fabric import DataSnapshotRef
+    from polisyos.runtime.http.services.control_plane_store import ControlJobExecutionScope
+
+    if (
+        not callable(getattr(authorizer, "authorize_reuse", None))
+        or type(execution_scope) is not ControlJobExecutionScope
+        or execution_scope.status != "established"
+        or execution_scope.actor_authenticated is not True
+        or not execution_scope.actor_subject
+        or not execution_scope.tenant_id
+        or not execution_scope.cell_id
+        or type(data_source) is not DataSourceBinding
+        or not isinstance(data_source.data_snapshot_ref, str)
+        or not data_source.data_snapshot_ref
+    ):
+        return None, None
+    try:
+        artifact_id = ArtifactID.model_validate(data_source.data_snapshot_ref)
+        selected_ref = DataSnapshotRef(artifact_id=artifact_id)
+        manifest = artifact_store.get_manifest(selected_ref.artifact_id)
+        content = artifact_store.get_bytes(selected_ref.artifact_id)
+        version = artifact_manifest_profile_sha256(manifest)
+    except Exception:
+        return None, None
+    digest = "sha256:" + hashlib.sha256(content).hexdigest()
+    if (
+        type(content) is not bytes
+        or manifest.artifact_id != selected_ref.artifact_id
+        or manifest.kind != selected_ref.kind
+        or manifest.media_type != selected_ref.media_type
+        or manifest.integrity.sha256 != digest.removeprefix("sha256:")
+        or str(manifest.artifact_id) != digest
+        or not version
+    ):
+        return None, None
+    tenant = execution_scope.tenant_id
+    scope = f"{tenant}/{execution_scope.cell_id}"
+    principal = CacheReusePrincipal(
+        actor_id=execution_scope.actor_subject,
+        tenant=tenant,
+        scope=scope,
+    )
+    return principal, {
+        "tenant": tenant,
+        "scope": scope,
+        "purpose": "natural_language_policy_candidate",
+        "snapshot": {
+            "ref": str(selected_ref.artifact_id),
+            "version": version,
+            "immutable": True,
+            "content": content,
+            "content_hash": digest,
+        },
+    }
 
 
 class NaturalLanguagePipelineRefusalError(RuntimeError):
@@ -3782,6 +3853,13 @@ class NaturalLanguageRunMixin:
         trinity_bundle_tenant_context = ArtifactTenantContextInfo(
             tenant_id=admitted_scope.tenant_id,
             cell_id=admitted_scope.cell_id,
+        )
+        cache_reuse_authorizer = getattr(self, "_llm_cache_reuse_authorizer", None)
+        cache_reuse_principal, cache_reuse_context = _nl_snapshot_cache_reuse_binding(
+            data_source=data_source,
+            execution_scope=admitted_scope,
+            artifact_store=self._artifact_store,
+            authorizer=cache_reuse_authorizer,
         )
         metric_taxonomy = build_production_metric_taxonomy()
         metric_taxonomy_evidence = metric_taxonomy.evidence()
@@ -8270,6 +8348,11 @@ class NaturalLanguageRunMixin:
                         call_observer=_observe_llm_call,
                         tracer=self._tracer,
                         metrics=self._metrics,
+                        cache_reuse_authorizer=cache_reuse_authorizer,
+                        cache_reuse_principal=cache_reuse_principal,
+                        cache_reuse_context=cache_reuse_context,
+                        prompt_cache=getattr(self, "_llm_prompt_cache", None),
+                        require_reuse_authorization=True,
                         producer_settlement_store=getattr(
                             self, "_llm_producer_settlement_store", None
                         ),

@@ -5,8 +5,11 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import math
 import secrets
+import time
 import weakref
+from collections import OrderedDict
 from dataclasses import dataclass, replace
 from decimal import Decimal
 from typing import Any, Literal
@@ -143,6 +146,7 @@ class _CacheFlightOutcome:
     role: Literal["producer", "receiver", "not_dispatched"]
     terminal: Literal["success", "error", "deadline", "cancelled"]
     origin_event_id: str | None = None
+    response_digest: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -153,23 +157,36 @@ class _CacheReuseProvenance:
     reuse_event_id: str
     origin_event_id: str
     response_identity: int
+    response_digest: str
+    scope_key: tuple[str, ...]
     signature: bytes
 
     def __reduce_ex__(self, protocol: int) -> Any:
         raise TypeError("cache reuse provenance cannot be serialized")
 
 
+@dataclass(frozen=True, slots=True)
+class _RetainedCacheOrigin:
+    origin_event_id: str
+    scope_key: tuple[str, ...]
+    response_digest: str
+    expires_at: float
+
+
 class _CacheReuseOwner:
     """Per-client capability for authenticating actual cache-owned reuse."""
 
-    def __init__(self, client: Any = None) -> None:
+    def __init__(self, client: Any = None, *, retention_limit: int = 128) -> None:
         self._client_ref = weakref.ref(client) if client is not None else None
         self._owner_id = secrets.token_hex(16)
         self._secret = secrets.token_bytes(32)
         self._registrations: dict[str, _CacheFlightRegistration] = {}
         self._registration_handles: dict[str, _CacheFlightRegistration] = {}
         self._outcomes: dict[str, _CacheFlightOutcome] = {}
-        self._published: dict[tuple[str, str], str] = {}
+        if type(retention_limit) is not int or retention_limit < 1:
+            raise ValueError("cache origin retention limit must be a positive integer")
+        self._retention_limit = retention_limit
+        self._published: OrderedDict[tuple[str, str], _RetainedCacheOrigin] = OrderedDict()
 
     def __reduce_ex__(self, protocol: int) -> Any:
         raise TypeError("cache owner capability cannot be serialized")
@@ -180,6 +197,7 @@ class _CacheReuseOwner:
     def register_request(
         self, scope_key: tuple[str, ...], request_digest: str, attempt_id: str
     ) -> _CacheFlightRegistration:
+        self._prune_retained_origins()
         registration = _CacheFlightRegistration(
             self._owner_id, tuple(scope_key), request_digest, attempt_id
         )
@@ -226,7 +244,12 @@ class _CacheReuseOwner:
         producer_attempt_id: str,
         terminal: Literal["success", "error", "deadline", "cancelled"],
         origin_event_id: str | None = None,
+        response_digest: str | None = None,
+        retain_for_s: float = 0,
     ) -> _CacheFlightOutcome:
+        retention_ttl = float(retain_for_s)
+        if not math.isfinite(retention_ttl) or retention_ttl < 0:
+            raise ValueError("cache origin retention TTL must be finite and nonnegative")
         producer_handle = self._registration_handles.get(producer_attempt_id)
         producer = (
             self._registered_registration(producer_handle) if producer_handle is not None else None
@@ -256,11 +279,53 @@ class _CacheReuseOwner:
             "producer",
             terminal,
             origin_event_id=origin_event_id if terminal == "success" else None,
+            response_digest=response_digest if terminal == "success" else None,
         )
         self._outcomes[producer_attempt_id] = outcome
-        if terminal == "success" and origin_event_id:
-            self._published[(cache_key, request_digest)] = origin_event_id
+        if terminal == "success" and origin_event_id and response_digest:
+            self._published[(cache_key, request_digest)] = _RetainedCacheOrigin(
+                origin_event_id=origin_event_id,
+                scope_key=producer.scope_key,
+                response_digest=response_digest,
+                expires_at=time.monotonic() + retention_ttl,
+            )
+        self._prune_retained_origins()
         return outcome
+
+    def configure_retention(self, retention_limit: int) -> None:
+        """Tighten a shared owner's resource bound without widening its authority."""
+        if type(retention_limit) is not int or retention_limit < 1:
+            raise ValueError("cache origin retention limit must be a positive integer")
+        self._retention_limit = min(self._retention_limit, retention_limit)
+        self._prune_retained_origins()
+
+    def _prune_retained_origins(self) -> None:
+        now = time.monotonic()
+        for identity, retained in tuple(self._published.items()):
+            if retained.expires_at <= now:
+                del self._published[identity]
+        while len(self._published) > self._retention_limit:
+            self._published.popitem(last=False)
+
+    def forget_cached_key(self, cache_key: str) -> None:
+        """Remove origins for a key whose physical cache entry no longer exists."""
+        for identity in tuple(self._published):
+            if identity[0] == cache_key:
+                del self._published[identity]
+
+    def release_flight(
+        self,
+        registrations: tuple[_CacheFlightRegistration, ...],
+        outcome: _CacheFlightOutcome | None,
+    ) -> None:
+        """Drop transient flight state after all response attestations were issued."""
+        for registration in registrations:
+            current = self._registration_handles.get(registration.attempt_id)
+            if current is registration:
+                self._registrations.pop(registration.attempt_id, None)
+                self._registration_handles.pop(registration.attempt_id, None)
+        if outcome is not None and self._outcomes.get(outcome.producer_attempt_id) is outcome:
+            self._outcomes.pop(outcome.producer_attempt_id, None)
 
     def registered_outcome(self, outcome: _CacheFlightOutcome) -> bool:
         if type(outcome) is not _CacheFlightOutcome:
@@ -300,6 +365,7 @@ class _CacheReuseOwner:
         outcome: _CacheFlightOutcome | None = None,
         *,
         response_identity: int,
+        response_digest: str,
     ) -> _CacheReuseProvenance:
         reuse_id = reuse_event_id or secrets.token_hex(16)
         if outcome is not None:
@@ -308,14 +374,29 @@ class _CacheReuseOwner:
             if (outcome.cache_key, outcome.request_digest) != (cache_key, request_digest):
                 raise ValueError("cache reuse request does not match its settled flight")
             origin_id = outcome.origin_event_id
+            scope_key = outcome.scope_key
+            expected_response_digest = outcome.response_digest
             if not origin_id or origin_event_id != origin_id:
                 raise ValueError("cache reuse origin does not match its settled flight")
         else:
-            origin_id = self._published.get((cache_key, request_digest))
-            if not origin_id or origin_event_id != origin_id:
+            self._prune_retained_origins()
+            retained = self._published.get((cache_key, request_digest))
+            if retained is None or origin_event_id != retained.origin_event_id:
                 raise ValueError("cache reuse has no matching retained successful producer event")
+            origin_id = retained.origin_event_id
+            scope_key = retained.scope_key
+            expected_response_digest = retained.response_digest
+            self._published.move_to_end((cache_key, request_digest))
+        if expected_response_digest is None or expected_response_digest != response_digest:
+            raise ValueError("cache reuse content does not match its successful origin")
         signature = self._signature(
-            cache_key, request_digest, reuse_id, origin_id, response_identity
+            cache_key,
+            request_digest,
+            reuse_id,
+            origin_id,
+            response_identity,
+            response_digest,
+            scope_key,
         )
         return _CacheReuseProvenance(
             self._owner_id,
@@ -324,6 +405,8 @@ class _CacheReuseOwner:
             reuse_id,
             origin_id,
             response_identity,
+            response_digest,
+            scope_key,
             signature,
         )
 
@@ -338,6 +421,9 @@ class _CacheReuseOwner:
             or type(provenance.reuse_event_id) is not str
             or type(provenance.origin_event_id) is not str
             or type(provenance.response_identity) is not int
+            or type(provenance.response_digest) is not str
+            or type(provenance.scope_key) is not tuple
+            or not all(type(item) is str for item in provenance.scope_key)
             or type(provenance.signature) is not bytes
         ):
             return False
@@ -349,6 +435,8 @@ class _CacheReuseOwner:
                 provenance.reuse_event_id,
                 provenance.origin_event_id,
                 provenance.response_identity,
+                provenance.response_digest,
+                provenance.scope_key,
             ),
         )
 
@@ -359,16 +447,21 @@ class _CacheReuseOwner:
         reuse_event_id: str,
         origin_event_id: str,
         response_identity: int,
+        response_digest: str,
+        scope_key: tuple[str, ...],
     ) -> bytes:
-        body = "\0".join(
-            (
+        body = json.dumps(
+            [
                 self._owner_id,
                 cache_key,
                 request_digest,
                 reuse_event_id,
                 origin_event_id,
-                str(response_identity),
-            )
+                response_identity,
+                response_digest,
+                scope_key,
+            ],
+            separators=(",", ":"),
         ).encode()
         return hmac.new(self._secret, body, hashlib.sha256).digest()
 

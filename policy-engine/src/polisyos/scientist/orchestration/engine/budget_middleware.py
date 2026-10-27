@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import Literal
 
+from polisyos.core.llm.cache_settlement import CacheSettlementSession
 from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError, BudgetState
 from polisyos.scientist.orchestration.engine.budget_ledger import (
     BudgetLedger,
@@ -221,6 +222,8 @@ class BudgetMiddleware:
         amount: Decimal | None,
         cost_origin: Literal["reported", "estimated", "reuse", "unknown"],
         origin_event_id: str | None = None,
+        cache_reuse_session: CacheSettlementSession | None = None,
+        cache_reuse_response: object | None = None,
     ) -> BudgetLedgerProducerRecord:
         """Persist the final status and charge together; missing amount stays unknown."""
         with self._lock:
@@ -262,6 +265,8 @@ class BudgetMiddleware:
                 run_binding=run_binding,
                 control_job_attempt=control_job_attempt,
                 pre_admission_attempt_id=pre_admission_attempt_id,
+                cache_reuse_session=cache_reuse_session,
+                cache_reuse_response=cache_reuse_response,
             )
             self._budget = self._ledger.load()
             return record

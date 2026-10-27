@@ -459,7 +459,7 @@ class TracedLLMClient:
             request_digest,
             key=self._producer_budget_key,
             model=self._model_name,
-            provider=provider or self._detect_provider(),
+            provider=self._provider_name or provider or self._detect_provider(),
         )
         if active_route is not None and active_route.owner is self:
             active_route.intent = intent
@@ -838,6 +838,7 @@ class TracedLLMClient:
         event: LLMProducerEvent,
         *,
         route: _ProducerSettlementRoute | None = None,
+        cache_reuse_response: object | None = None,
     ) -> LLMProducerSettlement:
         store = self._producer_settlement_store
         if store is None:
@@ -856,6 +857,14 @@ class TracedLLMClient:
                 raise LLMSettlementOwnershipError("producer_settlement_owner_conflict")
             active_route.readback_record = None
         try:
+            reuse_kwargs = (
+                {
+                    "cache_reuse_session": self._cache_settlement_session,
+                    "cache_reuse_response": cache_reuse_response,
+                }
+                if cache_reuse_response is not None
+                else {}
+            )
             record = settle(
                 event.event_id,
                 event.request_digest,
@@ -866,6 +875,7 @@ class TracedLLMClient:
                 amount=event.amount,
                 cost_origin=event.cost_origin,
                 origin_event_id=event.origin_event_id,
+                **reuse_kwargs,
             )
             if self._readback_matches_producer_event(record, intent, event):
                 if active_route is not None and active_route.owner is self:
@@ -1092,7 +1102,9 @@ class TracedLLMClient:
                     durability="ledger",
                 )
             else:
-                prior = self._persist_producer_event(producer_event, route=route)
+                prior = self._persist_producer_event(
+                    producer_event, route=route, cache_reuse_response=response
+                )
                 callback_result = prior.ack
         required_accounting = (
             route.required_accounting if route is not None else self._required_accounting

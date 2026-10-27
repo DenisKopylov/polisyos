@@ -25,6 +25,7 @@ __all__ = [
     "BudgetExhaustedError",
     "BudgetLedger",
     "BudgetLedgerMutation",
+    "BudgetLedgerCacheReuseAdmission",
     "BudgetLedgerProducerRecord",
     "BudgetLedgerProducerRunBinding",
     "BudgetLedgerSnapshot",
@@ -385,6 +386,10 @@ _EXPORTS = {
     "BudgetLedgerMutation": (
         "polisyos.scientist.orchestration.engine.budget_ledger",
         "BudgetLedgerMutation",
+    ),
+    "BudgetLedgerCacheReuseAdmission": (
+        "polisyos.scientist.orchestration.engine.budget_ledger",
+        "BudgetLedgerCacheReuseAdmission",
     ),
     "BudgetLedgerProducerRecord": (
         "polisyos.scientist.orchestration.engine.budget_ledger",

@@ -93,7 +93,7 @@ def test_pending_unknown_estimated_reported_zero_and_reuse_survive_reopen(tmp_pa
     )
 
     reopened = FileBudgetLedger(path).snapshot()
-    assert reopened.schema_version == "1.4"
+    assert reopened.schema_version == "1.5"
     assert reopened.producer_settlements["pending"].status == "unknown"
     assert reopened.producer_settlements["pending"].amount is None
     assert reopened.producer_settlements["estimated"] == estimated
@@ -569,3 +569,41 @@ def test_legacy_13_attempt_attribution_is_unknown_without_read_rewrite(tmp_path:
     record = reader.list_producer_events_for_run_safe(owner)[0]
     assert record.control_job_attempt is None
     assert record.pre_admission_attempt_id is None
+
+
+def test_legacy_14_reader_does_not_require_new_reuse_admission(tmp_path: Path) -> None:
+    """The 1.5 writer extends, rather than reinterprets, existing 1.4 snapshots."""
+    path = tmp_path / "legacy-14.json"
+    owner = _middleware(path)
+    source = owner.settle_producer_event_safe(
+        "physical",
+        _dig("request"),
+        _dig("response"),
+        key="run",
+        model="m",
+        provider="p",
+        amount=Decimal("0.01"),
+        cost_origin="reported",
+    )
+    wire = json.loads(path.read_text())
+    wire["schema_version"] = "1.4"
+    for record in wire["producer_settlements"].values():
+        record.pop("reuse_admission", None)
+    path.write_text(json.dumps(wire))
+    before = path.read_bytes()
+    reopened = FileBudgetLedger(path).snapshot()
+    assert reopened.producer_settlements["physical"] == source
+    assert path.read_bytes() == before
+    reloaded = _middleware(path)
+    reloaded.settle_producer_event_safe(
+        "reuse",
+        source.request_digest,
+        _dig("reuse-response"),
+        key="run",
+        model="m",
+        provider="p",
+        amount=Decimal(0),
+        cost_origin="reuse",
+        origin_event_id=source.event_id,
+    )
+    assert FileBudgetLedger(path).snapshot().schema_version == "1.5"

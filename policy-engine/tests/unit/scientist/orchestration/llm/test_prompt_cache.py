@@ -571,3 +571,177 @@ class TestCachingLLMClient:
 
         assert response.content == "answer:same prompt"
         assert len(base_client.calls) == 2
+
+
+@pytest.mark.asyncio
+async def test_distinct_wrappers_share_the_same_physical_cache_flight() -> None:
+    """Per-request settlement hooks do not turn a shared cache into two producers."""
+    from polisyos.core.llm.response import extract_llm_response_data
+
+    cache = InMemoryPromptCache(maxsize=2, default_ttl_s=30)
+    provider = _SlowLLMClient()
+    first = CachingLLMClient(provider, cache=cache, model="fixture-model")
+    second = CachingLLMClient(provider, cache=cache, model="fixture-model")
+    producing = asyncio.create_task(first.generate(user="same", temperature=0))
+    await provider.started.wait()
+    following = asyncio.create_task(second.generate(user="same", temperature=0))
+    await asyncio.sleep(0)
+    assert len(provider.calls) == 1
+    flight = next(iter(first._inflight.values()))
+
+    def replace_cache_head(_task: object) -> None:
+        # An unrelated publication between completion and follower scheduling
+        # must not relabel this flight's exact response body or origin.
+        replacement = _make_response("unrelated later cache head")
+        replacement.producer_event_id = "other-physical-origin"
+        cache.put(flight.cache_key, replacement)
+
+    flight.task.add_done_callback(replace_cache_head)
+    provider.release.set()
+    origin, reused = await asyncio.gather(producing, following)
+    assert origin.content == reused.content == "answer:same"
+    evidence = extract_llm_response_data(
+        reused, cache_settlement_session=second._cache_settlement_session
+    )
+    assert evidence.cache_hit
+    assert evidence.origin_event_id == origin.producer_event_id
+    assert len(provider.calls) == 1
+
+
+@pytest.mark.asyncio
+async def test_cache_owner_bookkeeping_follows_entry_lifetime() -> None:
+    """Hits release request state; LRU/TTL/clear release retained origin state."""
+    from polisyos.core.llm.cache_settlement import _owner_for
+
+    cache = InMemoryPromptCache(maxsize=2, default_ttl_s=30)
+    provider = _FakeLLMClient()
+    client = CachingLLMClient(provider, cache=cache, model="fixture-model", ttl_s=30)
+    for key in range(5):
+        await client.generate(user=str(key), temperature=0)
+        for _ in range(5):
+            await client.generate(user=str(key), temperature=0)
+        owner = _owner_for(client._cache_settlement_session)
+        assert owner is not None
+        assert not owner._registrations
+        assert not owner._registration_handles
+        assert not owner._outcomes
+        assert len(owner._published) == cache.size <= 2
+    assert len(provider.calls) == 5
+    cache.clear()
+    assert not owner._published
+    await client.generate(user="after-clear", temperature=0)
+    assert len(provider.calls) == 6
+
+    expiring_cache = InMemoryPromptCache(maxsize=2, default_ttl_s=0)
+    expiring = CachingLLMClient(provider, cache=expiring_cache, model="fixture-model", ttl_s=0)
+    await expiring.generate(user="expires", temperature=0)
+    await expiring.generate(user="expires", temperature=0)
+    expiring_owner = _owner_for(expiring._cache_settlement_session)
+    assert expiring_owner is not None
+    assert len(expiring_owner._published) <= expiring_cache.size <= 1
+    assert len(provider.calls) == 8
+
+
+@pytest.mark.asyncio
+async def test_legacy_cache_without_eviction_hooks_still_has_bounded_core_retention() -> None:
+    """A get/put-only adapter cannot grow Core origin history beyond its bound."""
+    from polisyos.core.llm.cache_settlement import _owner_for
+
+    class LegacyCache:
+        def __init__(self):
+            self.entries = InMemoryPromptCache(maxsize=2, default_ttl_s=30)
+
+        def get(self, key):
+            return self.entries.get(key)
+
+        def put(self, key, response, ttl_s):
+            self.entries.put(key, response, ttl_s)
+
+    cache = LegacyCache()
+    provider = _FakeLLMClient()
+    client = CachingLLMClient(
+        provider, cache=cache, model="fixture-model", ttl_s=30, origin_retention_limit=2
+    )
+    for number in range(8):
+        await client.generate(user=str(number), temperature=0)
+        owner = _owner_for(client._cache_settlement_session)
+        assert owner is not None and len(owner._published) <= 2
+    reused = await client.generate(user="7", temperature=0)
+    assert reused.content == "answer:7"
+    assert len(provider.calls) == 8
+    assert not owner._registrations and not owner._outcomes
+
+
+def test_shared_cache_flight_can_be_consumed_from_two_event_loops() -> None:
+    """The cache owner has one physical flight even across request worker loops."""
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
+
+    class ThreadProvider:
+        def __init__(self):
+            self.started = threading.Event()
+            self.release = threading.Event()
+            self.calls = 0
+            self.lock = threading.Lock()
+
+        async def generate(self, **kwargs):
+            with self.lock:
+                self.calls += 1
+            self.started.set()
+            while not self.release.is_set():
+                await asyncio.sleep(0.001)
+            return _make_response("one physical response")
+
+    class WitnessCache(InMemoryPromptCache):
+        def __init__(self):
+            super().__init__(maxsize=2, default_ttl_s=30)
+            self.second_miss = threading.Event()
+            self.misses = 0
+            self.witness_lock = threading.Lock()
+
+        def get(self, key):
+            response = super().get(key)
+            if response is None:
+                with self.witness_lock:
+                    self.misses += 1
+                    if self.misses == 2:
+                        self.second_miss.set()
+            return response
+
+    provider = ThreadProvider()
+    cache = WitnessCache()
+    first = CachingLLMClient(provider, cache=cache, model="fixture-model")
+    second = CachingLLMClient(provider, cache=cache, model="fixture-model")
+
+    def request(client):
+        return asyncio.run(client.generate(user="same", temperature=0))
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        producing = executor.submit(request, first)
+        try:
+            assert provider.started.wait(3)
+            following = executor.submit(request, second)
+            # Both consumers actually observed a miss while the first
+            # physical producer was blocked. The final provider count is the
+            # independent oracle; no private field/marker establishes it.
+            assert cache.second_miss.wait(3)
+        finally:
+            provider.release.set()
+        produced, reused = producing.result(timeout=3), following.result(timeout=3)
+    assert produced.content == reused.content == "one physical response"
+    assert reused.producer_event_id == produced.producer_event_id
+    assert provider.calls == 1
+
+
+@pytest.mark.asyncio
+async def test_configured_provider_route_is_part_of_shared_cache_identity() -> None:
+    """The same model/request on a different logical route is a physical miss."""
+    cache = InMemoryPromptCache(maxsize=4, default_ttl_s=30)
+    first_provider, changed_provider = _FakeLLMClient(), _FakeLLMClient()
+    first_provider.provider, changed_provider.provider = "route-a", "route-b"
+    first = CachingLLMClient(first_provider, cache=cache, model="same-model")
+    changed = CachingLLMClient(changed_provider, cache=cache, model="same-model")
+    await first.generate(user="same", temperature=0)
+    await changed.generate(user="same", temperature=0)
+    await first.generate(user="same", temperature=0)
+    assert len(first_provider.calls) == len(changed_provider.calls) == 1

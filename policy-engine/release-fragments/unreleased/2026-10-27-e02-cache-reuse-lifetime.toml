@@ -1,0 +1,44 @@
+id = "2026-10-27-e02-cache-reuse-lifetime"
+title = "Bind authorized cache reuse to exact shared-cache origins"
+type = "fixed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Keep provider hooks request-local while sharing one bounded cache owner and flight; verify exact response content and explicit wrapper registration, then retain separate zero-cost receiver events across authorized compatible runs."
+compatibility = "Existing ledger1.0–1.4 snapshots remain readable; new writes use1.5 with optional typed reuse admission. Same-run reuse retains its original contract. No HTTP request/response DTO change."
+change_class = "runtime-state-format"
+surface_classification = "public_stable: Core cache settlement and Scientist engine facade; additive registration/admission APIs."
+migration = "Upgrade ledger readers before enabling1.5 writers across processes. No source event is copied/reissued. Custom direct Core flight producers must bind the actual response digest and retention TTL before issuing a response proof."
+api = "The new cross-run bridge verifies a live Core session/response; a caller-created admission model cannot authorize a new ledger write. No-key and zero-size/TTL modes remain uncached."
+limitations = "Local accounting admission does not certify provider invoices or institutional permission. Runtime, HTTP, adversarial and removal verification for this proposal is unrun until root composition."
+evidence = ["src/polisyos/core/llm/cache_settlement.py", "src/polisyos/scientist/orchestration/engine/budget_ledger.py", "tests/unit/core/llm/test_cache_settlement.py", "tests/unit/core/llm/test_traced_client_settlement.py", "tests/unit/scientist/orchestration/llm/test_prompt_cache.py", "tests/integration/runtime/http/test_nl_pipeline_cache_reuse_authorization.py"]
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]
+runbook_docs = []
+
+
+[[compatibility_change]]
+id = "e02-cache-owner-api"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: Core cache settlement and Scientist engine facade"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Add explicit exact-wrapper binding and a typed, verified local cross-run reuse admission; response proofs bind actual content."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/core/llm/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-cache-reuse-ledger-15"
+change_class = "runtime-state-format"
+impact = "additive"
+surface = "Scientist producer budget ledger1.5"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Read complete1.0–1.4 snapshots; new1.5 writes freeze verified cross-run cache admission while preserving exact original source and receiver bindings."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]
+runbook_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]

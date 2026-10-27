@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import hashlib
 import threading
 import weakref
+from collections.abc import Callable
 from dataclasses import dataclass
+from functools import wraps
 from typing import Literal, NoReturn
 
 from .settlement import (
@@ -16,6 +19,10 @@ from .settlement import (
 
 _SESSION_LOCK = threading.RLock()
 _SESSIONS_BY_CLIENT: dict[int, tuple[weakref.ReferenceType[object], CacheSettlementSession]] = {}
+_SESSIONS_BY_WRAPPER: dict[
+    int,
+    tuple[weakref.ReferenceType[object], weakref.ReferenceType[object], CacheSettlementSession],
+] = {}
 _OWNERS_BY_SESSION: dict[
     int,
     tuple[
@@ -27,6 +34,15 @@ _OWNERS_BY_SESSION: dict[
 _HANDLES_BY_ID: dict[
     int, tuple[weakref.ReferenceType[object], weakref.ReferenceType[CacheSettlementSession], object]
 ] = {}
+
+
+def _locked_cache_operation[**P, R](operation: Callable[P, R]) -> Callable[P, R]:
+    @wraps(operation)
+    def invoke(*args: P.args, **kwargs: P.kwargs) -> R:
+        with _SESSION_LOCK:
+            return operation(*args, **kwargs)
+
+    return invoke
 
 
 class _OpaqueValue:
@@ -82,6 +98,8 @@ class CacheReuseEvidence:
     request_digest: str
     reuse_event_id: str
     origin_event_id: str
+    response_digest: str
+    scope_key: tuple[str, ...]
 
 
 class CacheSettlementSession(_OpaqueValue):
@@ -92,11 +110,13 @@ class CacheSettlementSession(_OpaqueValue):
     def __init__(self) -> None:
         raise TypeError("cache settlement sessions are issued by Core")
 
+    @_locked_cache_operation
     def owns(self, client: object) -> bool:
-        """Return whether this session remains bound to the exact live client."""
+        """Return whether the client remains bound to this exact cache owner."""
         owner = _owner_for(self)
-        return owner is not None and owner.owns(client)
+        return owner is not None and session_for_cache_client(client) is self
 
+    @_locked_cache_operation
     def register_request(
         self, scope_key: tuple[str, ...], request_digest: str, attempt_id: str
     ) -> CacheFlightRegistration:
@@ -107,14 +127,17 @@ class CacheSettlementSession(_OpaqueValue):
         _remember_handle(self, handle, registration)
         return handle
 
+    @_locked_cache_operation
     def bind_request_key(self, registration: CacheFlightRegistration, cache_key: str) -> None:
         """Bind a registered request to its exact internal cache key."""
         _owner_or_raise(self).bind_request_key(_registration_value(self, registration), cache_key)
 
+    @_locked_cache_operation
     def dispatch(self, registration: CacheFlightRegistration, attempt_id: str) -> None:
         """Record that the registered producer was dispatched for this attempt."""
         _owner_or_raise(self).dispatch(_registration_value(self, registration), attempt_id)
 
+    @_locked_cache_operation
     def join(
         self,
         registration: CacheFlightRegistration,
@@ -132,6 +155,7 @@ class CacheSettlementSession(_OpaqueValue):
             attempt_id,
         )
 
+    @_locked_cache_operation
     def settle_flight(
         self,
         *,
@@ -141,6 +165,8 @@ class CacheSettlementSession(_OpaqueValue):
         producer_attempt_id: str,
         terminal: Literal["success", "error", "deadline", "cancelled"],
         origin_event_id: str | None = None,
+        response_digest: str | None = None,
+        retain_for_s: float = 0,
     ) -> CacheFlightOutcome:
         """Settle a registered flight without exposing Core's stored outcome."""
         outcome = _owner_or_raise(self).settle_flight(
@@ -150,12 +176,15 @@ class CacheSettlementSession(_OpaqueValue):
             producer_attempt_id=producer_attempt_id,
             terminal=terminal,
             origin_event_id=origin_event_id,
+            response_digest=response_digest,
+            retain_for_s=retain_for_s,
         )
         handle = object.__new__(CacheFlightOutcome)
         object.__setattr__(handle, "_CacheFlightOutcome__outcome", outcome)
         _remember_handle(self, handle, outcome)
         return handle
 
+    @_locked_cache_operation
     def issue_reuse_attestation(
         self,
         *,
@@ -179,6 +208,7 @@ class CacheSettlementSession(_OpaqueValue):
             origin_event_id,
             internal_outcome,
             response_identity=id(response),
+            response_digest=_response_digest(response),
         )
         attestation = object.__new__(CacheReuseAttestation)
         object.__setattr__(attestation, "_CacheReuseAttestation__provenance", provenance)
@@ -186,6 +216,7 @@ class CacheSettlementSession(_OpaqueValue):
         _remember_handle(self, attestation, provenance)
         return attestation
 
+    @_locked_cache_operation
     def verify_reuse_attestation(
         self, attestation: object, response: object
     ) -> CacheReuseEvidence | None:
@@ -209,17 +240,84 @@ class CacheSettlementSession(_OpaqueValue):
         ):
             return None
         owner = _owner_for(self)
-        if owner is None or not owner.verify_provenance(provenance):
+        try:
+            response_digest = _response_digest(response)
+        except ValueError:
+            return None
+        if (
+            owner is None
+            or provenance.response_digest != response_digest
+            or not owner.verify_provenance(provenance)
+        ):
             return None
         return CacheReuseEvidence(
             cache_key=provenance.cache_key,
             request_digest=provenance.request_digest,
             reuse_event_id=provenance.reuse_event_id,
             origin_event_id=provenance.origin_event_id,
+            response_digest=provenance.response_digest,
+            scope_key=provenance.scope_key,
         )
 
+    @_locked_cache_operation
+    def release_flight(
+        self,
+        registrations: tuple[CacheFlightRegistration, ...],
+        outcome: CacheFlightOutcome | None,
+    ) -> None:
+        """Release completed request bookkeeping after the last live waiter."""
+        with _SESSION_LOCK:
+            owner = _owner_or_raise(self)
+            owner.release_flight(
+                tuple(_registration_value(self, item) for item in registrations),
+                _outcome_value(self, outcome) if outcome is not None else None,
+            )
 
-def create_cache_settlement_session(client: object) -> CacheSettlementSession:
+    @_locked_cache_operation
+    def forget_cached_key(self, cache_key: str) -> None:
+        """Forget a retained origin when its cache entry expires or is evicted."""
+        with _SESSION_LOCK:
+            _owner_or_raise(self).forget_cached_key(cache_key)
+
+
+def _response_digest(response: object) -> str:
+    content = getattr(response, "content", None)
+    if type(content) is not str:
+        raise ValueError("cache response content must be text")
+    return hashlib.sha256(content.encode("utf-8")).hexdigest()
+
+
+def bind_cache_settlement_client(
+    cache: object, client: object, *, retention_limit: int = 128
+) -> CacheSettlementSession:
+    """Register an exact request wrapper with the exact cache owner inside Core."""
+    session = create_cache_settlement_session(cache, retention_limit=retention_limit)
+    try:
+        client_ref = weakref.ref(client)
+    except TypeError as exc:
+        raise TypeError("cache wrapper must support weak references") from exc
+    client_id = id(client)
+    with _SESSION_LOCK:
+        current = _SESSIONS_BY_WRAPPER.get(client_id)
+        if current is not None and current[0]() is client:
+            if current[1]() is not cache or current[2] is not session:
+                raise ValueError("cache wrapper already belongs to another cache")
+            return session
+        client_ref = weakref.ref(client, lambda reference: _discard_wrapper(client_id, reference))
+        _SESSIONS_BY_WRAPPER[client_id] = (client_ref, weakref.ref(cache), session)
+    return session
+
+
+def _discard_wrapper(client_id: int, reference: weakref.ReferenceType[object]) -> None:
+    with _SESSION_LOCK:
+        current = _SESSIONS_BY_WRAPPER.get(client_id)
+        if current is not None and current[0] is reference:
+            del _SESSIONS_BY_WRAPPER[client_id]
+
+
+def create_cache_settlement_session(
+    client: object, *, retention_limit: int | None = None
+) -> CacheSettlementSession:
     """Create or recover the one Core settlement session for an exact cache client."""
     try:
         weakref.ref(client)
@@ -229,9 +327,13 @@ def create_cache_settlement_session(client: object) -> CacheSettlementSession:
     with _SESSION_LOCK:
         current = _SESSIONS_BY_CLIENT.get(client_id)
         if current is not None and current[0]() is client:
+            if retention_limit is not None:
+                _owner_or_raise(current[1]).configure_retention(retention_limit)
             return current[1]
         session = object.__new__(CacheSettlementSession)
-        owner = _CacheReuseOwner(client)
+        owner = _CacheReuseOwner(
+            client, retention_limit=retention_limit if retention_limit is not None else 128
+        )
         client_ref = weakref.ref(client, lambda reference: _discard_client(client_id, reference))
         session_ref = weakref.ref(session)
         _SESSIONS_BY_CLIENT[client_id] = (client_ref, session)
@@ -242,6 +344,9 @@ def create_cache_settlement_session(client: object) -> CacheSettlementSession:
 def session_for_cache_client(client: object) -> CacheSettlementSession | None:
     """Return the existing session only for the exact registered cache client."""
     with _SESSION_LOCK:
+        wrapper = _SESSIONS_BY_WRAPPER.get(id(client))
+        if wrapper is not None and wrapper[0]() is client and wrapper[1]() is not None:
+            return wrapper[2]
         current = _SESSIONS_BY_CLIENT.get(id(client))
         if current is None or current[0]() is not client:
             return None
@@ -334,6 +439,7 @@ __all__ = [
     "CacheReuseAttestation",
     "CacheReuseEvidence",
     "CacheSettlementSession",
+    "bind_cache_settlement_client",
     "create_cache_settlement_session",
     "session_for_cache_client",
 ]

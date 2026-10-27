@@ -9,8 +9,10 @@ import json
 import threading
 import time
 import uuid
+import weakref
 from collections import OrderedDict
 from collections.abc import Mapping
+from concurrent.futures import Future
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
@@ -20,7 +22,8 @@ from polisyos.core.llm.cache_settlement import (
     CacheFlightOutcome,
     CacheFlightRegistration,
     CacheSettlementSession,
-    create_cache_settlement_session,
+    bind_cache_settlement_client,
+    session_for_cache_client,
 )
 
 from .gateway_client import GatewayLLMResponse, GatewayToolCall, GatewayUsage
@@ -106,6 +109,23 @@ class CacheReuseRequest:
 
 
 @dataclass(frozen=True, slots=True)
+class CacheReusePrincipal:
+    """Authenticated identity copied from the live control-job execution scope."""
+
+    actor_id: str
+    tenant: str
+    scope: str
+
+    def __post_init__(self) -> None:
+        """Reject incomplete identities before they reach the cache owner."""
+        if any(
+            type(value) is not str or not value or value != value.strip()
+            for value in (self.actor_id, self.tenant, self.scope)
+        ):
+            raise ValueError("cache_reuse_principal_incomplete")
+
+
+@dataclass(frozen=True, slots=True)
 class CacheReuseDecision:
     """Current authorization decision bound to one complete reuse request."""
 
@@ -129,6 +149,7 @@ class CacheReuseAuthorizer(Protocol):
 @dataclass(slots=True)
 class _CacheFlight:
     task: asyncio.Task[Any]
+    result: Future[Any]
     request_digest: str
     scope_key: tuple[str, ...]
     owner_registration: CacheFlightRegistration
@@ -137,6 +158,37 @@ class _CacheFlight:
     origin_event_id: str
     cache_key: str
     outcome: CacheFlightOutcome | None = None
+    snapshot: _SerializedGatewayResponse | None = None
+    waiters: int = 0
+    released: bool = False
+
+
+@dataclass(slots=True)
+class _SharedCacheState:
+    lock: Any = field(default_factory=threading.RLock)
+    inflight: dict[str, _CacheFlight] = field(default_factory=dict)
+
+
+_SHARED_CACHE_STATES_LOCK = threading.RLock()
+_SHARED_CACHE_STATES: dict[int, tuple[weakref.ReferenceType[object], _SharedCacheState]] = {}
+
+
+def _shared_cache_state(cache: object) -> _SharedCacheState:
+    cache_id = id(cache)
+    with _SHARED_CACHE_STATES_LOCK:
+        current = _SHARED_CACHE_STATES.get(cache_id)
+        if current is not None and current[0]() is cache:
+            return current[1]
+        state = _SharedCacheState()
+
+        def discard(reference: weakref.ReferenceType[object]) -> None:
+            with _SHARED_CACHE_STATES_LOCK:
+                current = _SHARED_CACHE_STATES.get(cache_id)
+                if current is not None and current[0] is reference:
+                    del _SHARED_CACHE_STATES[cache_id]
+
+        _SHARED_CACHE_STATES[cache_id] = (weakref.ref(cache, discard), state)
+        return state
 
 
 class _CacheReuseGatewayResponse(GatewayLLMResponse):
@@ -275,6 +327,7 @@ class InMemoryPromptCache:
             response, expires_at = entry
             if time.monotonic() > expires_at:
                 del self._store[cache_key]
+                self._forget_origin(cache_key)
                 self._telemetry.expired += 1
                 self._telemetry.misses += 1
                 return None
@@ -299,7 +352,8 @@ class InMemoryPromptCache:
             self._store[cache_key] = (serialized, expires_at)
             self._telemetry.puts += 1
             while len(self._store) > self._maxsize:
-                self._store.popitem(last=False)
+                evicted_key, _ = self._store.popitem(last=False)
+                self._forget_origin(evicted_key)
                 self._telemetry.evictions += 1
 
     @property
@@ -309,8 +363,15 @@ class InMemoryPromptCache:
 
     def clear(self) -> None:
         with self._lock:
+            for cache_key in self._store:
+                self._forget_origin(cache_key)
             self._store.clear()
             self._telemetry = PromptCacheTelemetry()
+
+    def _forget_origin(self, cache_key: str) -> None:
+        session = session_for_cache_client(self)
+        if session is not None:
+            session.forget_cached_key(cache_key)
 
     def stats(self) -> dict[str, Any]:
         with self._lock:
@@ -343,18 +404,44 @@ class CachingLLMClient:
         ttl_s: float = 300.0,
         inflight_timeout_s: float | None = None,
         reuse_authorizer: CacheReuseAuthorizer | Any | None = None,
+        reuse_principal: CacheReusePrincipal | None = None,
+        reuse_context: Mapping[str, Any] | None = None,
+        require_reuse_authorization: bool = False,
+        origin_retention_limit: int = 128,
+        provider_route: str | None = None,
     ) -> None:
         self._client = client
         self._cache = cache
         self._model = model
+        route = provider_route if provider_route is not None else getattr(client, "provider", None)
+        if route is not None and (type(route) is not str or not route or route != route.strip()):
+            raise ValueError("cache_provider_route_must_be_established_text")
+        self._provider_route = route or "unknown"
         self._ttl_s = max(float(ttl_s), 0.0)
         configured_timeout = inflight_timeout_s
         if configured_timeout is None:
             configured_timeout = getattr(client, "timeout_s", None)
         self._inflight_timeout_s = _coerce_timeout(configured_timeout)
-        self._inflight: dict[str, _CacheFlight] = {}
+        self._shared_cache_state = _shared_cache_state(cache)
+        # Legacy private inspection sees the actual cache-owned flights.
+        self._inflight = self._shared_cache_state.inflight
         self._cache_reuse_authorizer = reuse_authorizer
-        self._cache_settlement_session = create_cache_settlement_session(self)
+        if reuse_principal is not None and type(reuse_principal) is not CacheReusePrincipal:
+            raise TypeError("cache_reuse_principal_must_be_typed")
+        if reuse_context is not None and not isinstance(reuse_context, Mapping):
+            raise TypeError("cache_reuse_context_must_be_mapping")
+        if type(require_reuse_authorization) is not bool:
+            raise TypeError("cache_reuse_authorization_requirement_must_be_bool")
+        self._cache_reuse_principal = reuse_principal
+        self._trusted_reuse_context = dict(reuse_context) if reuse_context is not None else None
+        self._require_reuse_authorization = require_reuse_authorization
+        # Provenance belongs to the configured cache lifetime, not to this
+        # request's provider wrapper.  Wrappers sharing the exact cache can
+        # therefore verify an origin retained by an earlier wrapper without
+        # copying or re-attesting that origin.
+        self._cache_settlement_session = bind_cache_settlement_client(
+            cache, self, retention_limit=origin_retention_limit
+        )
         self._producer_begin_hook: Any | None = None
         self._producer_settle_hook: Any | None = None
         self._producer_unknown_hook: Any | None = None
@@ -389,23 +476,26 @@ class CachingLLMClient:
             response_format=kwargs.get("response_format"),
             metadata=kwargs.get("metadata"),
             extra_payload={
-                key: value
-                for key, value in kwargs.items()
-                if key
-                not in {
-                    "prompt",
-                    "system",
-                    "user",
-                    "messages",
-                    "tools",
-                    "tool_choice",
-                    "stream",
-                    "temperature",
-                    "max_tokens",
-                    "seed",
-                    "response_format",
-                    "metadata",
-                }
+                "provider_route": self._provider_route,
+                "arguments": {
+                    key: value
+                    for key, value in kwargs.items()
+                    if key
+                    not in {
+                        "prompt",
+                        "system",
+                        "user",
+                        "messages",
+                        "tools",
+                        "tool_choice",
+                        "stream",
+                        "temperature",
+                        "max_tokens",
+                        "seed",
+                        "response_format",
+                        "metadata",
+                    }
+                },
             },
         )
 
@@ -443,10 +533,23 @@ class CachingLLMClient:
 
     async def generate(self, *args: Any, **kwargs: Any) -> Any:
         args, kwargs = _normalize_prompt_call(args, kwargs)
+        if self._require_reuse_authorization:
+            authorize = getattr(self._cache_reuse_authorizer, "authorize_reuse", None)
+            principal = self._cache_reuse_principal
+            if not callable(authorize) or principal is None or self._trusted_reuse_context is None:
+                _record_cache_skip(self._cache, "reuse_authorization_unavailable")
+                return await self._generate_uncached(args, kwargs)
+            metadata = kwargs.get("metadata")
+            trusted_metadata = dict(metadata) if isinstance(metadata, Mapping) else {}
+            trusted_metadata["tenant"] = principal.tenant
+            trusted_metadata["scope"] = principal.scope
+            trusted_metadata["cache_reuse"] = self._trusted_reuse_context
+            kwargs["metadata"] = trusted_metadata
         reason = _cache_skip_reason(
             model=self._model,
             args=args,
             kwargs=kwargs,
+            strict_reuse=self._require_reuse_authorization,
         )
         if reason is not None:
             _record_cache_skip(self._cache, reason)
@@ -473,86 +576,102 @@ class CachingLLMClient:
                 [cache_key, scope_key, request_digest], separators=(",", ":"), sort_keys=True
             ).encode()
         ).hexdigest()
-        attempt_id = f"cache-attempt:{uuid.uuid4().hex}"
-        registration = self._cache_settlement_session.register_request(
-            scope_key, request_digest, attempt_id
-        )
-        self._cache_settlement_session.bind_request_key(registration, internal_cache_key)
-        cached = self._cache.get(internal_cache_key)
-        if cached is not None:
-            logger.debug("Prompt cache hit model={} key={}", self._model, cache_key[:12])
-            if isinstance(cached, GatewayLLMResponse):
-                return self._reuse_response(
-                    cached, cache_key=internal_cache_key, request_digest=request_digest
+        flight_key = internal_cache_key
+        with self._shared_cache_state.lock:
+            cached = self._cache.get(internal_cache_key)
+            if cached is not None:
+                logger.debug("Prompt cache hit model={} key={}", self._model, cache_key[:12])
+                if isinstance(cached, GatewayLLMResponse):
+                    try:
+                        return self._reuse_response(
+                            cached, cache_key=internal_cache_key, request_digest=request_digest
+                        )
+                    except ValueError:
+                        _record_cache_skip(self._cache, "cache_origin_mismatch")
+                else:
+                    return cached
+            self._cache_settlement_session.forget_cached_key(internal_cache_key)
+            attempt_id = f"cache-attempt:{uuid.uuid4().hex}"
+            registration = self._cache_settlement_session.register_request(
+                scope_key, request_digest, attempt_id
+            )
+            self._cache_settlement_session.bind_request_key(registration, internal_cache_key)
+            flight = self._inflight.get(flight_key)
+            is_owner = flight is None
+            if is_owner:
+                self._cache_settlement_session.dispatch(registration, attempt_id)
+                producer_event_id = f"llm-provider:{uuid.uuid4().hex}"
+                owner_task = asyncio.create_task(
+                    self._produce(
+                        internal_cache_key,
+                        args,
+                        _provider_kwargs(kwargs),
+                        request_digest=request_digest,
+                        scope_key=scope_key,
+                        producer_attempt_id=attempt_id,
+                        producer_event_id=producer_event_id,
+                    )
                 )
-            return cached
-
-        provider_kwargs = _provider_kwargs(kwargs)
-        flight = self._inflight.get(internal_cache_key)
-        is_owner = flight is None
-        if is_owner:
-            self._cache_settlement_session.dispatch(registration, attempt_id)
-            producer_event_id = f"llm-provider:{uuid.uuid4().hex}"
-            owner_task = asyncio.create_task(
-                self._produce(
-                    internal_cache_key,
-                    args,
-                    provider_kwargs,
+                flight = _CacheFlight(
+                    task=owner_task,
+                    result=Future(),
                     request_digest=request_digest,
                     scope_key=scope_key,
+                    owner_registration=registration,
+                    registrations=[registration],
                     producer_attempt_id=attempt_id,
-                    producer_event_id=producer_event_id,
+                    origin_event_id=producer_event_id,
+                    cache_key=internal_cache_key,
                 )
-            )
-            flight = _CacheFlight(
-                task=owner_task,
-                request_digest=request_digest,
-                scope_key=scope_key,
-                owner_registration=registration,
-                registrations=[registration],
-                producer_attempt_id=attempt_id,
-                origin_event_id=producer_event_id,
-                cache_key=internal_cache_key,
-            )
-            self._inflight[internal_cache_key] = flight
-            owner_task.add_done_callback(_consume_task_exception)
-        else:
-            self._cache_settlement_session.join(
-                registration,
-                scope_key,
-                request_digest,
-                internal_cache_key,
-                attempt_id,
-            )
-            flight.registrations.append(registration)
+                self._inflight[flight_key] = flight
+                owner_task.add_done_callback(
+                    lambda task: self._settle_shared_flight_result(flight, task)
+                )
+                owner_task.add_done_callback(_consume_task_exception)
+            else:
+                self._cache_settlement_session.join(
+                    registration, scope_key, request_digest, internal_cache_key, attempt_id
+                )
+                flight.registrations.append(registration)
+            flight.waiters += 1
 
-        response = await asyncio.shield(flight.task)
-        if is_owner:
-            return response
-
-        # Followers receive a detached cache snapshot and the same provenance
-        # marker as an ordinary cache hit.  They must not share the producer's
-        # mutable response object or charge LLM-01 accounting as a miss.
-        cached = self._cache.get(internal_cache_key)
-        if cached is not None:
-            if isinstance(cached, GatewayLLMResponse):
+        try:
+            response = await asyncio.shield(asyncio.wrap_future(flight.result))
+            if is_owner:
+                return response
+            # A follower consumes its exact flight snapshot, never the mutable
+            # current cache head (another event loop may have replaced it).
+            if flight.snapshot is not None:
                 return self._reuse_response(
-                    cached,
+                    _thaw_response(flight.snapshot),
                     cache_key=internal_cache_key,
                     request_digest=request_digest,
                     origin_event_id=flight.origin_event_id,
                     outcome=flight.outcome,
                 )
-            return cached
-        if isinstance(response, GatewayLLMResponse):
-            return self._reuse_response(
-                response,
-                cache_key=internal_cache_key,
-                request_digest=request_digest,
-                origin_event_id=flight.origin_event_id,
-                outcome=flight.outcome,
+            return response
+        finally:
+            with self._shared_cache_state.lock:
+                flight.waiters -= 1
+                self._release_completed_flight(flight)
+
+    def _settle_shared_flight_result(self, flight: _CacheFlight, task: asyncio.Task[Any]) -> None:
+        if task.cancelled():
+            flight.result.set_exception(asyncio.CancelledError())
+        elif (error := task.exception()) is not None:
+            flight.result.set_exception(error)
+        else:
+            flight.result.set_result(task.result())
+        self._release_completed_flight(flight)
+
+    def _release_completed_flight(self, flight: _CacheFlight) -> None:
+        with self._shared_cache_state.lock:
+            if flight.waiters or not flight.task.done() or flight.released:
+                return
+            self._cache_settlement_session.release_flight(
+                tuple(flight.registrations), flight.outcome
             )
-        return response
+            flight.released = True
 
     def _ordinary_scope_key(self) -> tuple[str, ...]:
         try:
@@ -577,19 +696,33 @@ class CachingLLMClient:
         snapshot = raw.get("snapshot") if isinstance(raw, Mapping) else None
         if not isinstance(snapshot, Mapping):
             return None
-        try:
-            from polisyos.core.security import get_current_access_scope_or_none
+        reuse_principal = self._cache_reuse_principal
+        if reuse_principal is None:
+            if self._require_reuse_authorization:
+                return None
+            try:
+                from polisyos.core.security import get_current_access_scope_or_none
 
-            principal = get_current_access_scope_or_none()
-        except Exception:
-            principal = None
-        if principal is None:
-            return None
-        actor_id = principal.spiffe_id or principal.user_sub
-        tenant = str(raw.get("tenant", ""))
-        scope = str(raw.get("scope", ""))
-        if tenant != principal.tenant_id or not actor_id or not scope:
-            return None
+                ambient_principal = get_current_access_scope_or_none()
+            except Exception:
+                ambient_principal = None
+            if ambient_principal is None:
+                return None
+            actor_id = ambient_principal.spiffe_id or ambient_principal.user_sub
+            tenant = str(raw.get("tenant", ""))
+            scope = str(raw.get("scope", ""))
+            if tenant != ambient_principal.tenant_id or not actor_id or not scope:
+                return None
+        else:
+            actor_id = reuse_principal.actor_id
+            tenant = reuse_principal.tenant
+            scope = reuse_principal.scope
+            if (
+                tenant != str(raw.get("tenant", ""))
+                or scope != str(raw.get("scope", ""))
+                or not actor_id
+            ):
+                return None
         evidence = (
             CacheReuseEvidence(
                 ref=str(snapshot.get("ref", "")),
@@ -620,10 +753,18 @@ class CachingLLMClient:
             decision = authorize(request)
         except Exception:
             return None
-        if (
-            not isinstance(decision, CacheReuseDecision)
-            or not decision.issuer
-            or not decision.epoch
+        if type(decision) is not CacheReuseDecision or any(
+            type(value) is not str or not value or value != value.strip()
+            for value in (
+                decision.issuer,
+                decision.epoch,
+                decision.actor_id,
+                decision.tenant,
+                decision.scope,
+                decision.purpose,
+                decision.model,
+                decision.parameters_digest,
+            )
         ):
             return None
         if (
@@ -687,7 +828,8 @@ class CachingLLMClient:
         """Produce and publish one cache miss, always releasing its flight."""
 
         current_task = asyncio.current_task()
-        flight = self._inflight.get(cache_key)
+        flight_key = cache_key
+        flight = self._inflight.get(flight_key)
         intent_started = False
         try:
             if self._producer_begin_hook is not None:
@@ -707,17 +849,30 @@ class CachingLLMClient:
                 )
                 if isinstance(response, GatewayLLMResponse):
                     response.producer_settlement = settlement
-            self._cache.put(cache_key, response, ttl_s=self._ttl_s)
+            with self._shared_cache_state.lock:
+                if flight is not None:
+                    flight.outcome = self._cache_settlement_session.settle_flight(
+                        registrations=tuple(flight.registrations),
+                        cache_key=cache_key,
+                        request_digest=request_digest,
+                        producer_attempt_id=producer_attempt_id,
+                        terminal="success",
+                        retain_for_s=self._ttl_s,
+                        origin_event_id=producer_event_id,
+                        response_digest=(
+                            hashlib.sha256(response.content.encode()).hexdigest()
+                            if isinstance(response, GatewayLLMResponse)
+                            else None
+                        ),
+                    )
+                    if isinstance(response, GatewayLLMResponse):
+                        flight.snapshot = _freeze_response(response)
+                try:
+                    self._cache.put(cache_key, response, ttl_s=self._ttl_s)
+                except BaseException:
+                    self._cache_settlement_session.forget_cached_key(cache_key)
+                    raise
             logger.debug("Prompt cache miss model={} key={}", self._model, cache_key[:12])
-            if flight is not None:
-                flight.outcome = self._cache_settlement_session.settle_flight(
-                    registrations=tuple(flight.registrations),
-                    cache_key=cache_key,
-                    request_digest=request_digest,
-                    producer_attempt_id=producer_attempt_id,
-                    terminal="success",
-                    origin_event_id=producer_event_id,
-                )
             return response
         except TimeoutError:
             if intent_started and self._producer_unknown_hook is not None:
@@ -725,7 +880,7 @@ class CachingLLMClient:
                     self._producer_unknown_hook(producer_event_id, request_digest, TimeoutError())
                 )
             if flight is not None:
-                self._cache_settlement_session.settle_flight(
+                flight.outcome = self._cache_settlement_session.settle_flight(
                     registrations=tuple(flight.registrations),
                     cache_key=cache_key,
                     request_digest=request_digest,
@@ -739,7 +894,7 @@ class CachingLLMClient:
                     self._producer_unknown_hook(producer_event_id, request_digest, exc)
                 )
             if flight is not None:
-                self._cache_settlement_session.settle_flight(
+                flight.outcome = self._cache_settlement_session.settle_flight(
                     registrations=tuple(flight.registrations),
                     cache_key=cache_key,
                     request_digest=request_digest,
@@ -749,11 +904,12 @@ class CachingLLMClient:
             raise
         finally:
             if (
-                self._inflight.get(cache_key) is flight
+                self._inflight.get(flight_key) is flight
                 and flight is not None
                 and flight.task is current_task
             ):
-                self._inflight.pop(cache_key, None)
+                with self._shared_cache_state.lock:
+                    self._inflight.pop(flight_key, None)
 
     async def _call_provider(
         self,
@@ -815,8 +971,11 @@ def _cache_skip_reason(
     model: str,
     args: tuple[Any, ...],
     kwargs: dict[str, Any],
+    strict_reuse: bool = False,
 ) -> str | None:
     del model
+    if strict_reuse and kwargs.get("seed") is not None:
+        return "independent_seed"
     if len(args) > 1:
         return "unsupported_positional_call"
     if kwargs.get("tools"):
@@ -858,22 +1017,19 @@ def _cache_skip_reason(
         ensure_ascii=True,
         sort_keys=True,
     ).lower()
-    if (
-        any(
-            marker in text_blob
-            for marker in (
-                "http://",
-                "https://",
-                "fetched_at",
-                "retrieved_at",
-                "query_traces",
-                "claim_supports",
-                "uncertainty_notes",
-                "recency_days",
-            )
+    if any(
+        marker in text_blob
+        for marker in (
+            "http://",
+            "https://",
+            "fetched_at",
+            "retrieved_at",
+            "query_traces",
+            "claim_supports",
+            "uncertainty_notes",
+            "recency_days",
         )
-        and reuse_context is None
-    ):
+    ) and (strict_reuse or reuse_context is None):
         return "retrieval_freshness_guard"
     return None
 

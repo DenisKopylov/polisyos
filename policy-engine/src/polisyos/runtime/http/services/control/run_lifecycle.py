@@ -525,8 +525,6 @@ def _build_control_nl_producer_budget_reconciler(
                     or origin.amount < Decimal(0)
                     or origin.cost_origin not in {"reported", "estimated"}
                     or origin.origin_event_id is not None
-                    or origin.run_binding != producer_run_binding
-                    or origin.key != record.key
                     or origin.model != record.model
                     or origin.provider != record.provider
                     or origin.request_digest != record.request_digest
@@ -536,6 +534,12 @@ def _build_control_nl_producer_budget_reconciler(
                     raise GenerationCycleError(
                         "control_nl_budget_producer_reuse_origin_not_established"
                     )
+                try:
+                    record.validate_reuse_origin(origin)
+                except (TypeError, ValueError) as exc:
+                    raise GenerationCycleError(
+                        "control_nl_budget_producer_reuse_origin_not_established"
+                    ) from exc
             total += amount
             if not total.is_finite():
                 raise GenerationCycleError("control_nl_budget_producer_total_invalid")
@@ -3966,6 +3970,8 @@ class ControlPlaneService(
         published_signature_population_provider: PublicSignaturePopulationProvider | None = None,
         normative_authority_trust: NormativeAuthorityTrust | None = None,
         llm_producer_settlement_store: BudgetMiddleware | None = None,
+        llm_cache_reuse_authorizer: Any | None = None,
+        llm_prompt_cache: Any | None = None,
         cycle_substrate_context_admission_owner: _CycleSubstrateContextAdmissionOwner | None = None,
         generic_cycle_simulation_admission_owner: GenericCycleSimulationAdmissionOwner
         | None = None,
@@ -3982,6 +3988,12 @@ class ControlPlaneService(
         ):
             raise TypeError("llm_producer_settlement_store_must_be_budget_middleware")
         self._llm_producer_settlement_store = llm_producer_settlement_store
+        self._llm_cache_reuse_authorizer: Any | None = None
+        self._llm_prompt_cache: Any | None = None
+        self.bind_llm_cache_reuse(
+            authorizer=llm_cache_reuse_authorizer,
+            prompt_cache=llm_prompt_cache,
+        )
         # The source-data root is a separate input from CAS/output roots and package
         # resources. The default preserves module-derived behavior; an explicit root
         # is accepted only when it is an existing absolute directory.
@@ -4399,6 +4411,32 @@ class ControlPlaneService(
         if current is not None and current is not store:
             raise ValueError("llm_producer_settlement_store_already_bound")
         self._llm_producer_settlement_store = store
+
+    def bind_llm_cache_reuse(
+        self,
+        *,
+        authorizer: Any | None,
+        prompt_cache: Any | None,
+    ) -> None:
+        """Bind the optional app-scoped cache owner without creating authority."""
+        if authorizer is None and prompt_cache is None:
+            return
+        if authorizer is not None and not callable(getattr(authorizer, "authorize_reuse", None)):
+            raise TypeError("llm_cache_reuse_authorizer_invalid")
+        if prompt_cache is not None and not all(
+            callable(getattr(prompt_cache, name, None)) for name in ("get", "put")
+        ):
+            raise TypeError("llm_prompt_cache_invalid")
+        current_authorizer = self._llm_cache_reuse_authorizer
+        current_cache = self._llm_prompt_cache
+        if current_authorizer is not None and authorizer is not current_authorizer:
+            raise ValueError("llm_cache_reuse_authorizer_already_bound")
+        if current_cache is not None and prompt_cache is not current_cache:
+            raise ValueError("llm_prompt_cache_already_bound")
+        if authorizer is not None:
+            self._llm_cache_reuse_authorizer = authorizer
+        if prompt_cache is not None:
+            self._llm_prompt_cache = prompt_cache
 
     def reconcile_epoch_validity_for_subject(
         self,

@@ -18,11 +18,13 @@ from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core.llm.cache_settlement import CacheSettlementSession
+from polisyos.core.llm.settlement import LLMProducerEvent
 from polisyos.scientist.orchestration.engine.budget import BudgetState
 
 _CANONICAL_LEDGER_CONTRACT = "scientist.multi_host_budget_ledger.v1"
 _COORDINATION_MODE = "shared_posix_file_lock"
-_SNAPSHOT_VERSION = "1.4"
+_SNAPSHOT_VERSION = "1.5"
 
 __all__ = [
     "BudgetLedger",
@@ -32,6 +34,7 @@ __all__ = [
     "BudgetLedgerWriter",
     "BudgetLedgerSpendReceipt",
     "BudgetLedgerProducerRecord",
+    "BudgetLedgerCacheReuseAdmission",
     "BudgetLedgerProducerRunBinding",
     "BudgetLedgerSettlementOutcomeUnknownError",
     "FileBudgetLedger",
@@ -124,6 +127,121 @@ class BudgetLedgerProducerRunBinding(BaseModel):
         return self
 
 
+class BudgetLedgerCacheReuseAdmission(BaseModel):
+    """Frozen local admission of an exact authorized cache edge across runs.
+
+    This is an accounting observation by the ledger, not external permission.
+    Only the live Core response verifier can create it at a new write; readers
+    recheck its exact source/receiver graph bindings without reissuing the source.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    verifier: Literal["core.cache_settlement.response.v1"] = "core.cache_settlement.response.v1"
+    cache_key: str = Field(min_length=1)
+    response_digest: str = Field(pattern=r"^[a-f0-9]{64}$")
+    scope_key: tuple[str, ...] = Field(min_length=10)
+
+    @property
+    def issuer(self) -> str:
+        """Return the configured authorizer issuer frozen by Core."""
+        return self.scope_key[0]
+
+    @property
+    def epoch(self) -> str:
+        """Return its exact permission epoch at admission."""
+        return self.scope_key[1]
+
+    def validate_edge(
+        self, receiver: BudgetLedgerProducerRecord, source: BudgetLedgerProducerRecord
+    ) -> None:
+        """Recompute cache identity and both physical/reuse payload digests."""
+        scope = self.scope_key
+        if (
+            any(
+                not scope[index] or scope[index] != scope[index].strip()
+                for index in (*range(6), 7, 8)
+            )
+            or scope[7] != receiver.model
+            or scope[8] != receiver.request_digest
+        ):
+            raise ValueError("producer_reuse_admission_scope_mismatch")
+        expected_key = hashlib.sha256(
+            json.dumps(
+                [receiver.request_digest, scope, receiver.request_digest],
+                separators=(",", ":"),
+                sort_keys=True,
+            ).encode()
+        ).hexdigest()
+        if self.cache_key != expected_key:
+            raise ValueError("producer_reuse_admission_cache_key_mismatch")
+        for record in (source, receiver):
+            event = LLMProducerEvent(
+                event_id=record.event_id,
+                request_digest=record.request_digest,
+                response_digest=self.response_digest,
+                model=record.model,
+                provider=record.provider,
+                amount=record.amount,
+                cost_origin=record.cost_origin,
+                kind="provider" if record is source else "reuse",
+                origin_event_id=record.origin_event_id,
+            )
+            if event.payload_digest != record.payload_digest:
+                raise ValueError("producer_reuse_origin_cross_run_payload_mismatch")
+
+
+def _verified_cache_reuse_admission(
+    *,
+    session: CacheSettlementSession | None,
+    response: object | None,
+    event_id: str,
+    request_digest: str,
+    payload_digest: str,
+    origin_event_id: str | None,
+    model: str,
+    provider: str,
+) -> BudgetLedgerCacheReuseAdmission | None:
+    """Resolve the opaque Core proof and bind all current event payload fields."""
+    if session is None and response is None:
+        return None
+    if type(session) is not CacheSettlementSession or response is None:
+        raise ValueError("producer_reuse_admission_missing_core_response")
+    proof = getattr(response, "_polisyos_reuse_provenance", None)
+    evidence = session.verify_reuse_attestation(proof, response)
+    if evidence is None:
+        raise ValueError("producer_reuse_admission_invalid_core_response")
+    scope = evidence.scope_key
+    if (
+        evidence.reuse_event_id != event_id
+        or evidence.request_digest != request_digest
+        or evidence.origin_event_id != origin_event_id
+    ):
+        raise ValueError("producer_reuse_admission_event_mismatch")
+    event = LLMProducerEvent(
+        event_id=event_id,
+        request_digest=request_digest,
+        response_digest=evidence.response_digest,
+        model=model,
+        provider=provider,
+        amount=Decimal(0),
+        cost_origin="reuse",
+        kind="reuse",
+        origin_event_id=origin_event_id,
+    )
+    if event.payload_digest != payload_digest:
+        raise ValueError("producer_reuse_admission_payload_mismatch")
+    # Ordinary same-run cache reuse still uses the original ledger contract.
+    # Only a current authorizer decision can widen it across run boundaries.
+    if len(scope) < 10 or scope[7] != model or scope[8] != request_digest:
+        return None
+    return BudgetLedgerCacheReuseAdmission(
+        cache_key=evidence.cache_key,
+        response_digest=evidence.response_digest,
+        scope_key=scope,
+    )
+
+
 class BudgetLedgerProducerRecord(BaseModel):
     """Durable state of one provider outcome, including unresolved attempts."""
 
@@ -154,6 +272,9 @@ class BudgetLedgerProducerRecord(BaseModel):
         pattern=r"^[a-f0-9]{32}$",
         json_schema_extra={"introduced_in": "1.4"},
     )
+    reuse_admission: BudgetLedgerCacheReuseAdmission | None = Field(
+        default=None, json_schema_extra={"introduced_in": "1.5"}
+    )
     revision: int = Field(ge=1)
     committed_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
@@ -178,12 +299,16 @@ class BudgetLedgerProducerRecord(BaseModel):
                 or not self.origin_event_id.strip()
             ):
                 raise ValueError("producer_reuse_origin_invalid")
-        elif self.origin_event_id is not None:
+        elif self.origin_event_id is not None or self.reuse_admission is not None:
             raise ValueError("producer_reuse_origin_unexpected")
         if self.run_binding is not None and self.key != f"nl-run:{self.run_binding.run_id}":
             raise ValueError("producer_run_binding_budget_key_mismatch")
         if self.control_job_attempt is not None and self.pre_admission_attempt_id is not None:
             raise ValueError("producer_attempt_attribution_is_ambiguous")
+
+    def validate_reuse_origin(self, source: BudgetLedgerProducerRecord | None) -> None:
+        """Reconcile the exact physical source under the canonical ledger contract."""
+        self._validate_new_settlement_origin(source)
 
     def _validate_new_settlement_origin(
         self,
@@ -218,13 +343,27 @@ class BudgetLedgerProducerRecord(BaseModel):
             or not (source_has_known_physical_cost or source_has_terminal_unknown_cost)
             or source.payload_digest is None
             or source.origin_event_id is not None
-            or source.key != self.key
             or source.request_digest != self.request_digest
             or source.model != self.model
             or source.provider != self.provider
-            or source.run_binding != self.run_binding
         ):
             raise ValueError("producer_reuse_origin_mismatch")
+        admission = self.reuse_admission
+        if admission is not None:
+            admission.validate_edge(self, source)
+        if source.key == self.key and source.run_binding == self.run_binding:
+            return
+        source_binding, receiver_binding = source.run_binding, self.run_binding
+        if (
+            admission is None
+            or source_binding is None
+            or receiver_binding is None
+            or (source_binding.tenant_id, source_binding.cell_id, source_binding.profile_id)
+            != (receiver_binding.tenant_id, receiver_binding.cell_id, receiver_binding.profile_id)
+            or admission.scope_key[3] != receiver_binding.tenant_id
+            or admission.scope_key[4] != f"{receiver_binding.tenant_id}/{receiver_binding.cell_id}"
+        ):
+            raise ValueError("producer_reuse_origin_cross_run_admission_missing")
 
 
 def _validate_producer_settlement_origin_graph(
@@ -345,6 +484,7 @@ def _decode_snapshot(raw: str) -> BudgetLedgerSnapshot:
         "1.1",
         "1.2",
         "1.3",
+        "1.4",
         _SNAPSHOT_VERSION,
     }:
         raise ValueError("budget ledger schema_version is missing or unsupported")
@@ -461,6 +601,8 @@ class BudgetLedger(Protocol):
         run_binding: BudgetLedgerProducerRunBinding | None = None,
         control_job_attempt: int | None = None,
         pre_admission_attempt_id: str | None = None,
+        cache_reuse_session: CacheSettlementSession | None = None,
+        cache_reuse_response: object | None = None,
     ) -> BudgetLedgerProducerRecord: ...
     def resolve_producer_event(self, event_id: str) -> BudgetLedgerProducerRecord | None: ...
     def list_producer_events_for_run(
@@ -783,9 +925,29 @@ class FileBudgetLedger:
         run_binding: BudgetLedgerProducerRunBinding | None = None,
         control_job_attempt: int | None = None,
         pre_admission_attempt_id: str | None = None,
+        cache_reuse_session: CacheSettlementSession | None = None,
+        cache_reuse_response: object | None = None,
     ) -> BudgetLedgerProducerRecord:
         """Atomically publish one terminal producer status and any known charge."""
         status: Literal["committed", "unknown"] = "unknown" if amount is None else "committed"
+        if cost_origin != "reuse" and (
+            cache_reuse_session is not None or cache_reuse_response is not None
+        ):
+            raise ValueError("producer_reuse_admission_unexpected")
+        admission = (
+            _verified_cache_reuse_admission(
+                session=cache_reuse_session,
+                response=cache_reuse_response,
+                event_id=event_id,
+                request_digest=request_digest,
+                payload_digest=payload_digest,
+                origin_event_id=origin_event_id,
+                model=model,
+                provider=provider,
+            )
+            if cost_origin == "reuse"
+            else None
+        )
         candidate = BudgetLedgerProducerRecord(
             event_id=event_id,
             request_digest=request_digest,
@@ -795,6 +957,7 @@ class FileBudgetLedger:
             provider=provider,
             amount=amount,
             cost_origin=cost_origin,
+            reuse_admission=admission,
             status=status,
             origin_event_id=origin_event_id,
             run_binding=run_binding,
@@ -845,6 +1008,7 @@ class FileBudgetLedger:
                             "cost_origin",
                             "status",
                             "origin_event_id",
+                            "reuse_admission",
                             "control_job_attempt",
                             "pre_admission_attempt_id",
                         )

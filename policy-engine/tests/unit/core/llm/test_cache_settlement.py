@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import pickle
 from types import SimpleNamespace
 from unittest.mock import Mock
@@ -13,6 +14,7 @@ from polisyos.core.llm.cache_settlement import (
     CacheFlightRegistration,
     CacheReuseAttestation,
     CacheSettlementSession,
+    bind_cache_settlement_client,
     create_cache_settlement_session,
     session_for_cache_client,
 )
@@ -65,6 +67,8 @@ def _settled_success(
         producer_attempt_id=attempt_id,
         terminal="success",
         origin_event_id=origin_event_id,
+        response_digest=hashlib.sha256(b"cached result").hexdigest(),
+        retain_for_s=30,
     )
     return cache_key, request_digest, origin_event_id, outcome
 
@@ -399,3 +403,116 @@ def test_foreign_or_forged_outcomes_and_attestations_are_refused(
     for candidate in (missing_attestation, copied_attestation, subclassed_attestation):
         assert session.verify_reuse_attestation(candidate, response) is None
     assert not verify_trap.called
+
+
+def test_cache_owner_alias_attribute_cannot_steal_an_existing_session() -> None:
+    owner, legitimate, sibling = _CacheClient(), _CacheClient(), _CacheClient()
+    session = bind_cache_settlement_client(owner, legitimate)
+    sibling._cache_settlement_owner = owner
+    assert session.owns(legitimate)
+    assert session_for_cache_client(legitimate) is session
+    assert session_for_cache_client(sibling) is None
+    assert not session.owns(sibling)
+
+
+def test_reuse_attestation_binds_content_as_well_as_response_identity() -> None:
+    owner = _CacheClient()
+    session = create_cache_settlement_session(owner)
+    response = _ReuseResponse()
+    cache_key, request_digest, origin, outcome = _settled_success(session)
+    proof = session.issue_reuse_attestation(
+        response=response,
+        cache_key=cache_key,
+        request_digest=request_digest,
+        reuse_event_id="content-bound-reuse",
+        origin_event_id=origin,
+        outcome=outcome,
+    )
+    assert session.verify_reuse_attestation(proof, response) is not None
+    response.content = "different body on the same live response"
+    assert session.verify_reuse_attestation(proof, response) is None
+    with pytest.raises(ValueError, match="content does not match"):
+        session.issue_reuse_attestation(
+            response=response,
+            cache_key=cache_key,
+            request_digest=request_digest,
+            reuse_event_id="counterfeit-body",
+            origin_event_id=origin,
+            outcome=outcome,
+        )
+
+
+@pytest.mark.parametrize("ttl", [2.0, 0.0])
+def test_real_settled_origin_reuse_has_a_fixed_producer_expiry(
+    monkeypatch: pytest.MonkeyPatch,
+    ttl: float,
+) -> None:
+    """Retained reuse works after flight release, then expires without renewal."""
+    import polisyos.core.llm.settlement as settlement
+
+    clock = [100.0]
+    monkeypatch.setattr(settlement, "time", SimpleNamespace(monotonic=lambda: clock[0]))
+    client = _CacheClient()
+    session = create_cache_settlement_session(client)
+    response = _ReuseResponse()
+    cache_key, request_digest, origin_id = "ttl-key", "ttl-request", "ttl-origin"
+    registration = session.register_request(("fixture-scope",), request_digest, "ttl-producer")
+    session.bind_request_key(registration, cache_key)
+    session.dispatch(registration, "ttl-producer")
+    outcome = session.settle_flight(
+        registrations=(registration,),
+        cache_key=cache_key,
+        request_digest=request_digest,
+        producer_attempt_id="ttl-producer",
+        terminal="success",
+        origin_event_id=origin_id,
+        response_digest=hashlib.sha256(response.content.encode()).hexdigest(),
+        retain_for_s=ttl,
+    )
+    session.release_flight((registration,), outcome)
+
+    def retained_reuse(event_id: str) -> CacheReuseAttestation:
+        return session.issue_reuse_attestation(
+            response=response,
+            cache_key=cache_key,
+            request_digest=request_digest,
+            reuse_event_id=event_id,
+            origin_event_id=origin_id,
+        )
+
+    if ttl:
+        initial = retained_reuse("ttl-initial")
+        assert session.verify_reuse_attestation(initial, response) is not None
+        clock[0] = 100.0 + ttl / 2
+        later = retained_reuse("ttl-later")
+        assert session.verify_reuse_attestation(later, response) is not None
+    clock[0] = 100.0 + ttl
+    with pytest.raises(ValueError, match="retained successful producer event"):
+        retained_reuse("ttl-expired")
+    owner = cache_settlement._owner_for(session)
+    assert owner is not None and not owner._published
+
+
+@pytest.mark.parametrize("ttl", [float("nan"), float("inf"), float("-inf"), -1.0])
+def test_invalid_retention_ttl_cannot_publish_a_successful_origin(
+    ttl: float,
+) -> None:
+    """A nonfinite/negative TTL refuses before a real flight mutates publication."""
+    client = _CacheClient()
+    session = create_cache_settlement_session(client)
+    registration = session.register_request(("fixture-scope",), "ttl-request", "ttl-producer")
+    session.bind_request_key(registration, "ttl-key")
+    session.dispatch(registration, "ttl-producer")
+    with pytest.raises(ValueError, match="finite and nonnegative"):
+        session.settle_flight(
+            registrations=(registration,),
+            cache_key="ttl-key",
+            request_digest="ttl-request",
+            producer_attempt_id="ttl-producer",
+            terminal="success",
+            origin_event_id="ttl-origin",
+            response_digest=hashlib.sha256(b"cached result").hexdigest(),
+            retain_for_s=ttl,
+        )
+    owner = cache_settlement._owner_for(session)
+    assert owner is not None and not owner._published and not owner._outcomes

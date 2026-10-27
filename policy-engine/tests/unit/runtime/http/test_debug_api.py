@@ -509,85 +509,134 @@ def test_evidence_context_does_not_infer_quality_owner_from_ids_alone(tmp_path) 
     assert "data_snapshot_selected_view_not_established" in context.warnings
 
 
+@pytest.fixture
+def simulation_result_api_env(tmp_path: Path, pytestconfig: pytest.Config):
+    """Use a declared candidate catalog, with the real DebugService/CAS HTTP graph."""
+    from polisyos.runtime.http.container import RuntimeContainerOverrides
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_catalog_serving_source,
+    )
+    from tests._helpers.runtime_http import (
+        _build_registry_providers,
+        build_runtime_api_env,
+        close_runtime_api_env,
+    )
+
+    selection, _ = build_candidate_cycle_catalog_serving_source(tmp_path)
+    env = build_runtime_api_env(
+        tmp_path / "api",
+        include_test_client=True,
+        app_kwargs={
+            "repo_root": Path(pytestconfig.rootpath).resolve(strict=True),
+            "catalog_source_selection": selection,
+            "container_overrides": RuntimeContainerOverrides(
+                control_registry_providers=_build_registry_providers(
+                    catalog_run_profile=selection.catalog_run_profile,
+                ),
+            ),
+        },
+    )
+    try:
+        yield env
+    finally:
+        close_runtime_api_env(env)
+
+
 def _persist_debug_simulation_candidate_run(
-    store: FileSystemCAS,
+    store,
     registry_bundle_ref: ArtifactRef,
     *,
     run_id: str,
     tenant_id: str,
     cell_id: str,
     simulation_result_ref: ArtifactRef,
-    node_ref_payloads: list[dict[str, object]],
-) -> None:
-    """Persist selected state/report refs and a run manifest for the served debug route."""
+    node_ref_payload_groups: list[list[dict[str, object]]],
+    run_dir: Path,
+) -> tuple[ArtifactRef, ArtifactRef, ArtifactRef]:
+    """Persist selected state/report refs through the runtime store for the served route."""
     tenant_context = ArtifactTenantContextInfo(tenant_id=tenant_id, cell_id=cell_id)
-    state_ref = store.put_json(
-        {
-            "schema_version": "1.3",
-            "run_id": run_id,
-            "artifacts_index": {
-                "simulation_result_ref": simulation_result_ref.model_dump(mode="json")
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        state_ref = store.put_json(
+            {
+                "schema_version": "1.3",
+                "run_id": run_id,
+                "artifacts_index": {
+                    "simulation_result_ref": simulation_result_ref.model_dump(mode="json")
+                },
             },
-        },
-        PutOptions(
-            kind="scientist.experiment_state",
-            media_type="application/json",
-            schema=SchemaInfo(
-                name="polisyos.scientist.orchestration.engine.ExperimentState",
-                version="1.3",
+            PutOptions(
+                kind="scientist.experiment_state",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.scientist.orchestration.engine.ExperimentState",
+                    version="1.3",
+                ),
+                tenant_context=tenant_context,
             ),
-            tenant_context=tenant_context,
-        ),
-        return_selected_profile=True,
-    )
-    workflow_report_ref = store.put_json(
-        {
-            "schema_version": "1.0",
-            "workflow_id": "debug_simulation_profile_binding",
-            "run_id": run_id,
-            "status": "ok",
-            "nodes": [
-                {
-                    "alias": "simulate",
-                    "node_id": "test.simulate@1.0.0",
-                    "status": "ok",
-                    "artifacts": node_ref_payloads,
-                }
-            ],
-        },
-        PutOptions(
-            kind="scientist.workflow_report",
-            media_type="application/json",
-            schema=SchemaInfo(
-                name="polisyos.scientist.orchestration.engine.WorkflowReport",
-                version="1.0",
+            return_selected_profile=True,
+        )
+        workflow_report_ref = store.put_json(
+            {
+                "schema_version": "1.0",
+                "workflow_id": "debug_simulation_profile_binding",
+                "run_id": run_id,
+                "status": "ok",
+                "nodes": [
+                    {
+                        "alias": "simulate",
+                        "node_id": f"test.simulate.row{index}@1.0.0",
+                        "status": "ok",
+                        "artifacts": node_ref_payloads,
+                    }
+                    for index, node_ref_payloads in enumerate(node_ref_payload_groups)
+                ],
+            },
+            PutOptions(
+                kind="scientist.workflow_report",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.scientist.orchestration.engine.WorkflowReport",
+                    version="1.0",
+                ),
+                tenant_context=tenant_context,
             ),
-            tenant_context=tenant_context,
-        ),
-        return_selected_profile=True,
-    )
-    run = RunContext.start(
-        store=store,
-        registry_bundle=registry_bundle_ref,
-        run_id=run_id,
+            return_selected_profile=True,
+        )
+        run = RunContext.start(
+            store=store,
+            registry_bundle=registry_bundle_ref,
+            run_dir=run_dir,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        run.add_output(state_ref)
+        run.add_output(workflow_report_ref)
+        run_manifest_ref = run.finalize(status="ok")
+
+    from tests._helpers.runtime_http import _record_fixture_owner
+
+    _record_fixture_owner(
+        store,
+        state_ref,
+        workflow_report_ref,
+        run_manifest_ref,
         tenant_id=tenant_id,
         cell_id=cell_id,
     )
-    run.add_output(state_ref)
-    run.add_output(workflow_report_ref)
-    run.finalize(status="ok")
+    return state_ref, workflow_report_ref, run_manifest_ref
 
 
 def test_simulation_result_http_requires_exact_identity_for_every_same_id_node_ref(
-    runtime_api_env,
+    simulation_result_api_env,
 ) -> None:
-    """Fresh default and explicit reads refuse profile conflicts before returning a result."""
-    cas_root = runtime_api_env["cas_root"]
-    tenant_id = runtime_api_env["tenant_a"]
-    cell_id = runtime_api_env["cell_a"]
-    registry_bundle_ref = runtime_api_env["registry_bundle_ref"]
-    client = runtime_api_env["client"]
-    app = runtime_api_env["app"]
+    """Both selectors refuse conflicting refs or ambiguous rows before exposing a result."""
+    cas_root = simulation_result_api_env["cas_root"]
+    tenant_id = simulation_result_api_env["tenant_a"]
+    cell_id = simulation_result_api_env["cell_a"]
+    registry_bundle_ref = simulation_result_api_env["registry_bundle_ref"]
+    client = simulation_result_api_env["client"]
+    app = simulation_result_api_env["app"]
     assert isinstance(cas_root, Path)
     assert isinstance(tenant_id, str)
     assert isinstance(cell_id, str)
@@ -595,58 +644,77 @@ def test_simulation_result_http_requires_exact_identity_for_every_same_id_node_r
     assert client is not None
     assert app is not None
 
-    store = FileSystemCAS(cas_root)
-    tenant_context = ArtifactTenantContextInfo(tenant_id=tenant_id, cell_id=cell_id)
-    exec_plan_artifact = store.put_json(
-        {"plan_id": "debug-simulation-profile-binding"},
-        PutOptions(
-            kind="foundry.exec_plan",
-            media_type="application/json",
-            tenant_context=tenant_context,
-        ),
-        return_selected_profile=True,
-    )
-    metrics_artifact = store.put_json(
-        {"metrics": {"outcome": 1}},
-        PutOptions(
-            kind="foundry.metrics",
-            media_type="application/json",
-            tenant_context=tenant_context,
-        ),
-        return_selected_profile=True,
-    )
-    result = SimulationResult(
-        schema_version="1.3",
-        exec_plan_ref=ExecPlanRef(artifact_id=exec_plan_artifact.artifact_id),
-        metrics_ref=MetricsRef(artifact_id=metrics_artifact.artifact_id),
-    )
-    result_payload = result.to_artifact_payload()
+    runtime_container = getattr(app.state, "runtime_container", None)
+    runtime_context = getattr(runtime_container, "runtime_api_context", None)
+    if runtime_context is None:
+        runtime_context = app.state.runtime_api_ctx
+    store = runtime_context.store
 
-    def _result_profile(version: str) -> ArtifactRef:
-        return store.put_json(
-            result_payload,
+    tenant_context = ArtifactTenantContextInfo(tenant_id=tenant_id, cell_id=cell_id)
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        exec_plan_artifact = store.put_json(
+            {"plan_id": "debug-simulation-profile-binding"},
             PutOptions(
-                kind=SimulationResult.ARTIFACT_KIND,
-                media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
-                schema=SchemaInfo(
-                    name=SimulationResult.ARTIFACT_SCHEMA_NAME,
-                    version="1.3",
-                ),
-                producer=ProducerInfo(
-                    component="polisyos.tests.runtime.http.debug",
-                    version=version,
-                ),
+                kind="foundry.exec_plan",
+                media_type="application/json",
                 tenant_context=tenant_context,
             ),
             return_selected_profile=True,
         )
+        metrics_artifact = store.put_json(
+            {"metrics": {"outcome": 1}},
+            PutOptions(
+                kind="foundry.metrics",
+                media_type="application/json",
+                tenant_context=tenant_context,
+            ),
+            return_selected_profile=True,
+        )
+        result = SimulationResult(
+            schema_version="1.3",
+            exec_plan_ref=ExecPlanRef(artifact_id=exec_plan_artifact.artifact_id),
+            metrics_ref=MetricsRef(artifact_id=metrics_artifact.artifact_id),
+        )
+        result_payload = result.to_artifact_payload()
 
-    profile_a = _result_profile("profile-a")
-    profile_b = _result_profile("profile-b")
+        def _result_profile(version: str) -> ArtifactRef:
+            return store.put_json(
+                result_payload,
+                PutOptions(
+                    kind=SimulationResult.ARTIFACT_KIND,
+                    media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+                    schema=SchemaInfo(
+                        name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                        version="1.3",
+                    ),
+                    producer=ProducerInfo(
+                        component="polisyos.tests.runtime.http.debug",
+                        version=version,
+                    ),
+                    tenant_context=tenant_context,
+                ),
+                return_selected_profile=True,
+            )
+
+        profile_a = _result_profile("profile-a")
+        profile_b = _result_profile("profile-b")
+
     assert profile_a.artifact_id == profile_b.artifact_id
     assert profile_a.manifest_profile_sha256 is not None
     assert profile_b.manifest_profile_sha256 is not None
     assert profile_a.manifest_profile_sha256 != profile_b.manifest_profile_sha256
+
+    from tests._helpers.runtime_http import _record_fixture_owner
+
+    _record_fixture_owner(
+        store,
+        exec_plan_artifact,
+        metrics_artifact,
+        profile_a,
+        profile_b,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
 
     profileless_a = ArtifactRef(
         artifact_id=profile_a.artifact_id,
@@ -662,66 +730,110 @@ def test_simulation_result_http_requires_exact_identity_for_every_same_id_node_r
 
     selection_forms = (("default", False), ("explicit", True))
     binding_cases = [
-        ("same_ref", profile_a, [profile_a], 200, None),
+        ("same_ref", profile_a, [[profile_a]], 200, None),
         (
             "node_only_valid_b",
             profile_a,
-            [profile_b],
+            [[profile_b]],
             409,
             "simulation_result_node_binding_mismatch",
         ),
         (
             "node_only_unavailable_b",
             profile_a,
-            [unavailable_b],
+            [[unavailable_b]],
             409,
             "simulation_result_node_binding_mismatch",
         ),
         (
             "state_a_node_profile_absent",
             profile_a,
-            [profileless_a],
+            [[profileless_a]],
             409,
             "simulation_result_node_binding_mismatch",
         ),
         (
             "mixed_a_and_valid_b",
             profile_a,
-            [profile_a, profile_b],
+            [[profile_a, profile_b]],
             409,
             "simulation_result_node_binding_mismatch",
         ),
         (
             "mixed_a_and_malformed_b",
             profile_a,
-            [profile_a, malformed_b],
+            [[profile_a, malformed_b]],
             409,
             "simulation_result_node_binding_mismatch",
         ),
-        ("state_and_node_unavailable_b", unavailable_b, [unavailable_b], 409, None),
+        ("state_and_node_unavailable_b", unavailable_b, [[unavailable_b]], 409, None),
+        (
+            "duplicate_alias_same_ref",
+            profile_a,
+            [[profile_a], [profile_a]],
+            409,
+            "simulation_result_node_binding_mismatch",
+        ),
+        (
+            "duplicate_alias_a_then_b",
+            profile_a,
+            [[profile_a], [profile_b]],
+            409,
+            "simulation_result_node_binding_mismatch",
+        ),
+        (
+            "duplicate_alias_b_then_a",
+            profile_a,
+            [[profile_b], [profile_a]],
+            409,
+            "simulation_result_node_binding_mismatch",
+        ),
+        (
+            "duplicate_alias_a_then_malformed",
+            profile_a,
+            [[profile_a], [malformed_b]],
+            409,
+            "simulation_result_node_binding_mismatch",
+        ),
+        (
+            "duplicate_alias_malformed_then_a",
+            profile_a,
+            [[malformed_b], [profile_a]],
+            409,
+            "simulation_result_node_binding_mismatch",
+        ),
+        (
+            "duplicate_alias_a_then_absent_profile",
+            profile_a,
+            [[profile_a], [profileless_a]],
+            409,
+            "simulation_result_node_binding_mismatch",
+        ),
+        (
+            "duplicate_alias_a_then_empty_artifacts",
+            profile_a,
+            [[profile_a], []],
+            409,
+            "simulation_result_node_binding_mismatch",
+        ),
     ]
     cases = [
         (
             f"{case_name}_{selector_name}",
             state_ref,
-            node_refs,
+            node_ref_groups,
             explicit,
             expected_status,
             expected_code,
         )
-        for case_name, state_ref, node_refs, expected_status, expected_code in binding_cases
+        for case_name, state_ref, node_ref_groups, expected_status, expected_code in binding_cases
         for selector_name, explicit in selection_forms
     ]
-
-    runtime_container = getattr(app.state, "runtime_container", None)
-    runtime_context = getattr(runtime_container, "runtime_api_context", None)
-    if runtime_context is None:
-        runtime_context = app.state.runtime_api_ctx
 
     for index, (
         case_name,
         state_ref,
-        node_refs,
+        node_ref_groups,
         explicit,
         expected_status,
         expected_code,
@@ -734,10 +846,14 @@ def test_simulation_result_http_requires_exact_identity_for_every_same_id_node_r
             tenant_id=tenant_id,
             cell_id=cell_id,
             simulation_result_ref=state_ref,
-            node_ref_payloads=[
-                value.model_dump(mode="json") if isinstance(value, ArtifactRef) else value
-                for value in node_refs
+            node_ref_payload_groups=[
+                [
+                    value.model_dump(mode="json") if isinstance(value, ArtifactRef) else value
+                    for value in node_refs
+                ]
+                for node_refs in node_ref_groups
             ],
+            run_dir=cas_root / "runs" / run_id,
         )
         runtime_context.run_index.refresh(force=True)
         url = f"/api/v1/debug/runs/{run_id}/nodes/simulate/simulation-result"
@@ -750,6 +866,7 @@ def test_simulation_result_http_requires_exact_identity_for_every_same_id_node_r
         assert response.status_code == expected_status, f"{case_name}: {response.text}"
         payload = response.json()
         if expected_status == 200:
+            assert payload["debug"]["node_id"] == "test.simulate.row0@1.0.0"
             assert payload["debug"]["artifact_ref"]["artifact_id"] == str(profile_a.artifact_id)
             assert (
                 payload["debug"]["artifact_ref"]["manifest_profile_sha256"]

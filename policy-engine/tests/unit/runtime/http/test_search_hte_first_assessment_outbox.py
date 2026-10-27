@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import select
 import signal
@@ -267,6 +268,417 @@ def _put_selected_ref(
     )
 
 
+def _put_profile_bound_v2_hte_source(
+    store: Any,
+    *,
+    tenant_id: str,
+    cell_id: str,
+    tmp_path: Path,
+    run_id: str,
+    include_assignment_edge: bool = True,
+    projection_fault: str | None = None,
+    alternate_unit_scope_profile: bool = False,
+) -> tuple[ArtifactRef, ArtifactRef, ArtifactRef]:
+    """Persist candidate source roles from DataForge and matching HTE arrays."""
+    from dataclasses import replace
+
+    from polisyos.core.artifacts.manifest import (
+        ArtifactTenantContextInfo,
+        input_ref_from_artifact_ref,
+    )
+    from polisyos.runtime.quality import generation_cycle as gc
+    from polisyos.runtime.quality.substrate_registry import (
+        CatalogServingSourcePaths,
+        catalog_serving_source_scope,
+        default_substrate_catalog_paths,
+    )
+    from tests._helpers.semantic_epoch_native import make_native_multivariable_active_projections
+
+    row_count = 40
+    years = [1980 + index for index in range(row_count)]
+    outcome = [float(index) / 10.0 + (index % 2) * 0.5 for index in range(row_count)]
+    treatment = [float(index % 2) for index in range(row_count)]
+    covariates = [[float(index), float(index % 5)] for index in range(row_count)]
+    confounders = [[float(index % 7)] for index in range(row_count)]
+    variables = (
+        ("outcome", "outcome.effect", "outcome", "m"),
+        ("treatment", "treatment.policy", "treatment", "binary"),
+        ("covariate", "age", "age", "years"),
+        ("covariate", "baseline", "baseline", "index"),
+        ("covariate", "risk", "risk", "index"),
+    )
+    source_rows = [
+        {
+            "country_code": "UA",
+            "year": years[index],
+            "outcome": outcome[index],
+            "treatment": treatment[index],
+            "age": covariates[index][0],
+            "baseline": covariates[index][1],
+            "risk": confounders[index][0],
+        }
+        for index in range(row_count)
+    ]
+    fixture = make_native_multivariable_active_projections(
+        tmp_path / f"dataforge-source-{run_id}",
+        source_rows=source_rows,
+        variable_specs=tuple(
+            {
+                "target_variable": variable_id,
+                "raw_field": raw_field,
+                "raw_unit": unit,
+                "canonical_unit": unit,
+                "valid_min": -1000.0,
+                "valid_max": 1000.0,
+                "temporal_start": str(years[0]),
+                "temporal_end": str(years[-1]),
+            }
+            for _role, variable_id, raw_field, unit in variables
+        ),
+        condition_units_by_raw_field={
+            raw_field: unit for _role, _variable_id, raw_field, unit in variables
+        },
+        artifact_store=store,
+    )
+    substrate_paths = replace(
+        default_substrate_catalog_paths(fixture.repo_root),
+        l1_dcat_path=fixture.baseline_path,
+    )
+    catalog_source = CatalogServingSourcePaths(
+        repo_root=fixture.repo_root,
+        snapshot_root=fixture.baseline_path.parent,
+        database_path=fixture.baseline_path,
+        index_dir=fixture.repo_root / "index",
+        overlay_path=fixture.overlay_path,
+        catalog_run_profile=None,
+        selection_basis="explicit_path_candidate_only",
+        substrate_paths=substrate_paths,
+    )
+    governance = ArtifactGovernanceInfo(classification="public")
+    tenant_context = ArtifactTenantContextInfo(tenant_id=tenant_id, cell_id=cell_id)
+
+    def put_selected(
+        payload: dict[str, Any],
+        *,
+        kind: str,
+        schema_name: str,
+        schema_version: str,
+        inputs: list[Any] | None = None,
+    ) -> ArtifactRef:
+        return ArtifactRef.model_validate(
+            store.put_json(
+                payload,
+                PutOptions(
+                    kind=kind,
+                    media_type="application/json",
+                    schema=SchemaInfo(name=schema_name, version=schema_version),
+                    inputs=inputs,
+                    governance=governance,
+                    tenant_context=tenant_context,
+                ),
+                canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
+            ),
+            strict=True,
+        )
+
+    profile_refs: dict[str, ArtifactRef] = {}
+    projection_refs: dict[str, ArtifactRef] = {}
+    profile_models: dict[str, Any] = {}
+    role_profile_payloads: list[dict[str, Any]] = []
+    with catalog_serving_source_scope(catalog_source):
+        for role, variable_id, _raw_field, _unit in variables:
+            projection = fixture.projections[variable_id]
+            profile = gc._load_value_data_profile_from_l1_dcat(
+                repo_root=fixture.repo_root,
+                outcome=variable_id,
+                owner_access_ref=f"fixture:{run_id}:{variable_id}",
+                overlay_path=fixture.overlay_path,
+                artifact_store=store,
+                activated_observation_projection=projection,
+            )
+            assert profile is not None
+            if role == "outcome" and projection_fault is not None:
+                from polisyos.fabric.data_plane import content_sha256
+
+                # Start with a genuinely loaded profile. The following cases
+                # deliberately alter only the selected candidate CAS snapshot;
+                # they do not claim that the catalog owner issued that view.
+                projection_payload = projection.model_dump(
+                    mode="json", exclude={"projection_content_sha256"}
+                )
+                projected_rows = projection_payload["observations"]
+                if projection_fault == "trimmed-unit":
+                    for projected_row in projected_rows:
+                        observation = projected_row["observation"]
+                        observation["condition_json"] = json.dumps({"unit": " m "})
+                        projected_row["row_content_sha256"] = content_sha256(observation)
+                else:
+                    first_observation = projected_rows[0]["observation"]
+                    duplicate = dict(first_observation)
+                    duplicate["observation_id"] += ":duplicate-cell"
+                    if projection_fault == "mixed-units":
+                        duplicate["condition_json"] = json.dumps({"unit": "cm"})
+                    elif projection_fault != "duplicate-cell":
+                        raise AssertionError(f"unknown projection fault: {projection_fault}")
+                    projected_rows.append(
+                        {
+                            "observation": duplicate,
+                            "row_content_sha256": content_sha256(duplicate),
+                        }
+                    )
+                    if projection_fault == "duplicate-cell":
+                        # Construct the concrete self-consistent mean witness
+                        # from the review, bypassing owner admission on purpose.
+                        # Both values are equal, so their mean and the native HTE
+                        # arrays stay unchanged; only the two source hashes vary.
+                        source_members = sorted(
+                            (first_observation, duplicate),
+                            key=lambda item: (
+                                item["dataset_id"],
+                                item["observation_id"],
+                                item["value"],
+                            ),
+                        )
+                        source_hashes = tuple(
+                            gc.gy_content_hash(
+                                {
+                                    "outcome": variable_id,
+                                    "unit_id": first_observation["country_code"],
+                                    "period_id": first_observation["year"],
+                                    "value": item["value"],
+                                    "dataset_id": item["dataset_id"],
+                                    "observation_id": item["observation_id"],
+                                    "measurement_unit": profile.measurement_unit,
+                                }
+                            )
+                            for item in source_members
+                        )
+                        row_payload = {
+                            "unit_id": first_observation["country_code"],
+                            "period_id": first_observation["year"],
+                            "outcome_value": first_observation["value"],
+                            "measurement_unit": profile.measurement_unit,
+                            "source_row_content_hashes": source_hashes,
+                        }
+                        counterfeit_row = gc.ValueOwnerRow(
+                            **row_payload, row_content_hash=gc.gy_content_hash(row_payload)
+                        )
+                        profile_rows = tuple(
+                            counterfeit_row
+                            if (row.unit_id, row.period_id)
+                            == (counterfeit_row.unit_id, counterfeit_row.period_id)
+                            else row
+                            for row in profile.rows
+                        )
+                        profile_payload = profile.model_dump(mode="json", exclude={"content_hash"})
+                        profile_payload["rows"] = [
+                            row.model_dump(mode="json") for row in profile_rows
+                        ]
+                        profile_payload["owner_rows_content_hash"] = gc.gy_content_hash(
+                            tuple(row.model_dump(mode="json") for row in profile_rows)
+                        )
+                        profile = gc.ValueDataProfile.model_validate(
+                            {
+                                **profile_payload,
+                                "content_hash": gc.gy_content_hash(profile_payload),
+                            }
+                        )
+                projection = type(projection).model_validate(
+                    {
+                        **projection_payload,
+                        "projection_content_sha256": content_sha256(projection_payload),
+                    }
+                )
+            projection_ref = put_selected(
+                projection.model_dump(mode="json"),
+                kind="runtime.value_owner_source_projection",
+                schema_name="runtime.value_owner_source_projection.v1",
+                schema_version="1.0",
+            )
+            profile_ref = put_selected(
+                profile.model_dump(mode="json"),
+                kind="runtime.value_data_profile",
+                schema_name="runtime.value_data_profile.v2",
+                schema_version="2.0",
+                inputs=[
+                    input_ref_from_artifact_ref(
+                        projection_ref,
+                        role="activated_source_projection",
+                    )
+                ],
+            )
+            profile_refs[variable_id] = profile_ref
+            projection_refs[variable_id] = projection_ref
+            profile_models[variable_id] = profile
+            role_profile_payloads.append(
+                gc.ValueOwnerSourceRoleProfileV1(
+                    role=role,
+                    variable_id=variable_id,
+                    measurement_unit=profile.measurement_unit,
+                    profile_ref=gc.ValueArtifactBindingRefV1(
+                        artifact_id=str(profile_ref.artifact_id),
+                        kind=profile_ref.kind,
+                        media_type=profile_ref.media_type,
+                        manifest_profile_sha256=profile_ref.manifest_profile_sha256,
+                    ),
+                    projection_ref=gc.ValueArtifactBindingRefV1(
+                        artifact_id=str(projection_ref.artifact_id),
+                        kind=projection_ref.kind,
+                        media_type=projection_ref.media_type,
+                        manifest_profile_sha256=projection_ref.manifest_profile_sha256,
+                    ),
+                    profile_content_hash=profile.content_hash,
+                ).model_dump(mode="json")
+            )
+
+    estimand_spec_json = json.dumps(
+        {
+            "query_id": f"candidate-hte-source-{run_id}",
+            "estimand_id": "ATE",
+            "outcome": "outcome.effect",
+            "treatment_or_exposure": "treatment.policy",
+            "covariates_or_conditioning": ["age", "baseline", "risk"],
+            "adjustment_set": ["age", "baseline", "risk"],
+            "population": "unspecified",
+            "sample_filter": None,
+            "time_horizon": None,
+            "prediction_origin": None,
+            "unit": profile_models["outcome.effect"].measurement_unit,
+            "scale": "identity",
+            "transform": None,
+            "target_role": "estimate",
+            "loss_or_utility_id": None,
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    outcome_profile = profile_models["outcome.effect"]
+    assignment_payload: dict[str, Any] = {
+        "schema_version": "policyos.runtime.value_owner_source_variable_assignment.v1",
+        "authority_scope": "candidate_fixture_only",
+        "production_value_eligible": False,
+        "candidate_id": f"candidate-{run_id}",
+        "candidate_content_hash": "sha256:" + hashlib.sha256(run_id.encode()).hexdigest(),
+        "design_problem_ref": f"fixture:design-problem:{run_id}",
+        "world_model_record_content_hash": (
+            "sha256:" + hashlib.sha256(f"world:{run_id}".encode()).hexdigest()
+        ),
+        "selected_method_fqn": "causal.treatment_effects.aipw@1.0.0",
+        "profile_content_hash": outcome_profile.content_hash,
+        "outcome": "outcome.effect",
+        "measurement_unit": outcome_profile.measurement_unit,
+        "estimand_spec_json": estimand_spec_json,
+        "outcome_lower": min(row.outcome_value for row in outcome_profile.rows) - 1.0,
+        "outcome_upper": max(row.outcome_value for row in outcome_profile.rows) + 1.0,
+        "outcome_bounds_unit": outcome_profile.measurement_unit,
+        "method_parameters_json": "{}",
+        "seed": 0,
+        "role_profiles": role_profile_payloads,
+        "source_time_status": "not_established",
+        "assignment_provenance": "consumer_asserted",
+    }
+    assignment_payload["content_hash"] = gc.gy_content_hash(assignment_payload)
+    assignment = gc.ValueOwnerSourceVariableAssignmentV1.model_validate(assignment_payload)
+    assignment_inputs = [
+        edge
+        for role_profile in assignment.role_profiles
+        for edge in (
+            input_ref_from_artifact_ref(
+                profile_refs[role_profile.variable_id],
+                role=f"selected_source_profile:{role_profile.role}:{role_profile.variable_id}",
+            ),
+            input_ref_from_artifact_ref(
+                projection_refs[role_profile.variable_id],
+                role=f"selected_source_projection:{role_profile.role}:{role_profile.variable_id}",
+            ),
+        )
+    ]
+    assignment_ref = put_selected(
+        assignment.model_dump(mode="json"),
+        kind="runtime.value_owner_source_variable_assignment",
+        schema_name="runtime.value_owner_source_variable_assignment.v1",
+        schema_version="1.0",
+        inputs=assignment_inputs,
+    )
+
+    cell_sets = [
+        {(row.unit_id, row.period_id) for row in profile.rows}
+        for profile in profile_models.values()
+    ]
+    cells = tuple(sorted(cell_sets[0]))
+    assert all(selected == cell_sets[0] for selected in cell_sets[1:])
+    value_by_variable = {
+        variable_id: {(row.unit_id, row.period_id): row.outcome_value for row in profile.rows}
+        for variable_id, profile in profile_models.items()
+    }
+    selected_values = {
+        variable_id: [values[cell] for cell in cells]
+        for variable_id, values in value_by_variable.items()
+    }
+    feature_names = ["age", "baseline"]
+    confounder_names = ["risk"]
+    sample_ids = [f"{unit_id}:{period_id}" for unit_id, period_id in cells]
+    hte_payload = {
+        "outcome": selected_values["outcome.effect"],
+        "treatment": selected_values["treatment.policy"],
+        "covariates": [
+            [selected_values[name][index] for name in feature_names] for index in range(len(cells))
+        ],
+        "confounders": [
+            [selected_values[name][index] for name in confounder_names]
+            for index in range(len(cells))
+        ],
+        "feature_names": feature_names,
+        "confounder_names": confounder_names,
+        "sample_ids": sample_ids,
+        "metadata": {"source": "controlled_candidate_fixture"},
+    }
+    source_inputs = (
+        [
+            input_ref_from_artifact_ref(
+                assignment_ref,
+                role="source_variable_assignment",
+            )
+        ]
+        if include_assignment_edge
+        else []
+    )
+    source_ref = put_selected(
+        {
+            "schema_version": "policyos.ir.observation.method_input_envelope.v1",
+            "contract_target": {
+                "contract_id": "foundry.causal.hte_observational_data.v1",
+                "contract_fqn": (
+                    "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
+                ),
+            },
+            "contract_payload": hte_payload,
+        },
+        kind="ir.observation_method_input",
+        schema_name="polisyos.ir.ObservationMethodInputEnvelope",
+        schema_version="1.0",
+        inputs=source_inputs,
+    )
+    unit_scope_ref = profile_refs["outcome.effect"]
+    if alternate_unit_scope_profile:
+        # The same profile payload has a second genuinely persisted manifest
+        # view. Keeping its artifact ID cannot rescue the selected-view mismatch.
+        unit_scope_ref = put_selected(
+            outcome_profile.model_dump(mode="json"),
+            kind="runtime.value_data_profile",
+            schema_name="runtime.value_data_profile.v2",
+            schema_version="2.0",
+            inputs=[],
+        )
+        assert unit_scope_ref.artifact_id == profile_refs["outcome.effect"].artifact_id
+        assert (
+            unit_scope_ref.manifest_profile_sha256
+            != profile_refs["outcome.effect"].manifest_profile_sha256
+        )
+    return source_ref, assignment_ref, unit_scope_ref
+
+
 def _put_v2_hte_source(
     store: Any,
     *,
@@ -318,6 +730,8 @@ def _publish_complete_search_task(
     tenant_id: str,
     cell_id: str,
     run_id: str,
+    source_assignment_ref: ArtifactRef | None = None,
+    unit_scope_ref: ArtifactRef | None = None,
 ) -> tuple[SearchUncertaintyTicketState, str, ArtifactRef]:
     method_fqn = "causal.hte.causal_forest@2.0.0"
     registration = service._resolve_observational_method_registration(
@@ -436,15 +850,24 @@ def _publish_complete_search_task(
             configuration_sha256=stage_digest,
         ),
     )
-    selected_state_inputs = (
+    selected_state_inputs_list = [
         SearchInputDependency(role_path="method_catalog_snapshot", ref=catalog_ref),
-    )
+    ]
+    if source_assignment_ref is not None:
+        selected_state_inputs_list.append(
+            SearchInputDependency(
+                role_path="source_variable_assignment",
+                ref=source_assignment_ref,
+            )
+        )
+    selected_state_inputs = tuple(selected_state_inputs_list)
     scope = SearchUncertaintySemanticScope(
         quantity_ref=quantity_ref,
         treatment_contrast_ref=contrast_ref,
         population_ref=population_ref,
         outcome_ref=outcome_ref,
-        unit_binding_status="unknown",
+        unit_scope_ref=unit_scope_ref,
+        unit_binding_status="bound" if unit_scope_ref is not None else "unknown",
         treatment_variable_id="treatment.policy",
         outcome_variable_id="outcome.effect",
         control_value=0.0,
@@ -779,11 +1202,33 @@ def test_search_post_snapshot_survives_same_generation_worker_admission(
     assert persisted_jobs_and_created_events() == jobs_before_fresh_post
 
 
+@pytest.mark.parametrize(
+    "source_mode",
+    [
+        "raw",
+        "joined",
+        "assignment-edge-removed",
+        "duplicate-cell",
+        "mixed-units",
+        "trimmed-unit",
+        "alternate-profile",
+    ],
+    ids=[
+        "raw-unit-unknown",
+        "selected-source-unit",
+        "edge-removed-markers-retained",
+        "ambiguous-cell-self-consistent-mean",
+        "source-refusal-retains-native-interval",
+        "canonical-declared-unit-normalization",
+        "same-payload-other-selected-profile",
+    ],
+)
 def test_owned_hte_outbox_records_first_assessment_without_authority_promotion(
     runtime_api_env: dict[str, Any],
     request: pytest.FixtureRequest,
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
+    source_mode: str,
 ) -> None:
     """A real v2 Runtime completion first assesses the selected basis; replay contests it."""
     pytest.importorskip("econml")
@@ -830,18 +1275,31 @@ def test_owned_hte_outbox_records_first_assessment_without_authority_promotion(
     store = service._require_search_uncertainty_store()
     run_id = "run-search-ad06-" + hashlib.sha256(str(cas_root).encode()).hexdigest()[:12]
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
-        source_ref = _put_v2_hte_source(
-            service._artifact_store,
-            tenant_id=tenant_id,
-            cell_id=cell_id,
-        )
+        if source_mode == "raw":
+            source_ref = _put_v2_hte_source(
+                service._artifact_store, tenant_id=tenant_id, cell_id=cell_id
+            )
+            source_assignment_ref = None
+            unit_scope_ref = None
+        else:
+            source_ref, source_assignment_ref, unit_scope_ref = _put_profile_bound_v2_hte_source(
+                service._artifact_store,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                tmp_path=tmp_path,
+                run_id=run_id,
+                include_assignment_edge=source_mode != "assignment-edge-removed",
+                projection_fault=(
+                    source_mode
+                    if source_mode in {"duplicate-cell", "mixed-units", "trimmed-unit"}
+                    else None
+                ),
+                alternate_unit_scope_profile=source_mode == "alternate-profile",
+            )
         from _helpers.runtime_http import _record_fixture_owner
 
         _record_fixture_owner(
-            service._artifact_store,
-            source_ref,
-            tenant_id=tenant_id,
-            cell_id=cell_id,
+            service._artifact_store, source_ref, tenant_id=tenant_id, cell_id=cell_id
         )
         state, ticket_id, binding_ref = _publish_complete_search_task(
             store=store,
@@ -850,11 +1308,12 @@ def test_owned_hte_outbox_records_first_assessment_without_authority_promotion(
             tenant_id=tenant_id,
             cell_id=cell_id,
             run_id=run_id,
+            source_assignment_ref=source_assignment_ref,
+            unit_scope_ref=unit_scope_ref,
         )
-    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        task_binding = load_search_uncertainty_task_binding(store, binding_ref)
         admitted = state.read_current_snapshot(ticket_id)
-    assert admitted is not None
-    assert admitted.status == "available_as_of_task_epoch"
+        assert admitted is not None
     assert admitted.projection is not None
     assert admitted.projection.live_currentness_status == "not_established"
     assert admitted.resolved_projection is not None
@@ -875,6 +1334,44 @@ def test_owned_hte_outbox_records_first_assessment_without_authority_promotion(
     assert persisted_binding.cell_id == cell_id
     assert persisted_binding.request_projection.alpha == _REQUEST_ALPHA
     assert persisted_binding.selected_method_params["alpha"] == _REQUEST_ALPHA
+    from polisyos.core.artifacts.canonical_profile import CoreJsonReadLimits
+    from polisyos.runtime.quality import hte_source_projection as source_projection_owner
+    from polisyos.scientist.methods.search.uncertainty import (
+        SearchHTESourceProjectionBasis,
+        SearchHTESourceProjectionJoin,
+    )
+
+    source_join_calls: list[ArtifactRef] = []
+    concrete_source_verifier = source_projection_owner.verify_hte_source_projection_join
+
+    def observe_source_verifier(
+        *,
+        store: SearchUncertaintyStore,
+        selected_method_input_ref: ArtifactRef,
+        basis: SearchHTESourceProjectionBasis,
+        request_projection: SearchUncertaintyHTERequestProjection,
+        limits: CoreJsonReadLimits,
+    ) -> SearchHTESourceProjectionJoin:
+        # Observe the production inversion seam while retaining the full real
+        # verifier. This is not a substitute source join or a fake authority.
+        assert artifact_ref_identity_key(selected_method_input_ref) == artifact_ref_identity_key(
+            source_ref
+        )
+        assert basis.unit_scope_ref == unit_scope_ref
+        assert request_projection == task_binding.request_projection
+        assert limits.max_bytes > 0
+        source_join_calls.append(selected_method_input_ref)
+        return concrete_source_verifier(
+            store=store,
+            selected_method_input_ref=selected_method_input_ref,
+            basis=basis,
+            request_projection=request_projection,
+            limits=limits,
+        )
+
+    monkeypatch.setattr(
+        source_projection_owner, "verify_hte_source_projection_join", observe_source_verifier
+    )
     request_payload = _request_payload(source_ref, binding_ref)
     observational_input = request_payload["observational_input"]
     assert isinstance(observational_input, dict)
@@ -1224,10 +1721,95 @@ def test_owned_hte_outbox_records_first_assessment_without_authority_promotion(
     first_assessment = first_obligation.successors[0].observation
     assert first_assessment.state == "assessed"
     assert first_assessment.outcome_kind == "interval_estimate"
-    assert first_assessment.unit_binding_status == "unknown"
+    source_bound = source_mode != "raw"
+    if source_bound:
+        assert len(source_join_calls) >= 2
+    else:
+        assert source_join_calls == []
+    assert first_assessment.unit_binding_status == ("bound" if source_bound else "unknown")
+    assert first_assessment.unit_scope_ref == unit_scope_ref
     assert first_assessment.source_observation_interval_status == "not_established"
-    assert first_assessment.routing_score.status == "unavailable"
-    assert first_assessment.routing_score.unavailable_reason == "unit_not_bound"
+    assert first_assessment.theta != 0.0
+    assert first_assessment.lower_bound is not None
+    assert first_assessment.upper_bound is not None
+    assert "source_owner_issuance_not_established" in first_assessment.limitations
+    if source_mode in {"joined", "trimmed-unit"}:
+        assert first_assessment.routing_score.status == "available"
+        assert first_assessment.routing_score.unavailable_reason is None
+        assert first_assessment.routing_score.score is not None
+        assert first_assessment.theta != 0.0
+        assert first_assessment.lower_bound is not None
+        assert first_assessment.upper_bound is not None
+        expected_ratio = (first_assessment.upper_bound - first_assessment.lower_bound) / (
+            2.0 * abs(first_assessment.theta)
+        )
+        assert first_assessment.routing_score.score == pytest.approx(min(1.0, expected_ratio))
+        assert "source_variable_to_array_mapping_consumer_asserted" in first_assessment.limitations
+        assert "source_semantic_alignment_not_established" in first_assessment.limitations
+
+        from polisyos.scientist.methods.search.uncertainty import (
+            compute_relative_interval_halfwidth_routing,
+        )
+
+        arithmetic_control = compute_relative_interval_halfwidth_routing(
+            profile_ref=first_assessment.routing_score.profile_ref,
+            theta=2.0,
+            lower_bound=1.0,
+            upper_bound=3.0,
+            confidence_level=0.95,
+            comparison_key=first_assessment.routing_score.comparison_key,
+            unit_binding_status="bound",
+        )
+        assert arithmetic_control.status == "available"
+        assert arithmetic_control.score == 0.5
+    elif source_mode == "assignment-edge-removed":
+        assert first_assessment.routing_score.status == "unavailable"
+        assert first_assessment.routing_score.unavailable_reason == "scope_not_comparable"
+        assert "source_variable_to_array_mapping_not_established" in first_assessment.limitations
+        from polisyos.common.canonical_profile import require_declared_profile
+        from polisyos.core.artifacts import read_core_json_artifact_bounded
+        from polisyos.core.artifacts.canonical_profile import CoreJsonReadLimits
+        from polisyos.scientist.methods.search.uncertainty import load_search_uncertainty_basis_v2
+
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            selected_input = read_core_json_artifact_bounded(
+                service._artifact_store,
+                source_ref,
+                limits=CoreJsonReadLimits(
+                    max_bytes=8_388_608,
+                    max_depth=64,
+                    max_elements=200_000,
+                    max_manifest_bytes=65_536,
+                ),
+            )
+            assert selected_input.manifest.inputs == []
+            envelope = require_declared_profile(selected_input.profile_read)
+            assert envelope["contract_payload"]["metadata"] == {
+                "source": "controlled_candidate_fixture"
+            }
+            selected_basis = load_search_uncertainty_basis_v2(store, task_binding.basis_ref)
+            assert selected_basis.unit_scope_ref == unit_scope_ref
+            assert selected_basis.unit_binding_status == "bound"
+            assert any(
+                item.role_path == "source_variable_assignment" and item.ref == source_assignment_ref
+                for item in selected_basis.selected_state_input_refs
+            )
+    elif source_mode in {"duplicate-cell", "mixed-units", "alternate-profile"}:
+        assert first_assessment.routing_score.status == "unavailable"
+        assert first_assessment.routing_score.unavailable_reason == "scope_not_comparable"
+        assert "source_variable_to_array_mapping_not_established" in first_assessment.limitations
+        expected_refusal = (
+            "source_unit_scope_profile_mismatch"
+            if source_mode == "alternate-profile"
+            else "acquire_data:value_owner_unit_binding_ambiguous"
+        )
+        assert (
+            f"source_variable_to_array_join_refused:{expected_refusal}"
+            in first_assessment.limitations
+        )
+    else:
+        assert first_assessment.routing_score.status == "unavailable"
+        assert first_assessment.routing_score.unavailable_reason == "unit_not_bound"
     assert first_assessment.obligation_id == predecessor.observation.obligation_id
     assert predecessor.observation_ref in first.projection.unassessed_observation_refs
     assert (

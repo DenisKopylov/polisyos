@@ -261,6 +261,27 @@ def expected_artifact_manifest_for_write(
     )
 
 
+def write_bytes_atomic(
+    path: _Path,
+    data: bytes,
+    *,
+    durable_parent: bool = False,
+) -> None:
+    """Atomically replace a local file using the existing Core writer.
+
+    Args:
+        path: Destination path to create or replace.
+        data: Exact bytes to publish.
+        durable_parent: Whether to require a successful parent-directory fsync.
+
+    Raises:
+        AtomicFileDurabilityError: If durable parent synchronization fails after
+            the replacement has been published.
+        OSError: If the underlying local filesystem write or replace fails.
+    """
+    _AtomicFileWriter.write_atomic(path, data, durable_parent=durable_parent)
+
+
 def write_bytes_once(
     path: _Path,
     data: bytes,
@@ -413,5 +434,6 @@ __all__ = [
     "validate_owned_core_model_json_artifact",
     "validate_return_selected_profile",
     "with_ambient_ownership_enforcement_if_supported",
+    "write_bytes_atomic",
     "write_bytes_once",
 ]

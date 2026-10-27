@@ -35,6 +35,24 @@ projections only. The normal NL `RunIntentBinding` still has absent
 blocked. Missing time and barrier producers/artifacts remain
 `producer_missing` and `artifact_missing`; standalone consumers fail closed.
 
+## Selected HTE source content join
+
+`hte_source_projection.py` joins one frozen HTE input to its exact selected
+source-assignment, profile, projection, and array bytes. The existing Runtime
+completion-outbox receiver injects this verifier through Scientist's typed
+`SearchHTESourceProjectionVerifier` contract; Scientist does not import Runtime.
+Missing verification leaves the native number intact with unavailable routing.
+Its row reconstruction
+uses `generation_cycle._value_owner_rows_from_source_rows`, the same intake as
+the catalog ValueOwner loader: ambiguous unit-period cells, conflicting or
+missing declared units, and mixed source datasets are refused. Optional join
+refusals leave an independently verified point/native interval intact and make
+candidate routing unavailable. The join establishes selected-snapshot internal
+consistency only. It does not re-resolve active catalog receipt/passport
+issuance, assign country-scope or unit conversions, establish source time, or
+authorize roles. Ordinary admission transport and earlier-funnel wiring remain
+separate bridge work.
+
 ## Runtime projection input boundaries
 
 - `capability_index_compiler.py` passes the model field `construct_id` to Pydantic constructors. Its existing `construct` alias remains the serialized key when payloads are dumped by alias.

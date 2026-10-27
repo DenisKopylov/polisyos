@@ -25,6 +25,19 @@ environment fingerprints.
 
 ## Public API
 
+### Atomic local byte replacement
+
+`write_bytes_atomic(path, data, durable_parent=False)` delegates to the existing
+Core atomic writer to create or replace a local file. It returns `None`; this is
+the replacement operation for mutable owner pointers, unlike
+`write_bytes_once`, which preserves an existing destination. Callers still own
+any serialization lock and domain-level update checks. The Search ticket owner
+uses the replacement facade under its existing ticket lock to advance its index.
+`durable_parent=True` preserves the existing required directory fsync and
+`AtomicFileDurabilityError.replaced` disclosure if that fsync fails after
+replacement. The facade adds no filesystem algorithm, CAS identity, provenance,
+authority, currentness, multi-host or additional durability guarantee.
+
 ### Immutable local byte publication
 
 `write_bytes_once(path, data, durable_parent=False)` is the narrow facade for an

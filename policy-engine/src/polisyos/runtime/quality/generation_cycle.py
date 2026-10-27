@@ -15204,6 +15204,50 @@ def _load_value_data_profile_from_l1_dcat(
         raw_rows = [projected_rows_by_id[str(row[4])] for row in raw_rows]
     else:
         raw_rows = [tuple(row[:6]) for row in raw_rows]
+    owner_row_selection = _value_owner_rows_from_source_rows(
+        outcome=outcome,
+        raw_rows=raw_rows,
+        owner_access_ref=owner_access_ref,
+        registered_measurement_units_by_id=registered_measurement_units_by_id,
+    )
+    if owner_row_selection is None:
+        return None
+    owner_rows, measurement_unit = owner_row_selection
+    unit_count = len({row.unit_id for row in owner_rows})
+    period_count = len({row.period_id for row in owner_rows})
+    modalities = _derived_value_data_modalities(owner_rows)
+    rows_payload = tuple(row.model_dump(mode="json") for row in owner_rows)
+    payload = {
+        "schema_version": "policyos.runtime.value_data_profile.v2",
+        "outcome": outcome,
+        "measurement_unit": measurement_unit,
+        "rows": rows_payload,
+        "owner_row_count": len(owner_rows),
+        "unit_count": unit_count,
+        "period_count": period_count,
+        "available_data_modalities": modalities,
+        "treatment_assignment_status": "owner_assignment_unresolved",
+        "owner_access_ref": owner_access_ref,
+        "owner_rows_content_hash": gy_content_hash(rows_payload),
+    }
+    return ValueDataProfile.model_validate({**payload, "content_hash": gy_content_hash(payload)})
+
+
+def _value_owner_rows_from_source_rows(
+    *,
+    outcome: str,
+    raw_rows: Sequence[tuple[str, int, float, str, str, object]],
+    owner_access_ref: str,
+    registered_measurement_units_by_id: Mapping[str, str],
+) -> tuple[tuple[ValueOwnerRow, ...], str] | None:
+    """Apply the canonical owner row, unit, and source-set refusal rules.
+
+    This is the common reconstruction boundary for the catalog loader and
+    candidate consumers of selected projection bytes. It proves row semantics,
+    not that a supplied projection was issued by the active catalog owner.
+    Source-scope and registered conversion selection remain the loader's job;
+    a candidate reader may not invent those selections.
+    """
     if not raw_rows:
         return None
     grouped: dict[tuple[str, int], list[tuple[float, str, str, str]]] = {}
@@ -15301,24 +15345,7 @@ def _load_value_data_profile_from_l1_dcat(
             ),
             owner_access_ref=f"{owner_access_ref}#measurement-unit-binding",
         )
-    unit_count = len({row.unit_id for row in owner_rows})
-    period_count = len({row.period_id for row in owner_rows})
-    modalities = _derived_value_data_modalities(owner_rows)
-    rows_payload = tuple(row.model_dump(mode="json") for row in owner_rows)
-    payload = {
-        "schema_version": "policyos.runtime.value_data_profile.v2",
-        "outcome": outcome,
-        "measurement_unit": measurement_unit,
-        "rows": rows_payload,
-        "owner_row_count": len(owner_rows),
-        "unit_count": unit_count,
-        "period_count": period_count,
-        "available_data_modalities": modalities,
-        "treatment_assignment_status": "owner_assignment_unresolved",
-        "owner_access_ref": owner_access_ref,
-        "owner_rows_content_hash": gy_content_hash(rows_payload),
-    }
-    return ValueDataProfile.model_validate({**payload, "content_hash": gy_content_hash(payload)})
+    return owner_rows, measurement_unit
 
 
 def _value_owner_row(

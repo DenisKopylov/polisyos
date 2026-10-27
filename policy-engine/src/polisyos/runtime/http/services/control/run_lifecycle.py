@@ -4579,6 +4579,9 @@ class ControlPlaneService(
                 OwnedAttemptAnchorAssociation,
             )
             from polisyos.core.security import tenant_scope
+            from polisyos.runtime.quality.hte_source_projection import (
+                verify_hte_source_projection_join,
+            )
             from polisyos.scientist.methods.search.uncertainty import (
                 SearchUncertaintyCompletionReceipt,
                 consume_owned_hte_completion,
@@ -4621,6 +4624,7 @@ class ControlPlaneService(
                             owner=self,
                             binding_ref=binding_ref,
                             owner_association=owner_association,
+                            source_projection_verifier=verify_hte_source_projection_join,
                         )
             if owner_failure_reason is not None:
                 return leave_pending(owner_failure_reason)

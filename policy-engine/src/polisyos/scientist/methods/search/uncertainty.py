@@ -28,18 +28,20 @@ from polisyos.core.artifacts import (
     PutOptions,
     SchemaInfo,
     artifact_ref_identity_key,
+    ensure_directory_durable,
     ensure_ir_artifact_store,
     input_ref_from_artifact_ref,
     matches_runtime_protocol,
     resolve_manifest_by_profile,
+    write_bytes_atomic,
 )
-from polisyos.core.artifacts._atomic_write import AtomicFileWriter, ensure_directory_durable
 from polisyos.core.artifacts.ir_adapter import CoreToIRArtifactStoreAdapter
 from polisyos.core.canon import CanonSpec
 
 if TYPE_CHECKING:
     from types import TracebackType
 
+    from polisyos.core.artifacts.canonical_profile import CoreJsonReadLimits
     from polisyos.ir.analytics import HTEOutcome
 from polisyos.core.contracts import (
     DataSnapshot,
@@ -3182,6 +3184,132 @@ class SearchHTECompletionOwner(Protocol):
     ) -> SearchUncertaintyTaskBindingResolution | None: ...
 
 
+class SearchHTESourceProjectionBasis(Protocol):
+    """Read-only selected Search inputs supplied to an optional source verifier."""
+
+    @property
+    def selected_method_input_ref(self) -> ArtifactRef: ...
+
+    @property
+    def selected_state_input_refs(self) -> tuple[SearchInputDependency, ...]: ...
+
+    @property
+    def unit_binding_status(self) -> Literal["bound", "unknown"]: ...
+
+    @property
+    def unit_scope_ref(self) -> ArtifactRef | None: ...
+
+
+class SearchHTESourceProjectionError(ValueError):
+    """A source verifier refused the optional candidate-only content join."""
+
+    def __init__(self, reason_code: str) -> None:
+        self.reason_code = reason_code
+        super().__init__(reason_code)
+
+
+class SearchHTESourceProjectionJoin(BaseModel):
+    """Selected subject refs returned by a wired source-content verifier.
+
+    This in-process result is not a persisted authority receipt. The concrete
+    verifier must resolve and compare source bytes before constructing it;
+    constructing the DTO alone does not establish the join property.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    selected_method_input_ref: ArtifactRef
+    assignment_ref: ArtifactRef
+    outcome_profile_ref: ArtifactRef
+    role_mapping_status: Literal["consumer_asserted"] = "consumer_asserted"
+    owner_issuance_status: Literal["not_established"] = "not_established"
+    semantic_alignment_status: Literal["not_established"] = "not_established"
+    source_time_status: Literal["not_established"] = "not_established"
+
+    @model_validator(mode="after")
+    def _selected_subject_refs(self) -> SearchHTESourceProjectionJoin:
+        for ref, kind in (
+            (self.selected_method_input_ref, "ir.observation_method_input"),
+            (self.assignment_ref, "runtime.value_owner_source_variable_assignment"),
+            (self.outcome_profile_ref, "runtime.value_data_profile"),
+        ):
+            if (
+                ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("source projection verifier result must bind selected refs")
+        return self
+
+
+class SearchHTESourceProjectionVerifier(Protocol):
+    """Injected owner implementation for a selected snapshot's content join.
+
+    The consumer owns this dependency contract. Runtime wires its concrete
+    verifier at the completion receiver; Scientist never imports Runtime or
+    reconstructs the ValueOwner row algorithm. Absence leaves routing unavailable.
+    """
+
+    def __call__(
+        self,
+        *,
+        store: SearchUncertaintyStore,
+        selected_method_input_ref: ArtifactRef,
+        basis: SearchHTESourceProjectionBasis,
+        request_projection: SearchUncertaintyHTERequestProjection,
+        limits: CoreJsonReadLimits,
+    ) -> SearchHTESourceProjectionJoin: ...
+
+
+def _resolve_hte_source_projection_join(
+    *,
+    verifier: SearchHTESourceProjectionVerifier | None,
+    store: SearchUncertaintyStore,
+    selected_method_input_ref: ArtifactRef,
+    basis: SearchHTESourceProjectionBasis,
+    request_projection: SearchUncertaintyHTERequestProjection,
+    limits: CoreJsonReadLimits,
+) -> tuple[SearchHTESourceProjectionJoin | None, str | None]:
+    """Invoke the wired verifier and bind its result to this frozen subject."""
+    if verifier is None:
+        return None, "source_projection_verifier_unavailable"
+    if (
+        basis.unit_binding_status != "bound"
+        or basis.unit_scope_ref is None
+        or artifact_ref_identity_key(basis.selected_method_input_ref)
+        != artifact_ref_identity_key(selected_method_input_ref)
+    ):
+        return None, "source_unit_scope_not_frozen_in_basis"
+    try:
+        joined = verifier(
+            store=store,
+            selected_method_input_ref=selected_method_input_ref,
+            basis=basis,
+            request_projection=request_projection,
+            limits=limits,
+        )
+    except SearchHTESourceProjectionError as exc:
+        return None, exc.reason_code
+    if type(joined) is not SearchHTESourceProjectionJoin:
+        return None, "source_projection_verifier_result_invalid"
+    selected_assignments = tuple(
+        item.ref
+        for item in basis.selected_state_input_refs
+        if item.role_path == "source_variable_assignment"
+    )
+    if (
+        len(selected_assignments) != 1
+        or artifact_ref_identity_key(joined.selected_method_input_ref)
+        != artifact_ref_identity_key(selected_method_input_ref)
+        or artifact_ref_identity_key(joined.outcome_profile_ref)
+        != artifact_ref_identity_key(basis.unit_scope_ref)
+        or artifact_ref_identity_key(joined.assignment_ref)
+        != artifact_ref_identity_key(selected_assignments[0])
+    ):
+        return None, "source_projection_verifier_subject_mismatch"
+    return joined, None
+
+
 class SearchOwnedAttemptProjectionResolver(Protocol):
     """Resolve only the bounded current Runtime projection for a completed attempt."""
 
@@ -6190,7 +6318,7 @@ class SearchUncertaintyTicketState:
         ensure_directory_durable(self._root)
         path = self._path(row.ticket_id)
         payload = row.model_dump_json(by_alias=True, exclude_none=False).encode("utf-8")
-        AtomicFileWriter.write_atomic(path, payload, durable_parent=True)
+        write_bytes_atomic(path, payload, durable_parent=True)
 
     def _locked(self, ticket_id: str) -> _TicketFileLock:
         return _TicketFileLock(self._path(ticket_id).with_suffix(".lock"))
@@ -6340,6 +6468,7 @@ def consume_owned_hte_completion(
     owner: SearchHTECompletionOwner,
     binding_ref: ArtifactRef,
     owner_association: SearchOwnedAttemptAssociation,
+    source_projection_verifier: SearchHTESourceProjectionVerifier | None = None,
 ) -> SearchUncertaintyCompletionReceipt:
     """Consume an already-resolved Runtime completion into the Search owner CAS.
 
@@ -6473,6 +6602,7 @@ def consume_owned_hte_completion(
             predecessor=predecessor,
             predecessor_ref=predecessor_ref,
             completed_at=event.created_at,
+            source_projection_verifier=source_projection_verifier,
         )
         successor_ref = persist_search_uncertainty_v2(store, successor)
         refinement_profile_ref = persist_search_uncertainty_refinement_profile(store)
@@ -6599,6 +6729,7 @@ def consume_completed_search_hte_attempt(
     completed_event_id: int,
     tenant_id: str,
     cell_id: str | None,
+    source_projection_verifier: SearchHTESourceProjectionVerifier | None = None,
 ) -> SearchUncertaintyCompletionReceipt:
     """Resolve one exact Runtime completion and route it to the Search receiver."""
     if type(completed_event_id) is not int or completed_event_id < 1:
@@ -6639,6 +6770,7 @@ def consume_completed_search_hte_attempt(
         owner=owner,
         binding_ref=binding_ref,
         owner_association=association,
+        source_projection_verifier=source_projection_verifier,
     )
 
 
@@ -6774,6 +6906,7 @@ def _build_hte_assessment_candidate(
     predecessor: SearchUnassessedObservationV2,
     predecessor_ref: ArtifactRef,
     completed_at: datetime,
+    source_projection_verifier: SearchHTESourceProjectionVerifier | None = None,
 ) -> SearchAssessedObservationV2:
     """Load and content-join the selected HTE output without promoting its status."""
     from polisyos.ir.analytics import (
@@ -6812,7 +6945,7 @@ def _build_hte_assessment_candidate(
         outcome: HTEPointOutcome | HTEIntervalOutcome,
         selected_rows: int,
         selected_row_order_sha256: str,
-    ) -> None:
+    ) -> CoreJsonReadLimits:
         """Recompute the selected physical HTE input binding from this CAS."""
         from polisyos.foundry.data_plane import (
             load_hte_physical_source_materialization_binding,
@@ -6974,17 +7107,18 @@ def _build_hte_assessment_candidate(
                 "selected input resource policy differs from its owner anchor revision",
                 reason_code="hte_content_mismatch",
             )
+        selected_limits = CoreJsonReadLimits(
+            max_bytes=resource_policy.max_bytes,
+            max_depth=resource_policy.max_depth,
+            max_elements=resource_policy.max_elements,
+            max_manifest_bytes=resource_policy.max_manifest_bytes,
+        )
         physical_binding = load_hte_physical_source_materialization_binding(
             store=store,
             binding_ref=_core_artifact_ref_from_owner_ref(physical_ref),
             expected_submitted_ref=_core_artifact_ref_from_owner_ref(anchor.submitted_input_ref),
             expected_effective_ref=_core_artifact_ref_from_owner_ref(anchor.effective_input_ref),
-            limits=CoreJsonReadLimits(
-                max_bytes=resource_policy.max_bytes,
-                max_depth=resource_policy.max_depth,
-                max_elements=resource_policy.max_elements,
-                max_manifest_bytes=resource_policy.max_manifest_bytes,
-            ),
+            limits=selected_limits,
         )
         if (
             physical_binding.binding_scope != "physical_materialization_only"
@@ -6998,6 +7132,7 @@ def _build_hte_assessment_candidate(
                 "physical HTE materialization differs from the selected result row basis",
                 reason_code="hte_content_mismatch",
             )
+        return selected_limits
 
     outcome_artifact = _load_hte_outcome_from_owner_ref(store, association.outcome_ref)
     outcome = outcome_artifact.root
@@ -7331,12 +7466,23 @@ def _build_hte_assessment_candidate(
             "selected @2 HTE completion omitted its owner-selected physical source binding",
             reason_code="hte_content_mismatch",
         )
-    verify_physical_materialization(
+    physical_read_limits = verify_physical_materialization(
         materialization_binding_ref,
         outcome=outcome,
         selected_rows=outcome.n_selected_rows,
         selected_row_order_sha256=outcome.selected_row_order_sha256,
     )
+    source_projection_join = None
+    source_projection_refusal: str | None = None
+    if hte_result is not None and basis.unit_binding_status == "bound":
+        source_projection_join, source_projection_refusal = _resolve_hte_source_projection_join(
+            verifier=source_projection_verifier,
+            store=store,
+            selected_method_input_ref=binding.selected_method_input_ref,
+            basis=basis,
+            request_projection=basis.request_projection,
+            limits=physical_read_limits,
+        )
 
     guarantee: Literal["candidate_point", "backend_conditional_interval"] = (
         "backend_conditional_interval" if hte_result is not None else "candidate_point"
@@ -7436,18 +7582,31 @@ def _build_hte_assessment_candidate(
             interval_semantics="native_mean_confidence_interval",
             sampling_profile_ref=basis.selected_profile_ref,
         )
-        unavailable_reason: Literal["scope_not_comparable", "unit_not_bound"] = (
-            "unit_not_bound" if basis.unit_binding_status == "unknown" else "scope_not_comparable"
-        )
-        routing_score = _unavailable_routing_score(
-            profile_ref=routing_profile_ref,
-            theta=point_value,
-            lower_bound=hte_result.ate_ci_lower,
-            upper_bound=hte_result.ate_ci_upper,
-            confidence_level=hte_result.confidence_level,
-            comparison_key=comparison_key,
-            reason=unavailable_reason,
-        )
+        if source_projection_join is not None:
+            routing_score = compute_relative_interval_halfwidth_routing(
+                profile_ref=routing_profile_ref,
+                theta=point_value,
+                lower_bound=hte_result.ate_ci_lower,
+                upper_bound=hte_result.ate_ci_upper,
+                confidence_level=hte_result.confidence_level,
+                comparison_key=comparison_key,
+                unit_binding_status="bound",
+            )
+        else:
+            unavailable_reason: Literal["scope_not_comparable", "unit_not_bound"] = (
+                "unit_not_bound"
+                if basis.unit_binding_status == "unknown"
+                else "scope_not_comparable"
+            )
+            routing_score = _unavailable_routing_score(
+                profile_ref=routing_profile_ref,
+                theta=point_value,
+                lower_bound=hte_result.ate_ci_lower,
+                upper_bound=hte_result.ate_ci_upper,
+                confidence_level=hte_result.confidence_level,
+                comparison_key=comparison_key,
+                reason=unavailable_reason,
+            )
     event_payload_sha256 = _canonical_owned_lifecycle_event_digest_hex(
         association.job_completed_event
     )
@@ -7520,11 +7679,27 @@ def _build_hte_assessment_candidate(
             sorted(
                 set(outcome.limitations)
                 | {
-                    "source_variable_to_array_mapping_not_established",
                     "estimand_and_contrast_not_established",
                     "population_sampling_coverage_not_claimed",
-                    "candidate_ordering_score_unavailable_until_scope_join",
+                    "source_semantic_alignment_not_established",
+                    "source_owner_issuance_not_established",
+                    "source_time_not_established",
                 }
+                | (
+                    {
+                        "source_variable_to_array_mapping_consumer_asserted",
+                    }
+                    if source_projection_join is not None
+                    else {
+                        "source_variable_to_array_mapping_not_established",
+                        "candidate_ordering_score_unavailable_until_scope_join",
+                    }
+                )
+                | (
+                    {f"source_variable_to_array_join_refused:{source_projection_refusal}"}
+                    if source_projection_refusal is not None
+                    else set()
+                )
                 | (
                     {"native_interval_is_backend_conditional_on_selected_rows"}
                     if hte_result is not None

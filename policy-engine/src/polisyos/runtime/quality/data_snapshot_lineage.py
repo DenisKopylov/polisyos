@@ -35,6 +35,7 @@ from polisyos.core.contracts.fabric import (
     data_snapshot_manifest_inputs_match,
     data_snapshot_owner_input_requirements,
     data_snapshot_reference_fields,
+    data_snapshot_reference_input_roles,
 )
 
 
@@ -164,20 +165,7 @@ def validate_data_snapshot_owner_lineage(
             _require_exact_owner_edges(
                 store,
                 manifest=payload_manifest,
-                expected=(
-                    input_ref_from_artifact_ref(
-                        lineage.base_data_snapshot_ref,
-                        role="input.base_data_snapshot",
-                    ),
-                    input_ref_from_artifact_ref(
-                        lineage.overlay_admission_receipt_ref,
-                        role="evidence.overlay_admission_receipt",
-                    ),
-                    input_ref_from_artifact_ref(
-                        lineage.passport_ref,
-                        role="evidence.acquisition_passport",
-                    ),
-                ),
+                expected=_acquired_observation_payload_requirements(snapshot, lineage),
             )
     parent = _verified_manifest(store, snapshot_ref, require_selected_profile=True)
     payload_manifest = _verified_manifest(store, snapshot.data_ref, require_selected_profile=True)
@@ -598,6 +586,23 @@ def _verify_fabric_bridge_owner(
         _verified_manifest(store, ref, require_selected_profile=True)
 
 
+def _acquired_observation_payload_requirements(
+    snapshot: DataSnapshot,
+    lineage: AcquiredObservationDataSnapshotLineage,
+) -> tuple[tuple[ArtifactRef, str], ...]:
+    """Derive source-only payload edges from the canonical Core owner contract.
+
+    Parent requirements include the DataSnapshot's data-ref edge. Its payload
+    manifest consumes the remaining owner refs, never its own data-ref edge.
+    Keep the canonical (selected ArtifactRef, role) pairs used by the strict
+    matcher; InputRef transport models belong to manifest-writing APIs.
+    """
+    owner_snapshot = snapshot.model_copy(update={"source_lineage": lineage})
+    parent_requirements = data_snapshot_owner_input_requirements(owner_snapshot)
+    data_ref_roles = data_snapshot_reference_input_roles("data_ref")
+    return tuple((ref, role) for ref, role in parent_requirements if role not in data_ref_roles)
+
+
 def _verify_acquired_observation_owner(
     store: ArtifactStore,
     snapshot: DataSnapshot,
@@ -626,20 +631,7 @@ def _verify_acquired_observation_owner(
     _require_exact_owner_edges(
         store,
         manifest=payload_manifest,
-        expected=(
-            input_ref_from_artifact_ref(
-                lineage.base_data_snapshot_ref,
-                role="input.base_data_snapshot",
-            ),
-            input_ref_from_artifact_ref(
-                lineage.overlay_admission_receipt_ref,
-                role="evidence.overlay_admission_receipt",
-            ),
-            input_ref_from_artifact_ref(
-                lineage.passport_ref,
-                role="evidence.acquisition_passport",
-            ),
-        ),
+        expected=_acquired_observation_payload_requirements(snapshot, lineage),
     )
     payload_manifest = _verified_manifest(store, payload_ref, require_selected_profile=True)
     raw_payload = load_core_json_artifact(store, payload_ref)
@@ -667,20 +659,7 @@ def _verify_acquired_observation_owner(
     _require_exact_owner_edges(
         store,
         manifest=payload_manifest,
-        expected=(
-            input_ref_from_artifact_ref(
-                lineage.base_data_snapshot_ref,
-                role="input.base_data_snapshot",
-            ),
-            input_ref_from_artifact_ref(
-                lineage.overlay_admission_receipt_ref,
-                role="evidence.overlay_admission_receipt",
-            ),
-            input_ref_from_artifact_ref(
-                lineage.passport_ref,
-                role="evidence.acquisition_passport",
-            ),
-        ),
+        expected=_acquired_observation_payload_requirements(snapshot, lineage),
     )
     from polisyos.core.artifacts import validate_core_model_json_artifact
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (

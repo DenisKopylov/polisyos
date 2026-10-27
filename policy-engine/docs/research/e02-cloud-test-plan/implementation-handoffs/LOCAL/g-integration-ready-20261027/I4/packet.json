@@ -1,0 +1,354 @@
+{
+  "schema": "policyos.e02.G_review_packet.v1",
+  "task": "I4",
+  "review_status": "author_ready_for_independent_G_review",
+  "packet_kind": "catalog_legal_profile_bridge",
+  "source_snapshot": {
+    "commit": "a92c9774edf8049d590cd6ca6de35aa17063025a",
+    "tree": "7f9908cd38ca5aa2148f7cc9458d3dbbd0cdb1d9",
+    "parents": [
+      "8a24cc8ff895e61a51de2f91191251a9a8b23d84"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "execution_sources": [
+      {
+        "commit": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+        "scope": "Catalog current-source run: 3 I4 nodes inside a mixed 20-node I1/I4 case."
+      },
+      {
+        "commit": "567c38cc98f74a5cea7c814dc5099d250d38f072",
+        "tree": "ad35ca6dab45d8015b21a53b44fdf1fde080a54c",
+        "scope": "Historical native Legal R14 real-encoder run and nine-asset source profile."
+      }
+    ],
+    "packet_generation_head": "76691bd25ba10bee2caed9826e54cd9d40324ca5",
+    "packet_generation_tree": "fd684ae314f3e6e9d40596029b1dce0cccc13233",
+    "packet_generation_relation": "Tracked delta after a92 is four packet documentation files only. Product src/tests/pytest/config/build inputs are unchanged from 8a24/a92 through 766. Catalog execution is at 8a24; Legal R14 remains historical at 567 and is not fresh at 766.",
+    "snapshot_qualification": "The pinned assessment/source and packet-generation snapshots precede later documentation/implementation commits; no latest-working-tree parity or fresh historical execution is asserted."
+  },
+  "original_contract": {
+    "task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/I4",
+    "original_exit": "actual request->typedprofile/encodedquery->fresh reader; wrong/missing profile refuses",
+    "mandatory_next_action": "Wire CatalogRunProfile and immutable Legal intent through existing request/caller/encoder/fresh reader; preserve refusal code and truthful text fallback.",
+    "assigned_finding_ids": [
+      "LA-033",
+      "LA-046",
+      "LA-028",
+      "LA-032",
+      "LA-040"
+    ]
+  },
+  "implementation_selection": {
+    "code_integration_required": false,
+    "implementation_commits": [
+      {
+        "commit": "efc3fbe81a31000a968143755f7f4bbb7ff537b3",
+        "role": "CatalogRunProfile facade."
+      },
+      {
+        "commit": "7b23055ad0457ac312296e35e08d46731461335a",
+        "role": "Legal runtime material producer/serving owner."
+      },
+      {
+        "commit": "021560651b7ab84857f7cd5ef1ecf08408cd548c",
+        "role": "Shared Catalog/Legal generation-basis owner."
+      },
+      {
+        "commit": "78914b78cc4e59711827bb3fb3c5f213a6c595c8",
+        "role": "Legal supported-owner/facade composition."
+      },
+      {
+        "commit": "6ad021abaaec967ce48122e5f94985112dc19e59",
+        "role": "Catalog same-profile drift test."
+      },
+      {
+        "commit": "39ddaac9fb0d8216ce90b638de043cd85f661740",
+        "role": "Legal test isolation/profileless refusal companion."
+      },
+      {
+        "commit": "5e312037e180938aa643abccfd727a2a12b9a691",
+        "role": "lex_search_profile facade writer."
+      },
+      {
+        "commit": "fd5cecd59c881654d9ca40f69377fef1fe38eb50",
+        "role": "Shared control-contract writer."
+      }
+    ],
+    "scope": "Existing Catalog profile and Legal-intent/runtime-material owners are composed across mixed commits. Preserve that history; do not cherry-pick.",
+    "source_test_config_footprint": {
+      "files": [
+        {
+          "path": "policy-engine/src/polisyos/core/contracts/control.py",
+          "sha256": "678b67ca20ba21d98bc17e50e5a5c98645177ad64e271212c5c88ab08ffb4b24",
+          "role": "Typed CatalogRunProfile and Legal request/profile contracts; present in Catalog run readset."
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/http/routes/control.py",
+          "sha256": "fe819293c062288e9f78960b57e1de8490a33f9ba538ab07ec5a28442f6f9ed9",
+          "role": "Catalog and Legal HTTP route owners; present in Catalog run readset."
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_search_profile.py",
+          "sha256": "dcb4d235d8966a0888df3fed5ffdc1e887801a97a72b66e1a19476afcc94233a",
+          "role": "Selected immutable Legal generation-intent resolver; present in Catalog run readset."
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/legal/runtime_material.py",
+          "sha256": "2ee5093f03bade9677abe9a5c3386dbd936cfc970eb9b77dbc89c1b6c36f9dbc",
+          "role": "LegalRuntimeMaterialOwner/encoder producer; direct historical Legal owner, exact blob unchanged from 567."
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+          "sha256": "5036e343aa67a6b2989bb003c3513f36d0b20e6ce59f86f91144c2daca79f343",
+          "role": "Legal generation/member basis owner; direct historical Legal owner, exact blob unchanged from 567."
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/read_api/legal.py",
+          "sha256": "6bcdec489c643fbb30633b2691be147f02ec36bd3bdbcb598c832ee3a0f797ff",
+          "role": "Fresh Legal generation/read API; direct historical Legal owner, exact blob unchanged from 567."
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_catalog_profile_http.py",
+          "sha256": "030e7d426494fc51729fde94aabd0758fe414878ef156c88704d7ba6d00fc867",
+          "role": "Current Catalog test file; the three I4 nodeids ran in the mixed 20-node receipt."
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+          "sha256": "144ae0231de46912b1ff717e04598263a5e5115b4be70eefcf9a35a8feb2ab8a",
+          "role": "Historical R14 real-encoder test, direct test blob unchanged from source 567."
+        },
+        {
+          "path": "policy-engine/tests/integration/data_forge_runtime/test_legal_runtime_material_entrypoints.py",
+          "sha256": "f1ef2fe5dd480e17d5952855221c49c429f066701fdea19d81d2c8e0a4cad144",
+          "role": "Current integration companion; not run by Catalog receipt and not claimed as current Legal runtime proof."
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "role": "Current Catalog run config; unchanged from 8a24 through current HEAD."
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/http/container.py",
+          "sha256": "745523183a8695b00afabba3407a9b26569f537f773a382dd6d73e153e4702e4",
+          "role": "RuntimeContainer Legal encoder injection companion: whole file differs at567, but relevant provider class and selected binding path are unchanged; see independent r2 addendum."
+        }
+      ],
+      "historical_legal_direct_rebind": [
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/legal/runtime_material.py",
+          "git_blob_sha1_at_567": "32d7539446c4aee19cc02f8a84a96f96ca095ea3",
+          "current_sha256": "2ee5093f03bade9677abe9a5c3386dbd936cfc970eb9b77dbc89c1b6c36f9dbc",
+          "blob_matches": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+          "git_blob_sha1_at_567": "672dc970ef1e2ee1daa8fe1d94e0f49de562c2f6",
+          "current_sha256": "5036e343aa67a6b2989bb003c3513f36d0b20e6ce59f86f91144c2daca79f343",
+          "blob_matches": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/read_api/legal.py",
+          "git_blob_sha1_at_567": "e5faf977f021ddd1442d526c1e110f037b1e2d92",
+          "current_sha256": "6bcdec489c643fbb30633b2691be147f02ec36bd3bdbcb598c832ee3a0f797ff",
+          "blob_matches": true
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+          "git_blob_sha1_at_567": "d4453d0e61f14acb02db75c5abd1127aeb5a3ac7",
+          "current_sha256": "144ae0231de46912b1ff717e04598263a5e5115b4be70eefcf9a35a8feb2ab8a",
+          "blob_matches": true
+        }
+      ],
+      "catalog_runtime_readset": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/readsets/input-readset-39953.json",
+        "sha256": "f1e20c181aefb4b629d801bc0bf8825c57cfe8cc20bdff631b5504a272fa1ef8",
+        "scope": "1,852 Python paths in mixed I1/I4 process (1,833 src + 19 tests), no current mismatches; not an I4-only denominator."
+      },
+      "mandatory_companions": [
+        "Typed CatalogRunProfile and Legal intent contracts + control HTTP routes",
+        "Catalog profile resolver/fresh reader",
+        "Legal generation/member basis, LegalRuntimeMaterialOwner/encoder and fresh Legal reader",
+        "Current Catalog pytest.ini and historical Legal R14 source/test/config frame",
+        "Exact nine-asset Legal manifest for any future replay; assets are not copied"
+      ]
+    }
+  },
+  "property": {
+    "statement": "Catalog profile selection reaches a fresh reader with currentness recomputation and refuses absent/conflicting/malformed selection. Separately, selected immutable Legal generation intent reaches the real cached encoder, persists generation/member bindings, and a fresh Legal vector reader consumes the selection while drift refuses before query.",
+    "predicate_basis": [
+      {
+        "scope": "Catalog selection, same-ID profile drift, receipt removal and refusal",
+        "basis": "recomputed"
+      },
+      {
+        "scope": "Historical Legal direct source/assets and generation/readback evidence",
+        "basis": "independently_reconciled"
+      },
+      {
+        "scope": "Fresh whole-runtime Legal replay/current legal authority",
+        "basis": "not_established"
+      }
+    ],
+    "acceptance_signal": "Three current I4 Catalog nodes passed in the mixed 20-node run. Historical Legal R14 ran 28 cases at source 567 with limited author qualification: real profile GET/search POST, actual encoder and fresh reader; model/member/callable drift controls refused/fell back before reuse or query.",
+    "consumer_surface": "Catalog Runtime HTTP/fresh reader and controlled local Legal HTTP GET/POST plus fresh graph readers; candidate search only.",
+    "authority_scope": "No live production currentness, protected authority, legal substantiation or publication claim."
+  },
+  "capability_chain": {
+    "catalog": {
+      "typed_contract": "CatalogRunProfile literal and typed control selection.",
+      "producer": "Existing Catalog publisher produces the selected published plan and lineage.",
+      "persisted_artifact": "Published plan/readiness and source/profile-basis receipts.",
+      "bridge": "Control HTTP request -> selected profile -> fresh Catalog consumer.",
+      "consumer": "Fresh Catalog reader returns a plan only while source currentness and publish receipt are valid.",
+      "verification": "Three selected nodes: positive fresh reader, same-ID profile-drift recomputation and absent/conflicting/malformed refusal; receipt-removal control stops plans.",
+      "semantic_proof": "The real fresh reader and producer receipt govern admission; a profile marker is insufficient."
+    },
+    "legal": {
+      "typed_contract": "LegalQueryGenerationIntentV1 and typed LexSearchProfile available/refused response.",
+      "producer": "LegalRuntimeMaterialOwner resolves selected generation and actual cached SentenceTransformers encoder.",
+      "persisted_artifact": "Generation/member files and receipts bound to encoder/runtime material and immutable selected intent.",
+      "bridge": "GET /api/v1/control/lex/search-profile -> immutable intent -> POST /api/v1/control/lex/search -> producer/encoder validation.",
+      "consumer": "Fresh Legal graph entity/fact/provision vector readers.",
+      "verification": "Historical R14 uses real encoder and fresh HTTP/readers; model parameters/callables/member projections are mutated to test typed refusal/fallback before query; one native KNN call on selected path.",
+      "semantic_proof": "Selected path returns fact-1 as search_candidate; drift controls do not promote an unpublished generation."
+    },
+    "missing_capability_labels": []
+  },
+  "source_input_rebind": {
+    "catalog": {
+      "source_head": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/audit-result.json",
+      "receipt_sha256": "7348d860723dcf7444a8a54c09ebe0ef30fe7d313d459100e89976204d9490ff",
+      "readset_paths": 1852,
+      "current_mismatches": 0,
+      "result": "20 pass, 0 failures/errors/skips; 171.975 s; peak RSS 1,330,561,024 bytes; 17 I1 + 3 I4 nodes."
+    },
+    "legal": {
+      "supplement": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/c12-real-encoder-r14-qualified-supplement-20261021.json",
+      "supplement_sha256": "32885cb6912c11f0c90111414072a2505207180c1b78d03f3604403a20257589",
+      "source": "567c38cc98f74a5cea7c814dc5099d250d38f072",
+      "result": "28 historical passing cases; limited author qualification; G_acceptance=false; no closure IDs.",
+      "assets_rehashed_at_run": 9,
+      "asset_bytes_rehashed_at_run": 2261765112,
+      "source_frame_equal_at_run": true,
+      "direct_owner_files_rebound": true,
+      "full_current_runtime_parity": false,
+      "fresh_runtime_at_766": false,
+      "scope_note": "Process-wide origins include changed Core/IR modules; the task audit traced these as not called by the Legal vector path. This is a direct-path rebind, not whole-runtime parity."
+    }
+  },
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/audit-result.json",
+      "sha256": "7348d860723dcf7444a8a54c09ebe0ef30fe7d313d459100e89976204d9490ff",
+      "scope": "20-node mixed I1/I4 source-8a24 receipt; three selected I4 nodes pass."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/readsets/input-readset-39953.json",
+      "sha256": "f1e20c181aefb4b629d801bc0bf8825c57cfe8cc20bdff631b5504a272fa1ef8",
+      "scope": "1,852-path mixed process input set; not I4-only."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/c12-real-encoder-r14-qualified-supplement-20261021.json",
+      "sha256": "32885cb6912c11f0c90111414072a2505207180c1b78d03f3604403a20257589",
+      "scope": "Limited author qualification at source 567; G acceptance false."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r14-current-567c38cc-20261021-r1-actual/result.json",
+      "sha256": "eae15cce35899826b79d66ea2b15df679f3971baf9388cc3e92def682ea397c4",
+      "scope": "Historical deciding result path@SHA only; not a current run."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r14-current-567c38cc-20261021-r1-actual/source-before.json",
+      "sha256": "a277fc7c65b1208587fa7d19376d86c80683700e5f6c15f18317df4e34dae98f",
+      "scope": "Historical full source frame at 567, path@SHA only."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-emb03-r14-current-567c38cc-20261021-r1-actual/source-after.json",
+      "sha256": "a277fc7c65b1208587fa7d19376d86c80683700e5f6c15f18317df4e34dae98f",
+      "scope": "Equal historical after-frame at 567, path@SHA only."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/asset-file-manifest.txt",
+      "sha256": "191a71ec41bc1a69665fffccb5fa7f1c30b3f94ccd60f71cc3ed1f074ecb98ca",
+      "scope": "Exact nine historical encoder assets; no payload copied."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/integration-ready/review-ready-three-r1.json",
+      "sha256": "4630757b53603ca05d7617d39b31072d1ce81b6a4521f4b965a35f1bece59603",
+      "scope": "Independent task-exit, source-callpath and delivery review; no new runtime execution or formal closures."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/integration-ready/review-ready-three-r2-addendum.json",
+      "sha256": "49d1ce95ee0ab1f4ae6a8737dcc628de3dc04dda5714972b9755b74d9bfe1278",
+      "scope": "Independent task-exit, source-callpath and delivery review; no new runtime execution or formal closures."
+    }
+  ],
+  "replay": {
+    "catalog": {
+      "source_head": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+      "total_nodes": 20,
+      "i4_nodes": 3,
+      "i1_nodes": 17,
+      "wall_seconds": 171.975,
+      "peak_rss_bytes": 1330561024
+    },
+    "legal": {
+      "source_head": "567c38cc98f74a5cea7c814dc5099d250d38f072",
+      "cases": 28,
+      "wall_seconds": 389.7,
+      "peak_rss_bytes": 4013000000,
+      "asset_files": 9,
+      "asset_bytes": 2261765112
+    },
+    "requested_in_this_packet": false,
+    "qualification": "No fresh Catalog or Legal runtime ran at HEAD 766. If G later asks for a new Legal replay, reserve the historical 9 local assets and measured resources separately; no replay is requested here."
+  },
+  "reviewer_instructions": [
+    "Review the three I4 Catalog nodes separately from the 17 I1 nodes.",
+    "Review Legal R14 as historical source-567 evidence with limited qualification; do not label it fresh at 766.",
+    "Keep I1 full C05/cache/session/WVS scope separate; this packet does not mark I1 complete.",
+    "Accept the bounded task exit separately from every assigned LA finding and both LA-046 occurrences."
+  ],
+  "limitations": [
+    "Catalog's 20-node receipt includes 17 I1 nodes; it is not global I1 acceptance.",
+    "Legal R14 is historical source 567, G-unaccepted, and its nine assets were rehashed then, not now.",
+    "Legal currentness is a direct-owner/test rebind, not complete runtime import parity or a fresh whole Legal replay.",
+    "Legal fixture disables security middleware and proves candidate search, not protected legal authority or publication.",
+    "No fresh Legal Runtime HTTP/encoder execution at HEAD 766.",
+    "Historical Legal reuse is qualified by relevant callpath/block equality, including the changed whole container.py. It is not whole-module or whole-process parity and not a fresh Legal run."
+  ],
+  "pattern_pass": {
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P05",
+      "P14",
+      "P29",
+      "P37",
+      "P38",
+      "P41"
+    ],
+    "target_pattern": "Typed profiles, real producer/artifacts, HTTP bridge, fresh consumer and semantic positive/refusal controls are cited; profile presence is not used as proof. Production authority predicates remain not_established.",
+    "missing_capability_labels": []
+  },
+  "whole_task_verdict": {
+    "primary_status": "complete",
+    "scope": "Bounded original I4 task exit: current Catalog nodes plus limited historical Legal R14 witness.",
+    "remaining_local_actions": [],
+    "missing_external_inputs": [],
+    "pending_decision": "G reviews whether the historical Legal qualification satisfies this bounded exit; fresh Legal replay is a separate request.",
+    "finding_status": "LA-033, LA-046 (both occurrences), LA-028, LA-032 and LA-040 remain unadjudicated."
+  },
+  "proposal_fields": {
+    "author_task_exit": "complete",
+    "finding_closure_proposals": []
+  },
+  "code_acceptance_owner": "G",
+  "integration_publication_owner": "G",
+  "formal_finding_adjudication_owner": "G",
+  "code_acceptance": false,
+  "closure_ids": [],
+  "global_freeze": false,
+  "evidence_path_base": "Repository root; LOCAL/raw/... resolves under the candidate checkout root, not this documentation directory."
+}

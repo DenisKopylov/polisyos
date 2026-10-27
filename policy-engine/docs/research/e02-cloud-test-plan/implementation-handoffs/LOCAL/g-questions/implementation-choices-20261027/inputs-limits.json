@@ -1,0 +1,380 @@
+{
+  "record_kind": "current_source_g_questions_handoff_inputs_and_limits",
+  "record_version": 1,
+  "as_of": "2026-10-27",
+  "decision_state": {
+    "architecture_selection": "pending_G",
+    "code_acceptance": false,
+    "closure_ids": [],
+    "source_freeze": false,
+    "tests_run": false,
+    "source_changed_by_this_handoff": false
+  },
+  "repository_R": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "7a4c713186188f5795da3a8745e42843443dcd88",
+    "tree_at_head": "f49503f969b9a3d68bf82d23e0c8435e9d20c847",
+    "worktree_note": "All 13 TimeContext readset source pins are committed and byte-identical. Two unchanged context entries remain registered in the root ledger; this is not a global clean/source-freeze assertion.",
+    "implementation_checkpoint": "647ec5df86707adfdb3b06d7b9dbd77a3c65380b"
+  },
+  "G_decision_documents": {
+    "selected_local_head": "978921662b2d89006759cdd2ae96dbccc9bdcf11",
+    "local_branch": "codex/e02-integration",
+    "remote_pointer": "origin/codex/e02-integration",
+    "remote_head": "2a07cd8a16bad0191b302f71c699b3bf9082ebac",
+    "graph": {
+      "remote_is_ancestor_of_local": true,
+      "local_ahead_commits": 5,
+      "remote_ahead_commits": 0,
+      "merge_base": "2a07cd8a16bad0191b302f71c699b3bf9082ebac",
+      "local_worktree_clean": true
+    },
+    "interpretation": "Selected docs are locally available and not yet on the remote pointer. They are a docs checkpoint, not current code acceptance. No merge or publication performed."
+  },
+  "already_selected_CAN_law_not_reopened": [
+    "AD-E02-05 at 798bd1ab9646378f49fd127b3f04ebe71aca67d2: shared canonical mechanics; strict separate Core/IR tag policy; no universal allowlist.",
+    "IR-Q1/Q2 at 528ec2576393e8aa9a0238ae4172336ccf76a057: typed owner admission/version contracts."
+  ],
+  "evidence_readset": [
+    {
+      "role": "existing_CAN_decision_draft",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/canonical-raw-mapping-20261026/README.md",
+      "sha256": "a6b3eae5ce6fbf998c0e4f408338b55d64807d5d9736a57bd7e9793f0df469ee",
+      "reuse": "link_only; do not copy",
+      "publication_note": "Only broken evidence.json references changed to existing inputs.json; historical preimage retained in RAW."
+    },
+    {
+      "role": "CAN_source_and_evidence_index",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/canonical-raw-mapping-20261026/inputs.json",
+      "sha256": "c1e0c497cfcce8712678ba19059076fa0c57c895d0ed1aca8e41484ee0bb2e9e",
+      "reuse": "link_only; do not copy"
+    },
+    {
+      "role": "current_CAN_consumer_oracle",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/can-composed-consumer-oracle-20261027-r1/can-current-source-oracle.md",
+      "sha256": "822fe1e1c477bb1c0fe23b548632a1f3515cf076905fe32a54fcb3dda80ebe7c",
+      "reuse": "linked summary; no source copied"
+    },
+    {
+      "role": "TimeContext_readiness_and_G_scope",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/time-context-existing-contract-prototype-20261027-r1/implementation-readiness.md",
+      "sha256": "51cba6139db7b704781c0f535cab29dde46ba6b7369fbb89ff8a01ef297b503a",
+      "reuse": "revalidated 13 cited source pins against R worktree"
+    },
+    {
+      "role": "prototype_02_stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/time-context-existing-contract-prototype-20261027-r1/prototype-02/stdout",
+      "sha256": "574509c9377505886619b175fc77118b69555c39e1a2390d80dd3b32beedacf5",
+      "result": "temporary CAS compatibility path; runtime_blocker; no authority"
+    },
+    {
+      "role": "prototype_02_receipt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/time-context-existing-contract-prototype-20261027-r1/prototype-02/receipt.json",
+      "sha256": "5dae307d660fb5f009a8344e134df6f27f69a7043ab9ec1341a303b76e837b4e",
+      "result": "exit 0; source_freeze=false; closure_ids=[]"
+    },
+    {
+      "role": "prototype_05_stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/time-context-existing-contract-prototype-20261027-r1/prototype-05/stdout",
+      "sha256": "129ece7eea1ad0422f1db50fd3dce8f2fdd9c86fc507232ad8928b126be773c9",
+      "result": "same payload ID, two verified manifest profiles; exact_view_keys_differ=true; consumer accepts bare ID"
+    },
+    {
+      "role": "prototype_05_receipt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/time-context-existing-contract-prototype-20261027-r1/prototype-05/receipt.json",
+      "sha256": "9ced25c9664d6774aa59e6f035ea53b0c39ad74422787cd570493e2313a7fd75",
+      "result": "exit 0; source_freeze=false; closure_ids=[]"
+    },
+    {
+      "role": "ADR-0148_legal_and_time_boundary",
+      "path": "policy-engine/docs/adr/0148-serious-run-state-machine-and-phase-barriers.md",
+      "sha256": "b63dbb1df266ef4c63c1ed6754e81b8ea7e381eb4dcceafd9f77d9aad4ca96df"
+    },
+    {
+      "role": "failure_repair_register",
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "sha256": "741f66a832fde5d4d0fb00e35bf4d5a34ec1b976f94d61b83c7eaedc048defd4"
+    }
+  ],
+  "current_source_readset": [
+    {
+      "path": "policy-engine/docs/adr/0148-serious-run-state-machine-and-phase-barriers.md",
+      "head_sha256": "b63dbb1df266ef4c63c1ed6754e81b8ea7e381eb4dcceafd9f77d9aad4ca96df",
+      "worktree_sha256": "b63dbb1df266ef4c63c1ed6754e81b8ea7e381eb4dcceafd9f77d9aad4ca96df",
+      "matches_readiness_pin": true,
+      "worktree_matches_head": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/phase_barriers.py",
+      "head_sha256": "3b9b90dcbe09ed9869b7f79f1a31183f50e6c276223019786c6f08bacf780f89",
+      "worktree_sha256": "3b9b90dcbe09ed9869b7f79f1a31183f50e6c276223019786c6f08bacf780f89",
+      "matches_readiness_pin": true,
+      "worktree_matches_head": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/assurance_case.py",
+      "head_sha256": "db6c4070432bfd900f703dda449f76de979fe2f567c69a48cc746868517c691d",
+      "worktree_sha256": "db6c4070432bfd900f703dda449f76de979fe2f567c69a48cc746868517c691d",
+      "matches_readiness_pin": true,
+      "worktree_matches_head": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+      "head_sha256": "ca113e13acededa8ecf8f2ec8940486c9f11f9f614ff8004abc0e184c339721b",
+      "worktree_sha256": "ca113e13acededa8ecf8f2ec8940486c9f11f9f614ff8004abc0e184c339721b",
+      "matches_readiness_pin": true,
+      "worktree_matches_head": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/temporal.py",
+      "head_sha256": "5059a2cd3e3ecae45907aced11d4440b3f78111ce1a41a586d6624f11acd2863",
+      "worktree_sha256": "5059a2cd3e3ecae45907aced11d4440b3f78111ce1a41a586d6624f11acd2863",
+      "matches_readiness_pin": true,
+      "worktree_matches_head": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_requirement/_impl/models.py",
+      "head_sha256": "af3dcf8122d93badd0974feb439bf25d3295bb507721cdb2ef4fbd26e614596a",
+      "worktree_sha256": "af3dcf8122d93badd0974feb439bf25d3295bb507721cdb2ef4fbd26e614596a",
+      "matches_readiness_pin": true,
+      "worktree_matches_head": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/control.py",
+      "head_sha256": "678b67ca20ba21d98bc17e50e5a5c98645177ad64e271212c5c88ab08ffb4b24",
+      "worktree_sha256": "678b67ca20ba21d98bc17e50e5a5c98645177ad64e271212c5c88ab08ffb4b24",
+      "matches_readiness_pin": true,
+      "worktree_matches_head": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "head_sha256": "dae119cb6c82e892c395948c1a8dddac5e5574b07efd696af0a67a31f8ae793a",
+      "worktree_sha256": "dae119cb6c82e892c395948c1a8dddac5e5574b07efd696af0a67a31f8ae793a",
+      "matches_readiness_pin": true,
+      "worktree_matches_head": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "head_sha256": "cb8282cd63aac882ee2d9b6ad6ed3215d92411d2747110f81c6546d200f00031",
+      "worktree_sha256": "cb8282cd63aac882ee2d9b6ad6ed3215d92411d2747110f81c6546d200f00031",
+      "matches_readiness_pin": true,
+      "worktree_matches_head": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/run_state.py",
+      "head_sha256": "edfc576ef2385715487d7bb12b814a70d8cb5ba9bd59ec8626efd740cb34c00b",
+      "worktree_sha256": "edfc576ef2385715487d7bb12b814a70d8cb5ba9bd59ec8626efd740cb34c00b",
+      "matches_readiness_pin": true,
+      "worktree_matches_head": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/authority.py",
+      "head_sha256": "7ad352af24252b1c511df61e700c0ec525730e248f5c3bf27e5bc159247767ce",
+      "worktree_sha256": "7ad352af24252b1c511df61e700c0ec525730e248f5c3bf27e5bc159247767ce",
+      "matches_readiness_pin": true,
+      "worktree_matches_head": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+      "head_sha256": "bb15f745702d3451fdd554f10ee8dad88475ae052c629d6904026c45e3a342d6",
+      "worktree_sha256": "bb15f745702d3451fdd554f10ee8dad88475ae052c629d6904026c45e3a342d6",
+      "matches_readiness_pin": true,
+      "worktree_matches_head": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "head_sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+      "worktree_sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+      "matches_readiness_pin": true,
+      "worktree_matches_head": true
+    }
+  ],
+  "source_readset_revalidation": {
+    "readiness_pin_count": 13,
+    "current_worktree_matches_readiness_pins": 13,
+    "worktree_differs_from_HEAD_count": 0,
+    "changed_paths": [],
+    "note": "All 13 current source pins are in committed implementation checkpoint647ec5df and match this publication-preparation branch. The original RAW oracle and its four former-WIP observations remain unchanged."
+  },
+  "limits": [
+    "The temporal prototype used a temporary test-only CAS/API-compatibility harness; it did not exercise the ordinary HTTP POST producer path, production CAS, or authority acceptance.",
+    "The same-payload/different-manifest-profile result is a bounded P38 falsifier for the bare-ID SameInputClosure comparison, not a claim that published authority escaped.",
+    "No producer attestation or legal as-of fact is inferred from TemporalScope, manifest profile identity, producer metadata, or publication as_of_time.",
+    "ADR-0148's Lex legal_snapshot barrier is independent of SameInputClosure identity; missing legal evidence remains blocked for legal-dependent claims.",
+    "The exact-view invariant should apply to every CAS-view pointer in SameInputClosure through one typed owner/wire mechanism; do not patch only time_context_ref. Non-CAS references stay in their own typed identity domains.",
+    "No additional CAN tag-policy question is opened: AD-E02-05 and IR-Q1/Q2 are already selected. The existing raw-mapping public API-domain choice remains pending between the linked .3 lossless-map path and .2 typed refusal.",
+    "The G local decision branch is five commits ahead of its remote pointer; no automatic merge, rebase, or publication is included.",
+    "No source copies, raw data dumps, integration tests, or code changes were made in this handoff.",
+    "The linked historical readiness prose mentions six envelopes without an enumerated six-item readset. This handoff claims no six-envelope completeness; later implementation must derive the full CAS-pointer denominator from the actual closure owner."
+  ],
+  "gate_predicate_classes": {
+    "strict_request_scope_shape_and_presence": "recomputed at strict request validation; absence/malformed input blocks the relevant path",
+    "selected_cas_view_identity": "recomputed by exact owner readback over artifact ID, kind, media type, manifest profile, and content-bound payload",
+    "requester_time_value_truth": "consumer_asserted; binds caller intent only and does not establish legal/currentness or claim adequacy",
+    "legal_currentness_without_legal_snapshot": "not_established; independent Lex legal barrier remains blocked"
+  },
+  "CAN_current_rebind": {
+    "source_rows": [
+      {
+        "path": "policy-engine/src/polisyos/common/canonical.py",
+        "historical_sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41",
+        "current_sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41",
+        "unchanged": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+        "historical_sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+        "current_sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+        "unchanged": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+        "historical_sha256": "0d4cfb58210f8ae4254d4915ace7dc886cd42de2ecd76f701f697da8aecaa37c",
+        "current_sha256": "0d4cfb58210f8ae4254d4915ace7dc886cd42de2ecd76f701f697da8aecaa37c",
+        "unchanged": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+        "historical_sha256": "511ffa1967c0c833b57ee3b6df41ea3e1eec9fc7f237bd2709e6e9e7baa538ab",
+        "current_sha256": "511ffa1967c0c833b57ee3b6df41ea3e1eec9fc7f237bd2709e6e9e7baa538ab",
+        "unchanged": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/compiler/specialization.py",
+        "historical_sha256": "1279266088b008660dd9a36757daa2d4ea2cc972fc0b65a6acf85dfa90a5b4b7",
+        "current_sha256": "1279266088b008660dd9a36757daa2d4ea2cc972fc0b65a6acf85dfa90a5b4b7",
+        "unchanged": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+        "historical_sha256": "e90869b1ae2ed3b0d3693e91c9542c35ccfe96e154168a32ec336d6cccc29841",
+        "current_sha256": "e90869b1ae2ed3b0d3693e91c9542c35ccfe96e154168a32ec336d6cccc29841",
+        "unchanged": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+        "historical_sha256": "974cb9e6001b99a8dfe0cf0855b558b96d2d709efdc14eb0186c0068c5e8fbba",
+        "current_sha256": "974cb9e6001b99a8dfe0cf0855b558b96d2d709efdc14eb0186c0068c5e8fbba",
+        "unchanged": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/api.py",
+        "historical_sha256": "d22c6c6b4d773ee02843dea38d2d051716f5ee3ec26f1e9fba406a6004edf450",
+        "current_sha256": "d22c6c6b4d773ee02843dea38d2d051716f5ee3ec26f1e9fba406a6004edf450",
+        "unchanged": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "historical_sha256": "1a09deae5b3876b53199dc5901e1af51850d4a0d050124d1a928dbfcb7be903f",
+        "current_sha256": "1a09deae5b3876b53199dc5901e1af51850d4a0d050124d1a928dbfcb7be903f",
+        "unchanged": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "historical_sha256": "ef30d956f8aa58254bd8bd3a67c55e79d20c16e60497143d536576ec94103fe9",
+        "current_sha256": "ef30d956f8aa58254bd8bd3a67c55e79d20c16e60497143d536576ec94103fe9",
+        "unchanged": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+        "historical_sha256": "f204f831a7b4fa30e37cfed97bd794d213882ff4259cdb79c27ce1c2f4fa282c",
+        "current_sha256": "f204f831a7b4fa30e37cfed97bd794d213882ff4259cdb79c27ce1c2f4fa282c",
+        "unchanged": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+        "historical_sha256": "12cfb068a2f9d563be46396caa48631a6a5cca19ff435af1d0e3bf7926694eac",
+        "current_sha256": "12cfb068a2f9d563be46396caa48631a6a5cca19ff435af1d0e3bf7926694eac",
+        "unchanged": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/producer_currentness.py",
+        "historical_sha256": "d2ab6854798016c170fe12f6cc294cdabfcf0494bbd443c5aaf2f0361d61a740",
+        "current_sha256": "d2ab6854798016c170fe12f6cc294cdabfcf0494bbd443c5aaf2f0361d61a740",
+        "unchanged": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py",
+        "historical_sha256": "335125a09166458c151d749ca1f8a8548df356f349d288db584c63f2a9000e0f",
+        "current_sha256": "335125a09166458c151d749ca1f8a8548df356f349d288db584c63f2a9000e0f",
+        "unchanged": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+        "historical_sha256": "71c84670b45157861cb46ddafc79d03d52a3b3e383b1bfcb7560b5142bffa7fa",
+        "current_sha256": "d66e82d4f2dccf068ac8786f8d96e64c52d24606597358915fcbd50b645f8712",
+        "unchanged": false
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state.py",
+        "historical_sha256": "7f02ad147eae494e905a984dd6eb1d5282e315122d40c37146ce66a0e9e180a9",
+        "current_sha256": "7f02ad147eae494e905a984dd6eb1d5282e315122d40c37146ce66a0e9e180a9",
+        "unchanged": true
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+        "historical_sha256": "ce3c658f22492536908e50975cb0825e9521a6b2ccccd9848900f86dd3a23428",
+        "current_sha256": "ce3c658f22492536908e50975cb0825e9521a6b2ccccd9848900f86dd3a23428",
+        "unchanged": true
+      },
+      {
+        "path": "policy-engine/tests/unit/core/phase0/test_canon_json.py",
+        "historical_sha256": "96541c1d85e91caabb4748e168d3ca677dc00c23ca564d54490f171102f9cb7e",
+        "current_sha256": "96541c1d85e91caabb4748e168d3ca677dc00c23ca564d54490f171102f9cb7e",
+        "unchanged": true
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/test_compiler.py",
+        "historical_sha256": "b7056c42e0a00a15631767321511595cb47509be49d8769de8432f0688ba87fe",
+        "current_sha256": "b7056c42e0a00a15631767321511595cb47509be49d8769de8432f0688ba87fe",
+        "unchanged": true
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_canon_hardening.py",
+        "historical_sha256": "83670ce43832ad084ab49bc992b18634188f37b5a18f229118f26451be599776",
+        "current_sha256": "83670ce43832ad084ab49bc992b18634188f37b5a18f229118f26451be599776",
+        "unchanged": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/facade/test_api.py",
+        "historical_sha256": "b76cfe6d54f505ae37fea41d2db53e5ded3227de351936fe18213de77e8b50b6",
+        "current_sha256": "b76cfe6d54f505ae37fea41d2db53e5ded3227de351936fe18213de77e8b50b6",
+        "unchanged": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+        "historical_sha256": "146b37a906170f96fd54428961b02f6b3c3a08ef80ff9770144ef26cc5bbb5f6",
+        "current_sha256": "146b37a906170f96fd54428961b02f6b3c3a08ef80ff9770144ef26cc5bbb5f6",
+        "unchanged": true
+      }
+    ],
+    "scope": "21/22 exact source/test pins unchanged; serializer facade import delta preserves class identity per the linked current source oracle; no new full CAN or persistence replay. Historical inputs retain the old source frame."
+  },
+  "original_raw_handoff": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/can-composed-consumer-oracle-20261027-r1/g-question-handoff-20261027-r1",
+    "pins": {
+      "time-context-decision.md": "9c3c757d708ed4ad989171ee7bce9454b7c932d27330de56d9d6bf2f76d3e9b6",
+      "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "profile.sb": "25c0f59c497e509c5059524e8230571bb84482b0fcd230a6644429678a0eb6fc",
+      "index.md": "8e5c5ab49bc9b2744de69a5d491e26d6e4ff6e82743cb0859c908c67a7a71f84",
+      "inputs-limits.json": "b1afab5d7349ad1c03312870105107d1857cab7e293cde1ac7c363a841b13fef",
+      "invocation.json": "6b2b8c67cd1cf661c1ec141f189b705d6c0fcf7a992e8002161af74f5a7422ca",
+      "receipt.json": "0b55f13d081827405c04585db7e32b3f2157f6d16825f5ed3d5a4ef9c46423ff"
+    },
+    "meaning": "Historical immutable draft; this new tracked publication repairs links/metadata only."
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/g-questions-independent-review-20261027-r1/independent-review-r2/review.json",
+    "sha256": "08561b285faab2f64849636328c240dae7b6ee93313483198f6bde9e2f95a155",
+    "verdict": "GO after source-frame and link rebind",
+    "scope": "Independent document/semantic decision packet review only; no new runtime acceptance.",
+    "applied_corrections": [
+      "All13TimeContextsourcepinscommittedat647; obsoletefourWIPmetadataremoved",
+      "CANmissing evidence.json referencespointtoexistinginputs.json",
+      "Post-move relativeMarkdownlinkschecked",
+      "Readinesshistorical six-envelopecountnotusedasdenominator"
+    ]
+  }
+}

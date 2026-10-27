@@ -45,19 +45,15 @@
         ],
         "create_exit": 0,
         "status": "submitted",
-        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
         "last_observed_status": "ready",
-        "last_observed_summary": {
-          "files_changed": 6,
-          "lines_added": 310,
-          "lines_removed": 132
-        },
         "retrieved_diff": {
           "path": "LOCAL/raw/e02-execution-20261027/cloud/C01/source.diff",
           "sha256": "de38885d7f8f49b064962f0303e47afec41bdb6332ad5917b1ea7857c04849ee",
           "bytes": 37759,
           "candidate_tree": "ed17cc148eec3a9da75d1f6dc371967667166e17",
-          "canonical_applied": false
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
         }
       },
       {
@@ -79,19 +75,15 @@
         ],
         "create_exit": 0,
         "status": "submitted",
-        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
         "last_observed_status": "ready",
-        "last_observed_summary": {
-          "files_changed": 3,
-          "lines_added": 289,
-          "lines_removed": 0
-        },
         "retrieved_diff": {
           "path": "LOCAL/raw/e02-execution-20261027/cloud/C02/source.diff",
           "sha256": "5923983e72ae264389aebdaa6bff769ac23f2f903f90f717247e1273b8735ebf",
           "bytes": 16455,
           "candidate_tree": "702e63a258178beca7fe689937eb313ba341a7ee",
-          "canonical_applied": false
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
         }
       },
       {
@@ -113,19 +105,15 @@
         ],
         "create_exit": 0,
         "status": "submitted",
-        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
         "last_observed_status": "ready",
-        "last_observed_summary": {
-          "files_changed": 4,
-          "lines_added": 323,
-          "lines_removed": 0
-        },
         "retrieved_diff": {
           "path": "LOCAL/raw/e02-execution-20261027/cloud/C03/source.diff",
           "sha256": "1c44dc67f6f716ef308c749d2427aa160cb99df85bc47b1bdf65c9914418149f",
           "bytes": 19967,
           "candidate_tree": "db9e81b62d0cd23be298fcbe6a86d5392f9181fa",
-          "canonical_applied": false
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
         }
       },
       {
@@ -147,155 +135,15 @@
         ],
         "create_exit": 0,
         "status": "submitted",
-        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
         "last_observed_status": "ready",
-        "last_observed_summary": {
-          "files_changed": 7,
-          "lines_added": 541,
-          "lines_removed": 75
-        },
         "retrieved_diff": {
           "path": "LOCAL/raw/e02-execution-20261027/cloud/C04/source.diff",
           "sha256": "85b8b574810bb545c2de4daf298f3438a91ee4252d1e3d0ed15dbbe5a8166d89",
           "bytes": 86311,
           "candidate_tree": "d3a9aa9e9178ce346e511431bf88ca33b0401e58",
-          "canonical_applied": false
-        }
-      },
-      {
-        "slice": "C06",
-        "created_at": "2026-10-27T21:00:09.388055+00:00",
-        "task_id": "task_e_6ae110d7b0bc8325ad8073c56b903b72",
-        "url": "https://chatgpt.com/codex/tasks/task_e_6ae110d7b0bc8325ad8073c56b903b72",
-        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
-        "branch": "codex/e02-unified-local-20261009",
-        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
-        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
-        "prompt_sha256": "d927984c4fc92bb0443c714e19099712b102b59beb244f75d4d2e48142cbf01a",
-        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C06-launch-prompt.md",
-        "requested_model": "gpt-6.1-sol",
-        "actual_model": "not_established by create response",
-        "template_rebindings": [
-          2,
-          2
-        ],
-        "create_exit": 0,
-        "status": "submitted",
-        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
-        "last_observed_status": "ready",
-        "last_observed_summary": {
-          "files_changed": 14,
-          "lines_added": 1042,
-          "lines_removed": 54
-        },
-        "retrieved_diff": {
-          "path": "LOCAL/raw/e02-execution-20261027/cloud/C06/source.diff",
-          "sha256": "ddfabd54118d64247e4e32c2c138d343070f52247581d6fa7982e904e80f995a",
-          "bytes": 124954,
-          "candidate_tree": "a9a2ec798be651f19c125b0970b98356fdae1659",
-          "canonical_applied": false
-        }
-      },
-      {
-        "slice": "C09",
-        "created_at": "2026-10-27T21:00:15.608978+00:00",
-        "task_id": "task_e_6ae110dde4d48325923b1182209999bf",
-        "url": "https://chatgpt.com/codex/tasks/task_e_6ae110dde4d48325923b1182209999bf",
-        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
-        "branch": "codex/e02-unified-local-20261009",
-        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
-        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
-        "prompt_sha256": "e34bffed43ed9f6d0b1f34197a054b0f7e230008827894764f531d406ed60b75",
-        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C09-launch-prompt.md",
-        "requested_model": "gpt-6.1-sol",
-        "actual_model": "not_established by create response",
-        "template_rebindings": [
-          2,
-          2
-        ],
-        "create_exit": 0,
-        "status": "submitted",
-        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
-        "last_observed_status": "ready",
-        "last_observed_summary": {
-          "files_changed": 3,
-          "lines_added": 148,
-          "lines_removed": 0
-        },
-        "retrieved_diff": {
-          "path": "LOCAL/raw/e02-execution-20261027/cloud/C09/source.diff",
-          "sha256": "e314ec6cf2f3b8680756d44ab0f7bdb1073ff69584d36002ba9f3903c79b8ef4",
-          "bytes": 15482,
-          "candidate_tree": "df5de65b7927bd33c8db80d4c7333d9d4b19029c",
-          "canonical_applied": false
-        }
-      },
-      {
-        "slice": "C10",
-        "created_at": "2026-10-27T21:00:23.224393+00:00",
-        "task_id": "task_e_6ae110e4eba483259d8b7ad8b4719b63",
-        "url": "https://chatgpt.com/codex/tasks/task_e_6ae110e4eba483259d8b7ad8b4719b63",
-        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
-        "branch": "codex/e02-unified-local-20261009",
-        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
-        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
-        "prompt_sha256": "a0c3762efb7d441a412b0d29e043829e93f273f8f2e52b3949a295030c16dfcd",
-        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C10-launch-prompt.md",
-        "requested_model": "gpt-6.1-sol",
-        "actual_model": "not_established by create response",
-        "template_rebindings": [
-          2,
-          2
-        ],
-        "create_exit": 0,
-        "status": "submitted",
-        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
-        "last_observed_status": "ready",
-        "last_observed_summary": {
-          "files_changed": 2,
-          "lines_added": 222,
-          "lines_removed": 0
-        },
-        "retrieved_diff": {
-          "path": "LOCAL/raw/e02-execution-20261027/cloud/C10/source.diff",
-          "sha256": "f8af47ac6697bbfb09f98e62f52a87ae32c79d0940b459ac929c69eeb3a7d880",
-          "bytes": 20182,
-          "candidate_tree": "8b0ce37d69004f72c3c24eca882d5fad7257a9f0",
-          "canonical_applied": false
-        }
-      },
-      {
-        "slice": "C11",
-        "created_at": "2026-10-27T21:00:30.277555+00:00",
-        "task_id": "task_e_6ae110eb7f8c8325919991a3c97dce50",
-        "url": "https://chatgpt.com/codex/tasks/task_e_6ae110eb7f8c8325919991a3c97dce50",
-        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
-        "branch": "codex/e02-unified-local-20261009",
-        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
-        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
-        "prompt_sha256": "84c7b5d055cea015fa3d50e49e26ee1f5a326b9426399182425f3a1cec8d7dae",
-        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C11-launch-prompt.md",
-        "requested_model": "gpt-6.1-sol",
-        "actual_model": "not_established by create response",
-        "template_rebindings": [
-          2,
-          2
-        ],
-        "create_exit": 0,
-        "status": "submitted",
-        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
-        "last_observed_status": "ready",
-        "last_observed_summary": {
-          "files_changed": 6,
-          "lines_added": 302,
-          "lines_removed": 3
-        },
-        "retrieved_diff": {
-          "path": "LOCAL/raw/e02-execution-20261027/cloud/C11/source.diff",
-          "sha256": "281cd6389394484d1e6b35daa8c3d819a47653661d95794d79d0b5cb80015178",
-          "bytes": 21901,
-          "candidate_tree": "897a5328f6c70e4faaf548cb05df54025e6ada82",
-          "canonical_applied": false
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
         }
       },
       {
@@ -317,19 +165,45 @@
         ],
         "create_exit": 0,
         "status": "submitted",
-        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
         "last_observed_status": "ready",
-        "last_observed_summary": {
-          "files_changed": 9,
-          "lines_added": 631,
-          "lines_removed": 23
-        },
         "retrieved_diff": {
           "path": "LOCAL/raw/e02-execution-20261027/cloud/C05/source.diff",
           "sha256": "817af31d8cd21233376fce8b9b44a24f15aa7cc3b3d62711f194b797fb8ccec2",
           "bytes": 89153,
           "candidate_tree": "53a834c476dfc2461ad17cc8c5fc9e128247d599",
-          "canonical_applied": false
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
+        }
+      },
+      {
+        "slice": "C06",
+        "created_at": "2026-10-27T21:00:09.388055+00:00",
+        "task_id": "task_e_6ae110d7b0bc8325ad8073c56b903b72",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae110d7b0bc8325ad8073c56b903b72",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "branch": "codex/e02-unified-local-20261009",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "prompt_sha256": "d927984c4fc92bb0443c714e19099712b102b59beb244f75d4d2e48142cbf01a",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C06-launch-prompt.md",
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established by create response",
+        "template_rebindings": [
+          2,
+          2
+        ],
+        "create_exit": 0,
+        "status": "submitted",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
+        "last_observed_status": "ready",
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C06/source.diff",
+          "sha256": "ddfabd54118d64247e4e32c2c138d343070f52247581d6fa7982e904e80f995a",
+          "bytes": 124954,
+          "candidate_tree": "a9a2ec798be651f19c125b0970b98356fdae1659",
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
         }
       },
       {
@@ -351,19 +225,15 @@
         ],
         "create_exit": 0,
         "status": "submitted",
-        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
         "last_observed_status": "ready",
-        "last_observed_summary": {
-          "files_changed": 5,
-          "lines_added": 1048,
-          "lines_removed": 39
-        },
         "retrieved_diff": {
           "path": "LOCAL/raw/e02-execution-20261027/cloud/C07/source.diff",
           "sha256": "efe6cb3b83a17d7fb0b7b1f1768ee8970e864cc2b72285464a3e61f9d5196479",
           "bytes": 78549,
           "candidate_tree": "07b0fb169c446054feadbae0c6256d87cb61b3fc",
-          "canonical_applied": false
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
         }
       },
       {
@@ -385,19 +255,105 @@
         ],
         "create_exit": 0,
         "status": "submitted",
-        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
         "last_observed_status": "ready",
-        "last_observed_summary": {
-          "files_changed": 7,
-          "lines_added": 204,
-          "lines_removed": 6
-        },
         "retrieved_diff": {
           "path": "LOCAL/raw/e02-execution-20261027/cloud/C08/source.diff",
           "sha256": "c2ee682a4d0d04e1c3b89b278e6cd0f9a994732d1093ba17d3bf7667f34347c4",
           "bytes": 23634,
           "candidate_tree": "635cfb6b0ea7344fbabd5775ade44fb342295257",
-          "canonical_applied": false
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
+        }
+      },
+      {
+        "slice": "C09",
+        "created_at": "2026-10-27T21:00:15.608978+00:00",
+        "task_id": "task_e_6ae110dde4d48325923b1182209999bf",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae110dde4d48325923b1182209999bf",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "branch": "codex/e02-unified-local-20261009",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "prompt_sha256": "e34bffed43ed9f6d0b1f34197a054b0f7e230008827894764f531d406ed60b75",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C09-launch-prompt.md",
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established by create response",
+        "template_rebindings": [
+          2,
+          2
+        ],
+        "create_exit": 0,
+        "status": "submitted",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
+        "last_observed_status": "ready",
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C09/source.diff",
+          "sha256": "e314ec6cf2f3b8680756d44ab0f7bdb1073ff69584d36002ba9f3903c79b8ef4",
+          "bytes": 15482,
+          "candidate_tree": "df5de65b7927bd33c8db80d4c7333d9d4b19029c",
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
+        }
+      },
+      {
+        "slice": "C10",
+        "created_at": "2026-10-27T21:00:23.224393+00:00",
+        "task_id": "task_e_6ae110e4eba483259d8b7ad8b4719b63",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae110e4eba483259d8b7ad8b4719b63",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "branch": "codex/e02-unified-local-20261009",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "prompt_sha256": "a0c3762efb7d441a412b0d29e043829e93f273f8f2e52b3949a295030c16dfcd",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C10-launch-prompt.md",
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established by create response",
+        "template_rebindings": [
+          2,
+          2
+        ],
+        "create_exit": 0,
+        "status": "submitted",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
+        "last_observed_status": "ready",
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C10/source.diff",
+          "sha256": "f8af47ac6697bbfb09f98e62f52a87ae32c79d0940b459ac929c69eeb3a7d880",
+          "bytes": 20182,
+          "candidate_tree": "8b0ce37d69004f72c3c24eca882d5fad7257a9f0",
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
+        }
+      },
+      {
+        "slice": "C11",
+        "created_at": "2026-10-27T21:00:30.277555+00:00",
+        "task_id": "task_e_6ae110eb7f8c8325919991a3c97dce50",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae110eb7f8c8325919991a3c97dce50",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "branch": "codex/e02-unified-local-20261009",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "prompt_sha256": "84c7b5d055cea015fa3d50e49e26ee1f5a326b9426399182425f3a1cec8d7dae",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C11-launch-prompt.md",
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established by create response",
+        "template_rebindings": [
+          2,
+          2
+        ],
+        "create_exit": 0,
+        "status": "submitted",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
+        "last_observed_status": "ready",
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C11/source.diff",
+          "sha256": "281cd6389394484d1e6b35daa8c3d819a47653661d95794d79d0b5cb80015178",
+          "bytes": 21901,
+          "candidate_tree": "897a5328f6c70e4faaf548cb05df54025e6ada82",
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
         }
       },
       {
@@ -419,20 +375,15 @@
         "created_at": "2026-10-27T21:11:21.699200+00:00",
         "status": "submitted",
         "capability_claim": "source/oracle/proof result only; no automatic original criterion closure",
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
         "last_observed_status": "ready",
-        "last_observed_summary": {
-          "files_changed": 3,
-          "lines_added": 2541,
-          "lines_removed": 0
-        },
         "retrieved_diff": {
           "path": "LOCAL/raw/e02-execution-20261027/cloud/C12/source.diff",
           "sha256": "0ef56eca19acbd38404b34a28efeab47c156bc76fa132d29c81a804a4e4b6bf0",
           "bytes": 141878,
           "candidate_tree": "fd1d968ccc2458e4b2d97ef33011f04babfd0629",
-          "canonical_applied": false
-        },
-        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review"
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
+        }
       },
       {
         "slice": "C13",
@@ -453,12 +404,8 @@
         "created_at": "2026-10-27T21:11:28.263764+00:00",
         "status": "submitted",
         "capability_claim": "source/oracle/proof result only; no automatic original criterion closure",
-        "last_observed_status": "error",
-        "last_observed_summary": {
-          "files_changed": 0,
-          "lines_added": 0,
-          "lines_removed": 0
-        }
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
+        "last_observed_status": "error"
       },
       {
         "slice": "C14",
@@ -479,20 +426,15 @@
         "created_at": "2026-10-27T21:11:35.254252+00:00",
         "status": "submitted",
         "capability_claim": "source/oracle/proof result only; no automatic original criterion closure",
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
         "last_observed_status": "ready",
-        "last_observed_summary": {
-          "files_changed": 3,
-          "lines_added": 320,
-          "lines_removed": 0
-        },
         "retrieved_diff": {
           "path": "LOCAL/raw/e02-execution-20261027/cloud/C14/source.diff",
           "sha256": "99b6934d14e0822f691c1eeaaf72a97b5890441db9d4aceebaf18cc9eadb57ee",
           "bytes": 26325,
           "candidate_tree": "bb9fc0dd03cf562e67eb28c9e2629a8a430fc940",
-          "canonical_applied": false
-        },
-        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review"
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
+        }
       },
       {
         "slice": "C15",
@@ -513,20 +455,422 @@
         "created_at": "2026-10-27T21:11:40.903674+00:00",
         "status": "submitted",
         "capability_claim": "source/oracle/proof result only; no automatic original criterion closure",
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
         "last_observed_status": "ready",
-        "last_observed_summary": {
-          "files_changed": 7,
-          "lines_added": 302,
-          "lines_removed": 0
-        },
         "retrieved_diff": {
           "path": "LOCAL/raw/e02-execution-20261027/cloud/C15/source.diff",
           "sha256": "6817a0d9cee1a4a43d1d7f10e7aaca1d8014e56269cd90d5a0e5acb74ce085c0",
           "bytes": 32049,
           "candidate_tree": "e53cb20e549ecca912adc932d397fbc796bd1e5f",
-          "canonical_applied": false
-        },
-        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review"
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
+        }
+      },
+      {
+        "slice": "C16",
+        "canonical_route": "Q0: LA-001/LA-003",
+        "task_id": "task_e_6ae116a4c6108325964799562962c59a",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae116a4c6108325964799562962c59a",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "branch": "codex/e02-unified-local-20261009",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C16-launch-prompt.md",
+        "prompt_sha256": "975748390dc2438e1687c01e30e1e15d62b11f5c1cd3d222311de0cd028d4488",
+        "prompt_bytes": 8141,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T21:24:54.387035+00:00",
+        "status": "submitted",
+        "closure_ids": [],
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
+        "last_observed_status": "ready",
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C16/source.diff",
+          "sha256": "bf542071ff846c7930d97e9eb977d413a031f2bf52a174556d96d1ea734c19f9",
+          "bytes": 31566,
+          "candidate_tree": "7411c1cec1b9e44c68e3f2c224710f239c2ab981",
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
+        }
+      },
+      {
+        "slice": "C17",
+        "canonical_route": "Q0: LA-017",
+        "task_id": "task_e_6ae116aaddb4832596ca9e9dbfec397e",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae116aaddb4832596ca9e9dbfec397e",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "branch": "codex/e02-unified-local-20261009",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C17-launch-prompt.md",
+        "prompt_sha256": "7a5c41673815748ba269d3034706612893e142493c8601aef538edf4dce91353",
+        "prompt_bytes": 6229,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T21:25:00.522254+00:00",
+        "status": "submitted",
+        "closure_ids": [],
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
+        "last_observed_status": "ready",
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C17/source.diff",
+          "sha256": "49d537d8cdeb32162a1582dfd11056177c64181344d043d3e045326fd578d066",
+          "bytes": 21360,
+          "candidate_tree": "9baae9ea9e36078953d470666be197b049ab19bb",
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
+        }
+      },
+      {
+        "slice": "C18",
+        "canonical_route": "Q0: B210",
+        "task_id": "task_e_6ae116b111648325b12c7cd24f01a5d7",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae116b111648325b12c7cd24f01a5d7",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "branch": "codex/e02-unified-local-20261009",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C18-launch-prompt.md",
+        "prompt_sha256": "7c2219e6c547d54d1a117dea5497ca5b6edcff37a720ea1a6b7d77137b58868e",
+        "prompt_bytes": 10004,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T21:25:06.753093+00:00",
+        "status": "submitted",
+        "closure_ids": [],
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
+        "last_observed_status": "ready",
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C18/source.diff",
+          "sha256": "9e668ff47e85bd8600f803cd6314227555bd5a2cc11b42c0e40264f1ffdadc0e",
+          "bytes": 43364,
+          "candidate_tree": "6d452816f2c7c5e2d121b40c6c0d9b6f58b843c1",
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
+        }
+      },
+      {
+        "slice": "C19",
+        "canonical_route": "V3: U1a ownerpreparation",
+        "task_id": "task_e_6ae116b68a2883259fe2bdfaee6a4836",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae116b68a2883259fe2bdfaee6a4836",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "branch": "codex/e02-unified-local-20261009",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C19-launch-prompt.md",
+        "prompt_sha256": "aae6b265c63b0cd218a252505c38525ec2b4d44173bca9f6f8d318fdca832196",
+        "prompt_bytes": 79714,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T21:25:13.019105+00:00",
+        "status": "submitted",
+        "closure_ids": [],
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
+        "last_observed_status": "ready",
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C19/source.diff",
+          "sha256": "3b468d49abd98be68229ebbf12dbd3d76312ea605418cbb34ed53f474cef16cc",
+          "bytes": 44354,
+          "candidate_tree": "5f103723b7aa8132144f2a76fe9ef98a1233545b",
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
+        }
+      },
+      {
+        "slice": "C20",
+        "canonical_route": "Q0: graph14occurrences",
+        "task_id": "task_e_6ae117309bac8325bf788b5cfbe19d32",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae117309bac8325bf788b5cfbe19d32",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "branch": "codex/e02-unified-local-20261009",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C20-launch-prompt.md",
+        "prompt_sha256": "9e2f6bab87df83bf8daf20fd23a3bb44cab2340b5b4326b7d1805df60c835e64",
+        "prompt_bytes": 14014,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T21:27:15.067769+00:00",
+        "status": "submitted",
+        "closure_ids": [],
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
+        "last_observed_status": "ready",
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C20/source.diff",
+          "sha256": "ad8d4fd19a47b3127009eb4e5f87cb03fbea10bcf268c70cf10c964ca50b0d95",
+          "bytes": 13568,
+          "candidate_tree": "ed51b9fd8e99057f301f568012ae7ae1d1b6f722",
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
+        }
+      },
+      {
+        "slice": "C21",
+        "canonical_route": "Q2: TC-A strictrequest/v3snapshot",
+        "task_id": "task_e_6ae117371e288325bf7802944bab7065",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae117371e288325bf7802944bab7065",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "branch": "codex/e02-unified-local-20261009",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C21-launch-prompt.md",
+        "prompt_sha256": "71f7fb080e331352f9964d471cdc1a24f7e2fe3a69a10c84f26aca73f8d3a737",
+        "prompt_bytes": 65268,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T21:27:20.820094+00:00",
+        "status": "submitted",
+        "closure_ids": [],
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
+        "last_observed_status": "ready",
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C21/source.diff",
+          "sha256": "2895a2a02c25d2de2f9d7430124494230b7d9db7acd49476279ec56b42c2efc4",
+          "bytes": 41685,
+          "candidate_tree": "b76bb5ff14042c16af5e10477e7448f31fbd6990",
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
+        }
+      },
+      {
+        "slice": "C22",
+        "canonical_route": "Q2: TC-B exactviewclosure",
+        "task_id": "task_e_6ae1173d578c83259b1b319c66eefb55",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae1173d578c83259b1b319c66eefb55",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "branch": "codex/e02-unified-local-20261009",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C22-launch-prompt.md",
+        "prompt_sha256": "e8e8a24f01001ca95e32efeca2c58a095559b6de7582e3056e68f71dfa29f6d7",
+        "prompt_bytes": 65974,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T21:27:27.122198+00:00",
+        "status": "submitted",
+        "closure_ids": [],
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
+        "last_observed_status": "ready",
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C22/source.diff",
+          "sha256": "02bce9c010a61a98482c390870178aa2ee7b653f449d6fe5c08393b1980de5ef",
+          "bytes": 40115,
+          "candidate_tree": "bd91b4425a29f9797ffb88f29b44bdc8de12f199",
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
+        }
+      },
+      {
+        "slice": "C23",
+        "canonical_route": "R4/G27-05: actualjobcancellation",
+        "task_id": "task_e_6ae118d041c48325aa3aeb57cf378049",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae118d041c48325aa3aeb57cf378049",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "branch": "codex/e02-unified-local-20261009",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C23-launch-prompt.md",
+        "prompt_sha256": "946ca5baf03add7534732d4dd19a1855a5323e64b2ee799a993c343802872692",
+        "prompt_bytes": 28965,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T21:34:10.449414+00:00",
+        "status": "submitted",
+        "closure_ids": [],
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
+        "last_observed_status": "ready",
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C23/source.diff",
+          "sha256": "e35724ca352a4c9e3391d6ed6242051dba3bda1f6128dee00194dd161981d574",
+          "bytes": 31363,
+          "candidate_tree": "c7c103592fd0797d3f22b4e4f2a2069315cb9589",
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
+        }
+      },
+      {
+        "slice": "C24",
+        "canonical_route": "S2: LA-036BERLexecutionidentity",
+        "task_id": "task_e_6ae118d786ac8325aac9c6808a440ee3",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae118d786ac8325aac9c6808a440ee3",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "branch": "codex/e02-unified-local-20261009",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C24-launch-prompt.md",
+        "prompt_sha256": "c8bc43806a530fb059a23462b5a50d2ec4f7233ee2ea72fb5223350f117a7cd4",
+        "prompt_bytes": 13734,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T21:34:17.240447+00:00",
+        "status": "submitted",
+        "closure_ids": [],
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
+        "last_observed_status": "ready",
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C24/source.diff",
+          "sha256": "c836b8e080ab38e68e647ce2ca4ed0dc09f4252ed3f457b6f2cb313705f40a6f",
+          "bytes": 16873,
+          "candidate_tree": "1e2dbaccd3f58b16e1620680a3288f4f3b769f82",
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
+        }
+      },
+      {
+        "slice": "C25",
+        "canonical_route": "T2: LA-054DDMsamecontext",
+        "task_id": "task_e_6ae118dcca148325a0b5890759ed4e3d",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae118dcca148325a0b5890759ed4e3d",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "branch": "codex/e02-unified-local-20261009",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C25-launch-prompt.md",
+        "prompt_sha256": "6324b9b198f297092694aee3db1cf0bf2c0bef27c7214d2e251ec37098e6686d",
+        "prompt_bytes": 15358,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T21:34:23.492999+00:00",
+        "status": "submitted",
+        "closure_ids": [],
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
+        "last_observed_status": "ready",
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C25/source.diff",
+          "sha256": "3e1771744f34c5d2218da002412195a30d678585627dbaea80055855b97196d8",
+          "bytes": 40993,
+          "candidate_tree": "c43fc3100c8549a11e7fb91de3160aaee692071a",
+          "canonical_applied": "see composed_candidates; not implied by retrieval"
+        }
+      },
+      {
+        "slice": "C26",
+        "canonical_route": "I2:portableLinuxcensus/CLI",
+        "task_id": "task_e_6ae1197470fc8325a09a22697db9918a",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae1197470fc8325a09a22697db9918a",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "branch": "codex/e02-unified-local-20261009",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C26-launch-prompt.md",
+        "prompt_sha256": "9e07e5663883ba1d92833cfb57d1476be5f43856bcea6d2543dbe49201475fa7",
+        "prompt_bytes": 18692,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T21:36:54.812621+00:00",
+        "status": "submitted",
+        "closure_ids": [],
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
+        "last_observed_status": "ready"
+      },
+      {
+        "slice": "C28",
+        "canonical_route": "R1/V1/V6: B13helper",
+        "task_id": "task_e_6ae118e400b48325a582f72f230ea19b",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae118e400b48325a582f72f230ea19b",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "branch": "codex/e02-unified-local-20261009",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C28-launch-prompt.md",
+        "prompt_sha256": "dcdb0443c4d01304b5b43542aaee37bb7460fbe879ae5499ee66fceb9956c1b9",
+        "prompt_bytes": 24276,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T21:34:29.635819+00:00",
+        "status": "submitted",
+        "closure_ids": [],
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
+        "last_observed_status": "ready"
+      },
+      {
+        "slice": "C29",
+        "canonical_route": "S2:B190/B194/B197freshnumericalconsumers",
+        "task_id": "task_e_6ae1197b57d08325b4155fa9a25e3723",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae1197b57d08325b4155fa9a25e3723",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "branch": "codex/e02-unified-local-20261009",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C29-launch-prompt.md",
+        "prompt_sha256": "4b6c61d04bdf9bd9c9f8626f757ec90b6f32bcb25aacc9ca173ead7d46187f45",
+        "prompt_bytes": 14771,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T21:37:01.549697+00:00",
+        "status": "submitted",
+        "closure_ids": [],
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
+        "last_observed_status": "ready"
+      },
+      {
+        "slice": "C30",
+        "canonical_route": "T2:U1/U2sixexistingprotectedcontrols",
+        "task_id": "task_e_6ae1198275e8832597a7ee5602a263ec",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae1198275e8832597a7ee5602a263ec",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "branch": "codex/e02-unified-local-20261009",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C30-launch-prompt.md",
+        "prompt_sha256": "cef6d8b5a8e3dc8134955fb175ab53333ba00d9fcccf3a09e9f0074209ace58e",
+        "prompt_bytes": 13575,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T21:37:08.764877+00:00",
+        "status": "submitted",
+        "closure_ids": [],
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
+        "last_observed_status": "ready"
+      },
+      {
+        "slice": "C33",
+        "canonical_route": "Q0:DOE B97-B105",
+        "task_id": "task_e_6ae122876aa08325a082cdb0409d831c",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae122876aa08325a082cdb0409d831c",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "branch": "codex/e02-unified-local-20261009",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C33-launch-prompt.md",
+        "prompt_sha256": "42b8a6e5c81a9bfacf7ec048db3e7ae8d3317aa34d5dfa036d08c4f7bb709e14",
+        "prompt_bytes": 24320,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T22:15:37.596330+00:00",
+        "status": "submitted",
+        "closure_ids": [],
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
+        "last_observed_status": "ready"
+      },
+      {
+        "slice": "C34",
+        "canonical_route": "Q0:FED B138-B145",
+        "task_id": null,
+        "url": null,
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "branch": "codex/e02-unified-local-20261009",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C34-launch-prompt.md",
+        "prompt_sha256": "14c9344166399259239451cbe49026af1ca24ee6d4a53f4b7e70d134c77f26b5",
+        "prompt_bytes": 19353,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 1,
+        "created_at": "2026-10-27T22:15:39.854378+00:00",
+        "status": "submitted",
+        "closure_ids": [],
+        "last_observed_at": "2026-10-27T22:23:22.051984+00:00",
+        "last_observed_status": "create_outcome_unknown",
+        "qualified_create_outcome": "ERROR503 without task identity; original generic submitted label is not confirmation; task-list readback required before retry"
       }
     ],
     "evidence_transport": "C01 actual diff,new substantive test,receipt and compact output/JUnit bytes obtained and alldeclaredhashesverified; full author removal trace unavailable; necessary exact control to rerun only",
@@ -535,7 +879,12 @@
       "base": "8db01b1076e425b7998b05a658776c991b7bd594",
       "tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
       "branch": "codex/e02-unified-local-20261009"
-    }
+    },
+    "last_full_list_at": "2026-10-27T22:23:22.051984+00:00",
+    "confirmed_created_count": 30,
+    "create_outcome_unknown": [
+      "C34"
+    ]
   },
   "local_runs": [
     {
@@ -567,6 +916,604 @@
       "rss_bytes": 1769553920,
       "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/R1-child-native-receipt.json",
       "full_R1_closed": false
+    },
+    {
+      "case": "c02-c03-native-exec-r1-20261027",
+      "source": "a8021d8aee165e6f9618d19c78a6f93104844bea",
+      "source_tree": "cf25773a6b0e0acbd37d444a22c609f1e730c894",
+      "result": "command_failed",
+      "exit": 1,
+      "counts": {
+        "tests": 21,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "wall_seconds": 29.300934416998643,
+      "rss_bytes": 1201176576,
+      "loaded_python_paths": 1831,
+      "source_mismatches": [],
+      "scope": "20PASS/1FAIL; new C03 helper double-appended generation path; fixed in83389, not accepted red",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c02-c03-native-exec-r1-20261027/audit-result.json",
+          "sha256": "812a8542b9b60945c08f5dc1f4319add4e0623394260489e90e8bd6cfc1bb143",
+          "bytes": 9892,
+          "raw_sha256": "812a8542b9b60945c08f5dc1f4319add4e0623394260489e90e8bd6cfc1bb143",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c02-c03-native-exec-r1-20261027/pytest.xml",
+          "sha256": "846d344ff4063c748127b46c88dbd1d489aa03335a68277ccf6853decc5f7975",
+          "bytes": 5019,
+          "raw_sha256": "846d344ff4063c748127b46c88dbd1d489aa03335a68277ccf6853decc5f7975",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c02-c03-native-exec-r1-20261027/c02-c03-native-exec-r1-20261027.stdout.txt",
+          "sha256": "1f8516965f91f3284b25475cb8a66d79852b2953c5f3bc87b18c4a6ff98e7643",
+          "bytes": 2222,
+          "raw_sha256": "1f8516965f91f3284b25475cb8a66d79852b2953c5f3bc87b18c4a6ff98e7643",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c02-c03-native-exec-r1-20261027/c02-c03-native-exec-r1-20261027.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c02-c03-native-exec-r1-20261027/source-profile-freeze.json",
+          "sha256": "1c3bcae9aed671a1567824055728594c5f909936204a70aba0a85c5e836270bf",
+          "bytes": 11995,
+          "raw_sha256": "1c3bcae9aed671a1567824055728594c5f909936204a70aba0a85c5e836270bf",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        }
+      ],
+      "G_acceptance": false,
+      "closure_ids": []
+    },
+    {
+      "case": "c01-repaired-native-r1-20261027",
+      "source": "382dbed6952af921a6cdf3aaf3af46599929bea2",
+      "source_tree": "84c0797d9695574fb20f29f5e5255f833fb78610",
+      "result": "command_failed",
+      "exit": 1,
+      "counts": {
+        "tests": 25,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "wall_seconds": 65.58461912497296,
+      "rss_bytes": 1245331456,
+      "loaded_python_paths": 1879,
+      "source_mismatches": [],
+      "scope": "23PASS/2FAIL; old quality fixtures lacked typed DataSnapshot edges; fixed c9b7; inherited status not_established",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-repaired-native-r1-20261027/audit-result.json",
+          "sha256": "b39ffcd5d63dacb667f98ce5c1d82e4f4c0ed38d3d5a29a97d7dc3dd8ad239a7",
+          "bytes": 5346,
+          "raw_sha256": "b39ffcd5d63dacb667f98ce5c1d82e4f4c0ed38d3d5a29a97d7dc3dd8ad239a7",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-repaired-native-r1-20261027/pytest.xml",
+          "sha256": "fe799cd1d01d6d82958d2767e529e12de84f245e901f172bec5c7e98e4ee941e",
+          "bytes": 5690,
+          "raw_sha256": "fe799cd1d01d6d82958d2767e529e12de84f245e901f172bec5c7e98e4ee941e",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-repaired-native-r1-20261027/c01-repaired-native-r1-20261027.stdout.txt",
+          "sha256": "fadc26c52e28a64496bce0060e5486940caea292397fcc83c5c9f28958f9ae00",
+          "bytes": 2044,
+          "raw_sha256": "fadc26c52e28a64496bce0060e5486940caea292397fcc83c5c9f28958f9ae00",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-repaired-native-r1-20261027/c01-repaired-native-r1-20261027.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-repaired-native-r1-20261027/source-profile-freeze.json",
+          "sha256": "14eb1a28e850cea2534f6062c2202d61ab45ab3e4b0f459cbc27a043dce9da65",
+          "bytes": 9450,
+          "raw_sha256": "14eb1a28e850cea2534f6062c2202d61ab45ab3e4b0f459cbc27a043dce9da65",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        }
+      ],
+      "G_acceptance": false,
+      "closure_ids": []
+    },
+    {
+      "case": "c01-c03-corrected-native-r2-20261027",
+      "source": "ce3bcbbec3643ecba2b0017a7c99c230c2935ba4",
+      "source_tree": "1f567740f377cbc7a5642396ab8210affafac83d",
+      "result": "passed",
+      "exit": 0,
+      "counts": {
+        "tests": 26,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "wall_seconds": 44.86155908298679,
+      "rss_bytes": 1245839360,
+      "loaded_python_paths": 1884,
+      "source_mismatches": [],
+      "scope": "26PASS; C01 full two modules including28 HTTP scenarios, C03 one real NPZ/HNSW selected-generation test",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-c03-corrected-native-r2-20261027/audit-result.json",
+          "sha256": "6c4324dc47e961b5c3993dffc6f9fb67e2596fd044564dc8f4920107de7ff6f0",
+          "bytes": 5679,
+          "raw_sha256": "6c4324dc47e961b5c3993dffc6f9fb67e2596fd044564dc8f4920107de7ff6f0",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-c03-corrected-native-r2-20261027/pytest.xml",
+          "sha256": "b9ff019b9244f2a06d838dcf5e20250619080287e997f369ada38022e99db369",
+          "bytes": 5111,
+          "raw_sha256": "b9ff019b9244f2a06d838dcf5e20250619080287e997f369ada38022e99db369",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-c03-corrected-native-r2-20261027/c01-c03-corrected-native-r2-20261027.stdout.txt",
+          "sha256": "4e1c0afad9f3c3d40d71bf96c574efb8d414dc0218ce47622dc1ed59e5ca29b6",
+          "bytes": 667,
+          "raw_sha256": "4e1c0afad9f3c3d40d71bf96c574efb8d414dc0218ce47622dc1ed59e5ca29b6",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-c03-corrected-native-r2-20261027/c01-c03-corrected-native-r2-20261027.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-c03-corrected-native-r2-20261027/source-profile-freeze.json",
+          "sha256": "2288bffd2a157e4f802046243eb6075e7722f0737a6f75fb2f84a0b2998603e3",
+          "bytes": 9786,
+          "raw_sha256": "2288bffd2a157e4f802046243eb6075e7722f0737a6f75fb2f84a0b2998603e3",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        }
+      ],
+      "G_acceptance": false,
+      "closure_ids": []
+    },
+    {
+      "case": "c01-profile-removal-exec-r1-20261027",
+      "source": "ce3bcbbec3643ecba2b0017a7c99c230c2935ba4",
+      "source_tree": "1f567740f377cbc7a5642396ab8210affafac83d",
+      "result": "command_failed",
+      "exit": 1,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "wall_seconds": 22.95186683299835,
+      "rss_bytes": 1235189760,
+      "loaded_python_paths": 1840,
+      "source_mismatches": [],
+      "scope": "expected FAIL after A/A: profile mismatch accepted200 instead409",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-profile-removal-exec-r1-20261027/audit-result.json",
+          "sha256": "75e6ea0afa046ebbd4be4821c4dcc6b304eb2a50cc441747621e62ef4cd15b8e",
+          "bytes": 6602,
+          "raw_sha256": "75e6ea0afa046ebbd4be4821c4dcc6b304eb2a50cc441747621e62ef4cd15b8e",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-profile-removal-exec-r1-20261027/pytest.xml",
+          "sha256": "c4e6125f9bab323d703b42ab06a3cda08e1dc7eea5b69d393d03f157108dcede",
+          "bytes": 4919,
+          "raw_sha256": "c4e6125f9bab323d703b42ab06a3cda08e1dc7eea5b69d393d03f157108dcede",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-profile-removal-exec-r1-20261027/c01-profile-removal-exec-r1-20261027.stdout.txt",
+          "sha256": "0a1b3e62cc21e4ab077031482d6d73932862c4cee65e7ca2f9f1a84b40b04907",
+          "bytes": 5216,
+          "raw_sha256": "0a1b3e62cc21e4ab077031482d6d73932862c4cee65e7ca2f9f1a84b40b04907",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-profile-removal-exec-r1-20261027/c01-profile-removal-exec-r1-20261027.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-profile-removal-exec-r1-20261027/source-profile-freeze.json",
+          "sha256": "5a4f537727276f26797f65f8c10a637b04f84e0931cf307d04f2fcdd493e2dd2",
+          "bytes": 10534,
+          "raw_sha256": "5a4f537727276f26797f65f8c10a637b04f84e0931cf307d04f2fcdd493e2dd2",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-profile-removal-exec-r1-20261027/control-mutation.json",
+          "sha256": "280303a6bc1e789e43264491ca8349b711b5b673a8ba0ed4eda7121751b09bca",
+          "bytes": 5054,
+          "raw_sha256": "280303a6bc1e789e43264491ca8349b711b5b673a8ba0ed4eda7121751b09bca",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-profile-removal-exec-r1-20261027/active-control.py",
+          "sha256": "1a3416d1095c302387e7ae5257297743455bcf6c1776ef89d3989da4f02a4e40",
+          "bytes": 538,
+          "raw_sha256": "1a3416d1095c302387e7ae5257297743455bcf6c1776ef89d3989da4f02a4e40",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        }
+      ],
+      "G_acceptance": false,
+      "closure_ids": []
+    },
+    {
+      "case": "c01-ambiguity-removal-exec-r1-20261027",
+      "source": "ce3bcbbec3643ecba2b0017a7c99c230c2935ba4",
+      "source_tree": "1f567740f377cbc7a5642396ab8210affafac83d",
+      "result": "command_failed",
+      "exit": 1,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "wall_seconds": 26.12817854201421,
+      "rss_bytes": 1241137152,
+      "loaded_python_paths": 1840,
+      "source_mismatches": [],
+      "scope": "expected FAIL after A/A: duplicate alias accepted200 instead409",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-ambiguity-removal-exec-r1-20261027/audit-result.json",
+          "sha256": "6cb8fc5ab617e08c83b9bfc8c4d10e3bcd3df60bc8e3e953cf954a2f218ef5a8",
+          "bytes": 6630,
+          "raw_sha256": "6cb8fc5ab617e08c83b9bfc8c4d10e3bcd3df60bc8e3e953cf954a2f218ef5a8",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-ambiguity-removal-exec-r1-20261027/pytest.xml",
+          "sha256": "1c1471df171223adeab97558a54ab7c1bf30625b02cdfc2f58b5e184f56600a7",
+          "bytes": 4935,
+          "raw_sha256": "1c1471df171223adeab97558a54ab7c1bf30625b02cdfc2f58b5e184f56600a7",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-ambiguity-removal-exec-r1-20261027/c01-ambiguity-removal-exec-r1-20261027.stdout.txt",
+          "sha256": "62b654587de944ebeb69bbd96bda16297b537ba3a0117706889ff1acf12c6f1e",
+          "bytes": 5231,
+          "raw_sha256": "62b654587de944ebeb69bbd96bda16297b537ba3a0117706889ff1acf12c6f1e",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-ambiguity-removal-exec-r1-20261027/c01-ambiguity-removal-exec-r1-20261027.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-ambiguity-removal-exec-r1-20261027/source-profile-freeze.json",
+          "sha256": "20cbaa2e16acfcfe1b3b9fce5203432ee8c4cbc9f791f09ee74dc37a464c0405",
+          "bytes": 10568,
+          "raw_sha256": "20cbaa2e16acfcfe1b3b9fce5203432ee8c4cbc9f791f09ee74dc37a464c0405",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-ambiguity-removal-exec-r1-20261027/control-mutation.json",
+          "sha256": "cf12561d9265f6685427cf95b1091414b4bed652a40d0c96ce12c4f4519c1966",
+          "bytes": 10375,
+          "raw_sha256": "cf12561d9265f6685427cf95b1091414b4bed652a40d0c96ce12c4f4519c1966",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-ambiguity-removal-exec-r1-20261027/active-control.py",
+          "sha256": "e039317e8850ce09ff0b3b3a5454a74fe4560d21200662458075ffc62f1b8568",
+          "bytes": 1037,
+          "raw_sha256": "e039317e8850ce09ff0b3b3a5454a74fe4560d21200662458075ffc62f1b8568",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        }
+      ],
+      "G_acceptance": false,
+      "closure_ids": []
+    },
+    {
+      "case": "c09-normal-n7-diagnostic-native-r1-20261027",
+      "source": "ce3bcbbec3643ecba2b0017a7c99c230c2935ba4",
+      "source_tree": "1f567740f377cbc7a5642396ab8210affafac83d",
+      "result": "command_failed",
+      "exit": 1,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "wall_seconds": 23.975742165988777,
+      "rss_bytes": 1172832256,
+      "loaded_python_paths": 1843,
+      "source_mismatches": [],
+      "scope": "FAIL before planner: n6.acquisition.n7_substrate_registry_unresolved; zero planner reports; nested causal detail not established",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c09-normal-n7-diagnostic-native-r1-20261027/audit-result.json",
+          "sha256": "3a026e4855a5dbe38ab6ffc385a3f9151596916b02bfa9bb4f1a95ef6f94caed",
+          "bytes": 5586,
+          "raw_sha256": "3a026e4855a5dbe38ab6ffc385a3f9151596916b02bfa9bb4f1a95ef6f94caed",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c09-normal-n7-diagnostic-native-r1-20261027/pytest.xml",
+          "sha256": "97d2c1323fab4a347a9a60c9c637a6f291745ded0297040c6ace61975b8c60bf",
+          "bytes": 3401,
+          "raw_sha256": "97d2c1323fab4a347a9a60c9c637a6f291745ded0297040c6ace61975b8c60bf",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c09-normal-n7-diagnostic-native-r1-20261027/c09-normal-n7-diagnostic-native-r1-20261027.stdout.txt",
+          "sha256": "047376574e99653c59812f19ed845487455e803f24fbce5d9bb6a8e9402d04cb",
+          "bytes": 4372,
+          "raw_sha256": "047376574e99653c59812f19ed845487455e803f24fbce5d9bb6a8e9402d04cb",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c09-normal-n7-diagnostic-native-r1-20261027/c09-normal-n7-diagnostic-native-r1-20261027.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c09-normal-n7-diagnostic-native-r1-20261027/source-profile-freeze.json",
+          "sha256": "9ad7eee097f710c516cef692032cb9795268401adfe005582a2bb6b3dc96af39",
+          "bytes": 9558,
+          "raw_sha256": "9ad7eee097f710c516cef692032cb9795268401adfe005582a2bb6b3dc96af39",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        }
+      ],
+      "G_acceptance": false,
+      "closure_ids": []
+    },
+    {
+      "case": "c06-selected-profile-base-red-r1-20261027",
+      "source": "a323bc00dbee813ba7a364639862f54eebd82f50",
+      "source_tree": "dc6c4309a15c9c4ed4817a8ec3c00e1c2a5337b9",
+      "result": "command_failed",
+      "exit": 1,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "wall_seconds": 19.874831875000382,
+      "rss_bytes": 885161984,
+      "loaded_python_paths": 901,
+      "source_mismatches": [],
+      "scope": "intended FAIL: actual same-kind alternate selected profile incorrectly admitted to history; dimensionless MethodJob with explicit test-only stage unit bridge",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c06-selected-profile-base-red-r1-20261027/audit-result.json",
+          "sha256": "d6489be770bb8e45c8471d1052f4a239509760c48e90ae58a8e6ad5cfae98cf9",
+          "bytes": 5476,
+          "raw_sha256": "d6489be770bb8e45c8471d1052f4a239509760c48e90ae58a8e6ad5cfae98cf9",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c06-selected-profile-base-red-r1-20261027/pytest.xml",
+          "sha256": "d6ff9ccd6f152b8dc94d71c783dc0ba5ca3c60f6c54604eb1c7f485dc2050831",
+          "bytes": 1516,
+          "raw_sha256": "d6ff9ccd6f152b8dc94d71c783dc0ba5ca3c60f6c54604eb1c7f485dc2050831",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c06-selected-profile-base-red-r1-20261027/c06-selected-profile-base-red-r1-20261027.stdout.txt",
+          "sha256": "a966112d5bc41d1af1c1a3f694ab818ad7fe0d1a5f59af6601ad4ff97f986cf0",
+          "bytes": 4074,
+          "raw_sha256": "a966112d5bc41d1af1c1a3f694ab818ad7fe0d1a5f59af6601ad4ff97f986cf0",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c06-selected-profile-base-red-r1-20261027/c06-selected-profile-base-red-r1-20261027.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c06-selected-profile-base-red-r1-20261027/source-profile-freeze.json",
+          "sha256": "57f3db8cf85e706778de989b57336ed14c7b34a94009161e766ee9aba02836dd",
+          "bytes": 9467,
+          "raw_sha256": "57f3db8cf85e706778de989b57336ed14c7b34a94009161e766ee9aba02836dd",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        }
+      ],
+      "G_acceptance": false,
+      "closure_ids": []
+    },
+    {
+      "case": "c11-capacity-base-red-r1-20261027",
+      "source": "a323bc00dbee813ba7a364639862f54eebd82f50",
+      "source_tree": "dc6c4309a15c9c4ed4817a8ec3c00e1c2a5337b9",
+      "result": "command_failed",
+      "exit": 1,
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "wall_seconds": 37.664492792013334,
+      "rss_bytes": 1678049280,
+      "loaded_python_paths": 1798,
+      "source_mismatches": [],
+      "scope": "intended FAIL: real guarded renewal RuntimeDependencyUnavailableError while compute held",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c11-capacity-base-red-r1-20261027/audit-result.json",
+          "sha256": "34135f26c63e89de885eda9de44bb02cc8c423d58229ffe0fef6e44050c65512",
+          "bytes": 5418,
+          "raw_sha256": "34135f26c63e89de885eda9de44bb02cc8c423d58229ffe0fef6e44050c65512",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c11-capacity-base-red-r1-20261027/pytest.xml",
+          "sha256": "2097c27b9c6fb962adf5706a68b7fd9e032acf236a5fd53e15d03e5ba5440d2a",
+          "bytes": 1569,
+          "raw_sha256": "2097c27b9c6fb962adf5706a68b7fd9e032acf236a5fd53e15d03e5ba5440d2a",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c11-capacity-base-red-r1-20261027/c11-capacity-base-red-r1-20261027.stdout.txt",
+          "sha256": "e2a46b77f1080d986e4b77e5f892bfccf8985c308c59d72c7746ea02234452c5",
+          "bytes": 2187,
+          "raw_sha256": "e2a46b77f1080d986e4b77e5f892bfccf8985c308c59d72c7746ea02234452c5",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c11-capacity-base-red-r1-20261027/c11-capacity-base-red-r1-20261027.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c11-capacity-base-red-r1-20261027/source-profile-freeze.json",
+          "sha256": "4b82d8da87f1a256b1e6a26796492ca90a9aad8ff108b72c215e504606adb55c",
+          "bytes": 9363,
+          "raw_sha256": "4b82d8da87f1a256b1e6a26796492ca90a9aad8ff108b72c215e504606adb55c",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        }
+      ],
+      "G_acceptance": false,
+      "closure_ids": []
+    },
+    {
+      "case": "c11-reserved-capacity-positive-native-r1-20261027",
+      "source": "bc90f9cc41ea606d60fb588790d5355cd7aa882d",
+      "source_tree": "46d766f0eaf4fe315e68ac03de27ad55087e8abd",
+      "result": "passed",
+      "exit": 0,
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "wall_seconds": 37.79299600000377,
+      "rss_bytes": 1693171712,
+      "loaded_python_paths": 1798,
+      "source_mismatches": [],
+      "scope": "1PASS: held-compute renewal, stale fencing refusal, current worker real CAS and fresh terminal/outbox",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c11-reserved-capacity-positive-native-r1-20261027/audit-result.json",
+          "sha256": "a07521d2de423a0fe4ed6091d9fc07e067da3852e07bf3e1bf0048ef47543af4",
+          "bytes": 5634,
+          "raw_sha256": "a07521d2de423a0fe4ed6091d9fc07e067da3852e07bf3e1bf0048ef47543af4",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c11-reserved-capacity-positive-native-r1-20261027/pytest.xml",
+          "sha256": "5e6ec06280b7b4419395a1ebbed354190aae01f114f56be2ffc07f0313114e5a",
+          "bytes": 452,
+          "raw_sha256": "5e6ec06280b7b4419395a1ebbed354190aae01f114f56be2ffc07f0313114e5a",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c11-reserved-capacity-positive-native-r1-20261027/c11-reserved-capacity-positive-native-r1-20261027.stdout.txt",
+          "sha256": "9993a548d3efd4a7d19c684ed2951e3c1bfc12752dfb39994e8747d7878fd8f2",
+          "bytes": 678,
+          "raw_sha256": "9993a548d3efd4a7d19c684ed2951e3c1bfc12752dfb39994e8747d7878fd8f2",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c11-reserved-capacity-positive-native-r1-20261027/c11-reserved-capacity-positive-native-r1-20261027.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c11-reserved-capacity-positive-native-r1-20261027/source-profile-freeze.json",
+          "sha256": "562f7bdb1c16ce4fc452785220a32f088c6428ea010a3c8443f386a62d53b2f0",
+          "bytes": 9632,
+          "raw_sha256": "562f7bdb1c16ce4fc452785220a32f088c6428ea010a3c8443f386a62d53b2f0",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        }
+      ],
+      "G_acceptance": false,
+      "closure_ids": []
+    },
+    {
+      "case": "c08-codec-fence-and-legacy-consumers-native-r1-20261027",
+      "source": "9c39de4a865542f8dec6f0d0adf9b653b10fc92c",
+      "source_tree": "7a462fdb0e9362e1abe234c16d2bc5ce73ff5fd1",
+      "result": "passed",
+      "exit": 0,
+      "counts": {
+        "tests": 168,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "wall_seconds": 5.234205667016795,
+      "rss_bytes": 243171328,
+      "loaded_python_paths": 191,
+      "source_mismatches": [],
+      "scope": "168PASS: bounded CAN3 semantics/spec intake/writer fence plus legacy Common/Core/IR and C03 requalification; physical budget remains C31",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c08-codec-fence-and-legacy-consumers-native-r1-20261027/audit-result.json",
+          "sha256": "7c0a5ab8b106d4b1c51ea5153ece1f24941eb026796ff926225cfd9b1aa30ce1",
+          "bytes": 6769,
+          "raw_sha256": "7c0a5ab8b106d4b1c51ea5153ece1f24941eb026796ff926225cfd9b1aa30ce1",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c08-codec-fence-and-legacy-consumers-native-r1-20261027/pytest.xml",
+          "sha256": "d14b8f2b7a6b58b78cc0ca6cfc4a88c7249c6de287155e0188003bdee9235d4b",
+          "bytes": 28278,
+          "raw_sha256": "d14b8f2b7a6b58b78cc0ca6cfc4a88c7249c6de287155e0188003bdee9235d4b",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c08-codec-fence-and-legacy-consumers-native-r1-20261027/c08-codec-fence-and-legacy-consumers-native-r1-20261027.stdout.txt",
+          "sha256": "a9cf29acc00327b757f90b6bacad34d85bcc21c69983f396fb5f4f1ad4b65604",
+          "bytes": 844,
+          "raw_sha256": "a9cf29acc00327b757f90b6bacad34d85bcc21c69983f396fb5f4f1ad4b65604",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c08-codec-fence-and-legacy-consumers-native-r1-20261027/c08-codec-fence-and-legacy-consumers-native-r1-20261027.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c08-codec-fence-and-legacy-consumers-native-r1-20261027/source-profile-freeze.json",
+          "sha256": "86b34252c35d4328e03dfa8b0f90ebaf584392abe8af1cf9bcb1503374819823",
+          "bytes": 11563,
+          "raw_sha256": "86b34252c35d4328e03dfa8b0f90ebaf584392abe8af1cf9bcb1503374819823",
+          "class": "A deciding output/custody; lossless gzip when named .gz"
+        }
+      ],
+      "G_acceptance": false,
+      "closure_ids": []
     }
   ],
   "completed_author_results": [
@@ -588,9 +1535,10 @@
       "received_candidate_tree": "702e63a258178beca7fe689937eb313ba341a7ee",
       "received_diff_sha256": "5923983e72ae264389aebdaa6bff769ac23f2f903f90f717247e1273b8735ebf",
       "scope": "test-only checkpoint/recovery regression",
-      "source_review": "GO bounded",
-      "local_runtime": "UNRUN until native replay",
-      "G_acceptance": false
+      "source_review": "GO bounded; see exact sparse manifests/reviews",
+      "local_runtime": "13cases PASS in initial21case run",
+      "G_acceptance": false,
+      "composition_commit": "83389bc48ca0e1cf17294e7846c9342f9600f83d"
     },
     {
       "slice": "C03",
@@ -598,23 +1546,61 @@
       "received_candidate_tree": "db9e81b62d0cd23be298fcbe6a86d5392f9181fa",
       "received_diff_sha256": "1c44dc67f6f716ef308c749d2427aa160cb99df85bc47b1bdf65c9914418149f",
       "scope": "test-only Legal legacy vector regression",
-      "source_review": "GO bounded",
-      "local_runtime": "UNRUN until native replay",
-      "G_acceptance": false
+      "source_review": "GO bounded; see exact sparse manifests/reviews",
+      "local_runtime": "real selected-generation case PASS twice including9c39 C08 requalification; removal UNRUN",
+      "G_acceptance": false,
+      "composition_commit": "83389bc48ca0e1cf17294e7846c9342f9600f83d"
     },
     {
       "slice": "C01",
       "input": "8db01b1076e425b7998b05a658776c991b7bd594",
       "received_candidate_tree": "ed17cc148eec3a9da75d1f6dc371967667166e17",
       "repair_manifest_sha256": "226f96d4beb10f9a4599d5a0c222f2432916246b305b43ee2af853b93335b371",
-      "source_review": "GO after unique named-row intake",
+      "source_review": "GO bounded; see exact sparse manifests/reviews",
       "old_source_discriminator": {
         "source": "9558d2da71f7bc067267f7b270ac472778ac8e94",
         "outcome": "intended FAIL: A/Adefault+explicitpassed before A/Breturned200instead409",
         "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-c01-original-red-20261027/audit-result.json"
       },
       "local_repaired_runtime": "UNRUN",
+      "G_acceptance": false,
+      "composition_commit": "c9b7f75f7f938cddd71966090ae1588ea146a4a5",
+      "local_runtime": "26case joint PASS includes C01; two expected removal FAILs; B13 separate"
+    },
+    {
+      "slice": "C09",
+      "composition_commit": "ce3bcbbec3643ecba2b0017a7c99c230c2935ba4",
+      "local_runtime": "diagnostic fields only; ordinary N7 FAIL before planner; C32 pending",
+      "source_review": "GO bounded; see exact sparse manifests/reviews",
+      "G_acceptance": false
+    },
+    {
+      "slice": "C11",
+      "composition_commit": "bc90f9cc41ea606d60fb588790d5355cd7aa882d",
+      "local_runtime": "oldbase intended red, new held-compute guarded-renewal PASS; cancellation separate C23",
+      "source_review": "GO bounded; see exact sparse manifests/reviews",
+      "G_acceptance": false
+    },
+    {
+      "slice": "C08",
+      "composition_commit": "9c39de4a865542f8dec6f0d0adf9b653b10fc92c",
+      "local_runtime": "168PASS bounded semantics/spec intake/writer fence; full physical/resource/readers C31 pending",
+      "source_review": "GO bounded; see exact sparse manifests/reviews",
       "G_acceptance": false
     }
-  ]
+  ],
+  "source_checkpoint": {
+    "commit": "9c39de4a865542f8dec6f0d0adf9b653b10fc92c",
+    "tree": "7a462fdb0e9362e1abe234c16d2bc5ce73ff5fd1",
+    "scope": "source before this documentation-only checkpoint"
+  },
+  "preservation_incident": {
+    "scope": "2 canonical tests had9 old ignored Scholar overlay aliases each; in-place earlier writes changed alias bytes",
+    "canonical_detached_preserving_current_bytes": true,
+    "aliases_restored": false,
+    "creation_bytes": "not_established; declared baseline is not creation-byte proof",
+    "audit": "preservation-hardlinks.md",
+    "future_writes": "new-inode atomic replacement; no truncate existing tracked paths",
+    "runtime_output_impact": "not_established; no whole handover/data loss claim"
+  }
 }

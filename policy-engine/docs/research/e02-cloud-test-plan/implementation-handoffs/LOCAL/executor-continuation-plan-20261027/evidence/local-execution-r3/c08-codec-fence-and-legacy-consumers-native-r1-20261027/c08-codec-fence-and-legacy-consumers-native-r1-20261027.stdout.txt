@@ -1,0 +1,5 @@
+........................................................................ [ 42%]
+........................................................................ [ 85%]
+........................                                                 [100%]R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 191, "phase": "driver", "pid": 54630, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c08-codec-fence-and-legacy-consumers-native-r1-20261027/readsets/input-readset-54630.json", "source_module_count": 168, "test_module_count": 23, "tools_module_count": 0}
+
+168 passed in 2.29s

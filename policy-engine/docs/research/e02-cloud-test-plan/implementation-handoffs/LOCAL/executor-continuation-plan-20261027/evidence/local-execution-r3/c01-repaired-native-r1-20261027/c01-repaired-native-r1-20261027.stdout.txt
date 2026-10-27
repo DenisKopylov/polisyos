@@ -1,0 +1,17 @@
+.........FF..............                                                [100%]R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 1879, "phase": "driver", "pid": 13529, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c01-repaired-native-r1-20261027/readsets/input-readset-13529.json", "source_module_count": 1869, "test_module_count": 10, "tools_module_count": 0}
+
+=================================== FAILURES ===================================
+_ test_evidence_context_preserves_quality_ref_selected_by_snapshot[fabric.retrieval_summary-quality_schema0-quality_payload0] _
+tests/unit/runtime/http/test_debug_api.py:439: in test_evidence_context_preserves_quality_ref_selected_by_snapshot
+    selected_quality_ref = context.materialization_refs["quality_report_ref"]
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'quality_report_ref'
+_ test_evidence_context_preserves_quality_ref_selected_by_snapshot[fabric.quality_report-quality_schema1-quality_payload1] _
+tests/unit/runtime/http/test_debug_api.py:439: in test_evidence_context_preserves_quality_ref_selected_by_snapshot
+    selected_quality_ref = context.materialization_refs["quality_report_ref"]
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'quality_report_ref'
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/http/test_debug_api.py::test_evidence_context_preserves_quality_ref_selected_by_snapshot[fabric.retrieval_summary-quality_schema0-quality_payload0]
+FAILED tests/unit/runtime/http/test_debug_api.py::test_evidence_context_preserves_quality_ref_selected_by_snapshot[fabric.quality_report-quality_schema1-quality_payload1]
+2 failed, 23 passed in 30.75s

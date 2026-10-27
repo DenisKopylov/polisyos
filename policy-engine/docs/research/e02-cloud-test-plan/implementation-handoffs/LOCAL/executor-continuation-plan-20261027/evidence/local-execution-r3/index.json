@@ -1,0 +1,398 @@
+{
+  "source_before_docs": "9c39de4a865542f8dec6f0d0adf9b653b10fc92c",
+  "tree_before_docs": "7a462fdb0e9362e1abe234c16d2bc5ce73ff5fd1",
+  "cases": [
+    "c02-c03-native-exec-r1-20261027",
+    "c01-repaired-native-r1-20261027",
+    "c01-c03-corrected-native-r2-20261027",
+    "c01-profile-removal-exec-r1-20261027",
+    "c01-ambiguity-removal-exec-r1-20261027",
+    "c09-normal-n7-diagnostic-native-r1-20261027",
+    "c06-selected-profile-base-red-r1-20261027",
+    "c11-capacity-base-red-r1-20261027",
+    "c11-reserved-capacity-positive-native-r1-20261027",
+    "c08-codec-fence-and-legacy-consumers-native-r1-20261027"
+  ],
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c02-c03-native-exec-r1-20261027/audit-result.json",
+      "sha256": "812a8542b9b60945c08f5dc1f4319add4e0623394260489e90e8bd6cfc1bb143",
+      "bytes": 9892,
+      "raw_sha256": "812a8542b9b60945c08f5dc1f4319add4e0623394260489e90e8bd6cfc1bb143",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c02-c03-native-exec-r1-20261027/pytest.xml",
+      "sha256": "846d344ff4063c748127b46c88dbd1d489aa03335a68277ccf6853decc5f7975",
+      "bytes": 5019,
+      "raw_sha256": "846d344ff4063c748127b46c88dbd1d489aa03335a68277ccf6853decc5f7975",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c02-c03-native-exec-r1-20261027/c02-c03-native-exec-r1-20261027.stdout.txt",
+      "sha256": "1f8516965f91f3284b25475cb8a66d79852b2953c5f3bc87b18c4a6ff98e7643",
+      "bytes": 2222,
+      "raw_sha256": "1f8516965f91f3284b25475cb8a66d79852b2953c5f3bc87b18c4a6ff98e7643",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c02-c03-native-exec-r1-20261027/c02-c03-native-exec-r1-20261027.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c02-c03-native-exec-r1-20261027/source-profile-freeze.json",
+      "sha256": "1c3bcae9aed671a1567824055728594c5f909936204a70aba0a85c5e836270bf",
+      "bytes": 11995,
+      "raw_sha256": "1c3bcae9aed671a1567824055728594c5f909936204a70aba0a85c5e836270bf",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-repaired-native-r1-20261027/audit-result.json",
+      "sha256": "b39ffcd5d63dacb667f98ce5c1d82e4f4c0ed38d3d5a29a97d7dc3dd8ad239a7",
+      "bytes": 5346,
+      "raw_sha256": "b39ffcd5d63dacb667f98ce5c1d82e4f4c0ed38d3d5a29a97d7dc3dd8ad239a7",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-repaired-native-r1-20261027/pytest.xml",
+      "sha256": "fe799cd1d01d6d82958d2767e529e12de84f245e901f172bec5c7e98e4ee941e",
+      "bytes": 5690,
+      "raw_sha256": "fe799cd1d01d6d82958d2767e529e12de84f245e901f172bec5c7e98e4ee941e",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-repaired-native-r1-20261027/c01-repaired-native-r1-20261027.stdout.txt",
+      "sha256": "fadc26c52e28a64496bce0060e5486940caea292397fcc83c5c9f28958f9ae00",
+      "bytes": 2044,
+      "raw_sha256": "fadc26c52e28a64496bce0060e5486940caea292397fcc83c5c9f28958f9ae00",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-repaired-native-r1-20261027/c01-repaired-native-r1-20261027.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-repaired-native-r1-20261027/source-profile-freeze.json",
+      "sha256": "14eb1a28e850cea2534f6062c2202d61ab45ab3e4b0f459cbc27a043dce9da65",
+      "bytes": 9450,
+      "raw_sha256": "14eb1a28e850cea2534f6062c2202d61ab45ab3e4b0f459cbc27a043dce9da65",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-c03-corrected-native-r2-20261027/audit-result.json",
+      "sha256": "6c4324dc47e961b5c3993dffc6f9fb67e2596fd044564dc8f4920107de7ff6f0",
+      "bytes": 5679,
+      "raw_sha256": "6c4324dc47e961b5c3993dffc6f9fb67e2596fd044564dc8f4920107de7ff6f0",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-c03-corrected-native-r2-20261027/pytest.xml",
+      "sha256": "b9ff019b9244f2a06d838dcf5e20250619080287e997f369ada38022e99db369",
+      "bytes": 5111,
+      "raw_sha256": "b9ff019b9244f2a06d838dcf5e20250619080287e997f369ada38022e99db369",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-c03-corrected-native-r2-20261027/c01-c03-corrected-native-r2-20261027.stdout.txt",
+      "sha256": "4e1c0afad9f3c3d40d71bf96c574efb8d414dc0218ce47622dc1ed59e5ca29b6",
+      "bytes": 667,
+      "raw_sha256": "4e1c0afad9f3c3d40d71bf96c574efb8d414dc0218ce47622dc1ed59e5ca29b6",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-c03-corrected-native-r2-20261027/c01-c03-corrected-native-r2-20261027.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-c03-corrected-native-r2-20261027/source-profile-freeze.json",
+      "sha256": "2288bffd2a157e4f802046243eb6075e7722f0737a6f75fb2f84a0b2998603e3",
+      "bytes": 9786,
+      "raw_sha256": "2288bffd2a157e4f802046243eb6075e7722f0737a6f75fb2f84a0b2998603e3",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-profile-removal-exec-r1-20261027/audit-result.json",
+      "sha256": "75e6ea0afa046ebbd4be4821c4dcc6b304eb2a50cc441747621e62ef4cd15b8e",
+      "bytes": 6602,
+      "raw_sha256": "75e6ea0afa046ebbd4be4821c4dcc6b304eb2a50cc441747621e62ef4cd15b8e",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-profile-removal-exec-r1-20261027/pytest.xml",
+      "sha256": "c4e6125f9bab323d703b42ab06a3cda08e1dc7eea5b69d393d03f157108dcede",
+      "bytes": 4919,
+      "raw_sha256": "c4e6125f9bab323d703b42ab06a3cda08e1dc7eea5b69d393d03f157108dcede",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-profile-removal-exec-r1-20261027/c01-profile-removal-exec-r1-20261027.stdout.txt",
+      "sha256": "0a1b3e62cc21e4ab077031482d6d73932862c4cee65e7ca2f9f1a84b40b04907",
+      "bytes": 5216,
+      "raw_sha256": "0a1b3e62cc21e4ab077031482d6d73932862c4cee65e7ca2f9f1a84b40b04907",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-profile-removal-exec-r1-20261027/c01-profile-removal-exec-r1-20261027.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-profile-removal-exec-r1-20261027/source-profile-freeze.json",
+      "sha256": "5a4f537727276f26797f65f8c10a637b04f84e0931cf307d04f2fcdd493e2dd2",
+      "bytes": 10534,
+      "raw_sha256": "5a4f537727276f26797f65f8c10a637b04f84e0931cf307d04f2fcdd493e2dd2",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-profile-removal-exec-r1-20261027/control-mutation.json",
+      "sha256": "280303a6bc1e789e43264491ca8349b711b5b673a8ba0ed4eda7121751b09bca",
+      "bytes": 5054,
+      "raw_sha256": "280303a6bc1e789e43264491ca8349b711b5b673a8ba0ed4eda7121751b09bca",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-profile-removal-exec-r1-20261027/active-control.py",
+      "sha256": "1a3416d1095c302387e7ae5257297743455bcf6c1776ef89d3989da4f02a4e40",
+      "bytes": 538,
+      "raw_sha256": "1a3416d1095c302387e7ae5257297743455bcf6c1776ef89d3989da4f02a4e40",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-ambiguity-removal-exec-r1-20261027/audit-result.json",
+      "sha256": "6cb8fc5ab617e08c83b9bfc8c4d10e3bcd3df60bc8e3e953cf954a2f218ef5a8",
+      "bytes": 6630,
+      "raw_sha256": "6cb8fc5ab617e08c83b9bfc8c4d10e3bcd3df60bc8e3e953cf954a2f218ef5a8",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-ambiguity-removal-exec-r1-20261027/pytest.xml",
+      "sha256": "1c1471df171223adeab97558a54ab7c1bf30625b02cdfc2f58b5e184f56600a7",
+      "bytes": 4935,
+      "raw_sha256": "1c1471df171223adeab97558a54ab7c1bf30625b02cdfc2f58b5e184f56600a7",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-ambiguity-removal-exec-r1-20261027/c01-ambiguity-removal-exec-r1-20261027.stdout.txt",
+      "sha256": "62b654587de944ebeb69bbd96bda16297b537ba3a0117706889ff1acf12c6f1e",
+      "bytes": 5231,
+      "raw_sha256": "62b654587de944ebeb69bbd96bda16297b537ba3a0117706889ff1acf12c6f1e",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-ambiguity-removal-exec-r1-20261027/c01-ambiguity-removal-exec-r1-20261027.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-ambiguity-removal-exec-r1-20261027/source-profile-freeze.json",
+      "sha256": "20cbaa2e16acfcfe1b3b9fce5203432ee8c4cbc9f791f09ee74dc37a464c0405",
+      "bytes": 10568,
+      "raw_sha256": "20cbaa2e16acfcfe1b3b9fce5203432ee8c4cbc9f791f09ee74dc37a464c0405",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-ambiguity-removal-exec-r1-20261027/control-mutation.json",
+      "sha256": "cf12561d9265f6685427cf95b1091414b4bed652a40d0c96ce12c4f4519c1966",
+      "bytes": 10375,
+      "raw_sha256": "cf12561d9265f6685427cf95b1091414b4bed652a40d0c96ce12c4f4519c1966",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c01-ambiguity-removal-exec-r1-20261027/active-control.py",
+      "sha256": "e039317e8850ce09ff0b3b3a5454a74fe4560d21200662458075ffc62f1b8568",
+      "bytes": 1037,
+      "raw_sha256": "e039317e8850ce09ff0b3b3a5454a74fe4560d21200662458075ffc62f1b8568",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c09-normal-n7-diagnostic-native-r1-20261027/audit-result.json",
+      "sha256": "3a026e4855a5dbe38ab6ffc385a3f9151596916b02bfa9bb4f1a95ef6f94caed",
+      "bytes": 5586,
+      "raw_sha256": "3a026e4855a5dbe38ab6ffc385a3f9151596916b02bfa9bb4f1a95ef6f94caed",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c09-normal-n7-diagnostic-native-r1-20261027/pytest.xml",
+      "sha256": "97d2c1323fab4a347a9a60c9c637a6f291745ded0297040c6ace61975b8c60bf",
+      "bytes": 3401,
+      "raw_sha256": "97d2c1323fab4a347a9a60c9c637a6f291745ded0297040c6ace61975b8c60bf",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c09-normal-n7-diagnostic-native-r1-20261027/c09-normal-n7-diagnostic-native-r1-20261027.stdout.txt",
+      "sha256": "047376574e99653c59812f19ed845487455e803f24fbce5d9bb6a8e9402d04cb",
+      "bytes": 4372,
+      "raw_sha256": "047376574e99653c59812f19ed845487455e803f24fbce5d9bb6a8e9402d04cb",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c09-normal-n7-diagnostic-native-r1-20261027/c09-normal-n7-diagnostic-native-r1-20261027.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c09-normal-n7-diagnostic-native-r1-20261027/source-profile-freeze.json",
+      "sha256": "9ad7eee097f710c516cef692032cb9795268401adfe005582a2bb6b3dc96af39",
+      "bytes": 9558,
+      "raw_sha256": "9ad7eee097f710c516cef692032cb9795268401adfe005582a2bb6b3dc96af39",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c06-selected-profile-base-red-r1-20261027/audit-result.json",
+      "sha256": "d6489be770bb8e45c8471d1052f4a239509760c48e90ae58a8e6ad5cfae98cf9",
+      "bytes": 5476,
+      "raw_sha256": "d6489be770bb8e45c8471d1052f4a239509760c48e90ae58a8e6ad5cfae98cf9",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c06-selected-profile-base-red-r1-20261027/pytest.xml",
+      "sha256": "d6ff9ccd6f152b8dc94d71c783dc0ba5ca3c60f6c54604eb1c7f485dc2050831",
+      "bytes": 1516,
+      "raw_sha256": "d6ff9ccd6f152b8dc94d71c783dc0ba5ca3c60f6c54604eb1c7f485dc2050831",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c06-selected-profile-base-red-r1-20261027/c06-selected-profile-base-red-r1-20261027.stdout.txt",
+      "sha256": "a966112d5bc41d1af1c1a3f694ab818ad7fe0d1a5f59af6601ad4ff97f986cf0",
+      "bytes": 4074,
+      "raw_sha256": "a966112d5bc41d1af1c1a3f694ab818ad7fe0d1a5f59af6601ad4ff97f986cf0",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c06-selected-profile-base-red-r1-20261027/c06-selected-profile-base-red-r1-20261027.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c06-selected-profile-base-red-r1-20261027/source-profile-freeze.json",
+      "sha256": "57f3db8cf85e706778de989b57336ed14c7b34a94009161e766ee9aba02836dd",
+      "bytes": 9467,
+      "raw_sha256": "57f3db8cf85e706778de989b57336ed14c7b34a94009161e766ee9aba02836dd",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c11-capacity-base-red-r1-20261027/audit-result.json",
+      "sha256": "34135f26c63e89de885eda9de44bb02cc8c423d58229ffe0fef6e44050c65512",
+      "bytes": 5418,
+      "raw_sha256": "34135f26c63e89de885eda9de44bb02cc8c423d58229ffe0fef6e44050c65512",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c11-capacity-base-red-r1-20261027/pytest.xml",
+      "sha256": "2097c27b9c6fb962adf5706a68b7fd9e032acf236a5fd53e15d03e5ba5440d2a",
+      "bytes": 1569,
+      "raw_sha256": "2097c27b9c6fb962adf5706a68b7fd9e032acf236a5fd53e15d03e5ba5440d2a",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c11-capacity-base-red-r1-20261027/c11-capacity-base-red-r1-20261027.stdout.txt",
+      "sha256": "e2a46b77f1080d986e4b77e5f892bfccf8985c308c59d72c7746ea02234452c5",
+      "bytes": 2187,
+      "raw_sha256": "e2a46b77f1080d986e4b77e5f892bfccf8985c308c59d72c7746ea02234452c5",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c11-capacity-base-red-r1-20261027/c11-capacity-base-red-r1-20261027.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c11-capacity-base-red-r1-20261027/source-profile-freeze.json",
+      "sha256": "4b82d8da87f1a256b1e6a26796492ca90a9aad8ff108b72c215e504606adb55c",
+      "bytes": 9363,
+      "raw_sha256": "4b82d8da87f1a256b1e6a26796492ca90a9aad8ff108b72c215e504606adb55c",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c11-reserved-capacity-positive-native-r1-20261027/audit-result.json",
+      "sha256": "a07521d2de423a0fe4ed6091d9fc07e067da3852e07bf3e1bf0048ef47543af4",
+      "bytes": 5634,
+      "raw_sha256": "a07521d2de423a0fe4ed6091d9fc07e067da3852e07bf3e1bf0048ef47543af4",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c11-reserved-capacity-positive-native-r1-20261027/pytest.xml",
+      "sha256": "5e6ec06280b7b4419395a1ebbed354190aae01f114f56be2ffc07f0313114e5a",
+      "bytes": 452,
+      "raw_sha256": "5e6ec06280b7b4419395a1ebbed354190aae01f114f56be2ffc07f0313114e5a",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c11-reserved-capacity-positive-native-r1-20261027/c11-reserved-capacity-positive-native-r1-20261027.stdout.txt",
+      "sha256": "9993a548d3efd4a7d19c684ed2951e3c1bfc12752dfb39994e8747d7878fd8f2",
+      "bytes": 678,
+      "raw_sha256": "9993a548d3efd4a7d19c684ed2951e3c1bfc12752dfb39994e8747d7878fd8f2",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c11-reserved-capacity-positive-native-r1-20261027/c11-reserved-capacity-positive-native-r1-20261027.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c11-reserved-capacity-positive-native-r1-20261027/source-profile-freeze.json",
+      "sha256": "562f7bdb1c16ce4fc452785220a32f088c6428ea010a3c8443f386a62d53b2f0",
+      "bytes": 9632,
+      "raw_sha256": "562f7bdb1c16ce4fc452785220a32f088c6428ea010a3c8443f386a62d53b2f0",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c08-codec-fence-and-legacy-consumers-native-r1-20261027/audit-result.json",
+      "sha256": "7c0a5ab8b106d4b1c51ea5153ece1f24941eb026796ff926225cfd9b1aa30ce1",
+      "bytes": 6769,
+      "raw_sha256": "7c0a5ab8b106d4b1c51ea5153ece1f24941eb026796ff926225cfd9b1aa30ce1",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c08-codec-fence-and-legacy-consumers-native-r1-20261027/pytest.xml",
+      "sha256": "d14b8f2b7a6b58b78cc0ca6cfc4a88c7249c6de287155e0188003bdee9235d4b",
+      "bytes": 28278,
+      "raw_sha256": "d14b8f2b7a6b58b78cc0ca6cfc4a88c7249c6de287155e0188003bdee9235d4b",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c08-codec-fence-and-legacy-consumers-native-r1-20261027/c08-codec-fence-and-legacy-consumers-native-r1-20261027.stdout.txt",
+      "sha256": "a9cf29acc00327b757f90b6bacad34d85bcc21c69983f396fb5f4f1ad4b65604",
+      "bytes": 844,
+      "raw_sha256": "a9cf29acc00327b757f90b6bacad34d85bcc21c69983f396fb5f4f1ad4b65604",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c08-codec-fence-and-legacy-consumers-native-r1-20261027/c08-codec-fence-and-legacy-consumers-native-r1-20261027.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r3/c08-codec-fence-and-legacy-consumers-native-r1-20261027/source-profile-freeze.json",
+      "sha256": "86b34252c35d4328e03dfa8b0f90ebaf584392abe8af1cf9bcb1503374819823",
+      "bytes": 11563,
+      "raw_sha256": "86b34252c35d4328e03dfa8b0f90ebaf584392abe8af1cf9bcb1503374819823",
+      "class": "A deciding output/custody; lossless gzip when named .gz"
+    }
+  ],
+  "G_acceptance": false,
+  "closure_ids": []
+}

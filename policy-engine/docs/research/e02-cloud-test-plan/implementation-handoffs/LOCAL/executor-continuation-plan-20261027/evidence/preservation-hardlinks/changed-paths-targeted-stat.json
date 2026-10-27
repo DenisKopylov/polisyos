@@ -1,0 +1,21 @@
+{
+  "base": "dad68b70b2321001631fc90aa160eec9656f79b1",
+  "head": "a323bc00dbee813ba7a364639862f54eebd82f50",
+  "complete_changed_tracked_path_denominator": 50,
+  "shared_inode_changed_paths": [
+    {
+      "path": "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local.py",
+      "inode": 175370864,
+      "nlink": 10,
+      "bytes": 13791,
+      "sha256": "f9b09c09587f19284033176c272db4fc80cb91fe6473057758b367d266d14ec0"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_debug_api.py",
+      "inode": 183806813,
+      "nlink": 10,
+      "bytes": 35094,
+      "sha256": "1103515eb71f5224cdf598959979c5f3b165bdce7a07b54ad28e37146595ea1c"
+    }
+  ]
+}

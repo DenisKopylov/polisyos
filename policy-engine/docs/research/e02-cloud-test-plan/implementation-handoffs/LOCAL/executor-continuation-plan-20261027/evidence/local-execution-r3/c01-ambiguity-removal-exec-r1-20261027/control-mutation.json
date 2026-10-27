@@ -1,0 +1,200 @@
+{
+  "active_function_code_sha256": "78a30b89f542c65e4bfb5231112b4b6af551fab771222b9ea46469097047ab9f",
+  "active_function_filename": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c01-ambiguity-removal-exec-r1-20261027/active-control.py",
+  "active_function_source_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c01-ambiguity-removal-exec-r1-20261027/active-control.py",
+  "active_function_source_sha256": "e039317e8850ce09ff0b3b3a5454a74fe4560d21200662458075ffc62f1b8568",
+  "active_function_still_installed_at_finish": true,
+  "correct_module_bytes_unchanged": true,
+  "correct_module_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/runtime/http/services/debug.py",
+  "correct_module_sha256": "fad42cfc4c30f2f91bf7b1e4eff3fa4e0a68a7d6c8347e8047aabf8cecf9df3b",
+  "correct_test_bytes_unchanged": true,
+  "correct_test_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/runtime/http/test_debug_api.py",
+  "correct_test_sha256": "1103515eb71f5224cdf598959979c5f3b165bdce7a07b54ad28e37146595ea1c",
+  "head_unchanged": true,
+  "http_observations": [
+    {
+      "error_code": null,
+      "params": null,
+      "projected_artifact_ref": {
+        "artifact_id": "sha256:8d68053c3855fdb4db6c1a52e702a10b1f9fbfb4d07602d8edb3159b585c0b12",
+        "kind": "foundry.simulation_result",
+        "manifest_profile_sha256": "sha256:f4e5ba47dd5e47d22c0105624ccba08d5e42b96b81bf07927a04177136a65002",
+        "media_type": "application/json"
+      },
+      "projected_node_id": "test.simulate.row0@1.0.0",
+      "response_bytes_sha256": "1c503859d7a6ffda2ea9042fc70a07ab5e5d6dd30517c88ca81a51c4b333fa0e",
+      "status": 200,
+      "url": "/api/v1/debug/runs/R_debug_simulation_profile_binding_0/nodes/simulate/simulation-result"
+    },
+    {
+      "error_code": null,
+      "params": {
+        "artifact_id": "sha256:8d68053c3855fdb4db6c1a52e702a10b1f9fbfb4d07602d8edb3159b585c0b12"
+      },
+      "projected_artifact_ref": {
+        "artifact_id": "sha256:8d68053c3855fdb4db6c1a52e702a10b1f9fbfb4d07602d8edb3159b585c0b12",
+        "kind": "foundry.simulation_result",
+        "manifest_profile_sha256": "sha256:f4e5ba47dd5e47d22c0105624ccba08d5e42b96b81bf07927a04177136a65002",
+        "media_type": "application/json"
+      },
+      "projected_node_id": "test.simulate.row0@1.0.0",
+      "response_bytes_sha256": "444cc7a2c2910455db13238f233fbb7c0b77e98cf95264f48083dc5e2b6cf60f",
+      "status": 200,
+      "url": "/api/v1/debug/runs/R_debug_simulation_profile_binding_1/nodes/simulate/simulation-result"
+    },
+    {
+      "error_code": "simulation_result_node_binding_mismatch",
+      "params": null,
+      "projected_artifact_ref": null,
+      "projected_node_id": null,
+      "response_bytes_sha256": "bf1bd0fa862b1db4210acc327d502f2030989595a3c26e34534d40e7559aef4f",
+      "status": 409,
+      "url": "/api/v1/debug/runs/R_debug_simulation_profile_binding_2/nodes/simulate/simulation-result"
+    },
+    {
+      "error_code": "simulation_result_node_binding_mismatch",
+      "params": {
+        "artifact_id": "sha256:8d68053c3855fdb4db6c1a52e702a10b1f9fbfb4d07602d8edb3159b585c0b12"
+      },
+      "projected_artifact_ref": null,
+      "projected_node_id": null,
+      "response_bytes_sha256": "2ecb7db4ee89618ae1f1c7550e4f76aa197c5bb8f23f3c23397ac114fdf59d75",
+      "status": 409,
+      "url": "/api/v1/debug/runs/R_debug_simulation_profile_binding_3/nodes/simulate/simulation-result"
+    },
+    {
+      "error_code": "simulation_result_node_binding_mismatch",
+      "params": null,
+      "projected_artifact_ref": null,
+      "projected_node_id": null,
+      "response_bytes_sha256": "c795df130d692cb23d763d110df14cb849d9ce76bcc2cd6e96962b6eb27bced3",
+      "status": 409,
+      "url": "/api/v1/debug/runs/R_debug_simulation_profile_binding_4/nodes/simulate/simulation-result"
+    },
+    {
+      "error_code": "simulation_result_node_binding_mismatch",
+      "params": {
+        "artifact_id": "sha256:8d68053c3855fdb4db6c1a52e702a10b1f9fbfb4d07602d8edb3159b585c0b12"
+      },
+      "projected_artifact_ref": null,
+      "projected_node_id": null,
+      "response_bytes_sha256": "56bfbc37210d13c0333934c5a1e56cc4eb8e1cc989155e328ab47c5c760999cc",
+      "status": 409,
+      "url": "/api/v1/debug/runs/R_debug_simulation_profile_binding_5/nodes/simulate/simulation-result"
+    },
+    {
+      "error_code": "simulation_result_node_binding_mismatch",
+      "params": null,
+      "projected_artifact_ref": null,
+      "projected_node_id": null,
+      "response_bytes_sha256": "a2ede9cd97475c73a826d2247d7d7d43a1d8e6eb7389077c4e1bfb3500e1ee36",
+      "status": 409,
+      "url": "/api/v1/debug/runs/R_debug_simulation_profile_binding_6/nodes/simulate/simulation-result"
+    },
+    {
+      "error_code": "simulation_result_node_binding_mismatch",
+      "params": {
+        "artifact_id": "sha256:8d68053c3855fdb4db6c1a52e702a10b1f9fbfb4d07602d8edb3159b585c0b12"
+      },
+      "projected_artifact_ref": null,
+      "projected_node_id": null,
+      "response_bytes_sha256": "1ae5ac6b374f6f1661a2556c947086488fff5df232e741e06cde73bea21a9f59",
+      "status": 409,
+      "url": "/api/v1/debug/runs/R_debug_simulation_profile_binding_7/nodes/simulate/simulation-result"
+    },
+    {
+      "error_code": "simulation_result_node_binding_mismatch",
+      "params": null,
+      "projected_artifact_ref": null,
+      "projected_node_id": null,
+      "response_bytes_sha256": "f44283ec96afc02c582934c1f28fe28be550006cf6f6195b785500865be182d8",
+      "status": 409,
+      "url": "/api/v1/debug/runs/R_debug_simulation_profile_binding_8/nodes/simulate/simulation-result"
+    },
+    {
+      "error_code": "simulation_result_node_binding_mismatch",
+      "params": {
+        "artifact_id": "sha256:8d68053c3855fdb4db6c1a52e702a10b1f9fbfb4d07602d8edb3159b585c0b12"
+      },
+      "projected_artifact_ref": null,
+      "projected_node_id": null,
+      "response_bytes_sha256": "3768830937fdea86f49ed8ab87ff43f9159781e406c427d6b1fedf0a6b67f6fb",
+      "status": 409,
+      "url": "/api/v1/debug/runs/R_debug_simulation_profile_binding_9/nodes/simulate/simulation-result"
+    },
+    {
+      "error_code": "simulation_result_node_binding_mismatch",
+      "params": null,
+      "projected_artifact_ref": null,
+      "projected_node_id": null,
+      "response_bytes_sha256": "7b556cc9f6067024c16ae4957bbb38a0263c9bfd73b4e8d5eb5a270e76b56136",
+      "status": 409,
+      "url": "/api/v1/debug/runs/R_debug_simulation_profile_binding_10/nodes/simulate/simulation-result"
+    },
+    {
+      "error_code": "simulation_result_node_binding_mismatch",
+      "params": {
+        "artifact_id": "sha256:8d68053c3855fdb4db6c1a52e702a10b1f9fbfb4d07602d8edb3159b585c0b12"
+      },
+      "projected_artifact_ref": null,
+      "projected_node_id": null,
+      "response_bytes_sha256": "1345e56883248f346bc47a57b3faabc21662c663f4e09bc541f634acc58baa25",
+      "status": 409,
+      "url": "/api/v1/debug/runs/R_debug_simulation_profile_binding_11/nodes/simulate/simulation-result"
+    },
+    {
+      "error_code": "simulation_result_unavailable",
+      "params": null,
+      "projected_artifact_ref": null,
+      "projected_node_id": null,
+      "response_bytes_sha256": "718fe2cfbec318552eec15a9d0ee2994e1cc5ee600c8dffe1a5c284f0a839ae9",
+      "status": 409,
+      "url": "/api/v1/debug/runs/R_debug_simulation_profile_binding_12/nodes/simulate/simulation-result"
+    },
+    {
+      "error_code": "simulation_result_unavailable",
+      "params": {
+        "artifact_id": "sha256:8d68053c3855fdb4db6c1a52e702a10b1f9fbfb4d07602d8edb3159b585c0b12"
+      },
+      "projected_artifact_ref": null,
+      "projected_node_id": null,
+      "response_bytes_sha256": "9b1cdf3113288f34bb9c5cc22f1f148adca1ed7a09026e833377c1927e411e01",
+      "status": 409,
+      "url": "/api/v1/debug/runs/R_debug_simulation_profile_binding_13/nodes/simulate/simulation-result"
+    },
+    {
+      "error_code": null,
+      "params": null,
+      "projected_artifact_ref": {
+        "artifact_id": "sha256:8d68053c3855fdb4db6c1a52e702a10b1f9fbfb4d07602d8edb3159b585c0b12",
+        "kind": "foundry.simulation_result",
+        "manifest_profile_sha256": "sha256:f4e5ba47dd5e47d22c0105624ccba08d5e42b96b81bf07927a04177136a65002",
+        "media_type": "application/json"
+      },
+      "projected_node_id": "test.simulate.row1@1.0.0",
+      "response_bytes_sha256": "f7ef5dc99b6ea79a69f3f4617f5a80ffd1ef0a69f68552851fce983833b92ccd",
+      "status": 200,
+      "url": "/api/v1/debug/runs/R_debug_simulation_profile_binding_14/nodes/simulate/simulation-result"
+    }
+  ],
+  "limitations": [
+    "Deliberate in-memory control: module readset hashes describe correct frozen files; active function bytes are separately delivered here",
+    "This is one behavioral removal, not a production PASS or all-E02 acceptance"
+  ],
+  "mode": "ambiguity",
+  "original_function_code_sha256": "b28f65662d18b20e3ec153a8c0aa0cb41022d5e7169b7304be359236659e55ae",
+  "original_function_restored_in_process": true,
+  "original_function_source_sha256": "b2e9e0f8a216c347e9d23e6ea04131a07ab6126cbb40729b21082296a03c1f33",
+  "plugin_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/e02-execution-20261027/repairs/C01-removal-controls-r1/c01_removal_plugin.py",
+  "plugin_sha256": "3d4e8fa1b28f74ead5cb17201f477ca42505377318f1c3587d88ea8877b20624",
+  "property_removed": "Suppress only the duplicate-alias guard; keep its message and all ref checks",
+  "pytest_exitstatus": 1,
+  "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+  "rewrite_count": 1,
+  "runtime_outcome": "FINISHED",
+  "selected_nodes": [
+    "tests/unit/runtime/http/test_debug_api.py::test_simulation_result_http_requires_exact_identity_for_every_same_id_node_ref"
+  ],
+  "source_head": "ce3bcbbec3643ecba2b0017a7c99c230c2935ba4",
+  "source_tree": "1f567740f377cbc7a5642396ab8210affafac83d"
+}

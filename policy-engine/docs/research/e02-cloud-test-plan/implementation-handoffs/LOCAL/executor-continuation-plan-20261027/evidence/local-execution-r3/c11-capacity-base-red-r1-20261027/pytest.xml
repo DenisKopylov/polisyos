@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="16.303" timestamp="2026-10-27T23:53:55.853548+02:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.runtime.http.test_control_worker_service_capacity" name="test_control_lease_and_fencing_keep_reserved_capacity_under_saturated_compute[queued]" time="16.121"><failure message="AssertionError: assert None is True&#10; +  where None = &lt;built-in method get of dict object at 0x13f722040&gt;('renewal_return')&#10; +    where &lt;built-in method get of dict object at 0x13f722040&gt; = {'queued_body_unstarted': True, 'renewal_error': 'RuntimeDependencyUnavailableError', 'renewed': False, 'running_unfinished': True, ...}.get">tests/unit/runtime/http/test_control_worker_service_capacity.py:372: in test_control_lease_and_fencing_keep_reserved_capacity_under_saturated_compute
+    _assert_persisted_renewal_under_held_compute(observed)
+tests/unit/runtime/http/test_control_worker_service_capacity.py:354: in _assert_persisted_renewal_under_held_compute
+    assert observed.get("renewal_return") is True
+E   AssertionError: assert None is True
+E    +  where None = &lt;built-in method get of dict object at 0x13f722040&gt;('renewal_return')
+E    +    where &lt;built-in method get of dict object at 0x13f722040&gt; = {'queued_body_unstarted': True, 'renewal_error': 'RuntimeDependencyUnavailableError', 'renewed': False, 'running_unfinished': True, ...}.get</failure></testcase></testsuite></testsuites>

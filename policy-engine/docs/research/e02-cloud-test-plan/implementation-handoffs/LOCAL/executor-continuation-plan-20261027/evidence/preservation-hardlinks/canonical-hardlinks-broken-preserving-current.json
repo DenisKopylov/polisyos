@@ -1,0 +1,49 @@
+{
+  "at": "2026-10-27T21:50:50.329760+00:00",
+  "before_guard": {
+    "head": "a323bc00dbee813ba7a364639862f54eebd82f50",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c06-c11-old-source-behavioral-probes-20261027-r1/full-composed-source-frame.json",
+      "sha256": "b6156bef487d70dbaf904d84426f741ca2f544d752e4b3522e2230cf989e34fb"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    }
+  },
+  "after_guard": {
+    "head": "a323bc00dbee813ba7a364639862f54eebd82f50",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c06-c11-old-source-behavioral-probes-20261027-r1/full-composed-source-frame.json",
+      "sha256": "b6156bef487d70dbaf904d84426f741ca2f544d752e4b3522e2230cf989e34fb"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    }
+  },
+  "operation": "new-inode atomic replacement; byte-identical canonical paths; no index/HEAD/ref/content change",
+  "paths": [
+    {
+      "path": "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local.py",
+      "inode": 175370864,
+      "nlink": 10,
+      "bytes": 13791,
+      "sha256": "f9b09c09587f19284033176c272db4fc80cb91fe6473057758b367d266d14ec0",
+      "new_inode": 219152657,
+      "new_nlink": 1,
+      "content_preserved": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_debug_api.py",
+      "inode": 183806813,
+      "nlink": 10,
+      "bytes": 35094,
+      "sha256": "1103515eb71f5224cdf598959979c5f3b165bdce7a07b54ad28e37146595ea1c",
+      "new_inode": 219152658,
+      "new_nlink": 1,
+      "content_preserved": true
+    }
+  ],
+  "historical_aliases": "investigation_pending_no_restore_guesses"
+}

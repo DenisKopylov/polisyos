@@ -1,0 +1,17 @@
+.............F.......                                                    [100%]R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 1831, "phase": "driver", "pid": 2269, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c02-c03-native-exec-r1-20261027/readsets/input-readset-2269.json", "source_module_count": 1820, "test_module_count": 11, "tools_module_count": 0}
+
+=================================== FAILURES ===================================
+__ test_legacy_flat_pair_rebuilds_changed_text_then_reuses_current_membership __
+tests/unit/data_forge/legal_batch/test_embed_local.py:304: in test_legacy_flat_pair_rebuilds_changed_text_then_reuses_current_membership
+    first_history = _generation_snapshot(first)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/data_forge/legal_batch/test_embed_local.py:207: in _generation_snapshot
+    for path in sorted(generation_dir.iterdir())
+                       ^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:836: in iterdir
+    with os.scandir(root_dir) as scandir_it:
+         ^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c02-c03-native-exec-r1-20261027/basetemp/test_legacy_flat_pair_rebuilds0/.legal_embedding_generations/lex_provision_embeddings/embedding_generations/bef628ee00e84f8d9d12fd9b4f271f63/embedding_generations/bef628ee00e84f8d9d12fd9b4f271f63'
+=========================== short test summary info ============================
+FAILED tests/unit/data_forge/legal_batch/test_embed_local.py::test_legacy_flat_pair_rebuilds_changed_text_then_reuses_current_membership
+1 failed, 20 passed in 21.58s

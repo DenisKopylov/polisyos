@@ -1,0 +1,80 @@
+{
+  "active_function_code_sha256": "48d55a32cdea2873452ffd832aa01993051118ecaf25a7694a0c2f084ee7d1aa",
+  "active_function_filename": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c01-profile-removal-exec-r1-20261027/active-control.py",
+  "active_function_source_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c01-profile-removal-exec-r1-20261027/active-control.py",
+  "active_function_source_sha256": "1a3416d1095c302387e7ae5257297743455bcf6c1776ef89d3989da4f02a4e40",
+  "active_function_still_installed_at_finish": true,
+  "correct_module_bytes_unchanged": true,
+  "correct_module_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/runtime/http/services/debug.py",
+  "correct_module_sha256": "fad42cfc4c30f2f91bf7b1e4eff3fa4e0a68a7d6c8347e8047aabf8cecf9df3b",
+  "correct_test_bytes_unchanged": true,
+  "correct_test_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/runtime/http/test_debug_api.py",
+  "correct_test_sha256": "1103515eb71f5224cdf598959979c5f3b165bdce7a07b54ad28e37146595ea1c",
+  "head_unchanged": true,
+  "http_observations": [
+    {
+      "error_code": null,
+      "params": null,
+      "projected_artifact_ref": {
+        "artifact_id": "sha256:8d68053c3855fdb4db6c1a52e702a10b1f9fbfb4d07602d8edb3159b585c0b12",
+        "kind": "foundry.simulation_result",
+        "manifest_profile_sha256": "sha256:f4e5ba47dd5e47d22c0105624ccba08d5e42b96b81bf07927a04177136a65002",
+        "media_type": "application/json"
+      },
+      "projected_node_id": "test.simulate.row0@1.0.0",
+      "response_bytes_sha256": "00042f9b38c884f226e16af0677013ff95689d179f49a59180f0339cc89fcc10",
+      "status": 200,
+      "url": "/api/v1/debug/runs/R_debug_simulation_profile_binding_0/nodes/simulate/simulation-result"
+    },
+    {
+      "error_code": null,
+      "params": {
+        "artifact_id": "sha256:8d68053c3855fdb4db6c1a52e702a10b1f9fbfb4d07602d8edb3159b585c0b12"
+      },
+      "projected_artifact_ref": {
+        "artifact_id": "sha256:8d68053c3855fdb4db6c1a52e702a10b1f9fbfb4d07602d8edb3159b585c0b12",
+        "kind": "foundry.simulation_result",
+        "manifest_profile_sha256": "sha256:f4e5ba47dd5e47d22c0105624ccba08d5e42b96b81bf07927a04177136a65002",
+        "media_type": "application/json"
+      },
+      "projected_node_id": "test.simulate.row0@1.0.0",
+      "response_bytes_sha256": "208cd2c81f559a9a471698fb41345c09f624acda1b74837758a2af8e85236df8",
+      "status": 200,
+      "url": "/api/v1/debug/runs/R_debug_simulation_profile_binding_1/nodes/simulate/simulation-result"
+    },
+    {
+      "error_code": null,
+      "params": null,
+      "projected_artifact_ref": {
+        "artifact_id": "sha256:8d68053c3855fdb4db6c1a52e702a10b1f9fbfb4d07602d8edb3159b585c0b12",
+        "kind": "foundry.simulation_result",
+        "manifest_profile_sha256": "sha256:f4e5ba47dd5e47d22c0105624ccba08d5e42b96b81bf07927a04177136a65002",
+        "media_type": "application/json"
+      },
+      "projected_node_id": "test.simulate.row0@1.0.0",
+      "response_bytes_sha256": "d32fb6e9b384e84a6d1edc35ffa540b2425b88e42097953301e0033306d6bcbd",
+      "status": 200,
+      "url": "/api/v1/debug/runs/R_debug_simulation_profile_binding_2/nodes/simulate/simulation-result"
+    }
+  ],
+  "limitations": [
+    "Deliberate in-memory control: module readset hashes describe correct frozen files; active function bytes are separately delivered here",
+    "This is one behavioral removal, not a production PASS or all-E02 acceptance"
+  ],
+  "mode": "profile",
+  "original_function_code_sha256": "eca9d045c5031a4a997879ea3a9e0816f0863320749012098792299b82610292",
+  "original_function_restored_in_process": true,
+  "original_function_source_sha256": "be65f17af002b8251de687277294436586cd67620865fe2520300d4a309cde3a",
+  "plugin_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/e02-execution-20261027/repairs/C01-removal-controls-r1/c01_removal_plugin.py",
+  "plugin_sha256": "3d4e8fa1b28f74ead5cb17201f477ca42505377318f1c3587d88ea8877b20624",
+  "property_removed": "Drop only the profile coordinate from each current identity-key comparison",
+  "pytest_exitstatus": 1,
+  "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+  "rewrite_count": 2,
+  "runtime_outcome": "FINISHED",
+  "selected_nodes": [
+    "tests/unit/runtime/http/test_debug_api.py::test_simulation_result_http_requires_exact_identity_for_every_same_id_node_ref"
+  ],
+  "source_head": "ce3bcbbec3643ecba2b0017a7c99c230c2935ba4",
+  "source_tree": "1f567740f377cbc7a5642396ab8210affafac83d"
+}

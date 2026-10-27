@@ -1,0 +1,17 @@
+F                                                                        [100%]R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 1798, "phase": "driver", "pid": 42021, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c11-capacity-base-red-r1-20261027/readsets/input-readset-42021.json", "source_module_count": 1790, "test_module_count": 8, "tools_module_count": 0}
+
+=================================== FAILURES ===================================
+_ test_control_lease_and_fencing_keep_reserved_capacity_under_saturated_compute[queued] _
+tests/unit/runtime/http/test_control_worker_service_capacity.py:372: in test_control_lease_and_fencing_keep_reserved_capacity_under_saturated_compute
+    _assert_persisted_renewal_under_held_compute(observed)
+tests/unit/runtime/http/test_control_worker_service_capacity.py:354: in _assert_persisted_renewal_under_held_compute
+    assert observed.get("renewal_return") is True
+E   AssertionError: assert None is True
+E    +  where None = <built-in method get of dict object at 0x13f722040>('renewal_return')
+E    +    where <built-in method get of dict object at 0x13f722040> = {'queued_body_unstarted': True, 'renewal_error': 'RuntimeDependencyUnavailableError', 'renewed': False, 'running_unfinished': True, ...}.get
+----------------------------- Captured stderr call -----------------------------
+2026-10-27 23:54:10.452 | INFO     | polisyos.common.logger:_call:104 - Circuit breaker initialized
+2026-10-27 23:54:10.511 | WARNING  | polisyos.common.logger:_call:104 - Control worker heartbeat stopped for job job-service-capacity because the store became unavailable: control_plane_store executor is unavailable
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/http/test_control_worker_service_capacity.py::test_control_lease_and_fencing_keep_reserved_capacity_under_saturated_compute[queued]
+1 failed in 16.70s

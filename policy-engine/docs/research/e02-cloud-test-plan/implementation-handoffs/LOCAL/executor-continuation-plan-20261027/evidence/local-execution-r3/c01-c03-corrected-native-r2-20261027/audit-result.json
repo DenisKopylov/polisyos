@@ -1,0 +1,91 @@
+{
+  "plan": {
+    "case_id": "c01-c03-corrected-native-r2-20261027",
+    "source_head": "ce3bcbbec3643ecba2b0017a7c99c230c2935ba4",
+    "task_ids": [
+      "V6",
+      "I4"
+    ],
+    "nodes": [
+      "tests/unit/runtime/http/test_debug_api.py",
+      "tests/unit/runtime/http/test_debug_result_profile_identity.py",
+      "tests/unit/data_forge/legal_batch/test_embed_local.py::test_legacy_flat_pair_rebuilds_changed_text_then_reuses_current_membership"
+    ],
+    "extra_env": {},
+    "deadline_seconds": 600,
+    "rss_cap_bytes": 2411724800,
+    "scope": "C01fullaffectedtwo modules with canonicalDataSnapshotlineagefixture andmissingedgecontrols +correctedC03historyhelpernewrealHNSWselector. Earlier20/21 and23/25 remainsourcequalified; no implicitwholeE02/Gclosure."
+  },
+  "source_profile_freeze_sha256": "2288bffd2a157e4f802046243eb6075e7722f0737a6f75fb2f84a0b2998603e3",
+  "result": {
+    "id": "c01-c03-corrected-native-r2-20261027",
+    "argv": [
+      "/usr/bin/sandbox-exec",
+      "-f",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c01-c03-corrected-native-r2-20261027/child.sb",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c01-c03-corrected-native-r2-20261027/pytest_launcher.py",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c01-c03-corrected-native-r2-20261027/pytest-cache",
+      "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c01-c03-corrected-native-r2-20261027/benchmarks",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c01-c03-corrected-native-r2-20261027/basetemp",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c01-c03-corrected-native-r2-20261027/pytest.xml",
+      "--tb=short",
+      "--color=no",
+      "--maxfail=0",
+      "tests/unit/runtime/http/test_debug_api.py",
+      "tests/unit/runtime/http/test_debug_result_profile_identity.py",
+      "tests/unit/data_forge/legal_batch/test_embed_local.py::test_legacy_flat_pair_rebuilds_changed_text_then_reuses_current_membership"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "started_at": "2026-10-27T21:35:27.259353+00:00",
+    "wall_total_before_seconds": 2.3334025172516704e-05,
+    "disk_free_before_bytes": 22903132160,
+    "stdout_path": "c01-c03-corrected-native-r2-20261027.stdout.txt",
+    "stderr_path": "c01-c03-corrected-native-r2-20261027.stderr.txt",
+    "return_code": 0,
+    "aborted_reason": null,
+    "complete": true,
+    "pid": 22090,
+    "process_group_gone": true,
+    "termination_signal": null,
+    "max_sampled_process_tree_rss_bytes": 1245839360,
+    "minimum_sampled_disk_free_bytes": 22812831744,
+    "sample_count": 43,
+    "wall_seconds": 44.86155908298679,
+    "finished_at": "2026-10-27T21:36:12.121070+00:00",
+    "status": "passed",
+    "junit": {
+      "tests": 26,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "skips": []
+  },
+  "readsets": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c01-c03-corrected-native-r2-20261027/readsets/input-readset-22090.json",
+      "sha256": "867196d96d075560c3f29b7295542591bea8cba1eebb948bbaaa024d6e331115",
+      "python_paths": 1884,
+      "pytest_exitstatus": 0
+    }
+  ],
+  "unique_runtime_loaded_python_paths": 1884,
+  "current_mismatches": [],
+  "guard_after": {
+    "head": "ce3bcbbec3643ecba2b0017a7c99c230c2935ba4",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c09-diagnostic-only-helper-20261027-r1/full-composed-source-frame.json",
+      "sha256": "40d21024608de6f17145f4d13fc0c8e938a473a4599ea12c12a552cfcf461837"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    }
+  },
+  "scope": "Fresh canonical-source audit run. Readset is the observer's finite imported src/tests/tools set, not a whole-repository or all-backend proof.",
+  "closure_ids": []
+}

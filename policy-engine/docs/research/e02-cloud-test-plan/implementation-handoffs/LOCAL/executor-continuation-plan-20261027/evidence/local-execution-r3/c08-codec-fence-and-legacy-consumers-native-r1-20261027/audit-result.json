@@ -1,0 +1,108 @@
+{
+  "plan": {
+    "case_id": "c08-codec-fence-and-legacy-consumers-native-r1-20261027",
+    "source_head": "9c39de4a865542f8dec6f0d0adf9b653b10fc92c",
+    "task_ids": [
+      "Q1",
+      "R1",
+      "I4"
+    ],
+    "nodes": [
+      "tests/unit/common/test_canonical_v3.py",
+      "tests/unit/core/artifacts/test_canonical_v3_writer_fence.py",
+      "tests/unit/core/canon/test_core_canon_v3.py",
+      "tests/unit/ir/test_canon_v3.py",
+      "tests/unit/scientist/orchestration/engine/test_attempt_canon_admission.py",
+      "tests/unit/common/test_canonical.py",
+      "tests/unit/common/test_canonical_profile.py",
+      "tests/unit/core/phase0/test_canon_json.py",
+      "tests/unit/ir/test_canon_hardening.py",
+      "tests/unit/ir/test_canon_hash_parity.py",
+      "tests/unit/data_forge/legal_batch/test_embed_local.py::test_legacy_flat_pair_rebuilds_changed_text_then_reuses_current_membership"
+    ],
+    "extra_env": {},
+    "deadline_seconds": 600,
+    "rss_cap_bytes": 2411724800,
+    "scope": "FivechangedCAN3/specintake/retrytestmodules+actualaffectedlegacyCommon/Core/IRcanonicalconsumers+LegalHNSWproducerafterCorewriterchange. NophysicalCAN3budget/persistedreadinessclaim; .3writesremainfenced. R1B148fullcontoursstillseparate."
+  },
+  "source_profile_freeze_sha256": "86b34252c35d4328e03dfa8b0f90ebaf584392abe8af1cf9bcb1503374819823",
+  "result": {
+    "id": "c08-codec-fence-and-legacy-consumers-native-r1-20261027",
+    "argv": [
+      "/usr/bin/sandbox-exec",
+      "-f",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c08-codec-fence-and-legacy-consumers-native-r1-20261027/child.sb",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c08-codec-fence-and-legacy-consumers-native-r1-20261027/pytest_launcher.py",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c08-codec-fence-and-legacy-consumers-native-r1-20261027/pytest-cache",
+      "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c08-codec-fence-and-legacy-consumers-native-r1-20261027/benchmarks",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c08-codec-fence-and-legacy-consumers-native-r1-20261027/basetemp",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c08-codec-fence-and-legacy-consumers-native-r1-20261027/pytest.xml",
+      "--tb=short",
+      "--color=no",
+      "--maxfail=0",
+      "tests/unit/common/test_canonical_v3.py",
+      "tests/unit/core/artifacts/test_canonical_v3_writer_fence.py",
+      "tests/unit/core/canon/test_core_canon_v3.py",
+      "tests/unit/ir/test_canon_v3.py",
+      "tests/unit/scientist/orchestration/engine/test_attempt_canon_admission.py",
+      "tests/unit/common/test_canonical.py",
+      "tests/unit/common/test_canonical_profile.py",
+      "tests/unit/core/phase0/test_canon_json.py",
+      "tests/unit/ir/test_canon_hardening.py",
+      "tests/unit/ir/test_canon_hash_parity.py",
+      "tests/unit/data_forge/legal_batch/test_embed_local.py::test_legacy_flat_pair_rebuilds_changed_text_then_reuses_current_membership"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "started_at": "2026-10-27T22:16:23.086653+00:00",
+    "wall_total_before_seconds": 1.9625003915280104e-05,
+    "disk_free_before_bytes": 22021935104,
+    "stdout_path": "c08-codec-fence-and-legacy-consumers-native-r1-20261027.stdout.txt",
+    "stderr_path": "c08-codec-fence-and-legacy-consumers-native-r1-20261027.stderr.txt",
+    "return_code": 0,
+    "aborted_reason": null,
+    "complete": true,
+    "pid": 54630,
+    "process_group_gone": true,
+    "termination_signal": null,
+    "max_sampled_process_tree_rss_bytes": 243171328,
+    "minimum_sampled_disk_free_bytes": 22020685824,
+    "sample_count": 5,
+    "wall_seconds": 5.234205667016795,
+    "finished_at": "2026-10-27T22:16:28.320887+00:00",
+    "status": "passed",
+    "junit": {
+      "tests": 168,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "skips": []
+  },
+  "readsets": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c08-codec-fence-and-legacy-consumers-native-r1-20261027/readsets/input-readset-54630.json",
+      "sha256": "b303d3461c242bfddfc6aca71804db1b67640c4f839480d09fec2fc076d36ee0",
+      "python_paths": 191,
+      "pytest_exitstatus": 0
+    }
+  ],
+  "unique_runtime_loaded_python_paths": 191,
+  "current_mismatches": [],
+  "guard_after": {
+    "head": "9c39de4a865542f8dec6f0d0adf9b653b10fc92c",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c08-mapping-and-profile-fence-composition-20261027-r1/full-composed-source-frame.json",
+      "sha256": "c7961c042dc76c07c45c0b91fa1547ab3aaf1e04dcd7717c6a2a796446e2445d"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    }
+  },
+  "scope": "Fresh canonical-source audit run. Readset is the observer's finite imported src/tests/tools set, not a whole-repository or all-backend proof.",
+  "closure_ids": []
+}

@@ -1,0 +1,548 @@
+{
+  "schema": "policyos.e02.hardlink-alias-audit.v1",
+  "observed_at_utc": "2026-10-27T21:55:44.389135+00:00",
+  "root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+  "scope": {
+    "tracked_changed_base": "dad68b70b2321001631fc90aa160eec9656f79b1",
+    "tracked_changed_head": "a323bc00dbee813ba7a364639862f54eebd82f50",
+    "changed_tracked_path_count": 50,
+    "current_lstat_file_types": {
+      "regular": 50
+    },
+    "current_regular_paths_with_nlink_gt_one": [],
+    "stat_errors": [],
+    "alias_denominator": "18 distinct regular paths, nine per old device/inode. Each inode reports nlink=9; no unaccounted current hardlinks, subject to concurrent drift.",
+    "discovery": "exact-basename enumeration in local RAW trees; no symlink following; excluded production_data, .venv, node_modules and environment",
+    "discovery_limit": "Handoff RAW search returned permission errors for b05 overlay src/tests and prepared-b scratch_unreadable paths. It is not a complete readable-tree census; inode link-count arithmetic, not search absence, supports the two groups.",
+    "not_examined": "Other inode groups, output consumption, broad production payload, whole disk, and whole handover integrity."
+  },
+  "observations": [
+    {
+      "name": "legal",
+      "canonical_path": "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local.py",
+      "snapshot_relative_path": "tests/unit/data_forge/legal_batch/test_embed_local.py",
+      "old_device": 16777232,
+      "old_inode": 175370864,
+      "observed_nlink": 9,
+      "named_current_hardlinks": 9,
+      "unaccounted_links_by_nlink_arithmetic": 0,
+      "declared_snapshot_base": {
+        "commit": "cf6a076a8415dc4092cfd3d4e9c8862f81c15a9a",
+        "git_blob_sha1": "531c8701dede62a8f2ac479e557024ec20d317fc",
+        "bytes": 3967,
+        "sha256": "39fd4ab0fa6ff467f64277b0efadd157761eed15bb63048de90cb22149feca72"
+      },
+      "handover_execution_base": {
+        "commit": "dad68b70b2321001631fc90aa160eec9656f79b1",
+        "git_blob_sha1": "531c8701dede62a8f2ac479e557024ec20d317fc",
+        "bytes": 3967,
+        "sha256": "39fd4ab0fa6ff467f64277b0efadd157761eed15bb63048de90cb22149feca72"
+      },
+      "current_head": {
+        "commit": "a323bc00dbee813ba7a364639862f54eebd82f50",
+        "git_blob_sha1": "68e8c8086a6b1ac77f16471eff433a86b026a4ba",
+        "bytes": 13791,
+        "sha256": "f9b09c09587f19284033176c272db4fc80cb91fe6473057758b367d266d14ec0"
+      },
+      "canonical_now": {
+        "path": "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local.py",
+        "device": 16777232,
+        "inode": 219152657,
+        "nlink": 1,
+        "bytes": 13791,
+        "mode": "0o644",
+        "sha256": "f9b09c09587f19284033176c272db4fc80cb91fe6473057758b367d266d14ec0",
+        "mtime_ns": 1793136645648447624,
+        "ctime_ns": 1793137850057413763
+      },
+      "aliases": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-overlay/tests/unit/data_forge/legal_batch/test_embed_local.py",
+          "device": 16777232,
+          "inode": 175370864,
+          "nlink": 9,
+          "bytes": 13791,
+          "mode": "0o644",
+          "sha256": "f9b09c09587f19284033176c272db4fc80cb91fe6473057758b367d266d14ec0",
+          "mtime_ns": 1793136645648447624,
+          "ctime_ns": 1793137850057413722
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-overlay-r4/tests/unit/data_forge/legal_batch/test_embed_local.py",
+          "device": 16777232,
+          "inode": 175370864,
+          "nlink": 9,
+          "bytes": 13791,
+          "mode": "0o644",
+          "sha256": "f9b09c09587f19284033176c272db4fc80cb91fe6473057758b367d266d14ec0",
+          "mtime_ns": 1793136645648447624,
+          "ctime_ns": 1793137850057413722
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-overlay-v2/tests/unit/data_forge/legal_batch/test_embed_local.py",
+          "device": 16777232,
+          "inode": 175370864,
+          "nlink": 9,
+          "bytes": 13791,
+          "mode": "0o644",
+          "sha256": "f9b09c09587f19284033176c272db4fc80cb91fe6473057758b367d266d14ec0",
+          "mtime_ns": 1793136645648447624,
+          "ctime_ns": 1793137850057413722
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-overlay-v3/tests/unit/data_forge/legal_batch/test_embed_local.py",
+          "device": 16777232,
+          "inode": 175370864,
+          "nlink": 9,
+          "bytes": 13791,
+          "mode": "0o644",
+          "sha256": "f9b09c09587f19284033176c272db4fc80cb91fe6473057758b367d266d14ec0",
+          "mtime_ns": 1793136645648447624,
+          "ctime_ns": 1793137850057413722
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-overlay-v4/tests/unit/data_forge/legal_batch/test_embed_local.py",
+          "device": 16777232,
+          "inode": 175370864,
+          "nlink": 9,
+          "bytes": 13791,
+          "mode": "0o644",
+          "sha256": "f9b09c09587f19284033176c272db4fc80cb91fe6473057758b367d266d14ec0",
+          "mtime_ns": 1793136645648447624,
+          "ctime_ns": 1793137850057413722
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-overlay-v5/tests/unit/data_forge/legal_batch/test_embed_local.py",
+          "device": 16777232,
+          "inode": 175370864,
+          "nlink": 9,
+          "bytes": 13791,
+          "mode": "0o644",
+          "sha256": "f9b09c09587f19284033176c272db4fc80cb91fe6473057758b367d266d14ec0",
+          "mtime_ns": 1793136645648447624,
+          "ctime_ns": 1793137850057413722
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-overlay-v6/tests/unit/data_forge/legal_batch/test_embed_local.py",
+          "device": 16777232,
+          "inode": 175370864,
+          "nlink": 9,
+          "bytes": 13791,
+          "mode": "0o644",
+          "sha256": "f9b09c09587f19284033176c272db4fc80cb91fe6473057758b367d266d14ec0",
+          "mtime_ns": 1793136645648447624,
+          "ctime_ns": 1793137850057413722
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-overlay-v7/tests/unit/data_forge/legal_batch/test_embed_local.py",
+          "device": 16777232,
+          "inode": 175370864,
+          "nlink": 9,
+          "bytes": 13791,
+          "mode": "0o644",
+          "sha256": "f9b09c09587f19284033176c272db4fc80cb91fe6473057758b367d266d14ec0",
+          "mtime_ns": 1793136645648447624,
+          "ctime_ns": 1793137850057413722
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-overlay-v8/tests/unit/data_forge/legal_batch/test_embed_local.py",
+          "device": 16777232,
+          "inode": 175370864,
+          "nlink": 9,
+          "bytes": 13791,
+          "mode": "0o644",
+          "sha256": "f9b09c09587f19284033176c272db4fc80cb91fe6473057758b367d266d14ec0",
+          "mtime_ns": 1793136645648447624,
+          "ctime_ns": 1793137850057413722
+        }
+      ],
+      "comparison": "all current aliases differ from declared base; actual per-alias historical bytes not independently observed"
+    },
+    {
+      "name": "debug",
+      "canonical_path": "policy-engine/tests/unit/runtime/http/test_debug_api.py",
+      "snapshot_relative_path": "tests/unit/runtime/http/test_debug_api.py",
+      "old_device": 16777232,
+      "old_inode": 183806813,
+      "observed_nlink": 9,
+      "named_current_hardlinks": 9,
+      "unaccounted_links_by_nlink_arithmetic": 0,
+      "declared_snapshot_base": {
+        "commit": "cf6a076a8415dc4092cfd3d4e9c8862f81c15a9a",
+        "git_blob_sha1": "0cc7a51465fe1ff84db397a6d1b7c9e12f8af29a",
+        "bytes": 19343,
+        "sha256": "03dc65b582b939e11fbf3961d3b09f42fbb2d8c59d03ce7f83ff55874bae8ab8"
+      },
+      "handover_execution_base": {
+        "commit": "dad68b70b2321001631fc90aa160eec9656f79b1",
+        "git_blob_sha1": "498c77e45b0b16690e600d4db245ca3293df90e0",
+        "bytes": 28151,
+        "sha256": "a8c2581e2101b5632b6350d465a4dba0f1a3996d6c99e399e2646884901c6bc3"
+      },
+      "current_head": {
+        "commit": "a323bc00dbee813ba7a364639862f54eebd82f50",
+        "git_blob_sha1": "fd36d52ba64c45c1c11da9eabd467d513d668bb0",
+        "bytes": 35094,
+        "sha256": "1103515eb71f5224cdf598959979c5f3b165bdce7a07b54ad28e37146595ea1c"
+      },
+      "canonical_now": {
+        "path": "policy-engine/tests/unit/runtime/http/test_debug_api.py",
+        "device": 16777232,
+        "inode": 219152658,
+        "nlink": 1,
+        "bytes": 35094,
+        "mode": "0o644",
+        "sha256": "1103515eb71f5224cdf598959979c5f3b165bdce7a07b54ad28e37146595ea1c",
+        "mtime_ns": 1793136841684232523,
+        "ctime_ns": 1793137850058691058
+      },
+      "aliases": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-overlay/tests/unit/runtime/http/test_debug_api.py",
+          "device": 16777232,
+          "inode": 183806813,
+          "nlink": 9,
+          "bytes": 35094,
+          "mode": "0o644",
+          "sha256": "1103515eb71f5224cdf598959979c5f3b165bdce7a07b54ad28e37146595ea1c",
+          "mtime_ns": 1793136841684232523,
+          "ctime_ns": 1793137850058691017
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-overlay-r4/tests/unit/runtime/http/test_debug_api.py",
+          "device": 16777232,
+          "inode": 183806813,
+          "nlink": 9,
+          "bytes": 35094,
+          "mode": "0o644",
+          "sha256": "1103515eb71f5224cdf598959979c5f3b165bdce7a07b54ad28e37146595ea1c",
+          "mtime_ns": 1793136841684232523,
+          "ctime_ns": 1793137850058691017
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-overlay-v2/tests/unit/runtime/http/test_debug_api.py",
+          "device": 16777232,
+          "inode": 183806813,
+          "nlink": 9,
+          "bytes": 35094,
+          "mode": "0o644",
+          "sha256": "1103515eb71f5224cdf598959979c5f3b165bdce7a07b54ad28e37146595ea1c",
+          "mtime_ns": 1793136841684232523,
+          "ctime_ns": 1793137850058691017
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-overlay-v3/tests/unit/runtime/http/test_debug_api.py",
+          "device": 16777232,
+          "inode": 183806813,
+          "nlink": 9,
+          "bytes": 35094,
+          "mode": "0o644",
+          "sha256": "1103515eb71f5224cdf598959979c5f3b165bdce7a07b54ad28e37146595ea1c",
+          "mtime_ns": 1793136841684232523,
+          "ctime_ns": 1793137850058691017
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-overlay-v4/tests/unit/runtime/http/test_debug_api.py",
+          "device": 16777232,
+          "inode": 183806813,
+          "nlink": 9,
+          "bytes": 35094,
+          "mode": "0o644",
+          "sha256": "1103515eb71f5224cdf598959979c5f3b165bdce7a07b54ad28e37146595ea1c",
+          "mtime_ns": 1793136841684232523,
+          "ctime_ns": 1793137850058691017
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-overlay-v5/tests/unit/runtime/http/test_debug_api.py",
+          "device": 16777232,
+          "inode": 183806813,
+          "nlink": 9,
+          "bytes": 35094,
+          "mode": "0o644",
+          "sha256": "1103515eb71f5224cdf598959979c5f3b165bdce7a07b54ad28e37146595ea1c",
+          "mtime_ns": 1793136841684232523,
+          "ctime_ns": 1793137850058691017
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-overlay-v6/tests/unit/runtime/http/test_debug_api.py",
+          "device": 16777232,
+          "inode": 183806813,
+          "nlink": 9,
+          "bytes": 35094,
+          "mode": "0o644",
+          "sha256": "1103515eb71f5224cdf598959979c5f3b165bdce7a07b54ad28e37146595ea1c",
+          "mtime_ns": 1793136841684232523,
+          "ctime_ns": 1793137850058691017
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-overlay-v7/tests/unit/runtime/http/test_debug_api.py",
+          "device": 16777232,
+          "inode": 183806813,
+          "nlink": 9,
+          "bytes": 35094,
+          "mode": "0o644",
+          "sha256": "1103515eb71f5224cdf598959979c5f3b165bdce7a07b54ad28e37146595ea1c",
+          "mtime_ns": 1793136841684232523,
+          "ctime_ns": 1793137850058691017
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-overlay-v8/tests/unit/runtime/http/test_debug_api.py",
+          "device": 16777232,
+          "inode": 183806813,
+          "nlink": 9,
+          "bytes": 35094,
+          "mode": "0o644",
+          "sha256": "1103515eb71f5224cdf598959979c5f3b165bdce7a07b54ad28e37146595ea1c",
+          "mtime_ns": 1793136841684232523,
+          "ctime_ns": 1793137850058691017
+        }
+      ],
+      "comparison": "all current aliases differ from declared base; actual per-alias historical bytes not independently observed"
+    }
+  ],
+  "provenance": {
+    "overlay_declared_base": "cf6a076a8415dc4092cfd3d4e9c8862f81c15a9a",
+    "build_receipts": "v1 invalid for owner generation because three unrelated dirty paths were hardlinked; v2/v3 declare base and list three dirty exceptions that do not include these tests. v4\u2013v8/r4 builders describe inheritance and named replacements. The v5 build script exists; its receipt is absent.",
+    "manifest_checks": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-r3-manifest.json",
+        "complete_changed_paths_entries": 57,
+        "target_matches": []
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-r3-manifest-v2.json",
+        "complete_changed_paths_entries": 57,
+        "target_matches": []
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-r4-manifest.json",
+        "complete_changed_paths_entries": 58,
+        "target_matches": []
+      }
+    ],
+    "manifest_limit": "R3 patch builder only compares candidate postimage paths and deletions, not every overlay member. Absence from changed_paths supports stated intent but does not prove historical bytes.",
+    "handover_untracked_registry": {
+      "recovery_manifest_rows": 5435,
+      "matching_rows": [],
+      "transfer_registry_rows": 5435,
+      "transfer_matching_rows": [],
+      "scope": "nonignored untracked regular files only; ignored overlay originals excluded"
+    },
+    "write_evidence": "Selected execution scripts contain Path.write_bytes for target composition/repair. A shared inode allows propagation, but an exhaustive time-of-write inode record was not found.",
+    "predicate_classes": {
+      "git_blob_bytes": "recomputed",
+      "current_alias_inode_and_bytes": "recomputed",
+      "intended_overlay_base": "consumer_asserted by construction receipts, corroborated by scripts",
+      "actual_historical_per_alias_bytes": "not_established"
+    }
+  },
+  "recovery_recipe": [
+    "No restoration was performed. Preserve current alias bytes and metadata and confirm ownership, intended baseline, and any later overlay-specific changes before writing.",
+    "Immediately before any action, recheck all exact paths, device/inode/link counts, hashes and current canonical isolation; stop on drift.",
+    "Read the two exact tracked paths from Git commit cf6a into separate scratch files and verify blob IDs, SHA-256 and lengths against this receipt. The dad68 debug blob is a different version.",
+    "The cf6a bytes are the declared intended baseline; no independent creation-time hash for each alias was located. Adjudicate unknown or intentional later changes with the owner rather than restoring automatically.",
+    "If restoration is explicitly adopted, preserve evidence first and atomically replace each approved alias with a new inode, preserving mode. Do not write in place to the shared inode or alter canonical source, the index, HEAD or refs.",
+    "Re-read and hash each destination, verify canonical isolation and bytes, and retain a per-path receipt. Preserve pre-repair originals until separately authorized disposition."
+  ],
+  "head_before": "a323bc00dbee813ba7a364639862f54eebd82f50",
+  "head_after": "a323bc00dbee813ba7a364639862f54eebd82f50",
+  "cached_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "inputs": [
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/hardlink-admission/changed-paths-targeted-stat.json",
+      "bytes": 684,
+      "sha256": "17b822d26544166bf77e3331959bd7f3372b316141e91d76bf621cac417618c3"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/hardlink-admission/canonical-hardlinks-broken-preserving-current.json",
+      "bytes": 2128,
+      "sha256": "a97053c914a98ccdb9714557b8ba8e6570a8d5a9bbe1d46d8f94b8df14ba4c08"
+    },
+    {
+      "path": "LOCAL/raw/executor-handover-20261027/draft/recovery.md",
+      "bytes": 1892,
+      "sha256": "36aaab86fb0298b68e0ca56ff463ee7d20688b10d818d198ed75613e04410f0c"
+    },
+    {
+      "path": "LOCAL/raw/executor-handover-20261027/draft/verification.json",
+      "bytes": 1094,
+      "sha256": "be5d94bed301abbdfdc3ec4a6a6646189196af90d68d5401c45232fd5ac6d744"
+    },
+    {
+      "path": "LOCAL/raw/executor-handover-20261027/draft/canonical-task-bindings.json",
+      "bytes": 26299,
+      "sha256": "fdd538cf36b3eef95224353972b5f87da18cfa3c16d0b4020d891cd94b63d0b3"
+    },
+    {
+      "path": "LOCAL/raw/executor-handover-20261027/draft/evidence-index.json",
+      "bytes": 168753,
+      "sha256": "56e6a2d00828b5f9a26003d47236843514a77169a66c74c2772201d6b4eb2bcb"
+    },
+    {
+      "path": "LOCAL/raw/executor-handover-20261027/draft/subagent-registry.json",
+      "bytes": 852430,
+      "sha256": "787f38a2dc4b6be8c2327cebfe752c8a02d4aa6db79993a008a668dbaf9a4063"
+    },
+    {
+      "path": "LOCAL/raw/executor-handover-20261027/draft/selected-decisions.json",
+      "bytes": 4619,
+      "sha256": "93ab16522e13bbe704d3972db77d11d545722952936c71f840afba97ede88482"
+    },
+    {
+      "path": "LOCAL/raw/executor-handover-20261027/draft/proposal-index.json",
+      "bytes": 21227,
+      "sha256": "5142a87f78c900232bea006b8ccf68b99d321d3dbd655448d967c6f32a05ee0f"
+    },
+    {
+      "path": "LOCAL/raw/executor-handover-20261027/recovery-pre-checkpoint/manifest.json",
+      "bytes": 2444941,
+      "sha256": "2e1f5593b0f642221135b6536f40e50c9dc7621606d87bb64b75c60106d73da2"
+    },
+    {
+      "path": "LOCAL/raw/executor-handover-20261027/untracked-at-transfer-entry.json",
+      "bytes": 1099833,
+      "sha256": "980e20f08487884cb24c65eabbca3f86c7319e580e0cdca02a05cbf2dc36e5ee"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-r3-manifest.json",
+      "bytes": 27536,
+      "sha256": "7ca04d883836923ff833209e7f2618fa71e95ca6006c99169ff823e068824383"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-r3-manifest-v2.json",
+      "bytes": 27528,
+      "sha256": "4fe5c1e86d04cbb68489f5330440fe14ec5beda0722ea0e2ccf24e655c409bf9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/candidate-r4-manifest.json",
+      "bytes": 28117,
+      "sha256": "0b8ba8171eabb34635ad0c72f502d8b39d92ede6493a54139a6a650042f5c049"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/validation/candidate-overlay-build.json",
+      "bytes": 1527,
+      "sha256": "945097dc29480c5ca9c2ad5295fad6335718b99a8d6176a680920acf48692256"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/validation/candidate-overlay-build-v1-erratum.json",
+      "bytes": 1847,
+      "sha256": "02f6ac63ec557036f40c20bb1ed024b19ce51d3064adf7c24bdf30c1cd4ac0ac"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/validation/candidate-overlay-build-v2.json",
+      "bytes": 1786,
+      "sha256": "b8e388a1075b6ef5007274e9daf40c39efcb0ebf3b7e127ccb8ac3334309d89f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/validation/candidate-overlay-build-v3.json",
+      "bytes": 1816,
+      "sha256": "443f909be4daf8d03c314cd66a7cef352b309f9b28bc5cdc585d4f0f27fca4bd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/validation/candidate-overlay-build-v4.json",
+      "bytes": 1192,
+      "sha256": "38002f9d5136c8fc99986dd1df48713398586a6b0c42ea118a1ee827cde22f65"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/validation/candidate-overlay-build-v6.json",
+      "bytes": 1810,
+      "sha256": "dd052d3e9a88d2fdd384406926d945b6b0cbb4c34d2971ffb4bc209994533d43"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/validation/candidate-overlay-build-v7.json",
+      "bytes": 728,
+      "sha256": "b8a34e28724c8842bb662afcdca7cbe8602c36780408ecfcc5039cca23899e37"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/validation/candidate-overlay-build-v8.json",
+      "bytes": 1730,
+      "sha256": "f7125de921cc2cfbbf468e1f3af6cabe3e3609ba1a9332e6576f277af27ebe59"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/validation/candidate-overlay-build-r4.json",
+      "bytes": 1111,
+      "sha256": "109f2cd418d7aeddbba1a99aee0a92b7a574c8d314144c4dea384ad987680782"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/validation/build-candidate-overlay-v4.py",
+      "bytes": 2595,
+      "sha256": "762590ad5b7c9964506ce04eda312e5b9244584c6c8f5a26059f57d0d48fb5c7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/validation/build-candidate-overlay-v5.py",
+      "bytes": 3093,
+      "sha256": "05c272dd605cb27ee2a569345a2c0c52df38a07f40d7098fd4779baa17352740"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/validation/build-candidate-overlay-v6.py",
+      "bytes": 3112,
+      "sha256": "cf8a919842b9934713e4fbe04a5860b4898e80e22d0d238f3b04524ab0a6f463"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/validation/build-candidate-overlay-v7.py",
+      "bytes": 2594,
+      "sha256": "f80738e6d4381ccbceb7ca282423ebc2494f40111cf58c7be4657f7c7118fc59"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/validation/build-candidate-overlay-v8.py",
+      "bytes": 2004,
+      "sha256": "260e9cd7559f5af8bbb7ccc612808c54109fe1d8dd700b9b731df5ba2dd057ce"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/validation/build_candidate_overlay_r4.py",
+      "bytes": 3335,
+      "sha256": "1cd0d71eb14da5c39d57e393a575d836e0951651f8ba222c930612492a3ab4be"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/validation/build_r3_patch.py",
+      "bytes": 6947,
+      "sha256": "dfa34346697ebe43c1b3e54426ba92b884dd06a9bb2ae44d4d78cdfbed2893a4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/validation/build_r3_patch_v2.py",
+      "bytes": 6945,
+      "sha256": "193ec9a26abe4064bce7ef03c9c2366e5f94814cb857f32836cf80900d0e674e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scholar-six-root-impl-736104d-20261017-r3/validation/ruff-import-order-correction-v1.json",
+      "bytes": 1204,
+      "sha256": "4b9e4038c9d4d5c1a8ca3d09d284ae9685d5e3f172ec5eeadae773a2ca2cb5e1"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/compose_c02_c03.py",
+      "bytes": 4930,
+      "sha256": "4fdb080f99ba6724956db356075ebdb4b3240da512fec3479e7b8df5c1977468"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repair_c03_and_format.py",
+      "bytes": 2636,
+      "sha256": "850831b1afed1bc9b370c996ca92ff25504ebb56c47bff68f0a89bbe2cf06cbb"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/compose_c01_test_only.py",
+      "bytes": 1256,
+      "sha256": "cc6bfd36a545949fc3dbcf58d707f05c77586eb5862192f876347fc325f88143"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/compose_quality_and_c09.py",
+      "bytes": 2062,
+      "sha256": "cb249c62476f327f6a915704ad69e60add510f7d98f00c8c86eb90d61e5810c4"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C01-quality-fixture-r1/manifest.json",
+      "bytes": 697,
+      "sha256": "1100377856f43a2e33e9627fe1e146a1c9b090e3af639b26dcaa83394e30035a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native101-hardlink-partner-audit-r1-20261017/audit-manifest-r1.json",
+      "bytes": 2189,
+      "sha256": "4a36211ae09e0c3153cd471a4c18e630cde8b6e9d46464d4346a327bc523acfd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native101-hardlink-partner-audit-r1-20261017/scope-inode-partners-r1.json",
+      "bytes": 452704,
+      "sha256": "5be44f9b30f148673a4649677a8118109c00b7bfba2ab978d4e52c2588bf3715"
+    }
+  ],
+  "write_boundary": "Only this JSON and companion Markdown were created; no alias restoration, source/index/HEAD/ref mutation, cleanup, or product test."
+}

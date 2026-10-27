@@ -1,0 +1,11 @@
+# I1: Effective profile and policy currentness — G review packet
+
+This draft proposes the **original I1 author task exit** for independent G review at current docs head `76691bd25ba10bee2caed9826e54cd9d40324ca5`. Product source is pinned at `a92c9774edf8049d590cd6ca6de35aa17063025a`; the existing I1/I4 runtime receipt ran at its parent `8a24cc8ff895e61a51de2f91191251a9a8b23d84`. The intervening/current commits are docs-only, and all 18 held source/facade pins rebind byte-for-byte and Git-blob-for-Git-blob at 766.
+
+The original exit asks for same-ID mutation invalidation, an unchanged positive, and a fresh checkpoint/benchmark. The mandatory C05 companion asks for all 14 held paths, 4 facades, G `_resources`, existing exports, and fresh currentness/cache/session/WVS consumers. The packet includes that complete source roster and each current SHA-256/Git blob, plus the two run readsets and exact recorded test argv.
+
+The decisive producer test uses `prod_core_blocking`, wave B, one temporary `worldbank` source, and a deterministic loopback HTTP fixture. Its unchanged rerun skips harvest through benchmark without refetch; a same-path/same-length/same-mtime registry byte change invalidates reuse and warm-reader admission; a removal control exposes the stale plan; recomputation changes the report and benchmark inventories; a newly opened reader sees the revised catalog title. The separate WVS run proves valid same-stat byte drift changes warm loader/harvester outputs and the generic producer signature, while mtime-only drift preserves it. No WVS-specific join is missing from the generic material-basis-to-stage-basis mechanism.
+
+The receipts report 20/20 and 25/25 with zero skips/failures. The first is a combined I1/I4 cohort; the second is the current I1 session/WVS/resource/facade/discovery companion. Output files and readsets are cited by full repository-relative path and SHA; logs are not copied into this packet. Packet authoring did not rerun tests.
+
+This proposal does not close LA-041 formally, accept code, assert a production freshness fact, or move the current full-registry v1 behavior to selected-scope v2. The decisive fixture leaves publish lineage `not_established`. G retains code-acceptance, integration-publication and formal-adjudication authority.

@@ -1,0 +1,719 @@
+{
+  "schema": "policyos.e02.G_review_packet.v1",
+  "task": "I1",
+  "review_status": "author_ready_for_independent_G_review",
+  "packet_kind": "content_bound_profile_policy_currentness",
+  "source_snapshot": {
+    "commit": "76691bd25ba10bee2caed9826e54cd9d40324ca5",
+    "tree": "fd684ae314f3e6e9d40596029b1dce0cccc13233",
+    "parents": [
+      "81bc3861fff753c2776f3f81c84d1fa4ce6a69cd"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "product_source_base": {
+      "commit": "a92c9774edf8049d590cd6ca6de35aa17063025a",
+      "tree": "7f9908cd38ca5aa2148f7cc9458d3dbbd0cdb1d9",
+      "parent": "8a24cc8ff895e61a51de2f91191251a9a8b23d84"
+    },
+    "execution_source_bases": [
+      {
+        "run": "i1-i4-catalog-current",
+        "commit": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+        "purpose": "20-node checkpoint, benchmark, Fabric and Catalog HTTP cohort."
+      },
+      {
+        "run": "remaining19-i1-session-wvs-existing",
+        "commit": "a92c9774edf8049d590cd6ca6de35aa17063025a",
+        "purpose": "25-node current WVS, session-cache, resource, facade and discovery companion."
+      }
+    ],
+    "docs_delta_after_product_source_base": {
+      "changed_paths": 4,
+      "scope": "Only the existing BOOT0/T1 G packet README and packet.json files were added after a92; no source, tests, config, schema, generator or dependency paths changed.",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-integration-ready-20261027/BOOT0/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-integration-ready-20261027/BOOT0/packet.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-integration-ready-20261027/T1/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-integration-ready-20261027/T1/packet.json"
+      ]
+    },
+    "product_equivalence": "The source execution bases are 8a24 and a92. From 8a24 through pinned documentation snapshot 76691bd, changes are documentation-only. The full held-14 plus 4-facade matrix was independently rebound at 76691bd: all 18 current file SHA-256 values and Git blob IDs exactly match the a92 matrix; the 20-node readset contains 18/18, while the 25-node readset contains 16/18 and the two omitted paths were loaded and matched in the earlier run.",
+    "snapshot_kind": "Pinned documentation snapshot; not a claim that this is the latest packet commit."
+  },
+  "original_contract": {
+    "task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/I1",
+    "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/I1",
+    "original_exit": "same-ID mutation invalidates before reuse; unchanged positive and fresh checkpoint/benchmark",
+    "mandatory_next_action": "Compose C05 14ownedpaths+4facades with13existingdifferent suppliers; retain G _resources and existing exports; freshcurrentness/cache/session/WVS consumers.",
+    "assigned_finding_ids": [
+      "LA-041"
+    ],
+    "criterion_binding": {
+      "finding_id": "LA-041",
+      "criterion_occurrences": 1,
+      "document_id": "LA_r09",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "source_lines": [
+        2595,
+        2631
+      ],
+      "source_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+      "span_sha256": "11fa4aba4b13edd0ea0537a3cfcc7b725568c06f116f599d5bee39f479b09f88",
+      "coverage_record": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/LA-041",
+      "coverage_file_sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    "original_task_file_sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+  },
+  "implementation_selection": {
+    "code_integration_required": true,
+    "implementation_commits": [
+      "a8fc04ab50c98f34032d13ecddfb12c308034aae",
+      "511095b8080859c63278e17c5602b3857d85e710",
+      "2ea093a7a68cb9f28958606183b52fa4bb815499",
+      "2df13887f2d06788c6a3fbb22e32bca5eac9e002",
+      "28993990bb49e8fb13d1f8a186569db0d82e400b",
+      "f16ee2de662aa35cadab798e4d3127fca7fbc133",
+      "b6f115016f87ac8fdea0d2e640f6c32f9ae6caaf",
+      "fd5cecd59c881654d9ca40f69377fef1fe38eb50"
+    ],
+    "historical_footprints": [
+      {
+        "commit": "a8fc04ab50c98f34032d13ecddfb12c308034aae",
+        "role": "Introduced content-bound catalog stage resume and the initial same-stat resume witnesses.",
+        "footprint": "3 files; +447/-36; focused checkpoint/pipeline/test change.",
+        "attribution": "focused"
+      },
+      {
+        "commit": "511095b8080859c63278e17c5602b3857d85e710",
+        "role": "Added atomic material-input/profile basis handling used by current producer configuration.",
+        "footprint": "16 files; +2623/-154.",
+        "attribution": "mixed catalog registry, profile and sidecar composition; do not attribute the full commit to I1."
+      },
+      {
+        "commit": "2ea093a7a68cb9f28958606183b52fa4bb815499",
+        "role": "Excluded private profile digests from the persisted producer basis while retaining currentness semantics.",
+        "footprint": "4 files; +96/-15.",
+        "attribution": "focused profile-basis adjustment plus lease/plan documentation."
+      },
+      {
+        "commit": "2df13887f2d06788c6a3fbb22e32bca5eac9e002",
+        "role": "Bound publication readiness to recomputed report basis and current output inventory.",
+        "footprint": "16 files; +1398/-426.",
+        "attribution": "mixed multi-surface catalog/currentness work; not an I1-only commit."
+      },
+      {
+        "commit": "28993990bb49e8fb13d1f8a186569db0d82e400b",
+        "role": "Added the real producer-to-fresh-retrieval-consumer same-stat currentness test.",
+        "footprint": "3 files; +403/-1.",
+        "attribution": "mixed test plus lease and delivery-index updates."
+      },
+      {
+        "commit": "f16ee2de662aa35cadab798e4d3127fca7fbc133",
+        "role": "Added WVS material snapshots, cache binding and malformed-registry refusal companions.",
+        "footprint": "20 files; +888/-59.",
+        "attribution": "mixed WVS/read-api/facade/connector and evidence work; not I1-only."
+      },
+      {
+        "commit": "b6f115016f87ac8fdea0d2e640f6c32f9ae6caaf",
+        "role": "Later composition touching catalog config/facades within owner-admission and broader E02 work.",
+        "footprint": "130 files; +7804/-1556.",
+        "attribution": "broad mixed E02 integration; no whole-commit I1 attribution."
+      },
+      {
+        "commit": "fd5cecd59c881654d9ca40f69377fef1fe38eb50",
+        "role": "Later owner-admitted IR/transport composition includes the current catalog candidate source.",
+        "footprint": "715 files; +142991/-18803.",
+        "attribution": "very broad mixed composition; listed for ancestry/context only, not as a standalone I1 implementation."
+      }
+    ],
+    "lineage_qualification": "Every listed commit is an ancestor of a92. These are the confirmed focused milestones and directly relevant mixed follow-ons, not an exclusive decomposition of all historical source ownership. No cherry-pick is proposed.",
+    "scope": "Review the already-present source implementation at the pinned candidate. This packet proposes no code changes or source cherry-picks.",
+    "source_test_config_footprint": "The packet payload comprises packet.json and README.md, written under the confined ignored RAW target; the confiner keeps its own invocation/output receipt files in dedicated RAW run directories. No product source, test, config, schema, generator or dependency bytes were changed by this packet draft."
+  },
+  "property": {
+    "statement": "A local catalog stage and its warm/fresh consumers may reuse or expose a generation only while the current selected producer inputs and required output inventory match the persisted content basis; unchanged content retains a positive skip.",
+    "predicate_basis": "recomputed",
+    "acceptance_signal": "In the real sync producer, unchanged inputs retain a current receipt and skip harvest/normalize/merge/graph/benchmark without refetch. A same-ID source registry byte mutation with path, size and mtime preserved makes the recomputed basis stale, blocks stage skip and warm/fresh reader admission, and after recomputation changes both report basis and benchmark inventory. A removal control proves the reader would expose the stale plan if its currentness admission were bypassed.",
+    "consumer_surface": "Catalog stage checkpoint/reuse, warm and fresh Fabric RetrievalService, Catalog report/publication readers, WVS loaders/harvester cache, connector session cache, and existing Catalog resource/read-API facades.",
+    "authority_scope": "Proposal for the original I1 author task exit only. No formal LA-041 closure, G code acceptance, production-source freshness, selected-scope v2 semantics or global source/backend freeze is claimed.",
+    "selected_input_profile_backend": {
+      "run_profile": "prod_core_blocking",
+      "wave": "B",
+      "source_selection": "Temporary registry selects exactly one enabled `worldbank` source (`connector_id=worldbank.wdi`, `profile_id=worldbank_wdi`, `execution_tier=transport_ready`, `run_lane=empirical`).",
+      "metric_input": "Temporary copy of packaged metrics map removes the PPP indicator, leaving NY.GDP.PCAP.CD selected for `gdp_per_capita`.",
+      "stages": [
+        "harvest",
+        "normalize",
+        "merge_dedup",
+        "graph_load",
+        "benchmark",
+        "qc"
+      ],
+      "resume": true,
+      "max_datasets_per_source": 1,
+      "backend": "Deterministic local ThreadingHTTPServer fixture on 127.0.0.1; route changes from /a to /b while the source-registry bytes change at the same path, byte length and restored mtime. This is not a live World Bank backend or production-source freshness check.",
+      "consumer_request": {
+        "metric": "gdp_per_capita",
+        "mode": "fastlane",
+        "allow_explore_fallback": false
+      }
+    },
+    "producer_snapshot_signature_skip_consumer_chain": [
+      "run_dataset_pipeline_sync(config) is the real producer for the temporary source registry and local HTTP fixture.",
+      "DatasetBatchConfig._producer_material_input_basis resolves selected material locators and exact file bytes into frozen _MaterialFileSnapshot values; the producer config snapshot and run_signature include that material identity.",
+      "The generic _stage_input_basis persists the recomputed producer basis/signature and input identity alongside required output inventory hashes.",
+      "_should_skip_stage recomputes current input basis and output inventory before reuse; current_content_stage_receipt and current_catalog_report_basis recompute the same basis for readers.",
+      "Warm and newly opened RetrievalService consumers withhold a stale unpublished plan; after the second producer run, a fresh Catalog search sees the revised source title while publish lineage remains not_established."
+    ]
+  },
+  "source_matrix": {
+    "source_membership": "C05 held14supplier_paths: 13 supplier/source paths plus G-only _resources.py. File-type denominator: 14 Python files, consisting of 12 src files, 1 unit test, and _resources.py.",
+    "current_match_counts": {
+      "held14_including_resource": {
+        "G": 2,
+        "C05": 3,
+        "neither": 9
+      },
+      "supplier_paths_excluding_resource": {
+        "G": 1,
+        "C05": 3,
+        "neither": 9
+      },
+      "g_resources_exact": true
+    },
+    "source_refs_for_match": {
+      "G": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+      "C05": "5ccbfa15c5671623a4c1ff7a3145460c5ca5a857",
+      "current": "a92c9774edf8049d590cd6ca6de35aa17063025a"
+    },
+    "held14_paths": [
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+        "sha256": "6c36ffce957ade642ba1cc1dab2367c2620dd7c75d0219520c64b3eec94bf0a6",
+        "git_blob": "0867804c64b5468bff7025a5208574b2390b90ad",
+        "match": "G"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+        "sha256": "c3a8019dce00106229de2ac207c1568ba44b743e64ca9e03620372131be0c040",
+        "git_blob": "e5bc79f3b19891779a6832311a3f90b4c900d68f",
+        "match": "neither"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py",
+        "sha256": "1f0e49771950320fe1ec5016f40b5616c8b76d39372a0a0959d745e579c667e4",
+        "git_blob": "c22f96ca097082dcc371a18f494eb480ff0cb356",
+        "match": "neither"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+        "sha256": "cdc9587279db23a2d99b419bf385961e555db2b0c68dae252293f53733542c23",
+        "git_blob": "76d438f076f616febb14004820f4dafb8c8b4c0e",
+        "match": "neither"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+        "sha256": "9b3a2dc1d861d4c26607a61b1d7cbeb4179a7b74e411c504dc340d47ab0b67fa",
+        "git_blob": "146b0a59253a606c6091e7dd32cd802f47511294",
+        "match": "neither"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+        "sha256": "231959818a0fc3fb8192ede89108bf32b1355bb52abe1a38d9b99e28f71c1494",
+        "git_blob": "e42b396dbd9ba8f46f272bffa4654276b40960c3",
+        "match": "neither"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+        "sha256": "4a1c014b2f346dc4906d7cf4acabba4f586b8b43f1bc3eac7021aff742aa8252",
+        "git_blob": "03fa92835de7f76e5aebf8672f1688683015fd19",
+        "match": "neither"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+        "sha256": "c71931574b691570d8a124e8e582c5fadf685c4973d763adb1ccba97a1d44371",
+        "git_blob": "8048f07129fded3a3498f5ace0153231fae986e2",
+        "match": "neither"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+        "sha256": "979f24af1b2f54e30b5c9ffcf5df28860a99a923613567c68f81b3cf3ded3866",
+        "git_blob": "85f82063d70d11d9c8e8cf1ac5b14443ed2abadf",
+        "match": "neither"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py",
+        "sha256": "45b495ce015e0ee7efdf2ab10d69cd0d165c406b331f56e77d8ce93e0c2d28ed",
+        "git_blob": "537172785837469853b2e0d33ac6ec8750614865",
+        "match": "C05"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+        "sha256": "bb547db9fee687f463b633b4f0d6ee24ab527c1b0ea207160aaffddf6c7d1422",
+        "git_blob": "abe7878b7ccd24414349e660dd1664c1b7137ab5",
+        "match": "G"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/registry.py",
+        "sha256": "9c873a02b832b6d01dd3bff85193e73a89e78cf03926bba9c6d47081c93f206a",
+        "git_blob": "aebd4168dd9140db918e43db9220f338b60ffd60",
+        "match": "C05"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/source_modules.py",
+        "sha256": "582275c5a5bb4f4f395a8402b6f10d8f97e813ae1246da6cc7598f1bb4d46b0a",
+        "git_blob": "496f12ea05400d68015a1819cf99548d9b3be8f6",
+        "match": "C05"
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py",
+        "sha256": "5cf97c5ab3bd89c081a17c85bdf6b3a27db8cb469ac2091725b3a412726d70a7",
+        "git_blob": "83d22993f5c3e647bf8c0ce9608aa6a21f1a9513",
+        "match": "neither"
+      }
+    ],
+    "facades": [
+      {
+        "path": "policy-engine/src/polisyos/fabric/__init__.py",
+        "sha256": "93b5764232d4b1fdaea6efe4b55a4a42850e28e709a2ce4cca95ac061141b713",
+        "git_blob": "8b332e992e4749f8e36bd06028e710f24eb31daa",
+        "current_contract": "Stable facade retained; profile registry/resolvers stay on canonical fabric.connectors.profiles path."
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/__init__.py",
+        "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40",
+        "git_blob": "5964150861173fd27143d44363fda0ddd1b6f7e4",
+        "current_contract": "Stable facade retained; artifact-store APIs remain on canonical core.artifacts path."
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/__init__.py",
+        "sha256": "e3f0dd7f5625fbb453c3e085c953fb3f6b168e7be7af129dc83aa7fd8d46ea0a",
+        "git_blob": "f9a298fbbfab9f327d7ebea4cd2024c84faa1caa",
+        "current_contract": "Current __all__ includes FetchRequest, FetchResult, and ArtifactStore; preserve this source state."
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+        "sha256": "a257bc25083d4229e460632cb5414a474872bee23ca7c2002ac6697e33aef676",
+        "git_blob": "6fd876897abd1708a32b8133fa2ded8f31231d4e",
+        "current_contract": "CatalogRunProfile, CatalogSelectionError, catalog_default_resource_path, read_wvs_indicator_registry, and typed read error remain on the required lazy facade."
+      }
+    ],
+    "current_rebind_at_review_head": {
+      "commit": "76691bd25ba10bee2caed9826e54cd9d40324ca5",
+      "tree": "fd684ae314f3e6e9d40596029b1dce0cccc13233",
+      "current_file_sha256_matches": 18,
+      "current_git_blob_matches": 18,
+      "mismatches": [],
+      "rebind_rows": [
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+          "sha256": "6c36ffce957ade642ba1cc1dab2367c2620dd7c75d0219520c64b3eec94bf0a6",
+          "git_blob": "0867804c64b5468bff7025a5208574b2390b90ad"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+          "sha256": "c3a8019dce00106229de2ac207c1568ba44b743e64ca9e03620372131be0c040",
+          "git_blob": "e5bc79f3b19891779a6832311a3f90b4c900d68f"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py",
+          "sha256": "1f0e49771950320fe1ec5016f40b5616c8b76d39372a0a0959d745e579c667e4",
+          "git_blob": "c22f96ca097082dcc371a18f494eb480ff0cb356"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+          "sha256": "cdc9587279db23a2d99b419bf385961e555db2b0c68dae252293f53733542c23",
+          "git_blob": "76d438f076f616febb14004820f4dafb8c8b4c0e"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+          "sha256": "9b3a2dc1d861d4c26607a61b1d7cbeb4179a7b74e411c504dc340d47ab0b67fa",
+          "git_blob": "146b0a59253a606c6091e7dd32cd802f47511294"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+          "sha256": "231959818a0fc3fb8192ede89108bf32b1355bb52abe1a38d9b99e28f71c1494",
+          "git_blob": "e42b396dbd9ba8f46f272bffa4654276b40960c3"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+          "sha256": "4a1c014b2f346dc4906d7cf4acabba4f586b8b43f1bc3eac7021aff742aa8252",
+          "git_blob": "03fa92835de7f76e5aebf8672f1688683015fd19"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+          "sha256": "c71931574b691570d8a124e8e582c5fadf685c4973d763adb1ccba97a1d44371",
+          "git_blob": "8048f07129fded3a3498f5ace0153231fae986e2"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+          "sha256": "979f24af1b2f54e30b5c9ffcf5df28860a99a923613567c68f81b3cf3ded3866",
+          "git_blob": "85f82063d70d11d9c8e8cf1ac5b14443ed2abadf"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py",
+          "sha256": "45b495ce015e0ee7efdf2ab10d69cd0d165c406b331f56e77d8ce93e0c2d28ed",
+          "git_blob": "537172785837469853b2e0d33ac6ec8750614865"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/variable_alignment.py",
+          "sha256": "bb547db9fee687f463b633b4f0d6ee24ab527c1b0ea207160aaffddf6c7d1422",
+          "git_blob": "abe7878b7ccd24414349e660dd1664c1b7137ab5"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/registry.py",
+          "sha256": "9c873a02b832b6d01dd3bff85193e73a89e78cf03926bba9c6d47081c93f206a",
+          "git_blob": "aebd4168dd9140db918e43db9220f338b60ffd60"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/catalog/source_modules.py",
+          "sha256": "582275c5a5bb4f4f395a8402b6f10d8f97e813ae1246da6cc7598f1bb4d46b0a",
+          "git_blob": "496f12ea05400d68015a1819cf99548d9b3be8f6"
+        },
+        {
+          "path": "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py",
+          "sha256": "5cf97c5ab3bd89c081a17c85bdf6b3a27db8cb469ac2091725b3a412726d70a7",
+          "git_blob": "83d22993f5c3e647bf8c0ce9608aa6a21f1a9513"
+        },
+        {
+          "path": "policy-engine/src/polisyos/fabric/__init__.py",
+          "sha256": "93b5764232d4b1fdaea6efe4b55a4a42850e28e709a2ce4cca95ac061141b713",
+          "git_blob": "8b332e992e4749f8e36bd06028e710f24eb31daa"
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/__init__.py",
+          "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40",
+          "git_blob": "5964150861173fd27143d44363fda0ddd1b6f7e4"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/__init__.py",
+          "sha256": "e3f0dd7f5625fbb453c3e085c953fb3f6b168e7be7af129dc83aa7fd8d46ea0a",
+          "git_blob": "f9a298fbbfab9f327d7ebea4cd2024c84faa1caa"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+          "sha256": "a257bc25083d4229e460632cb5414a474872bee23ca7c2002ac6697e33aef676",
+          "git_blob": "6fd876897abd1708a32b8133fa2ded8f31231d4e"
+        }
+      ]
+    },
+    "membership_qualification": "The 14 held paths comprise 13 supplier/source paths plus G-only _resources.py. The 13 is a source-path denominator, not a claim of 13 independent capabilities."
+  },
+  "whole_property_composition": {
+    "generic_wvs_join": "WVS registry and optional variable-catalog bytes are selected material snapshots in the same generic producer-config basis that feeds run_signature and every content-bound stage input basis. WVS loader and harvester caches key parsed content by those snapshots. The WVS byte-drift tests prove warm bulk rows/catalog metadata change and the signature changes; therefore the generic stage reuse join is present without a WVS-specific enumerated join. This is complete-by-construction for the bounded currentness property; no giant combined test is required.",
+    "deciding_invariants": [
+      "Input identity and output inventory are both required for stage reuse; metadata-only path/size/mtime is insufficient.",
+      "Exact same-stat byte drift must invalidate; unchanged bytes must still produce a useful skip.",
+      "The producer signature and consumer cache keys must use the same effective material snapshot.",
+      "Reader currentness controls actual fetch-plan admission, not only a marker or exit code."
+    ],
+    "adversarial_witnesses": [
+      {
+        "case": "Same-ID source registry bytes change while path, file size and restored mtime stay equal.",
+        "oracle": "Stage skip becomes false; report basis becomes stale; warm reader withholds stale plan."
+      },
+      {
+        "case": "Remove the currentness gate while retaining persisted catalog state.",
+        "oracle": "Warm reader emits the stale baseline fetch plan, demonstrating the consumer-side property."
+      },
+      {
+        "case": "Valid WVS policy YAML changes in place at equal byte length with mtime restored.",
+        "oracle": "Warm WVS loader and harvester return revised values; producer run_signature changes."
+      },
+      {
+        "case": "Only WVS file mtime changes; bytes stay fixed.",
+        "oracle": "Producer run_signature stays fixed, preserving the unchanged-content positive."
+      },
+      {
+        "case": "WVS registry is present but malformed.",
+        "oracle": "Existing resource/read API/discovery refusal tests deny fallback; they remain scoped refusal controls, not broader registry-completeness claims."
+      }
+    ],
+    "source_qualification": "The 20-node run is a combined I1/I4 cohort, not an I1-only suite. Its 17 I1 selectors include the real harvest/currentness/fresh-reader node; three Catalog HTTP selectors cover adjacent I4. The 25-node run is the current I1 WVS/session/resource/facade/discovery companion. Both runs preserve native pytest.ini/plugins (no plugin-disable flags). Receipts contain the exact sandboxed argv and selectors.",
+    "bounded_scope": "Current full-registry v1 profile behavior and the selected local source/material bytes only. This does not prove every registry input is scientifically authoritative, every live producer is fresh, selected-scope v2 semantics, or publication eligibility."
+  },
+  "verification_runs": [
+    {
+      "case_id": "i1-i4-catalog-current",
+      "task_ids": [
+        "I1",
+        "I4"
+      ],
+      "source_head": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/audit-result.json",
+      "receipt_sha256": "7348d860723dcf7444a8a54c09ebe0ef30fe7d313d459100e89976204d9490ff",
+      "relevance": "Combined I1/I4 cohort: 17 I1 selectors plus 3 I4 Catalog HTTP selectors; the I1 original-exit deciding node is test_real_harvest_currentness_recomputes_and_fresh_catalog_consumer_sees_new_generation.",
+      "exact_argv": [
+        "/usr/bin/sandbox-exec",
+        "-f",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/child.sb",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/pytest_launcher.py",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/pytest-cache",
+        "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/benchmarks",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/pytest.xml",
+        "--tb=short",
+        "--color=no",
+        "--maxfail=0",
+        "tests/unit/data_forge/domains/catalog/batch/test_publish.py::test_publish_basis_recomputes_forged_ready_reports_against_selected_graph",
+        "tests/unit/data_forge/domains/catalog/batch/test_publish.py::test_report_basis_read_is_side_effect_free_and_detects_same_stat_drift",
+        "tests/unit/data_forge/domains/catalog/batch/test_publish.py::test_profile_input_coverage_binds_presence_without_persisting_values",
+        "tests/unit/data_forge/domains/catalog/batch/test_publish.py::test_profile_snapshot_is_the_same_basis_and_runtime_connection",
+        "tests/unit/data_forge/domains/catalog/batch/test_publish.py::test_core_receipt_reconciliation_uses_one_profile_snapshot",
+        "tests/unit/data_forge/domains/catalog/batch/test_publish.py::test_current_publish_reader_keeps_legacy_or_malformed_coverage_unknown",
+        "tests/unit/data_forge/domains/catalog/batch/test_core_profile_input_currentness.py::test_unknown_profile_basis_invalidates_all_checkpoint_reuse",
+        "tests/unit/data_forge/domains/catalog/batch/test_core_profile_input_currentness.py::test_established_profile_basis_preserves_independent_caches_without_receipt",
+        "tests/unit/data_forge/domains/catalog/batch/test_core_profile_input_currentness.py::test_core_output_receipt_currentness_requires_established_profile_basis",
+        "tests/unit/data_forge/domains/catalog/batch/test_core_profile_input_currentness.py::test_observation_fetch_deduper_scopes_requests_by_profile_and_input_basis",
+        "tests/unit/data_forge/domains/catalog/batch/test_pipeline.py::test_pipeline_uses_one_profile_snapshot_for_signature_and_core_consumer",
+        "tests/unit/data_forge/domains/catalog/batch/test_observed_support_receipt.py::test_qc_stage_receipt_invalidates_when_heatmap_or_support_artifact_changes",
+        "tests/unit/data_forge/domains/catalog/batch/test_observed_support_receipt.py::test_qc_receipt_rejects_self_consistent_inventory_missing_support_entry",
+        "tests/unit/data_forge/domains/catalog/batch/test_normalizer.py::test_default_worldbank_metric_map_uses_current_government_indicator_ids",
+        "tests/unit/fabric/test_retrieval_service_catalog.py::test_excluded_profile_value_change_is_not_current_or_reusable",
+        "tests/unit/fabric/test_retrieval_service_catalog.py::test_profile_removal_does_not_promote_unpublished_catalog_rows",
+        "tests/unit/fabric/test_retrieval_service_catalog.py::test_real_harvest_currentness_recomputes_and_fresh_catalog_consumer_sees_new_generation",
+        "tests/unit/runtime/http/test_catalog_profile_http.py::test_catalog_profile_http_selects_published_plan_through_fresh_reader",
+        "tests/unit/runtime/http/test_catalog_profile_http.py::test_catalog_profile_http_recomputes_same_id_profile_drift_for_real_consumers",
+        "tests/unit/runtime/http/test_catalog_profile_http.py::test_catalog_profile_http_refuses_absent_conflicting_and_malformed_selection"
+      ],
+      "selected_nodes": [
+        "tests/unit/data_forge/domains/catalog/batch/test_publish.py::test_publish_basis_recomputes_forged_ready_reports_against_selected_graph",
+        "tests/unit/data_forge/domains/catalog/batch/test_publish.py::test_report_basis_read_is_side_effect_free_and_detects_same_stat_drift",
+        "tests/unit/data_forge/domains/catalog/batch/test_publish.py::test_profile_input_coverage_binds_presence_without_persisting_values",
+        "tests/unit/data_forge/domains/catalog/batch/test_publish.py::test_profile_snapshot_is_the_same_basis_and_runtime_connection",
+        "tests/unit/data_forge/domains/catalog/batch/test_publish.py::test_core_receipt_reconciliation_uses_one_profile_snapshot",
+        "tests/unit/data_forge/domains/catalog/batch/test_publish.py::test_current_publish_reader_keeps_legacy_or_malformed_coverage_unknown",
+        "tests/unit/data_forge/domains/catalog/batch/test_core_profile_input_currentness.py::test_unknown_profile_basis_invalidates_all_checkpoint_reuse",
+        "tests/unit/data_forge/domains/catalog/batch/test_core_profile_input_currentness.py::test_established_profile_basis_preserves_independent_caches_without_receipt",
+        "tests/unit/data_forge/domains/catalog/batch/test_core_profile_input_currentness.py::test_core_output_receipt_currentness_requires_established_profile_basis",
+        "tests/unit/data_forge/domains/catalog/batch/test_core_profile_input_currentness.py::test_observation_fetch_deduper_scopes_requests_by_profile_and_input_basis",
+        "tests/unit/data_forge/domains/catalog/batch/test_pipeline.py::test_pipeline_uses_one_profile_snapshot_for_signature_and_core_consumer",
+        "tests/unit/data_forge/domains/catalog/batch/test_observed_support_receipt.py::test_qc_stage_receipt_invalidates_when_heatmap_or_support_artifact_changes",
+        "tests/unit/data_forge/domains/catalog/batch/test_observed_support_receipt.py::test_qc_receipt_rejects_self_consistent_inventory_missing_support_entry",
+        "tests/unit/data_forge/domains/catalog/batch/test_normalizer.py::test_default_worldbank_metric_map_uses_current_government_indicator_ids",
+        "tests/unit/fabric/test_retrieval_service_catalog.py::test_excluded_profile_value_change_is_not_current_or_reusable",
+        "tests/unit/fabric/test_retrieval_service_catalog.py::test_profile_removal_does_not_promote_unpublished_catalog_rows",
+        "tests/unit/fabric/test_retrieval_service_catalog.py::test_real_harvest_currentness_recomputes_and_fresh_catalog_consumer_sees_new_generation",
+        "tests/unit/runtime/http/test_catalog_profile_http.py::test_catalog_profile_http_selects_published_plan_through_fresh_reader",
+        "tests/unit/runtime/http/test_catalog_profile_http.py::test_catalog_profile_http_recomputes_same_id_profile_drift_for_real_consumers",
+        "tests/unit/runtime/http/test_catalog_profile_http.py::test_catalog_profile_http_refuses_absent_conflicting_and_malformed_selection"
+      ],
+      "outcome": {
+        "status": "passed",
+        "tests": 20,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "wall_seconds": 171.97527674998855,
+        "max_sampled_process_tree_rss_bytes": 1330561024,
+        "minimum_sampled_disk_free_bytes": 8653672448,
+        "pytest_exitstatus": 0,
+        "current_mismatches": [],
+        "native_plugin_disable_flags_present": false
+      },
+      "readset": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/readsets/input-readset-39953.json",
+        "sha256": "f1e20c181aefb4b629d801bc0bf8825c57cfe8cc20bdff631b5504a272fa1ef8",
+        "python_paths": 1852,
+        "pytest_exitstatus": 0
+      },
+      "output_files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/i1-i4-catalog-current.stdout.txt",
+          "sha256": "c8fb4bb42f40050e3b0331c5104a541ca4cfd193f4a9dd7bf8c2a7a7a5b047d6",
+          "kind": "stdout"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/i1-i4-catalog-current.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "kind": "stderr"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/pytest.xml",
+          "sha256": "faeea59f7054127f4c13498ee37438b5184341eafc082785649a652def87c1ce",
+          "kind": "junit_xml"
+        }
+      ],
+      "preserved_test_configuration": "Native pytest.ini and pytest plugins were retained; the recorded argv contains no plugin-disable flags.",
+      "receipt_sha_pointer": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/audit-result.json",
+        "sha256": "7348d860723dcf7444a8a54c09ebe0ef30fe7d313d459100e89976204d9490ff",
+        "json_pointer": "/result/argv"
+      },
+      "source_readset_scope": "Finite runtime-imported Python paths only; not a whole-repository or all-backend proof."
+    },
+    {
+      "case_id": "remaining19-i1-session-wvs-existing",
+      "task_ids": [
+        "I1"
+      ],
+      "source_head": "a92c9774edf8049d590cd6ca6de35aa17063025a",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/audit-result.json",
+      "receipt_sha256": "2bf865fdfb5b9ee8d8d1942a32074d5e451fd56da1a39a89d4e590fbf1c88e9e",
+      "relevance": "Current 25-node I1 companion: same-stat WVS drift, captured session profile set, default resource consumers, malformed refusal, WVS read API and discovery.",
+      "exact_argv": [
+        "/usr/bin/sandbox-exec",
+        "-f",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/child.sb",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/pytest_launcher.py",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/pytest-cache",
+        "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/benchmarks",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/pytest.xml",
+        "--tb=short",
+        "--color=no",
+        "--maxfail=0",
+        "tests/unit/remediation/test_dfi_03.py::test_warm_wvs_policy_change_updates_selected_bulk_rows_and_harvest_catalog",
+        "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation",
+        "tests/unit/data_forge/domains/catalog/batch/core_sources/test_writers.py::test_connector_session_cache_uses_one_captured_effective_profile_set",
+        "tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py::test_all_existing_default_consumers_use_original_resources",
+        "tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py::test_present_invalid_wvs_registry_refuses_all_reader_fallbacks",
+        "tests/unit/data_forge/read_api/test_wvs_indicator_registry.py",
+        "tests/unit/fabric/test_wvs_catalog_discovery.py"
+      ],
+      "selected_nodes": [
+        "tests/unit/remediation/test_dfi_03.py::test_warm_wvs_policy_change_updates_selected_bulk_rows_and_harvest_catalog",
+        "tests/unit/remediation/test_dfi_03.py::test_wvs_bulk_resolves_current_policy_once_per_operation",
+        "tests/unit/data_forge/domains/catalog/batch/core_sources/test_writers.py::test_connector_session_cache_uses_one_captured_effective_profile_set",
+        "tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py::test_all_existing_default_consumers_use_original_resources",
+        "tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py::test_present_invalid_wvs_registry_refuses_all_reader_fallbacks",
+        "tests/unit/data_forge/read_api/test_wvs_indicator_registry.py",
+        "tests/unit/fabric/test_wvs_catalog_discovery.py"
+      ],
+      "outcome": {
+        "status": "passed",
+        "tests": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "wall_seconds": 18.940972791984677,
+        "max_sampled_process_tree_rss_bytes": 380174336,
+        "minimum_sampled_disk_free_bytes": 9519636480,
+        "pytest_exitstatus": 0,
+        "current_mismatches": [],
+        "native_plugin_disable_flags_present": false
+      },
+      "readset": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/readsets/input-readset-59855.json",
+        "sha256": "5c851a710efd75062b396ac7bd899094b4da1f62d40ddbbf2ec7fcf19a9dddbf",
+        "python_paths": 448,
+        "pytest_exitstatus": 0
+      },
+      "output_files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/remaining19-i1-session-wvs-existing.stdout.txt",
+          "sha256": "78646f9cf6f6ec18619b13d3e8349077bcabbbd2a37b15bde7800b5793d1adaf",
+          "kind": "stdout"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/remaining19-i1-session-wvs-existing.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "kind": "stderr"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/pytest.xml",
+          "sha256": "512bc9de995cf231ade1b6fe45adbb76990ad312ced2239bb84cd0814ce34b20",
+          "kind": "junit_xml"
+        }
+      ],
+      "preserved_test_configuration": "Native pytest.ini and pytest plugins were retained; the recorded argv contains no plugin-disable flags.",
+      "receipt_sha_pointer": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/audit-result.json",
+        "sha256": "2bf865fdfb5b9ee8d8d1942a32074d5e451fd56da1a39a89d4e590fbf1c88e9e",
+        "json_pointer": "/result/argv"
+      },
+      "source_readset_scope": "Finite runtime-imported Python paths only; not a whole-repository or all-backend proof."
+    }
+  ],
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c",
+      "scope": "Original I1 exit and mandatory next_action."
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+      "scope": "Original LA-041 criterion span, bound by lines 2595-2631 and span SHA in original_contract."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+      "scope": "LA-041 finding-to-criterion occurrence binding."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/c05-composed-supplier-readiness-independent-20261011.md",
+      "sha256": "623c7a353d78be201e951a7901292bc104f486c216f656ca058841d70742e11f",
+      "scope": "Canonical held-14 membership and G/C05 comparison anchors; source membership only, not old byte claims."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I1/report.json",
+      "sha256": "f3aca72df2f5a8ac339cbe07fd5f50c15d8b6ddb6b7afae85acf9cf5fc6fdd02",
+      "scope": "Author I1 task-exit audit containing the full 14+4 roster, current SHA/Git blob pins, run/readset relationships and bounded author-complete conclusion."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/T2/i1-packet-review-r1.json",
+      "sha256": "9c49ee94d17970460105bdac8e4fe2b20ac935530dc5be1c95c28e879603745c",
+      "scope": "Independent original-property and delivery review at65ac; all18source/test/facadepins match8a/a92/766/65ac, no newfindingclosures."
+    }
+  ],
+  "reviewer_instructions": [
+    "Read the exact candidate docs snapshot 76691bd and the product source base a92 as pinned; do not switch/reset the G checkout.",
+    "Read TASKS.json#/tasks/I1 and the bound LA_r09 criterion occurrence; compare the proposed exit to the exact original exit and mandatory next_action rather than later expanded goals.",
+    "Rebind the 14 held paths and 4 facades in source_matrix against the candidate; use the two readsets to check what each test run actually loaded.",
+    "Inspect the exact argv and selected nodes in each test receipt, then read stdout/JUnit via their path@SHA references; native pytest.ini/plugins were preserved.",
+    "Trace the generic producer material basis through run_signature, persisted stage basis, output inventory, skip predicate and warm/fresh consumer admission. Use the same-stat and remove-the-gate adversaries as the deciding semantic oracles.",
+    "Treat local RAW receipts as locally available evidence; confirm their availability before remote replay or cleanup.",
+    "Review the author task-exit proposal separately from code acceptance, integration publication and formal LA-041 adjudication."
+  ],
+  "limitations": [
+    "This is author-complete at the bounded I1 original task-exit level only; formal_finding_closures remain empty.",
+    "The exercised profile semantics are current full-registry v1. Selected-scope v2 migration has not been adjudicated and is outside this task-exit proposal.",
+    "The producer uses a deterministic local HTTP fixture; no live production source freshness or external institutional authority is established.",
+    "The run readsets describe their finite imported Python paths, not a whole-repository or all-backend proof.",
+    "The pipeline leaves publish lineage not_established in the decisive fixture; this packet makes no publishability claim.",
+    "The 20-node receipt is shared with I4; its three Catalog HTTP selectors are adjacent I4 evidence and are not relabeled as I1."
+  ],
+  "proposal_fields": {
+    "author_task_exit": "complete",
+    "finding_closure_proposals": []
+  },
+  "code_acceptance_owner": "G",
+  "integration_publication_owner": "G",
+  "formal_finding_adjudication_owner": "G",
+  "code_acceptance": false,
+  "closure_ids": [],
+  "global_freeze": false,
+  "verification_readset_relation": {
+    "target_matrix_path_count": 18,
+    "current_candidate_head": "76691bd25ba10bee2caed9826e54cd9d40324ca5",
+    "current_file_sha256_matches": 18,
+    "current_git_blob_matches": 18,
+    "run_20": {
+      "readset_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/readsets/input-readset-39953.json",
+      "readset_sha256": "f1e20c181aefb4b629d801bc0bf8825c57cfe8cc20bdff631b5504a272fa1ef8",
+      "loaded_python_paths": 1852,
+      "target_matrix_members_loaded_and_matched": 18,
+      "target_matrix_members_omitted": []
+    },
+    "run_25": {
+      "readset_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/readsets/input-readset-59855.json",
+      "readset_sha256": "5c851a710efd75062b396ac7bd899094b4da1f62d40ddbbf2ec7fcf19a9dddbf",
+      "loaded_python_paths": 448,
+      "target_matrix_members_loaded_and_matched": 16,
+      "target_matrix_members_omitted": [
+        "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+        "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py"
+      ],
+      "omitted_members_loaded_and_matched_in_run_20": true
+    }
+  }
+}

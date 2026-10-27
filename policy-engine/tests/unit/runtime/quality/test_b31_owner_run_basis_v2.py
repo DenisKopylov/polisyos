@@ -688,8 +688,15 @@ def test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis(
         def __getattr__(self, name: str) -> Any:
             return getattr(self._delegate, name)
 
-        def get_manifest_bytes(self, selector: object) -> bytes:
-            raw_manifest = self._delegate.get_manifest_bytes(selector)
+        def get_raw_manifest_bytes(
+            self,
+            selector: object,
+            *,
+            manifest_profile_sha256: str | None = None,
+        ) -> bytes:
+            raw_manifest = self._delegate.get_raw_manifest_bytes(
+                selector, manifest_profile_sha256=manifest_profile_sha256
+            )
             manifest = self._delegate.get_manifest(selector)
             if manifest.kind != "runtime.value_owner_method_panel_input":
                 return raw_manifest

@@ -6,7 +6,7 @@ import json
 import os
 import subprocess
 import sys
-from dataclasses import dataclass, replace
+from dataclasses import asdict, dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
@@ -7533,11 +7533,121 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Keep ID and native CI channels paired across m/km source projections and fresh reads."""
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.ir.artifacts import put_json_artifact
+    from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
+    from polisyos.runtime.quality import generation_cycle as gc
+
+    shared_artifact_store = FileSystemCAS(tmp_path / "paired-source-cas")
+    runs: dict[str, dict[str, Any]] = {}
+    for measurement_unit, raw_unit, raw_value_scale, channel_scale in (
+        ("m", "km", 0.001, 1.0),
+        ("km", "m", 1.0, 0.001),
+    ):
+        with monkeypatch.context() as unit_patch:
+            runs[measurement_unit] = _run_n8_source_projection_case(
+                tmp_path / measurement_unit,
+                unit_patch,
+                measurement_unit=measurement_unit,
+                raw_unit=raw_unit,
+                raw_value_scale=raw_value_scale,
+                channel_scale=channel_scale,
+                shared_artifact_store=shared_artifact_store,
+            )
+
+    meters = runs["m"]
+    kilometers = runs["km"]
+    meter_outer = meters["outer"]
+    kilometer_outer = kilometers["outer"]
+    meter_endpoints = (
+        meter_outer.lower[0],
+        meter_outer.upper[0],
+        meter_outer.statistical_lower[0],
+        meter_outer.statistical_upper[0],
+    )
+    kilometer_endpoints = (
+        kilometer_outer.lower[0],
+        kilometer_outer.upper[0],
+        kilometer_outer.statistical_lower[0],
+        kilometer_outer.statistical_upper[0],
+    )
+    assert meter_endpoints == (4.0, 4.0, 1.0, 10.0)
+    assert kilometer_endpoints == (0.004, 0.004, 0.001, 0.010)
+    assert tuple(value * 1000 for value in kilometer_endpoints) == pytest.approx(
+        meter_endpoints, rel=0, abs=1e-12
+    )
+
+    for unit_run, expected_unit in ((meters, "m"), (kilometers, "km")):
+        assert unit_run["assignment"].measurement_unit == expected_unit
+        assert unit_run["report"].metadata["measurement_unit"] == expected_unit
+        assert unit_run["bounds"].metadata["measurement_unit"] == expected_unit
+        assert unit_run["outer"].calibration_scope["measurement_unit"] == expected_unit
+        assert unit_run["outer"].calibration_scope["authority_scope"] == "candidate_fixture_only"
+
+    meter_spec = asdict(meters["coordinate_spec"])
+    kilometer_spec = asdict(kilometers["coordinate_spec"])
+    assert meter_spec["unit"] == "m"
+    assert kilometer_spec["unit"] == "km"
+    assert {**meter_spec, "unit": None} == {**kilometer_spec, "unit": None}
+    assert meters["outer"].coordinates != kilometers["outer"].coordinates
+
+    # Bind the real km report (including its ID-bounds ref) to a recomputed m basis.
+    cross_bound_payload = meters["basis"].model_dump(mode="json")
+    cross_bound_payload["report_ref"] = kilometers["basis"].report_ref.model_dump(mode="json")
+    cross_bound_payload["report_sha256"] = kilometers["basis"].report_sha256
+    cross_bound_payload["native_interval_content_hash"] = kilometers[
+        "basis"
+    ].native_interval_content_hash
+    cross_bound_payload.pop("content_hash")
+    cross_bound_payload["content_hash"] = gc.gy_content_hash(cross_bound_payload)
+    cross_bound_basis = gc.ValueOwnerMethodRunBasisV2.model_validate(cross_bound_payload)
+    cross_bound_ref_raw = put_json_artifact(
+        meters["ir_store"],
+        cross_bound_basis.model_dump(mode="json"),
+        kind="runtime.value_owner_method_run_basis",
+        schema_name="runtime.value_owner_method_run_basis.v2",
+        schema_version="2.0",
+        inputs=[
+            gc._value_input_ref(cross_bound_basis.intent_ref, role="immutable_run_intent"),
+            gc._value_input_ref(cross_bound_basis.profile_ref, role="selected_owner_profile"),
+            gc._value_input_ref(cross_bound_basis.assignment_ref, role="owner_assignment"),
+            gc._value_input_ref(cross_bound_basis.panel_input_ref, role="exact_method_input_bytes"),
+            gc._value_input_ref(
+                cross_bound_basis.runner_request_ref, role="selected_method_runner_request"
+            ),
+            gc._value_input_ref(cross_bound_basis.report_ref, role="native_method_report"),
+            gc._value_input_ref(
+                cross_bound_basis.execution_receipt_ref, role="method_execution_receipt"
+            ),
+        ],
+        canon_spec=IRCanonSpec(forbid_floats=True),
+        return_selected_profile=True,
+    )
+    cross_bound_ref = gc._value_artifact_ref(
+        cross_bound_ref_raw, expected_kind="runtime.value_owner_method_run_basis"
+    )
+    with (
+        meters["catalog_serving_source_scope"](meters["catalog_source"]),
+        pytest.raises(ValueError, match="value_owner_method_report_method_mismatch"),
+    ):
+        meters["consumer"](**{**meters["consumer_kwargs"], "run_basis_ref": cross_bound_ref})
+
+
+def _run_n8_source_projection_case(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    measurement_unit: str,
+    raw_unit: str,
+    raw_value_scale: float,
+    channel_scale: float,
+    shared_artifact_store: Any,
+) -> dict[str, Any]:
     """Keep synthetic continuous-outcome CI and ID channels separate in candidate CAS.
 
-    Role-specific source conditions bind the outcome to a synthetic score coordinate while
-    keeping treatment and covariate binary. Report and bounds backends remain deterministic
-    fixtures.
+    Role-specific source conditions bind the outcome to its m/km unit while keeping treatment
+    and covariate binary. Report and bounds backends remain deterministic fixtures.
     This test exercises NumpyRunner, N8, CAS, and the fresh consumer; it establishes no
     causal estimate, source assignment, or owner authority.
     """
@@ -7567,14 +7677,16 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
 
     problem, world = _avg_income_problem(), _world_record()
     candidate = replace(
-        _avg_income_typed_atom_candidate(problem, unit_id="synthetic_score"),
+        _avg_income_typed_atom_candidate(problem, unit_id=measurement_unit),
         diversity_key=("grant", "country", "avg_income", "synthetic_ci_channel"),
     )
     source_rows: list[dict[str, object]] = []
     for index in range(200):
         treatment = float(index % 2)
         covariate = float((index // 2) % 2)
-        outcome = float((index % 13) + 0.25 * int(treatment) + 0.5 * int(covariate))
+        outcome = raw_value_scale * float(
+            (index % 13) + 0.25 * int(treatment) + 0.5 * int(covariate)
+        )
         source_rows.append(
             {
                 "country_code": "UA",
@@ -7596,7 +7708,7 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
         tmp_path / "synthetic-owner-source",
         source_rows=source_rows,
         condition_units_by_raw_field={
-            "avg_income": "synthetic_score",
+            "avg_income": raw_unit,
             "agents.income": "binary",
             "income_covariate": "binary",
         },
@@ -7604,8 +7716,10 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
             {
                 "target_variable": "avg_income",
                 "raw_field": "avg_income",
-                "raw_unit": "synthetic_score",
-                "canonical_unit": "synthetic_score",
+                "raw_unit": raw_unit,
+                "canonical_unit": measurement_unit,
+                "unit_transform": "fixed_multiplicative",
+                "unit_transform_ref": "fabric://units/fixed-multiplicative/v1",
                 "valid_min": 0.0,
                 "valid_max": 13.0,
             },
@@ -7626,6 +7740,7 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
                 "valid_max": 1.0,
             },
         ),
+        artifact_store=shared_artifact_store,
     )
     projections = source_fixture.projections
     estimand_spec = json.dumps(
@@ -7640,7 +7755,7 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
             "sample_filter": None,
             "time_horizon": None,
             "prediction_origin": None,
-            "unit": "synthetic_score",
+            "unit": measurement_unit,
             "scale": "identity",
             "transform": None,
             "target_role": "estimate",
@@ -7667,8 +7782,8 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
             for role, variable_id in role_bindings
         ),
         outcome_lower=0.0,
-        outcome_upper=13.0,
-        outcome_bounds_unit="synthetic_score",
+        outcome_upper=13.0 * channel_scale,
+        outcome_bounds_unit=measurement_unit,
         method_parameters_json="{}",
         seed=7,
     )
@@ -7699,9 +7814,9 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
     synthetic_report = CausalEffectReport(
         method=CausalMethod.AIPW,
         estimand="ATE",
-        point_estimate=4.0,
-        standard_error=1.0,
-        confidence_interval=(1.0, 10.0),
+        point_estimate=4.0 * channel_scale,
+        standard_error=1.0 * channel_scale,
+        confidence_interval=(1.0 * channel_scale, 10.0 * channel_scale),
         confidence_level=0.95,
         inference_method="asymptotic",
         sample_size=200,
@@ -7713,15 +7828,15 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
             "synthetic_test_fixture": "asymmetric-channel-preservation-only",
             "authority_scope": "candidate_fixture_only",
             "gate_eligible": False,
-            "measurement_unit": "synthetic_score",
-            "outcome_support": [0.0, 13.0],
+            "measurement_unit": measurement_unit,
+            "outcome_support": [0.0, 13.0 * channel_scale],
         },
     )
     synthetic_bounds = bounds_bundle_from_partial_identification_result(
         PartialIdentificationResult(
             method=BoundMethod.MANSKI,
-            lower_bound=4.0,
-            upper_bound=4.0,
+            lower_bound=4.0 * channel_scale,
+            upper_bound=4.0 * channel_scale,
             confidence=1.0,
             assumptions_used=["synthetic_zero_width_channel_fixture_only"],
             bounds_type="manski",
@@ -7730,13 +7845,16 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
         estimand_type="ate",
         metadata={
             "synthetic_test_fixture": "zero-width-identification-channel-only",
-            "measurement_unit": "synthetic_score",
-            "outcome_support": [0.0, 13.0],
+            "measurement_unit": measurement_unit,
+            "outcome_support": [0.0, 13.0 * channel_scale],
         },
     )
     assert synthetic_bounds.point_identified is True
-    assert synthetic_bounds.lower_bound == synthetic_bounds.upper_bound == 4.0
-    assert synthetic_report.confidence_interval == (1.0, 10.0)
+    assert synthetic_bounds.lower_bound == synthetic_bounds.upper_bound == (4.0 * channel_scale)
+    assert synthetic_report.confidence_interval == (
+        1.0 * channel_scale,
+        10.0 * channel_scale,
+    )
 
     def synthetic_aipw(_state: object, _params: object) -> dict[str, object]:
         return {
@@ -7804,31 +7922,46 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
     assert assignment.production_value_eligible is False
     assert assignment.assignment_provenance == "consumer_asserted"
     assert assignment.source_time_status == "not_established"
-    assert assignment.measurement_unit == "synthetic_score"
-    assert assignment.outcome_lower == 0.0 and assignment.outcome_upper == 13.0
-    assert assignment.outcome_bounds_unit == "synthetic_score"
+    assert assignment.measurement_unit == measurement_unit
+    assert assignment.outcome_lower == 0.0 and assignment.outcome_upper == 13.0 * channel_scale
+    assert assignment.outcome_bounds_unit == measurement_unit
     assert {(item.role, item.measurement_unit) for item in assignment.role_profiles} == {
-        ("outcome", "synthetic_score"),
+        ("outcome", measurement_unit),
         ("treatment", "binary"),
         ("covariate", "binary"),
     }
-    assert report.estimand == "ATE" and report.point_estimate == 4.0
-    assert report.confidence_interval == (1.0, 10.0)
-    assert -13.0 <= report.confidence_interval[0] <= report.confidence_interval[1] <= 13.0
+    assert report.estimand == "ATE" and report.point_estimate == 4.0 * channel_scale
+    assert report.confidence_interval == (
+        1.0 * channel_scale,
+        10.0 * channel_scale,
+    )
+    assert (
+        -(13.0 * channel_scale)
+        <= report.confidence_interval[0]
+        <= report.confidence_interval[1]
+        <= 13.0 * channel_scale
+    )
     assert report.metadata["synthetic_test_fixture"] == "asymmetric-channel-preservation-only"
     assert report.metadata["gate_eligible"] is False
-    assert report.metadata["measurement_unit"] == "synthetic_score"
-    assert report.metadata["outcome_support"] == [0.0, 13.0]
+    assert report.metadata["measurement_unit"] == measurement_unit
+    assert report.metadata["outcome_support"] == [0.0, 13.0 * channel_scale]
     assert stored_bounds.metadata["synthetic_test_fixture"] == (
         "zero-width-identification-channel-only"
     )
-    assert stored_bounds.metadata["measurement_unit"] == "synthetic_score"
-    assert stored_bounds.metadata["outcome_support"] == [0.0, 13.0]
+    assert stored_bounds.metadata["measurement_unit"] == measurement_unit
+    assert stored_bounds.metadata["outcome_support"] == [0.0, 13.0 * channel_scale]
     assert stored_bounds.point_identified is True
-    assert stored_bounds.lower_bound == stored_bounds.upper_bound == 4.0
-    assert -13.0 <= stored_bounds.lower_bound <= stored_bounds.upper_bound <= 13.0
+    assert stored_bounds.lower_bound == stored_bounds.upper_bound == 4.0 * channel_scale
+    assert (
+        -(13.0 * channel_scale)
+        <= stored_bounds.lower_bound
+        <= stored_bounds.upper_bound
+        <= 13.0 * channel_scale
+    )
     assert stored_bounds.method_summaries[0].soundness_level is BoundSoundnessLevel.ASSUMPTION_ONLY
-    assert basis.native_interval_content_hash == gy_content_hash((1.0, 10.0))
+    assert basis.native_interval_content_hash == gy_content_hash(
+        (1.0 * channel_scale, 10.0 * channel_scale)
+    )
     assert gc._value_manifest_has_exact_inputs(
         ir_store,
         bounds_ref,
@@ -7882,17 +8015,19 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
 
     assert persisted_outer == outer_results[0] == fresh_outer
     assert persisted_outer.coordinates == (coordinate,)
-    assert persisted_outer.calibration_scope["measurement_unit"] == "synthetic_score"
+    assert persisted_outer.calibration_scope["measurement_unit"] == measurement_unit
     assert persisted_outer.calibration_scope["authority_scope"] == "candidate_fixture_only"
     assert persisted_outer.identification_status == "partial"
-    assert persisted_outer.lower == persisted_outer.upper == (4.0,)
-    assert persisted_outer.statistical_lower == (1.0,)
-    assert persisted_outer.statistical_upper == (10.0,)
-    assert 4.0 - 1.0 != 10.0 - 4.0
+    assert persisted_outer.lower == persisted_outer.upper == (4.0 * channel_scale,)
+    assert persisted_outer.statistical_lower == (1.0 * channel_scale,)
+    assert persisted_outer.statistical_upper == (10.0 * channel_scale,)
+    assert 4.0 * channel_scale - 1.0 * channel_scale != 10.0 * channel_scale - 4.0 * channel_scale
 
     # Property-removal control: a plausible symmetric replacement keeps the typed report,
     # success, point, and all lineage markers but must not replace persisted native [1, 10].
-    symmetric_report = synthetic_report.model_copy(update={"confidence_interval": (1.0, 7.0)})
+    symmetric_report = synthetic_report.model_copy(
+        update={"confidence_interval": (1.0 * channel_scale, 7.0 * channel_scale)}
+    )
 
     def symmetric_proxy(_state: object, _params: object) -> dict[str, object]:
         return {
@@ -7952,6 +8087,45 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
             pytest.raises(ValueError, match="value_owner_method_run_basis_binding_mismatch"),
         ):
             original_consumer(**consumer_kwargs)
+
+    # Missing identification/bounds ref remains a hard failure at the fresh consumer.
+    original_payload_loader = gc._value_load_ref_payload
+
+    def omit_bounds_ref(
+        selected_store: object, selected_ref: gc.ValueArtifactBindingRefV1
+    ) -> object:
+        payload = original_payload_loader(selected_store, selected_ref)
+        if getattr(selected_ref, "artifact_id", None) == basis.report_ref.artifact_id:
+            assert isinstance(payload, dict)
+            payload = copy.deepcopy(payload)
+            metadata = payload.get("metadata")
+            assert isinstance(metadata, dict)
+            metadata.pop("identification_bounds_ref")
+        return payload
+
+    with monkeypatch.context() as missing_bounds_control:
+        missing_bounds_control.setattr(gc, "_value_load_ref_payload", omit_bounds_ref)
+        with (
+            catalog_serving_source_scope(catalog_source),
+            pytest.raises(KeyError, match="identification_bounds_ref"),
+        ):
+            original_consumer(**consumer_kwargs)
+
+    return {
+        "consumer": original_consumer,
+        "consumer_kwargs": consumer_kwargs,
+        "basis": basis,
+        "basis_ref": basis_ref,
+        "catalog_source": catalog_source,
+        "catalog_serving_source_scope": catalog_serving_source_scope,
+        "outer": persisted_outer,
+        "coordinate_spec": gc._typed_value_estimand_spec(intent.estimand_spec_json),
+        "intent": intent,
+        "report": report,
+        "bounds": stored_bounds,
+        "assignment": assignment,
+        "ir_store": ir_store,
+    }
 
 
 def test_n8_fresh_consumer_reads_recomputed_fixed_unit_owner_projection(

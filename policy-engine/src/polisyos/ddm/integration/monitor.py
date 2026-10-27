@@ -31,6 +31,7 @@ from polisyos.ddm.readiness.readiness_mapper import MetricBudgetPolicy, map_read
 
 if TYPE_CHECKING:
     from polisyos.ddm.calibration.calibrate import CalibrationReport
+    from polisyos.ddm.calibration.observations import FiniteCalibrationObservationSource
 
 _PYDANTIC_RUNTIME_TYPES = (
     CalibrationAudit,
@@ -60,6 +61,11 @@ class DDMWindowResult(BaseModel):
 class DriftAndDegradationMonitor:
     """Compose shift, degradation, quality, readiness, and incident outputs."""
 
+    def __init__(
+        self, *, observation_source: FiniteCalibrationObservationSource | None = None
+    ) -> None:
+        self._observation_source = observation_source
+
     def evaluate_window(
         self,
         *,
@@ -79,9 +85,9 @@ class DriftAndDegradationMonitor:
     ) -> DDMWindowResult:
         """Evaluate one production window and emit all DDM-15.7 outputs.
 
-        ``_observed_invalidation_triggers=None`` records unavailable trigger
-        observations; an explicit empty list records an observed empty set.
-        Neither state is inferred from the public registry payload.
+        Legacy trigger lists remain diagnostic inputs. A current observation
+        requires the configured source, which is resolved independently of the
+        supplied list. Finite replay scope never grants production promotion.
         """
 
         effective_timestamp = timestamp or datetime.now(UTC)
@@ -127,12 +133,16 @@ class DriftAndDegradationMonitor:
                     audit=calibration_audit,
                     now=effective_timestamp,
                     observed_invalidation_triggers=_observed_invalidation_triggers,
+                    observation_source=self._observation_source,
                 )
             registry_record = build_model_registry_record(
                 readiness_event=readiness,
                 calibration_audit=calibration_audit,
                 metric_budget=metric_budget,
                 last_shift_event=None if not shift_risks else shift_risks[-1],
+                shift_events=shift_risks,
+                data_quality_signals=data_quality_signals,
+                critical_slice_budget_used=critical_slice_budget_used,
                 last_degradation_event=enriched_degradation,
                 active_incident_id=active_incident_id,
                 _calibration_validity_evidence=validity_evidence,

@@ -4,10 +4,17 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 import pytest
 
 from polisyos.ddm.calibration import CalibrationReport, build_calibration_audit
+from polisyos.ddm.calibration.audit import _canonical_report_digest
+from polisyos.ddm.calibration.observations import (
+    CalibrationObservationWindow,
+    FiniteCalibrationObservationSource,
+)
+from polisyos.ddm.detectors.track_2_2_shift_adapter import adapt_shift_event
 from polisyos.ddm.integration import (
     AffectedFeature,
     AffectedSlice,
@@ -22,8 +29,128 @@ from polisyos.ddm.integration import (
     ShiftDetectedEvent,
     evaluate_registry_gate,
 )
-from polisyos.ddm.integration.model_registry import rebind_calibration_validity
+from polisyos.ddm.integration.model_registry import (
+    _evaluate_readiness_gate,
+)
+from polisyos.ddm.integration.model_registry import (
+    rebind_calibration_validity as _rebind_calibration_validity,
+)
 from polisyos.ddm.readiness import MetricBudgetPolicy
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+
+# This fixture owns and enumerates its finite replay files. These are explicitly
+# non-production sources; the public registry gate must preserve that limit.
+_SOURCE_FILES: dict[str, Path] = {}
+_SOURCE_ROOT: Path | None = None
+
+
+@pytest.fixture(autouse=True)
+def _finite_replay_root(tmp_path: Path) -> None:
+    global _SOURCE_ROOT
+    _SOURCE_ROOT = tmp_path
+    _SOURCE_FILES.clear()
+
+
+def _finite_source(
+    *,
+    report: CalibrationReport,
+    audit: CalibrationAudit,
+    budget: MetricBudgetPolicy,
+    shifts: list[object],
+    data_quality: list[object],
+    critical_slice_budget_used: float | None,
+    degradation: object,
+    triggers: list[str],
+    now: datetime,
+    source_id: str | None = None,
+) -> FiniteCalibrationObservationSource:
+    assert _SOURCE_ROOT is not None
+    source_id = source_id or f"finite-window-{len(_SOURCE_FILES)}"
+    path = _SOURCE_ROOT / f"{source_id}.json"
+    window = CalibrationObservationWindow.model_validate(
+        {
+            "schema_version": "polisyos.ddm.finite_observation_window.v1",
+            "source_id": source_id,
+            "profile": "finite_replay",
+            "model_id": report.model_id or "legacy-unknown",
+            "model_version": report.model_version or "legacy-unknown",
+            "calibration_id": audit.calibration_id,
+            "detector_id": report.detector_id,
+            "stationarity_regime_id": report.stationarity_regime_id,
+            "report_digest": _canonical_report_digest(report),
+            "observed_from": now,
+            "observed_through": now,
+            "invalidation_events": [
+                {"event_id": f"trigger-{i}", "timestamp": now, "trigger": trigger}
+                for i, trigger in enumerate(triggers)
+            ],
+            "shift_events": shifts,
+            "degradation_event": degradation,
+            "metric_budget": budget,
+            "data_quality_signals": data_quality,
+            "critical_slice_budget_used": critical_slice_budget_used,
+        }
+    )
+    path.write_text(window.model_dump_json())
+    _SOURCE_FILES[source_id] = path
+    return FiniteCalibrationObservationSource(path=path, source_id=source_id)
+
+
+class _FixtureMonitor(DriftAndDegradationMonitor):
+    def evaluate_window(self, **kwargs: object) -> object:
+        report = kwargs.get("_calibration_report")
+        audit = kwargs.get("calibration_audit")
+        budget = kwargs.get("metric_budget")
+        triggers = kwargs.get("_observed_invalidation_triggers")
+        if (
+            isinstance(report, CalibrationReport)
+            and isinstance(audit, CalibrationAudit)
+            and isinstance(budget, MetricBudgetPolicy)
+            and isinstance(triggers, list)
+            and report.model_id is not None
+            and report.model_version is not None
+        ):
+            self._observation_source = _finite_source(
+                report=report,
+                audit=audit,
+                budget=budget,
+                shifts=[adapt_shift_event(event) for event in kwargs.get("shift_events", [])],
+                degradation=kwargs.get("degradation_event"),
+                data_quality=kwargs.get("data_quality_signals", []),
+                critical_slice_budget_used=kwargs.get("critical_slice_budget_used"),
+                triggers=triggers,
+                now=kwargs["timestamp"],
+            )
+        return super().evaluate_window(**kwargs)
+
+
+def rebind_calibration_validity(
+    record: ModelRegistryReadinessRecord, **kwargs: object
+) -> ModelRegistryReadinessRecord:
+    binding = record.applicability_binding
+    source = None
+    triggers = kwargs.get("observed_invalidation_triggers")
+    if binding is not None and binding.observation_binding is not None and triggers is not None:
+        source_id = binding.observation_binding.source_id
+        path = _SOURCE_FILES.get(source_id)
+        if path is not None:
+            window = CalibrationObservationWindow.model_validate_json(path.read_text())
+            source = _finite_source(
+                report=kwargs["report"],
+                audit=kwargs["calibration_audit"],
+                budget=window.metric_budget,
+                shifts=list(window.shift_events),
+                degradation=window.degradation_event,
+                data_quality=list(window.data_quality_signals),
+                critical_slice_budget_used=window.critical_slice_budget_used,
+                triggers=triggers,
+                now=kwargs["now"],
+                source_id=source_id,
+            )
+    return _rebind_calibration_validity(record, **kwargs, observation_source=source)
 
 
 def _window() -> MonitoringWindow:
@@ -99,7 +226,7 @@ def _registry_context(
         reference_value=0.90,
         minimum_acceptable_value=0.80,
     )
-    result = DriftAndDegradationMonitor().evaluate_window(
+    result = _FixtureMonitor().evaluate_window(
         model_id="model",
         model_version="v1",
         metric_budget=metric_budget,
@@ -112,10 +239,128 @@ def _registry_context(
     return report, audit, result.registry_record
 
 
-def _valid_checker_bound_registry_record() -> ModelRegistryReadinessRecord:
+def _valid_finite_replay_record() -> ModelRegistryReadinessRecord:
     _, _, record = _registry_context(observed_triggers=[])
-    assert evaluate_registry_gate(record).promotion_allowed is True
+    assert (
+        evaluate_registry_gate(record).reason
+        == "finite_replay_observation_not_production_authority"
+    )
     return record
+
+
+def _shift_event(event_id: str, **updates: object) -> ShiftDetectedEvent:
+    payload: dict[str, object] = {
+        "event_id": event_id,
+        "timestamp": datetime(2026, 4, 26, tzinfo=UTC),
+        "model_id": "model",
+        "model_version": "v1",
+        "detector_id": "input_mmd_global_v3",
+        "detector_family": "online_mmd",
+        "signal": "input_shift",
+        "representation": "features-v1",
+        "reference_window": _window(),
+        "current_window": _window(),
+        "stationarity_regime_id": "SR-1-model-v1",
+        "calibration_id": "calib-1",
+        "test_statistic": 0.3,
+        "ert": 10000,
+        "empirical_fp_rate": 0.001,
+        "shift_severity": 0.2,
+    }
+    payload.update(updates)
+    return ShiftDetectedEvent.model_validate(payload)
+
+
+@pytest.mark.parametrize(
+    ("updates", "reason"),
+    [
+        ({"detector_id": "detector-b"}, "shift_detector_identity_mismatch"),
+        ({"calibration_id": "calib-b"}, "shift_calibration_identity_mismatch"),
+        ({"stationarity_regime_id": "regime-b"}, "shift_stationarity_regime_mismatch"),
+    ],
+)
+def test_registry_gate_binds_every_same_model_shift_to_report_context(
+    updates: dict[str, object], reason: str
+) -> None:
+    """A good final event cannot hide an earlier same-model context mismatch."""
+
+    report = _valid_calibration_report()
+    audit = build_calibration_audit(calibration_id="calib-1", report=report)
+    budget = MetricBudgetPolicy(
+        model_id="model",
+        model_version="v1",
+        metric="accuracy",
+        metric_direction=MetricDirection.HIGHER_IS_BETTER,
+        reference_value=0.9,
+        minimum_acceptable_value=0.8,
+    )
+    result = _FixtureMonitor().evaluate_window(
+        model_id="model",
+        model_version="v1",
+        shift_events=[_shift_event("bad-first", **updates), _shift_event("good-last")],
+        metric_budget=budget,
+        calibration_audit=audit,
+        _calibration_report=report,
+        _observed_invalidation_triggers=[],
+        timestamp=datetime(2026, 4, 26, tzinfo=UTC),
+    )
+
+    assert result.registry_record is not None
+    decision = evaluate_registry_gate(result.registry_record)
+    assert decision.promotion_allowed is False
+    assert decision.reason == reason
+
+
+def test_fresh_registry_reader_requires_consumed_event_sources() -> None:
+    """Serialized applicability markers cannot recreate event authority."""
+
+    report = _valid_calibration_report()
+    audit = build_calibration_audit(calibration_id="calib-1", report=report)
+    budget = MetricBudgetPolicy(
+        model_id="model",
+        model_version="v1",
+        metric="accuracy",
+        metric_direction=MetricDirection.HIGHER_IS_BETTER,
+        reference_value=0.9,
+        minimum_acceptable_value=0.8,
+    )
+    source = (
+        _FixtureMonitor()
+        .evaluate_window(
+            model_id="model",
+            model_version="v1",
+            shift_events=[_shift_event("shift-1")],
+            metric_budget=budget,
+            calibration_audit=audit,
+            _calibration_report=report,
+            _observed_invalidation_triggers=[],
+            timestamp=datetime(2026, 4, 26, tzinfo=UTC),
+        )
+        .registry_record
+    )
+    assert source is not None
+    fresh = ModelRegistryReadinessRecord.model_validate_json(source.model_dump_json())
+    rebound = rebind_calibration_validity(
+        fresh,
+        report=report,
+        calibration_audit=audit,
+        now=datetime(2026, 4, 26, tzinfo=UTC),
+        observed_invalidation_triggers=[],
+    )
+    assert (
+        evaluate_registry_gate(rebound).reason
+        == "finite_replay_observation_not_production_authority"
+    )
+    rebound = rebind_calibration_validity(
+        fresh,
+        report=report,
+        calibration_audit=audit,
+        metric_budget=budget,
+        shift_events=[],
+        now=datetime(2026, 4, 26, tzinfo=UTC),
+        observed_invalidation_triggers=[],
+    )
+    assert evaluate_registry_gate(rebound).reason == "caller_shift_basis_mismatch"
 
 
 def test_monitor_emits_all_runtime_outputs_and_registry_gate_blocks_r1() -> None:
@@ -202,7 +447,7 @@ def test_monitor_emits_all_runtime_outputs_and_registry_gate_blocks_r1() -> None
         minimum_acceptable_value=0.80,
     )
 
-    result = DriftAndDegradationMonitor().evaluate_window(
+    result = _FixtureMonitor().evaluate_window(
         model_id="model",
         model_version="v1",
         shift_events=[shift],
@@ -232,7 +477,7 @@ def test_monitor_emits_all_runtime_outputs_and_registry_gate_blocks_r1() -> None
     gate = evaluate_registry_gate(result.registry_record)
 
     assert gate.promotion_allowed is False
-    assert gate.reason == "R1_blocks_promotion"
+    assert gate.reason == "finite_replay_observation_not_production_authority"
 
 
 def test_full_acceptance_boundary_consumes_forwarded_contracts() -> None:
@@ -286,7 +531,7 @@ def test_full_acceptance_boundary_consumes_forwarded_contracts() -> None:
         minimum_acceptable_value=0.80,
     )
 
-    result = DriftAndDegradationMonitor().evaluate_window(
+    result = _FixtureMonitor().evaluate_window(
         model_id="model",
         model_version="v1",
         shift_events=[event],
@@ -309,7 +554,7 @@ def test_monitor_rejects_foreign_metric_budget_identity() -> None:
     )
 
     with pytest.raises(ValueError, match="metric_budget"):
-        DriftAndDegradationMonitor().evaluate_window(
+        _FixtureMonitor().evaluate_window(
             model_id="model",
             model_version="v1",
             metric_budget=foreign_budget,
@@ -338,7 +583,7 @@ def test_monitor_rejects_foreign_shift_event_identity() -> None:
     )
 
     with pytest.raises(ValueError, match="shift_events"):
-        DriftAndDegradationMonitor().evaluate_window(
+        _FixtureMonitor().evaluate_window(
             model_id="model",
             model_version="v1",
             shift_events=[foreign_shift],
@@ -365,7 +610,7 @@ def test_monitor_rejects_foreign_degradation_event_identity() -> None:
     )
 
     with pytest.raises(ValueError, match="degradation_event"):
-        DriftAndDegradationMonitor().evaluate_window(
+        _FixtureMonitor().evaluate_window(
             model_id="model",
             model_version="v1",
             degradation_event=foreign_degradation,
@@ -383,7 +628,7 @@ def test_monitor_rejects_foreign_data_quality_identity() -> None:
     )
 
     with pytest.raises(ValueError, match="data_quality_signals"):
-        DriftAndDegradationMonitor().evaluate_window(
+        _FixtureMonitor().evaluate_window(
             model_id="model",
             model_version="v1",
             data_quality_signals=[foreign_signal],
@@ -406,7 +651,7 @@ def test_registry_gate_blocks_legacy_calibration_without_model_identity() -> Non
         minimum_acceptable_value=0.80,
     )
 
-    result = DriftAndDegradationMonitor().evaluate_window(
+    result = _FixtureMonitor().evaluate_window(
         model_id="model",
         model_version="v1",
         metric_budget=metric_budget,
@@ -451,7 +696,7 @@ def test_registry_gate_blocks_historical_audit_without_validity_owner() -> None:
         minimum_acceptable_value=0.80,
     )
 
-    result = DriftAndDegradationMonitor().evaluate_window(
+    result = _FixtureMonitor().evaluate_window(
         model_id="model",
         model_version="v1",
         metric_budget=metric_budget,
@@ -471,11 +716,11 @@ def test_registry_gate_rejects_persisted_readiness_veto_for_r4_r3(
 ) -> None:
     """A persisted upstream veto remains binding despite owner signoff."""
 
-    record = _valid_checker_bound_registry_record().model_copy(
+    record = _valid_finite_replay_record().model_copy(
         update={"readiness_state": readiness_state, "promotion_allowed": False}
     )
 
-    gate = evaluate_registry_gate(record, owner_signoff=True)
+    gate = _evaluate_readiness_gate(record, owner_signoff=True)
 
     assert gate.promotion_allowed is False
     assert gate.reason == "persisted_readiness_veto"
@@ -498,7 +743,7 @@ def test_registry_gate_preserves_r2_owner_signoff_exception_after_veto() -> None
         observed_invalidation_triggers=[],
     )
 
-    gate = evaluate_registry_gate(rebound, owner_signoff=True)
+    gate = _evaluate_readiness_gate(rebound, owner_signoff=True)
 
     assert gate.promotion_allowed is True
     assert gate.reason == "R2_owner_signoff_allows_limited_expansion"
@@ -567,8 +812,11 @@ def test_registry_r2_round_trip_rejects_foreign_durable_binding(
 def test_registry_public_round_trip_fails_closed_without_durable_validity() -> None:
     """Public registry reload loses private checker authority and fails closed."""
 
-    record = _valid_checker_bound_registry_record()
-    assert evaluate_registry_gate(record).promotion_allowed is True
+    record = _valid_finite_replay_record()
+    assert (
+        evaluate_registry_gate(record).reason
+        == "finite_replay_observation_not_production_authority"
+    )
 
     payload = record.model_dump(mode="json")
     assert payload["calibration_validity"]["status"] == "valid"
@@ -611,7 +859,10 @@ def test_registry_public_round_trip_rebinds_with_exact_context() -> None:
     )
 
     assert rebound.calibration_validity == projection
-    assert evaluate_registry_gate(rebound).promotion_allowed is True
+    assert (
+        evaluate_registry_gate(rebound).reason
+        == "finite_replay_observation_not_production_authority"
+    )
 
 
 def test_registry_rebind_refreshes_projection_for_current_context() -> None:
@@ -716,7 +967,10 @@ def test_registry_distinguishes_unavailable_from_observed_empty_triggers() -> No
     assert observed_projection.observation_status == "observed"
     assert observed_projection.observed_invalidation_triggers == []
     assert observed_projection.status == "valid"
-    assert evaluate_registry_gate(observed_empty).promotion_allowed is True
+    assert (
+        evaluate_registry_gate(observed_empty).reason
+        == "finite_replay_observation_not_production_authority"
+    )
 
 
 def test_registry_rebind_preserves_expiry_reason_without_trigger_observation() -> None:
@@ -764,7 +1018,12 @@ def test_registry_projection_preserves_expiry_boundary(
     projection = record.calibration_validity
     assert projection is not None
     assert projection.status == expected_status
-    assert evaluate_registry_gate(record).promotion_allowed is allowed
+    assert evaluate_registry_gate(record).promotion_allowed is False
+    if allowed:
+        assert (
+            evaluate_registry_gate(record).reason
+            == "finite_replay_observation_not_production_authority"
+        )
 
 
 def test_registry_projection_records_matching_invalidation_trigger() -> None:

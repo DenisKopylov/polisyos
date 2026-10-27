@@ -112,7 +112,11 @@ def test_registry_requires_checker_bound_report_and_rejects_foreign_report() -> 
         timestamp=datetime(2026, 4, 10, tzinfo=UTC),
     )
     assert accepted.registry_record is not None
-    assert evaluate_registry_gate(accepted.registry_record).promotion_allowed is True
+    assert evaluate_registry_gate(accepted.registry_record).promotion_allowed is False
+    assert (
+        evaluate_registry_gate(accepted.registry_record).reason
+        == "calibration_validity_not_established"
+    )
 
     report_b = report_a.model_copy(update={"detector_id": "foreign-detector"})
     altered = monitor.evaluate_window(

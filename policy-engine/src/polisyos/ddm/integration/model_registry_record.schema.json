@@ -85,6 +85,45 @@
         }
       }
     },
+    "applicability_binding": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": [
+        "detector_id", "calibration_id", "stationarity_regime_id", "report_digest",
+        "shift_event_digests", "metric_budget_digest", "readiness_state", "readiness_score", "required_action"
+      ],
+      "properties": {
+        "detector_id": { "type": "string", "minLength": 1 },
+        "calibration_id": { "type": "string", "minLength": 1 },
+        "stationarity_regime_id": { "type": "string", "minLength": 1 },
+        "report_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "readiness_state": { "enum": ["R0", "R1", "R2", "R3", "R4"] },
+        "readiness_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "required_action": { "type": ["string", "null"] },
+        "shift_event_digests": {
+          "type": "array", "items": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+        },
+        "degradation_event_digest": { "type": ["string", "null"] },
+        "metric_budget_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "last_shift_event_id": { "type": ["string", "null"] },
+        "last_degradation_event_id": { "type": ["string", "null"] },
+        "observation_binding": {
+          "type": ["object", "null"], "additionalProperties": false,
+          "required": [
+            "source_id", "profile", "payload_sha256", "observed_from", "observed_through"
+          ],
+          "properties": {
+            "source_id": { "type": "string" },
+            "profile": { "const": "finite_replay" },
+            "payload_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+            "observed_from": { "type": "string", "format": "date-time" },
+            "observed_through": { "type": "string", "format": "date-time" },
+            "completeness_provenance": { "const": "recomputed" },
+            "authority_scope": { "const": "finite_replay_only" }
+          }
+        }
+      }
+    },
     "identity_binding": {
       "type": ["object", "null"],
       "additionalProperties": false,

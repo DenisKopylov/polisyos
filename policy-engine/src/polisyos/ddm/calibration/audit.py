@@ -10,10 +10,12 @@ from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.ddm.calibration.observations import FiniteCalibrationObservationSource
 from polisyos.ddm.integration.events import CalibrationAudit, CalibrationValidityProjection
 
 if TYPE_CHECKING:
     from polisyos.ddm.calibration.calibrate import CalibrationReport
+    from polisyos.ddm.calibration.observations import _ResolvedCalibrationObservations
 
 
 CALIBRATION_VALIDITY_VERIFIER_ID = "polisyos.ddm.calibration.check_calibration_validity"
@@ -53,7 +55,9 @@ class _CalibrationValidityEvidence:
     effective_at: datetime
     status: CalibrationInvalidationStatus
     projection: CalibrationValidityProjection
+    projection_digest: str
     audit_binding_reasons: tuple[str, ...]
+    observations: _ResolvedCalibrationObservations | None
 
     @property
     def is_bound(self) -> bool:
@@ -163,6 +167,7 @@ def _check_bound_calibration_validity(
     now: datetime,
     observed_invalidation_triggers: list[str] | None = None,
     expected_projection: CalibrationValidityProjection | None = None,
+    observation_source: FiniteCalibrationObservationSource | None = None,
 ) -> _CalibrationValidityEvidence:
     """Run the canonical checker and bind its result to the report projection.
 
@@ -175,17 +180,50 @@ def _check_bound_calibration_validity(
     the current context.
     """
 
+    observations = None
+    observation_reasons: list[str] = []
+    if (
+        observation_source is not None
+        and type(observation_source) is not FiniteCalibrationObservationSource
+    ):
+        observation_reasons.append("calibration_observation_source_profile_not_admitted")
+    elif observation_source is not None:
+        try:
+            observations = observation_source._resolve(
+                model_id=report.model_id,
+                model_version=report.model_version,
+                calibration_id=calibration_id,
+                detector_id=report.detector_id,
+                stationarity_regime_id=report.stationarity_regime_id,
+                report_digest=_canonical_report_digest(report),
+                effective_at=now,
+            )
+        except (OSError, ValueError):
+            observation_reasons.append("calibration_observation_source_unavailable_or_mismatched")
+    # Raw lists cannot establish observed emptiness. A configured source is
+    # freshly enumerated even when a caller supplies a plausible empty list.
+    effective_triggers = (
+        None
+        if observations is None
+        else sorted(
+            {
+                event.trigger
+                for event in observations.window().invalidation_events
+                if event.timestamp <= now
+            }
+        )
+    )
     status = check_calibration_validity(
         calibration_id=calibration_id,
         report=report,
         now=now,
-        observed_invalidation_triggers=observed_invalidation_triggers,
+        observed_invalidation_triggers=effective_triggers,
     )
     projection = build_calibration_validity_projection(
         calibration_id=calibration_id,
         report=report,
         now=now,
-        observed_invalidation_triggers=observed_invalidation_triggers,
+        observed_invalidation_triggers=effective_triggers,
     )
     expected_audit = build_calibration_audit(
         calibration_id=calibration_id,
@@ -193,7 +231,7 @@ def _check_bound_calibration_validity(
     )
     expected_payload = expected_audit.model_dump(mode="json", by_alias=True)
     actual_payload = audit.model_dump(mode="json", by_alias=True)
-    binding_reasons = [
+    binding_reasons = observation_reasons + [
         f"calibration_audit_{field}_mismatch"
         for field in sorted(set(expected_payload) | set(actual_payload))
         if expected_payload.get(field) != actual_payload.get(field)
@@ -215,7 +253,9 @@ def _check_bound_calibration_validity(
         effective_at=now,
         status=status,
         projection=projection,
+        projection_digest=hashlib.sha256(projection.model_dump_json().encode()).hexdigest(),
         audit_binding_reasons=tuple(binding_reasons),
+        observations=observations,
     )
 
 

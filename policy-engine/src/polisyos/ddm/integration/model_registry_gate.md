@@ -55,3 +55,26 @@ checks; R1 and R0 remain blocked.
 The gate must reject readiness updates that cite uncalibrated Track 2.2 shift
 events. Required shift fields are `stationarity_regime_id`, `calibration_id`,
 `empirical_fp_rate`, and one of `p_value`, `e_value`, or `ert`.
+
+## Observation and applicability boundary
+
+A caller trigger list, including `[]`, is diagnostic input and cannot prove
+observation completeness. The private checker requires a separately configured
+source. The concrete `FiniteCalibrationObservationSource` enumerates a selected
+finite replay file, binds all invalidation entries and consumed shift/degradation
+and budget inputs, and reports `completeness_provenance=recomputed` only relative
+to that finite source. Source selection is configured out of band; a public
+registry payload cannot select the resolver or its path. Changes to source bytes
+invalidate retained evidence; rebind reopens the actual source rather than
+re-signing public digests or a consumer list. Last-event labels must agree with
+the actual consumed basis. Immutable tuples and detached private digests prevent
+in-place projection mutation from changing both sides of a comparison.
+
+The finite source has `authority_scope=finite_replay_only`. A valid candidate
+projection from it remains visible, but the final gate returns
+`finite_replay_observation_not_production_authority`. No production observation
+owner is supplied by this change. Until a legitimate owner resolves coverage,
+selection and currentness, default production eligibility remains
+`not_established`. This limitation preserves the LA-055 policy table; its
+conditional state/signoff/veto logic is tested separately from the missing
+observation precondition and cannot be used as a production grant.

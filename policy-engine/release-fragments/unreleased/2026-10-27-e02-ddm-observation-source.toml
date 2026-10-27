@@ -1,0 +1,43 @@
+id = "2026-10-27-e02-ddm-observation-source"
+title = "Bind DDM replay observations to their selected source"
+type = "fixed"
+component = "ddm"
+owner = "team-scientist"
+summary = "Recompute finite observation and readiness context from the selected source while keeping production promotion unavailable without an admitted production observation owner."
+evidence = ["src/polisyos/ddm/calibration/audit.py", "src/polisyos/ddm/calibration/observations.py", "src/polisyos/ddm/integration/model_registry.py", "src/polisyos/ddm/integration/model_registry_record.schema.json", "tests/unit/ddm/test_observation_source_admission.py", "tests/unit/ddm/test_full_acceptance.py", "tests/unit/ddm/test_stationary_replay.py"]
+compatibility = "Existing registry payloads remain readable; missing observation or applicability context fails closed. New writes include an applicability projection and require upgraded strict readers. A supplied empty trigger list no longer establishes observed emptiness. The registered polisyos.ddm entrypoint remains internal."
+change_class = "internal DDM admission semantics and persisted registry projection"
+surface_classification = "internal: polisyos.ddm"
+migration = "Upgrade strict registry readers and their JSON schema before using new projections. Configure a selected source explicitly for finite replay; raw-list/default admission stays not_established. Do not enable production promotion until the actual observation owner, selection, coverage and currentness are established. No stored bytes are rewritten."
+api = "The monitor accepts an optional configured finite observation source. Current rebind resolves the selected source rather than deriving authority from a caller list or mutable serialized digest. The governed registry schema declares the new applicability binding. No Runtime HTTP or generated client contract is changed by this slice."
+limitations = "Finite replay proves only the selected bounded software source and never grants production promotion. Production observation ownership, feed-wide coverage/currentness and the excluded promotion flag's one-way veto relation are not established. Native positive, adversarial/removal and composed consumer verification remain pending until actually executed; no G acceptance or formal closure is claimed."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/ddm/integration/model_registry_gate.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "ddm-source-observation-admission"
+change_class = "internal"
+impact = "internal"
+surface = "internal: polisyos.ddm monitor and registry admission"
+owner = "team-scientist"
+version_owner = "team-scientist"
+deprecation_window = "not_applicable"
+release_note = "Caller-declared emptiness is not observation proof; finite replay remains a limited candidate and cannot grant production promotion."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/ddm/integration/model_registry_gate.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "ddm-registry-applicability-projection"
+change_class = "persisted-artifact-format"
+impact = "breaking"
+surface = "Internal DDM ModelRegistryReadinessRecord serialization and strict readers"
+owner = "team-scientist"
+version_owner = "team-scientist"
+deprecation_window = "Reader-first rollout; historical payloads remain readable and are never promoted from missing evidence."
+release_note = "Upgrade strict readers before consuming the added registry applicability projection; missing source context remains fail-closed."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/ddm/integration/model_registry_gate.md"]
+runbook_docs = []

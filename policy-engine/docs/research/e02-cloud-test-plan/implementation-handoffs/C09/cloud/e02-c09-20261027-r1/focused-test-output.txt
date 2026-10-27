@@ -1,0 +1,17 @@
+warning: Found both a `uv.toml` file and a `[tool.uv]` section in an adjacent `pyproject.toml`. The `[tool.uv]` section will be ignored in favor of the `uv.toml` file.
+  × Failed to download `structlog==25.5.0`
+  ├─▶ Failed to fetch:
+  │   `https://files.pythonhosted.org/packages/a8/45/a132b9074aa18e799b891b91ad72133c98d8042c70f6240e4c5f9dabee2f/structlog-25.5.0-py3-none-any.whl`
+  ├─▶ Request failed after 3 retries
+  ├─▶ error sending request for url
+  │   (https://files.pythonhosted.org/packages/a8/45/a132b9074aa18e799b891b91ad72133c98d8042c70f6240e4c5f9dabee2f/structlog-25.5.0-py3-none-any.whl)
+  ├─▶ client error (Connect)
+  ╰─▶ tunnel error: unsuccessful
+  help: `structlog` (v25.5.0) was included because `policy-engine[runtime]`
+        (v0.1.0) depends on `structlog`
+MEASURED_COMMAND=uv run --frozen --extra runtime --extra test pytest tests/unit/runtime/quality/test_n7_source_gap_projection.py::test_n7_source_gap_semantics_survive_compiler_and_fresh_route_read -q -ra
+WALL_SECONDS=4.713151
+MAX_RSS_KIB=29428
+USER_SECONDS=0.201607
+SYSTEM_SECONDS=0.147407
+EXIT_STATUS=1

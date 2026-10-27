@@ -425,7 +425,9 @@ def sign_native_epoch_scenario(
             facet_provider=original._facet_provider,
             history=scenario.history,
             artifact_store=store,
-            qualification_consumer=QualificationConsumer.from_deployment(deployment),
+            qualification_consumer=QualificationConsumer.from_deployment(
+                deployment, runtime_artifact_store=store
+            ),
             chronology_adapter=adapter,
         )
     return SimpleNamespace(

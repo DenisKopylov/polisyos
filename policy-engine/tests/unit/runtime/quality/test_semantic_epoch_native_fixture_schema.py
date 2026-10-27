@@ -110,3 +110,85 @@ def test_conditioned_fixture_carriers_are_admitted_and_fresh_read_rejects_source
         assert fresh_failure.value.code == "acquisition_authority_unresolved"
     finally:
         fixture.overlay.close()
+
+
+def test_native_fixture_keeps_runtime_guarded_tenant_store_for_policy_qualification(
+    tmp_path: Path,
+) -> None:
+    """Real signed native epochs retain the actual tenant-guarded CAS owner."""
+    from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.resilience import guard_runtime_cas
+
+    store = guard_runtime_cas(
+        FileSystemCAS(tmp_path / "runtime-cas").with_ambient_ownership_enforcement()
+    )
+    tenant_id, cell_id = "fixture-tenant-a", "fixture-cell"
+    rows: list[dict[str, object]] = [
+        {
+            "country_code": "UA",
+            "year": 2000 + index,
+            "distance": float(index + 1),
+            "treated": float(index % 2),
+        }
+        for index in range(4)
+    ]
+    try:
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            fixture = make_native_multivariable_active_projections(
+                tmp_path / "guarded-source-owner",
+                source_rows=rows,
+                variable_specs=(
+                    {
+                        "target_variable": "distance",
+                        "raw_field": "distance",
+                        "raw_unit": "m",
+                        "canonical_unit": "m",
+                        "valid_min": 0.0,
+                        "valid_max": 10.0,
+                    },
+                    {
+                        "target_variable": "treated",
+                        "raw_field": "treated",
+                        "raw_unit": "binary",
+                        "canonical_unit": "binary",
+                        "valid_min": 0.0,
+                        "valid_max": 1.0,
+                    },
+                ),
+                condition_units_by_raw_field={"distance": "m", "treated": "binary"},
+                artifact_store=store,
+            )
+            try:
+                consumer = fixture.native_service._qualification_consumer
+                assert consumer._runtime_store is store
+                assert consumer._owner._store is store
+                for entry in fixture.entries:
+                    projection = fixture.projections[entry.target_variable]
+                    passport = AdmissionPassport.model_validate(
+                        epoch_contract.load_verified_epoch_statement(
+                            store=store,
+                            ref=projection.passport_ref,
+                            expected_kind="epoch.acquisition_passport_snapshot",
+                        )
+                    )
+                    assert passport.source_authority_verified is True
+                    assert (
+                        fixture.overlay.read_activated_semantic_epoch_observations(
+                            receipt_ref=projection.receipt_ref,
+                            artifact_store=store,
+                            passport=passport,
+                            authority=fixture.authority,
+                        )
+                        == projection
+                    )
+                with (
+                    tenant_scope(None, tenant_id="fixture-tenant-b", cell_id=cell_id),
+                    pytest.raises(ArtifactOwnershipError),
+                ):
+                    store.get_bytes(projection.passport_ref)
+            finally:
+                fixture.overlay.close()
+    finally:
+        store.close()

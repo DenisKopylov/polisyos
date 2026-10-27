@@ -1,0 +1,74 @@
+{
+  "schema": "policyos.e02.G_review_packet.v1",
+  "task": "BOOT0",
+  "review_status": "author_ready_for_independent_G_review",
+  "packet_kind": "admission_and_control_milestone",
+  "source_snapshot": {
+    "commit": "a92c9774edf8049d590cd6ca6de35aa17063025a",
+    "tree": "7f9908cd38ca5aa2148f7cc9458d3dbbd0cdb1d9",
+    "parents": [
+      "8a24cc8ff895e61a51de2f91191251a9a8b23d84"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "product_equivalence": "No src/tests changes between8a24andthissnapshot; this packet adds documentation only."
+  },
+  "original_contract": {
+    "task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/BOOT0",
+    "original_exit": "attached ownbranch, exactbase/supplier identity, one writer perpath and visible runnablequeue",
+    "mandatory_next_action": "Read current G+INPUTS; matching candidate lane or one admitted isolation; preserve oldroots/dirtywork; check preparedB and missingORCH03 once; resume canonical work without waitingfailedVM.",
+    "assigned_finding_ids": []
+  },
+  "implementation_selection": {
+    "code_integration_required": false,
+    "implementation_commits": [],
+    "scope": "Admission has no product delta.",
+    "source_test_config_footprint": "No source, test, config, schema, generator or dependency bytes change in this packet."
+  },
+  "property": {
+    "statement": "Exact local admission, saved work and recoverable source intake",
+    "predicate_basis": "recomputed",
+    "acceptance_signal": "Attached branch/source/index and full declared source hashes checked, imported-results and task-graph navigation validators passed at their pinned source.",
+    "consumer_surface": "G audit/review packet",
+    "authority_scope": "Author task-exit proposal only; no product authority, G source acceptance or formal finding closure."
+  },
+  "evidence": [
+    {
+      "path": "LOCAL/raw/e02-task-status-refresh-20261027-r1/admission.json",
+      "sha256": "fcffdfe5b200eeac43659080dfee5042d857e2a83b768859356bcd646f361edb",
+      "scope": "Свежая проверка attached branch/head/tree и полного объявленного source frame.",
+      "availability": "local_readable_at_audit"
+    },
+    {
+      "path": "LOCAL/raw/e02-task-status-refresh-20261027-r1/admission-checks.json",
+      "sha256": "523c87ca2d9beb31ba447194dcf3781e0fdc9b1d2e615dc0869599d2c8a4b1e8",
+      "scope": "Свежие --check transferred results и проверка полного графа/критериев; только admission/navigation.",
+      "availability": "local_readable_at_audit"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/root-entry-admission.json",
+      "sha256": "09b1c3d344e535100cb1a846aafb46b9640b3072a1c32434f442c854f02ff03e",
+      "scope": "Fresh attached lane/full declared source guard at a92; navigation checks retain their exact earlier source qualification."
+    }
+  ],
+  "reviewer_instructions": [
+    "Read the exact source Git object; do not move or reset the G checkout.",
+    "Inspect the cited task and mandatory scope, then the deciding inputs/evidence at their own source anchors.",
+    "Treat local RAW availability as a local evidence transport boundary; recheck availability before cleanup or remote replay.",
+    "Accept inventory/admission separately from source integration and from per-finding adjudication."
+  ],
+  "limitations": [
+    "Admission task only; no product or authority acceptance.",
+    "No new runtime computation/production fact is established by this documentation commit.",
+    "The19-task implementation queue remains separate; no global source/input/backend freeze is declared."
+  ],
+  "proposal_fields": {
+    "author_task_exit": "complete",
+    "finding_closure_proposals": []
+  },
+  "code_acceptance_owner": "G",
+  "integration_publication_owner": "G",
+  "formal_finding_adjudication_owner": "G",
+  "code_acceptance": false,
+  "closure_ids": [],
+  "global_freeze": false
+}

@@ -82,7 +82,15 @@ def _compile(root: Path, seed: int = 17):
         ),
     )
     ref = store.put_json(
-        bundle, PutOptions(kind="ir.trinity_bundle", media_type="application/json")
+        bundle,
+        PutOptions(
+            kind=bundle.ARTIFACT_KIND,
+            media_type=bundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=bundle.ARTIFACT_SCHEMA_NAME,
+                version=bundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
     )
     result = compile(
         store,
@@ -352,7 +360,14 @@ def test_public_execute_cas_snapshot_consumer_uses_bound_profile(tmp_path, overr
     snapshot_ref = StateSnapshotRef(artifact_id=snapshot.artifact_id)
     data_ref = store.put_json(
         DataSnapshot(data_ref=snapshot_ref),
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+        PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
     )
     bindings = store.put_json(
         FoundryInputBindings(
@@ -361,7 +376,14 @@ def test_public_execute_cas_snapshot_consumer_uses_bound_profile(tmp_path, overr
             rules=[],
             bound_state_snapshot_ref=snapshot_ref,
         ),
-        PutOptions(kind="foundry.input_bindings", media_type="application/json"),
+        PutOptions(
+            kind="foundry.input_bindings",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=FoundryInputBindings.ARTIFACT_SCHEMA_NAME,
+                version=FoundryInputBindings.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
     )
     config = FoundryExecConfig() if override is None else FoundryExecConfig(seed=override)
     fresh = FileSystemCAS(tmp_path / "cas")

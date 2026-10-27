@@ -12,6 +12,7 @@ import pytest
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.compiler.report import CompileReport
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import (
     CompileRequest,
@@ -19,11 +20,13 @@ from polisyos.core.contracts.foundry import (
     FoundryExecConfig,
     FoundryInputBindings,
     FoundryInputBindingsRef,
+    ProgramGraph,
     SimulationResult,
     StateSnapshotRef,
 )
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.compile.api import compile as compile_foundry
+from polisyos.foundry.compile.randomization import TreasuryPlan
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import (
@@ -85,7 +88,10 @@ def test_live_baseline_spec_compiler_and_fresh_cas_replay_match_complete_patch_s
         PutOptions(
             kind="ir.trinity_bundle",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=policy.schema_version),
+            schema=SchemaInfo(
+                name=policy.ARTIFACT_SCHEMA_NAME,
+                version=policy.ARTIFACT_SCHEMA_VERSION,
+            ),
         ),
     )
     compiled = compile_foundry(
@@ -111,7 +117,14 @@ def test_live_baseline_spec_compiler_and_fresh_cas_replay_match_complete_patch_s
     state_ref = StateSnapshotRef(artifact_id=original_snapshot.artifact_id)
     data_ref = store.put_json(
         DataSnapshot(data_ref=state_ref),
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+        PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
     )
     binding = store.put_json(
         FoundryInputBindings(
@@ -120,7 +133,14 @@ def test_live_baseline_spec_compiler_and_fresh_cas_replay_match_complete_patch_s
             rules=[],
             bound_state_snapshot_ref=state_ref,
         ),
-        PutOptions(kind="foundry.input_bindings", media_type="application/json"),
+        PutOptions(
+            kind="foundry.input_bindings",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=FoundryInputBindings.ARTIFACT_SCHEMA_NAME,
+                version=FoundryInputBindings.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
     )
     request = ExecuteRequest(
         exec_plan_ref=compiled.exec_plan_ref,
@@ -128,10 +148,27 @@ def test_live_baseline_spec_compiler_and_fresh_cas_replay_match_complete_patch_s
         registry_bundle_ref=bundle.bundle_ref,
         exec_config=FoundryExecConfig(seed=27),
     )
-    # Historical baseline executor splits the request key once before this kernel.
-    _, kernel_key = jax.random.split(jax.random.PRNGKey(27))
+    report = CompileReport.model_validate(
+        from_canonical_bytes(store.get_bytes(compiled.compile_report_ref))
+    )
+    graph = ProgramGraph.model_validate(
+        from_canonical_bytes(store.get_bytes(report.program_graph_ref))
+    )
+    treasury = TreasuryPlan.model_validate(
+        from_canonical_bytes(store.get_bytes(report.treasury_plan_ref))
+    )
+    (node,) = [candidate for candidate in graph.nodes if candidate.mechanism_type == kind]
+    kernel_key = jax.random.PRNGKey(27)
+    for salt in (treasury.stream_salts["default"], treasury.node_salts[node.node_id]):
+        kernel_key = jax.random.fold_in(kernel_key, salt & 0xFFFFFFFF)
+        kernel_key = jax.random.fold_in(kernel_key, salt >> 32)
+    _, step_key = jax.random.split(kernel_key)
     mechanism = create_mechanism_from_spec(kind, dict(params), 8, 2)
-    patch, next_key = mechanism.emit_patches(state, kernel_key, target_mask=jnp.ones(8, dtype=bool))
+    patch, next_key = mechanism.emit_patches(
+        state,
+        step_key,
+        target_mask=jnp.ones(8, dtype=bool),
+    )
     expected = apply_patch_map(
         state,
         patch,
@@ -153,5 +190,5 @@ def test_live_baseline_spec_compiler_and_fresh_cas_replay_match_complete_patch_s
         assert actual_tree == expected_tree
         for actual, oracle in zip(actual_leaves, expected_leaves, strict=True):
             np.testing.assert_array_equal(actual, oracle)
-    oracle_key = jax.random.split(kernel_key, 3)[2] if kind == "labor_market" else kernel_key
+    oracle_key = jax.random.split(step_key, 3)[2] if kind == "labor_market" else step_key
     np.testing.assert_array_equal(next_key, oracle_key)

@@ -1,0 +1,61 @@
+F
+=================================== FAILURES ===================================
+___ test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[None] ____
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_compiled_seed_and_persist0')
+seed = None
+
+    @pytest.mark.parametrize("seed", [None, 0, 17, 2147483655])
+    def test_compiled_seed_and_persisted_salts_drive_actual_native_kernel(tmp_path, seed):
+>       store, report, content = _compile(tmp_path / "cas", seed)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/foundry/compile/test_treasury_execution.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+root = PosixPath('/tmp/pytest-of-root/pytest-0/test_compiled_seed_and_persist0/cas')
+seed = None
+
+    def _compile(root: Path, seed: int = 17):
+        store = FileSystemCAS(root)
+        registry = build_default_registry_bundle(store)
+        bundle = TrinityBundle(
+            problem_frame=ProblemFrame(problem_id="treasury_execution", domain=ProblemDomain.FISCAL),
+            policy_spec=PolicySpec(
+                policy_id="treasury_execution",
+                interventions=[
+                    InterventionSpec(
+                        intervention_id="stochastic_action",
+                        kind="adaptive_agent",
+                        target={"kind": "predicate", "field": "id", "operator": "==", "value": "all"},
+                        schedule={"start_step": 0, "duration_steps": 2},
+                        params=PARAMS,
+                    ),
+                ],
+            ),
+            model_spec=ModelSpec(
+                model_id="treasury_execution",
+                data_snapshot_ref="sha256:" + "0" * 64,
+                registry_bundle_ref=str(registry.bundle_ref.artifact_id),
+            ),
+        )
+        ref = store.put_json(
+            bundle, PutOptions(kind="ir.trinity_bundle", media_type="application/json")
+        )
+        result = compile(
+            store,
+            CompileRequest(
+                policy_ref=ref,
+                registry_bundle_ref=registry.bundle_ref,
+                compile_config=FoundryCompileConfig(random_seed=seed),
+            ),
+        )
+>       assert result.ok, result.notes
+E       AssertionError: ['compile_exception:CanonicalProfileRefusalError:canon_profile_typed_artifact_schema_name_mismatch']
+E       assert False
+E        +  where False = CompileResult(schema_version='1.0', ok=False, exec_plan_ref=None, compile_report_ref=ArtifactRef(artifact_id=ArtifactI...ed_refs=[], notes=['compile_exception:CanonicalProfileRefusalError:canon_profile_typed_artifact_schema_name_mismatch']).ok
+
+tests/unit/foundry/compile/test_treasury_execution.py:95: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/compile/test_treasury_execution.py::test_compiled_seed_and_persisted_salts_drive_actual_native_kernel[None]
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!

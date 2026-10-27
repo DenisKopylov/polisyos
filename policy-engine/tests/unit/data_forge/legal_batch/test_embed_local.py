@@ -139,9 +139,7 @@ def test_legacy_flat_pair_rebuilds_changed_text_then_reuses_current_membership(
             con.execute("DELETE FROM lex_facts")
             con.execute("DELETE FROM lex_provisions")
             for identifier, text in rows:
-                con.execute(
-                    "INSERT INTO lex_provisions VALUES (?, ?)", [identifier, text]
-                )
+                con.execute("INSERT INTO lex_provisions VALUES (?, ?)", [identifier, text])
             con.execute("CHECKPOINT")
         finally:
             con.close()
@@ -193,15 +191,16 @@ def test_legacy_flat_pair_rebuilds_changed_text_then_reuses_current_membership(
             embedding_device="cpu",
             embedding_dimension=4,
         )
-        expected = {
-            identifier: encoder.vectors_by_text[text] for identifier, text in rows
-        }
+        expected = {identifier: encoder.vectors_by_text[text] for identifier, text in rows}
         return _assert_rows_and_hnsw(reference, expected)
 
     def _generation_snapshot(reference):
-        generation_dir = (
-            reference.root_dir / "embedding_generations" / reference.generation_id
-        )
+        assert reference.selected is True
+        assert reference.status == "complete"
+        assert reference.inventory_path is not None
+        generation_dir = reference.inventory_path.parent
+        assert generation_dir == reference.root_dir
+        assert generation_dir.name == reference.generation_id
         return {
             path.name: path.read_bytes()
             for path in sorted(generation_dir.iterdir())
@@ -267,8 +266,7 @@ def test_legacy_flat_pair_rebuilds_changed_text_then_reuses_current_membership(
             )
             self.encoded_batches.append(text_values)
             self.vectors_by_text.update(
-                (text, vectors[row_number].copy())
-                for row_number, text in enumerate(text_values)
+                (text, vectors[row_number].copy()) for row_number, text in enumerate(text_values)
             )
             return vectors
 
@@ -293,9 +291,7 @@ def test_legacy_flat_pair_rebuilds_changed_text_then_reuses_current_membership(
     assert first_stats.provisions_skipped == 0
     # Pin the provisions batch explicitly; this fixture leaves entity and fact
     # projections empty and makes no mixed-projection call-count claim.
-    assert encoder.encoded_batches[-1] == tuple(
-        text for _identifier, text in initial_rows
-    )
+    assert encoder.encoded_batches[-1] == tuple(text for _identifier, text in initial_rows)
 
     first = _resolve_provisions()
     assert first.generation_id != legacy.generation_id

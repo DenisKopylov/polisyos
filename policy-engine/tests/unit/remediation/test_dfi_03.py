@@ -2570,6 +2570,7 @@ def test_wvs_bulk_resolves_current_policy_once_per_operation(
     assert changed["A165"][0]["value"] == 2.0
     assert config.run_signature != signature
 
+
 @pytest.mark.parametrize(
     "malformed_state",
     [
@@ -2673,9 +2674,7 @@ def test_checksum_free_legacy_harvest_manifest_is_not_resume_evidence_and_recove
     assert calls == ["https://example.test/a", "https://example.test/a"]
     assert _should_skip_stage(config, "harvest")
 
-    repaired_stage = json.loads(
-        (config.manifests_dir / "harvest.json").read_text(encoding="utf-8")
-    )
+    repaired_stage = json.loads((config.manifests_dir / "harvest.json").read_text(encoding="utf-8"))
     repaired_outcome = repaired_stage["metrics"]["source_outcomes"]["source_a"]
     repaired_raw = json.loads(
         Path(str(repaired_outcome["manifest_path"])).read_text(encoding="utf-8")

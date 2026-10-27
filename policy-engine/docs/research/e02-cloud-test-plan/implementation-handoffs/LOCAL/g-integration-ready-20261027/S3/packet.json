@@ -1,0 +1,429 @@
+{
+  "schema": "policyos.e02.s3_handoff_packet.v1",
+  "packet_state": "Published author handoff for independent G review; not a G acceptance",
+  "source_snapshot": {
+    "commit": "e22f05ef1b3d70c6ed6de0ead6459f71a8239b8d",
+    "tree": "3bb7f3b72fc9bb85474e607e5fffd1a0ae39ef3b",
+    "parent": "8c5efa250faa2e983b1ce7a2021b9ea135846a69",
+    "changed_paths": [
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py",
+        "sha256": "abe441cfd4c9d19854feb298a6957335a603a7a1b22ff4ca5a81b1279bccd92b"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+        "sha256": "eeb7b33a1af5f59ee2470c2e216ec69d1aaaac4b8a6ca5f133bb7741840f960b"
+      }
+    ],
+    "scope_note": "Commit changes exactly the two S3 test modules; committed blob hashes were re-read and match the worktree. No production S3 source change."
+  },
+  "status": {
+    "author_task_exit": "GO",
+    "scope": "bounded S3 candidate test witness",
+    "canonical_code_acceptance": false,
+    "formal_b31_closure": "not_adjudicated",
+    "closure_ids": []
+  },
+  "requirement": {
+    "primary_task": {
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S3",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+    },
+    "connected_task": {
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/S3",
+      "sha256": "488806f7ffa455a84e311e19b2cc1d207016b587625abf846ddd11753b21cd7d"
+    },
+    "original_exit": "Bind exact identification/native uncertainty refs to recomputed resolved subject and unit; retain point ID and [1,10] interval through a fresh consumer; refuse fake, mismatched, or unresolved evidence; no contract-only authority."
+  },
+  "b31_criterion": {
+    "source": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "lines": "593-606",
+      "occurrence_sha256": "9311ba1b0fb2e6a3f180546c6118406c5781dbbfb57e27b28075b95a92fe371f"
+    },
+    "coverage": {
+      "ref": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#findings[B31].criterion_refs[0]",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+      "closure_now": "not_adjudicated",
+      "criterion_specific_acceptance": "not_executed",
+      "capability_label": "absent/unallocated"
+    },
+    "criterion_summary": "Keep ID bounds and native uncertainty separate for one estimand/unit; retain nonzero asymmetric uncertainty under point identification; scale both channels consistently; method is provenance, not subject identity.",
+    "note": "Coverage's A.md#task-a9 pointer targets an absent file; canonical B_r19 and current S3 pointers were read directly."
+  },
+  "behavior_witness": {
+    "chain": [
+      "N8 source profile/projection",
+      "typed source assignment",
+      "method report plus candidate identification bounds and execution receipt/run basis",
+      "persisted Core CAS basis",
+      "candidate ValueOuterSet",
+      "fresh generation_cycle._value_outer_set_from_owner_method_run_basis reload and recomputation"
+    ],
+    "paired_fixture": {
+      "m": {
+        "id_bounds": [
+          4,
+          4
+        ],
+        "native_ci": [
+          1,
+          10
+        ]
+      },
+      "km": {
+        "id_bounds": [
+          0.004,
+          0.004
+        ],
+        "native_ci": [
+          0.001,
+          0.01
+        ]
+      },
+      "assertions": [
+        "all four endpoints scale by factor 1000",
+        "units agree at assignment, report, bounds, and output",
+        "estimand specs agree after unit normalization"
+      ]
+    },
+    "negative_controls": [
+      "symmetric [1,7] report with lineage markers is rejected by recomputation",
+      "km report/bounds reference rebound into an m basis is refused",
+      "missing identification_bounds_ref fails closed",
+      "changed source context is refused",
+      "unresolved source request is refused",
+      "removed owner-assignment manifest edge is refused"
+    ],
+    "raw_manifest_adversary": "Mutate selected raw panel bytes through consumed get_raw_manifest_bytes while typed get_manifest remains delegated; assert ir_artifact_selected_manifest_changed before a forbidden runner call.",
+    "method_identity": "Actual-method node shows DID and Synthetic Control have distinct provenance while sharing one owner coordinate.",
+    "authority_limit": {
+      "assertions": [
+        "value_blocked",
+        "candidate_fixture_value_run_not_authority"
+      ],
+      "assignment": "consumer_asserted",
+      "source_time": "not_established",
+      "fixture_scope": "candidate_fixture_only",
+      "claims_not_established": [
+        "estimator accuracy",
+        "causal truth",
+        "calibration",
+        "source-assignment truth",
+        "authority",
+        "publication"
+      ]
+    }
+  },
+  "run_receipts": [
+    {
+      "id": "wave1-s3-channel-composition-r1",
+      "outcome": "4 selected: 3 passed, 1 failed. The only failure was the paired test calling model_dump on frozen dataclass EstimandSpec; the other three nodes passed. Do not claim 4/4.",
+      "audit_result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-channel-composition-r1/audit-result.json",
+        "sha256": "39df18f71c6c0764c6ee837a0e492e66a0cc7271e185657d9bcc6a095e7868b2"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-channel-composition-r1/wave1-s3-channel-composition-r1.stdout.txt",
+        "sha256": "c37e44e493230913cec7ff7155bfc59534f3686ff58e94660534e3a0ff6d9f49"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-channel-composition-r1/pytest.xml",
+        "sha256": "f975c716b1041544b2d7ce03bf29bd963f19e405dfcc923d0964e290317b81d7"
+      },
+      "readset": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-channel-composition-r1/readsets/input-readset-6241.json",
+        "sha256": "cf6f2ed0110800888ad9beb737e52bf867c1ce7eb465557331beb4a9ba4994ed",
+        "loaded_python_paths": 1655,
+        "breakdown": "1642 source modules + 13 test modules"
+      },
+      "prior_test_file_hashes": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py",
+          "sha256": "abe441cfd4c9d19854feb298a6957335a603a7a1b22ff4ca5a81b1279bccd92b",
+          "same_as_r1_readset": true
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+          "current_sha256": "eeb7b33a1af5f59ee2470c2e216ec69d1aaaac4b8a6ca5f133bb7741840f960b",
+          "r1_preimage_sha256": "4b518a4399b8bbe14ad2d78aacf3bd763d3ff55c202c779535e1b2e7d5bc0452",
+          "historical_note": "R1 readset records this pre-R6 test-file hash; it is not the hash of the current file at this path."
+        }
+      ],
+      "junit_nodes": [
+        {
+          "node": "test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis",
+          "result": "passed"
+        },
+        {
+          "node": "test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds",
+          "result": "passed"
+        },
+        {
+          "node": "test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_cas",
+          "result": "failed only at dataclass model_dump API call"
+        },
+        {
+          "node": "test_n8_fresh_consumer_reads_recomputed_fixed_unit_owner_projection",
+          "result": "passed"
+        }
+      ],
+      "wall_seconds": 203.625,
+      "peak_rss_bytes": 1201815552,
+      "prior_pass_reuse_scope": "The two passing test_value_gate nodes are preserved only as unchanged-block evidence: exact R6 diff touches the import and the two model_dump calls in the paired node, outside those node bodies. This is not whole-file or full-readset equality."
+    },
+    {
+      "id": "wave1-s3-paired-unit-after-dataclass-r2",
+      "outcome": "Separate fresh canonical-source replay of only the original paired node: 1 passed, 0 failures/errors. This is not the same four-node wave.",
+      "audit_result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-paired-unit-after-dataclass-r2/audit-result.json",
+        "sha256": "48664355f181ec33b161f1cbcd3bf4099f45e9ad665d7ec58131340330779755"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-paired-unit-after-dataclass-r2/wave1-s3-paired-unit-after-dataclass-r2.stdout.txt",
+        "sha256": "6760c5eebce25a50e4a6a7144adb2c5cd59087bdf06a910e4789625e709a1536"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-paired-unit-after-dataclass-r2/pytest.xml",
+        "sha256": "610fedae07c0e37888ba843460625a1a9b731e4ea8b061849885a5812d9ff346"
+      },
+      "readset": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-paired-unit-after-dataclass-r2/readsets/input-readset-16026.json",
+        "sha256": "bdee6415eef97491b6aa19289a69710ea1175347414d8ccf94e453ee1acecbab",
+        "loaded_python_paths": 1654,
+        "breakdown": "1642 source modules + 12 test modules"
+      },
+      "current_test_file_match": {
+        "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+        "sha256": "eeb7b33a1af5f59ee2470c2e216ec69d1aaaac4b8a6ca5f133bb7741840f960b",
+        "matches_r2_readset": true
+      },
+      "wall_seconds": 88.468,
+      "peak_rss_bytes": 1277755392,
+      "mismatch_count": 0
+    }
+  ],
+  "test_only_correction": {
+    "artifact": {
+      "manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave1/s3/s3-author-r6/manifest.json",
+        "sha256": "c100f8eb2bc482fec18f9eb0b2c8aacbd01614e391c3c7fa0d9506aa5acb5848"
+      },
+      "patch": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave1/s3/s3-author-r6/patch.diff",
+        "sha256": "401893fe9ec550b099bf163cb78cdbeadfd7b385bd216148989b892682872136"
+      }
+    },
+    "delta": "Import dataclasses.asdict and replace the two EstimandSpec.model_dump(mode='json') calls with asdict(...); no other source/test lines changed by R6.",
+    "preimage_sha256": "4b518a4399b8bbe14ad2d78aacf3bd763d3ff55c202c779535e1b2e7d5bc0452",
+    "postimage_sha256": "eeb7b33a1af5f59ee2470c2e216ec69d1aaaac4b8a6ca5f133bb7741840f960b",
+    "prior_node_id_preserved": true
+  },
+  "predecessor_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/integration-ready/review-s3-author-r3.json",
+    "sha256": "8bea44be7a16b06acbf6c16b25dd64167335a4bf5280428147b0fb9b8a8b2f68",
+    "disposition": "Its node-rename finding is corrected; selector preserved."
+  },
+  "g_feedback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/g27-feedback/received-g-feedback.md",
+    "sha256": "8a2214099ba2d66c14c2f95816ada08575e9fd767f143f03c1bba24f9ac67537",
+    "reviewed_source_commit": "8c5efa250faa2e983b1ce7a2021b9ea135846a69",
+    "s3_disposition": "not present",
+    "g_acceptance_for_s3": "not_established"
+  },
+  "dependency_and_limits": {
+    "S1": {
+      "status": "still_open",
+      "report_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/S1/report.json",
+      "report_sha256": "d2a180895e2324341c263a3c7af9cbf5aae266e0db634e657be3c7b0b4d3635d",
+      "status_detail": "implementation_remaining; separate B161 source-array/unit-scope work remains",
+      "disposition": "Carry S1 as an integration dependency. Supplied synthetic m/km unit fixture bounds this S3 witness and does not expand S3 to all S1/B161 work."
+    },
+    "fixture_limit": "Source rows and AIPW/BoundsEngine outputs are synthetic/deterministic fixtures; no estimator accuracy, causal truth, calibration, source-assignment truth, authority, or publication claim.",
+    "prior_s3_report": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/S3/report.json",
+      "sha256": "607980c91a8070fa72e19ea2d4a75212aa58f82458d2b6f276a7f8abc2fff30e",
+      "note": "Pre-author-change report; its old verification_remaining status is stale for the two S3 gaps."
+    }
+  },
+  "pattern_pass": {
+    "ids": [
+      "P29",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "P29": "Property-removal probe changes live method output while keeping report/lineage markers; fresh consumer rejects recomputation drift.",
+    "P38": "Old proxy observed get_manifest_bytes while adapter consumes get_raw_manifest_bytes. Test now targets consumed seam; raw/typed divergence fails before runner.",
+    "P40": "Paired witness widens the same B31 combined-channel class once. model_dump was a separate test-companion API-shape failure fixed with asdict; no repeated B31 escape shown.",
+    "P41": "The first-wave red was within the changed paired test at its dataclass API call, so it is author-introduced, not inherited; the same node passes after correction."
+  },
+  "mandatory_source_consumer_test_config_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "sha256": "4d82eb434bbcb48e234ceecc5c468224c0311d85ed3c11241b27b762a69d5ba4",
+      "role": "fresh owner-run-basis consumer and recomputation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/value_outer_set.py",
+      "sha256": "35d9fb3880239d6cc2d7c7829c5be62f65d73cc79c3ff6b5577b8f49489580ec",
+      "role": "typed ID/native uncertainty channels"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "sha256": "ec69b52bc525c0e1bd424d9486a401bcdcb6cfdc756451c7deef35b7904b375d",
+      "role": "IR artifact adaptation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "sha256": "a3b88c3202b6b367014431a142f956b348e6c9eacb52f2b4bd831f762dadcaf9",
+      "role": "artifact serialization/load"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "sha256": "b9b83efb662542fde00cc2023c5d6deac54c9f50678d80256ca35dbcd3fe6ce9",
+      "role": "Core CAS persistence"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/consensus.py",
+      "sha256": "22ed8ca40ad522dae964a1f10855bd14b4608e81ff20e2831b16223f0b779bad",
+      "role": "frozen EstimandSpec dataclass"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "sha256": "3a66ea7ed5ce149254beefbc355867696d51757b9e6832c36a7df91c919b8075",
+      "role": "DID method"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/synthetic_control.py",
+      "sha256": "01771c729523a94bc200642c42959dad4628f991afeb4ed59dbc7aaaf5a330d3",
+      "role": "Synthetic Control method"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+      "sha256": "83c101402001d6eb4890b8a5740c6fba2d8fde10905f143ae1416760352133dc",
+      "role": "effect report"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/bounds_engine.py",
+      "sha256": "1eacb03f06a3eb0ce77f95bb8dab4804ee4440a2ada00826beb997b240c51982",
+      "role": "candidate identification bounds"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py",
+      "sha256": "125c86ce8219f9743238eb5faee43c3676fa25358f47a129aa5478d95d522ff9",
+      "role": "fixture method execution backend"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/registry.py",
+      "sha256": "62759ddce28378ddc340c04f64bf7ffdf64f18dcb9cc9722288d6afb7d0411e7",
+      "role": "method registry"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_registry_boot.py",
+      "sha256": "85aac57a527c5e84bf3ff2e768d880e7476d4cd60a54f57cff41afd0e4586c4b",
+      "role": "causal method registration"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py",
+      "sha256": "abe441cfd4c9d19854feb298a6957335a603a7a1b22ff4ca5a81b1279bccd92b",
+      "role": "S3 raw-manifest and owner-run-basis semantic witness"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+      "sha256": "eeb7b33a1af5f59ee2470c2e216ec69d1aaaac4b8a6ca5f133bb7741840f960b",
+      "role": "S3 paired m/km and fresh-consumer witness"
+    },
+    {
+      "path": "policy-engine/tests/_helpers/semantic_epoch_native.py",
+      "sha256": "bed021cd16a0af95e0dc3afcc7d0fc3a8067ce38aa2f9eb3e83e29952df97cde",
+      "role": "native semantic test helper"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "role": "test/runtime dependencies and config"
+    },
+    {
+      "path": "policy-engine/pytest.ini",
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "role": "pytest config"
+    },
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "sha256": "691bf0914650edbef7cc5ededdb2828a8992c513abcaa875f0eb5ac7b318dbdd",
+      "role": "test fixtures/config"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/conftest.py",
+      "sha256": "85147d4db3518969cdfa50bd10f84c0f5bab79f72dd8e00123cd49722af37ab3",
+      "role": "runtime test fixtures/config"
+    }
+  ],
+  "receipt_scope_note": "This packet cites existing native execution receipts; its author did not execute tests or native checks, write production source, review unrelated paths, or mutate Git.",
+  "slice_base": "8c5efa250faa2e983b1ce7a2021b9ea135846a69",
+  "code_acceptance": false,
+  "closure_ids": [],
+  "global_freeze": false,
+  "independent_author_exit_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/S3/author-exit-review-r2.json",
+    "sha256": "893dd7c65df3bca82d8201fd0f4a73bed5eadecb2c01d4605471730381acede8",
+    "verdict": "GO bounded S3 author exit; S1 remains an integration dependency and B31 not adjudicated"
+  },
+  "replay": [
+    {
+      "case": "wave1-s3-channel-composition-r1",
+      "source_head_at_execution": "a540cb337b50aa0d606eb33978a7d6c188ea6884",
+      "selected_nodes": [
+        "tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py::test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis",
+        "tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds",
+        "tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_cas",
+        "tests/unit/runtime/quality/test_value_gate.py::test_n8_fresh_consumer_reads_recomputed_fixed_unit_owner_projection"
+      ],
+      "command": "cd policy-engine && .venv/bin/python -m pytest tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py::test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_cas tests/unit/runtime/quality/test_value_gate.py::test_n8_fresh_consumer_reads_recomputed_fixed_unit_owner_projection",
+      "actual_supervised_argv_pointer": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-channel-composition-r1/audit-result.json#/result/argv",
+      "source_profile_freeze_sha256": "267d052433c89b44756fb464ff2214f95e40680aa7d3b192dcd74b757516b39c",
+      "native_profile": "pytest.ini/default plugins plus read-only loaded-source observer, private outputs, one numerical thread",
+      "full_deciding_output_refs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-channel-composition-r1/wave1-s3-channel-composition-r1.stdout.txt",
+          "sha256": "c37e44e493230913cec7ff7155bfc59534f3686ff58e94660534e3a0ff6d9f49"
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-channel-composition-r1/pytest.xml",
+          "sha256": "f975c716b1041544b2d7ce03bf29bd963f19e405dfcc923d0964e290317b81d7"
+        },
+        "audit_result": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-channel-composition-r1/audit-result.json",
+          "sha256": "39df18f71c6c0764c6ee837a0e492e66a0cc7271e185657d9bcc6a095e7868b2"
+        }
+      }
+    },
+    {
+      "case": "wave1-s3-paired-unit-after-dataclass-r2",
+      "source_head_at_execution": "8c5efa250faa2e983b1ce7a2021b9ea135846a69",
+      "selected_nodes": [
+        "tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_cas"
+      ],
+      "command": "cd policy-engine && .venv/bin/python -m pytest tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_cas",
+      "actual_supervised_argv_pointer": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-paired-unit-after-dataclass-r2/audit-result.json#/result/argv",
+      "source_profile_freeze_sha256": "720c062c3892df85d7edeb94b2b2e330d26806eaf87c5273387ef72f41f894c8",
+      "native_profile": "pytest.ini/default plugins plus read-only loaded-source observer, private outputs, one numerical thread",
+      "full_deciding_output_refs": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-paired-unit-after-dataclass-r2/wave1-s3-paired-unit-after-dataclass-r2.stdout.txt",
+          "sha256": "6760c5eebce25a50e4a6a7144adb2c5cd59087bdf06a910e4789625e709a1536"
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-paired-unit-after-dataclass-r2/pytest.xml",
+          "sha256": "610fedae07c0e37888ba843460625a1a9b731e4ea8b061849885a5812d9ff346"
+        },
+        "audit_result": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/wave1-s3-paired-unit-after-dataclass-r2/audit-result.json",
+          "sha256": "48664355f181ec33b161f1cbcd3bf4099f45e9ad665d7ec58131340330779755"
+        }
+      }
+    }
+  ]
+}

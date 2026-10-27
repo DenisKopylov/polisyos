@@ -1,0 +1,11 @@
+{
+  "scope": "Root metadata/readback check, not another native execution",
+  "result": "PASS",
+  "nested_path_hash_refs_checked": 41,
+  "committed_test_paths_checked": 2,
+  "source_commit": "e22f05ef1b3d70c6ed6de0ead6459f71a8239b8d",
+  "draft_input_sha256": "9b8812921de6834d0371ef4cabf1fe2b8f648866215fd47caeb7f0b5be092b01",
+  "output_packet_sha256": "83efc419bea720138096997f0ab75d89864ce38e01dc52f909d09d2f092a7111",
+  "author_exit_review_sha256": "893dd7c65df3bca82d8201fd0f4a73bed5eadecb2c01d4605471730381acede8",
+  "closure_ids": []
+}

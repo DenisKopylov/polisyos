@@ -30,9 +30,17 @@ def to_validation_report(
         **dict(thresholds or {}),
     }
 
+    interval_status, interval_comparisons, interval_path = (
+        diagnostics._interval_coverage_admission()
+    )
     issues: list[ValidationIssue] = []
     issues.extend(_threshold_issues(diagnostics, resolved_thresholds))
     issues.extend(_diagnostic_issues(diagnostics.issues))
+    issues.extend(
+        _interval_admission_issues(
+            diagnostics, interval_status, interval_comparisons, interval_path
+        )
+    )
     issues.extend(_test_assumption_issues(diagnostics))
 
     normalized_payload = {
@@ -61,6 +69,18 @@ def to_validation_report(
             },
             "recommended_action": diagnostics.recommended_action,
             "warnings": list(diagnostics.warnings),
+            "interval_coverage": diagnostics.metadata.get("interval_coverage"),
+            **(
+                {
+                    "reconciled_interval_coverage": {
+                        "status": interval_status,
+                        "n_comparisons": interval_comparisons,
+                    },
+                    "measurement_source_assurance": "not_established",
+                }
+                if diagnostics.task == "continuous"
+                else {}
+            ),
         }
     }
 
@@ -71,12 +91,26 @@ def to_validation_report(
     )
     repair_attempt = diagnostics.metadata.get("repair_log") or None
 
+    gate_failures = [issue.code for issue in issues if issue.severity == "error" and issue.code]
+    if diagnostics.task == "continuous":
+        gate_failures.append("calibration_measurement_source_not_established")
+    verdict_fields: dict[str, Any] = {}
+    if error_count:
+        verdict_fields = {"verdict": "fail", "readiness": "blocked", "gate_failures": gate_failures}
+    elif diagnostics.task == "continuous":
+        verdict_fields = {
+            "verdict": "blocked",
+            "readiness": "blocked",
+            "gate_failures": gate_failures,
+        }
+
     return ValidationReport(
         error_summary=summary,
         issues=issues,
         repair_attempt=None if repair_attempt is None else str(repair_attempt),
         diff_before_after=diagnostics.metadata.get("diff_before_after"),
         normalized_payload=normalized_payload,
+        **verdict_fields,
     )
 
 
@@ -177,6 +211,34 @@ def _test_assumption_issues(diagnostics: CalibrationDiagnosticsReport) -> list[V
             )
         )
     return issues
+
+
+def _interval_admission_issues(
+    diagnostics: CalibrationDiagnosticsReport,
+    status: str | None,
+    comparisons: int | None,
+    issue_path: str | None,
+) -> list[ValidationIssue]:
+    """Fail closed when a continuous report lacks measured interval comparisons."""
+
+    if diagnostics.task != "continuous":
+        return []
+    existing_codes = {issue.code for issue in diagnostics.issues if issue.severity.value == "error"}
+    if status == "evaluated":
+        return []
+    code = "CALIB_INTERVAL_INCOMPLETE" if status == "incomplete" else "CALIB_INTERVAL_NOT_EVALUATED"
+    if code in existing_codes:
+        return []
+    return [
+        _make_issue(
+            path=issue_path or "calibration.curves.interval_coverage",
+            code=code,
+            severity="error",
+            message="Continuous calibration lacks a reconciled interval comparison basis.",
+            expected=">=1 complete internally consistent interval comparison",
+            actual={"status": status, "n_comparisons": comparisons},
+        )
+    ]
 
 
 def _make_issue(

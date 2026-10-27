@@ -189,9 +189,11 @@ def _record_execution(
     history_store: SelectionHistoryStore | None = None,
 ) -> None:
     try:
-        receipt = extract_truthfulness_receipt(result.artifacts if result is not None else None)
-        if receipt is None and result is not None:
-            receipt = extract_truthfulness_receipt(result.output)
+        receipt = (
+            extract_truthfulness_receipt({"artifacts": result.artifacts, "output": result.output})
+            if result is not None
+            else None
+        )
         record = MethodExecutionRecord(
             method_fqn=signature.fqn,
             timestamp=_time.time(),
@@ -387,15 +389,18 @@ def _merge_dispatch_result(
     artifacts: Mapping[str, Any],
     warnings: tuple[str, ...] = (),
 ) -> MethodResult:
-    truthfulness_receipt = extract_truthfulness_receipt(result.artifacts)
-    if truthfulness_receipt is None:
-        truthfulness_receipt = extract_truthfulness_receipt(result.output)
     merged_artifacts = {**dict(result.artifacts), **dict(artifacts)}
+    existing_receipt = extract_truthfulness_receipt(merged_artifacts)
+    truthfulness_receipt = extract_truthfulness_receipt(
+        {"artifacts": merged_artifacts, "output": result.output}
+    )
     if truthfulness_receipt is not None:
-        merged_artifacts.setdefault(
-            "truthfulness_receipt",
-            truthfulness_receipt.model_dump(mode="json"),
-        )
+        projected = truthfulness_receipt.model_dump(mode="json")
+        if existing_receipt != truthfulness_receipt:
+            # A typed output can limit a competing positive sidecar.
+            merged_artifacts["truthfulness_receipt"] = projected
+        else:
+            merged_artifacts.setdefault("truthfulness_receipt", projected)
     return MethodResult(
         output=result.output,
         timing=result.timing,

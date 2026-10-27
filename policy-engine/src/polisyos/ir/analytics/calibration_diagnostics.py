@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -144,7 +145,8 @@ class CalibrationDiagnosticsReport(BaseModel):
     def to_truthfulness_receipt(self) -> TruthfulnessReceipt:
         """Project calibration diagnostics into the shared truthfulness receipt contract."""
 
-        if self.truthfulness_receipt is not None:
+        interval_status, interval_comparisons, _ = self._interval_coverage_admission()
+        if self.truthfulness_receipt is not None and self.task != "continuous":
             return self.truthfulness_receipt
 
         rejected_tests = tuple(
@@ -159,10 +161,10 @@ class CalibrationDiagnosticsReport(BaseModel):
             runtime_tier = TruthfulnessTier.UNVERIFIED
             degradation_reasons.append("fatal_calibration_issue")
         issue_codes = {issue.code for issue in self.issues}
-        if "CALIB_INTERVAL_NOT_EVALUATED" in issue_codes:
+        if interval_status == "not_evaluated" or "CALIB_INTERVAL_NOT_EVALUATED" in issue_codes:
             runtime_tier = TruthfulnessTier.UNVERIFIED
             degradation_reasons.append("interval_coverage_not_evaluated")
-        elif "CALIB_INTERVAL_INCOMPLETE" in issue_codes:
+        elif interval_status == "incomplete" or "CALIB_INTERVAL_INCOMPLETE" in issue_codes:
             runtime_tier = TruthfulnessTier.UNVERIFIED
             degradation_reasons.append("interval_coverage_incomplete")
         if n_obs < 30:
@@ -180,6 +182,14 @@ class CalibrationDiagnosticsReport(BaseModel):
             runtime_tier = TruthfulnessTier.UNVERIFIED
             degradation_reasons.append("calibration_test_rejected")
 
+        candidate_numeric_tier = runtime_tier
+        if self.task == "continuous":
+            # A report's consistent summaries do not establish the source of
+            # the observations or interval sets. Keep that distinction typed
+            # in the receipt instead of granting authority from self-report.
+            runtime_tier = TruthfulnessTier.UNVERIFIED
+            degradation_reasons.append("measurement_source_not_established")
+
         diagnostics = {
             "task": self.task,
             "target_type": self.target_type,
@@ -192,6 +202,16 @@ class CalibrationDiagnosticsReport(BaseModel):
             "has_errors": self.has_errors(),
             "rejected_tests": list(rejected_tests),
             "recommended_action": self.recommended_action,
+            "interval_coverage_status": interval_status,
+            "interval_coverage_comparisons": interval_comparisons,
+            **(
+                {
+                    "candidate_numeric_tier": candidate_numeric_tier.value,
+                    "measurement_source_assurance": "not_established",
+                }
+                if self.task == "continuous"
+                else {}
+            ),
         }
         return TruthfulnessReceipt(
             runtime_truthfulness_tier=runtime_tier,
@@ -199,6 +219,109 @@ class CalibrationDiagnosticsReport(BaseModel):
             diagnostics=diagnostics,
             degradation_reasons=tuple(dict.fromkeys(degradation_reasons)),
         )
+
+    def _interval_coverage_admission(self) -> tuple[str | None, int | None, str | None]:
+        """Reconcile the recorded comparison basis, without asserting its origin.
+
+        Counts are derived from curve bins; producer metadata is checked only
+        for agreement and cannot create an observed comparison. The recorded
+        request is itself a declaration and cannot prove source provenance.
+        """
+        if self.task != "continuous":
+            return None, None, None
+        bins = self.curves.get("interval_coverage", ())
+        comparisons = len(bins)
+        coverage = self.metadata.get("interval_coverage")
+        if not isinstance(coverage, dict):
+            return (
+                ("incomplete" if bins else "not_evaluated"),
+                comparisons,
+                "calibration.curves.interval_coverage",
+            )
+
+        requested = coverage.get("requested_levels")
+        evaluated = coverage.get("evaluated_levels")
+        skipped = coverage.get("skipped_levels")
+        nominal = self.metadata.get("nominal_levels")
+        if not all(
+            isinstance(item, (list, tuple)) for item in (requested, evaluated, skipped, nominal)
+        ):
+            return (
+                ("incomplete" if bins else "not_evaluated"),
+                comparisons,
+                "calibration.curves.interval_coverage",
+            )
+        levels = [*requested, *evaluated, *skipped, *nominal]
+        if any(
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(value)
+            or not 0.0 < value < 1.0
+            for value in levels
+        ):
+            return "incomplete", comparisons, "calibration.curves.interval_coverage"
+        if not requested and not bins:
+            return "not_evaluated", 0, "calibration.curves.interval_coverage"
+        if (
+            len(requested) != len(set(requested))
+            or list(nominal) != list(requested)
+            or len(evaluated) != len(set(evaluated))
+            or len(skipped) != len(set(skipped))
+            or set(evaluated).intersection(skipped)
+            or set(requested) != set(evaluated).union(skipped)
+            or skipped
+            or len(evaluated) != comparisons
+            or coverage.get("status") != "evaluated"
+            or isinstance(coverage.get("n_comparisons"), bool)
+            or not isinstance(coverage.get("n_comparisons"), int)
+            or coverage.get("n_comparisons") != comparisons
+            or not bins
+            or self.metrics.n_obs <= 0
+        ):
+            return "incomplete", comparisons, "calibration.curves.interval_coverage"
+
+        gaps: list[float] = []
+        for level, item in zip(evaluated, bins, strict=True):
+            predicted = item.mean_predicted
+            observed = item.mean_observed
+            if (
+                item.count != self.metrics.n_obs
+                or predicted is None
+                or observed is None
+                or not math.isfinite(predicted)
+                or not math.isfinite(observed)
+                or not math.isclose(
+                    observed * item.count,
+                    round(observed * item.count),
+                    rel_tol=0.0,
+                    abs_tol=1e-8,
+                )
+                or not math.isclose(predicted, level, rel_tol=0.0, abs_tol=1e-12)
+                or not math.isclose(item.lower, level, rel_tol=0.0, abs_tol=1e-12)
+                or not math.isclose(item.upper, level, rel_tol=0.0, abs_tol=1e-12)
+            ):
+                return "incomplete", comparisons, "calibration.curves.interval_coverage"
+            gap = abs(observed - predicted)
+            if item.absolute_gap is not None and not math.isclose(
+                item.absolute_gap, gap, rel_tol=1e-9, abs_tol=1e-12
+            ):
+                return "incomplete", comparisons, "calibration.curves.interval_coverage"
+            gaps.append(gap)
+        ece = math.fsum(gaps) / comparisons
+        if self.metrics.ece is None or not math.isclose(
+            self.metrics.ece, ece, rel_tol=1e-9, abs_tol=1e-12
+        ):
+            return "incomplete", comparisons, "calibration.metrics.ece"
+        if self.metrics.mce is not None and not math.isclose(
+            self.metrics.mce, max(gaps), rel_tol=1e-9, abs_tol=1e-12
+        ):
+            return "incomplete", comparisons, "calibration.metrics.mce"
+        rmsce = math.sqrt(math.fsum(gap * gap for gap in gaps) / comparisons)
+        if self.metrics.rmsce is not None and not math.isclose(
+            self.metrics.rmsce, rmsce, rel_tol=1e-9, abs_tol=1e-12
+        ):
+            return "incomplete", comparisons, "calibration.metrics.rmsce"
+        return "evaluated", comparisons, None
 
 
 __all__ = [

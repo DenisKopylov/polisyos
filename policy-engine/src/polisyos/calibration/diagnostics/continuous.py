@@ -174,6 +174,13 @@ def evaluate_continuous(
             "interval_coverage": {
                 "status": curve_result.evaluation_status,
                 "n_comparisons": curve_result.n_comparisons,
+                "requested_levels": list(level_values),
+                "evaluated_levels": [point.nominal_level for point in curve_result.points],
+                "skipped_levels": [
+                    level
+                    for level, interval_set in zip(level_values, interval_sets, strict=True)
+                    if not interval_set
+                ],
             },
         },
     )
@@ -232,6 +239,8 @@ def _prepare_interval_sets(
     for level in level_values:
         if not math.isfinite(level) or level <= 0.0 or level >= 1.0:
             raise ValueError("continuous interval levels must be finite and stay inside (0, 1)")
+    if len(set(level_values)) != len(level_values):
+        raise ValueError("continuous interval levels must be unique")
     if interval_sets is None:
         interval_sets = _intervals_from_samples(predictive_samples, level_values)
     if len(level_values) != len(interval_sets):

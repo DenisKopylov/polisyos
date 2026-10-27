@@ -1,0 +1,31 @@
+id = "2026-10-27-c50-measured-interval-coverage"
+title = "Bind continuous calibration receipts to measured interval coverage"
+type = "fixed"
+component = "scientist-engine"
+owner = "team-polisyos"
+summary = "Continuous calibration reconciles interval comparison bins with the requested level inventory and calibration metrics; absent independent source binding, receipts are unverified and validation is blocked while the numerical candidate remains visible."
+evidence = ["tests/unit/calibration/curve/test__compute.py", "tests/unit/calibration/diagnostics/test_continuous.py", "tests/unit/calibration/diagnostics/test_c50_receipt_consistency.py", "tests/unit/calibration/diagnostics/test_adapters.py"]
+compatibility = "Existing report and receipt bytes are not rewritten. All fatal diagnostic issues now produce fail/blocked validation; continuous projections without independently verifiable source binding remain unverified even when the reported numerical calibration is positive. Historical bytes are not rewritten; authority-bearing consumers require an owner-backed source binding."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.calibration continuous diagnostics; internal: IR truthfulness projection"
+migration = "Re-run continuous calibration with aligned nonempty interval sets and retain the candidate numerical result. Do not grant authority from report self-attestation or an embedded receipt; use a separately verified source binding when that capability exists."
+api = "The existing report schema remains version 1.0. Continuous report metadata adds requested_levels, evaluated_levels, and skipped_levels under interval_coverage, and the validation payload projects that inventory."
+limitations = "Synthetic fixtures establish numerical behavior only. Historical issuance, external calibration, production provenance/currentness, fresh-process CAS admission, and publication authority remain not_established."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "continuous-calibration-measured-comparison-admission"
+change_class = "python-public-api"
+impact = "behavioral-fail-closed"
+surface = "public_experimental: polisyos.calibration.evaluate_continuous"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Continuous calibration projections reconcile actual bins against level inventory and metrics and do not grant authority without established source binding."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []

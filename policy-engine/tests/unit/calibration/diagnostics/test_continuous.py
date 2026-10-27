@@ -7,7 +7,12 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from polisyos.calibration import compute_calibration_curve, evaluate_continuous
+from polisyos.calibration import (
+    compute_calibration_curve,
+    evaluate_continuous,
+    to_validation_report,
+)
+from polisyos.ir.analytics._truthfulness import TruthfulnessReceipt
 from polisyos.ir.analytics.calibration_diagnostics import CalibrationDiagnosticsReport
 
 
@@ -75,6 +80,9 @@ def test_empty_interval_inputs_are_not_positive_calibration_evidence(
     assert report.curves["interval_coverage"] == ()
     assert report.metadata["interval_coverage"]["n_comparisons"] == 0
     assert report.metadata["interval_coverage"]["status"] == "not_evaluated"
+    assert report.metadata["interval_coverage"]["requested_levels"] == []
+    assert report.metadata["interval_coverage"]["evaluated_levels"] == []
+    assert report.metadata["interval_coverage"]["skipped_levels"] == []
     issue = next(issue for issue in report.issues if issue.code == "CALIB_INTERVAL_NOT_EVALUATED")
     assert issue.actual == 0
     assert issue.severity.value == "error"
@@ -95,7 +103,9 @@ def test_evaluate_continuous_accepts_ninety_five_percent_interval_coverage() -> 
 
     assert report.metrics.ece == pytest.approx(0.0)
     assert report.curves["interval_coverage"][0].mean_observed == pytest.approx(0.95)
-    assert receipt.runtime_truthfulness_tier == "approximate_calibrated"
+    assert receipt.runtime_truthfulness_tier == "unverified"
+    assert receipt.diagnostics["candidate_numeric_tier"] == "approximate_calibrated"
+    assert receipt.diagnostics["measurement_source_assurance"] == "not_established"
 
 
 def test_evaluate_continuous_downgrades_zero_coverage() -> None:
@@ -164,10 +174,12 @@ def test_incomplete_intervals_remain_unverified_after_report_readback(
 
     assert reopened.metrics.ece == pytest.approx(0.0)
     assert reopened.metrics.intervals == {}
-    assert reopened.metadata["interval_coverage"] == {
-        "status": "incomplete",
-        "n_comparisons": 1,
-    }
+    inventory = reopened.metadata["interval_coverage"]
+    assert inventory["status"] == "incomplete"
+    assert inventory["n_comparisons"] == 1
+    assert inventory["requested_levels"] == levels
+    assert inventory["evaluated_levels"] == [0.95]
+    assert inventory["skipped_levels"] == [0.5]
     assert len(reopened.curves["interval_coverage"]) == 1
     assert reopened.curves["interval_coverage"][0].count == 100
     assert receipt.runtime_truthfulness_tier == "unverified"
@@ -193,13 +205,17 @@ def test_measured_coverage_controls_survive_report_readback(covered: int, tmp_pa
     assert reopened.metadata["interval_coverage"] == {
         "status": "evaluated",
         "n_comparisons": 1,
+        "requested_levels": [0.95],
+        "evaluated_levels": [0.95],
+        "skipped_levels": [],
     }
     assert reopened.metrics.ece == pytest.approx(abs(covered / 100 - 0.95))
     assert reopened.curves["interval_coverage"][0].mean_observed == pytest.approx(covered / 100)
     assert reopened.metrics.intervals["ece"].low <= reopened.metrics.ece
     assert reopened.metrics.intervals["ece"].high >= reopened.metrics.ece
     expected_tier = "approximate_calibrated" if covered == 95 else "unverified"
-    assert receipt.runtime_truthfulness_tier == expected_tier
+    assert receipt.runtime_truthfulness_tier == "unverified"
+    assert receipt.diagnostics["candidate_numeric_tier"] == expected_tier
     assert receipt.truthfulness_scope == "predictive_calibration"
 
 
@@ -244,6 +260,9 @@ def test_predictive_samples_do_not_replace_explicit_empty_levels() -> None:
     assert report.metadata["interval_coverage"] == {
         "status": "not_evaluated",
         "n_comparisons": 0,
+        "requested_levels": [],
+        "evaluated_levels": [],
+        "skipped_levels": [],
     }
     assert report.metrics.ece is None
     assert report.curves["interval_coverage"] == ()
@@ -257,4 +276,66 @@ def test_predictive_samples_retain_default_levels_when_omitted() -> None:
     assert report.metadata["interval_coverage"] == {
         "status": "evaluated",
         "n_comparisons": 3,
+        "requested_levels": [0.5, 0.8, 0.9],
+        "evaluated_levels": [0.5, 0.8, 0.9],
+        "skipped_levels": [],
     }
+
+
+def test_supplied_positive_receipt_cannot_bypass_unmeasured_interval_coverage() -> None:
+    y_true = np.arange(100, dtype=float).tolist()
+    valid_intervals = [(value - 0.1, value + 0.1) for value in y_true[:95]] + [
+        (-1000.0, -999.0)
+    ] * 5
+    valid = evaluate_continuous(y_true=y_true, intervals={0.95: valid_intervals})
+    unmeasured = evaluate_continuous(y_true=y_true, intervals={}, levels=[])
+    assert valid.to_truthfulness_receipt().diagnostics["candidate_numeric_tier"] == (
+        "approximate_calibrated"
+    )
+    supplied = TruthfulnessReceipt(
+        runtime_truthfulness_tier="approximate_calibrated",
+        truthfulness_scope="predictive_calibration",
+    )
+    report = unmeasured.model_copy(update={"truthfulness_receipt": supplied})
+
+    receipt = report.to_truthfulness_receipt()
+    validation = to_validation_report(diagnostics=report)
+
+    assert supplied.runtime_truthfulness_tier == "approximate_calibrated"
+    assert receipt.runtime_truthfulness_tier == "unverified"
+    assert receipt.truthfulness_scope == "predictive_calibration"
+    assert "interval_coverage_not_evaluated" in receipt.degradation_reasons
+    assert any(issue.code == "CALIB_INTERVAL_NOT_EVALUATED" for issue in validation.issues)
+    assert (
+        validation.normalized_payload["calibration"]["interval_coverage"]
+        == (report.metadata["interval_coverage"])
+    )
+
+
+def test_supplied_positive_receipt_cannot_override_measured_negative_coverage() -> None:
+    y_true = np.arange(100, dtype=float).tolist()
+    positive_intervals = [(value - 0.1, value + 0.1) for value in y_true[:95]] + [
+        (-1000.0, -999.0)
+    ] * 5
+    positive = evaluate_continuous(y_true=y_true, intervals={0.95: positive_intervals})
+    negative = evaluate_continuous(
+        y_true=y_true,
+        intervals={0.95: [(-1000.0, -999.0)] * 100},
+    ).model_copy(
+        update={
+            "truthfulness_receipt": TruthfulnessReceipt(
+                runtime_truthfulness_tier="approximate_calibrated",
+                truthfulness_scope="predictive_calibration",
+            )
+        }
+    )
+    assert positive.to_truthfulness_receipt().diagnostics["candidate_numeric_tier"] == (
+        "approximate_calibrated"
+    )
+
+    receipt = negative.to_truthfulness_receipt()
+
+    assert receipt.runtime_truthfulness_tier == "unverified"
+    assert receipt.truthfulness_scope == "predictive_calibration"
+    assert receipt.diagnostics["ece"] == pytest.approx(0.95)
+    assert "ece_above_fail_threshold" in receipt.degradation_reasons

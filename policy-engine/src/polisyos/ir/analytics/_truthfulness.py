@@ -180,12 +180,37 @@ def validate_truthfulness_receipt(
     raise TypeError("truthfulness receipt must be a mapping or TruthfulnessReceipt")
 
 
+def _typed_continuous_receipts(value: object, seen: set[int]) -> list[TruthfulnessReceipt]:
+    """Find typed continuous reports before choosing any unbound sidecar receipt."""
+    if isinstance(value, (Mapping, list, tuple)):
+        identity = id(value)
+        if identity in seen:
+            return []
+        seen.add(identity)
+        children = value.values() if isinstance(value, Mapping) else value
+        return [
+            receipt for child in children for receipt in _typed_continuous_receipts(child, seen)
+        ]
+    if getattr(value, "task", None) == "continuous":
+        from polisyos.ir.analytics.calibration_diagnostics import CalibrationDiagnosticsReport
+
+        if isinstance(value, CalibrationDiagnosticsReport):
+            return [value.to_truthfulness_receipt()]
+    return []
+
+
 def extract_truthfulness_receipt(value: object) -> TruthfulnessReceipt | None:
     """Extract a truthfulness receipt from common result and artifact shapes."""
 
     if value is None:
         return None
     try:
+        typed_receipts = _typed_continuous_receipts(value, set())
+        if typed_receipts:
+            return min(
+                typed_receipts,
+                key=lambda receipt: truthfulness_depth(receipt.effective_truthfulness_tier),
+            )
         if isinstance(value, TruthfulnessReceipt):
             return value
         if isinstance(value, Mapping):

@@ -410,23 +410,29 @@ uv run pytest tests/unit/foundry/methods/test_registry.py tests/unit/foundry/met
 
 ## RDD Runtime Support Boundary
 
-The runtime `RegressionDiscontinuity` method currently supports the ordinary
-uncorrected local-polynomial estimator. Its omitted `bias_correction` value is
-therefore equivalent to the explicit `False` profile and is reported as such
-in `method_params`.
+The runtime `RegressionDiscontinuity` method supports both the ordinary
+uncorrected local-polynomial estimator and one bounded native corrected profile.
+The corrected profile is sharp RDD with explicit fixed `bandwidth` and
+`bias_bandwidth`, `bias_polynomial_order = polynomial_order + 1`, a supported
+kernel, `vce="hc0"`, `masspoints="off"`, and no automatic bandwidth selector.
+It reports the profile as `sharp_cct_rbc_hc0_fixed`, computes the correction,
+and includes the bias-estimation variance and covariance in its robust standard
+error. The omitted `bias_correction` value remains equivalent to explicit
+`False` and selects the separate conventional estimator.
 
-An explicit `bias_correction=True` request is a typed non-success until a
-validated RBC backend is available. The method does not relabel the ordinary
-fit as robust bias corrected, and a quadratic local fit is not an RBC
-implementation. The refusal keeps the missing `rdrobust` capability visible;
-it does not block the supported uncorrected estimator.
+Requests outside that boundary (including fuzzy design without treatment data,
+mass-point adjustment, automatic bandwidth selection, or other variance
+estimators) return a typed non-success rather than being relabelled as corrected.
+This native bounded profile does not imply parity with every option of
+`rdrobust`, validity for data-dependent bandwidth selection, or a universal
+finite-sample coverage guarantee.
 
 Local WLS uses vector weighting and a small Gram matrix rather than materializing
 an observation-sized diagonal matrix. This preserves the existing residual
 covariance convention and point/standard-error semantics while keeping the
-fixed-order fit linear in the number of observations. The separate causal
-statistical-validity benchmark contract must not be read as evidence that the
-runtime default provides RBC or finite-sample coverage.
+fixed-order fit linear in the number of observations. Synthetic finite-design
+regression evidence for the corrected profile must not be generalized to other
+laws, populations, selectors, kernels, orders, variance estimators, or designs.
 
 ## Current State
 

@@ -1,0 +1,4 @@
+...............................oracle point=2.050513341916 se=0.084945874489; runtime point=2.050513341916 se=0.084945874489; conventional point=1.952510668425
+..coverage seed=2026102701 covered=380 accepted=400 failed=0 rate=0.950000 acceptance=(0.915, 0.985)
+.point-removal runtime=1.952510668425 oracle=2.050513341916; variance-removal runtime_se=0.068886401533 oracle_se=0.084945874489
+.........

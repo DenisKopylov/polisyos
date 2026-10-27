@@ -1,0 +1,29 @@
+cwd:
+/workspace/polisyos/policy-engine
+branch:
+work
+base commit/tree:
+8db01b1076e425b7998b05a658776c991b7bd594
+1706923ebe943f1a332dca4860cd145ddd366e36
+python and distributions:
+3.14.4 (main, May  1 2026, 05:51:55) [GCC 13.3.0]
+numpy 2.3.5
+scipy 1.16.3
+pytest 9.0.2
+rdrobust ABSENT
+disk:
+Filesystem      Size  Used Avail Use% Mounted on
+overlay          32G  2.9G   27G  10% /
+memory:
+               total        used        free      shared  buff/cache   available
+Mem:            17Gi       1.1Gi        13Gi        12Ki       3.3Gi        16Gi
+Swap:             0B          0B          0B
+cpus:
+3
+thread control: OPENBLAS_NUM_THREADS=1 for deciding runs
+README references:
+src/polisyos/foundry/methods/catalog/causal/README.md:411:## RDD Runtime Support Boundary
+src/polisyos/foundry/methods/catalog/causal/README.md:418:It reports the profile as `sharp_cct_rbc_hc0_fixed`, computes the correction,
+tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_c18_oracle.py:156:        assert loaded.method_params["profile"] == "sharp_cct_rbc_hc0_fixed"
+tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_c18_oracle.py:199:    assert point_mutant.method_params["profile"] == "sharp_cct_rbc_hc0_fixed"
+tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_c18_oracle.py:213:    assert covariance_mutant.method_params["profile"] == "sharp_cct_rbc_hc0_fixed"

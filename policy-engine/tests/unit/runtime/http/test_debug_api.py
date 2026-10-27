@@ -366,7 +366,12 @@ def test_evidence_context_preserves_quality_ref_selected_by_snapshot(
     quality_schema,
     quality_payload,
 ) -> None:
+    from polisyos.core.artifacts import input_ref_from_artifact_ref
     from polisyos.core.contracts.fabric import DataSnapshot
+    from polisyos.runtime.quality.data_snapshot_lineage import (
+        DataSnapshotLineageError,
+        validate_data_snapshot_owner_lineage,
+    )
 
     store = FileSystemCAS(tmp_path / "cas")
     payload_ref = store.put_json(
@@ -392,33 +397,42 @@ def test_evidence_context_preserves_quality_ref_selected_by_snapshot(
         ),
         return_selected_profile=True,
     )
+    snapshot = DataSnapshot(data_ref=payload_ref, quality_report_ref=quality_ref)
+    snapshot_inputs = [
+        input_ref_from_artifact_ref(payload_ref, role="data_ref"),
+        input_ref_from_artifact_ref(quality_ref, role="quality_report_ref"),
+    ]
     snapshot_ref = store.put_json(
-        DataSnapshot(data_ref=payload_ref, quality_report_ref=quality_ref),
+        snapshot,
         PutOptions(
-            kind="fabric.data_snapshot",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=snapshot_inputs,
         ),
         return_selected_profile=True,
     )
-    state_ref = store.put_json(
-        {
-            "inputs": {"data_snapshot_ref": snapshot_ref.model_dump(mode="json")},
-            "params": {
-                "retrieval_context": {
-                    "auto_data_source_refs": {
-                        "data_snapshot_ref": str(snapshot_ref.artifact_id),
-                        "quality_report_ref": str(quality_ref.artifact_id),
-                    }
+    validate_data_snapshot_owner_lineage(store, snapshot_ref, snapshot)
+    state_payload = {
+        "inputs": {"data_snapshot_ref": snapshot_ref.model_dump(mode="json")},
+        "params": {
+            "retrieval_context": {
+                "auto_data_source_refs": {
+                    "data_snapshot_ref": str(snapshot_ref.artifact_id),
+                    "quality_report_ref": str(quality_ref.artifact_id),
                 }
-            },
+            }
         },
-        PutOptions(
-            kind="scientist.experiment_state",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.scientist.ExperimentState", version="1.0"),
-        ),
+    }
+    state_options = PutOptions(
+        kind="scientist.experiment_state",
+        media_type="application/json",
+        schema=SchemaInfo(name="polisyos.scientist.ExperimentState", version="1.0"),
     )
+    state_ref = store.put_json(state_payload, state_options)
     run = SimpleNamespace(
         run_id="run-summary-debug",
         source_kind="core_run",
@@ -436,10 +450,57 @@ def test_evidence_context_preserves_quality_ref_selected_by_snapshot(
 
     context = DebugService(store=store, timeline_service=object()).get_run_evidence_context(run)
 
+    assert context.data_snapshot_ref == snapshot_ref
+    assert "data_snapshot_selected_view_not_established" not in context.warnings
     selected_quality_ref = context.materialization_refs["quality_report_ref"]
     assert selected_quality_ref == quality_ref
     assert selected_quality_ref.kind == quality_kind
     assert selected_quality_ref.manifest_profile_sha256 == quality_ref.manifest_profile_sha256
+
+    # The same snapshot bytes with either owner edge removed are not an admitted
+    # parent view, even though the child refs and the context's ID hints remain.
+    for omitted_input in snapshot_inputs:
+        malformed_ref = store.put_json(
+            snapshot,
+            PutOptions(
+                kind=DataSnapshot.ARTIFACT_KIND,
+                media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                    version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+                ),
+                inputs=[edge for edge in snapshot_inputs if edge != omitted_input],
+            ),
+            return_selected_profile=True,
+        )
+        assert malformed_ref.artifact_id == snapshot_ref.artifact_id
+        assert malformed_ref.manifest_profile_sha256 != snapshot_ref.manifest_profile_sha256
+        with pytest.raises(
+            DataSnapshotLineageError, match="data_snapshot_manifest_inputs_mismatch"
+        ):
+            validate_data_snapshot_owner_lineage(store, malformed_ref, snapshot)
+        malformed_state_ref = store.put_json(
+            {
+                **state_payload,
+                "inputs": {"data_snapshot_ref": malformed_ref.model_dump(mode="json")},
+            },
+            state_options,
+        )
+        malformed_run = SimpleNamespace(
+            **{
+                **vars(run),
+                "experiment_state_ref": malformed_state_ref,
+                "details": SimpleNamespace(
+                    **{**vars(run.details), "root_input_artifacts": (malformed_ref,)}
+                ),
+            }
+        )
+        refused = DebugService(store=store, timeline_service=object()).get_run_evidence_context(
+            malformed_run
+        )
+        assert refused.data_snapshot_ref is None
+        assert "quality_report_ref" not in refused.materialization_refs
+        assert "data_snapshot_selected_view_not_established" in refused.warnings
 
 
 def test_evidence_context_does_not_infer_quality_owner_from_ids_alone(tmp_path) -> None:

@@ -1,0 +1,438 @@
+{
+  "record_kind": "author_R4_competing_native_workload_witness",
+  "record_version": "1.0",
+  "date": "2026-10-27",
+  "slice_base_and_executed_candidate": {
+    "commit": "793f8c6f3ecedf5d7d38f91ecdb24970e1eef5fb",
+    "tree": "204223a48e38330d0178054b7e04a29c0495a3b6",
+    "parents": [
+      "d3402349dd4c5142275bbd844f5c472d5d7320dd"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "qualification": "Reported run HEAD/tree, plus independently reconciled retained runtime-loaded source readsets. No global source freeze or clean-tree assertion."
+  },
+  "code_test_config_footprint": {
+    "test": {
+      "path": "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+      "sha256": "41bdd8bfd033e7e6f36490878b023659015de498cfd22cf7cec1d9a6cd1a2a8c"
+    },
+    "pytest_ini": {
+      "path": "policy-engine/pytest.ini",
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+    },
+    "runtime_loaded_inputs": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-r4-mechanism-receipt-preparation-20261027-r1/runtime-readset-branch-rebind.json",
+      "sha256": "89b033cc3622473bff832f0eb0f1bc8dd2d1e6e5d34067374922eeb7e79edb3e",
+      "availability": "local ignored RAW"
+    },
+    "selected_owner_git_blobs_at_executed_candidate": {
+      "common/async_tools/__init__.py": "fe5c9d96021c98dbb41a005e625d66bc7f832f62",
+      "runtime/http/container.py": "a8df65fa5cda21b424f8b9c4c25bc7960361d47e",
+      "scientist/compute/runner.py": "1cc39b3bbc95f34496059956fe4805c81be946ca",
+      "foundry/methods/backends/dispatch.py": "1c7255111a4a5422a9682115f604b28fd4cbcd81",
+      "foundry/methods/catalog/causal/tmle_core.py": "96a9006df3f35174c549cf57b2d6b6927fbe556a"
+    },
+    "source_changes_for_this_witness": []
+  },
+  "property": "Real Runtime cap1/2 bounds TMLE MethodDispatcher workers; both studies complete every fold/repeat with comparable CAS/consumer outputs. Removing MethodBackend shared submit at cap1 exposes dispatch2.",
+  "chain": [
+    "RuntimeServiceContainer/SharedExecutorProfile",
+    "ControlWorker -> Scientist -> MethodBackend -> shared executor -> TMLE",
+    "CAS -> fresh consumer readback",
+    "R2 Runtime status/lease/events"
+  ],
+  "selected_input_profile": {
+    "synthetic_studies": [
+      "2 synthetic studies, 240 rows each; 2 Normal covariates; Bernoulli(.5) treatment; Y=.45T+.25X0-.15X1+N(0,.7); RNG 811/812; rows 0..239",
+      "input IDs 8dbd47559f10f41c20e2103bbd94385c44d58178aae8fea028260e1a91565383 / 74c286c7ba8ed566a680628407c91d4653af6fd3a3d33b019e52c10b432f322b",
+      "TMLE logistic propensity/linear outcome; no calibration; raw; regular-IID; Wald CI; guard off",
+      "3 folds x 2 repeats; seeds 18/19; manifests [18,1015]/[19,1016]; parallel_folds=true,max_parallel_folds=0 requested; Scientist serializes folds per job"
+    ],
+    "backend": "real Runtime/ControlWorker/Scientist/MethodBackend/MethodDispatcher/TMLE/FileSystemCAS",
+    "pytest": "native product venv3.14.3, policy-engine/pytest.ini, installed default plugins",
+    "safety_gate": "Existing test bypasses causal-evaluation safety blockers in EVERY profile. Candidate method admission only; no safety/promotion/legal authority proof.",
+    "thread_limits": {
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+      "SCIENTIST_TORCH_NUM_THREADS": "1"
+    }
+  },
+  "configured_profiles": [
+    {
+      "profile": "cap1",
+      "cap": 1,
+      "dispatch": 1,
+      "workers": 1,
+      "wait ns/0,1": [
+        11055750,
+        13959
+      ],
+      "wall s": 43.035,
+      "RUSAGE B": 1552826368
+    },
+    {
+      "profile": "cap2",
+      "cap": 2,
+      "dispatch": 2,
+      "workers": 2,
+      "wait ns/0,1": [
+        24291,
+        15167
+      ],
+      "wall s": 41.99,
+      "RUSAGE B": 1677492224
+    },
+    {
+      "profile": "bridge removal",
+      "cap": 1,
+      "dispatch": 2,
+      "workers": 0,
+      "wait ns/0,1": null,
+      "wall s": 43.625,
+      "RUSAGE B": 1651654656
+    }
+  ],
+  "post_producer_failure_cases": [
+    {
+      "nodeid": "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py::test_runtime_control_worker_native_sibling_failure_cleanup[fail-study-0]",
+      "failed_study": 0,
+      "surviving_study": 1,
+      "pytest_exit": 0,
+      "fold_repeat_units_expected_and_observed": [
+        12,
+        12
+      ],
+      "both_actual_producers_returned_before_fault": [
+        0,
+        1
+      ],
+      "lease_renewal": {
+        "all_renewed_true": true,
+        "attempt": 1,
+        "both_workers_bound_to_their_running_jobs": true,
+        "count": 2,
+        "lease_seconds": 60
+      },
+      "terminal_readback": {
+        "study_0": {
+          "failure_code": "legacy_workflow_failed_non_authority",
+          "fresh_status_get_state": "failed",
+          "fresh_status_get_status_code": 200,
+          "lease_cleared": true,
+          "state": "failed",
+          "terminal_event": "job_failed",
+          "terminal_event_id": 7
+        },
+        "study_1": {
+          "consumer_semantic_sha256": "1b00b54480aec4dcef5ce5fcccaaf10163d5b4be3ea6d43acc887bb6d665bd20",
+          "evidence_content_sha256": "e6e1b0320c49d231825e84304cd5cc794e78e0f47c6bd6a64054f4a20279672f",
+          "evidence_ref": "sha256:e6e1b0320c49d231825e84304cd5cc794e78e0f47c6bd6a64054f4a20279672f",
+          "executed_fold_seeds": [
+            [
+              0,
+              19
+            ],
+            [
+              1,
+              19
+            ],
+            [
+              2,
+              19
+            ],
+            [
+              0,
+              1016
+            ],
+            [
+              1,
+              1016
+            ],
+            [
+              2,
+              1016
+            ]
+          ],
+          "fresh_status_get_state": "completed",
+          "fresh_status_get_status_code": 200,
+          "lease_cleared": true,
+          "owner_scope_matches": true,
+          "result_content_sha256": "90be62bf8eae0b0ce1928277133f5cfbed1a9918b9b2e7e149cd8601d22ada40",
+          "result_ref": "sha256:90be62bf8eae0b0ce1928277133f5cfbed1a9918b9b2e7e149cd8601d22ada40",
+          "state": "completed",
+          "terminal_event": "job_completed",
+          "terminal_event_id": 8
+        }
+      },
+      "final_executor": {
+        "capacity": 2,
+        "outstanding_jobs": 0,
+        "physical_workers_active": 0,
+        "queue_depth": 0
+      },
+      "final_worker_leases": {
+        "all_active_job_id_null": true,
+        "all_state_stopped": true,
+        "count": 2
+      },
+      "seconds": 51.65,
+      "peak_process_tree_RSS_GiB": 1.73
+    },
+    {
+      "nodeid": "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py::test_runtime_control_worker_native_sibling_failure_cleanup[fail-study-1]",
+      "failed_study": 1,
+      "surviving_study": 0,
+      "pytest_exit": 0,
+      "fold_repeat_units_expected_and_observed": [
+        12,
+        12
+      ],
+      "both_actual_producers_returned_before_fault": [
+        0,
+        1
+      ],
+      "lease_renewal": {
+        "all_renewed_true": true,
+        "attempt": 1,
+        "both_workers_bound_to_their_running_jobs": true,
+        "count": 2,
+        "lease_seconds": 60
+      },
+      "terminal_readback": {
+        "study_0": {
+          "consumer_semantic_sha256": "2929eb0f870b339d2edbf12588bcdb5cdbc752a8663af9668b84518dfaa4486d",
+          "evidence_content_sha256": "944c1879352f92210f4a116fd89c1c4ef5f67b2ed58b83fc3ab11c712ec34fad",
+          "evidence_ref": "sha256:944c1879352f92210f4a116fd89c1c4ef5f67b2ed58b83fc3ab11c712ec34fad",
+          "executed_fold_seeds": [
+            [
+              0,
+              18
+            ],
+            [
+              1,
+              18
+            ],
+            [
+              2,
+              18
+            ],
+            [
+              0,
+              1015
+            ],
+            [
+              1,
+              1015
+            ],
+            [
+              2,
+              1015
+            ]
+          ],
+          "fresh_status_get_state": "completed",
+          "fresh_status_get_status_code": 200,
+          "lease_cleared": true,
+          "owner_scope_matches": true,
+          "result_content_sha256": "8e35961f8f595762209881ec3d86605022bbe1caeaa39be183fc56d2a3c4d844",
+          "result_ref": "sha256:8e35961f8f595762209881ec3d86605022bbe1caeaa39be183fc56d2a3c4d844",
+          "state": "completed",
+          "terminal_event": "job_completed",
+          "terminal_event_id": 8
+        },
+        "study_1": {
+          "failure_code": "legacy_workflow_failed_non_authority",
+          "fresh_status_get_state": "failed",
+          "fresh_status_get_status_code": 200,
+          "lease_cleared": true,
+          "state": "failed",
+          "terminal_event": "job_failed",
+          "terminal_event_id": 7
+        }
+      },
+      "final_executor": {
+        "capacity": 2,
+        "outstanding_jobs": 0,
+        "physical_workers_active": 0,
+        "queue_depth": 0
+      },
+      "final_worker_leases": {
+        "all_active_job_id_null": true,
+        "all_state_stopped": true,
+        "count": 2
+      },
+      "seconds": 54.896,
+      "peak_process_tree_RSS_GiB": 1.741
+    }
+  ],
+  "result_content_and_semantics": [
+    [
+      0,
+      "sha256:8e35961f8f595762209881ec3d86605022bbe1caeaa39be183fc56d2a3c4d844",
+      "sem:2929eb0f870b339d2edbf12588bcdb5cdbc752a8663af9668b84518dfaa4486d"
+    ],
+    [
+      1,
+      "sha256:90be62bf8eae0b0ce1928277133f5cfbed1a9918b9b2e7e149cd8601d22ada40",
+      "sem:1b00b54480aec4dcef5ce5fcccaaf10163d5b4be3ea6d43acc887bb6d665bd20"
+    ]
+  ],
+  "deciding_outputs": {
+    "R1": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/r4-competing-workload-oracle-20261027-r1/assessment-r1.md",
+      "sha256": "34f17788fc6638980fb4fde4c1b5079454756d16c5b0590eb788f9d5c9461eb7",
+      "availability": "local ignored RAW"
+    },
+    "R2": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/r4-competing-workload-oracle-20261027-r1/r2-post-producer-sibling-failure-receipt.json",
+      "sha256": "b595495a338e1ddd5c23727f60ad2dda163e38acbe7b9996c80a688b9447a762",
+      "availability": "local ignored RAW"
+    },
+    "commands_complete_streams_and_readsets": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/r4-competing-workload-oracle-20261027-r1/r4-profile-live-r3/invocation.json",
+        "sha256": "3c785856c5cd87a3d2ac0d19185aa41e324323660d66eaab0251efca3908dcb3",
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/r4-competing-workload-oracle-20261027-r1/r4-profile-live-r3/receipts/cap-1-configured/cap-1-configured.stdout.txt",
+        "sha256": "e91d3c8c80a5a55dc54bcb30afb3133bd311cdb4a24edac02380f36d95198d55",
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/r4-competing-workload-oracle-20261027-r1/r4-profile-live-r3/receipts/cap-2-configured/cap-2-configured.stdout.txt",
+        "sha256": "4687e2730a03a3c07997bef07ca07388dd0832e80141446223a1a23ff0f0fd5b",
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/r4-competing-workload-oracle-20261027-r1/r4-profile-live-r3/receipts/cap-1-bridge-removal/cap-1-removal.stdout.txt",
+        "sha256": "2375b627e78efa1f7d0761c2cd023d684e5de7583c29deac18ad77b50ac154cc",
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/r4-competing-workload-oracle-20261027-r1/r4-profile-live-r3/input-readsets/input-readset-3186.json",
+        "sha256": "da19f4ce3b69a71e0398ea916cfca396e98748dbece7052e6c865c0f5bd8f9ea",
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/r4-competing-workload-oracle-20261027-r1/r4-profile-live-r3/input-readsets/input-readset-3216.json",
+        "sha256": "209dfeb6532c94795da02f87d92c48cbe76110210e9e7dfc605a5a4b7c717dda",
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/r4-competing-workload-oracle-20261027-r1/r4-profile-live-r3/input-readsets/input-readset-3631.json",
+        "sha256": "f2308897cb623c794594e306ea961009eef2de4af85b36bf7adaeda32fda527f",
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/r4-competing-workload-oracle-20261027-r1/r4-profile-live-r3/input-readsets/input-readset-3957.json",
+        "sha256": "87e7a0bd20027cde7ab9a50ecdc29b90e351123d2620b3b529838c9b1c4b5656",
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/r4-competing-workload-oracle-20261027-r1/r4-post-producer-failure-study-0-r1/invocation.json",
+        "sha256": "aad7265bc16bae2b2047fdf82823b665375f979c8fe021287377d06154c23b91",
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/r4-competing-workload-oracle-20261027-r1/r4-post-producer-failure-study-0-r1/receipts/cap-2-post-producer-sibling-failure-0/cap-2-configured.stdout.txt",
+        "sha256": "dd33ddaf1bb9356c83d474cbea3408c61e8042626e3e9f0ad0506c9329e7dfdf",
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/r4-competing-workload-oracle-20261027-r1/r4-post-producer-failure-study-1-r1/invocation.json",
+        "sha256": "91a9c749039fe66dc4eaa85e6e84ec408d6f9c57b203ea03340a8d4d15f7dc31",
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/r4-competing-workload-oracle-20261027-r1/r4-post-producer-failure-study-1-r1/receipts/cap-2-post-producer-sibling-failure-1/cap-2-configured.stdout.txt",
+        "sha256": "0554f29ab5566492a3fde47cac1672da45febd4692ae9d2f5357d20b8420a1e9",
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/r4-competing-workload-oracle-20261027-r1/r4-post-producer-failure-study-0-r1/input-readsets/input-readset-12387.json",
+        "sha256": "f28920064f2858145cee89252a9b6bccf101b0b243e0fdd5e9c733ae67e79219",
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/r4-competing-workload-oracle-20261027-r1/r4-post-producer-failure-study-0-r1/input-readsets/input-readset-12436.json",
+        "sha256": "5a28598eed56858acc37be60bd8daca0edaa460bdf3d2bcfc586b62347fb0621",
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/r4-competing-workload-oracle-20261027-r1/r4-post-producer-failure-study-1-r1/input-readsets/input-readset-13668.json",
+        "sha256": "7aef44c6dff896ebc90cb3f6a612fe3707add428466cdd99ab768095ce26ab1e",
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/r4-competing-workload-oracle-20261027-r1/r4-post-producer-failure-study-1-r1/input-readsets/input-readset-13716.json",
+        "sha256": "0dd85d96cb8ad8a962b16aa72a9a3e8a9bab34ca200eab7ef87cb3d112cb095a",
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/r4-competing-workload-oracle-20261027-r1/source-census-r1/stdout",
+        "sha256": "c3ef46808416190d8479e0ed94560a82bc81432c674c27482b29f660fc31351a",
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/r4-competing-workload-oracle-20261027-r1/r4-profile-census-r1/stdout",
+        "sha256": "a0de743376a54e62159bbaa225a84275ad786e89e1c57704c7f2e0c043c822fb",
+        "availability": "local ignored RAW"
+      }
+    ],
+    "custody_correction": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-r4-handoff-custody-20261027-r1/incident.json",
+      "sha256": "b5267e30d76e37fd05896abeb5a3b1a5d0e17154038267190d2b24d762de2a6d",
+      "availability": "local ignored RAW"
+    },
+    "custody_note": "A handoff-only candidate was overwritten after its hash was issued. Both payloads were preserved from actual retained bytes; 20 original deciding artifacts reverified unchanged. This new receipt cites original deciding artifacts, not a stale candidate hash."
+  },
+  "adversarial_and_removal_controls": {
+    "bridge_removal": "Configuredcap1; remove only MethodBackend shared-submit bridge; actual dispatch peak2 vsphysicalshared0. Both configuredcap1/2 preserve allfolds/results.",
+    "sibling_failure": "Actual RunLifecycle failure injected AFTER both TMLE producers return and leases renew; selected job fails, sibling result/evidence and freshstatusGET survive, bothleasescleared/executorzero.",
+    "boundary": "No mid-compute cancellation/failure/CPU-cap proof. Distinct real method-worker threads are measured; other/native/OS load is outside this metric."
+  },
+  "resources": {
+    "process_tree_RSS_limit_bytes": 3221225472,
+    "disk_floor_bytes": 6442450944,
+    "per_native_child_deadline_seconds": 180,
+    "largest_measured_RSS_GiB": 1.971,
+    "no_resource_abort": true
+  },
+  "consumer_surface": "Fresh CAS semantic/result readback and Runtime job GET/status; public/dashboard capacity capability out of scope for this witness.",
+  "proposals": [
+    {
+      "id": "B56",
+      "occurrence": "B56#1",
+      "criterion_sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b",
+      "route": "R4",
+      "mechanism_proposal": "limited_verified_controlled_witness",
+      "whole_original_criterion_proposal": "held_not_established",
+      "missing_input": "Owner-admitted production workload/profile/resource budget and roster, with genuine provenance/purpose/version/audience/time.",
+      "next_check": "Freeze that named workload; replay same declared studies/folds/repeats through canonical admission, measure complete resource claim; retain unknown native/unrelated load separately.",
+      "historical_or_formal_status_changed": false
+    }
+  ],
+  "held_verification": [
+    "Production workload qualification/issuer/roster/cap/SLO",
+    "Mid-compute Runtime cancellation/draining/retry",
+    "Full process/native CPU claim",
+    "Causal safety/admissibility or publication promotion"
+  ],
+  "pattern_pass": {
+    "P02": "real Runtime/Scientist/TMLE/CAS",
+    "P14": "synthetic != production independence",
+    "P29": "behavioral",
+    "P35": "complete historical denominator only",
+    "P37": "test cap supplied; runtime facts recomputed; production basis absent",
+    "P38": "method occupancy omits native/unrelated load; fault postproducer",
+    "P40": "widen owner only for all-process property",
+    "P41": "no inherited-red verdict"
+  },
+  "historical_closures_unchanged": true,
+  "code_acceptance": false,
+  "source_global_freeze": false,
+  "closure_ids": []
+}

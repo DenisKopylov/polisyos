@@ -601,6 +601,20 @@
       "source_review": "GO bounded",
       "local_runtime": "UNRUN until native replay",
       "G_acceptance": false
+    },
+    {
+      "slice": "C01",
+      "input": "8db01b1076e425b7998b05a658776c991b7bd594",
+      "received_candidate_tree": "ed17cc148eec3a9da75d1f6dc371967667166e17",
+      "repair_manifest_sha256": "226f96d4beb10f9a4599d5a0c222f2432916246b305b43ee2af853b93335b371",
+      "source_review": "GO after unique named-row intake",
+      "old_source_discriminator": {
+        "source": "9558d2da71f7bc067267f7b270ac472778ac8e94",
+        "outcome": "intended FAIL: A/Adefault+explicitpassed before A/Breturned200instead409",
+        "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-c01-original-red-20261027/audit-result.json"
+      },
+      "local_repaired_runtime": "UNRUN",
+      "G_acceptance": false
     }
   ]
 }

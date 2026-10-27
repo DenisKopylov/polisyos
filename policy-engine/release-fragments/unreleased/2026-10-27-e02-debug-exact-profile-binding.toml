@@ -1,0 +1,17 @@
+id = "2026-10-27-e02-debug-exact-profile-binding"
+title = "Bind candidate debug results to one exact workflow view"
+type = "fixed"
+component = "runtime-http"
+owner = "team-polisyos"
+summary = "The candidate SimulationResult reader reconciles every same-ID node reference by payload, kind, media and exact manifest profile, and selects metadata and refs from one unambiguous persisted alias row."
+evidence = ["src/polisyos/runtime/http/services/debug.py", "tests/unit/runtime/http/test_debug_api.py", "tests/unit/runtime/http/test_debug_result_profile_identity.py"]
+compatibility = "Valid exact-profile reads retain their candidate-only response. Conflicting, malformed or duplicate named-row bindings refuse with the existing409 family; absent profiles are not wildcards."
+change_class = "internal"
+surface_classification = "public_stable: candidate debug HTTP read behavior"
+migration = "No persisted schema or generated client change. Existing ambiguous reports remain readable through non-authoritative historical surfaces but cannot select this candidate result view."
+api = "Both default and explicit-artifact debug result selectors use the same binding intake."
+limitations = "This property does not establish B13 source currentness, scientific authority or G acceptance."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

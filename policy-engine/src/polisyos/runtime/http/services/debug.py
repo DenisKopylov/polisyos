@@ -373,15 +373,12 @@ class DebugService:
             expected_tenant_id=run.details.tenant_id,
             expected_cell_id=run.details.cell_id,
         )
-        record = {
-            node.alias: node
-            for node in self._load_workflow_nodes(run.workflow_report_ref, payload=report_payload)
-        }.get(alias)
-        if record is None:
+        report_node = _unique_workflow_report_node(report_payload, alias=alias)
+        if report_node is None:
             raise KeyError(alias)
+        record = self._workflow_node_record(report_node)
 
         state_ref = _simulation_result_ref_from_state_payload(state_payload)
-        node_bound_refs = _artifact_refs_bound_to_node(report_payload, alias=alias)
         requested_id = _artifact_id_from_string(artifact_id)
         if artifact_id is not None and requested_id is None:
             raise SimulationResultProjectionError(
@@ -389,12 +386,18 @@ class DebugService:
                 "The requested simulation result reference is malformed",
             )
 
+        if state_ref is None:
+            raise SimulationResultProjectionError(
+                "simulation_result_ref_missing",
+                "The run state has no persisted simulation result reference",
+            )
+        selected_id = requested_id or state_ref.artifact_id
+        node_bound_refs = _artifact_refs_from_report_node(
+            report_node,
+            relevant_artifact_id=selected_id,
+        )
+
         if requested_id is None:
-            if state_ref is None:
-                raise SimulationResultProjectionError(
-                    "simulation_result_ref_missing",
-                    "The run state has no persisted simulation result reference",
-                )
             node_refs_with_state_id = tuple(
                 ref for ref in node_bound_refs if ref.artifact_id == state_ref.artifact_id
             )
@@ -403,14 +406,7 @@ class DebugService:
                     "simulation_result_node_binding_missing",
                     "The named workflow node is not bound to the exact run simulation result ref",
                 )
-            if any(
-                ref.kind != state_ref.kind or ref.media_type != state_ref.media_type
-                for ref in node_refs_with_state_id
-            ):
-                raise SimulationResultProjectionError(
-                    "simulation_result_node_binding_mismatch",
-                    "The named workflow node carries a conflicting simulation result ref",
-                )
+            _require_exact_artifact_ref_binding(state_ref, node_refs_with_state_id)
             requested_id = state_ref.artifact_id
         elif not any(ref.artifact_id == requested_id for ref in node_bound_refs):
             raise SimulationResultProjectionError(
@@ -423,11 +419,10 @@ class DebugService:
                 "simulation_result_run_binding_mismatch",
                 "The requested reference is not bound to the persisted run state",
             )
-        if not _artifact_ref_matches_any(state_ref, node_bound_refs):
-            raise SimulationResultProjectionError(
-                "simulation_result_node_binding_mismatch",
-                "The named workflow node carries a conflicting simulation result ref",
-            )
+        _require_exact_artifact_ref_binding(
+            state_ref,
+            tuple(ref for ref in node_bound_refs if ref.artifact_id == state_ref.artifact_id),
+        )
         if (
             state_ref.kind != _SIMULATION_RESULT_KIND
             or state_ref.media_type != _SIMULATION_RESULT_MEDIA_TYPE
@@ -1255,7 +1250,7 @@ class DebugService:
                 profile_id=job.effective_execution_profile,
                 control_job_id=job.job_id,
             )
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return None, None, "llm_producer_control_job_owner_not_established"
         return binding, core_run_attempt, None
 
@@ -2027,38 +2022,42 @@ class DebugService:
             if not isinstance(row, dict):
                 continue
 
-            artifacts = row.get("artifacts")
-            artifact_ids: list[str] = []
-            if isinstance(artifacts, list):
-                for artifact in artifacts:
-                    if not isinstance(artifact, dict):
-                        continue
-                    artifact_id = _as_str(artifact.get("artifact_id"))
-                    if artifact_id:
-                        artifact_ids.append(artifact_id)
-
-            raw_error = row.get("error")
-            error_payload = raw_error if isinstance(raw_error, dict) else {}
-            record = RunNodeRecord(
-                alias=_as_str(row.get("alias")) or "",
-                node_id=_as_str(row.get("node_id")),
-                status=_normalize_status(_as_str(row.get("status"))),
-                duration_ms=_as_int(row.get("duration_ms")),
-                error_code=_as_str(error_payload.get("code")),
-                error_message=_sanitize_string(_as_str(error_payload.get("message"))),
-                error_details=_sanitize_payload(
-                    error_payload.get("details")
-                    if isinstance(error_payload.get("details"), dict)
-                    else {},
-                    sensitive_keys=self._sensitive_keys,
-                ),
-                skip_reason=_as_str(row.get("skip_reason")),
-                artifact_ids=sorted(set(artifact_ids)),
-            )
+            record = self._workflow_node_record(row)
             if record.alias:
                 result.append(record)
         result.sort(key=lambda item: item.alias)
         return result
+
+    def _workflow_node_record(self, row: dict[str, Any]) -> RunNodeRecord:
+        """Project metadata from the same selected raw node used for ref admission."""
+        artifacts = row.get("artifacts")
+        artifact_ids: list[str] = []
+        if isinstance(artifacts, list):
+            for artifact in artifacts:
+                if not isinstance(artifact, dict):
+                    continue
+                artifact_id = _as_str(artifact.get("artifact_id"))
+                if artifact_id:
+                    artifact_ids.append(artifact_id)
+
+        raw_error = row.get("error")
+        error_payload = raw_error if isinstance(raw_error, dict) else {}
+        return RunNodeRecord(
+            alias=_as_str(row.get("alias")) or "",
+            node_id=_as_str(row.get("node_id")),
+            status=_normalize_status(_as_str(row.get("status"))),
+            duration_ms=_as_int(row.get("duration_ms")),
+            error_code=_as_str(error_payload.get("code")),
+            error_message=_sanitize_string(_as_str(error_payload.get("message"))),
+            error_details=_sanitize_payload(
+                error_payload.get("details")
+                if isinstance(error_payload.get("details"), dict)
+                else {},
+                sensitive_keys=self._sensitive_keys,
+            ),
+            skip_reason=_as_str(row.get("skip_reason")),
+            artifact_ids=sorted(set(artifact_ids)),
+        )
 
     def _load_experiment_state_payload(self, ref: ArtifactRef | None) -> dict[str, Any]:
         return self._load_json_artifact(ref)
@@ -2657,37 +2656,78 @@ def _simulation_result_ref_from_state_payload(
     return _artifact_ref_from_payload(artifacts_index.get(_SIMULATION_RESULT_STATE_KEY))
 
 
-def _artifact_refs_bound_to_node(
+def _unique_workflow_report_node(
     payload: dict[str, Any],
     *,
     alias: str,
-) -> tuple[ArtifactRef, ...]:
-    """Resolve complete producer refs from one persisted workflow node."""
+) -> dict[str, Any] | None:
+    """Select one raw named node, refusing ambiguity before any node projection."""
     rows = payload.get("nodes")
     if not isinstance(rows, list):
-        return ()
-    for row in rows:
-        if not isinstance(row, dict) or _as_str(row.get("alias")) != alias:
-            continue
-        raw_artifacts = row.get("artifacts")
-        if not isinstance(raw_artifacts, list):
-            return ()
-        return tuple(
-            ref
-            for raw_ref in raw_artifacts
-            if (ref := _artifact_ref_from_payload(raw_ref)) is not None
+        raise SimulationResultProjectionError(
+            "simulation_result_node_binding_mismatch",
+            "The workflow report has no valid node binding collection",
         )
-    return ()
+    selected: dict[str, Any] | None = None
+    for row in rows:
+        row_alias = _as_str(row.get("alias")) if isinstance(row, dict) else None
+        if not row_alias:
+            raise SimulationResultProjectionError(
+                "simulation_result_node_binding_mismatch",
+                "The workflow report carries a node whose relevance cannot be established",
+            )
+        if row_alias != alias:
+            continue
+        if selected is not None:
+            raise SimulationResultProjectionError(
+                "simulation_result_node_binding_mismatch",
+                "The named workflow node binding is ambiguous",
+            )
+        selected = row
+    return selected
 
 
-def _artifact_ref_matches_any(ref: ArtifactRef, candidates: tuple[ArtifactRef, ...]) -> bool:
-    """Require an exact ID/kind/media match across binding surfaces."""
-    return any(
-        candidate.artifact_id == ref.artifact_id
-        and candidate.kind == ref.kind
-        and candidate.media_type == ref.media_type
-        for candidate in candidates
-    )
+def _artifact_refs_from_report_node(
+    row: dict[str, Any],
+    *,
+    relevant_artifact_id: ArtifactID,
+) -> tuple[ArtifactRef, ...]:
+    """Resolve selected-row refs without discarding a relevant malformed ref."""
+    raw_artifacts = row.get("artifacts")
+    if not isinstance(raw_artifacts, list):
+        raise SimulationResultProjectionError(
+            "simulation_result_node_binding_mismatch",
+            "The named workflow node has no valid artifact binding collection",
+        )
+    refs: list[ArtifactRef] = []
+    for raw_ref in raw_artifacts:
+        ref = _artifact_ref_from_payload(raw_ref)
+        if ref is not None:
+            refs.append(ref)
+            continue
+        raw_id = _as_str(raw_ref.get("artifact_id")) if isinstance(raw_ref, dict) else None
+        parsed_id = _artifact_id_from_string(raw_id)
+        if parsed_id is None or parsed_id == relevant_artifact_id:
+            raise SimulationResultProjectionError(
+                "simulation_result_node_binding_mismatch",
+                "The named workflow node carries a malformed relevant artifact ref",
+            )
+    return tuple(refs)
+
+
+def _require_exact_artifact_ref_binding(
+    expected: ArtifactRef,
+    candidates: tuple[ArtifactRef, ...],
+) -> None:
+    """Require every same-ID node ref to carry the complete selected identity."""
+    expected_identity = artifact_ref_identity_key(expected)
+    if not candidates or any(
+        artifact_ref_identity_key(candidate) != expected_identity for candidate in candidates
+    ):
+        raise SimulationResultProjectionError(
+            "simulation_result_node_binding_mismatch",
+            "The named workflow node carries a conflicting simulation result ref",
+        )
 
 
 def _workflow_edges_from_nodes(

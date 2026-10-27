@@ -53,3 +53,7 @@ The uninstrumented child-resume selector passed on d550 source:1PASS,27.0732s,pe
 ## First test-only composition
 
 C02 and C03 source review is GO for bounded checkpoint recovery and Legal legacy-vector regressions. Root composed the received test bytes with corrected receipt counts/rationale; no production owner changed. C02 retains eight existing plus five new cases (four new functions). C03 makes no mixed-projection or Legal authority claim. Their local defining-property replay and removal controls are next; source GO and cloud author summaries do not establish local runtime PASS.
+
+## C01 intended red and structural source composition
+
+The portable HTTP fixture reached valid A/A for both selectors on9558 old source, then failed at node_only_valid_b_default because200 escaped instead of409. Complete compact output/JUnit and qualified audit are delivered. This is the intended exact-profile discriminator, distinct from earlier fixture setup errors. Independent delta review gave code GO for one unique named-row intake, complete identity and shared metadata/ref projection. Root now composes those exact bytes plus regression/release companions; fresh repaired/native/removal verification remains UNRUN at this source checkpoint. B13 currentness and G acceptance remain separate.

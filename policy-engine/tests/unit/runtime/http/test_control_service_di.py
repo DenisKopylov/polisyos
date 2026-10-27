@@ -4616,6 +4616,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         baseline_period_count=14,
         tenant_id="tenant-fixture",
         cell_id="cell-fixture",
+        revised_source=False,
         artifact_store=shared_cas,
     )
     owner_repo_root = owner_admission.served.case.authority.repo_root

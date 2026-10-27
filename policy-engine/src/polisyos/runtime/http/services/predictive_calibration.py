@@ -28,7 +28,8 @@ from polisyos.core.artifacts import (
     artifact_ref_identity_key,
     ensure_ir_artifact_store,
 )
-from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.core.canon import CanonSpec as CoreCanonSpec
+from polisyos.core.canon import to_canonical_bytes
 from polisyos.core.contracts import (
     ApiMeta,
     DataSnapshot,
@@ -45,6 +46,9 @@ from polisyos.ir import (
     normalize_artifact_ref,
     persist_backtest_report,
     put_json_artifact,
+)
+from polisyos.ir import (
+    CanonSpec as IRCanonSpec,
 )
 from polisyos.pdc import AuthorityBoundary
 from polisyos.runtime.http.services.run_operation_idempotency import (
@@ -984,7 +988,7 @@ def _request_sha256(request: PredictiveCalibrationRequest) -> str:
     """Hash the exact declared request, including every selected ref profile."""
 
     return hashlib.sha256(
-        to_canonical_bytes(request.model_dump(mode="json"), CanonSpec(forbid_floats=False))
+        to_canonical_bytes(request.model_dump(mode="json"), CoreCanonSpec(forbid_floats=False))
     ).hexdigest()
 
 
@@ -1009,7 +1013,7 @@ def _operation_body_sha256(
         "run_manifest_ref": run_manifest_ref.model_dump(mode="json"),
     }
     return hashlib.sha256(
-        to_canonical_bytes(bound_request, CanonSpec(forbid_floats=False))
+        to_canonical_bytes(bound_request, CoreCanonSpec(forbid_floats=False))
     ).hexdigest()
 
 
@@ -1299,7 +1303,7 @@ def _persist_evidence_role_refs(
                 )
                 for ref, input_role in input_edges
             ],
-            canon_spec=CanonSpec(forbid_floats=False),
+            canon_spec=IRCanonSpec(forbid_floats=False),
             return_selected_profile=True,
         )
         typed_ref = EvidenceArtifactRef.model_validate(
@@ -1401,7 +1405,7 @@ def _persist_association(
         schema_name=_ASSOCIATION_SCHEMA,
         schema_version=_ASSOCIATION_VERSION,
         inputs=edges,
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=IRCanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
     return ArtifactRef.model_validate(result)
@@ -2026,7 +2030,7 @@ def _read_event_payload(
     payload = getattr(record, "payload_inline", None)
     payload_ref = getattr(record, "payload_ref", None)
     if isinstance(payload, Mapping):
-        payload_bytes = to_canonical_bytes(dict(payload), CanonSpec(forbid_floats=False))
+        payload_bytes = to_canonical_bytes(dict(payload), CoreCanonSpec(forbid_floats=False))
     elif isinstance(payload_ref, str) and payload_ref:
         raw = store.get_bytes(ArtifactID.model_validate(payload_ref))
         payload_bytes = raw
@@ -2183,7 +2187,9 @@ def _identity(role: str, report_id: str, content: object) -> str:
     """Derive a stable role identity from the actual bound input views."""
 
     payload = {"role": role, "report_id": report_id, "content": content}
-    digest = hashlib.sha256(to_canonical_bytes(payload, CanonSpec(forbid_floats=False))).hexdigest()
+    digest = hashlib.sha256(
+        to_canonical_bytes(payload, CoreCanonSpec(forbid_floats=False))
+    ).hexdigest()
     return f"sha256:{digest}"
 
 

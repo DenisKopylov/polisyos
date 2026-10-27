@@ -15,9 +15,11 @@ from polisyos.berl.contracts.schema import (
 )
 from polisyos.core.artifacts import ArtifactStore as CoreArtifactStore
 from polisyos.core.artifacts import ensure_ir_artifact_store
-from polisyos.core.canon import CanonSpec
 from polisyos.ir import (
     ArtifactStore as IRArtifactStore,
+)
+from polisyos.ir import (
+    CanonSpec as IRCanonSpec,
 )
 from polisyos.ir import (
     InputRef,
@@ -101,7 +103,7 @@ def persist_explanation_bundle(
         schema_name=_EXPLANATION_BUNDLE_SCHEMA_NAME,
         schema_version=EXPLANATION_BUNDLE_SCHEMA_VERSION,
         inputs=inputs,
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=IRCanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
     try:

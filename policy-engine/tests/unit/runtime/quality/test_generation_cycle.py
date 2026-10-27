@@ -739,6 +739,296 @@ class _NoPromotionPort:
         )
 
 
+async def _run_competing_candidate_grounding_cycle(
+    *,
+    second_candidate_is_current: bool,
+    repo_root: Path,
+    owner_witness: Any | None = None,
+) -> tuple[GenerationCycleRun, tuple[str, ...]]:
+    """Run the real N6 cycle over one blocked candidate and one alternative."""
+
+    first_candidate_id = "candidate_b10_high_proxy_missing_input"
+    first = _Candidate(
+        candidate_id=first_candidate_id,
+        atom=_Atom(first_candidate_id, "sha256:" + "a" * 64),
+        diversity_key=("grant", "firms", "blocked_input", "baseline"),
+    )
+    if owner_witness is None:
+        second_candidate_id = "candidate_b10_grounded_alternative"
+        second: Any = _Candidate(
+            candidate_id=second_candidate_id,
+            atom=_Atom(second_candidate_id, "sha256:" + "b" * 64),
+            diversity_key=("grant", "firms", "grounded_alternative", "baseline"),
+        )
+        problem = _problem("b10_grounding_selection")
+    else:
+        second = owner_witness.candidate
+        second_candidate_id = str(second.candidate_id)
+        problem = owner_witness.problem
+
+    class _TwoCandidateGenerationPort:
+        async def __call__(
+            self,
+            generation_problem: DesignProblem,
+            *,
+            cycle_index: int,
+        ) -> _GenerationResult:
+            del cycle_index
+            return _GenerationResult(
+                status="generated",
+                candidates=(first, second),
+                surrogate_rankings=(
+                    _Ranking(
+                        candidate_id=first_candidate_id,
+                        score=0.99,
+                        voi_estimate=0.95,
+                    ),
+                    _Ranking(
+                        candidate_id=second_candidate_id,
+                        score=0.50,
+                        voi_estimate=0.85,
+                    ),
+                ),
+                design_problem_ref=gy_content_hash(generation_problem.model_dump(mode="json")),
+            )
+
+    class _AlternativeGroundingPort:
+        def __call__(
+            self,
+            *,
+            candidate: Any,
+            problem: DesignProblem,
+            cycle_index: int,
+            generation_result: Any | None = None,
+        ) -> CandidateGroundingObservation:
+            del problem, cycle_index, generation_result
+            candidate_id = str(candidate.candidate_id)
+            if candidate_id == first_candidate_id:
+                return CandidateGroundingObservation(
+                    candidate_id=candidate_id,
+                    status="grounding_gap",
+                    grounding_score=0.1,
+                    issue_codes=("missing_required_input:owner_panel",),
+                )
+            if candidate_id == second_candidate_id and second_candidate_is_current:
+                return CandidateGroundingObservation(
+                    candidate_id=candidate_id,
+                    status="current_valid",
+                    grounding_score=0.95,
+                    evidence_refs=("evidence://controlled-test/grounded-alternative",),
+                    current_valid=True,
+                    report_ref="grounding://controlled-test/grounded-alternative",
+                    grounding_source="cgf_firewall",
+                    grounding_disposition="controlled_test_current_valid",
+                )
+            return CandidateGroundingObservation(
+                candidate_id=candidate_id,
+                status="grounding_gap",
+                grounding_score=0.1,
+                issue_codes=("missing_required_input:alternate_owner_panel",),
+            )
+
+    simulation_calls: list[str] = []
+
+    class _RecordingSimulationPort:
+        def __call__(
+            self,
+            *,
+            candidate: Any,
+            problem: DesignProblem,
+            cycle_index: int,
+        ) -> SimulationPortObservation:
+            candidate_id = str(candidate.candidate_id)
+            simulation_calls.append(candidate_id)
+            if owner_witness is not None and candidate_id == second_candidate_id:
+                return owner_witness.port(
+                    candidate=candidate,
+                    problem=problem,
+                    cycle_index=cycle_index,
+                )
+            return SimulationPortObservation(
+                candidate_id=candidate_id,
+                status="simulation_blocked",
+                authority_blockers=("controlled_test_simulation_not_run",),
+                diagnostics={"reason": "controlled_test_probe_has_no_n5_receipt"},
+            )
+
+    controller = GenerationCycleController(
+        generation_port=_TwoCandidateGenerationPort(),
+        grounding_port=_AlternativeGroundingPort(),
+        simulation_port=_RecordingSimulationPort(),
+        value_port=PendingN8ValuePort(),
+        promotion_port=_NoPromotionPort(),  # type: ignore[arg-type]
+        authority_scope="contract_testing",
+        repo_root=repo_root,
+        cycle_substrate_context=(owner_witness.context if owner_witness is not None else None),
+        artifact_store=owner_witness.store if owner_witness is not None else None,
+    )
+    run_kwargs = {"budget_state": _budget(), "min_cycles": 1, "max_cycles": 1}
+    if owner_witness is None:
+        run = await controller.run(problem, **run_kwargs)
+    else:
+        from polisyos.core.security.tenant_context import tenant_scope
+
+        with tenant_scope(
+            None,
+            tenant_id="tenant-n5-owner",
+            cell_id="cell-n5-owner",
+        ):
+            run = await controller.run(problem, **run_kwargs)
+    return run, tuple(simulation_calls)
+
+
+def _assert_second_grounded_candidate_consumer_witness(
+    run: GenerationCycleRun,
+    simulation_calls: tuple[str, ...],
+    *,
+    second_candidate_id: str = "candidate_b10_grounded_alternative",
+    simulation_status: str = "simulation_blocked",
+) -> None:
+    """Assert cycle selection, consumer dispatch, blocker retention, and no fabricated value."""
+
+    first_candidate_id = "candidate_b10_high_proxy_missing_input"
+    cycle = run.cycles[0]
+    assert cycle.selected_candidate_ref == second_candidate_id, (
+        "B10 second-grounded consumer witness: selection reverted to the original top candidate."
+    )
+    assert cycle.candidate_ids == (first_candidate_id, second_candidate_id)
+    assert simulation_calls == (second_candidate_id,)
+    assert cycle.grounding.candidate_id == second_candidate_id
+    assert cycle.simulation.candidate_id == second_candidate_id
+    assert cycle.simulation.status == simulation_status
+    if simulation_status == "joint_simulated":
+        assert cycle.simulation.simulation_result_ref is not None
+
+    first_summary = next(
+        summary for summary in run.candidate_summaries if summary.candidate_id == first_candidate_id
+    )
+    assert first_summary.grounding_status == "grounding_gap"
+    assert first_summary.grounding_issue_codes == ("missing_required_input:owner_panel",)
+    assert first_summary.current_valid is False
+    assert first_summary.value_ref is None
+    assert first_summary.value_decision_grade is None
+
+    second_summary = next(
+        summary
+        for summary in run.candidate_summaries
+        if summary.candidate_id == second_candidate_id
+    )
+    assert second_summary.grounding_status == "current_valid"
+    assert cycle.value_port.status == "value_pending_n8"
+    assert cycle.value_port.value_ref is None
+    assert cycle.value_port.decision_grade is None
+    assert cycle.value_port.value_receipt is None
+    assert all(summary.value_ref is None for summary in run.candidate_summaries)
+
+
+@pytest.mark.asyncio
+async def test_b10_second_grounded_candidate_is_evaluated_with_first_blocker_preserved(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The real N6 consumer evaluates a grounded alternate through owner-built N5."""
+
+    witness = _owner_program_graph_n5_witness(
+        tmp_path,
+        income_values=(1000.0, 2000.0),
+    )
+    try:
+        second_candidate_id = str(witness.candidate.candidate_id)
+        run, simulation_calls = await _run_competing_candidate_grounding_cycle(
+            second_candidate_is_current=True,
+            repo_root=tmp_path,
+            owner_witness=witness,
+        )
+        _assert_second_grounded_candidate_consumer_witness(
+            run,
+            simulation_calls,
+            second_candidate_id=second_candidate_id,
+            simulation_status="joint_simulated",
+        )
+
+        simulation_ref = run.cycles[0].simulation.simulation_result_ref
+        assert simulation_ref is not None
+        from polisyos.core.security.tenant_context import tenant_scope
+
+        with tenant_scope(
+            None,
+            tenant_id="tenant-n5-owner",
+            cell_id="cell-n5-owner",
+        ):
+            persisted_simulation = generation_cycle_module.load_joint_simulation_result(
+                simulation_ref,
+                store=witness.store,
+                expected_world_model_record_content_hash=(
+                    witness.context.world_model_record.content_hash
+                ),
+            )
+        assert (
+            persisted_simulation.world_model_record_content_hash
+            == witness.context.world_model_record.content_hash
+        )
+
+        with monkeypatch.context() as removed_property:
+
+            def _revert_to_original_top_candidate(**selection_inputs: Any) -> object:
+                return selection_inputs["fallback"]
+
+            removed_property.setattr(
+                generation_cycle_module,
+                "_grounded_candidate_for_evaluation",
+                _revert_to_original_top_candidate,
+            )
+            reverted_run, reverted_calls = await _run_competing_candidate_grounding_cycle(
+                second_candidate_is_current=True,
+                repo_root=tmp_path,
+                owner_witness=witness,
+            )
+
+        with pytest.raises(
+            AssertionError,
+            match="B10 second-grounded consumer witness",
+        ):
+            _assert_second_grounded_candidate_consumer_witness(
+                reverted_run,
+                reverted_calls,
+                second_candidate_id=second_candidate_id,
+                simulation_status="joint_simulated",
+            )
+        assert reverted_run.cycles[0].selected_candidate_ref == (
+            "candidate_b10_high_proxy_missing_input"
+        )
+        assert reverted_calls == ("candidate_b10_high_proxy_missing_input",)
+    finally:
+        witness.store.close()
+
+
+@pytest.mark.asyncio
+async def test_b10_no_eligible_grounding_falls_back_with_typed_blocker_and_pending_value(
+    tmp_path: Path,
+) -> None:
+    """When all candidates are blocked, retain the original selection without inventing value."""
+
+    run, simulation_calls = await _run_competing_candidate_grounding_cycle(
+        second_candidate_is_current=False,
+        repo_root=tmp_path,
+    )
+
+    cycle = run.cycles[0]
+    assert cycle.candidate_ids == (
+        "candidate_b10_high_proxy_missing_input",
+        "candidate_b10_grounded_alternative",
+    )
+    assert cycle.selected_candidate_ref == ("candidate_b10_high_proxy_missing_input")
+    assert simulation_calls == ("candidate_b10_high_proxy_missing_input",)
+    assert cycle.grounding.status == "grounding_gap"
+    assert cycle.grounding.issue_codes == ("missing_required_input:owner_panel",)
+    assert cycle.value_port.status == "value_pending_n8"
+    assert cycle.value_port.value_ref is None
+    assert cycle.value_port.value_receipt is None
+    assert all(summary.value_ref is None for summary in run.candidate_summaries)
+
+
 def test_production_n9_port_is_canonical_and_contract_fake_remains_available() -> None:
     """Production cannot route around identity admission; test fakes stay scoped."""
 
@@ -2948,16 +3238,37 @@ def _owner_program_graph_n5_witness(
     Callers must close the guarded artifact store.
     """
 
-    from polisyos.core.artifacts import WarningRecord
-    from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
+    from polisyos.common.async_tools import run_coro_sync
+    from polisyos.core.artifacts import (
+        WarningRecord,
+        artifact_manifest_profile_sha256,
+        read_core_json_artifact,
+    )
+    from polisyos.core.artifacts.async_store import ensure_async_artifact_store
+    from polisyos.core.artifacts.manifest import (
+        ArtifactTenantContextInfo,
+        SchemaInfo,
+        input_ref_from_artifact_ref,
+    )
     from polisyos.core.artifacts.store import PutOptions
-    from polisyos.core.contracts.fabric import DataSnapshot
+    from polisyos.core.contracts.fabric import (
+        DataSnapshot,
+        DataSnapshotRef,
+        data_snapshot_manifest_inputs_match,
+    )
     from polisyos.core.contracts.foundry import ExecPlan, ProgramGraphRef, StateSnapshot
     from polisyos.core.registry import build_default_registry_bundle
     from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.fabric.data_plane.orchestrator import (
+        _build_snapshot_from_evidence_async,
+    )
+    from polisyos.fabric.evidence import build_evidence_bundle, persist_evidence_bundle
     from polisyos.foundry.data_plane import bindings as bindings_module
     from polisyos.foundry.execute._internal.models import load_model
     from polisyos.runtime.http.resilience import guard_runtime_cas
+    from polisyos.runtime.quality.data_snapshot_lineage import (
+        validate_data_snapshot_owner_lineage,
+    )
     from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
     from polisyos.runtime.quality.world_model_record import build_world_model_record
     from tests._helpers import world_model_record as world_fixture
@@ -3105,26 +3416,162 @@ def _owner_program_graph_n5_witness(
             world_fixture._write_fabric_world_snapshot(case_root)
             payload = copy.deepcopy(world_fixture.FABRIC_PAYLOAD)
             payload["agents"]["income"] = list(income_values)
-            payload_ref = world_fixture._put_json(
-                store,
+            payload_ref = store.put_json(
                 payload,
-                kind="fabric.world_payload",
-            )
-            data_snapshot_ref = store.put_json(
-                DataSnapshot(
-                    data_ref=payload_ref,
-                    stats={"snapshot_id": world_fixture.SNAPSHOT_ID},
-                    notes=[f"snapshot_id:{world_fixture.SNAPSHOT_ID}"],
-                ),
-                PutOptions(
-                    kind="fabric.data_snapshot",
-                    media_type="application/json",
-                    schema=SchemaInfo(
-                        name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
-                        version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
-                    ),
-                ),
+                PutOptions(kind="fabric.world_payload", media_type="application/json"),
                 canon_spec=canon.CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
+            )
+            if payload_ref.manifest_profile_sha256 is None:
+                raise AssertionError("fixture world payload lacks its selected CAS profile")
+            evidence_bundle = build_evidence_bundle(
+                sources=[payload_ref],
+                notes=["controlled_owner_program_graph_n5_fixture"],
+            )
+            evidence_ref = persist_evidence_bundle(
+                store,
+                evidence_bundle,
+                return_selected_profile=True,
+            )
+            if evidence_ref.manifest_profile_sha256 is None:
+                raise AssertionError("fixture evidence bundle lacks its selected CAS profile")
+            produced_snapshot_ref = run_coro_sync(
+                _build_snapshot_from_evidence_async(
+                    store=ensure_async_artifact_store(store),
+                    evidence_ref=evidence_ref,
+                    datasets_fetched=1,
+                    source="controlled_owner_program_graph_n5_fixture",
+                )
+            )
+            if (
+                produced_snapshot_ref is None
+                or produced_snapshot_ref.manifest_profile_sha256 is None
+            ):
+                raise AssertionError("canonical Fabric materializer did not select a snapshot view")
+            produced_snapshot_bytes = store.get_bytes(produced_snapshot_ref)
+            produced_snapshot_read = read_core_json_artifact(
+                store,
+                produced_snapshot_ref,
+                raw_payload_bytes=produced_snapshot_bytes,
+            )
+            assert produced_snapshot_read.status == "declared_bytes_conformant"
+            assert produced_snapshot_read.selected_artifact_id == str(
+                produced_snapshot_ref.artifact_id
+            )
+            assert produced_snapshot_read.selected_manifest_profile_sha256 == (
+                produced_snapshot_ref.manifest_profile_sha256
+            )
+            assert hashlib.sha256(produced_snapshot_bytes).hexdigest() == (
+                produced_snapshot_ref.artifact_id.hex
+            )
+            produced_snapshot = DataSnapshot.model_validate(produced_snapshot_read.value)
+            assert produced_snapshot.data_ref == payload_ref
+            assert produced_snapshot.evidence_ref == evidence_ref
+            assert produced_snapshot.quality_report_ref is not None
+            produced_manifest = store.get_manifest(produced_snapshot_ref)
+            assert produced_manifest.artifact_schema is not None
+            assert produced_manifest.kind == DataSnapshot.ARTIFACT_KIND
+            assert produced_manifest.media_type == DataSnapshot.ARTIFACT_MEDIA_TYPE
+
+            snapshot_id = world_fixture.SNAPSHOT_ID
+            snapshot_with_owner_id = produced_snapshot.model_copy(
+                update={
+                    "stats": {**produced_snapshot.stats, "snapshot_id": snapshot_id},
+                    "notes": [*produced_snapshot.notes, f"snapshot_id:{snapshot_id}"],
+                }
+            )
+            assert data_snapshot_manifest_inputs_match(
+                snapshot_with_owner_id,
+                produced_manifest.inputs,
+                schema_version=produced_manifest.artifact_schema.version,
+            )
+            data_snapshot_ref = DataSnapshotRef.model_validate(
+                store.put_json(
+                    snapshot_with_owner_id,
+                    PutOptions(
+                        kind=DataSnapshot.ARTIFACT_KIND,
+                        media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+                        schema=SchemaInfo(
+                            name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                            version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+                        ),
+                        inputs=produced_manifest.inputs,
+                    ),
+                    canon_spec=canon.CanonSpec(forbid_floats=False),
+                    return_selected_profile=True,
+                ).model_dump(mode="python")
+            )
+            if data_snapshot_ref.manifest_profile_sha256 is None:
+                raise AssertionError("fixture owner snapshot lacks its selected CAS profile")
+            expected_tenant_context = ArtifactTenantContextInfo(
+                tenant_id="tenant-n5-owner",
+                cell_id="cell-n5-owner",
+            )
+            assert produced_manifest.artifact_id == produced_snapshot_ref.artifact_id
+            assert produced_manifest.tenant_context == expected_tenant_context
+            assert produced_snapshot_ref.manifest_profile_sha256 == (
+                artifact_manifest_profile_sha256(produced_manifest)
+            )
+            for input_ref in (
+                payload_ref,
+                evidence_ref,
+                produced_snapshot.quality_report_ref,
+            ):
+                assert input_ref is not None
+                assert input_ref.manifest_profile_sha256 is not None
+                input_manifest = store.get_manifest(input_ref)
+                input_bytes = store.get_bytes(input_ref)
+                assert input_manifest.artifact_id == input_ref.artifact_id
+                assert input_manifest.kind == input_ref.kind
+                assert input_manifest.media_type == input_ref.media_type
+                assert input_manifest.tenant_context == expected_tenant_context
+                assert input_ref.manifest_profile_sha256 == (
+                    artifact_manifest_profile_sha256(input_manifest)
+                )
+                assert input_manifest.byte_size == len(input_bytes)
+                assert hashlib.sha256(input_bytes).hexdigest() == input_ref.artifact_id.hex
+            persisted_snapshot_manifest = store.get_manifest(data_snapshot_ref)
+            persisted_snapshot_bytes = store.get_bytes(data_snapshot_ref)
+            persisted_snapshot_profile = artifact_manifest_profile_sha256(
+                persisted_snapshot_manifest
+            )
+            assert persisted_snapshot_manifest.artifact_id == data_snapshot_ref.artifact_id
+            assert persisted_snapshot_manifest.kind == DataSnapshot.ARTIFACT_KIND
+            assert persisted_snapshot_manifest.media_type == DataSnapshot.ARTIFACT_MEDIA_TYPE
+            assert persisted_snapshot_manifest.artifact_schema == SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            )
+            assert persisted_snapshot_manifest.tenant_context == expected_tenant_context
+            assert persisted_snapshot_manifest.inputs == produced_manifest.inputs
+            assert data_snapshot_ref.manifest_profile_sha256 == persisted_snapshot_profile
+            assert persisted_snapshot_manifest.byte_size == len(persisted_snapshot_bytes)
+            assert hashlib.sha256(persisted_snapshot_bytes).hexdigest() == (
+                data_snapshot_ref.artifact_id.hex
+            )
+            persisted_snapshot_read = read_core_json_artifact(
+                store,
+                data_snapshot_ref,
+                raw_payload_bytes=persisted_snapshot_bytes,
+            )
+            assert persisted_snapshot_read.status == "declared_bytes_conformant"
+            assert persisted_snapshot_read.selected_artifact_id == str(
+                data_snapshot_ref.artifact_id
+            )
+            assert persisted_snapshot_read.selected_manifest_profile_sha256 == (
+                persisted_snapshot_profile
+            )
+            persisted_snapshot = DataSnapshot.model_validate(persisted_snapshot_read.value)
+            assert persisted_snapshot == snapshot_with_owner_id
+            assert data_snapshot_manifest_inputs_match(
+                persisted_snapshot,
+                persisted_snapshot_manifest.inputs,
+                schema_version=persisted_snapshot_manifest.artifact_schema.version,
+            )
+            validate_data_snapshot_owner_lineage(
+                store,
+                data_snapshot_ref,
+                persisted_snapshot,
             )
             registry_bundle = build_default_registry_bundle(store)
             model_spec = world_fixture._model_spec(

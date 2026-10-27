@@ -12,7 +12,11 @@ import duckdb
 import pytest
 
 from polisyos.core.artifacts import artifact_manifest_profile_sha256
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    ArtifactTenantContextInfo,
+    InputRef,
+)
 from polisyos.core.contracts.control import (
     CatalogRunProfile,
     ControlJobResponse,
@@ -417,27 +421,39 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
     )
     monkeypatch.setattr("polisyos.fabric.retrieval.RetrievalService", _FakeRetrievalService)
     monkeypatch.setattr("polisyos.scientist.api.run_experiment", _capture_state)
-    monkeypatch.setattr(
-        "polisyos.foundry.methods.catalog.ensure_all_methods_registered",
-        lambda: None,
+    from polisyos.foundry.methods import (
+        persist_method_catalog_snapshot as _canonical_persist_method_catalog_snapshot,
     )
 
-    def _build_test_catalog_snapshot(*, run_id: str | None = None) -> MethodCatalogSnapshot:
-        return MethodCatalogSnapshot(snapshot_id=f"test-catalog-{run_id or 'run'}", run_id=run_id)
+    catalog_snapshot_writes: list[tuple[MethodCatalogSnapshotRef, MethodCatalogSnapshot]] = []
 
-    def _persist_test_catalog_snapshot(
-        _store: object,
-        _snapshot: MethodCatalogSnapshot,
+    def _persist_catalog_snapshot_with_typed_tenant(
+        store: Any,
+        snapshot: MethodCatalogSnapshot,
+        *,
+        inputs: list[InputRef] | None = None,
+        tenant_context: ArtifactTenantContextInfo | None = None,
     ) -> MethodCatalogSnapshotRef:
-        return MethodCatalogSnapshotRef(artifact_id="sha256:" + "2" * 64)
+        assert isinstance(snapshot, MethodCatalogSnapshot)
+        assert inputs is None
+        assert type(tenant_context) is ArtifactTenantContextInfo
+        assert tenant_context == ArtifactTenantContextInfo(
+            tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            cell_id="cell-a",
+        )
+        selected_ref = _canonical_persist_method_catalog_snapshot(
+            store,
+            snapshot,
+            inputs=inputs,
+            tenant_context=tenant_context,
+        )
+        assert selected_ref.manifest_profile_sha256 is not None
+        catalog_snapshot_writes.append((selected_ref, snapshot))
+        return selected_ref
 
-    monkeypatch.setattr(
-        "polisyos.foundry.methods.build_method_catalog_snapshot",
-        _build_test_catalog_snapshot,
-    )
     monkeypatch.setattr(
         "polisyos.foundry.methods.persist_method_catalog_snapshot",
-        _persist_test_catalog_snapshot,
+        _persist_catalog_snapshot_with_typed_tenant,
     )
 
     real_run_coro_sync = async_tools.run_coro_sync
@@ -477,11 +493,7 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
     import hashlib
 
     from polisyos.core.artifacts import read_core_json_artifact
-    from polisyos.core.artifacts.manifest import (
-        ArtifactRef,
-        ArtifactTenantContextInfo,
-        SchemaInfo,
-    )
+    from polisyos.core.artifacts.manifest import SchemaInfo
     from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
     from polisyos.runtime.http.services.control import nl_pipeline as nl_pipeline_module
     from polisyos.runtime.http.services.control.artifacts import (
@@ -942,6 +954,36 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
     )
     assert fresh_artifact_store.root == cas_root.resolve()
     assert fresh_artifact_store is not artifact_store
+    assert catalog_snapshot_writes
+    catalog_schema = SchemaInfo(name="polisyos.core.MethodCatalogSnapshot", version="2.0")
+    for catalog_ref, expected_snapshot in catalog_snapshot_writes:
+        assert catalog_ref.manifest_profile_sha256 is not None
+        assert catalog_ref.kind == "foundry.method_catalog_snapshot"
+        assert catalog_ref.media_type == "application/json"
+        catalog_manifest = fresh_artifact_store.get_manifest(catalog_ref)
+        catalog_bytes = fresh_artifact_store.get_bytes(catalog_ref)
+        catalog_profile = artifact_manifest_profile_sha256(catalog_manifest)
+        assert catalog_manifest.artifact_id == catalog_ref.artifact_id
+        assert catalog_manifest.kind == catalog_ref.kind
+        assert catalog_manifest.media_type == catalog_ref.media_type
+        assert catalog_manifest.artifact_schema == catalog_schema
+        assert catalog_manifest.tenant_context == expected_tenant_context
+        assert catalog_ref.manifest_profile_sha256 == catalog_profile
+        assert catalog_manifest.byte_size == len(catalog_bytes)
+        assert hashlib.sha256(catalog_bytes).hexdigest() == catalog_ref.artifact_id.hex
+        catalog_read = read_core_json_artifact(
+            fresh_artifact_store,
+            catalog_ref,
+            raw_payload_bytes=catalog_bytes,
+        )
+        assert catalog_read.status == "declared_bytes_conformant"
+        assert catalog_read.selected_artifact_id == str(catalog_ref.artifact_id)
+        assert catalog_read.selected_manifest_profile_sha256 == catalog_profile
+        assert catalog_read.raw_payload_bytes == catalog_bytes
+        assert isinstance(catalog_read.value, dict)
+        persisted_catalog = MethodCatalogSnapshot.model_validate(catalog_read.value)
+        assert persisted_catalog == expected_snapshot
+        assert persisted_catalog.run_id == run_id
     for result, writer_options in authority_write_options:
         payload_schema = writer_options.schema
         assert payload_schema is not None

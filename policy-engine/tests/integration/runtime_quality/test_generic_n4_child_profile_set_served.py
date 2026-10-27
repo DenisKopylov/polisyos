@@ -29,6 +29,51 @@ from tests._helpers.generic_n4_served_replay import (
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
+def test_candidate_kref_builder_root_guard_rejects_wrong_actual_root_before_builder(
+    tmp_path: Path,
+) -> None:
+    """Reject a wrong actual root while the expected profile markers stay unchanged."""
+    from tests._helpers.candidate_cycle_source_profile import (
+        bind_candidate_cycle_kref_builder_root,
+    )
+
+    selected_root = tmp_path / "selected-fixture-root"
+    selected_root.mkdir()
+    profile_markers = {
+        "source_root": str(selected_root.resolve(strict=True)),
+        "profile_id": "candidate-cycle-source-profile-test-only",
+        "selected_bundle_sha256": "sha256:" + "a" * 64,
+    }
+    original_profile_markers = dict(profile_markers)
+    actual_builder_calls: list[Path] = []
+    observed_repo_roots: list[str] = []
+
+    def sentinel_builder(
+        repo_root: Path,
+        *args: Any,
+        **kwargs: Any,
+    ) -> dict[str, str]:
+        actual_builder_calls.append(Path(repo_root).resolve(strict=True))
+        return dict(profile_markers)
+
+    selected_root_builder = bind_candidate_cycle_kref_builder_root(
+        sentinel_builder,
+        expected_repo_root=selected_root,
+        observed_repo_roots=observed_repo_roots,
+    )
+    rejected: AssertionError | None = None
+    try:
+        selected_root_builder(REPO_ROOT)
+    except AssertionError as error:
+        rejected = error
+
+    assert actual_builder_calls == []
+    assert observed_repo_roots == []
+    assert rejected is not None
+    assert str(rejected) == "candidate_kref_builder_repo_root_mismatch"
+    assert profile_markers == original_profile_markers
+
+
 def _n6_history_rows_from_compiled(compiled: Any) -> list[dict[str, Any]]:
     """Read the complete executed-cycle denominator from persisted compiled bytes."""
     from polisyos.runtime.quality.recursive_generation_cycle import RecursiveCycleNode
@@ -566,6 +611,9 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
         RecursiveCycleNode,
         RecursiveGenerationCycleRun,
     )
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+    )
     from tests._helpers.control_worker import dispatch_one_control_job
     from tests.unit.runtime.http.test_nl_pipeline_materialization import (
         _DeterministicSpanSupportClient,
@@ -577,6 +625,9 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
     tenant_id = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
     cell_id = "cell-v2-original-n4-capture"
     served_worker_phase_probe("fixture_prepare.start")
+    source_inputs = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "n4-candidate-source-root"
+    )
     prepared = await prepare_generic_n4_served_replay(
         tmp_path=tmp_path,
         controlled_candidate_gateway=controlled_candidate_gateway,
@@ -586,8 +637,82 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
         recording_mode="original_second_capture",
         child_count=2,
         phase_callback=served_worker_phase_probe,
+        source_root=source_inputs.root,
     )
     prepared = replace(prepared, request_json={**prepared.request_json, "max_iterations": 1})
+    source_witness = prepared.source_root_witness
+    assert prepared.source_root == source_inputs.root
+    assert prepared.app_kwargs["repo_root"] == source_inputs.root
+    assert source_witness["source_root"] == str(source_inputs.root)
+    assert source_witness["n4_repo_root"] == str(source_inputs.root)
+    assert len(source_witness["selected_l1_dcat_sha256"]) == 64
+    assert len(source_witness["selected_l2_source_sha256"]) == 64
+    assert source_witness["selected_l2_version_id"] == prepared.selected_skg_version_id
+    assert Path(source_witness["selected_l1_dcat_path"]).is_relative_to(source_inputs.root)
+    assert Path(source_witness["selected_l2_skg_path"]).is_relative_to(source_inputs.root)
+    assert Path(source_witness["selected_l3_lex_path"]).is_relative_to(source_inputs.root)
+    assert all(
+        Path(source_witness["selected_l6_bundle_paths"][name]).is_relative_to(source_inputs.root)
+        for name in (
+            "intervention_knob_dictionary",
+            "lex_intervention_map",
+            "observation_to_contract_manifest",
+        )
+    )
+    assert set(source_witness["selected_l3_row_counts"]) == {
+        "lex_amendments",
+        "lex_normative_ready_facts",
+        "lex_reference_edges",
+        "lex_rule_thresholds",
+    }
+    assert max(source_witness["selected_l3_row_counts"].values(), default=0) < 1000
+    assert source_witness["selected_l6_bundle_content_hash"].startswith("sha256:")
+    actual_kref = source_witness["actual_kref"]
+    assert source_witness["actual_kref_build_repo_roots"]
+    assert all(
+        root == str(source_inputs.root) for root in source_witness["actual_kref_build_repo_roots"]
+    )
+    actual_catalog = actual_kref["l1_catalog"]
+    assert actual_catalog["selection_owner"] == "catalog_serving_source_paths"
+    assert actual_catalog["selection_basis"] == "explicit_path_candidate_only"
+    assert actual_catalog["catalog_run_profile"] == "preflight_core"
+    assert actual_catalog["source_database_path"] == source_witness["selected_l1_dcat_path"]
+    assert actual_catalog["source_database_sha256"] == source_witness["selected_l1_dcat_sha256"]
+    assert (
+        actual_catalog["alignment_row_count"]
+        == source_witness["selected_catalog_readback"]["alignment_row_count"]
+    )
+    assert (
+        actual_catalog["alignment_rows_sha256"]
+        == source_witness["selected_catalog_readback"]["alignment_rows_sha256"]
+    )
+    actual_l6 = actual_kref["l6_intervention"]
+    assert actual_l6["actual_reader_witnesses"]
+    assert (
+        actual_l6["profile_bundle_content_hash"]
+        == source_witness["selected_l6_bundle_content_hash"]
+    )
+    assert all(
+        reader["bundle"] == source_witness["selected_l6_source_witness"]
+        for reader in actual_l6["actual_reader_witnesses"]
+    )
+    assert all(
+        reader["bundle"]["code_root"] == str(REPO_ROOT.resolve())
+        and reader["bundle"]["source_owner_root"] == str(source_inputs.root)
+        for reader in actual_l6["actual_reader_witnesses"]
+    )
+    assert actual_l6["candidate_input_counts"] == {
+        "knob_dictionary": 0,
+        "lex_intervention_map": 0,
+        "observation_routes": 0,
+    }
+    assert (
+        actual_l6["loaded_code_owner_authority"]["source_ref"]
+        == (source_witness["selected_l6_source_witness"]["source_refs"]["owner_authority_bindings"])
+    )
+    assert actual_l6["consumption_status"] == (
+        "empty_candidate_data_no_kref_l6_projection_not_established"
+    )
     served_worker_phase_probe("fixture_prepare.complete")
 
     canonical_recording = next(
@@ -833,6 +958,7 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
     served_worker_phase_probe("testclient_lifespan.start")
     with TestClient(app) as client:
         served_worker_phase_probe("testclient_lifespan.ready")
+        assert app.state._control_service._repo_root == source_inputs.root
         served_worker_phase_probe("control_post.start")
         response = client.post(
             "/api/v1/control/runs/nl",
@@ -2978,6 +3104,9 @@ async def test_original_second_capture_tcp_reopens_partial_n5_after_sibling_fail
         generation_cycle as generation_cycle_service,
     )
     from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+    )
     from tests._helpers.generic_n4_served_replay import (
         prepare_generic_n4_served_replay,
         run_n4_control_worker_and_get,
@@ -2986,6 +3115,9 @@ async def test_original_second_capture_tcp_reopens_partial_n5_after_sibling_fail
         _DeterministicSpanSupportClient,
     )
 
+    source_inputs = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "n4-tcp-candidate-source-root"
+    )
     prepared = await prepare_generic_n4_served_replay(
         tmp_path=tmp_path,
         controlled_candidate_gateway=controlled_candidate_gateway,
@@ -2994,8 +3126,30 @@ async def test_original_second_capture_tcp_reopens_partial_n5_after_sibling_fail
         cell_id="cell-v2-original-n4-tcp",
         recording_mode="original_second_capture",
         child_count=2,
+        source_root=source_inputs.root,
     )
     prepared = replace(prepared, request_json={**prepared.request_json, "max_iterations": 1})
+    source_witness = prepared.source_root_witness
+    assert prepared.source_root == source_inputs.root
+    assert prepared.app_kwargs["repo_root"] == source_inputs.root
+    assert source_witness["source_root"] == str(source_inputs.root)
+    assert source_witness["n4_repo_root"] == str(source_inputs.root)
+    assert len(source_witness["selected_l1_dcat_sha256"]) == 64
+    assert len(source_witness["selected_l2_source_sha256"]) == 64
+    assert source_witness["selected_l2_version_id"] == prepared.selected_skg_version_id
+    assert Path(source_witness["selected_l1_dcat_path"]).is_relative_to(source_inputs.root)
+    assert Path(source_witness["selected_l2_skg_path"]).is_relative_to(source_inputs.root)
+    assert Path(source_witness["selected_l3_lex_path"]).is_relative_to(source_inputs.root)
+    assert all(
+        Path(source_witness["selected_l6_bundle_paths"][name]).is_relative_to(source_inputs.root)
+        for name in (
+            "intervention_knob_dictionary",
+            "lex_intervention_map",
+            "observation_to_contract_manifest",
+        )
+    )
+    assert max(source_witness["selected_l3_row_counts"].values(), default=0) < 1000
+    assert source_witness["selected_l6_bundle_content_hash"].startswith("sha256:")
 
     def persisted_n6_rows(run_id: str) -> list[dict[str, Any]]:
         indexed = prepared.runtime_api_context.run_index.get_run(run_id)
@@ -3042,6 +3196,7 @@ async def test_original_second_capture_tcp_reopens_partial_n5_after_sibling_fail
     failure_code = "v6_controlled_second_n4_child_failure"
     app = create_runtime_api_app(**prepared.app_kwargs)
     with _serve_runtime_api_over_tcp(app, port=unused_tcp_port) as client:
+        assert app.state._control_service._repo_root == source_inputs.root
         receipt = await run_n4_control_worker_and_get(
             client=client,
             app=app,

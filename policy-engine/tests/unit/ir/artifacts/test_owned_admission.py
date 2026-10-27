@@ -16,6 +16,7 @@ import polisyos.ir.artifacts.io as artifact_io
 import polisyos.ir.migrations.base as migration_base
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.artifacts.ir_adapter import ensure_ir_artifact_store
+from polisyos.core.canon import CanonSpec as CoreCanonSpec
 from polisyos.ir.artifacts.contracts import (
     ArtifactOwnerDeclaration,
     CanonInfo,
@@ -703,7 +704,15 @@ def test_generic_writer_and_lineage_helpers_reject_malformed_present_inputs_befo
     assert store.put_calls == 0
 
 
-@pytest.mark.parametrize("bad_spec", [False, 0, object()])
+@pytest.mark.parametrize(
+    "bad_spec",
+    [
+        False,
+        0,
+        object(),
+        pytest.param(CoreCanonSpec(forbid_floats=False), id="foreign-core-canon-spec"),
+    ],
+)
 def test_generic_writer_rejects_malformed_present_canon_spec_before_cas(
     tmp_path: Path, bad_spec: object
 ) -> None:

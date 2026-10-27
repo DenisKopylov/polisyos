@@ -34,6 +34,32 @@ from tools.quality.validation import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _candidate_source_l3_row_counts(path: Path) -> dict[str, int]:
+    """Read bounded row counts from the selected controlled L3 fixture."""
+    import duckdb
+
+    connection = duckdb.connect(str(path), read_only=True)
+    try:
+        return {
+            "lex_amendments": int(
+                connection.execute("SELECT COUNT(*) FROM lex_amendments").fetchone()[0]
+            ),
+            "lex_normative_ready_facts": int(
+                connection.execute("SELECT COUNT(*) FROM lex_normative_ready_facts").fetchone()[0]
+            ),
+            "lex_reference_edges": int(
+                connection.execute("SELECT COUNT(*) FROM lex_reference_edges").fetchone()[0]
+            ),
+            "lex_rule_thresholds": int(
+                connection.execute("SELECT COUNT(*) FROM lex_rule_thresholds").fetchone()[0]
+            ),
+        }
+    finally:
+        connection.close()
+
+
 _RECORDING_ID = "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
 _ORIGINAL_SECOND_CAPTURE_RECORDING_ID = "gy_n4_replay_20260704_095710_425807_7bf5552df372"
 _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH = (
@@ -144,6 +170,8 @@ class PreparedGenericN4ServedReplay:
     model_id: str
     tenant_id: str
     cell_id: str
+    source_root: Path | None = None
+    source_root_witness: dict[str, Any] = dataclasses.field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -878,6 +906,7 @@ async def prepare_generic_n4_served_replay(
     runtime_hints_overlay: Mapping[str, object] | None = None,
     phase_callback: Any | None = None,
     candidate_scm_overrides_by_child_index: dict[int, dict[str, float]] | None = None,
+    source_root: Path | None = None,
 ) -> PreparedGenericN4ServedReplay:
     """Derive a source-bound N4 child family and all typed profiles for a served app.
 
@@ -891,6 +920,7 @@ async def prepare_generic_n4_served_replay(
     """
     from polisyos.runtime.http.container import RuntimeContainerOverrides
     from polisyos.runtime.http.dependencies import build_runtime_api_context
+    from polisyos.runtime.quality import credal_reference, design_generation
     from polisyos.runtime.quality.credal_reference import (
         credal_reference_data_forge_catalog_source_profile,
         credal_reference_l2_source_profile,
@@ -909,10 +939,26 @@ async def prepare_generic_n4_served_replay(
         GenericCycleSimulationProfileV1,
     )
     from polisyos.runtime.quality.substrate_registry import (
+        DEFAULT_L3_LEX_KG_PATH,
+        catalog_serving_source_scope,
         persist_substrate_registry,
         run_catalog_source_awaitable,
     )
+    from tests._helpers.candidate_cycle_source_profile import (
+        bind_candidate_cycle_kref_builder_root,
+        build_candidate_cycle_catalog_serving_source,
+        candidate_cycle_catalog_source_readback,
+        candidate_cycle_kref_source_witness,
+        install_candidate_cycle_l6_source_root_reader,
+    )
     from tests._helpers.runtime_http import _valid_intake_for_mode
+
+    selected_source_root = (
+        Path(source_root).resolve(strict=True) if source_root is not None else None
+    )
+    if selected_source_root == REPO_ROOT.resolve():
+        raise ValueError("controlled_n4_candidate_source_root_must_be_fixture_owned")
+    source_root_witness: dict[str, Any] = {}
 
     candidate_scm_overrides = _validated_candidate_scm_overrides_by_child(
         candidate_scm_overrides_by_child_index,
@@ -927,6 +973,38 @@ async def prepare_generic_n4_served_replay(
     monkeypatch.setenv("JAX_PLATFORMS", "cpu")
     monkeypatch.setenv("OMP_NUM_THREADS", "1")
 
+    catalog_selection = None
+    effective_catalog_source = catalog_serving_source
+    selected_catalog_readback = None
+    l6_source_reads = []
+    bind_expected_l6_source = None
+    assert_l6_adapter_installed = None
+    source_root_witness: dict[str, Any] = {}
+    if selected_source_root is not None:
+        catalog_selection, selected_catalog_source = build_candidate_cycle_catalog_serving_source(
+            selected_source_root
+        )
+        if catalog_serving_source is not None and (
+            catalog_serving_source.repo_root.resolve() != selected_catalog_source.repo_root
+            or catalog_serving_source.database_path.resolve()
+            != selected_catalog_source.database_path.resolve()
+            or catalog_serving_source.catalog_run_profile
+            != selected_catalog_source.catalog_run_profile
+        ):
+            raise ValueError("controlled_n4_selected_catalog_source_conflict")
+        effective_catalog_source = selected_catalog_source
+        selected_catalog_readback = candidate_cycle_catalog_source_readback(
+            effective_catalog_source.database_path
+        )
+        (
+            l6_source_reads,
+            bind_expected_l6_source,
+            assert_l6_adapter_installed,
+        ) = install_candidate_cycle_l6_source_root_reader(
+            monkeypatch,
+            code_root=REPO_ROOT,
+            source_owner_root=selected_source_root,
+        )
     source_recordings = n4_contract._load_recordings(REPO_ROOT)
     recorded_problem_override = None
     if recording_mode == "original_second_capture":
@@ -1034,7 +1112,7 @@ async def prepare_generic_n4_served_replay(
         cas_root = Path(runtime_api_context.cas_root)
 
     selected_skg_source = _seed_controlled_selected_skg_source(
-        tmp_path,
+        selected_source_root or tmp_path,
         recorded_problem=recorded_problem,
     )
     selected_skg_db_path = selected_skg_source.db_path
@@ -1058,15 +1136,17 @@ async def prepare_generic_n4_served_replay(
             "target_baseline": 0.0,
             "outcome_baseline": 0.0,
         }
-    base_profile, base_declaration = _configured_procurement_profile(
-        recorded_problem=recorded_problem,
-        tmp_path=tmp_path,
-        selected_skg_source=selected_skg_source,
-        artifact_store=runtime_api_context.store,
-        tenant_id=tenant_id,
-        cell_id=cell_id,
-        **profile_rule,
-    )
+    with catalog_serving_source_scope(effective_catalog_source):
+        base_profile, base_declaration = _configured_procurement_profile(
+            recorded_problem=recorded_problem,
+            tmp_path=tmp_path,
+            selected_skg_source=selected_skg_source,
+            artifact_store=runtime_api_context.store,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            repo_root=selected_source_root,
+            **profile_rule,
+        )
     base_wmr = base_profile.context_inputs.world_model_record
     if (
         base_wmr.skg_causal_prior_ref.skg_snapshot_ref != selected_skg_snapshot_ref
@@ -1099,13 +1179,112 @@ async def prepare_generic_n4_served_replay(
         llm_client=n4_contract.RecordedGenerationReplayClient(
             copy.deepcopy(recording) if recording_mode == "original_second_capture" else recording
         ),
-        repo_root=REPO_ROOT,
+        repo_root=selected_source_root or REPO_ROOT,
         cycle_substrate_context=preflight_context,
     )
+    selected_l6_bundle = base_profile.context_inputs.intervention_substrate
+    selected_l6_witness = None
+    l6_read_start = len(l6_source_reads)
+    if selected_source_root is not None:
+        import hashlib
+
+        from polisyos.runtime.quality.intervention_substrate import default_l6_bundle_paths
+        from polisyos.runtime.quality.world_model_record import _parse_skg_snapshot_ref
+
+        if (
+            effective_catalog_source is None
+            or selected_catalog_readback is None
+            or selected_l6_bundle is None
+            or bind_expected_l6_source is None
+            or assert_l6_adapter_installed is None
+        ):
+            raise AssertionError("controlled_n4_selected_source_owner_missing")
+        selected_l1_path = effective_catalog_source.database_path.resolve(strict=True)
+        selected_l2_ref = base_wmr.skg_causal_prior_ref
+        parsed_skg = _parse_skg_snapshot_ref(selected_l2_ref.skg_snapshot_ref)
+        selected_l2_path = parsed_skg.db_path.resolve(strict=True)
+        if (
+            not selected_l1_path.is_relative_to(selected_source_root)
+            or selected_skg_source.db_path.resolve(strict=True) != selected_l2_path
+            or parsed_skg.version_id != selected_skg_source.version_id
+        ):
+            raise AssertionError("controlled_n4_selected_l1_l2_source_root_mismatch")
+        selected_l3_path = (selected_source_root / DEFAULT_L3_LEX_KG_PATH).resolve(strict=True)
+        if not selected_l3_path.is_relative_to(selected_source_root):
+            raise AssertionError("controlled_n4_selected_l3_path_outside_source_root")
+        selected_l3_rows = _candidate_source_l3_row_counts(selected_l3_path)
+        if max(selected_l3_rows.values(), default=0) >= 1000:
+            raise AssertionError("controlled_n4_selected_l3_fixture_not_bounded")
+        selected_l6_paths = default_l6_bundle_paths(
+            REPO_ROOT, source_owner_root=selected_source_root
+        )
+        for name in (
+            "intervention_knob_dictionary",
+            "lex_intervention_map",
+            "observation_to_contract_manifest",
+        ):
+            if not selected_l6_paths[name].is_file() or not selected_l6_paths[
+                name
+            ].resolve().is_relative_to(selected_source_root):
+                raise AssertionError("controlled_n4_selected_l6_path_unbound:" + name)
+        selected_l6_witness = bind_expected_l6_source(selected_l6_bundle)
+        if n4_port._repo_root != selected_source_root:
+            raise AssertionError("controlled_n4_port_source_root_mismatch")
+        if (
+            selected_catalog_readback["source_database_sha256"]
+            != hashlib.sha256(selected_l1_path.read_bytes()).hexdigest()
+        ):
+            raise AssertionError("controlled_n4_selected_catalog_bytes_changed_before_n4")
+        assert_l6_adapter_installed()
+        source_root_witness = {
+            "source_root": str(selected_source_root),
+            "n4_repo_root": str(n4_port._repo_root),
+            "selected_l1_dcat_path": str(selected_l1_path),
+            "selected_l1_dcat_sha256": selected_catalog_readback["source_database_sha256"],
+            "selected_catalog_readback": selected_catalog_readback,
+            "catalog_selection": catalog_selection.model_dump(mode="json"),
+            "catalog_source": {
+                "repo_root": str(effective_catalog_source.repo_root),
+                "snapshot_root": str(effective_catalog_source.snapshot_root),
+                "database_path": str(effective_catalog_source.database_path),
+                "catalog_run_profile": effective_catalog_source.catalog_run_profile,
+                "selection_basis": effective_catalog_source.selection_basis,
+            },
+            "selected_l2_skg_path": str(selected_l2_path),
+            "selected_l2_source_sha256": selected_skg_source.sha256,
+            "selected_l2_version_id": parsed_skg.version_id,
+            "selected_l3_lex_path": str(selected_l3_path),
+            "selected_l3_row_counts": selected_l3_rows,
+            "selected_l6_bundle_paths": selected_l6_witness["paths"],
+            "selected_l6_path_sha256": selected_l6_witness["file_sha256"],
+            "selected_l6_bundle_content_hash": selected_l6_bundle.content_hash,
+            "selected_l6_source_witness": selected_l6_witness,
+        }
+    actual_kref_repo_roots: list[str] = []
+    if selected_source_root is not None:
+        original_kref_builder = credal_reference.build_credal_reference
+        selected_root_kref_builder = bind_candidate_cycle_kref_builder_root(
+            original_kref_builder,
+            expected_repo_root=selected_source_root,
+            observed_repo_roots=actual_kref_repo_roots,
+            mismatch_code="controlled_n4_actual_kref_repo_root_mismatch",
+        )
+
+        monkeypatch.setattr(
+            credal_reference,
+            "build_credal_reference",
+            selected_root_kref_builder,
+        )
+        monkeypatch.setattr(
+            design_generation,
+            "build_credal_reference",
+            selected_root_kref_builder,
+        )
+
     n4_awaitable = n4_port(recorded_problem, cycle_index=0)
     organ_run = (
-        await run_catalog_source_awaitable(catalog_serving_source, n4_awaitable)
-        if catalog_serving_source is not None
+        await run_catalog_source_awaitable(effective_catalog_source, n4_awaitable)
+        if effective_catalog_source is not None
         else await n4_awaitable
     )
     _emit_served_phase(phase_callback, "fixture.n4_port.complete")
@@ -1146,6 +1325,28 @@ async def prepare_generic_n4_served_replay(
             f"degraded_artifacts={degraded_artifacts!r}; "
             f"replayed_calls={replayed_calls!r}"
         )
+    if selected_source_root is not None:
+        if (
+            effective_catalog_source is None
+            or selected_catalog_readback is None
+            or selected_l6_bundle is None
+            or selected_l6_witness is None
+        ):
+            raise AssertionError("controlled_n4_actual_source_readback_inputs_missing")
+        if not actual_kref_repo_roots:
+            raise AssertionError("controlled_n4_actual_kref_builder_not_observed")
+        source_root_witness["actual_kref_build_repo_roots"] = actual_kref_repo_roots
+        source_root_witness["actual_kref"] = candidate_cycle_kref_source_witness(
+            selected_reference,
+            source_root=selected_source_root,
+            expected_skg_ref=base_inputs.world_model_record.skg_causal_prior_ref,
+            catalog_source=effective_catalog_source,
+            expected_catalog_readback=selected_catalog_readback,
+            expected_l6_bundle=selected_l6_bundle,
+            expected_l6_witness=selected_l6_witness,
+            actual_l6_reads=l6_source_reads[l6_read_start:],
+        )
+
     selected_source_ref = base_inputs.world_model_record.skg_causal_prior_ref
     selected_source_profile = credal_reference_l2_source_profile(selected_reference)
     if selected_source_profile is None:
@@ -1157,7 +1358,7 @@ async def prepare_generic_n4_served_replay(
         or selected_source_profile.currentness_status != "not_established"
     ):
         raise AssertionError("controlled_n4_selected_skg_source_binding_mismatch")
-    if catalog_serving_source is not None:
+    if effective_catalog_source is not None:
         catalog_source_profile = credal_reference_data_forge_catalog_source_profile(
             selected_reference
         )
@@ -1165,10 +1366,10 @@ async def prepare_generic_n4_served_replay(
             catalog_source_profile is None
             or catalog_source_profile.selection_owner != "catalog_serving_source_paths"
             or catalog_source_profile.catalog_run_profile
-            != catalog_serving_source.catalog_run_profile
-            or catalog_source_profile.selection_basis != catalog_serving_source.selection_basis
+            != effective_catalog_source.catalog_run_profile
+            or catalog_source_profile.selection_basis != effective_catalog_source.selection_basis
             or Path(catalog_source_profile.source_database_path).resolve()
-            != catalog_serving_source.database_path.resolve()
+            != effective_catalog_source.database_path.resolve()
         ):
             raise AssertionError("controlled_n4_selected_catalog_source_binding_mismatch")
 
@@ -1306,6 +1507,11 @@ async def prepare_generic_n4_served_replay(
         "allow_fixture_identity": True,
         "generic_cycle_simulation_profiles": generic_profiles,
         "generic_cycle_simulation_root_profile_id": root_profile.profile_id,
+        "repo_root": selected_source_root,
+        "catalog_source_selection": catalog_selection,
+        "catalog_run_profile": (
+            catalog_selection.catalog_run_profile if catalog_selection is not None else None
+        ),
     }
     return PreparedGenericN4ServedReplay(
         tmp_path=tmp_path,
@@ -1336,6 +1542,8 @@ async def prepare_generic_n4_served_replay(
         model_id=model_id,
         tenant_id=tenant_id,
         cell_id=cell_id,
+        source_root=selected_source_root,
+        source_root_witness=source_root_witness,
     )
 
 

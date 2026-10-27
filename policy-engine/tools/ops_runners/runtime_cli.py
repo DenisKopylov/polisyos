@@ -27,7 +27,6 @@ from polisyos.core.security.rotation import DEFAULT_JWT_TRUST_ANCHORS_PATH
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.metric_validation_report import MetricValidationReport
-    from polisyos.ir.artifacts import ArtifactStore as IrArtifactStore
 
 CommandHandler = Callable[[argparse.Namespace], int]
 
@@ -654,6 +653,7 @@ def _cmd_scientist_backtest(args: Any) -> int:
 
 
 def _cmd_metric_validate(args: argparse.Namespace) -> int:
+    from polisyos.core.artifacts import ensure_ir_artifact_store
     from polisyos.core.artifacts.ids import ArtifactID
     from polisyos.core.components._cli_store import build_cli_artifact_store
     from polisyos.core.contracts.foundry import MetricObservationBundleRef
@@ -664,14 +664,14 @@ def _cmd_metric_validate(args: argparse.Namespace) -> int:
         load_metric_observation_bundle,
     )
 
-    store = build_cli_artifact_store(Path(args.cas_root))
+    store = ensure_ir_artifact_store(build_cli_artifact_store(Path(args.cas_root)))
     ref = MetricObservationBundleRef(
         artifact_id=ArtifactID.model_validate(_normalize_artifact_id(args.observation_bundle_ref)),
         kind="foundry.metric_observation_bundle",
         media_type="application/json",
     )
     try:
-        bundle = load_metric_observation_bundle(cast("IrArtifactStore", store), ref)
+        bundle = load_metric_observation_bundle(store, ref)
     except Exception as exc:
         print(f"ERROR: failed to load observation bundle: {exc}", file=sys.stderr)
         return 2
@@ -697,10 +697,7 @@ def _cmd_metric_validate(args: argparse.Namespace) -> int:
         print(f"ERROR: metric validation failed: {exc}", file=sys.stderr)
         return 1
 
-    report_ref = persist_metric_validation_report(
-        cast("IrArtifactStore", store),
-        report,
-    )
+    report_ref = persist_metric_validation_report(store, report)
     payload = _render_metric_validation_payload(
         report,
         report_ref.artifact_id.root,

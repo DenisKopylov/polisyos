@@ -630,6 +630,7 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case_impl(
     guarded_cas: bool,
     tenant_id: str = _SERVED_WDI_FIXTURE_TENANT_ID,
     cell_id: str = "cell-a",
+    revised_source: bool = False,
     generation_cycle_repo_root: Path | None = None,
     artifact_store: artifacts.FileSystemCAS | None = None,
 ):
@@ -672,8 +673,55 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case_impl(
         control,
         tenant_id=tenant_id,
         cell_id=cell_id,
+        revised_source=revised_source,
         generation_cycle_repo_root=generation_cycle_repo_root,
     )
+    if revised_source:
+        from polisyos.runtime.quality.acquisition_planner import (
+            load_acquisition_planner_report,
+        )
+
+        route_source_cycle = closure.route_source_cycle
+        source_requirement = route_source_cycle.value_port.acquisition_requirement
+        planner_report_ref = route_source_cycle.acquisition_routing_report_ref
+        assert route_source_cycle.grounding.acquisition_requirement is None
+        assert source_requirement is not None
+        assert planner_report_ref is not None
+        persisted_report = load_acquisition_planner_report(
+            control._artifact_store,
+            planner_report_ref,
+        )
+        assert persisted_report == closure.planner_report
+        assert route_source_cycle.acquisition_routing_report == persisted_report
+        assert len(persisted_report.acquisition_records) == 1
+        persisted_record = persisted_report.acquisition_records[0]
+        # The typed owner serializer preserves additive-field presence; compare the loaded
+        # DTO values instead of requiring an identical fields-set wire projection.
+        assert persisted_record == closure.planner_record
+        assert (
+            persisted_record.gap_type.value
+            == source_requirement.gap_type.value
+            == "data_snapshot_release"
+        )
+        assert (
+            persisted_record.requirement_family
+            == source_requirement.requirement_family.value
+            == "data_requirement"
+        )
+        assert (
+            persisted_record.requirement_schema_version
+            == source_requirement.requirement_schema_version
+            == "policyos.runtime.l1_variable_availability_gap.v1"
+        )
+        assert persisted_record.compiled_requirement_ref == (
+            source_requirement.compiled_requirement_ref
+        )
+        assert (
+            persisted_record.missing_requirement_fields
+            == (source_requirement.missing_requirement_fields)
+            == ("canonical_variable_observations:government.balance",)
+        )
+        assert persisted_record.recommended_strategy.value == "production_snapshot_build"
     assert (closure.tenant_id, closure.cell_id) == (tenant_id, cell_id)
     run = closure.generation_run
     currentness = currentness_for_generation_cycle_run(run)
@@ -892,6 +940,7 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case(
     guarded_cas: bool,
     tenant_id: str = _SERVED_WDI_FIXTURE_TENANT_ID,
     cell_id: str = "cell-a",
+    revised_source: bool = False,
     generation_cycle_repo_root: Path | None = None,
     artifact_store: artifacts.FileSystemCAS | None = None,
 ):
@@ -903,6 +952,7 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case(
             guarded_cas=False,
             tenant_id=tenant_id,
             cell_id=cell_id,
+            revised_source=revised_source,
             generation_cycle_repo_root=generation_cycle_repo_root,
             artifact_store=artifact_store,
         )
@@ -917,6 +967,7 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case(
             guarded_cas=True,
             tenant_id=tenant_id,
             cell_id=cell_id,
+            revised_source=revised_source,
             generation_cycle_repo_root=generation_cycle_repo_root,
             artifact_store=artifact_store,
         )
@@ -948,6 +999,7 @@ async def _admit_served_wdi_projection(
     baseline_period_count: int = 3,
     tenant_id: str = _SERVED_WDI_FIXTURE_TENANT_ID,
     cell_id: str = "cell-a",
+    revised_source: bool = False,
     artifact_store: artifacts.FileSystemCAS | None = None,
 ):
     """Create the real WDI admission and return its verified active projection."""
@@ -1091,6 +1143,7 @@ async def _admit_served_wdi_projection(
         guarded_cas=True,
         tenant_id=tenant_id,
         cell_id=cell_id,
+        revised_source=revised_source,
         generation_cycle_repo_root=tmp_path / "wdi" / "repo",
         artifact_store=artifact_store,
     )

@@ -21,12 +21,12 @@ from sklearn.metrics import (
 )
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.foundry import (
     MetricObservationBundle,
     MetricObservationBundleRef,
     ModelOutputs,
 )
+from polisyos.ir import CanonSpec as IRCanonSpec
 from polisyos.ir.analytics.metric_validation_report import (
     FamilyAdjustment,
     MetricComparisonResult,
@@ -125,7 +125,7 @@ def persist_metric_observation_bundle(
         schema_name=schema_name,
         schema_version=schema_version,
         inputs=inputs,
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=IRCanonSpec(forbid_floats=False),
     )
     return MetricObservationBundleRef.model_validate(ref)
 

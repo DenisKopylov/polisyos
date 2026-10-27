@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 from tests._helpers.acquisition_served_history import (
+    REPO_ROOT,
     _produce_served_acquisition_history,
 )
 
@@ -70,6 +71,9 @@ def test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry(
     generation-2 reentry with the generation-3 no-growth occurrence; it does
     not claim a second source fetch.
     """
+
+    import json
+    from pathlib import Path
 
     from polisyos.core import canon
     from polisyos.core.artifacts import ArtifactRef, artifact_ref_identity_key
@@ -210,14 +214,98 @@ def test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry(
         return closure
 
     monkeypatch.setattr(AcquisitionRouteLoop, "resolve_current_route", capture_route)
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+    )
+
+    source_inputs = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "served-candidate-source-root"
+    )
     result = _produce_served_acquisition_history(
         tmp_path,
         monkeypatch,
         served_recorded_candidate_gateway,
         include_b09_evidence=True,
+        source_owner_root=source_inputs.root,
     )
 
     assert result is not None
+    source_witness = json.loads(result["source_root_witness_json"])
+    assert source_witness["source_root"] == str(source_inputs.root)
+    assert Path(source_witness["selected_l1_dcat_path"]).is_relative_to(source_inputs.root)
+    assert len(source_witness["selected_l1_dcat_sha256"]) == 64
+    assert Path(source_witness["selected_l2_skg_path"]).is_relative_to(source_inputs.root)
+    assert len(source_witness["selected_l2_source_sha256"]) == 64
+    assert Path(source_witness["selected_l3_lex_path"]).is_relative_to(source_inputs.root)
+    assert all(
+        Path(source_witness["selected_l6_bundle_paths"][name]).is_relative_to(source_inputs.root)
+        for name in (
+            "intervention_knob_dictionary",
+            "lex_intervention_map",
+            "observation_to_contract_manifest",
+        )
+    )
+    assert set(source_witness["selected_l3_row_counts"]) == {
+        "lex_amendments",
+        "lex_normative_ready_facts",
+        "lex_reference_edges",
+        "lex_rule_thresholds",
+    }
+    assert max(source_witness["selected_l3_row_counts"].values(), default=0) < 1000
+    assert source_witness["selected_l6_bundle_content_hash"].startswith("sha256:")
+    assert source_witness["catalog_selection"]["catalog_run_profile"] == "preflight_core"
+    actual_krefs = source_witness["actual_kref_reads"]
+    assert actual_krefs
+    assert all(
+        actual_kref["actual_build_repo_root"] == str(source_inputs.root)
+        for actual_kref in actual_krefs
+    )
+    for actual_kref in actual_krefs:
+        actual_catalog = actual_kref["l1_catalog"]
+        assert actual_catalog["selection_owner"] == "catalog_serving_source_paths"
+        assert actual_catalog["selection_basis"] == "explicit_path_candidate_only"
+        assert actual_catalog["catalog_run_profile"] == "preflight_core"
+        assert actual_catalog["source_database_path"] == source_witness["selected_l1_dcat_path"]
+        assert actual_catalog["source_database_sha256"] == source_witness["selected_l1_dcat_sha256"]
+        assert (
+            actual_catalog["alignment_row_count"]
+            == source_witness["selected_catalog_readback"]["alignment_row_count"]
+        )
+        assert (
+            actual_catalog["alignment_rows_sha256"]
+            == source_witness["selected_catalog_readback"]["alignment_rows_sha256"]
+        )
+        actual_l6 = actual_kref["l6_intervention"]
+        assert actual_l6["actual_reader_witnesses"]
+        assert (
+            actual_l6["profile_bundle_content_hash"]
+            == source_witness["selected_l6_bundle_content_hash"]
+        )
+        assert all(
+            reader["bundle"] == source_witness["selected_l6_source_witness"]
+            for reader in actual_l6["actual_reader_witnesses"]
+        )
+        assert all(
+            reader["bundle"]["code_root"] == str(REPO_ROOT.resolve())
+            and reader["bundle"]["source_owner_root"] == str(source_inputs.root)
+            for reader in actual_l6["actual_reader_witnesses"]
+        )
+        assert actual_l6["candidate_input_counts"] == {
+            "knob_dictionary": 0,
+            "lex_intervention_map": 0,
+            "observation_routes": 0,
+        }
+        assert (
+            actual_l6["loaded_code_owner_authority"]["source_ref"]
+            == (
+                source_witness["selected_l6_source_witness"]["source_refs"][
+                    "owner_authority_bindings"
+                ]
+            )
+        )
+        assert actual_l6["consumption_status"] == (
+            "empty_candidate_data_no_kref_l6_projection_not_established"
+        )
     assert removal_controls == {
         "reports_bound_and_read_back",
         "planner_cas_missing",

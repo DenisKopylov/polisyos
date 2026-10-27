@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -9,12 +10,15 @@ from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     ArtifactTenantContextInfo,
     CanonInfo,
+    ProducerInfo,
     SchemaInfo,
 )
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.core.contracts.foundry import ExecPlanRef, MetricsRef, SimulationResult
 from polisyos.core.contracts.runtime import AgentPipelineCostEvent
+from polisyos.core.run.context import RunContext
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.runtime.http.services.debug import (
     DebugService,
@@ -503,3 +507,255 @@ def test_evidence_context_does_not_infer_quality_owner_from_ids_alone(tmp_path) 
     assert context.data_snapshot_ref is None
     assert "quality_report_ref" not in context.materialization_refs
     assert "data_snapshot_selected_view_not_established" in context.warnings
+
+
+def _persist_debug_simulation_candidate_run(
+    store: FileSystemCAS,
+    registry_bundle_ref: ArtifactRef,
+    *,
+    run_id: str,
+    tenant_id: str,
+    cell_id: str,
+    simulation_result_ref: ArtifactRef,
+    node_ref_payloads: list[dict[str, object]],
+) -> None:
+    """Persist selected state/report refs and a run manifest for the served debug route."""
+    tenant_context = ArtifactTenantContextInfo(tenant_id=tenant_id, cell_id=cell_id)
+    state_ref = store.put_json(
+        {
+            "schema_version": "1.3",
+            "run_id": run_id,
+            "artifacts_index": {
+                "simulation_result_ref": simulation_result_ref.model_dump(mode="json")
+            },
+        },
+        PutOptions(
+            kind="scientist.experiment_state",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.orchestration.engine.ExperimentState",
+                version="1.3",
+            ),
+            tenant_context=tenant_context,
+        ),
+        return_selected_profile=True,
+    )
+    workflow_report_ref = store.put_json(
+        {
+            "schema_version": "1.0",
+            "workflow_id": "debug_simulation_profile_binding",
+            "run_id": run_id,
+            "status": "ok",
+            "nodes": [
+                {
+                    "alias": "simulate",
+                    "node_id": "test.simulate@1.0.0",
+                    "status": "ok",
+                    "artifacts": node_ref_payloads,
+                }
+            ],
+        },
+        PutOptions(
+            kind="scientist.workflow_report",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.orchestration.engine.WorkflowReport",
+                version="1.0",
+            ),
+            tenant_context=tenant_context,
+        ),
+        return_selected_profile=True,
+    )
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle_ref,
+        run_id=run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
+    run.add_output(state_ref)
+    run.add_output(workflow_report_ref)
+    run.finalize(status="ok")
+
+
+def test_simulation_result_http_requires_exact_identity_for_every_same_id_node_ref(
+    runtime_api_env,
+) -> None:
+    """Fresh default and explicit reads refuse profile conflicts before returning a result."""
+    cas_root = runtime_api_env["cas_root"]
+    tenant_id = runtime_api_env["tenant_a"]
+    cell_id = runtime_api_env["cell_a"]
+    registry_bundle_ref = runtime_api_env["registry_bundle_ref"]
+    client = runtime_api_env["client"]
+    app = runtime_api_env["app"]
+    assert isinstance(cas_root, Path)
+    assert isinstance(tenant_id, str)
+    assert isinstance(cell_id, str)
+    assert isinstance(registry_bundle_ref, ArtifactRef)
+    assert client is not None
+    assert app is not None
+
+    store = FileSystemCAS(cas_root)
+    tenant_context = ArtifactTenantContextInfo(tenant_id=tenant_id, cell_id=cell_id)
+    exec_plan_artifact = store.put_json(
+        {"plan_id": "debug-simulation-profile-binding"},
+        PutOptions(
+            kind="foundry.exec_plan",
+            media_type="application/json",
+            tenant_context=tenant_context,
+        ),
+        return_selected_profile=True,
+    )
+    metrics_artifact = store.put_json(
+        {"metrics": {"outcome": 1}},
+        PutOptions(
+            kind="foundry.metrics",
+            media_type="application/json",
+            tenant_context=tenant_context,
+        ),
+        return_selected_profile=True,
+    )
+    result = SimulationResult(
+        schema_version="1.3",
+        exec_plan_ref=ExecPlanRef(artifact_id=exec_plan_artifact.artifact_id),
+        metrics_ref=MetricsRef(artifact_id=metrics_artifact.artifact_id),
+    )
+    result_payload = result.to_artifact_payload()
+
+    def _result_profile(version: str) -> ArtifactRef:
+        return store.put_json(
+            result_payload,
+            PutOptions(
+                kind=SimulationResult.ARTIFACT_KIND,
+                media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                    version="1.3",
+                ),
+                producer=ProducerInfo(
+                    component="polisyos.tests.runtime.http.debug",
+                    version=version,
+                ),
+                tenant_context=tenant_context,
+            ),
+            return_selected_profile=True,
+        )
+
+    profile_a = _result_profile("profile-a")
+    profile_b = _result_profile("profile-b")
+    assert profile_a.artifact_id == profile_b.artifact_id
+    assert profile_a.manifest_profile_sha256 is not None
+    assert profile_b.manifest_profile_sha256 is not None
+    assert profile_a.manifest_profile_sha256 != profile_b.manifest_profile_sha256
+
+    profileless_a = ArtifactRef(
+        artifact_id=profile_a.artifact_id,
+        kind=profile_a.kind,
+        media_type=profile_a.media_type,
+    )
+    unavailable_b = ArtifactRef.model_validate(
+        profile_a.model_dump(mode="json") | {"manifest_profile_sha256": "sha256:" + "f" * 64}
+    )
+    malformed_b = profile_a.model_dump(mode="json") | {
+        "manifest_profile_sha256": "sha256:not-a-digest"
+    }
+
+    selection_forms = (("default", False), ("explicit", True))
+    binding_cases = [
+        ("same_ref", profile_a, [profile_a], 200, None),
+        (
+            "node_only_valid_b",
+            profile_a,
+            [profile_b],
+            409,
+            "simulation_result_node_binding_mismatch",
+        ),
+        (
+            "node_only_unavailable_b",
+            profile_a,
+            [unavailable_b],
+            409,
+            "simulation_result_node_binding_mismatch",
+        ),
+        (
+            "state_a_node_profile_absent",
+            profile_a,
+            [profileless_a],
+            409,
+            "simulation_result_node_binding_mismatch",
+        ),
+        (
+            "mixed_a_and_valid_b",
+            profile_a,
+            [profile_a, profile_b],
+            409,
+            "simulation_result_node_binding_mismatch",
+        ),
+        (
+            "mixed_a_and_malformed_b",
+            profile_a,
+            [profile_a, malformed_b],
+            409,
+            "simulation_result_node_binding_mismatch",
+        ),
+        ("state_and_node_unavailable_b", unavailable_b, [unavailable_b], 409, None),
+    ]
+    cases = [
+        (
+            f"{case_name}_{selector_name}",
+            state_ref,
+            node_refs,
+            explicit,
+            expected_status,
+            expected_code,
+        )
+        for case_name, state_ref, node_refs, expected_status, expected_code in binding_cases
+        for selector_name, explicit in selection_forms
+    ]
+
+    runtime_container = getattr(app.state, "runtime_container", None)
+    runtime_context = getattr(runtime_container, "runtime_api_context", None)
+    if runtime_context is None:
+        runtime_context = app.state.runtime_api_ctx
+
+    for index, (
+        case_name,
+        state_ref,
+        node_refs,
+        explicit,
+        expected_status,
+        expected_code,
+    ) in enumerate(cases):
+        run_id = f"R_debug_simulation_profile_binding_{index}"
+        _persist_debug_simulation_candidate_run(
+            store,
+            registry_bundle_ref,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            simulation_result_ref=state_ref,
+            node_ref_payloads=[
+                value.model_dump(mode="json") if isinstance(value, ArtifactRef) else value
+                for value in node_refs
+            ],
+        )
+        runtime_context.run_index.refresh(force=True)
+        url = f"/api/v1/debug/runs/{run_id}/nodes/simulate/simulation-result"
+        response = (
+            client.get(url, params={"artifact_id": str(profile_a.artifact_id)})
+            if explicit
+            else client.get(url)
+        )
+
+        assert response.status_code == expected_status, f"{case_name}: {response.text}"
+        payload = response.json()
+        if expected_status == 200:
+            assert payload["debug"]["artifact_ref"]["artifact_id"] == str(profile_a.artifact_id)
+            assert (
+                payload["debug"]["artifact_ref"]["manifest_profile_sha256"]
+                == profile_a.manifest_profile_sha256
+            )
+        else:
+            assert "debug" not in payload, f"{case_name}: {payload}"
+            if expected_code is not None:
+                assert payload["code"] == expected_code, f"{case_name}: {payload}"

@@ -372,9 +372,60 @@ async def persist_wdi_route(
                 for cycle in leaf.cycle_run.cycles
                 if cycle.acquisition_routing_report is not None
             ]
-            assert len(route_cycles) == 1, (
-                "the canonical N7 producer must emit one route report for this fixture"
+            route_diagnostics = tuple(
+                {
+                    "node_ref": getattr(leaf, "node_ref", None),
+                    "cycle_run_status": getattr(leaf.cycle_run, "status", None)
+                    if leaf.cycle_run is not None
+                    else None,
+                    "cycles": tuple(
+                        {
+                            "cycle_index": cycle.cycle_index,
+                            "terminal_kind": getattr(
+                                cycle.terminal_kind, "value", cycle.terminal_kind
+                            ),
+                            "candidate_ids": cycle.candidate_ids,
+                            "selected_candidate_ref": cycle.selected_candidate_ref,
+                            "grounding_status": cycle.grounding.status,
+                            "grounding_issue_codes": cycle.grounding.issue_codes,
+                            "value_status": cycle.value_port.status,
+                            "value_authority_blockers": cycle.value_port.authority_blockers,
+                            "source_gap_id": (
+                                cycle.grounding.acquisition_requirement.requirement_gap_id
+                                if cycle.grounding.acquisition_requirement is not None
+                                else (
+                                    cycle.value_port.acquisition_requirement.requirement_gap_id
+                                    if cycle.value_port.acquisition_requirement is not None
+                                    else None
+                                )
+                            ),
+                            "routing_report_ref": cycle.acquisition_routing_report_ref,
+                            "routing_report_status": (
+                                cycle.acquisition_routing_report.status
+                                if cycle.acquisition_routing_report is not None
+                                else None
+                            ),
+                            "routing_basis_limitation": (
+                                cycle.acquisition_routing_report.basis_limitation_code
+                                if cycle.acquisition_routing_report is not None
+                                else None
+                            ),
+                            "routing_record_count": (
+                                len(cycle.acquisition_routing_report.acquisition_records)
+                                if cycle.acquisition_routing_report is not None
+                                else None
+                            ),
+                        }
+                        for cycle in (leaf.cycle_run.cycles if leaf.cycle_run is not None else ())
+                    ),
+                }
+                for leaf in compiled.recursive_run.leaf_nodes
             )
+            assert len(route_cycles) == 1, {
+                "message": "the canonical N7 producer must emit one route report for this fixture",
+                "route_cycle_count": len(route_cycles),
+                "cycle_diagnostics": route_diagnostics,
+            }
             source_cycle = route_cycles[0]
             planner_ref = source_cycle.acquisition_routing_report_ref
             planner_report = source_cycle.acquisition_routing_report

@@ -235,7 +235,9 @@ def _read_owned_terminal(store, ref):
         )
 
 
-def _served_wdi_candidate_profile(*, tmp_path, store, problem):
+def _served_wdi_candidate_profile(
+    *, tmp_path, store, problem, source_owner_root: Path | None = None
+):
     """Build one typed synthetic N5 profile over a real owner-built base WMR."""
     tmp_path.mkdir(parents=True, exist_ok=True)
 
@@ -276,6 +278,9 @@ def _served_wdi_candidate_profile(*, tmp_path, store, problem):
     from tests._helpers import world_model_record as wmr_fixture
     from tests._helpers.academic_skg import build_synthetic_academic_skg_source
 
+    source_owner_root = (
+        Path(source_owner_root).resolve(strict=True) if source_owner_root is not None else None
+    )
     snapshot_id = "served-wdi-controlled-candidate-base"
     base_data_snapshot_ref = wmr_fixture._data_snapshot_ref(store, snapshot_id=snapshot_id)
     substrate_registry = wmr_fixture._substrate_registry()
@@ -288,7 +293,7 @@ def _served_wdi_candidate_profile(*, tmp_path, store, problem):
     wmr_fixture._write_fabric_world_snapshot(tmp_path, snapshot_id=snapshot_id)
     # Use the canonical batch producer, then validate the exact selected source
     # through the prepared reader consumed by the real credal-reference path.
-    selected_skg_root = tmp_path / "controlled-candidate-source"
+    selected_skg_root = (source_owner_root or tmp_path) / "controlled-candidate-source"
     selected_skg_root.mkdir(parents=True, exist_ok=True)
     selected_skg_db_path = selected_skg_root / "academic-skg.duckdb"
     selected_skg_record = WorkRecord(
@@ -376,7 +381,10 @@ def _served_wdi_candidate_profile(*, tmp_path, store, problem):
         substrate_registry=substrate_registry,
         selected_registry_entry_hashes=selected_hashes,
         world_model_record=base_world.record,
-        intervention_substrate=load_l6_intervention_substrate(REPO_ROOT),
+        intervention_substrate=load_l6_intervention_substrate(
+            REPO_ROOT,
+            source_owner_root=source_owner_root,
+        ),
         candidate_levers=(),
         transport_context=None,
         source_pack_content_hash=gy_content_hash("served-wdi-controlled-candidate-source-pack"),
@@ -726,6 +734,7 @@ def _produce_served_acquisition_history(
     fixture_cas_root: Path | None = None,
     stop_after_fresh_get: bool = False,
     include_b09_evidence: bool = False,
+    source_owner_root: Path | None = None,
 ) -> dict[str, str] | None:
     import os
 
@@ -770,6 +779,12 @@ def _produce_served_acquisition_history(
         _valid_intake_for_mode,
     )
 
+    selected_source_root = (
+        Path(source_owner_root).resolve(strict=True) if source_owner_root is not None else None
+    )
+    if selected_source_root == REPO_ROOT.resolve():
+        raise ValueError("served_acquisition_candidate_source_root_must_be_fixture_owned")
+
     served_n4_recording = acquisition_chain.load_served_wdi_generation_recording()
     served_n4_model_id = str(served_n4_recording["model_id"])
     fiscal_nl_request = acquisition_chain.SERVED_WDI_FISCAL_REQUEST
@@ -780,24 +795,56 @@ def _produce_served_acquisition_history(
     monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
     monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
     install_fixture_wdi_cost_basis(monkeypatch)
-    # The isolated checkout has no production catalog. Supply actual persisted
-    # catalog input; every container still opens and hashes it through its owner.
-    catalog_root = tmp_path / "retrieval-catalog"
-    catalog_api.build_slice0_fixture_catalog_graph(catalog_root).close()
-    default_catalog_paths = substrate_registry.default_substrate_catalog_paths
-    startup_root = Path.cwd().resolve()
-    monkeypatch.setattr(
-        substrate_registry,
-        "default_substrate_catalog_paths",
-        lambda root: (
-            replace(
-                default_catalog_paths(root),
-                l1_dcat_path=catalog_root / "catalog.duckdb",
-            )
-            if Path(root).resolve() == startup_root
-            else default_catalog_paths(root)
-        ),
-    )
+    # Use the fixture's typed Catalog selector for both the base profile and
+    # every served K_ref reader. Preserve the legacy startup-only path for tests
+    # that do not select an isolated source root.
+    catalog_selection = None
+    catalog_serving_source = None
+    selected_catalog_readback = None
+    l6_source_reads = []
+    bind_expected_l6_source = None
+    assert_l6_adapter_installed = None
+    if selected_source_root is None:
+        catalog_root = tmp_path / "retrieval-catalog"
+        catalog_api.build_slice0_fixture_catalog_graph(catalog_root).close()
+        default_catalog_paths = substrate_registry.default_substrate_catalog_paths
+        startup_root = Path.cwd().resolve()
+        fixture_catalog_path = catalog_root / "catalog.duckdb"
+
+        def selected_catalog_paths(root, *, source_owner_root=None):
+            resolved_root = Path(root).resolve()
+            paths = default_catalog_paths(root, source_owner_root=source_owner_root)
+            if resolved_root == startup_root and source_owner_root is None:
+                return replace(paths, l1_dcat_path=fixture_catalog_path)
+            return paths
+
+        monkeypatch.setattr(
+            substrate_registry,
+            "default_substrate_catalog_paths",
+            selected_catalog_paths,
+        )
+    else:
+        from tests._helpers.candidate_cycle_source_profile import (
+            build_candidate_cycle_catalog_serving_source,
+            candidate_cycle_catalog_source_readback,
+            install_candidate_cycle_l6_source_root_reader,
+        )
+
+        catalog_selection, catalog_serving_source = build_candidate_cycle_catalog_serving_source(
+            selected_source_root
+        )
+        selected_catalog_readback = candidate_cycle_catalog_source_readback(
+            catalog_serving_source.database_path
+        )
+        (
+            l6_source_reads,
+            bind_expected_l6_source,
+            assert_l6_adapter_installed,
+        ) = install_candidate_cycle_l6_source_root_reader(
+            monkeypatch,
+            code_root=REPO_ROOT,
+            source_owner_root=selected_source_root,
+        )
     trust = _ExternalTrust(tmp_path)
     port_patch = pytest.MonkeyPatch()
     signers, identities = _key_config(tmp_path, trust)
@@ -822,6 +869,11 @@ def _produce_served_acquisition_history(
             enable_csrf_protection=False,
             candidate_simulation_profiles=tuple(candidate_profiles),
             candidate_simulation_model_declarations=tuple(candidate_model_declarations),
+            repo_root=selected_source_root,
+            catalog_source_selection=catalog_selection,
+            catalog_run_profile=(
+                catalog_selection.catalog_run_profile if catalog_selection is not None else None
+            ),
         )
 
     base_compiler_problem = _current_compiler_problem(served_n4_recording)
@@ -837,12 +889,177 @@ def _produce_served_acquisition_history(
         outcome_variable=recorded_problem.outcome_of_interest.target_variable,
     )
     served_recorded_candidate_gateway.set_fixture(controlled_recording, problem=recorded_problem)
-    profile, model_declaration = _within_fixture_owner(
-        _served_wdi_candidate_profile,
-        tmp_path=tmp_path / "served-candidate-profile",
-        store=artifacts.FileSystemCAS(cas_root, ownership_enforced=True),
-        problem=recorded_problem,
-    )
+    if catalog_serving_source is None:
+        profile, model_declaration = _within_fixture_owner(
+            _served_wdi_candidate_profile,
+            tmp_path=tmp_path / "served-candidate-profile",
+            store=artifacts.FileSystemCAS(cas_root, ownership_enforced=True),
+            problem=recorded_problem,
+            source_owner_root=selected_source_root,
+        )
+    else:
+        with substrate_registry.catalog_serving_source_scope(catalog_serving_source):
+            profile, model_declaration = _within_fixture_owner(
+                _served_wdi_candidate_profile,
+                tmp_path=tmp_path / "served-candidate-profile",
+                store=artifacts.FileSystemCAS(cas_root, ownership_enforced=True),
+                problem=recorded_problem,
+                source_owner_root=selected_source_root,
+            )
+    source_root_witness_json = None
+    actual_kref_witnesses = []
+    if selected_source_root is not None:
+        import duckdb
+
+        from polisyos.data_forge.read_api.academic import SKGQuery
+        from polisyos.runtime.quality import credal_reference, design_generation
+        from polisyos.runtime.quality.intervention_substrate import default_l6_bundle_paths
+        from polisyos.runtime.quality.world_model_record import _parse_skg_snapshot_ref
+        from tests._helpers.candidate_cycle_source_profile import (
+            bind_candidate_cycle_kref_builder_root,
+            candidate_cycle_kref_source_witness,
+        )
+
+        wmr_source = profile.context_inputs.world_model_record.skg_causal_prior_ref
+        parsed_skg = _parse_skg_snapshot_ref(wmr_source.skg_snapshot_ref)
+        selected_l2_path = parsed_skg.db_path.resolve(strict=True)
+        if not selected_l2_path.is_relative_to(selected_source_root):
+            raise AssertionError("served_candidate_selected_l2_source_outside_fixture_root")
+        selected_skg_reader = SKGQuery.prepare_read(
+            db_path=selected_l2_path,
+            index_dir=selected_l2_path.parent / "index",
+        )
+        try:
+            selected_skg_rows = selected_skg_reader.read_credal_source_rows()
+            if selected_skg_rows.version_id != parsed_skg.version_id:
+                raise AssertionError("served_candidate_selected_l2_version_mismatch")
+        finally:
+            selected_skg_reader.close()
+
+        if catalog_serving_source is None or selected_catalog_readback is None:
+            raise AssertionError("served_candidate_typed_catalog_source_missing")
+        l1_path = catalog_serving_source.database_path.resolve(strict=True)
+        if not l1_path.is_relative_to(selected_source_root):
+            raise AssertionError("served_candidate_selected_l1_source_outside_fixture_root")
+        l3_path = (selected_source_root / substrate_registry.DEFAULT_L3_LEX_KG_PATH).resolve(
+            strict=True
+        )
+        if not l3_path.is_relative_to(selected_source_root):
+            raise AssertionError("served_candidate_selected_l3_source_outside_fixture_root")
+        l3_connection = duckdb.connect(str(l3_path), read_only=True)
+        try:
+            l3_row_counts = {
+                "lex_amendments": int(
+                    l3_connection.execute("SELECT COUNT(*) FROM lex_amendments").fetchone()[0]
+                ),
+                "lex_normative_ready_facts": int(
+                    l3_connection.execute(
+                        "SELECT COUNT(*) FROM lex_normative_ready_facts"
+                    ).fetchone()[0]
+                ),
+                "lex_reference_edges": int(
+                    l3_connection.execute("SELECT COUNT(*) FROM lex_reference_edges").fetchone()[0]
+                ),
+                "lex_rule_thresholds": int(
+                    l3_connection.execute("SELECT COUNT(*) FROM lex_rule_thresholds").fetchone()[0]
+                ),
+            }
+        finally:
+            l3_connection.close()
+        l6_paths = default_l6_bundle_paths(REPO_ROOT, source_owner_root=selected_source_root)
+        required_l6_names = (
+            "intervention_knob_dictionary",
+            "lex_intervention_map",
+            "observation_to_contract_manifest",
+        )
+        for name in required_l6_names:
+            if not l6_paths[name].is_file() or not l6_paths[name].resolve().is_relative_to(
+                selected_source_root
+            ):
+                raise AssertionError("served_candidate_selected_l6_source_unbound:" + name)
+        l6_bundle = profile.context_inputs.intervention_substrate
+        if l6_bundle is None or bind_expected_l6_source is None:
+            raise AssertionError("served_candidate_selected_l6_bundle_missing")
+        selected_l6_witness = bind_expected_l6_source(l6_bundle)
+        assert_l6_adapter_installed()
+        l6_hashes = selected_l6_witness["file_sha256"]
+        data_forge_catalog = l1_path
+        selected_l2_sha256 = hashlib.sha256(selected_l2_path.read_bytes()).hexdigest()
+        source_root_witness_payload = {
+            "source_root": str(selected_source_root),
+            "selected_l1_dcat_path": str(l1_path),
+            "selected_l1_dcat_sha256": selected_catalog_readback["source_database_sha256"],
+            "selected_catalog_readback": selected_catalog_readback,
+            "catalog_selection": catalog_selection.model_dump(mode="json"),
+            "catalog_source": {
+                "repo_root": str(catalog_serving_source.repo_root),
+                "snapshot_root": str(catalog_serving_source.snapshot_root),
+                "database_path": str(catalog_serving_source.database_path),
+                "catalog_run_profile": catalog_serving_source.catalog_run_profile,
+                "selection_basis": catalog_serving_source.selection_basis,
+            },
+            "selected_l2_skg_path": str(selected_l2_path),
+            "selected_l2_source_sha256": selected_l2_sha256,
+            "selected_l2_version_id": parsed_skg.version_id,
+            "selected_l3_lex_path": str(l3_path),
+            "selected_l3_row_counts": l3_row_counts,
+            "selected_l6_bundle_paths": selected_l6_witness["paths"],
+            "selected_l6_path_sha256": l6_hashes,
+            "selected_l6_bundle_content_hash": l6_bundle.content_hash,
+            "selected_l6_source_witness": selected_l6_witness,
+            "selected_data_forge_catalog_path": str(data_forge_catalog),
+        }
+        source_root_witness_json = json.dumps(
+            source_root_witness_payload,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+
+        original_kref_builder = credal_reference.build_credal_reference
+        selected_root_kref_builder = bind_candidate_cycle_kref_builder_root(
+            original_kref_builder,
+            expected_repo_root=selected_source_root,
+            mismatch_code="served_candidate_actual_kref_repo_root_mismatch",
+        )
+
+        def observe_served_kref(repo_root, *args, **kwargs):
+            read_start = len(l6_source_reads)
+            reference = selected_root_kref_builder(repo_root, *args, **kwargs)
+            assert_l6_adapter_installed()
+            actual_witness = candidate_cycle_kref_source_witness(
+                reference,
+                source_root=selected_source_root,
+                expected_skg_ref=wmr_source,
+                catalog_source=catalog_serving_source,
+                expected_catalog_readback=selected_catalog_readback,
+                expected_l6_bundle=l6_bundle,
+                expected_l6_witness=selected_l6_witness,
+                actual_l6_reads=l6_source_reads[read_start:],
+            )
+            actual_witness["actual_build_repo_root"] = str(Path(repo_root).resolve(strict=True))
+            actual_kref_witnesses.append(actual_witness)
+            return reference
+
+        monkeypatch.setattr(
+            credal_reference,
+            "build_credal_reference",
+            observe_served_kref,
+        )
+        monkeypatch.setattr(
+            design_generation,
+            "build_credal_reference",
+            observe_served_kref,
+        )
+
+    def source_root_witness_json_for_return():
+        if selected_source_root is None:
+            return None
+        if not actual_kref_witnesses:
+            raise AssertionError("served_candidate_actual_kref_readback_missing")
+        payload = json.loads(source_root_witness_json)
+        payload["actual_kref_reads"] = actual_kref_witnesses
+        return json.dumps(payload, sort_keys=True, separators=(",", ":"))
+
     candidate_profiles.append(profile)
     candidate_model_declarations.append(model_declaration)
 
@@ -1020,6 +1237,8 @@ def _produce_served_acquisition_history(
         with TestClient(app()) as client:
             container = client.app.state.runtime_container
             control = container.control_service
+            if selected_source_root is not None:
+                assert control._repo_root == selected_source_root
             assert control._cycle_substrate_context_admission_owner is not None
             assert control._cycle_substrate_context_admission_owner.store is control._artifact_store
             launch_response = client.post(
@@ -1979,6 +2198,11 @@ def _produce_served_acquisition_history(
                 return {
                     "run_id": core_run_id,
                     "candidate_id": cycle.selected_candidate_ref,
+                    **(
+                        {"source_root_witness_json": source_root_witness_json_for_return()}
+                        if source_root_witness_json is not None
+                        else {}
+                    ),
                 }
             n4_selected_ref = ArtifactRef.model_validate(
                 diagnostics["candidate_simulation_n4_source_selected_ref"]
@@ -3288,6 +3512,8 @@ def _produce_served_acquisition_history(
         trust.close()
 
     result = {"run_id": core_run_id, "candidate_id": cycle.selected_candidate_ref}
+    if source_root_witness_json is not None:
+        result["source_root_witness_json"] = source_root_witness_json_for_return()
     if include_b09_evidence:
         assert b09_evidence is not None
         result["b09_evidence_json"] = json.dumps(

@@ -3330,7 +3330,7 @@ def test_search_history_refuses_changed_selected_source_edges(
         altered_edge = input_ref_from_artifact_ref(alternative, role=role)
         variants = (
             [altered_edge if item.role == role else item for item in original_manifest.inputs],
-            list(original_manifest.inputs) + [altered_edge],
+            [*original_manifest.inputs, altered_edge],
             [
                 item.model_copy(update={"manifest_profile_sha256": None})
                 if item.role == role

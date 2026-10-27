@@ -224,7 +224,7 @@ def _nl_snapshot_cache_reuse_binding(
     *,
     data_source: DataSourceBinding | None,
     execution_scope: object,
-    artifact_store: Any,
+    artifact_store: ArtifactStore,
     authorizer: object | None,
 ) -> tuple[CacheReusePrincipal | None, dict[str, Any] | None]:
     """Bind cache identity to a typed snapshot locator and the admitted job owner.

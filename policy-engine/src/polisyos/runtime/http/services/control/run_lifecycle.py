@@ -2180,6 +2180,10 @@ if TYPE_CHECKING:
     from polisyos.scientist.orchestration.engine.context import (
         FoundryPort as _FoundryPortProtocol,
     )
+    from polisyos.scientist.orchestration.llm.prompt_cache import (
+        CacheReuseAuthorizer,
+        PromptCacheProtocol,
+    )
 
     from ...step_up import StepUpReplayStore
     from ..control_registry_providers import ControlRegistryProviders
@@ -3970,8 +3974,8 @@ class ControlPlaneService(
         published_signature_population_provider: PublicSignaturePopulationProvider | None = None,
         normative_authority_trust: NormativeAuthorityTrust | None = None,
         llm_producer_settlement_store: BudgetMiddleware | None = None,
-        llm_cache_reuse_authorizer: Any | None = None,
-        llm_prompt_cache: Any | None = None,
+        llm_cache_reuse_authorizer: CacheReuseAuthorizer | None = None,
+        llm_prompt_cache: PromptCacheProtocol | None = None,
         cycle_substrate_context_admission_owner: _CycleSubstrateContextAdmissionOwner | None = None,
         generic_cycle_simulation_admission_owner: GenericCycleSimulationAdmissionOwner
         | None = None,
@@ -3988,8 +3992,8 @@ class ControlPlaneService(
         ):
             raise TypeError("llm_producer_settlement_store_must_be_budget_middleware")
         self._llm_producer_settlement_store = llm_producer_settlement_store
-        self._llm_cache_reuse_authorizer: Any | None = None
-        self._llm_prompt_cache: Any | None = None
+        self._llm_cache_reuse_authorizer: CacheReuseAuthorizer | None = None
+        self._llm_prompt_cache: PromptCacheProtocol | None = None
         self.bind_llm_cache_reuse(
             authorizer=llm_cache_reuse_authorizer,
             prompt_cache=llm_prompt_cache,
@@ -4415,8 +4419,8 @@ class ControlPlaneService(
     def bind_llm_cache_reuse(
         self,
         *,
-        authorizer: Any | None,
-        prompt_cache: Any | None,
+        authorizer: CacheReuseAuthorizer | None,
+        prompt_cache: PromptCacheProtocol | None,
     ) -> None:
         """Bind the optional app-scoped cache owner without creating authority."""
         if authorizer is None and prompt_cache is None:

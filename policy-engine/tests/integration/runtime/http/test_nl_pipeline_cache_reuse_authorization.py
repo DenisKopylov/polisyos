@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from tests._helpers.runtime_http import build_runtime_api_env, close_runtime_api_env
 
 from polisyos.core.artifacts import (
     ArtifactID,
@@ -29,6 +28,7 @@ from polisyos.scientist.orchestration.llm.simulated_gateway import (
     DEFAULT_SIMULATED_MODEL_IDS,
     SimulatedGatewayLLMClient,
 )
+from tests._helpers.runtime_http import build_runtime_api_env, close_runtime_api_env
 
 
 class _CurrentLocalSnapshotOwner:

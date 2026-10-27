@@ -1,0 +1,557 @@
+{
+  "schema": "policyos.e02.author.store-history-and-bounded-import-proof.v1",
+  "purpose": "Independent implementation checkpoints and exact bounded current-source verification; no whole N1/B09 closure.",
+  "mechanism_delta_base": "757e407bba28da5f1995335350bf7c427ecce431",
+  "N1_work_family_base": "8533003b91961cf9ba1305ec296dab7f3ed40e4b",
+  "base_rule": "No red is called inherited; the newer delta base must not hide earlier author work or input intersections.",
+  "implementation_commits": {
+    "store": {
+      "head": "64d998e94ab2144e15a7d814d73ac72474650033",
+      "tree": "80d52bb2165a4bc5fcf45c4b769c018b90ab80a8",
+      "parents": [
+        "757e407bba28da5f1995335350bf7c427ecce431"
+      ],
+      "branch": "codex/e02-unified-local-20261009",
+      "paths": {
+        "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py": "1307f1641432dd45addd3d6b2b825266673c1c4f81abbbcf50541deeea551d97",
+        "policy-engine/tests/unit/runtime/http/test_control_plane_store_action_head_history.py": "c8005c5b3ecdf1f88b4c1b918c9ba3a96cb9554758937689e0d9483cefc69bba"
+      },
+      "source_global_freeze": false,
+      "code_acceptance": false,
+      "closure_ids": []
+    },
+    "N1_namespace_model": {
+      "head": "d3402349dd4c5142275bbd844f5c472d5d7320dd",
+      "tree": "5d661096eee5a7f2ae598d01e57bb5d95079b4ff",
+      "parents": [
+        "64d998e94ab2144e15a7d814d73ac72474650033"
+      ],
+      "branch": "codex/e02-unified-local-20261009",
+      "paths": {
+        "policy-engine/tools/quality/validation/decomposition_preflight.py": "3d14e0a6720fbaef9278732f5d1d98fd550250893254bd2e53e12a284539f072",
+        "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py": "e7a05ddd9f24230f246c88b4dd1b97b49a03b6b5c9e4f0ac0c5a6586da060253"
+      },
+      "source_global_freeze": false,
+      "code_acceptance": false,
+      "closure_ids": []
+    }
+  },
+  "full_code_test_config_companion_footprint": {
+    "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py": "1307f1641432dd45addd3d6b2b825266673c1c4f81abbbcf50541deeea551d97",
+    "policy-engine/tests/unit/runtime/http/test_control_plane_store_action_head_history.py": "c8005c5b3ecdf1f88b4c1b918c9ba3a96cb9554758937689e0d9483cefc69bba",
+    "policy-engine/tools/quality/validation/decomposition_preflight.py": "3d14e0a6720fbaef9278732f5d1d98fd550250893254bd2e53e12a284539f072",
+    "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py": "e7a05ddd9f24230f246c88b4dd1b97b49a03b6b5c9e4f0ac0c5a6586da060253"
+  },
+  "companions": "No new source module in these two deltas; existing internal module extends one read-only method, new mirrored test; no public API/export/schema/writer change.",
+  "source_binding": {
+    "actual_command_head": "757e407bba28da5f1995335350bf7c427ecce431",
+    "actual_command_tree": "6369d8c6af36f4381d0210114e9c29fabdf4f6a7",
+    "actual_commands_ran_on_owned_postimages": true,
+    "committed_full_frame_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-and-namespace-receipt-preparation-20261027-r1/full-frame-branch-readback.json",
+      "sha256": "8d29bf7a687e622ca416a2aca6151702a15494b0322ba42baabc607b33a475a2",
+      "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+    },
+    "qualification": "Both implementation commits reread exact postimage blobs from their branches. These source bytes are byte-rebound; commands were not rerun at their later commit IDs."
+  },
+  "selected_input_profile_backend": {
+    "python": "existing CPython3.14.3 macOS arm64 locked venv",
+    "pytest": "policy-engine/pytest.ini, native plugins/importlib, output directories isolated",
+    "Store_backend": "SQLite actual append-only four-phase action history; PostgreSQL behavior for this new getter UNRUN",
+    "Ruff": "four actual product/workspace check/format gates on exact4changedPythonfiles passed",
+    "N1_quantity": "canonical owner._dynamic_source_paths roots src/tools/apps/packages, .py, complete3336-file readset unchanged before/after",
+    "resource_caps": "broad Store pytest2.5GiB RSS cap, full collector4GiB; numerical env1, floor6GiB. No OOM inference."
+  },
+  "commands": [
+    {
+      "wave": "root-store-n1-v58-native-composed-20261027-r1",
+      "id": "product-check",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/ruff.toml",
+        "src/polisyos/runtime/http/services/control_plane_store.py",
+        "tests/unit/runtime/http/test_control_plane_store_action_head_history.py",
+        "tools/quality/validation/decomposition_preflight.py",
+        "tests/repo_quality/architecture/test_decomposition_preflight_gates.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "return_code": 0,
+      "aborted_reason": null,
+      "complete": true,
+      "wall_seconds": 1.043184125010157,
+      "max_sampled_process_tree_rss_bytes": 3866624,
+      "junit_counts": null,
+      "source_profile": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r1/source-profile-freeze.json",
+        "sha256": "bfc78f31140c2b35c16977251ea6a44cc56f40d078e7c8287387e6c0327e9a16",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r1/product-check/product-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r1/product-check/product-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      }
+    },
+    {
+      "wave": "root-store-n1-v58-native-composed-20261027-r1",
+      "id": "product-format",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--no-cache",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/ruff.toml",
+        "--check",
+        "src/polisyos/runtime/http/services/control_plane_store.py",
+        "tests/unit/runtime/http/test_control_plane_store_action_head_history.py",
+        "tools/quality/validation/decomposition_preflight.py",
+        "tests/repo_quality/architecture/test_decomposition_preflight_gates.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "return_code": 0,
+      "aborted_reason": null,
+      "complete": true,
+      "wall_seconds": 1.0427476659824606,
+      "max_sampled_process_tree_rss_bytes": 3866624,
+      "junit_counts": null,
+      "source_profile": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r1/source-profile-freeze.json",
+        "sha256": "bfc78f31140c2b35c16977251ea6a44cc56f40d078e7c8287387e6c0327e9a16",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r1/product-format/product-format.stdout.txt",
+        "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r1/product-format/product-format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      }
+    },
+    {
+      "wave": "root-store-n1-v58-native-composed-20261027-r1",
+      "id": "workspace-check",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+        "policy-engine/tests/unit/runtime/http/test_control_plane_store_action_head_history.py",
+        "policy-engine/tools/quality/validation/decomposition_preflight.py",
+        "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "return_code": 0,
+      "aborted_reason": null,
+      "complete": true,
+      "wall_seconds": 1.0431204169872217,
+      "max_sampled_process_tree_rss_bytes": 3866624,
+      "junit_counts": null,
+      "source_profile": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r1/source-profile-freeze.json",
+        "sha256": "bfc78f31140c2b35c16977251ea6a44cc56f40d078e7c8287387e6c0327e9a16",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r1/workspace-check/workspace-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r1/workspace-check/workspace-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      }
+    },
+    {
+      "wave": "root-store-n1-v58-native-composed-20261027-r1",
+      "id": "workspace-format",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--no-cache",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "--check",
+        "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+        "policy-engine/tests/unit/runtime/http/test_control_plane_store_action_head_history.py",
+        "policy-engine/tools/quality/validation/decomposition_preflight.py",
+        "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "return_code": 0,
+      "aborted_reason": null,
+      "complete": true,
+      "wall_seconds": 1.0355635000159964,
+      "max_sampled_process_tree_rss_bytes": 3866624,
+      "junit_counts": null,
+      "source_profile": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r1/source-profile-freeze.json",
+        "sha256": "bfc78f31140c2b35c16977251ea6a44cc56f40d078e7c8287387e6c0327e9a16",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r1/workspace-format/workspace-format.stdout.txt",
+        "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r1/workspace-format/workspace-format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      }
+    },
+    {
+      "wave": "root-store-n1-v58-native-composed-20261027-r1",
+      "id": "store-native",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r1/store-native/pytest-cache",
+        "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r1/store-native/benchmarks",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r1/store-native/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r1/store-native/pytest.xml",
+        "--tb=short",
+        "--color=no",
+        "--maxfail=0",
+        "tests/unit/runtime/http/test_control_plane_store.py",
+        "tests/unit/runtime/http/test_control_plane_store_evaluation_frontier.py",
+        "tests/unit/runtime/http/test_control_plane_store_action_head_history.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "return_code": -15,
+      "aborted_reason": "sampled_process_tree_rss_cap",
+      "complete": true,
+      "wall_seconds": 13.61406791699119,
+      "max_sampled_process_tree_rss_bytes": 3093823488,
+      "junit_counts": {
+        "tests": 0,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_profile": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r1/source-profile-freeze.json",
+        "sha256": "bfc78f31140c2b35c16977251ea6a44cc56f40d078e7c8287387e6c0327e9a16",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r1/store-native/store-native.stdout.txt",
+        "sha256": "f85d30e7d95a052f65167f1f1095186d1190c91502b4ab7aedab460a6eab8870",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r1/store-native/store-native.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      }
+    },
+    {
+      "wave": "root-store-n1-v58-native-composed-20261027-r2",
+      "id": "store-native-focused",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/store-native-focused/pytest-cache",
+        "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/store-native-focused/benchmarks",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/store-native-focused/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/store-native-focused/pytest.xml",
+        "--tb=short",
+        "--color=no",
+        "--maxfail=0",
+        "tests/unit/runtime/http/test_control_plane_store_action_head_history.py",
+        "tests/unit/runtime/http/test_control_plane_store.py::test_acquisition_action_head_requires_exact_predecessor",
+        "tests/unit/runtime/http/test_control_plane_store.py::test_acquisition_action_heads_enumerate_latest_per_generation_in_exact_scope",
+        "tests/unit/runtime/http/test_control_plane_store_evaluation_frontier.py::test_sibling_action_reentry_cas_conflict_preserves_head_and_history"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "return_code": 0,
+      "aborted_reason": null,
+      "complete": true,
+      "wall_seconds": 15.622553333989345,
+      "max_sampled_process_tree_rss_bytes": 1170735104,
+      "junit_counts": {
+        "tests": 12,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_profile": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/source-profile-freeze.json",
+        "sha256": "f9d93344fce57d68c7da3cfa3e401fe9e836f7534d4347390775a627cbcf3fe6",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/store-native-focused/store-native-focused.stdout.txt",
+        "sha256": "ccc03f184f820f021127453e09e83d55e026e6b17aee2b49425353b0adb000c2",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/store-native-focused/store-native-focused.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/store-native-focused/pytest.xml",
+        "sha256": "90ffda8297f41bc62188d590e462e7f4c21035a6f5eaf8cba5dd62286441a411",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      }
+    },
+    {
+      "wave": "root-store-n1-v58-native-composed-20261027-r2",
+      "id": "n1-native-controls",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/n1-native-controls/pytest-cache",
+        "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/n1-native-controls/benchmarks",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/n1-native-controls/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/n1-native-controls/pytest.xml",
+        "--tb=short",
+        "--color=no",
+        "--maxfail=0",
+        "tests/repo_quality/architecture/test_decomposition_preflight_gates.py::test_dynamic_import_resolves_core_lazy_exports_after_finite_owner_updates",
+        "tests/repo_quality/architecture/test_decomposition_preflight_gates.py::test_dynamic_import_resolves_finite_mutable_pep562_export_map_updates",
+        "tests/repo_quality/architecture/test_decomposition_preflight_gates.py::test_dynamic_import_refuses_mutable_pep562_export_map_alias_effects",
+        "tests/repo_quality/architecture/test_decomposition_preflight_gates.py::test_dynamic_import_refuses_unresolved_owner_export_comprehension",
+        "tests/repo_quality/architecture/test_decomposition_preflight_gates.py::test_dynamic_import_refuses_list_valued_lazy_export_pairs",
+        "tests/repo_quality/architecture/test_decomposition_preflight_gates.py::test_dynamic_import_tracks_imported_module_attribute_effects",
+        "tests/repo_quality/architecture/test_decomposition_preflight_gates.py::test_dynamic_import_tracks_module_effects_through_from_import",
+        "tests/repo_quality/architecture/test_decomposition_preflight_gates.py::test_dynamic_import_refuses_opaque_module_namespace_escape",
+        "tests/repo_quality/architecture/test_decomposition_preflight_gates.py::test_dynamic_import_fails_closed_for_reached_selected_module_namespace_writes",
+        "tests/repo_quality/architecture/test_decomposition_preflight_gates.py::test_dynamic_import_refuses_unresolved_selected_module_namespace_write_key",
+        "tests/repo_quality/architecture/test_decomposition_preflight_gates.py::test_dynamic_import_refuses_reached_unresolved_sys_modules_namespace_writes",
+        "tests/repo_quality/architecture/test_decomposition_preflight_gates.py::test_dynamic_import_keeps_nonnamespace_setattr_receiver_positive",
+        "tests/repo_quality/architecture/test_decomposition_preflight_gates.py::test_dynamic_import_refuses_mutable_pair_sequence_namespace_update"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "return_code": 0,
+      "aborted_reason": null,
+      "complete": true,
+      "wall_seconds": 4.158447124995291,
+      "max_sampled_process_tree_rss_bytes": 199933952,
+      "junit_counts": {
+        "tests": 53,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_profile": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/source-profile-freeze.json",
+        "sha256": "f9d93344fce57d68c7da3cfa3e401fe9e836f7534d4347390775a627cbcf3fe6",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/n1-native-controls/n1-native-controls.stdout.txt",
+        "sha256": "b1d5100ae101808494b1abe3ecb9366c9f5d61fea7960e5d2f1e78b6c9632b88",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/n1-native-controls/n1-native-controls.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/n1-native-controls/pytest.xml",
+        "sha256": "9bf528fc9cee41482f0989906fa05020ac9051f1668ec26de97dfe94a1cc1e2e",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      }
+    },
+    {
+      "wave": "root-store-n1-v58-native-composed-20261027-r2",
+      "id": "n1-full-source-collector",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/collect.py",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/n1-full-source-collector"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "return_code": 1,
+      "aborted_reason": null,
+      "complete": true,
+      "wall_seconds": 63.55582675000187,
+      "max_sampled_process_tree_rss_bytes": 3050340352,
+      "junit_counts": null,
+      "source_profile": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/source-profile-freeze.json",
+        "sha256": "f9d93344fce57d68c7da3cfa3e401fe9e836f7534d4347390775a627cbcf3fe6",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/n1-full-source-collector/n1-full-source-collector.stdout.txt",
+        "sha256": "3c47a658b871f9a94d9b386292cfc21659ac20802932d20f285f8a0148d2d830",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/n1-full-source-collector/n1-full-source-collector.stderr.txt",
+        "sha256": "63ee0a61ea65de16c6d2965a696209385c21ca3cc56448555e24db459fcbeec4",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      }
+    }
+  ],
+  "real_chains": [
+    {
+      "property": "Exact action-head historical locator",
+      "chain": "ControlPlaneStore actual requested/executing/outcome_selected/terminal appends -> retained SQL rows -> full-scope receipt getter -> exact prior row after latest advanced",
+      "verification": "9 new SQLite cases +3 existing head/frontier cases passed; all scope axes, absent ref, duplicate ref and corrupt hash relation refuse.",
+      "surface": "internal; B receiver now can consume this pointer then must independently verify CAS and current eligibility. B whole retained route not yet proven."
+    },
+    {
+      "property": "Import model does not trust stale mutable namespace keys",
+      "chain": "actual source mutation and importer call -> namespace effect projection -> dynamic importer binding refusal; immutable finite Core export tuples still resolve",
+      "verification": "53 native controls plus independent real runtime/static falsifier replay passed",
+      "bounded_residual": "No general Python heap model. Alias/mutable operand updates and **expansions outside proof domain cause wildcard/refusal; opaque value flows never get a proven importer binding."
+    }
+  ],
+  "independent_reviews": {
+    "store": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/store-history-independent-review-20261027-r1/static-go-review-20261027-r1/review.md",
+      "sha256": "b1229bc273552d47349401fa0ebcebe048eb5b09bef002cf8d9eb8d921e9ff41",
+      "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+    },
+    "namespace_actual_runtime_refusal": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/n1-v22-independent-review-20261026-r1/n1-v58-exact-runtime-order-r1/receipt.json",
+      "sha256": "17673e44b2dcc2ee2a333c3b459a3aa740582e5cf8e7c3324204837df36eb329",
+      "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+    },
+    "namespace_actual_Core_positive": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/n1-v22-independent-review-20261026-r1/n1-v58-independent-cases-r2/receipt.json",
+      "sha256": "8b2d6c2ddbc2c21b9d37d9d9c4b655d91a32f8c409c1a99e908143fef0148f5d",
+      "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+    }
+  },
+  "deciding_negative_controls": {
+    "Store_property_absent": {
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/negative-control-r2/receipt.json",
+        "sha256": "38cedf96dd06598e53016866dbaadc8dc1f87afb76baf0183d6542b9cb369c6c",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "meaning": "9 expected AttributeErrors against original absent getter; not a passing product run."
+    },
+    "namespace_V57_stale_alias": {
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/n1-v22-independent-review-20261026-r1/n1-v57-list-pair-mutation-falsifier-r1/receipt.json",
+        "sha256": "dfa5d81cf200cbdaa073b84a8a4408d6e20b9e21a881f90edd4a3d4e8f2f8edb",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "meaning": "Actual runtime TypeError while old collector emitted rows. V58 now refuses with the source call binding unresolved."
+    }
+  },
+  "FAIL_ERROR_SKIP_ABORT_UNRUN": {
+    "full_native_N1_collector": {
+      "status": "ERROR",
+      "result": {
+        "status": "ERROR",
+        "error_type": "DynamicImportCollectionError",
+        "error": "src/polisyos/core/security/chronology_anchor.py:297: recursive module-time function call is unresolved",
+        "input_python_files": 3336,
+        "input_set_and_bytes_unchanged": true,
+        "wall_seconds": 47.183358375012176,
+        "global_source_freeze": false,
+        "code_acceptance": false,
+        "closure_ids": []
+      },
+      "full_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/n1-full-source-collector/n1-full-source-collector.stderr.txt",
+        "sha256": "63ee0a61ea65de16c6d2965a696209385c21ca3cc56448555e24db459fcbeec4",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "complete_input_readset": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/n1-full-source-collector/complete-python-inputs.json",
+        "sha256": "5499c51d917bfcef1d5a6caf19ae7e13a30f6e8e016543d19f5d1b2da8cf79d1",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "result_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-store-n1-v58-native-composed-20261027-r2/n1-full-source-collector/collector-result.json",
+        "sha256": "13f7295c833cda364fa996facbd9216674e90cfd5a153913a653f56034c6ecba",
+        "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+      },
+      "next_check": "Reduce actual chronology_anchor._contains_artifact_ref recursive pure-metadata path, widen import-sensitive function-effect relevance generically with adversarial recursive importer controls; independent review before next whole-source collector. No path/function allowlist or expiry extension."
+    },
+    "broad_Store_native_suite": {
+      "status": "ABORTED",
+      "reason": "sampled_process_tree_rss_cap after partial progress, peak3093823488bytes; no final JUnit. Retained complete deciding streams; not a capability FAIL, OOM, exclusion green or full-suite PASS."
+    },
+    "PostgreSQL_new_getter": "UNRUN; controlled PG16 paired read remains required before backend-general acceptance.",
+    "new_skips": 0,
+    "global_native_SOTA_and_282_291_closeout": "UNRUN on a final global source/input/backend freeze."
+  },
+  "baseline_index_consistency": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-original-results-recheck-20261027-r1/receipt.json",
+    "sha256": "77e5ab4c323ebbc7409a5cbd8343d41c8e8888780cf7c5bea31f031e9a61dbe1",
+    "availability": "retained local readable; ignored RAW, not served as a GitHub source file"
+  },
+  "output_custody_note": "Store author selected a parent RAW confiner root rather than the assigned child. All14run directories were newly created with exist_ok=False; no issued artifact overwritten and no canonical write by author. Artifacts retained at their actual pinned paths; no cleanup performed.",
+  "pattern_pass": {
+    "ids": [
+      "P01",
+      "P02",
+      "P29",
+      "P30",
+      "P31",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "result": "Pointer lookup is not authority. Native namespace controls are not whole N1 green. Exact whole-source ERROR retained and assigned a generic relevance repair."
+  },
+  "proposal_fields": {
+    "limited_mechanisms": [
+      "Store SQLite historical locator",
+      "bounded immutable-namespace update model"
+    ],
+    "whole_property_closure_proposals": [],
+    "N1": "held ERROR",
+    "B09": "held incomplete producer/history/Decision/GET composition"
+  },
+  "source_global_freeze": false,
+  "code_acceptance": false,
+  "closure_ids": []
+}

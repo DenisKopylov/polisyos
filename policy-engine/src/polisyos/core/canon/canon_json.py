@@ -6,16 +6,23 @@ from dataclasses import dataclass
 from typing import Any
 
 from polisyos.common.canonical import (
-    CanonSpec as _SharedCanonSpec,
+    ArrayDigestRepresentation,
+    BytesHexRepresentation,
+    CanonicalResourceLimits,
+    FloatHexRepresentation,
+    _admit_canon_spec,
 )
 from polisyos.common.canonical import (
-    _admit_canon_spec,
+    CanonSpec as _SharedCanonSpec,
 )
 from polisyos.common.canonical import (
     from_canonical_bytes as _from_canonical_bytes,
 )
 from polisyos.common.canonical import (
     from_canonical_obj as _from_canonical_obj,
+)
+from polisyos.common.canonical import (
+    to_bounded_canonical_bytes as _to_bounded_canonical_bytes,
 )
 from polisyos.common.canonical import (
     to_canonical_bytes as _to_canonical_bytes,
@@ -26,6 +33,7 @@ from polisyos.common.canonical_profile import (
 )
 
 CORE_TAG_POLICY_ID = "core-tag-policy@1"
+CORE_V3_TAG_POLICY_ID = "core-tag-policy@2"
 
 _CANONICAL_TYPES = frozenset(
     {
@@ -80,6 +88,23 @@ def to_canonical_bytes(obj: Any, spec: CanonSpec | None = None) -> bytes:
     return data
 
 
+def to_bounded_canonical_bytes(obj: Any, spec: CanonSpec, limits: CanonicalResourceLimits) -> bytes:
+    """Encode a callback-free Core value under an owner-supplied physical vector."""
+    selected_spec = _admit_canon_spec(spec, CanonSpec, violation_type=CanonViolation)
+    data = _to_bounded_canonical_bytes(
+        obj,
+        selected_spec,
+        limits,
+        violation_type=CanonViolation,
+        canonical_types=_CANONICAL_TYPES,
+    )
+    try:
+        _validate_core_json_payload_conformance(data, selected_spec)
+    except CanonicalProfileRefusalError as exc:
+        raise _CoreCanonicalProfileError(exc.code) from exc
+    return data
+
+
 def from_canonical_obj(
     obj: Any, *, max_depth: int = 128, _depth: int = 0, version: str = "0.2.0"
 ) -> Any:
@@ -122,9 +147,15 @@ def _validate_core_json_payload_conformance(data: bytes, spec: CanonSpec) -> Non
 
 __all__ = [
     "CORE_TAG_POLICY_ID",
+    "CORE_V3_TAG_POLICY_ID",
+    "ArrayDigestRepresentation",
+    "BytesHexRepresentation",
     "CanonSpec",
     "CanonViolation",
+    "CanonicalResourceLimits",
+    "FloatHexRepresentation",
     "from_canonical_bytes",
     "from_canonical_obj",
+    "to_bounded_canonical_bytes",
     "to_canonical_bytes",
 ]

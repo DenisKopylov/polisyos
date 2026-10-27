@@ -19,6 +19,9 @@ depends on `polisyos.ir`, but not the other way around.
 - `src/polisyos/core/artifacts/README.md` for CAS, manifest, signing, and
   provenance storage.
 
+- `src/polisyos/core/canon/README.md` for Core's canonical codec, direct bounded
+  encoder, and version/reader limitations.
+
 - `src/polisyos/core/components/README.md` and
   `src/polisyos/core/registry/README.md` for discovery/bootstrap wiring.
 

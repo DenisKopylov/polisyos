@@ -63,6 +63,32 @@ follow the [measurement register decision](../../../docs/superpowers/specs/2026-
   stable public surface without updating the facade and
   [Public Surface](../../../docs/reference/public-surface.md).
 
+## Bounded canonical codec
+
+`polisyos.common.canonical.to_bounded_canonical_bytes` is a direct codec entry point for
+callback-free values under a caller-supplied `CanonicalResourceLimits`. The vector separates
+encoded wire bytes, JSON container depth and lexical elements (including member-name strings)
+from `CanonSpec.max_depth`, which governs logical value depth. The encoder admits a detached
+specification before reading the value, incrementally measures the wire grammar and serializes
+an owned snapshot of the measured value. A missing or exceeded limit gives a typed refusal.
+Each occurrence of a shared value counts; cycles and unsupported projections refuse.
+
+The bounded domain consists of exact built-in `None`, `bool`, `int`, `float`, `str`, `bytes`,
+`list`, `tuple` and `dict` values with exact `str` keys, plus the three exact Core representation
+carrier types under the selected `.3` grammar and tag policy. The bounded `canonical_types`
+argument must be an exact `frozenset` whose strings belong to the shared native-tag registry.
+Pydantic models, dataclasses, Decimal, enums, custom mappings and other callback-bearing values
+need an owner-provided bounded projection and are refused by this entry point. Existing unbounded
+codec calls and accepted `.2` named hash domains retain their own historical behavior.
+
+`policy_id` labels the supplied vector; it does not establish owner authorization, reader
+readiness, backend limits or producer authority. Wire limits are not a process RSS guarantee,
+and construction of a carrier before this call is outside its vector. The snapshot is not an
+atomic event-consistent read of a graph concurrently mutated by a caller; owners that need that
+property must use their own version or lock. The `.3` artifact writer remains disabled until its
+actual selected reader, owner policy and consumer cohort are admitted and verified. This direct
+codec does not by itself establish persisted-profile or E02 acceptance.
+
 ## Internal Layout
 
 - `__init__.py` owns the public lazy facade.

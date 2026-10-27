@@ -1,0 +1,37 @@
+id = "2026-10-28-e02-bounded-canonical-codec"
+title = "Add bounded direct canonical encoding with explicit profile limits"
+type = "added"
+component = "core"
+owner = "team-polisyos"
+summary = "Common and Core expose a direct bounded canonical codec for exact callback-free values, with separate wire-byte, lexical-element, physical-depth and logical-depth constraints."
+evidence = [
+  "src/polisyos/common/canonical.py",
+  "src/polisyos/core/canon/canon_json.py",
+  "src/polisyos/common/README.md",
+  "src/polisyos/core/canon/README.md",
+  "tests/unit/common/test_canonical_v3.py",
+]
+compatibility = "Existing default .2 bytes, legacy tag reads and named hash domains retain their existing law. New representation carriers emit only under the exact selected .3 grammar and an allowed Core tag. Bounded calls reject unsupported polymorphic projections; the existing unbounded codec retains its separate contract."
+change_class = "python-public-api"
+surface_classification = "public_stable module: polisyos.common.canonical; internal implementation module: polisyos.core.canon.canon_json"
+migration = "Use the explicit module-level bounded API only with a caller-supplied vector and a supported value. No CAS history is rewritten and the new Core names are not re-exported by the polisyos.core.canon package facade. Persistent .3 writer enablement requires its own selected-reader and owner-policy rollout."
+api = "CanonicalResourceLimits supplies policy_id, max_wire_bytes, max_wire_depth and max_elements; CanonSpec.max_depth remains logical. The shared bounded encoder snapshots the admitted spec and measured value; the Core bounded facade retains exact profile decode/re-encode conformance."
+limitations = "The policy_id is not owner authorization or reader readiness. The bounded API is not a process RSS cap or an atomic event-consistent snapshot of caller-mutated input. External carrier construction, arbitrary projection callbacks and persisted .3 selected readers remain outside this direct-codec slice. Artifact .3 writers stay fenced. Native runtime, removal controls, generated/public inventory review and G acceptance remain separate."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/common/README.md", "src/polisyos/core/canon/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "bounded-canonical-codec-direct-api"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.common.canonical bounded codec; internal: Core canon_json bounded codec"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "The direct canonical codec can refuse a value before unchecked projection when the explicit wire vector is insufficient; Core still verifies the selected profile round trip."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/common/README.md", "src/polisyos/core/canon/README.md"]
+runbook_docs = []

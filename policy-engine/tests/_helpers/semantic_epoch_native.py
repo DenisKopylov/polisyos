@@ -936,21 +936,6 @@ def _authority(
             rights_receipt_path,
         )
     l5 = _write_l5(repo_root)
-    source_columns = tuple(sorted({name for row in source_rows for name in row}))
-    schema_columns_list: list[catalog_read_api.AuthoritySchemaColumn] = []
-    for name in source_columns:
-        values = [row.get(name) for row in source_rows]
-        logical_type = _logical_type(values)
-        if logical_type.startswith("mixed["):
-            raise ValueError("semantic_epoch_fixture_schema_type_unresolved")
-        schema_columns_list.append(
-            catalog_read_api.AuthoritySchemaColumn(
-                name=name,
-                logical_types=(logical_type,),
-                nullable=any(name not in row or row.get(name) is None for row in source_rows),
-            )
-        )
-    schema_columns = tuple(schema_columns_list)
     years = tuple(
         sorted(
             int(row[key])
@@ -964,6 +949,26 @@ def _authority(
     entries_list = []
     for spec in selected_specs:
         raw_field = str(spec["raw_field"])
+        # Freeze the exact carrier schema after optional per-field condition
+        # augmentation, before the journal/passport measures those same bytes.
+        selected_source_rows = source_rows_by_raw_field[raw_field]
+        source_columns = tuple(sorted({name for row in selected_source_rows for name in row}))
+        schema_columns_list: list[catalog_read_api.AuthoritySchemaColumn] = []
+        for name in source_columns:
+            values = [row.get(name) for row in selected_source_rows]
+            logical_type = _logical_type(values)
+            if logical_type.startswith("mixed["):
+                raise ValueError("semantic_epoch_fixture_schema_type_unresolved")
+            schema_columns_list.append(
+                catalog_read_api.AuthoritySchemaColumn(
+                    name=name,
+                    logical_types=(logical_type,),
+                    nullable=any(
+                        name not in row or row.get(name) is None for row in selected_source_rows
+                    ),
+                )
+            )
+        schema_columns = tuple(schema_columns_list)
         (
             source_relative_path,
             source_path,

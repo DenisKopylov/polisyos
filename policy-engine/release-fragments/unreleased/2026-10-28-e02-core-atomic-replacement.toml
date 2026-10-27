@@ -1,0 +1,36 @@
+id = "2026-10-28-e02-core-atomic-replacement"
+title = "Expose the existing atomic file replacement through the Core facade"
+type = "added"
+component = "core"
+owner = "team-polisyos"
+summary = "Core exposes write_bytes_atomic for atomic local file replacement; the Search ticket owner uses the public facade under its existing lock instead of importing the private writer module."
+evidence = [
+  "src/polisyos/core/artifacts/README.md",
+  "tests/unit/scientist/methods/search/funnel/test_configured_observations.py",
+  "tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py",
+  "tests/unit/core/artifacts/test_ownership_history.py",
+]
+compatibility = "This additive Python API delegates to the existing atomic replacement implementation and returns None. The existing write_bytes_once API remains create-if-absent and unchanged. Ticket index replacement, caller-owned locks and durable_parent=True behavior are preserved."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.artifacts.write_bytes_atomic"
+migration = "Cross-layer mutable-pointer writers may use write_bytes_atomic(path, data, durable_parent=...) through polisyos.core.artifacts. Callers retain serialization locks and domain-level update checks; immutable publication continues to use write_bytes_once. No stored-data or wire migration is required."
+api = "write_bytes_atomic(path: pathlib.Path, data: bytes, *, durable_parent: bool = False) -> None. Required parent synchronization still propagates AtomicFileDurabilityError with its existing replaced disclosure."
+limitations = "This facade adds no filesystem algorithm, CAS identity, provenance, authority, currentness, multi-host or additional durability guarantee. Public-surface inventory owner review is pending; this fragment is not runtime evidence or E02 acceptance."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/core/artifacts/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "core-atomic-local-byte-replacement-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core.artifacts.write_bytes_atomic"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Use the public write_bytes_atomic Core facade for mutable local owner-pointer replacement while preserving the existing writer and durability behavior."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/core/artifacts/README.md"]
+runbook_docs = []

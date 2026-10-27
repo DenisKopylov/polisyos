@@ -6,8 +6,9 @@ import re
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Literal
 
+from polisyos.common.canonical import _admit_canon_spec
 from polisyos.common.logger import get_logger
-from polisyos.core.canon.canon_json import CanonSpec
+from polisyos.core.canon.canon_json import CanonSpec, CanonViolation
 
 from .._integrity_ops import ArtifactIntegrityError
 from .._manifest_lifecycle import ManifestLifecycle
@@ -538,6 +539,9 @@ class CachingArtifactStore:
         return_selected_profile: bool = False,
     ) -> ArtifactRef:
         _validate_return_selected_profile(return_selected_profile)
+        canon_spec = _admit_canon_spec(
+            canon_spec, CanonSpec, violation_type=CanonViolation, artifact_writer=True
+        )
         if not self._write_through:
             if return_selected_profile:
                 _require_return_selected_profile_writer(self._local, "put_json")

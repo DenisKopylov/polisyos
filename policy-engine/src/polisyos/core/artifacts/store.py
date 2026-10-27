@@ -37,6 +37,8 @@ from typing import (
 
 from pydantic import ValidationError
 
+from polisyos.common.canonical import _admit_canon_spec
+
 from ..canon import content_hash
 from ..canon.canon_json import (
     CanonSpec,
@@ -3777,7 +3779,9 @@ class FileSystemCAS:
     ) -> ArtifactRef:
         """Canonicalize JSON and optionally return the exact profile from this write."""
         _validate_return_selected_profile(return_selected_profile)
-        canon_spec = canon_spec or CanonSpec()
+        canon_spec = _admit_canon_spec(
+            canon_spec, CanonSpec, violation_type=CanonViolation, artifact_writer=True
+        )
         canon = _canon_info_for_spec(canon_spec, opts.canon, violation_type=CanonViolation)
         data = to_canonical_bytes(obj, canon_spec)
         _validate_core_json_payload_conformance(data, canon_spec)

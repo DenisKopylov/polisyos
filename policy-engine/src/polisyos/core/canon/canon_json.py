@@ -9,6 +9,9 @@ from polisyos.common.canonical import (
     CanonSpec as _SharedCanonSpec,
 )
 from polisyos.common.canonical import (
+    _admit_canon_spec,
+)
+from polisyos.common.canonical import (
     from_canonical_bytes as _from_canonical_bytes,
 )
 from polisyos.common.canonical import (
@@ -68,7 +71,7 @@ def _encode_core_canonical_bytes_raw(obj: Any, spec: CanonSpec) -> bytes:
 
 def to_canonical_bytes(obj: Any, spec: CanonSpec | None = None) -> bytes:
     """Emit only bytes that round-trip under Core's selected canonical profile."""
-    selected_spec = CanonSpec() if spec is None else spec
+    selected_spec = _admit_canon_spec(spec, CanonSpec, violation_type=CanonViolation)
     data = _encode_core_canonical_bytes_raw(obj, selected_spec)
     try:
         _validate_core_json_payload_conformance(data, selected_spec)
@@ -77,7 +80,9 @@ def to_canonical_bytes(obj: Any, spec: CanonSpec | None = None) -> bytes:
     return data
 
 
-def from_canonical_obj(obj: Any, *, max_depth: int = 128, _depth: int = 0) -> Any:
+def from_canonical_obj(
+    obj: Any, *, max_depth: int = 128, _depth: int = 0, version: str = "0.2.0"
+) -> Any:
     """Create a Core value from a canonical object."""
     return _from_canonical_obj(
         obj,
@@ -85,16 +90,18 @@ def from_canonical_obj(obj: Any, *, max_depth: int = 128, _depth: int = 0) -> An
         _depth=_depth,
         violation_type=CanonViolation,
         canonical_types=_CANONICAL_TYPES,
+        version=version,
     )
 
 
-def from_canonical_bytes(data: bytes, *, max_depth: int = 128) -> Any:
+def from_canonical_bytes(data: bytes, *, max_depth: int = 128, version: str = "0.2.0") -> Any:
     """Create a Core value from canonical bytes."""
     return _from_canonical_bytes(
         data,
         max_depth=max_depth,
         violation_type=CanonViolation,
         canonical_types=_CANONICAL_TYPES,
+        version=version,
     )
 
 
@@ -104,7 +111,11 @@ def _validate_core_json_payload_conformance(data: bytes, spec: CanonSpec) -> Non
         data,
         max_depth=spec.max_depth,
         spec=spec,
-        decode=lambda payload, max_depth: from_canonical_bytes(payload, max_depth=max_depth),
+        decode=lambda payload, max_depth: from_canonical_bytes(
+            payload,
+            max_depth=max_depth,
+            version=spec.version if spec.name == "polisyos.canon.json" else "0.2.0",
+        ),
         encode=lambda value, _selected_spec: _encode_core_canonical_bytes_raw(value, spec),
     )
 

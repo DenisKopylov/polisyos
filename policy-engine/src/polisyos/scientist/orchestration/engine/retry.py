@@ -35,12 +35,14 @@ from concurrent.futures import wait
 from datetime import UTC, date, datetime, timedelta
 from datetime import time as _time_type
 from decimal import Decimal, InvalidOperation
+from functools import wraps
 from types import GetSetDescriptorType, SimpleNamespace
 from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.common.async_tools import get_shared_executor, run_blocking_async
+from polisyos.common.canonical import _admit_canon_spec
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     SchemaInfo,
@@ -48,6 +50,7 @@ from polisyos.core.artifacts.manifest import (
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.canon import CanonSpec, CanonViolation
 from polisyos.core.contracts import (
     BoundedLivenessConfig,
     bounded_liveness_config_from_mapping,
@@ -711,7 +714,43 @@ class _AttemptFacade:
                 setattr(self, name, self.__getattr__(name) if callable(operation) else None)
 
     def _invoke_store_write(self, name: str, *args: Any, **kwargs: Any) -> object:
+        default_spec: CanonSpec | None = None
+        if name == "put_json":
+            # Admit before consulting the wrapped operation: even its attribute
+            # access may be a callback that mutates the caller's original spec.
+            if len(args) > 2:
+                selected = _admit_canon_spec(
+                    args[2], CanonSpec, violation_type=CanonViolation, artifact_writer=True
+                )
+                args = (*args[:2], selected, *args[3:])
+            if "canon_spec" in kwargs:
+                kwargs["canon_spec"] = _admit_canon_spec(
+                    kwargs["canon_spec"],
+                    CanonSpec,
+                    violation_type=CanonViolation,
+                    artifact_writer=True,
+                )
+            if len(args) <= 2 and "canon_spec" not in kwargs:
+                default_spec = _admit_canon_spec(
+                    None, CanonSpec, violation_type=CanonViolation, artifact_writer=True
+                )
         operation = getattr(self._target, name)
+        if default_spec is not None:
+            try:
+                parameter = inspect.signature(operation).parameters.get("canon_spec")
+            except (TypeError, ValueError):
+                parameter = None
+            if parameter is not None and parameter.kind in (
+                inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                inspect.Parameter.KEYWORD_ONLY,
+            ):
+                kwargs["canon_spec"] = default_spec
+            elif (
+                parameter is not None
+                and parameter.kind is inspect.Parameter.POSITIONAL_ONLY
+                and len(args) == 2
+            ):
+                args = (*args, default_spec)
         if name not in self._write_methods:
             return operation(*args, **kwargs)
         invoke = (
@@ -760,6 +799,15 @@ class _AttemptFacade:
 
     def __getattr__(self, name: str) -> Any:
         value = getattr(self._target, name)
+        if callable(value) and name == "put_json":
+            # The constructor uses this path for legacy writer signatures.
+            # Preserve signature inspection while routing through the same
+            # spec admission as the named selected-profile method.
+            @wraps(value)
+            def put_json_with_admission(*args: Any, **kwargs: Any) -> object:
+                return self._invoke_store_write(name, *args, **kwargs)
+
+            return put_json_with_admission
         if callable(value) and name in self._write_methods:
             invoke = (
                 self._authority.invoke_persistent_write

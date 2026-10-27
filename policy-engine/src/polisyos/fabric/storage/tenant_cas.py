@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Any, cast
 
+from polisyos.common.canonical import _admit_canon_spec
 from polisyos.core.artifacts import CanonInfo
 from polisyos.core.artifacts.backends.config import (
     ArtifactStoreConfig,
@@ -110,7 +111,10 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts import ExportReport, ImportReport, VerificationReport
     from polisyos.core.artifacts.ids import ArtifactID
     from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef
-    from polisyos.core.artifacts.protocol import CoreJSONArtifactStore, _CASStorageMember
+    from polisyos.core.artifacts.protocol import (
+        CoreJSONArtifactStore,
+        _CASStorageMember,
+    )
     from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.core.security import QuotaEnforcer, TenantQuotaLimits
@@ -290,7 +294,9 @@ class TenantScopedCAS:
         if type(return_selected_profile) is not bool:
             raise TypeError("return_selected_profile must be a bool")
         if return_selected_profile:
-            from polisyos.core.artifacts.protocol import _require_return_selected_profile_writer
+            from polisyos.core.artifacts.protocol import (
+                _require_return_selected_profile_writer,
+            )
 
             _require_return_selected_profile_writer(self._cas, "put_bytes")
         with self._storage_mutation():
@@ -311,8 +317,13 @@ class TenantScopedCAS:
         """Persist canonical JSON under the same exact-member admission boundary."""
         if type(return_selected_profile) is not bool:
             raise TypeError("return_selected_profile must be a bool")
+        canon_spec = _admit_canon_spec(
+            canon_spec, CanonSpec, violation_type=CanonViolation, artifact_writer=True
+        )
         if return_selected_profile:
-            from polisyos.core.artifacts.protocol import _require_return_selected_profile_writer
+            from polisyos.core.artifacts.protocol import (
+                _require_return_selected_profile_writer,
+            )
 
             _require_return_selected_profile_writer(self._cas, "put_json")
         spec = canon_spec or CanonSpec()

@@ -5,11 +5,13 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, Any, cast
 
+from polisyos.common.canonical import _admit_canon_spec
+from polisyos.core.canon import CanonSpec, CanonViolation
+
 if TYPE_CHECKING:
     from polisyos.core.artifacts._integrity_ops import VerificationReport
     from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef
     from polisyos.core.artifacts.store import PutOptions
-    from polisyos.core.canon import CanonSpec
 
 _SEPARATOR = ":"
 _SEGMENT_PATTERN = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$")
@@ -110,7 +112,9 @@ class NamespacedArtifactStore:
         if type(return_selected_profile) is not bool:
             raise TypeError("return_selected_profile must be a bool")
         if return_selected_profile:
-            from polisyos.core.artifacts.protocol import _require_return_selected_profile_writer
+            from polisyos.core.artifacts.protocol import (
+                _require_return_selected_profile_writer,
+            )
 
             _require_return_selected_profile_writer(self._inner, "put_bytes")
             ref = self._inner.put_bytes(data, opts, return_selected_profile=True)
@@ -129,8 +133,13 @@ class NamespacedArtifactStore:
         """Persist JSON, preserving an optional exact write-selected profile."""
         if type(return_selected_profile) is not bool:
             raise TypeError("return_selected_profile must be a bool")
+        canon_spec = _admit_canon_spec(
+            canon_spec, CanonSpec, violation_type=CanonViolation, artifact_writer=True
+        )
         if return_selected_profile:
-            from polisyos.core.artifacts.protocol import _require_return_selected_profile_writer
+            from polisyos.core.artifacts.protocol import (
+                _require_return_selected_profile_writer,
+            )
 
             _require_return_selected_profile_writer(self._inner, "put_json")
             ref = self._inner.put_json(obj, opts, canon_spec, return_selected_profile=True)

@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, TypeGuard, cast
 
 from polisyos.common.async_tools import run_blocking_async
+from polisyos.common.canonical import _admit_canon_spec
+from polisyos.core.canon import CanonSpec, CanonViolation
 
 from .protocol import (
     ArtifactStore,
@@ -16,8 +18,6 @@ from .protocol import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.core.canon.canon_json import CanonSpec
-
     from ._integrity_ops import VerificationReport
     from .backends.config import ArtifactStoreConfig
     from .ids import ArtifactID
@@ -127,6 +127,9 @@ class AsyncArtifactStoreAdapter:
         return_selected_profile: bool = False,
     ) -> ArtifactRef:
         _validate_return_selected_profile(return_selected_profile)
+        canon_spec = _admit_canon_spec(
+            canon_spec, CanonSpec, violation_type=CanonViolation, artifact_writer=True
+        )
         if return_selected_profile:
             _require_return_selected_profile_writer(self.store, "put_json")
         return await run_blocking_async(
@@ -258,6 +261,9 @@ class AsyncFileSystemArtifactStore:
         return_selected_profile: bool = False,
     ) -> ArtifactRef:
         _validate_return_selected_profile(return_selected_profile)
+        canon_spec = _admit_canon_spec(
+            canon_spec, CanonSpec, violation_type=CanonViolation, artifact_writer=True
+        )
         if return_selected_profile:
             _require_return_selected_profile_writer(self.store, "put_json")
         return await run_blocking_async(

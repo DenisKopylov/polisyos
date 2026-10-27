@@ -17,6 +17,7 @@ from uuid import UUID
 import numpy as np
 from pydantic import BaseModel, ValidationError
 
+from polisyos.common.canonical import _admit_canon_spec
 from polisyos.common.canonical_profile import (
     CanonicalProfileRefusalError,
     _manifest_profile_sha256,
@@ -75,8 +76,11 @@ def _normalize_canon_spec(canon_spec: CanonSpec | None) -> CanonSpec:
     """Treat only None as absence and reject malformed canonicalization options."""
     if canon_spec is None:
         return CanonSpec()
-    if not isinstance(canon_spec, CanonSpec):
+    if not any(base is CanonSpec for base in type.__getattribute__(type(canon_spec), "__mro__")):
         raise CanonViolation("ir_artifact_canon_spec_invalid")
+    canon_spec = _admit_canon_spec(
+        canon_spec, CanonSpec, violation_type=CanonViolation, artifact_writer=True
+    )
     try:
         CanonInfo.from_spec(canon_spec)
     except Exception as exc:
@@ -797,7 +801,9 @@ def _owner_registration_matches[OwnerSourceT, OwnerConsumerT](
     )
 
 
-def _manifest_owner_identity(raw_manifest: Mapping[str, Any]) -> tuple[str, str, str, str]:
+def _manifest_owner_identity(
+    raw_manifest: Mapping[str, Any],
+) -> tuple[str, str, str, str]:
     """Extract exact JSON artifact kind, media type, and manifest schema identity."""
     kind = raw_manifest.get("kind")
     media_type = raw_manifest.get("media_type")
@@ -1085,10 +1091,10 @@ def _prepare_owned_json_artifact_write[OwnerSourceT, OwnerConsumerT](
     write_options: object = _OWNER_UNSET,
 ) -> _OwnedJSONPreparedWrite:
     """Run one owner admission and freeze bytes/options before any CAS emission."""
+    selected_spec = _normalize_canon_spec(canon_spec)
     declaration = _require_owner_declaration(owner)
     if declaration.media_type != "application/json":
         raise CanonViolation("ir_owned_artifact_media_type_unsupported")
-    selected_spec = _normalize_canon_spec(canon_spec)
     if not _is_canonical_json_root(payload):
         raise CanonViolation("ir_owned_artifact_payload_version_invalid")
     try:

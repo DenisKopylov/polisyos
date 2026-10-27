@@ -20,6 +20,7 @@ from typing import (
 
 from pydantic import BaseModel, WithJsonSchema
 
+from polisyos.common.canonical import _admit_canon_spec
 from polisyos.common.canonical_profile import (
     _normalize_canonical_profile_mapping,
 )
@@ -572,7 +573,9 @@ def _snapshot_owned_write_options_for_ir(value: object) -> ArtifactWriteOptions:
     }
     active_ids: set[int] = set()
 
-    def snapshot_pairs(mapping: Mapping[object, object]) -> tuple[tuple[object, object], ...]:
+    def snapshot_pairs(
+        mapping: Mapping[object, object],
+    ) -> tuple[tuple[object, object], ...]:
         try:
             return tuple(mapping.items())
         except Exception as exc:
@@ -901,7 +904,9 @@ def _snapshot_owned_write_options_for_ir(value: object) -> ArtifactWriteOptions:
         raise TypeError("Invalid owned artifact write options") from exc
 
 
-def _project_owned_write_options_for_ir(options: ArtifactWriteOptions) -> StorePutOptions:
+def _project_owned_write_options_for_ir(
+    options: ArtifactWriteOptions,
+) -> StorePutOptions:
     """Project normalized Core options into the complete neutral IR contract."""
     from polisyos.ir.artifacts.contracts import StorePutOptions
 
@@ -1039,12 +1044,17 @@ class CoreToIRArtifactStoreAdapter:
         from .protocol import _validate_return_selected_profile
 
         _validate_return_selected_profile(return_selected_profile)
+        spec = _admit_canon_spec(
+            canon_spec,
+            ir_canon.CanonSpec,
+            violation_type=ir_canon.CanonViolation,
+            artifact_writer=True,
+        )
         if return_selected_profile:
             from .protocol import _require_return_selected_profile_writer
 
             _require_return_selected_profile_writer(self.store, "put_bytes")
 
-        spec = canon_spec or ir_canon.CanonSpec()
         write_options = (
             _snapshot_owned_write_options_for_ir(opts)
             if return_selected_profile

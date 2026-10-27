@@ -7,6 +7,7 @@ import re
 import threading
 from typing import TYPE_CHECKING, Any, Protocol
 
+from polisyos.common.canonical import _admit_canon_spec
 from polisyos.core.canon import content_hash
 from polisyos.core.canon.canon_json import (
     CanonSpec,
@@ -443,7 +444,9 @@ class GCSArtifactStore:
         return_selected_profile: bool = False,
     ) -> ArtifactRef:
         _validate_return_selected_profile(return_selected_profile)
-        canon_spec = canon_spec or CanonSpec()
+        canon_spec = _admit_canon_spec(
+            canon_spec, CanonSpec, violation_type=CanonViolation, artifact_writer=True
+        )
         canon = _canon_info_for_spec(canon_spec, opts.canon, violation_type=CanonViolation)
         data = to_canonical_bytes(obj, canon_spec)
         _validate_core_json_payload_conformance(data, canon_spec)

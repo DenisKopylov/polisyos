@@ -1,0 +1,2786 @@
+{
+  "schema": "polisyos.e02.remaining19.aggregate_plan.v1",
+  "status": "proposed_RAW_not_canonical_until_root_review",
+  "exact_source_cut": {
+    "product_source_base": "a92c9774edf8049d590cd6ca6de35aa17063025a",
+    "product_source_tree": "7f9908cd38ca5aa2148f7cc9458d3dbbd0cdb1d9",
+    "original_parent": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+    "since_source_cut": [
+      {
+        "commit": "81bc3861fff753c2776f3f81c84d1fa4ce6a69cd",
+        "scope": "BOOT0 integration documentation"
+      },
+      {
+        "commit": "76691bd25ba10bee2caed9826e54cd9d40324ca5",
+        "scope": "T1 integration documentation"
+      },
+      {
+        "commit": "65ac853e2735e827e27688a6175f1a385901e20e",
+        "scope": "R2 regression-test addition at tests/unit/fabric/connectors/test_pool_admission_races.py; root reports 2 PASS"
+      }
+    ],
+    "packet_generation_head": "65ac853e2735e827e27688a6175f1a385901e20e",
+    "packet_generation_tree": "95a1820149020d566a229a718e67b79d690844c3",
+    "committed_src_diff_at_packet_generation": "empty (read-only git diff --quiet over policy-engine/src)",
+    "qualification": "Pinned a92 assessment and65ac packet-generation commit; not a claim about later HEAD or dirty working-tree postimages. Later implementation/proof has separate commits/receipts."
+  },
+  "original_task_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+    "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c",
+    "task_rows": 26,
+    "denominator": {
+      "bundles": 127,
+      "findings": 282,
+      "criterion_occurrences": 291
+    }
+  },
+  "detail_set": {
+    "task_report_rows": 19,
+    "task_ids": [
+      "Q0",
+      "Q1",
+      "Q2",
+      "R1",
+      "R3",
+      "S1",
+      "S2",
+      "S3",
+      "T2",
+      "V1",
+      "V2",
+      "V3",
+      "V4",
+      "V5",
+      "V7",
+      "I1",
+      "I2",
+      "I3",
+      "DX0"
+    ],
+    "author_complete_ids": [
+      "I1"
+    ],
+    "rows_with_implementation_or_verification_work": 18,
+    "separate_decision_row": "DEC0",
+    "other_bounded_task_rows_outside_detail_set": [
+      "BOOT0",
+      "T1",
+      "R2",
+      "R4",
+      "I4",
+      "V6"
+    ]
+  },
+  "finding_boundary": {
+    "unique_finding_ids": 282,
+    "criterion_occurrences": 291,
+    "bundles": 127,
+    "task_finding_edges": 319,
+    "formal_closure_ids": [],
+    "task_rows_are_not_finding_closures": true
+  },
+  "q0_scope": {
+    "direct_unique_ids": 206,
+    "direct_occurrences": 212,
+    "specialist_unique_ids": 76,
+    "specialist_occurrences": 79,
+    "direct_plus_specialist_reconciles": [
+      282,
+      291
+    ],
+    "navigation_matrix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-full-id-source-cut-3c13-20261020.json@a3ee1b516f9a837b624bfe3cfcfab3b4f3b2877be6afafc9e70c196513f1fb46",
+    "navigation_scope_is_not_semantic_reassessment": true,
+    "current_direct_outcomes": {
+      "no_new_occurrence_specific_evidence_since_prior_refresh": 210,
+      "bounded_B199_prior_b86_not_current_rebind": 1,
+      "bounded_LA004_3abe_or_3c13_slice_not_final_closure": 1,
+      "formal_status": "Current-slice proposals are not adjudicated; all historical ledger closures remain unchanged, including B198.",
+      "historical_prior_audit_count_disposition": "210/212 without a new occurrence-specific runtime receipt was measured by the prior Q0 audit. The later family-A static/source requalification adds 7 current criterion analyses but zero qualifying runtime receipts, so 210 is not a current remaining-work count."
+    }
+  },
+  "status_authority": {
+    "current_aggregate_did_not_exist_at_authoring": "This is a proposed synthesis of per-task reports plus exact corrections, not canonical until root review/publication.",
+    "source": "Per-row report SHA-256, correction addenda and later R1/I2/Q0 receipts are individually cited."
+  },
+  "latest_runtime_updates": {
+    "R1_core_state_cache": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-r1-core-state-cache/audit-result.json",
+      "sha256": "b10671c31e03b7d9c4c992dc556c5330a58f144189e7a9832c8e1411f0ca4445",
+      "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-r1-core-state-cache/remaining19-r1-core-state-cache.stdout.txt",
+      "stdout_sha256": "c389dbc13bf7ea32b64f031352c2a7bb7a342be786fe8bda8c5cb2645bd79348",
+      "result": "111 tests: 110 passed, 1 failed, 0 errors, 0 skipped; 67.70s; peak sampled process-tree RSS 1,986,920,448 bytes; current readset reported 1,593 Python paths.",
+      "failure": "test_incomplete_process_run_resumes_same_cache_and_one_terminal_lifecycle expected spawned child exit 73 but observed SIGTERM (-15)."
+    },
+    "R1_spawn_discriminator": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-r1-spawn-discriminator-r2/audit-result.json",
+      "sha256": "8416631e65d48e566007b33a0db93d8bb46490f98db5c1829f253d532088017c",
+      "result": "Guard-only single-node discriminator: 1 failed; 137.53s inside pytest / 175.16s wall; peak sampled process-tree RSS 1,308,147,712 bytes; 1,316 loaded Python paths; no current readset mismatches.",
+      "failure": "The same child expected exit 73 but observed SIGTERM (-15).",
+      "interpretation": "The __main__-guard hypothesis is not supported as the sole cause. Failure cause remains not_established; investigate child startup/exit timing relative to the test's 30-second child timeout. Do not classify as inherited, proven product defect, or harness-only cause yet; do not raise limits blindly.",
+      "runner_derivative": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case_spawn_safe.py@4dca1550f859b599eaecf57aeb206e7efdcde1376cb15b596863dd51bdc5b690",
+      "hypothesis_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/root-r1-current-native-r1/spawn-hypothesis.json@c1ee51cec36655443f698869c257d7415669774d2da45362ef7e7bf18f255200"
+    },
+    "I2_root_census": {
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I2/i2-root-census-r2/receipt.json",
+      "receipt_sha256": "1587bde4eea8c4c19e2509803e914db7f6b2cacfa1742363b23b2c19acf9fc7b",
+      "root_guard_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/root-i2-census-run-r1/result.json",
+      "root_guard_sha256": "af65f0e98cb6696da2a47c67a57b2a60b16229e35e6998437b2dafe7d7d64cd6",
+      "diagnosis_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I2/root-census-timeout-diagnosis-r1.md",
+      "diagnosis_sha256": "48430225550902acf5722eded04e7cbf1e1523253badba7936ac639cb951c9de",
+      "result": "Exact product-root schema-FQN census timed out at 420.021s (exit 124); stdout/stderr empty; no JSON denominator or hit list. Root guard agrees. This is not a census outcome, product failure, OOM, or unavailability finding.",
+      "historical_estimate": "Withdraw the old approx. 230-second figure: cited handoff has no supporting root-census run receipt and explicitly labeled the full census UNRUN.",
+      "next_check": "Run the proposed confined 90-second metadata-only Git enumeration profiler in diagnosis note; if fast, instrument selected-file processing, then rerun the unmodified public CLI."
+    },
+    "Q0_family_A": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/q0-criterion-pass/A/report.json",
+      "sha256": "558f5a11e2b0729b20687a3e503904468f2d03d0446b610a9717a29598fa0916",
+      "scope": "Read-only requalification of all seven family-A Q0 occurrences against original criteria and current source/tests; no product execution or closure.",
+      "occurrence_ids": [
+        "B06",
+        "B11",
+        "B18",
+        "B23",
+        "B25",
+        "B26",
+        "LA-045"
+      ],
+      "occurrence_count": 7,
+      "qualifying_current_runtime_receipts": 0,
+      "status_correction": "B18/B23/B25 source/test-level author-complete labels are not whole-criterion completion; keep all seven verification_missing until current native receipts satisfy the criterion. LA-045 exact local deletion exists; installed proof is pending.",
+      "formal_closure_ids": []
+    }
+  },
+  "scope_corrections": [
+    {
+      "task_id": "S2",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/S2/addendum-scope-correction-r1.json@1bf5b3437ac60839af11a4ea8145bb284504d02ea2c9e5e7f46e687bbd02bbed",
+      "effect": "LA-036 is verification of truthful requested/effective implementation identity, aliases, cache/history projection and honest unsupported/fallback conditional/tree behavior. Remove any required new conditional/tree estimator. B200 remains a genuine producer/relation/consumer gap."
+    },
+    {
+      "task_id": "T2",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/T2/scope-addendum.json@4a94138b24aab23ed03f176cb5480d98dcdcf834cf011b3d2187e9bdc8df46a1",
+      "effect": "B154 is normal/per-item/global-abort/cancel truthful reporting; no new publisher. LA-055 preserves existing precedence/R2 exception; no deploy-platform writer. R3 local B67/B68 positive is achievable using existing app-injected CacheReuseAuthorizer, owner-resolved snapshot, authenticated admitted identity, current epoch, temporary self-owned CAS and revocation. No external production-rights prerequisite; production source permission remains not_established."
+    },
+    {
+      "task_id": "I2",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I2/report-correction.json@5f4730f1f50459651fefdedc6eb816cba89d9543d74bc61c0d3fb23217b4bb4e",
+      "effect": "Two report hash transcription errors corrected by addendum. Linux invalid-byte test is unrun and conditional, not unavailable. Do not claim fresh install/release evidence."
+    },
+    {
+      "task_id": "V1/V2",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/V1/preflight-correction-joint-v1-v2-lease-r2.json@0e0a2efc30b2f7353a7b4dec8b5b765887e5bf391ebcd21f59082e9921f21df3 plus V1/diagnostic-addendum.json@b1de44aa5e365e47c5c072b9c90e556791aed58be2773ce3bb65df92e16a1829",
+      "effect": "V1/V2 remain unverified; aborted runs revealed a controlled-source-root fixture mismatch, not an established product defect or performance finding. Reuse candidate_cycle_source_profile fixture root across service/N4/L3/L6 readers; preserve WMR-selected L2 and persisted V1 D-Cat. Corrected-root cost is unmeasured; serialize.",
+      "exact_native_nodes": [
+        "V1 tests/integration/core_runtime/test_acquisition_authority_served.py::test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry",
+        "V2 tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_original_second_capture_serves_two_meaningful_children_through_fresh_get",
+        "V2 tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_original_second_capture_tcp_reopens_partial_n5_after_sibling_failure"
+      ],
+      "joint_test_path_lease": {
+        "excluded": "No product, production_data, manifest/hash, import, generated, or scientific denominator changes. No additional G decision or formal closure.",
+        "owner": "One implementation author owns these four test files; run V1/V2 native nodes serially.",
+        "paths": [
+          {
+            "change": "Use a returned temp source root for the V1 profile L6 read and served app. Bind default_substrate_catalog_paths(fixture_root).l1_dcat_path to the persisted retrieval-catalog/catalog.duckdb fixture. Keep WMR-selected controlled SKG bytes.",
+            "path": "policy-engine/tests/_helpers/acquisition_served_history.py"
+          },
+          {
+            "change": "Assert live service root, WMR-selected L2, root-relative L3/L6 and selected V1 D-Cat paths; retain existing ordinary POST/worker/N5/CAS/fresh-GET checks.",
+            "path": "policy-engine/tests/integration/core_runtime/test_acquisition_authority_served.py"
+          },
+          {
+            "change": "Accept one explicit source root; pass it to _configured_procurement_profile, N4GenerationPort and returned app_kwargs['repo_root']; preserve recording identity and WMR-selected synthetic L2.",
+            "path": "policy-engine/tests/_helpers/generic_n4_served_replay.py"
+          },
+          {
+            "change": "Assert actual producer/app root and selected L2/L3/L6 paths before N4; retain child, N6 history, failure/budget, parsed GET and TCP reopen assertions.",
+            "path": "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py"
+          }
+        ],
+        "reuse": [
+          "Reuse candidate_cycle_source_profile.py::build_candidate_cycle_substrate_route_inputs for temp owner-built synthetic L2, Data Forge catalog, minimal L3 and L6; do not modify this builder.",
+          "Reuse create_runtime_api_app(repo_root=...) and the existing _configured_procurement_profile(repo_root=...) input."
+        ],
+        "source_assertions": [
+          "Service and N4 resolved roots equal the intended temp root, not a fixture boolean.",
+          "Recompute WMR-selected SKG identity, exact DEFAULT_L3 path/counts, L6 owner content/hash, and V1 D-Cat fixture path.",
+          "Negative: omitted/product repo_root must fail the recomputed source-path assertion before heavy N4 work."
+        ]
+      }
+    },
+    {
+      "task_id": "V5",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/V5/plan-review-r1/plan-review.json@f7b990d6cdc6c6445ddf555b3527aa74ead0e72c171a259edc59c1790e580531",
+      "effect": "B108 is local alias/presence/null/sign/unit resolution, not a new period-flow law. BenchmarkEvaluation owner is scientist/methods/autotune/models.py. Read-only vector producer is scientist/nodes/builtins/decide/policy_runtime_artifacts.py: scalar1.2 has no method_metric_observations, typed1.3 has them. Repair one shared semantic consumer predicate, preserving payload/kind/media/profile/invocation joins; scalar consumer refuses1.3 until a verified adapter exists."
+    },
+    {
+      "task_id": "I1",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/T2/i1-packet-review-r1.json@9c49ee94d17970460105bdac8e4fe2b20ac935530dc5be1c95c28e879603745c",
+      "effect": "I1 is author_complete for its bounded task exit from 25 fresh PASS plus prior 20 PASS and independent full 18-source join GO. The 25-run readset matches 16/18 itself; the other two were loaded/matched in the preceding 20-run. No formal finding closure or broad E02/G completion is implied."
+    }
+  ],
+  "task_records": [
+    {
+      "task_id": "Q0",
+      "title": "Original criterion evaluation and closure proposals for G",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/Q0",
+      "original_exit": "exact original occurrence vs candidate-bound property/consumer/negative; no stronger invented scope; G decision separate from source merge",
+      "next_action": "Check the exact original occurrence against the candidate-bound whole property/consumer/negative; do not invent stronger scope. Author records proposals; G separately admits source and adjudicates findings. Include declared platform-specific UKOPS/Linux verification for LA-029 or a tested supported-profile availability reason; do not end at a generic crosswalk.",
+      "dependencies": [
+        "BOOT0"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "scope_status_in_manifest": "execution_remaining; inherited proposals are not closures",
+      "assigned_finding_ids": [
+        "B06",
+        "B11",
+        "B18",
+        "B23",
+        "B25",
+        "B26",
+        "LA-045",
+        "B14",
+        "B24",
+        "B37",
+        "B38",
+        "B39",
+        "B40",
+        "B42",
+        "B43",
+        "B44",
+        "B45",
+        "B46",
+        "B47",
+        "B48",
+        "B49",
+        "B50",
+        "B51",
+        "B52",
+        "B53",
+        "B55",
+        "B57",
+        "LA-057",
+        "B58",
+        "B60",
+        "B62",
+        "B63",
+        "B64",
+        "B65",
+        "B69",
+        "B70",
+        "B71",
+        "B72",
+        "B73",
+        "B75",
+        "B76",
+        "B77",
+        "B78",
+        "B90",
+        "B91",
+        "B92",
+        "B93",
+        "B94",
+        "B95",
+        "B96",
+        "B149",
+        "B150",
+        "B151",
+        "B152",
+        "B153",
+        "B155",
+        "LA-008",
+        "LA-009",
+        "LA-010",
+        "LA-011",
+        "LA-012",
+        "LA-013",
+        "B17",
+        "LA-022",
+        "LA-029",
+        "LA-030",
+        "LA-031",
+        "LA-034",
+        "LA-038",
+        "LA-039",
+        "LA-043",
+        "LA-044",
+        "LA-047",
+        "LA-048",
+        "LA-049",
+        "B81",
+        "B82",
+        "B84",
+        "B85",
+        "B86",
+        "B88",
+        "B138",
+        "B139",
+        "B140",
+        "B141",
+        "B142",
+        "B143",
+        "B144",
+        "B145",
+        "B146",
+        "B147",
+        "LA-014",
+        "LA-015",
+        "B41",
+        "B106",
+        "B107",
+        "B109",
+        "B110",
+        "B111",
+        "B112",
+        "B113",
+        "B114",
+        "B115",
+        "B116",
+        "B117",
+        "B118",
+        "B119",
+        "B120",
+        "B121",
+        "B122",
+        "B123",
+        "B124",
+        "B125",
+        "B126",
+        "B127",
+        "B128",
+        "B129",
+        "B130",
+        "B132",
+        "B133",
+        "B134",
+        "B135",
+        "B136",
+        "B156",
+        "B158",
+        "B159",
+        "B160",
+        "B162",
+        "B163",
+        "B165",
+        "LA-052",
+        "LA-056",
+        "B97",
+        "B98",
+        "B99",
+        "B100",
+        "B101",
+        "B102",
+        "B103",
+        "B104",
+        "B105",
+        "B166",
+        "B167",
+        "B168",
+        "B169",
+        "B170",
+        "B171",
+        "B174",
+        "B175",
+        "B176",
+        "B177",
+        "B178",
+        "B179",
+        "B180",
+        "B181",
+        "B182",
+        "B183",
+        "B184",
+        "B185",
+        "B186",
+        "B187",
+        "B188",
+        "B189",
+        "B191",
+        "B192",
+        "B193",
+        "B195",
+        "B196",
+        "B198",
+        "B199",
+        "B201",
+        "B202",
+        "B203",
+        "LA-001",
+        "LA-002",
+        "LA-003",
+        "LA-004",
+        "LA-007",
+        "LA-016",
+        "LA-017",
+        "LA-019",
+        "LA-020",
+        "LA-035",
+        "LA-037",
+        "B54",
+        "B204",
+        "B205",
+        "B206",
+        "B207",
+        "B208",
+        "B209",
+        "B210",
+        "B211",
+        "B212",
+        "B213",
+        "B215",
+        "B216",
+        "B217",
+        "B218",
+        "B219",
+        "B220",
+        "B221",
+        "B222",
+        "B223",
+        "B224",
+        "B225"
+      ],
+      "assigned_finding_id_count": 206,
+      "current_task_status": "verification_remaining",
+      "reported_task_status": {
+        "status": "verification_remaining",
+        "reason": "The current full-ID source-cut report has every occurrence navigation/evidence-boundary row, but the authoritative audit says Q0 full occurrence refresh and whole-property outcomes are missing. Only B199 and LA-004 have bounded prior/current-slice receipts; both need current rebind. The current full 212 outcomes are not semantic reassessment, and G remains separate."
+      },
+      "formal_closure_ids": [],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/Q0/report.json",
+        "sha256": "94577e5aec0e38f0d2098a09e831ccf89cd5ca6c96bd8fa1871460aed3fbc08a"
+      },
+      "verified_property_count": null,
+      "remaining_work": {
+        "units": [
+          {
+            "id": "row refresh",
+            "owner": "Q0 plus canonical owner per coverage row",
+            "accept": "Current outcome, evidence/input rebind, property boundary, limitation and next action for every 206 ID/212 occurrence; wait for freeze."
+          },
+          {
+            "id": "receipt rebind",
+            "owner": "UQS-01 and ECO-01",
+            "accept": "Rebind or conditionally replay only within B199/LA-004 bounded scopes."
+          },
+          {
+            "id": "A-F checks",
+            "owner": "Canonical owner per ID",
+            "accept": "Per-occurrence discriminator with positive and distinguishing negative/removal/sibling check through required consumer/surface."
+          },
+          {
+            "id": "specialists",
+            "owner": "Mapped task routes",
+            "accept": "Reconcile 76 IDs/79 refs after specialist evidence; counts overlap."
+          },
+          {
+            "id": "G",
+            "owner": "G decision owner",
+            "accept": "Separate author proposals from admission/formal closure; emit no closures here."
+          }
+        ],
+        "checks": [
+          {
+            "id": "LA-004",
+            "cwd": "policy-engine",
+            "command": [
+              "python3",
+              "-m",
+              "pytest",
+              "tests/unit/foundry/plugins/test_economic_profiles.py",
+              "tests/unit/foundry/plugins/test_economic_profile_consumers.py",
+              "tests/unit/remediation/test_eco_01.py"
+            ],
+            "condition": "Rebind 16 selected source/test/consumer inputs first; run only if changed or not exactly rebindable, preserving pytest.ini/default plugins.",
+            "prior_measurement_seconds": 22.198147,
+            "prior_max_sampled_rss_bytes": 1122779136,
+            "shared_resource": "None recorded."
+          },
+          {
+            "id": "B199",
+            "cwd": "policy-engine",
+            "command": [
+              "python3",
+              "-m",
+              "pytest",
+              "tests/integration/foundry/uncertainty/test_artifact_aware_aggregation.py",
+              "tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+              "tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py",
+              "tests/unit/remediation/test_uqs_01.py"
+            ],
+            "condition": "Rebind exact source/test/selector/consumer inputs to a92 first; replay if affected or not exactly rebindable.",
+            "current_resources": "Unmeasured; historical 600s/4GiB is cap, not measurement.",
+            "shared_resource": "None recorded."
+          },
+          {
+            "id": "Q0-per-occurrence",
+            "command_basis": "No single Q0 pytest command. After freeze, select exact per-row next_check and canonical owner from coverage/matrix.",
+            "expected": "For each unbound occurrence, one current outcome/evidence/boundary/limitation/next action using smallest positive and distinguishing negative/removal/sibling through real producer, artifact/event, bridge, consumer and required surface. No uniform reruns; unavailable remains not_established.",
+            "estimated_resources": "Unmeasured until owner module/substrate is selected."
+          }
+        ]
+      },
+      "q0_property_families": [
+        {
+          "unit": "A",
+          "name": "Planner, selection, simulation and dynamic-import boundary",
+          "id_count": 7,
+          "occurrence_refs": 7,
+          "owner": "SIM/CYC/REQ",
+          "remaining": "Selected versus refused plans; ROI versus actual budget; missing versus zero; role refs and joint-atom semantics; LA-045 through a real dynamic-import consumer."
+        },
+        {
+          "unit": "B",
+          "name": "Runtime execution, composition, state, cache and transport",
+          "id_count": 49,
+          "occurrence_refs": 49,
+          "owner": "RUN/DUR/CMP/JIT/EXE/STA/RES/LLM/NET/WIRE/CAS per row",
+          "remaining": "Process cleanup, lease/deadline/retry; actual composer/cache/state/resume/network/wire/CAS consumers; absent/null/delete and ack-lost versus no-dispatch."
+        },
+        {
+          "unit": "C",
+          "name": "Ingestion, federation, migration, API and publication surfaces",
+          "id_count": 35,
+          "occurrence_refs": 39,
+          "owner": "ING/FED/OBS/HYG/MIG/DFI/EMB/CLI/BER/UDF/SRV per row",
+          "remaining": "Persisted cursor/backpressure to fresh reader; real source identity and installed/API/generated/schema/migration consumers. LA-029 requires UKOPS/Linux or tested supported-profile unavailability; repeats stay separate."
+        },
+        {
+          "unit": "D",
+          "name": "Optimizer, transfer, controller and result-quality consumers",
+          "id_count": 39,
+          "occurrence_refs": 40,
+          "owner": "OPT/TRN/STR/FUN/CTL/STP per row",
+          "remaining": "Actual optimizer/search/transfer with persisted history; controller empty/deferred/nonfinite/terminal paths; funnel/approval consumer; distinguish invalid and absent results."
+        },
+        {
+          "unit": "E",
+          "name": "DOE, benchmark, calibration and uncertainty",
+          "id_count": 43,
+          "occurrence_refs": 43,
+          "owner": "DOE/BKT/CAL/UQP/UQS/PCL/DDM per row",
+          "remaining": "Design-size/RNG; failed-row denominator/BKT; calibration time/missing-versus-zero; uncertainty/covariance/posterior identity through real consumers; B199 remains bounded."
+        },
+        {
+          "unit": "F",
+          "name": "Domain economics, profiles, causal estimation, graph and SCM",
+          "id_count": 33,
+          "occurrence_refs": 34,
+          "owner": "FRY/ECO/API/LEX/CAU/GRF/SCM per row",
+          "remaining": "Current profile caller, native estimator and graph/SCM consumer; covariance/significance/export. LA-004 remains bounded; no Gini or optimizer signoff."
+        }
+      ],
+      "q0_reuse_rule": "Unchanged criterion bytes establish wording, not current behavior. Reuse only after exact candidate/source/test/input/backend/profile/consumer/surface/discriminator rebind; changed inputs require exact-slice-base replay or not_established. Preserve each repeated card occurrence.",
+      "latest_static_subreview": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/q0-criterion-pass/A/report.json",
+        "sha256": "558f5a11e2b0729b20687a3e503904468f2d03d0446b610a9717a29598fa0916",
+        "occurrence_count": 7,
+        "qualifying_runtime_receipts": 0,
+        "requalified_status": "verification_missing for all seven; no closure"
+      },
+      "original_exit_source_key": "original_exit",
+      "task_manifest_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/Q0"
+    },
+    {
+      "task_id": "Q1",
+      "title": "Select exact compatible source DAG/owner blobs",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/Q1",
+      "original_exit": "explicit base/candidate/tree and parents plus per-path source/test/config/companion blob owner/input manifest; canonical choices; preserve history",
+      "next_action": "Reconcile selected exact source DAG, code/test/config/companion paths and Core/IR typed write options and profile/content conformance. CAN/C10/C11/repaired DFK are already in the base; do not import whole old-base C05/C12/B branches. Investigate profileless history migration/legacy selector and Core/IR law ambiguity; present actual contract choices to G. LA-021 requires its original profile compatibility/legacy behavior outcome beyond source-DAG selection.",
+      "dependencies": [
+        "BOOT0"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "scope_status_in_manifest": "execution_remaining; inherited proposals are not closures",
+      "assigned_finding_ids": [
+        "LA-021"
+      ],
+      "assigned_finding_id_count": 1,
+      "current_task_status": "implementation_remaining",
+      "reported_task_status": {
+        "status": "implementation_remaining",
+        "rationale": "LA-021 requires preserved bytes/IDs, separate Core/IR tag and exception laws, supported bidirectional reads and profile/content conformance. a92 has .2 owners/selected refs but no selected .3. Codec, Foundry and state candidates are RAW; C06 bounds and C07-C14 proof remain. No external input or new CAN choice blocks work.",
+        "first_deciding_check": "Bind the existing .3 packet to a92, then real write->selected manifest/payload->fresh typed reader/consumer with raw-map, profile/version, history, unseen-resource and pre-effect controls.",
+        "capability_labels": [
+          "implemented_but_not_orchestrated",
+          "verification_missing",
+          "consumer_missing"
+        ],
+        "closure_ids": []
+      },
+      "formal_closure_ids": [],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/Q1/report.json",
+        "sha256": "5acdfdfe85c916aac705255341d0a7f16f7035ced9b8cd1579d20be05dce7345"
+      },
+      "verified_property_count": 4,
+      "remaining_work": {
+        "units": [
+          {
+            "unit": "C-A shared codec/Core/IR",
+            "owners": "Common/Core/IR codec, profile, store, owner-registration/ref paths above.",
+            "state": "RAW; implementation_remaining.",
+            "work": "Reuse existing .3 patch after binding its 27 pre/post hashes to a92; preserve .2; add explicit selected-version mapping/carrier laws and bounded lease/readers.",
+            "acceptance": "LA-021 + C01-C06; paired Core/IR bytes/hash/exceptions/profile/history and refusal-before-effect.",
+            "tests": [
+              "tests/unit/common/test_canonical_v3.py",
+              "tests/unit/core/artifacts/test_canonical_wire_profiles.py",
+              "tests/unit/core/artifacts/test_ir_adapter_canonical_wire.py",
+              "tests/unit/core/canon/test_core_canon_v3.py",
+              "tests/unit/ir/artifacts/test_canonical_wire.py"
+            ]
+          },
+          {
+            "unit": "C-B/C-C state, Foundry and idempotency",
+            "owners": "Existing scientist/orchestration/engine state/executor/checkpoint/idempotency and foundry/methods/compiler/specialization.",
+            "state": "RAW; Foundry digest mismatch; state tests run=false; NodeResultCache law is separate.",
+            "work": "Readers first; state/outcome profiles, cache generation separation, old collision/in-flight fence, refusal propagation, durable retry side-effect binding.",
+            "acceptance": "C07-C13 actual persistence/cache/journal consumers, rollback and removal controls.",
+            "tests": [
+              "tests/unit/scientist/orchestration/engine/test_state_journal_cohort.py",
+              "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+              "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+              "tests/unit/foundry/methods/test_compiler.py"
+            ]
+          },
+          {
+            "unit": "C-D public/installed",
+            "owners": "architecture/public_surface/inventory.json; docs/reference/public-surface.md; docs/reference/generated-artifacts.md; main wheel/rebuilt sdist.",
+            "state": "Mandatory companion incomplete.",
+            "work": "Refresh inventory; regenerate exposed public/API/docs/release; exercise no-checkout readers and writer-disabled rollback.",
+            "acceptance": "C14 loaded bytes/origins, selected readers and rollback."
+          }
+        ],
+        "checks": [
+          {
+            "order": 1,
+            "check": "Bind existing CAN .3 packet to a92; reuse its bytes.",
+            "evidence": "CANraw/g-native-priority-20261025-r1/can03-codec-owner-20261027-r1/codec-packet-final-1/packet_artifact/manifest.json@610621d95c07c50b4ee95ea9ac88b384a6af8981c31161fea7c29f1c69b95c37; patch.diff@bf11cb91d793fa10bc43261cc1cddb1b93e0664edba0e9c46b7fce8e2afdbc7c.",
+            "expected": "Verify all 27 path pre/post hashes; use only on exact match; no reconstructed substitute or predecessor relabel."
+          },
+          {
+            "order": 2,
+            "command": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/common/test_canonical_v3.py tests/unit/core/artifacts/test_canonical_wire_profiles.py tests/unit/core/artifacts/test_ir_adapter_canonical_wire.py tests/unit/core/canon/test_core_canon_v3.py tests/unit/ir/artifacts/test_canonical_wire.py",
+            "when": "After C-A source freeze; retain native pytest.ini/plugins.",
+            "expected": "First deciding runtime check: real write->selected manifest/profile/payload->fresh typed Core/IR consumer; registered nondefault profile/unseen resource; .2 bytes/IDs/exceptions, Core/IR tag difference, raw _type, content binding, wrong profile/version/history refusal and reader-first rollback.",
+            "resources": "Temp FileSystemCAS; unmeasured integrated run; no port/DB/model."
+          },
+          {
+            "order": 3,
+            "check": "C06 pre-materialization falsifier.",
+            "input": "max_elements=1 with 100k-item BaseModel; max_bytes=1 with long Decimal; oversized manifest/payload spies; exact/one-over controls.",
+            "expected": "Bounded projection/read or refusal before callback/full materialization/cache/CAS; read stops at max+1; property-removal negative fails with marker names held.",
+            "measurement": "Existing RAW probe saw model_dump/Decimal.as_tuple before refusal; repair/RSS unmeasured."
+          },
+          {
+            "order": 4,
+            "check": "Rebind Foundry packet before application; run C10-C13.",
+            "evidence": "CANraw/g-native-priority-20261025-r1/can03-foundry-cache-owner-20261027-r1/foundry-cache-final-r22/packet_artifact/manifest.json@96d9bd10bba09dccae56e531e9d2b747d99aaf1b88b3c29793fec510b453061c; actual patch @919dc34e7835f46f06413e9c36c358a0d20cc3648a3996184f5bd1296ac23ed5 (91,438 bytes vs claimed 78,850).",
+            "tests": "tests/unit/foundry/methods/test_compiler.py; tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py"
+          },
+          {
+            "order": 5,
+            "commands": [
+              "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/scientist/orchestration/engine/test_state_journal_cohort.py tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py tests/unit/scientist/orchestration/engine/test_async_executor.py",
+              "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/foundry/methods/test_compiler.py"
+            ],
+            "expected": "C07-C13 real state/outcome, Foundry/cache and NodeResultCache consumers; reader-first, mismatch, old collision/fence, refusal propagation and retry side-effect safety. Existing state packet run=false; integrated suite unmeasured.",
+            "resources": "Temp CAS/cache; no fixed port."
+          },
+          {
+            "order": 6,
+            "check": "C14 after source freeze: regenerate public surfaces, build/install main wheel and rebuilt sdist outside checkout.",
+            "expected": "No-checkout selected readers, loaded bytes/origins, public/generated contracts and writer-disabled rollback.",
+            "measurement": "Unmeasured."
+          }
+        ]
+      },
+      "original_exit_source_key": "original_exit",
+      "task_manifest_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/Q1"
+    },
+    {
+      "task_id": "Q2",
+      "title": "Canonical generated and declared installed consumers",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/Q2",
+      "original_exit": "frozen contracts->canonicalfamily->typedclient/defaultinstalled reader; declared supported profiles only",
+      "next_action": "After selecting upstream contracts, regenerate the canonical DTO/schema/client/artifact family; verify validators --check plus corrupt-field drift refusal, normal parsed served readers and exact installed wheel/rebuilt-sdist consumers. Reconcile required Core constructors/UI/i18n companions; do not classify prior FAIL as inherited without exact slice base evidence.",
+      "dependencies": [
+        "BOOT0",
+        "Q1"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "scope_status_in_manifest": "execution_remaining; inherited proposals are not closures",
+      "assigned_finding_ids": [
+        "B04",
+        "B11",
+        "B29",
+        "B30",
+        "LA-033",
+        "B34",
+        "B35",
+        "B36",
+        "LA-045",
+        "LA-005",
+        "LA-006",
+        "LA-021",
+        "LA-023",
+        "LA-026",
+        "LA-027",
+        "LA-042",
+        "LA-050",
+        "LA-053",
+        "B201",
+        "B202",
+        "B212"
+      ],
+      "assigned_finding_id_count": 21,
+      "current_task_status": "implementation_remaining",
+      "reported_task_status": {
+        "status": null
+      },
+      "formal_closure_ids": [],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/Q2/report.json",
+        "sha256": "fe2abd80dd012c7aa2dea7a03efae3707aa57dd503b6c23ac3e5d8a364a135be"
+      },
+      "verified_property_count": null,
+      "remaining_work": {
+        "units": [
+          {
+            "id": "Q2-A",
+            "state": "implementation_remaining",
+            "title": "Selected source contracts and semantic consumers",
+            "depends": "Q1 upstream owners; serialize shared Core artifacts lease",
+            "owners": "CAN common codec owner; TC intent owner; Closure owner; root is canonical writer",
+            "paths": [
+              "policy-engine/src/polisyos/common/canonical.py",
+              "policy-engine/src/polisyos/core/contracts/control.py",
+              "policy-engine/src/polisyos/runtime/quality/authority.py",
+              "policy-engine/src/polisyos/core/artifacts/manifest.py",
+              "policy-engine/src/polisyos/core/artifacts/__init__.py",
+              "policy-engine/src/polisyos/runtime/http/services/control/job_attempt_publication.py"
+            ],
+            "acceptance": "CAN .2 compatibility plus selected .3 behavior; actual temporal request->snapshot V3->consumer; Closure v2 identity carried to all protected consumers with substitution refusals."
+          },
+          {
+            "id": "Q2-B",
+            "state": "blocked_on_Q2-A",
+            "title": "Canonical API generation and UI companion",
+            "owners": "Root canonical API writer plus runtime/Dashboard owners",
+            "paths": [
+              "policy-engine/schemas/runtime_api_v1.openapi.json",
+              "policy-engine/packages/runtime-api-client/types.ts",
+              "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+              "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+              "policy-engine/apps/runtime-dashboard/src/api/types.ts",
+              "policy-engine/apps/runtime-dashboard/src/api/validators.ts",
+              "policy-engine/apps/runtime-dashboard/src/api/hooks/useLaunchNlRun.ts",
+              "policy-engine/apps/runtime-dashboard/src/features/composer/domain/forms.ts",
+              "policy-engine/apps/runtime-dashboard/src/features/clerk/hooks/useClerkNlRun.ts",
+              "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/{en,uk,ru}.json"
+            ],
+            "acceptance": "All committed outputs rederive from source; ordinary checker detects corrupted derived field; actual served/UI request is parsed, durably captured, and read by the consumer."
+          },
+          {
+            "id": "Q2-C",
+            "state": "harness_prepared_manifest_stale_actual_wave_unrun",
+            "title": "Source-bound installed wheel/sdist/archive consumers",
+            "paths": [
+              "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-manifest.json",
+              "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py@7a30cbef90fc5ab8ebcac734343eda1d263307af65bd5e641d240fa9a10a08f7",
+              "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py@668009866982261ea8a6d6ebecd6b4bb07b52900c4fc03d5a2d60eeb1a0d6a10",
+              "policy-engine/ops/cloud/gcp/package_repo.sh@d0dc7ab065940c5051554ba95fceeb1962695d2d64448a06666ab24debc39462",
+              "policy-engine/tests/repo_quality/tools/test_q2_build_tool_wheel_lock.py",
+              "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py"
+            ],
+            "acceptance": "Source-audit current dynamic selectors/resources and require exact check; run source wheel, rebuilt-sdist wheel, and rebuilt GCP archive wheel serially, installed outside checkout. Dynamic actual collection+JUnit includes all 91 original Q2 cases, no skips/fails; all 12 owner-derived assets byte/origin-check and no checkout shadow. Only declared Linux CPython3.14 app + CPython3.12/DoWhy0.14 worker profile."
+          }
+        ],
+        "checks": [
+          "Q2 package helper: cd policy-engine && .venv/bin/python -B -m pytest -q tests/repo_quality/tools/test_q2_build_tool_wheel_lock.py",
+          "OpenAPI: PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json",
+          "Client: corepack pnpm --filter @polisyos/runtime-api-client run generate -- --openapi schemas/runtime_api_v1.openapi.json",
+          "Dashboard types: corepack pnpm --filter @polisyos/runtime-dashboard run generate:api -- --openapi schemas/runtime_api_v1.openapi.json",
+          "Runtime drift/corruption gate: uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py ; no --check flag; do not pass --skip-client-drift.",
+          "Dashboard companions: corepack pnpm --filter @polisyos/runtime-dashboard run typecheck; corepack pnpm --filter @polisyos/runtime-dashboard run test:components -- src/features/composer/routes/LaunchRunPage.test.tsx src/features/composer/domain/forms.test.ts src/api/hooks/mutationHooks.test.tsx src/features/clerk/hooks/useClerkNlRun.test.tsx",
+          "After final code commit: q2-freeze-input-audit-v2-20261011.py prepare/check with --repo, --source-sha, --source-tree, --python policy-engine/.venv/bin/python, --uv-executable, measured --collection-timeout-seconds, fresh --output-root, exact --supplemental-manifest and --supplemental-manifest-sha256. Review/apply both proposals and recommit before final prepare/check; require source_preflight_exact/no limitations.",
+          "After final source-audit check: timeout_driver.py --repo <repo> --source-sha <full> --source-tree <full> --manifest <frozen manifest> --manifest-sha256 <sha> --app-python <repo>/policy-engine/.venv/bin/python --worker-python <existing CPython3.12 DoWhy0.14 python>. Run via timed driver; no PYTHONPATH."
+        ]
+      },
+      "original_exit_source_key": "original_exit",
+      "task_manifest_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/Q2"
+    },
+    {
+      "task_id": "R1",
+      "title": "Prepared B exact verification and source publication",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/R1",
+      "original_exit": "prepared defining baseline/13 named affected contours/matched removals; no carry from old0bf",
+      "next_action": "Fetch exact available1e18/a0ee objects; reconcile bounded B delta+all13affectedcontours on current G; native/removal checks and normal own-topic publication. B61 and B148 retain criterion-specific outcomes and their genuinely missing inputs; a generic 13-contour run does not clear them.",
+      "dependencies": [
+        "BOOT0",
+        "Q1"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "scope_status_in_manifest": "execution_remaining; inherited proposals are not closures",
+      "assigned_finding_ids": [
+        "LA-033",
+        "B13",
+        "B59",
+        "B61",
+        "B74",
+        "B148"
+      ],
+      "assigned_finding_id_count": 6,
+      "current_task_status": "verification_remaining",
+      "reported_task_status": {
+        "status": null
+      },
+      "formal_closure_ids": [],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/R1/report.json",
+        "sha256": "53319a5d9af51a246e7ca422ef3796e41561719ce29aa528c171bb33ef3c6c59"
+      },
+      "verified_property_count": null,
+      "remaining_work": {
+        "units": [
+          {
+            "unit": "current 13 whole-file contours",
+            "class": "verification",
+            "exact_predicate": "326 prior tests are not enough because receipt base is 40f and three runtime modules used by these contours differ at current a92; prove current module/source denominator and 13 collection/JUnit/outcomes.",
+            "current_source_changes": [
+              "policy-engine/src/polisyos/core/run/context.py",
+              "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+              "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py"
+            ],
+            "next_check": "Run five serial groups below in P at current a92 with full source-before/after and imported-origin records."
+          },
+          {
+            "unit": "B148 criterion-specific current proof",
+            "class": "verification",
+            "exact_predicate": "The four original preservation cases and result disposition remain green on current a92 candidate files; matched removal controls fail as expected.",
+            "next_check": "Native-default two-module run plus the two separate E02_B_PROPERTY_REMOVAL expected-red controls listed above."
+          },
+          {
+            "unit": "remaining R1 findings",
+            "class": "not_re-adjudicated_in_this_focused_refresh",
+            "exact_predicate": "LA-033, B13, B59, B74 still need their own original-criterion outcomes; do not infer from the 13-file or B61 pass."
+          }
+        ],
+        "checks": {
+          "native_profile": {
+            "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+            "python": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "invocation": "-B -m pytest",
+            "output_scoping_only": [
+              "-o cache_dir={ATTEMPT}/pytest-cache",
+              "--benchmark-storage=file://{ATTEMPT}/benchmarks",
+              "--basetemp {ATTEMPT}/pytest-basetemp",
+              "--junitxml={ATTEMPT}/pytest.xml",
+              "--tb=short --color=no --maxfail=0"
+            ],
+            "preserve": "pytest.ini default plugin autoload and addopts, importlib mode, strict markers, asyncio auto, root conftest plugins; no PYTHONPATH/PYTEST_* overrides, no disabled plugins, no xdist. Use reviewed runpy-based supervised launcher, keep activity-worker isolated, run cohorts serially."
+          },
+          "thirteen_groups": [
+            {
+              "id": "core-state-cache",
+              "files": [
+                "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+                "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+                "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+                "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+                "tests/unit/scientist/orchestration/engine/test_state_merge.py"
+              ],
+              "prior_measured": {
+                "wall_seconds": 25.151,
+                "peak_rss_bytes": 1514962944
+              }
+            },
+            {
+              "id": "async-cache-executor",
+              "files": [
+                "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+                "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+                "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+                "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py"
+              ],
+              "prior_measured": {
+                "wall_seconds": 24.352,
+                "peak_rss_bytes": 929120256
+              }
+            },
+            {
+              "id": "activity-worker",
+              "files": [
+                "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py"
+              ],
+              "prior_measured": {
+                "wall_seconds": 18.758,
+                "peak_rss_bytes": 1639530496
+              },
+              "scheduling": "run alone"
+            },
+            {
+              "id": "ordinary-wire",
+              "files": [
+                "tests/unit/scientist/orchestration/engine/runner/test_serialization.py"
+              ],
+              "prior_measured": {
+                "wall_seconds": 2.106,
+                "peak_rss_bytes": 136511488
+              }
+            },
+            {
+              "id": "typed-wire-merge",
+              "files": [
+                "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+                "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py"
+              ],
+              "prior_measured": {
+                "wall_seconds": 13.541,
+                "peak_rss_bytes": 968458240
+              }
+            }
+          ],
+          "B148_native_files": [
+            "tests/unit/core/artifacts/test_import_admission_noop.py",
+            "tests/unit/core/artifacts/test_bound_import_preservation.py"
+          ],
+          "expected_outputs": [
+            "Per-group collection and JUnit identities/outcomes",
+            "full stdout/stderr and skip reasons",
+            "current source/test hashes before/after",
+            "actual imported source origins",
+            "parent-monitored wall/RSS/disk/process-tree completion",
+            "B148 original scenario readback and the two property-removal expected-red receipts"
+          ],
+          "resources": "13-group prior measured wall total \u224883.91s, max individual RSS \u22481.64GB; old current criteria B148 pair 6.27s/123MB; current executions are unmeasured. Brief's disk floor is 8GiB; check current free disk before launching."
+        }
+      },
+      "original_exit_source_key": "original_exit",
+      "task_manifest_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/R1"
+    },
+    {
+      "task_id": "R3",
+      "title": "Configured monetary producer/ledger/A/D composition",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/R3",
+      "original_exit": "reported/estimated/reuse/unknown events and durable outcomes remain distinct; provider/cache/retry/reopen/cancel",
+      "next_action": "Compose configured provider/observer/ledger/A/D events with reported/estimated/reuse/unknown outcomes; retain unknown cost. Execute retry/cancel/reopen/cache scopes and the available C08 controls on the exact selected composition.",
+      "dependencies": [
+        "BOOT0",
+        "Q1"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "scope_status_in_manifest": "execution_remaining; inherited proposals are not closures",
+      "assigned_finding_ids": [
+        "B10",
+        "B66",
+        "B67",
+        "B68"
+      ],
+      "assigned_finding_id_count": 4,
+      "current_task_status": "implementation_remaining",
+      "reported_task_status": {
+        "status": "implementation_remaining",
+        "rationale": "A bounded ordinary NL route proves four-origin durable ledger/API/reopen/retry/expiry/cancellation behavior; current local factory tests cover scoped flights using a fixture owner. R3 remains incomplete because B67 has no production permission owner/canonical evidence bridge, B68 authorized composition is fixture-owned, B10 lacks an actual second-candidate consumer witness, and selected 69-case run has one fixture keyword failure. No external invoice is part of original acceptance.",
+        "closure_ids": []
+      },
+      "formal_closure_ids": [],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/R3/report.json",
+        "sha256": "be153de449a6fe767476b3362a77cdeb23003867af8aca433564744f002d643a"
+      },
+      "verified_property_count": 4,
+      "remaining_work": {
+        "units": [
+          {
+            "id": "R3-1",
+            "kind": "test_companion",
+            "status": "ready_now",
+            "owner": "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py::_persist_test_catalog_snapshot",
+            "issue": "Current helper lacks keyword-only tenant_context accepted by production persist_method_catalog_snapshot; fresh run fails with unexpected keyword argument before the 4-origin assertions.",
+            "minimal": "Accept tenant_context with the production signature and assert expected ArtifactTenantContextInfo; do not swallow arbitrary kwargs or weaken assertions.",
+            "acceptance": "Same 69-node R3 composition reaches 69 pass/0 fail/error/skip."
+          },
+          {
+            "id": "R3-2",
+            "kind": "missing_verification",
+            "status": "ready_now",
+            "owner": "runtime/quality/generation_cycle.py::_ground_node/_grounded_candidate_for_evaluation; tests/unit/runtime/quality/test_generation_cycle.py",
+            "minimal": "Actual controller/cycle with high-ranked first candidate blocked on missing input and lower-ranked second current-valid; assert second is evaluated, first typed blocker persists, no fake zero and no extra candidate/budget/diversity change.",
+            "negative": "No-eligible fallback retains typed blocker; property-removal/revert-to-original-top-candidate control must fail. Do not modify selector absent a demonstrated defect."
+          },
+          {
+            "id": "R3-3",
+            "kind": "local_owner_bridge_and_semantic_verification",
+            "status": "actionable_with_configured_existing_owner_port",
+            "owner": "Existing interface prompt_cache.py::CacheReuseAuthorizer; factory.py::create_traced_gateway_client(cache_reuse_authorizer=...); ControlPlane/container DI run_lifecycle.py + container.py; calls nl_pipeline.py:475 and :8266.",
+            "minimal": "Reuse CacheReuseAuthorizer/current-epoch/exact-CAS snapshot resolution, app-scoped DI and cache-specific authenticated identity from the admitted worker scope. Demonstrate actual ordinary NL reuse using a configured local owner and temporary self-owned CAS; do not restore ambient protected authorization. Current owner permission must be rechecked on each hit.",
+            "negative": "Wrong actor/tenant, revoked epoch, moved bytes/version, changed model/parameters, unpinned URL, tool/stream and independent stochastic seed miss; cancellation of one waiter does not cancel others; fresh ledger/API shows event lineage.",
+            "boundary": "A configured local software positive does not establish real production source rights. Absent/revoked/foreign/stale owner evidence remains a miss. No new sovereign permission registry, public DTO or external invoice is required."
+          }
+        ],
+        "checks": [
+          {
+            "id": "r3-current-composition-after-fixture-fix",
+            "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+            "command": ".venv/bin/python -m pytest tests/unit/core/llm/test_traced_client_settlement.py tests/unit/core/llm/test_cache_settlement.py tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py tests/unit/scientist/orchestration/llm/test_prompt_cache_scope_admission.py tests/unit/scientist/orchestration/llm/test_factory_cache_composition.py tests/unit/runtime/http/test_nl_pipeline_cost_projection.py::test_simulated_nl_producer_costs_settle_and_capture_four_origins tests/unit/runtime/http/test_nl_pipeline_cost_projection.py::test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen",
+            "expected": "69 pass, 0 fail/error/skip; four-origin test reaches assertions.",
+            "measurement": {
+              "wall_seconds": 36.44529108298593,
+              "peak_rss_bytes": 1279639552,
+              "deadline_seconds": 360,
+              "rss_cap_bytes": 2411724800,
+              "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-origin-ledger-lifecycle-current/audit-result.json@f798bccbbadd47c2f65803aa43e87d9603a4a35e03b76c5ae584133325f5604c"
+            },
+            "resources": "Measured previous bounded run; temp ledger/CAS/local test gateway only. Preserve pytest.ini/plugin autoload; no provider credentials/shared service."
+          },
+          {
+            "id": "r3-b10-witness",
+            "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+            "command": ".venv/bin/python -m pytest tests/unit/runtime/quality/test_generation_cycle.py::test_b10_second_grounded_candidate_is_evaluated_with_first_blocker_preserved",
+            "status": "Proposed selector after test is added; not run.",
+            "expected": "Actual consumer selects/evaluates second; first typed blocker retained; fallback and property-removal controls pass.",
+            "resources": "Unmeasured; one native process, no network/provider."
+          },
+          {
+            "id": "r3-b67-b68-owner-integration",
+            "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+            "command": ".venv/bin/python -m pytest tests/integration/runtime/http/test_nl_pipeline_cache_reuse_authorization.py::test_control_plane_reuses_only_current_owner_authorized_snapshot",
+            "status": "Only after a real owner is named/wired; proposed test; not run.",
+            "expected": "Canonical route positive/denial/version/scope/seed/cancel and reopened-ledger API lineage.",
+            "resources": "Unmeasured; temporary CAS/ledger/local synthetic gateway; no external billing/vendor credential."
+          }
+        ]
+      },
+      "original_exit_source_key": "original_exit",
+      "task_manifest_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/R3"
+    },
+    {
+      "task_id": "S1",
+      "title": "Subject/refinement/query-specific partial graph decisions",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/S1",
+      "original_exit": "three separate minimal decisions B31/B161/B214 with actual discriminators; reuse existing carriers/ID",
+      "next_action": "Research distinct subject B31, refinement B161 and partial-graph B214 semantics against existing contracts and actual discriminators. Validate C09 fixed kind/media/schema and typed report basis; repair internal defects, retain persisted unsupported-query limits, and submit genuinely ambiguous choices to G. Record separate outcomes for all assigned IDs including LA-023/LA-032/LA-036; the three named decisions do not cover those by implication.",
+      "dependencies": [
+        "BOOT0"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "scope_status_in_manifest": "execution_remaining; inherited proposals are not closures",
+      "assigned_finding_ids": [
+        "B07",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B31",
+        "B33",
+        "B36",
+        "LA-023",
+        "LA-032",
+        "LA-036",
+        "B161",
+        "B172",
+        "B173",
+        "B214"
+      ],
+      "assigned_finding_id_count": 15,
+      "current_task_status": "implementation_remaining",
+      "reported_task_status": {
+        "status": "implementation_remaining",
+        "reason": "B161 producer lacks positive route/source-unit join. B31 lacks paired unit witness; S3 red uses wrong accessor. Other 14 refs/13 IDs have focused tests, no S1 replay. G choice selected; external facts only for real data."
+      },
+      "formal_closure_ids": [],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/S1/report.json",
+        "sha256": "d2a180895e2324341c263a3c7af9cbf5aae266e0db634e657be3c7b0b4d3635d"
+      },
+      "verified_property_count": 16,
+      "remaining_work": {
+        "units": [
+          {
+            "id": "B161-positive-same-basis",
+            "kind": "local_implementation",
+            "owner": "S1 / scientist search uncertainty producer",
+            "write": [
+              "src/polisyos/scientist/methods/search/uncertainty.py",
+              "tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py"
+            ],
+            "reuse": "Current basis unit_scope_ref, observation fields, score/key helpers, outbox and fresh ticket reader; narrow source-binding extension only if needed. No new G/API/authority choice.",
+            "gap": "Typed selected variables -> actual source arrays -> content-bound unit/scope join is absent; producer emits unavailable for every qualified HTE interval, even if basis is bound.",
+            "positive": "Real Runtime POST/outbox -> persisted assessment -> fresh ticket snapshot; fixture theta=2, CI=[1,3] yields selected-profile 0.5 and same-basis refs.",
+            "negative": "Missing/unbound/mismatched unit/map/scope, subject/profile mismatch, zero scale, invalid CI or removed ref unavailable/refuse; preserve unrelated unknowns/history and contested replay.",
+            "limit": "Candidate ordering only; not probability/risk, promotion, prune, stop or certificate.",
+            "companions": "No new public schema/UI/installed surface; extend existing binding/readers only if current refs cannot express join.",
+            "external": "Real source unit/scope supplied by owner; absence remains unknown but does not block local code."
+          },
+          {
+            "id": "B31-paired-witness",
+            "kind": "test_companion",
+            "owner": "S3 B31 coordinated with S1",
+            "write": [
+              "tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py",
+              "tests/unit/runtime/quality/test_value_gate.py"
+            ],
+            "reuse": "N8 producer, ValueOuterSet, basis and fresh consumer; one combined witness.",
+            "positive": "Equivalent m/km inputs retain ID point and native asymmetric CI correctly scaled through fresh consumer.",
+            "negative": "Cross-unit bind, post-producer CI mutation, missing ref reject. Correct negative hook to mutate get_raw_manifest_bytes before runner.",
+            "dependencies": [
+              "S1 unit discriminator",
+              "S3"
+            ],
+            "companions": "No new schema; candidate authority blocked/out of scope.",
+            "resources": "Prior 4-node receipt 175.512 sec / 1055145984 RSS; expansion unmeasured, serialize."
+          },
+          {
+            "id": "other-assigned-replay",
+            "kind": "missing_verification",
+            "owner": "root verification wave",
+            "scope": "14 other refs / 13 IDs have focused source/tests, no fresh S1 receipt.",
+            "check": "Run focused modules below; require positive/refusal predicates, not aggregate PASS.",
+            "write": []
+          },
+          {
+            "id": "G528-finite-PAG",
+            "kind": "missing_verification",
+            "owner": "G528 route owner/root verification",
+            "reuse": "Finite producer -> actual solver per member -> persisted candidate -> fresh read/review serve.",
+            "positive": "Exact 3/5/8 member fixtures; native producer reaches every solver; fresh candidate is review-bound.",
+            "negative": "Membership mismatch, solver removal, scalar selection and marker removal refuse without promotion.",
+            "dependencies": [
+              "G528",
+              "B214"
+            ],
+            "external": "Admitted graph/measures only for real transport claim.",
+            "resources": "Unmeasured.",
+            "write": []
+          }
+        ],
+        "checks": [
+          {
+            "id": "simulation",
+            "files": [
+              "tests/unit/remediation/test_sim_01.py",
+              "tests/unit/remediation/test_sim_02.py",
+              "tests/unit/remediation/test_sim_03.py",
+              "tests/unit/runtime/quality/test_joint_simulation_horizon.py"
+            ],
+            "expect": "B07/19/20/21/22 fallback, comparator, conflict/order, repetitions/error and partial trajectory."
+          },
+          {
+            "id": "B161",
+            "file": "tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py",
+            "new": "test_bound_hte_first_assessment_routes_same_basis_interval_and_preserves_other_unknowns (proposed)",
+            "expect": "Bound fixture yields 0.5 through fresh snapshot; no promotion; missing/mismatch stays unavailable; other unknowns/history persist and replay contests.",
+            "resource": "Unmeasured; module skips without econml."
+          },
+          {
+            "id": "B31",
+            "files": [
+              "tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py",
+              "tests/unit/runtime/quality/test_value_gate.py"
+            ],
+            "focus": "test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis; synthetic asymmetric CI consumer; proposed equivalent-unit paired witness.",
+            "expect": "Raw mismatch refuses before runner; both channels survive unit conversion/fresh read; bad refs reject.",
+            "resource": "Prior 4 nodes 175.512 sec/1055145984 RSS; expanded unmeasured; 360 sec timeout, serialize."
+          },
+          {
+            "id": "focused-remediation",
+            "files": [
+              "tests/unit/foundry/methods/test_selection_advisor.py",
+              "tests/unit/remediation/test_plg_02.py",
+              "tests/unit/remediation/test_plg_03.py",
+              "tests/unit/remediation/test_udf_05.py",
+              "tests/unit/remediation/test_ber_01.py",
+              "tests/unit/remediation/test_bkt_03.py",
+              "tests/unit/remediation/test_grf_03.py"
+            ],
+            "expect": "B36, both LA-023 cards, LA-032/036, B172/173 and B214."
+          },
+          {
+            "id": "G528-route",
+            "files": [
+              "tests/unit/foundry/methods/catalog/causal/test_pag_member_family.py",
+              "tests/unit/foundry/methods/catalog/causal/test_transport_engine_candidate_members.py",
+              "tests/integration/scientist/test_conditional_transport_candidate_route.py",
+              "tests/integration/runtime_quality/test_conditional_transport_candidate_served.py"
+            ],
+            "expect": "Finite oracle, actual solver, persistence/fresh read, review-bound serve, scalar/marker negatives.",
+            "resource": "Unmeasured; 600 sec initial timeout; record wall/RSS; serialize shared CAS/server."
+          }
+        ]
+      },
+      "original_exit_source_key": "original_exit",
+      "task_manifest_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S1"
+    },
+    {
+      "task_id": "S2",
+      "title": "Actual law/draw/calibration/relationship intake",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/S2",
+      "original_exit": "attempted denominator/covariance/axis/subject identity consumed fresh; counterfeit metadata refuses",
+      "next_action": "attempted denominator/covariance/axis/subject identity consumed fresh; counterfeit metadata refuses",
+      "dependencies": [
+        "BOOT0",
+        "S1"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "scope_status_in_manifest": "execution_remaining; inherited proposals are not closures",
+      "assigned_finding_ids": [
+        "LA-036",
+        "B157",
+        "B190",
+        "B194",
+        "B197",
+        "B200"
+      ],
+      "assigned_finding_id_count": 6,
+      "current_task_status": "implementation_remaining",
+      "reported_task_status": {
+        "status": "implementation_remaining",
+        "author_readiness": "Author-ready for a bounded B200 relation-intake work unit; not ready for full S2 acceptance.",
+        "closure_ids": []
+      },
+      "formal_closure_ids": [],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/S2/report.json",
+        "sha256": "95869d8740db122f8153916da4a3100ee7125495688d2cbf037497979cbaa85f"
+      },
+      "verified_property_count": 6,
+      "remaining_work": {
+        "units": [
+          {
+            "id": "S2-B200-relation-intake",
+            "class": "same B200 class one level deeper (P40), not a new class",
+            "owner": "Foundry uncertainty owner plus the existing measurement/calibration source owner of overlap/dependence facts.",
+            "reuse_first": "Use exact existing selected refs, InputRef manifest edges, content digests, and composition history for identity/repeats. These resolve artifact views, not independence.",
+            "gap": "No typed owner producer resolves relation/effective N for distinct views. _has_unknown_dependency rejects all multi-view narrowing. No product-source application consumer calls the aggregate/fresh-reader helpers.",
+            "positive_and_negative": "Positive: owner-supplied independent same-estimand/unit measurements with known Gaussian answer, persisted relation/source views, fresh recomputation and narrower result. Negative/removal: same ref\u00d710 no extra narrowing; shared/overlapping data, unknown relation, wrong axis/version, changed bytes/profile, forged independence metadata, and removing relation evidence while retaining markers must fail closed.",
+            "fixture_vs_fact": "Synthetic fixtures can prove the software protocol only. Genuine world narrowing requires actual source-owner overlap/design evidence; current truth status is not_established.",
+            "dependencies": [
+              "Identify an existing owner-issued relation artifact/reader. If none exists, get a narrow owner choice before changing wire semantics."
+            ],
+            "companions": "First test existing v1.1 envelope/manifest sufficiency. If insufficient, include the actual owner writer, schema/profile registry, fresh reader, consumer, API/report surface or explicit surface_out_of_scope, and semantic tests. No new UI/HTTP/install surface is selected.",
+            "paths": [
+              "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+              "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+              "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+              "policy-engine/tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py",
+              "policy-engine/tests/integration/foundry/uncertainty/test_artifact_aware_aggregation.py"
+            ],
+            "labels": [
+              "producer_missing",
+              "implemented_but_not_orchestrated",
+              "verification_missing",
+              "semantic_test_missing"
+            ],
+            "ready_now": false
+          },
+          {
+            "id": "S2-neighboring-ID-verification",
+            "class": "separate original predicates; do not collapse",
+            "owners": {
+              "B190": "Foundry response-basis owner",
+              "B194": "Foundry Monte Carlo owner",
+              "B197": "Foundry calibration/Scientist welfare owners",
+              "B157": "Scientist funnel/policy-runtime owners",
+              "LA-036": "BERL requested/effective explanation identity and honest unsupported/fallback owner"
+            },
+            "work": "Run separate current-source properties B190/B194/B197/B157 and LA-036 requested/effective identity, alias-deduplication, cache separation, dependent-background/parameter/model binding, refusal/fallback, and persisted/history projection. LA-036 permits truthful unsupported conditional/tree or disclosed fallback; a new estimator is not required.",
+            "ready_now": true
+          }
+        ],
+        "checks": [
+          {
+            "purpose": "B200 existing duplicate-view/fresh-CAS controls",
+            "command": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py tests/integration/foundry/uncertainty/test_artifact_aware_aggregation.py -ra",
+            "expected": "Exact repeats dedupe and fresh-recompute; forged relation metadata cannot narrow; distinct profiles/unknown relation remain hull; altered lineage/context refuses. Does not prove positive independence.",
+            "inputs_resources": "Current .venv, controlled source fixtures and tmp_path CAS; no DB/port/network/model. Exact-slice time/RSS unmeasured."
+          },
+          {
+            "purpose": "B190/B194/B197 companions",
+            "command": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/foundry/calibration/test_identifiability_response_basis.py tests/unit/foundry/uncertainty/test_monte_carlo_b194.py tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py -ra",
+            "expected": "B190 zero-baseline/source-replay fresh basis; B194 attempted denominator and fresh normative admission; B197 selected covariance/source join and fresh welfare.",
+            "inputs_resources": "Current .venv and local fixture/CAS; no production data. Exact-slice time/RSS unmeasured."
+          },
+          {
+            "purpose": "B157 bounded config control",
+            "command": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/remediation/test_fun_02.py -ra",
+            "expected": "Owned L3 config overlay preserves caller/L4 inputs and neighboring funnel semantics.",
+            "inputs_resources": "Current .venv/local fixtures; no external service. Exact-slice time/RSS unmeasured."
+          },
+          {
+            "purpose": "LA-036 refusal and anti-mislabel guard",
+            "command": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/remediation/test_ber_01.py tests/unit/berl/adapters/test_shap_kernel.py -ra",
+            "expected": "Conditional request refuses without verified law; custom adapter cannot bypass; analytic discriminator stays distinct from marginal output.",
+            "limitation": "Pass proves refusal only, not conditional-law production.",
+            "inputs_resources": "Current .venv and synthetic two-feature model/background; no law service. Exact-slice time/RSS unmeasured."
+          },
+          {
+            "purpose": "Future B200 owner-positive integration, after source owner/interface selection",
+            "prototype": "Extend existing integration test: source-owned relation + distinct source views \u2192 persist \u2192 aggregate \u2192 fresh recompute \u2192 known independent Gaussian narrowing. Add same-ref\u00d710, overlap, unknown, counterfeit, wrong unit/estimand/version, altered bytes/profile, and remove-relation/keep-marker negatives.",
+            "expected": "Relation/effective N recomputed from resolved owner bytes; repeat does not increase N; uncertain/dependent input cannot narrow.",
+            "inputs_resources": "Actual owner basis required; fixture alone is not a world fact. Local tmp_path CAS; unmeasured."
+          }
+        ]
+      },
+      "scope_correction_addendum": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/S2/addendum-scope-correction-r1.json",
+        "sha256": "1bf5b3437ac60839af11a4ea8145bb284504d02ea2c9e5e7f46e687bbd02bbed"
+      },
+      "original_exit_source_key": "original_exit",
+      "task_manifest_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S2"
+    },
+    {
+      "task_id": "S3",
+      "title": "B31 producer-owned persisted subject join",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/S3",
+      "original_exit": "exact identification/nativeuncertainty refs bound to recomputed resolvedsubject/unit; freshAconsumer retains4point and1to10interval; fake/mismatch/unresolvedremoval refuses; no contract-only authority",
+      "next_action": "exact identification/nativeuncertainty refs bound to recomputed resolvedsubject/unit; freshAconsumer retains4point and1to10interval; fake/mismatch/unresolvedremoval refuses; no contract-only authority",
+      "dependencies": [
+        "BOOT0",
+        "S1"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "scope_status_in_manifest": "execution_remaining; inherited proposals are not closures",
+      "assigned_finding_ids": [
+        "B31"
+      ],
+      "assigned_finding_id_count": 1,
+      "current_task_status": "verification_remaining",
+      "reported_task_status": {
+        "status": "verification_remaining",
+        "reason": "S3 is not complete until the bad adversary seam is corrected and one fresh-consumer positive proves both ID/native interval remain unit-consistent. Product behavior is not shown defective; no external fact or schema contract is missing. S1 remains a declared task dependency."
+      },
+      "formal_closure_ids": [],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/S3/report.json",
+        "sha256": "607980c91a8070fa72e19ea2d4a75212aa58f82458d2b6f276a7f8abc2fff30e"
+      },
+      "verified_property_count": 4,
+      "remaining_work": {
+        "units": [
+          {
+            "id": "S3-RAW-MANIFEST-NEGATIVE",
+            "kind": "test_companion",
+            "status": "ready_for_authoring",
+            "owner": "test_b31",
+            "write_paths": [
+              "policy-engine/tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py"
+            ],
+            "smallest_change": "Move selected-panel mutation to get_raw_manifest_bytes, the consumed adapter seam.",
+            "positive": "Actual-method/CAS same-coordinate loop completes before adversarial control.",
+            "negative": "Mutated raw panel manifest differs from typed get_manifest; expect ir_artifact_selected_manifest_changed before runner; retain missing/unresolved/method-rebind negatives.",
+            "external_inputs": [],
+            "new_schema_surface": "none"
+          },
+          {
+            "id": "S3-COMBINED-UNIT-CHANNELS",
+            "kind": "missing_verification",
+            "status": "ready_for_authoring",
+            "bucket": "same original B31 combined witness gap already declared; widen once with one paired consumer test, no per-leaf patch",
+            "owner": "test_value_gate",
+            "write_paths": [
+              "policy-engine/tests/unit/runtime/quality/test_value_gate.py"
+            ],
+            "reuse": "Extend existing synthetic asymmetric source/CAS test and fixed-unit projector helper; reuse ValueOwnerSourceProjectionRequestV1, ValueOwnerSourceVariableAssignmentV1, ValueOwnerMethodRunBasisV2, ValueOuterSet, and canonical fixed-multiplicative projection. No new DTO/carrier/API/unit subsystem.",
+            "smallest_positive": "One N8 source-profile -> source assignment -> producer report/bounds -> CAS basis -> fresh consumer test runs equivalent outcomes under m and km. At m assert ID [4,4] and native CI [1,10]; at km assert ID [0.004,0.004] and native CI [0.001,0.010]. Require factor-1000 across all four endpoints, correct units at report/bounds/assignment/output, and subject same except declared unit component. Generate exact synthetic fixture outputs from transformed panel/support and keep candidate-only; no estimate claim.",
+            "negative_predicates": [
+              "Change native CI after producer output; fresh consumer rejects recomputation mismatch.",
+              "Cross-bind km report/bounds ref to m basis; fresh consumer rejects unit/lineage mismatch.",
+              "Remove or leave unresolved identification/bounds input ref; consumer fails closed."
+            ],
+            "why_current_tests_do_not_close": "Exact 4/[1,10] positive uses deterministic backend fixtures but only one unit; real source AIPW/Manski is partial ID; actual DID/SyntheticControl point is fixture 2.125; fixed-unit test stops at profile reader. No existing witness asserts both channels co-scale through the fresh consumer.",
+            "external_inputs": [],
+            "public_schema_companion": "none; authority surface is out of scope for blocked candidate result."
+          }
+        ],
+        "checks": [
+          {
+            "name": "Bounded S3 semantic replay after test changes",
+            "cwd": "policy-engine",
+            "argv": [
+              ".venv/bin/python",
+              "-B",
+              "-m",
+              "pytest",
+              "-q",
+              "tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py::test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis",
+              "tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds",
+              "tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_cas",
+              "tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_preserves_b31_channels_across_equivalent_units",
+              "tests/unit/runtime/quality/test_value_gate.py::test_n8_fresh_consumer_reads_recomputed_fixed_unit_owner_projection"
+            ],
+            "new_node": "test_n8_source_projection_preserves_b31_channels_across_equivalent_units is a proposed node and must be added before command is valid.",
+            "expected": "5 nodes pass; raw-manifest refusal before runner; combined test keeps 4/[1,10] in m and 0.004/[0.001,0.010] in km; fake/cross-unit/missing/unresolved refs fail closed.",
+            "resources": {
+              "current_four_node_seconds": 175.512,
+              "current_peak_rss_bytes": 1055145984,
+              "new_node": "unmeasured",
+              "initial_timeout_seconds": 360,
+              "shared_db_port": "none; per-test tmp_path CAS",
+              "execution": "serialize expanded run to control memory; retain native pytest plugin autoload; no -o addopts override."
+            }
+          }
+        ],
+        "checks_note": "Use the preserved existing test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_cas node, widened to paired units, rather than adding/renaming a second expensive node."
+      },
+      "original_exit_source_key": "original_exit",
+      "task_manifest_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S3"
+    },
+    {
+      "task_id": "T2",
+      "title": "Protected positive and revalidation consumer",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/T2",
+      "original_exit": "valid positive + fake/foreign/stale/revoked zero effects including commit-time check",
+      "next_action": "valid positive + fake/foreign/stale/revoked zero effects including commit-time check LA-018/LA-025/B131/B137/B164 each require original issuer/currentness/input boundary or verified unavailability; a positive fixture alone is insufficient.",
+      "dependencies": [
+        "BOOT0",
+        "T1"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "scope_status_in_manifest": "execution_remaining; inherited proposals are not closures",
+      "assigned_finding_ids": [
+        "B05",
+        "B08",
+        "B154",
+        "LA-018",
+        "LA-024",
+        "LA-025",
+        "B131",
+        "B137",
+        "B164",
+        "LA-054",
+        "LA-055"
+      ],
+      "assigned_finding_id_count": 11,
+      "current_task_status": "implementation_remaining",
+      "reported_task_status": {
+        "status": "implementation_remaining",
+        "reason": "Mandatory valid positives and fake/foreign/stale/revoked zero-effects are not all present: B131 lacks verified source-use permission; B137 lacks verifier-issued evidence revalidation/version; B164 lacks permitted normal write and revoke-serialized commit; LA-054 still loses within-model calibration/regime/metric binding. Required test wave also not run. No production institution fact is needed to test fixture-capable contracts; actual external permission/issuer facts remain bounded or not_established."
+      },
+      "formal_closure_ids": [],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/T2/report.json",
+        "sha256": "12124e863b3cbece1891de9bb7fd09e22262815d40823adcd4059bf44e287fb5"
+      },
+      "verified_property_count": 11,
+      "remaining_work": {
+        "units": [
+          {
+            "unit": "U1 verify existing B05/B08/B154 contracts",
+            "paths": [
+              "tests/unit/runtime/quality/test_generation_cycle.py",
+              "tests/unit/runtime/quality/test_value_gate.py",
+              "tests/unit/remediation/test_b154_batch_completion.py"
+            ],
+            "acceptance": "N5\u2192conditional N8 positive and owner-evidence refusals; B154 all-valid complete plus item/global partial outcomes."
+          },
+          {
+            "unit": "U2 verify LA-018/024/025 local paths",
+            "paths": [
+              "tests/unit/lex/normpack/test_fabric_world_reader.py",
+              "tests/unit/scholar/search/test_fetcher_dns_pinning.py",
+              "tests/unit/scholar/search/test_fetcher_security_cache.py",
+              "tests/unit/remediation/test_scl_03.py"
+            ],
+            "acceptance": "Fabric import; shared transport; exact v1 bytes reused; explicit v2 refresh; missing/denied/mismatch refusal. Source-use right remains per-source input."
+          },
+          {
+            "unit": "U3 B131/B137 verified owner/currentness",
+            "paths": [
+              "src/polisyos/scientist/methods/search/strategies/transfer.py",
+              "src/polisyos/scientist/methods/search/lessons.py"
+            ],
+            "acceptance": "Configured owner permission/revalidation positive; fake/foreign/stale/revoked/missing basis leaves training/trust unchanged after reload/transfer. Missing owner evidence stays candidate/limited."
+          },
+          {
+            "unit": "U4 B164 commit bridge",
+            "paths": [
+              "src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+              "src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+              "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py"
+            ],
+            "acceptance": "One valid verified permit has one local write; absent/fake/foreign/wrong/expired/revoked-after-preflight has zero effects at serialized writer."
+          },
+          {
+            "unit": "U5 LA-054 same-context DDM",
+            "paths": [
+              "src/polisyos/ddm/calibration/audit.py",
+              "src/polisyos/ddm/integration/monitor.py",
+              "src/polisyos/ddm/integration/model_registry.py",
+              "src/polisyos/ddm/contracts/events.py"
+            ],
+            "acceptance": "Matching current report/event/budget positive; same-model mismatched detector/calibration/regime/metric and stale/foreign projection fail closed. LA-055 precedence already explicit."
+          }
+        ],
+        "checks": [
+          {
+            "command": "cd /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine && uv run pytest -q tests/unit/runtime/quality/test_generation_cycle.py::test_generation_cycle_serves_persisted_n5_into_default_n8_value_port tests/unit/runtime/quality/test_value_gate.py::test_simulate_only_receipt_cannot_shrink_k_world tests/unit/runtime/quality/test_value_gate.py::test_candidate_treatment_assignment_is_not_owner_world_knowledge tests/unit/runtime/quality/test_value_gate.py::test_shaped_owner_assignment_attestation_is_not_authority",
+            "purpose": "B05/B08 exact conditional positive and fail-closed controls",
+            "expected": "conditional positive remains low-grade/simulate_only and K_world unchanged; fabricated owner assignment yields no owner receipt",
+            "resources": "unmeasured; local fixtures only, no shared service/network"
+          },
+          {
+            "command": "cd /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine && uv run pytest -q tests/unit/remediation/test_b154_batch_completion.py",
+            "purpose": "B154 complete/per-item/global-abort and authorization-loss mechanics",
+            "expected": "real local valid complete report; per-item errors preserved; aborted partial report never looks complete",
+            "resources": "unmeasured; local fixtures only, no shared service/network"
+          },
+          {
+            "command": "cd /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine && uv run pytest -q tests/unit/lex/normpack/test_fabric_world_reader.py tests/unit/scholar/search/test_fetcher_dns_pinning.py tests/unit/scholar/search/test_fetcher_security_cache.py tests/unit/remediation/test_scl_03.py",
+            "purpose": "LA-018/024/025 local import, shared transport and replay checks",
+            "expected": "Fabric owner is used; both adapters enforce shared constraints; exact v1 bytes reused and v2 refresh is separate; raw missing/denied/mismatched refuses",
+            "resources": "unmeasured; local fixtures only, no shared service/network"
+          },
+          {
+            "command": "cd /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine && uv run pytest -q tests/unit/scientist/methods/autotune/test_warm_start.py tests/unit/scientist/search/test_lessons.py tests/unit/scientist/search/test_lesson_transfer.py tests/unit/scientist/search/funnel/test_level6_promotion.py",
+            "purpose": "Run existing B131/B137/B164 controls, not claim missing new positives are covered",
+            "expected": "declared mismatch and stale-read controls pass; B164 remains bridge_missing and no callback effect occurs",
+            "resources": "unmeasured; local fixtures only, no shared service/network"
+          },
+          {
+            "command": "cd /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine && uv run pytest -q tests/unit/ddm/test_full_acceptance.py tests/unit/ddm/test_stationary_replay.py",
+            "purpose": "Current LA-054/055 report/rebind/veto/signoff local contracts",
+            "expected": "matched report positive and stale/foreign/tampered/veto negatives; current identified same-model cross-calibration/metric cases remain uncovered until added",
+            "resources": "unmeasured; local fixtures only, no shared service/network"
+          }
+        ]
+      },
+      "scope_correction_addendum": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/T2/scope-addendum.json",
+        "sha256": "4a94138b24aab23ed03f176cb5480d98dcdcf834cf011b3d2187e9bdc8df46a1"
+      },
+      "original_exit_source_key": "original_exit",
+      "task_manifest_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/T2"
+    },
+    {
+      "task_id": "V1",
+      "title": "Ordinary authentic source-backed served generation",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/V1",
+      "original_exit": "POST->ownedcontext->N5->CAS->freshGET; synthetic configured witness remains bounded",
+      "next_action": "Launch exact local owned serving instance with observed root/profile/context; matching release or supported versioned replacement; realPOST/N5/CAS/freshGET.",
+      "dependencies": [
+        "BOOT0",
+        "Q1"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "scope_status_in_manifest": "execution_remaining; inherited proposals are not closures",
+      "assigned_finding_ids": [
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B08",
+        "B10",
+        "B13",
+        "B74",
+        "B154"
+      ],
+      "assigned_finding_id_count": 10,
+      "current_task_status": "verification_remaining",
+      "reported_task_status": {
+        "status": "verification_remaining"
+      },
+      "formal_closure_ids": [],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/V1/report.json",
+        "sha256": "9bff9ad17e85aa8c4fa7042e9169a359a90a21993bca2d18b9b216532e39c062"
+      },
+      "verified_property_count": null,
+      "remaining_work": {
+        "units": [
+          "Before another heavy replay, make V1 and V2 consume the same owner-built temporary source root for the controlled L3/L6 and catalog owners; keep the selected N4/WMR L2 source explicit and verify actual resolved owner paths, not a fixture boolean.",
+          "Then replay the exact V1 POST/worker/N5/CAS/fresh-GET node and V2 actual N4/two-child/N6/history/fresh-GET node serially with the existing native pytest profile. Require completed JUnit and a current source readset; an abort is not a verdict.",
+          "Keep full-production L3 performance as a separate bounded measurement; do not change the L3 denominator or production manifest/hash for these candidate-only tests.",
+          "Adjudicate B10, B13, B74, and B154 against their own canonical consumer criteria and owners; do not mark them closed from V1/V2."
+        ],
+        "checks": {
+          "kind": "V1-V2-controlled-source-root-binding",
+          "plan": "Read diagnostic-addendum.json#plan_unit. Reuse the existing owner-built candidate-cycle source fixture; explicitly inject its source root into V1 app/control service, V2 N4 producer/app context, and their L6 readers. Then replay each exact positive node in a separate serial process.",
+          "expected_predicate": "Before N4 work, the live source selectors resolve to the intended test fixture: service/N4 repo_root equals the fixture root; the WMR-selected L2 bytes equal the controlled synthetic SKG; DEFAULT_L3_LEX_KG_PATH and default L6 bundle paths resolve under that fixture root; V1 L1 D-Cat remains the exact persisted fixture catalog. Full task exit additionally requires complete original positive-chain assertions and matching current-source readsets.",
+          "resources": "No rerun performed. Resource cost after the source-root fixture correction is unmeasured; keep V1 and V2 serial and preserve native pytest settings."
+        }
+      },
+      "original_exit_source_key": "original_exit",
+      "task_manifest_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V1"
+    },
+    {
+      "task_id": "V2",
+      "title": "N4 meaningful-child producer and actual recursive reader",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/V2",
+      "original_exit": "actual N4 two meaningful children->N6 frontier/history->freshGET/client; manual supplied graph not producer",
+      "next_action": "Select actual N4 producer/qualified slots and per-childprofile/owner; distinct meaningful children, budget stop, retained frontier and parsed API.",
+      "dependencies": [
+        "BOOT0",
+        "S1"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "scope_status_in_manifest": "execution_remaining; inherited proposals are not closures",
+      "assigned_finding_ids": [
+        "B15",
+        "B29"
+      ],
+      "assigned_finding_id_count": 2,
+      "current_task_status": "verification_remaining",
+      "reported_task_status": {
+        "status": "verification_remaining",
+        "mandatory_companion_reason": "V2 original_exit requires an actual N4 producer, two meaningful children, N6/history and fresh GET/client. The only isolated current witness aborted at 3 GiB before N4 returned; no JUnit or runtime readset exists.",
+        "closure_ids": []
+      },
+      "formal_closure_ids": [],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/V2/report.json",
+        "sha256": "6878744148b923f865def54ee3eea06d5220ca59c32cc032a871c134ed81094c"
+      },
+      "verified_property_count": 4,
+      "remaining_work": {
+        "units": [
+          {
+            "id": "V2-current-native-witness",
+            "kind": "verification_missing",
+            "owner": "Existing N4GenerationPort/N6 history/API owner and existing V2 integration tests; no source defect is observed.",
+            "exact_missing_properties": [
+              "Successful current-source execution of actual recorded N4 -> two semantically distinct children.",
+              "Runtime proof child profile/owner refs bind to the actual N4 children and persisted history, not a supplied graph.",
+              "Runtime proof a sibling failure and budget stop preserve completed N5/history, exact failed branch, pending frontier and terminal/error distinctions through a fresh GET and reopened TCP client.",
+              "No current JUnit or Python readset exists because the abort occurred before the first N4 port returned."
+            ],
+            "reuse_extend_consolidate_build": "Reuse the current source-bound helper and tests; no new producer, API or budget contract before a passing run identifies a product bug.",
+            "inputs": {
+              "recording_id": "gy_n4_replay_20260704_095710_425807_7bf5552df372",
+              "content_hash": "sha256:107f896fb1fd1c37170b74c88726c07169277d05d3ec5459ceb360919e692cb1",
+              "fixture": "policy-engine/architecture/policy_design_case/layer3_gy_design_generation_replay_recordings.json@db5f892c19412e74ff78683901dd81e49ebb446f75eb394d254cc75d7c74ae71",
+              "fixture_bytes": 1009265,
+              "missing_external_inputs": []
+            },
+            "cost_mechanism": {
+              "observation": "RSS termination was in the explicit N4 fixture-preparation await, before POST/worker/GET/TCP. Peak sample about 3.03 GiB at the 3 GiB cap. Disk stayed above 9.57 GB against a 6 GiB floor.",
+              "likely_but_not_proven": "N4GenerationPort enters full build_credal_reference and then recorded drafter/formalizer/critic plus grounding/relation work. The helper also runs N4 once to derive profiles before the served worker executes the source path; repeated N4 work may compound cost. No lower-level stack/RSS was captured, so do not attribute the whole peak to one subfunction.",
+              "not_established": "No evidence implicates TCP or a real external model call; the abort precedes the served path and fixture N4 uses RecordedGenerationReplayClient. Reading the 1 MB recording fixture alone does not explain 3 GiB."
+            },
+            "p40": "One shared verification/resource-observation gap, not two observed semantic escapes. Do not patch findings independently.",
+            "p41": "not_established: monitor abort is not a product red; no exact failed V2 command at slice base was replayed with zero input intersection."
+          },
+          {
+            "id": "B29-full-finding-boundary",
+            "kind": "formal_finding_residual_outside_bounded_V2_exit",
+            "blocks_V2_task_exit": false,
+            "blocks_formal_B29_closure": true,
+            "exact_gap": "B29 source criterion includes grounded_partial_admissible versus stable frontier, budget exhaustion and true abstention across representations. The current unit parameterization omits grounded_partial_admissible, and V2 API tests do not establish all Atlas/Readback surfaces. A V2 API pass must not close B29.",
+            "smallest_check_if_full_closure_is_later_requested": "Extend the existing behavioral terminal-projection test with grounded_partial_admissible; route an actual stop/abstain contrast through the in-scope readback consumers. Keep this outside bounded V2 unless Q0 explicitly includes it.",
+            "p40": "Separate B29 criterion-specific companion, not a V2 per-occurrence patch."
+          }
+        ],
+        "checks": [
+          {
+            "id": "V2-positive-two-children",
+            "node": "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_original_second_capture_serves_two_meaningful_children_through_fresh_get",
+            "harness": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case.py@ab690e5d1508c7b67637e9beab14653daff0cb14da471a1f504ae50f23f66cc2",
+            "plan": {
+              "case_id": "v2-positive-two-children-r3",
+              "source_head": "a92c9774edf8049d590cd6ca6de35aa17063025a",
+              "task_ids": [
+                "V2"
+              ],
+              "nodes": [
+                "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_original_second_capture_serves_two_meaningful_children_through_fresh_get"
+              ],
+              "extra_env": {
+                "POLISYOS_RUN_INTEGRATION": "1"
+              },
+              "deadline_seconds": 600,
+              "rss_cap_bytes": 4294967296,
+              "scope": "One native positive V2 node: recorded N4 producer, source-derived two children/profile bindings, POST/worker, persisted N6 history and parsed fresh GET."
+            },
+            "command_after_root_writes_plan": "/usr/bin/python3 /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case.py /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v2-positive-two-children-r3-plan.json",
+            "expected": "JUnit 1 test, zero failures/errors/skips, exit 0, no abort, non-empty current readset/no mismatches, phase reaches fixture.n4_port.complete, and assertions establish source-derived children, exact profile joins, persisted N6 history and parsed GET.",
+            "resources": "Run alone; 4 GiB hard RSS cap, harness 6 GiB disk floor, 600 second deadline. Prior measurement is only 32.19 seconds to abort at 3 GiB; full duration/peak unmeasured. If it aborts before N4 completes, stop and profile nested N4 stages instead of raising cap blindly."
+          },
+          {
+            "id": "V2-tcp-budget-reopen",
+            "node": "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_original_second_capture_tcp_reopens_partial_n5_after_sibling_failure",
+            "harness": "Same run_case.py, separate fresh process after positive node.",
+            "plan": {
+              "case_id": "v2-tcp-budget-reopen-r3",
+              "source_head": "a92c9774edf8049d590cd6ca6de35aa17063025a",
+              "task_ids": [
+                "V2"
+              ],
+              "nodes": [
+                "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_original_second_capture_tcp_reopens_partial_n5_after_sibling_failure"
+              ],
+              "extra_env": {
+                "POLISYOS_RUN_INTEGRATION": "1"
+              },
+              "deadline_seconds": 600,
+              "rss_cap_bytes": 4294967296,
+              "scope": "One native V2 TCP node: sibling failure, N5 partial checkpoint, budget stop/frontier, persisted N6 history, reopened TCP GET and history-removal control."
+            },
+            "command_after_root_writes_plan": "/usr/bin/python3 /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case.py /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v2-tcp-budget-reopen-r3-plan.json",
+            "expected": "JUnit 1 test, zero failures/errors/skips, exit 0, no abort, non-empty current readset/no mismatches; partial failure and budget terminal retain distinct child sets/frontier/result/history; reopened TCP GET equals persisted source rows; removing history projection refuses the GET.",
+            "resources": "Do not overlap with first node. Same 4 GiB cap/6 GiB disk floor/600 second deadline; full peak and time unmeasured."
+          },
+          {
+            "id": "B29-supporting-unit",
+            "node": "tests/unit/runtime/quality/test_generation_cycle.py::test_terminal_projection_preserves_stop_budget_and_abstention",
+            "command_if_needed": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/runtime/quality/test_generation_cycle.py::test_terminal_projection_preserves_stop_budget_and_abstention -ra",
+            "role": "Supporting producer-projection check only, not a V2 replacement or full B29 closure; current parameterization omits grounded_partial_admissible.",
+            "resources": "Unmeasured; serialize after heavy V2 nodes."
+          }
+        ]
+      },
+      "original_exit_source_key": "original_exit",
+      "task_manifest_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V2"
+    },
+    {
+      "task_id": "V3",
+      "title": "Source-driven same-candidate reissue and acquisition",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/V3",
+      "original_exit": "admitted content change->samecandidateWMR/N5/history; ID/write-time-only control no reissue; REQ/ACQ separate",
+      "next_action": "admitted content change->samecandidateWMR/N5/history; ID/write-time-only control no reissue; REQ/ACQ separate",
+      "dependencies": [
+        "BOOT0",
+        "S1"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "scope_status_in_manifest": "execution_remaining; inherited proposals are not closures",
+      "assigned_finding_ids": [
+        "B09",
+        "B12",
+        "B27",
+        "B28",
+        "LA-046"
+      ],
+      "assigned_finding_id_count": 5,
+      "current_task_status": "implementation_remaining",
+      "reported_task_status": {
+        "status": null
+      },
+      "formal_closure_ids": [],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/V3/report.json",
+        "sha256": "0e910633d32e9abb29d5b37ec9e36ea751a37ff44567037668fcb18bbffc1053"
+      },
+      "verified_property_count": null,
+      "remaining_work": {
+        "units": [
+          {
+            "id": "U1",
+            "goal": "Shared pure prepared effective basis + typed decision artifacts",
+            "paths": [
+              "data_state_substrate.py",
+              "cycle_substrate.py",
+              "candidate_simulation.py",
+              "generation_cycle.py",
+              "new acquisition_evaluation_basis.py"
+            ],
+            "accept": "Same owner-prepared plan feeds retain and reentry; missing/unsupported role is not_established."
+          },
+          {
+            "id": "U2",
+            "goal": "Decision and conditional lifecycle integration",
+            "paths": [
+              "acquisition_world_growth.py",
+              "acquisition_route_loop.py",
+              "acquisition_action_service.py",
+              "acquisition_surface_execution.py",
+              "control/run_lifecycle.py",
+              "control_plane_store.py"
+            ],
+            "accept": "Reuse shared Store frontier CAS; bind positive admission/prior selected eval/decision/action head; recovery and sibling mutation fail safely."
+          },
+          {
+            "id": "U3",
+            "goal": "Reader-first route/history v3 and UI/API projection",
+            "paths": [
+              "runtime/contracts/runtime.py",
+              "runtime/http/routes/runs.py",
+              "generated clients/API",
+              "runtime-dashboard validators and OverviewTab"
+            ],
+            "accept": "Fold verifies current retained tuple; legacy v1/v2 preserved; removed join is typed incomplete at fresh GET."
+          },
+          {
+            "id": "U4",
+            "goal": "Independent composed S01-S18 witness",
+            "paths": [
+              "served acquisition integration",
+              "new source-retained integration",
+              "affected store/cycle/compiler/contracts/dashboard tests"
+            ],
+            "accept": "Actual sequential producer/POST/GET and removal, race, crash, legacy negatives; do not accept test-only oracle hash as behavior."
+          }
+        ],
+        "checks": {
+          "no_tests_run": true,
+          "commands": [
+            "cd /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine && uv run --extra runtime --extra ml pytest tests/unit/runtime/http/test_control_plane_store_evaluation_frontier.py tests/unit/runtime/http/test_control_plane_store_action_head_history.py tests/unit/runtime/quality/test_generation_cycle.py tests/unit/data_requirement/test_compiler.py -q",
+            "cd /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine && uv run --extra runtime --extra ml pytest tests/integration/core_runtime/test_acquisition_authority_served.py tests/integration/core_runtime/test_acquisition_source_retained_evaluation.py -q"
+          ],
+          "first_input": "Persisted existing candidate evaluation; real e1 content change then e2 different transport/RAW occurrence with positive native delta but identical complete owner-prepared basis; separate ID/time-only, no-growth, changed unit/profile/model, missing-facet and stale-frontier controls.",
+          "outputs": [
+            "Before/after native admission and membership refs",
+            "Resolved bases/decision reasons",
+            "Exact selected frontier and N5/WMR/cycle refs",
+            "S02 persists admitted source/lineage/cost/action state and decision, with no redundant new N5 only after whole shared basis/current eligibility/frontier CAS checks",
+            "Crash/replay and fresh GET v3 lineage"
+          ],
+          "resources": "Serialize tests sharing Store/Postgres/DataForge overlay. Prior local measurements: focused Store set 12 tests / 15.62s / 1.17GiB; Postgres race/secure-owner set 3 tests / 23.86s / 1.485GiB. Prior candidate served-module attempt hit ~2.39GiB/192s; composed S01/S02 unmeasured. No resource result is acceptance evidence.",
+          "guardrail": "cd /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine && uv run polisyos-tools architecture guardrails check"
+        }
+      },
+      "interface_preparation": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/interface-freeze-preparation/b09/b09-interface-freeze-r2/REPORT.md",
+      "original_exit_source_key": "original_exit",
+      "task_manifest_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V3"
+    },
+    {
+      "task_id": "V4",
+      "title": "Compatible forecast/empirical evidence adoption",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/V4",
+      "original_exit": "CAS resolver recomputes->freshgrade/defaultHTTP; predictive coverage not causal calibration",
+      "next_action": "CAS resolver recomputes->freshgrade/defaultHTTP; predictive coverage not causal calibration",
+      "dependencies": [
+        "BOOT0",
+        "S1"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "scope_status_in_manifest": "execution_remaining; inherited proposals are not closures",
+      "assigned_finding_ids": [
+        "B16",
+        "B32",
+        "LA-051"
+      ],
+      "assigned_finding_id_count": 3,
+      "current_task_status": "implementation_remaining",
+      "reported_task_status": {
+        "status": "implementation_remaining",
+        "reason": "The actual V4 role-ref CAS write passes Core CanonSpec to the IR writer and currently fails before evidence persistence. The HTTP test also fails in WDI fixture setup before predictive POST; the precise selected planner-field mismatch is not exposed by the exception. Therefore the original fresh-grade/default-HTTP exit has no successful current end-to-end witness.",
+        "author_readiness": "not_ready_for_full_task_acceptance",
+        "capability_labels": [
+          "verification_missing",
+          "semantic_test_missing"
+        ],
+        "closure_ids": []
+      },
+      "formal_closure_ids": [],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/V4/report.json",
+        "sha256": "8b2ab11a61ba7e6d2bfefd56a5d4a4120c156fdb91137753bf08aefceb10498d"
+      },
+      "verified_property_count": 4,
+      "remaining_work": {
+        "units": [
+          {
+            "unit": "Fix the shared IR CanonSpec type-owner mismatch across all current callsites.",
+            "class_relation": "Same V4/V7 owner-boundary class, expanded to all observed IR producers.",
+            "evidence": [
+              "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py@b4be747e4d44cf89b2b12c26a9003da01d9673a4d54c4a70dbc083392404a8cc",
+              "policy-engine/src/polisyos/berl/persistence.py@bde70868398ac5df9738f16593b832cb8aac840e0ef7f68fc4c03fe7e04d0e81",
+              "policy-engine/src/polisyos/scientist/validation/metrics.py@d2bb6611ed370fe81c3356b6c2e5c331b8cffa1688bd80ca134127d27e745d1d",
+              "policy-engine/src/polisyos/core/artifacts/ir_adapter.py@ec69b52bc525c0e1bd424d9486a401bcdcb6cfdc756451c7deef35b7904b375d"
+            ],
+            "sites": [
+              "predictive_calibration.py:1302 _persist_evidence_role_refs",
+              "predictive_calibration.py:1404 _persist_association",
+              "berl/persistence.py:104 persist_explanation_bundle",
+              "scientist/validation/metrics.py:128 persist_metric_observation_bundle"
+            ],
+            "fix": "Pass IRCanonSpec(forbid_floats=False) at all four IR writes. Keep Core CanonSpec at predictive_calibration Core digest encoders (987, 1012, 2029, 2186). Keep IR normalizer refusal. Add direct runtime IR-type guard to CoreToIRArtifactStoreAdapter.put_json if the direct method remains supported; current type annotation is IRCanonSpec but the implementation has no explicit owner-type check.",
+            "sibling_dispatch": "BERL service calls persist_explanation_bundle; the metric-validation built-in node calls persist_metric_observation_bundle. This is a shared producer class beyond V4/V7.",
+            "smallest_test_request": "Add foreign Core CanonSpec to generic IR writer negative cases and prove zero CAS writes. If adapter guard is added, test direct adapter refusal before bytes. Keep valid IR spec selected-profile reopen. Run BERL and metric producer tests.",
+            "acceptance": "All four sites use IRCanonSpec; Core digests remain Core-owned; negative foreign-spec checks refuse before mutation; actual V4 role refs and association persist and reopen.",
+            "extra_scope": "The adapter runtime guard is a proposed class-boundary hardening beyond the V4 callsite fix; no direct in-tree source call passing a Core spec to adapter.put_json was observed. Do not use it to justify blanket coercion."
+          },
+          {
+            "unit": "Correct the selected WDI route fixture, retaining the strict executor rule.",
+            "class_relation": "Separate test-companion mismatch; product guard should remain unchanged.",
+            "evidence": [
+              "policy-engine/tests/unit/runtime/http/test_control_service_di.py@0196186328466b6485289a2d356549341f2dae62cc040d5d3e4fe5ef4a465d10",
+              "policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py@66334ba0c291ec80c68f66276a0bdaaf5a39074988758a96d1214211fc645fb0",
+              "policy-engine/tests/_helpers/acquisition_production.py@ef1dc1bdb38edd06dded6119fe93252932104f6614b3599000350f453c7afb70",
+              "policy-engine/src/polisyos/runtime/http/services/acquisition_surface_execution.py@9e6b4b52faafed58ac8764dad9bf2aadec987d225ef7838e5678ccce69b83b71",
+              "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py@05a5d0fd34d67fa5a63a0777993eb13a10c5cda80b8c493ac6597181e2d00737"
+            ],
+            "observed": "JUnit shows _admit_served_wdi_projection -> case.port.execute -> _require_live_variable_route. Guard requires data_snapshot_release, data_requirement, policyos.runtime.l1_variable_availability_gap.v1, production_snapshot_build, and exactly one canonical_variable_observations:<id> field. Error reports only the shape code, not which field differs. Test helper already calls l1_variable_availability_requirement_gap; do not replace that source blindly.",
+            "smallest_discriminating_input": "Assert the complete closure.planner_record at the live executor seam against those four fields and the expected government.balance field; compare it to the persisted planner record and source-cycle producer result.",
+            "fix": "Make the fixture inputs yield the accepted selected record through the canonical planner. Do not hand-construct a passing record or widen the production route guard.",
+            "acceptance": "Persisted selected planner record satisfies the current strict predicate and the same owner chain reaches predictive POST and fresh GET."
+          },
+          {
+            "unit": "Complete the original fresh-grade/default-HTTP semantic witness.",
+            "class_relation": "Required V4 verification; no new causal calibration requirement.",
+            "evidence": [
+              "policy-engine/tests/unit/runtime/http/test_control_service_di.py@0196186328466b6485289a2d356549341f2dae62cc040d5d3e4fe5ef4a465d10",
+              "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py@b4be747e4d44cf89b2b12c26a9003da01d9673a4d54c4a70dbc083392404a8cc"
+            ],
+            "discriminator": "The HTTP test already places two observed sources in one run manifest with identical training/split and different holdouts [21,22,23,24] versus [1000,1001,1002,1003], but submits only the first. Submit the second under a distinct intent with same candidate, model/policy/rule, split, method and six roles; fresh GET should show recomputed predictive numerator/hit-rate change. S10 stays blocked/not_established and the association remains predictive_only.",
+            "retain": "Existing exact-intent retry/ref equality, different-body conflict, event/CAS/profile lineage, fresh GET, and event-payload tamper refusal.",
+            "labels": [
+              "verification_missing",
+              "semantic_test_missing"
+            ],
+            "beyond_original": "The changed-outcome discriminator operationalizes the original recompute exit. It adds no causal calibration, population completeness or source-time authority claim."
+          },
+          {
+            "unit": "Keep the original B16/B32/LA-051 boundaries explicit.",
+            "class_relation": "Assigned finding outcomes; V4 cannot close broader FRC or population criteria.",
+            "current_qualification": {
+              "B16": "population_scope_status is not_established. This is honest limitation, not proof of pre-LIMIT scope filtering or completeness.",
+              "B32": "Six distinct timezone-aware roles are carried, but source_time_status remains not_established. Caller-supplied roles are not source-owned time authority.",
+              "LA-051": "Current S10 helper blocks missing estimator report and otherwise emits limited status with zero calibration denominator/numerator, false floor and no calibration coverage/error metric. The route receipt still lacks a fresh consumer read."
+            },
+            "owner": "Wider FRC-01/FRC-02 and empirical population closure stay with their original owners."
+          }
+        ],
+        "checks": [
+          {
+            "command": "cd /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine && .venv/bin/python -B -m pytest tests/unit/runtime/http/test_control_service_di.py::test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry tests/unit/remediation/test_frc_02_empirical_bridge.py::test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate tests/unit/berl/test_persistence.py::test_persistence_returns_selected_typed_ref_and_reads_its_manifest_view tests/unit/core/phase0/test_metric_validation_cli.py::test_metric_validate_cli_emits_summary_json",
+            "predicate": "After code and fixture repair, four producer/consumer paths pass. The route persists selected evidence/association, publishes event, fresh GET recomputes and retries preserve ref. Extend route test with the same-forecast/different-holdout check.",
+            "resources": "Prior two-node receipt measured 23.795 seconds total and maximum process-tree RSS 1,279,803,392 bytes. Added siblings and changed-outcome request are not measured; use prior measurement as estimate only. No install/build needed."
+          },
+          {
+            "command": "cd /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine && .venv/bin/python -B -m pytest tests/unit/ir/artifacts/test_owned_admission.py::test_generic_writer_rejects_malformed_present_canon_spec_before_cas tests/unit/core/artifacts/test_ir_adapter.py::test_selected_write_reconciles_manifest_against_frozen_core_options",
+            "predicate": "IR typed intake refuses malformed/foreign options before CAS mutation; correct IR spec preserves the selected profile. Add dedicated Core-spec and, if applicable, direct-adapter negative cases.",
+            "resources": "Not measured in this audit; run separately so resource observations remain attributable."
+          }
+        ]
+      },
+      "original_exit_source_key": "original_exit",
+      "task_manifest_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V4"
+    },
+    {
+      "task_id": "V5",
+      "title": "Named configured Search/funnel consumer",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/V5",
+      "original_exit": "exactcontext/history/quantity/CAS path; selected GP/native/injected evidence separately graded",
+      "next_action": "C11 boundedhistory source present; provision supported optionalprofile then join actual Search receiver/MethodJob/CAS withselectedBcontract; no fixture-onlyreceiver.",
+      "dependencies": [
+        "BOOT0",
+        "Q1"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "scope_status_in_manifest": "execution_remaining; inherited proposals are not closures",
+      "assigned_finding_ids": [
+        "B108",
+        "B157"
+      ],
+      "assigned_finding_id_count": 2,
+      "current_task_status": "implementation_remaining",
+      "reported_task_status": {
+        "status": "implementation_remaining",
+        "reason": "B108 has no positive local alternative-value behavior; V5 history still drops the exact unit needed for native GP admission; B157's source-version consumer rejects the current 1.2 producer before the assigned isolation contract is decided. Replays are stale-base evidence and must be rerun on the frozen current source."
+      },
+      "formal_closure_ids": [],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/V5/report.json",
+        "sha256": "ea8be0a43b76ebe522964510cbbe069ffc83971b2ebc5b21f32bb06cd358451e"
+      },
+      "verified_property_count": 3,
+      "remaining_work": {
+        "units": [
+          {
+            "unit": "B108 local alternative resolver",
+            "kind": "local_code_and_semantic_test",
+            "owner": "BudgetDeficitObjective in search/objective.py and its objective test owner",
+            "missing_capability_label": "semantic_test_missing",
+            "minimal_work": "Implement the selected local alias/presence/null/sign/unit resolver so an admissible, unit-compatible budget_deficit alternative is consumed by the real objective; preserve zero; remain unavailable on absent, conflict, nonfinite, or incompatible units.",
+            "reuse": "Extend existing objective extraction and unit compatibility logic; do not add a period-flow requirement, new external producer, or public stock-to-flow claim.",
+            "smallest_check": "Positive and negative inputs through BudgetDeficitObjective.calculate: absent/null primary plus valid alternate scores; zero remains zero; sign alias matches canonical deficit; incompatible unit/conflict remains NOT_ESTABLISHED.",
+            "test_owner": "tests/unit/scientist/methods/search/test_objective.py",
+            "public_companions": "None indicated by this local objective acceptance."
+          },
+          {
+            "unit": "V5 MethodJob-to-GP history unit/provenance bridge",
+            "kind": "local_code_and_semantic_test",
+            "owner": "MethodJobBenchmarkEvaluator, BenchmarkEvaluation, SearchLoopRunner, BayesianCandidateGenerator history; source_profile_verification is the existing exact-CAS owner",
+            "missing_capability_label": "bridge_missing",
+            "minimal_work": "Carry a strict metric_units-by-metric value in the typed evaluation/history boundary (or derive it only by reopening the exact validated MethodResult CAS); transfer through SearchLoopRunner; verify selected profile and CAS before GP admission. Bind the fixture and MethodMetric signature to the selected unit so the test demonstrates the actual contract.",
+            "reuse": "Keep exact refs and existing source_profile_verification; use configured SearchMethodRunProfile/PromotionPolicy as the Search-owned unit contract. Do not add a generic IR direct-output law for arbitrary scores.",
+            "smallest_check": "Native fit fixture with an exact declared unit yields >= n_initial admitted observations and a proposal; missing/mismatched unit remains excluded; alter/remove metric_units while refs/markers remain and admission changes.",
+            "test_owner": "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_fitted_native_gp_profile_round_trips_into_same_context_search, plus adjacent MethodJob packet test",
+            "public_companions": "Typed DTO/evaluation history schema is implicated; no external fact required."
+          },
+          {
+            "unit": "B157 source-vector schema consumer binding",
+            "kind": "local_code_and_semantic_test",
+            "owner": "policy_runtime_artifacts producer + voi_scheduler source-vector consumer",
+            "missing_capability_label": "consumer_missing",
+            "minimal_work": "Replace both stale1.1 checks with one source-owned semantic predicate: scalar1.2 with method_metric_observations absent. Distinct typed-observation1.3 remains refused until its adapter exists. Preserve kind/media/schema/profile/ref/invocation joins and prove directL4/L3->L4 outputs/config/caller/cost on the supported representation.",
+            "reuse": "Extend existing FunnelOrchestrator, CAS source-vector producer, and packet consumer. Do not broaden accepted versions or create a default-policy funnel producer/native backend task; generic backend-cost claim is outside B157's original criterion.",
+            "smallest_check": "Same request direct L4 vs L3->L4: both packets admitted; effective full configs and outputs match; caller input unchanged; L3 cost lower; exact source artifact/history refs preserved.",
+            "test_owner": "tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py::test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations",
+            "public_companions": "No new surface claimed; preserve existing packet/ref contract."
+          }
+        ],
+        "checks": [
+          {
+            "status": "NOT_RUN; root schedules after source freeze",
+            "command_from_policy_engine": "POLISYOS_RUN_NATIVE_GP_HEAVY=1 .venv/bin/python -B -m pytest -q tests/unit/scientist/methods/search/test_objective.py tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_fitted_native_gp_profile_round_trips_into_same_context_search tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py::test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_source_bound_methodjob_work_packet_supports_same_input_l3_to_l4_witness",
+            "distinguishing_inputs_and_outputs": "Assert B108 positive/negative effective value outcomes; exact MethodJob unit survives typed DTO and reopened CAS history, native GP admits n_initial observations and proposes; B157 direct/chain effective-config/output/caller/cost assertions; adjacent MethodJob packet witness remains green.",
+            "resources": "Three-node predecessor run: 23.8178s, process-tree peak RSS 1,116,962,816 bytes. Combined command including objective module is unmeasured. Existing harness deadline 600s and RSS cap 2,411,724,800 bytes. Preserve pytest.ini/default plugin autoload."
+          }
+        ]
+      },
+      "root_version_qualification": "Scalar source-vector consumer supports exact 1.2 representation with method_metric_observations absent; typed 1.3 observations require their own verified adapter and remain refused by this repair. Producer stays unchanged.",
+      "exact_owner_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_artifacts.py"
+      ],
+      "original_exit_source_key": "original_exit",
+      "task_manifest_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V5"
+    },
+    {
+      "task_id": "V7",
+      "title": "EMP01->FRC02 compatible method-specific empirical producer",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/V7",
+      "original_exit": "measured counts->persistedevidence->freshS10/defaultHTTP; sameCI differentactualoutcomes changesgrade; predictiveonly notcausal",
+      "next_action": "measured counts->persistedevidence->freshS10/defaultHTTP; sameCI differentactualoutcomes changesgrade; predictiveonly notcausal",
+      "dependencies": [
+        "BOOT0",
+        "S1"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "scope_status_in_manifest": "execution_remaining; inherited proposals are not closures",
+      "assigned_finding_ids": [
+        "B16",
+        "B32",
+        "LA-051"
+      ],
+      "assigned_finding_id_count": 3,
+      "current_task_status": "implementation_remaining",
+      "reported_task_status": {
+        "status": "implementation_remaining",
+        "rationale": "Bounded predictive chain exists in source but is unverified. Direct owner test fails on shared Core-to-IR CanonSpec mismatch; HTTP test fails earlier on a distinct route-fixture mismatch. After both, same-CI/different-outcome fresh GET/S10 must pass. B16 population/completeness and B32 source-time stay explicit limits; full LA-051 causal calibration is outside V7's predictive-only exit and remains unadjudicated.",
+        "closure_ids": []
+      },
+      "formal_closure_ids": [],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/V7/report.json",
+        "sha256": "8291091047374cac66e0d47ed9691468d1e9f7709251ec6e11e0638be6f8962d"
+      },
+      "verified_property_count": 5,
+      "remaining_work": {
+        "units": [
+          {
+            "id": "V7-CAS-1",
+            "type": "local code; shared V4/V7",
+            "owner": "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+            "finding": "Core CanonSpec is needed for Core to_canonical_bytes but wrong for IR put_json_artifact at lines 1288 and 1397. IR writer's strict check is correct.",
+            "reuse_and_repair": "Alias CoreCanonSpec and IRCanonSpec from existing owners; use IR type at both writer calls, preserve forbid_floats=False and Core hashing. No DTO/schema/API/UI change; do not loosen IR.",
+            "check": "Positive: direct FRC-02 owner report/evidence/association persists, evidence reload reproduces, S10 remains limited/predictive_only. Negative: Core type still works in Core hashing; direct IR write with Core type refuses. Omitting either alias reproduces current error.",
+            "p40": "One shared boundary class across both write calls and V4/V7; repair whole class, not just first occurrence."
+          },
+          {
+            "id": "V7-HTTP-FIXTURE-1",
+            "type": "test companion",
+            "owner": "policy-engine/tests/unit/runtime/http/test_control_service_di.py; tests/integration/core_runtime/test_acquisition_world_growth_chain.py; tests/_helpers/acquisition_production.py",
+            "finding": "Fixture produces broad scenario-family/public-registry route; live WDI executor requires exact L1 variable data-snapshot-release route.",
+            "reuse_and_repair": "Construct the route closure consumed by strict WDI execution or isolate profile-owner setup while retaining a valid profile artifact; change fixture/helper only. No product route relaxation or public/schema/UI change.",
+            "check": "Positive reaches POST and fresh default GET with route-source binding. Negative retains refusal for broad scenario route if strict live predicate is removed/omitted.",
+            "p40": "Distinct test-fixture class, not a deeper CanonSpec instance."
+          },
+          {
+            "id": "B16-POPULATION-1",
+            "type": "local owner selector/binding plus external source facts",
+            "owner": "Existing RealValueOwnerGateway / ValueDataProfile / ForecastProfileMember path",
+            "reuse_and_repair": "Extend the active Data Forge projection, region prefilter, exact row IDs/hashes, bounded query and member identity with an explicitly supported population/measurement selector and completeness basis; do not raise 20,000 cap or build a parallel loader.",
+            "local_gap": "Only region is a task scope input; population selector is absent from profile identity and completeness is not established.",
+            "external_facts": "Data owner/schema must establish population labels/meaning, denominator/coverage, unit semantics and any exhaustive/completeness attestation. Runtime cannot infer these from labels or returned row counts.",
+            "check": "Two source-backed populations at same region/outcome, switching only selector changes pre-limit selected IDs/profile identity. Known-complete small member differs from incomplete partial member. Removal probe keeps declaration/markers but removes selector/content bind; refusal or identity mismatch required. Unprovenanced small sample remains not_established.",
+            "scope": "Open B16 mechanism/facts; not a blocker to profileless bounded V7 count exit."
+          },
+          {
+            "id": "B32-TIME-1",
+            "type": "local source-role binding plus source/institution facts",
+            "owner": "Existing ForecastOwner temporal handoff and empirical context/profile projection",
+            "reuse_and_repair": "Keep six distinct typed/order-checked roles; extend existing report/CAS refs to resolve role-specific provenance at admission and fresh GET. Never replace by now().",
+            "local_gap": "Request times are copied into context/report; source projection/profile member time status is not_established.",
+            "external_facts": "Policy effective date; source valid/as-of/extraction time; actual forecast emission time; method owner's calibration split/window definition.",
+            "check": "Bind each role to exact source/result edge; change one caller time with source refs fixed and require mismatch/not_established. Removing the source/content bind while retaining role values must fail; missing evidence never becomes credible/pass.",
+            "scope": "Open B32 source-time criterion; not a blocker to bounded predictive V7 exit."
+          },
+          {
+            "id": "LA051-CAUSAL-1",
+            "type": "method/design evidence boundary; bounded residual",
+            "owner": "Compatible causal method owner and S10 consumer",
+            "reuse_and_repair": "Retain estimator diagnostics/denials; reuse existing calibration arithmetic only with a method-owned corpus matching causal estimand/design.",
+            "missing_fact": "No matched causal predictions/observations, design, method/rule/time evidence is supplied or established by this task.",
+            "bounded_treatment": "V7's exit is predictive-only. Keep limitations and do not close LA-051's full causal occurrence or manufacture causal calibration."
+          }
+        ],
+        "checks": [
+          {
+            "order": 1,
+            "command": "cd /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine && python3 -m pytest -q tests/unit/remediation/test_frc_02_empirical_bridge.py::test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate -ra",
+            "after": "V7-CAS-1",
+            "expected": "Report/role refs/evidence persist and reproduce; S10 limited, predictive_only, counterfactual not_established; no causal upgrade.",
+            "resources": "Local temp CAS; no service/port. Prior combined fail-only wave: 23.7946 s/1.28 GB sampled RSS; individual pass unmeasured."
+          },
+          {
+            "order": 2,
+            "command": "cd /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine && python3 -m pytest -q tests/unit/runtime/http/test_control_service_di.py::test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry -ra",
+            "after": "V7-CAS-1 and V7-HTTP-FIXTURE-1; preserve native pytest.ini/plugin autoload",
+            "expected": "Same method/run/intervals/times, denominator 4, changed actual observations -> changed numerator/rate/empirical suitability/S10 calibration_status; fresh GET reopens exact CAS evidence. Both top-level assessments remain limited; predictive_only; population/time/counterfactual statuses not_established; forecast_tier blocked.",
+            "resources": "Local tmp_path CAS/default apps, no service/port. Successful full-test runtime/RSS unmeasured; estimate ~30 s/up to 1.5 GB."
+          }
+        ]
+      },
+      "original_exit_source_key": "original_exit",
+      "task_manifest_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V7"
+    },
+    {
+      "task_id": "I1",
+      "title": "Effective profile/policy currentness basis",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/I1",
+      "original_exit": "same-ID mutation invalidates before reuse; unchanged positive and fresh checkpoint/benchmark",
+      "next_action": "Compose C05 14ownedpaths+4facades with13existingdifferent suppliers; retain G _resources and existing exports; freshcurrentness/cache/session/WVS consumers.",
+      "dependencies": [
+        "BOOT0"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "scope_status_in_manifest": "execution_remaining; inherited proposals are not closures",
+      "assigned_finding_ids": [
+        "LA-041"
+      ],
+      "assigned_finding_id_count": 1,
+      "current_task_status": "author_complete",
+      "reported_task_status": {
+        "status": "author_complete"
+      },
+      "formal_closure_ids": [],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I1/report.json",
+        "sha256": "f3aca72df2f5a8ac339cbe07fd5f50c15d8b6ddb6b7afae85acf9cf5fc6fdd02"
+      },
+      "verified_property_count": 3,
+      "remaining_work": {
+        "units": [],
+        "checks": []
+      },
+      "bounded_current_receipts": [
+        {
+          "case": "i1-i4-catalog-current",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/i1-i4-catalog-current/audit-result.json",
+          "sha256": "7348d860723dcf7444a8a54c09ebe0ef30fe7d313d459100e89976204d9490ff",
+          "head": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+          "tests": 20,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "wall_seconds": 171.98,
+          "max_sampled_rss_bytes": 1330561024,
+          "readset_path_count": 1852,
+          "target_matrix_readset_match": "18/18 exact SHA-256 matches to current a92 matrix"
+        },
+        {
+          "case": "remaining19-i1-session-wvs-existing",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/remaining19-i1-session-wvs-existing/audit-result.json",
+          "sha256": "2bf865fdfb5b9ee8d8d1942a32074d5e451fd56da1a39a89d4e590fbf1c88e9e",
+          "head": "a92c9774edf8049d590cd6ca6de35aa17063025a",
+          "tests": 25,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "wall_seconds": 18.94,
+          "max_sampled_rss_bytes": 380174336,
+          "minimum_sampled_disk_free_bytes": 9519636480,
+          "readset_path_count": 448,
+          "target_matrix_readset_match": "16/18; the 2 omitted paths were loaded and matched in the preceding 20-node run"
+        }
+      ],
+      "original_exit_source_key": "original_exit",
+      "task_manifest_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/I1"
+    },
+    {
+      "task_id": "I2",
+      "title": "DFK two-path census companion",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/I2",
+      "original_exit": "two staged/two unstaged/rename/clean real records",
+      "next_action": "DFK source already integrated with serializer fix. Finish original full-scope census/release/CLI companions and Linux real-byte case where supported; no retirement inference.",
+      "dependencies": [
+        "BOOT0"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "scope_status_in_manifest": "bounded mechanism integrated; original full-scope/release/verification work remains, do not redo unchanged implementation",
+      "assigned_finding_ids": [
+        "LA-005",
+        "LA-006",
+        "LA-026"
+      ],
+      "assigned_finding_id_count": 3,
+      "current_task_status": "verification_remaining",
+      "reported_task_status": {
+        "status": "verification_remaining",
+        "why_incomplete": "I2 own next_action still requires actual root census, release/installed CLI evidence, and the Linux real-byte witness where supported. The only current Linux evidence is a Darwin skip.",
+        "closure_ids": []
+      },
+      "formal_closure_ids": [],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I2/report.json",
+        "sha256": "41a5aa1842a563056f5e1e15851d0bf317fb5700a44ef6138d8b6fb028c30439"
+      },
+      "verified_property_count": 2,
+      "remaining_work": {
+        "units": [
+          {
+            "id": "I2-root-census",
+            "basis": "I2 next_action; LA-005/LA-026 full local census",
+            "owner": "I2 root execution",
+            "status": "UNRUN",
+            "missing": "No actual policy-engine root JSON, stdout digest, selected/read denominator, or current hit list. The prior handoff marks the planned exact command UNRUN.",
+            "command": [
+              "/usr/bin/python3",
+              "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/root-owned-prefix-os-confiner-20261025.py",
+              "--write-root",
+              "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I2",
+              "--run-name",
+              "i2-root-census-r1",
+              "--timeout",
+              "420",
+              "--",
+              "/usr/bin/env",
+              "POLISYOS_TOOLS_TIMING_LOG=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I2/i2-root-census-r1/timing.jsonl",
+              "PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+              "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+              "-B",
+              "-m",
+              "tools.cli",
+              "validation",
+              "schema-fqn-census",
+              "--output-format",
+              "json",
+              "--repo-root",
+              "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine"
+            ],
+            "expected": "Exit 0; parse full stdout as polisyos.schema_fqn_census.v3; require read_receipt.complete_verdict=true, no unreadable/rejected paths, selected/read counts and lists reconcile, retain exact FQN and loader hits. Scope remains Git-visible nonignored UTF-8 text only.",
+            "outputs": "Confiner stdout/stderr/receipt plus timing.jsonl in W/I2/i2-root-census-r1; this redirects the documented timing sink into the allowed RAW prefix.",
+            "resources": {
+              "prior_wall_seconds_approx": 230,
+              "reserved_timeout_seconds": 420,
+              "current_rss": "unmeasured",
+              "basis": "Approximate prior root command time in older handoff; no complete current root receipt."
+            },
+            "conditional": "If actual historic serialized inputs are discovered, bind exact paths/hashes and round-trip those inputs only."
+          },
+          {
+            "id": "I2-release-install",
+            "basis": "I2 next_action; LA-005/LA-006/LA-026 archive/package/discovery and CLI companions",
+            "owner": "I2 root package/release owner",
+            "status": "UNRUN",
+            "existing": "pyproject declares polisyos-tools=tools.cli:main; hatch includes src/polisyos and tools in wheel and the relevant source/docs/schemas paths in sdist; renderer tests and source-tree CLI fixture passed.",
+            "missing": "No wheel/sdist build, archive member denominator, installed entrypoint execution, installed discovery/resource proof, or installed negative old-FQN check.",
+            "next": "After root disk and offline dependency admission, build both artifacts under W/I2, enumerate archive members and target strings, install the exact wheel and sdist-built wheel into isolated RAW environments using available offline deps, and invoke installed polisyos-tools outside P with PYTHONPATH unset. No installs/downloads during this audit.",
+            "expected": "Both archive inventories and denominators retained; installed console script resolves to tools.cli:main and discovers active validation/schema-fqn-census without checkout imports; report exact FQN/resource hits. External consumers stay not_established.",
+            "resources": {
+              "host_disk_free_bytes": 9543483392,
+              "build_install_time_rss": "unmeasured",
+              "note": "About 8.89 GiB free, below the prior 18 GiB reserve; root resource review required before heavy build/install."
+            }
+          },
+          {
+            "id": "I2-linux-invalid-byte",
+            "basis": "I2 next_action Linux real-byte case where supported; explicit Linux-only test node",
+            "owner": "I2 Linux worker after root approval",
+            "status": "UNRUN_DAEMON_STOPPED",
+            "property": "Linux filesystem creates untracked byte filename native_\\xff.json; Git raw ls-files/status contain exact raw bytes; JSON is ASCII and preserves decoded surrogate; selected/read denominator has README.md plus invalid name, two byte reads, complete_verdict true, no unreadables, and mechanisms FQN match.",
+            "host": {
+              "colima": "e02-local stopped, aarch64, 2 CPU, 4 GiB, 24 GiB, autoActivate=false",
+              "ram": "16 GiB total, 74 percent free at read",
+              "disk_available_kib": 9319808,
+              "docker_socket": "missing; docker info cannot connect",
+              "base_image_cache": "configured path absent",
+              "persisted_disks": "root disk about 1.4 GiB and data disk about 9.4 GiB remain; daemon data cannot be inspected while stopped"
+            },
+            "config_evidence": [
+              {
+                "path": "/Users/deniskopylov/.colima-e02-local/e02-local/colima.yaml",
+                "sha256": "5c813fbfb983996e5fd955fd4fd27451225dbf8da8bf745fadc212790390fd9b",
+                "fact": "2 CPU, 4 GiB, aarch64, 24 GiB, docker, autoActivate=false, vz, virtiofs."
+              },
+              {
+                "path": "/Users/deniskopylov/.colima-e02-local/_lima/colima-e02-local/lima.yaml",
+                "sha256": "cbf1534f0e544ed5a86399da4032e8c6e207d257512cc49858eeeecb92e04b2d",
+                "fact": "R is mounted read-only at the same guest path; configured base-image cache absent."
+              }
+            ],
+            "historical_worker": {
+              "container_id": "88c8824b3970ef929473daf73cda2e50083b2035f5b725071acf8a829fa5b0c6",
+              "image": "ghcr.io/astral-sh/uv@sha256:dc53af52cf658aa04401244105cd63b25a7dfd42a6c5125683710b553d8d263f",
+              "volumes": [
+                "e02-local-uv-pythons:/opt/uv-python",
+                "e02-local-uv-env:/scratch",
+                "e02-local-uv-cache:/root/.cache/uv"
+              ],
+              "historical_runtime": "CPython 3.14.0, uv 0.9.21, pytest 9.0.2; prior 2 CPU/2200 MiB cgroup. Separate DoWhy Python 3.12.12 is not the main package runtime contract.",
+              "qualification": "Historical metadata only; present image, container, mounts, volume contents, and in-container Python path cannot be verified with the stopped daemon."
+            },
+            "recovery": {
+              "profile_start_after_approval_only": "COLIMA_HOME=/Users/deniskopylov/.colima-e02-local colima start --profile e02-local --activate=false --save-config=false",
+              "preflight": "After authorized start, use DOCKER_HOST=unix:///Users/deniskopylov/.colima-e02-local/e02-local/docker.sock to inspect the existing container, image digest and three volumes. Confirm existing read-only source bind and Python 3.14/pytest. Do not pull, remove, or create a replacement unless root separately authorizes it.",
+              "test_command_if_preflight_passes": "DOCKER_HOST=unix:///Users/deniskopylov/.colima-e02-local/e02-local/docker.sock docker exec --workdir /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine --env PYTHONDONTWRITEBYTECODE=1 --env PYTHONPYCACHEPREFIX=/scratch/i2-dfk/pycache --env TMPDIR=/scratch/i2-dfk/tmp --env POLISYOS_TOOLS_TIMING_LOG=/scratch/i2-dfk/tools-timing.jsonl 88c8824b3970ef929473daf73cda2e50083b2035f5b725071acf8a829fa5b0c6 python -B -m pytest --override-ini=cache_dir=/scratch/i2-dfk/pytest-cache --benchmark-storage=file:///scratch/i2-dfk/benchmarks --basetemp=/scratch/i2-dfk/basetemp --junitxml=/scratch/i2-dfk/pytest.xml --tb=short --color=no --maxfail=1 tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_reads_native_invalid_byte_git_filename",
+              "pytest_policy": "Retain pytest.ini and plugin autoload; redirect cache, benchmark, bytecode, temp and tool timing output to /scratch. No -o addopts=, no plugin-autoload disable, no --rm, source/env copies or image downloads. Capture test stdout and only the small JUnit/timing outputs under W/I2."
+            },
+            "resources": {
+              "linux_selector": "unmeasured; same module on Darwin was 85.58s/643 MB sampled. Use historical worker cap 2 CPU/2200 MiB, 300s deadline and 1.8 GiB monitored RSS ceiling as proposal, not Linux measurement.",
+              "disk": "No Docker pull in test command. VM restart may require the absent Lima cache; stop if it would download or grow disks with only about 8.89 GiB host free."
+            }
+          },
+          {
+            "id": "I2-historic-roundtrip-and-LA006-lifecycle",
+            "basis": "LA-005/LA-026 discovered persisted input round-trip; LA-006 lifecycle only if retirement selected",
+            "owner": "I2 root and canonical package owner",
+            "status": "CONDITIONAL_NOT_ESTABLISHED",
+            "missing": "No historic persisted input is currently enumerated and no sunset decision is in scope. If census finds an actual supported input, bind and round-trip it. LA-006 old-FQN/reexport absence and restore-tombstone negative assertion apply only after owner selects removal; I2 explicitly says no retirement inference."
+          }
+        ],
+        "checks": {
+          "exact_commands": {
+            "root_census": {
+              "state": "UNRUN; proposed only",
+              "argv": [
+                "/usr/bin/python3",
+                "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/root-owned-prefix-os-confiner-20261025.py",
+                "--write-root",
+                "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I2",
+                "--run-name",
+                "i2-root-census-r2",
+                "--timeout",
+                "420",
+                "--",
+                "/usr/bin/env",
+                "POLISYOS_TOOLS_TIMING_LOG=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I2/i2-root-census-r2/timing.jsonl",
+                "PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+                "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+                "-B",
+                "-m",
+                "tools.cli",
+                "validation",
+                "schema-fqn-census",
+                "--output-format",
+                "json",
+                "--repo-root",
+                "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine"
+              ],
+              "output_routing": "The confiner captures child stdout, stderr, invocation and receipt under W/I2/i2-root-census-r2. POLISYOS_TOOLS_TIMING_LOG points to that same created run directory, avoiding the denied canonical timing sink.",
+              "expected": "Exit 0 and full JSON stdout. Require schema polisyos.schema_fqn_census.v3, read_receipt.complete_verdict=true, no unreadable/rejected paths, selected/read counts and lists reconcile, and preserve exact hits. The census denominator is Git-visible nonignored selected UTF-8 text, not external callers, ignored files, or package archives.",
+              "resources": "Historical approximate wall 230s; 420s reserved; current RSS unmeasured."
+            },
+            "linux_selector": {
+              "state": "UNRUN; conditional on parent authorization and live preflight. Do not start Colima or container in this audit.",
+              "start_existing_profile_after_approval": "COLIMA_HOME=/Users/deniskopylov/.colima-e02-local /opt/homebrew/bin/colima start --profile e02-local --activate=false --save-config=false",
+              "start_caveat": "The configured Lima base-image cache path is absent. If profile startup would download an image or expand disks, stop; no pull or install is authorized.",
+              "readback_preflight": [
+                [
+                  "/opt/homebrew/bin/docker",
+                  "--host=unix:///Users/deniskopylov/.colima-e02-local/e02-local/docker.sock",
+                  "inspect",
+                  "--type",
+                  "container",
+                  "88c8824b3970ef929473daf73cda2e50083b2035f5b725071acf8a829fa5b0c6",
+                  "--format",
+                  "{{.Image}} {{json .Mounts}}"
+                ],
+                [
+                  "/opt/homebrew/bin/docker",
+                  "--host=unix:///Users/deniskopylov/.colima-e02-local/e02-local/docker.sock",
+                  "image",
+                  "inspect",
+                  "ghcr.io/astral-sh/uv@sha256:dc53af52cf658aa04401244105cd63b25a7dfd42a6c5125683710b553d8d263f",
+                  "--format",
+                  "{{.Id}} {{json .RepoDigests}}"
+                ],
+                [
+                  "/opt/homebrew/bin/docker",
+                  "--host=unix:///Users/deniskopylov/.colima-e02-local/e02-local/docker.sock",
+                  "volume",
+                  "inspect",
+                  "e02-local-uv-env",
+                  "e02-local-uv-pythons",
+                  "e02-local-uv-cache"
+                ],
+                [
+                  "/opt/homebrew/bin/docker",
+                  "--host=unix:///Users/deniskopylov/.colima-e02-local/e02-local/docker.sock",
+                  "exec",
+                  "88c8824b3970ef929473daf73cda2e50083b2035f5b725071acf8a829fa5b0c6",
+                  "python",
+                  "--version"
+                ],
+                [
+                  "/opt/homebrew/bin/docker",
+                  "--host=unix:///Users/deniskopylov/.colima-e02-local/e02-local/docker.sock",
+                  "exec",
+                  "88c8824b3970ef929473daf73cda2e50083b2035f5b725071acf8a829fa5b0c6",
+                  "python",
+                  "-m",
+                  "pytest",
+                  "--version"
+                ]
+              ],
+              "followup_readbacks": "Also inspect volumes e02-local-uv-env, e02-local-uv-pythons, e02-local-uv-cache and read `python --version` plus `python -m pytest --version` inside the existing container. Require Python 3.14, the read-only R bind, and expected scratch/runtime mounts. Do not dump Config.Env.",
+              "test_argv": [
+                "/usr/bin/python3",
+                "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/root-owned-prefix-os-confiner-20261025.py",
+                "--write-root",
+                "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I2",
+                "--run-name",
+                "i2-linux-invalid-byte-r1",
+                "--timeout",
+                "300",
+                "--",
+                "/usr/bin/env",
+                "DOCKER_CONFIG=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I2/i2-linux-invalid-byte-r1/docker-config",
+                "DOCKER_HOST=unix:///Users/deniskopylov/.colima-e02-local/e02-local/docker.sock",
+                "/opt/homebrew/bin/docker",
+                "exec",
+                "--workdir",
+                "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+                "--env",
+                "PYTHONDONTWRITEBYTECODE=1",
+                "--env",
+                "PYTHONPYCACHEPREFIX=/scratch/i2-dfk-linux-pycache-r1",
+                "--env",
+                "TMPDIR=/scratch",
+                "--env",
+                "POLISYOS_TOOLS_TIMING_LOG=/scratch/i2-dfk-linux-timing-r1.jsonl",
+                "88c8824b3970ef929473daf73cda2e50083b2035f5b725071acf8a829fa5b0c6",
+                "python",
+                "-B",
+                "-m",
+                "pytest",
+                "--override-ini=cache_dir=/scratch/i2-dfk-linux-pytest-cache-r1",
+                "--benchmark-storage=file:///scratch/i2-dfk-linux-benchmarks-r1",
+                "--basetemp=/scratch/i2-dfk-linux-basetemp-r1",
+                "--junitxml=/scratch/i2-dfk-linux-junit-r1.xml",
+                "--tb=short",
+                "--color=no",
+                "--maxfail=1",
+                "tests/unit/remediation/test_dfk_01.py::test_dfk_01_census_reads_native_invalid_byte_git_filename"
+              ],
+              "output_routing": "Host-side confiner captures stdout/stderr and receipt under W/I2/i2-linux-invalid-byte-r1. The unique pytest cache, benchmark, basetemp, JUnit, bytecode and POLISYOS_TOOLS_TIMING_LOG sinks are under the existing e02-local-uv-env volume mounted at /scratch; confirm each unique path is absent before execution and never clear prior contents. Source stays on the existing read-only host bind; no source or environment copy, --rm, pull, or dependency install. The Docker client uses a per-run DOCKER_CONFIG directory under the confiner output prefix, avoiding writes to the host user config.",
+              "expected": "One Linux-only node PASS. Assert raw 0xff filename bytes in Git ls-files/status, JSON-escaped surrogate preservation, selected/read denominator of README plus invalid name, two successful reads, complete_verdict=true, no unreadables, and mechanisms target match.",
+              "resources": "Single selector unmeasured; previous complete Darwin module took 85.58s and sampled 643MB. Reuse historical 2 CPU/2200MiB worker cap and 4GiB profile; 300s timeout and 1.8GiB monitored RSS ceiling are proposed limits, not Linux measurements."
+            }
+          },
+          "root_census_attempt": "Timeout124after420s with empty streams; old230s unsupported. See source-backed diagnosis before rerunning.",
+          "next_discriminating_profile": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I2/root-census-timeout-diagnosis-r1.md",
+            "sha256": "48430225550902acf5722eded04e7cbf1e1523253badba7936ac639cb951c9de"
+          }
+        }
+      },
+      "original_exit_source_key": "original_exit",
+      "task_manifest_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/I2"
+    },
+    {
+      "task_id": "I3",
+      "title": "Source-confirmed progress and event identity",
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/I3",
+      "original_exit": "verified progress and durable24h replay; absent/ambiguous key typedunsupported",
+      "next_action": "verified progress and durable24h replay; absent/ambiguous key typedunsupported",
+      "dependencies": [
+        "BOOT0",
+        "R2"
+      ],
+      "execution_mode": "one local canonical root; old group labels are provenance, not scope barriers",
+      "scope_status_in_manifest": "execution_remaining; inherited proposals are not closures",
+      "assigned_finding_ids": [
+        "B79",
+        "B80",
+        "B83"
+      ],
+      "assigned_finding_id_count": 3,
+      "current_task_status": "implementation_remaining",
+      "reported_task_status": {
+        "status": "implementation_remaining",
+        "rationale": "The B79 request hint is established for a local REST case. B80 positive progress is structurally absent because promotion is a no-op. B83 has an exact persisted 86,400-second horizon but default event identity can be synthesized from position, no source-owned key contract is admitted, and independent OS-process replay is unverified. Thus the original exit is unmet. Local bridge/fail-closed tests are actionable now; production source-specific claims require owner facts.",
+        "closure_ids": []
+      },
+      "formal_closure_ids": [],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/I3/report.json",
+        "sha256": "bedca55104020c3aeab966d1dc4f6259b8b73774383f6539a8e295303b91adbf"
+      },
+      "verified_property_count": 3,
+      "remaining_work": {
+        "units": [
+          {
+            "id": "I3-U1-cursor-bridge",
+            "findings": [
+              "B79",
+              "B80"
+            ],
+            "labels": [
+              "bridge_missing",
+              "implementation_remaining",
+              "semantic_test_missing"
+            ],
+            "write_paths": [
+              "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+              "policy-engine/src/polisyos/fabric/ingestion/ingestion.py",
+              "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py",
+              "policy-engine/tests/unit/fabric/data_plane/test_incremental.py",
+              "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py"
+            ],
+            "reuse": "Use _complete_source_boundary, raw_result_sink, existing EvidenceBundle/provenance/data artifacts, CAS verification, and tenant CursorStore. Extend the current bridge to reconcile each captured FetchResult with its exact persisted source artifact and returned run evidence, then commit only that source's cursor.",
+            "code_gap": "_save_confirmed_cursors currently returns without promotion, even with a non-null aggregate evidence_bundle_ref.",
+            "missing_external_fact": "For production admission, source owner must supply actual dataset/run/cursor/content evidence that the reported version means complete coverage. Local deterministic fixtures suffice to implement and test the bridge.",
+            "smallest_discriminator": "Seed A=etag-a8 and B=etag-b4. First run: A confirms complete etag-a9, B fails; reopened state must show A9/B4. Next run: B confirms etag-b5 with event_time older than local now; reopened B5 and late row retained. Strip/mismatch A evidence while aggregate success remains; A must not advance.",
+            "companions": "Use existing CursorState/CursorStore. If a new per-source receipt model is required, update typed schema/public/generated surfaces and consumers. No UI surface is identified. Served route in selected coverage plan is a separate R13 dependency.",
+            "ready_now": true
+          },
+          {
+            "id": "I3-U2-owner-key-binding",
+            "findings": [
+              "B83"
+            ],
+            "labels": [
+              "bridge_missing",
+              "semantic_test_missing",
+              "fact_bound_residual"
+            ],
+            "write_paths": [
+              "policy-engine/src/polisyos/fabric/connectors/contracts/source_contract.py",
+              "policy-engine/src/polisyos/fabric/connectors/testing/conformance.py",
+              "policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py",
+              "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+              "policy-engine/src/polisyos/fabric/quality/processing_guarantees.py",
+              "policy-engine/tests/unit/fabric/connectors/test_source_contract_v2.py",
+              "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py"
+            ],
+            "reuse": "Extend and wire existing SourceContract v2 and its conformance path; do not create a trusted registry. Add typed key roles only if current key_fields cannot represent event/version meaning without trusting field names.",
+            "missing_external_fact": "Actual source owner must identify event ID and version fields, uniqueness scope/partition, and stability across replay. Absent/ambiguous contract returns StreamDedupeUnsupported.",
+            "smallest_discriminator": "Run actual EventStreamConnector with default options and row missing provider event/version IDs: typed unsupported and zero new artifacts/checkpoints/cursors. Positive sibling uses owner-declared fields and a,b,c,a; versions of one entity remain distinct; key in another partition is independent. Remove contract-to-runtime binding while leaving field labels; the test must fail.",
+            "schema_companions": "If SourceContract changes, update schemas/fabric/source_contract.schema.json, schemas/snapshots/fabric/source_contracts_v2.json, recomputing validators/public-surface/generated-artifact inventory. Preserve compatibility deliberately; no UI/API surface is established.",
+            "ready_now": true
+          },
+          {
+            "id": "I3-U3-process-replay-proof",
+            "findings": [
+              "B83"
+            ],
+            "labels": [
+              "verification_missing",
+              "semantic_test_missing"
+            ],
+            "write_paths": [
+              "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+              "policy-engine/tests/unit/fabric/data_plane/test_processing_guarantees.py"
+            ],
+            "reuse": "Keep the current horizon/CursorStore/FileSystemCAS; add a real subprocess boundary to the existing persisted restart oracle.",
+            "acceptance": "Process 1 commits keys/checkpoint and exits. Process 2 opens the same CAS/index at t+86,399 and t+86,400. An independently implemented UTC map predicts suppression/acceptance and exact outputs.",
+            "resources": "Temporary local CAS; no shared DB/model. I3 suite runtime/RSS unmeasured.",
+            "ready_now": true
+          }
+        ],
+        "checks": [
+          {
+            "id": "B80 positive/negative after implementation",
+            "command": "cd policy-engine && python3 -m pytest tests/unit/fabric/data_plane/test_incremental.py tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py -q",
+            "input": "Two fixture sources; A8/A9, B4/failure/B5, late B event_time older than local now; remove or mismatch one persisted evidence binding for the negative.",
+            "predicate": "Only individually confirmed complete boundaries advance; late B row remains; evidence mismatch leaves predecessor; exact stored cursor hint reaches source.",
+            "resources": "I3 command not measured; local tmp CAS and existing loopback test ephemeral port; no DB/model. Preserve native pytest config/plugins."
+          },
+          {
+            "id": "B83 default key + independent OS process after implementation",
+            "command": "cd policy-engine && python3 -m pytest tests/unit/fabric/connectors/test_source_contract_v2.py tests/unit/fabric/data_plane/test_processing_guarantees.py tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py -q",
+            "input": "Default EventStream path missing owner event/version key; positive owner-declared a,b,c,a with same CAS reopened by a separate process at 86,399/86,400 seconds.",
+            "predicate": "Missing/ambiguous key returns StreamDedupeUnsupported before artifacts; source key controls replay and exact UTC expiry across processes; synthetic _message_id cannot authorize.",
+            "resources": "I3 command not measured; local tmp CAS and existing REST loopback ephemeral port; no DB/model. Preserve native pytest config/plugins."
+          }
+        ]
+      },
+      "original_exit_source_key": "original_exit",
+      "task_manifest_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/I3"
+    },
+    {
+      "task_id": "DX0",
+      "title": "Native DevX, source formatting, archive/package and generated-input discipline",
+      "original_task_pointer": null,
+      "original_exit": "full deciding commands on exactsource, honest remainingissuer decisions, source-to-installedassets bytes/origins; commoncontextdoesnotblockindependentwork",
+      "next_action": "Repair canonical Ruff root convention; actual native SOTA row-by-row; fix scopedformatdebt; package all11declaredforce-includes throughGCP/archive/wheel. Preserveproduction exclusions. No baseline/exception/clock suppression.",
+      "dependencies": [
+        "BOOT0"
+      ],
+      "execution_mode": null,
+      "scope_status_in_manifest": null,
+      "assigned_finding_ids": [],
+      "assigned_finding_id_count": 0,
+      "current_task_status": "implementation_remaining",
+      "reported_task_status": {
+        "status": "implementation_remaining"
+      },
+      "formal_closure_ids": [],
+      "source_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/DX0/report.json",
+        "sha256": "d27e7af7d748750be4f4f7f699c7c92a34cb423f9310269055a00db6973f7c40"
+      },
+      "verified_property_count": null,
+      "remaining_work": {
+        "units": [
+          {
+            "id": "N5-N6",
+            "readiness": "author_ready_bounded",
+            "scope": "four targets/config and existing behavior"
+          },
+          {
+            "id": "N7-N8",
+            "readiness": "rebind_required",
+            "scope": "four naming families and corruption controls"
+          },
+          {
+            "id": "N1",
+            "readiness": "implementation_remaining",
+            "scope": "namespace effect RAW rebind/reapply under a new identity plus opaque-boundary refusal"
+          },
+          {
+            "id": "N2",
+            "readiness": "implementation_remaining",
+            "scope": "five components' operation joins"
+          },
+          {
+            "id": "Q2",
+            "readiness": "verification_remaining",
+            "scope": "12 assets through source/sdist/GCP/wheels/install"
+          },
+          {
+            "id": "SOTA",
+            "readiness": "verification_remaining",
+            "scope": "all 13 rows on final freeze"
+          }
+        ],
+        "checks": [
+          {
+            "order": 1,
+            "scope": "N1/generated",
+            "command": "uv run polisyos-tools architecture guardrails check --all-generated-checks",
+            "condition": "After reviewed N1 RAW rebind/reapply and exact freeze; serial. Current runtime/RSS unmeasured; prior incomplete 109.38s/415219712B."
+          },
+          {
+            "order": 2,
+            "scope": "N2",
+            "command": "Existing focused source suites plus current Ops consumer after each bounded bridge",
+            "condition": "Native pytest config/plugins retained; full composition unmeasured. Prior Common 9.38s/0.92GB, calibration 7.3s/0.75GB."
+          },
+          {
+            "order": 3,
+            "scope": "N5/N6",
+            "command": ".venv/bin/python -B -m mypy --config-file architecture/tooling/mypy/generated.ini --strict --explicit-package-bases --follow-imports=silent --no-incremental --cache-dir <fresh-raw-cache> src/polisyos/fabric/connectors/contracts/_inference_result.py src/polisyos/fabric/connectors/contracts/contract.py src/polisyos/fabric/connectors/contracts/registry.py src/polisyos/ir/registry/refs.py",
+            "condition": "Exact current hashes; prior 25.12s/1069858816B peak."
+          },
+          {
+            "order": 4,
+            "scope": "N7/N8",
+            "command": "uv run python tools/quality/validation/repository_last_mile_inventory.py --check; uv run pytest -c pytest.ini tests/repo_quality/architecture/test_last_mile_name_and_concern_inventory.py -q",
+            "condition": "Exact freeze plus four corruption controls; prior 31.317s/556728320B."
+          },
+          {
+            "order": 5,
+            "scope": "13 SOTA rows",
+            "command": "uv run polisyos-tools workspace repository-sota-closeout --output-json <fresh-run>/repository-sota-closeout.json --subprocess-receipt-dir <fresh-run>/subprocesses",
+            "condition": "After repairs/review/freeze; aggregate wall/RSS unmeasured; no contract-only substitution."
+          },
+          {
+            "order": 6,
+            "scope": "Q2",
+            "command": "Use LOCAL/q2-packaging/installed-wave-recipe.md source-freeze prepare/check then Linux timeout_driver.py with exact SHA/tree/manifest hash",
+            "condition": "12 current assets, current selectors and worker ready; about 1.5GiB scratch estimate, GCP overhead unmeasured."
+          }
+        ]
+      },
+      "native_sota_summary": {
+        "gate_count": 13,
+        "current_freeze_full_wave": "not run; no global green claim",
+        "contract_only_preflight": "Prior --contract-only returned rc=1 with 20 expired obligations (N1+19 N2); metadata preflight only."
+      },
+      "q2_summary": {
+        "status": "verification_remaining",
+        "recipe": "After exact source freeze, prepare/review/apply/re-prepare/check manifests; run Linux timed driver for source wheel, rebuilt-sdist wheel, GCP archive and rebuilt-GCP wheel; serially install and verify asset bytes/origins plus -I consumers. Supplemental follows primary pass.",
+        "current_assets": "hatch.toml contains 12 current force-includes; generated installed-wave manifest contains 11 and omits the nested confidence-ledger OpenAPI JSON. Recompute selectors and manifests from frozen source; retained 135 primary/six supplemental IDs are candidates, not current-source proof.",
+        "resource_bound": "Recipe estimates about 1.5 GiB scratch with existing worker environment; current pause note records about 8.9 GiB disk. Shared uv cache and GCP/platform overhead are excluded or unmeasured."
+      },
+      "n1_n8_status": [
+        {
+          "id": "N1",
+          "status": "implementation_remaining"
+        },
+        {
+          "id": "N2",
+          "status": "implementation_remaining"
+        },
+        {
+          "id": "N3",
+          "status": "verification_remaining"
+        },
+        {
+          "id": "N4",
+          "status": "verification_remaining_with_bounded_reflection_risk"
+        },
+        {
+          "id": "N5",
+          "status": "author_ready_bounded_retirement"
+        },
+        {
+          "id": "N6",
+          "status": "author_ready_bounded_retirement"
+        },
+        {
+          "id": "N7",
+          "status": "scoped_decision_present_rebind_pending"
+        },
+        {
+          "id": "N8",
+          "status": "scoped_decision_present_rebind_pending"
+        }
+      ],
+      "original_exit_source_key": "exit",
+      "task_manifest_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/DX0"
+    }
+  ],
+  "acceptance_rule": "Task readiness/author_complete is separate from finding closure; G owns finding-level adjudication. No closure IDs are inferred from test passes or task rows.",
+  "records_are_curated_not_raw_copies": "Per-task source report path@SHA is authoritative for omitted verified evidence; remaining units, exact proposed commands, expected predicates and resources are preserved here.",
+  "execution_limits": {
+    "maximum_direct_research_authors_and_reviewers": 20,
+    "maximum_admitted_native_jobs": 2,
+    "combined_measured_native_RSS_budget_bytes": 4294967296,
+    "first_unmeasured_V1_V2_native_GP_and_VM": "run alone",
+    "numeric_threads_per_native_job": 1,
+    "global_disk_floor_bytes": 6442450944,
+    "R1_task_local_disk_floor_bytes": 8589934592,
+    "source_writes": "Root only after review; leaves prepare RAW postimages.",
+    "dependency_provisioning": "Existing locked recipes/cache under resource admission, offline where possible; no environment/source copies or platform/scientific guard weakening."
+  },
+  "first_wave": {
+    "plan": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/execution-wave1/PLAN.md@1230f2f7032ec21de50e3fb2884bb7ea846288b065644db25b9ca5d282972450",
+    "task_families": [
+      "S3",
+      "V4/V7",
+      "V1/V2",
+      "R3",
+      "V5"
+    ],
+    "native_heavy_runs": "At most2 measured native jobs combined admittedRSS<=4GiB; first unmeasuredV1/V2/nativeGP/VM alone. Read-only LLM agents parallel separately."
+  },
+  "related_non_detail_commit": {
+    "commit": "65ac853e2735e827e27688a6175f1a385901e20e",
+    "path": "policy-engine/tests/unit/fabric/connectors/test_pool_admission_races.py",
+    "parent_report": "2 R2 test nodes pass; no product source changed from a92."
+  },
+  "root_rulings": {
+    "scope": "Existing G-selected contracts; no new authority or architecture choice.",
+    "V3": "S02 persists newly admitted source/lineage/cost/action state; retain previous evaluation only with full shared prepared semantic basis plus current eligibility and commit-dependency checks. Transport write time is not selected-view temporal identity.",
+    "Q2": "TC .2 and closure work runs in parallel with CAN .3; affected writers/readers freeze together before generated/installed proof.",
+    "resource_policy": "At most two measured native jobs admitted with combined RSS budget<=4GiB, one numeric thread each; first unmeasuredV1/V2, nativeGP andVM alone. Read-only agents independently parallel.",
+    "dependency_policy": "Reuse existing environments; required supported dependencies may be provisioned through locked recipes/cache under resource admission, offline when possible. No scientific/platform contract weakening or blanket no-install blocker."
+  },
+  "scope": "All19 original task rows assessed at pinned a92 source. This is a work breakdown and qualified evidence inventory, not full291 semantic verification or formalGacceptance.",
+  "metadata_corrections_applied": [
+    {
+      "pointer": "/task_records/16/remaining_work/units/2/config_evidence/0/sha256",
+      "old": "5c813fbfb983996e5fd955fd4fd27451225dbf8da8bf745fadc212790390fd9",
+      "new": "5c813fbfb983996e5fd955fd4fd27451225dbf8da8bf745fadc212790390fd9b"
+    }
+  ],
+  "metadata_corrections_scope": "Exact source-backed I2/V1 correction addenda applied to all reproduced work-unit digest fields. Original report files/hashes remain preserved."
+}

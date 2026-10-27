@@ -1,0 +1,77 @@
+{
+  "record_kind": "G_architecture_selection",
+  "record_version": "1.0",
+  "date": "2026-10-27",
+  "decisions": [
+    "CAN-01",
+    "TC-01"
+  ],
+  "architecture_selection": "selected_for_implementation",
+  "code_acceptance": false,
+  "closure_ids": [],
+  "source_freeze": false,
+  "runtime_checks": "UNRUN",
+  "implementation_changes": false,
+  "SDD_changes": false,
+  "integration_base": "978921662b2d89006759cdd2ae96dbccc9bdcf11",
+  "question_commit": "757e407bba28da5f1995335350bf7c427ecce431",
+  "source_commit": "7a4c713186188f5795da3a8745e42843443dcd88",
+  "source_tree": "f49503f969b9a3d68bf82d23e0c8435e9d20c847",
+  "input_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-questions/implementation-choices-20261027/inputs-limits.json",
+    "commit": "757e407bba28da5f1995335350bf7c427ecce431",
+    "sha256": "138aec7c4f2821b03b4a978ada50b51fd50bf6935a064bd944c7021648fefc85"
+  },
+  "source_arrays_checked": {
+    "time_context": {
+      "denominator": 13,
+      "matched": 13,
+      "file_type": "tracked source/document paths named in the packet array; not repository census"
+    },
+    "can_current": {
+      "denominator": 22,
+      "matched": 22,
+      "file_type": "tracked source/document paths named in the packet array; not repository census"
+    }
+  },
+  "evidence_array_checked": {
+    "denominator": 10,
+    "matched": 10,
+    "definition": "all evidence_readset entries; tracked Git or ignored frozen RAW per original manifest"
+  },
+  "additional_source_readset": {
+    "commit": "7a4c713186188f5795da3a8745e42843443dcd88",
+    "paths": [
+      "policy-engine/src/polisyos/runtime/http/services/control/job_attempt_publication.py",
+      "policy-engine/src/polisyos/runtime/quality/scorecard.py",
+      "policy-engine/src/polisyos/runtime/quality/report_registry.py",
+      "policy-engine/src/polisyos/common/canonical_profile.py",
+      "policy-engine/src/polisyos/runtime/http/services/temporal.py",
+      "policy-engine/src/polisyos/runtime/quality/assurance_case.py",
+      "policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+      "policy-engine/src/polisyos/core/artifacts/README.md"
+    ],
+    "scope": "targeted owner sections, not whole repository verification"
+  },
+  "review_method": {
+    "direct_agents": 6,
+    "delegation_depth": 1,
+    "roles": [
+      "CAN owner",
+      "CAN primary sources",
+      "CAN redteam",
+      "TC owner",
+      "TC primary sources",
+      "TC redteam"
+    ],
+    "root_review": "independent source and architecture review; final delta redteam before delivery"
+  },
+  "local_check_receipt": "policy-engine/_build/e02-g-implementation-choices-20261027/input-check.json",
+  "limitations": [
+    "Historical prototype evidence retains its original qualification; no ordinary POST or installed/runtime replay performed.",
+    "Original ignored RAW remains local at the source checkout; not copied into Git.",
+    "Source pins may overlap and their counts must not be summed as unique repository coverage.",
+    "Source changes after the pinned commit require delta review.",
+    "Architecture selections do not prove claims, legal facts, producer attestation, code acceptance or finding closure."
+  ]
+}

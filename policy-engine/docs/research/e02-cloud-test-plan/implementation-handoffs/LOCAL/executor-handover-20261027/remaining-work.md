@@ -42,6 +42,10 @@ Existing source-pinned plans: `../task-status-detailed-20261027/{PLAN.md,tasks.j
 - R2’s four historical refs are related history, not selected candidate ancestors. Correct prose without undoing the accepted defining property.
 - Complete candidate composition inventory at e22/d50 is a review input, not approval of934commits.869 adds seventeen unfinished code/test/tool paths; later handover docs/proposal bytes are another explicit delta.
 
+### Post-transfer L01 documentation delta
+
+The transfer-time status above remains historical. In the L01 worktree delta, the four R2 history entries identify those refs as related history, not ancestors of the accepted candidate or slice base and not selected dependencies; all five accepted source pins remain unchanged. The three R4 packet fields now state six fold/repeat units per study (12 across two studies). No numerical execution was repeated, and the cited raw outputs and results remain unchanged. The ignored local readback receipt is at `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e02-execution-20261027/l01/receipt.json`.
+
 ## Dependencies, ownership and inputs
 
 No old helper retains a write lease after stop. The next executor must re-admit owners. Last routing was: V4/N7 generation_cycle, V1 controlled-root test helper, R3 cache container/control lifecycle/NL bridge, V5 source-profile/typed metrics, I3 Fabric progress/key/replay, S1 uncertainty/source binding. Root was the only canonical writer. Shared Core/IR DTO/schema/generator/lock and generation-cycle/lifecycle changes require sequential composition and mandatory companions.

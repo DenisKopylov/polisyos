@@ -50,19 +50,19 @@
       },
       {
         "commit": "f29d85ef8eb35af3a9566ccd6c35202c2f1fbc58",
-        "role": "whole pool acquisition deadline."
+        "role": "Related history only; not an ancestor of the R2 candidate or slice base, and not a selected dependency: whole pool acquisition deadline."
       },
       {
         "commit": "e46cb5cd28baf204e69f556dcfea41889ed0ad35",
-        "role": "reject handles after caller cancellation."
+        "role": "Related history only; not an ancestor of the R2 candidate or slice base, and not a selected dependency: reject handles after caller cancellation."
       },
       {
         "commit": "07bbb61ffa6d53709942bcda87c37daef1a04651",
-        "role": "failed cleanup under registry retry owner."
+        "role": "Related history only; not an ancestor of the R2 candidate or slice base, and not a selected dependency: failed cleanup under registry retry owner."
       },
       {
         "commit": "1eb32f013308de34d77572dd4af8ca048b2b9ee3",
-        "role": "stream state admission before publication and UTC keys."
+        "role": "Related history only; not an ancestor of the R2 candidate or slice base, and not a selected dependency: stream state admission before publication and UTC keys."
       }
     ],
     "shared_mechanism_paths": [

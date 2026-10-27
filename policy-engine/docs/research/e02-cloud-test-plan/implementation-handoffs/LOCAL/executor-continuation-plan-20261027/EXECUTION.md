@@ -25,3 +25,13 @@ Measured free disk 22,362,684 KiB (about21.33GiB), hardware RAM16GiB, CPU8, memo
 - Next oracles: B13 basis invalidation, V3 shared basis/frontier, S2 genuine relation, Q0 criterion-specific F-family preparation.
 
 Current runtime/cloud task receipts are recorded in `execution-state.json`; complete local deciding command outputs use the existing ignored `LOCAL/raw/e02-execution-20261027` scratch. Moderate portable cloud outputs must travel through the verified diff/Git channel and be hash-checked locally.
+
+## Execution checkpoint — first dispatch
+
+The evidence correction was committed normally as `8db01b1076e425b7998b05a658776c991b7bd594` / tree `1706923ebe943f1a332dca4860cd145ddd366e36`, read back from the author branch and remote. Normal pre-push completed; its dashboard command reported no matching push files. All11 C01–C11 standalone tasks were submitted against this exact immutable published input, including the second operational batch without waiting for the first. Each stored launch body has both old expected SHA/tree bindings replaced and its own SHA-256; actual model, actual cloud source and runtime outcomes remain unestablished until task evidence arrives. Initial cloud list reports all11 pending, not eleven active machines or completed capabilities.
+
+C10's launch-body transport exception permits intent-to-add of only its new oracle/receipt documentation if required to expose it in the supported task diff; no product/test/schema staging, commit or ref change. This exception does not create product authoring rights.
+
+L01's four R2 provenance descriptions and three R4 arithmetic statements have independent root verification: all9 ancestry rows, all5 source pins and all8 R4 evidence hashes match, while6units/study and12/two studies are preserved. The older handover snapshot remains historical with an explicit later-delta note. No numerical replay or defining-property reopening was performed. The root's legitimate documentation/source advance and concurrent execution-state writes are explicitly attributed in the corrected local receipt; they do not alter L01's owned3-file footprint.
+
+Keep remote `codex/e02-unified-local-20261009` frozen at the dispatched input until cloud source admission is known. Subsequent local commits may be published append-only to the separate author topic `codex/e02-execution-progress-20261027`; the physical checkout/branch stays in place. G integration/main remain untouched.

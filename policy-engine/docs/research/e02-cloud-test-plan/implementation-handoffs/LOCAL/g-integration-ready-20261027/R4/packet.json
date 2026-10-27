@@ -110,7 +110,7 @@
     }
   },
   "property": {
-    "statement": "The configured shared Runtime permit bounds MethodDispatcher workers across two competing studies: cap 1 dispatches one worker and cap 2 dispatches two; both preserve all 12 fold/repeat units per study and consumer-visible CAS results. Removing MethodBackend's shared-submit bridge at cap 1 exposes dispatch peak 2.",
+    "statement": "The configured shared Runtime permit bounds MethodDispatcher workers across two competing studies: cap 1 dispatches one worker and cap 2 dispatches two; both preserve all 6 fold/repeat units per study (12 total across two studies) and consumer-visible CAS results. Removing MethodBackend's shared-submit bridge at cap 1 exposes dispatch peak 2.",
     "predicate_basis": [
       {
         "predicate": "Configured cap, observed dispatch/worker counts and persisted results for the synthetic studies",
@@ -121,7 +121,7 @@
         "basis": "not_established"
       }
     ],
-    "acceptance_signal": "Cap 1 and cap 2 complete both studies with identical result refs and consumer-semantic outputs; 12 expected and observed folds per study; dispatch peaks 1 and 2; bridge-removal dispatches 2 at configured cap 1.",
+    "acceptance_signal": "Cap 1 and cap 2 complete both studies with identical result refs and consumer-semantic outputs; 6 expected and observed fold/repeat units per study (12 total across two studies); dispatch peaks 1 and 2; bridge-removal dispatches 2 at configured cap 1.",
     "consumer_surface": "Fresh CAS result/evidence semantic readback and Runtime job status/event GET. Production capacity dashboard is out of scope.",
     "authority_scope": "Generic configured candidate-method admission only; no causal safety, publication, legal authority or production capacity claim."
   },
@@ -133,7 +133,7 @@
     "consumer": "Fresh CAS readback compares result refs and semantic projection; Runtime status/event GET validates completion and leases.",
     "verification": "Selected native R4 test executes cap 1, cap 2 and bridge-removal control with real dispatch and fold assertions.",
     "surface": "Runtime job status/events in scope; production capacity dashboard/SLO out of scope.",
-    "semantic_proof": "12 folds per study persist at both caps; removal changes cap-1 dispatch from 1 to 2.",
+    "semantic_proof": "6 fold/repeat units per study (12 total across two studies) persist at both caps; removal changes cap-1 dispatch from 1 to 2.",
     "missing_capability_labels": []
   },
   "source_input_rebind": {

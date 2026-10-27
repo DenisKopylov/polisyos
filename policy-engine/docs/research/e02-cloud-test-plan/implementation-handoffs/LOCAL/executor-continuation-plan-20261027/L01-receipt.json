@@ -1,0 +1,74 @@
+{
+  "schema": "policyos.e02.l01_author_receipt.v1",
+  "source_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+  "scope": "Documentation provenance/arithmetic correction only, preserving accepted B87/B89/B56 defining behavior and historical handover",
+  "finding_routes": [
+    "R2/B87",
+    "R2/B89",
+    "R4/B56"
+  ],
+  "G_basis": [
+    "G27-05",
+    "G27-06"
+  ],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-integration-ready-20261027/R2/packet.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-integration-ready-20261027/R4/packet.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-handover-20261027/remaining-work.md"
+  ],
+  "R2": {
+    "reclassified_related_history": [
+      "f29d85ef8eb35af3a9566ccd6c35202c2f1fbc58",
+      "e46cb5cd28baf204e69f556dcfea41889ed0ad35",
+      "07bbb61ffa6d53709942bcda87c37daef1a04651",
+      "1eb32f013308de34d77572dd4af8ca048b2b9ee3"
+    ],
+    "selected_path_pins_preserved": 5,
+    "ancestry_rows_recomputed": 9,
+    "candidate": "65ac853e2735e827e27688a6175f1a385901e20e",
+    "slice_base": "76691bd25ba10bee2caed9826e54cd9d40324ca5"
+  },
+  "R4": {
+    "corrected_fields": [
+      "property.statement",
+      "property.acceptance_signal",
+      "capability_chain.semantic_proof"
+    ],
+    "folds": 3,
+    "repeats": 2,
+    "units_per_study": 6,
+    "studies": 2,
+    "total_units": 12,
+    "existing_evidence_hashes_rechecked": 8,
+    "numerical_replay": "UNRUN deliberately; no changed numerical property"
+  },
+  "checks": [
+    {
+      "command": "git merge-base --is-ancestor for each implementation.historical_commits member against R2 candidate and slice_base",
+      "result": "PASS",
+      "scope": "9 rows; four related refs false, five selected refs true"
+    },
+    {
+      "command": "SHA256 current worktree and git-show candidate blobs against every shared_mechanism_paths packet pin",
+      "result": "PASS",
+      "scope": "all5 path pins"
+    },
+    {
+      "command": "SHA256 each existing R4 evidence object against packet hash; compare only declared3 JSON leaves; JSON parse",
+      "result": "PASS",
+      "scope": "all8 evidence objects unchanged; exactly3 arithmetic leaves corrected"
+    }
+  ],
+  "evidence_delivery": {
+    "classification": "B: source checks fully reproducible from pinned Git/packet and locally available indexed evidence; no new runtime claim",
+    "recipe": "Read R2 packet implementation.historical_commits/shared_mechanism_paths and use exact candidate/slice_base above; compare R4 property.statement/acceptance_signal/capability_chain.semantic_proof with source_base. Existing R4 output pins are unchanged.",
+    "local_full_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e02-execution-20261027/l01/receipt.json",
+    "local_full_receipt_sha256": "eb79c10eedb7617750cdc5de56d80d8a742bade75e1c96f7dad344b5e234d3a8",
+    "actual_local_bytes_verified": true,
+    "no_claim_of_remote_delivery_for_local_RAW": true
+  },
+  "independent_review": "root recomputed author source checks and read complete surgical diff",
+  "product_tests": "UNRUN; docs-only",
+  "new_G_acceptance": false,
+  "closure_ids": []
+}

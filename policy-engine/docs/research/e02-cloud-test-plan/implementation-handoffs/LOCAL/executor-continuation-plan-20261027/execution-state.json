@@ -25,9 +25,312 @@
   },
   "cloud": {
     "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
-    "launches": [],
+    "launches": [
+      {
+        "slice": "C01",
+        "created_at": "2026-10-27T20:59:37.596843+00:00",
+        "task_id": "task_e_6ae110b7441c8325a32470637d83981e",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae110b7441c8325a32470637d83981e",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "branch": "codex/e02-unified-local-20261009",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "prompt_sha256": "0f73a470d57c0262626069240e38cc57a055845172bf658f9c3a889ed480a4ff",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C01-launch-prompt.md",
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established by create response",
+        "template_rebindings": [
+          2,
+          2
+        ],
+        "create_exit": 0,
+        "status": "submitted",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_status": "pending",
+        "last_observed_summary": {
+          "files_changed": 0,
+          "lines_added": 0,
+          "lines_removed": 0
+        }
+      },
+      {
+        "slice": "C02",
+        "created_at": "2026-10-27T20:59:50.448927+00:00",
+        "task_id": "task_e_6ae110c4c4fc83258ce6845c3132da4f",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae110c4c4fc83258ce6845c3132da4f",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "branch": "codex/e02-unified-local-20261009",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "prompt_sha256": "7f9f53e5250c0fcb04b82b7ce7e7d8e566d048604763d6adb3a928672f19222c",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C02-launch-prompt.md",
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established by create response",
+        "template_rebindings": [
+          2,
+          2
+        ],
+        "create_exit": 0,
+        "status": "submitted",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_status": "pending",
+        "last_observed_summary": {
+          "files_changed": 0,
+          "lines_added": 0,
+          "lines_removed": 0
+        }
+      },
+      {
+        "slice": "C03",
+        "created_at": "2026-10-27T20:59:56.398563+00:00",
+        "task_id": "task_e_6ae110ca37648325adce53acdc571289",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae110ca37648325adce53acdc571289",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "branch": "codex/e02-unified-local-20261009",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "prompt_sha256": "0e34b56ace5498c2ebfbfea9fa8bdeda4a7ff362817c9688a145f8bb0a29d00f",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C03-launch-prompt.md",
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established by create response",
+        "template_rebindings": [
+          2,
+          2
+        ],
+        "create_exit": 0,
+        "status": "submitted",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_status": "pending",
+        "last_observed_summary": {
+          "files_changed": 0,
+          "lines_added": 0,
+          "lines_removed": 0
+        }
+      },
+      {
+        "slice": "C04",
+        "created_at": "2026-10-27T21:00:03.075044+00:00",
+        "task_id": "task_e_6ae110d0cb2883258547206691553c21",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae110d0cb2883258547206691553c21",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "branch": "codex/e02-unified-local-20261009",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "prompt_sha256": "63ad2850c80ef36781a2cee01c8ffb63aca1db001198304344ceae674c19f09e",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C04-launch-prompt.md",
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established by create response",
+        "template_rebindings": [
+          2,
+          2
+        ],
+        "create_exit": 0,
+        "status": "submitted",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_status": "pending",
+        "last_observed_summary": {
+          "files_changed": 0,
+          "lines_added": 0,
+          "lines_removed": 0
+        }
+      },
+      {
+        "slice": "C06",
+        "created_at": "2026-10-27T21:00:09.388055+00:00",
+        "task_id": "task_e_6ae110d7b0bc8325ad8073c56b903b72",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae110d7b0bc8325ad8073c56b903b72",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "branch": "codex/e02-unified-local-20261009",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "prompt_sha256": "d927984c4fc92bb0443c714e19099712b102b59beb244f75d4d2e48142cbf01a",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C06-launch-prompt.md",
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established by create response",
+        "template_rebindings": [
+          2,
+          2
+        ],
+        "create_exit": 0,
+        "status": "submitted",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_status": "pending",
+        "last_observed_summary": {
+          "files_changed": 0,
+          "lines_added": 0,
+          "lines_removed": 0
+        }
+      },
+      {
+        "slice": "C09",
+        "created_at": "2026-10-27T21:00:15.608978+00:00",
+        "task_id": "task_e_6ae110dde4d48325923b1182209999bf",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae110dde4d48325923b1182209999bf",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "branch": "codex/e02-unified-local-20261009",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "prompt_sha256": "e34bffed43ed9f6d0b1f34197a054b0f7e230008827894764f531d406ed60b75",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C09-launch-prompt.md",
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established by create response",
+        "template_rebindings": [
+          2,
+          2
+        ],
+        "create_exit": 0,
+        "status": "submitted",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_status": "pending",
+        "last_observed_summary": {
+          "files_changed": 0,
+          "lines_added": 0,
+          "lines_removed": 0
+        }
+      },
+      {
+        "slice": "C10",
+        "created_at": "2026-10-27T21:00:23.224393+00:00",
+        "task_id": "task_e_6ae110e4eba483259d8b7ad8b4719b63",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae110e4eba483259d8b7ad8b4719b63",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "branch": "codex/e02-unified-local-20261009",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "prompt_sha256": "a0c3762efb7d441a412b0d29e043829e93f273f8f2e52b3949a295030c16dfcd",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C10-launch-prompt.md",
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established by create response",
+        "template_rebindings": [
+          2,
+          2
+        ],
+        "create_exit": 0,
+        "status": "submitted",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_status": "pending",
+        "last_observed_summary": {
+          "files_changed": 0,
+          "lines_added": 0,
+          "lines_removed": 0
+        }
+      },
+      {
+        "slice": "C11",
+        "created_at": "2026-10-27T21:00:30.277555+00:00",
+        "task_id": "task_e_6ae110eb7f8c8325919991a3c97dce50",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae110eb7f8c8325919991a3c97dce50",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "branch": "codex/e02-unified-local-20261009",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "prompt_sha256": "84c7b5d055cea015fa3d50e49e26ee1f5a326b9426399182425f3a1cec8d7dae",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C11-launch-prompt.md",
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established by create response",
+        "template_rebindings": [
+          2,
+          2
+        ],
+        "create_exit": 0,
+        "status": "submitted",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_status": "pending",
+        "last_observed_summary": {
+          "files_changed": 0,
+          "lines_added": 0,
+          "lines_removed": 0
+        }
+      },
+      {
+        "slice": "C05",
+        "created_at": "2026-10-27T21:00:40.111825+00:00",
+        "task_id": "task_e_6ae110f66f948325865e12231de114e8",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae110f66f948325865e12231de114e8",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "branch": "codex/e02-unified-local-20261009",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "prompt_sha256": "50fb136a200b3ba1f65fddc1f387bbcec13722b36c944388cb09d84a43620cc7",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C05-launch-prompt.md",
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established by create response",
+        "template_rebindings": [
+          2,
+          2
+        ],
+        "create_exit": 0,
+        "status": "submitted",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_status": "pending",
+        "last_observed_summary": {
+          "files_changed": 0,
+          "lines_added": 0,
+          "lines_removed": 0
+        }
+      },
+      {
+        "slice": "C07",
+        "created_at": "2026-10-27T21:00:47.390850+00:00",
+        "task_id": "task_e_6ae110fd0b688325bdd7bb4dbf7f026a",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae110fd0b688325bdd7bb4dbf7f026a",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "branch": "codex/e02-unified-local-20261009",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "prompt_sha256": "0c5403460d3ef70a07351fb5f937221a041f96f845b6ed9b5bf0cfb2dab4cefb",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C07-launch-prompt.md",
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established by create response",
+        "template_rebindings": [
+          2,
+          2
+        ],
+        "create_exit": 0,
+        "status": "submitted",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_status": "pending",
+        "last_observed_summary": {
+          "files_changed": 0,
+          "lines_added": 0,
+          "lines_removed": 0
+        }
+      },
+      {
+        "slice": "C08",
+        "created_at": "2026-10-27T21:00:55.543335+00:00",
+        "task_id": "task_e_6ae111051efc8325b77ca7650f9fa869",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae111051efc8325b77ca7650f9fa869",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "branch": "codex/e02-unified-local-20261009",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "prompt_sha256": "a843bcaaf662d61d1930105620badeb7979356ba6d1ec14e92aabcf287298c45",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C08-launch-prompt.md",
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established by create response",
+        "template_rebindings": [
+          2,
+          2
+        ],
+        "create_exit": 0,
+        "status": "submitted",
+        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
+        "last_observed_status": "pending",
+        "last_observed_summary": {
+          "files_changed": 0,
+          "lines_added": 0,
+          "lines_removed": 0
+        }
+      }
+    ],
     "evidence_transport": "pending early C01 byte round trip",
-    "midrun_coordinator_messaging": "not_established; standalone assignments"
+    "midrun_coordinator_messaging": "not_established; standalone assignments",
+    "frozen_published_input": {
+      "base": "8db01b1076e425b7998b05a658776c991b7bd594",
+      "tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+      "branch": "codex/e02-unified-local-20261009"
+    }
   },
   "local_runs": [],
   "completed_author_results": [],

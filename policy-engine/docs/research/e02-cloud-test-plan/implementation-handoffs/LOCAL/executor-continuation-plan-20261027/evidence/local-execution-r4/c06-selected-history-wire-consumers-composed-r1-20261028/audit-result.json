@@ -1,0 +1,108 @@
+{
+  "plan": {
+    "case_id": "c06-selected-history-wire-consumers-composed-r1-20261028",
+    "source_head": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+    "task_ids": [
+      "c06"
+    ],
+    "nodes": [
+      "tests/unit/scientist/methods/autotune/test_selected_profile_history_regression.py",
+      "tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+      "tests/unit/scientist/methods/autotune/test_benchmark_evaluation_wire_compatibility.py",
+      "tests/unit/scientist/methods/search/test_objective.py",
+      "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py",
+      "tests/unit/scientist/search/test_promotion_evidence.py",
+      "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_methodjob_claims_without_method_result_ref_do_not_enter_generic_history",
+      "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed",
+      "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_generic_benchmark_manifest_roles_remain_eligible_for_generic_history",
+      "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_search_history_refuses_changed_selected_source_edges",
+      "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_reported_method_unit_must_match_selected_run_unit",
+      "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_methodjob_metric_without_selected_unit_is_not_carried_to_search_history"
+    ],
+    "extra_env": {},
+    "deadline_seconds": 600,
+    "rss_cap_bytes": 2411724800,
+    "scope": "C06 repairedrealMethodJobselectedprofileoldredplusunit/profile/roleadversaries/wirebothwriters1.0/2.0/objective+affectedprotectedclaim/promotionreaders; nativefittedGPalone laterUNRUN."
+  },
+  "source_profile_freeze_sha256": "c525e2508832b652cab26a84f3d3cdd57d0555ff154a0185c29f11dec6672094",
+  "result": {
+    "id": "c06-selected-history-wire-consumers-composed-r1-20261028",
+    "argv": [
+      "/usr/bin/sandbox-exec",
+      "-f",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c06-selected-history-wire-consumers-composed-r1-20261028/child.sb",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c06-selected-history-wire-consumers-composed-r1-20261028/pytest_launcher.py",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c06-selected-history-wire-consumers-composed-r1-20261028/pytest-cache",
+      "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c06-selected-history-wire-consumers-composed-r1-20261028/benchmarks",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c06-selected-history-wire-consumers-composed-r1-20261028/basetemp",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c06-selected-history-wire-consumers-composed-r1-20261028/pytest.xml",
+      "--tb=short",
+      "--color=no",
+      "--maxfail=0",
+      "tests/unit/scientist/methods/autotune/test_selected_profile_history_regression.py",
+      "tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+      "tests/unit/scientist/methods/autotune/test_benchmark_evaluation_wire_compatibility.py",
+      "tests/unit/scientist/methods/search/test_objective.py",
+      "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py",
+      "tests/unit/scientist/search/test_promotion_evidence.py",
+      "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_methodjob_claims_without_method_result_ref_do_not_enter_generic_history",
+      "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed",
+      "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_generic_benchmark_manifest_roles_remain_eligible_for_generic_history",
+      "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_search_history_refuses_changed_selected_source_edges",
+      "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_reported_method_unit_must_match_selected_run_unit",
+      "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_methodjob_metric_without_selected_unit_is_not_carried_to_search_history"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "started_at": "2026-10-27T22:30:06.813331+00:00",
+    "wall_total_before_seconds": 2.1916988771408796e-05,
+    "disk_free_before_bytes": 21938176000,
+    "stdout_path": "c06-selected-history-wire-consumers-composed-r1-20261028.stdout.txt",
+    "stderr_path": "c06-selected-history-wire-consumers-composed-r1-20261028.stderr.txt",
+    "return_code": 1,
+    "aborted_reason": null,
+    "complete": true,
+    "pid": 71703,
+    "process_group_gone": true,
+    "termination_signal": null,
+    "max_sampled_process_tree_rss_bytes": 962576384,
+    "minimum_sampled_disk_free_bytes": 21927698432,
+    "sample_count": 26,
+    "wall_seconds": 27.371443583018845,
+    "finished_at": "2026-10-27T22:30:34.184210+00:00",
+    "status": "command_failed",
+    "junit": {
+      "tests": 114,
+      "failures": 10,
+      "errors": 0,
+      "skipped": 0
+    },
+    "skips": []
+  },
+  "readsets": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c06-selected-history-wire-consumers-composed-r1-20261028/readsets/input-readset-71703.json",
+      "sha256": "8ee4db0edd6b50d239b8d9f475d535ebf4999d747efed1493a902443ec5d80bd",
+      "python_paths": 1240,
+      "pytest_exitstatus": 1
+    }
+  ],
+  "unique_runtime_loaded_python_paths": 1240,
+  "current_mismatches": [],
+  "guard_after": {
+    "head": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c16-typed-fixture-composition-20261027-r1/full-composed-source-frame.json",
+      "sha256": "2f053c08b22d90026a191ab45a83eb34eaab397f9cc09c0a69fccce9c6d22187"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    }
+  },
+  "scope": "Fresh canonical-source audit run. Readset is the observer's finite imported src/tests/tools set, not a whole-repository or all-backend proof.",
+  "closure_ids": []
+}

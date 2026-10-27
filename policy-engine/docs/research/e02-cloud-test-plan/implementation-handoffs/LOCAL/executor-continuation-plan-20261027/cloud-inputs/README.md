@@ -1,0 +1,7 @@
+# Published Cloud input artifacts
+
+These are small exact unified candidate patches and selected governing G documents needed by standalone repair tasks. They are not applied product code, recovery archives, checkout/environment copies or automatic scripts. The manifest records source-qualified preimages, received postimages, raw/compressed hashes and the pre-carrier source basis. A task reads the real tracked bytes, verifies the compressed hash, losslessly decompresses with Python gzip, verifies raw length/hash, checks preimages and reconstructs its actual isolated post-apply tree. The launch separately binds the completed carrier commit/tree after publication and remote readback. No hash fixed point is required.
+
+C39 demonstrated an input-admission gap: its executor could not recover exact literal patch bytes from the API-visible prompt and had no supplied candidate Git objects. It returned an input ERROR without product changes. Git-carried input files remove that assumption. Initial C37 creation was rejected with HTTP413, `Prompt exceeds 100000 characters`; future launch bodies stay below95000 Unicode characters and the separately measured OS argv byte budget. Do not truncate deciding requirements to fit.
+
+Historical G files retain their exact original language/bytes and cited Git provenance. This English index introduces no new architectural ruling. Candidate HOLDs remain, historical closures are unchanged, and fresh implementation/verification/review/G acceptance are separate. No private data is included.

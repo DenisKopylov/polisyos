@@ -1,0 +1,105 @@
+{
+  "plan": {
+    "case_id": "c07-c17-c16-composed-consumers-native-r1-20261028",
+    "source_head": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+    "task_ids": [
+      "S1",
+      "LA-017",
+      "Q0:F:LA-001",
+      "Q0:F:LA-003"
+    ],
+    "nodes": [
+      "tests/unit/runtime/quality/test_hte_source_projection.py",
+      "tests/unit/scientist/methods/search/test_hte_source_projection_callback.py",
+      "tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py",
+      "tests/unit/remediation/test_lex_impact_semantics.py",
+      "tests/unit/remediation/test_lex_01.py",
+      "tests/unit/lex/legal_evaluation/test_impact_diff.py",
+      "tests/unit/lex/simulator/test_engine.py",
+      "tests/unit/foundry/compile/test_treasury_execution.py",
+      "tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py"
+    ],
+    "extra_env": {},
+    "deadline_seconds": 600,
+    "rss_cap_bytes": 2411724800,
+    "scope": "C07 all9callback+6owner+7actualnativeoutboxwitness, C17 fourfullaffectedLexmodules includingrealexpr_astCLI, C16 typedTreasury/fiscal33caseaffectedmodules; originalsourcecriteriaremainbounded. Noproductionpayload/externalauthority."
+  },
+  "source_profile_freeze_sha256": "2426a674050ba7e3fe2c6ee6d7db51e8036c736dc8a06465772ec93aee7d7473",
+  "result": {
+    "id": "c07-c17-c16-composed-consumers-native-r1-20261028",
+    "argv": [
+      "/usr/bin/sandbox-exec",
+      "-f",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c07-c17-c16-composed-consumers-native-r1-20261028/child.sb",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c07-c17-c16-composed-consumers-native-r1-20261028/pytest_launcher.py",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c07-c17-c16-composed-consumers-native-r1-20261028/pytest-cache",
+      "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c07-c17-c16-composed-consumers-native-r1-20261028/benchmarks",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c07-c17-c16-composed-consumers-native-r1-20261028/basetemp",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c07-c17-c16-composed-consumers-native-r1-20261028/pytest.xml",
+      "--tb=short",
+      "--color=no",
+      "--maxfail=0",
+      "tests/unit/runtime/quality/test_hte_source_projection.py",
+      "tests/unit/scientist/methods/search/test_hte_source_projection_callback.py",
+      "tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py",
+      "tests/unit/remediation/test_lex_impact_semantics.py",
+      "tests/unit/remediation/test_lex_01.py",
+      "tests/unit/lex/legal_evaluation/test_impact_diff.py",
+      "tests/unit/lex/simulator/test_engine.py",
+      "tests/unit/foundry/compile/test_treasury_execution.py",
+      "tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "started_at": "2026-10-27T22:35:00.938828+00:00",
+    "wall_total_before_seconds": 2.2624997654929757e-05,
+    "disk_free_before_bytes": 21863784448,
+    "stdout_path": "c07-c17-c16-composed-consumers-native-r1-20261028.stdout.txt",
+    "stderr_path": "c07-c17-c16-composed-consumers-native-r1-20261028.stderr.txt",
+    "return_code": 1,
+    "aborted_reason": null,
+    "complete": true,
+    "pid": 84955,
+    "process_group_gone": true,
+    "termination_signal": null,
+    "max_sampled_process_tree_rss_bytes": 1451180032,
+    "minimum_sampled_disk_free_bytes": 21619032064,
+    "sample_count": 192,
+    "wall_seconds": 201.52729304201785,
+    "finished_at": "2026-10-27T22:38:22.466599+00:00",
+    "status": "command_failed",
+    "junit": {
+      "tests": 123,
+      "failures": 6,
+      "errors": 0,
+      "skipped": 0
+    },
+    "skips": []
+  },
+  "readsets": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c07-c17-c16-composed-consumers-native-r1-20261028/readsets/input-readset-84955.json",
+      "sha256": "3148af200311ddaa1dfdc239f276d8f140f368404d28f53defac4b3d886ad8ef",
+      "python_paths": 1863,
+      "pytest_exitstatus": 1
+    }
+  ],
+  "unique_runtime_loaded_python_paths": 1863,
+  "current_mismatches": [],
+  "guard_after": {
+    "head": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c16-typed-fixture-composition-20261027-r1/full-composed-source-frame.json",
+      "sha256": "2f053c08b22d90026a191ab45a83eb34eaab397f9cc09c0a69fccce9c6d22187"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    }
+  },
+  "scope": "Fresh canonical-source audit run. Readset is the observer's finite imported src/tests/tools set, not a whole-repository or all-backend proof.",
+  "closure_ids": []
+}

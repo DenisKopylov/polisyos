@@ -1,0 +1,92 @@
+{
+  "at": "2026-10-27T22:34:41.100918+00:00",
+  "before": {
+    "head": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c16-typed-fixture-composition-20261027-r1/full-composed-source-frame.json",
+      "sha256": "2f053c08b22d90026a191ab45a83eb34eaab397f9cc09c0a69fccce9c6d22187"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    }
+  },
+  "plan_sha256": "cc1d969cbf0ad53ef9d5a63d3a88343a5de701fc5b90884f15cb16b431ca40bb",
+  "selected_input_pins": {
+    "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+    "policy-engine/pyproject.toml": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+    "policy-engine/uv.lock": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case_with_tools_r2.py": "4c3eae2136b6c8941ba09d4438d12ea6ea11310527768f0482877b877b8e30c2",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-correction-removal-20261028-native-r1.json": "cc1d969cbf0ad53ef9d5a63d3a88343a5de701fc5b90884f15cb16b431ca40bb",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/readset_observer_tools_r1.py": "45db8cc07483a583d6c9029e0c3e5197f6a01ab905cac7948d072ef422d74a49",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/supervise.py": "a94a662308270ba3aca96c1d9c75e53a05e37a923a6188d0f464f8ac1e90909e",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-correction-removal-20261028-native-r1/pytest_launcher.py": "136a52a895c22d8b17596422e837bfd04c6920f20cc9bb4006be89afcff68118",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-layer-lib.py": "4b381f40f830180c0aa3d1a3cc6d091bc5e5f4598660a1824894d7a188351d35",
+    "LOCAL/raw/root-live-ownership-20261021.json": "a2b822d0a4483c700540af4f2183d7bd75f9a76069f32631eedfb20e0e1560a5",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c16-typed-fixture-composition-20261027-r1/full-composed-source-frame.json": "2f053c08b22d90026a191ab45a83eb34eaab397f9cc09c0a69fccce9c6d22187",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_independent_oracle.py": "4c8398b42efa15eeba4b28c9900a18541269931322edb8122412443d081f1585",
+    "policy-engine/tests/conftest.py": "691bf0914650edbef7cc5ededdb2828a8992c513abcaa875f0eb5ac7b318dbdd"
+  },
+  "native_profile": "pytest.ini, default plugin autoload/importlib/strict markers; add read-only sys.modules observer; outputs redirected only; private empty pycache search prefix prevents stale canonical pyc reuse",
+  "cleared_ambient_control_names": {},
+  "extra_env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TMPDIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-correction-removal-20261028-native-r1/tmp",
+    "XDG_CACHE_HOME": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-correction-removal-20261028-native-r1/tmp/xdg",
+    "MPLCONFIGDIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-correction-removal-20261028-native-r1/tmp/mpl",
+    "NUMBA_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-correction-removal-20261028-native-r1/tmp/numba",
+    "HYPOTHESIS_STORAGE_DIRECTORY": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-correction-removal-20261028-native-r1/tmp/hypothesis",
+    "PYTHONPYCACHEPREFIX": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-correction-removal-20261028-native-r1/tmp/empty-pycache",
+    "POLISYOS_R4_INPUT_PROJECT_ROOT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "POLISYOS_R4_INPUT_READSET_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-correction-removal-20261028-native-r1/readsets",
+    "SCIENTIST_TORCH_NUM_THREADS": "1",
+    "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTEST_ADDOPTS": "-s",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/e02-execution-20261027/repairs/C18-r3:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src",
+    "PYTEST_PLUGINS": "c18_removal_plugin",
+    "C18_REMOVAL_MODE": "point",
+    "C18_EXPECTED_SOURCE_HEAD": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+    "C18_EXPECTED_RDD_SHA256": "eb2505f40b8a5ad464b5669f5432a8152859aa81ce98e9668787f7208ba8ba43",
+    "C18_EXPECTED_TEST_PATH": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_independent_oracle.py",
+    "C18_EXPECTED_TEST_SHA256": "4c8398b42efa15eeba4b28c9900a18541269931322edb8122412443d081f1585",
+    "C18_EXPECTED_PLUGIN_SHA256": "30d922ceb45d79bf39874b6ebf1f756838ee13a7117b790921a0b53d7881bc25",
+    "C18_CONTROL_OUTPUT_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-correction-removal-20261028-native-r1/c18-control"
+  },
+  "numeric_threads": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMBA_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "ARROW_NUM_THREADS": "1",
+    "BLIS_NUM_THREADS": "1",
+    "POLARS_MAX_THREADS": "1",
+    "TF_NUM_INTEROP_THREADS": "1",
+    "TF_NUM_INTRAOP_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-correction-removal-20261028-native-r1/pytest_launcher.py",
+    "-o",
+    "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-correction-removal-20261028-native-r1/pytest-cache",
+    "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-correction-removal-20261028-native-r1/benchmarks",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-correction-removal-20261028-native-r1/basetemp",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-correction-removal-20261028-native-r1/pytest.xml",
+    "--tb=short",
+    "--color=no",
+    "--maxfail=0",
+    "tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_independent_oracle.py::test_independent_sensitivity_oracle_matches_corrected_point_and_hc0_se[h_lt_b]"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+  "scope": "bounded sharp-RDD independent point/HC0, two h/b ratios, zero/nonzero correction, actual dispatcher/fresh CAS reader, synthetic fixed-seed heteroskedastic 400-rep coverage; mode=point. No general inference, G acceptance or closure.",
+  "unresolved_by_construction": [
+    "unimported source and arbitrary executable parser/plugin inputs are not a repository-wide runtime census",
+    "observer records src/polisyos, tests and tools Python modules; external package modules are outside this observer selection",
+    "this is an audit-specific source/profile freeze, not E02 global acceptance"
+  ],
+  "closure_ids": []
+}

@@ -1,0 +1,358 @@
+...................F.................................................... [ 63%]
+.................................FFFFFFFFF                               [100%]R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 1240, "phase": "driver", "pid": 71703, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c06-selected-history-wire-consumers-composed-r1-20261028/readsets/input-readset-71703.json", "source_module_count": 1225, "test_module_count": 15, "tools_module_count": 0}
+
+=================================== FAILURES ===================================
+______________ TestBenchmarkToEvaluation.test_converts_evaluation ______________
+tests/unit/scientist/methods/autotune/test_bayesian_generator.py:499: in test_converts_evaluation
+    assert result is not None
+E   assert None is not None
+_ test_methodjob_claims_without_method_result_ref_do_not_enter_generic_history _
+tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py:2799: in test_methodjob_claims_without_method_result_ref_do_not_enter_generic_history
+    result = SearchLoopRunner(store=store).run(
+src/polisyos/scientist/methods/autotune/runtime.py:1926: in run
+    return driver.run_search(
+src/polisyos/scientist/methods/search/service.py:171: in run_search
+    return self._run_locked(
+src/polisyos/scientist/methods/search/service.py:213: in _run_locked
+    stopping_reason = self._evaluate_batch(
+src/polisyos/scientist/methods/search/service.py:282: in _evaluate_batch
+    transition = self.owner._evaluate_candidate(
+src/polisyos/scientist/methods/search/lifecycle.py:786: in _evaluate_candidate
+    stage_b_result = self._stage_b(candidate, context)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/runtime.py:1910: in <lambda>
+    stage_b_evaluator=lambda candidate, ctx: self._evaluate_candidate(
+src/polisyos/scientist/methods/autotune/runtime.py:2311: in _evaluate_candidate
+    decision = self._registry.consider_promotion(
+src/polisyos/scientist/methods/autotune/registry.py:623: in consider_promotion
+    with self._promotion_lock(loop_id):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/registry.py:947: in _promotion_lock
+    with lock_path.open("a+b") as lock_file:
+         ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'
+----------------------------- Captured stdout call -----------------------------
+2026-10-28 00:30:28 [info     ] method_registered              backend=numpy fqn=tests.scientist.v5_native_gp_score@1.0.0 lazy=False namespace=tests.scientist override=True tags=[] version=1.0.0
+2026-10-28 00:30:28 [debug    ] method_dispatch_start          backend=numpy fqn=tests.scientist.v5_native_gp_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-28 00:30:28 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=7.16 fqn=tests.scientist.v5_native_gp_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+------------------------------ Captured log call -------------------------------
+WARNING  foundry.selection_history:history.py:260 selection_history_persist_failed op=append path=/Users/deniskopylov/Library/Application Support/PolicyOS/foundry/selection_history/executions.jsonl exc=PermissionError
+_ test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed[retained_roles0] _
+tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py:2991: in test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed
+    result = SearchLoopRunner(store=store).run(
+src/polisyos/scientist/methods/autotune/runtime.py:1926: in run
+    return driver.run_search(
+src/polisyos/scientist/methods/search/service.py:171: in run_search
+    return self._run_locked(
+src/polisyos/scientist/methods/search/service.py:213: in _run_locked
+    stopping_reason = self._evaluate_batch(
+src/polisyos/scientist/methods/search/service.py:282: in _evaluate_batch
+    transition = self.owner._evaluate_candidate(
+src/polisyos/scientist/methods/search/lifecycle.py:786: in _evaluate_candidate
+    stage_b_result = self._stage_b(candidate, context)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/runtime.py:1910: in <lambda>
+    stage_b_evaluator=lambda candidate, ctx: self._evaluate_candidate(
+src/polisyos/scientist/methods/autotune/runtime.py:2311: in _evaluate_candidate
+    decision = self._registry.consider_promotion(
+src/polisyos/scientist/methods/autotune/registry.py:623: in consider_promotion
+    with self._promotion_lock(loop_id):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/registry.py:947: in _promotion_lock
+    with lock_path.open("a+b") as lock_file:
+         ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'
+----------------------------- Captured stdout call -----------------------------
+2026-10-28 00:30:28 [info     ] method_registered              backend=numpy fqn=tests.scientist.v5_native_gp_score@1.0.0 lazy=False namespace=tests.scientist override=True tags=[] version=1.0.0
+2026-10-28 00:30:28 [debug    ] method_dispatch_start          backend=numpy fqn=tests.scientist.v5_native_gp_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-28 00:30:28 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=7.11 fqn=tests.scientist.v5_native_gp_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+------------------------------ Captured log call -------------------------------
+WARNING  foundry.selection_history:history.py:260 selection_history_persist_failed op=append path=/Users/deniskopylov/Library/Application Support/PolicyOS/foundry/selection_history/executions.jsonl exc=PermissionError
+_ test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed[retained_roles1] _
+tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py:2991: in test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed
+    result = SearchLoopRunner(store=store).run(
+src/polisyos/scientist/methods/autotune/runtime.py:1926: in run
+    return driver.run_search(
+src/polisyos/scientist/methods/search/service.py:171: in run_search
+    return self._run_locked(
+src/polisyos/scientist/methods/search/service.py:213: in _run_locked
+    stopping_reason = self._evaluate_batch(
+src/polisyos/scientist/methods/search/service.py:282: in _evaluate_batch
+    transition = self.owner._evaluate_candidate(
+src/polisyos/scientist/methods/search/lifecycle.py:786: in _evaluate_candidate
+    stage_b_result = self._stage_b(candidate, context)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/runtime.py:1910: in <lambda>
+    stage_b_evaluator=lambda candidate, ctx: self._evaluate_candidate(
+src/polisyos/scientist/methods/autotune/runtime.py:2311: in _evaluate_candidate
+    decision = self._registry.consider_promotion(
+src/polisyos/scientist/methods/autotune/registry.py:623: in consider_promotion
+    with self._promotion_lock(loop_id):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/registry.py:947: in _promotion_lock
+    with lock_path.open("a+b") as lock_file:
+         ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'
+----------------------------- Captured stdout call -----------------------------
+2026-10-28 00:30:28 [info     ] method_registered              backend=numpy fqn=tests.scientist.v5_native_gp_score@1.0.0 lazy=False namespace=tests.scientist override=True tags=[] version=1.0.0
+2026-10-28 00:30:28 [debug    ] method_dispatch_start          backend=numpy fqn=tests.scientist.v5_native_gp_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-28 00:30:28 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=7.14 fqn=tests.scientist.v5_native_gp_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+------------------------------ Captured log call -------------------------------
+WARNING  foundry.selection_history:history.py:260 selection_history_persist_failed op=append path=/Users/deniskopylov/Library/Application Support/PolicyOS/foundry/selection_history/executions.jsonl exc=PermissionError
+_ test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed[retained_roles2] _
+tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py:2991: in test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed
+    result = SearchLoopRunner(store=store).run(
+src/polisyos/scientist/methods/autotune/runtime.py:1926: in run
+    return driver.run_search(
+src/polisyos/scientist/methods/search/service.py:171: in run_search
+    return self._run_locked(
+src/polisyos/scientist/methods/search/service.py:213: in _run_locked
+    stopping_reason = self._evaluate_batch(
+src/polisyos/scientist/methods/search/service.py:282: in _evaluate_batch
+    transition = self.owner._evaluate_candidate(
+src/polisyos/scientist/methods/search/lifecycle.py:786: in _evaluate_candidate
+    stage_b_result = self._stage_b(candidate, context)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/runtime.py:1910: in <lambda>
+    stage_b_evaluator=lambda candidate, ctx: self._evaluate_candidate(
+src/polisyos/scientist/methods/autotune/runtime.py:2311: in _evaluate_candidate
+    decision = self._registry.consider_promotion(
+src/polisyos/scientist/methods/autotune/registry.py:623: in consider_promotion
+    with self._promotion_lock(loop_id):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/registry.py:947: in _promotion_lock
+    with lock_path.open("a+b") as lock_file:
+         ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'
+----------------------------- Captured stdout call -----------------------------
+2026-10-28 00:30:29 [info     ] method_registered              backend=numpy fqn=tests.scientist.v5_native_gp_score@1.0.0 lazy=False namespace=tests.scientist override=True tags=[] version=1.0.0
+2026-10-28 00:30:29 [debug    ] method_dispatch_start          backend=numpy fqn=tests.scientist.v5_native_gp_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-28 00:30:29 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=7.23 fqn=tests.scientist.v5_native_gp_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+------------------------------ Captured log call -------------------------------
+WARNING  foundry.selection_history:history.py:260 selection_history_persist_failed op=append path=/Users/deniskopylov/Library/Application Support/PolicyOS/foundry/selection_history/executions.jsonl exc=PermissionError
+_ test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed[retained_roles3] _
+tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py:2991: in test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed
+    result = SearchLoopRunner(store=store).run(
+src/polisyos/scientist/methods/autotune/runtime.py:1926: in run
+    return driver.run_search(
+src/polisyos/scientist/methods/search/service.py:171: in run_search
+    return self._run_locked(
+src/polisyos/scientist/methods/search/service.py:213: in _run_locked
+    stopping_reason = self._evaluate_batch(
+src/polisyos/scientist/methods/search/service.py:282: in _evaluate_batch
+    transition = self.owner._evaluate_candidate(
+src/polisyos/scientist/methods/search/lifecycle.py:786: in _evaluate_candidate
+    stage_b_result = self._stage_b(candidate, context)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/runtime.py:1910: in <lambda>
+    stage_b_evaluator=lambda candidate, ctx: self._evaluate_candidate(
+src/polisyos/scientist/methods/autotune/runtime.py:2311: in _evaluate_candidate
+    decision = self._registry.consider_promotion(
+src/polisyos/scientist/methods/autotune/registry.py:623: in consider_promotion
+    with self._promotion_lock(loop_id):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/registry.py:947: in _promotion_lock
+    with lock_path.open("a+b") as lock_file:
+         ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'
+----------------------------- Captured stdout call -----------------------------
+2026-10-28 00:30:29 [info     ] method_registered              backend=numpy fqn=tests.scientist.v5_native_gp_score@1.0.0 lazy=False namespace=tests.scientist override=True tags=[] version=1.0.0
+2026-10-28 00:30:29 [debug    ] method_dispatch_start          backend=numpy fqn=tests.scientist.v5_native_gp_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-28 00:30:29 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=6.82 fqn=tests.scientist.v5_native_gp_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+------------------------------ Captured log call -------------------------------
+WARNING  foundry.selection_history:history.py:260 selection_history_persist_failed op=append path=/Users/deniskopylov/Library/Application Support/PolicyOS/foundry/selection_history/executions.jsonl exc=PermissionError
+__ test_generic_benchmark_manifest_roles_remain_eligible_for_generic_history ___
+tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py:3131: in test_generic_benchmark_manifest_roles_remain_eligible_for_generic_history
+    result = SearchLoopRunner(store=store).run(
+src/polisyos/scientist/methods/autotune/runtime.py:1926: in run
+    return driver.run_search(
+src/polisyos/scientist/methods/search/service.py:171: in run_search
+    return self._run_locked(
+src/polisyos/scientist/methods/search/service.py:213: in _run_locked
+    stopping_reason = self._evaluate_batch(
+src/polisyos/scientist/methods/search/service.py:282: in _evaluate_batch
+    transition = self.owner._evaluate_candidate(
+src/polisyos/scientist/methods/search/lifecycle.py:786: in _evaluate_candidate
+    stage_b_result = self._stage_b(candidate, context)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/runtime.py:1910: in <lambda>
+    stage_b_evaluator=lambda candidate, ctx: self._evaluate_candidate(
+src/polisyos/scientist/methods/autotune/runtime.py:2311: in _evaluate_candidate
+    decision = self._registry.consider_promotion(
+src/polisyos/scientist/methods/autotune/registry.py:623: in consider_promotion
+    with self._promotion_lock(loop_id):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/registry.py:947: in _promotion_lock
+    with lock_path.open("a+b") as lock_file:
+         ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'
+__________ test_search_history_refuses_changed_selected_source_edges ___________
+tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py:3249: in test_search_history_refuses_changed_selected_source_edges
+    run = SearchLoopRunner(store=store).run(
+src/polisyos/scientist/methods/autotune/runtime.py:1926: in run
+    return driver.run_search(
+src/polisyos/scientist/methods/search/service.py:171: in run_search
+    return self._run_locked(
+src/polisyos/scientist/methods/search/service.py:213: in _run_locked
+    stopping_reason = self._evaluate_batch(
+src/polisyos/scientist/methods/search/service.py:282: in _evaluate_batch
+    transition = self.owner._evaluate_candidate(
+src/polisyos/scientist/methods/search/lifecycle.py:786: in _evaluate_candidate
+    stage_b_result = self._stage_b(candidate, context)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/runtime.py:1910: in <lambda>
+    stage_b_evaluator=lambda candidate, ctx: self._evaluate_candidate(
+src/polisyos/scientist/methods/autotune/runtime.py:2311: in _evaluate_candidate
+    decision = self._registry.consider_promotion(
+src/polisyos/scientist/methods/autotune/registry.py:623: in consider_promotion
+    with self._promotion_lock(loop_id):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/registry.py:947: in _promotion_lock
+    with lock_path.open("a+b") as lock_file:
+         ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'
+----------------------------- Captured stdout call -----------------------------
+2026-10-28 00:30:29 [info     ] method_registered              backend=numpy fqn=tests.scientist.v5_native_gp_score@1.0.0 lazy=False namespace=tests.scientist override=True tags=[] version=1.0.0
+2026-10-28 00:30:29 [debug    ] method_dispatch_start          backend=numpy fqn=tests.scientist.v5_native_gp_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-28 00:30:29 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=7.32 fqn=tests.scientist.v5_native_gp_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+------------------------------ Captured log call -------------------------------
+WARNING  foundry.selection_history:history.py:260 selection_history_persist_failed op=append path=/Users/deniskopylov/Library/Application Support/PolicyOS/foundry/selection_history/executions.jsonl exc=PermissionError
+____________ test_reported_method_unit_must_match_selected_run_unit ____________
+tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py:2212: in test_reported_method_unit_must_match_selected_run_unit
+    result = SearchLoopRunner(store=store).run(
+src/polisyos/scientist/methods/autotune/runtime.py:1926: in run
+    return driver.run_search(
+src/polisyos/scientist/methods/search/service.py:171: in run_search
+    return self._run_locked(
+src/polisyos/scientist/methods/search/service.py:213: in _run_locked
+    stopping_reason = self._evaluate_batch(
+src/polisyos/scientist/methods/search/service.py:282: in _evaluate_batch
+    transition = self.owner._evaluate_candidate(
+src/polisyos/scientist/methods/search/lifecycle.py:786: in _evaluate_candidate
+    stage_b_result = self._stage_b(candidate, context)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/runtime.py:1910: in <lambda>
+    stage_b_evaluator=lambda candidate, ctx: self._evaluate_candidate(
+src/polisyos/scientist/methods/autotune/runtime.py:2311: in _evaluate_candidate
+    decision = self._registry.consider_promotion(
+src/polisyos/scientist/methods/autotune/registry.py:623: in consider_promotion
+    with self._promotion_lock(loop_id):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/registry.py:947: in _promotion_lock
+    with lock_path.open("a+b") as lock_file:
+         ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'
+----------------------------- Captured stdout call -----------------------------
+2026-10-28 00:30:29 [info     ] method_registered              backend=numpy fqn=tests.scientist.v5_declared_unit_score@1.0.0 lazy=False namespace=tests.scientist override=True tags=[] version=1.0.0
+2026-10-28 00:30:29 [debug    ] method_dispatch_start          backend=numpy fqn=tests.scientist.v5_declared_unit_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-28 00:30:29 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=6.72 fqn=tests.scientist.v5_declared_unit_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+------------------------------ Captured log call -------------------------------
+WARNING  foundry.selection_history:history.py:260 selection_history_persist_failed op=append path=/Users/deniskopylov/Library/Application Support/PolicyOS/foundry/selection_history/executions.jsonl exc=PermissionError
+_ test_methodjob_metric_without_selected_unit_is_not_carried_to_search_history _
+tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py:2269: in test_methodjob_metric_without_selected_unit_is_not_carried_to_search_history
+    result = SearchLoopRunner(store=store).run(
+src/polisyos/scientist/methods/autotune/runtime.py:1926: in run
+    return driver.run_search(
+src/polisyos/scientist/methods/search/service.py:171: in run_search
+    return self._run_locked(
+src/polisyos/scientist/methods/search/service.py:213: in _run_locked
+    stopping_reason = self._evaluate_batch(
+src/polisyos/scientist/methods/search/service.py:282: in _evaluate_batch
+    transition = self.owner._evaluate_candidate(
+src/polisyos/scientist/methods/search/lifecycle.py:786: in _evaluate_candidate
+    stage_b_result = self._stage_b(candidate, context)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/runtime.py:1910: in <lambda>
+    stage_b_evaluator=lambda candidate, ctx: self._evaluate_candidate(
+src/polisyos/scientist/methods/autotune/runtime.py:2311: in _evaluate_candidate
+    decision = self._registry.consider_promotion(
+src/polisyos/scientist/methods/autotune/registry.py:623: in consider_promotion
+    with self._promotion_lock(loop_id):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/registry.py:947: in _promotion_lock
+    with lock_path.open("a+b") as lock_file:
+         ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'
+----------------------------- Captured stdout call -----------------------------
+2026-10-28 00:30:29 [info     ] method_registered              backend=numpy fqn=tests.scientist.v5_score@1.0.0 lazy=False namespace=tests.scientist override=True tags=[] version=1.0.0
+2026-10-28 00:30:29 [debug    ] method_dispatch_start          backend=numpy fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-28 00:30:30 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=7.64 fqn=tests.scientist.v5_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+------------------------------ Captured log call -------------------------------
+WARNING  foundry.selection_history:history.py:260 selection_history_persist_failed op=append path=/Users/deniskopylov/Library/Application Support/PolicyOS/foundry/selection_history/executions.jsonl exc=PermissionError
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+.venv/lib/python3.14/site-packages/pyro/ops/stats.py:527
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pyro/ops/stats.py:527: SyntaxWarning: "\g" is an invalid escape sequence. Such sequences will not work in the future. Did you mean "\\g"? A raw string is also an option.
+    we have :math:`ES^{*}(P,Q) \ge ES^{*}(Q,Q)` with equality holding if and only if :math:`P=Q`, i.e.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/autotune/test_bayesian_generator.py::TestBenchmarkToEvaluation::test_converts_evaluation
+FAILED tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_methodjob_claims_without_method_result_ref_do_not_enter_generic_history
+FAILED tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed[retained_roles0]
+FAILED tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed[retained_roles1]
+FAILED tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed[retained_roles2]
+FAILED tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed[retained_roles3]
+FAILED tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_generic_benchmark_manifest_roles_remain_eligible_for_generic_history
+FAILED tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_search_history_refuses_changed_selected_source_edges
+FAILED tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_reported_method_unit_must_match_selected_run_unit
+FAILED tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_methodjob_metric_without_selected_unit_is_not_carried_to_search_history
+10 failed, 104 passed, 3 warnings in 20.90s

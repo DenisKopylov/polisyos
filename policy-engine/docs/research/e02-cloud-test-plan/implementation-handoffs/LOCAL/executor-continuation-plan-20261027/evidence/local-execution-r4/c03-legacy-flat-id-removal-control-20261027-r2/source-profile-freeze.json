@@ -1,0 +1,91 @@
+{
+  "at": "2026-10-27T22:24:56.804277+00:00",
+  "before": {
+    "head": "7916f5ef7caea27204a53c176c52c8d9bac93dbb",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-execution-r3-deciding-evidence-and-preservation-20261027/full-composed-source-frame.json",
+      "sha256": "c17159a014da5b644f282c18b76077d6c18b3859848650b4fdab62cadff20bf1"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    }
+  },
+  "plan_sha256": "045f6860450202930f25f01555015479c5af151dd6cef3344c08bb310ffc79e0",
+  "selected_input_pins": {
+    "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+    "policy-engine/pyproject.toml": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+    "policy-engine/uv.lock": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case_with_tools_r2.py": "4c3eae2136b6c8941ba09d4438d12ea6ea11310527768f0482877b877b8e30c2",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c03-legacy-flat-id-removal-control-20261027-r2.json": "045f6860450202930f25f01555015479c5af151dd6cef3344c08bb310ffc79e0",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/readset_observer_tools_r1.py": "45db8cc07483a583d6c9029e0c3e5197f6a01ab905cac7948d072ef422d74a49",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/supervise.py": "a94a662308270ba3aca96c1d9c75e53a05e37a923a6188d0f464f8ac1e90909e",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c03-legacy-flat-id-removal-control-20261027-r2/pytest_launcher.py": "136a52a895c22d8b17596422e837bfd04c6920f20cc9bb4006be89afcff68118",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-layer-lib.py": "4b381f40f830180c0aa3d1a3cc6d091bc5e5f4598660a1824894d7a188351d35",
+    "LOCAL/raw/root-live-ownership-20261021.json": "d0b9eb9e4126536317bbc743cc0728461425facede69f84a56953e1bd833a499",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-execution-r3-deciding-evidence-and-preservation-20261027/full-composed-source-frame.json": "c17159a014da5b644f282c18b76077d6c18b3859848650b4fdab62cadff20bf1",
+    "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local.py": "f9b09c09587f19284033176c272db4fc80cb91fe6473057758b367d266d14ec0",
+    "policy-engine/tests/conftest.py": "691bf0914650edbef7cc5ededdb2828a8992c513abcaa875f0eb5ac7b318dbdd"
+  },
+  "native_profile": "pytest.ini, default plugin autoload/importlib/strict markers; add read-only sys.modules observer; outputs redirected only; private empty pycache search prefix prevents stale canonical pyc reuse",
+  "cleared_ambient_control_names": {},
+  "extra_env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TMPDIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c03-legacy-flat-id-removal-control-20261027-r2/tmp",
+    "XDG_CACHE_HOME": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c03-legacy-flat-id-removal-control-20261027-r2/tmp/xdg",
+    "MPLCONFIGDIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c03-legacy-flat-id-removal-control-20261027-r2/tmp/mpl",
+    "NUMBA_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c03-legacy-flat-id-removal-control-20261027-r2/tmp/numba",
+    "HYPOTHESIS_STORAGE_DIRECTORY": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c03-legacy-flat-id-removal-control-20261027-r2/tmp/hypothesis",
+    "PYTHONPYCACHEPREFIX": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c03-legacy-flat-id-removal-control-20261027-r2/tmp/empty-pycache",
+    "POLISYOS_R4_INPUT_PROJECT_ROOT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "POLISYOS_R4_INPUT_READSET_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c03-legacy-flat-id-removal-control-20261027-r2/readsets",
+    "SCIENTIST_TORCH_NUM_THREADS": "1",
+    "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+    "C03_CASE_ID": "c03-legacy-flat-id-removal-control-20261027-r2",
+    "C03_CONTROL_OUTPUT_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c03-legacy-flat-id-removal-control-20261027-r2/c03-control",
+    "C03_EXPECTED_HEAD": "7916f5ef7caea27204a53c176c52c8d9bac93dbb",
+    "C03_EXPECTED_MODULE_SHA256": "b3f9d12cc7337aab12a49dad4e0671a0254ffc327ebd71d3035a6e49a2e53bbd",
+    "C03_EXPECTED_NODEID": "tests/unit/data_forge/legal_batch/test_embed_local.py::test_legacy_flat_pair_rebuilds_changed_text_then_reuses_current_membership",
+    "C03_EXPECTED_PLUGIN_SHA256": "b7af468af48d523d05eb9fbb41f6b72dd03365394dd254036c4cd1294a85dc10",
+    "C03_EXPECTED_TEST_SHA256": "f9b09c09587f19284033176c272db4fc80cb91fe6473057758b367d266d14ec0",
+    "C03_RUNNER_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1",
+    "PYTEST_PLUGINS": "c03_removal_plugin",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e02-execution-20261027/repairs/C03-removal-controls-r1:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src"
+  },
+  "numeric_threads": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMBA_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "ARROW_NUM_THREADS": "1",
+    "BLIS_NUM_THREADS": "1",
+    "POLARS_MAX_THREADS": "1",
+    "TF_NUM_INTEROP_THREADS": "1",
+    "TF_NUM_INTRAOP_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c03-legacy-flat-id-removal-control-20261027-r2/pytest_launcher.py",
+    "-o",
+    "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c03-legacy-flat-id-removal-control-20261027-r2/pytest-cache",
+    "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c03-legacy-flat-id-removal-control-20261027-r2/benchmarks",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c03-legacy-flat-id-removal-control-20261027-r2/basetemp",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c03-legacy-flat-id-removal-control-20261027-r2/pytest.xml",
+    "--tb=short",
+    "--color=no",
+    "--maxfail=0",
+    "tests/unit/data_forge/legal_batch/test_embed_local.py::test_legacy_flat_pair_rebuilds_changed_text_then_reuses_current_membership"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+  "scope": "One-node property-removal control only. Use the exact existing native audit runner and observer. Preserve pytest.ini and normal plugin autoload; PYTEST_PLUGINS adds only the C03 in-memory control. The control restores the Legal embedder function at sessionfinish. Expected result is failure at first_stats.provisions_embedded == 3; collection/import/unrelated failures are not successful controls. No product/test source edits.",
+  "unresolved_by_construction": [
+    "unimported source and arbitrary executable parser/plugin inputs are not a repository-wide runtime census",
+    "observer records src/polisyos, tests and tools Python modules; external package modules are outside this observer selection",
+    "this is an audit-specific source/profile freeze, not E02 global acceptance"
+  ],
+  "closure_ids": []
+}

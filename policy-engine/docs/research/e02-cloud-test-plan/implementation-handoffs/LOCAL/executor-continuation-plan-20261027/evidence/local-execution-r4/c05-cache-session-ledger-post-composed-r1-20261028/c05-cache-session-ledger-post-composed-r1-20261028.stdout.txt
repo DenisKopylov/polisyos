@@ -1,0 +1,42 @@
+........................................................................ [ 54%]
+...F....................................................F..              [100%]R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 1863, "phase": "driver", "pid": 71702, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c05-cache-session-ledger-post-composed-r1-20261028/readsets/input-readset-71702.json", "source_module_count": 1845, "test_module_count": 18, "tools_module_count": 0}
+
+=================================== FAILURES ===================================
+______ test_factory_cache_scoped_singleflight_success_settles_each_waiter ______
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/tasks.py:488: in wait_for
+    return await fut
+           ^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/locks.py:213: in wait
+    await fut
+E   asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+tests/unit/scientist/orchestration/llm/test_factory_cache_composition.py:395: in test_factory_cache_scoped_singleflight_success_settles_each_waiter
+    await asyncio.wait_for(all_waiting.wait(), timeout=3.0)
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/tasks.py:487: in wait_for
+    async with timeouts.timeout(timeout):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/asyncio/timeouts.py:114: in __aexit__
+    raise TimeoutError from exc_val
+E   TimeoutError
+_______ test_control_plane_reuses_only_current_owner_authorized_snapshot _______
+tests/integration/runtime/http/test_nl_pipeline_cache_reuse_authorization.py:255: in test_control_plane_reuses_only_current_owner_authorized_snapshot
+    first = _ordinary_post_and_dispatch(env, snapshot_id=str(snapshot_ref.artifact_id))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/integration/runtime/http/test_nl_pipeline_cache_reuse_authorization.py:185: in _ordinary_post_and_dispatch
+    assert binding.run_id == core_run_id
+E   AssertionError: assert 'R_2f02164e8d463723' == 'control-864a...7caefb7b7bc67'
+E     
+E     - control-864a8b4eb5283e8382731f8e2f697c22e41bde85c573d7f56787caefb7b7bc67
+E     + R_2f02164e8d463723
+----------------------------- Captured stdout call -----------------------------
+2026-10-28 00:31:30 [info     ] method_registered              backend=numpy fqn=causal.hte.forest_dr@1.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'doubly-robust', 'estimation', 'forest-dr', 'hte', 'tabular'] version=1.0.0
+2026-10-28 00:31:30 [info     ] method_registered              backend=numpy fqn=causal.hte.forest_dr@1.1.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'doubly-robust', 'estimation', 'forest-dr', 'hte', 'tabular'] version=1.1.0
+2026-10-28 00:31:30 [info     ] method_registered              backend=numpy fqn=causal.hte.causal_forest@2.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'causal-forest', 'cross-section', 'estimation', 'hte', 'native-inference', 'tabular'] version=2.0.0
+2026-10-28 00:31:30 [info     ] method_registered              backend=numpy fqn=causal.hte.double_ml@2.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'double-ml', 'estimation', 'hte', 'native-inference', 'tabular'] version=2.0.0
+2026-10-28 00:31:30 [info     ] method_registered              backend=numpy fqn=causal.hte.meta_learner@2.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'estimation', 'hte', 'meta-learner', 'native-inference', 'tabular'] version=2.0.0
+2026-10-28 00:31:30 [info     ] method_registered              backend=numpy fqn=causal.hte.forest_dr@2.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'estimation', 'forest-dr', 'hte', 'native-inference', 'tabular'] version=2.0.0
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/llm/test_factory_cache_composition.py::test_factory_cache_scoped_singleflight_success_settles_each_waiter
+FAILED tests/integration/runtime/http/test_nl_pipeline_cache_reuse_authorization.py::test_control_plane_reuses_only_current_owner_authorized_snapshot
+2 failed, 129 passed in 87.25s (0:01:27)

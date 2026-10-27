@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="10" skipped="0" tests="114" time="20.479" timestamp="2026-10-28T00:30:09.647731+02:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.scientist.methods.autotune.test_selected_profile_history_regression" name="test_history_refuses_same_id_with_different_selected_source_profile" time="0.315" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator.TestBayesianCandidateGeneratorFallback" name="test_generate_returns_current_best" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator.TestBayesianCandidateGeneratorFallback" name="test_generate_returns_last_history" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator.TestBayesianCandidateGeneratorFallback" name="test_generate_returns_context_when_empty" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator.TestBayesianCandidateGeneratorFallback" name="test_botorch_not_available" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator.TestBayesianCandidateGeneratorFallback" name="test_warm_start_no_crash" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator.TestBayesianCandidateGeneratorFallback" name="test_generate_protocol_compliance" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator" name="test_first_sobol_candidate_uses_native_search_space_protocol" time="0.003" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator" name="test_injected_optimizer_is_not_admitted_as_native_gp_profile" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator" name="test_injected_optimizer_without_effective_corpus_keeps_training_unknown" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator" name="test_source_profile_uses_canonical_effective_fit_profile" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator" name="test_method_run_profile_binds_selected_objective_unit" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator" name="test_search_iteration_history_preserves_origin_params_split_and_full_ids" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator" name="test_history_identity_conflicts_fail_closed[candidate_id]" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator" name="test_history_identity_conflicts_fail_closed[evaluation_id]" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator" name="test_history_identity_conflicts_fail_closed[split]" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator" name="test_history_identity_conflicts_fail_closed[origin]" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator" name="test_history_without_score_is_not_a_successful_zero_observation" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator" name="test_primary_metric_admission_uses_source_rule_and_retains_unbound_diagnostics" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator.TestBenchmarkToEvaluation" name="test_converts_evaluation" time="0.000"><failure message="assert None is not None">tests/unit/scientist/methods/autotune/test_bayesian_generator.py:499: in test_converts_evaluation
+    assert result is not None
+E   assert None is not None</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator.TestBenchmarkToEvaluation" name="test_returns_none_for_missing_metric" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator.TestBenchmarkToEvaluation" name="test_preserves_full_identity_split_origin_and_candidate_params" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator.TestBenchmarkToEvaluation" name="test_rejects_metadata_split_conflicting_with_typed_runtime_split" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator.TestBenchmarkToEvaluation" name="test_methodjob_unit_metadata_without_cas_verifier_is_refused" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_bayesian_generator.TestBenchmarkToEvaluation" name="test_merges_canonical_artifact_id_wire_identity_and_rejects_distinct_wire_id" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_benchmark_evaluation_wire_compatibility" name="test_both_evaluation_writers_preserve_the_legacy_wire_shape[None-1.0]" time="0.035" /><testcase classname="tests.unit.scientist.methods.autotune.test_benchmark_evaluation_wire_compatibility" name="test_both_evaluation_writers_preserve_the_legacy_wire_shape[None-2.0]" time="0.037" /><testcase classname="tests.unit.scientist.methods.autotune.test_benchmark_evaluation_wire_compatibility" name="test_both_evaluation_writers_preserve_the_legacy_wire_shape[dimensionless-1.0]" time="0.036" /><testcase classname="tests.unit.scientist.methods.autotune.test_benchmark_evaluation_wire_compatibility" name="test_both_evaluation_writers_preserve_the_legacy_wire_shape[dimensionless-2.0]" time="0.035" /><testcase classname="tests.unit.scientist.methods.autotune.test_benchmark_evaluation_wire_compatibility" name="test_generic_candidate_parameters_bind_nested_producer_payload" time="0.087" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_balance_stock_alias_does_not_establish_budget_deficit[results0]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_balance_stock_alias_does_not_establish_budget_deficit[results1]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_balance_stock_alias_does_not_establish_budget_deficit[results2]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_balance_stock_alias_does_not_establish_budget_deficit[results3]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_requires_unit_evidence_for_selected_alias[metric-units-absent]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_requires_unit_evidence_for_selected_alias[empty-unit-map]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_requires_unit_evidence_for_selected_alias[unit-on-other-alias-not-selected-alias]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_scores_selected_unit_compatible_deficit_aliases[results0-100.0]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_scores_selected_unit_compatible_deficit_aliases[results1-100.0]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_scores_selected_unit_compatible_deficit_aliases[results2-100.0]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_scores_selected_unit_compatible_deficit_aliases[results3-100.0]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_scores_selected_unit_compatible_deficit_aliases[results4-0.0]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_scores_selected_unit_compatible_deficit_aliases[results5-0.0]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_rejects_non_finite_deficit_aliases[nan]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_rejects_non_finite_deficit_aliases[inf]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_rejects_non_finite_deficit_aliases[-inf]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_rejects_conflicting_deficit_aliases" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_rejects_incompatible_deficit_alias_unit" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_marks_missing_metric_unusable" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_keeps_non_finite_metric_unusable[nan]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_keeps_non_finite_metric_unusable[inf]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_keeps_non_finite_metric_unusable[-inf]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_rejects_boolean_measurements[True]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_rejects_boolean_measurements[False]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_rejects_conflicting_balance_and_deficit_families" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_rejects_conflicting_balance_aliases" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_rejects_conflicting_unit_views_even_when_score_is_limited" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_rejects_malformed_units_on_present_alias[usd -budget_deficit-35.0]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_rejects_malformed_units_on_present_alias[usd -gov_balance--35.0]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_rejects_malformed_units_on_present_alias[-budget_deficit-35.0]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_rejects_malformed_units_on_present_alias[-gov_balance--35.0]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_rejects_malformed_units_on_present_alias[None-budget_deficit-35.0]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_rejects_malformed_units_on_present_alias[None-gov_balance--35.0]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_rejects_malformed_units_on_present_alias[True-budget_deficit-35.0]" time="0.000" /><testcase classname="tests.unit.scientist.methods.search.test_objective" name="test_budget_deficit_rejects_malformed_units_on_present_alias[True-gov_balance--35.0]" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime" name="test_raw_input_excludes_producer_publish_authority_and_freezes_bytes" time="0.022" /><testcase classname="tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime" name="test_missing_champion_blocks_without_emitting_result" time="0.022" /><testcase classname="tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime" name="test_promoted_champion_executes_and_publishes_strong_fulltext" time="0.174" /><testcase classname="tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime" name="test_model_positive_cannot_publish_abstract_only_claim" time="0.155" /><testcase classname="tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime" name="test_evaluation_candidate_mismatch_blocks_admission" time="0.101" /><testcase classname="tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime" name="test_unbound_false_guardrail_pointer_is_refused" time="0.103" /><testcase classname="tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime" name="test_tampered_raw_blob_is_rejected_before_execution" time="0.125" /><testcase classname="tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime" name="test_execution_result_cannot_be_presented_as_validity_evidence" time="0.157" /><testcase classname="tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime" name="test_scientist_cli_route_executes_real_transport_and_materializes_receipt" time="0.201" /><testcase classname="tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime" name="test_runtime_result_manifest_preserves_all_selected_claim_refs" time="0.219" /><testcase classname="tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime" name="test_raw_batch_binds_complete_extraction_and_retraction_source_profiles" time="0.090" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_bundle_requires_real_holdout_and_meta_refs" time="0.000" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_bundle_requires_replay_and_governance_refs" time="0.000" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_bundle_must_match_current_run" time="0.000" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_bundle_validates_runtime_lineage" time="0.098" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_requires_exact_selected_candidate_evaluation_edge[missing]" time="0.023" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_requires_exact_selected_candidate_evaluation_edge[foreign]" time="0.028" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_does_not_promote_profileless_candidate_history" time="0.020" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_requires_selected_profile_for_each_admitted_ref[candidate_ref-candidate_ref]" time="0.018" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_requires_selected_profile_for_each_admitted_ref[evaluation_ref-evaluation_ref]" time="0.021" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_requires_selected_profile_for_each_admitted_ref[selection_evaluation_ref-selection_evaluation_ref]" time="0.022" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_requires_selected_profile_for_each_admitted_ref[hidden_holdout_evaluation_ref-hidden_holdout_evaluation_ref]" time="0.020" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_requires_selected_profile_for_each_admitted_ref[rotating_challenge_evaluation_refs-rotating_challenge_evaluation_refs]" time="0.021" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_requires_selected_profile_for_each_admitted_ref[adversarial_meta_evaluation_ref-adversarial_meta_evaluation_ref]" time="0.020" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_requires_selected_profile_for_each_admitted_ref[replay_bundle_ref-replay_bundle_ref]" time="0.022" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_requires_selected_profile_for_each_admitted_ref[replay_verification_ref-replay_verification_ref]" time="0.025" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_requires_selected_profile_for_each_admitted_ref[calibration_report_ref-calibration_report_ref]" time="0.024" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_requires_selected_profile_for_each_admitted_ref[governance_report_ref-governance_report_ref]" time="0.020" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_requires_selected_profile_for_each_admitted_ref[stress_test_report_ref-stress_test_report_ref]" time="0.020" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_rejects_report_edges_with_foreign_selected_context[candidate]" time="0.075" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_rejects_report_edges_with_foreign_selected_context[evaluation]" time="0.071" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_requires_nested_bundle_candidate_and_evaluation_context" time="0.050" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_rejects_duplicate_candidate_context_edge" time="0.059" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_binds_replay_report_to_exact_run_context" time="0.062" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_writer_selects_and_binds_subject_profiles" time="0.048" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_writer_rejects_subject_profile_conflict" time="0.025" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_protected_promotion_requires_a_trusted_benchmark_source_basis" time="0.023" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_registry_backed_hidden_holdout_without_source_basis_is_refused" time="0.034" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_bundle_rejects_stale_replay_verification_ref" time="0.085" /><testcase classname="tests.unit.scientist.search.test_promotion_evidence" name="test_promotion_evidence_bundle_rejects_stale_selection_ref" time="0.026" /><testcase classname="tests.unit.scientist.methods.autotune.test_v5_search_pipeline" name="test_methodjob_claims_without_method_result_ref_do_not_enter_generic_history" time="0.090"><failure message="PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'">tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py:2799: in test_methodjob_claims_without_method_result_ref_do_not_enter_generic_history
+    result = SearchLoopRunner(store=store).run(
+src/polisyos/scientist/methods/autotune/runtime.py:1926: in run
+    return driver.run_search(
+src/polisyos/scientist/methods/search/service.py:171: in run_search
+    return self._run_locked(
+src/polisyos/scientist/methods/search/service.py:213: in _run_locked
+    stopping_reason = self._evaluate_batch(
+src/polisyos/scientist/methods/search/service.py:282: in _evaluate_batch
+    transition = self.owner._evaluate_candidate(
+src/polisyos/scientist/methods/search/lifecycle.py:786: in _evaluate_candidate
+    stage_b_result = self._stage_b(candidate, context)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/runtime.py:1910: in &lt;lambda&gt;
+    stage_b_evaluator=lambda candidate, ctx: self._evaluate_candidate(
+src/polisyos/scientist/methods/autotune/runtime.py:2311: in _evaluate_candidate
+    decision = self._registry.consider_promotion(
+src/polisyos/scientist/methods/autotune/registry.py:623: in consider_promotion
+    with self._promotion_lock(loop_id):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/registry.py:947: in _promotion_lock
+    with lock_path.open("a+b") as lock_file:
+         ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_v5_search_pipeline" name="test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed[retained_roles0]" time="0.090"><failure message="PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'">tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py:2991: in test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed
+    result = SearchLoopRunner(store=store).run(
+src/polisyos/scientist/methods/autotune/runtime.py:1926: in run
+    return driver.run_search(
+src/polisyos/scientist/methods/search/service.py:171: in run_search
+    return self._run_locked(
+src/polisyos/scientist/methods/search/service.py:213: in _run_locked
+    stopping_reason = self._evaluate_batch(
+src/polisyos/scientist/methods/search/service.py:282: in _evaluate_batch
+    transition = self.owner._evaluate_candidate(
+src/polisyos/scientist/methods/search/lifecycle.py:786: in _evaluate_candidate
+    stage_b_result = self._stage_b(candidate, context)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/runtime.py:1910: in &lt;lambda&gt;
+    stage_b_evaluator=lambda candidate, ctx: self._evaluate_candidate(
+src/polisyos/scientist/methods/autotune/runtime.py:2311: in _evaluate_candidate
+    decision = self._registry.consider_promotion(
+src/polisyos/scientist/methods/autotune/registry.py:623: in consider_promotion
+    with self._promotion_lock(loop_id):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/registry.py:947: in _promotion_lock
+    with lock_path.open("a+b") as lock_file:
+         ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_v5_search_pipeline" name="test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed[retained_roles1]" time="0.094"><failure message="PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'">tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py:2991: in test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed
+    result = SearchLoopRunner(store=store).run(
+src/polisyos/scientist/methods/autotune/runtime.py:1926: in run
+    return driver.run_search(
+src/polisyos/scientist/methods/search/service.py:171: in run_search
+    return self._run_locked(
+src/polisyos/scientist/methods/search/service.py:213: in _run_locked
+    stopping_reason = self._evaluate_batch(
+src/polisyos/scientist/methods/search/service.py:282: in _evaluate_batch
+    transition = self.owner._evaluate_candidate(
+src/polisyos/scientist/methods/search/lifecycle.py:786: in _evaluate_candidate
+    stage_b_result = self._stage_b(candidate, context)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/runtime.py:1910: in &lt;lambda&gt;
+    stage_b_evaluator=lambda candidate, ctx: self._evaluate_candidate(
+src/polisyos/scientist/methods/autotune/runtime.py:2311: in _evaluate_candidate
+    decision = self._registry.consider_promotion(
+src/polisyos/scientist/methods/autotune/registry.py:623: in consider_promotion
+    with self._promotion_lock(loop_id):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/registry.py:947: in _promotion_lock
+    with lock_path.open("a+b") as lock_file:
+         ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_v5_search_pipeline" name="test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed[retained_roles2]" time="0.092"><failure message="PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'">tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py:2991: in test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed
+    result = SearchLoopRunner(store=store).run(
+src/polisyos/scientist/methods/autotune/runtime.py:1926: in run
+    return driver.run_search(
+src/polisyos/scientist/methods/search/service.py:171: in run_search
+    return self._run_locked(
+src/polisyos/scientist/methods/search/service.py:213: in _run_locked
+    stopping_reason = self._evaluate_batch(
+src/polisyos/scientist/methods/search/service.py:282: in _evaluate_batch
+    transition = self.owner._evaluate_candidate(
+src/polisyos/scientist/methods/search/lifecycle.py:786: in _evaluate_candidate
+    stage_b_result = self._stage_b(candidate, context)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/runtime.py:1910: in &lt;lambda&gt;
+    stage_b_evaluator=lambda candidate, ctx: self._evaluate_candidate(
+src/polisyos/scientist/methods/autotune/runtime.py:2311: in _evaluate_candidate
+    decision = self._registry.consider_promotion(
+src/polisyos/scientist/methods/autotune/registry.py:623: in consider_promotion
+    with self._promotion_lock(loop_id):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/registry.py:947: in _promotion_lock
+    with lock_path.open("a+b") as lock_file:
+         ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_v5_search_pipeline" name="test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed[retained_roles3]" time="0.088"><failure message="PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'">tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py:2991: in test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed
+    result = SearchLoopRunner(store=store).run(
+src/polisyos/scientist/methods/autotune/runtime.py:1926: in run
+    return driver.run_search(
+src/polisyos/scientist/methods/search/service.py:171: in run_search
+    return self._run_locked(
+src/polisyos/scientist/methods/search/service.py:213: in _run_locked
+    stopping_reason = self._evaluate_batch(
+src/polisyos/scientist/methods/search/service.py:282: in _evaluate_batch
+    transition = self.owner._evaluate_candidate(
+src/polisyos/scientist/methods/search/lifecycle.py:786: in _evaluate_candidate
+    stage_b_result = self._stage_b(candidate, context)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/runtime.py:1910: in &lt;lambda&gt;
+    stage_b_evaluator=lambda candidate, ctx: self._evaluate_candidate(
+src/polisyos/scientist/methods/autotune/runtime.py:2311: in _evaluate_candidate
+    decision = self._registry.consider_promotion(
+src/polisyos/scientist/methods/autotune/registry.py:623: in consider_promotion
+    with self._promotion_lock(loop_id):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/registry.py:947: in _promotion_lock
+    with lock_path.open("a+b") as lock_file:
+         ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_v5_search_pipeline" name="test_generic_benchmark_manifest_roles_remain_eligible_for_generic_history" time="0.033"><failure message="PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'">tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py:3131: in test_generic_benchmark_manifest_roles_remain_eligible_for_generic_history
+    result = SearchLoopRunner(store=store).run(
+src/polisyos/scientist/methods/autotune/runtime.py:1926: in run
+    return driver.run_search(
+src/polisyos/scientist/methods/search/service.py:171: in run_search
+    return self._run_locked(
+src/polisyos/scientist/methods/search/service.py:213: in _run_locked
+    stopping_reason = self._evaluate_batch(
+src/polisyos/scientist/methods/search/service.py:282: in _evaluate_batch
+    transition = self.owner._evaluate_candidate(
+src/polisyos/scientist/methods/search/lifecycle.py:786: in _evaluate_candidate
+    stage_b_result = self._stage_b(candidate, context)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/runtime.py:1910: in &lt;lambda&gt;
+    stage_b_evaluator=lambda candidate, ctx: self._evaluate_candidate(
+src/polisyos/scientist/methods/autotune/runtime.py:2311: in _evaluate_candidate
+    decision = self._registry.consider_promotion(
+src/polisyos/scientist/methods/autotune/registry.py:623: in consider_promotion
+    with self._promotion_lock(loop_id):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/registry.py:947: in _promotion_lock
+    with lock_path.open("a+b") as lock_file:
+         ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_v5_search_pipeline" name="test_search_history_refuses_changed_selected_source_edges" time="0.085"><failure message="PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'">tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py:3249: in test_search_history_refuses_changed_selected_source_edges
+    run = SearchLoopRunner(store=store).run(
+src/polisyos/scientist/methods/autotune/runtime.py:1926: in run
+    return driver.run_search(
+src/polisyos/scientist/methods/search/service.py:171: in run_search
+    return self._run_locked(
+src/polisyos/scientist/methods/search/service.py:213: in _run_locked
+    stopping_reason = self._evaluate_batch(
+src/polisyos/scientist/methods/search/service.py:282: in _evaluate_batch
+    transition = self.owner._evaluate_candidate(
+src/polisyos/scientist/methods/search/lifecycle.py:786: in _evaluate_candidate
+    stage_b_result = self._stage_b(candidate, context)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/runtime.py:1910: in &lt;lambda&gt;
+    stage_b_evaluator=lambda candidate, ctx: self._evaluate_candidate(
+src/polisyos/scientist/methods/autotune/runtime.py:2311: in _evaluate_candidate
+    decision = self._registry.consider_promotion(
+src/polisyos/scientist/methods/autotune/registry.py:623: in consider_promotion
+    with self._promotion_lock(loop_id):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/registry.py:947: in _promotion_lock
+    with lock_path.open("a+b") as lock_file:
+         ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_v5_search_pipeline" name="test_reported_method_unit_must_match_selected_run_unit" time="0.077"><failure message="PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'">tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py:2212: in test_reported_method_unit_must_match_selected_run_unit
+    result = SearchLoopRunner(store=store).run(
+src/polisyos/scientist/methods/autotune/runtime.py:1926: in run
+    return driver.run_search(
+src/polisyos/scientist/methods/search/service.py:171: in run_search
+    return self._run_locked(
+src/polisyos/scientist/methods/search/service.py:213: in _run_locked
+    stopping_reason = self._evaluate_batch(
+src/polisyos/scientist/methods/search/service.py:282: in _evaluate_batch
+    transition = self.owner._evaluate_candidate(
+src/polisyos/scientist/methods/search/lifecycle.py:786: in _evaluate_candidate
+    stage_b_result = self._stage_b(candidate, context)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/runtime.py:1910: in &lt;lambda&gt;
+    stage_b_evaluator=lambda candidate, ctx: self._evaluate_candidate(
+src/polisyos/scientist/methods/autotune/runtime.py:2311: in _evaluate_candidate
+    decision = self._registry.consider_promotion(
+src/polisyos/scientist/methods/autotune/registry.py:623: in consider_promotion
+    with self._promotion_lock(loop_id):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/registry.py:947: in _promotion_lock
+    with lock_path.open("a+b") as lock_file:
+         ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_v5_search_pipeline" name="test_methodjob_metric_without_selected_unit_is_not_carried_to_search_history" time="0.082"><failure message="PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'">tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py:2269: in test_methodjob_metric_without_selected_unit_is_not_carried_to_search_history
+    result = SearchLoopRunner(store=store).run(
+src/polisyos/scientist/methods/autotune/runtime.py:1926: in run
+    return driver.run_search(
+src/polisyos/scientist/methods/search/service.py:171: in run_search
+    return self._run_locked(
+src/polisyos/scientist/methods/search/service.py:213: in _run_locked
+    stopping_reason = self._evaluate_batch(
+src/polisyos/scientist/methods/search/service.py:282: in _evaluate_batch
+    transition = self.owner._evaluate_candidate(
+src/polisyos/scientist/methods/search/lifecycle.py:786: in _evaluate_candidate
+    stage_b_result = self._stage_b(candidate, context)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/runtime.py:1910: in &lt;lambda&gt;
+    stage_b_evaluator=lambda candidate, ctx: self._evaluate_candidate(
+src/polisyos/scientist/methods/autotune/runtime.py:2311: in _evaluate_candidate
+    decision = self._registry.consider_promotion(
+src/polisyos/scientist/methods/autotune/registry.py:623: in consider_promotion
+    with self._promotion_lock(loop_id):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/autotune/registry.py:947: in _promotion_lock
+    with lock_path.open("a+b") as lock_file:
+         ^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.polisyos/search_registry/v5_search/champion.lock'</failure></testcase></testsuite></testsuites>

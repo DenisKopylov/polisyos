@@ -1,0 +1,102 @@
+{
+  "plan": {
+    "case_id": "c18-rdd-composed-positive-20261028-native-r1",
+    "source_head": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+    "task_ids": [
+      "B210@CAU-03"
+    ],
+    "nodes": [
+      "tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py",
+      "tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_independent_oracle.py"
+    ],
+    "extra_env": {
+      "OPENBLAS_NUM_THREADS": "1",
+      "PYTEST_ADDOPTS": "-s"
+    },
+    "deadline_seconds": 600,
+    "rss_cap_bytes": 2411724800,
+    "scope": "bounded sharp-RDD independent point/HC0, two h/b ratios, zero/nonzero correction, actual dispatcher/fresh CAS reader, synthetic fixed-seed heteroskedastic 400-rep coverage; mode=None. No general inference, G acceptance or closure.",
+    "expected_control": null,
+    "binding": {
+      "test_sha256": "4c8398b42efa15eeba4b28c9900a18541269931322edb8122412443d081f1585",
+      "source_sha256": "eb2505f40b8a5ad464b5669f5432a8152859aa81ce98e9668787f7208ba8ba43",
+      "plugin_sha256": null,
+      "coverage_seed": 2026102803,
+      "coverage_acceptance": [
+        0.915,
+        0.985
+      ]
+    }
+  },
+  "source_profile_freeze_sha256": "b63820ec720affe0d54f45573a8b4573a11f4db06c0fed5b6c8cbe6c40fc39a5",
+  "result": {
+    "id": "c18-rdd-composed-positive-20261028-native-r1",
+    "argv": [
+      "/usr/bin/sandbox-exec",
+      "-f",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-composed-positive-20261028-native-r1/child.sb",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-composed-positive-20261028-native-r1/pytest_launcher.py",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-composed-positive-20261028-native-r1/pytest-cache",
+      "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-composed-positive-20261028-native-r1/benchmarks",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-composed-positive-20261028-native-r1/basetemp",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-composed-positive-20261028-native-r1/pytest.xml",
+      "--tb=short",
+      "--color=no",
+      "--maxfail=0",
+      "tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py",
+      "tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_independent_oracle.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "started_at": "2026-10-27T22:33:26.864720+00:00",
+    "wall_total_before_seconds": 2.9916991479694843e-05,
+    "disk_free_before_bytes": 21879582720,
+    "stdout_path": "c18-rdd-composed-positive-20261028-native-r1.stdout.txt",
+    "stderr_path": "c18-rdd-composed-positive-20261028-native-r1.stderr.txt",
+    "return_code": 0,
+    "aborted_reason": null,
+    "complete": true,
+    "pid": 80190,
+    "process_group_gone": true,
+    "termination_signal": null,
+    "max_sampled_process_tree_rss_bytes": 653230080,
+    "minimum_sampled_disk_free_bytes": 21872857088,
+    "sample_count": 26,
+    "wall_seconds": 27.916927333018975,
+    "finished_at": "2026-10-27T22:33:54.781715+00:00",
+    "status": "passed",
+    "junit": {
+      "tests": 45,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "skips": []
+  },
+  "readsets": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-composed-positive-20261028-native-r1/readsets/input-readset-80190.json",
+      "sha256": "b997d7a608afecf9a571a671a74dd094368fda05939e2058ac6077702f22e9ed",
+      "python_paths": 837,
+      "pytest_exitstatus": 0
+    }
+  ],
+  "unique_runtime_loaded_python_paths": 837,
+  "current_mismatches": [],
+  "guard_after": {
+    "head": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c16-typed-fixture-composition-20261027-r1/full-composed-source-frame.json",
+      "sha256": "2f053c08b22d90026a191ab45a83eb34eaab397f9cc09c0a69fccce9c6d22187"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    }
+  },
+  "scope": "Fresh canonical-source audit run. Readset is the observer's finite imported src/tests/tools set, not a whole-repository or all-backend proof.",
+  "closure_ids": []
+}

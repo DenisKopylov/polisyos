@@ -1,0 +1,14 @@
+FR4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 832, "phase": "driver", "pid": 84041, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c18-rdd-correction-removal-20261028-native-r1/readsets/input-readset-84041.json", "source_module_count": 825, "test_module_count": 7, "tools_module_count": 0}
+
+=================================== FAILURES ===================================
+_ test_independent_sensitivity_oracle_matches_corrected_point_and_hc0_se[h_lt_b] _
+tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_independent_oracle.py:126: in test_independent_sensitivity_oracle_matches_corrected_point_and_hc0_se
+    assert report.point_estimate == pytest.approx(expected_point, rel=2e-11, abs=2e-11)
+E   assert 1.9525106684245994 == 2.050513341915636 ± 4.1e-11
+E     
+E     comparison failed
+E     Obtained: 1.9525106684245994
+E     Expected: 2.050513341915636 ± 4.1e-11
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_independent_oracle.py::test_independent_sensitivity_oracle_matches_corrected_point_and_hc0_se[h_lt_b]
+1 failed in 0.66s

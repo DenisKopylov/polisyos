@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.286" timestamp="2026-10-28T00:34:56.085360+02:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.foundry.methods.catalog.causal.test_rdd_rbc_independent_oracle" name="test_independent_sensitivity_oracle_matches_corrected_point_and_hc0_se[h_lt_b]" time="0.014"><failure message="assert 0.06888640153278419 == 0.08494587448927746 ± 2.0e-11&#10;  &#10;  comparison failed&#10;  Obtained: 0.06888640153278419&#10;  Expected: 0.08494587448927746 ± 2.0e-11">tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_independent_oracle.py:127: in test_independent_sensitivity_oracle_matches_corrected_point_and_hc0_se
+    assert report.standard_error == pytest.approx(expected_se, rel=2e-11, abs=2e-11)
+E   assert 0.06888640153278419 == 0.08494587448927746 ± 2.0e-11
+E     
+E     comparison failed
+E     Obtained: 0.06888640153278419
+E     Expected: 0.08494587448927746 ± 2.0e-11</failure></testcase></testsuite></testsuites>

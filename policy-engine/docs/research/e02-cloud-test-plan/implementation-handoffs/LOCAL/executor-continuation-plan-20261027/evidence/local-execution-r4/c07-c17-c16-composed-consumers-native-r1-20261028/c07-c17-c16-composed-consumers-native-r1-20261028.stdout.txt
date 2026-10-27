@@ -1,0 +1,110 @@
+..................FFFFFF................................................ [ 58%]
+...................................................                      [100%]R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 1863, "phase": "driver", "pid": 84955, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c07-c17-c16-composed-consumers-native-r1-20261028/readsets/input-readset-84955.json", "source_module_count": 1836, "test_module_count": 24, "tools_module_count": 3}
+
+=================================== FAILURES ===================================
+_ test_owned_hte_outbox_records_first_assessment_without_authority_promotion[selected-source-unit] _
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py:1285: in test_owned_hte_outbox_records_first_assessment_without_authority_promotion
+    source_ref, source_assignment_ref, unit_scope_ref = _put_profile_bound_v2_hte_source(
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py:322: in _put_profile_bound_v2_hte_source
+    fixture = make_native_multivariable_active_projections(
+tests/_helpers/semantic_epoch_native.py:1383: in make_native_multivariable_active_projections
+    pending = overlay.admit_epoch(
+src/polisyos/data_forge/domains/catalog/knowledge/overlay.py:1969: in admit_epoch
+    source_body = _validate_passport_owner_evidence(
+src/polisyos/data_forge/domains/catalog/knowledge/overlay.py:4061: in _validate_passport_owner_evidence
+    raise OverlayAdmissionError("source_authority_unverified")
+E   polisyos.data_forge.domains.catalog.knowledge.overlay.OverlayAdmissionError: source_authority_unverified: source_authority_unverified
+_ test_owned_hte_outbox_records_first_assessment_without_authority_promotion[edge-removed-markers-retained] _
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py:1285: in test_owned_hte_outbox_records_first_assessment_without_authority_promotion
+    source_ref, source_assignment_ref, unit_scope_ref = _put_profile_bound_v2_hte_source(
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py:322: in _put_profile_bound_v2_hte_source
+    fixture = make_native_multivariable_active_projections(
+tests/_helpers/semantic_epoch_native.py:1383: in make_native_multivariable_active_projections
+    pending = overlay.admit_epoch(
+src/polisyos/data_forge/domains/catalog/knowledge/overlay.py:1969: in admit_epoch
+    source_body = _validate_passport_owner_evidence(
+src/polisyos/data_forge/domains/catalog/knowledge/overlay.py:4061: in _validate_passport_owner_evidence
+    raise OverlayAdmissionError("source_authority_unverified")
+E   polisyos.data_forge.domains.catalog.knowledge.overlay.OverlayAdmissionError: source_authority_unverified: source_authority_unverified
+_ test_owned_hte_outbox_records_first_assessment_without_authority_promotion[ambiguous-cell-self-consistent-mean] _
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py:1285: in test_owned_hte_outbox_records_first_assessment_without_authority_promotion
+    source_ref, source_assignment_ref, unit_scope_ref = _put_profile_bound_v2_hte_source(
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py:322: in _put_profile_bound_v2_hte_source
+    fixture = make_native_multivariable_active_projections(
+tests/_helpers/semantic_epoch_native.py:1383: in make_native_multivariable_active_projections
+    pending = overlay.admit_epoch(
+src/polisyos/data_forge/domains/catalog/knowledge/overlay.py:1969: in admit_epoch
+    source_body = _validate_passport_owner_evidence(
+src/polisyos/data_forge/domains/catalog/knowledge/overlay.py:4061: in _validate_passport_owner_evidence
+    raise OverlayAdmissionError("source_authority_unverified")
+E   polisyos.data_forge.domains.catalog.knowledge.overlay.OverlayAdmissionError: source_authority_unverified: source_authority_unverified
+_ test_owned_hte_outbox_records_first_assessment_without_authority_promotion[source-refusal-retains-native-interval] _
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py:1285: in test_owned_hte_outbox_records_first_assessment_without_authority_promotion
+    source_ref, source_assignment_ref, unit_scope_ref = _put_profile_bound_v2_hte_source(
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py:322: in _put_profile_bound_v2_hte_source
+    fixture = make_native_multivariable_active_projections(
+tests/_helpers/semantic_epoch_native.py:1383: in make_native_multivariable_active_projections
+    pending = overlay.admit_epoch(
+src/polisyos/data_forge/domains/catalog/knowledge/overlay.py:1969: in admit_epoch
+    source_body = _validate_passport_owner_evidence(
+src/polisyos/data_forge/domains/catalog/knowledge/overlay.py:4061: in _validate_passport_owner_evidence
+    raise OverlayAdmissionError("source_authority_unverified")
+E   polisyos.data_forge.domains.catalog.knowledge.overlay.OverlayAdmissionError: source_authority_unverified: source_authority_unverified
+_ test_owned_hte_outbox_records_first_assessment_without_authority_promotion[canonical-declared-unit-normalization] _
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py:1285: in test_owned_hte_outbox_records_first_assessment_without_authority_promotion
+    source_ref, source_assignment_ref, unit_scope_ref = _put_profile_bound_v2_hte_source(
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py:322: in _put_profile_bound_v2_hte_source
+    fixture = make_native_multivariable_active_projections(
+tests/_helpers/semantic_epoch_native.py:1383: in make_native_multivariable_active_projections
+    pending = overlay.admit_epoch(
+src/polisyos/data_forge/domains/catalog/knowledge/overlay.py:1969: in admit_epoch
+    source_body = _validate_passport_owner_evidence(
+src/polisyos/data_forge/domains/catalog/knowledge/overlay.py:4061: in _validate_passport_owner_evidence
+    raise OverlayAdmissionError("source_authority_unverified")
+E   polisyos.data_forge.domains.catalog.knowledge.overlay.OverlayAdmissionError: source_authority_unverified: source_authority_unverified
+_ test_owned_hte_outbox_records_first_assessment_without_authority_promotion[same-payload-other-selected-profile] _
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py:1285: in test_owned_hte_outbox_records_first_assessment_without_authority_promotion
+    source_ref, source_assignment_ref, unit_scope_ref = _put_profile_bound_v2_hte_source(
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py:322: in _put_profile_bound_v2_hte_source
+    fixture = make_native_multivariable_active_projections(
+tests/_helpers/semantic_epoch_native.py:1383: in make_native_multivariable_active_projections
+    pending = overlay.admit_epoch(
+src/polisyos/data_forge/domains/catalog/knowledge/overlay.py:1969: in admit_epoch
+    source_body = _validate_passport_owner_evidence(
+src/polisyos/data_forge/domains/catalog/knowledge/overlay.py:4061: in _validate_passport_owner_evidence
+    raise OverlayAdmissionError("source_authority_unverified")
+E   polisyos.data_forge.domains.catalog.knowledge.overlay.OverlayAdmissionError: source_authority_unverified: source_authority_unverified
+=============================== warnings summary ===============================
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_search_ticket_file_lock_fork_exit_and_exclusion
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_search_ticket_file_lock_fork_exit_and_exclusion
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py:89: DeprecationWarning: This process (pid=84955) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    pid = os.fork()
+
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_owned_hte_outbox_records_first_assessment_without_authority_promotion[raw-unit-unknown]
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_owned_hte_outbox_records_first_assessment_without_authority_promotion[raw-unit-unknown]
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/sklearn/linear_model/_logistic.py:1780: FutureWarning: The default value for l1_ratios will change from None to (0.0,) in version 1.10. From version 1.10 onwards, only array-like with values in [0, 1] will be allowed, None will be forbidden. To avoid this warning, explicitly set a value, e.g. l1_ratios=(0,).
+    warnings.warn(
+
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_owned_hte_outbox_records_first_assessment_without_authority_promotion[raw-unit-unknown]
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_owned_hte_outbox_records_first_assessment_without_authority_promotion[raw-unit-unknown]
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/sklearn/linear_model/_logistic.py:1823: FutureWarning: The fitted attributes of LogisticRegressionCV will be simplified in scikit-learn 1.10 to remove redundancy. Set`use_legacy_attributes=False` to enable the new behavior now, or set it to `True` to silence this warning during the transition period while keeping the deprecated behavior for the time being. The default value of use_legacy_attributes will change from True to False in scikit-learn 1.10. See the docstring of LogisticRegressionCV for more details.
+    warnings.warn(
+
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_owned_hte_outbox_records_first_assessment_without_authority_promotion[raw-unit-unknown]
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_owned_hte_outbox_records_first_assessment_without_authority_promotion[raw-unit-unknown]
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_owned_hte_outbox_records_first_assessment_without_authority_promotion[raw-unit-unknown]
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_owned_hte_outbox_records_first_assessment_without_authority_promotion[raw-unit-unknown]
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_owned_hte_outbox_records_first_assessment_without_authority_promotion[raw-unit-unknown]
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_owned_hte_outbox_records_first_assessment_without_authority_promotion[raw-unit-unknown]
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/sklearn/linear_model/_logistic.py:1120: FutureWarning: 'l1_ratio=None' was deprecated in version 1.8 and will trigger an error in 1.10. Use 0<=l1_ratio<=1 instead.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_owned_hte_outbox_records_first_assessment_without_authority_promotion[selected-source-unit]
+FAILED tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_owned_hte_outbox_records_first_assessment_without_authority_promotion[edge-removed-markers-retained]
+FAILED tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_owned_hte_outbox_records_first_assessment_without_authority_promotion[ambiguous-cell-self-consistent-mean]
+FAILED tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_owned_hte_outbox_records_first_assessment_without_authority_promotion[source-refusal-retains-native-interval]
+FAILED tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_owned_hte_outbox_records_first_assessment_without_authority_promotion[canonical-declared-unit-normalization]
+FAILED tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_owned_hte_outbox_records_first_assessment_without_authority_promotion[same-payload-other-selected-profile]
+6 failed, 117 passed, 12 warnings in 178.67s (0:02:58)

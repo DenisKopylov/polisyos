@@ -1,0 +1,15 @@
+{
+  "mode": "variance",
+  "requested_source_head": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+  "rdd_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+  "rdd_sha256": "eb2505f40b8a5ad464b5669f5432a8152859aa81ce98e9668787f7208ba8ba43",
+  "test_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_independent_oracle.py",
+  "test_sha256": "4c8398b42efa15eeba4b28c9900a18541269931322edb8122412443d081f1585",
+  "plugin_sha256": "30d922ceb45d79bf39874b6ebf1f756838ee13a7117b790921a0b53d7881bc25",
+  "original_code_sha256": "428ebe5f11b156727a2e8febc54bac10774491b4fc62cc4063ca6ae4c1f14a17",
+  "active_code_sha256": "5a3df70bf340bab6453b3d47d387dc76cb537687a3de5104123364b31910eccb",
+  "check": "target test asserts corrected-profile marker before independent point/SE",
+  "mutation_still_active_at_finish": true,
+  "original_restored": true,
+  "pytest_exit": 1
+}

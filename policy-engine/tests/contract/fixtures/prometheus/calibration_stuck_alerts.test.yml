@@ -1,0 +1,54 @@
+# Controlled Prometheus witness; this is not production attainment evidence.
+rule_files:
+  - ../../../../ops/observability/prometheus/alerts.yml
+evaluation_interval: 1m
+tests:
+  - name: active calibration age remains visible while sibling progresses
+    interval: 1m
+    input_series:
+      - series: 'polisyos_calibration_active_runs{env="test",optimizer="adam"}'
+        values: '2+0x80'
+      - series: 'polisyos_calibration_oldest_progress_age_seconds{env="test",optimizer="adam"}'
+        values: '0+60x80'
+      - series: 'polisyos_active_runs'
+        values: '1+0x80'
+      - series: 'polisyos_calibration_loss{optimizer="adam"}'
+        values: '2+0x80'
+    alert_rule_test:
+      - eval_time: 70m
+        alertname: CalibrationStuck
+        exp_alerts:
+          - exp_labels:
+              env: test
+              optimizer: adam
+              severity: warning
+              team: foundry
+            exp_annotations:
+              summary: "Calibration execution has no recorded progress"
+              description: "The oldest active calibration has had no optimizer step for 30 minutes."
+
+  - name: fresh active calibration is not stuck
+    interval: 1m
+    input_series:
+      - series: 'polisyos_calibration_active_runs{env="test",optimizer="adam"}'
+        values: '1+0x80'
+      - series: 'polisyos_calibration_oldest_progress_age_seconds{env="test",optimizer="adam"}'
+        values: '60+0x80'
+      - series: 'polisyos_active_runs'
+        values: '1+0x80'
+    alert_rule_test:
+      - eval_time: 70m
+        alertname: CalibrationStuck
+        exp_alerts: []
+
+  - name: completed or failed calibration with retained loss is not active
+    interval: 1m
+    input_series:
+      - series: 'polisyos_calibration_loss{optimizer="adam"}'
+        values: '2+0x80'
+      - series: 'polisyos_active_runs'
+        values: '1+0x80'
+    alert_rule_test:
+      - eval_time: 70m
+        alertname: CalibrationStuck
+        exp_alerts: []

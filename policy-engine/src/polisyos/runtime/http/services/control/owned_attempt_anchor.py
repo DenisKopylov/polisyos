@@ -67,7 +67,7 @@ if TYPE_CHECKING:
         ObservationalInputResourcePolicy,
         ObservationalRunIntent,
     )
-    from polisyos.foundry.data_plane.bindings import (
+    from polisyos.foundry.data_plane import (
         HTEInputPreparationRefusal,
         HTEPhysicalSourceMaterializationBinding,
         PreparedHTEObservationalInput,
@@ -80,7 +80,7 @@ if TYPE_CHECKING:
         _CaptureFactsV1,
     )
     from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
-    from polisyos.ir.analytics.hte import (
+    from polisyos.ir.analytics import (
         ATEInferenceBasis,
         HTEOutcome,
         HTEPointResult,
@@ -287,7 +287,7 @@ def _require_physical_binding_content(
     if ref is None:
         return None
     from polisyos.core.artifacts.canonical_profile import CoreJsonReadBoundsRefusalError
-    from polisyos.foundry.data_plane.bindings import prepare_hte_observational_input
+    from polisyos.foundry.data_plane import prepare_hte_observational_input
 
     limits = service._observational_read_limits()
     submitted_ref = _require_full_profile_ref(
@@ -891,7 +891,7 @@ def _resolve_physical_source_binding(
     data: HTEObservationalData | None = None,
 ) -> tuple[OwnedAttemptPhysicalSourceBindingRef, HTEPhysicalSourceMaterializationBinding]:
     """Resolve the selected Foundry binding against exact inputs and optional worker data."""
-    from polisyos.foundry.data_plane.bindings import (
+    from polisyos.foundry.data_plane import (
         HTEInputPreparationRefusal,
         load_hte_physical_source_materialization_binding,
     )
@@ -983,7 +983,7 @@ def _refusal_capture_from_exception(
     error: HTEInputPreparationRefusal,
 ) -> OwnedAttemptHTEInputRefusal:
     """Copy exact safe bounded fields from Core's genuine preparation refusal."""
-    from polisyos.foundry.data_plane.bindings import HTEInputPreparationRefusal
+    from polisyos.foundry.data_plane import HTEInputPreparationRefusal
 
     if type(error) is not HTEInputPreparationRefusal:
         raise TypeError("owned_attempt_exact_hte_input_preparation_refusal_required")
@@ -1218,7 +1218,7 @@ def persist_pre_output_owned_attempt_anchor(
     from polisyos.foundry.methods.catalog.causal.hte_v2 import (
         build_owned_hte_input_capture,
     )
-    from polisyos.ir.registry.refs import HTEInputSourceRef
+    from polisyos.ir.analytics import HTEInputSourceRef
 
     capture_value = build_owned_hte_input_capture(
         prepared.data,
@@ -2315,7 +2315,7 @@ def _resource_evidence_payload_for_consumer(
         DirectMethodExecutionHTEResourceEvidence,
         _validate_strict_json_wire_payload,
     )
-    from polisyos.ir.analytics.hte import HTEResourceExecutionEvidenceV1
+    from polisyos.ir.analytics import HTEResourceExecutionEvidenceV1
 
     try:
         if type(consumer) is HTEResourceExecutionEvidenceV1:
@@ -3220,7 +3220,7 @@ def resolve_owned_attempt_anchor_association(
         DirectMethodExecutionHTESummary,
         _validate_strict_json_wire_payload,
     )
-    from polisyos.ir.analytics.hte import (
+    from polisyos.ir.analytics import (
         ATEInferenceBasis,
         HTEIntervalOutcome,
         HTEOutcome,

@@ -22,7 +22,7 @@ from pydantic import (
 )
 
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
-from polisyos.ir.kernel.units import UnitSpecType
+from polisyos.ir.kernel import UnitSpecType
 
 _MISSING = object()
 _INVALID = object()
@@ -445,9 +445,13 @@ def observe_source_government_balance(
             load_core_json_artifact,
         )
         from polisyos.core.contracts.foundry import Metrics, SimulationResult, StateSnapshot
-        from polisyos.foundry.execute._internal.snapshots import load_state_snapshot
-        from polisyos.ir.kernel.metrics import DEFAULT_METRIC_REGISTRY
-        from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY, SlotKind, SlotScope
+        from polisyos.foundry.execute import load_state_snapshot
+        from polisyos.ir.kernel import (
+            DEFAULT_METRIC_REGISTRY,
+            DEFAULT_SLOT_REGISTRY,
+            SlotKind,
+            SlotScope,
+        )
 
         def require_selected_ref(ref: ArtifactRef, expected_kind: str) -> Any:
             if ref.kind != expected_kind or ref.manifest_profile_sha256 is None:

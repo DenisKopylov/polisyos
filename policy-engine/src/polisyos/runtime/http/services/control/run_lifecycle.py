@@ -1544,7 +1544,8 @@ class _RuntimeOriginCapturingFoundryPort:
         direct_bundle_mismatch = direct_bundle_ref is not None and (
             not isinstance(direct_bundle_ref, ArtifactRef)
             or len(bundle_refs) != 1
-            or direct_bundle_ref != bundle_refs[0]
+            or artifact_ref_identity_key(direct_bundle_ref)
+            != artifact_ref_identity_key(bundle_refs[0])
         )
         complete_ref_set = (
             simulation_ref is not None and len(bundle_refs) == 1 and len(binding_refs) == 1
@@ -1578,8 +1579,19 @@ class _RuntimeOriginCapturingFoundryPort:
             self._inventory_truncated = True
         if complete and simulation_ref is not None and bundle_refs and binding_refs:
             selected_refs = (simulation_ref, bundle_refs[0], binding_refs[0])
-            if selected_refs not in self._emissions:
+            selected_identity = _graph_source_ref_tuple_identity(selected_refs)
+            if not any(
+                _graph_source_ref_tuple_identity(emitted_refs) == selected_identity
+                for emitted_refs in self._emissions
+            ):
                 self._emissions.append(selected_refs)
+
+
+def _graph_source_ref_tuple_identity(
+    refs: tuple[ArtifactRef, ArtifactRef, ArtifactRef],
+) -> tuple[tuple[str, str, str, str | None], ...]:
+    """Return full artifact identities for one simulation/bundle/binding tuple."""
+    return tuple(artifact_ref_identity_key(ref) for ref in refs)
 
 
 def _selected_graph_source_refs_from_receipt(
@@ -1628,7 +1640,11 @@ def _selected_graph_source_refs_from_receipt(
         for ref, kind in zip(selected_refs, expected_kinds, strict=True)
     ):
         return None
-    if selected_refs not in receipt.emissions:
+    selected_identity = _graph_source_ref_tuple_identity(selected_refs)
+    if not any(
+        _graph_source_ref_tuple_identity(emitted_refs) == selected_identity
+        for emitted_refs in receipt.emissions
+    ):
         return None
     return selected_refs
 
@@ -2092,12 +2108,12 @@ if TYPE_CHECKING:
     from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
     from polisyos.fabric.connectors.registry import ConnectorRegistry
     from polisyos.fabric.retrieval import RetrievalProviders, RetrievalService
-    from polisyos.foundry.data_plane.bindings import (
+    from polisyos.foundry.data_plane import (
         HTEInputPreparationRefusal,
         PreparedHTEObservationalInput,
     )
     from polisyos.foundry.methods import MethodSignature
-    from polisyos.ir.observation.bundles import (
+    from polisyos.ir.observation import (
         ContractCompatibilityTarget as _ContractCompatibilityTarget,
     )
     from polisyos.pdc import ArtifactRef as EvalSafetyArtifactRef
@@ -4272,7 +4288,7 @@ class ControlPlaneService(
                 raise ValueError("epoch_claim_lifecycle_bridge_owner_store_mismatch")
             self._epoch_claim_lifecycle_bridge = epoch_claim_lifecycle_bridge
 
-        from polisyos.scientist.governance.continuous.published_signature_custody import (
+        from polisyos.scientist.governance.continuous import (
             PublishedSignatureCustodyWatcher,
         )
 
@@ -6070,7 +6086,7 @@ class ControlPlaneService(
             ObservationalRunIntent,
             _observational_intent_manifest_identity,
         )
-        from polisyos.ir.observation.bundles import ContractCompatibilityTarget
+        from polisyos.ir.observation import ContractCompatibilityTarget
 
         selection = request.observational_input
         if selection is None or request.mode != "workflow":
@@ -6801,7 +6817,7 @@ class ControlPlaneService(
             _expected_observational_normalization,
             _observational_intent_manifest_identity,
         )
-        from polisyos.ir.observation.bundles import ContractCompatibilityTarget
+        from polisyos.ir.observation import ContractCompatibilityTarget
 
         if (
             type(admission) is not _RuntimeMethodExecutionAdmission
@@ -7104,7 +7120,7 @@ class ControlPlaneService(
         method_class: type,
     ) -> OwnedAttemptAnchorRef:
         """Persist typed selected-input refusal without inventing admitted inputs."""
-        from polisyos.foundry.data_plane.bindings import HTEInputPreparationRefusal
+        from polisyos.foundry.data_plane import HTEInputPreparationRefusal
         from polisyos.runtime.http.services.control.owned_attempt_anchor import (
             persist_pre_output_hte_input_refusal_anchor,
         )
@@ -10571,7 +10587,7 @@ class ControlPlaneService(
         """Content-bind the monitor arm before deriving any lifecycle consequence."""
 
         try:
-            from polisyos.scientist.governance.continuous.monitors import (
+            from polisyos.scientist.governance.continuous import (
                 resolve_governance_monitor_event,
             )
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import replace
 from types import SimpleNamespace
 
 import numpy as np
@@ -37,6 +38,7 @@ def test_selected_plan_is_compiled_dispatched_and_projected(tmp_path, monkeypatc
         FoundryExecConfig,
         MethodExecutionBundle,
         MethodMetricBindingRequest,
+        MethodMetricBindingSet,
         MethodOutputPayload,
         ProgramGraph,
     )
@@ -300,14 +302,234 @@ def test_selected_plan_is_compiled_dispatched_and_projected(tmp_path, monkeypatc
         logger=logging.getLogger("tests.ad01_selected_plan_without_bindings"),
         foundry=compile_spy,
     )
-    no_binding_outcome = CompileFoundryNode().execute(no_binding_context, built.state)
-    assert compile_spy.calls == 0
-    assert no_binding_outcome.status == "fail"
-    assert no_binding_outcome.error is not None
-    assert no_binding_outcome.error.code == "node.invalid_state"
-    assert no_binding_outcome.artifacts == []
-    assert ARTIFACT_PROGRAM_GRAPH_REF not in no_binding_outcome.state.artifacts_index
-    assert ARTIFACT_METHOD_METRIC_BINDING_SET_REF not in no_binding_outcome.state.artifacts_index
+    unseen_signature = replace(
+        signature,
+        name="unseen_capture_probe",
+        namespace="tests.capture_only",
+        version="1.0.0",
+        family="tests.capture_only",
+        variant="unseen_capture_probe",
+    )
+    unseen_method = type(
+        "_UnseenCaptureOnlyMethod",
+        (ExAnteSimulationEstimator,),
+        {"signature": unseen_signature},
+    )
+    MethodRegistry.get_instance().register(unseen_method, override=True)
+    capture_only_method_node = method_node.model_copy(
+        update={
+            "method_fqn": unseen_signature.fqn,
+            "method_version": unseen_signature.version,
+        }
+    )
+    capture_only_plan = selected_plan.model_copy(
+        update={"plan_id": "ad01-capture-only-plan", "method_dag": [capture_only_method_node]}
+    )
+    capture_only_initial_state = initial_state.model_copy(
+        update={
+            "params": {
+                **initial_state.params,
+                "execution_plan": capture_only_plan.model_dump(mode="json"),
+            }
+        }
+    )
+    capture_only_built = BuildExecutionPlanNode().execute(context, capture_only_initial_state)
+    assert capture_only_built.status == "ok", capture_only_built.error
+    capture_only_plan_ref = capture_only_built.state.execution_plan_ref
+    assert capture_only_plan_ref is not None
+    capture_only_outcome = CompileFoundryNode().execute(
+        no_binding_context,
+        capture_only_built.state,
+    )
+    assert capture_only_outcome.status == "ok", capture_only_outcome.error
+    assert compile_spy.calls == 1
+    capture_request = compile_spy.requests[0]
+    assert capture_request.schema_version == "1.2"
+    assert capture_request.method_execution_plan_ref == capture_only_plan_ref
+    assert capture_request.method_metric_bindings == []
+    missing_profile_ref = capture_only_plan_ref.model_copy(update={"manifest_profile_sha256": None})
+    missing_profile_state = capture_only_built.state.model_copy(
+        update={"execution_plan_ref": missing_profile_ref}
+    )
+    missing_profile_outcome = CompileFoundryNode().execute(
+        no_binding_context,
+        missing_profile_state,
+    )
+    assert missing_profile_outcome.status == "fail"
+    assert missing_profile_outcome.error is not None
+    assert missing_profile_outcome.error.code == "node.invalid_state"
+    assert compile_spy.calls == 1
+    with pytest.raises(ValueError):
+        CompileFoundryNode().bind({"method_metric_bindings": [{"objective_id": objective_id}]})
+
+    capture_graph_ref = capture_only_outcome.state.artifacts_index[ARTIFACT_PROGRAM_GRAPH_REF]
+    capture_exec_plan_ref = capture_only_outcome.state.artifacts_index[ARTIFACT_EXEC_PLAN_REF]
+    capture_binding_ref = capture_only_outcome.state.artifacts_index[
+        ARTIFACT_METHOD_METRIC_BINDING_SET_REF
+    ]
+    capture_graph = validate_core_model_json_artifact(ProgramGraph, store, capture_graph_ref)
+    capture_method = next(node for node in capture_graph.nodes if node.node_id == "ex_ante_node")
+    assert capture_method.method_fqn == unseen_signature.fqn
+    capture_binding_set = validate_core_model_json_artifact(
+        MethodMetricBindingSet,
+        store,
+        capture_binding_ref,
+    )
+    assert capture_binding_set.bindings == []
+    assert capture_binding_set.program_graph_ref == capture_graph_ref
+    binding_edges = {edge.role: edge for edge in store.get_manifest(capture_binding_ref).inputs}
+    expected_binding_refs = {
+        "program_graph": capture_graph_ref,
+        "policy": trinity_ref,
+        "registry_bundle": registry.bundle_ref,
+        "metric_registry": registry.metric_registry,
+        "units_registry": registry.units_registry,
+    }
+    assert set(binding_edges) == set(expected_binding_refs)
+    for role, ref in expected_binding_refs.items():
+        assert binding_edges[role].artifact_id == ref.artifact_id
+        assert binding_edges[role].manifest_profile_sha256 == ref.manifest_profile_sha256
+    exec_binding_edges = [
+        edge
+        for edge in store.get_manifest(capture_exec_plan_ref).inputs
+        if edge.role == "method_metric_bindings"
+    ]
+    assert len(exec_binding_edges) == 1
+    assert exec_binding_edges[0].artifact_id == capture_binding_ref.artifact_id
+    assert (
+        exec_binding_edges[0].manifest_profile_sha256 == capture_binding_ref.manifest_profile_sha256
+    )
+    source_plan_edges = [
+        edge
+        for edge in store.get_manifest(capture_graph_ref).inputs
+        if edge.role == "execution_plan_source"
+    ]
+    assert len(source_plan_edges) == 1
+    assert source_plan_edges[0].artifact_id == capture_only_plan_ref.artifact_id
+    assert (
+        source_plan_edges[0].manifest_profile_sha256
+        == capture_only_plan_ref.manifest_profile_sha256
+    )
+
+    capture_execute_result = execute_foundry(
+        store,
+        ExecuteRequest(
+            exec_plan_ref=capture_exec_plan_ref,
+            input_bindings_ref=input_bindings.input_bindings_ref,
+            registry_bundle_ref=registry.bundle_ref,
+            exec_config=FoundryExecConfig(seed=41, mode="dev", capture_env=True),
+            return_selected_profile=True,
+        ),
+    )
+    assert capture_execute_result.ok is True, capture_execute_result.notes
+    assert capture_execute_result.simulation_result_ref is not None
+    assert capture_execute_result.method_execution_bundle_ref is not None
+    capture_bundle = validate_core_model_json_artifact(
+        MethodExecutionBundle,
+        store,
+        capture_execute_result.method_execution_bundle_ref,
+    )
+    capture_occurrence = next(
+        item for item in capture_bundle.occurrences if item.node_id == "ex_ante_node"
+    )
+    assert capture_occurrence.method_fqn == unseen_signature.fqn
+    assert capture_occurrence.dispatch is not None
+    assert capture_occurrence.dispatch.outcome == "succeeded"
+    assert capture_occurrence.output_slots == []
+    assert capture_occurrence.returned_slots
+
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
+        _MethodMetricSourceTuple,
+        prepare_method_metric_projection_admission,
+    )
+
+    capture_admission = prepare_method_metric_projection_admission(
+        store,
+        source_tuple=_MethodMetricSourceTuple(
+            job_id="job-ad01-capture-only",
+            run_id=run_id,
+            attempt=1,
+            method_result_ref=None,
+            simulation_result_ref=capture_execute_result.simulation_result_ref,
+            method_execution_bundle_ref=capture_execute_result.method_execution_bundle_ref,
+            method_metric_binding_set_ref=capture_binding_ref,
+        ),
+    )
+    assert capture_admission.status == "verification_missing"
+    assert capture_admission.admission is None
+    assert "method_metric_binding_set_has_no_bindings" in capture_admission.limitations
+
+    from polisyos.foundry.compile import trinity_compiler
+
+    original_build_program_graph = trinity_compiler.build_program_graph
+
+    def _remove_compiled_method_node(*args, **kwargs):
+        graph, params_refs = original_build_program_graph(*args, **kwargs)
+        remaining_nodes = [node for node in graph.nodes if node.node_kind != "method"]
+        remaining_ids = {node.node_id for node in remaining_nodes}
+        return (
+            graph.model_copy(
+                update={
+                    "nodes": remaining_nodes,
+                    "edges": [
+                        edge
+                        for edge in graph.edges
+                        if edge.src in remaining_ids and edge.dst in remaining_ids
+                    ],
+                    "entrypoints": [
+                        node_id for node_id in graph.entrypoints if node_id in remaining_ids
+                    ],
+                }
+            ),
+            params_refs,
+        )
+
+    with monkeypatch.context() as compile_patch:
+        compile_patch.setattr(trinity_compiler, "build_program_graph", _remove_compiled_method_node)
+        property_removed = CompileFoundryNode().execute(
+            no_binding_context, capture_only_built.state
+        )
+    assert property_removed.status == "ok", property_removed.error
+    assert compile_spy.calls == 2
+    assert compile_spy.requests[1].method_execution_plan_ref == capture_only_plan_ref
+    assert compile_spy.requests[1].schema_version == "1.2"
+    property_removed_graph_ref = property_removed.state.artifacts_index[ARTIFACT_PROGRAM_GRAPH_REF]
+    property_removed_graph = validate_core_model_json_artifact(
+        ProgramGraph, store, property_removed_graph_ref
+    )
+    assert all(node.node_kind != "method" for node in property_removed_graph.nodes)
+    retained_plan_markers = [
+        edge
+        for edge in store.get_manifest(property_removed_graph_ref).inputs
+        if edge.role == "execution_plan_source"
+    ]
+    assert len(retained_plan_markers) == 1
+    assert retained_plan_markers[0].artifact_id == capture_only_plan_ref.artifact_id
+    assert (
+        retained_plan_markers[0].manifest_profile_sha256
+        == capture_only_plan_ref.manifest_profile_sha256
+    )
+    assert ARTIFACT_METHOD_METRIC_BINDING_SET_REF not in property_removed.state.artifacts_index
+    property_removed_exec_ref = property_removed.state.artifacts_index[ARTIFACT_EXEC_PLAN_REF]
+    assert not any(
+        edge.role == "method_metric_bindings"
+        for edge in store.get_manifest(property_removed_exec_ref).inputs
+    )
+    property_removed_execute = execute_foundry(
+        store,
+        ExecuteRequest(
+            exec_plan_ref=property_removed_exec_ref,
+            input_bindings_ref=input_bindings.input_bindings_ref,
+            registry_bundle_ref=registry.bundle_ref,
+            exec_config=FoundryExecConfig(seed=41, mode="dev", capture_env=True),
+            return_selected_profile=True,
+        ),
+    )
+    assert property_removed_execute.ok is True, property_removed_execute.notes
+    assert property_removed_execute.method_execution_bundle_ref is None
+    assert all(
+        item.role != "method_execution_bundle" for item in property_removed_execute.derived_refs
+    )
 
     compile_node = CompileFoundryNode(
         method_metric_bindings=(
@@ -465,6 +687,34 @@ def test_selected_plan_is_compiled_dispatched_and_projected(tmp_path, monkeypatc
     assert empty_plan_spy.requests[0].schema_version == "1.0"
     assert empty_plan_compile.status == "ok", empty_plan_compile.error
     assert ARTIFACT_METHOD_METRIC_BINDING_SET_REF not in empty_plan_compile.state.artifacts_index
+    empty_exec_plan_ref = empty_plan_compile.state.artifacts_index[ARTIFACT_EXEC_PLAN_REF]
+    assert not any(
+        edge.role == "method_metric_bindings"
+        for edge in store.get_manifest(empty_exec_plan_ref).inputs
+    )
+    assert empty_plan_spy.requests[0].method_execution_plan_ref is None
+    profileless_plan_ref = removed_build.state.execution_plan_ref.model_copy(
+        update={"manifest_profile_sha256": None}
+    )
+    profileless_empty_state = removed_build.state.model_copy(
+        update={"execution_plan_ref": profileless_plan_ref}
+    )
+    profileless_empty_compile = CompileFoundryNode().execute(
+        empty_plan_context, profileless_empty_state
+    )
+    assert profileless_empty_compile.status == "ok", profileless_empty_compile.error
+    assert empty_plan_spy.calls == 2
+    assert empty_plan_spy.requests[1].schema_version == "1.0"
+    assert empty_plan_spy.requests[1].method_execution_plan_ref is None
+    assert (
+        ARTIFACT_METHOD_METRIC_BINDING_SET_REF
+        not in profileless_empty_compile.state.artifacts_index
+    )
+    profileless_exec_ref = profileless_empty_compile.state.artifacts_index[ARTIFACT_EXEC_PLAN_REF]
+    assert not any(
+        edge.role == "method_metric_bindings"
+        for edge in store.get_manifest(profileless_exec_ref).inputs
+    )
 
     removed_compile = compile_node.execute(context, removed_build.state)
     assert removed_compile.status == "fail"

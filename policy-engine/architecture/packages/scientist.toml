@@ -181,6 +181,7 @@ slo_files = ["ops/observability/slo/scientist.yaml"]
 runbooks = [
   "docs/runbooks/replay-or-restore.md",
   "docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md",
+  "docs/runbooks/benchmark-regression-triage.md",
 ]
 runbook_expectation = "Workflow, replay, checkpoint, and governance outages have an operator-facing recovery path before fail-closed promotion."
 

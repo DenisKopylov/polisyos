@@ -77,6 +77,51 @@ def test_persist_method_catalog_snapshot_returns_exact_write_selected_profile(
         persist_method_catalog_snapshot(MalformedSelectedWriter(), snapshot)  # type: ignore[arg-type]
 
 
+def test_method_catalog_snapshot_writer_binds_owner_and_refuses_foreign_inputs(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.artifacts import (
+        ArtifactOwnershipError,
+        artifact_manifest_profile_sha256,
+        input_ref_from_artifact_ref,
+    )
+    from polisyos.core.artifacts.backends.config import (
+        with_ambient_ownership_enforcement_if_supported,
+    )
+    from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    store = with_ambient_ownership_enforcement_if_supported(FileSystemCAS(tmp_path / "owned-cas"))
+    owner = ArtifactTenantContextInfo(tenant_id="tenant-catalog", cell_id="cell-catalog")
+    foreign = ArtifactTenantContextInfo(tenant_id="tenant-foreign", cell_id="cell-foreign")
+    with tenant_scope(None, tenant_id=foreign.tenant_id, cell_id=foreign.cell_id):
+        foreign_ref = store.put_json(
+            {"source": "foreign"},
+            snapshot_module.PutOptions(
+                kind="runtime.catalog.test_input",
+                media_type="application/json",
+                tenant_context=foreign,
+            ),
+            return_selected_profile=True,
+        )
+
+    snapshot = MethodCatalogSnapshot(snapshot_id="owned_catalog", run_id="owned_run")
+    with tenant_scope(None, tenant_id=owner.tenant_id, cell_id=owner.cell_id):
+        ref = persist_method_catalog_snapshot(store, snapshot, tenant_context=owner)
+        assert ref.manifest_profile_sha256 is not None
+        manifest = store.get_manifest(ref)
+        assert manifest.kind == "foundry.method_catalog_snapshot"
+        assert manifest.tenant_context == owner
+        assert artifact_manifest_profile_sha256(manifest) == ref.manifest_profile_sha256
+        with pytest.raises(ArtifactOwnershipError):
+            persist_method_catalog_snapshot(
+                store,
+                snapshot.model_copy(update={"snapshot_id": "foreign_input_catalog"}),
+                inputs=[input_ref_from_artifact_ref(foreign_ref, role="foreign_input")],
+                tenant_context=owner,
+            )
+
+
 def test_persist_method_catalog_snapshot_refuses_writer_without_selected_profile_api(
     tmp_path: Path,
 ) -> None:
@@ -143,6 +188,12 @@ def test_governed_snapshot_consumes_supplied_builtin_provenance_without_rediscov
 
     assert report.discovery_manifest is not None
     assert report.discovery_manifest.is_bound is True
+    predicate_rows = {
+        row.predicate: row.classification for row in report.discovery_manifest.predicate_provenance
+    }
+    assert predicate_rows["entry_point_group_enumeration"] == "recomputed"
+    assert predicate_rows["entry_point_distribution_identity"] == "recomputed"
+    assert predicate_rows["entry_point_source_byte_closure"] == "recomputed"
     assert tuple(entry.fqn for entry in snapshot.entries) == report.registry_fqns
 
 
@@ -453,6 +504,7 @@ def test_replaced_foundry_builtin_loader_keeps_callable_tuple_compatibility(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from polisyos.foundry.extensions import discovery as discovery_module
+    from polisyos.foundry.extensions.registry import UnboundFoundryDiscoveryInputError
 
     original_loader = discovery_module.BUILTIN_LOADER
     equal_copy = (original_loader[0], original_loader[1])
@@ -478,33 +530,37 @@ def test_replaced_foundry_builtin_loader_keeps_callable_tuple_compatibility(
             include_builtins=True,
             include_entry_points=False,
             include_dev_scan=False,
-            require_bound_discovery_manifest=True,
-        )
-        snapshot = build_method_catalog_snapshot(
-            registry=registry,
-            registry_report=report,
-            require_bound_discovery=True,
+            require_bound_discovery_manifest=False,
         )
 
     assert calls == ["called"]
     assert report.discovery_manifest is not None
-    assert report.discovery_manifest.schema_version == ("policyos.component_discovery_manifest.v1")
+    assert report.discovery_manifest.schema_version == "policyos.component_discovery_manifest.v1"
     assert report.discovery_manifest.builtin_loaders == (target,)
     assert report.discovery_manifest.declared_builtin_loaders == ()
+    assert report.discovery_manifest.is_bound is False
+    assert any(
+        reason.startswith("builtin_loader_declaration_not_established:")
+        for reason in report.discovery_manifest.unbound_inputs
+    )
 
-    ambient_report = discover_foundry_method_components(
-        include_builtins=False,
-        include_entry_points=True,
-        include_dev_scan=True,
-    )
-    assert ambient_report.manifest is not None
-    provenance = snapshot_module._build_candidate_method_catalog_provenance_manifest(
-        snapshot,
-        registry_report=report,
-        ambient_manifest=ambient_report.manifest,
-    )
-    assert provenance["schema_version"] == "policyos.method_catalog_provenance_manifest.v1"
-    assert "declared_builtin_loaders" not in provenance["governed_discovery"]
+    with (
+        registry_scope() as registry,
+        pytest.raises(
+            UnboundFoundryDiscoveryInputError,
+            match="builtin_loader_declaration_not_established",
+        ),
+    ):
+        bootstrap_foundry_method_registry(
+            registry,
+            include_builtins=True,
+            include_entry_points=False,
+            include_dev_scan=False,
+            require_bound_discovery_manifest=True,
+        )
+    assert tuple(registry.snapshot().entries()) == ()
+
+    assert calls == ["called", "called"]
 
 
 def test_governed_provenance_projection_keeps_ambient_custody_non_decisive() -> None:
@@ -1082,3 +1138,51 @@ def test_symbolic_method_catalog_requires_its_actual_y0_trso_family() -> None:
             CausalIdentificationFamily.C_COMPONENT_FACTORIZATION.value,
         )
     )
+
+
+def test_registry_refusal_names_unbound_predicate_when_input_reasons_are_empty(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.core.components import ComponentRegistry
+    from polisyos.core.components.discovery import (
+        DiscoveryPredicateProvenance,
+        DiscoveryReport,
+        discover_components,
+    )
+    from polisyos.foundry.extensions import discovery as discovery_module
+    from polisyos.foundry.extensions.registry import UnboundFoundryDiscoveryInputError
+
+    source_manifest = discover_components(groups=[], include_dev_scan=False).manifest
+    assert source_manifest is not None
+    refused_manifest = replace(
+        source_manifest,
+        predicate_provenance=(
+            DiscoveryPredicateProvenance(
+                "entry_point_group_enumeration",
+                "not_established",
+            ),
+        ),
+        unbound_inputs=(),
+    )
+    refused_manifest = replace(
+        refused_manifest,
+        manifest_id=_component_discovery_manifest_id(refused_manifest.content_payload()),
+    )
+    discovery_report = DiscoveryReport(manifest=refused_manifest)
+    monkeypatch.setattr(
+        discovery_module,
+        "build_foundry_method_components_index",
+        lambda **_kwargs: (ComponentRegistry(), discovery_report),
+    )
+
+    with (
+        registry_scope() as registry,
+        pytest.raises(
+            UnboundFoundryDiscoveryInputError,
+            match="predicate_provenance_not_admitted:entry_point_group_enumeration:not_established",
+        ),
+    ):
+        bootstrap_foundry_method_registry(
+            registry,
+            require_bound_discovery_manifest=True,
+        )

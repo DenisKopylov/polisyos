@@ -26,7 +26,7 @@ from polisyos.ir.analytics.uncertainty import (
     persist_uncertainty_envelope,
 )
 from polisyos.ir.artifacts import ArtifactStore, InputRef, normalize_input_sequence
-from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
+from polisyos.ir.registry import UncertaintyEnvelopeRef
 
 from .covariance import extract_std
 

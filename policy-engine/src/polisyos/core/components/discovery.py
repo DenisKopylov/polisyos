@@ -15,9 +15,12 @@ import os
 import re
 import sys
 from collections.abc import Callable, Iterable, Iterator, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
+
+from packaging.utils import InvalidName, canonicalize_name
+from packaging.version import InvalidVersion, Version
 
 from polisyos.common.logger import get_logger
 from polisyos.core.discovery import (
@@ -29,6 +32,12 @@ from polisyos.core.discovery import (
     load_module_from_file,
 )
 
+from ._provider_origin import (
+    ProviderOriginBinding,
+    bind_component_factory_origin,
+    bind_loaded_entry_point_target,
+    preflight_entry_point_target,
+)
 from .metadata import ComponentKind, ComponentMetadata
 from .protocols import Component
 
@@ -149,14 +158,27 @@ class DiscoveryEntryPointIdentity:
 
     @property
     def distribution_identity_is_bound(self) -> bool:
-        """Return whether installed distribution metadata identifies the declaration."""
-        return all(
-            (
-                self.distribution_name,
-                self.distribution_version,
-                self.entry_points_sha256,
-            )
+        """Return whether complete owner and entry-point identity fields are valid."""
+        required = (
+            self.group,
+            self.name,
+            self.value,
+            self.distribution_name,
+            self.distribution_version,
+            self.entry_points_sha256,
         )
+        if any(not isinstance(value, str) or not value.strip() for value in required):
+            return False
+        if self.distribution_version != self.distribution_version.strip():
+            return False
+        if re.fullmatch(r"sha256:[0-9a-f]{64}", self.entry_points_sha256) is None:
+            return False
+        try:
+            normalized_name = canonicalize_name(self.distribution_name, validate=True)
+            Version(self.distribution_version)
+        except (InvalidName, InvalidVersion):
+            return False
+        return normalized_name == self.distribution_name
 
     def as_dict(self) -> dict[str, str | bool | None]:
         """Return a canonical JSON-compatible representation."""
@@ -265,6 +287,7 @@ class ComponentDiscoveryManifest:
     unbound_inputs: tuple[str, ...]
     predicate_provenance: tuple[DiscoveryPredicateProvenance, ...]
     declared_builtin_loaders: tuple[DiscoveryDeclaredBuiltinLoaderIdentity, ...] = ()
+    provider_origin_bindings: tuple[ProviderOriginBinding, ...] = ()
 
     @property
     def is_bound(self) -> bool:
@@ -294,9 +317,16 @@ class ComponentDiscoveryManifest:
             "unbound_inputs": list(self.unbound_inputs),
             "predicate_provenance": [row.as_dict() for row in self.predicate_provenance],
         }
-        if self.schema_version == "policyos.component_discovery_manifest.v2":
+        if self.schema_version in {
+            "policyos.component_discovery_manifest.v2",
+            "policyos.component_discovery_manifest.v3",
+        }:
             payload["declared_builtin_loaders"] = [
                 row.as_dict() for row in self.declared_builtin_loaders
+            ]
+        if self.schema_version == "policyos.component_discovery_manifest.v3":
+            payload["provider_origin_bindings"] = [
+                row.as_dict() for row in self.provider_origin_bindings
             ]
         return payload
 
@@ -309,6 +339,7 @@ class DiscoverySourceInfo:
     location: str
     group: str | None = None
     entry_point: str | None = None
+    provider_origin_binding: ProviderOriginBinding | None = None
 
 
 @dataclass(slots=True)
@@ -364,15 +395,33 @@ class DiscoveryReport:
 
 
 @dataclass(slots=True)
+class _EntryPointOutcome:
+    """Account for one enumerated entry point through provider and factory binding."""
+
+    identity: DiscoveryEntryPointIdentity
+    bindings: list[ProviderOriginBinding] = field(default_factory=list)
+    component_result_count: int = 0
+    component_results_complete: bool = False
+    provider_status: Literal["verified", "refused", "not_established"] = "not_established"
+    factory_status: Literal["verified", "delegated", "not_established"] = "not_established"
+
+
+@dataclass(slots=True)
 class _EntryPointSource:
     group: str
     errors: list[DiscoveryError] = field(default_factory=list)
     entry_points: list[DiscoveryEntryPointIdentity] = field(default_factory=list)
+    provider_origin_bindings: list[ProviderOriginBinding] = field(default_factory=list)
+    entry_point_outcomes: list[_EntryPointOutcome] = field(default_factory=list)
+    enumerated_entry_point_count: int | None = None
     enumeration_established: bool = False
 
     def discover(self) -> Iterator[DiscoveredComponent]:
         self.errors.clear()
         self.entry_points.clear()
+        self.provider_origin_bindings.clear()
+        self.entry_point_outcomes.clear()
+        self.enumerated_entry_point_count = None
         self.enumeration_established = False
         return iter(
             _discover_group(
@@ -431,6 +480,76 @@ class _BuiltinLoaderSource:
                 errors=self.errors,
             )
         )
+
+
+def _entry_point_source_is_accounted(source: _EntryPointSource) -> bool:
+    """Require one completed outcome for every fully enumerated entry point."""
+    count = source.enumerated_entry_point_count
+    if not source.enumeration_established or count is None:
+        return False
+    if count != len(source.entry_points) or count != len(source.entry_point_outcomes):
+        return False
+    return all(
+        identity == outcome.identity
+        for identity, outcome in zip(source.entry_points, source.entry_point_outcomes, strict=True)
+    )
+
+
+def _entry_point_bindings_are_accounted(source: _EntryPointSource) -> bool:
+    """Reconcile every provider-binding row to exactly one entry-point outcome."""
+    tracked = [
+        id(binding) for outcome in source.entry_point_outcomes for binding in outcome.bindings
+    ]
+    recorded = [id(binding) for binding in source.provider_origin_bindings]
+    return len(tracked) == len(recorded) and sorted(tracked) == sorted(recorded)
+
+
+def _fabric_provider_origin_is_accounted(source: _EntryPointSource) -> bool:
+    if not _entry_point_source_is_accounted(source) or not _entry_point_bindings_are_accounted(
+        source
+    ):
+        return False
+    return all(
+        outcome.bindings
+        and outcome.provider_status == "verified"
+        and all(binding.status == "verified" for binding in outcome.bindings)
+        for outcome in source.entry_point_outcomes
+    )
+
+
+def _fabric_factory_dispatch_is_accounted(source: _EntryPointSource) -> bool:
+    if not _entry_point_source_is_accounted(source) or not _entry_point_bindings_are_accounted(
+        source
+    ):
+        return False
+    if source.enumerated_entry_point_count == 0:
+        return True
+    for outcome in source.entry_point_outcomes:
+        component_bindings = [
+            binding for binding in outcome.bindings if binding.component_id is not None
+        ]
+        if (
+            outcome.component_result_count <= 0
+            or len(component_bindings) != outcome.component_result_count
+            or not outcome.component_results_complete
+            or outcome.factory_status not in {"verified", "delegated"}
+            or any(
+                binding.status != "verified"
+                or binding.component_factory_status not in {"verified", "delegated"}
+                for binding in component_bindings
+            )
+        ):
+            return False
+    return True
+
+
+def _record_provider_binding(
+    source: _EntryPointSource,
+    outcome: _EntryPointOutcome,
+    binding: ProviderOriginBinding,
+) -> None:
+    source.provider_origin_bindings.append(binding)
+    outcome.bindings.append(binding)
 
 
 def _source_kind(source: object) -> str:
@@ -646,7 +765,7 @@ def _discover_group(
     expected_kind = ENTRY_POINT_KIND_BY_GROUP.get(group)
 
     try:
-        group_eps = list_entry_points(group=group)
+        group_eps = list(list_entry_points(group=group))
     except _DISCOVERY_BOUNDARY_ERRORS as exc:
         errors.append(
             DiscoveryError(
@@ -657,6 +776,7 @@ def _discover_group(
             )
         )
         return discovered
+    owner_source.enumerated_entry_point_count = len(group_eps)
     owner_source.enumeration_established = True
 
     identified_entry_points = [(_entry_point_identity(ep, group=group), ep) for ep in group_eps]
@@ -673,19 +793,75 @@ def _discover_group(
     )
     for identity, ep in identified_entry_points:
         identities.append(identity)
+        outcome = _EntryPointOutcome(identity=identity)
+        owner_source.entry_point_outcomes.append(outcome)
+        try:
+            module_name = getattr(ep, "module", None)
+            module_attr = getattr(ep, "attr", None)
+        except _DISCOVERY_BOUNDARY_ERRORS:
+            module_name = module_attr = None
+        location = (
+            f"{module_name}:{module_attr}"
+            if isinstance(module_name, str) and isinstance(module_attr, str)
+            else identity.value or "<unknown>"
+        )
+        item_name = identity.name or None
         discovery_source = DiscoverySourceInfo(
             source_type="entry_point",
-            location=f"{ep.module}:{ep.attr}" if hasattr(ep, "module") else ep.value,
+            location=location,
             group=group,
-            entry_point=ep.name,
+            entry_point=item_name,
         )
+        binding: ProviderOriginBinding | None = None
+        origin_context = None
+        if group == ENTRY_POINT_GROUP_FABRIC_CONNECTORS:
+            binding, origin_context = preflight_entry_point_target(
+                ep,
+                expected_distribution_name=identity.distribution_name,
+                expected_distribution_version=identity.distribution_version,
+                expected_identity_is_bound=identity.distribution_identity_is_bound,
+                expected_group=identity.group,
+                expected_name=identity.name,
+                expected_value=identity.value,
+                expected_entry_points_sha256=identity.entry_points_sha256,
+                editable_install=identity.editable_install,
+            )
+            if origin_context is None:
+                outcome.provider_status = binding.status
+                _record_provider_binding(owner_source, outcome, binding)
+                errors.append(
+                    DiscoveryError(
+                        source="entry_point",
+                        item=item_name,
+                        error_type=(
+                            "ProviderOriginRefused"
+                            if binding.status == "refused"
+                            else "ProviderOriginNotEstablished"
+                        ),
+                        message=binding.reason_code or "provider origin was not established",
+                        details={
+                            "group": group,
+                            "origin_status": binding.status,
+                            "reason_code": binding.reason_code or "",
+                        },
+                    )
+                )
+                continue
         try:
             loaded = ep.load()
         except _DISCOVERY_BOUNDARY_ERRORS as exc:
+            if binding is not None:
+                failed_binding = replace(
+                    binding,
+                    status="not_established",
+                    reason_code=f"entry_point_load_failed:{type(exc).__name__}",
+                )
+                outcome.provider_status = "not_established"
+                _record_provider_binding(owner_source, outcome, failed_binding)
             errors.append(
                 DiscoveryError(
                     source="entry_point",
-                    item=ep.name,
+                    item=item_name,
                     error_type=type(exc).__name__,
                     message=str(exc),
                     details={"group": group},
@@ -693,12 +869,58 @@ def _discover_group(
             )
             continue
 
-        components = _materialize_components(loaded)
-        if not components:
+        if binding is not None and origin_context is not None:
+            binding = bind_loaded_entry_point_target(
+                origin_context,
+                binding,
+                loaded,
+                is_component=isinstance(loaded, Component),
+            )
+            if binding.status != "verified":
+                outcome.provider_status = binding.status
+                _record_provider_binding(owner_source, outcome, binding)
+                errors.append(
+                    DiscoveryError(
+                        source="entry_point",
+                        item=item_name,
+                        error_type=(
+                            "ProviderOriginRefused"
+                            if binding.status == "refused"
+                            else "ProviderOriginNotEstablished"
+                        ),
+                        message=binding.reason_code or "loaded provider origin was not established",
+                        details={
+                            "group": group,
+                            "origin_status": binding.status,
+                            "reason_code": binding.reason_code or "",
+                        },
+                    )
+                )
+                continue
+            outcome.provider_status = "verified"
+
+        components, rejected_result_count, invocation_completed = _materialize_components(loaded)
+        outcome.component_result_count = len(components)
+        outcome.component_results_complete = invocation_completed and (
+            group != ENTRY_POINT_GROUP_FABRIC_CONNECTORS or rejected_result_count == 0
+        )
+        if rejected_result_count and group == ENTRY_POINT_GROUP_FABRIC_CONNECTORS:
             errors.append(
                 DiscoveryError(
                     source="entry_point",
-                    item=ep.name,
+                    item=item_name,
+                    error_type="InvalidEntryPointResult",
+                    message="Entry point output contains values that are not Components",
+                    details={"group": group, "rejected_result_count": rejected_result_count},
+                )
+            )
+        if not components:
+            if binding is not None:
+                _record_provider_binding(owner_source, outcome, binding)
+            errors.append(
+                DiscoveryError(
+                    source="entry_point",
+                    item=item_name,
                     error_type="InvalidEntryPoint",
                     message="Entry point must expose Component, iterable of Components, or factory",
                     details={"group": group},
@@ -708,11 +930,44 @@ def _discover_group(
 
         for component in components:
             metadata_obj = component.metadata
+            component_id = str(metadata_obj.component_id)
+            source_info = discovery_source
+            if binding is not None and origin_context is not None:
+                component_binding = bind_component_factory_origin(
+                    origin_context,
+                    binding,
+                    component,
+                    component_id=component_id,
+                )
+                _record_provider_binding(owner_source, outcome, component_binding)
+                source_info = replace(
+                    discovery_source,
+                    provider_origin_binding=component_binding,
+                )
+                if component_binding.component_factory_status == "not_established":
+                    errors.append(
+                        DiscoveryError(
+                            source="entry_point",
+                            item=item_name,
+                            error_type="ProviderOriginNotEstablished",
+                            message=(
+                                component_binding.reason_code
+                                or "component factory origin was not established"
+                            ),
+                            details={
+                                "group": group,
+                                "component_id": component_id,
+                                "origin_status": component_binding.status,
+                                "factory_status": component_binding.component_factory_status,
+                            },
+                        )
+                    )
+                    continue
             if expected_kind is not None and metadata_obj.kind != expected_kind:
                 errors.append(
                     DiscoveryError(
                         source="entry_point",
-                        item=ep.name,
+                        item=item_name,
                         error_type="KindMismatch",
                         message=(
                             f"entry point group {group!r} expects kind={expected_kind.value!r}, "
@@ -726,8 +981,19 @@ def _discover_group(
                 DiscoveredComponent(
                     metadata=metadata_obj,
                     component=component,
-                    source=discovery_source,
+                    source=source_info,
                 )
+            )
+
+        component_bindings = [row for row in outcome.bindings if row.component_id is not None]
+        if len(component_bindings) == outcome.component_result_count and all(
+            row.status == "verified" and row.component_factory_status in {"verified", "delegated"}
+            for row in component_bindings
+        ):
+            outcome.factory_status = (
+                "delegated"
+                if any(row.component_factory_status == "delegated" for row in component_bindings)
+                else "verified"
             )
 
     return discovered
@@ -877,34 +1143,44 @@ def _entry_point_identity(ep: object, *, group: str) -> DiscoveryEntryPointIdent
     direct_url_sha256: str | None = None
     editable_install: bool | None = None
     if distribution is not None:
-        metadata_obj = getattr(distribution, "metadata", None)
-        metadata_get = getattr(metadata_obj, "get", None)
-        if callable(metadata_get):
-            raw_name = metadata_get("Name")
-            if raw_name:
-                distribution_name = re.sub(
-                    r"[-_.]+",
-                    "-",
-                    str(raw_name).strip().lower(),
-                )
-        raw_version = getattr(distribution, "version", None)
-        if raw_version:
-            distribution_version = str(raw_version)
-        read_text = getattr(distribution, "read_text", None)
+        try:
+            metadata_obj = getattr(distribution, "metadata", None)
+            metadata_get = getattr(metadata_obj, "get", None)
+            raw_name = metadata_get("Name") if callable(metadata_get) else None
+        except (AttributeError, LookupError, RuntimeError, TypeError, ValueError):
+            raw_name = None
+        if isinstance(raw_name, str) and raw_name:
+            distribution_name = re.sub(
+                r"[-_.]+",
+                "-",
+                raw_name.strip().lower(),
+            )
+
+        try:
+            raw_version = getattr(distribution, "version", None)
+        except (AttributeError, LookupError, RuntimeError, TypeError, ValueError):
+            raw_version = None
+        if isinstance(raw_version, str) and raw_version:
+            distribution_version = raw_version
+
+        try:
+            read_text = getattr(distribution, "read_text", None)
+        except (AttributeError, LookupError, RuntimeError, TypeError, ValueError):
+            read_text = None
         if callable(read_text):
             try:
                 entry_points_text = read_text("entry_points.txt")
-            except (OSError, UnicodeError):
+            except (LookupError, OSError, RuntimeError, TypeError, UnicodeError, ValueError):
                 entry_points_text = None
-            if entry_points_text is not None:
-                entry_points_sha256 = _sha256_bytes(str(entry_points_text).encode("utf-8"))
+            if isinstance(entry_points_text, str):
+                entry_points_sha256 = _sha256_bytes(entry_points_text.encode("utf-8"))
             try:
                 direct_url_text = read_text("direct_url.json")
-            except (OSError, UnicodeError):
+            except (LookupError, OSError, RuntimeError, TypeError, UnicodeError, ValueError):
                 direct_url_text = None
-            if direct_url_text is not None:
+            if isinstance(direct_url_text, str):
                 try:
-                    direct_url_payload = json.loads(str(direct_url_text))
+                    direct_url_payload = json.loads(direct_url_text)
                 except (json.JSONDecodeError, TypeError, ValueError):
                     direct_url_payload = None
                 if isinstance(direct_url_payload, dict):
@@ -914,11 +1190,22 @@ def _entry_point_identity(ep: object, *, group: str) -> DiscoveryEntryPointIdent
                 # An editable direct URL is an installer-chosen address, not content identity.
                 # Record the editable posture while leaving its source-byte closure unestablished.
                 if editable_install is not True:
-                    direct_url_sha256 = _sha256_bytes(str(direct_url_text).encode("utf-8"))
+                    direct_url_sha256 = _sha256_bytes(direct_url_text.encode("utf-8"))
+    try:
+        raw_group = getattr(ep, "group", None)
+        raw_name = getattr(ep, "name", None)
+        raw_value = getattr(ep, "value", None)
+    except (AttributeError, LookupError, RuntimeError, TypeError, ValueError):
+        raw_group = raw_name = raw_value = None
+    identity_group = raw_group if isinstance(raw_group, str) else ""
+    if identity_group != group:
+        identity_group = ""
+    identity_name = raw_name if isinstance(raw_name, str) else ""
+    identity_value = raw_value if isinstance(raw_value, str) else ""
     return DiscoveryEntryPointIdentity(
-        group=group,
-        name=str(getattr(ep, "name", "")),
-        value=str(getattr(ep, "value", "")),
+        group=identity_group,
+        name=identity_name,
+        value=identity_value,
         distribution_name=distribution_name,
         distribution_version=distribution_version,
         entry_points_sha256=entry_points_sha256,
@@ -949,9 +1236,9 @@ def _build_discovery_manifest(
                 for identity in source.entry_points
             ),
             key=lambda row: (
-                row.group,
-                row.name,
-                row.value,
+                row.group or "",
+                row.name or "",
+                row.value or "",
                 row.distribution_name or "",
                 row.distribution_version or "",
                 row.entry_points_sha256 or "",
@@ -986,24 +1273,69 @@ def _build_discovery_manifest(
         )
         for row in report.components
     )
-    builtin_loaders = tuple(
-        source.name for source in sources if isinstance(source, _BuiltinLoaderSource)
+    builtin_loader_sources = tuple(
+        source for source in sources if isinstance(source, _BuiltinLoaderSource)
     )
+    builtin_loaders = tuple(source.name for source in builtin_loader_sources)
     declared_builtin_loader_rows: list[DiscoveryDeclaredBuiltinLoaderIdentity] = []
     for source in sources:
         if isinstance(source, _BuiltinLoaderSource) and source.declaration_identity is not None:
             declared_builtin_loader_rows.append(source.declaration_identity)
     declared_builtin_loaders = tuple(declared_builtin_loader_rows)
+    fabric_sources = [
+        source
+        for source in sources
+        if isinstance(source, _EntryPointSource)
+        and source.group == ENTRY_POINT_GROUP_FABRIC_CONNECTORS
+    ]
+    provider_origin_bindings = tuple(
+        sorted(
+            (binding for source in fabric_sources for binding in source.provider_origin_bindings),
+            key=lambda row: (
+                row.group,
+                row.name,
+                row.value,
+                row.component_id or "",
+                row.status,
+                row.reason_code or "",
+            ),
+        )
+    )
     manifest_schema_version = (
-        "policyos.component_discovery_manifest.v2"
-        if declared_builtin_loaders
-        else "policyos.component_discovery_manifest.v1"
+        "policyos.component_discovery_manifest.v3"
+        if fabric_sources
+        else (
+            "policyos.component_discovery_manifest.v2"
+            if declared_builtin_loaders
+            else "policyos.component_discovery_manifest.v1"
+        )
     )
     unbound_inputs: list[str] = []
-    entry_point_sources = [source for source in sources if isinstance(source, _EntryPointSource)]
+    entry_point_sources = tuple(
+        source for source in sources if isinstance(source, _EntryPointSource)
+    )
+    entry_point_source_selection_is_accounted = tuple(
+        source.group for source in entry_point_sources
+    ) == tuple(selected_groups)
+    if not entry_point_source_selection_is_accounted:
+        unbound_inputs.append("entry_point_group_source_selection_not_reconciled")
+    for source in builtin_loader_sources:
+        if source.declaration_identity is None:
+            unbound_inputs.append(f"builtin_loader_declaration_not_established:{source.name}")
     for source in entry_point_sources:
         if not source.enumeration_established:
             unbound_inputs.append(f"entry_point_group_enumeration_not_established:{source.group}")
+        if not _entry_point_source_is_accounted(source):
+            unbound_inputs.append(
+                f"entry_point_group_outcome_accounting_not_established:{source.group}"
+            )
+        if (
+            source.group == ENTRY_POINT_GROUP_FABRIC_CONNECTORS
+            and not _entry_point_bindings_are_accounted(source)
+        ):
+            unbound_inputs.append(
+                f"fabric_provider_origin_binding_accounting_not_established:{source.group}"
+            )
     for row in entry_points:
         if not row.distribution_identity_is_bound:
             unbound_inputs.append(
@@ -1014,6 +1346,22 @@ def _build_discovery_manifest(
             unbound_inputs.append(
                 "entry_point_source_byte_closure_not_established:"
                 f"{row.group}:{row.name}:{row.value}"
+            )
+    for row in provider_origin_bindings:
+        if row.status != "verified":
+            unbound_inputs.append(
+                "fabric_provider_entrypoint_origin_not_established:"
+                f"{row.group}:{row.name}:{row.value}:{row.reason_code or row.status}"
+            )
+        if row.component_factory_status == "not_established":
+            unbound_inputs.append(
+                "fabric_component_factory_origin_not_established:"
+                f"{row.group}:{row.name}:{row.value}:{row.component_id or '<no-component>'}"
+            )
+        elif row.component_factory_status == "delegated":
+            unbound_inputs.append(
+                "fabric_component_implementation_delegated:"
+                f"{row.group}:{row.name}:{row.value}:{row.component_id or '<no-component>'}"
             )
     for row in dev_scan_roots:
         if not row.exists:
@@ -1035,22 +1383,42 @@ def _build_discovery_manifest(
             error_identity += ":" + ":".join(error_context)
         unbound_inputs.append(error_identity)
     unbound_inputs = sorted(dict.fromkeys(unbound_inputs))
+    source_policy_classification: PredicateProvenanceClassification = (
+        "recomputed" if entry_point_source_selection_is_accounted else "not_established"
+    )
     entry_point_enumeration_classification: PredicateProvenanceClassification = (
         "recomputed"
-        if all(source.enumeration_established for source in entry_point_sources)
+        if entry_point_source_selection_is_accounted
+        and all(_entry_point_source_is_accounted(source) for source in entry_point_sources)
         else "not_established"
     )
     entry_points_classification: PredicateProvenanceClassification = (
         "recomputed"
-        if all(row.distribution_identity_is_bound for row in entry_points)
+        if entry_point_source_selection_is_accounted
+        and all(_entry_point_source_is_accounted(source) for source in entry_point_sources)
+        and all(row.distribution_identity_is_bound for row in entry_points)
         else "not_established"
     )
     entry_point_source_classification: PredicateProvenanceClassification = (
         "recomputed"
-        if all(
+        if entry_point_source_selection_is_accounted
+        and all(_entry_point_source_is_accounted(source) for source in entry_point_sources)
+        and all(
             row.source_byte_closure in {"recomputed", "independently_reconciled"}
             for row in entry_points
         )
+        else "not_established"
+    )
+    fabric_provider_origin_classification: PredicateProvenanceClassification = (
+        "recomputed"
+        if fabric_sources
+        and all(_fabric_provider_origin_is_accounted(source) for source in fabric_sources)
+        else "not_established"
+    )
+    fabric_component_factory_classification: PredicateProvenanceClassification = (
+        "recomputed"
+        if fabric_sources
+        and all(_fabric_factory_dispatch_is_accounted(source) for source in fabric_sources)
         else "not_established"
     )
     dev_bytes_classification: PredicateProvenanceClassification = (
@@ -1075,7 +1443,7 @@ def _build_discovery_manifest(
         unbound_inputs.append("development_scan_import_closure_not_established")
         unbound_inputs.sort()
     predicate_provenance = (
-        DiscoveryPredicateProvenance("source_policy", "recomputed"),
+        DiscoveryPredicateProvenance("source_policy", source_policy_classification),
         DiscoveryPredicateProvenance(
             "entry_point_group_enumeration",
             entry_point_enumeration_classification,
@@ -1087,6 +1455,20 @@ def _build_discovery_manifest(
         DiscoveryPredicateProvenance(
             "entry_point_source_byte_closure",
             entry_point_source_classification,
+        ),
+        *(
+            (
+                DiscoveryPredicateProvenance(
+                    "fabric_provider_entrypoint_record_binding",
+                    fabric_provider_origin_classification,
+                ),
+                DiscoveryPredicateProvenance(
+                    "fabric_component_factory_dispatch",
+                    fabric_component_factory_classification,
+                ),
+            )
+            if fabric_sources
+            else ()
         ),
         DiscoveryPredicateProvenance(
             "development_scan_root_membership",
@@ -1120,8 +1502,13 @@ def _build_discovery_manifest(
         "unbound_inputs": unbound_inputs,
         "predicate_provenance": [row.as_dict() for row in predicate_provenance],
     }
-    if manifest_schema_version == "policyos.component_discovery_manifest.v2":
+    if manifest_schema_version in {
+        "policyos.component_discovery_manifest.v2",
+        "policyos.component_discovery_manifest.v3",
+    }:
         payload["declared_builtin_loaders"] = [row.as_dict() for row in declared_builtin_loaders]
+    if manifest_schema_version == "policyos.component_discovery_manifest.v3":
+        payload["provider_origin_bindings"] = [row.as_dict() for row in provider_origin_bindings]
     manifest_id = _component_discovery_manifest_id(payload)
     return ComponentDiscoveryManifest(
         schema_version=manifest_schema_version,
@@ -1138,6 +1525,7 @@ def _build_discovery_manifest(
         unbound_inputs=tuple(unbound_inputs),
         predicate_provenance=predicate_provenance,
         declared_builtin_loaders=declared_builtin_loaders,
+        provider_origin_bindings=provider_origin_bindings,
     )
 
 
@@ -1314,22 +1702,25 @@ def _load_module_from_file(
     return module
 
 
-def _materialize_components(value: object) -> list[Component]:
+def _materialize_components(value: object) -> tuple[list[Component], int, bool]:
     if isinstance(value, Component):
-        return [value]
+        return [value], 0, True
     if callable(value):
         try:
             value = value()
         except (AttributeError, ImportError, RuntimeError, TypeError, ValueError) as exc:
             logger.warning("Component factory materialization failed: %s", exc)
-            return []
+            return [], 0, False
 
     components: list[Component] = []
+    rejected_result_count = 0
     for item in _iter_loader_items(value):
         component = _materialize_component(item)
         if component is not None:
             components.append(component)
-    return components
+        else:
+            rejected_result_count += 1
+    return components, rejected_result_count, True
 
 
 def _materialize_component(value: object) -> Component | None:

@@ -51,6 +51,65 @@ Each entry must include `id`, `change_class`, `impact`, `surface`, `owner`,
 breaking, deprecation, migration, generated-client, or public-surface promises so
 release notes can render a machine-readable compatibility section.
 
+For the structured field, the complete accepted value set comes from the compatibility-release gate in
+`architecture/gates/compatibility_release.toml`. The six versioned compatibility categories and their labels
+are owned by `architecture/extension_points.toml`; their `release_fragment_change_class` values are the
+category-to-fragment mapping below. The gate also admits values outside that six-category map; those are listed
+separately. Only `[[compatibility_change]].change_class` is checked against the gate enum. The top-level
+`change_class` remains legacy descriptive prose as noted above.
+
+<!-- compatibility-class-registry:start -->
+~~~toml
+allowed_structured_change_classes = [
+  "python-public-api",
+  "schema-openapi-abi",
+  "extension-plugin-abi",
+  "runtime-state-format",
+  "persisted-artifact-format",
+  "js-package-api",
+  "tooling",
+  "shim_sunset",
+  "internal",
+]
+
+gate_only_structured_change_classes = [
+  "internal",
+  "shim_sunset",
+  "tooling",
+]
+
+[[compatibility_category]]
+id = "python_public_api"
+label = "Python public API"
+release_fragment_change_class = "python-public-api"
+
+[[compatibility_category]]
+id = "schema_openapi_abi"
+label = "Schema/OpenAPI ABI"
+release_fragment_change_class = "schema-openapi-abi"
+
+[[compatibility_category]]
+id = "extension_plugin_abi"
+label = "Extension plugin ABI"
+release_fragment_change_class = "extension-plugin-abi"
+
+[[compatibility_category]]
+id = "runtime_state_format"
+label = "Runtime-state format"
+release_fragment_change_class = "runtime-state-format"
+
+[[compatibility_category]]
+id = "persisted_artifact_format"
+label = "Persisted artifact format"
+release_fragment_change_class = "persisted-artifact-format"
+
+[[compatibility_category]]
+id = "js_package_api"
+label = "JS package API"
+release_fragment_change_class = "js-package-api"
+~~~
+<!-- compatibility-class-registry:end -->
+
 Use `template.toml` as the starting point.
 
 Release snapshots must cover `compatibility`, `migration`, `api`, and

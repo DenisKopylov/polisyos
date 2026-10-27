@@ -18,16 +18,16 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactRef, CoreJSONArtifactBoundedMemberReader
     from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorDispatchContext
     from polisyos.core.contracts.runtime import DirectMethodExecutionHTESummary
-    from polisyos.foundry.data_plane.bindings import HTEPhysicalSourceMaterializationBinding
+    from polisyos.foundry.data_plane import HTEPhysicalSourceMaterializationBinding
     from polisyos.foundry.methods.catalog.causal.hte_v2 import (
         HTEWriterReadyIntervalV1,
         HTEWriterReadyPointV1,
         HTEWriterReadyRefusalV1,
         HTEWriterReadyV1,
     )
+    from polisyos.ir import ArtifactStore as IRArtifactStore
+    from polisyos.ir.analytics import HTEPointResultRef, HTEResultEvidenceRef
     from polisyos.ir.analytics.hte import ATEInferenceBasis, HTEFinalizedArtifactRefs
-    from polisyos.ir.artifacts import ArtifactStore as IRArtifactStore
-    from polisyos.ir.registry.refs import HTEPointResultRef, HTEResultEvidenceRef
 
 
 _BOOTSTRAP_LIMITS = (1_048_576, 64, 100_000, 65_536)
@@ -423,7 +423,7 @@ def _expected_refusal_limitations(
     effect estimate. Preserve method limitations and append those two facts in
     one canonical order for both producer and consumer.
     """
-    from polisyos.foundry.data_plane.bindings import HTEPhysicalSourceMaterializationBinding
+    from polisyos.foundry.data_plane import HTEPhysicalSourceMaterializationBinding
     from polisyos.foundry.methods.catalog.causal.hte_v2 import HTEWriterReadyRefusalV1
 
     if type(writer) is not HTEWriterReadyRefusalV1:
@@ -455,7 +455,7 @@ def _resource_evidence(
     policy_ref: Any,
     method_profile_id: str,
 ) -> Any:
-    from polisyos.ir.registry.refs import HTEResourcePolicyRef
+    from polisyos.ir.analytics import HTEResourcePolicyRef
 
     owner = _policy_payload(anchor, policy, policy_ref)
     owner["owner_policy_ref"] = _ir_ref(policy_ref, HTEResourcePolicyRef)
@@ -672,7 +672,7 @@ def _target_relation(
 
 
 def _request_fields(capture: Any) -> dict[str, Any]:
-    from polisyos.ir.registry.refs import (
+    from polisyos.ir.analytics import (
         HTEPhysicalSourceMaterializationBindingRef,
         SearchUncertaintyTaskBindingRef,
     )
@@ -965,7 +965,7 @@ def persist_runtime_hte_outcome(
         HTEWriterReadyRefusalV1,
         validate_hte_writer_ready_json,
     )
-    from polisyos.ir.analytics.causal import CausalMethod
+    from polisyos.ir.analytics import CausalMethod
     from polisyos.ir.analytics.hte import (
         _HTE_OUTCOME_ADAPTER,
         ATEInferenceBasis,
@@ -1080,7 +1080,7 @@ def persist_runtime_hte_outcome(
         or materialization_binding_ref.manifest_profile_sha256 is None
     ):
         raise ValueError("hte_bridge_r5_materialization_binding_missing_or_unselected")
-    from polisyos.foundry.data_plane.bindings import (
+    from polisyos.foundry.data_plane import (
         load_hte_physical_source_materialization_binding,
     )
 

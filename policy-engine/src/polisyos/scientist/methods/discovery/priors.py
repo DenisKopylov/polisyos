@@ -16,8 +16,8 @@ from polisyos.core.contracts.scientist import (
     PriorKnowledgeBundleRef,
 )
 from polisyos.ir import AlgebraicAssumptionStatus, AlgebraicFalsificationScope
+from polisyos.ir.analytics import ClaimVocabularyAxisStatus
 from polisyos.ir.analytics.cross_graph import EvidenceSourceStatus
-from polisyos.ir.analytics.literature import ClaimVocabularyAxisStatus
 from polisyos.scientist.methods.discovery.aggregator import (
     EdgeConfidenceEntry,
     EdgeConfidenceMatrix,

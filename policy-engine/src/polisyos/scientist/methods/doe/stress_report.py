@@ -20,7 +20,7 @@ from pydantic import (
 )
 
 from polisyos.core.artifacts import ArtifactManifest, ArtifactRef, input_ref_from_artifact_ref
-from polisyos.ir.world.ids import stable_world_id_from_canon
+from polisyos.ir.world import stable_world_id_from_canon
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore

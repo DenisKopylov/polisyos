@@ -32,7 +32,13 @@ from polisyos.core.contracts.control import (
     _OBSERVATIONAL_INPUT_CONSUMED_REQUEST_FIELDS,
     WorkflowRunRequest,
 )
-from polisyos.core.contracts.foundry import DerivedArtifact, ExecuteResult
+from polisyos.core.contracts.foundry import (
+    DerivedArtifact,
+    ExecuteResult,
+    MethodExecutionBundleRef,
+    MethodMetricBindingSetRef,
+    SimulationResultRef,
+)
 from polisyos.core.contracts.runtime import (
     ContentAdmittedObservationalRunIntent,
     DirectMethodExecutionSelection,
@@ -2546,17 +2552,26 @@ class _FoundryDelegate:
 
 def test_runtime_graph_origin_receipt_rejects_cas_valid_state_ref_swap() -> None:
     selected_refs = (
-        _selected_ref("foundry.simulation_result", "a", "1"),
-        _selected_ref("foundry.method_execution_bundle", "b", "2"),
-        _selected_ref("foundry.method_metric_binding_set", "c", "3"),
+        SimulationResultRef.model_validate(
+            _selected_ref("foundry.simulation_result", "a", "1").model_dump(mode="python")
+        ),
+        MethodExecutionBundleRef.model_validate(
+            _selected_ref("foundry.method_execution_bundle", "b", "2").model_dump(mode="python")
+        ),
+        MethodMetricBindingSetRef.model_validate(
+            _selected_ref("foundry.method_metric_binding_set", "c", "3").model_dump(mode="python")
+        ),
+    )
+    base_refs = tuple(
+        ArtifactRef.model_validate(ref.model_dump(mode="python")) for ref in selected_refs
     )
     result = SimpleNamespace(
         ok=True,
         simulation_result_ref=selected_refs[0],
         method_execution_bundle_ref=selected_refs[1],
         derived_refs=[
-            SimpleNamespace(role="method_execution_bundle", ref=selected_refs[1]),
-            SimpleNamespace(role="method_metric_binding_set", ref=selected_refs[2]),
+            SimpleNamespace(role="method_execution_bundle", ref=base_refs[1]),
+            SimpleNamespace(role="method_metric_binding_set", ref=base_refs[2]),
         ],
     )
     capture = _RuntimeOriginCapturingFoundryPort(
@@ -2569,6 +2584,8 @@ def test_runtime_graph_origin_receipt_rejects_cas_valid_state_ref_swap() -> None
     assert capture.execute(store=object(), request=object()) is result
     receipt = capture.producer_receipt()
     assert receipt is not None
+    assert receipt.diagnostics[0].output_ref_status == "complete"
+    assert len(receipt.emissions) == 1
 
     state: dict[str, Any] = {
         "params": {"candidate_only_state_payload": ["retained only until refs are extracted"]},
@@ -2579,9 +2596,14 @@ def test_runtime_graph_origin_receipt_rejects_cas_valid_state_ref_swap() -> None
         },
     }
     graph_output_refs = _scientist_graph_output_refs(state)
-    assert graph_output_refs.simulation_result_ref == selected_refs[0]
-    assert graph_output_refs.method_execution_bundle_ref == selected_refs[1]
-    assert graph_output_refs.method_metric_binding_set_ref == selected_refs[2]
+    reparsed_refs = (
+        graph_output_refs.simulation_result_ref,
+        graph_output_refs.method_execution_bundle_ref,
+        graph_output_refs.method_metric_binding_set_ref,
+    )
+    assert tuple(artifact_ref_identity_key(ref) for ref in reparsed_refs) == tuple(
+        artifact_ref_identity_key(ref) for ref in selected_refs
+    )
     assert not hasattr(graph_output_refs, "params")
     source = _selected_graph_source_refs_from_receipt(
         graph_output_refs=graph_output_refs,
@@ -2591,7 +2613,58 @@ def test_runtime_graph_origin_receipt_rejects_cas_valid_state_ref_swap() -> None
         attempt=4,
         lease_owner="lease-current",
     )
-    assert source == selected_refs
+    assert source is not None
+    assert tuple(artifact_ref_identity_key(ref) for ref in source) == tuple(
+        artifact_ref_identity_key(ref) for ref in selected_refs
+    )
+
+    profile_changed_state = {"artifacts_index": dict(state["artifacts_index"])}
+    profile_changed_state["artifacts_index"]["simulation_result_ref"] = (
+        graph_output_refs.simulation_result_ref.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "f" * 64}
+        ).model_dump(mode="json")
+    )
+    assert (
+        _selected_graph_source_refs_from_receipt(
+            graph_output_refs=_scientist_graph_output_refs(profile_changed_state),
+            receipt=receipt,
+            job_id="job-current",
+            run_id="run-current",
+            attempt=4,
+            lease_owner="lease-current",
+        )
+        is None
+    )
+
+    typed_duplicate = SimpleNamespace(
+        ok=True,
+        simulation_result_ref=selected_refs[0],
+        method_execution_bundle_ref=selected_refs[1],
+        derived_refs=[
+            SimpleNamespace(role="method_execution_bundle", ref=selected_refs[1]),
+            SimpleNamespace(role="method_metric_binding_set", ref=selected_refs[2]),
+        ],
+    )
+    duplicate_capture = _RuntimeOriginCapturingFoundryPort(
+        delegate=_FoundryDelegate(typed_duplicate),
+        job_id="job-current",
+        run_id="run-current",
+        attempt=4,
+        lease_owner="lease-current",
+    )
+    duplicate_capture.execute(store=object(), request=object())
+    duplicate_capture._capture_execute_result(
+        SimpleNamespace(
+            ok=True,
+            simulation_result_ref=base_refs[0],
+            method_execution_bundle_ref=base_refs[1],
+            derived_refs=[
+                SimpleNamespace(role="method_execution_bundle", ref=base_refs[1]),
+                SimpleNamespace(role="method_metric_binding_set", ref=base_refs[2]),
+            ],
+        )
+    )
+    assert len(duplicate_capture.producer_receipt().emissions) == 1
 
     swapped_state = {"artifacts_index": dict(state["artifacts_index"])}
     swapped_state["artifacts_index"]["simulation_result_ref"] = _selected_ref(
@@ -3558,12 +3631,20 @@ def test_synthetic_graph_capture_remains_limited_under_cold_protected_get(
     assert revoked.json()["limitations"] == ["current_method_metric_selection_not_established"]
 
 
+@pytest.mark.parametrize(
+    ("capture_only", "root_graph_outputs"),
+    [(False, True), (True, True), (True, False)],
+    ids=("explicit-scalar-rooted", "capture-only-rooted", "capture-only-unrooted"),
+)
 def test_registered_public_graph_execute_reaches_runtime_owner_and_cold_metric_get(
     runtime_api_env: dict[str, Any],
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    capture_only: bool,
+    root_graph_outputs: bool,
+    request: pytest.FixtureRequest,
 ) -> None:
-    """A real graph result crosses the leased workflow worker into the cold Runtime GET."""
+    """Carry actual Foundry refs through test-built Core ownership to a cold Runtime GET."""
     from _helpers.control_worker import dispatch_one_control_job, stop_embedded_control_worker
     from unit.scientist.nodes.builtins.decide.test_policy_runtime_method_metrics import (
         _exercise_public_execute_method_metric_source,
@@ -3574,10 +3655,15 @@ def test_registered_public_graph_execute_reaches_runtime_owner_and_cold_metric_g
     from polisyos.core.contracts.control import WorkflowRunRequest
     from polisyos.core.run.context import RunContext
     from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.foundry.methods.registry import MethodRegistry
     from polisyos.ir.kernel.method_metrics import METHOD_METRIC_EX_ANTE_MEAN_CHANGE_LAW_ID
     from polisyos.runtime.http.execution_policy import RuntimePrincipal
     from polisyos.scientist.nodes.builtins.decide.policy_runtime_method_metrics import (
         read_completed_admitted_method_metric_projection,
+    )
+    from polisyos.scientist.orchestration.engine.executor import (
+        NodeRunRecord,
+        _selected_successful_node_output_refs,
     )
     from polisyos.scientist.orchestration.engine.finalization import (
         FINALIZATION_KIND,
@@ -3644,9 +3730,21 @@ def test_registered_public_graph_execute_reaches_runtime_owner_and_cold_metric_g
             job_id=job_id,
             run_id=run_id,
             attempt=1,
+            capture_only=capture_only,
+            request=request,
         )
-        observed["producer"] = producer
         execute_result = producer["execute_result"]
+        if capture_only:
+            assert producer["compiled_program_graph_ref"] is not None
+            assert producer["compiled_exec_plan_ref"] is not None
+            assert producer["selected_method_plan_ref"] is not None
+            assert producer["binding_ref"].manifest_profile_sha256 is not None
+            assert producer["method_fqn"] == "tests.capture_only.runtime_unseen_probe@1.0.0"
+            computed = producer["computed_method_outputs"]
+            assert len(computed) == 1
+            assert computed[0]["result"]["mean_change"] == pytest.approx(1.0)
+            assert computed[0]["result"]["n_agents"] == 3
+        observed["producer"] = producer
         graph_refs = {
             "simulation_result_ref": execute_result.simulation_result_ref,
             "method_execution_bundle_ref": producer["bundle_ref"],
@@ -3702,6 +3800,26 @@ def test_registered_public_graph_execute_reaches_runtime_owner_and_cold_metric_g
         run.run_manifest.control_job_id = job_id
         run.add_output(state_ref)
         run.add_output(finalization_ref)
+        # This test stubs run_experiment, so model the normal executor's selected
+        # successful-output rooting over the three actual Foundry refs explicitly.
+        graph_record = NodeRunRecord(
+            alias="fixture_method_simulation",
+            node_id="fixture_foundry_execute",
+            status="ok",
+            duration_ms=0,
+            artifacts=list(graph_refs.values()),
+        )
+        selected_graph_outputs = _selected_successful_node_output_refs(
+            [graph_record],
+            selected_artifacts=final_state.artifacts_index.values(),
+            existing_outputs=run.run_manifest.outputs,
+        )
+        assert tuple(artifact_ref_identity_key(ref) for ref in selected_graph_outputs) == tuple(
+            artifact_ref_identity_key(ref) for ref in graph_refs.values()
+        )
+        if root_graph_outputs:
+            for output_ref in selected_graph_outputs:
+                run.add_output(output_ref)
         run.finalize(status="completed", workflow_finalization_ref=finalization_ref)
         return final_state.model_dump(mode="json")
 
@@ -3742,7 +3860,10 @@ def test_registered_public_graph_execute_reaches_runtime_owner_and_cold_metric_g
         attempt=current_job.attempt,
         lease_owner=producer_receipt.lease_owner,
     )
-    assert source_refs == (simulation_ref, bundle_ref, binding_ref)
+    assert source_refs is not None
+    assert tuple(artifact_ref_identity_key(ref) for ref in source_refs) == tuple(
+        artifact_ref_identity_key(ref) for ref in (simulation_ref, bundle_ref, binding_ref)
+    )
     assert (
         _selected_graph_source_refs_from_receipt(
             graph_output_refs=graph_output_refs,
@@ -3766,88 +3887,174 @@ def test_registered_public_graph_execute_reaches_runtime_owner_and_cold_metric_g
         is None
     )
 
-    selection = service.get_method_execution_selection(
-        run_id=run_id,
-        tenant_id=tenant_id,
-        cell_id=cell_id,
-    )
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        selection = service.get_method_execution_selection(
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
     assert isinstance(selection, GraphMethodExecutionSelection)
-    assert selection.metric_verification_status == "verified"
-    assert selection.source_candidate_ref == candidate_ref
-    assert selection.method_metric_projection is not None
+    if capture_only:
+        assert selection.source_candidate_ref is None
+    else:
+        assert selection.source_candidate_ref is not None
+        assert artifact_ref_identity_key(selection.source_candidate_ref) == (
+            artifact_ref_identity_key(candidate_ref)
+        )
     assert selection.job_id == job_id
     assert selection.run_id == run_id
     assert selection.attempt == current_job.attempt
-    assert selection.simulation_result_ref == simulation_ref
-    assert selection.method_execution_bundle_ref == bundle_ref
-    assert selection.method_metric_binding_set_ref == binding_ref
-    assert selection.source_experiment_state_ref == experiment_state_ref
-
-    admitted_vector = validate_core_model_json_artifact(
-        PolicyEvaluationVector,
-        store,
-        selection.method_metric_projection.vector_ref,
+    selection_source_refs = (
+        selection.simulation_result_ref,
+        selection.method_execution_bundle_ref,
+        selection.method_metric_binding_set_ref,
+        selection.source_experiment_state_ref,
     )
-    assert len(admitted_vector.method_metric_observations) == 1
-    observation = admitted_vector.method_metric_observations[0]
-    assert observation.value == pytest.approx(1.0)
-    assert observation.law_id == METHOD_METRIC_EX_ANTE_MEAN_CHANGE_LAW_ID
-    assert observation.objective_id == "objective_ex_ante_mean_change"
-    assert observation.metric_id == "metric_ex_ante_mean_change"
-    assert observation.metric_unit_id == "value"
-    assert observation.quantity_role == "scenario_delta"
-    assert observation.time_role == "pre_dispatch_state"
-    assert observation.population_id == "captured_model_input_rows"
-    assert observation.axes == ("n_agents",)
-    assert observation.denominator_id == "n_agents"
-    assert "external_causal_validity_not_established" in observation.limitations
-    assert "external_legal_permission_not_established" in observation.limitations
+    expected_source_refs = (
+        simulation_ref,
+        bundle_ref,
+        binding_ref,
+        experiment_state_ref,
+    )
+    assert tuple(artifact_ref_identity_key(ref) for ref in selection_source_refs) == tuple(
+        artifact_ref_identity_key(ref) for ref in expected_source_refs
+    )
+    if capture_only:
+        assert selection.metric_verification_status == "verification_missing"
+        assert selection.method_metric_projection is None
+    else:
+        assert selection.metric_verification_status == "verified"
+        assert selection.method_metric_projection is not None
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            admitted_vector = validate_core_model_json_artifact(
+                PolicyEvaluationVector,
+                store,
+                selection.method_metric_projection.vector_ref,
+            )
+        assert len(admitted_vector.method_metric_observations) == 1
+        observation = admitted_vector.method_metric_observations[0]
+        assert observation.value == pytest.approx(1.0)
+        assert observation.law_id == METHOD_METRIC_EX_ANTE_MEAN_CHANGE_LAW_ID
+        assert observation.objective_id == "objective_ex_ante_mean_change"
+        assert observation.metric_id == "metric_ex_ante_mean_change"
+        assert observation.metric_unit_id == "value"
+        assert observation.quantity_role == "scenario_delta"
+        assert observation.time_role == "pre_dispatch_state"
+        assert observation.population_id == "captured_model_input_rows"
+        assert observation.axes == ("n_agents",)
+        assert observation.denominator_id == "n_agents"
+        assert "external_causal_validity_not_established" in observation.limitations
+        assert "external_legal_permission_not_established" in observation.limitations
 
     runtime_context = getattr(runtime_api_env["app"].state, "runtime_api_ctx", None)
     if runtime_context is None:
         runtime_context = runtime_api_env["app"].state.runtime_container.runtime_api_context
+    # Each parameter case gets a fresh function-scoped Runtime fixture; force a full
+    # rebuild to test the removal case without a cached tenant mapping.
     runtime_context.run_index.refresh(force=True)
-    persisted_selection = service.get_method_execution_selection(
-        run_id=run_id,
-        tenant_id=tenant_id,
-        cell_id=cell_id,
-    )
+    indexed_run = runtime_context.run_index.get_run(run_id)
+    assert indexed_run is not None
+    indexed_root_identities = {
+        artifact_ref_identity_key(ref) for ref in indexed_run.details.root_artifacts
+    }
+    for graph_ref in (simulation_ref, bundle_ref, binding_ref):
+        assert (
+            artifact_ref_identity_key(graph_ref) in indexed_root_identities
+        ) is root_graph_outputs
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        persisted_selection = service.get_method_execution_selection(
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
     assert persisted_selection == selection
 
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         fresh = runtime_api_env["client"].get(f"/api/v1/runs/{run_id}/method-metrics")
+        if capture_only:
+            run_details = runtime_api_env["client"].get(f"/api/v1/runs/{run_id}")
+            content = runtime_api_env["client"].get(
+                f"/api/v1/artifacts/{bundle_ref.artifact_id}/content",
+                params={"manifest_profile_sha256": bundle_ref.manifest_profile_sha256},
+            )
     assert fresh.status_code == 200, fresh.text
     payload = fresh.json()
-    assert payload["status"] == "selected"
-    assert payload["vector_ref"] == selection.method_metric_projection.vector_ref.model_dump(
-        mode="json"
-    )
-    assert len(payload["observations"]) == 1
-    surfaced_observation = payload["observations"][0]
-    assert surfaced_observation["value"] == pytest.approx(1.0)
-    assert surfaced_observation["law_id"] == METHOD_METRIC_EX_ANTE_MEAN_CHANGE_LAW_ID
-    assert surfaced_observation["objective_id"] == "objective_ex_ante_mean_change"
-    assert surfaced_observation["metric_unit_id"] == "value"
+    if capture_only:
+        assert payload["status"] == "verification_missing"
+        assert payload["vector_ref"] is None
+        assert payload["observations"] == []
+        assert run_details.status_code == 200, run_details.text
+        diagnostic = run_details.json()["run"]["method_execution_producer_diagnostic"]
+        assert diagnostic["authority_status"] == "candidate_only"
+        assert diagnostic["run_id"] == run_id
+        assert diagnostic["attempt"] == current_job.attempt
+        assert diagnostic["emissions"]
+        assert diagnostic["emissions"][0]["method_execution_bundle_refs"] == [
+            bundle_ref.model_dump(mode="json")
+        ]
+        assert diagnostic["emissions"][0]["method_metric_binding_set_refs"] == [
+            binding_ref.model_dump(mode="json")
+        ]
+        if root_graph_outputs:
+            # Candidate facts are exposed through the owner-backed run diagnostic
+            # above. The artifact content route must withhold candidate bytes absent
+            # an admitted artifact-purpose surface signal.
+            assert content.status_code == 409, content.text
+            refusal = content.json()
+            assert refusal["code"] == "authority_surface_admission_blocked"
+            decision = refusal["extensions"]["authority_surface_decision"]
+            assert decision["surface"] == "artifact"
+            assert decision["purpose"] == "runtime_closeout_authority"
+            assert decision["status"] == "blocked"
+            assert decision["reason"] == "authority_surface_signal_missing"
+            assert decision["blocking"] is True
+            assert decision["integrity_status"] == "verified"
+        else:
+            assert content.status_code == 403, content.text
+            assert content.json()["code"] == "artifact_tenant_unscoped"
+    else:
+        assert payload["status"] == "selected"
+        assert payload["vector_ref"] == selection.method_metric_projection.vector_ref.model_dump(
+            mode="json"
+        )
+        assert len(payload["observations"]) == 1
+        surfaced_observation = payload["observations"][0]
+        assert surfaced_observation["value"] == pytest.approx(1.0)
+        assert surfaced_observation["law_id"] == METHOD_METRIC_EX_ANTE_MEAN_CHANGE_LAW_ID
+        assert surfaced_observation["objective_id"] == "objective_ex_ante_mean_change"
+        assert surfaced_observation["metric_unit_id"] == "value"
 
-    consumer_projection = read_completed_admitted_method_metric_projection(
-        store,
-        owner=service,
-        source_run_id=run_id,
-        candidate_ref=candidate_ref,
-        tenant_id=tenant_id,
-        cell_id=cell_id,
-    )
-    assert consumer_projection.status == "selected"
-    assert consumer_projection.observations == (observation,)
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        consumer_projection = read_completed_admitted_method_metric_projection(
+            store,
+            owner=service,
+            source_run_id=run_id,
+            candidate_ref=candidate_ref,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+    if capture_only:
+        assert consumer_projection.status == "verification_missing"
+        assert consumer_projection.basis is None
+    else:
+        assert consumer_projection.status == "selected"
+        assert consumer_projection.basis is not None
+        assert consumer_projection.basis.observations == (observation,)
 
-    resolved = service.resolve_completed_method_metric_selection(
-        source_run_id=run_id,
-        candidate_ref=candidate_ref,
-        tenant_id=tenant_id,
-        cell_id=cell_id,
-    )
-    assert resolved is not None
-    assert resolved.selection == selection
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        resolved = service.resolve_completed_method_metric_selection(
+            source_run_id=run_id,
+            candidate_ref=candidate_ref,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+    if capture_only:
+        # The completion resolver requires an owner-selected, verified AD01
+        # projection and its candidate ref; capture-only rows have neither.
+        assert resolved is None
+    else:
+        assert resolved is not None
+        assert resolved.selection == selection
 
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         service._control_store.mark_running(
@@ -3860,7 +4067,9 @@ def test_registered_public_graph_execute_reaches_runtime_owner_and_cold_metric_g
     assert revoked.json()["status"] == "verification_missing"
     assert revoked.json()["vector_ref"] is None
     assert revoked.json()["observations"] == []
-    assert revoked.json()["limitations"] == ["current_method_metric_selection_not_established"]
+    assert revoked.json()["limitations"] == ["current_method_execution_selection_not_established"]
+    if capture_only:
+        assert MethodRegistry.get_instance().get_signature(producer["method_fqn"]) is not None
 
 
 def _post_v2_hte_alpha_selection(

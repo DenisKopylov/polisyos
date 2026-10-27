@@ -322,7 +322,12 @@ def compile_trinity(store: CoreJSONArtifactStore, request: CompileRequest) -> Co
     program_graph_ref = ProgramGraphRef.model_validate(program_ref.model_dump(mode="python"))
 
     method_metric_binding_set_ref: MethodMetricBindingSetRef | None = None
-    if request.method_metric_bindings:
+    capture_only_method_graph = (
+        request.method_execution_plan_ref is not None
+        and not request.method_metric_bindings
+        and any(node.node_kind == "method" for node in program_graph.nodes)
+    )
+    if request.method_metric_bindings or capture_only_method_graph:
         try:
             method_metric_binding_set_ref = _compile_method_metric_binding_set(
                 store,
@@ -571,7 +576,7 @@ def _compile_method_metric_binding_set(
     registry_bundle_ref: ArtifactRef,
     registry_content: RegistryBundleContent,
 ) -> MethodMetricBindingSetRef:
-    """Compile only the objective/node/slot bindings explicitly selected by caller."""
+    """Compile explicit scalar bindings or an exact empty capture-only binding set."""
     _require_bounded_method_metric_bindings(request)
     from polisyos.core.contracts.foundry import MethodMetricSemanticContract
 

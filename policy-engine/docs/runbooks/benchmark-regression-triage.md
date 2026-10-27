@@ -61,6 +61,40 @@ Record:
 5. If the regression becomes visible to users only after aggregation, rebuild the release summary
    and comparator-completeness results; do not draw a conclusion from one suite alone.
 
+## Calibration execution-stall alert
+
+When CalibrationStuck fires, it means the oldest active calibration execution
+has not completed an optimizer step for more than 30 minutes and that state
+persisted through the alert's existing 30-minute firing hold. It is an
+execution-progress signal, not a calibration-quality or convergence verdict.
+
+The producer exports active count and oldest step age by optimizer and
+environment. A fresh concurrent calibration does not reset the oldest run's
+age. The collector removes a run from active state on both successful return
+and failure, so a retained calibration-loss gauge alone cannot keep the alert
+eligible. Metric labels intentionally omit execution IDs. Compare the
+alert window and optimizer/environment labels with existing calibration.run
+trace spans. Each span's calibration.run_id distinguishes an invocation during
+trace inspection, but the aggregate metric does not identify which invocation
+is oldest. If several matching runs could explain the series, leave attribution
+unresolved. Inspect available spans' start index, convergence reason, and total
+steps before escalating to @foundry-owners. This controlled signal does not
+establish production calibration quality or SLO attainment.
+
+## Scientist API workflow p99 latency
+
+When the Scientist API p99 alert fires, use the existing alert and dashboard:
+
+- Alert: SLO_DagLatencyP99High in ops/observability/prometheus/slo_alerts.yml.
+- Panel: DAG Latency Distribution in ops/observability/grafana/dashboards/slo-overview.json.
+- Select the alert environment and affected workflow_id values. Compare the alert's 5-minute recording window and 15-minute firing hold with the 30-minute SLI query and the 28-day objective window.
+
+First confirm eligible histogram samples exist for measurement_scope=scientist_api. No series or zero eligible traffic is missing evidence, not a healthy p99. Record the alert time range, environment, workflow IDs, and dashboard query window before comparing against the 300-second threshold.
+
+For a candidate slow run, follow its existing trace or request/run record. The API histogram has no executor-profile or helper label, so it cannot attribute time to the Common shared executor. Only attribute a Common wait when the actual Common call event is attached to the selected experiment.workflow root, or to a descendant whose full parent chain resolves to that root, and the call-time executor profile is recorded. A matching workflow ID or a simultaneous helper observation alone is not enough. If this joined evidence is unavailable, record the cause as unclassified and escalate to @scientist-owners and @core-owners with the alert window and missing evidence identified.
+
+The controlled regression path is tests/unit/scientist/orchestration/engine/test_scientist_api_slo_scope.py. It exercises a source-controlled FanOut/Common workflow; it does not establish production causation, deployment-profile selection, or SLO attainment.
+
 ## Rollback / Mitigation
 
 - If the regression is severe and confirmed, do not promote the candidate to release;

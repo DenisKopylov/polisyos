@@ -40,7 +40,7 @@ from polisyos.core.canon import CanonSpec
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from polisyos.ir.analytics.hte import HTEOutcome
+    from polisyos.ir.analytics import HTEOutcome
 from polisyos.core.contracts import (
     DataSnapshot,
     FoundryExecutionInputBasisRef,
@@ -6754,8 +6754,7 @@ def _load_hte_outcome_from_owner_ref(
     owner_ref: ArtifactRef | ArtifactRefModel,
 ) -> HTEOutcome:
     """Normalize the Core owner selection into IR's exact HTE outcome ref."""
-    from polisyos.ir.analytics.hte import load_hte_outcome
-    from polisyos.ir.registry.refs import HTEOutcomeRef
+    from polisyos.ir.analytics import HTEOutcomeRef, load_hte_outcome
 
     selected_ref = HTEOutcomeRef.model_validate(
         _core_artifact_ref_from_owner_ref(owner_ref).model_dump(mode="python"),
@@ -6777,7 +6776,7 @@ def _build_hte_assessment_candidate(
     completed_at: datetime,
 ) -> SearchAssessedObservationV2:
     """Load and content-join the selected HTE output without promoting its status."""
-    from polisyos.ir.analytics.hte import (
+    from polisyos.ir.analytics import (
         HTEIntervalOutcome,
         HTEPointOutcome,
         HTERefusalOutcome,
@@ -6815,7 +6814,7 @@ def _build_hte_assessment_candidate(
         selected_row_order_sha256: str,
     ) -> None:
         """Recompute the selected physical HTE input binding from this CAS."""
-        from polisyos.foundry.data_plane.bindings import (
+        from polisyos.foundry.data_plane import (
             load_hte_physical_source_materialization_binding,
         )
 

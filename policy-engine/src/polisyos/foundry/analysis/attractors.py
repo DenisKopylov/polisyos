@@ -53,9 +53,9 @@ from polisyos.core.contracts.foundry import (
 from polisyos.foundry.methods.catalog.simulation.dynamics import (
     build_abm_result_from_simulation,
 )
+from polisyos.ir import CanonSpec as IRCanonSpec
+from polisyos.ir import InputRef as IRInputRef
 from polisyos.ir.analytics.phase4_dynamics import persist_abm_result
-from polisyos.ir.artifacts import InputRef as IRInputRef
-from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.store import FileSystemCAS

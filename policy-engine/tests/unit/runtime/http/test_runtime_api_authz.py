@@ -528,10 +528,26 @@ def _scenario_create_body(*, scenario_id: str, quantity: dict[str, Any]) -> dict
 
 
 def _align_decision_packet_owner(runtime_api_env, *, cell_id: str) -> None:
+    from _helpers.runtime_http import _record_fixture_view_owner
+
+    from polisyos.core.artifacts import artifact_manifest_profile_sha256
+
     store = FileSystemCAS(runtime_api_env["cas_root"])
+    packet_id = runtime_api_env["decision_packet_artifact_id"]
+    tenant_id = runtime_api_env["tenant_a"]
     store.record_artifact_owner(
-        runtime_api_env["decision_packet_artifact_id"],
-        tenant_id=runtime_api_env["tenant_a"],
+        packet_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        writer="tests.ds20.authorized_matrix",
+    )
+    manifest = store.get_manifest(packet_id)
+    profile = artifact_manifest_profile_sha256(manifest)
+    _record_fixture_view_owner(
+        store,
+        packet_id,
+        profile,
+        tenant_id=tenant_id,
         cell_id=cell_id,
         writer="tests.ds20.authorized_matrix",
     )
@@ -1371,7 +1387,7 @@ def test_mutating_operation_authorized_request_reaches_handler(
     expected_status, expected_code = {
         "submit-normative-evidence": (400, "normative_evidence_binding_invalid"),
         "admit-epoch-validity-batch": (422, "verifier_not_configured"),
-        "get-artifact-batch": (409, "authority_surface_admission_blocked"),
+        "get-artifact-batch": (200, None),
         "get-lineage-batch": (409, "authority_surface_admission_blocked"),
         "create-run-human-decision": (409, "DS9-DECISION-ARTIFACT-MISSING"),
         "create-run-predictive-calibration": (
@@ -1391,7 +1407,31 @@ def test_mutating_operation_authorized_request_reaches_handler(
         assert observed_operation_id is not None
         assert observed_calls == [observed_operation_id]
     if case_id == "get-artifact-batch":
-        _assert_authority_surface_admission_refusal(response, expected_surface="artifact")
+        from polisyos.core.artifacts import artifact_manifest_profile_sha256
+        from polisyos.core.contracts.runtime import ArtifactManifestView
+
+        packet_id = runtime_api_env["decision_packet_artifact_id"]
+        manifest = FileSystemCAS(runtime_api_env["cas_root"]).get_manifest(packet_id)
+        assert str(manifest.artifact_id) == packet_id
+        schema = manifest.artifact_schema
+        producer = manifest.producer
+        expected_artifact = ArtifactManifestView(
+            artifact_id=str(manifest.artifact_id),
+            manifest_profile_sha256=artifact_manifest_profile_sha256(manifest),
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            byte_size=manifest.byte_size,
+            created_at=manifest.created_at,
+            schema_name=schema.name if schema is not None else None,
+            schema_version=schema.version if schema is not None else None,
+            producer_component=str(producer.component) if producer is not None else None,
+            producer_version=producer.version if producer is not None else None,
+            inputs=list(manifest.inputs),
+            integrity_sha256=manifest.integrity.sha256,
+        )
+        artifacts = response.json()["artifacts"]
+        assert len(artifacts) == 1
+        assert ArtifactManifestView.model_validate(artifacts[0]) == expected_artifact
     elif case_id == "get-lineage-batch":
         _assert_authority_surface_admission_refusal(response, expected_surface="lineage")
     assert opa.inputs[0].request_method == method
@@ -1962,6 +2002,154 @@ def test_owned_run_batch_is_bound_before_opa(runtime_api_env) -> None:
     assert authz_input.resource_artifact_id.startswith(
         "urn:polisyos:runtime-authorization-resource:v1:sha256:"
     )
+
+
+def test_owned_existing_path_resolver_coverage_is_complete(runtime_api_env) -> None:
+    """Every live owned-path authorization declaration has a registered resolver."""
+    from polisyos.runtime.http.authorization import (
+        ActionPermissionDependency,
+        OptionalActionPermissionDependency,
+        ResourceBindingSource,
+        route_action_permission_dependencies,
+        route_optional_action_permission_dependencies,
+    )
+    from polisyos.runtime.http.resource_binding import _OWNED_PATH_RESOLVERS
+
+    app = cast("FastAPI", runtime_api_env["app"])
+    declarations: dict[tuple[str, str], set[str]] = {}
+    for route in app.routes:
+        if not isinstance(route, APIRoute):
+            continue
+        for dependency in (
+            *route_action_permission_dependencies(route),
+            *route_optional_action_permission_dependencies(route),
+        ):
+            assert type(dependency) in {
+                ActionPermissionDependency,
+                OptionalActionPermissionDependency,
+            }
+            binding = dependency.requirement.resource_binding
+            if binding.source is not ResourceBindingSource.OWNED_EXISTING_PATH:
+                continue
+            assert binding.path_parameter is not None, route.path
+            key = (binding.resource_kind, binding.path_parameter)
+            methods = ",".join(sorted(route.methods or ())) or "<unknown>"
+            declarations.setdefault(key, set()).add(f"{methods} {route.path}")
+
+    method_metrics_key = ("runtime.run.method_metrics", "run_id")
+    assert method_metrics_key in declarations
+    unresolved = sorted(
+        f"{route_label} declares {resource_kind!r}/{path_parameter!r} without a resolver"
+        for (resource_kind, path_parameter), route_labels in declarations.items()
+        if (resource_kind, path_parameter) not in _OWNED_PATH_RESOLVERS
+        for route_label in route_labels
+    )
+    assert not unresolved, "\n".join(unresolved)
+
+
+def test_method_metrics_owned_path_binding_is_tenant_resolved_and_load_bearing(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Bind the real method-metrics requirement before policy and fail closed without it."""
+    from polisyos.runtime.http import resource_binding
+
+    opa = _CaptureOPA()
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=opa,
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    tenant_a_bearer = _fixture_bearer("method-metrics-owned-path-a")
+    tenant_b_bearer = _fixture_bearer("method-metrics-owned-path-b")
+    provider.put_claim(
+        tenant_a_bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti="jwt-method-metrics-owned-path-a",
+            roles=frozenset({PolicyOSRole.ANALYST}),
+        ),
+    )
+    provider.put_claim(
+        tenant_b_bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_b"],
+            cell_id=cell.cell_id,
+            jti="jwt-method-metrics-owned-path-b",
+            roles=frozenset({PolicyOSRole.ANALYST}),
+        ),
+    )
+    app = cast("FastAPI", client.app)
+    route = next(
+        item
+        for item in app.routes
+        if isinstance(item, APIRoute)
+        and item.path == "/api/v1/runs/{run_id}/method-metrics"
+        and "GET" in (item.methods or set())
+    )
+    dependencies = _action_permission_dependencies(route)
+    assert len(dependencies) == 1
+    dependency = dependencies[0]
+    handler_calls: list[str] = []
+
+    # Reuse the public GET's actual authorization dependency to isolate its
+    # pre-policy binding from the endpoint's separate verified cell-scope check.
+    @app.get(
+        "/api/v1/ds20/method-metrics-owned-path-probe/{run_id}",
+        dependencies=[Depends(dependency)],
+    )
+    def _method_metrics_owned_path_probe(run_id: str) -> dict[str, str]:
+        handler_calls.append(run_id)
+        return {"run_id": run_id}
+
+    run_id = str(runtime_api_env["core_run_id"])
+    tenant_a_headers = {
+        "Authorization": f"Bearer {tenant_a_bearer}",
+        "X-Tenant-ID": str(runtime_api_env["tenant_a"]),
+    }
+    tenant_b_headers = {
+        "Authorization": f"Bearer {tenant_b_bearer}",
+        "X-Tenant-ID": str(runtime_api_env["tenant_b"]),
+    }
+    path = f"/api/v1/ds20/method-metrics-owned-path-probe/{run_id}"
+
+    owned = client.get(path, headers=tenant_a_headers)
+    assert owned.status_code == 200, owned.text
+    assert owned.json() == {"run_id": run_id}
+    assert len(opa.inputs) == 1
+    bound = opa.inputs[0]
+    assert bound.action_permission is RuntimePermission.RUNS_REVIEW
+    assert bound.action_resource_class == "runtime.run.method_metrics"
+    assert bound.resource_tenant_id == runtime_api_env["tenant_a"]
+    assert bound.resource_kind == "runtime.run.method_metrics.ownership_verified"
+    assert bound.resource_artifact_id.startswith(
+        "urn:polisyos:runtime-authorization-resource:v1:sha256:"
+    )
+
+    cross_tenant = client.get(path, headers=tenant_b_headers)
+    assert cross_tenant.status_code == 403
+    assert cross_tenant.json()["code"] == "authorization_binding_run_tenant_mismatch"
+    assert len(opa.inputs) == 1
+
+    unknown = client.get(
+        "/api/v1/ds20/method-metrics-owned-path-probe/R_unknown_method_metrics",
+        headers=tenant_a_headers,
+    )
+    assert unknown.status_code == 403
+    assert unknown.json()["code"] == "authorization_binding_run_unresolved"
+    assert len(opa.inputs) == 1
+
+    monkeypatch.delitem(
+        resource_binding._OWNED_PATH_RESOLVERS,
+        ("runtime.run.method_metrics", "run_id"),
+    )
+    resolver_removed = client.get(path, headers=tenant_a_headers)
+    assert resolver_removed.status_code == 403
+    assert resolver_removed.json()["code"] == "authorization_binding_path_unsupported"
+    assert len(opa.inputs) == 1
+    assert handler_calls == [run_id]
 
 
 def test_owned_batch_binding_is_order_independent_and_checks_every_id(

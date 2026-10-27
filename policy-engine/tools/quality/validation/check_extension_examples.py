@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install extension examples in editable mode and verify entry-point discovery."""
+"""Install extension examples in their declared mode and verify discovery."""
 
 from __future__ import annotations
 
@@ -9,14 +9,12 @@ import shutil
 import subprocess
 import sys
 import tomllib
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path, PurePosixPath
-from typing import TYPE_CHECKING
 
 from tools.lib.imports import repo_root_from
-
-if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping, Sequence
+from tools.quality.validation import extension_example_build_tools
 
 REPO_ROOT = repo_root_from(__file__)
 
@@ -149,11 +147,84 @@ def selected_examples(slugs: Sequence[str] = ()) -> tuple[ExampleSpec, ...]:
     return tuple(example for example in EXAMPLES if example.slug in selected)
 
 
-def validate_pyproject(repo_root: Path, examples: Iterable[ExampleSpec]) -> list[str]:
-    """Return structural example-package errors."""
+EXAMPLE_INSTALL_MODES = frozenset({"editable", "wheel"})
+
+
+def _resolve_example_install_modes(
+    repo_root: Path,
+    examples: Sequence[ExampleSpec],
+) -> tuple[dict[str, str], list[str]]:
+    """Resolve each example's install mode from the extension-point owner."""
+    if not examples:
+        return {}, []
+    architecture_path = repo_root / "architecture" / "extension_points.toml"
+    if not architecture_path.is_file():
+        return {}, ["architecture/extension_points.toml: missing example install policy"]
+    architecture = tomllib.loads(architecture_path.read_text(encoding="utf-8"))
+    defaults = architecture.get("defaults")
+    default_mode = defaults.get("example_install_mode") if isinstance(defaults, dict) else None
+    rows = architecture.get("extension_point", [])
+    errors: list[str] = []
+    modes: dict[str, str] = {}
+    if type(default_mode) is not str or default_mode not in EXAMPLE_INSTALL_MODES:
+        errors.append("defaults.example_install_mode: missing or unsupported install mode")
+    if not isinstance(rows, list):
+        return {}, errors + ["extension_point: expected a list of owner rows"]
+
+    for example in examples:
+        matches = [
+            row
+            for row in rows
+            if isinstance(row, dict)
+            and (_string_field(row, "entry_point_group") or _string_field(row, "name"))
+            == example.group
+        ]
+        if len(matches) != 1:
+            errors.append(f"{example.group}: expected exactly one install-policy owner row")
+            continue
+        row = matches[0]
+        if _string_field(row, "example_package") != example.path:
+            errors.append(
+                f"{example.group}: example_package differs from checker path {example.path}"
+            )
+            continue
+        mode = row.get("example_install_mode", default_mode)
+        if type(mode) is not str or mode not in EXAMPLE_INSTALL_MODES:
+            errors.append(f"{example.group}: missing or unsupported example_install_mode")
+            continue
+        command = _string_field(row, "example_smoke_command")
+        if mode == "wheel":
+            expected = (
+                "uv run polisyos-tools validation check-extension-examples "
+                f"--example {example.slug}"
+            )
+            if command != expected:
+                errors.append(
+                    f"{example.group}: wheel smoke command must invoke the source-owned checker"
+                )
+                continue
+        elif command is None or f"pip install -e {example.path}" not in command:
+            errors.append(
+                f"{example.group}: editable smoke command must describe its editable install"
+            )
+            continue
+        modes[example.group] = mode
+    return modes, errors
+
+
+def validate_pyproject(
+    repo_root: Path,
+    examples: Iterable[ExampleSpec],
+    *,
+    coverage_examples: Sequence[ExampleSpec] | None = None,
+) -> list[str]:
+    """Return structural example-package errors for selected examples and coverage."""
     errors: list[str] = []
     selected = tuple(examples)
-    errors.extend(_validate_entry_point_coverage(repo_root, selected))
+    coverage = selected if coverage_examples is None else tuple(coverage_examples)
+    errors.extend(_validate_entry_point_coverage(repo_root, coverage))
+    _, install_mode_errors = _resolve_example_install_modes(repo_root, selected)
+    errors.extend(install_mode_errors)
     for example in selected:
         root = repo_root / example.path
         pyproject = root / "pyproject.toml"
@@ -182,7 +253,7 @@ def validate_pyproject(repo_root: Path, examples: Iterable[ExampleSpec]) -> list
 
 
 def _validate_entry_point_coverage(repo_root: Path, examples: Sequence[ExampleSpec]) -> list[str]:
-    """Return errors for public extension-point groups missing example coverage."""
+    """Require an exact owner-row and package mapping for every checked example."""
     architecture_path = repo_root / "architecture" / "extension_points.toml"
     pyproject_path = repo_root / "pyproject.toml"
     if not architecture_path.is_file() or not pyproject_path.is_file():
@@ -194,15 +265,21 @@ def _validate_entry_point_coverage(repo_root: Path, examples: Sequence[ExampleSp
     if not isinstance(project_entry_points, dict):
         project_entry_points = {}
 
-    example_paths = {example.path for example in examples}
-    example_groups = {example.group for example in examples}
+    expected_paths = {example.group: example.path for example in examples}
+    rows = architecture.get("extension_point", [])
+    if not isinstance(rows, list):
+        return ["extension_point: expected a list of owner rows"]
+    owner_rows: list[Mapping[str, object]] = []
+    rows_by_group: dict[str, list[Mapping[str, object]]] = {}
     contract_groups: set[str] = set()
-    for row in architecture.get("extension_point", []):
+    for row in rows:
         if not isinstance(row, dict):
             continue
+        owner_rows.append(row)
         group = _string_field(row, "entry_point_group") or _string_field(row, "name")
         if group is not None:
             contract_groups.add(group)
+            rows_by_group.setdefault(group, []).append(row)
         legacy_groups = row.get("legacy_entry_point_groups", [])
         if isinstance(legacy_groups, list):
             contract_groups.update(str(item).strip() for item in legacy_groups if str(item).strip())
@@ -215,9 +292,17 @@ def _validate_entry_point_coverage(repo_root: Path, examples: Sequence[ExampleSp
                 "architecture/extension_points.toml"
             )
 
-    for row in architecture.get("extension_point", []):
-        if not isinstance(row, dict):
-            continue
+    for example in examples:
+        matches = rows_by_group.get(example.group, [])
+        if len(matches) != 1:
+            errors.append(
+                f"{example.group}: expected exactly one owner row for checker package "
+                f"{example.path}"
+            )
+        elif matches[0].get("internal_only") is True:
+            errors.append(f"{example.group}: checker package must have a public owner row")
+
+    for row in owner_rows:
         group = _string_field(row, "entry_point_group") or _string_field(row, "name")
         if group is None:
             continue
@@ -243,10 +328,11 @@ def _validate_entry_point_coverage(repo_root: Path, examples: Sequence[ExampleSp
             )
             continue
 
-        if example_package not in example_paths or group not in example_groups:
+        expected_package = expected_paths.get(group)
+        if expected_package is None or example_package != expected_package:
             errors.append(
-                f"{group}: example_package {example_package} is not covered by "
-                "tools/quality/validation/check_extension_examples.py"
+                f"{group}: example_package {example_package} does not match checker path "
+                f"{expected_package}"
             )
 
     return errors
@@ -276,12 +362,35 @@ def _is_extension_example_path(value: str) -> bool:
     )
 
 
-def install_examples(repo_root: Path, examples: Iterable[ExampleSpec]) -> None:
-    """Install all examples in editable mode into the active Python environment."""
-    for example in examples:
+def install_examples(
+    repo_root: Path, examples: Iterable[ExampleSpec]
+) -> dict[str, dict[str, object]]:
+    """Install each example using the mode selected by its extension-point owner."""
+    selected = tuple(examples)
+    modes, errors = _resolve_example_install_modes(repo_root, selected)
+    wheel_identities: dict[str, dict[str, object]] = {}
+    if errors:
+        raise RuntimeError("; ".join(errors))
+    for example in selected:
         example_path = repo_root / example.path
-        print(f"[extension-examples] install -e {example.path}")
-        _install_editable(example_path)
+        mode = modes[example.group]
+        if mode == "editable":
+            print(f"[extension-examples] install -e {example.path}")
+            _install_editable(example_path)
+        elif mode == "wheel":
+            print(f"[extension-examples] build and install exact local wheel: {example.path}")
+            receipt = extension_example_build_tools.build_and_install_example(
+                repo_root, example.path
+            )
+            identity = receipt.get("wheel_identity")
+            if type(identity) is not dict:
+                raise RuntimeError(
+                    f"{example.group}: wheel builder returned no exact artifact identity"
+                )
+            wheel_identities[example.group] = identity
+        else:
+            raise RuntimeError(f"{example.group}: unsupported install mode {mode!r}")
+    return wheel_identities
 
 
 def _install_editable(path: Path) -> None:
@@ -313,32 +422,48 @@ def _command_ok(argv: Sequence[str]) -> bool:
     return subprocess.run(argv, check=False, capture_output=True, text=True).returncode == 0  # noqa: S603
 
 
-def verify_discovery(examples: Iterable[ExampleSpec]) -> None:
-    """Run discovery in a fresh interpreter so installed entry points are visible."""
+def verify_discovery(
+    examples: Iterable[ExampleSpec],
+    wheel_identities: Mapping[str, Mapping[str, object]] | None = None,
+    *,
+    repo_root: Path = REPO_ROOT,
+) -> None:
+    """Run discovery fresh and bind wheel-mode results to installed bytes."""
     selected = tuple(examples)
-    component_examples = tuple(example for example in selected if example.component_id is not None)
-    governance_pass_examples = tuple(
-        example for example in selected if example.probe == "scientist_governance_pass"
-    )
-    if component_examples:
-        payload = json.dumps([asdict(example) for example in component_examples], sort_keys=True)
-        subprocess.run(  # noqa: S603
-            [sys.executable, "-c", _COMPONENT_DISCOVERY_SNIPPET, payload],
-            check=True,
+    identities = dict(wheel_identities or {})
+    modes, errors = _resolve_example_install_modes(repo_root, selected)
+    if errors:
+        raise RuntimeError("; ".join(errors))
+    wheel_groups = {e.group for e in selected if modes.get(e.group) == "wheel"}
+    missing = sorted(wheel_groups - set(identities))
+    if missing:
+        raise RuntimeError(
+            "wheel-mode discovery requires exact wheel identities from this install run: "
+            + ", ".join(missing)
         )
-    if governance_pass_examples:
+    component_groups = {e.group for e in selected if e.component_id is not None}
+    if wheel_groups - component_groups:
+        raise RuntimeError("wheel-mode discovery requires a component provider-origin consumer")
+    component_examples = tuple(e for e in selected if e.component_id is not None)
+    pass_examples = tuple(e for e in selected if e.probe == "scientist_governance_pass")
+    if component_examples:
         payload = json.dumps(
-            [asdict(example) for example in governance_pass_examples],
+            {
+                "specs": [asdict(e) for e in component_examples],
+                "wheel_identities": identities,
+            },
             sort_keys=True,
         )
-        subprocess.run(  # noqa: S603
-            [sys.executable, "-c", _GOVERNANCE_PASS_DISCOVERY_SNIPPET, payload],
-            check=True,
-        )
+        subprocess.run([sys.executable, "-c", _COMPONENT_DISCOVERY_SNIPPET, payload], check=True)  # noqa: S603
+    if pass_examples:
+        payload = json.dumps([asdict(e) for e in pass_examples], sort_keys=True)
+        subprocess.run(
+            [sys.executable, "-c", _GOVERNANCE_PASS_DISCOVERY_SNIPPET, payload], check=True
+        )  # noqa: S603
 
 
 def run_example_tests(repo_root: Path, examples: Iterable[ExampleSpec]) -> None:
-    """Run each example's local smoke test after editable install."""
+    """Run each example's local smoke test after its declared install mode."""
     test_paths = [str(repo_root / example.path / "tests") for example in examples]
     if not test_paths:
         return
@@ -355,6 +480,7 @@ from typing import Any
 
 from polisyos.core.components import discover_components
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from tools.quality.validation import extension_example_build_tools
 
 
 def _assert_probe(spec: dict[str, str], created: object) -> None:
@@ -396,7 +522,9 @@ def _assert_probe(spec: dict[str, str], created: object) -> None:
     raise AssertionError(f"unknown probe: {probe}")
 
 
-specs = json.loads(sys.argv[1])
+payload = json.loads(sys.argv[1])
+specs = payload["specs"]
+wheel_identities = payload["wheel_identities"]
 by_group: dict[str, list[dict[str, str]]] = {}
 for spec in specs:
     by_group.setdefault(spec["group"], []).append(spec)
@@ -414,6 +542,14 @@ for group, group_specs in sorted(by_group.items()):
         assert item.source.source_type == "entry_point"
         assert item.source.group == group
         assert item.source.entry_point == spec["entry_point"]
+        wheel_identity = wheel_identities.get(group)
+        if wheel_identity is not None:
+            binding = item.source.provider_origin_binding
+            assert binding is not None, f"{spec['component_id']} lacks provider-origin binding"
+            extension_example_build_tools._verify_installed_wheel_identity(
+                wheel_identity, binding.as_dict(), group=group,
+                entry_point_name=spec["entry_point"],
+            )
         _assert_probe(spec, item.component.create())
 
 print(f"discovered {len(specs)} extension examples")
@@ -458,17 +594,18 @@ def main(argv: Sequence[str] | None = None) -> int:
     repo_root = args.repo_root.resolve()
     examples = selected_examples(args.example)
 
-    errors = validate_pyproject(repo_root, examples)
+    errors = validate_pyproject(repo_root, examples, coverage_examples=EXAMPLES)
     if errors:
         print("Extension example package validation failed:")
         for error in errors:
             print(f"- {error}")
         return 1
 
+    wheel_identities: dict[str, dict[str, object]] = {}
     if not args.skip_install:
-        install_examples(repo_root, examples)
+        wheel_identities = install_examples(repo_root, examples)
     if not args.skip_discovery:
-        verify_discovery(examples)
+        verify_discovery(examples, wheel_identities, repo_root=repo_root)
     if not args.skip_pytest:
         run_example_tests(repo_root, examples)
 

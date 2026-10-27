@@ -1,0 +1,21 @@
+id = "2026-10-26-e02-model-relative-intervention-method-slot-transfer"
+title = "Transfer selected intervention state into a method input"
+type = "fixed"
+component = "foundry"
+owner = "team-policyos-runtime"
+summary = "Foundry derives mechanism-to-method execution dependencies from exact slot IDs and the selected registry's state-path bindings; transfer admission requires selected LoweredIR and registry profiles."
+evidence = [
+  "src/polisyos/foundry/compile/_graph.py",
+  "tests/unit/foundry/compile/test_unified_dag_method_nodes.py",
+  "tests/integration/foundry/test_intervention_method_slot_transfer.py",
+]
+compatibility = "No public schema or method ABI changes. Profileless method-only graphs remain compatible; when mechanism outputs and method readers can form a transfer, compilation now requires profile-bound LoweredIR and registry lineage. Method return values remain outside the program-state patch plane."
+change_class = "internal"
+surface_classification = "internal: selected Foundry compiler graph bridge; no new API or authority surface."
+migration = "No persisted artifact migration is required. Transfer-capable compilation reads the registry profile from the exact selected LoweredIR lineage; a missing selected LoweredIR or registry profile produces a typed compile refusal before a default view is read."
+api = "When mechanism outputs and method input readers can form a transfer, the compiler requires a selected LoweredIR profile and a profile-bound registry_bundle lineage edge before resolving exact slot-ID or state-path matches. A profileless transfer is refused with a typed compile note. Runtime method-input capture and the existing Ex-Ante scenario-delta law consume the resulting post-intervention state."
+limitations = "The integration evidence uses synthetic model inputs and the registered income_tax mechanism. It establishes model-relative state transfer and candidate-only metric recomputation; it does not establish empirical policy effects, causal identification, admissibility, or publication authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

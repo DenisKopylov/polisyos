@@ -1,0 +1,51 @@
+id = "2026-10-26-e02-fabric-provider-origin-admission-v3"
+title = "Bind Fabric component discovery to provider origin"
+type = "changed"
+component = "fabric"
+owner = "team-polisyos"
+summary = "Fabric discovery emits source-bound manifest v3 evidence and refuses provider dispatch when origin or factory-result accounting is not established."
+evidence = [
+  "src/polisyos/core/components/discovery.py",
+  "src/polisyos/core/components/_provider_origin.py",
+  "src/polisyos/core/components/__init__.py",
+  "src/polisyos/fabric/connectors/_components_bootstrap.py",
+  "architecture/extension_points.toml",
+  "tools/quality/validation/extension_example_build_tools.py",
+  "tests/integration/fabric_ir/test_fabric_installed_provider_origin.py",
+  "tests/repo_quality/architecture/test_components_discovery.py",
+  "tests/repo_quality/tools/test_check_extension_examples.py",
+]
+compatibility = "Selecting Fabric entry-point discovery produces manifest v3 with host-computed provider-origin bindings. Fabric dispatch requires complete selected-group enumeration, reconciled entry-point identity and RECORD-backed loaded module bytes, and accounted factory outcomes; unknown or refused origin remains a typed refusal. A completed empty Fabric group is explicitly accounted. A provider-owned factory may delegate to a dependency implementation through the exact Core ConnectorComponent wrapper. Other entry-point families retain valid-sibling filtering, and v1/v2 payloads remain for source selections without Fabric entry-point sources."
+surface_classification = "public_stable: polisyos.core.components.ComponentDiscoveryManifest and discover_components; public_stable: polisyos.fabric_connectors extension point"
+migration = "Consumers of discovery manifests should dispatch on schema_version and accept v3 when Fabric entry-point discovery is selected. Package third-party providers as installed distributions with valid Name and Version metadata, the entry-point declaration covered by RECORD, and provider module and factory bytes matching their RECORD rows. For provider A delegating to a dependency B connector implementation, return the exact Core ConnectorComponent wrapper. The Fabric example uses the locked regular-wheel path; the builder cache is product-root ignored state, and fresh discovery checks installed RECORD, entry-point, module-origin and module-byte identity against the exact wheel from that run; third-party editable source remains not established and will not be dispatched."
+api = "Manifest v3 adds provider_origin_bindings with observed entry-point, distribution, RECORD, loaded provider-module and factory binding rows plus per-result status. ProviderOriginBinding and ProviderModuleBinding are exported directly from polisyos.core.components with their existing class identities. The source-byte-closure predicate remains not_established, and a verified provider binding does not imply ComponentDiscoveryManifest.is_bound, publisher identity, permission, or transitive source closure. The Fabric host bridge accepts a provider-owned factory or delegation through the exact Core ConnectorComponent type."
+limitations = "Local RECORD reconciliation checks installed bytes against the distribution's own metadata; it does not establish publisher authenticity, publisher permission, or transitive source closure. Manifest v3 and the stricter Fabric predicate are candidate behavior. Installed-wheel/sdist consumer replay and the composed native release wave remain pending; this fragment is not a G acceptance or closure."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/core/components/README.md", "examples/extensions/README.md", "examples/extensions/fabric_connector/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "component-discovery-manifest-v3"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.core.components.ComponentDiscoveryManifest, ProviderOriginBinding, ProviderModuleBinding, and discover_components"
+owner = "team-polisyos"
+version_owner = "team-architecture"
+deprecation_window = "The v3 payload is selected only for Fabric entry-point discovery; consumers must recognize schema_version v3 before reading provider_origin_bindings."
+release_note = "Fabric entry-point discovery now returns versioned manifest v3 with provider-origin bindings; v1/v2 payloads remain for source selections without Fabric entry-point sources. The existing binding DTO classes are additive stable-facade exports with unchanged runtime identities."
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/core/components/README.md", "examples/extensions/README.md", "examples/extensions/fabric_connector/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "fabric-provider-origin-admission"
+change_class = "extension-plugin-abi"
+impact = "compatible"
+surface = "public_stable: polisyos.fabric_connectors entry-point group and FabricConnectorPlugin admission"
+owner = "team-fabric"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable: the FabricConnectorPlugin contract version and callable signatures remain unchanged."
+release_note = "Fabric refuses provider dispatch when the selected installed origin or factory-result accounting is not established; origin-bound providers and exact Core ConnectorComponent delegation remain supported. The repository example now exercises regular-wheel installation."
+migration_docs = ["src/polisyos/core/components/README.md", "examples/extensions/README.md", "examples/extensions/fabric_connector/README.md"]
+runbook_docs = []

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -7,6 +8,7 @@ import pytest
 
 from polisyos.core.artifacts import (
     ArtifactOwnershipError,
+    ArtifactStore,
     ArtifactTenantContextInfo,
     CanonInfo,
     FileSystemCAS,
@@ -14,9 +16,13 @@ from polisyos.core.artifacts import (
     PutOptions,
     SchemaInfo,
     ensure_ir_artifact_store,
+    with_ambient_ownership_enforcement_if_supported,
 )
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.trinity import TrinityBundleRef
+from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.run.context import RunContext
+from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.ir.artifacts.io import get_json_artifact
 from polisyos.ir.model_layer.canon import CanonViolation
@@ -31,6 +37,7 @@ from polisyos.ir.trinity.loaders import (
 from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
     _persist_trinity_bundle,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 ZERO_REF = "sha256:" + "0" * 64
@@ -73,6 +80,32 @@ def _bundle(*, schema_version: str = "1.0") -> TrinityBundle:
                 "notes": [],
             },
         }
+    )
+
+
+def _execution_context(
+    store: ArtifactStore,
+    *,
+    run_dir: Path,
+    run_id: str,
+    tenant_id: str | None = None,
+    cell_id: str | None = None,
+    access_scope: AccessScope | None = None,
+) -> ExecutionContext:
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_dir=run_dir,
+        run_id=run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        access_scope=access_scope,
+    )
+    return ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger(f"test.{run_id}"),
     )
 
 
@@ -275,61 +308,68 @@ def test_shared_trinity_writer_refuses_profile_dropped_at_selected_write_boundar
         )
 
 
-def test_hierarchical_trinity_producer_binds_its_cas_profile_for_a_fresh_reader(
+def test_hierarchical_trinity_producer_preserves_profile_lineage_and_uses_run_owner_context(
     tmp_path: Path,
 ) -> None:
     cas_root = tmp_path / "cas"
-    store = FileSystemCAS(cas_root)
-    lineage_anchor = store.put_json(
-        {"source": "lineage-anchor"},
-        PutOptions(
-            kind="ir.test_source_anchor",
-            media_type="application/json",
-            schema=SchemaInfo(name="ir.test_source_anchor", version="1.0"),
-        ),
-        return_selected_profile=True,
-    )
-    source_payload = {"source": "experiment-input"}
-    first_source_view = store.put_json(
-        source_payload,
-        PutOptions(
-            kind="ir.test_source",
-            media_type="application/json",
-            schema=SchemaInfo(name="ir.test_source", version="1.0"),
-            inputs=[InputRef(artifact_id=lineage_anchor.artifact_id, role="source-lineage-a")],
-        ),
-        return_selected_profile=True,
-    )
-    source_ref = store.put_json(
-        source_payload,
-        PutOptions(
-            kind="ir.test_source",
-            media_type="application/json",
-            schema=SchemaInfo(name="ir.test_source", version="1.0"),
-            inputs=[InputRef(artifact_id=lineage_anchor.artifact_id, role="source-lineage-b")],
-        ),
-        return_selected_profile=True,
-    )
-    assert source_ref.artifact_id == first_source_view.artifact_id
-    assert source_ref.manifest_profile_sha256 != first_source_view.manifest_profile_sha256
-    state = ExperimentState(
-        run_id="trinity-owner-run",
-        inputs={
-            "source_case_a": first_source_view,
-            "source_case_b": source_ref,
-        },
-    )
+    store = with_ambient_ownership_enforcement_if_supported(FileSystemCAS(cas_root))
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        lineage_anchor = store.put_json(
+            {"source": "lineage-anchor"},
+            PutOptions(
+                kind="ir.test_source_anchor",
+                media_type="application/json",
+                schema=SchemaInfo(name="ir.test_source_anchor", version="1.0"),
+            ),
+            return_selected_profile=True,
+        )
+        source_payload = {"source": "experiment-input"}
+        first_source_view = store.put_json(
+            source_payload,
+            PutOptions(
+                kind="ir.test_source",
+                media_type="application/json",
+                schema=SchemaInfo(name="ir.test_source", version="1.0"),
+                inputs=[InputRef(artifact_id=lineage_anchor.artifact_id, role="source-lineage-a")],
+            ),
+            return_selected_profile=True,
+        )
+        source_ref = store.put_json(
+            source_payload,
+            PutOptions(
+                kind="ir.test_source",
+                media_type="application/json",
+                schema=SchemaInfo(name="ir.test_source", version="1.0"),
+                inputs=[InputRef(artifact_id=lineage_anchor.artifact_id, role="source-lineage-b")],
+            ),
+            return_selected_profile=True,
+        )
+        assert source_ref.artifact_id == first_source_view.artifact_id
+        assert source_ref.manifest_profile_sha256 != first_source_view.manifest_profile_sha256
+        state = ExperimentState(
+            run_id="trinity-owner-run",
+            inputs={
+                "source_case_a": first_source_view,
+                "source_case_b": source_ref,
+            },
+        )
 
-    ref = _persist_trinity_bundle(
-        SimpleNamespace(store=store),
-        _bundle(),
-        state=state,
-    )
-
-    assert isinstance(ref, TrinityBundleRef)
-    assert ref.manifest_profile_sha256 is not None
-    manifest = store.get_manifest(ref)
+        execution = _execution_context(
+            store,
+            run_dir=tmp_path / "run",
+            run_id="trinity-owner-run",
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+        )
+        ref = _persist_trinity_bundle(execution, _bundle(), state=state)
+        assert isinstance(ref, TrinityBundleRef)
+        assert ref.manifest_profile_sha256 is not None
+        manifest = store.get_manifest(ref)
     assert manifest.canon.forbid_floats is False
+    assert manifest.tenant_context == ArtifactTenantContextInfo(
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+    )
     assert [
         (str(item.artifact_id), item.role, item.manifest_profile_sha256) for item in manifest.inputs
     ] == [
@@ -345,8 +385,132 @@ def test_hierarchical_trinity_producer_binds_its_cas_profile_for_a_fresh_reader(
         ),
     ]
 
-    fresh_reader = ensure_ir_artifact_store(FileSystemCAS(cas_root))
-    assert load_trinity_bundle_artifact(fresh_reader, ref) == _bundle()
+    fresh_owner_store = FileSystemCAS(cas_root).for_tenant("tenant-a", "cell-a")
+    fresh_reader = ensure_ir_artifact_store(fresh_owner_store)
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        assert load_trinity_bundle_artifact(fresh_reader, ref) == _bundle()
+
+
+def test_hierarchical_trinity_producer_carries_scope_through_subworkflow_child_state(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    import polisyos.scientist.orchestration.engine.executor as executor_module
+    from polisyos.scientist.orchestration.engine.registry import NodeRegistry
+    from polisyos.scientist.orchestration.engine.sub_workflow import (
+        SubWorkflowConfig,
+        SubWorkflowNode,
+    )
+    from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
+
+    cas_root = tmp_path / "tenant-owned-cas"
+    owner_store = FileSystemCAS(cas_root).for_tenant("tenant-a", "cell-a")
+    scope = AccessScope.for_service(
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        spiffe_id="spiffe://tests/trinity-owner",
+    )
+    parent_run_id = "trinity-tenant-owner-run"
+    captured: dict[str, object] = {}
+
+    class _CapturingChildExecutor:
+        def __init__(self, ctx: ExecutionContext, _registry: object) -> None:
+            self._ctx = ctx
+
+        def execute(self, _workflow: WorkflowSpec, state: ExperimentState) -> SimpleNamespace:
+            captured["child_run_id"] = state.run_id
+            captured["child_run_context"] = self._ctx.run
+            captured["ref"] = _persist_trinity_bundle(self._ctx, _bundle(), state=state)
+            return SimpleNamespace(
+                report=SimpleNamespace(nodes=[], status="ok"),
+                state=state,
+            )
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        execution = _execution_context(
+            owner_store,
+            run_dir=tmp_path / "tenant-run",
+            run_id=parent_run_id,
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+            access_scope=scope,
+        )
+        monkeypatch.setattr(executor_module, "WorkflowExecutor", _CapturingChildExecutor)
+        subworkflow = SubWorkflowNode(
+            SubWorkflowConfig(workflow=WorkflowSpec(workflow_id="child_scope", nodes=[])),
+            NodeRegistry(),
+            alias="tenant_child",
+        )
+        outcome = subworkflow.execute(execution, ExperimentState(run_id=parent_run_id))
+
+        assert outcome.status == "ok"
+        assert captured["child_run_id"] == f"{parent_run_id}__sub_tenant_child"
+        assert captured["child_run_context"] is execution.run
+        ref = captured["ref"]
+        assert isinstance(ref, TrinityBundleRef)
+        manifest = owner_store.get_manifest(ref)
+        assert manifest.tenant_context == ArtifactTenantContextInfo(
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+        )
+        assert manifest.canon == CanonInfo.from_spec(TRINITY_OWNER_SPEC)
+
+        fresh_owner_store = FileSystemCAS(cas_root).for_tenant("tenant-a", "cell-a")
+        with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+            assert (
+                load_trinity_bundle_artifact(
+                    ensure_ir_artifact_store(fresh_owner_store),
+                    ref,
+                )
+                == _bundle()
+            )
+
+
+@pytest.mark.parametrize(
+    ("scope_case", "error_code"),
+    [
+        ("wrong_type", "timeout_worker_owner_snapshot_invalid"),
+        ("empty_tenant", "timeout_worker_owner_inputs_mismatch"),
+        ("foreign_scope", "timeout_worker_owner_inputs_mismatch"),
+    ],
+)
+def test_hierarchical_trinity_producer_refuses_scope_detached_from_run_owner_before_publication(
+    scope_case: str,
+    error_code: str,
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    execution = _execution_context(
+        store,
+        run_dir=tmp_path / "run",
+        run_id="trinity-owner-run",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+    )
+    if scope_case == "wrong_type":
+        execution.run.access_scope = {"tenant_id": "tenant-a", "cell_id": "cell-a"}  # type: ignore[assignment]
+    elif scope_case == "empty_tenant":
+        execution.run.access_scope = AccessScope.for_service(
+            tenant_id="",
+            cell_id="cell-a",
+            spiffe_id="spiffe://tests/trinity-owner",
+        )
+    elif scope_case == "foreign_scope":
+        execution.run.access_scope = AccessScope.for_service(
+            tenant_id="tenant-b",
+            cell_id="cell-b",
+            spiffe_id="spiffe://tests/trinity-owner",
+        )
+    state = ExperimentState(run_id="trinity-owner-run")
+
+    with pytest.raises(ValueError, match=error_code):
+        _persist_trinity_bundle(execution, _bundle(), state=state)
+
+    assert not [
+        ref
+        for ref in store.iter_artifact_ids()
+        if store.get_manifest(ref).kind == TrinityBundle.ARTIFACT_KIND
+    ]
 
 
 def test_trinity_owner_refuses_same_kind_wrong_manifest_and_payload_versions(

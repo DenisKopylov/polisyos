@@ -24,9 +24,8 @@ from pydantic import (
     model_validator,
 )
 
-from polisyos.ir.governance.policy_composition import PolicyLayerLevel
-from polisyos.ir.governance.problem_frame import NormativeOutcomeChannel
-from polisyos.ir.observation.contracts import IdentificationMode
+from polisyos.ir.governance import NormativeOutcomeChannel, PolicyLayerLevel
+from polisyos.ir.observation import IdentificationMode
 
 from ..artifacts.manifest import (
     ArtifactGovernanceInfo,

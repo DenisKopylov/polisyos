@@ -1,0 +1,25 @@
+id = "2026-10-26-n2-method-graph-capture-only"
+title = "Capture selected method dispatch without scalar selection"
+type = "fixed"
+component = "foundry"
+owner = "team-policyos-runtime"
+summary = "A selected execution plan with compiled method nodes can now produce the existing profile-bound method-execution capture when no scalar metric binding is selected. The empty typed binding set establishes no scalar law or metric projection; the existing consumer remains verification_missing."
+evidence = [
+  "src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py",
+  "src/polisyos/foundry/compile/trinity_compiler.py",
+  "src/polisyos/runtime/http/resource_binding.py",
+  "tests/unit/runtime/http/test_runtime_api_authz.py",
+  "src/polisyos/foundry/execute/_internal/graph/README.md",
+  "tests/integration/foundry/test_compiled_method_metric_projection.py",
+  "tests/unit/runtime/http/test_observational_method_runtime.py",
+]
+compatibility = "No persisted artifact schema, request, response, or public API shape changes. Explicit scalar bindings retain existing validation and projection behavior. Selected method graphs without scalar bindings may now dispatch and appear as candidate-only execution diagnostics."
+change_class = "internal"
+surface_classification = "internal: compiler-to-Foundry method execution capture with an existing candidate-only Run Details diagnostic; no new API or authority surface."
+migration = "No caller migration is required. Plans without method DAG nodes retain the schema 1.0 compile path and do not receive an empty capture binding set."
+api = "Foundry compile and execute signatures and runtime HTTP DTOs are unchanged. Existing tenant-scoped Run Details and selected artifact-content readers expose the runtime-minted candidate diagnostic and exact selected bundle profile. Method-metrics reads resolve the persisted Core run tenant before OPA and retain the endpoint's verified tenant-and-cell check. The consumer remains verification_missing with no vector or observations when the binding set is empty."
+limitations = "Capture proves only the exact selected method dispatch and bounded returned-slot/artifact inventory. It does not infer a scalar meaning, establish a registered metric law, connect BERL, DDM, or calibration domain services, or make capture available through canonical WorkspaceLoop/S2 paths."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

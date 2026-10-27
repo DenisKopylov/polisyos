@@ -11,9 +11,11 @@ from __future__ import annotations
 
 import logging
 import threading
+import time
 from typing import Any, Self, cast
 
 from opentelemetry import metrics
+from opentelemetry.metrics import Observation
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import (
     ConsoleMetricExporter,
@@ -137,6 +139,9 @@ class _MetricsRegistryBase:
     fabric_error_budget_burn_ratio: GaugeProxy | None = None
     calibration_loss: GaugeProxy | None = None
     calibration_grad_norm: GaugeProxy | None = None
+    calibration_runs_total: metrics.Counter | None = None
+    calibration_active_runs: metrics.ObservableGauge | None = None
+    calibration_oldest_progress_age_seconds: metrics.ObservableGauge | None = None
     calibration_step_duration_seconds: metrics.Histogram | None = None
     calibration_convergence_steps: metrics.Histogram | None = None
     governance_pass_duration_seconds: metrics.Histogram | None = None
@@ -219,6 +224,10 @@ class _MetricsRegistryBase:
                     "failures": [],
                 }
             }
+        if not hasattr(self, "_calibration_run_lock"):
+            self._calibration_run_lock = threading.RLock()
+            self._calibration_active_run_states: dict[str, tuple[str, str, float]] = {}
+
         if _MetricsRegistryBase._initialized:
             return
 
@@ -731,6 +740,23 @@ class _MetricsRegistryBase:
             description="Steps to convergence",
             unit="1",
         )
+        self.calibration_runs_total = self._meter.create_counter(
+            name="polisyos_calibration_runs_total",
+            description="Calibration executions by lifecycle outcome",
+            unit="1",
+        )
+        self.calibration_active_runs = self._meter.create_observable_gauge(
+            name="polisyos_calibration_active_runs",
+            callbacks=[self._observe_calibration_active_runs],
+            description="Active calibration executions by optimizer and environment",
+            unit="1",
+        )
+        self.calibration_oldest_progress_age_seconds = self._meter.create_observable_gauge(
+            name="polisyos_calibration_oldest_progress_age_seconds",
+            callbacks=[self._observe_calibration_oldest_progress_age_seconds],
+            description="Maximum time since an active calibration made optimizer progress",
+            unit="s",
+        )
 
         # SLO metrics
         self.slo_dag_runs_total = self._meter.create_counter(
@@ -1132,6 +1158,46 @@ class _MetricsRegistryBase:
                 }
             }
         return {"metrics": {"status": "unknown", "failures": []}}
+
+    # -- Calibration lifecycle observations --------------------------------
+
+    def _calibration_monotonic_seconds(self) -> float:
+        """Return monotonic time for calibration progress observations."""
+        return time.monotonic()
+
+    def _observe_calibration_active_runs(
+        self,
+        _options: metrics.CallbackOptions,
+    ) -> list[Observation]:
+        """Observe active calibrations without exposing execution identifiers."""
+        with self._calibration_run_lock:
+            states = tuple(self._calibration_active_run_states.values())
+        counts: dict[tuple[str, str], int] = {}
+        for optimizer, env, _last_progress in states:
+            key = (optimizer, env)
+            counts[key] = counts.get(key, 0) + 1
+        return [
+            Observation(count, {"optimizer": optimizer, "env": env})
+            for (optimizer, env), count in counts.items()
+        ]
+
+    def _observe_calibration_oldest_progress_age_seconds(
+        self,
+        _options: metrics.CallbackOptions,
+    ) -> list[Observation]:
+        """Observe maximum idle time across active calibrations per bounded group."""
+        now = self._calibration_monotonic_seconds()
+        with self._calibration_run_lock:
+            states = tuple(self._calibration_active_run_states.values())
+        oldest: dict[tuple[str, str], float] = {}
+        for optimizer, env, last_progress in states:
+            key = (optimizer, env)
+            age = max(0.0, now - last_progress)
+            oldest[key] = max(oldest.get(key, 0.0), age)
+        return [
+            Observation(age, {"optimizer": optimizer, "env": env})
+            for (optimizer, env), age in oldest.items()
+        ]
 
     # -- Internal helpers ---------------------------------------------------
 

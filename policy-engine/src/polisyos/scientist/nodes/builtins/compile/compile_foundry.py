@@ -174,27 +174,38 @@ class CompileFoundryNode:
                 typed_plan_ref = ExecutionPlanRef.model_validate(
                     selected_plan_ref.model_dump(mode="python")
                 )
+                if (
+                    typed_plan_ref.kind != "scientist.execution_plan"
+                    or typed_plan_ref.media_type != "application/json"
+                ):
+                    raise ValueError("selected_execution_plan_kind_or_media_type_invalid")
                 selected_plan = ExecutionPlan.model_validate(
                     load_core_json_artifact(ctx.store, typed_plan_ref)
                 )
+                if selected_plan.method_edges and not selected_plan.method_dag:
+                    error = NodeError(
+                        code=node_errors.ERROR_INVALID_STATE,
+                        message="Selected edge-only method execution plan is unsupported",
+                        details={
+                            "execution_plan_ref": typed_plan_ref.model_dump(mode="json"),
+                            "method_dag_node_count": 0,
+                            "method_edge_count": len(selected_plan.method_edges),
+                            "required": ["method_dag"],
+                        },
+                    )
+                    return NodeOutcome(status="fail", state=state, error=error)
+                if selected_plan.method_dag:
+                    if (
+                        typed_plan_ref.manifest_profile_sha256 is None
+                        or policy_ref.manifest_profile_sha256 is None
+                    ):
+                        raise ValueError("selected_method_execution_plan_requires_exact_profiles")
+                    method_execution_plan_ref = typed_plan_ref
+                    schema_version = "1.2"
             except _EXECUTION_PLAN_INPUT_LOAD_ERRORS as exc:
                 error = NodeError(
                     code=node_errors.ERROR_INVALID_STATE,
                     message=f"Failed to load selected execution plan: {exc}",
-                )
-                return NodeOutcome(status="fail", state=state, error=error)
-            if selected_plan.method_dag or selected_plan.method_edges:
-                error = NodeError(
-                    code=node_errors.ERROR_INVALID_STATE,
-                    message=(
-                        "Selected method execution plan has no supported method metric bindings"
-                    ),
-                    details={
-                        "execution_plan_ref": typed_plan_ref.model_dump(mode="json"),
-                        "method_dag_node_count": len(selected_plan.method_dag),
-                        "method_edge_count": len(selected_plan.method_edges),
-                        "required": ["method_metric_bindings"],
-                    },
                 )
                 return NodeOutcome(status="fail", state=state, error=error)
 

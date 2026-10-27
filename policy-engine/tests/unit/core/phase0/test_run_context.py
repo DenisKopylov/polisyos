@@ -3761,3 +3761,67 @@ def test_fork_inherited_run_lease_cannot_terminalize_or_unlock_parent(
     child_trace_lines = (child_run_dir / "trace.jsonl").read_text(encoding="utf-8").splitlines()
     child_trace = [TraceRecord.model_validate_json(line) for line in child_trace_lines]
     assert child_trace[-1].event == "RUN_FINALIZED"
+
+
+def test_artifact_tenant_context_is_bound_to_the_selected_run_owner(
+    store: FileSystemCAS,
+    producer: Any,
+    env_info: Any,
+) -> None:
+    tenant_id = "tenant-run-context-owner"
+    cell_id = "cell-run-context-owner"
+    tenant_store = store.for_tenant(tenant_id, cell_id)
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        registry_ref = _bootstrap_registry_bundle(tenant_store, selected_profile=True)
+        run = RunContext.start(
+            store=tenant_store,
+            registry_bundle=registry_ref,
+            producer=producer,
+            env=env_info,
+            run_id="R_artifact_tenant_context_owner",
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            access_scope=None,
+        )
+        try:
+            run.update_manifest(control_job_id="job_artifact_tenant_context_owner")
+            assert run.artifact_tenant_context() == ArtifactTenantContextInfo(
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+
+            run.tenant_id = "tenant-forged"
+            with pytest.raises(
+                run_context._FinalizeRecoveryError,
+                match="timeout_worker_owner_inputs_mismatch",
+            ):
+                run.artifact_tenant_context()
+            run.tenant_id = tenant_id
+        finally:
+            run.finalize(status="ok")
+
+
+def test_artifact_tenant_context_preserves_legacy_unscoped_runs_and_refuses_unscoped_jobs(
+    store: FileSystemCAS,
+    producer: Any,
+    env_info: Any,
+) -> None:
+    registry_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_ref,
+        producer=producer,
+        env=env_info,
+        run_id="R_artifact_tenant_context_unscoped",
+        access_scope=None,
+    )
+    try:
+        assert run.artifact_tenant_context() is None
+        run.update_manifest(control_job_id="job_without_scope")
+        with pytest.raises(
+            run_context._FinalizeRecoveryError,
+            match="run_owner_control_job_tenant_context_not_established",
+        ):
+            run.artifact_tenant_context()
+    finally:
+        run.finalize(status="ok")

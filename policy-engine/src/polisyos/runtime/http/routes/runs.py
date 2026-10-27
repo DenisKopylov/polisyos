@@ -178,7 +178,7 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore
     from polisyos.core.artifacts.manifest import ArtifactManifest
     from polisyos.core.artifacts.manifest import InputRef as CoreInputRef
-    from polisyos.ir.artifacts.contracts import InputRef as IRInputRef
+    from polisyos.ir import InputRef as IRInputRef
     from polisyos.runtime.http.services.run_index import IndexedRunRecord
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationN5InputV5,
@@ -550,7 +550,7 @@ def _candidate_acquisition_history_projection(
         expected_schema: str,
         expected_version: str | tuple[str, ...],
         expected_job_id: str,
-    ) -> tuple[Any, bytes, Any]:
+    ) -> tuple[Any, bytes, Any, ArtifactRef]:
         expected_producer = {
             "runtime_quality.acquisition_route_loop_receipt": (
                 "polisyos.runtime.acquisition_route_loop"
@@ -601,10 +601,14 @@ def _candidate_acquisition_history_projection(
         )
         if report.cas_ref != expected_id or report.durable_event_id is None:
             raise ValueError("acquisition_history_event_binding_mismatch")
+        # Preserve the exact manifest view selected for this GET. The action head
+        # remains ID-only; this reader-materialized profile is not producer attestation
+        # and does not promote currentness, status, or authority.
         return (
             read_core_json_artifact(store, ref, raw_payload_bytes=payload_bytes).value,
             payload_bytes,
             report,
+            ref,
         )
 
     def _resolve_n5_v5_source(
@@ -672,12 +676,14 @@ def _candidate_acquisition_history_projection(
                     head.receipt_ref,
                     kind="runtime_quality.acquisition_route_loop_receipt",
                 )
-                route_payload, _route_bytes, route_report = _read_authority_payload(
-                    route_receipt_ref,
-                    expected_kind="runtime_quality.acquisition_route_loop_receipt",
-                    expected_schema="polisyos.runtime.AcquisitionRouteLoopReceipt",
-                    expected_version="1.0",
-                    expected_job_id=head.job_id,
+                route_payload, _route_bytes, route_report, route_receipt_ref = (
+                    _read_authority_payload(
+                        route_receipt_ref,
+                        expected_kind="runtime_quality.acquisition_route_loop_receipt",
+                        expected_schema="polisyos.runtime.AcquisitionRouteLoopReceipt",
+                        expected_version="1.0",
+                        expected_job_id=head.job_id,
+                    )
                 )
                 route_receipt = AcquisitionRouteLoopReceipt.model_validate(route_payload)
                 receipt = route_receipt
@@ -686,12 +692,14 @@ def _candidate_acquisition_history_projection(
                     head.receipt_ref,
                     kind="runtime_quality.acquisition_route_phase_receipt",
                 )
-                route_payload, _route_bytes, route_report = _read_authority_payload(
-                    route_receipt_ref,
-                    expected_kind="runtime_quality.acquisition_route_phase_receipt",
-                    expected_schema="polisyos.runtime.AcquisitionRoutePhaseReceipt",
-                    expected_version=("1.0", "1.1"),
-                    expected_job_id=head.job_id,
+                route_payload, _route_bytes, route_report, route_receipt_ref = (
+                    _read_authority_payload(
+                        route_receipt_ref,
+                        expected_kind="runtime_quality.acquisition_route_phase_receipt",
+                        expected_schema="polisyos.runtime.AcquisitionRoutePhaseReceipt",
+                        expected_version=("1.0", "1.1"),
+                        expected_job_id=head.job_id,
+                    )
                 )
                 receipt = AcquisitionRoutePhaseReceipt.model_validate(route_payload)
             if any(
@@ -773,12 +781,14 @@ def _candidate_acquisition_history_projection(
                 route_receipt.reentry_receipt_ref,
                 kind="runtime_quality.acquisition_overlay_reentry_receipt",
             )
-            reentry_payload, _reentry_bytes, _reentry_report = _read_authority_payload(
-                reentry_receipt_ref,
-                expected_kind="runtime_quality.acquisition_overlay_reentry_receipt",
-                expected_schema="polisyos.runtime.AcquisitionOverlayReentryReceipt",
-                expected_version=("1.0", "2.0"),
-                expected_job_id=route_receipt.source_job_id,
+            reentry_payload, _reentry_bytes, _reentry_report, reentry_receipt_ref = (
+                _read_authority_payload(
+                    reentry_receipt_ref,
+                    expected_kind="runtime_quality.acquisition_overlay_reentry_receipt",
+                    expected_schema="polisyos.runtime.AcquisitionOverlayReentryReceipt",
+                    expected_version=("1.0", "2.0"),
+                    expected_job_id=route_receipt.source_job_id,
+                )
             )
             reentry_receipt = AcquisitionOverlayReentryReceipt.model_validate(reentry_payload)
             if (
@@ -2228,7 +2238,7 @@ def _conditional_transport_candidate_for_indexed_run(
 ) -> RunConditionalTransportCandidateProjection | None:
     """Project only a fresh, verified conditional result on the refused outer branch."""
     from polisyos.core.run.manifest import RunInvocationStarted
-    from polisyos.ir.analytics.causal import CausalEffectReport
+    from polisyos.ir.analytics import CausalEffectReport
     from polisyos.ir.analytics.causal_graph import (
         graph_content_sha256,
         load_causal_graph_model,
@@ -2239,8 +2249,7 @@ def _conditional_transport_candidate_for_indexed_run(
         TransportabilityStatus,
         TransportMode,
     )
-    from polisyos.scientist.orchestration.engine.state import ExperimentState
-    from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
+    from polisyos.scientist.orchestration.engine import ExperimentState, WorkflowSpec
 
     details = run.details
 

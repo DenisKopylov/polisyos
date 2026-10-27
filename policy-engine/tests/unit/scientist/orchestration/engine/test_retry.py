@@ -3550,3 +3550,29 @@ def test_attempt_view_stages_only_typed_worker_receipt_run_writes(tmp_path):
             stage_worker_receipt_writes=True,
         )
     parent_run.suspend_for_resume()
+
+
+def test_engine_node_run_view_exposes_only_artifact_tenant_context_reader() -> None:
+    from types import SimpleNamespace
+
+    from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
+
+    expected = ArtifactTenantContextInfo(
+        tenant_id="tenant-facade-reader",
+        cell_id="cell-facade-reader",
+    )
+    calls: list[str] = []
+
+    def read_context() -> ArtifactTenantContextInfo:
+        calls.append("read")
+        return expected
+
+    view = retry_module._EngineNodeRunView(
+        SimpleNamespace(artifact_tenant_context=read_context),
+        _token=retry_module._ENGINE_NODE_RUN_VIEW_TOKEN,
+    )
+
+    assert view.artifact_tenant_context() == expected
+    assert calls == ["read"]
+    with pytest.raises(AttributeError):
+        _ = view._owner_snapshot_ref

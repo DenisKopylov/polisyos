@@ -10,7 +10,7 @@ from typing import Annotated, Any, Literal, Union, get_args, get_origin
 
 from pydantic import BaseModel, RootModel, ValidationError
 
-from polisyos.ir import ProofBundle
+from polisyos.ir import CanonSpec, ContextProfile, ProofBundle, to_canonical_bytes
 from polisyos.ir.analytics.causal_capabilities import (
     CausalBackendId,
     CausalCapabilityContract,
@@ -25,7 +25,6 @@ from polisyos.ir.analytics.causal_graph import (
     _FrozenList,
     graph_content_sha256,
 )
-from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.privacy_transportability import (
     TransportPrivacyContext,
     apply_transport_privacy_context,
@@ -46,8 +45,7 @@ from polisyos.ir.analytics.transportability import (
     build_selection_diagram,
     transportability_candidate_query_sha256,
 )
-from polisyos.ir.model_layer.canon import CanonSpec, to_canonical_bytes
-from polisyos.ir.registry.refs import CausalGraphModelRef
+from polisyos.ir.registry import CausalGraphModelRef
 
 from .capabilities import build_causal_capability_contract
 from .full_transport_bridge import (

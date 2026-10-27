@@ -160,18 +160,18 @@ groups:
           description: "Gradient norm {{ $value | printf \"%.0f\" }} indicates divergence. Check learning rate."
 
       - alert: CalibrationStuck
-        # Loss not decreasing for 30 minutes
+        # An active calibration execution has made no optimizer-step progress for 30 minutes.
         expr: |
-          increase(polisyos_calibration_loss[30m]) >= 0
-          and
-          polisyos_active_runs > 0
+          polisyos_calibration_oldest_progress_age_seconds > 1800
+          and on (optimizer, env)
+          polisyos_calibration_active_runs > 0
         for: 30m
         labels:
           severity: warning
           team: foundry
         annotations:
-          summary: "Calibration not converging"
-          description: "Loss has not decreased in 30 minutes. Check for local minima or learning rate issues."
+          summary: "Calibration execution has no recorded progress"
+          description: "The oldest active calibration has had no optimizer step for 30 minutes."
 
   - name: polisyos.cell_isolation
     rules:

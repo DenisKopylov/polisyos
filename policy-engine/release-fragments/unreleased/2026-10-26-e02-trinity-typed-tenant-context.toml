@@ -3,18 +3,21 @@ title = "Preserve tenant context on Trinity owner writes"
 type = "fixed"
 component = "ir"
 owner = "team-ir"
-summary = "Trinity persistence now carries an explicit typed tenant/cell context through selected owner writes while preserving the owner canon profile and unscoped semantics."
+summary = "The shared Trinity owner preserves its canon profile, and the hierarchical-search and NL producers now carry their existing typed tenant/cell scopes into selected writes."
 evidence = [
   "src/polisyos/ir/trinity/loaders.py",
+  "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+  "src/polisyos/runtime/http/services/control/nl_pipeline.py",
   "tests/unit/ir/test_trinity_owner_admission.py",
+  "tests/unit/runtime/http/test_nl_pipeline_materialization.py",
   "tests/integration/scientist/test_res_03_real_simulation_route.py",
 ]
-compatibility = "The optional context input is additive to the existing internal Trinity persistence helper. Existing calls that omit it or pass None retain the unscoped write behavior; no artifact schema, HTTP route, or generated-client contract changes."
+compatibility = "The optional context input remains additive to the internal Trinity persistence helper. Hierarchical search derives it only from a canonical AccessScope matching both RunContext and RunManifest identity; the NL producer derives it only from the validated current admission scope after owner binding succeeds. Missing scope remains unscoped for producers that allow omission, while NL still refuses when its existing required admission scope is absent. No artifact schema, HTTP route, or generated-client contract changes."
 change_class = "internal"
 surface_classification = "internal: unlisted polisyos.ir.trinity.loaders persistence helper"
 migration = "No persisted artifact migration is required. An internal producer may pass the existing typed tenant/cell context; no stored bytes are rewritten."
-api = "The helper freezes a supplied tenant context into the existing selected owner-write options before emission. Malformed context fails option preparation, a context foreign to the store owner is refused, and None remains unscoped."
-limitations = "Tenant context remains owner metadata, not issuer authority, policy admissibility, or currentness. Fixture route results do not assert production authority or deployment attainment."
+api = "Both production bridges pass typed tenant/cell context before the selected owner-write options are frozen. Malformed hierarchical AccessScope values, run-identity mismatches, and NL admission/binding mismatches fail closed before Trinity emission. The shared helper still preserves explicit None as unscoped and refuses context foreign to the store owner."
+limitations = "Tenant context remains owner metadata, not issuer authority, policy admissibility, or currentness. Legacy and other producer paths without an existing typed scope remain explicitly unscoped. Fixture route results do not assert production authority or deployment attainment."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = false
 migration_docs = []

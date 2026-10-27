@@ -65,8 +65,7 @@ from polisyos.ir.analytics.uncertainty import (
     load_uncertainty_envelope,
     persist_uncertainty_envelope,
 )
-from polisyos.ir.kernel.mechanisms import MechanismTypeRegistry
-from polisyos.ir.kernel.units import UnitsRegistry
+from polisyos.ir.kernel import MechanismTypeRegistry, UnitsRegistry
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_PROPAGATION_REPORT_REF,
     ARTIFACT_SIMULATION_RESULT_REF,

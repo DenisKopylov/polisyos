@@ -12,6 +12,63 @@ from ._metrics_registry_base import MetricsRegistryBase
 class MetricsRegistry(MetricsRegistryBase):
     """Metrics registry implementation."""
 
+    def start_calibration_run(self, *, run_id: str, optimizer: str) -> bool:
+        """Register one active calibration execution for progress monitoring.
+
+        The run identifier is private process state and is never a metric label.
+        """
+        self._ensure_initialized()
+        if (
+            self.calibration_active_runs is None
+            or self.calibration_oldest_progress_age_seconds is None
+        ):
+            return False
+
+        attributes = self._with_env({"optimizer": optimizer})
+        state = (optimizer, attributes["env"], self._calibration_monotonic_seconds())
+        with self._calibration_run_lock:
+            if run_id in self._calibration_active_run_states:
+                return False
+            self._calibration_active_run_states[run_id] = state
+        try:
+            if self.calibration_runs_total is not None:
+                self.calibration_runs_total.add(1, {**attributes, "status": "started"})
+        except Exception:
+            with self._calibration_run_lock:
+                self._calibration_active_run_states.pop(run_id, None)
+            raise
+        return True
+
+    def record_calibration_progress(self, *, run_id: str) -> None:
+        """Refresh the last observed optimizer-step time for an active execution."""
+        now = self._calibration_monotonic_seconds()
+        with self._calibration_run_lock:
+            state = self._calibration_active_run_states.get(run_id)
+            if state is not None:
+                optimizer, env, _previous = state
+                self._calibration_active_run_states[run_id] = (optimizer, env, now)
+
+    def finish_calibration_run(
+        self,
+        *,
+        run_id: str,
+        status: Literal["completed", "failed"],
+    ) -> bool:
+        """Remove active execution state and record its terminal lifecycle outcome."""
+        if status not in {"completed", "failed"}:
+            raise ValueError(f"invalid calibration lifecycle status: {status}")
+        with self._calibration_run_lock:
+            state = self._calibration_active_run_states.pop(run_id, None)
+        if state is None:
+            return False
+        if self.calibration_runs_total is not None:
+            optimizer, env, _last_progress = state
+            self.calibration_runs_total.add(
+                1,
+                {"optimizer": optimizer, "env": env, "status": status},
+            )
+        return True
+
     def time_simulation(
         self,
         attributes: dict[str, Any] | None = None,

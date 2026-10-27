@@ -88,11 +88,19 @@ def bootstrap_foundry_method_registry(
         if require_bound_discovery_manifest and (
             discovery_manifest is None or not discovery_manifest.is_bound
         ):
-            reasons = (
-                ("discovery_manifest_missing",)
-                if discovery_manifest is None
-                else discovery_manifest.unbound_inputs
-            )
+            if discovery_manifest is None:
+                reasons = ("discovery_manifest_missing",)
+            else:
+                predicate_reasons = tuple(
+                    f"predicate_provenance_not_admitted:{row.predicate}:{row.classification}"
+                    for row in discovery_manifest.predicate_provenance
+                    if row.classification not in {"recomputed", "independently_reconciled"}
+                )
+                reasons = tuple(
+                    dict.fromkeys((*discovery_manifest.unbound_inputs, *predicate_reasons))
+                )
+                if not reasons:
+                    reasons = ("discovery_manifest_not_bound",)
             raise UnboundFoundryDiscoveryInputError(
                 "unbound_foundry_discovery_input:" + "|".join(reasons)
             )

@@ -131,8 +131,11 @@ QUALITY_REPORT_RUNTIME_REFS = {
 }
 
 
-# Closure pointers prefer a typed current input with exact role, ref, and profile;
-# current owner-produced report refs use the shared strict CAS re-entry verifier.
+# Closure pointers bind to typed source inputs, never their mutable output projections.
+# The production source is the manifest-backed payload edge under its original role.
+# The current normative report path has no separate legal-snapshot input, so its
+# optional closure ref remains explicitly unbound until such an input is persisted.
+# Current owner-produced report refs outside that source boundary use strict CAS re-entry.
 RUNTIME_QUALITY_PUBLICATION_CLOSURE_REFERENCE_BINDINGS = (
     (
         "policy_intent_ref",
@@ -144,19 +147,19 @@ RUNTIME_QUALITY_PUBLICATION_CLOSURE_REFERENCE_BINDINGS = (
     ),
     (
         "production_data_manifest_ref",
-        "production_data_quality_report_ref",
-        "production_data_quality_report",
-        "runtime.production_data_quality_report",
-        "polisyos.runtime.ProductionDataQualityReport",
+        "production_data_payload_ref",
+        "production_data_payload",
+        "fabric.production_data_payload",
+        "polisyos.fabric.ProductionDataPayload",
         "1.0",
     ),
     (
         "legal_snapshot_ref",
-        "normative_applicability_report_ref",
-        "normative_applicability_report",
-        "lex.normative_applicability_report",
-        "polisyos.lex.NormativeApplicabilityReport",
-        "1.0",
+        None,
+        None,
+        None,
+        None,
+        None,
     ),
 )
 RUNTIME_QUALITY_PUBLICATION_SEMANTIC_BINDING_REFERENCE_BINDING = (

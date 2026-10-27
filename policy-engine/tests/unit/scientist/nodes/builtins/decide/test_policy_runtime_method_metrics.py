@@ -953,10 +953,13 @@ def _exercise_public_execute_method_metric_source(
     job_id: str = "job-public-execute",
     run_id: str = "run-public-execute",
     attempt: int = 1,
+    capture_only: bool = False,
+    request: pytest.FixtureRequest | None = None,
 ) -> dict[str, Any]:
-    """A real execute result yields a candidate observation only through its full CAS chain."""
+    """Exercise compiler-backed capture or explicit scalar projection through Foundry."""
     import hashlib
     import inspect
+    import logging
 
     import numpy as np
 
@@ -966,6 +969,7 @@ def _exercise_public_execute_method_metric_source(
     from polisyos.core.artifacts.manifest import input_ref_from_artifact_ref
     from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.core.canon import CanonSpec
+    from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode
     from polisyos.core.contracts.fabric import DataSnapshot
     from polisyos.core.contracts.foundry import (
         ExecPlan,
@@ -985,6 +989,7 @@ def _exercise_public_execute_method_metric_source(
         SimulationResult,
     )
     from polisyos.core.registry import build_registry_bundle
+    from polisyos.core.run.context import RunContext
     from polisyos.fabric.data_plane.orchestrator import _build_snapshot_from_evidence_async
     from polisyos.fabric.evidence.evidence import build_evidence_bundle, persist_evidence_bundle
     from polisyos.foundry.data_plane import build_input_bindings
@@ -1024,6 +1029,19 @@ def _exercise_public_execute_method_metric_source(
     from polisyos.ir.model_layer.model_spec import ModelSpec
     from polisyos.ir.model_layer.types import OptimizationDirection
     from polisyos.ir.trinity import TrinityBundle
+    from polisyos.scientist.nodes.builtins.compile.compile_foundry import CompileFoundryNode
+    from polisyos.scientist.nodes.builtins.planning.build_execution_plan import (
+        BuildExecutionPlanNode,
+    )
+    from polisyos.scientist.nodes.builtins.state_keys import (
+        ARTIFACT_EXEC_PLAN_REF,
+        ARTIFACT_METHOD_METRIC_BINDING_SET_REF,
+        ARTIFACT_PROGRAM_GRAPH_REF,
+        INPUT_REGISTRY_BUNDLE_REF,
+        INPUT_TRINITY_BUNDLE_REF,
+    )
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
     from polisyos.scientist.policy_design.schema import (
         PolicyCandidateSchema,
         TargetPopulationSpec,
@@ -1031,7 +1049,8 @@ def _exercise_public_execute_method_metric_source(
     )
 
     store = artifact_store if artifact_store is not None else FileSystemCAS(tmp_path / "cas")
-    MethodRegistry.get_instance().register(ExAnteSimulationEstimator, override=True)
+    method_registry = MethodRegistry.get_instance()
+    method_registry.register(ExAnteSimulationEstimator, override=True)
 
     def _put_selected(
         payload: object,
@@ -1071,6 +1090,7 @@ def _exercise_public_execute_method_metric_source(
         output_value_path=("mean_change",),
     )
     method_signature = ExAnteSimulationEstimator.signature
+    method_execution_outputs: list[dict[str, Any]] = []
     law_identity = registered_method_metric_law_metadata_for(
         method_signature.fqn,
         method_signature.version,
@@ -1231,6 +1251,172 @@ def _exercise_public_execute_method_metric_source(
         schema_version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
         inputs=[input_ref_from_artifact_ref(candidate_ref, role="policy_candidate")],
     )
+    if capture_only:
+        unseen_signature = replace(
+            method_signature,
+            name="runtime_unseen_probe",
+            namespace="tests.capture_only",
+            version="1.0.0",
+            family="tests.capture_only",
+            variant="runtime_unseen_probe",
+        )
+
+        def _capture_unseen_method_output(state, params):
+            computed = ExAnteSimulationEstimator.pure_step(state, params)
+            method_execution_outputs.append(computed)
+            return computed
+
+        unseen_method = type(
+            "_UnseenRuntimeCaptureMethod",
+            (ExAnteSimulationEstimator,),
+            {
+                "signature": unseen_signature,
+                "pure_step": staticmethod(_capture_unseen_method_output),
+            },
+        )
+        if request is None:
+            raise AssertionError("capture_only_method_requires_test_cleanup_fixture")
+        if method_registry.get_signature(unseen_signature.fqn) is not None:
+            raise AssertionError("capture_only_method_fqn_already_registered")
+        request.addfinalizer(lambda: method_registry.unregister(unseen_signature.fqn))
+        method_registry.register(unseen_method, override=False)
+        method_signature = unseen_signature
+
+        class _LocalFoundryPort:
+            def compile(self, artifact_store, request):
+                from polisyos.foundry.compile.api import compile
+
+                return compile(artifact_store, request)
+
+            def execute(self, artifact_store, request):
+                return execute_foundry(artifact_store, request)
+
+        active_foundry = foundry_port or _LocalFoundryPort()
+        compile_run_id = f"{run_id}-method-compile"
+        plan = ExecutionPlan(
+            plan_id=f"{compile_run_id}-selected-plan",
+            run_id=compile_run_id,
+            method_dag=[
+                MethodDagNode(
+                    node_id="ex_ante_node",
+                    method_fqn=method_signature.fqn,
+                    method_version=method_signature.version,
+                    backend=method_signature.execution_backend.value,
+                    params={"poverty_line": None},
+                    reads_slots=["baseline", "scenario"],
+                    writes_slots=["result"],
+                )
+            ],
+        )
+        compile_run = RunContext.start(
+            store=store,
+            registry_bundle=registry.bundle_ref,
+            run_id=compile_run_id,
+            run_dir=tmp_path / f"{compile_run_id}-run",
+        )
+        compile_context = ExecutionContext(
+            store=store,
+            run=compile_run,
+            logger=logging.getLogger("tests.capture_only_compiler_bridge"),
+            foundry=active_foundry,
+        )
+        initial_state = ExperimentState(
+            run_id=compile_run_id,
+            inputs={
+                INPUT_TRINITY_BUNDLE_REF: trinity_ref,
+                INPUT_REGISTRY_BUNDLE_REF: registry.bundle_ref,
+            },
+            params={"execution_plan": plan.model_dump(mode="json")},
+        )
+        built = BuildExecutionPlanNode().execute(compile_context, initial_state)
+        assert built.status == "ok", built.error
+        selected_method_plan_ref = built.state.execution_plan_ref
+        assert selected_method_plan_ref is not None
+        compiled = CompileFoundryNode().execute(compile_context, built.state)
+        assert compiled.status == "ok", compiled.error
+        compiled_graph_ref = compiled.state.artifacts_index[ARTIFACT_PROGRAM_GRAPH_REF]
+        compiled_exec_plan_ref = compiled.state.artifacts_index[ARTIFACT_EXEC_PLAN_REF]
+        compiled_binding_ref = compiled.state.artifacts_index[
+            ARTIFACT_METHOD_METRIC_BINDING_SET_REF
+        ]
+        compiled_binding_set = validate_core_model_json_artifact(
+            MethodMetricBindingSet, store, compiled_binding_ref
+        )
+        assert compiled_binding_set.bindings == []
+        assert compiled_binding_set.program_graph_ref == compiled_graph_ref
+        source_plan_edges = [
+            edge
+            for edge in store.get_manifest(compiled_graph_ref).inputs
+            if edge.role == "execution_plan_source"
+        ]
+        assert len(source_plan_edges) == 1
+        assert source_plan_edges[0].artifact_id == selected_method_plan_ref.artifact_id
+        assert (
+            source_plan_edges[0].manifest_profile_sha256
+            == selected_method_plan_ref.manifest_profile_sha256
+        )
+        binding_edges = [
+            edge
+            for edge in store.get_manifest(compiled_exec_plan_ref).inputs
+            if edge.role == "method_metric_bindings"
+        ]
+        assert len(binding_edges) == 1
+        assert binding_edges[0].artifact_id == compiled_binding_ref.artifact_id
+        assert (
+            binding_edges[0].manifest_profile_sha256 == compiled_binding_ref.manifest_profile_sha256
+        )
+        request = ExecuteRequest(
+            exec_plan_ref=compiled_exec_plan_ref,
+            input_bindings_ref=input_bindings.input_bindings_ref,
+            registry_bundle_ref=registry.bundle_ref,
+            exec_config=FoundryExecConfig(seed=41, mode="dev", capture_env=True),
+            return_selected_profile=True,
+        )
+        execute = getattr(active_foundry, "execute", None)
+        if not callable(execute):
+            raise TypeError("public_execute_foundry_port_missing_execute")
+        result = execute(store, request)
+        assert result.ok is True
+        assert result.schema_version == "1.1"
+        assert result.method_execution_bundle_ref is not None
+        assert result.simulation_result_ref is not None
+        bundle_ref = result.method_execution_bundle_ref
+        bundle = validate_core_model_json_artifact(MethodExecutionBundle, store, bundle_ref)
+        occurrence = next(item for item in bundle.occurrences if item.node_id == "ex_ante_node")
+        assert occurrence.method_fqn == method_signature.fqn
+        assert occurrence.method_fqn == "tests.capture_only.runtime_unseen_probe@1.0.0"
+        assert occurrence.method_version == "1.0.0"
+        assert occurrence.dispatch is not None and occurrence.dispatch.outcome == "succeeded"
+        assert occurrence.output_slots == []
+        returned_result = next(
+            item for item in occurrence.returned_slots if item.slot_id == "result"
+        )
+        assert returned_result.returned == "returned"
+        assert returned_result.runtime_type == "builtins.dict"
+        assert len(method_execution_outputs) == 1
+        computed_result = method_execution_outputs[0]["result"]
+        assert computed_result["mean_change"] == pytest.approx(1.0)
+        assert computed_result["n_agents"] == len(baseline)
+        derived_binding_refs = [
+            item.ref for item in result.derived_refs if item.role == "method_metric_binding_set"
+        ]
+        assert derived_binding_refs == [compiled_binding_ref]
+        return {
+            "store": store,
+            "execute_result": result,
+            "candidate_ref": candidate_ref,
+            "experiment_state_ref": None,
+            "binding_ref": compiled_binding_ref,
+            "bundle_ref": bundle_ref,
+            "projection_admission": None,
+            "projection": None,
+            "observation": None,
+            "compiled_program_graph_ref": compiled_graph_ref,
+            "compiled_exec_plan_ref": compiled_exec_plan_ref,
+            "selected_method_plan_ref": selected_method_plan_ref,
+            "method_fqn": method_signature.fqn,
+            "computed_method_outputs": method_execution_outputs.copy(),
+        }
     lowered_ir = LoweredIR(ir_ref=trinity_ref, mechanisms=[], constraints=[])
     lowered_ir_ref = store.put_json(
         lowered_ir,

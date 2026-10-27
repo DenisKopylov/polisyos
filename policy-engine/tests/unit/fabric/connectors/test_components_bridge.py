@@ -127,7 +127,7 @@ def test_connector_components_bridge_registers_component_connector(_clean_regist
         ComponentEntry(
             metadata=component.metadata,
             component=component,
-            source=DiscoverySourceInfo(source_type="entry_point", location="tests"),
+            source=DiscoverySourceInfo(source_type="unit_test", location="tests"),
         )
     )
 
@@ -150,7 +150,7 @@ def test_connector_components_bridge_preserves_public_api_and_default_registry(
         ComponentEntry(
             metadata=component.metadata,
             component=component,
-            source=DiscoverySourceInfo(source_type="entry_point", location="tests"),
+            source=DiscoverySourceInfo(source_type="unit_test", location="tests"),
         )
     )
 
@@ -208,7 +208,7 @@ def test_connector_components_bridge_reports_duplicates_on_second_bootstrap(
         ComponentEntry(
             metadata=component.metadata,
             component=component,
-            source=DiscoverySourceInfo(source_type="entry_point", location="tests"),
+            source=DiscoverySourceInfo(source_type="unit_test", location="tests"),
         )
     )
 
@@ -233,7 +233,7 @@ def test_connector_components_bridge_uses_injected_registry_without_default_sing
         ComponentEntry(
             metadata=component.metadata,
             component=component,
-            source=DiscoverySourceInfo(source_type="entry_point", location="tests"),
+            source=DiscoverySourceInfo(source_type="unit_test", location="tests"),
         )
     )
     monkeypatch.setattr(
@@ -263,7 +263,7 @@ def test_registry_lifecycle_bootstraps_without_importing_public_bridge(
         ComponentEntry(
             metadata=component.metadata,
             component=component,
-            source=DiscoverySourceInfo(source_type="entry_point", location="tests"),
+            source=DiscoverySourceInfo(source_type="unit_test", location="tests"),
         )
     )
     discovery_report = type(
@@ -289,3 +289,41 @@ def test_registry_lifecycle_bootstraps_without_importing_public_bridge(
     registry._bootstrap()
 
     assert registry.get("test.bridge@1.0.0") is not None
+
+
+@pytest.mark.usefixtures("_clean_registry")
+def test_connector_components_bridge_refuses_unbound_fabric_entrypoint() -> None:
+    registry = ConnectorRegistry.get_instance(bootstrap=False)
+    metadata = connector_component_from_class(_TestConnector).metadata
+    calls = 0
+
+    class _UnboundComponent:
+        def __init__(self) -> None:
+            self.metadata = metadata
+
+        def create(self) -> type[_TestConnector]:
+            nonlocal calls
+            calls += 1
+            return _TestConnector
+
+    index = ComponentRegistry()
+    index.register(
+        ComponentEntry(
+            metadata=metadata,
+            component=_UnboundComponent(),
+            source=DiscoverySourceInfo(
+                source_type="entry_point",
+                location="foreign.module:factory",
+                group="polisyos.fabric_connectors",
+                entry_point="test.unbound",
+            ),
+        )
+    )
+
+    report = bootstrap_connector_registry_from_components(index, registry)
+
+    assert report.registered == []
+    assert len(report.errors) == 1
+    assert "no verified provider-origin binding" in report.errors[0]
+    assert calls == 0
+    assert "test.bridge@1.0.0" not in registry

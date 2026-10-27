@@ -65,6 +65,32 @@ def bootstrap_components_into_registry(
 
     for entry in sorted(entries, key=lambda item: str(item.metadata.component_id)):
         component_id = str(entry.metadata.component_id)
+        if (
+            str(getattr(entry.source, "source_type", "")) == "entry_point"
+            and str(getattr(entry.source, "group", "")) == "polisyos.fabric_connectors"
+        ):
+            from polisyos.core.components.discovery import ProviderOriginBinding
+
+            from .components import ConnectorComponent
+
+            binding = getattr(entry.source, "provider_origin_binding", None)
+            if not isinstance(binding, ProviderOriginBinding) or binding.status != "verified":
+                errors.append(
+                    f"{component_id}: Fabric entry point has no verified provider-origin binding"
+                )
+                continue
+            if not (
+                binding.component_factory_status == "verified"
+                or (
+                    binding.component_factory_status == "delegated"
+                    and type(entry.component) is ConnectorComponent
+                )
+            ):
+                errors.append(
+                    f"{component_id}: Fabric entry point component factory is not an admitted "
+                    "provider-owned factory or exact ConnectorComponent delegation"
+                )
+                continue
 
         issues = validate_metadata(
             entry.metadata,

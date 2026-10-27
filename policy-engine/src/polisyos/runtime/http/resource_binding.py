@@ -85,6 +85,7 @@ _OWNED_PATH_RESOLVERS = {
     ("runtime.run.feedback_evaluation", "run_id"): _ResolverKind.RUN,
     ("runtime.run.predictive_calibration", "run_id"): _ResolverKind.RUN,
     ("runtime.run.method_execution_selection", "run_id"): _ResolverKind.RUN,
+    ("runtime.run.method_metrics", "run_id"): _ResolverKind.RUN,
     ("runtime.run.reissue", "run_id"): _ResolverKind.RUN,
     ("runtime.run.production_approval", "run_id"): _ResolverKind.RUN,
     ("runtime.run.public_verification_record", "run_id"): _ResolverKind.RUN,

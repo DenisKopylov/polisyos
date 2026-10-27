@@ -45,7 +45,7 @@ from polisyos.foundry.methods.catalog.causal._econml_adapter import (
     build_hte_data,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
-from polisyos.ir.analytics.causal import CausalMethod
+from polisyos.ir.analytics import CausalMethod
 from polisyos.ir.analytics.hte import (
     HTEInputSourceRef,
     HTEPhysicalSourceMaterializationBindingRef,

@@ -62,7 +62,7 @@ from polisyos.core.contracts.runtime import (
 from polisyos.core.trace import TraceRecord
 from polisyos.ir import CanonViolation
 from polisyos.ir import get_json_artifact as get_ir_json_artifact
-from polisyos.ir.analytics.data_views import (
+from polisyos.ir.analytics import (
     DataViewRequest as AnalyticsDataViewRequest,
 )
 from polisyos.ir.model_layer.queries import DataViewRequest as QueryDataViewRequest

@@ -1475,6 +1475,18 @@ class RunContext:
     def trace_path(self) -> Path | None:
         return self._trace_path
 
+    def artifact_tenant_context(self) -> ArtifactTenantContextInfo | None:
+        """Return this run's tenant scope after validating its selected owner snapshot.
+
+        Direct legacy runs may remain unscoped. A durable control-job run must carry
+        tenant scope in the same persisted owner snapshot that binds its run identity.
+        """
+        self._validate_run_owner_binding()
+        tenant_context = _run_manifest_tenant_context(self.run_manifest)
+        if self.run_manifest.control_job_id is not None and tenant_context is None:
+            raise _FinalizeRecoveryError("run_owner_control_job_tenant_context_not_established")
+        return tenant_context
+
     def _worker_lifecycle_capability(self) -> WorkerLifecycleCapability:
         """Create the Core-owned capability for this exact active parent run."""
         from .worker_lifecycle import WorkerLifecycleCapability
@@ -1530,8 +1542,8 @@ class RunContext:
         self._worker_receipt_recovery_required = True
         self._worker_receipt_recovery_invocation_id = invocation_id
 
-    def _validate_timeout_worker_owner_binding(self) -> None:
-        """Prove the timeout worker's scope against this run's selected owner snapshot."""
+    def _validate_run_owner_binding(self, *, require_store_binding: bool = False) -> None:
+        """Prove the current run owner fields against the selected persisted snapshot."""
         owner_ref = self._owner_snapshot_ref
         if (
             type(owner_ref) is not ArtifactRef
@@ -1552,6 +1564,9 @@ class RunContext:
 
         persisted = snapshot.run_manifest
         current = self.run_manifest
+        store_tenant_id = getattr(self.store, "_tenant_id", None)
+        store_cell_id = getattr(self.store, "_cell_id", None)
+        store_scope_established = store_tenant_id is not None or store_cell_id is not None
         identity_fields = (
             "run_id",
             "started_at",
@@ -1577,8 +1592,10 @@ class RunContext:
             snapshot.access_scope_sha256 != scope_digest
             or any(getattr(persisted, name) != getattr(current, name) for name in identity_fields)
             or (self.tenant_id, self.cell_id) != (current.tenant_id, current.cell_id)
-            or (getattr(self.store, "_tenant_id", None), getattr(self.store, "_cell_id", None))
-            != (self.tenant_id, self.cell_id)
+            or (
+                (require_store_binding or store_scope_established)
+                and (store_tenant_id, store_cell_id) != (self.tenant_id, self.cell_id)
+            )
             or (
                 self.access_scope is not None
                 and (self.access_scope.tenant_id, self.access_scope.cell_id)
@@ -1586,6 +1603,10 @@ class RunContext:
             )
         ):
             raise _FinalizeRecoveryError("timeout_worker_owner_inputs_mismatch")
+
+    def _validate_timeout_worker_owner_binding(self) -> None:
+        """Preserve the timeout-worker check's exact explicitly scoped-store contract."""
+        self._validate_run_owner_binding(require_store_binding=True)
 
     @classmethod
     def start(

@@ -1429,21 +1429,15 @@ def _persist_trinity_bundle(
 ) -> TrinityBundleRef:
     inputs = [input_ref_from_artifact_ref(ref, role=key) for key, ref in state.inputs.items()]
     from polisyos.core.artifacts import ensure_ir_artifact_store
-    from polisyos.ir.artifacts.io import _put_owned_json_artifact
-    from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
-    from polisyos.ir.registry.refs import ArtifactRefModel
-    from polisyos.ir.trinity.loaders import _TRINITY_BUNDLE_OWNER
+    from polisyos.ir.trinity.loaders import persist_trinity_bundle_artifact
 
-    artifact = _put_owned_json_artifact(
+    tenant_context = ctx.run.artifact_tenant_context()
+    selected = persist_trinity_bundle_artifact(
         ensure_ir_artifact_store(ctx.store),
-        bundle.model_dump(mode="json"),
-        owner=_TRINITY_BUNDLE_OWNER,
-        schema_name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
-        schema_version=str(bundle.schema_version),
+        bundle,
         inputs=inputs,
-        canon_spec=IRCanonSpec(forbid_floats=False),
+        tenant_context=tenant_context,
     )
-    selected = ArtifactRefModel.from_selected_write(artifact)
     return TrinityBundleRef.model_validate(selected.model_dump(mode="json"))
 
 

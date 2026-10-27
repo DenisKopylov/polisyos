@@ -126,16 +126,18 @@ from polisyos.foundry.welfare.bounds import (
 )
 from polisyos.ir.governance.schedule import ScheduleSpec, schedule_range
 from polisyos.ir.governance.selector_expr import SelectorExpr
-from polisyos.ir.kernel.constraints import ConstraintRegistry
-from polisyos.ir.kernel.mechanisms import MechanismTypeRegistry
-from polisyos.ir.kernel.merge_rules import MergeRuleKind, MergeRuleRegistry
-from polisyos.ir.kernel.method_metrics import (
+from polisyos.ir.kernel import (
     METHOD_METRIC_EX_ANTE_MEAN_CHANGE_LAW_ID,
+    ConstraintRegistry,
+    MechanismTypeRegistry,
+    MergeRuleKind,
+    MergeRuleRegistry,
     MethodMetricSourceUnit,
+    SelectorFieldRegistry,
+    SlotRegistry,
+    SlotScope,
     registered_method_metric_semantics_match,
 )
-from polisyos.ir.kernel.selector_fields import SelectorFieldRegistry
-from polisyos.ir.kernel.slots import SlotRegistry, SlotScope
 
 logger = logging.getLogger(__name__)
 

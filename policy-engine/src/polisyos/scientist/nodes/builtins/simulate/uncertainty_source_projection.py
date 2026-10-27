@@ -36,7 +36,7 @@ from polisyos.ir.analytics.uncertainty import (
     load_simulation_result_subject_uncertainty_projection,
     load_simulation_result_uncertainty_admission,
 )
-from polisyos.ir.registry.refs import ArtifactRefModel
+from polisyos.ir.registry import ArtifactRefModel
 
 _SHA256_PATTERN = r"^(?:sha256:)?[0-9a-f]{64}$"
 

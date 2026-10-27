@@ -1640,8 +1640,8 @@
         {
           "module": "polisyos.core.components",
           "facade_mode_observed": "eager_exports",
-          "export_count": 61,
-          "known_export_count": 61,
+          "export_count": 63,
+          "known_export_count": 63,
           "exports": [
             "DEFAULT_ENTRY_POINT_GROUPS",
             "ENTRY_POINT_GROUP",
@@ -1688,6 +1688,8 @@
             "DiscoveryReport",
             "DuplicateComponentIdPolicy",
             "HostAbi",
+            "ProviderModuleBinding",
+            "ProviderOriginBinding",
             "ResolvePolicy",
             "SemVer",
             "SemverRange",
@@ -1729,8 +1731,8 @@
                 "path": "src/polisyos/core/components/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 4090,
-                "sha256": "44539708c9b5f328e95e58916b0c2707163b21040874f6a9c48624a3746b63b5"
+                "bytes": 4223,
+                "sha256": "3d5fb595bebf042f299157019ce9abeade4f1d64aa730aa45a2893923e79a4ec"
               },
               {
                 "path": "src/polisyos/core/components",
@@ -1788,6 +1790,12 @@
               },
               {
                 "path": "src/polisyos/core/components/_cli_lex.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/core/components/_provider_origin.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true

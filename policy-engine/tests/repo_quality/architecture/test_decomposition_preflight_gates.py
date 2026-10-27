@@ -6889,6 +6889,135 @@ loader("json")
         assert preflight.validate_dynamic_imports() == []
 
 
+def test_dynamic_import_rejects_called_source_helper_rebinding_pep562_hook(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry_path = _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.probe.facade": """from external_decorators import replace_hook
+
+def __getattr__(name):
+    if name == "loader":
+        return "ordinary value"
+    raise AttributeError(name)
+
+def install_hook():
+    namespace = globals()
+    namespace["__getattr__"] = replace_hook(__getattr__)
+
+install_hook_alias = install_hook
+install_hook_alias()
+""",
+            "polisyos.probe.consumer": """from .facade import loader
+
+loader("json")
+""",
+        },
+    )
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
+
+    external_root = tmp_path / "external"
+    external_root.mkdir()
+    (tmp_path / "src/polisyos/__init__.py").write_text("", encoding="utf-8")
+    (tmp_path / "src/polisyos/probe/__init__.py").write_text("", encoding="utf-8")
+    (external_root / "external_decorators.py").write_text(
+        "from importlib import import_module\n"
+        "def replace_hook(original):\n"
+        "    def replacement(name):\n"
+        "        if name == 'loader':\n"
+        "            return import_module\n"
+        "        raise AttributeError(name)\n"
+        "    return replacement\n",
+        encoding="utf-8",
+    )
+    runtime = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "from polisyos.probe.facade import loader; print(loader('json').__name__)",
+        ],
+        cwd=tmp_path,
+        env={
+            **os.environ,
+            "PYTHONPATH": os.pathsep.join((str(external_root), str(tmp_path / "src"))),
+        },
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert runtime.stdout.strip() == "json"
+
+    with pytest.raises(preflight.DynamicImportCollectionError):
+        preflight.collect_dynamic_imports()
+    findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message == "dynamic import source inventory is incomplete"
+        and "ambiguous or unresolved" in finding.detail
+        for finding in findings
+    )
+
+    facade_path = tmp_path / "src/polisyos/probe/facade.py"
+    consumer_path = tmp_path / "src/polisyos/probe/consumer.py"
+    facade_source = facade_path.read_text(encoding="utf-8")
+    consumer_source = consumer_path.read_text(encoding="utf-8")
+    assert 'namespace["__getattr__"] = replace_hook(__getattr__)' in facade_source
+    assert 'loader("json")' in consumer_source
+    facade_path.write_text(
+        facade_source.replace(
+            'namespace["__getattr__"] = replace_hook(__getattr__)',
+            "replace_hook(__getattr__)",
+        ),
+        encoding="utf-8",
+    )
+    assert "replace_hook(__getattr__)" in facade_path.read_text(encoding="utf-8")
+    assert 'loader("json")' in consumer_path.read_text(encoding="utf-8")
+    assert preflight.collect_dynamic_imports() == []
+    assert preflight.validate_dynamic_imports() == []
+
+
+def test_dynamic_import_ignores_uncalled_pep562_hook_mutator_and_safe_module_calls(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry_path = _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.probe.facade": """from external_decorators import replace_hook
+
+def __getattr__(name):
+    if name == "loader":
+        return "ordinary value"
+    raise AttributeError(name)
+
+def install_hook():
+    namespace = globals()
+    namespace["__getattr__"] = replace_hook(__getattr__)
+
+def safe_helper():
+    return None
+
+class Safe:
+    pass
+
+safe_helper()
+Safe()
+""",
+            "polisyos.probe.consumer": """from .facade import loader
+
+loader("json")
+""",
+        },
+    )
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
+
+    assert preflight.collect_dynamic_imports() == []
+    assert preflight.validate_dynamic_imports() == []
+
+
 def test_dynamic_import_rejects_pep562_hook_with_default_namespace_rebinding(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -8528,6 +8657,655 @@ def test_dynamic_import_source_bindings_keep_lazy_facade_importers_guarded() -> 
     assert unresolved.guarded
 
 
+def test_dynamic_import_deferred_summary_resolves_actual_template_source_functions() -> None:
+    source_paths = preflight._dynamic_source_paths("src")
+    selected_modules = {
+        "polisyos.common.canonical",
+        "polisyos.common.canonical_profile",
+        "polisyos.common.hashing",
+        "polisyos.common.serialization",
+        "polisyos.common.serialization._strict_json",
+        "polisyos.core.audit.standalone_verifier_template",
+        "polisyos.core.canon",
+        "polisyos.core.canon.canon_json",
+        "polisyos.core.canon.hashing",
+    }
+    selected_paths = [
+        path for path in source_paths if preflight.module_fqn_from_path(path) in selected_modules
+    ]
+    assert {preflight.module_fqn_from_path(path) for path in selected_paths} == selected_modules
+    source_context = preflight._dynamic_read_source_context(selected_paths)
+    source_bindings = preflight._DynamicImportSourceBindings(
+        source_paths,
+        source_context=source_context,
+    )
+    module = "polisyos.core.audit.standalone_verifier_template"
+    member = next(
+        candidate
+        for candidate in source_context.members
+        if preflight.module_fqn_from_path(candidate.path) == module
+    )
+    scanner = preflight._DynamicImportSourceScanner(
+        member.path,
+        relative_path=member.relative_path,
+        source_bindings=source_bindings,
+        source_context=source_context,
+    )
+    scanner.scan(member.tree)
+    streaming_hash = scanner._module_environment["streaming_hash"]
+    assert streaming_hash.kind == "union"
+    assert streaming_hash.items is not None
+    assert {item.kind for item in streaming_hash.items} == {"other", "source_function"}
+
+
+def test_dynamic_import_source_bindings_resolve_berl_lazy_facade_reference() -> None:
+    source_bindings = preflight._DynamicImportSourceBindings(preflight._dynamic_source_paths("src"))
+    reference = source_bindings.import_binding(
+        "polisyos.ir.analytics",
+        "ExplanationBundleRef",
+        current_module="polisyos.berl.persistence",
+    )
+    assert reference.kind == "other"
+    assert reference.origin_name == "polisyos.ir.registry.refs.ExplanationBundleRef"
+    assert not reference.guarded
+
+    module = "polisyos.berl.persistence"
+    path = source_bindings.module_paths[module]
+    tree = source_bindings._module_tree(module)
+    assert tree is not None
+    scanner = preflight._DynamicImportSourceScanner(
+        path,
+        relative_path="src/polisyos/berl/persistence.py",
+        source_bindings=source_bindings,
+    )
+    scanner.scan(tree)
+    resolved = scanner._module_environment["ExplanationBundleRef"]
+    assert resolved.origin_name == "polisyos.ir.registry.refs.ExplanationBundleRef"
+    assert not resolved.guarded
+
+
+def test_dynamic_import_lazy_export_resolver_requires_source_owned_map() -> None:
+    source_bindings = preflight._DynamicImportSourceBindings(preflight._dynamic_source_paths("src"))
+    module = "polisyos.ir.analytics"
+    tree = source_bindings._module_tree(module)
+    environment = source_bindings._module_environment(module, ())
+    assert tree is not None
+    assert environment is not None
+    hook = next(
+        node
+        for node in tree.body
+        if isinstance(node, ast.FunctionDef) and node.name == "__getattr__"
+    )
+    call = next(
+        node
+        for node in ast.walk(hook)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id == "resolve_lazy_export"
+    )
+    callee = source_bindings._expression_binding(
+        call.func,
+        environment,
+        module,
+        (),
+    )
+    assert (
+        source_bindings._lazy_export_call_contract(
+            call,
+            environment,
+            module,
+            (),
+            callee=callee,
+        )
+        is not None
+    )
+
+    import copy
+
+    unowned_call = copy.deepcopy(call)
+    exports_keyword = next(keyword for keyword in unowned_call.keywords if keyword.arg == "exports")
+    exports_keyword.value = ast.Name(id="unowned_exports", ctx=ast.Load())
+    assert (
+        source_bindings._lazy_export_call_contract(
+            unowned_call,
+            environment,
+            module,
+            (),
+            callee=callee,
+        )
+        is None
+    )
+
+
+@pytest.mark.parametrize(
+    "source_effect",
+    ["subscript-write", "mutable-method", "opaque-exposure"],
+)
+def test_dynamic_import_lazy_export_map_requires_source_proven_read_only_effects(
+    source_effect: str,
+) -> None:
+    import copy
+
+    source_paths = preflight._dynamic_source_paths("src")
+    source_bindings = preflight._DynamicImportSourceBindings(source_paths)
+    module = "polisyos.ir.api"
+    tree = source_bindings._module_tree(module)
+    assert tree is not None
+    tree = copy.deepcopy(tree)
+    map_name = "ANALYTICS_FACADE_EXPORTS"
+    assignment_index = next(
+        index
+        for index, statement in enumerate(tree.body)
+        if isinstance(statement, ast.AnnAssign)
+        and isinstance(statement.target, ast.Name)
+        and statement.target.id == map_name
+    )
+    map_name_node = ast.Name(id=map_name, ctx=ast.Load())
+    if source_effect == "subscript-write":
+        effect: ast.stmt = ast.Assign(
+            targets=[
+                ast.Subscript(
+                    value=map_name_node,
+                    slice=ast.Constant("ExplanationBundleRef"),
+                    ctx=ast.Store(),
+                )
+            ],
+            value=ast.Tuple(
+                elts=[ast.Constant("importlib"), ast.Constant("import_module")],
+                ctx=ast.Load(),
+            ),
+        )
+    elif source_effect == "mutable-method":
+        effect = ast.Expr(
+            value=ast.Call(
+                func=ast.Attribute(value=map_name_node, attr="update", ctx=ast.Load()),
+                args=[
+                    ast.Dict(
+                        keys=[ast.Constant("ExplanationBundleRef")],
+                        values=[
+                            ast.Tuple(
+                                elts=[ast.Constant("importlib"), ast.Constant("import_module")],
+                                ctx=ast.Load(),
+                            )
+                        ],
+                    )
+                ],
+                keywords=[],
+            )
+        )
+    else:
+        effect = ast.Expr(
+            value=ast.Call(
+                func=ast.Name(id="opaque_map_consumer", ctx=ast.Load()),
+                args=[map_name_node],
+                keywords=[],
+            )
+        )
+    tree.body.insert(assignment_index + 1, effect)
+    ast.fix_missing_locations(tree)
+    source_bindings.trees[module] = tree
+    source_bindings.environments.clear()
+    source_bindings._module_execution_snapshots.clear()
+
+    result = source_bindings.import_binding(
+        "polisyos.ir.analytics",
+        "ExplanationBundleRef",
+        current_module="polisyos.ir.analytics",
+        is_package=True,
+    )
+    assert result.kind == "ambiguous"
+    assert result.guarded
+
+
+@pytest.mark.parametrize(
+    "source_effect",
+    [
+        "opaque-module-attribute",
+        "opaque-from-import",
+        "opaque-nested-list-dict",
+        "subscript-assignment",
+        "subscript-augmented-assignment",
+        "subscript-delete",
+        "subscript-annotated-assignment",
+        "for-target",
+        "with-target",
+        "comprehension-target",
+        "tuple-target",
+        "list-target",
+        "starred-target",
+        "named-expression-name-rebind",
+        "mapping-inplace-merge",
+    ],
+    ids=(
+        "opaque-module-attribute",
+        "opaque-from-import",
+        "opaque-nested-list-dict",
+        "subscript-assignment",
+        "subscript-augmented-assignment",
+        "subscript-delete",
+        "subscript-annotated-assignment",
+        "for-target",
+        "with-target",
+        "comprehension-target",
+        "tuple-target",
+        "list-target",
+        "starred-target",
+        "named-expression-name-rebind",
+        "mapping-inplace-merge",
+    ),
+)
+@pytest.mark.parametrize(
+    "owner_map_resolved_first",
+    [True, False],
+    ids=("owner-map-resolved-before-sibling-effect", "sibling-effect-before-owner-map-resolution"),
+)
+def test_dynamic_import_lazy_export_map_tracks_selected_sibling_effects(
+    source_effect: str,
+    owner_map_resolved_first: bool,
+) -> None:
+    import copy
+    from dataclasses import replace
+
+    source_modules = {
+        "polisyos.ir.api",
+        "polisyos.ir.analytics",
+        "polisyos.ir.registry",
+        "polisyos.ir.registry.refs",
+    }
+    selected_paths = [
+        path
+        for path in preflight._dynamic_source_paths("src")
+        if preflight.module_fqn_from_path(path) in source_modules
+    ]
+    assert {preflight.module_fqn_from_path(path) for path in selected_paths} == source_modules
+    source_context = preflight._dynamic_read_source_context(selected_paths)
+    source_bindings = preflight._DynamicImportSourceBindings(
+        selected_paths,
+        source_context=source_context,
+    )
+
+    api_module = "polisyos.ir.api"
+    consumer_module = "polisyos.ir.registry"
+    api_tree = source_bindings._module_tree(api_module)
+    consumer_tree = source_bindings._module_tree(consumer_module)
+    assert api_tree is not None
+    assert consumer_tree is not None
+    consumer_tree = copy.deepcopy(consumer_tree)
+    insert_at = (
+        1
+        if consumer_tree.body
+        and isinstance(consumer_tree.body[0], ast.Expr)
+        and isinstance(consumer_tree.body[0].value, ast.Constant)
+        and isinstance(consumer_tree.body[0].value.value, str)
+        else 0
+    )
+    while (
+        insert_at < len(consumer_tree.body)
+        and isinstance(consumer_tree.body[insert_at], ast.ImportFrom)
+        and consumer_tree.body[insert_at].module == "__future__"
+    ):
+        insert_at += 1
+    consumer_tree.body[insert_at:insert_at] = [
+        ast.Import(names=[ast.alias(name=api_module, asname="api")]),
+        ast.Assign(
+            targets=[ast.Name(id="exports", ctx=ast.Store())],
+            value=ast.Attribute(
+                value=ast.Name(id="api", ctx=ast.Load()),
+                attr="ANALYTICS_FACADE_EXPORTS",
+                ctx=ast.Load(),
+            ),
+        ),
+        ast.ImportFrom(
+            module=api_module,
+            names=[ast.alias(name="ANALYTICS_FACADE_EXPORTS", asname="imported_exports")],
+            level=0,
+        ),
+        ast.Assign(
+            targets=[ast.Name(id="alias", ctx=ast.Store())],
+            value=ast.Name(id="exports", ctx=ast.Load()),
+        ),
+    ]
+    source_effects = {
+        "opaque-module-attribute": "opaque_map_consumer(alias)",
+        "opaque-from-import": "opaque_map_consumer(imported_exports)",
+        "opaque-nested-list-dict": "opaque_map_consumer([{'nested': alias}])",
+        "subscript-assignment": "alias['Probe'] = ('importlib', 'import_module')",
+        "subscript-augmented-assignment": "alias['Probe'] += ('importlib', 'import_module')",
+        "subscript-delete": "del alias['Probe']",
+        "subscript-annotated-assignment": (
+            "alias['Probe']: tuple[str, str] = ('importlib', 'import_module')"
+        ),
+        "for-target": "for alias['Probe'] in (('importlib', 'import_module'),):\n    pass",
+        "with-target": "with opaque_context() as alias['Probe']:\n    pass",
+        "comprehension-target": (
+            "[(item) for alias['Probe'] in (('importlib', 'import_module'),)]"
+        ),
+        "tuple-target": "(alias['Probe'], unused) = (('importlib', 'import_module'), None)",
+        "list-target": "[alias['Probe'], unused] = [('importlib', 'import_module'), None]",
+        "starred-target": "*alias['Probe'], = [('importlib', 'import_module')]",
+        "named-expression-name-rebind": "result = (alias := {})",
+        "mapping-inplace-merge": "alias |= {'Probe': ('importlib', 'import_module')}",
+    }
+    consumer_tree.body[insert_at + 4 : insert_at + 4] = ast.parse(
+        source_effects[source_effect]
+    ).body
+    ast.fix_missing_locations(consumer_tree)
+
+    if owner_map_resolved_first:
+        clean_map = source_bindings.import_binding(api_module, "ANALYTICS_FACADE_EXPORTS")
+        assert clean_map.kind == "mapping"
+        assert source_bindings._source_literal_mapping_is_current(clean_map)
+        clean_target = source_bindings.import_binding(
+            "polisyos.ir.analytics",
+            "ExplanationBundleRef",
+        )
+        assert clean_target.kind == "other"
+        assert not clean_target.guarded
+
+    scan_order = (
+        ((api_module, api_tree), (consumer_module, consumer_tree))
+        if owner_map_resolved_first
+        else ((consumer_module, consumer_tree), (api_module, api_tree))
+    )
+    for module, tree in scan_order:
+        path = source_bindings.module_paths[module]
+        scanner = preflight._DynamicImportSourceScanner(
+            path,
+            relative_path=preflight._dynamic_source_label(path),
+            source_bindings=source_bindings,
+            source_context=source_context,
+        )
+        scanner.scan(tree)
+
+    map_identity = f"{api_module}.ANALYTICS_FACADE_EXPORTS"
+    if source_effect == "named-expression-name-rebind":
+        assert map_identity not in source_bindings._source_mapping_effects
+        complete_context = replace(
+            source_context,
+            source_mapping_effects=frozenset(source_bindings._source_mapping_effects),
+        )
+        complete_bindings = preflight._DynamicImportSourceBindings(
+            selected_paths,
+            source_context=complete_context,
+        )
+        preserved_map = complete_bindings.import_binding(api_module, "ANALYTICS_FACADE_EXPORTS")
+        assert preserved_map.kind == "mapping"
+        assert complete_bindings._source_literal_mapping_is_current(preserved_map)
+        unchanged_target = complete_bindings.import_binding(
+            "polisyos.ir.analytics", "ExplanationBundleRef"
+        )
+        assert unchanged_target.kind == "other"
+        assert not unchanged_target.guarded
+        return
+    assert map_identity in source_bindings._source_mapping_effects
+    complete_context = replace(
+        source_context,
+        source_mapping_effects=frozenset(source_bindings._source_mapping_effects),
+    )
+    complete_bindings = preflight._DynamicImportSourceBindings(
+        selected_paths,
+        source_context=complete_context,
+    )
+    refused = complete_bindings.import_binding(
+        "polisyos.ir.analytics",
+        "ExplanationBundleRef",
+    )
+    assert refused.kind == "ambiguous"
+    assert refused.guarded
+
+
+@pytest.mark.parametrize(
+    "mutator_module",
+    ["a_mutator", "z_mutator"],
+    ids=("sibling-before-owner-module", "sibling-after-owner-module"),
+)
+def test_dynamic_import_collector_refuses_selected_sibling_map_mutation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    mutator_module: str,
+) -> None:
+    _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.__init__": "",
+            "polisyos.catalog.__init__": "",
+            "polisyos.catalog.contracts": """ROUTE_TABLE = {
+    ("catalog", "loader"): ("importlib", "import_module"),
+}
+""",
+            f"polisyos.catalog.{mutator_module}": (
+                "from .contracts import ROUTE_TABLE\n"
+                'ROUTE_TABLE[("catalog", "probe")] = '
+                '("polisyos.catalog", "public_builder")\n'
+            ),
+            "polisyos.catalog.route_consumer": _dynamic_import_internal_map_consumer(
+                "from .contracts import ROUTE_TABLE as ROUTE_TABLE"
+            ),
+        },
+    )
+
+    with pytest.raises(preflight.DynamicImportCollectionError) as error:
+        preflight.collect_dynamic_imports()
+
+    assert "ambiguous" in str(error.value) or "unresolved" in str(error.value)
+
+
+@pytest.mark.parametrize(
+    ("mutator_module", "nested_map_escape"),
+    [
+        ("a_mutator", True),
+        ("z_mutator", True),
+        ("a_mutator", False),
+    ],
+    ids=(
+        "nested-map-before-owner-resolution",
+        "nested-map-after-owner-resolution",
+        "unrelated-scalar-control",
+    ),
+)
+def test_dynamic_import_collector_tracks_nested_selected_map_opaque_escape(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    mutator_module: str,
+    nested_map_escape: bool,
+) -> None:
+    mutation_argument = (
+        "[{'nested': ANALYTICS_FACADE_EXPORTS}]" if nested_map_escape else "'unrelated scalar'"
+    )
+    modules = {
+        "polisyos.__init__": "",
+        "polisyos.ir.__init__": "",
+        "polisyos.ir.api": """import importlib
+
+ANALYTICS_FACADE_EXPORTS = {
+    "load": ("importlib", "import_module"),
+}
+
+def resolve_lazy_export(name, *, namespace, exports):
+    try:
+        module_name, attr_name = exports[name]
+    except KeyError as exc:
+        module_name = namespace.get("__name__", "<unknown>")
+        raise AttributeError(f"module {module_name!r} has no attribute {name!r}") from exc
+    module = importlib.import_module(module_name)
+    value = getattr(module, attr_name)
+    namespace[name] = value
+    return value
+""",
+        "polisyos.ir.analytics": """from .api import ANALYTICS_FACADE_EXPORTS, resolve_lazy_export
+
+def __getattr__(name):
+    return resolve_lazy_export(name, namespace=globals(), exports=ANALYTICS_FACADE_EXPORTS)
+""",
+        f"polisyos.ir.{mutator_module}": (
+            f"from .api import ANALYTICS_FACADE_EXPORTS\nopaque_map_consumer({mutation_argument})\n"
+        ),
+        "polisyos.ir.consumer": """from polisyos.ir.analytics import load
+
+load("polisyos.nested_map_hidden_import")
+""",
+        "polisyos.nested_map_hidden_import": "VALUE = 1\n",
+    }
+    _dynamic_import_internal_modules_fixture(tmp_path, monkeypatch, modules)
+
+    if nested_map_escape:
+        with pytest.raises(preflight.DynamicImportCollectionError):
+            preflight.collect_dynamic_imports()
+    else:
+        entries = preflight.collect_dynamic_imports()
+        assert "polisyos.nested_map_hidden_import" in [entry["pattern"] for entry in entries]
+
+
+@pytest.mark.parametrize(
+    "transfer",
+    ["setdefault", "update", "subscript-store", "attribute-store", "list-append", "list-extend"],
+    ids=(
+        "mapping-setdefault",
+        "mapping-update",
+        "subscript-store",
+        "attribute-store",
+        "list-append",
+        "list-extend",
+    ),
+)
+@pytest.mark.parametrize(
+    "payload_kind",
+    ["direct-map", "nested-map", "unrelated-scalar"],
+    ids=("direct-source-map", "nested-source-map", "unrelated-scalar"),
+)
+@pytest.mark.parametrize(
+    "mutator_module",
+    ["a_mutator", "z_mutator"],
+    ids=("sibling-before-owner-module", "sibling-after-owner-module"),
+)
+def test_dynamic_import_collector_tracks_unmodeled_source_mapping_transfers(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    transfer: str,
+    payload_kind: str,
+    mutator_module: str,
+) -> None:
+    if payload_kind == "unrelated-scalar":
+        payload = "'unrelated scalar'"
+    elif payload_kind == "nested-map":
+        payload = "{'deep': [source_map]}"
+    else:
+        payload = "source_map"
+
+    if transfer == "setdefault":
+        operation = f"wrapper = {{}}\nwrapper.setdefault('nested', {payload})"
+    elif transfer == "update":
+        operation = f"wrapper = {{}}\nwrapper.update({{'nested': {payload}}})"
+    elif transfer == "subscript-store":
+        operation = f"wrapper = {{}}\nwrapper['nested'] = {payload}"
+    elif transfer == "attribute-store":
+        operation = f"wrapper = object()\nwrapper.nested = {payload}"
+    elif transfer == "list-append":
+        operation = f"wrapper = []\nwrapper.append({payload})"
+    elif transfer == "list-extend":
+        extended = "['unrelated scalar']" if payload_kind == "unrelated-scalar" else f"[{payload}]"
+        operation = f"wrapper = []\nwrapper.extend({extended})"
+    else:
+        pytest.fail(f"unrecognized transfer fixture: {transfer}")
+
+    modules = {
+        "polisyos.__init__": "",
+        "polisyos.ir.__init__": "",
+        "polisyos.ir.api": """import importlib
+
+ANALYTICS_FACADE_EXPORTS = {
+    "load": ("importlib", "import_module"),
+}
+
+def resolve_lazy_export(name, *, namespace, exports):
+    try:
+        module_name, attr_name = exports[name]
+    except KeyError as exc:
+        module_name = namespace.get("__name__", "<unknown>")
+        raise AttributeError(f"module {module_name!r} has no attribute {name!r}") from exc
+    module = importlib.import_module(module_name)
+    value = getattr(module, attr_name)
+    namespace[name] = value
+    return value
+""",
+        "polisyos.ir.analytics": """from .api import ANALYTICS_FACADE_EXPORTS, resolve_lazy_export
+
+def __getattr__(name):
+    return resolve_lazy_export(name, namespace=globals(), exports=ANALYTICS_FACADE_EXPORTS)
+""",
+        f"polisyos.ir.{mutator_module}": (
+            "from .api import ANALYTICS_FACADE_EXPORTS as source_map\n"
+            f"{operation}\n"
+            "opaque(wrapper)\n"
+        ),
+        "polisyos.ir.consumer": """from .analytics import load
+
+load("polisyos.nested_map_hidden_import")
+""",
+        "polisyos.nested_map_hidden_import": "VALUE = 1\n",
+    }
+    _dynamic_import_internal_modules_fixture(tmp_path, monkeypatch, modules)
+
+    if payload_kind == "unrelated-scalar":
+        entries = preflight.collect_dynamic_imports()
+        assert "polisyos.nested_map_hidden_import" in [entry["pattern"] for entry in entries]
+    else:
+        with pytest.raises(preflight.DynamicImportCollectionError):
+            preflight.collect_dynamic_imports()
+
+
+@pytest.mark.parametrize(
+    "mutator_module",
+    ["a_mutator", "z_mutator"],
+    ids=("sibling-before-owner-module", "sibling-after-owner-module"),
+)
+def test_dynamic_import_modeled_literal_map_and_pure_length_read_preserve_import(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    mutator_module: str,
+) -> None:
+    modules = {
+        "polisyos.__init__": "",
+        "polisyos.ir.__init__": "",
+        "polisyos.ir.api": """import importlib
+
+ANALYTICS_FACADE_EXPORTS = {
+    "load": ("importlib", "import_module"),
+}
+
+def resolve_lazy_export(name, *, namespace, exports):
+    try:
+        module_name, attr_name = exports[name]
+    except KeyError as exc:
+        module_name = namespace.get("__name__", "<unknown>")
+        raise AttributeError(f"module {module_name!r} has no attribute {name!r}") from exc
+    module = importlib.import_module(module_name)
+    value = getattr(module, attr_name)
+    namespace[name] = value
+    return value
+""",
+        "polisyos.ir.analytics": """from .api import ANALYTICS_FACADE_EXPORTS, resolve_lazy_export
+
+def __getattr__(name):
+    return resolve_lazy_export(name, namespace=globals(), exports=ANALYTICS_FACADE_EXPORTS)
+""",
+        f"polisyos.ir.{mutator_module}": """from .api import ANALYTICS_FACADE_EXPORTS as source_map
+wrapper = {"nested": [source_map]}
+observed_size = len(wrapper)
+""",
+        "polisyos.ir.consumer": """from .analytics import load
+
+load("polisyos.nested_map_hidden_import")
+""",
+        "polisyos.nested_map_hidden_import": "VALUE = 1\n",
+    }
+    _dynamic_import_internal_modules_fixture(tmp_path, monkeypatch, modules)
+
+    entries = preflight.collect_dynamic_imports()
+    assert "polisyos.nested_map_hidden_import" in [entry["pattern"] for entry in entries]
+
+
 def test_dynamic_import_postponed_annotation_shadow_does_not_disable_runtime_checks(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -8550,25 +9328,34 @@ def test_dynamic_import_postponed_annotation_shadow_does_not_disable_runtime_che
     assert preflight.collect_dynamic_imports() == []
 
 
+@pytest.mark.parametrize(
+    "cross_module_type_checking_write",
+    [False, True],
+    ids=("typed-sentinel-stays-prunable", "cross-module-write-keeps-sentinel-open"),
+)
 def test_dynamic_import_type_checking_source_effect_keeps_ordinary_if_inventory(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    cross_module_type_checking_write: bool,
 ) -> None:
     source = (
         "import typing as typing_alias\n"
         "import importlib as importlib_alias\n"
         "if False:\n"
         '    importlib_alias.import_module("polisyos.literal_false_only")\n'
+        "if typing_alias.TYPE_CHECKING:\n"
+        '    importlib_alias.import_module("polisyos.typed_guard_only")\n'
     )
     _dynamic_import_fixture(tmp_path, monkeypatch, source)
-    (tmp_path / "src" / "unrelated_mutator.py").write_text(
-        "import typing as typing_alias\ntyping_alias.TYPE_CHECKING = True\n",
-        encoding="utf-8",
-    )
+    if cross_module_type_checking_write:
+        (tmp_path / "src" / "unrelated_mutator.py").write_text(
+            "import typing as typing_alias\ntyping_alias.TYPE_CHECKING = True\n",
+            encoding="utf-8",
+        )
 
-    assert [entry["pattern"] for entry in preflight.collect_dynamic_imports()] == [
-        "polisyos.literal_false_only"
-    ]
+    patterns = [entry["pattern"] for entry in preflight.collect_dynamic_imports()]
+    assert "polisyos.literal_false_only" in patterns
+    assert ("polisyos.typed_guard_only" in patterns) is cross_module_type_checking_write
 
 
 @pytest.mark.parametrize(
@@ -8641,7 +9428,7 @@ def test_dynamic_import_source_class_identity_escape_to_mutable_mapping_fails_cl
 
     assert any(
         finding.message == "dynamic import source inventory is incomplete"
-        and "guarded importer value escapes through a call argument" in finding.detail
+        and "dynamic importer binding is ambiguous or unresolved" in finding.detail
         for finding in findings
     ), findings
 
@@ -8809,6 +9596,308 @@ imported_target = path_value("polisyos.hidden_target").__name__
     ), findings
 
 
+def test_dynamic_import_source_backed_factory_result_matches_method_annotation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.storage": """from pathlib import Path
+
+class PathLookingFactory:
+    def path(self) -> Path:
+        return Path("/tmp")
+""",
+            "polisyos.consumer": """from polisyos.storage import PathLookingFactory
+
+path_value = PathLookingFactory().path()
+path_value.exists()
+""",
+        },
+    )
+
+    assert preflight.collect_dynamic_imports() == []
+
+
+def test_dynamic_import_source_method_transfer_uses_actual_annotated_artifact_id() -> None:
+    from polisyos.core.artifacts.ids import ArtifactID
+
+    validation_schema = ArtifactID.model_json_schema(mode="validation")
+    serialization_schema = ArtifactID.model_json_schema(mode="serialization")
+    assert validation_schema["pattern"] == r"^sha256:[0-9A-Fa-f]{64}$"
+    assert serialization_schema["pattern"] == r"^sha256:[0-9a-f]{64}$"
+    assert validation_schema["minLength"] == validation_schema["maxLength"] == 71
+    assert serialization_schema["minLength"] == serialization_schema["maxLength"] == 71
+    assert ArtifactID.prefix == "sha256:"
+    assert str(ArtifactID.model_validate("sha256:" + "a" * 64)) == "sha256:" + "a" * 64
+
+    source_paths = preflight._dynamic_source_paths("src")
+    source_bindings = preflight._DynamicImportSourceBindings(source_paths)
+    artifact_id_name = "polisyos.core.artifacts.ids.ArtifactID"
+    assert source_bindings._source_pydantic_root_model_string(artifact_id_name) is not None
+    assert source_bindings._source_pydantic_root_model_class_effects_are_safe(artifact_id_name)
+
+    source = """
+from pathlib import Path
+from polisyos.core import artifacts
+
+store = artifacts.FileSystemCAS(Path("/tmp/cas"))
+record_ref = artifacts.ArtifactID.model_validate(
+    "sha256:" + "a" * 64
+)
+signature_path = store._sig_path(record_ref)
+signature_path.stat().st_mode & 0o777
+"""
+    source_path = REPO_ROOT / "apps/runtime-dashboard/e2e/fixtures/serve_public_verification_api.py"
+    scanner = preflight._DynamicImportSourceScanner(
+        source_path,
+        relative_path="apps/runtime-dashboard/e2e/fixtures/serve_public_verification_api.py",
+        source_bindings=source_bindings,
+    )
+
+    assert scanner.scan(ast.parse(source)) == []
+
+
+def test_dynamic_import_annotated_root_model_requires_schema_only_metadata(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.models": """from typing import Annotated
+from pydantic import AfterValidator, RootModel
+
+def opaque_transform(value):
+    return value
+
+class Token(RootModel[Annotated[str, AfterValidator(opaque_transform)]]):
+    pass
+""",
+        },
+    )
+    source_bindings = preflight._DynamicImportSourceBindings(preflight._dynamic_source_paths("src"))
+
+    assert source_bindings._source_pydantic_root_model_string("polisyos.models.Token") is None
+
+
+@pytest.mark.parametrize(
+    "shadowed_name",
+    [
+        "RootModel",
+        "Annotated",
+        "WithJsonSchema",
+        "ConfigDict",
+        "ClassVar",
+        "field_validator",
+        "str",
+    ],
+)
+def test_dynamic_import_root_model_requires_class_definition_time_import_identities(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    shadowed_name: str,
+) -> None:
+    imports = """from typing import Annotated as _real_Annotated, ClassVar as _real_ClassVar
+from pydantic import (
+    ConfigDict as _real_ConfigDict,
+    RootModel as _real_RootModel,
+    WithJsonSchema as _real_WithJsonSchema,
+    field_validator as _real_field_validator,
+)
+from builtins import str as _real_str
+"""
+    real_name = f"_real_{shadowed_name}"
+    module_source = (
+        imports
+        + f"{shadowed_name} = {real_name}\n"
+        + """
+def _schema_callback(schema, model):
+    return None
+
+class Token(
+    RootModel[
+        Annotated[
+            str,
+            WithJsonSchema({"type": "string"}),
+        ]
+    ]
+):
+    model_config = ConfigDict(json_schema_extra=_schema_callback)
+    prefix: ClassVar[str] = "token:"
+
+    @field_validator("root", mode="before")
+    @classmethod
+    def before(cls, value):
+        return value
+
+from typing import Annotated, ClassVar
+from pydantic import ConfigDict, RootModel, WithJsonSchema, field_validator
+from builtins import str
+"""
+    )
+    _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.__init__": "",
+            "polisyos.models": module_source,
+        },
+    )
+    source_bindings = preflight._DynamicImportSourceBindings(preflight._dynamic_source_paths("src"))
+
+    assert source_bindings._source_pydantic_root_model_string("polisyos.models.Token") is None
+
+
+@pytest.mark.parametrize(
+    "shadowed_class_name",
+    [
+        "ConfigDict",
+        "ClassVar",
+        "field_validator",
+        "str",
+        "_schema_callback",
+        "classmethod",
+        "property",
+    ],
+)
+def test_dynamic_import_root_model_checks_class_local_bindings_at_use(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    shadowed_class_name: str,
+) -> None:
+    class_bindings = {
+        "ConfigDict": "    ConfigDict = _real_ConfigDict\n",
+        "ClassVar": "    ClassVar = _real_ClassVar\n",
+        "field_validator": "    field_validator = _real_field_validator\n",
+        "str": "    str = _real_str\n",
+        "_schema_callback": "    _schema_callback = lambda schema, model: None\n",
+        "classmethod": "    classmethod = _real_classmethod\n",
+        "property": "    property = _real_property\n",
+    }
+    module_source = """from typing import Annotated, ClassVar
+from pydantic import ConfigDict, RootModel, WithJsonSchema, field_validator
+from builtins import (
+    classmethod as _real_classmethod,
+    property as _real_property,
+    str as _real_str,
+)
+
+def _schema_callback(schema, model):
+    return None
+
+class Token(RootModel[Annotated[str, WithJsonSchema({"type": "string"})]]):
+@@CLASS_BINDING@@
+    model_config = ConfigDict(json_schema_extra=_schema_callback)
+    prefix: ClassVar[str] = "token:"
+
+    @field_validator("root", mode="before")
+    @classmethod
+    def before(cls, value):
+        return value
+
+    @property
+    def display(self):
+        return self.root
+""".replace("@@CLASS_BINDING@@", class_bindings[shadowed_class_name])
+    _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.__init__": "",
+            "polisyos.models": module_source,
+        },
+    )
+    source_bindings = preflight._DynamicImportSourceBindings(preflight._dynamic_source_paths("src"))
+
+    assert source_bindings._source_pydantic_root_model_string("polisyos.models.Token") is None
+
+
+def test_dynamic_import_root_model_rejects_executable_late_reimport_schema_lookalike(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry_path = _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.__init__": "",
+            "polisyos.models": """from typing import Annotated
+from pydantic import RootModel
+from opaque_vendor.schema import schema_lookalike
+
+WithJsonSchema = schema_lookalike
+
+class Token(RootModel[Annotated[str, WithJsonSchema({"type": "string"})]]):
+    pass
+
+from pydantic import WithJsonSchema
+""",
+            "polisyos.consumer": """from .models import Token
+
+loaded_module = Token.model_validate("ordinary-string").root("polisyos.hidden_target").__name__
+""",
+            "polisyos.hidden_target": "class HiddenTarget: pass\n",
+        },
+    )
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
+    external_root = tmp_path / "deps"
+    external_package = external_root / "opaque_vendor"
+    external_package.mkdir(parents=True)
+    (external_package / "__init__.py").write_text("", encoding="utf-8")
+    external_module = external_package / "schema.py"
+    external_module.write_text(
+        """from importlib import import_module
+from pydantic import AfterValidator
+
+def schema_lookalike(schema, *, mode=None):
+    return AfterValidator(lambda _value: import_module)
+""",
+        encoding="utf-8",
+    )
+    selected_paths = set(preflight._dynamic_source_paths("src"))
+    assert external_module not in selected_paths
+
+    runtime = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            (
+                "from importlib import import_module; "
+                "from polisyos.models import Token; "
+                "value = Token.model_validate('ordinary-string').root; "
+                "print(value is import_module); "
+                "print(value('json').__name__)"
+            ),
+        ],
+        cwd=tmp_path,
+        env={
+            **os.environ,
+            "PYTHONPATH": os.pathsep.join((str(external_root), str(tmp_path / "src"))),
+        },
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert runtime.stdout.splitlines() == ["True", "json"]
+
+    with pytest.raises(
+        preflight.DynamicImportCollectionError,
+        match="dynamic importer binding is ambiguous or unresolved",
+    ):
+        preflight.collect_dynamic_imports()
+
+    findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message == "dynamic import source inventory is incomplete"
+        and "dynamic importer binding is ambiguous or unresolved" in finding.detail
+        for finding in findings
+    ), findings
+
+
 def test_dynamic_import_source_method_transfers_use_body_proven_path_stat_and_namespace(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -8850,3 +9939,1127 @@ import_module(options.module)
     assert [(entry["pattern"], entry["allowed_targets"]) for entry in entries] == [
         ("options.module", [])
     ]
+
+
+@pytest.mark.parametrize(
+    "include_shared_hashing",
+    [False, True],
+    ids=["three-selected-files", "four-selected-files"],
+)
+def test_dynamic_import_collector_scans_template_hash_functions_in_source_context(
+    include_shared_hashing: bool,
+) -> None:
+    # Resolve the template fallback and canonical function from selected source members.
+    template = preflight.SRC_ROOT / "polisyos/core/audit/standalone_verifier_template.py"
+    source_paths = [
+        template,
+        preflight.SRC_ROOT / "polisyos/core/canon/__init__.py",
+        preflight.SRC_ROOT / "polisyos/core/canon/hashing.py",
+    ]
+    if include_shared_hashing:
+        source_paths.append(preflight.SRC_ROOT / "polisyos/common/hashing.py")
+    context = preflight._dynamic_read_source_context(source_paths)
+    bindings = preflight._DynamicImportSourceBindings(source_paths, source_context=context)
+    template_member = next(member for member in context.members if member.path == template)
+    scanner = preflight._DynamicImportSourceScanner(
+        template,
+        source_bindings=bindings,
+        source_context=context,
+    )
+
+    assert scanner.scan(template_member.tree) == []
+    assert "polisyos.core.canon.hashing" in scanner._source_function_scanners
+
+
+def test_dynamic_import_collector_joins_finite_function_returns_and_global_writes() -> None:
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py",
+        relative_path="src/probe.py",
+    )
+    scanner.scan(
+        ast.parse(
+            """
+state = "initial"
+
+def left():
+    global state
+    state = "left"
+    return "left-result"
+
+def right():
+    global state
+    state = "right"
+    return "right-result"
+
+if condition:
+    selected = left
+else:
+    selected = right
+
+result = selected()
+"""
+        )
+    )
+
+    state = scanner._module_environment["state"]
+    result = scanner._module_environment["result"]
+    assert state.kind == "union"
+    assert {binding.name for binding in state.items or () if binding.kind == "string"} == {
+        "left",
+        "right",
+    }
+    assert result.kind == "union"
+    assert {binding.name for binding in result.items or () if binding.kind == "string"} == {
+        "left-result",
+        "right-result",
+    }
+
+
+def test_dynamic_import_collector_keeps_foreign_function_globals_separate_from_fallback(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.__init__": "",
+            "polisyos.core.__init__": "",
+            "polisyos.core.canon.__init__": "from .hashing import selected\n",
+            "polisyos.core.canon.hashing": (
+                'state = "foreign-initial"\n'
+                "def selected():\n"
+                "    global state\n"
+                '    state = "foreign"\n'
+                "    return state\n"
+            ),
+        },
+    )
+    template = tmp_path / "src/polisyos/template.py"
+    template.write_text(
+        'state = "consumer-initial"\n'
+        "try:\n"
+        "    from polisyos.core.canon import selected\n"
+        "except ImportError:\n"
+        "    def selected():\n"
+        "        global state\n"
+        '        state = "consumer"\n'
+        "        return state\n"
+        "result = selected()\n",
+        encoding="utf-8",
+    )
+    paths = [
+        template,
+        tmp_path / "src/polisyos/__init__.py",
+        tmp_path / "src/polisyos/core/__init__.py",
+        tmp_path / "src/polisyos/core/canon/__init__.py",
+        tmp_path / "src/polisyos/core/canon/hashing.py",
+    ]
+    context = preflight._dynamic_read_source_context(paths)
+    bindings = preflight._DynamicImportSourceBindings(paths, source_context=context)
+    scanner = preflight._DynamicImportSourceScanner(
+        template,
+        source_bindings=bindings,
+        source_context=context,
+    )
+
+    assert (
+        scanner.scan(next(member.tree for member in context.members if member.path == template))
+        == []
+    )
+    result = scanner._module_environment["result"]
+    assert result.kind == "union"
+    assert {binding.name for binding in result.items or () if binding.kind == "string"} == {
+        "consumer",
+        "foreign",
+    }
+    caller_state = scanner._module_environment["state"]
+    assert caller_state.kind == "union"
+    assert {binding.name for binding in caller_state.items or () if binding.kind == "string"} == {
+        "consumer",
+        "consumer-initial",
+    }
+    foreign = scanner._source_function_scanners["polisyos.core.canon.hashing"]
+    foreign_state = foreign._module_environment["state"]
+    assert foreign_state.kind == "union"
+    assert {binding.name for binding in foreign_state.items or () if binding.kind == "string"} == {
+        "foreign",
+        "foreign-initial",
+    }
+
+
+def test_dynamic_import_collector_refuses_mixed_known_and_opaque_function_targets() -> None:
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py",
+        relative_path="src/probe.py",
+    )
+
+    with pytest.raises(
+        preflight.DynamicImportCollectionError,
+        match="module-time local function target is ambiguous",
+    ):
+        scanner.scan(
+            ast.parse(
+                """
+def known():
+    return "known"
+
+if condition:
+    selected = known
+else:
+    selected = opaque_target
+
+selected()
+"""
+            )
+        )
+
+
+def test_dynamic_import_collector_refuses_mixed_source_and_reflected_function_targets() -> None:
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py",
+        relative_path="src/probe.py",
+    )
+
+    with pytest.raises(
+        preflight.DynamicImportCollectionError,
+        match="computed reflection has unresolved importer provenance",
+    ):
+        scanner.scan(
+            ast.parse(
+                """
+import importlib
+
+def known():
+    return "known"
+
+if condition:
+    selected = known
+else:
+    selected = getattr(importlib, unresolved_member)
+
+selected()
+"""
+            )
+        )
+
+
+def test_dynamic_import_collector_preserves_aliased_importer_in_foreign_function(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.__init__": "",
+            "polisyos.core.__init__": "",
+            "polisyos.core.canon.__init__": "from .hashing import selected\n",
+            "polisyos.core.canon.hashing": (
+                "from importlib import import_module as load_module\n\n"
+                "def selected(name):\n"
+                "    return load_module(name)\n"
+            ),
+        },
+    )
+    template = tmp_path / "src/polisyos/template.py"
+    template.write_text(
+        "try:\n"
+        "    from polisyos.core.canon import selected\n"
+        "except ImportError:\n"
+        "    def selected(name):\n"
+        "        return name\n"
+        'result = selected("foreign_alias_target")\n',
+        encoding="utf-8",
+    )
+    paths = [
+        template,
+        tmp_path / "src/polisyos/__init__.py",
+        tmp_path / "src/polisyos/core/__init__.py",
+        tmp_path / "src/polisyos/core/canon/__init__.py",
+        tmp_path / "src/polisyos/core/canon/hashing.py",
+    ]
+    context = preflight._dynamic_read_source_context(paths)
+    bindings = preflight._DynamicImportSourceBindings(paths, source_context=context)
+    scanner = preflight._DynamicImportSourceScanner(
+        template,
+        source_bindings=bindings,
+        source_context=context,
+    )
+
+    assert (
+        scanner.scan(next(member.tree for member in context.members if member.path == template))
+        == []
+    )
+    foreign = scanner._source_function_scanners["polisyos.core.canon.hashing"]
+    assert any(entry["call"] == "importlib.import_module" for entry in foreign.entries)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        'globals()["__getattr__"] = replace_hook(__getattr__)',
+        'setattr(sys.modules[__name__], "__getattr__", replace_hook(__getattr__))',
+    ],
+    ids=("globals-hook-store", "sys-modules-hook-store"),
+)
+def test_dynamic_import_pep562_hook_mutation_is_the_decisive_property(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    mutation: str,
+) -> None:
+    facade_source = (
+        "import sys\n"
+        "from external_decorators import replace_hook\n"
+        "def __getattr__(name):\n"
+        '    if name == "loader":\n'
+        '        return "ordinary value"\n'
+        "    raise AttributeError(name)\n"
+        f"{mutation}\n"
+    )
+    registry_path = _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.probe.facade": facade_source,
+            "polisyos.probe.consumer": 'from .facade import loader\nloader("json")\n',
+        },
+    )
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
+
+    with pytest.raises(preflight.DynamicImportCollectionError):
+        preflight.collect_dynamic_imports()
+
+    facade_path = tmp_path / "src/polisyos/probe/facade.py"
+    consumer_path = tmp_path / "src/polisyos/probe/consumer.py"
+    without_mutation = facade_source.replace(f"{mutation}\n", "", 1)
+    assert without_mutation != facade_source
+    facade_path.write_text(without_mutation, encoding="utf-8")
+    assert "from external_decorators import replace_hook" in facade_path.read_text(encoding="utf-8")
+    assert 'loader("json")' in consumer_path.read_text(encoding="utf-8")
+    assert preflight.collect_dynamic_imports() == []
+    assert preflight.validate_dynamic_imports() == []
+
+
+def _ensure_pep562_runtime_packages(tmp_path: Path) -> None:
+    source_root = tmp_path / "src"
+    for package in ("polisyos", "polisyos/probe"):
+        package_path = source_root.joinpath(*package.split("/"))
+        package_path.mkdir(parents=True, exist_ok=True)
+        (package_path / "__init__.py").write_text("", encoding="utf-8")
+
+
+def _write_pep562_external_importer(tmp_path: Path) -> Path:
+    external_root = tmp_path / "external"
+    external_root.mkdir()
+    (external_root / "external_decorators.py").write_text(
+        "from importlib import import_module\n"
+        "def facade_module_name():\n"
+        '    return "polisyos.probe.facade"\n'
+        "def hook_name():\n"
+        '    return "__getattr__"\n'
+        "def replacement(name):\n"
+        "    if name == 'loader':\n"
+        "        return import_module\n"
+        "    if name == 'json':\n"
+        "        return import_module(name)\n"
+        "    raise AttributeError(name)\n",
+        encoding="utf-8",
+    )
+    return external_root
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        'def install():\n    namespace = globals()\n    namespace["__getattr__"] = replacement\ninstall()',
+        'def install():\n    setattr(sys.modules[__name__], "__getattr__", replacement)\ninstall()',
+        'def install():\n    sys.modules[__name__].__dict__["__getattr__"] = replacement\ninstall()',
+        'def install():\n    getattr(sys.modules[__name__], "__dict__")["__getattr__"] = replacement\ninstall()',
+        'def install():\n    vars(sys.modules[__name__])["__getattr__"] = replacement\ninstall()',
+        'def install():\n    globals().update({"__getattr__": replacement})\ninstall()',
+        'namespace = locals()\nnamespace["__getattr__"] = replacement',
+        'namespace = vars()\nnamespace["__getattr__"] = replacement',
+    ],
+    ids=(
+        "called-globals-alias",
+        "called-setattr-sys-modules",
+        "called-module-dict-subscript",
+        "called-getattr-dict-subscript",
+        "called-vars-module-dict",
+        "called-globals-update",
+        "module-locals-alias",
+        "module-vars-alias",
+    ),
+)
+def test_dynamic_import_fails_closed_for_reached_selected_module_namespace_writes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    mutation: str,
+) -> None:
+    external_root = _write_pep562_external_importer(tmp_path)
+    facade_source = (
+        "import sys\n"
+        "from external_decorators import replacement\n"
+        "def __getattr__(name):\n"
+        '    if name == "loader":\n'
+        '        return "ordinary value"\n'
+        "    raise AttributeError(name)\n"
+        f"{mutation}\n"
+    )
+    _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.probe.facade": facade_source,
+            "polisyos.probe.consumer": ('from .facade import loader\nloader("json")\n'),
+        },
+    )
+
+    _ensure_pep562_runtime_packages(tmp_path)
+    runtime = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "from polisyos.probe.facade import loader; assert loader('json').__name__ == 'json'",
+        ],
+        cwd=tmp_path,
+        env={
+            **os.environ,
+            "PYTHONPATH": os.pathsep.join((str(external_root), str(tmp_path / "src"))),
+        },
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert runtime.returncode == 0, runtime.stderr
+
+    with pytest.raises(preflight.DynamicImportCollectionError):
+        preflight.collect_dynamic_imports()
+
+    facade_path = tmp_path / "src/polisyos/probe/facade.py"
+    without_mutation = facade_source.replace(f"{mutation}\n", "", 1)
+    assert without_mutation != facade_source
+    facade_path.write_text(without_mutation, encoding="utf-8")
+    assert 'loader("json")' in (tmp_path / "src/polisyos/probe/consumer.py").read_text(
+        encoding="utf-8"
+    )
+    assert preflight.collect_dynamic_imports() == []
+
+
+def test_dynamic_import_refuses_unresolved_selected_module_namespace_write_key(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    external_root = _write_pep562_external_importer(tmp_path)
+    facade_source = (
+        "from external_decorators import hook_name, replacement\n"
+        "def __getattr__(name):\n"
+        '    if name == "loader":\n'
+        '        return "ordinary value"\n'
+        "    raise AttributeError(name)\n"
+        "def install():\n"
+        "    namespace = globals()\n"
+        "    namespace[hook_name()] = replacement\n"
+        "install()\n"
+    )
+    _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.probe.facade": facade_source,
+            "polisyos.probe.consumer": ('from .facade import loader\nloader("json")\n'),
+        },
+    )
+    _ensure_pep562_runtime_packages(tmp_path)
+    runtime = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "from polisyos.probe.facade import loader; assert loader('json').__name__ == 'json'",
+        ],
+        cwd=tmp_path,
+        env={
+            **os.environ,
+            "PYTHONPATH": os.pathsep.join((str(external_root), str(tmp_path / "src"))),
+        },
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert runtime.returncode == 0, runtime.stderr
+    with pytest.raises(preflight.DynamicImportCollectionError):
+        preflight.collect_dynamic_imports()
+
+
+@pytest.mark.parametrize(
+    ("setup_prefix", "mutation"),
+    [
+        ("", 'setattr(sys.modules[facade_module_name()], "__getattr__", replacement)'),
+        ("", 'setattr(sys.modules.get(facade_module_name()), "__getattr__", replacement)'),
+        ("", "sys.modules[facade_module_name()].__getattr__ = replacement"),
+        ("", 'sys.modules[facade_module_name()].__dict__["__getattr__"] = replacement'),
+        ("", 'getattr(sys.modules[facade_module_name()], "__dict__")["__getattr__"] = replacement'),
+        ("", 'vars(sys.modules[facade_module_name()])["__getattr__"] = replacement'),
+        (
+            "",
+            'vars(sys.modules[facade_module_name()]).update({"__getattr__": replacement})',
+        ),
+        (
+            "registry = sys.modules\nfacade_module = registry[facade_module_name()]\n",
+            'setattr(facade_module, "__getattr__", replacement)',
+        ),
+        (
+            "if facade_module_name():\n"
+            "    facade_module = sys.modules[facade_module_name()]\n"
+            "else:\n"
+            "    facade_module = sys.modules.get(facade_module_name())\n",
+            'setattr(facade_module, "__getattr__", replacement)',
+        ),
+    ],
+    ids=(
+        "setattr-subscript",
+        "setattr-get",
+        "attribute-assignment",
+        "module-dict-subscript",
+        "getattr-dict-subscript",
+        "vars-module-dict",
+        "module-dict-update",
+        "aliased-registry-selection",
+        "conditional-registry-selection-join",
+    ),
+)
+def test_dynamic_import_refuses_reached_unresolved_sys_modules_namespace_writes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    setup_prefix: str,
+    mutation: str,
+) -> None:
+    external_root = _write_pep562_external_importer(tmp_path)
+    _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.probe.facade": (
+                'loader_target = "ordinary value"\n'
+                "def __getattr__(name):\n"
+                '    if name == "loader":\n'
+                "        return loader_target\n"
+                "    raise AttributeError(name)\n"
+            ),
+            "polisyos.probe.setup": (
+                "import sys\n"
+                "from . import facade\n"
+                "from external_decorators import facade_module_name, replacement\n"
+                f"{setup_prefix}"
+                "def install():\n"
+                f"    {mutation}\n"
+                "install()\n"
+            ),
+            "polisyos.probe.consumer": ('from .facade import loader\nloader("json")\n'),
+        },
+    )
+    _ensure_pep562_runtime_packages(tmp_path)
+    runtime = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import polisyos.probe.setup; "
+            "from polisyos.probe.facade import loader; "
+            "assert loader('json').__name__ == 'json'",
+        ],
+        cwd=tmp_path,
+        env={
+            **os.environ,
+            "PYTHONPATH": os.pathsep.join((str(external_root), str(tmp_path / "src"))),
+        },
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert runtime.returncode == 0, runtime.stderr
+    with pytest.raises(
+        preflight.DynamicImportCollectionError,
+        match=r"unresolved sys\.modules owner",
+    ):
+        preflight.collect_dynamic_imports()
+
+    setup_path = tmp_path / "src/polisyos/probe/setup.py"
+    setup_source = setup_path.read_text(encoding="utf-8")
+    without_write = setup_source.replace(f"    {mutation}\n", "    pass\n", 1)
+    assert without_write != setup_source
+    setup_path.write_text(without_write, encoding="utf-8")
+    assert 'loader("json")' in (tmp_path / "src/polisyos/probe/consumer.py").read_text(
+        encoding="utf-8"
+    )
+    assert preflight.collect_dynamic_imports() == []
+
+
+@pytest.mark.parametrize("owner", ["sys.modules['json']", "sys.modules.get('json')"])
+def test_dynamic_import_keeps_known_nonselected_sys_modules_owner_nonblocking(
+    owner: str,
+) -> None:
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py",
+        relative_path="src/probe.py",
+    )
+
+    entries = scanner.scan(ast.parse(f"import sys\nsetattr({owner}, 'fixture_marker', True)\n"))
+
+    assert entries == []
+
+
+def test_dynamic_import_keeps_nonnamespace_setattr_receiver_positive() -> None:
+    scanner = preflight._DynamicImportSourceScanner(
+        REPO_ROOT / "src" / "probe.py",
+        relative_path="src/probe.py",
+    )
+
+    entries = scanner.scan(
+        ast.parse(
+            "from importlib import import_module\n"
+            "holder = object()\n"
+            "setattr(holder, 'marker', True)\n"
+            "import_module('nonnamespace_receiver_positive')\n"
+        )
+    )
+
+    assert [entry["pattern"] for entry in entries] == ["nonnamespace_receiver_positive"]
+
+
+def test_dynamic_import_rejects_changed_ambiguous_hook_global_dependency(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    external_root = _write_pep562_external_importer(tmp_path)
+    facade_source = (
+        "from external_decorators import replacement\n"
+        'loader_target = "ordinary value"\n'
+        "def __getattr__(name):\n"
+        '    if name == "loader":\n'
+        "        return loader_target\n"
+        "    raise AttributeError(name)\n"
+        "def install():\n"
+        "    global loader_target\n"
+        "    loader_target = replacement\n"
+        "install()\n"
+    )
+    _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.probe.facade": facade_source,
+            "polisyos.probe.consumer": ('from .facade import loader\nloader("json")\n'),
+        },
+    )
+    _ensure_pep562_runtime_packages(tmp_path)
+    runtime = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "from polisyos.probe.facade import loader; assert loader('json').__name__ == 'json'",
+        ],
+        cwd=tmp_path,
+        env={
+            **os.environ,
+            "PYTHONPATH": os.pathsep.join((str(external_root), str(tmp_path / "src"))),
+        },
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert runtime.returncode == 0, runtime.stderr
+    with pytest.raises(preflight.DynamicImportCollectionError):
+        preflight.collect_dynamic_imports()
+
+    facade_path = tmp_path / "src/polisyos/probe/facade.py"
+    facade_path.write_text(
+        facade_source.replace(
+            "    global loader_target\n    loader_target = replacement\n",
+            "    return None\n",
+        ),
+        encoding="utf-8",
+    )
+    assert 'loader("json")' in (tmp_path / "src/polisyos/probe/consumer.py").read_text(
+        encoding="utf-8"
+    )
+    assert preflight.collect_dynamic_imports() == []
+
+
+@pytest.mark.parametrize(
+    "future_annotations",
+    [True, False],
+    ids=("postponed-annotation", "eager-annotation"),
+)
+def test_dynamic_import_ignores_hook_annotation_only_global_rebinding(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    future_annotations: bool,
+) -> None:
+    annotation_mode = "from __future__ import annotations\n" if future_annotations else ""
+    facade_source = (
+        annotation_mode
+        + "from typing import Any\n"
+        + 'loader_target = "ordinary value"\n'
+        + "def __getattr__(name: Any) -> Any:\n"
+        + '    if name == "loader":\n'
+        + "        return loader_target\n"
+        + "    raise AttributeError(name)\n"
+        + "Any = None\n"
+    )
+    _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.probe.facade": facade_source,
+            "polisyos.probe.consumer": "from .facade import loader\n",
+        },
+    )
+    _ensure_pep562_runtime_packages(tmp_path)
+    runtime = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "from polisyos.probe.facade import loader; assert loader == 'ordinary value'",
+        ],
+        cwd=tmp_path,
+        env={**os.environ, "PYTHONPATH": str(tmp_path / "src")},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert runtime.returncode == 0, runtime.stderr
+    assert preflight.collect_dynamic_imports() == []
+
+
+@pytest.mark.parametrize(
+    "target_write",
+    [
+        'setattr(facade, "__getattr__", replacement)',
+        "facade.loader_target = replacement",
+    ],
+    ids=("cross-module-hook-write", "cross-module-hook-global-write"),
+)
+def test_dynamic_import_refuses_reached_cross_selected_module_hook_effect(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    target_write: str,
+) -> None:
+    external_root = _write_pep562_external_importer(tmp_path)
+    _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.probe.facade": (
+                'loader_target = "ordinary value"\n'
+                "def __getattr__(name):\n"
+                '    if name == "loader":\n'
+                "        return loader_target\n"
+                "    raise AttributeError(name)\n"
+            ),
+            "polisyos.probe.setup": (
+                "from . import facade\n"
+                "from external_decorators import replacement\n"
+                "def install():\n"
+                f"    {target_write}\n"
+                "install()\n"
+            ),
+            "polisyos.probe.consumer": ('from .facade import loader\nloader("json")\n'),
+        },
+    )
+    _ensure_pep562_runtime_packages(tmp_path)
+    runtime = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import polisyos.probe.setup; "
+            "from polisyos.probe.facade import loader; "
+            "assert loader('json').__name__ == 'json'",
+        ],
+        cwd=tmp_path,
+        env={
+            **os.environ,
+            "PYTHONPATH": os.pathsep.join((str(external_root), str(tmp_path / "src"))),
+        },
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert runtime.returncode == 0, runtime.stderr
+    with pytest.raises(preflight.DynamicImportCollectionError):
+        preflight.collect_dynamic_imports()
+
+    setup_path = tmp_path / "src/polisyos/probe/setup.py"
+    setup_source = setup_path.read_text(encoding="utf-8")
+    without_write = setup_source.replace(f"    {target_write}\n", "    pass\n", 1)
+    assert without_write != setup_source
+    setup_path.write_text(without_write, encoding="utf-8")
+    assert 'loader("json")' in (tmp_path / "src/polisyos/probe/consumer.py").read_text(
+        encoding="utf-8"
+    )
+    assert preflight.collect_dynamic_imports() == []
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ["store-new-slot", "replace-unrelated-slot", "replace-map-slot", "delete-unrelated-slot"],
+    ids=("exact-store", "exact-replace-unrelated", "exact-replace-map", "exact-delete"),
+)
+@pytest.mark.parametrize(
+    "mutator_module",
+    ["a_mutator", "z_mutator"],
+    ids=("sibling-before-owner-module", "sibling-after-owner-module"),
+)
+def test_dynamic_import_exact_local_mapping_slot_write_preserves_nested_source_map(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    mutation: str,
+    mutator_module: str,
+) -> None:
+    mutation_source = {
+        "store-new-slot": "wrapper = {'nested': source_map}\nwrapper['unrelated'] = 1",
+        "replace-unrelated-slot": (
+            "wrapper = {'nested': source_map, 'unrelated': 0}\nwrapper['unrelated'] = 1"
+        ),
+        "replace-map-slot": "wrapper = {'nested': source_map}\nwrapper['nested'] = 1",
+        "delete-unrelated-slot": (
+            "wrapper = {'nested': source_map, 'unrelated': 0}\ndel wrapper['unrelated']"
+        ),
+    }[mutation]
+    modules = {
+        "polisyos.__init__": "",
+        "polisyos.ir.__init__": "",
+        "polisyos.ir.api": """import importlib
+
+ANALYTICS_FACADE_EXPORTS = {
+    "load": ("importlib", "import_module"),
+}
+
+def resolve_lazy_export(name, *, namespace, exports):
+    try:
+        module_name, attr_name = exports[name]
+    except KeyError as exc:
+        module_name = namespace.get("__name__", "<unknown>")
+        raise AttributeError(f"module {module_name!r} has no attribute {name!r}") from exc
+    module = importlib.import_module(module_name)
+    value = getattr(module, attr_name)
+    namespace[name] = value
+    return value
+""",
+        "polisyos.ir.analytics": """from .api import ANALYTICS_FACADE_EXPORTS, resolve_lazy_export
+
+def __getattr__(name):
+    return resolve_lazy_export(name, namespace=globals(), exports=ANALYTICS_FACADE_EXPORTS)
+""",
+        f"polisyos.ir.{mutator_module}": (
+            "from .api import ANALYTICS_FACADE_EXPORTS as source_map\n" + mutation_source + "\n"
+        ),
+        "polisyos.ir.consumer": """from .analytics import load
+
+load("polisyos.nested_map_hidden_import")
+""",
+        "polisyos.nested_map_hidden_import": "VALUE = 1\n",
+    }
+    _dynamic_import_internal_modules_fixture(tmp_path, monkeypatch, modules)
+    entries = preflight.collect_dynamic_imports()
+    assert "polisyos.nested_map_hidden_import" in [entry["pattern"] for entry in entries]
+
+
+@pytest.mark.parametrize(
+    "transfer",
+    ["aliased-source-map-update", "unknown-local-map-key", "opaque-local-wrapper"],
+    ids=("actual-source-map-alias", "unknown-key-refuses", "opaque-wrapper-refuses"),
+)
+@pytest.mark.parametrize(
+    "mutator_module",
+    ["a_mutator", "z_mutator"],
+    ids=("sibling-before-owner-module", "sibling-after-owner-module"),
+)
+def test_dynamic_import_unknown_or_source_owned_mapping_effects_still_refuse(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    transfer: str,
+    mutator_module: str,
+) -> None:
+    transfer_source = {
+        "aliased-source-map-update": "source_alias = source_map\nsource_alias['unrelated'] = 1",
+        "unknown-local-map-key": ("wrapper = {'nested': source_map}\nwrapper[unknown_key] = 1"),
+        "opaque-local-wrapper": "wrapper = {'nested': source_map}\nopaque(wrapper)",
+    }[transfer]
+    modules = {
+        "polisyos.__init__": "",
+        "polisyos.ir.__init__": "",
+        "polisyos.ir.api": """import importlib
+
+ANALYTICS_FACADE_EXPORTS = {
+    "load": ("importlib", "import_module"),
+}
+
+def resolve_lazy_export(name, *, namespace, exports):
+    try:
+        module_name, attr_name = exports[name]
+    except KeyError as exc:
+        module_name = namespace.get("__name__", "<unknown>")
+        raise AttributeError(f"module {module_name!r} has no attribute {name!r}") from exc
+    module = importlib.import_module(module_name)
+    value = getattr(module, attr_name)
+    namespace[name] = value
+    return value
+""",
+        "polisyos.ir.analytics": """from .api import ANALYTICS_FACADE_EXPORTS, resolve_lazy_export
+
+def __getattr__(name):
+    return resolve_lazy_export(name, namespace=globals(), exports=ANALYTICS_FACADE_EXPORTS)
+""",
+        f"polisyos.ir.{mutator_module}": (
+            "from .api import ANALYTICS_FACADE_EXPORTS as source_map\n" + transfer_source + "\n"
+        ),
+        "polisyos.ir.consumer": """from .analytics import load
+
+load("polisyos.nested_map_hidden_import")
+""",
+        "polisyos.nested_map_hidden_import": "VALUE = 1\n",
+    }
+    _dynamic_import_internal_modules_fixture(tmp_path, monkeypatch, modules)
+    with pytest.raises(preflight.DynamicImportCollectionError):
+        preflight.collect_dynamic_imports()
+
+
+@pytest.mark.parametrize(
+    "reverse_source_order",
+    [False, True],
+    ids=("canonical-source-order", "reverse-source-order"),
+)
+@pytest.mark.parametrize(
+    "mutate_selected_namespace",
+    [False, True],
+    ids=("unmutated-source-map-positive", "selected-namespace-mutation-refuses"),
+)
+def test_dynamic_import_collector_maps_only_importable_source_members_in_mixed_roots(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    reverse_source_order: bool,
+    mutate_selected_namespace: bool,
+) -> None:
+    modules = {
+        "polisyos.__init__": "",
+        "polisyos.ir.__init__": "",
+        "polisyos.ir.api": """import importlib
+
+ANALYTICS_FACADE_EXPORTS = {
+    "load": ("importlib", "import_module"),
+}
+
+def resolve_lazy_export(name, *, namespace, exports):
+    try:
+        module_name, attr_name = exports[name]
+    except KeyError as exc:
+        module_name = namespace.get("__name__", "<unknown>")
+        raise AttributeError(f"module {module_name!r} has no attribute {name!r}") from exc
+    module = importlib.import_module(module_name)
+    value = getattr(module, attr_name)
+    namespace[name] = value
+    return value
+""",
+        "polisyos.ir.analytics": """from .api import ANALYTICS_FACADE_EXPORTS, resolve_lazy_export
+
+def __getattr__(name):
+    return resolve_lazy_export(name, namespace=globals(), exports=ANALYTICS_FACADE_EXPORTS)
+""",
+        "polisyos.ir.consumer": """from .analytics import load
+
+load("polisyos.hidden_lazy_import")
+""",
+        "polisyos.hidden_lazy_import": "VALUE = 1\n",
+        "polisyos.ambiguous_identity": "VALUE = 'module-file'\n",
+        "polisyos.ambiguous_identity.__init__": "VALUE = 'package-initializer'\n",
+    }
+    _dynamic_import_internal_modules_fixture(tmp_path, monkeypatch, modules)
+
+    root_sources = {
+        "tools/polisyos/shared.py": (
+            'import importlib\nimportlib.import_module("polisyos.tools_root_hidden_import")\n'
+        ),
+        "apps/runtime-dashboard/e2e/fixtures/serve_public_verification_api.py": (
+            'import importlib\nimportlib.import_module("polisyos.apps_script_hidden_import")\n'
+        ),
+        "packages/polisyos/shared.py": (
+            'import importlib\nimportlib.import_module("polisyos.packages_root_hidden_import")\n'
+        ),
+    }
+    if mutate_selected_namespace:
+        root_sources["apps/runtime-dashboard/e2e/fixtures/serve_public_verification_api.py"] += (
+            "\nimport polisyos.ir.api as selected_api\n"
+            "selected_api.ANALYTICS_FACADE_EXPORTS = {"
+            "'load': ('polisyos.changed_hidden_import', 'VALUE')}\n"
+        )
+    for relative_path, source in root_sources.items():
+        path = tmp_path / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(source, encoding="utf-8")
+
+    original_paths = preflight._dynamic_source_paths
+    selected_paths = original_paths("src", "tools", "apps", "packages")
+    context = preflight._dynamic_read_source_context(selected_paths)
+    bindings = preflight._DynamicImportSourceBindings(selected_paths, source_context=context)
+    bindings_without_context = preflight._DynamicImportSourceBindings(selected_paths)
+    labels = {member.relative_path for member in context.members}
+    assert {
+        "src/polisyos/ambiguous_identity.py",
+        "src/polisyos/ambiguous_identity/__init__.py",
+        "tools/polisyos/shared.py",
+        "apps/runtime-dashboard/e2e/fixtures/serve_public_verification_api.py",
+        "packages/polisyos/shared.py",
+    } <= labels
+    selected_modules = bindings._selected_source_module_names()
+    assert "polisyos.ir.api" in selected_modules
+    assert (
+        "polisyos.ambiguous_identity"
+        not in bindings_without_context._selected_source_module_names()
+    )
+    assert "polisyos.ambiguous_identity" not in selected_modules
+    assert "polisyos.shared" not in selected_modules
+    assert not any(name.startswith(("tools.", "apps.", "packages.")) for name in selected_modules)
+
+    monkeypatch.setattr(
+        preflight,
+        "_dynamic_source_paths",
+        lambda *scopes: (
+            list(reversed(original_paths(*scopes)))
+            if reverse_source_order
+            else original_paths(*scopes)
+        ),
+    )
+
+    if mutate_selected_namespace:
+        with pytest.raises(preflight.DynamicImportCollectionError):
+            preflight.collect_dynamic_imports()
+        return
+
+    entries = preflight.collect_dynamic_imports()
+    patterns_by_source = {(entry["source_file"], entry["pattern"]) for entry in entries}
+    assert {
+        (
+            "src/polisyos/ir/consumer.py",
+            "polisyos.hidden_lazy_import",
+        ),
+        ("tools/polisyos/shared.py", "polisyos.tools_root_hidden_import"),
+        (
+            "apps/runtime-dashboard/e2e/fixtures/serve_public_verification_api.py",
+            "polisyos.apps_script_hidden_import",
+        ),
+        ("packages/polisyos/shared.py", "polisyos.packages_root_hidden_import"),
+    } <= patterns_by_source
+
+
+@pytest.mark.parametrize(
+    ("callback_kind", "callback_body"),
+    [
+        ("schema", "    mutate(model)\n"),
+        ("schema", "    target = model\n    mutate(target)\n"),
+        ("schema", '    mutate({"model": model})\n'),
+        ("validator", "        mutate(cls)\n"),
+    ],
+    ids=["schema-direct", "schema-alias", "schema-nested-argument", "validator-classmethod"],
+)
+def test_dynamic_import_root_model_refuses_opaque_class_effect_callbacks(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    callback_kind: str,
+    callback_body: str,
+) -> None:
+    if callback_kind == "schema":
+        imports = """from typing import Annotated, ClassVar
+from pydantic import ConfigDict, RootModel, WithJsonSchema
+from opaque_vendor import mutate
+"""
+        callback = "def _schema_callback(schema, model):\n" + callback_body
+        class_body = """class Token(RootModel[Annotated[str, WithJsonSchema({"type": "string"})]]):
+    model_config = ConfigDict(json_schema_extra=_schema_callback)
+    prefix: ClassVar[str] = "token:"
+"""
+        trigger = "Token.model_json_schema()\n"
+    else:
+        imports = """from typing import Annotated, ClassVar
+from pydantic import RootModel, WithJsonSchema, field_validator
+from opaque_vendor import mutate
+"""
+        callback = ""
+        class_body = """class Token(RootModel[Annotated[str, WithJsonSchema({"type": "string"})]]):
+    prefix: ClassVar[str] = "token:"
+
+    @field_validator("root", mode="before")
+    @classmethod
+    def validate_root(cls, value):
+@@CALLBACK@@        return value
+""".replace("@@CALLBACK@@", callback_body)
+        trigger = """Token.model_validate("ordinary")
+"""
+    modules = {
+        "polisyos.__init__": "",
+        "polisyos.models": imports + "\n" + callback + "\n" + class_body,
+        "polisyos.consumer": """from .models import Token
+
+@@TRIGGER@@
+loaded_module = Token.model_validate("ordinary").root("json").__name__
+""".replace("@@TRIGGER@@", trigger),
+    }
+    registry_path = _dynamic_import_internal_modules_fixture(tmp_path, monkeypatch, modules)
+
+    external_root = tmp_path / "deps"
+    external_root.mkdir()
+    (external_root / "opaque_vendor.py").write_text(
+        """from importlib import import_module
+from types import SimpleNamespace
+
+def mutate(value):
+    if isinstance(value, dict):
+        model = value["model"]
+    elif isinstance(value, list):
+        model = value[0]
+    else:
+        model = value
+
+    def replacement(cls, value):
+        return SimpleNamespace(root=import_module)
+
+    model.model_validate = classmethod(replacement)
+""",
+        encoding="utf-8",
+    )
+    runtime = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            ("from polisyos.consumer import loaded_module; print(loaded_module)"),
+        ],
+        cwd=tmp_path,
+        env={
+            **os.environ,
+            "PYTHONPATH": os.pathsep.join((str(external_root), str(tmp_path / "src"))),
+        },
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert runtime.stdout.splitlines() == ["json"]
+
+    source_bindings = preflight._DynamicImportSourceBindings(preflight._dynamic_source_paths("src"))
+    source_name = "polisyos.models.Token"
+    assert source_bindings._source_pydantic_root_model_string(source_name) is None
+    assert source_name in source_bindings.invalidated_source_classes
+    assert source_bindings._source_pydantic_root_model_candidate(source_name)
+
+    with pytest.raises(
+        preflight.DynamicImportCollectionError,
+        match="dynamic importer binding is ambiguous or unresolved",
+    ):
+        preflight.collect_dynamic_imports()
+
+    registry_path.write_text(_render_dynamic_imports_toml([]), encoding="utf-8")
+    findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message == "dynamic import source inventory is incomplete"
+        and "dynamic importer binding is ambiguous or unresolved" in finding.detail
+        for finding in findings
+    ), findings

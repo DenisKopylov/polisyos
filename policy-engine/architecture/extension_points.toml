@@ -9,6 +9,7 @@ versioning_policy = "docs/adr/repository-structure-0135-versioning-out-of-packag
 parallel_safety = "Physical registry consolidation and registry rewrites wait for Wave 5 integration."
 
 [defaults]
+example_install_mode = "editable"
 abi_compatibility = "semver-major"
 deprecation_notice_window = "2 minor releases"
 compatibility_class = "extension-plugin-abi"
@@ -128,8 +129,10 @@ builtin_loader_owner = "team-fabric"
 builtin_loader_verifier = "uv run pytest tests/unit/fabric/connectors -q"
 dynamic_import_target = "entry-point group polisyos.fabric_connectors or builtin loader polisyos.fabric.connectors.components:__polisyos_components__"
 dynamic_import_verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+provider_origin_verifier = "uv run pytest tests/integration/fabric_ir/test_fabric_installed_provider_origin.py -q"
 example_package = "examples/extensions/fabric_connector"
-example_smoke_command = "python -m pip install -e examples/extensions/fabric_connector && polisyos components list --kind fabric_connector --tag external-example"
+example_install_mode = "wheel"
+example_smoke_command = "uv run polisyos-tools validation check-extension-examples --example fabric_connector"
 example_expectations = [
   "declares exactly one polisyos.fabric_connectors entry point",
   "uses ComponentMetadata.kind=fabric_connector",

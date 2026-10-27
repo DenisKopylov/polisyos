@@ -725,6 +725,7 @@ def _produce_served_acquisition_history(
     *,
     fixture_cas_root: Path | None = None,
     stop_after_fresh_get: bool = False,
+    include_b09_evidence: bool = False,
 ) -> dict[str, str] | None:
     import os
 
@@ -1013,6 +1014,7 @@ def _produce_served_acquisition_history(
         assert response.status_code == 201, response.text
         return source, response.json()["record_ref"]
 
+    b09_evidence: dict[str, object] | None = None
     path = None
     try:
         with TestClient(app()) as client:
@@ -3074,9 +3076,228 @@ def _produce_served_acquisition_history(
                 "acquisition_action_history_integrity_not_established"
             )
 
+            if include_b09_evidence:
+                refreshes = cases[-1].bridge.config.candidate_world_refreshes
+                assert len(refreshes) == 1
+                refresh = refreshes[0]
+                source_history = snapshot_payload["_policyos_acquisition_history"]
+                persisted_rows = [
+                    row["observation"]
+                    for row in source_history
+                    if row["observation_id"] == selected.observation.observation_id
+                ]
+                assert len(persisted_rows) == 1
+                persisted_row = persisted_rows[0]
+                assert persisted_row == selected.observation.model_dump(mode="json")
+                acquisition_metadata = snapshot_payload["_policyos_acquisition"]
+                assert (
+                    acquisition_metadata["selected_observation_id"]
+                    == selected.observation.observation_id
+                )
+                assert acquisition_metadata["source_time_status"] == "not_established"
+                assert acquisition_metadata["selected_row_content_sha256"] == (
+                    selected.row_content_sha256
+                )
+
+                from polisyos.core.artifacts import ArtifactRef
+                from polisyos.core.artifacts.canonical_profile import artifact_ref_for_manifest
+                from polisyos.core.contracts.runtime import (
+                    RunCandidateSimulationAcquisitionHistoryEntry,
+                )
+
+                second_history_row = history_by_generation[2]
+                second_history_entry = RunCandidateSimulationAcquisitionHistoryEntry.model_validate(
+                    second_history_row
+                )
+                third_history_entry = RunCandidateSimulationAcquisitionHistoryEntry.model_validate(
+                    third_history_row
+                )
+                second_route_ref = second_history_entry.route_receipt_ref
+                third_route_ref = third_history_entry.route_receipt_ref
+                second_route_id = str(second_route_ref.artifact_id)
+                third_route_id = str(third_route_ref.artifact_id)
+                second_route_manifest = _within_fixture_owner(
+                    control._artifact_store.get_manifest,
+                    second_route_ref,
+                )
+                third_route_manifest = _within_fixture_owner(
+                    control._artifact_store.get_manifest,
+                    third_route_ref,
+                )
+
+                def _selected_manifest_view(
+                    ref: ArtifactRef,
+                ) -> tuple[object, bytes, dict[str, object]]:
+                    assert ref.manifest_profile_sha256 is not None
+                    manifest = _within_fixture_owner(control._artifact_store.get_manifest, ref)
+                    manifest_ref = artifact_ref_for_manifest(manifest)
+                    assert artifact_ref_identity_key(ref) == artifact_ref_identity_key(manifest_ref)
+                    payload = _within_fixture_owner(control._artifact_store.get_bytes, ref)
+                    assert "sha256:" + hashlib.sha256(payload).hexdigest() == str(ref.artifact_id)
+                    schema = manifest.artifact_schema
+                    assert schema is not None
+                    return (
+                        manifest,
+                        payload,
+                        {
+                            "profile_bound_ref": ref.model_dump(mode="json"),
+                            "identity": list(artifact_ref_identity_key(ref)),
+                            "manifest_profile_sha256": ref.manifest_profile_sha256,
+                            "manifest_artifact_id": str(manifest.artifact_id),
+                            "manifest_kind": manifest.kind,
+                            "manifest_media_type": manifest.media_type,
+                            "manifest_created_at": manifest.created_at.isoformat(),
+                            "schema_name": schema.name,
+                            "schema_version": schema.version,
+                            "payload_sha256": "sha256:" + hashlib.sha256(payload).hexdigest(),
+                        },
+                    )
+
+                second_route_manifest, second_route_bytes, second_route_view = (
+                    _selected_manifest_view(second_route_ref)
+                )
+                third_route_manifest, third_route_bytes, third_route_view = _selected_manifest_view(
+                    third_route_ref
+                )
+                second_route_receipt = AcquisitionRouteLoopReceipt.model_validate(
+                    canon.from_canonical_bytes(second_route_bytes)
+                )
+                third_route_receipt = AcquisitionRouteLoopReceipt.model_validate(
+                    canon.from_canonical_bytes(third_route_bytes)
+                )
+                for entry, manifest, receipt, generation, view in (
+                    (
+                        second_history_entry,
+                        second_route_manifest,
+                        second_route_receipt,
+                        2,
+                        second_route_view,
+                    ),
+                    (
+                        third_history_entry,
+                        third_route_manifest,
+                        third_route_receipt,
+                        3,
+                        third_route_view,
+                    ),
+                ):
+                    assert entry.route_receipt_ref.kind == manifest.kind
+                    assert entry.route_receipt_ref.media_type == manifest.media_type
+                    assert receipt.action_generation == generation
+                    assert receipt.action_generation == entry.action_generation
+                    assert receipt.route_id == entry.route_id
+                    assert receipt.terminal_outcome == entry.terminal_outcome
+                    assert manifest.artifact_schema is not None
+                    assert manifest.artifact_schema.name == (
+                        f"polisyos.runtime.{AcquisitionRouteLoopReceipt.__name__}"
+                    )
+                    assert (
+                        manifest.artifact_schema.version
+                        == (receipt.schema_version.rsplit("@", 1)[1])
+                    )
+                    assert manifest.producer is not None
+                    assert manifest.producer.component == (
+                        "polisyos.runtime.acquisition_route_loop"
+                    )
+                    view["receipt_action_generation"] = receipt.action_generation
+                    view["receipt_terminal_outcome"] = receipt.terminal_outcome
+                    view["receipt_schema_version"] = receipt.schema_version
+
+                assert second_history_entry.reentry_receipt_ref is not None
+                second_reentry_ref = second_history_entry.reentry_receipt_ref
+                second_reentry_manifest, second_reentry_bytes, second_reentry_view = (
+                    _selected_manifest_view(second_reentry_ref)
+                )
+                reentry_receipt = AcquisitionOverlayReentryReceipt.model_validate(
+                    canon.from_canonical_bytes(second_reentry_bytes)
+                )
+                assert second_reentry_manifest.artifact_schema is not None
+                assert second_reentry_manifest.artifact_schema.name == (
+                    f"polisyos.runtime.{AcquisitionOverlayReentryReceipt.__name__}"
+                )
+                second_reentry_view["receipt_schema_version"] = reentry_receipt.schema_version
+                b09_evidence = {
+                    "rule_projection": {
+                        "status": "test_only_existing_owner_projection",
+                        "source_registration": passport.registration.model_dump(mode="json"),
+                        "source_field_binding": passport.field_binding.model_dump(mode="json"),
+                        "source_profile_id": passport.measured_profile.source_profile_id,
+                        "candidate_refresh_mapping": {
+                            "profile_selection_ref": refresh.profile_selection_ref,
+                            "canonical_variable_id": refresh.canonical_variable_id,
+                            "target_slot_id": refresh.target_slot_id,
+                            "mapping_semantics": refresh.mapping_semantics,
+                        },
+                        "candidate_profile_selection_ref": (n5_input.profile.profile_selection_ref),
+                        "candidate_scenario_rule": n5_input.profile.rule.model_dump(mode="json"),
+                    },
+                    "rows": [persisted_row],
+                    "history_entries": [
+                        RunCandidateSimulationAcquisitionHistoryEntry.model_validate(
+                            row
+                        ).model_dump(mode="json")
+                        for row in third_history
+                    ],
+                    "row_content_sha256": selected.row_content_sha256,
+                    "source_time_status": projection.source_time_status,
+                    "data_transaction_time": acquisition_metadata[
+                        "materialized_at_transaction_time"
+                    ],
+                    "occurrences": {
+                        "generation_2_reentry": {
+                            "action_generation": 2,
+                            "route_receipt_ref": second_route_id,
+                            "route_receipt_view": second_route_view,
+                            "reentry_receipt_ref": str(second_reentry_ref.artifact_id),
+                            "reentry_receipt_view": second_reentry_view,
+                            "route_manifest_created_at": (
+                                second_route_manifest.created_at.isoformat()
+                            ),
+                            "data_snapshot_ref": str(data_snapshot_ref.artifact_id),
+                            "n5_input_ref": str(n5_input_ref.artifact_id),
+                            "world_model_record_hash": acquired_world.content_hash,
+                            "candidate_id": cycle.selected_candidate_ref,
+                        },
+                        "generation_3_no_growth": {
+                            "action_generation": 3,
+                            "route_receipt_ref": third_route_id,
+                            "route_receipt_view": third_route_view,
+                            "action_phase_ref": str(no_growth.action_phase_ref),
+                            "no_growth_receipt_ref": str(no_growth_ref),
+                            "route_manifest_created_at": (
+                                third_route_manifest.created_at.isoformat()
+                            ),
+                            "prior_growth_receipt_ref": str(no_growth.growth_receipt_ref),
+                            "transport_call_count": len(cases[-1].transport_calls),
+                            "new_n5_input_ref": None,
+                            "retained_n5_input_ref": str(n5_input_ref.artifact_id),
+                        },
+                    },
+                    "limitations": [
+                        "test_only_existing_profile_and_mapping_projection",
+                        "generation_3_is_no_growth_without_a_second_source_fetch",
+                        "source_time_not_established",
+                        "route_profile_is_reader_materialized_selected_manifest_view_not_producer_attestation",
+                        "no_production_issuer_or_currentness_claim",
+                        "new_epoch_same_content_and_actual_changed_row_reissue_unrun",
+                    ],
+                }
+
     finally:
         port_patch.undo()
         trust.close()
+
+    result = {"run_id": core_run_id, "candidate_id": cycle.selected_candidate_ref}
+    if include_b09_evidence:
+        assert b09_evidence is not None
+        result["b09_evidence_json"] = json.dumps(
+            b09_evidence,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+    return result
 
 
 @pytest.fixture

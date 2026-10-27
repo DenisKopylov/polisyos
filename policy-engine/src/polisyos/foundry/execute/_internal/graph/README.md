@@ -31,7 +31,12 @@ state activation, general randomness quality or economic validity on real data.
 When the selected ExecPlan manifest contains one `method_metric_bindings` edge,
 the graph executor reconciles that edge with the binding-set payload and its
 program-graph, policy, registry, metric-registry, and units-registry edges before
-dispatch. It records all plan positions and invocation outcomes. One
+dispatch. An exact profile-bound binding set with `bindings=[]` enables capture
+of actual method dispatch and bounded returned-slot/artifact inventory only. It
+establishes no scalar law, selected output payload, metric vector, or verified
+projection; scalar admission remains `verification_missing` until explicitly
+selected bindings pass the existing verifier. The executor records all plan
+positions and invocation outcomes. One
 `MethodExecutionCapture` can be carried across repeated graph calls so feedback
 iterations and terminal execution retain distinct occurrence IDs in one
 bundle. Selected scalar outputs and JSON sidecars are written once to CAS;

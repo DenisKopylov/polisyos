@@ -19,10 +19,14 @@ from polisyos.ir.governance.selector_expr import (
     SelectorNot,
     SelectorPredicate,
 )
-from polisyos.ir.kernel.constraints import ConstraintRegistry
-from polisyos.ir.kernel.merge_rules import MergeRuleKind, MergeRuleRegistry
-from polisyos.ir.kernel.selector_fields import SelectorFieldRegistry
-from polisyos.ir.kernel.slots import SlotRegistry, SlotScope
+from polisyos.ir.kernel import (
+    ConstraintRegistry,
+    MergeRuleKind,
+    MergeRuleRegistry,
+    SelectorFieldRegistry,
+    SlotRegistry,
+    SlotScope,
+)
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 from polisyos.ir.model_layer.types import SelectorOperator
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from decimal import Decimal
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
@@ -7,7 +8,10 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from polisyos.core.artifacts import CanonInfo, FileSystemCAS, PutOptions, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.core.run.context import RunContext
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.ir.governance.policy_spec import (
     InterventionSpec,
     ParameterSpec,
@@ -27,7 +31,7 @@ from polisyos.ir.model_layer.model_spec import AssumptionSpec, AssumptionType, M
 from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperator
 from polisyos.ir.observation.contracts import StrategicResponseChannel
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.trinity.loaders import TrinityLoadError
+from polisyos.ir.trinity.loaders import TrinityLoadError, load_trinity_bundle_artifact
 from polisyos.lex import (
     InterventionKnobSpec,
     LexInterventionCompiler,
@@ -61,10 +65,13 @@ from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search i
     _evaluate_candidate_payload,
     _iter_candidate_records,
     _persist_frontier_report,
+    _persist_trinity_bundle,
     _resolve_search_candidate,
     _select_champion_candidate,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
+from polisyos.scientist.orchestration.engine.retry import _node_facing_context
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import (
     branch_state as real_branch_state,
@@ -943,3 +950,89 @@ def test_hierarchical_candidate_ranking_omits_no_score_records_and_empty_fallbac
     ]
     assert unavailable_records[0].objective_value is None
     assert _select_champion_candidate(all_unavailable) is None
+
+
+def test_hierarchical_trinity_persistence_uses_validated_run_owner_context(tmp_path) -> None:
+    tenant_id = "tenant-hierarchical-trinity"
+    cell_id = "cell-hierarchical-trinity"
+    base_store = FileSystemCAS(tmp_path / "tenant-cas")
+    tenant_store = base_store.for_tenant(tenant_id, cell_id)
+    bundle = _bundle()
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        registry_ref = tenant_store.put_json(
+            {"registry": {}},
+            PutOptions(kind="core.registry.bundle", media_type="application/json"),
+            return_selected_profile=True,
+        )
+        run = RunContext.start(
+            store=tenant_store,
+            registry_bundle=registry_ref,
+            run_id="R_hierarchical_trinity_owner",
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            access_scope=None,
+        )
+        completed = False
+        try:
+            run.update_manifest(
+                execution_profile="test",
+                control_job_id="job_hierarchical_trinity_owner",
+            )
+            context = ExecutionContext(
+                store=tenant_store,
+                run=run,
+                logger=logging.getLogger("test.hierarchical_trinity_owner"),
+            )
+            node_context = _node_facing_context(context)
+            state = ExperimentState(run_id=run.run_manifest.run_id)
+
+            selected_ref = _persist_trinity_bundle(node_context, bundle, state=state)
+            manifest = tenant_store.get_manifest(selected_ref)
+            assert manifest.tenant_context == ArtifactTenantContextInfo(
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            loaded_bundle = load_trinity_bundle_artifact(tenant_store, selected_ref)
+            # ParamValue is opaque; compare the persisted JSON representation.
+            assert loaded_bundle.model_dump(mode="json") == bundle.model_dump(mode="json")
+
+            run.add_output(selected_ref)
+            completed = True
+        finally:
+            run.finalize(status="ok" if completed else "failed")
+
+
+def test_hierarchical_trinity_persistence_refuses_job_without_owner_scope_before_write(
+    tmp_path,
+) -> None:
+    from unittest.mock import patch
+
+    base_store = FileSystemCAS(tmp_path / "unscoped-cas")
+    registry_ref = base_store.put_json(
+        {"registry": {}},
+        PutOptions(kind="core.registry.bundle", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    run = RunContext.start(
+        store=base_store,
+        registry_bundle=registry_ref,
+        run_id="R_hierarchical_trinity_unscoped_job",
+        access_scope=None,
+    )
+    try:
+        run.update_manifest(control_job_id="job_hierarchical_trinity_unscoped")
+        context = ExecutionContext(
+            store=base_store,
+            run=run,
+            logger=logging.getLogger("test.hierarchical_trinity_owner_refusal"),
+        )
+        state = ExperimentState(run_id=run.run_manifest.run_id)
+        with patch("polisyos.ir.trinity.loaders.persist_trinity_bundle_artifact") as writer:
+            with pytest.raises(
+                ValueError,
+                match="run_owner_control_job_tenant_context_not_established",
+            ):
+                _persist_trinity_bundle(context, _bundle(), state=state)
+            writer.assert_not_called()
+    finally:
+        run.finalize(status="failed")

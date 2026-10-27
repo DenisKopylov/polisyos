@@ -10,13 +10,17 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import time
+import uuid
 from collections.abc import Callable, Mapping, Sequence
 from contextlib import AbstractContextManager, nullcontext
+from contextvars import ContextVar
 from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from dataclasses import fields as dataclass_fields
 from datetime import UTC, datetime
+from functools import wraps
 from typing import Any, Literal
 
 import jax
@@ -111,6 +115,8 @@ from polisyos.ir.kernel import (
     SlotRegistry,
     UnitsRegistry,
 )
+
+_calibration_logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -330,6 +336,54 @@ class CalibrationMetricsCollector:
     _grad_norms: list[float] = field(default_factory=list)
     _current_step: int = 0
     _metrics_cached: Any = None
+    run_id: str = field(default_factory=lambda: uuid.uuid4().hex, init=False)
+    _lifecycle_started: bool = field(default=False, init=False)
+    _lifecycle_finished: bool = field(default=False, init=False)
+    _lifecycle_failure_logged: bool = field(default=False, init=False)
+
+    def start(self) -> None:
+        """Begin lifecycle tracking without making telemetry a run dependency."""
+        if not self.enabled or self._lifecycle_started or self._lifecycle_finished:
+            return
+        try:
+            self._lifecycle_started = bool(
+                self._get_metrics().start_calibration_run(
+                    run_id=self.run_id,
+                    optimizer=self.optimizer_name,
+                )
+            )
+        except Exception:
+            self._log_lifecycle_telemetry_failure("start")
+
+    def _record_progress(self) -> None:
+        if not self._lifecycle_started or self._lifecycle_finished:
+            return
+        try:
+            self._get_metrics().record_calibration_progress(run_id=self.run_id)
+        except Exception:
+            self._log_lifecycle_telemetry_failure("progress")
+
+    def finish(self, status: Literal["completed", "failed"]) -> None:
+        """End the active execution and retain only its bounded outcome count."""
+        if not self.enabled or self._lifecycle_finished:
+            return
+        self._lifecycle_finished = True
+        if not self._lifecycle_started:
+            return
+        try:
+            self._get_metrics().finish_calibration_run(run_id=self.run_id, status=status)
+        except Exception:
+            self._log_lifecycle_telemetry_failure("finish")
+
+    def _log_lifecycle_telemetry_failure(self, action: str) -> None:
+        if self._lifecycle_failure_logged:
+            return
+        self._lifecycle_failure_logged = True
+        _calibration_logger.warning(
+            "Calibration lifecycle %s telemetry could not be recorded",
+            action,
+            exc_info=True,
+        )
 
     def record_step(
         self,
@@ -342,6 +396,7 @@ class CalibrationMetricsCollector:
         """Record one optimizer step and flush when the emit interval is reached."""
         if not self.enabled:
             return
+        self._record_progress()
         self._step_durations.append((duration_seconds, is_warmup))
         self._losses.append(loss)
         self._grad_norms.append(grad_norm)
@@ -394,6 +449,39 @@ class CalibrationMetricsCollector:
                     "convergence_reason": convergence_reason,
                 },
             )
+
+
+_current_calibration_metrics_collector: ContextVar[CalibrationMetricsCollector | None] = ContextVar(
+    "current_calibration_metrics_collector", default=None
+)
+
+
+def _track_calibration_lifecycle(
+    method: Callable[[Calibrator], CalibrationReport],
+) -> Callable[[Calibrator], CalibrationReport]:
+    """Record whole-call calibration lifecycle, including preflight failures."""
+
+    @wraps(method)
+    def wrapped(self: Calibrator) -> CalibrationReport:
+        collector = CalibrationMetricsCollector(
+            optimizer_name="adam",
+            emit_interval=10,
+            enabled=is_hpc_observability_enabled(),
+        )
+        token = _current_calibration_metrics_collector.set(collector)
+        try:
+            collector.start()
+            result = method(self)
+        except BaseException:
+            collector.finish("failed")
+            raise
+        else:
+            collector.finish("completed")
+            return result
+        finally:
+            _current_calibration_metrics_collector.reset(token)
+
+    return wrapped
 
 
 def _compute_scale_local(
@@ -1874,6 +1962,7 @@ class Calibrator:
         )
         return report, report_ref
 
+    @_track_calibration_lifecycle
     def run(self) -> CalibrationReport:
         """Run the optimizer loop and return a report-ready calibration artifact.
 
@@ -2113,19 +2202,18 @@ class Calibrator:
                 optax.clip_by_global_norm(cfg.clip_grad_norm),
                 optax.adam(cfg.learning_rate),
             )
-        optimizer_name = "adam"
-        hpc_enabled = is_hpc_observability_enabled()
-        collector = CalibrationMetricsCollector(
-            optimizer_name=optimizer_name,
-            emit_interval=10,
-            enabled=hpc_enabled,
-        )
+        collector = _current_calibration_metrics_collector.get()
+        if collector is None:
+            raise RuntimeError("Calibration lifecycle wrapper is missing")
+        optimizer_name = collector.optimizer_name
+        hpc_enabled = collector.enabled
         tracer = get_tracer() if hpc_enabled else None
         span_attributes = {
             "calibration.optimizer": optimizer_name,
             "calibration.max_steps": cfg.max_steps,
             "calibration.learning_rate": cfg.learning_rate,
             "calibration.early_stop_patience": cfg.early_stop_patience,
+            "calibration.run_id": collector.run_id,
         }
 
         def _expand_group_values(values: Sequence[jnp.ndarray]) -> list[Any]:

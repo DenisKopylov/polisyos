@@ -37,3 +37,16 @@ def test_phase6_4_extension_examples_have_installable_entry_point_contracts() ->
     )
 
     assert errors == []
+
+
+def test_phase6_4_example_install_modes_follow_owner_registry() -> None:
+    modes, errors = check_extension_examples._resolve_example_install_modes(
+        REPO_ROOT,
+        check_extension_examples.EXAMPLES,
+    )
+
+    assert errors == []
+    assert len(modes) == len(check_extension_examples.EXAMPLES)
+    assert sum(mode == "wheel" for mode in modes.values()) == 1
+    assert sum(mode == "editable" for mode in modes.values()) == 6
+    assert modes[check_extension_examples.EXAMPLES[0].group] == "wheel"

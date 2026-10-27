@@ -89,7 +89,10 @@ action_contracts := {
 	"evidence.preview": {"runtime.evidence.preview": {"request_bound"}},
 	"evidence.promotions.approve": {"runtime.evidence.promotion.approve": {"content_resolved_unscoped"}},
 	"evidence.promotions.reject": {"runtime.evidence.promotion.reject": {"content_resolved_unscoped"}},
-	"evidence.resolve": {"runtime.evidence.resolve": {"request_bound"}},
+	"evidence.resolve": {
+		"runtime.evidence.resolve": {"request_bound"},
+		"runtime.run.normative_evidence": {"ownership_verified"},
+	},
 	"evidence.sae.analyze": {"runtime.evidence.sae_causal_frontier": {"request_bound"}},
 	"fabric.impact.analyze": {"runtime.fabric.impact": {"ownership_verified", "request_bound"}},
 	"fabric.quality.read": {"runtime.fabric.quality_batch": {"ownership_verified"}},
@@ -101,6 +104,7 @@ action_contracts := {
 		"runtime.mobility_bounds": {"tenant_collection"},
 		"runtime.mobility_estimate": {"tenant_collection"},
 	},
+	"platform.admin": {"runtime.run.public_verification_record": {"ownership_verified"}},
 	"runs.batch.read": {"runtime.run.batch": {"ownership_verified"}},
 	"runs.feedback.evaluate": {
 		"runtime.run.feedback_evaluation": {"ownership_verified"},
@@ -124,6 +128,8 @@ action_contracts := {
 		"runtime.run.human_decision_gate": {"ownership_verified"},
 		"runtime.run.human_decision_record": {"ownership_verified"},
 		"runtime.run.human_decision_review_effectiveness": {"ownership_verified"},
+		"runtime.run.method_execution_selection": {"ownership_verified"},
+		"runtime.run.method_metrics": {"ownership_verified"},
 		"runtime.run_paper": {"tenant_collection"},
 	},
 	"scenarios.create": {"runtime.run.scenario.candidate": {"candidate", "ownership_verified"}},

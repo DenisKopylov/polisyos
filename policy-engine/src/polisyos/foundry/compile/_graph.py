@@ -16,8 +16,10 @@ from polisyos.core.contracts.foundry import (
     ProgramNode,
     ProgramOp,
 )
+from polisyos.core.registry.loader import load_registry_bundle_content
 from polisyos.foundry.methods.base import MethodKind
 from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.ir.kernel.slots import SlotRegistry
 
 
 def build_program_graph(
@@ -30,13 +32,13 @@ def build_program_graph(
     method_plan: ExecutionPlan | None = None,
 ) -> tuple[ProgramGraph, dict[str, ArtifactRef]]:
     """Build program graph."""
-    _ = store
     nodes: list[ProgramNode] = []
     edges: list[ProgramEdge] = []
     params_refs: dict[str, ArtifactRef] = {}
 
     existing: set[str] = set()
-    for mechanism in sorted(mechanisms, key=lambda item: item.binding_id):
+    mechanism_items = sorted(mechanisms, key=lambda item: item.binding_id)
+    for mechanism in mechanism_items:
         params_ref = mechanism.effective_params_ref
         primary_id = (
             mechanism.intervention_ids[0] if mechanism.intervention_ids else mechanism.binding_id
@@ -94,15 +96,33 @@ def build_program_graph(
         nodes.extend(method_nodes)
         edges.extend(method_edges)
 
-    slot_edges = _slot_dependency_edges(nodes)
+    method_read_slots = [
+        set(node.inputs) - set(node.outputs) for node in nodes if node.node_kind == "method"
+    ]
+    has_intervention_method_slot_transfer = any(
+        mechanism.outputs and any(method_read_slots) for mechanism in mechanism_items
+    )
+    slot_registry = None
+    if has_intervention_method_slot_transfer:
+        slot_registry = _selected_slot_registry(store, lowered_ir_ref)
+    slot_edges = _slot_dependency_edges(nodes, slot_registry=slot_registry)
     if method_plan is not None:
+        mechanism_node_ids = {
+            node.node_id
+            for node in nodes
+            if node.node_kind == "mechanism"
+            or (
+                node.node_kind == "op"
+                and node.op is not None
+                and node.op.op_kind == "apply_mechanism"
+            )
+        }
         for edge in slot_edges:
             if edge.src in method_node_ids or edge.dst in method_node_ids:
-                if (
-                    edge.src not in method_node_ids
-                    or edge.dst not in method_node_ids
-                    or (edge.src, edge.dst) not in planned_method_edges
-                ):
+                if edge.src in method_node_ids and edge.dst in method_node_ids:
+                    if (edge.src, edge.dst) not in planned_method_edges:
+                        raise ValueError("execution_plan_method_slot_dependency_not_declared")
+                elif edge.src not in mechanism_node_ids or edge.dst not in method_node_ids:
                     raise ValueError("execution_plan_method_slot_dependency_not_declared")
     if slot_edges:
         edge_keys = {(edge.src, edge.dst, edge.relation) for edge in edges}
@@ -243,11 +263,8 @@ def _method_plan_graph_nodes(
         )
     ]
     graph_inputs = {slot for node in graph_method_nodes for slot in node.inputs}
-    graph_outputs = {slot for node in graph_method_nodes for slot in node.outputs}
     if all_return_slots.intersection(graph_inputs):
         raise ValueError("execution_plan_method_return_slot_consumer_unsupported")
-    if all_method_reads.intersection(graph_outputs):
-        raise ValueError("execution_plan_method_graph_data_transfer_unsupported")
 
     sorter = TopologicalSorter()
     for method_id in method_ids:
@@ -300,7 +317,36 @@ def _unique_node_id(base_id: str, existing: set[str]) -> str:
     return f"{base_id}_{suffix}"
 
 
-def _slot_dependency_edges(nodes: list[ProgramNode]) -> list[ProgramEdge]:
+def _selected_slot_registry(store: Any, lowered_ir_ref: LoweredIRRef) -> SlotRegistry:
+    """Load the slot registry through the exact LoweredIR lineage view."""
+    if lowered_ir_ref.manifest_profile_sha256 is None:
+        raise ValueError(
+            "execution_plan_method_lowered_ir_selected_profile_required_for_intervention_method_transfer"
+        )
+    manifest = store.get_manifest(lowered_ir_ref)
+    if manifest.kind != "foundry.lowered_ir":
+        raise ValueError("lowered_ir_selected_manifest_kind_mismatch")
+    registry_inputs = [item for item in manifest.inputs if item.role == "registry_bundle"]
+    if len(registry_inputs) != 1:
+        raise ValueError("lowered_ir_requires_one_registry_bundle_input")
+    registry_input = registry_inputs[0]
+    if registry_input.manifest_profile_sha256 is None:
+        raise ValueError(
+            "execution_plan_method_registry_bundle_selected_profile_required_for_intervention_method_transfer"
+        )
+    registry_ref = ArtifactRef(
+        artifact_id=registry_input.artifact_id,
+        kind="core.registry_bundle",
+        media_type="application/json",
+        manifest_profile_sha256=registry_input.manifest_profile_sha256,
+    )
+    registry_content = load_registry_bundle_content(store, registry_ref)
+    return registry_content.slot_registry
+
+
+def _slot_dependency_edges(
+    nodes: list[ProgramNode], *, slot_registry: SlotRegistry | None = None
+) -> list[ProgramEdge]:
     def _is_mechanism_node(node: ProgramNode) -> bool:
         if node.node_kind in {"mechanism", "method"}:
             return True
@@ -309,15 +355,30 @@ def _slot_dependency_edges(nodes: list[ProgramNode]) -> list[ProgramEdge]:
     mech_nodes = [node for node in nodes if _is_mechanism_node(node)]
     edge_keys: set[tuple[str, str]] = set()
     edges: list[ProgramEdge] = []
+    state_path_by_slot = (
+        {slot_id: spec.state_path for slot_id, spec in slot_registry.slots.items()}
+        if slot_registry is not None
+        else {}
+    )
     for writer in mech_nodes:
         if not writer.outputs:
             continue
         writer_slots = set(writer.outputs)
+        writer_paths = {
+            state_path_by_slot[slot_id]
+            for slot_id in writer_slots
+            if state_path_by_slot.get(slot_id) is not None
+        }
         for reader in mech_nodes:
             if writer.node_id == reader.node_id or not reader.inputs:
                 continue
             reader_slots = set(reader.inputs) - set(reader.outputs)
-            if writer_slots.intersection(reader_slots):
+            reader_paths = {
+                state_path_by_slot[slot_id]
+                for slot_id in reader_slots
+                if state_path_by_slot.get(slot_id) is not None
+            }
+            if writer_slots.intersection(reader_slots) or writer_paths.intersection(reader_paths):
                 key = (writer.node_id, reader.node_id)
                 if key in edge_keys:
                     continue

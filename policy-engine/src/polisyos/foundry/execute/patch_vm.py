@@ -13,8 +13,7 @@ from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.contracts.foundry import PatchOp
 from polisyos.foundry.methods.components.merge_engine import MergeEngine, MergeRecord
-from polisyos.ir.kernel.merge_rules import MergeRuleKind, MergeRuleRegistry
-from polisyos.ir.kernel.slots import SlotRegistry
+from polisyos.ir.kernel import MergeRuleKind, MergeRuleRegistry, SlotRegistry
 
 
 def _put_tensor(store: ArtifactStore, value: Any) -> ArtifactRef:

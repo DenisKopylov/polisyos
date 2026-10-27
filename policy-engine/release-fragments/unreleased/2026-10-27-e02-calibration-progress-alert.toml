@@ -1,0 +1,17 @@
+id = "2026-10-27-e02-calibration-progress-alert"
+title = "Use active calibration progress for CalibrationStuck"
+type = "fixed"
+component = "foundry"
+owner = "team-scientist"
+summary = "CalibrationStuck now consumes the oldest progress age among active Calibrator executions, with bounded optimizer and environment labels. Completing or failing a run removes its active eligibility; retained loss and unrelated Scientist activity cannot trigger this alert. A healthy sibling cannot hide an older stalled calibration."
+evidence = ["src/polisyos/foundry/calibration/calibrator.py", "src/polisyos/core/observability/_metrics_registry_base.py", "src/polisyos/core/observability/metrics_parts.py", "ops/observability/prometheus/alerts.yml", "tests/unit/foundry/calibration/test_calibration_lifecycle.py", "tests/contract/fixtures/prometheus/calibration_stuck_alerts.test.yml"]
+compatibility = "Existing loss and gradient diagnostic metrics and scientific calibration results are unchanged. Three additive lifecycle metric families replace the invalid loss-gauge and global-active-run premises of CalibrationStuck. The existing 30-minute inactivity threshold and 30-minute alert hold remain."
+change_class = "internal"
+surface_classification = "internal: existing operator Prometheus alert and additive lifecycle telemetry; no runtime HTTP DTO or scientific API schema change."
+migration = "Deploy the lifecycle producer and alert rule together. Keep the existing observability toggle and configured optimizer/environment labels. Alert consumers retain the existing alert name. No exception dates, operational objectives, or attainment claims are changed."
+api = "Calibrator.run preserves its call signature and returns the existing scientific result. Invocation IDs remain private process and trace state, never metric labels."
+limitations = "Controlled local lifecycle and native Prometheus witnesses do not establish deployed workload coverage, production attainment, exporter delivery, or a new SLO objective. An alert identifies an optimizer/environment cohort with at least one stalled active invocation; trace follow-up locates the invocation."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = ["docs/runbooks/benchmark-regression-triage.md"]

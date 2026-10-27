@@ -23,7 +23,7 @@ from polisyos.core.artifacts import (
 )
 from polisyos.core.artifacts.manifest import CanonInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon.canon_json import CanonSpec
+from polisyos.core.canon import CanonSpec
 from polisyos.fabric.data_plane.evidence_journal import (
     append_fsync_jsonl,
     content_sha256,

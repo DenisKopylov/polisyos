@@ -65,6 +65,81 @@ slo_files = ["ops/components/common/slo.yaml"]
 runbooks = ["docs/runbooks/dependency-upgrade-regression.md"]
 runbook_expectation = "Common has no standalone runtime traffic; dependency, migration, or helper failures use dependent component runbooks until a standalone SLO is accepted."
 
+# This typed edge names a controlled execution relation only. It does not
+# establish production selection, traffic, attainment, or exception closure.
+[[slo_runbook.dependent_bindings]]
+id = "common-scientist-api-fanout"
+schema_version = "1.0"
+dependent_package = "scientist"
+eligibility_start = "workflow_resolved"
+runbook_paths = ["docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md", "docs/runbooks/benchmark-regression-triage.md"]
+outcome_success_report_status = "ok"
+outcome_success_metric_status = "success"
+outcome_failure_metric_status = "error"
+
+[slo_runbook.dependent_bindings.shared_operation]
+package = "common"
+module = "polisyos.common.async_tools"
+symbol = "run_blocking_async"
+
+[slo_runbook.dependent_bindings.consumer_operation]
+package = "scientist"
+module = "polisyos.scientist.api"
+symbol = "run_experiment"
+
+[slo_runbook.dependent_bindings.callsite_operation]
+package = "scientist"
+module = "polisyos.scientist.orchestration.engine.fan_out"
+symbol = "FanOutNode.execute_async"
+nested_code_name = "_run_item"
+
+[slo_runbook.dependent_bindings.profile_operation]
+package = "common"
+module = "polisyos.common.async_tools"
+symbol = "get_shared_executor_profile"
+
+[slo_runbook.dependent_bindings.executor_operation]
+package = "common"
+module = "polisyos.common.async_tools"
+symbol = "get_shared_executor"
+capacity_attribute = "_max_workers"
+queue_capacity_attribute = "_max_queued"
+
+[slo_runbook.dependent_bindings.report_model]
+package = "scientist"
+module = "polisyos.scientist.orchestration.engine.executor"
+symbol = "WorkflowReport"
+
+[slo_runbook.dependent_bindings.manifest_model]
+package = "core"
+module = "polisyos.core.run.manifest"
+symbol = "RunManifest"
+
+[slo_runbook.dependent_bindings.artifact_ref_model]
+package = "core"
+module = "polisyos.core.artifacts.manifest"
+symbol = "ArtifactRef"
+
+[[slo_runbook.dependent_bindings.objective]]
+path = "ops/observability/slo/scientist.yaml"
+name = "scientist_dag_success_rate"
+measurement_scope_attribute = "measurement_scope"
+runbook_path = "docs/runbooks/runtime-graceful-shutdown-and-stuck-worker.md"
+
+[[slo_runbook.dependent_bindings.objective]]
+path = "ops/observability/slo/scientist.yaml"
+name = "scientist_p99_duration"
+measurement_scope_attribute = "measurement_scope"
+runbook_path = "docs/runbooks/benchmark-regression-triage.md"
+
+[slo_runbook.dependent_bindings.trace]
+api_span_name = "experiment.workflow"
+api_run_id_attribute = "polisyos.run_id"
+api_workflow_id_attribute = "polisyos.workflow_id"
+node_run_id_attribute = "polisyos.scientist.run_id"
+node_workflow_id_attribute = "polisyos.scientist.workflow_id"
+event_name = "polisyos.common.shared_executor_call"
+
 [observability]
 status = "exception"
 metrics_owner = "team-core"

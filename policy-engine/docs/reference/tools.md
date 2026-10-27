@@ -68,6 +68,7 @@ Generated from `tools.registry` command metadata.
 | `workspace` | `release-build-cache-lifecycle` | `active` | `polisyos-tools workspace release-build-cache-lifecycle` | Check and clean release/build/cache lifecycle state. | - | - | - |
 | `workspace` | `remote-acceptance` | `active` | `polisyos-tools workspace remote-acceptance` | Provision and drive a remote Linux runner for acceptance closeout. | - | - | - |
 | `workspace` | `repository-sota-closeout` | `active` | `polisyos-tools workspace repository-sota-closeout` | Enforce the Repository SOTA Phase 5 closeout gate. | - | - | - |
+| `workspace` | `ruff-sources` | `active` | `polisyos-tools workspace ruff-sources` | Run bounded candidate Ruff checks through explicit, content-bound stdin inputs. | - | - | - |
 | `workspace` | `runtime-surface` | `active` | `polisyos-tools workspace runtime-surface` | Run the Phase 5B runtime lint, type, boundary, and API contract gate. | - | - | - |
 | `workspace` | `tool-configs` | `active` | `polisyos-tools workspace tool-configs` | Generate and verify split mypy, Ruff, and MkDocs configuration. | - | - | - |
 | `workspace` | `verify` | `active` | `polisyos-tools workspace verify` | Run the standard fast local gate for policy-engine contributors. | - | - | `workspace.doctor` |
@@ -144,7 +145,7 @@ Generated from `tools.registry` command metadata.
 | `validation` | `check-evidence-spine-connectivity` | `active` | `polisyos-tools validation check-evidence-spine-connectivity` | Check scenario evidence contract propagation inside a canary evidence bundle. | - | - | - |
 | `validation` | `check-evidence-spine-handoffs` | `active` | `polisyos-tools validation check-evidence-spine-handoffs` | Check evidence-spine async/batch handoff ledgers in canary bundles. | - | - | - |
 | `validation` | `check-expert-adjudication-labels` | `active` | `polisyos-tools validation check-expert-adjudication-labels` | Validate W11.C expert adjudication labels for the outcome corpus. | - | - | - |
-| `validation` | `check-extension-examples` | `active` | `polisyos-tools validation check-extension-examples` | Install extension examples in editable mode and verify entry-point discovery. | - | - | - |
+| `validation` | `check-extension-examples` | `active` | `polisyos-tools validation check-extension-examples` | Install extension examples in their declared mode and verify discovery. | - | - | - |
 | `validation` | `check-grounding-active-controller-contract` | `active` | `polisyos-tools validation check-grounding-active-controller-contract` | Validate the CGF GY-CG5 active grounding controller contract. | - | - | - |
 | `validation` | `check-grounding-admission-contract` | `active` | `polisyos-tools validation check-grounding-admission-contract` | Validate the CGF GY-CG3 free-grow admission contract. | - | - | - |
 | `validation` | `check-grounding-benchmark-contract` | `active` | `polisyos-tools validation check-grounding-benchmark-contract` | Validate the CGF GY-CG6 grounding benchmark scoreboard. | - | - | - |
@@ -266,6 +267,7 @@ Generated from `tools.registry` command metadata.
 | `validation` | `inspect-policy-evidence-capability-index` | `active` | `polisyos-tools validation inspect-policy-evidence-capability-index` | Inspect the Policy Evidence Capability Index for operator/audit review. | - | - | - |
 | `validation` | `inventory-legacy-quality-evidence` | `active` | `polisyos-tools validation inventory-legacy-quality-evidence` | Inventory and classify legacy production-quality evidence files. | - | - | - |
 | `validation` | `name-collision-gate` | `active` | `polisyos-tools validation name-collision-gate` | Fail-closed Phase 1C cross-package directory-name collision gate. | - | - | - |
+| `validation` | `packaged-resource-contract` | `active` | `polisyos-tools validation packaged-resource-contract` | Derive and verify the package resources required by their runtime owners. | - | - | - |
 | `validation` | `production-quality-evidence-inventory` | `active` | `polisyos-tools validation production-quality-evidence-inventory` | Inventory production-quality evidence refs, fields, producers, and validators. | - | - | - |
 | `validation` | `rederive-layer3-gy-n10-cg1-l2-relation-census` | `active` | `polisyos-tools validation rederive-layer3-gy-n10-cg1-l2-relation-census` | Re-derive the read-only GY-N10 CG1-to-L2 relation census. | - | - | - |
 | `validation` | `repository-best-in-class-phase0-7-inventory` | `active` | `polisyos-tools validation repository-best-in-class-phase0-7-inventory` | Read-only Phase 0.7 inventory for repository best-in-class remediation. | - | - | - |

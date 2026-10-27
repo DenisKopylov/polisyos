@@ -285,3 +285,244 @@ def test_selected_method_plan_refuses_lowered_mechanism_consuming_return_slot() 
     )
     with pytest.raises(ValueError, match="execution_plan_method_return_slot_consumer_unsupported"):
         _build_selected_plan(plan, mechanisms=[mechanism])
+
+
+def test_slot_dependency_edges_reconcile_registered_state_path_aliases() -> None:
+    from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
+    from polisyos.ir.kernel.slots import SlotRegistry
+
+    slots = dict(DEFAULT_SLOT_REGISTRY.slots)
+    slots["baseline"] = slots["agents.reported_income"].model_copy(
+        update={"slot_id": "baseline", "state_path": "agents.reported_income"}
+    )
+    slots["scenario"] = slots["agents.income"].model_copy(
+        update={"slot_id": "scenario", "state_path": "agents.income"}
+    )
+    registry = SlotRegistry(slots=slots)
+    nodes = [
+        ProgramNode(
+            node_id="tax",
+            node_kind="mechanism",
+            mechanism_type="income_tax",
+            outputs=["agents.income"],
+        ),
+        ProgramNode(
+            node_id="ex_ante",
+            node_kind="method",
+            method_fqn="policy.evaluation.ex_ante_simulation@1.0.0",
+            inputs=["baseline", "scenario"],
+        ),
+    ]
+
+    edges = _slot_dependency_edges(nodes, slot_registry=registry)
+
+    assert [(edge.src, edge.dst) for edge in edges] == [("tax", "ex_ante")]
+
+    slots["scenario"] = slots["scenario"].model_copy(update={"state_path": "agents.savings"})
+    wrong_registry = SlotRegistry(slots=slots)
+    assert _slot_dependency_edges(nodes, slot_registry=wrong_registry) == []
+
+
+@pytest.mark.parametrize(
+    "producer_slot",
+    ["scenario", "writer.slot"],
+    ids=["exact-slot-id", "state-path-alias"],
+)
+def test_profileless_lowered_ir_refuses_intervention_method_transfer(producer_slot) -> None:
+    from polisyos.core.contracts.foundry import LoweredIRRef, LoweredMechanism
+    from polisyos.foundry.compile._graph import build_program_graph
+
+    signature = _registered_method_signature()
+    method_plan = _plan_for([_method_dag_node(signature, node_id="ex_ante")])
+
+    class _DefaultManifestStore:
+        def get_manifest(self, ref):
+            pytest.fail(
+                "profileless transfer must refuse before resolving the default LoweredIR view"
+            )
+
+    with pytest.raises(
+        ValueError,
+        match="execution_plan_method_lowered_ir_selected_profile_required_for_intervention_method_transfer",
+    ):
+        build_program_graph(
+            _DefaultManifestStore(),
+            ir_ref=_dummy_ir_ref(),
+            lowered_ir_ref=LoweredIRRef(
+                artifact_id="sha256:" + "b" * 64,
+                kind="foundry.lowered_ir",
+                media_type="application/json",
+            ),
+            mechanisms=[
+                LoweredMechanism(
+                    binding_id="tax-binding",
+                    mechanism_id="income_tax",
+                    intervention_ids=["tax"],
+                    outputs=[producer_slot],
+                )
+            ],
+            constraint_ids=[],
+            method_plan=method_plan,
+        )
+
+
+def test_method_transfer_refuses_registry_lineage_without_selected_profile(monkeypatch) -> None:
+    from types import SimpleNamespace
+
+    from polisyos.core.artifacts.manifest import InputRef
+    from polisyos.core.contracts.foundry import LoweredIRRef, LoweredMechanism
+    from polisyos.foundry.compile import _graph as graph_module
+    from polisyos.foundry.compile._graph import build_program_graph
+
+    lowered_profile = "sha256:" + "b" * 64
+
+    class _UnprofiledRegistryLineageStore:
+        def get_manifest(self, ref):
+            assert ref.manifest_profile_sha256 == lowered_profile
+            return SimpleNamespace(
+                kind="foundry.lowered_ir",
+                inputs=[
+                    InputRef(
+                        artifact_id="sha256:" + "d" * 64,
+                        role="registry_bundle",
+                    )
+                ],
+            )
+
+    def _must_not_load_registry(store, ref):
+        pytest.fail("registry loader must not receive an unselected registry-bundle edge")
+
+    monkeypatch.setattr(graph_module, "load_registry_bundle_content", _must_not_load_registry)
+    signature = _registered_method_signature()
+    with pytest.raises(
+        ValueError,
+        match="execution_plan_method_registry_bundle_selected_profile_required_for_intervention_method_transfer",
+    ):
+        build_program_graph(
+            _UnprofiledRegistryLineageStore(),
+            ir_ref=_dummy_ir_ref(),
+            lowered_ir_ref=LoweredIRRef(
+                artifact_id="sha256:" + "b" * 64,
+                kind="foundry.lowered_ir",
+                media_type="application/json",
+                manifest_profile_sha256=lowered_profile,
+            ),
+            mechanisms=[
+                LoweredMechanism(
+                    binding_id="tax-binding",
+                    mechanism_id="income_tax",
+                    intervention_ids=["tax"],
+                    outputs=["writer.slot"],
+                )
+            ],
+            constraint_ids=[],
+            method_plan=_plan_for([_method_dag_node(signature, node_id="ex_ante")]),
+        )
+
+
+def test_program_graph_uses_exact_registry_profiles_for_method_transfer(monkeypatch) -> None:
+    from types import SimpleNamespace
+
+    from polisyos.core.artifacts.manifest import InputRef
+    from polisyos.core.contracts.foundry import LoweredIRRef, LoweredMechanism
+    from polisyos.foundry.compile import _graph as graph_module
+    from polisyos.foundry.compile._graph import build_program_graph
+    from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
+    from polisyos.ir.kernel.slots import SlotRegistry
+
+    lower_profile = "sha256:" + "b" * 64
+    sibling_lower_profile = "sha256:" + "f" * 64
+    registry_profile = "sha256:" + "c" * 64
+    sibling_registry_profile = "sha256:" + "e" * 64
+    lower_profiles = {
+        lower_profile: registry_profile,
+        sibling_lower_profile: sibling_registry_profile,
+    }
+    registry_artifact_id = "sha256:" + "d" * 64
+
+    class _SelectedLoweredManifestStore:
+        def get_manifest(self, ref):
+            selected_registry_profile = lower_profiles.get(ref.manifest_profile_sha256)
+            assert selected_registry_profile is not None
+            return SimpleNamespace(
+                kind="foundry.lowered_ir",
+                inputs=[
+                    InputRef(
+                        artifact_id=registry_artifact_id,
+                        role="registry_bundle",
+                        manifest_profile_sha256=selected_registry_profile,
+                    )
+                ],
+            )
+
+    slots = dict(DEFAULT_SLOT_REGISTRY.slots)
+    slots["writer.slot"] = slots["agents.income"].model_copy(
+        update={"slot_id": "writer.slot", "state_path": "agents.income"}
+    )
+    slots["scenario"] = slots["agents.income"].model_copy(
+        update={"slot_id": "scenario", "state_path": "agents.income"}
+    )
+    slots["baseline"] = slots["agents.reported_income"].model_copy(
+        update={"slot_id": "baseline", "state_path": "agents.reported_income"}
+    )
+    same_registry_payload = SlotRegistry(slots=slots)
+    seen_refs = []
+
+    def _load_selected_bundle(store, ref):
+        assert isinstance(store, _SelectedLoweredManifestStore)
+        seen_refs.append(ref)
+        return SimpleNamespace(slot_registry=same_registry_payload)
+
+    monkeypatch.setattr(graph_module, "load_registry_bundle_content", _load_selected_bundle)
+    signature = _registered_method_signature()
+    method_plan = _plan_for([_method_dag_node(signature, node_id="ex_ante")])
+    mechanisms = [
+        LoweredMechanism(
+            binding_id="tax-alias-binding",
+            mechanism_id="income_tax",
+            intervention_ids=["tax_alias"],
+            outputs=["writer.slot"],
+        ),
+        LoweredMechanism(
+            binding_id="tax-exact-binding",
+            mechanism_id="income_tax",
+            intervention_ids=["tax_exact"],
+            outputs=["scenario"],
+        ),
+    ]
+
+    def _build_graph(profile):
+        return build_program_graph(
+            _SelectedLoweredManifestStore(),
+            ir_ref=_dummy_ir_ref(),
+            lowered_ir_ref=LoweredIRRef(
+                artifact_id="sha256:" + "b" * 64,
+                kind="foundry.lowered_ir",
+                media_type="application/json",
+                manifest_profile_sha256=profile,
+            ),
+            mechanisms=mechanisms,
+            constraint_ids=[],
+            method_plan=method_plan,
+        )[0]
+
+    selected_graph = _build_graph(lower_profile)
+    sibling_graph = _build_graph(sibling_lower_profile)
+
+    assert [str(ref.artifact_id) for ref in seen_refs] == [
+        registry_artifact_id,
+        registry_artifact_id,
+    ]
+    assert [ref.manifest_profile_sha256 for ref in seen_refs] == [
+        registry_profile,
+        sibling_registry_profile,
+    ]
+    for graph in (selected_graph, sibling_graph):
+        assert any(
+            edge.src == "tax_alias" and edge.dst == "ex_ante" and edge.relation == "depends_on"
+            for edge in graph.edges
+        )
+        assert any(
+            edge.src == "tax_exact" and edge.dst == "ex_ante" and edge.relation == "depends_on"
+            for edge in graph.edges
+        )

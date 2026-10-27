@@ -7,15 +7,21 @@ import atexit
 import concurrent.futures
 import contextvars
 import functools
+import hashlib
 import os
+import sys
 import threading
 import time
 import traceback
+from contextlib import contextmanager, suppress
 from dataclasses import dataclass, field
+from pathlib import Path
+from types import CodeType
 from typing import TYPE_CHECKING, Literal, cast
+from uuid import uuid4
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable
+    from collections.abc import Awaitable, Callable, Iterator
 
 
 class SharedExecutorReentrancyError(RuntimeError):
@@ -714,6 +720,79 @@ def run_coro_sync[T](coro: Awaitable[T], *, timeout_seconds: float | None = None
     return _run_coro_in_fresh_loop(coro, timeout_seconds=timeout)
 
 
+SHARED_EXECUTOR_CALL_EVENT_NAME = "polisyos.common.shared_executor_call"
+
+
+@dataclass(frozen=True, slots=True)
+class _SharedExecutorCallObservation:
+    """Live, in-process facts from one actual shared-executor invocation."""
+
+    schema_version: str
+    call_id: str
+    helper_function: object
+    helper_code: CodeType
+    caller_module: str
+    caller_code: CodeType
+    caller_source_path: str
+    caller_source_sha256: str
+    caller_thread_ident: int
+    target_function: object | None
+    target_code: CodeType | None
+    source_path: str
+    source_sha256: str
+    executor: object
+    profile: SharedExecutorProfile
+    worker_thread_ident: int
+    worker_is_executor: bool
+    trace_id: int
+    span_id: int
+    status: str
+
+
+class _SharedExecutorCallCollector:
+    """Collect live call objects without turning them into self-attested JSON."""
+
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._observations: list[_SharedExecutorCallObservation] = []
+
+    def append(self, observation: _SharedExecutorCallObservation) -> None:
+        with self._lock:
+            self._observations.append(observation)
+
+    def snapshot(self) -> tuple[_SharedExecutorCallObservation, ...]:
+        with self._lock:
+            return tuple(self._observations)
+
+
+_SHARED_EXECUTOR_OBSERVATION_COLLECTOR: contextvars.ContextVar[
+    _SharedExecutorCallCollector | None
+] = contextvars.ContextVar("shared_executor_call_collector", default=None)
+
+
+@contextmanager
+def capture_shared_executor_observations() -> Iterator[_SharedExecutorCallCollector]:
+    """Capture actual Common helper calls for one bounded controlled witness."""
+    collector = _SharedExecutorCallCollector()
+    token = _SHARED_EXECUTOR_OBSERVATION_COLLECTOR.set(collector)
+    try:
+        yield collector
+    finally:
+        _SHARED_EXECUTOR_OBSERVATION_COLLECTOR.reset(token)
+
+
+def _observed_target_function(func: object) -> object | None:
+    target = func
+    while isinstance(target, functools.partial):
+        target = target.func
+    target_function = getattr(target, "__func__", target)
+    return (
+        target_function
+        if isinstance(getattr(target_function, "__code__", None), CodeType)
+        else None
+    )
+
+
 @dataclass(slots=True)
 class _BlockingCallReceipt[T]:
     """Capture callable completion before its Future reaches the event loop."""
@@ -754,18 +833,122 @@ async def run_blocking_async[T](
     call = functools.partial(func, *args, **kwargs)
     context = contextvars.copy_context()
     receipt: _BlockingCallReceipt[T] = _BlockingCallReceipt()
+    collector = _SHARED_EXECUTOR_OBSERVATION_COLLECTOR.get()
+    executor = _get_shared_executor()
+    caller_module = ""
+    caller_code: CodeType | None = None
+    caller_source_path = ""
+    caller_source_sha256 = ""
+    caller_thread_ident: int | None = None
+    profile: SharedExecutorProfile | None = None
+    current_span = None
+    trace_id = span_id = 0
+    source_path = ""
+    source_sha256 = ""
+    helper_function = None
+    helper_code = None
+    target_function = None
+    target_code = None
+    if collector is not None:
+        caller = sys._getframe(1)
+        caller_module = str(caller.f_globals.get("__name__", ""))
+        caller_code = caller.f_code
+        caller_source_path = str(Path(caller_code.co_filename).resolve())
+        caller_source_sha256 = hashlib.sha256(Path(caller_source_path).read_bytes()).hexdigest()
+        caller_thread_ident = threading.get_ident()
+        profile = get_shared_executor_profile()
+        try:
+            from opentelemetry import trace
+
+            current_span = trace.get_current_span()
+            span_context = current_span.get_span_context()
+            if span_context.is_valid:
+                trace_id = span_context.trace_id
+                span_id = span_context.span_id
+            else:
+                current_span = None
+        except ImportError:
+            current_span = None
+        source_path = str(Path(__file__).resolve())
+        source_sha256 = hashlib.sha256(Path(source_path).read_bytes()).hexdigest()
+        helper_function = globals().get("_RUN_BLOCKING_ASYNC_FUNCTION")
+        helper_code = getattr(helper_function, "__code__", None)
+        target_function = _observed_target_function(func)
+        target_code = getattr(target_function, "__code__", None)
 
     def invoke() -> _BlockingCallReceipt[T]:
+        status = "success"
+        worker_thread_ident: int | None = None
+        worker_is_executor = False
+        if collector is not None:
+            worker_thread_ident = threading.get_ident()
+            worker_is_executor = is_current_shared_executor_worker()
         try:
             receipt.value = context.run(call)
         except BaseException as exc:
+            status = "error"
             receipt.error = exc
         finally:
             receipt.completed_at = time.monotonic()
             receipt.completed.set()
+            if (
+                collector is not None
+                and helper_function is not None
+                and isinstance(helper_code, CodeType)
+                and isinstance(profile, SharedExecutorProfile)
+                and isinstance(caller_code, CodeType)
+                and isinstance(caller_thread_ident, int)
+                and isinstance(worker_thread_ident, int)
+            ):
+                observation = _SharedExecutorCallObservation(
+                    schema_version="1.0",
+                    call_id=uuid4().hex,
+                    helper_function=helper_function,
+                    helper_code=helper_code,
+                    caller_module=caller_module,
+                    caller_code=caller_code,
+                    caller_source_path=caller_source_path,
+                    caller_source_sha256=caller_source_sha256,
+                    caller_thread_ident=caller_thread_ident,
+                    target_function=target_function,
+                    target_code=target_code,
+                    source_path=source_path,
+                    source_sha256=source_sha256,
+                    executor=executor,
+                    profile=profile,
+                    worker_thread_ident=worker_thread_ident,
+                    worker_is_executor=worker_is_executor,
+                    trace_id=trace_id,
+                    span_id=span_id,
+                    status=status,
+                )
+                collector.append(observation)
+                if current_span is not None and current_span.is_recording():
+                    # A missing event makes the controlled trace join fail closed.
+                    with suppress(Exception):
+                        current_span.add_event(
+                            SHARED_EXECUTOR_CALL_EVENT_NAME,
+                            {
+                                "call_id": observation.call_id,
+                                "helper_module": str(getattr(helper_function, "__module__", "")),
+                                "helper_code_object_id": hex(id(observation.helper_code)),
+                                "helper_source_sha256": observation.source_sha256,
+                                "caller_module": observation.caller_module,
+                                "caller_code_object_id": hex(id(observation.caller_code)),
+                                "caller_source_sha256": observation.caller_source_sha256,
+                                "profile_revision": observation.profile.revision,
+                                "profile_capacity": observation.profile.capacity,
+                                "profile_queue_capacity": observation.profile.queue_capacity,
+                                "executor_capacity": getattr(executor, "_max_workers", None),
+                                "executor_queue_capacity": getattr(executor, "_max_queued", None),
+                                "worker_thread_ident": worker_thread_ident,
+                                "worker_is_executor": worker_is_executor,
+                                "status": status,
+                            },
+                        )
         return receipt
 
-    worker_future = _get_shared_executor().submit(invoke)
+    worker_future = executor.submit(invoke)
     future = asyncio.wrap_future(worker_future, loop=loop)
     deadline = None if timeout is None else time.monotonic() + timeout
     try:
@@ -789,3 +972,7 @@ async def run_blocking_async[T](
         worker_future.cancel()
         raise TimeoutError(f"Blocking call did not complete within {timeout:.3f}s")
     return completed_receipt.result()
+
+
+# Preserve the import-time implementation object for live identity checks.
+_RUN_BLOCKING_ASYNC_FUNCTION = run_blocking_async

@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 from polisyos.core.artifacts import artifact_ref_for_manifest
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
+    ArtifactTenantContextInfo,
     InputRef,
     SchemaInfo,
     input_ref_from_artifact_ref,
@@ -405,6 +406,7 @@ def persist_execution_plan(
     plan: ExecutionPlan,
     *,
     inputs: list[InputRef] | None = None,
+    tenant_context: ArtifactTenantContextInfo | None = None,
 ) -> ExecutionPlanRef:
     """Persist an execution plan and retain the profile selected by this write."""
     require_return_selected_profile_writer(store, "put_json")
@@ -415,6 +417,7 @@ def persist_execution_plan(
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.ExecutionPlan", version="1.0"),
             inputs=list(inputs or []),
+            tenant_context=tenant_context,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
@@ -475,8 +478,10 @@ def persist_preflight_report(
     report: PreflightReport,
     *,
     inputs: list[InputRef] | None = None,
+    tenant_context: ArtifactTenantContextInfo | None = None,
 ) -> PreflightReportRef:
     """Persist preflight report helper."""
+    require_return_selected_profile_writer(store, "put_json")
     payload_ref = store.put_json(
         report,
         ArtifactWriteOptions(
@@ -484,10 +489,18 @@ def persist_preflight_report(
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.PreflightReport", version="1.0"),
             inputs=list(inputs or []),
+            tenant_context=tenant_context,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
-    return PreflightReportRef(artifact_id=payload_ref.artifact_id)
+    if (
+        payload_ref.kind != "scientist.preflight_report"
+        or payload_ref.media_type != "application/json"
+        or payload_ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("preflight_report_selected_write_ref_incomplete")
+    return PreflightReportRef.model_validate(payload_ref.model_dump(mode="python"))
 
 
 def persist_evaluator_report(
@@ -495,8 +508,10 @@ def persist_evaluator_report(
     report: EvaluatorReport,
     *,
     inputs: list[InputRef] | None = None,
+    tenant_context: ArtifactTenantContextInfo | None = None,
 ) -> EvaluatorReportRef:
     """Persist evaluator report helper."""
+    require_return_selected_profile_writer(store, "put_json")
     payload_ref = store.put_json(
         report,
         ArtifactWriteOptions(
@@ -504,10 +519,18 @@ def persist_evaluator_report(
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.EvaluatorReport", version="1.0"),
             inputs=list(inputs or []),
+            tenant_context=tenant_context,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
-    return EvaluatorReportRef(artifact_id=payload_ref.artifact_id)
+    if (
+        payload_ref.kind != "scientist.evaluator_report"
+        or payload_ref.media_type != "application/json"
+        or payload_ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("evaluator_report_selected_write_ref_incomplete")
+    return EvaluatorReportRef.model_validate(payload_ref.model_dump(mode="python"))
 
 
 def persist_iteration_state(
@@ -515,8 +538,10 @@ def persist_iteration_state(
     state: IterationState,
     *,
     inputs: list[InputRef] | None = None,
+    tenant_context: ArtifactTenantContextInfo | None = None,
 ) -> IterationStateRef:
     """Persist iteration state helper."""
+    require_return_selected_profile_writer(store, "put_json")
     payload_ref = store.put_json(
         state,
         ArtifactWriteOptions(
@@ -524,10 +549,18 @@ def persist_iteration_state(
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.IterationState", version="1.0"),
             inputs=list(inputs or []),
+            tenant_context=tenant_context,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
-    return IterationStateRef(artifact_id=payload_ref.artifact_id)
+    if (
+        payload_ref.kind != "scientist.iteration_state"
+        or payload_ref.media_type != "application/json"
+        or payload_ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("iteration_state_selected_write_ref_incomplete")
+    return IterationStateRef.model_validate(payload_ref.model_dump(mode="python"))
 
 
 def build_reproducibility_manifest(
@@ -638,8 +671,10 @@ def persist_reproducibility_manifest(
     manifest: ReproducibilityManifest,
     *,
     inputs: list[InputRef] | None = None,
+    tenant_context: ArtifactTenantContextInfo | None = None,
 ) -> ReproducibilityManifestRef:
     """Persist reproducibility manifest helper."""
+    require_return_selected_profile_writer(store, "put_json")
     payload_ref = store.put_json(
         manifest,
         ArtifactWriteOptions(
@@ -647,10 +682,18 @@ def persist_reproducibility_manifest(
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.ReproducibilityManifest", version="1.0"),
             inputs=list(inputs or []),
+            tenant_context=tenant_context,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
-    return ReproducibilityManifestRef(artifact_id=payload_ref.artifact_id)
+    if (
+        payload_ref.kind != "scientist.reproducibility_manifest"
+        or payload_ref.media_type != "application/json"
+        or payload_ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("reproducibility_manifest_selected_write_ref_incomplete")
+    return ReproducibilityManifestRef.model_validate(payload_ref.model_dump(mode="python"))
 
 
 __all__ = [

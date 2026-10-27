@@ -1,0 +1,20 @@
+id = "2026-10-26-e02-native-gp-source-objective-direction-binding"
+title = "Preserve source objective direction in native GP run profiles"
+type = "fixed"
+component = "scientist"
+owner = "team-scientist"
+summary = "Native Bayesian MethodJob run-profile binding now fingerprints the selected source objective direction while retaining the optimizer's normalized minimization direction."
+evidence = [
+  "src/polisyos/scientist/methods/search/strategies/bayesian.py",
+  "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+]
+compatibility = "The selected source metric rule and unit remain the profile basis; the optimizer continues to minimize its normalized scalar coordinate. A profile with a changed source rule, unit, or fingerprint still fails closed."
+change_class = "internal"
+surface_classification = "internal: native Bayesian MethodJob run-profile binding"
+migration = "No artifact schema or persisted-data migration is required. The binding correction permits a valid existing SearchMethodRunProfile to reach the existing candidate-only GP execution and fresh-read verification path."
+api = "The consumer preserves the source direction separately from its normalized optimizer direction. It recomputes the run-profile objective fingerprint from the source direction and selected unit before admitting the profile."
+limitations = "This binds the configured objective rule and declared unit for candidate-grade search-run compatibility. It does not establish the scientific validity of the metric, its producer, or a policy recommendation."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

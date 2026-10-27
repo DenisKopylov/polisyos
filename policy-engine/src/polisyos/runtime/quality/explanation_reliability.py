@@ -7,8 +7,7 @@ from dataclasses import dataclass, fields
 from typing import TYPE_CHECKING, Any, Literal, TypedDict
 
 if TYPE_CHECKING:
-    from polisyos.berl import ValidationThresholds
-    from polisyos.berl.contracts.explanation_bundle import ExplanationBundle
+    from polisyos.berl import ExplanationBundle, ValidationThresholds
     from polisyos.core.artifacts import ArtifactStore
 
 _REQUIRES_BERL_KEYS = (

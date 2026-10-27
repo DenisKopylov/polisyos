@@ -16,6 +16,47 @@ from tests._helpers.acquisition_served_history import (
 pytest_plugins = ("tests._helpers.acquisition_served_history",)
 
 
+def _b09_semantic_basis(record: dict[str, object]) -> str:
+    """Independently bind the selected rule and canonical row content.
+
+    Observation IDs and request/event occurrence metadata are deliberately not
+    part of this test oracle. The canonical row fields remain fully included.
+    """
+    import hashlib
+    import json
+
+    rule = record["rule_projection"]
+    rows = record["rows"]
+    assert isinstance(rule, dict)
+    assert isinstance(rows, list)
+    canonical_rows = []
+    for row in rows:
+        assert isinstance(row, dict)
+        semantic_row = {key: value for key, value in row.items() if key != "observation_id"}
+        canonical_rows.append(
+            json.dumps(
+                semantic_row,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+                allow_nan=False,
+            )
+        )
+    payload = {
+        "schema": "test-only.e02.b09.semantic-basis.v1",
+        "rule": rule,
+        "rows": sorted(canonical_rows),
+    }
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
 def test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -25,11 +66,14 @@ def test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry(
 
     The two missing-read probes keep every ref, schema marker, and embedded
     report intact while removing only the selected planner or compiler CAS
-    bytes from the actual route resolver.
+    bytes from the actual route resolver. The B09 pair compares the real
+    generation-2 reentry with the generation-3 no-growth occurrence; it does
+    not claim a second source fetch.
     """
 
     from polisyos.core import canon
     from polisyos.core.artifacts import ArtifactRef, artifact_ref_identity_key
+    from polisyos.core.contracts.runtime import RunCandidateSimulationAcquisitionHistoryEntry
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.data_requirement import DataRequirementCompilationReport
     from polisyos.runtime.quality.acquisition_planner import (
@@ -39,8 +83,10 @@ def test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry(
     from polisyos.runtime.quality.acquisition_route_loop import (
         AcquisitionRouteClosureError,
         AcquisitionRouteLoop,
+        AcquisitionRouteLoopReceipt,
         VerifiedAcquisitionRouteClosure,
     )
+    from polisyos.runtime.quality.generation_cycle import AcquisitionOverlayReentryReceipt
 
     resolved: list[tuple[AcquisitionRouteLoop, VerifiedAcquisitionRouteClosure]] = []
     removal_controls: set[str] = set()
@@ -168,6 +214,7 @@ def test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry(
         tmp_path,
         monkeypatch,
         served_recorded_candidate_gateway,
+        include_b09_evidence=True,
     )
 
     assert result is not None
@@ -208,3 +255,130 @@ def test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry(
     assert artifact_ref_identity_key(prior_n5) != artifact_ref_identity_key(continued_n5)
     assert artifact_ref_identity_key(prior_context) != artifact_ref_identity_key(continued_context)
     assert first_loop._artifact_store is resolved[-1][0]._artifact_store
+
+    import json
+
+    b09 = json.loads(result["b09_evidence_json"])
+    rule = b09["rule_projection"]
+    rows = b09["rows"]
+    assert len(rows) == 1
+    row = rows[0]
+    assert row["canonical_var"] == "government.balance"
+    assert row["source_watermark"]
+    assert row["dataset_version"]
+    assert b09["source_time_status"] == "not_established"
+    assert "new_epoch_same_content_and_actual_changed_row_reissue_unrun" in (b09["limitations"])
+
+    reentry = b09["occurrences"]["generation_2_reentry"]
+    no_growth = b09["occurrences"]["generation_3_no_growth"]
+    assert reentry["action_generation"] == 2
+    assert no_growth["action_generation"] == 3
+    assert reentry["route_receipt_ref"] != no_growth["route_receipt_ref"]
+    assert reentry["route_manifest_created_at"] != no_growth["route_manifest_created_at"]
+    assert reentry["n5_input_ref"] == no_growth["retained_n5_input_ref"]
+    assert no_growth["new_n5_input_ref"] is None
+
+    history_by_generation = {
+        entry.action_generation: entry
+        for entry in (
+            RunCandidateSimulationAcquisitionHistoryEntry.model_validate(row)
+            for row in b09["history_entries"]
+        )
+    }
+    assert set(history_by_generation) == {1, 2, 3}
+    route_views = {
+        2: reentry["route_receipt_view"],
+        3: no_growth["route_receipt_view"],
+    }
+    for generation, view in route_views.items():
+        entry = history_by_generation[generation]
+        route_ref = entry.route_receipt_ref
+        assert route_ref.manifest_profile_sha256 is not None
+        assert view["manifest_profile_sha256"] == route_ref.manifest_profile_sha256
+        assert view["profile_bound_ref"] == route_ref.model_dump(mode="json")
+        assert view["identity"] == list(artifact_ref_identity_key(route_ref))
+        assert route_ref.kind == view["manifest_kind"]
+        assert route_ref.media_type == view["manifest_media_type"]
+        assert view["manifest_artifact_id"] == str(route_ref.artifact_id)
+        assert view["payload_sha256"] == str(route_ref.artifact_id)
+        assert view["receipt_action_generation"] == generation
+        assert view["receipt_action_generation"] == entry.action_generation
+        assert view["receipt_terminal_outcome"] == entry.terminal_outcome
+        assert view["schema_name"] == (f"polisyos.runtime.{AcquisitionRouteLoopReceipt.__name__}")
+        assert (
+            view["schema_version"]
+            == (
+                AcquisitionRouteLoopReceipt.model_fields["schema_version"].default.rsplit("@", 1)[1]
+            )
+        )
+
+    second_reentry_ref = history_by_generation[2].reentry_receipt_ref
+    assert second_reentry_ref is not None
+    reentry_view = reentry["reentry_receipt_view"]
+    assert second_reentry_ref.manifest_profile_sha256 is not None
+    assert reentry_view["manifest_profile_sha256"] == (second_reentry_ref.manifest_profile_sha256)
+    assert reentry_view["profile_bound_ref"] == second_reentry_ref.model_dump(mode="json")
+    assert reentry_view["identity"] == list(artifact_ref_identity_key(second_reentry_ref))
+    assert reentry_view["manifest_artifact_id"] == str(second_reentry_ref.artifact_id)
+    assert reentry_view["payload_sha256"] == str(second_reentry_ref.artifact_id)
+    assert reentry_view["manifest_kind"] == second_reentry_ref.kind
+    assert reentry_view["manifest_media_type"] == second_reentry_ref.media_type
+    assert reentry_view["schema_name"] == (
+        f"polisyos.runtime.{AcquisitionOverlayReentryReceipt.__name__}"
+    )
+
+    assert (
+        "route_profile_is_reader_materialized_selected_manifest_view_not_producer_attestation"
+        in (b09["limitations"])
+    )
+    assert no_growth["transport_call_count"] == 0
+    assert no_growth["prior_growth_receipt_ref"] != no_growth["no_growth_receipt_ref"]
+
+    generation_2_basis_record = {
+        "rule_projection": rule,
+        "rows": rows,
+        "data_transaction_time": b09["data_transaction_time"],
+        "occurrence": reentry,
+    }
+    generation_3_basis_record = {
+        "rule_projection": rule,
+        "rows": rows,
+        "data_transaction_time": b09["data_transaction_time"],
+        "occurrence": no_growth,
+    }
+    generation_2_basis = _b09_semantic_basis(generation_2_basis_record)
+    assert generation_3_basis_record["occurrence"] != generation_2_basis_record["occurrence"]
+    assert _b09_semantic_basis(generation_3_basis_record) == generation_2_basis
+
+    # Oracle-only controls: occurrence ID/time do not change the basis, while
+    # actual row-content and rule changes do. These controls are not producer
+    # executions and do not establish a second acquisition or new-epoch path.
+    later_occurrence_control = {
+        **generation_3_basis_record,
+        "rows": [
+            {
+                **row,
+                "observation_id": row["observation_id"] + "-later-occurrence",
+            }
+        ],
+        "data_transaction_time": b09["data_transaction_time"] + "-later",
+        "occurrence": {
+            **no_growth,
+            "route_manifest_created_at": no_growth["route_manifest_created_at"] + "-later",
+        },
+    }
+    assert _b09_semantic_basis(later_occurrence_control) == generation_2_basis
+
+    content_change_control = {
+        **generation_2_basis_record,
+        "rows": [{**row, "value": float(row["value"]) + 0.5}],
+    }
+    assert _b09_semantic_basis(content_change_control) != generation_2_basis
+
+    mapping = rule["candidate_refresh_mapping"]
+    changed_mapping = {**mapping, "target_slot_id": mapping["target_slot_id"] + ".changed"}
+    changed_rule_control = {
+        **generation_2_basis_record,
+        "rule_projection": {**rule, "candidate_refresh_mapping": changed_mapping},
+    }
+    assert _b09_semantic_basis(changed_rule_control) != generation_2_basis

@@ -2,10 +2,7 @@
 
 Source of truth: `architecture/extension_points.toml`.
 
-Each extension point must grow an installable example package before the
-extension is treated as public-stable. Example packages must be independent
-`pyproject.toml` projects, installable with `python -m pip install -e`, and must
-declare exactly one entry point in the group they demonstrate.
+Each extension point must grow an installable example package before the extension is treated as public-stable. Example packages must be independent pyproject projects and declare exactly one entry point in the group they demonstrate. The owner registry declares each gate install mode through example_install_mode; examples default to editable installation, while a regular local wheel exercises installed-distribution behavior when an owner selects that mode.
 
 Every example must include:
 
@@ -34,8 +31,15 @@ Available examples:
 - [runtime_middleware](runtime_middleware/) demonstrates the
   `polisyos.runtime_middlewares` contract with a plain ASGI middleware.
 
+The Fabric connector selects regular-wheel installation because its provider-origin contract
+requires a real installed distribution. The gate builds into a fresh directory with the
+native extension-example build-tools profile, then installs that exact artifact offline and
+without dependency resolution. The other examples keep the editable default.
+
 Repository gate:
 
 ```bash
 uv run polisyos-tools validation check-extension-examples
 ```
+
+Wheel-mode examples use ignored product-root .cache/native-extension-example-build-tools. The gate compares installed entry-point and provider-module bytes to the exact artifact built during that invocation. Local bytes do not establish publisher identity or permission.

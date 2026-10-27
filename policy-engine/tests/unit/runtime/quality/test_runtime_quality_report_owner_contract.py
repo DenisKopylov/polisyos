@@ -499,17 +499,10 @@ def test_reentry_closure_builder_requires_current_profiled_owner_inputs(
         ),
         (
             "production_data_manifest_ref",
-            "production_data_quality_report_ref",
-            "production_data_quality_report",
-            "runtime.production_data_quality_report",
-            "polisyos.runtime.ProductionDataQualityReport",
-        ),
-        (
-            "legal_snapshot_ref",
-            "normative_applicability_report_ref",
-            "normative_applicability_report",
-            "lex.normative_applicability_report",
-            "polisyos.lex.NormativeApplicabilityReport",
+            "production_data_payload_ref",
+            "production_data_payload",
+            "fabric.production_data_payload",
+            "polisyos.fabric.ProductionDataPayload",
         ),
     )
     source_payload = {
@@ -593,14 +586,13 @@ def test_reentry_closure_builder_requires_current_profiled_owner_inputs(
     ) == {
         "policy_intent_ref": valid_closure_refs["policy_intent_ref"],
         "production_data_manifest_ref": valid_closure_refs["production_data_manifest_ref"],
-        "legal_snapshot_ref": valid_closure_refs["legal_snapshot_ref"],
+        "legal_snapshot_ref": None,
     }
 
     stale_suffix = "profiled-reentry-stale"
     stale_refs = {
         "policy_intent_ref": "sha256:" + "7" * 64,
         "production_data_manifest_ref": "sha256:" + "8" * 64,
-        "legal_snapshot_ref": "sha256:" + "9" * 64,
     }
     stale_store, stale_result, _stale_report, _stale_envelope = _persist_report(
         tmp_path,
@@ -631,8 +623,7 @@ def test_reentry_closure_builder_requires_current_profiled_owner_inputs(
         _runtime_quality_closure_reference_values(
             {
                 "policy_intent_envelope_ref": stale_refs["policy_intent_ref"],
-                "production_data_quality_report_ref": stale_refs["production_data_manifest_ref"],
-                "normative_applicability_report_ref": stale_refs["legal_snapshot_ref"],
+                "production_data_payload_ref": stale_refs["production_data_manifest_ref"],
             },
             candidate=stale_candidate,
             output_artifact_id=str(stale_result.cas_ref.artifact_id),
@@ -650,7 +641,7 @@ def test_reentry_closure_builder_requires_current_profiled_owner_inputs(
         ("normative_evidence", "legal_snapshot_ref"),
     ],
 )
-def test_current_owner_report_binds_closure_without_direct_input(
+def test_current_owner_report_output_cannot_bind_source_closure_without_typed_input(
     tmp_path: Path,
     report_key: str,
     closure_field: str,
@@ -664,7 +655,7 @@ def test_current_owner_report_binds_closure_without_direct_input(
     contract = runtime_quality_report_owner_contract(report_key, ref_key)
     assert contract is not None
     suffix = f"current-closure-{report_key}"
-    store, result, report_view, envelope = _persist_report(
+    store, result, report_view, _envelope = _persist_report(
         tmp_path,
         report_key=report_key,
         run_suffix=suffix,
@@ -686,17 +677,6 @@ def test_current_owner_report_binds_closure_without_direct_input(
     assert store.verify(selected_ref).ok
     assert store.verify(result.diagnostic_event_ref).ok
     context = result.identity_context
-    write_options = ArtifactWriteOptions(
-        kind=contract.artifact_kind,
-        media_type=contract.media_type,
-        schema=SchemaInfo(name=contract.schema_name, version=contract.schema_version),
-        producer=ProducerInfo(
-            component=contract.producer_component,
-            version=contract.producer_version,
-        ),
-        governance=ArtifactGovernanceInfo(classification="runtime_quality_evidence"),
-        inputs=list(context.manifest_inputs),
-    )
     assert context.run_id == f"run-owner-{suffix}"
     assert context.job_id == f"job-owner-{suffix}"
     assert context.tenant_id == "tenant-1"
@@ -704,40 +684,12 @@ def test_current_owner_report_binds_closure_without_direct_input(
     assert context.phase == contract.phase
     current_refs = {ref_key: selected_id}
     current_artifact_refs = {ref_key: selected_ref}
-
-    def verify_current_owner(current_ref_key: str, expected_ref: str) -> bool:
-        if (
-            current_ref_key != ref_key
-            or expected_ref != selected_id
-            or current_refs.get(ref_key) != expected_ref
-            or current_artifact_refs.get(ref_key) != selected_ref
-            or context.run_id != f"run-owner-{suffix}"
-            or context.job_id != f"job-owner-{suffix}"
-            or context.tenant_id != "tenant-1"
-            or context.cell_id != "cell-a"
-            or context.phase != contract.phase
-            or basis.runtime_event_ref != str(result.diagnostic_event_ref.artifact_id)
-            or not store.verify(result.diagnostic_event_ref).ok
-        ):
-            return False
-        return not runtime_quality_report_cas_admission_issues(
-            artifact_store=store,
-            selected_ref=selected_ref,
-            runtime_ref=expected_ref,
-            report_key=report_key,
-            ref_key=ref_key,
-            report=report_view,
-            envelope=envelope,
-            expected_write_options=write_options,
-            expected_identity_context=context,
-        )
-
     candidate = _RuntimeQualityPublicationCandidate(
         context.generated_at,
         context.as_of_time,
-        selected_id if closure_field == "policy_intent_ref" else None,
-        selected_id if closure_field == "production_data_manifest_ref" else None,
-        selected_id if closure_field == "legal_snapshot_ref" else None,
+        None,
+        None,
+        None,
         None,
     )
     result_refs = _runtime_quality_closure_reference_values(
@@ -748,37 +700,21 @@ def test_current_owner_report_binds_closure_without_direct_input(
         current_inputs=(),
         current_artifact_refs=current_artifact_refs,
         artifact_store=store,
-        current_report_verifier=verify_current_owner,
+        current_report_verifier=lambda _ref_key, _expected_ref: True,
     )
-    assert result_refs[closure_field] == selected_id
+    assert result_refs[closure_field] is None
 
-    wrong_candidate = candidate._replace(**{closure_field: "sha256:" + "e" * 64})
+    projected_candidate = candidate._replace(**{closure_field: selected_id})
     with pytest.raises(RuntimeError, match="runtime_quality_same_input_identity_not_established"):
         _runtime_quality_closure_reference_values(
             current_refs,
-            candidate=wrong_candidate,
+            candidate=projected_candidate,
             output_artifact_id="sha256:" + "f" * 64,
             ref_key="decision_artifact_quality_report_ref",
             current_inputs=(),
             current_artifact_refs=current_artifact_refs,
             artifact_store=store,
-            current_report_verifier=verify_current_owner,
-        )
-
-    wrong_profile_ref = selected_ref.model_copy(
-        update={"manifest_profile_sha256": "sha256:" + "e" * 64}
-    )
-    current_artifact_refs[ref_key] = wrong_profile_ref
-    with pytest.raises(RuntimeError, match="runtime_quality_same_input_identity_not_established"):
-        _runtime_quality_closure_reference_values(
-            current_refs,
-            candidate=candidate,
-            output_artifact_id="sha256:" + "f" * 64,
-            ref_key="decision_artifact_quality_report_ref",
-            current_inputs=(),
-            current_artifact_refs=current_artifact_refs,
-            artifact_store=store,
-            current_report_verifier=verify_current_owner,
+            current_report_verifier=lambda _ref_key, _expected_ref: True,
         )
 
 

@@ -44,6 +44,7 @@ def test_phase1_5_extension_points_are_owned_versioned_and_discoverable() -> Non
     pyproject = _read_toml("pyproject.toml")
     project_entry_points = pyproject["project"]["entry-points"]
     extension_points = {row["name"]: row for row in contract["extension_point"]}
+    default_install_mode = contract["defaults"]["example_install_mode"]
 
     assert set(extension_points) == REQUIRED_EXTENSION_POINTS
     assert set(EXTENSION_ENTRY_POINT_GROUPS) == REQUIRED_EXTENSION_POINTS
@@ -60,8 +61,22 @@ def test_phase1_5_extension_points_are_owned_versioned_and_discoverable() -> Non
         assert row["builtin_loader_verifier"], name
         assert row["dynamic_import_target"], name
         assert row["dynamic_import_verifier"], name
+        if name == "polisyos.fabric_connectors":
+            assert row["provider_origin_verifier"] == (
+                "uv run pytest "
+                "tests/integration/fabric_ir/test_fabric_installed_provider_origin.py -q"
+            )
         assert row["example_package"].startswith("examples/extensions/"), name
-        assert "pip install -e" in row["example_smoke_command"], name
+        mode = row.get("example_install_mode", default_install_mode)
+        assert mode in {"editable", "wheel"}, name
+        if mode == "wheel":
+            assert row["example_smoke_command"].startswith(
+                "uv run polisyos-tools validation check-extension-examples --example "
+            ), name
+        else:
+            assert ("pip install -e " + row["example_package"]) in row["example_smoke_command"], (
+                name
+            )
         assert row["example_expectations"], name
         _assert_resolves(row["contract"])
 
@@ -84,6 +99,8 @@ def test_phase1_5_dynamic_import_and_example_contracts_are_declared() -> None:
 
     examples_readme = (REPO_ROOT / "examples/extensions/README.md").read_text(encoding="utf-8")
     assert "python -m pip install -e" in examples_readme
+    assert "example_install_mode" in examples_readme
+    assert "regular local wheel" in examples_readme
     assert "contract_version" in examples_readme
 
 
@@ -133,6 +150,50 @@ def test_phase1_5_future_versioned_concepts_do_not_create_versioned_packages() -
     assert versioned_packages <= allowed_existing
 
 
+def _read_compatibility_class_registry(readme: str) -> dict[str, Any]:
+    pattern = re.compile(
+        r"<!-- compatibility-class-registry:start -->\s*"
+        r"~~~toml\s*(.*?)\s*~~~\s*"
+        r"<!-- compatibility-class-registry:end -->",
+        re.DOTALL,
+    )
+    blocks = pattern.findall(readme)
+    assert len(blocks) == 1, "README must contain one compatibility-class registry"
+    return tomllib.loads(blocks[0])
+
+
+def _assert_compatibility_class_registry_matches_sources(
+    registry: dict[str, Any],
+    *,
+    gate_policy: dict[str, Any],
+    categories: list[dict[str, Any]],
+) -> None:
+    assert set(registry) == {
+        "allowed_structured_change_classes",
+        "gate_only_structured_change_classes",
+        "compatibility_category",
+    }
+    allowed = registry["allowed_structured_change_classes"]
+    assert isinstance(allowed, list) and all(isinstance(item, str) for item in allowed)
+    assert len(allowed) == len(set(allowed))
+    assert set(allowed) == set(gate_policy["allowed_change_classes"])
+
+    expected_categories = [
+        {
+            "id": row["id"],
+            "label": row["label"],
+            "release_fragment_change_class": row["release_fragment_change_class"],
+        }
+        for row in categories
+    ]
+    assert registry["compatibility_category"] == expected_categories
+    category_classes = {row["release_fragment_change_class"] for row in categories}
+    assert category_classes <= set(allowed)
+    assert registry["gate_only_structured_change_classes"] == sorted(
+        set(allowed) - category_classes
+    )
+
+
 def test_phase1_5_release_fragments_carry_user_visible_change_classes() -> None:
     template = _read_toml("release-fragments/template.toml")
 
@@ -141,15 +202,91 @@ def test_phase1_5_release_fragments_carry_user_visible_change_classes() -> None:
     assert CURATED_SECTIONS["change_class"] == "Change Classes"
 
     readme = (REPO_ROOT / "release-fragments/README.md").read_text(encoding="utf-8")
-    for change_class in (
-        "python-public-api",
+    registry = _read_compatibility_class_registry(readme)
+    gate_policy = _read_toml("architecture/gates/compatibility_release.toml")[
+        "compatibility_release_gates"
+    ]
+    categories = _read_toml("architecture/extension_points.toml")["compatibility_category"]
+    _assert_compatibility_class_registry_matches_sources(
+        registry,
+        gate_policy=gate_policy,
+        categories=categories,
+    )
+
+    corrupted_readme = readme.replace(
+        'release_fragment_change_class = "schema-openapi-abi"',
+        'release_fragment_change_class = "schema-openapi-abi-stale"',
+        1,
+    )
+    assert corrupted_readme != readme
+    assert "<!-- compatibility-class-registry:start -->" in corrupted_readme
+    assert "<!-- compatibility-class-registry:end -->" in corrupted_readme
+    assert "schema-openapi-abi" in corrupted_readme
+    corrupted_registry = _read_compatibility_class_registry(corrupted_readme)
+    try:
+        _assert_compatibility_class_registry_matches_sources(
+            corrupted_registry,
+            gate_policy=gate_policy,
+            categories=categories,
+        )
+    except AssertionError:
+        pass
+    else:
+        raise AssertionError("stale documented class must fail while registry markers remain")
+
+    invalid_owner_categories = [dict(row) for row in categories]
+    for row in invalid_owner_categories:
+        if row["id"] == "schema_openapi_abi":
+            row["release_fragment_change_class"] = "schema-openapi-abi-stale"
+            break
+    else:
+        raise AssertionError("schema_openapi_abi category must exist")
+
+    matching_invalid_readme = readme.replace(
+        'release_fragment_change_class = "schema-openapi-abi"',
+        'release_fragment_change_class = "schema-openapi-abi-stale"',
+        1,
+    )
+    gate_only_before = 'gate_only_structured_change_classes = [\n  "internal",'
+    gate_only_after = (
+        'gate_only_structured_change_classes = [\n  "internal",\n  "schema-openapi-abi",'
+    )
+    matching_invalid_readme = matching_invalid_readme.replace(
+        gate_only_before,
+        gate_only_after,
+        1,
+    )
+    assert matching_invalid_readme != readme
+    assert "<!-- compatibility-class-registry:start -->" in matching_invalid_readme
+    assert "<!-- compatibility-class-registry:end -->" in matching_invalid_readme
+    assert "schema-openapi-abi" in matching_invalid_readme
+    matching_invalid_registry = _read_compatibility_class_registry(matching_invalid_readme)
+    assert matching_invalid_registry["gate_only_structured_change_classes"] == [
+        "internal",
         "schema-openapi-abi",
-        "extension-plugin-abi",
-        "runtime-state-format",
-        "persisted-artifact-format",
-        "js-package-api",
-    ):
-        assert change_class in readme
+        "shim_sunset",
+        "tooling",
+    ]
+    expected_invalid_categories = [
+        {
+            "id": row["id"],
+            "label": row["label"],
+            "release_fragment_change_class": row["release_fragment_change_class"],
+        }
+        for row in invalid_owner_categories
+    ]
+    assert matching_invalid_registry["compatibility_category"] == expected_invalid_categories
+    try:
+        _assert_compatibility_class_registry_matches_sources(
+            matching_invalid_registry,
+            gate_policy=gate_policy,
+            categories=invalid_owner_categories,
+        )
+    except AssertionError:
+        matching_invalid_owner_and_doc_rejected = True
+    else:
+        matching_invalid_owner_and_doc_rejected = False
+    assert matching_invalid_owner_and_doc_rejected
 
 
 def _read_toml(path: str) -> dict[str, Any]:

@@ -6,6 +6,7 @@ platform. Component packages should publish `ComponentMetadata` plus a
 entry-point discovery, dev scanning, ABI validation, and version resolution.
 """
 
+from ._provider_origin import ProviderModuleBinding, ProviderOriginBinding
 from .bootstrap import (
     BootstrapDomainReport,
     BootstrapReport,
@@ -116,6 +117,8 @@ __all__ = [
     "DiscoveryReport",
     "DuplicateComponentIdPolicy",
     "HostAbi",
+    "ProviderModuleBinding",
+    "ProviderOriginBinding",
     "ResolvePolicy",
     "SemVer",
     "SemverRange",

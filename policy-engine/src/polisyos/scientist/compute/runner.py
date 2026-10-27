@@ -58,8 +58,8 @@ from polisyos.foundry.methods import (
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.exceptions import MethodNotFoundError
 from polisyos.foundry.methods.registry import MethodRegistry
-from polisyos.ir.analytics.posterior_summary import PosteriorPointRole, PosteriorSummaryRef
-from polisyos.ir.artifacts import ArtifactID as IRArtifactID
+from polisyos.ir import ArtifactID as IRArtifactID
+from polisyos.ir.analytics import PosteriorPointRole, PosteriorSummaryRef
 from polisyos.ir.governance.validation import ValidationIssue
 from polisyos.ir.observation.bundles import (
     OBSERVATION_METHOD_INPUT_SCHEMA_NAME,
@@ -593,6 +593,9 @@ def _normalize_hte_finalized_artifact_refs(
     from polisyos.core.contracts.owned_attempt_anchor import (
         OwnedAttemptAnchorRef as CoreOwnedAttemptAnchorRef,
     )
+    from polisyos.ir.analytics import (
+        OwnedAttemptAnchorRef as IROwnedAttemptAnchorRef,
+    )
     from polisyos.ir.analytics.hte import (
         ATEInferenceBasisRef,
         HTEFinalizedArtifactRefs,
@@ -602,10 +605,7 @@ def _normalize_hte_finalized_artifact_refs(
         HTERefusalDiagnosticRef,
         HTEResultEvidenceRef,
     )
-    from polisyos.ir.analytics.hte import (
-        OwnedAttemptAnchorRef as IROwnedAttemptAnchorRef,
-    )
-    from polisyos.ir.registry.refs import ArtifactRefModel
+    from polisyos.ir.registry import ArtifactRefModel
 
     if not isinstance(refs, HTEFinalizedArtifactRefs) or type(refs) is not HTEFinalizedArtifactRefs:
         raise TypeError("method_execution_hte_finalized_refs_type_invalid")
@@ -1372,7 +1372,7 @@ class MethodBackend:
 
         # Keep this import lazy: it owns selected-profile reads and HTE-specific
         # target validation; the queued descriptor carries no decoded JSON.
-        from polisyos.foundry.data_plane.bindings import prepare_hte_observational_input
+        from polisyos.foundry.data_plane import prepare_hte_observational_input
 
         try:
             prepared: PreparedHTEObservationalInput = prepare_hte_observational_input(
@@ -1386,7 +1386,7 @@ class MethodBackend:
                 ),
             )
         except Exception as exc:
-            from polisyos.foundry.data_plane.bindings import HTEInputPreparationRefusal
+            from polisyos.foundry.data_plane import HTEInputPreparationRefusal
 
             if type(exc) is not HTEInputPreparationRefusal or admission.method_version != "2.0.0":
                 raise
@@ -1422,7 +1422,7 @@ class MethodBackend:
             raise ValueError("prepared_hte_limitation_invalid")
 
         if admission.method_version == "2.0.0" and prepared.data.outcome.shape[0] == 0:
-            from polisyos.foundry.data_plane.bindings import HTEInputPreparationRefusal
+            from polisyos.foundry.data_plane import HTEInputPreparationRefusal
 
             refusal = HTEInputPreparationRefusal(
                 "empty_selected_input",
@@ -1612,7 +1612,7 @@ class MethodBackend:
                 raise TypeError("direct_method_execution_hte_writer_ready_missing")
         else:
             from polisyos.core.contracts.runtime import MethodExecutionCandidateOutcome
-            from polisyos.ir.analytics.causal import CausalEffectReport, CausalMethod
+            from polisyos.ir.analytics import CausalEffectReport, CausalMethod
 
             report = raw_output.get("report") if isinstance(raw_output, Mapping) else None
             if (

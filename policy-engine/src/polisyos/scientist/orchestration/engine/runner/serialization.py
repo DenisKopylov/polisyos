@@ -280,7 +280,7 @@ def _wire_ir_artifact_ref_types() -> frozenset[type[BaseModel]]:
     global _IR_ARTIFACT_REF_TYPES
     if _IR_ARTIFACT_REF_TYPES is None:
         import polisyos.ir.registry.refs as ir_refs
-        from polisyos.ir.registry.refs import ArtifactRefModel
+        from polisyos.ir.registry import ArtifactRefModel
 
         registered = []
         for name in ir_refs.__all__:

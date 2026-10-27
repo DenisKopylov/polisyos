@@ -8,6 +8,7 @@ identity are observations recorded by the caller; they are not artifact IDs.
 
 from __future__ import annotations
 
+import ast
 import base64
 import csv
 import hashlib
@@ -908,12 +909,39 @@ def requirements_text(lock: dict[str, Any]) -> str:
 
 
 def installed_probe_code(lock: dict[str, Any]) -> str:
-    """Return a closed constant probe for origins, exact distributions and wrapper target."""
-    expected = {_canonical_name(row["name"]): row["version"] for row in lock["artifacts"]}
+    """Return a closed probe for the installed distributions and locked console launcher."""
     entry = lock["build_backend"]["installer_entry_point"]
-    entry_definition = entry.split("=", 1)[1].strip()
-    entry_module, entry_callable = entry_definition.split(":", 1)
-    return f"""import hashlib
+    entry_label, separator, definition = entry.partition("=")
+    entry_name = entry_label.strip()
+    module, colon, callable_name = definition.strip().partition(":")
+    entry_module = module.strip()
+    entry_callable = callable_name.strip()
+    identifier = r"[A-Za-z_][A-Za-z0-9_]*"
+    if (
+        not separator
+        or not colon
+        or re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", entry_name) is None
+        or any(re.fullmatch(identifier, part) is None for part in entry_module.split("."))
+        or re.fullmatch(identifier, entry_callable) is None
+    ):
+        raise BuildToolsInputError("locked installer console entry point is malformed")
+    expected_entrypoint_source = (
+        "import sys\n"
+        f"from {entry_module} import {entry_callable}\n"
+        "if __name__ == '__main__':\n"
+        "    if sys.argv[0].endswith('-script.pyw'):\n"
+        "        sys.argv[0] = sys.argv[0][:-11]\n"
+        "    elif sys.argv[0].endswith('.exe'):\n"
+        "        sys.argv[0] = sys.argv[0][:-4]\n"
+        f"    sys.exit({entry_callable}())\n"
+    )
+    expected_entrypoint_ast = ast.dump(
+        ast.parse(expected_entrypoint_source),
+        include_attributes=False,
+    )
+    expected = {_canonical_name(row["name"]): row["version"] for row in lock["artifacts"]}
+    return f"""import ast
+import hashlib
 import importlib.metadata as metadata
 import json
 import sys
@@ -922,8 +950,8 @@ from pathlib import Path
 
 expected = {expected!r}
 entry = {entry!r}
-entry_module = {entry_module!r}
-entry_callable = {entry_callable!r}
+entry_name = {entry_name!r}
+expected_entrypoint_ast = {expected_entrypoint_ast!r}
 purelib = Path(sysconfig.get_paths()["purelib"]).resolve()
 prefix = Path(sys.prefix).resolve()
 sys.path.insert(0, str(purelib))
@@ -946,23 +974,63 @@ import hatchling
 origin = Path(hatchling.__file__).resolve()
 if not origin.is_relative_to(purelib):
     raise SystemExit("Hatchling origin escapes venv")
-script = prefix / "bin" / "hatchling"
+expected_python = prefix / "bin" / "python"
+runtime_python = Path(sys.executable)
+if not runtime_python.is_absolute() or runtime_python != expected_python:
+    raise SystemExit("probe interpreter differs from the isolated venv path")
+try:
+    resolved_python = runtime_python.resolve(strict=True)
+except OSError as error:
+    raise SystemExit("probe interpreter does not resolve to a physical executable") from error
+if not resolved_python.is_file():
+    raise SystemExit("probe interpreter target is not a regular file")
+script = prefix / "bin" / entry_name
 if not script.is_file() or script.is_symlink():
     raise SystemExit("entrypoint script missing/nonregular")
 raw = script.read_bytes()
-first = raw.splitlines()[0].decode("utf-8")
-if not first.startswith("#!"):
-    raise SystemExit("entrypoint lacks interpreter shebang")
-target = Path(first[2:])
-if not target.is_absolute() or target.resolve() != Path(sys.executable).resolve():
-    raise SystemExit("entrypoint target differs from venv interpreter")
-launcher_source = raw.decode("utf-8", errors="replace")
-if entry_module not in launcher_source or entry_callable not in launcher_source:
-    raise SystemExit("entrypoint does not implement locked console entry")
+try:
+    launcher = raw.decode("utf-8")
+except UnicodeDecodeError as error:
+    raise SystemExit("entrypoint script is not UTF-8 text") from error
+lines = launcher.splitlines()
+if not lines:
+    raise SystemExit("entrypoint script is empty")
+if lines[0] == "#!" + str(expected_python):
+    launcher_kind = "python-shebang"
+    target = Path(lines[0][2:])
+    source_lines = lines[1:]
+elif lines[0] == "#!/bin/sh":
+    shell_quoted_python = "'" + str(expected_python).replace("'", "'\\"'\\"'\\"'") + "'"
+    expected_exec_line = "'" * 3 + "exec' " + shell_quoted_python + ' "$0" "$@"'
+    if len(lines) < 4 or lines[1] != expected_exec_line or lines[2] != "'" + " " + "'" * 3:
+        raise SystemExit("entrypoint shell trampoline differs from the closed launcher form")
+    launcher_kind = "posix-shell-trampoline"
+    target = expected_python
+    source_lines = lines[3:]
+else:
+    raise SystemExit("entrypoint launcher has an unsupported interpreter header")
+if target != expected_python:
+    raise SystemExit("entrypoint target differs from the isolated venv interpreter")
+try:
+    resolved_target = target.resolve(strict=True)
+except OSError as error:
+    raise SystemExit("entrypoint target does not resolve") from error
+if resolved_target != resolved_python:
+    raise SystemExit("entrypoint target differs from the isolated host interpreter")
+try:
+    launcher_ast = ast.parse("\\n".join(source_lines), filename=str(script))
+except SyntaxError as error:
+    raise SystemExit("entrypoint Python body is invalid") from error
+launcher_ast_dump = ast.dump(launcher_ast, include_attributes=False)
+if launcher_ast_dump != expected_entrypoint_ast:
+    raise SystemExit("entrypoint Python body differs from the locked console target")
 print(json.dumps({{"verified": True, "version": sys.version,
     "implementation": sys.implementation.name, "prefix": str(prefix),
     "purelib": str(purelib), "distributions": distributions, "origins": origins,
     "hatchling_origin": str(origin), "entrypoint": str(script),
     "entrypoint_sha256": hashlib.sha256(raw).hexdigest(),
-    "entrypoint_target": str(target.resolve()), "pth_files": pth_files}}, sort_keys=True))
+    "entrypoint_locked_spec": entry, "entrypoint_launcher_kind": launcher_kind,
+    "entrypoint_target": str(target), "entrypoint_target_resolved": str(resolved_target),
+    "entrypoint_ast_sha256": hashlib.sha256(launcher_ast_dump.encode()).hexdigest(),
+    "pth_files": pth_files}}, sort_keys=True))
 """

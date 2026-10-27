@@ -6,13 +6,24 @@ import pytest
 
 from polisyos.core.artifacts import resolve_manifest_by_profile
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode
+from polisyos.core.contracts.execution_plan import (
+    EvaluatorReport,
+    ExecutionPlan,
+    IterationState,
+    MethodDagNode,
+    PreflightReport,
+    ReproducibilityManifest,
+)
 from polisyos.foundry.methods import MethodRegistry
 from polisyos.foundry.methods.catalog.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.catalog.snapshot import build_method_catalog_snapshot
 from polisyos.scientist.orchestration.llm.cycle import (
     evaluate_iteration,
+    persist_evaluator_report,
     persist_execution_plan,
+    persist_iteration_state,
+    persist_preflight_report,
+    persist_reproducibility_manifest,
     preflight_execution_plan,
 )
 
@@ -54,6 +65,65 @@ def test_persist_execution_plan_refuses_writer_without_selected_profile_api() ->
         match="artifact_store_return_selected_profile_unsupported",
     ):
         persist_execution_plan(ProfilelessWriter(), plan)  # type: ignore[arg-type]
+
+
+def test_cycle_artifact_writers_bind_owner_and_preserve_selected_views(tmp_path) -> None:
+    from polisyos.core.artifacts import (
+        ArtifactOwnershipError,
+        artifact_manifest_profile_sha256,
+        input_ref_from_artifact_ref,
+    )
+    from polisyos.core.artifacts.backends.config import (
+        with_ambient_ownership_enforcement_if_supported,
+    )
+    from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    store = with_ambient_ownership_enforcement_if_supported(FileSystemCAS(tmp_path / "owned-cas"))
+    owner = ArtifactTenantContextInfo(tenant_id="tenant-cycle", cell_id="cell-cycle")
+    foreign = ArtifactTenantContextInfo(tenant_id="tenant-other", cell_id="cell-other")
+    with tenant_scope(None, tenant_id=foreign.tenant_id, cell_id=foreign.cell_id):
+        foreign_ref = store.put_json(
+            {"source": "foreign"},
+            ArtifactWriteOptions(
+                kind="runtime.cycle.test_input",
+                media_type="application/json",
+                tenant_context=foreign,
+            ),
+            return_selected_profile=True,
+        )
+
+    with tenant_scope(None, tenant_id=owner.tenant_id, cell_id=owner.cell_id):
+        refs = (
+            persist_execution_plan(
+                store, ExecutionPlan(plan_id="owned-plan", run_id="owned-run"), tenant_context=owner
+            ),
+            persist_preflight_report(store, PreflightReport(), tenant_context=owner),
+            persist_evaluator_report(
+                store, EvaluatorReport(verdict="STOP_BUDGET"), tenant_context=owner
+            ),
+            persist_iteration_state(
+                store, IterationState(run_id="owned-run"), tenant_context=owner
+            ),
+            persist_reproducibility_manifest(
+                store, ReproducibilityManifest(run_id="owned-run"), tenant_context=owner
+            ),
+        )
+        for ref in refs:
+            assert ref.manifest_profile_sha256 is not None
+            manifest = store.get_manifest(ref)
+            assert manifest.tenant_context == owner
+            assert manifest.kind == ref.kind
+            assert manifest.media_type == ref.media_type
+            assert artifact_manifest_profile_sha256(manifest) == ref.manifest_profile_sha256
+        with pytest.raises(ArtifactOwnershipError):
+            persist_execution_plan(
+                store,
+                ExecutionPlan(plan_id="foreign-input-plan", run_id="owned-run"),
+                inputs=[input_ref_from_artifact_ref(foreign_ref, role="foreign_input")],
+                tenant_context=owner,
+            )
 
 
 def test_preflight_returns_structured_diagnostics_for_cycle_and_missing_methods() -> None:

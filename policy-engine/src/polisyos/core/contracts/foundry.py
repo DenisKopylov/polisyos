@@ -20,8 +20,7 @@ from pydantic import (
 )
 
 from polisyos.core.artifacts.registry import RegistryBundlePayload
-from polisyos.ir.kernel.method_metrics import MethodMetricSemanticContract, MethodMetricSourceUnit
-from polisyos.ir.kernel.units import UnitSpecType
+from polisyos.ir.kernel import MethodMetricSemanticContract, MethodMetricSourceUnit, UnitSpecType
 from polisyos.ir.registry.refs import WelfareBundleRef
 
 from ..artifacts.environment import EnvironmentManifestRef as EnvironmentManifestRef

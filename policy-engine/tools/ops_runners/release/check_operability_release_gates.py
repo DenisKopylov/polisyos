@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import hashlib
+import importlib
+import inspect
 import json
 import re
 import sys
@@ -11,6 +14,8 @@ import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+import yaml
 
 from tools.lib.fs import write_scoped_report_text
 from tools.lib.imports import repo_root_from
@@ -399,6 +404,10 @@ def _check_operability(
 
     alert_summary, alert_findings = _check_alert_coverage(repo_root, runbooks)
     findings.extend(alert_findings)
+    dependent_binding_summary, dependent_binding_findings = _check_dependent_binding_contracts(
+        repo_root
+    )
+    findings.extend(dependent_binding_findings)
     return (
         {
             "component_count": len(components),
@@ -407,9 +416,1176 @@ def _check_operability(
             "observability_contract_count": len(observability_contracts),
             "required_bundle_files": bundle_policy["required_files"],
             **alert_summary,
+            **dependent_binding_summary,
         },
         findings,
     )
+
+
+_DEPENDENT_BINDING_VERSION = "1.0"
+_DEPENDENT_BINDING_REQUIRED_FIELDS = {
+    "id",
+    "schema_version",
+    "dependent_package",
+    "eligibility_start",
+    "runbook_paths",
+    "outcome_success_report_status",
+    "outcome_success_metric_status",
+    "outcome_failure_metric_status",
+    "shared_operation",
+    "consumer_operation",
+    "callsite_operation",
+    "profile_operation",
+    "executor_operation",
+    "report_model",
+    "manifest_model",
+    "artifact_ref_model",
+    "objective",
+    "trace",
+}
+_OPERATION_REFERENCE_FIELDS = (
+    "shared_operation",
+    "consumer_operation",
+    "callsite_operation",
+    "profile_operation",
+    "executor_operation",
+    "report_model",
+    "manifest_model",
+    "artifact_ref_model",
+)
+
+
+def _package_contracts(repo_root: Path) -> dict[str, tuple[Path, dict[str, Any]]]:
+    contracts: dict[str, tuple[Path, dict[str, Any]]] = {}
+    directory = repo_root / "architecture" / "packages"
+    for path in sorted(directory.glob("*.toml")):
+        data = _read_toml(path)
+        package = data.get("package", {})
+        if not isinstance(package, dict):
+            continue
+        package_id = str(package.get("id", ""))
+        if package_id:
+            contracts[package_id] = (path, data)
+    return contracts
+
+
+def _binding_rows(
+    contracts: dict[str, tuple[Path, dict[str, Any]]],
+) -> list[tuple[str, dict[str, Any], dict[str, Any]]]:
+    rows: list[tuple[str, dict[str, Any], dict[str, Any]]] = []
+    for package_id, (_, document) in sorted(contracts.items()):
+        slo_runbook = document.get("slo_runbook", {})
+        for binding in slo_runbook.get("dependent_bindings", []):
+            if isinstance(binding, dict):
+                rows.append((package_id, document, binding))
+    return rows
+
+
+def validate_dependent_binding_graph(
+    rows: list[tuple[str, dict[str, Any], dict[str, Any]]],
+) -> list[str]:
+    """Return cycles in the declared package dependency edges."""
+    graph: dict[str, set[str]] = {}
+    for package_id, _, binding in rows:
+        dependent = str(binding.get("dependent_package", ""))
+        if dependent:
+            graph.setdefault(package_id, set()).add(dependent)
+    visiting: set[str] = set()
+    visited: set[str] = set()
+    cycles: set[str] = set()
+
+    def visit(package_id: str, trail: tuple[str, ...]) -> None:
+        if package_id in visiting:
+            start = trail.index(package_id) if package_id in trail else 0
+            cycles.add(" -> ".join((*trail[start:], package_id)))
+            return
+        if package_id in visited:
+            return
+        visiting.add(package_id)
+        for dependent in sorted(graph.get(package_id, set())):
+            visit(dependent, (*trail, package_id))
+        visiting.remove(package_id)
+        visited.add(package_id)
+
+    for package_id in sorted(graph):
+        visit(package_id, ())
+    return sorted(cycles)
+
+
+def _package_source_root(
+    repo_root: Path,
+    package_id: str,
+    contracts: dict[str, tuple[Path, dict[str, Any]]],
+) -> Path:
+    """Resolve a package source root from its current package contract."""
+    row = contracts.get(package_id)
+    if row is None:
+        raise ValueError(f"package_source_owner_missing:{package_id}")
+    layout = row[1].get("layout", {})
+    raw_root = layout.get("source_root") if isinstance(layout, dict) else None
+    relative_root = Path(str(raw_root or ""))
+    if not raw_root or relative_root.is_absolute() or ".." in relative_root.parts:
+        raise ValueError(f"package_source_root_invalid:{package_id}")
+    root = (repo_root / relative_root).resolve(strict=True)
+    source = (repo_root / "src").resolve(strict=True)
+    if not root.is_relative_to(source):
+        raise ValueError(f"package_source_root_outside_product:{package_id}")
+    return root
+
+
+def _binding_package_role_errors(
+    owner_package_id: str,
+    binding: dict[str, Any],
+    contracts: dict[str, tuple[Path, dict[str, Any]]],
+) -> list[str]:
+    """Check edge roles against package IDs in current package contracts."""
+    dependent = str(binding.get("dependent_package", ""))
+    if owner_package_id not in contracts or dependent not in contracts:
+        return []
+    roles = {
+        "shared_operation": owner_package_id,
+        "profile_operation": owner_package_id,
+        "executor_operation": owner_package_id,
+        "consumer_operation": dependent,
+        "callsite_operation": dependent,
+    }
+    errors: list[str] = []
+    for role, expected_package in roles.items():
+        reference = binding.get(role)
+        if isinstance(reference, dict) and str(reference.get("package", "")) != expected_package:
+            errors.append(f"{role}:expected_package={expected_package}")
+    return errors
+
+
+class _UniqueKeySafeLoader(yaml.SafeLoader):
+    """Reject duplicate YAML fields that could hide selected SLO meaning."""
+
+
+def _construct_unique_yaml_mapping(
+    loader: _UniqueKeySafeLoader, node: Any, deep: bool = False
+) -> dict[Any, Any]:
+    mapping: dict[Any, Any] = {}
+    for key_node, value_node in node.value:
+        key = loader.construct_object(key_node, deep=deep)
+        try:
+            duplicate = key in mapping
+        except TypeError as exc:
+            raise ValueError("slo_yaml_unhashable_mapping_key") from exc
+        if duplicate:
+            raise ValueError(f"slo_yaml_duplicate_key:{key}")
+        mapping[key] = loader.construct_object(value_node, deep=deep)
+    return mapping
+
+
+_UniqueKeySafeLoader.add_constructor(
+    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _construct_unique_yaml_mapping
+)
+
+
+def _load_slo_document(path: Path) -> dict[str, Any]:
+    try:
+        loader = _UniqueKeySafeLoader(path.read_text(encoding="utf-8"))
+        try:
+            value = loader.get_single_data()
+        finally:
+            loader.dispose()
+    except (OSError, yaml.YAMLError, ValueError) as exc:
+        raise ValueError(f"slo_yaml_not_unambiguous:{path}") from exc
+    if type(value) is not dict:
+        raise ValueError(f"slo_yaml_root_not_mapping:{path}")
+    return value
+
+
+def _bound_objective(
+    repo_root: Path,
+    objective: dict[str, Any],
+    *,
+    dependent_contract: dict[str, Any],
+    binding_runbooks: list[str],
+) -> dict[str, Any]:
+    """Resolve a unique objective from the dependent package's declared SLO file."""
+    relative = str(objective.get("path", ""))
+    path = Path(relative)
+    if not relative or path.is_absolute() or ".." in path.parts or path.as_posix() != relative:
+        raise ValueError("objective_path_is_not_repo_relative")
+    slo_contract = dependent_contract.get("slo_runbook", {})
+    declared_files = slo_contract.get("slo_files", []) if isinstance(slo_contract, dict) else []
+    if not isinstance(declared_files, list) or relative not in declared_files:
+        raise ValueError("objective_file_not_owned_by_dependent_package")
+    document = _load_slo_document(repo_root / path)
+    package = dependent_contract.get("package", {})
+    if not isinstance(package, dict) or document.get("service") != package.get("name"):
+        raise ValueError("objective_service_does_not_match_dependent_package")
+    if document.get("owner") != package.get("owner"):
+        raise ValueError("objective_owner_does_not_match_dependent_package")
+    rows = document.get("objectives")
+    if not isinstance(rows, list):
+        raise ValueError("slo_objectives_not_a_list")
+    names: list[str] = []
+    for row in rows:
+        if type(row) is not dict:
+            raise ValueError("slo_objective_not_a_mapping")
+        name = row.get("name")
+        if type(name) is not str or not name.strip():
+            raise ValueError("slo_objective_name_missing")
+        names.append(name)
+    if len(names) != len(set(names)):
+        raise ValueError("slo_objective_name_ambiguous")
+    name = str(objective.get("name", ""))
+    selected = [row for row in rows if row.get("name") == name]
+    if len(selected) != 1:
+        raise ValueError(f"objective_reference_not_unique:{name}")
+    result = selected[0]
+    sli, runbook = result.get("sli"), result.get("runbook")
+    if type(sli) is not str or not sli.strip():
+        raise ValueError(f"objective_sli_missing_or_unsupported:{name}")
+    if type(runbook) is not str or not runbook.strip():
+        raise ValueError(f"objective_runbook_missing_or_unsupported:{name}")
+    if type(objective.get("runbook_path")) is not str or runbook != objective["runbook_path"]:
+        raise ValueError(f"objective_runbook_not_exactly_bound:{name}")
+    package_runbooks = slo_contract.get("runbooks", []) if isinstance(slo_contract, dict) else []
+    if (
+        not isinstance(binding_runbooks, list)
+        or runbook not in binding_runbooks
+        or not isinstance(package_runbooks, list)
+        or runbook not in package_runbooks
+    ):
+        raise ValueError(f"objective_runbook_not_owned_by_dependent_package:{name}")
+    return result
+
+
+def _strip_promql_comments(expression: str) -> str:
+    """Remove PromQL comments while preserving quoted strings."""
+    result: list[str] = []
+    quoted = False
+    escaped = False
+    i = 0
+    while i < len(expression):
+        char = expression[i]
+        if quoted:
+            result.append(char)
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                quoted = False
+            i += 1
+        elif char == '"':
+            quoted = True
+            result.append(char)
+            i += 1
+        elif char == "#":
+            while i < len(expression) and expression[i] != "\n":
+                i += 1
+            if i < len(expression):
+                result.append("\n")
+                i += 1
+        else:
+            result.append(char)
+            i += 1
+    if quoted:
+        raise ValueError("objective_sli_unclosed_string")
+    return "".join(result)
+
+
+def _parse_promql_matchers(raw: str) -> dict[str, tuple[str, str]]:
+    result: dict[str, tuple[str, str]] = {}
+    parts: list[str] = []
+    start = 0
+    quoted = False
+    escaped = False
+    for i, char in enumerate(raw):
+        if quoted:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                quoted = False
+        elif char == '"':
+            quoted = True
+        elif char == ",":
+            parts.append(raw[start:i])
+            start = i + 1
+    if quoted:
+        raise ValueError("objective_sli_unclosed_label_string")
+    parts.append(raw[start:])
+    pattern = r'\s*([A-Za-z_][A-Za-z0-9_]*)\s*(=~|!~|!=|=)\s*"((?:\\.|[^"\\])*)"\s*'
+    for part in parts:
+        if not part.strip():
+            continue
+        match = re.fullmatch(pattern, part)
+        if match is None:
+            raise ValueError("objective_sli_label_matcher_unsupported")
+        key, operator, value = match.groups()
+        if key in result:
+            raise ValueError(f"objective_sli_duplicate_label:{key}")
+        result[key] = (operator, value)
+    return result
+
+
+def _promql_metric_selectors(
+    expression: str,
+) -> list[tuple[str, dict[str, tuple[str, str]]]]:
+    """Extract actual selectors from SLI syntax, ignoring comments and quoted text."""
+    source = _strip_promql_comments(expression)
+    result: list[tuple[str, dict[str, tuple[str, str]]]] = []
+    i = 0
+    while i < len(source):
+        char = source[i]
+        if char == '"':
+            i += 1
+            escaped = False
+            while i < len(source):
+                current = source[i]
+                if escaped:
+                    escaped = False
+                elif current == "\\":
+                    escaped = True
+                elif current == '"':
+                    i += 1
+                    break
+                i += 1
+            else:
+                raise ValueError("objective_sli_unclosed_string")
+            continue
+        if char.isalpha() or char in "_:":
+            start = i
+            i += 1
+            while i < len(source) and (source[i].isalnum() or source[i] in "_:"):
+                i += 1
+            metric = source[start:i]
+            selector = i
+            while selector < len(source) and source[selector].isspace():
+                selector += 1
+            if selector >= len(source) or source[selector] != "{":
+                continue
+            cursor = selector + 1
+            quoted = False
+            escaped = False
+            while cursor < len(source):
+                current = source[cursor]
+                if quoted:
+                    if escaped:
+                        escaped = False
+                    elif current == "\\":
+                        escaped = True
+                    elif current == '"':
+                        quoted = False
+                elif current == '"':
+                    quoted = True
+                elif current == "}":
+                    break
+                cursor += 1
+            if cursor >= len(source) or quoted:
+                raise ValueError("objective_sli_unclosed_selector")
+            result.append((metric, _parse_promql_matchers(source[selector + 1 : cursor])))
+            i = cursor + 1
+            continue
+        i += 1
+    return result
+
+
+def _objective_instrument_contract(
+    repo_root: Path,
+    objective_refs: list[dict[str, Any]],
+    *,
+    dependent_contract: dict[str, Any],
+    binding_runbooks: list[str],
+) -> tuple[set[str], str, set[str]]:
+    instruments: set[str] = set()
+    scopes: set[str] = set()
+    scope_fields: set[str] = set()
+    statuses: set[str] = set()
+    for reference in objective_refs:
+        selected = _bound_objective(
+            repo_root,
+            reference,
+            dependent_contract=dependent_contract,
+            binding_runbooks=binding_runbooks,
+        )
+        scope_field = str(reference["measurement_scope_attribute"])
+        scope_fields.add(scope_field)
+        selectors = _promql_metric_selectors(str(selected["sli"]))
+        if not selectors:
+            raise ValueError("objective_sli_has_no_supported_metric_selectors")
+        objective_scopes: set[str] = set()
+        for metric, labels in selectors:
+            instruments.add(metric)
+            scope = labels.get(scope_field)
+            if scope is not None:
+                operator, value = scope
+                if operator != "=":
+                    raise ValueError("objective_scope_matcher_must_be_exact")
+                objective_scopes.add(value)
+                scopes.add(value)
+            status = labels.get("status")
+            if status is not None:
+                operator, value = status
+                if operator not in {"=", "=~"}:
+                    raise ValueError("objective_status_matcher_unsupported")
+                statuses.update(value.split("|") if operator == "=~" else {value})
+        if not objective_scopes:
+            raise ValueError("objective_sli_scope_selector_missing")
+        if len(objective_scopes) != 1:
+            raise ValueError("objective_sli_scope_selector_ambiguous")
+    if len(scope_fields) != 1:
+        raise ValueError("dependent_objective_scope_attribute_not_unique")
+    if len(scopes) != 1:
+        raise ValueError("dependent_objective_scope_not_unique")
+    return instruments, next(iter(scopes)), statuses
+
+
+def _check_dependent_binding_contracts(
+    repo_root: Path,
+) -> tuple[dict[str, Any], list[Finding]]:
+    contracts = _package_contracts(repo_root)
+    rows = _binding_rows(contracts)
+    findings: list[Finding] = []
+    ids: set[str] = set()
+    for package_id, _document, binding in rows:
+        binding_id = str(binding.get("id", ""))
+        subject = binding_id or package_id
+        if not binding_id or binding_id in ids:
+            findings.append(
+                Finding(
+                    "dependent-execution-binding", subject, "binding id is missing or duplicate"
+                )
+            )
+        ids.add(binding_id)
+        if set(binding) != _DEPENDENT_BINDING_REQUIRED_FIELDS:
+            findings.append(
+                Finding(
+                    "dependent-execution-binding",
+                    subject,
+                    "binding fields do not match the current strict schema",
+                    ", ".join(sorted(set(binding) ^ _DEPENDENT_BINDING_REQUIRED_FIELDS)),
+                )
+            )
+        if binding.get("schema_version") != _DEPENDENT_BINDING_VERSION:
+            findings.append(
+                Finding("dependent-execution-binding", subject, "schema version is unsupported")
+            )
+        dependent = str(binding.get("dependent_package", ""))
+        if dependent not in contracts:
+            findings.append(
+                Finding("dependent-execution-binding", subject, "dependent package is unknown")
+            )
+            continue
+        for role_error in _binding_package_role_errors(package_id, binding, contracts):
+            findings.append(
+                Finding(
+                    "dependent-execution-binding",
+                    subject,
+                    "operation package role does not match the dependency edge",
+                    role_error,
+                )
+            )
+        for field in _OPERATION_REFERENCE_FIELDS:
+            reference = binding.get(field, {})
+            if (
+                not isinstance(reference, dict)
+                or not reference.get("module")
+                or not reference.get("symbol")
+                or str(reference.get("package", "")) not in contracts
+            ):
+                findings.append(
+                    Finding("dependent-execution-binding", subject, f"{field} is incomplete")
+                )
+                continue
+            owner_id = str(reference["package"])
+            owner_module = str(contracts[owner_id][1].get("package", {}).get("module", ""))
+            module_name = str(reference["module"])
+            if not owner_module or not (
+                module_name == owner_module or module_name.startswith(owner_module + ".")
+            ):
+                findings.append(
+                    Finding(
+                        "dependent-execution-binding",
+                        subject,
+                        f"{field} module is outside its package boundary",
+                        module_name,
+                    )
+                )
+        trace_fields = {
+            "api_span_name",
+            "api_run_id_attribute",
+            "api_workflow_id_attribute",
+            "node_run_id_attribute",
+            "node_workflow_id_attribute",
+            "event_name",
+        }
+        if not isinstance(binding.get("trace"), dict) or set(binding["trace"]) != trace_fields:
+            findings.append(
+                Finding("dependent-execution-binding", subject, "trace references are malformed")
+            )
+        if binding.get("eligibility_start") != "workflow_resolved":
+            findings.append(
+                Finding(
+                    "dependent-execution-binding",
+                    subject,
+                    "eligibility boundary must begin after workflow resolution",
+                )
+            )
+        runbook_paths = binding.get("runbook_paths", [])
+        if not isinstance(runbook_paths, list) or not runbook_paths:
+            findings.append(
+                Finding("dependent-execution-binding", subject, "runbook targets are required")
+            )
+            runbook_paths = []
+        for runbook_path in runbook_paths:
+            if not _path_or_glob_exists(repo_root, str(runbook_path)):
+                findings.append(
+                    Finding(
+                        "dependent-execution-binding",
+                        subject,
+                        "runbook target is missing",
+                        str(runbook_path),
+                    )
+                )
+        objective_refs = binding.get("objective", [])
+        if not isinstance(objective_refs, list) or not objective_refs:
+            findings.append(
+                Finding("dependent-execution-binding", subject, "objective references are required")
+            )
+            continue
+        for objective in objective_refs:
+            if not isinstance(objective, dict) or set(objective) != {
+                "path",
+                "name",
+                "measurement_scope_attribute",
+                "runbook_path",
+            }:
+                findings.append(
+                    Finding(
+                        "dependent-execution-binding", subject, "objective reference is malformed"
+                    )
+                )
+                continue
+            objective_path = str(objective.get("path", ""))
+            if not _path_or_glob_exists(repo_root, objective_path):
+                findings.append(
+                    Finding(
+                        "dependent-execution-binding",
+                        subject,
+                        "objective target is missing",
+                        objective_path,
+                    )
+                )
+                continue
+            try:
+                _bound_objective(
+                    repo_root,
+                    objective,
+                    dependent_contract=contracts[dependent][1],
+                    binding_runbooks=runbook_paths,
+                )
+            except (OSError, ValueError) as exc:
+                findings.append(
+                    Finding(
+                        "dependent-execution-binding",
+                        subject,
+                        "objective cannot be resolved",
+                        str(exc),
+                    )
+                )
+    cycles = validate_dependent_binding_graph(rows)
+    for cycle in cycles:
+        findings.append(Finding("dependent-execution-binding", cycle, "declared dependency cycle"))
+    return (
+        {
+            "dependent_binding_declaration_count": len(rows),
+            "dependent_binding_runtime_qualifications": 0,
+            "dependent_binding_admission": "not_established",
+        },
+        findings,
+    )
+
+
+def _operation_code(reference: dict[str, Any], operation: Any) -> Any:
+    """Resolve a declared code object, including one nested in an operation."""
+    nested_name = reference.get("nested_code_name")
+    code = getattr(operation, "__code__", None)
+    if code is None:
+        raise ValueError("operation_code_not_established")
+    if not nested_name:
+        return code
+    pending = list(code.co_consts)
+    matches = []
+    while pending:
+        candidate = pending.pop()
+        if not isinstance(candidate, type(code)):
+            continue
+        if candidate.co_name == str(nested_name):
+            matches.append(candidate)
+        pending.extend(candidate.co_consts)
+    if len(matches) != 1:
+        raise ValueError(f"nested_operation_code_not_unique:{nested_name}")
+    return matches[0]
+
+
+def _resolve_operation_reference(
+    repo_root: Path, reference: dict[str, Any]
+) -> tuple[Any, Any, Path]:
+    module = importlib.import_module(str(reference["module"]))
+    value: Any = module
+    for part in str(reference["symbol"]).split("."):
+        value = getattr(value, part)
+    if not callable(value):
+        raise ValueError(
+            f"operation_reference_not_callable:{reference['module']}:{reference['symbol']}"
+        )
+    source = inspect.getsourcefile(value) or getattr(module, "__file__", None)
+    if source is None:
+        raise ValueError(f"operation_source_not_established:{reference['module']}")
+    source_path = Path(source).resolve(strict=True)
+    source_root = (repo_root / "src").resolve(strict=True)
+    if not source_path.is_relative_to(source_root):
+        raise ValueError(f"operation_source_outside_current_checkout:{source_path}")
+    contracts = _package_contracts(repo_root)
+    package_id = str(reference["package"])
+    package = contracts.get(package_id)
+    if package is None:
+        raise ValueError(f"operation_package_owner_missing:{package_id}")
+    package_module = str(package[1].get("package", {}).get("module", ""))
+    module_name = str(reference["module"])
+    if not package_module or not (
+        module_name == package_module or module_name.startswith(package_module + ".")
+    ):
+        raise ValueError(f"operation_module_outside_declared_package:{module_name}")
+    package_source = _package_source_root(repo_root, package_id, contracts)
+    if not source_path.is_relative_to(package_source):
+        raise ValueError(f"operation_source_outside_declared_package:{package_id}:{source_path}")
+    return value, module, source_path
+
+
+def _dependent_binding(repo_root: Path, binding_id: str) -> dict[str, Any]:
+    contracts = _package_contracts(repo_root)
+    matches = [
+        binding for _, _, binding in _binding_rows(contracts) if binding.get("id") == binding_id
+    ]
+    if len(matches) != 1:
+        raise ValueError(f"dependent_binding_not_unique:{binding_id}")
+    binding = matches[0]
+    if set(binding) != _DEPENDENT_BINDING_REQUIRED_FIELDS:
+        raise ValueError("dependent_binding_schema_mismatch")
+    if binding.get("schema_version") != _DEPENDENT_BINDING_VERSION:
+        raise ValueError("dependent_binding_version_mismatch")
+    if validate_dependent_binding_graph(_binding_rows(contracts)):
+        raise ValueError("dependent_binding_cycle")
+    _, findings = _check_dependent_binding_contracts(repo_root)
+    if any(item.subject == binding_id for item in findings):
+        raise ValueError("dependent_binding_source_contract_invalid")
+    return binding
+
+
+def _metric_totals(metrics_data: Any) -> dict[tuple[str, tuple[tuple[str, str], ...]], int]:
+    totals: dict[tuple[str, tuple[tuple[str, str], ...]], int] = {}
+    for resource_metrics in getattr(metrics_data, "resource_metrics", ()):
+        for scope_metrics in getattr(resource_metrics, "scope_metrics", ()):
+            for metric in getattr(scope_metrics, "metrics", ()):
+                for point in getattr(metric.data, "data_points", ()):
+                    attributes = tuple(
+                        sorted((str(k), str(v)) for k, v in point.attributes.items())
+                    )
+                    value = getattr(point, "value", None)
+                    if value is None:
+                        value = getattr(point, "count", None)
+                    if value is not None:
+                        key = (str(metric.name), attributes)
+                        totals[key] = totals.get(key, 0) + int(value)
+    return totals
+
+
+def _selected_metric_deltas(
+    before: Any,
+    after: Any,
+    *,
+    counter_name: str,
+    histogram_bucket_name: str,
+    scope_attribute: str,
+    scope_value: str,
+    workflow_id: str,
+    environment: str,
+) -> tuple[dict[str, int], int]:
+    before_totals = _metric_totals(before)
+    after_totals = _metric_totals(after)
+    status_deltas: dict[str, int] = {}
+    for (name, attributes), value in after_totals.items():
+        if name != counter_name:
+            continue
+        labels = dict(attributes)
+        if (
+            labels.get(scope_attribute) != scope_value
+            or labels.get("workflow_id") != workflow_id
+            or labels.get("env") != environment
+        ):
+            continue
+        previous = before_totals.get((name, attributes), 0)
+        delta = value - previous
+        if delta:
+            status = labels.get("status", "")
+            status_deltas[status] = status_deltas.get(status, 0) + delta
+    histogram_name = histogram_bucket_name.removesuffix("_bucket")
+    histogram_count = 0
+    for (name, attributes), value in after_totals.items():
+        if name != histogram_name:
+            continue
+        labels = dict(attributes)
+        if (
+            labels.get(scope_attribute) != scope_value
+            or labels.get("workflow_id") != workflow_id
+            or labels.get("env") != environment
+        ):
+            continue
+        histogram_count += value - before_totals.get((name, attributes), 0)
+    return status_deltas, histogram_count
+
+
+def verify_controlled_dependent_execution(
+    repo_root: Path,
+    *,
+    binding_id: str,
+    receipt_path: Path,
+    observations: tuple[Any, ...],
+    span_exporter: Any,
+    metric_reader: Any,
+    metrics_registry: Any,
+    metrics_before: Any,
+    consumer_operation: Any,
+    run_state: dict[str, Any],
+    run_ref: Any,
+    artifact_store: Any,
+    expected_environment: str,
+) -> dict[str, Any]:
+    """Recompute one controlled runtime witness from live code, CAS, spans, and SDK metrics.
+
+    This proves only the tested in-process path; it cannot attest production
+    operation selection, traffic, or SLI attainment.
+    """
+    repo_root = repo_root.resolve(strict=True)
+    binding = _dependent_binding(repo_root, binding_id)
+    resolved = {
+        field: _resolve_operation_reference(repo_root, binding[field])
+        for field in _OPERATION_REFERENCE_FIELDS
+    }
+    shared_operation, common_module, shared_source = resolved["shared_operation"]
+    consumer, _, _ = resolved["consumer_operation"]
+    callsite, _, callsite_source = resolved["callsite_operation"]
+    callsite_code = _operation_code(binding["callsite_operation"], callsite)
+    profile_provider, _, _ = resolved["profile_operation"]
+    executor_provider, _, _ = resolved["executor_operation"]
+    if consumer_operation is not consumer:
+        raise ValueError("consumer_operation_identity_mismatch")
+    if consumer.__name__ != str(binding["consumer_operation"]["symbol"]).split(".")[-1]:
+        raise ValueError("consumer_operation_name_mismatch")
+    observation_type = getattr(common_module, "_SharedExecutorCallObservation", None)
+    if observation_type is None or not observations:
+        raise ValueError("actual_common_call_observation_missing")
+    if any(type(item) is not observation_type for item in observations):
+        raise ValueError("observation_type_not_owned_by_loaded_common_module")
+    related_candidates = tuple(item for item in observations if item.caller_code is callsite_code)
+    if not related_candidates:
+        raise ValueError("declared_callsite_not_observed")
+
+    current_source_digest = hashlib.sha256(shared_source.read_bytes()).hexdigest()
+    current_callsite_digest = hashlib.sha256(callsite_source.read_bytes()).hexdigest()
+    from polisyos.scientist.orchestration.engine.component_identity import _code_sha256
+
+    common_code_sha256 = _code_sha256(shared_operation)
+    callsite_code_sha256 = _code_sha256(callsite)
+    if str(binding["trace"]["event_name"]) != getattr(
+        common_module, "SHARED_EXECUTOR_CALL_EVENT_NAME", None
+    ):
+        raise ValueError("trace_event_contract_mismatch")
+
+    state_run_id = str(run_state.get("run_id", ""))
+    report_ref_raw = run_state.get("reports_index", {}).get("workflow_report")
+    if not state_run_id or not report_ref_raw:
+        raise ValueError("workflow_report_reference_missing")
+    artifact_ref_model, _, _ = resolved["artifact_ref_model"]
+    report_ref = artifact_ref_model.model_validate(report_ref_raw)
+    report_model, _, _ = resolved["report_model"]
+    manifest_model, _, _ = resolved["manifest_model"]
+    from polisyos.core.artifacts.canonical_profile import load_core_json_artifact
+
+    report = report_model.model_validate(load_core_json_artifact(artifact_store, report_ref))
+    manifest_ref = artifact_ref_model.model_validate(run_ref)
+    run_manifest = manifest_model.model_validate(
+        load_core_json_artifact(artifact_store, manifest_ref)
+    )
+    workflow_id = str(report.workflow_id)
+    if (
+        report.run_id != state_run_id
+        or run_manifest.run_id != state_run_id
+        or str(run_state.get("params", {}).get("workflow_id", workflow_id)) != workflow_id
+    ):
+        raise ValueError("cas_report_run_workflow_binding_mismatch")
+    report_status = str(report.status)
+    api_status = (
+        str(binding["outcome_success_metric_status"])
+        if report_status == str(binding["outcome_success_report_status"])
+        else str(binding["outcome_failure_metric_status"])
+    )
+
+    objective_refs = binding["objective"]
+    contracts = _package_contracts(repo_root)
+    dependent_contract = contracts[str(binding["dependent_package"])][1]
+    binding_runbooks = binding["runbook_paths"]
+    instrument_names, scope_value, query_statuses = _objective_instrument_contract(
+        repo_root,
+        objective_refs,
+        dependent_contract=dependent_contract,
+        binding_runbooks=binding_runbooks,
+    )
+    counter_names = sorted(name for name in instrument_names if name.endswith("_total"))
+    histogram_names = sorted(name for name in instrument_names if name.endswith("_bucket"))
+    if len(counter_names) != 1 or len(histogram_names) != 1:
+        raise ValueError("objective_instrument_pair_not_unique")
+    if api_status not in query_statuses:
+        raise ValueError("api_status_not_in_objective_denominator")
+    config = getattr(metrics_registry, "_config", None)
+    actual_environment = getattr(config, "environment", None)
+    if not actual_environment or expected_environment != actual_environment:
+        raise ValueError("expected_environment_not_bound_to_metrics_registry")
+    counter_delta, before_histogram_count = _selected_metric_deltas(
+        metrics_before,
+        metrics_before,
+        counter_name=counter_names[0],
+        histogram_bucket_name=histogram_names[0],
+        scope_attribute=str(objective_refs[0]["measurement_scope_attribute"]),
+        scope_value=scope_value,
+        workflow_id=workflow_id,
+        environment=actual_environment,
+    )
+    if counter_delta or before_histogram_count:
+        raise ValueError("controlled_metrics_baseline_is_not_empty")
+    counter_name = counter_names[0]
+    histogram_name = histogram_names[0].removesuffix("_bucket")
+    baseline_has_eligible_samples = any(
+        name in {counter_name, histogram_name}
+        and dict(attributes).get(str(objective_refs[0]["measurement_scope_attribute"]))
+        == scope_value
+        and dict(attributes).get("workflow_id") == workflow_id
+        and dict(attributes).get("env") == actual_environment
+        and value != 0
+        for (name, attributes), value in _metric_totals(metrics_before).items()
+    )
+    if baseline_has_eligible_samples:
+        raise ValueError("controlled_metrics_baseline_is_not_empty")
+    metrics_after = metric_reader.get_metrics_data()
+    counter_delta, histogram_delta = _selected_metric_deltas(
+        metrics_before,
+        metrics_after,
+        counter_name=counter_names[0],
+        histogram_bucket_name=histogram_names[0],
+        scope_attribute=str(objective_refs[0]["measurement_scope_attribute"]),
+        scope_value=scope_value,
+        workflow_id=workflow_id,
+        environment=actual_environment,
+    )
+    if counter_delta != {api_status: 1} or histogram_delta != 1:
+        raise ValueError("eligible_sli_observation_missing_or_duplicated")
+
+    span_rows = tuple(span_exporter.get_finished_spans())
+    by_context: dict[tuple[int, int], Any] = {}
+    ambiguous_contexts: set[tuple[int, int]] = set()
+    for span in span_rows:
+        context = getattr(span, "context", None)
+        if context is None or not getattr(context, "is_valid", False):
+            continue
+        key = (context.trace_id, context.span_id)
+        if key in ambiguous_contexts:
+            continue
+        if key in by_context:
+            by_context.pop(key)
+            ambiguous_contexts.add(key)
+        else:
+            by_context[key] = span
+
+    api_span_name = str(binding["trace"]["api_span_name"])
+    api_run_attribute = str(binding["trace"]["api_run_id_attribute"])
+    api_workflow_attribute = str(binding["trace"]["api_workflow_id_attribute"])
+
+    def classify_api_root_for_span(span: Any) -> tuple[Any | None, str | None]:
+        """Resolve the nearest API root, or report why ancestry is unknown."""
+        trace_id = span.context.trace_id
+        key = (trace_id, span.context.span_id)
+        visited: set[tuple[int, int]] = set()
+        while True:
+            if key in visited:
+                return None, "api_root_parent_cycle"
+            visited.add(key)
+            if key in ambiguous_contexts:
+                return None, "span_identity_ambiguous"
+            current = by_context.get(key)
+            if current is None:
+                return None, "api_root_parent_missing"
+            if current.name == api_span_name:
+                return current, None
+            parent = getattr(current, "parent", None)
+            if parent is None or not getattr(parent, "is_valid", False):
+                return None, "api_root_parentage_refused"
+            if parent.trace_id != trace_id:
+                return None, "api_root_parent_trace_mismatch"
+            key = (parent.trace_id, parent.span_id)
+
+    selected_root_ids: set[tuple[int, int]] = set()
+    selected_trace_ids: set[int] = set()
+    root_membership_by_id: dict[tuple[int, int], str] = {}
+    for span in span_rows:
+        context = getattr(span, "context", None)
+        if context is None or not getattr(context, "is_valid", False) or span.name != api_span_name:
+            continue
+        attributes = dict(span.attributes or {})
+        run_value = attributes.get(api_run_attribute)
+        workflow_value = attributes.get(api_workflow_attribute)
+        has_run_value = run_value is not None and str(run_value).strip() != ""
+        has_workflow_value = workflow_value is not None and str(workflow_value).strip() != ""
+        run_matches = has_run_value and str(run_value) == state_run_id
+        workflow_matches = has_workflow_value and str(workflow_value) == workflow_id
+        if (has_run_value and not run_matches) or (has_workflow_value and not workflow_matches):
+            membership = "other"
+        elif run_matches and workflow_matches:
+            membership = "selected"
+        else:
+            membership = "unknown"
+        root_key = (context.trace_id, context.span_id)
+        root_membership_by_id[root_key] = membership
+        if membership == "selected":
+            if root_key in ambiguous_contexts:
+                raise ValueError("selected_api_root_identity_ambiguous")
+            selected_root_ids.add(root_key)
+            selected_trace_ids.add(context.trace_id)
+    if not selected_root_ids:
+        raise ValueError("selected_api_root_missing")
+
+    def classify_api_root_membership(root: Any) -> str:
+        """Return selected, proven-other, or unknown membership for an API root."""
+        root_key = (root.context.trace_id, root.context.span_id)
+        return root_membership_by_id.get(root_key, "unknown")
+
+    related_list: list[Any] = []
+    for item in related_candidates:
+        span_key = (item.trace_id, item.span_id)
+        if span_key in ambiguous_contexts:
+            if item.trace_id in selected_trace_ids:
+                raise ValueError("span_identity_ambiguous")
+            continue
+        span = by_context.get(span_key)
+        if span is None:
+            if item.trace_id in selected_trace_ids:
+                raise ValueError("common_call_span_missing")
+            continue
+        root, ancestry_issue = classify_api_root_for_span(span)
+        if ancestry_issue is not None:
+            if item.trace_id in selected_trace_ids:
+                raise ValueError(ancestry_issue)
+            continue
+        if root is None:
+            if item.trace_id in selected_trace_ids:
+                raise ValueError("api_root_ancestry_not_established")
+            continue
+        membership = classify_api_root_membership(root)
+        if membership == "selected":
+            related_list.append(item)
+        elif membership == "unknown" and item.trace_id in selected_trace_ids:
+            raise ValueError("api_root_membership_not_established")
+
+    related = tuple(related_list)
+    if not related:
+        raise ValueError("declared_callsite_not_observed_under_selected_api_root")
+    if any(item.caller_module != callsite.__module__ for item in related):
+        raise ValueError("callsite_module_mismatch")
+    if any(
+        item.helper_function is not shared_operation
+        or item.helper_code is not shared_operation.__code__
+        or item.source_path != str(shared_source)
+        or item.source_sha256 != current_source_digest
+        or item.caller_code is not callsite_code
+        or item.caller_source_path != str(callsite_source)
+        or item.caller_source_sha256 != current_callsite_digest
+        or item.target_function is None
+        or item.target_code is not getattr(item.target_function, "__code__", None)
+        or item.worker_is_executor is not True
+        or item.worker_thread_ident == item.caller_thread_ident
+        or item.trace_id == 0
+        or item.span_id == 0
+        for item in related
+    ):
+        raise ValueError("actual_common_code_or_worker_identity_mismatch")
+    profile = profile_provider()
+    executor = executor_provider()
+    executor_ref = binding["executor_operation"]
+    if any(
+        item.profile is not profile
+        or item.executor is not executor
+        or getattr(executor, str(executor_ref["capacity_attribute"]), None) != profile.capacity
+        or getattr(executor, str(executor_ref["queue_capacity_attribute"]), None)
+        != profile.queue_capacity
+        for item in related
+    ):
+        raise ValueError("calltime_profile_executor_join_mismatch")
+
+    observations_by_span: dict[tuple[int, int], dict[str, Any]] = {}
+    expected_call_ids: set[str] = set()
+    for item in related:
+        if not item.call_id or item.call_id in expected_call_ids:
+            raise ValueError("duplicate_or_missing_live_common_call_id")
+        expected_call_ids.add(item.call_id)
+        span_key = (item.trace_id, item.span_id)
+        observations_by_span.setdefault(span_key, {})[item.call_id] = item
+        span = by_context.get(span_key)
+        if span is None:
+            raise ValueError("common_call_span_missing")
+        attributes = dict(span.attributes or {})
+        run_id_attribute = (
+            api_run_attribute
+            if span.name == api_span_name
+            else str(binding["trace"]["node_run_id_attribute"])
+        )
+        workflow_id_attribute = (
+            api_workflow_attribute
+            if span.name == api_span_name
+            else str(binding["trace"]["node_workflow_id_attribute"])
+        )
+        if (
+            str(attributes.get(run_id_attribute, "")) != state_run_id
+            or str(attributes.get(workflow_id_attribute, "")) != workflow_id
+        ):
+            raise ValueError("common_call_span_run_workflow_mismatch")
+    if not observations_by_span:
+        raise ValueError("api_root_for_live_common_calls_missing")
+    event_name = str(binding["trace"]["event_name"])
+    callsite_module = str(binding["callsite_operation"]["module"])
+    callsite_code_id = hex(id(callsite_code))
+    common_code_id = hex(id(shared_operation.__code__))
+    selected_trace_ids = {trace_id for trace_id, _ in selected_root_ids}
+    observations_by_call_id = {
+        call_id: item for calls in observations_by_span.values() for call_id, item in calls.items()
+    }
+    expected_span_by_call_id = {
+        call_id: span_key for span_key, calls in observations_by_span.items() for call_id in calls
+    }
+    seen_event_ids: set[str] = set()
+    for span in span_rows:
+        context = getattr(span, "context", None)
+        valid_context = context is not None and getattr(context, "is_valid", False)
+        span_key = (context.trace_id, context.span_id) if valid_context else None
+        in_selected_trace = valid_context and context.trace_id in selected_trace_ids
+        for event in getattr(span, "events", ()):
+            event_attributes = dict(getattr(event, "attributes", None) or {})
+            call_id = str(event_attributes.get("call_id", ""))
+            observation = observations_by_call_id.get(call_id)
+            claims_declared_callsite = (
+                event_attributes.get("caller_module") == callsite_module
+                and event_attributes.get("caller_code_object_id") == callsite_code_id
+            )
+            if observation is not None:
+                # Expected IDs are reconciled across the exported span set,
+                # independent of trace and selected-root membership.
+                if getattr(event, "name", None) != event_name:
+                    raise ValueError("common_call_event_name_mismatch")
+                if span_key != expected_span_by_call_id[call_id]:
+                    raise ValueError("common_call_event_attached_to_wrong_span")
+                if not claims_declared_callsite or (
+                    event_attributes.get("caller_source_sha256") != current_callsite_digest
+                ):
+                    raise ValueError("span_event_callsite_does_not_match_live_common_call")
+                if call_id in seen_event_ids:
+                    raise ValueError("duplicate_actual_common_call_event")
+                if (
+                    event_attributes.get("helper_module")
+                    != str(binding["shared_operation"]["module"])
+                    or event_attributes.get("helper_code_object_id") != common_code_id
+                    or event_attributes.get("helper_source_sha256") != current_source_digest
+                    or event_attributes.get("worker_is_executor") is not True
+                    or event_attributes.get("status") != observation.status
+                ):
+                    raise ValueError("span_event_does_not_match_live_common_call")
+                seen_event_ids.add(call_id)
+                continue
+
+            if not claims_declared_callsite or not in_selected_trace:
+                continue
+            # Unknown callsite events count only under a selected root. A valid
+            # different root proves they are unrelated; unknown ancestry on the
+            # selected trace is not such proof and therefore fails closed.
+            event_root, ancestry_issue = classify_api_root_for_span(span)
+            if ancestry_issue is not None:
+                raise ValueError(ancestry_issue)
+            if event_root is None:
+                raise ValueError("api_root_ancestry_not_established")
+            membership = classify_api_root_membership(event_root)
+            if membership == "selected":
+                raise ValueError("unobserved_common_call_event")
+            if membership == "unknown":
+                raise ValueError("api_root_membership_not_established")
+    if seen_event_ids != expected_call_ids:
+        raise ValueError("span_events_and_live_calls_not_bijective")
+
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    receipt_fields = {
+        "schema_version",
+        "binding_id",
+        "run_id",
+        "workflow_id",
+        "objective_names",
+        "helper_source_sha256",
+        "helper_code_sha256",
+        "callsite_code_sha256",
+        "call_ids",
+        "profile",
+        "report_status",
+        "metric_status",
+        "counter_count",
+        "duration_count",
+        "cas_report_ref",
+        "run_manifest_ref",
+        "evidence_scope",
+        "deployment_receipt",
+    }
+    if type(receipt) is not dict or set(receipt) != receipt_fields:
+        raise ValueError("controlled_receipt_schema_mismatch")
+    expected_receipt = {
+        "schema_version": _DEPENDENT_BINDING_VERSION,
+        "binding_id": binding_id,
+        "run_id": state_run_id,
+        "workflow_id": workflow_id,
+        "objective_names": [str(item["name"]) for item in objective_refs],
+        "helper_source_sha256": current_source_digest,
+        "helper_code_sha256": common_code_sha256,
+        "callsite_code_sha256": callsite_code_sha256,
+        "call_ids": sorted(expected_call_ids),
+        "profile": {
+            "revision": profile.revision,
+            "capacity": profile.capacity,
+            "queue_capacity": profile.queue_capacity,
+            "source": profile.source,
+            "authority": profile.authority,
+        },
+        "report_status": report_status,
+        "metric_status": api_status,
+        "counter_count": 1,
+        "duration_count": histogram_delta,
+        "cas_report_ref": report_ref.model_dump(mode="json"),
+        "run_manifest_ref": manifest_ref.model_dump(mode="json"),
+        "evidence_scope": "ephemeral_controlled_runtime_capture",
+        "deployment_receipt": False,
+    }
+    if receipt != expected_receipt:
+        raise ValueError("controlled_receipt_does_not_match_recomputed_sources")
+    return {
+        "status": "controlled_witness_verified",
+        "binding_id": binding_id,
+        "run_id": state_run_id,
+        "call_count": len(related),
+        "runtime_admission": "not_established",
+        "production_attainment": "not_established",
+        "evidence_scope": "ephemeral_controlled_runtime_capture",
+        "durable_deployment_receipt": False,
+    }
 
 
 def _component_bundle_policy(

@@ -32,6 +32,24 @@ runtime_action_input_with_method(permission, resource_class, authority, resource
 	},
 }
 
+owned_action_contracts := {
+	{"permission": permission, "resource_class": resource_class}
+	|
+	some permission
+	some resource_class, authorities in action_permission.action_contracts[permission]
+	"ownership_verified" in authorities
+}
+
+wrong_owned_action_contracts := {
+	{"permission": permission, "resource_class": resource_class, "authority": wrong_authority}
+	|
+	some permission
+	some resource_class, authorities in action_permission.action_contracts[permission]
+	"ownership_verified" in authorities
+	some wrong_authority in {"candidate", "tenant_collection"}
+	not wrong_authority in authorities
+}
+
 runtime_service_read_input(path, resource_tenant, grants, source) := {
 	"request": {
 		"method": "GET",
@@ -57,6 +75,47 @@ test_allows_exact_permission_resource_authority_contract if {
 		"tenant-a",
 		["runs.launch"],
 	)
+}
+
+test_every_ownership_verified_contract_requires_exact_grant_and_tenant if {
+	count(owned_action_contracts) > 0
+	every contract in owned_action_contracts {
+		action_permission.allow with input as runtime_action_input(
+			contract.permission,
+			contract.resource_class,
+			"ownership_verified",
+			"tenant-a",
+			[contract.permission],
+		)
+		not action_permission.allow with input as runtime_action_input(
+			contract.permission,
+			contract.resource_class,
+			"ownership_verified",
+			"tenant-a",
+			[],
+		)
+		not action_permission.allow with input as runtime_action_input(
+			contract.permission,
+			contract.resource_class,
+			"ownership_verified",
+			"tenant-b",
+			[contract.permission],
+		)
+	}
+}
+
+test_every_ownership_verified_contract_rejects_tenant_compatible_wrong_authority if {
+	count(owned_action_contracts) > 0
+	count(wrong_owned_action_contracts) > 0
+	every contract in wrong_owned_action_contracts {
+		not action_permission.allow with input as runtime_action_input(
+			contract.permission,
+			contract.resource_class,
+			contract.authority,
+			"tenant-a",
+			[contract.permission],
+		)
+	}
 }
 
 test_allows_candidate_predictive_calibration_write_for_run_owner if {

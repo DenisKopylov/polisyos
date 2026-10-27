@@ -11,7 +11,7 @@ from copy import deepcopy
 from datetime import UTC, datetime
 from typing import Any
 
-from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo, InputRef, SchemaInfo
 from polisyos.core.artifacts.protocol import require_return_selected_profile_writer
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, truncated_hash
@@ -962,6 +962,7 @@ def persist_method_catalog_snapshot(
     snapshot: MethodCatalogSnapshot,
     *,
     inputs: list[InputRef] | None = None,
+    tenant_context: ArtifactTenantContextInfo | None = None,
 ) -> MethodCatalogSnapshotRef:
     """Persist a catalog snapshot with the profile selected by this producer write."""
     require_return_selected_profile_writer(store, "put_json")
@@ -972,6 +973,7 @@ def persist_method_catalog_snapshot(
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.MethodCatalogSnapshot", version="2.0"),
             inputs=list(inputs or []),
+            tenant_context=tenant_context,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,

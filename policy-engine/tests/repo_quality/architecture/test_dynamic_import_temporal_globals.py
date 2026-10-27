@@ -378,3 +378,261 @@ importlib = None
         match="deferred source effects cross a proven importer rebind",
     ):
         _scan_temporal_source(preflight, tmp_path, monkeypatch, source_text=source_text)
+
+
+@pytest.mark.parametrize(
+    "source_text",
+    [
+        (
+            "from pkgutil import extend_path\n"
+            "__path__ = extend_path(__path__, __name__)\n"
+            "import importlib\n"
+        ),
+        ("import pkgutil\n__path__ = pkgutil.extend_path(__path__, __name__)\nimport importlib\n"),
+        "opaque()\nimport importlib\n",
+    ],
+    ids=(
+        "direct-imported-path-helper",
+        "module-qualified-path-helper",
+        "generic-opaque-call",
+    ),
+)
+def test_unmodeled_call_before_first_importer_binding_does_not_taint_first_import(
+    source_text: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    entries = _scan_temporal_source(
+        preflight,
+        tmp_path,
+        monkeypatch,
+        source_text=source_text,
+    )
+    assert entries == []
+
+
+def test_unmodeled_call_after_importer_binding_still_rejects_rebind(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source_text = "import importlib\nopaque()\nimportlib = None\n"
+    with pytest.raises(preflight.DynamicImportCollectionError, match="inventory is incomplete"):
+        _scan_temporal_source(preflight, tmp_path, monkeypatch, source_text=source_text)
+
+
+def test_unmodeled_call_before_first_importer_binding_keeps_later_import_site(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source_text = 'opaque()\nimport importlib\nimportlib.import_module("polisyos.hidden")\n'
+    entries = _scan_temporal_source(
+        preflight,
+        tmp_path,
+        monkeypatch,
+        source_text=source_text,
+    )
+    assert [entry["pattern"] for entry in entries] == ["polisyos.hidden"]
+
+
+def test_unmodeled_call_after_unknown_importer_assignment_still_guards_later_change(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source_text = "importlib = resolve_importer()\nopaque()\nimport importlib\n"
+    with pytest.raises(
+        preflight.DynamicImportCollectionError,
+        match="unproven module-time dynamic-import namespace",
+    ):
+        _scan_temporal_source(
+            preflight,
+            tmp_path,
+            monkeypatch,
+            source_text=source_text,
+        )
+
+
+@pytest.mark.parametrize(
+    ("source_text", "expected"),
+    [
+        (
+            """import importlib as loader_namespace
+def safe():
+    return 1
+loader_namespace = None
+""",
+            [],
+        ),
+        (
+            """import importlib as loader_namespace
+def safe(loader_namespace):
+    return 1
+loader_namespace = None
+""",
+            [],
+        ),
+        (
+            """import importlib as used_namespace
+import importlib as unused_namespace
+def load_hidden():
+    used_namespace.import_module("polisyos.hidden")
+unused_namespace = None
+""",
+            ["polisyos.hidden"],
+        ),
+    ],
+    ids=("safe-constant", "local-shadow", "sibling-unused-importer"),
+)
+def test_deferred_rebind_guard_uses_scope_importer_reads(
+    source_text: str,
+    expected: list[str],
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    entries = _scan_temporal_source(
+        preflight,
+        tmp_path,
+        monkeypatch,
+        source_text=source_text,
+    )
+    assert [entry["pattern"] for entry in entries] == expected
+
+
+def test_deferred_rebind_guard_expands_nested_called_helper_and_closure_reads(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source_text = """import importlib as loader_namespace
+
+def dispatch():
+    captured_namespace = loader_namespace
+
+    def load_hidden():
+        return captured_namespace.import_module("polisyos.hidden")
+
+    load_hidden()
+
+loader_namespace = None
+"""
+    with pytest.raises(
+        preflight.DynamicImportCollectionError,
+        match="deferred source effects cross a proven importer rebind",
+    ):
+        _scan_temporal_source(preflight, tmp_path, monkeypatch, source_text=source_text)
+
+
+def test_deferred_read_dependency_expands_known_source_helper(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source_text = """import importlib as loader_namespace
+
+def helper():
+    return loader_namespace.import_module("polisyos.hidden")
+
+def dispatch():
+    helper()
+"""
+    for scope in ("src", "tools", "apps", "packages"):
+        (tmp_path / scope).mkdir(exist_ok=True)
+    (tmp_path / "architecture/imports").mkdir(parents=True, exist_ok=True)
+    package = tmp_path / "src/polisyos"
+    package.mkdir(parents=True, exist_ok=True)
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    consumer = package / "consumer.py"
+    consumer.write_text(source_text, encoding="utf-8")
+    monkeypatch.setattr(preflight, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(preflight, "SRC_ROOT", tmp_path / "src")
+    monkeypatch.setattr(
+        preflight, "DYNAMIC_IMPORTS_PATH", tmp_path / "architecture/imports/dynamic.toml"
+    )
+    source_paths = preflight._dynamic_source_paths("src")
+    source_context = preflight._dynamic_read_source_context(source_paths)
+    source_bindings = preflight._DynamicImportSourceBindings(
+        source_paths,
+        source_context=source_context,
+    )
+    scanner = preflight._DynamicImportSourceScanner(
+        consumer,
+        relative_path="src/polisyos/consumer.py",
+        source_bindings=source_bindings,
+        source_context=source_context,
+    )
+    tree = ast.parse(source_text, filename=str(consumer))
+    scanner.scan(tree)
+    dispatch = next(
+        node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == "dispatch"
+    )
+    deferred = preflight._PendingDynamicImportScope(
+        dispatch,
+        scanner._module_environment.copy(),
+        {},
+    )
+    assert "loader_namespace" in scanner._deferred_scope_importer_names(
+        deferred,
+        scanner._module_environment,
+    )
+
+
+def test_untransferred_source_call_tracks_aliased_importer_namespace_rebind(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def without_callsite_transfer(*args: object, **kwargs: object) -> None:
+        del args, kwargs
+        return None
+
+    source_text = """import importlib as loader_namespace
+
+def load_hidden() -> None:
+    loader_namespace.import_module("polisyos.hidden")
+
+load_hidden()
+loader_namespace = None
+"""
+    with monkeypatch.context() as patch:
+        patch.setattr(
+            preflight._DynamicImportSourceScanner,
+            "_source_function_call",
+            without_callsite_transfer,
+        )
+        with pytest.raises(preflight.DynamicImportCollectionError, match="inventory is incomplete"):
+            _scan_temporal_source(preflight, tmp_path, patch, source_text=source_text)
+
+
+def test_deferred_safe_scope_rebind_control_uses_public_collector_context(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    for scope in ("src", "tools", "apps", "packages"):
+        (tmp_path / scope).mkdir()
+    source_root = tmp_path / "src"
+    api_path = source_root / "polisyos/scientist/api.py"
+    api_path.parent.mkdir(parents=True)
+    (source_root / "polisyos/__init__.py").write_text("", encoding="utf-8")
+    (source_root / "polisyos/scientist/__init__.py").write_text("", encoding="utf-8")
+    source = (
+        "import importlib as loader_namespace\ndef safe():\n    return 1\nloader_namespace = None\n"
+    )
+    api_path.write_text(source, encoding="utf-8")
+    monkeypatch.setattr(preflight, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(preflight, "SRC_ROOT", source_root)
+    monkeypatch.setattr(
+        preflight,
+        "DYNAMIC_IMPORTS_PATH",
+        tmp_path / "architecture/imports/dynamic.toml",
+    )
+    source_paths = preflight._dynamic_source_paths("src", "tools", "apps", "packages")
+    source_context = preflight._dynamic_read_source_context(source_paths)
+    assert any(member.path == api_path for member in source_context.members)
+    monkeypatch.setattr(
+        preflight,
+        "_dynamic_source_paths",
+        lambda *_scopes: source_paths,
+    )
+    monkeypatch.setattr(
+        preflight,
+        "_dynamic_read_source_context",
+        lambda _paths: source_context,
+    )
+
+    assert preflight.collect_dynamic_imports() == []

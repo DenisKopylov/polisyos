@@ -1037,7 +1037,7 @@ def _snapshot_manifest_value(
 
     from polisyos.core.artifacts.ids import ArtifactID
     from polisyos.core.artifacts.manifest import EnvInfo, GitInfo, ProducerInfo
-    from polisyos.core.components.ids import ComponentId
+    from polisyos.core.components import ComponentId
     from polisyos.core.run.manifest import RunManifest
 
     model_type = type(value)
@@ -1299,6 +1299,7 @@ class _EngineNodeRunView(_RunContext):
             "read_runtime_invocation_attempts",
             "read_runtime_owner_output_refs",
             "read_runtime_workflow_finalization_ref",
+            "artifact_tenant_context",
         }
     )
     _LOCAL_METHODS = frozenset(

@@ -6,6 +6,8 @@ import csv
 import hashlib
 import io
 import json
+import subprocess
+import sys
 import tomllib
 import zipfile
 from pathlib import Path
@@ -187,6 +189,176 @@ def _make_case(
         "installation_policy": {"max_download_bytes": gate.MAX_TOTAL_BYTES},
     }
     return lock, wheels, releases
+
+
+def _probe_environment(tmp_path: Path, lock: dict[str, Any]) -> tuple[Path, Path, Path]:
+    prefix = tmp_path / "probe-venv"
+    binary = prefix / "bin"
+    binary.mkdir(parents=True)
+    python = binary / "python"
+    python.symlink_to(Path(sys.executable))
+    purelib = tmp_path / "probe-site-packages"
+    purelib.mkdir()
+    for row in lock["artifacts"]:
+        normalized = row["name"].replace("-", "_")
+        dist_info = purelib / f"{normalized}-{row['version']}.dist-info"
+        dist_info.mkdir()
+        (dist_info / "METADATA").write_text(
+            f"Metadata-Version: 2.1\nName: {row['name']}\nVersion: {row['version']}\n\n",
+            encoding="utf-8",
+        )
+    package = purelib / "hatchling"
+    package.mkdir()
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    (package / "cli.py").write_text("def hatchling():\n    return 0\n", encoding="utf-8")
+    return prefix, purelib, python
+
+
+def _locked_launcher_body(lock: dict[str, Any]) -> str:
+    definition = lock["build_backend"]["installer_entry_point"].split("=", 1)[1].strip()
+    module, callable_name = definition.split(":", 1)
+    return "\n".join(
+        (
+            "# -*- coding: utf-8 -*-",
+            "import sys",
+            f"from {module} import {callable_name}",
+            'if __name__ == "__main__":',
+            '    if sys.argv[0].endswith("-script.pyw"):',
+            "        sys.argv[0] = sys.argv[0][:-11]",
+            '    elif sys.argv[0].endswith(".exe"):',
+            "        sys.argv[0] = sys.argv[0][:-4]",
+            f"    sys.exit({callable_name}())",
+        )
+    )
+
+
+def _shell_quote_path(path: Path) -> str:
+    return "'" + str(path).replace("'", "'\\\"'\\\"'\\\"'") + "'"
+
+
+def _write_locked_launcher(
+    prefix: Path,
+    lock: dict[str, Any],
+    *,
+    kind: str,
+    target: Path | None = None,
+    shell_prelude: str | None = None,
+    body: str | None = None,
+) -> Path:
+    label = lock["build_backend"]["installer_entry_point"].split("=", 1)[0].strip()
+    script = prefix / "bin" / label
+    selected_target = target or prefix / "bin" / "python"
+    source = _locked_launcher_body(lock) if body is None else body
+    if kind == "python-shebang":
+        raw = f"#!{selected_target}\n{source}\n"
+    elif kind == "posix-shell-trampoline":
+        lines = ["#!/bin/sh"]
+        if shell_prelude is not None:
+            lines.append(shell_prelude)
+        lines.extend(
+            (
+                "'" * 3 + "exec' " + _shell_quote_path(selected_target) + ' "$0" "$@"',
+                "'" + " " + "'" * 3,
+                *source.splitlines(),
+            )
+        )
+        raw = "\n".join(lines) + "\n"
+    else:
+        raise AssertionError(f"unsupported test launcher kind: {kind}")
+    script.write_text(raw, encoding="utf-8")
+    return script
+
+
+def _probe_for_paths(lock: dict[str, Any], prefix: Path, purelib: Path) -> str:
+    source = gate.installed_probe_code(lock)
+    replacements = (
+        (
+            'purelib = Path(sysconfig.get_paths()["purelib"]).resolve()',
+            f"purelib = Path({str(purelib)!r}).resolve()",
+        ),
+        (
+            "prefix = Path(sys.prefix).resolve()",
+            f"prefix = Path({str(prefix)!r}).resolve()",
+        ),
+    )
+    for old, new in replacements:
+        if source.count(old) != 1:
+            raise AssertionError(f"probe path binding is not unique: {old}")
+        source = source.replace(old, new)
+    return source
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="the Q2 launcher profile is POSIX")
+@pytest.mark.parametrize("kind", ["python-shebang", "posix-shell-trampoline"])
+def test_installed_probe_recomputes_locked_launcher_target_and_ast(
+    tmp_path: Path, kind: str
+) -> None:
+    lock, _, _ = _make_case()
+    prefix, purelib, python = _probe_environment(tmp_path, lock)
+    _write_locked_launcher(prefix, lock, kind=kind)
+    result = subprocess.run(
+        [str(python), "-I", "-S", "-B", "-c", _probe_for_paths(lock, prefix, purelib)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    receipt = json.loads(result.stdout)
+    assert receipt["verified"] is True
+    assert receipt["entrypoint"] == str(prefix / "bin" / "hatchling")
+    assert receipt["entrypoint_locked_spec"] == lock["build_backend"]["installer_entry_point"]
+    assert receipt["entrypoint_launcher_kind"] == kind
+    assert receipt["entrypoint_target"] == str(python)
+    assert receipt["entrypoint_target_resolved"] == str(Path(sys.executable).resolve())
+    assert receipt["entrypoint_ast_sha256"]
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="the Q2 launcher profile is POSIX")
+@pytest.mark.parametrize(
+    ("mutation", "expected_error"),
+    [
+        ("foreign-python", "shell trampoline differs from the closed launcher form"),
+        ("injected-shell-command", "shell trampoline differs from the closed launcher form"),
+        ("extra-python-body", "Python body differs from the locked console target"),
+        ("wrong-call", "Python body differs from the locked console target"),
+    ],
+)
+def test_installed_probe_rejects_launcher_tampering_without_execution(
+    tmp_path: Path, mutation: str, expected_error: str
+) -> None:
+    lock, _, _ = _make_case()
+    prefix, purelib, python = _probe_environment(tmp_path, lock)
+    body = _locked_launcher_body(lock)
+    sentinel = tmp_path / "entrypoint-was-executed"
+    shell_prelude = None
+    target = python
+    if mutation == "foreign-python":
+        target = prefix / "bin" / "foreign-python"
+    elif mutation == "injected-shell-command":
+        shell_prelude = f"/usr/bin/touch '{sentinel}'"
+    elif mutation == "extra-python-body":
+        injected = f"from pathlib import Path\nPath({str(sentinel)!r}).write_text('ran')\n"
+        body = body.replace("import sys\n", "import sys\n" + injected, 1)
+    elif mutation == "wrong-call":
+        body = body.replace("sys.exit(hatchling())", "sys.exit(0)", 1)
+    _write_locked_launcher(
+        prefix,
+        lock,
+        kind="posix-shell-trampoline",
+        target=target,
+        shell_prelude=shell_prelude,
+        body=body,
+    )
+
+    result = subprocess.run(
+        [str(python), "-I", "-S", "-B", "-c", _probe_for_paths(lock, prefix, purelib)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode != 0
+    assert expected_error in result.stderr
+    assert not sentinel.exists()
 
 
 def _refresh_artifact(

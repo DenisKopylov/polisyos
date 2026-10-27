@@ -45,7 +45,6 @@ from polisyos.ir.kernel.metrics import (
 from polisyos.runtime.http.services.control.artifacts import (
     _make_artifact_ref,
     _resolve_curated_dir,
-    _typed_artifact_ref,
     write_runtime_authority_artifact,
 )
 from polisyos.runtime.http.services.control.production_data import (
@@ -195,11 +194,16 @@ def _cost_number(value: object) -> float | None:
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore, AsyncArtifactStore
-    from polisyos.core.artifacts.manifest import InputRef
+    from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo, InputRef
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+    from polisyos.core.canon import CanonSpec
     from polisyos.core.contracts import CatalogRunProfile
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.retrieval import RetrievalProviders
-    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.http.services.control_plane_store import (
+        ControlJobExecutionScope,
+        ControlPlaneStore,
+    )
     from polisyos.runtime.quality.epoch_certificate_issuance import (
         DecisionPacketEpochIssuanceOwner,
     )
@@ -221,6 +225,41 @@ class NaturalLanguagePipelineRefusalError(RuntimeError):
     def __init__(self, code: str, message: str | None = None) -> None:
         self.code = code
         super().__init__(f"{code}:{message or code}")
+
+
+def _register_runtime_quality_selected_output_ref(
+    *,
+    ref_key: str,
+    selected_ref: ArtifactRef,
+    runtime_quality_refs: dict[str, str],
+    runtime_quality_artifact_refs: dict[str, ArtifactRef],
+    expected_kind: str,
+    expected_media_type: str,
+    expected_artifact_id: str | None = None,
+) -> str:
+    """Register one writer-selected CAS view and its matching runtime reference."""
+    if (
+        type(selected_ref) is not ArtifactRef
+        or selected_ref.kind != expected_kind
+        or selected_ref.media_type != expected_media_type
+        or not selected_ref.manifest_profile_sha256
+        or (
+            expected_artifact_id is not None
+            and (
+                type(expected_artifact_id) is not str
+                or str(selected_ref.artifact_id) != expected_artifact_id
+            )
+        )
+    ):
+        raise NaturalLanguagePipelineRefusalError(
+            "runtime_quality_same_input_identity_not_established",
+            f"Runtime quality output {ref_key} lacks its exact selected CAS view.",
+        )
+
+    artifact_id = str(selected_ref.artifact_id)
+    runtime_quality_artifact_refs[ref_key] = selected_ref
+    runtime_quality_refs[ref_key] = artifact_id
+    return artifact_id
 
 
 class _NLProductionAuthorityStamp(BaseModel):
@@ -1632,6 +1671,342 @@ def _reconcile_materialization_input_basis(
     return existing_basis
 
 
+def _runtime_quality_report_cas_publication_is_admitted(
+    *,
+    artifact_store: ArtifactStore | None,
+    selected_ref: ArtifactRef | None,
+    runtime_ref: str | None,
+    report_key: str,
+    ref_key: str,
+    report: Mapping[str, Any],
+    envelope: Mapping[str, Any] | None,
+    expected_write_options: object = None,
+    expected_identity_context: object = None,
+) -> bool:
+    """Require the existing runtime-quality CAS owner gate for a selected report view."""
+    from polisyos.runtime.quality.authority import runtime_quality_report_cas_admission_issues
+
+    return not runtime_quality_report_cas_admission_issues(
+        artifact_store=artifact_store,
+        selected_ref=selected_ref,
+        runtime_ref=runtime_ref,
+        report_key=report_key,
+        ref_key=ref_key,
+        report=report,
+        envelope=envelope,
+        expected_write_options=expected_write_options,
+        expected_identity_context=expected_identity_context,
+    )
+
+
+def _runtime_quality_historical_report_materialization_input_is_verified(
+    item: InputRef,
+    *,
+    report_key: str,
+    ref_key: str,
+    artifact_store: ArtifactStore | None,
+    tenant_context: ArtifactTenantContextInfo,
+    current_publication_verifier: Callable[[_RuntimeQualityReportPublicationBasis], bool],
+) -> bool:
+    """Rebuild a historical report publication only from its exact selected CAS lineage."""
+    contract = runtime_quality_report_owner_contract(report_key, ref_key)
+    from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo as TenantContext
+
+    if (
+        contract is None
+        or item.role != ref_key.removesuffix("_ref")
+        or item.manifest_profile_sha256 is None
+        or artifact_store is None
+        or type(tenant_context) is not TenantContext
+    ):
+        return False
+    from polisyos.core.artifacts import (
+        artifact_manifest_profile_sha256,
+        artifact_ref_for_manifest,
+        read_core_manifest_profile,
+        resolve_authority_envelope_ref,
+    )
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.authority_reconciliation import (
+        resolve_authority_diagnostic_event_ref,
+    )
+    from polisyos.runtime.quality.diagnostic_events import (
+        DIAGNOSTIC_EVENT_ARTIFACT_KIND,
+        DIAGNOSTIC_EVENT_SCHEMA_NAME,
+        DIAGNOSTIC_EVENT_SCHEMA_VERSION,
+    )
+
+    try:
+        selected_ref = ArtifactRef(
+            artifact_id=item.artifact_id,
+            kind=contract.artifact_kind,
+            media_type=contract.media_type,
+            manifest_profile_sha256=item.manifest_profile_sha256,
+        )
+        with tenant_scope(None, tenant_id=tenant_context.tenant_id, cell_id=tenant_context.cell_id):
+            if not artifact_store.verify(selected_ref).ok:
+                return False
+            manifest, declaration = read_core_manifest_profile(
+                artifact_store, selected_ref, manifest_profile_sha256=item.manifest_profile_sha256
+            )
+            if (
+                declaration.status != "declared"
+                or artifact_manifest_profile_sha256(manifest) != item.manifest_profile_sha256
+                or artifact_ref_for_manifest(manifest).model_dump(mode="json")
+                != selected_ref.model_dump(mode="json")
+                or manifest.tenant_context != tenant_context
+                or manifest.authority is None
+            ):
+                return False
+            stored_payload = require_declared_profile(
+                read_core_json_artifact(
+                    artifact_store,
+                    selected_ref,
+                    manifest_profile_sha256=item.manifest_profile_sha256,
+                )
+            )
+            if not isinstance(stored_payload, Mapping):
+                return False
+
+            authority = manifest.authority
+            envelope_ref = resolve_authority_envelope_ref(artifact_store, authority)
+            envelope_profile = authority.authority_envelope_manifest_profile_sha256
+            if envelope_profile is None or envelope_ref.manifest_profile_sha256 != envelope_profile:
+                return False
+            envelope_manifest, envelope_declaration = read_core_manifest_profile(
+                artifact_store, envelope_ref, manifest_profile_sha256=envelope_profile
+            )
+            envelope_payload = require_declared_profile(
+                read_core_json_artifact(
+                    artifact_store, envelope_ref, manifest_profile_sha256=envelope_profile
+                )
+            )
+            if (
+                envelope_declaration.status != "declared"
+                or envelope_manifest.artifact_id != envelope_ref.artifact_id
+                or not isinstance(envelope_payload, Mapping)
+            ):
+                return False
+
+            event_ref = resolve_authority_diagnostic_event_ref(artifact_store, authority)
+            event_profile = authority.diagnostic_event_manifest_profile_sha256
+            if event_profile is None or event_ref.manifest_profile_sha256 != event_profile:
+                return False
+            event_manifest, event_declaration = read_core_manifest_profile(
+                artifact_store, event_ref, manifest_profile_sha256=event_profile
+            )
+            event_payload = require_declared_profile(
+                read_core_json_artifact(
+                    artifact_store,
+                    event_ref,
+                    manifest_profile_sha256=event_profile,
+                )
+            )
+            if (
+                event_declaration.status != "declared"
+                or event_manifest.artifact_id != event_ref.artifact_id
+                or event_manifest.kind != DIAGNOSTIC_EVENT_ARTIFACT_KIND
+                or event_manifest.artifact_schema is None
+                or event_manifest.artifact_schema.name != DIAGNOSTIC_EVENT_SCHEMA_NAME
+                or event_manifest.artifact_schema.version != DIAGNOSTIC_EVENT_SCHEMA_VERSION
+                or not isinstance(event_payload, Mapping)
+            ):
+                return False
+
+            selected_id = str(selected_ref.artifact_id)
+            expected_event_context = {
+                "event_type": "polisyos.runtime.diagnostic.cas_write.v1",
+                "run_id": envelope_payload.get("run_id"),
+                "job_id": envelope_payload.get("job_id"),
+                "tenant_id": envelope_payload.get("tenant_id"),
+                "cell_id": envelope_payload.get("cell_id"),
+                "trace_id": envelope_payload.get("trace_id"),
+                "span_id": envelope_payload.get("span_id"),
+                "parent_span_id": envelope_payload.get("parent_span_id"),
+                "execution_profile": envelope_payload.get("effective_execution_profile"),
+                "phase": contract.phase,
+                "producer_component": contract.producer_component,
+                "producer_version": contract.producer_version,
+                "input_refs": [str(input_ref.artifact_id) for input_ref in manifest.inputs],
+                "artifact_refs": [selected_id],
+            }
+            if any(
+                event_payload.get(key) != value for key, value in expected_event_context.items()
+            ):
+                return False
+
+            basis = _build_runtime_quality_report_publication_basis(
+                report_key=report_key,
+                ref_key=ref_key,
+                report_payload=stored_payload,
+                artifact_ref=selected_ref.model_dump(mode="json"),
+                runtime_event_ref=authority.diagnostic_event_ref,
+                runtime_event_manifest_profile_sha256=event_profile,
+                authority_envelope_ref=authority.authority_envelope_ref,
+                authority_envelope=envelope_payload,
+                manifest_ref=authority.manifest_ref,
+                payload_sha256=authority.payload_sha256,
+            )
+            if not current_publication_verifier(basis):
+                return False
+            return _runtime_quality_report_cas_publication_is_admitted(
+                artifact_store=artifact_store,
+                selected_ref=selected_ref,
+                runtime_ref=selected_id,
+                report_key=report_key,
+                ref_key=ref_key,
+                report=_runtime_quality_report_publication_view(basis),
+                envelope=envelope_payload,
+            )
+    except Exception:
+        return False
+
+
+async def _put_nl_tenant_owned_json(
+    artifact_store: AsyncArtifactStore,
+    payload: object,
+    options: ArtifactWriteOptions,
+    *,
+    tenant_context: ArtifactTenantContextInfo,
+    canon_spec: CanonSpec | None = None,
+    return_selected_profile: bool = False,
+) -> ArtifactRef:
+    """Persist one NL child artifact under the execution's admitted tenant owner."""
+    from dataclasses import replace as dataclass_replace
+
+    from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo as TenantContext
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    if type(tenant_context) is not TenantContext:
+        raise RuntimeError("nl_child_artifact_tenant_context_not_established")
+    if options.tenant_context is not None and options.tenant_context != tenant_context:
+        raise RuntimeError("nl_child_artifact_tenant_context_mismatch")
+    scoped_options = dataclass_replace(options, tenant_context=tenant_context)
+    with tenant_scope(None, tenant_id=tenant_context.tenant_id, cell_id=tenant_context.cell_id):
+        return await artifact_store.put_json(
+            payload,
+            scoped_options,
+            canon_spec=canon_spec,
+            return_selected_profile=return_selected_profile,
+        )
+
+
+def _runtime_quality_report_materialization_input_is_verified(
+    item: InputRef,
+    *,
+    output_report_key: str | None,
+    reissuable_report_roles: frozenset[str],
+    runtime_quality_refs: Mapping[str, object],
+    runtime_quality_artifact_refs: Mapping[str, object],
+    current_publication_verifier: Callable[[str, str, str], bool],
+    historical_publication_verifier: Callable[[str, str, InputRef], bool] | None = None,
+) -> bool:
+    """Verify current report edges and admitted historical same-report predecessors."""
+    if item.role not in reissuable_report_roles:
+        return False
+    for sibling_report_key, sibling_ref_key in QUALITY_REPORT_RUNTIME_REFS.items():
+        if item.role != sibling_ref_key.removesuffix("_ref"):
+            continue
+        contract = runtime_quality_report_owner_contract(sibling_report_key, sibling_ref_key)
+        selected_ref = runtime_quality_artifact_refs.get(sibling_ref_key)
+        if (
+            contract is None
+            or type(selected_ref) is not ArtifactRef
+            or selected_ref.manifest_profile_sha256 is None
+            or selected_ref.kind != contract.artifact_kind
+            or selected_ref.media_type != contract.media_type
+            or runtime_quality_refs.get(sibling_ref_key) != str(selected_ref.artifact_id)
+        ):
+            continue
+        if sibling_report_key == output_report_key:
+            # The current output is never its own source edge. A distinct historical view may be
+            # restored only after rebuilding its registered owner publication from CAS.
+            if (
+                item.artifact_id == selected_ref.artifact_id
+                or historical_publication_verifier is None
+            ):
+                continue
+            try:
+                return historical_publication_verifier(sibling_report_key, sibling_ref_key, item)
+            except Exception:
+                return False
+        if (
+            item.artifact_id != selected_ref.artifact_id
+            or item.manifest_profile_sha256 != selected_ref.manifest_profile_sha256
+        ):
+            continue
+        try:
+            return current_publication_verifier(
+                sibling_report_key,
+                sibling_ref_key,
+                str(selected_ref.artifact_id),
+            )
+        except Exception:
+            return False
+    return False
+
+
+def _restore_frozen_materialization_report_inputs(
+    current_inputs: Sequence[InputRef],
+    *,
+    existing_basis: tuple[tuple[InputRef, ...], frozenset[str]] | None,
+    persisted_output_inputs: Sequence[InputRef],
+    reissuable_report_roles: frozenset[str],
+    verified_reissuable_report_refs: frozenset[tuple[str, str, str | None]],
+) -> tuple[tuple[InputRef, ...], frozenset[str]]:
+    """Restore omitted report edges only from the exact previously frozen CAS basis."""
+    if existing_basis is None:
+        return tuple(current_inputs), frozenset()
+
+    frozen_inputs, _refs_present_at_freeze = existing_basis
+    if tuple(persisted_output_inputs) != frozen_inputs:
+        raise RuntimeError("auto_materialization_input_basis_changed")
+
+    missing_inputs = tuple(item for item in frozen_inputs if item not in current_inputs)
+    if any(
+        item.role not in reissuable_report_roles
+        or (
+            str(item.artifact_id),
+            item.role,
+            item.manifest_profile_sha256,
+        )
+        not in verified_reissuable_report_refs
+        for item in missing_inputs
+    ):
+        raise RuntimeError("auto_materialization_input_basis_changed")
+
+    current_frozen_inputs = tuple(item for item in current_inputs if item in frozen_inputs)
+    frozen_current_inputs = tuple(item for item in frozen_inputs if item in current_inputs)
+    if current_frozen_inputs != frozen_current_inputs:
+        raise RuntimeError("auto_materialization_input_basis_changed")
+
+    restored_inputs = list(current_inputs)
+    for missing in missing_inputs:
+        frozen_index = frozen_inputs.index(missing)
+        following = next(
+            (item for item in frozen_inputs[frozen_index + 1 :] if item in restored_inputs),
+            None,
+        )
+        if following is not None:
+            insert_at = restored_inputs.index(following)
+        else:
+            preceding = next(
+                (
+                    item
+                    for item in reversed(frozen_inputs[:frozen_index])
+                    if item in restored_inputs
+                ),
+                None,
+            )
+            insert_at = restored_inputs.index(preceding) + 1 if preceding is not None else 0
+        restored_inputs.insert(insert_at, missing)
+
+    return (
+        tuple(restored_inputs),
+        frozenset(str(item.artifact_id) for item in missing_inputs),
+    )
+
+
 class _RuntimeQualityPublicationCandidate(NamedTuple):
     """Persisted writer identity offered only as a fully checked replay candidate."""
 
@@ -1922,6 +2297,7 @@ def _runtime_quality_current_publisher_output_is_verified(
     bindings = [
         (binding[1], binding[2], binding[3], binding[4], binding[5])
         for binding in RUNTIME_QUALITY_PUBLICATION_CLOSURE_REFERENCE_BINDINGS
+        if binding[1] is not None
     ]
     bindings.append(RUNTIME_QUALITY_PUBLICATION_SEMANTIC_BINDING_REFERENCE_BINDING)
     if (
@@ -2283,20 +2659,24 @@ def _runtime_quality_closure_reference_values(
         expected_schema_name,
         expected_schema_version,
     ) in RUNTIME_QUALITY_PUBLICATION_CLOSURE_REFERENCE_BINDINGS:
-        current_value = _runtime_quality_current_reference_value(
-            runtime_quality_refs.get(current_key),
-            has_current_value=current_key in runtime_quality_refs,
-            current_inputs=current_inputs,
-            current_artifact_refs=current_artifact_refs,
-            current_map_value_present=current_key in runtime_quality_refs,
-            artifact_store=artifact_store,
-            current_ref_key=current_key,
-            expected_role=expected_role,
-            expected_kind=expected_kind,
-            expected_schema_name=expected_schema_name,
-            expected_schema_version=expected_schema_version,
-            field_name=current_key,
-            current_report_verifier=current_report_verifier,
+        current_value = (
+            None
+            if current_key is None
+            else _runtime_quality_current_reference_value(
+                runtime_quality_refs.get(current_key),
+                has_current_value=current_key in runtime_quality_refs,
+                current_inputs=current_inputs,
+                current_artifact_refs=current_artifact_refs,
+                current_map_value_present=current_key in runtime_quality_refs,
+                artifact_store=artifact_store,
+                current_ref_key=current_key,
+                expected_role=expected_role,
+                expected_kind=expected_kind,
+                expected_schema_name=expected_schema_name,
+                expected_schema_version=expected_schema_version,
+                field_name=current_key,
+                current_report_verifier=current_report_verifier,
+            )
         )
         candidate_value = getattr(candidate, closure_field) if candidate is not None else None
         if candidate is not None and current_value != candidate_value:
@@ -2316,6 +2696,167 @@ def _runtime_quality_closure_reference_values(
     return selected
 
 
+def _runtime_quality_semantic_binding_payload_identity(
+    payload: Mapping[str, Any],
+    *,
+    field_name: str,
+) -> str:
+    """Recompute the ledger's content identity without confusing it with its CAS ref."""
+    source_payload = dict(payload)
+    marker_present = "runtime_authority_payload" in source_payload
+    supplied_marker = source_payload.pop("runtime_authority_payload", None)
+    expected_marker = runtime_quality_report_owner_marker(
+        "semantic_binding_ledger",
+        "semantic_binding_ledger_ref",
+    )
+    if marker_present and supplied_marker != expected_marker:
+        raise NaturalLanguagePipelineRefusalError(
+            "runtime_quality_same_input_identity_not_established",
+            "Runtime quality semantic binding payload has an invalid owner marker.",
+        )
+
+    declared_identity = _validated_runtime_quality_reference(
+        source_payload.get("semantic_binding_ref"),
+        field_name=field_name,
+    )
+    from polisyos.runtime.quality.semantic_binding import close_semantic_binding_ledger
+
+    try:
+        recomputed_payload = close_semantic_binding_ledger(
+            {**source_payload, "semantic_binding_ref": "pending"}
+        )
+    except Exception as exc:
+        raise NaturalLanguagePipelineRefusalError(
+            "runtime_quality_same_input_identity_not_established",
+            "Runtime quality semantic binding content could not be recomputed.",
+        ) from exc
+    if recomputed_payload.get("semantic_binding_ref") != declared_identity:
+        raise NaturalLanguagePipelineRefusalError(
+            "runtime_quality_same_input_identity_not_established",
+            "Runtime quality semantic binding digest differs from its content.",
+        )
+    return declared_identity
+
+
+def _runtime_quality_selected_semantic_binding_identity(
+    *,
+    runtime_quality_refs: Mapping[str, object],
+    current_inputs: Sequence[object],
+    current_artifact_refs: Mapping[str, object] | None,
+    artifact_store: ArtifactStore | None,
+    current_report_verifier: Callable[[str, str], bool] | None,
+) -> str | None:
+    """Resolve a typed CAS owner and recompute the semantic identity from its payload."""
+    from polisyos.core.artifacts import ArtifactRef, InputRef
+
+    (
+        current_ref_key,
+        expected_role,
+        expected_kind,
+        expected_schema_name,
+        expected_schema_version,
+    ) = RUNTIME_QUALITY_PUBLICATION_SEMANTIC_BINDING_REFERENCE_BINDING
+    current_map_value_present = current_ref_key in runtime_quality_refs
+    selected_artifact_id = _runtime_quality_current_reference_value(
+        runtime_quality_refs.get(current_ref_key),
+        has_current_value=current_map_value_present,
+        current_inputs=current_inputs,
+        current_artifact_refs=current_artifact_refs,
+        current_map_value_present=current_map_value_present,
+        artifact_store=artifact_store,
+        current_ref_key=current_ref_key,
+        expected_role=expected_role,
+        expected_kind=expected_kind,
+        expected_schema_name=expected_schema_name,
+        expected_schema_version=expected_schema_version,
+        field_name=current_ref_key,
+        current_report_verifier=current_report_verifier,
+    )
+    if selected_artifact_id is None:
+        return None
+
+    selected_ref = (
+        current_artifact_refs.get(current_ref_key) if current_artifact_refs is not None else None
+    )
+    if type(selected_ref) is not ArtifactRef:
+        matching_inputs = [
+            item
+            for item in current_inputs
+            if type(item) is InputRef
+            and item.role == expected_role
+            and str(item.artifact_id) == selected_artifact_id
+        ]
+        if len(matching_inputs) != 1:
+            raise NaturalLanguagePipelineRefusalError(
+                "runtime_quality_same_input_identity_not_established",
+                "Runtime quality semantic binding selected input is ambiguous or absent.",
+            )
+        input_ref = matching_inputs[0]
+        profile = input_ref.manifest_profile_sha256
+        if not isinstance(profile, str) or not profile:
+            raise NaturalLanguagePipelineRefusalError(
+                "runtime_quality_same_input_identity_not_established",
+                "Runtime quality semantic binding selected input lacks a manifest profile.",
+            )
+        selected_ref = ArtifactRef(
+            artifact_id=input_ref.artifact_id,
+            kind=expected_kind,
+            media_type="application/json",
+            manifest_profile_sha256=profile,
+        )
+    if (
+        type(selected_ref) is not ArtifactRef
+        or str(selected_ref.artifact_id) != selected_artifact_id
+        or selected_ref.kind != expected_kind
+        or selected_ref.media_type != "application/json"
+        or not selected_ref.manifest_profile_sha256
+    ):
+        raise NaturalLanguagePipelineRefusalError(
+            "runtime_quality_same_input_identity_not_established",
+            "Runtime quality semantic binding selected CAS view is incomplete.",
+        )
+    if artifact_store is None:
+        raise NaturalLanguagePipelineRefusalError(
+            "runtime_quality_same_input_identity_not_established",
+            "Runtime quality semantic binding CAS payload is unavailable for readback.",
+        )
+    try:
+        selected_payload = read_core_json_artifact(
+            artifact_store,
+            selected_ref,
+            manifest_profile_sha256=selected_ref.manifest_profile_sha256,
+        ).value
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise NaturalLanguagePipelineRefusalError(
+            "runtime_quality_same_input_identity_not_established",
+            "Runtime quality semantic binding selected CAS payload failed readback.",
+        ) from exc
+    if not isinstance(selected_payload, Mapping):
+        raise NaturalLanguagePipelineRefusalError(
+            "runtime_quality_same_input_identity_not_established",
+            "Runtime quality semantic binding selected CAS payload is not an object.",
+        )
+    return _runtime_quality_semantic_binding_payload_identity(
+        selected_payload,
+        field_name="selected semantic binding ledger semantic_binding_ref",
+    )
+
+
+def _normalize_runtime_quality_same_input_closure(
+    value: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Serialize every declared same-input closure field using its typed defaults."""
+    from polisyos.runtime.quality.authority import SameInputClosure
+
+    try:
+        return SameInputClosure.model_validate(dict(value)).model_dump(mode="json")
+    except (TypeError, ValueError) as exc:
+        raise NaturalLanguagePipelineRefusalError(
+            "runtime_quality_same_input_identity_not_established",
+            "Runtime quality same-input closure is malformed.",
+        ) from exc
+
+
 def _runtime_quality_semantic_binding_reference(
     *,
     report_payload: Mapping[str, Any] | None,
@@ -2329,57 +2870,75 @@ def _runtime_quality_semantic_binding_reference(
     artifact_store: ArtifactStore | None = None,
     current_report_verifier: Callable[[str, str], bool] | None = None,
 ) -> str | None:
-    """Resolve semantic binding from current typed input or owner-verified CAS evidence."""
-    current_refs: list[str] = []
+    """Bind the semantic digest to a checked ledger, separately from its CAS locator."""
+    (
+        current_ref_key,
+        _expected_role,
+        _expected_kind,
+        _expected_schema_name,
+        _expected_schema_version,
+    ) = RUNTIME_QUALITY_PUBLICATION_SEMANTIC_BINDING_REFERENCE_BINDING
+    current_identity_values: list[str] = []
     if explicit_ref is not None:
-        current_refs.append(
+        current_identity_values.append(
             _validated_runtime_quality_reference(
                 explicit_ref,
                 field_name="explicit semantic_binding_ref",
             )
         )
     if report_payload is not None and "semantic_binding_ref" in report_payload:
-        current_refs.append(
+        current_identity_values.append(
             _validated_runtime_quality_reference(
                 report_payload["semantic_binding_ref"],
                 field_name="report semantic_binding_ref",
             )
         )
-    (
-        map_key,
-        expected_role,
-        expected_kind,
-        expected_schema_name,
-        expected_schema_version,
-    ) = RUNTIME_QUALITY_PUBLICATION_SEMANTIC_BINDING_REFERENCE_BINDING
-    if map_key in runtime_quality_refs:
-        current_refs.append(
-            _validated_runtime_quality_reference(
-                runtime_quality_refs[map_key],
-                field_name=map_key,
-            )
-        )
-    if current_refs and any(value != current_refs[0] for value in current_refs[1:]):
+    if current_identity_values and any(
+        value != current_identity_values[0] for value in current_identity_values[1:]
+    ):
         raise NaturalLanguagePipelineRefusalError(
             "runtime_quality_same_input_identity_not_established",
             "Runtime quality semantic binding sources disagree.",
         )
 
-    current_value = _runtime_quality_current_reference_value(
-        current_refs[0] if current_refs else None,
-        has_current_value=bool(current_refs),
+    selected_identity = _runtime_quality_selected_semantic_binding_identity(
+        runtime_quality_refs=runtime_quality_refs,
         current_inputs=current_inputs,
         current_artifact_refs=current_artifact_refs,
-        current_map_value_present=map_key in runtime_quality_refs,
         artifact_store=artifact_store,
-        current_ref_key=map_key,
-        expected_role=expected_role,
-        expected_kind=expected_kind,
-        expected_schema_name=expected_schema_name,
-        expected_schema_version=expected_schema_version,
-        field_name="semantic_binding_ref",
         current_report_verifier=current_report_verifier,
     )
+    if selected_identity is not None:
+        if current_identity_values and any(
+            value != selected_identity for value in current_identity_values
+        ):
+            raise NaturalLanguagePipelineRefusalError(
+                "runtime_quality_same_input_identity_not_established",
+                "Runtime quality semantic binding source differs from its selected ledger.",
+            )
+        current_value = selected_identity
+    elif current_identity_values:
+        if (
+            ref_key != current_ref_key
+            or report_payload is None
+            or "semantic_binding_ref" not in report_payload
+        ):
+            raise NaturalLanguagePipelineRefusalError(
+                "runtime_quality_same_input_identity_not_established",
+                "Runtime quality semantic binding has no selected ledger owner.",
+            )
+        current_value = _runtime_quality_semantic_binding_payload_identity(
+            report_payload,
+            field_name="producer semantic_binding_ref",
+        )
+        if any(value != current_value for value in current_identity_values):
+            raise NaturalLanguagePipelineRefusalError(
+                "runtime_quality_same_input_identity_not_established",
+                "Runtime quality semantic binding source differs from its recomputed digest.",
+            )
+    else:
+        current_value = None
+
     candidate_ref = candidate.semantic_binding_ref if candidate is not None else None
     if candidate is not None and current_value != candidate_ref:
         raise NaturalLanguagePipelineRefusalError(
@@ -3145,7 +3704,7 @@ class NaturalLanguageRunMixin:
             "default_profile",
             None,
         )
-        diagnostic_execution_scope = None
+        diagnostic_execution_scope: ControlJobExecutionScope | None = None
         diagnostic_worker_binding_established = False
         diagnostic_binding_limitation_code = "control_job_execution_scope_not_established"
         runtime_quality_owner_binding: dict[str, object] | None = None
@@ -3195,6 +3754,35 @@ class NaturalLanguageRunMixin:
                 "control_job_execution_scope_not_established",
                 "Runtime quality authority requires the live lease and creation-event scope.",
             )
+        from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
+        from polisyos.runtime.http.services.control_plane_store import (
+            ControlJobExecutionScope,
+        )
+
+        admitted_scope = diagnostic_execution_scope
+        if (
+            type(admitted_scope) is not ControlJobExecutionScope
+            or admitted_scope.status != "established"
+            or type(admitted_scope.tenant_id) is not str
+            or not admitted_scope.tenant_id.strip()
+            or admitted_scope.tenant_id != admitted_scope.tenant_id.strip()
+            or type(admitted_scope.cell_id) is not str
+            or not admitted_scope.cell_id.strip()
+            or admitted_scope.cell_id != admitted_scope.cell_id.strip()
+            or runtime_quality_owner_binding.get("job_id") != control_job_id
+            or runtime_quality_owner_binding.get("run_id") != run_id
+            or runtime_quality_owner_binding.get("effective_execution_profile") != execution_profile
+            or runtime_quality_owner_binding.get("tenant_id") != admitted_scope.tenant_id
+            or runtime_quality_owner_binding.get("cell_id") != admitted_scope.cell_id
+        ):
+            raise NaturalLanguagePipelineRefusalError(
+                "control_job_execution_scope_not_established",
+                "Trinity persistence requires the matching admitted tenant and cell scope.",
+            )
+        trinity_bundle_tenant_context = ArtifactTenantContextInfo(
+            tenant_id=admitted_scope.tenant_id,
+            cell_id=admitted_scope.cell_id,
+        )
         metric_taxonomy = build_production_metric_taxonomy()
         metric_taxonomy_evidence = metric_taxonomy.evidence()
         metric_taxonomy_diagnostics: list[dict[str, Any]] = []
@@ -3716,6 +4304,9 @@ class NaturalLanguageRunMixin:
                         ref_value=artifact_id,
                         kind=kind,
                     )
+                if selected_materialization_refs.get(artifact_id):
+                    selected_ref = _selected_materialization_ref(artifact_id, kind=kind)
+                    return input_ref_from_artifact_ref(selected_ref, role=role)
                 try:
                     return InputRef(
                         artifact_id=_make_artifact_ref(artifact_id, kind=kind).artifact_id,
@@ -4144,6 +4735,32 @@ class NaturalLanguageRunMixin:
                 ):
                     candidates.append(ref)
 
+            async def _persist_nl_execution_artifact(
+                writer: Callable[..., _StepResult],
+                *args: object,
+                **kwargs: object,
+            ) -> _StepResult:
+                """Persist one fresh run product under the admitted execution owner."""
+                from polisyos.core.security.tenant_context import tenant_scope
+
+                if "tenant_context" in kwargs:
+                    raise ValueError("nl_execution_artifact_owner_is_pipeline_bound")
+                with tenant_scope(
+                    None,
+                    tenant_id=trinity_bundle_tenant_context.tenant_id,
+                    cell_id=trinity_bundle_tenant_context.cell_id,
+                ):
+                    ref = await run_blocking_async(
+                        writer,
+                        store,
+                        *args,
+                        tenant_context=trinity_bundle_tenant_context,
+                        **kwargs,
+                    )
+                if isinstance(ref, ArtifactRef):
+                    _remember_selected_materialization_ref(ref)
+                return ref
+
             def _selected_materialization_ref(
                 value: object,
                 kind: str | None = None,
@@ -4159,6 +4776,20 @@ class NaturalLanguageRunMixin:
                     parent_manifest=parent_manifest,
                     parent_roles=parent_roles,
                 )
+
+            def _selected_nl_execution_artifact_ref(
+                value: object,
+                kind: str,
+            ) -> ArtifactRef:
+                """Resolve a planning ref only within the admitted execution owner scope."""
+                from polisyos.core.security.tenant_context import tenant_scope
+
+                with tenant_scope(
+                    None,
+                    tenant_id=trinity_bundle_tenant_context.tenant_id,
+                    cell_id=trinity_bundle_tenant_context.cell_id,
+                ):
+                    return _selected_materialization_ref(value, kind=kind)
 
             def _materialization_input_refs(
                 refs: Mapping[str, Any],
@@ -4240,6 +4871,66 @@ class NaturalLanguageRunMixin:
                             role=field_name,
                         )
                     )
+                    if field_name != "data_ref" or snapshot_manifest is None:
+                        continue
+                    matching_parent_edges = [
+                        item
+                        for item in snapshot_manifest.inputs
+                        if item.artifact_id == selected_nested_ref.artifact_id
+                        and item.manifest_profile_sha256
+                        == selected_nested_ref.manifest_profile_sha256
+                    ]
+                    production_payload_edges = [
+                        item
+                        for item in matching_parent_edges
+                        if item.role == "production_data_payload"
+                    ]
+                    if selected_nested_ref.kind == "fabric.production_data_payload":
+                        if len(production_payload_edges) != 1:
+                            raise RuntimeError(
+                                "auto_materialization_production_data_payload_lineage_not_established"
+                            )
+                        try:
+                            source_payload = read_core_json_artifact(
+                                store,
+                                selected_nested_ref,
+                            ).value
+                        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                            raise RuntimeError(
+                                "auto_materialization_production_data_payload_not_established"
+                            ) from exc
+                        source_context = (
+                            source_payload.get("production_data_evidence_context")
+                            if isinstance(source_payload, Mapping)
+                            else None
+                        )
+                        manifest_sha256 = (
+                            source_context.get("manifest_sha256")
+                            if isinstance(source_context, Mapping)
+                            else None
+                        )
+                        if (
+                            not isinstance(manifest_sha256, str)
+                            or len(manifest_sha256) != 71
+                            or not manifest_sha256.startswith("sha256:")
+                            or any(
+                                character not in "0123456789abcdef"
+                                for character in manifest_sha256[7:]
+                            )
+                        ):
+                            raise RuntimeError(
+                                "auto_materialization_production_manifest_digest_not_established"
+                            )
+                        inputs.append(
+                            input_ref_from_artifact_ref(
+                                selected_nested_ref,
+                                role="production_data_payload",
+                            )
+                        )
+                    elif production_payload_edges:
+                        raise RuntimeError(
+                            "auto_materialization_production_data_payload_kind_mismatch"
+                        )
                 if selected_quality_ref is not None and snapshot_quality_ref is None:
                     inputs.append(
                         input_ref_from_artifact_ref(
@@ -4268,37 +4959,45 @@ class NaturalLanguageRunMixin:
                     if kind in {"runtime.production_data_quality_report", "fabric.retrieval_trace"}
                 )
 
-                def _is_verified_reissuable_report_input(item: InputRef) -> bool:
-                    if item.role not in reissuable_report_roles:
+                def _historical_report_context_matches(
+                    report_key: str, ref_key: str, candidate: InputRef
+                ) -> bool:
+                    contract = runtime_quality_report_owner_contract(report_key, ref_key)
+                    if contract is None:
                         return False
-                    for sibling_report_key, sibling_ref_key in QUALITY_REPORT_RUNTIME_REFS.items():
-                        if item.role != sibling_ref_key.removesuffix("_ref"):
-                            continue
-                        contract = runtime_quality_report_owner_contract(
-                            sibling_report_key,
-                            sibling_ref_key,
-                        )
-                        selected_ref = runtime_quality_artifact_refs.get(sibling_ref_key)
-                        if (
-                            sibling_report_key == output_report_key
-                            or contract is None
-                            or type(selected_ref) is not ArtifactRef
-                            or item.artifact_id != selected_ref.artifact_id
-                            or item.manifest_profile_sha256 != selected_ref.manifest_profile_sha256
-                            or selected_ref.manifest_profile_sha256 is None
-                            or selected_ref.kind != contract.artifact_kind
-                            or selected_ref.media_type != contract.media_type
-                            or runtime_quality_refs.get(sibling_ref_key)
-                            != str(selected_ref.artifact_id)
-                        ):
-                            continue
-                        if _runtime_quality_report_is_current_publication(
-                            report_key=sibling_report_key,
-                            ref_key=sibling_ref_key,
-                            expected_ref=str(selected_ref.artifact_id),
-                        ):
-                            return True
-                    return False
+                    return _runtime_quality_historical_report_materialization_input_is_verified(
+                        candidate,
+                        report_key=report_key,
+                        ref_key=ref_key,
+                        artifact_store=store,
+                        tenant_context=trinity_bundle_tenant_context,
+                        current_publication_verifier=lambda basis: (
+                            _runtime_quality_publication_context_matches(
+                                basis=basis,
+                                report_key=report_key,
+                                ref_key=ref_key,
+                                phase=contract.phase,
+                                requested_as_of_time=(
+                                    runtime_quality_publication_requested_as_of_times.get(ref_key)
+                                ),
+                            )
+                        ),
+                    )
+
+                def _is_verified_reissuable_report_input(item: InputRef) -> bool:
+                    return _runtime_quality_report_materialization_input_is_verified(
+                        item,
+                        output_report_key=output_report_key,
+                        reissuable_report_roles=reissuable_report_roles,
+                        runtime_quality_refs=runtime_quality_refs,
+                        runtime_quality_artifact_refs=runtime_quality_artifact_refs,
+                        current_publication_verifier=lambda report_key, ref_key, expected_ref: (
+                            _runtime_quality_report_is_current_publication(
+                                report_key=report_key, ref_key=ref_key, expected_ref=expected_ref
+                            )
+                        ),
+                        historical_publication_verifier=_historical_report_context_matches,
+                    )
 
                 current_reissuable_report_refs = frozenset(
                     (str(item.artifact_id), item.role)
@@ -4345,6 +5044,7 @@ class NaturalLanguageRunMixin:
                         )
                     target_output_id = _runtime_quality_payload_sha256(target_payload)
 
+                selected_output_ref: ArtifactRef | None = None
                 predecessor_output_id = None
                 if output_ref_key is not None and frozen_refs.get(output_ref_key) is not None:
                     output_kind = {
@@ -4360,6 +5060,7 @@ class NaturalLanguageRunMixin:
                         frozen_refs[output_ref_key],
                         output_kind,
                     )
+                    selected_output_ref = output_ref
                     selected_output_id = str(output_ref.artifact_id)
                     if selected_output_id == target_output_id:
                         inputs = [
@@ -4388,6 +5089,57 @@ class NaturalLanguageRunMixin:
                     previously_published_ref_values.discard(predecessor_output_id)
                 previously_published_refs = frozenset(previously_published_ref_values)
                 existing_basis = frozen_materialization_input_bases.get(basis_identity)
+                recovered_reissuable_report_ids = frozenset()
+                if (
+                    existing_basis is not None
+                    and selected_output_ref is not None
+                    and str(selected_output_ref.artifact_id) == target_output_id
+                ):
+                    from polisyos.core.artifacts import (
+                        artifact_ref_for_manifest,
+                        read_core_manifest_profile,
+                    )
+
+                    try:
+                        persisted_output_manifest, declaration = read_core_manifest_profile(
+                            store,
+                            selected_output_ref,
+                            manifest_profile_sha256=selected_output_ref.manifest_profile_sha256,
+                        )
+                        persisted_output_ref = artifact_ref_for_manifest(persisted_output_manifest)
+                        if declaration.status != "declared" or persisted_output_ref.model_dump(
+                            mode="json"
+                        ) != selected_output_ref.model_dump(mode="json"):
+                            raise ValueError("selected_output_manifest_identity_changed")
+                    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                        raise RuntimeError("auto_materialization_input_basis_changed") from exc
+
+                    missing_frozen_inputs = tuple(
+                        item for item in existing_basis[0] if item not in inputs
+                    )
+                    verified_reissuable_report_refs = frozenset(
+                        (
+                            str(item.artifact_id),
+                            item.role,
+                            item.manifest_profile_sha256,
+                        )
+                        for item in missing_frozen_inputs
+                        if _is_verified_reissuable_report_input(item)
+                    )
+                    inputs, recovered_reissuable_report_ids = (
+                        _restore_frozen_materialization_report_inputs(
+                            inputs,
+                            existing_basis=existing_basis,
+                            persisted_output_inputs=persisted_output_manifest.inputs,
+                            reissuable_report_roles=reissuable_report_roles,
+                            verified_reissuable_report_refs=verified_reissuable_report_refs,
+                        )
+                    )
+                    previously_published_ref_values.difference_update(
+                        recovered_reissuable_report_ids
+                    )
+                    previously_published_refs = frozenset(previously_published_ref_values)
+
                 reconciled_basis = _reconcile_materialization_input_basis(
                     inputs,
                     currently_published_refs=previously_published_refs,
@@ -5117,21 +5869,23 @@ class NaturalLanguageRunMixin:
                 production_manifest_ref = closure_refs["production_data_manifest_ref"]
                 legal_snapshot_ref = closure_refs["legal_snapshot_ref"]
                 effective_mode_ref = f"runtime-mode:{_runtime_quality_profile()}"
-                return {
-                    "closure_id": f"{owner['run_id']}:runtime_quality",
-                    "status": "not_closed",
-                    "policy_intent_ref": policy_intent_ref,
-                    "run_id": owner["run_id"],
-                    "job_id": owner["job_id"],
-                    "tenant_id": owner["tenant_id"],
-                    "cell_id": owner["cell_id"],
-                    "time_context_ref": None,
-                    "production_data_manifest_ref": production_manifest_ref,
-                    "legal_snapshot_ref": legal_snapshot_ref,
-                    "effective_mode_ref": effective_mode_ref,
-                    "evidence_input_refs": input_refs,
-                    "closure_sha256": None,
-                }
+                return _normalize_runtime_quality_same_input_closure(
+                    {
+                        "closure_id": f"{owner['run_id']}:runtime_quality",
+                        "status": "not_closed",
+                        "policy_intent_ref": policy_intent_ref,
+                        "run_id": owner["run_id"],
+                        "job_id": owner["job_id"],
+                        "tenant_id": owner["tenant_id"],
+                        "cell_id": owner["cell_id"],
+                        "time_context_ref": None,
+                        "production_data_manifest_ref": production_manifest_ref,
+                        "legal_snapshot_ref": legal_snapshot_ref,
+                        "effective_mode_ref": effective_mode_ref,
+                        "evidence_input_refs": input_refs,
+                        "closure_sha256": None,
+                    }
+                )
 
             def _record_runtime_quality_diagnostic_event(
                 summary: dict[str, Any],
@@ -5277,11 +6031,7 @@ class NaturalLanguageRunMixin:
                     if isinstance(event, Mapping)
                 ):
                     return False
-                from polisyos.runtime.quality.authority import (
-                    runtime_quality_report_cas_admission_issues,
-                )
-
-                return not runtime_quality_report_cas_admission_issues(
+                return _runtime_quality_report_cas_publication_is_admitted(
                     artifact_store=store,
                     selected_ref=selected_ref,
                     runtime_ref=expected_ref,
@@ -5320,7 +6070,7 @@ class NaturalLanguageRunMixin:
                     (
                         item
                         for item in RUNTIME_QUALITY_PUBLICATION_CLOSURE_REFERENCE_BINDINGS
-                        if item[1] == current_ref_key
+                        if item[1] is not None and item[1] == current_ref_key
                     ),
                     None,
                 )
@@ -5614,6 +6364,8 @@ class NaturalLanguageRunMixin:
                 verified_later_input_ids = {str(item.artifact_id) for item in verified_later_inputs}
                 for closure_binding in RUNTIME_QUALITY_PUBLICATION_CLOSURE_REFERENCE_BINDINGS:
                     closure_field, current_key = closure_binding[:2]
+                    if current_key is None:
+                        continue
                     current_value = current_refs_for_closure.get(current_key)
                     candidate_value = getattr(persisted_candidate, closure_field)
                     if (
@@ -5777,8 +6529,15 @@ class NaturalLanguageRunMixin:
                 )
                 diagnostic_event_log_ref = str(log_ref.artifact_id)
                 publication_view = _runtime_quality_report_publication_view(basis)
-                runtime_quality_artifact_refs[ref_key] = selected_ref
-                runtime_quality_refs[ref_key] = ref_value
+                ref_value = _register_runtime_quality_selected_output_ref(
+                    ref_key=ref_key,
+                    selected_ref=selected_ref,
+                    runtime_quality_refs=runtime_quality_refs,
+                    runtime_quality_artifact_refs=runtime_quality_artifact_refs,
+                    expected_kind=expected_write_options.kind,
+                    expected_media_type=expected_write_options.media_type,
+                    expected_artifact_id=ref_value,
+                )
                 runtime_quality_evidence[report_key] = publication_view
                 runtime_quality_publication_report_keys[ref_key] = report_key
                 runtime_quality_publication_phases[ref_key] = phase
@@ -6144,8 +6903,15 @@ class NaturalLanguageRunMixin:
                     evidence_payload["authority_envelope"] = authority_envelope
                     evidence_payload["manifest_ref"] = result.manifest_ref
                     evidence_payload["payload_sha256"] = result.payload_sha256
-                runtime_quality_artifact_refs[ref_key] = result.cas_ref
-                runtime_quality_refs[ref_key] = ref_value
+                ref_value = _register_runtime_quality_selected_output_ref(
+                    ref_key=ref_key,
+                    selected_ref=result.cas_ref,
+                    runtime_quality_refs=runtime_quality_refs,
+                    runtime_quality_artifact_refs=runtime_quality_artifact_refs,
+                    expected_kind=write_options.kind,
+                    expected_media_type=write_options.media_type,
+                    expected_artifact_id=ref_value,
+                )
                 runtime_quality_evidence[report_key] = evidence_payload
                 runtime_quality_publication_report_keys[ref_key] = report_key
                 runtime_quality_publication_phases[ref_key] = phase
@@ -6820,9 +7586,8 @@ class NaturalLanguageRunMixin:
                         return cached_snapshot, cached_ref
                     ensure_causal_methods_registered()
                     snapshot = build_method_catalog_snapshot(run_id=run_id)
-                    snapshot_ref = await run_blocking_async(
+                    snapshot_ref = await _persist_nl_execution_artifact(
                         persist_method_catalog_snapshot,
-                        store,
                         snapshot,
                     )
                     snapshot_ref_str = str(snapshot_ref.artifact_id)
@@ -7420,7 +8185,8 @@ class NaturalLanguageRunMixin:
                 return refs, data_context_payload, evidence_context
 
             async def _store_bundle(bundle: object) -> ArtifactRef:
-                ref = await async_store.put_json(
+                ref = await _put_nl_tenant_owned_json(
+                    async_store,
                     bundle,
                     ArtifactWriteOptions(
                         kind="ir.trinity_bundle",
@@ -7430,6 +8196,7 @@ class NaturalLanguageRunMixin:
                             version=str(getattr(bundle, "schema_version", "1.0")),
                         ),
                     ),
+                    tenant_context=trinity_bundle_tenant_context,
                     canon_spec=CanonSpec(forbid_floats=False),
                     return_selected_profile=True,
                 )
@@ -7441,32 +8208,36 @@ class NaturalLanguageRunMixin:
                 *,
                 trinity_bundle_ref: ArtifactRef | None,
             ) -> ArtifactRef:
-                inputs = []
-                if trinity_bundle_ref is not None:
-                    selected_trinity_ref = _selected_materialization_ref(
-                        trinity_bundle_ref,
-                        "ir.trinity_bundle",
-                    )
-                    inputs.append(
-                        input_ref_from_artifact_ref(
-                            selected_trinity_ref,
-                            role="trinity_bundle",
+                from polisyos.core.security.tenant_context import tenant_scope
+
+                with tenant_scope(
+                    None,
+                    tenant_id=trinity_bundle_tenant_context.tenant_id,
+                    cell_id=trinity_bundle_tenant_context.cell_id,
+                ):
+                    inputs = []
+                    if trinity_bundle_ref is not None:
+                        selected_trinity_ref = _selected_materialization_ref(
+                            trinity_bundle_ref, "ir.trinity_bundle"
                         )
-                    )
-                ref = await async_store.put_json(
-                    report,
-                    ArtifactWriteOptions(
-                        kind="scientist.final_policy_claims",
-                        media_type="application/json",
-                        schema=SchemaInfo(
-                            name="polisyos.scientist.FinalPolicyClaims",
-                            version="1.0",
+                        inputs.append(
+                            input_ref_from_artifact_ref(selected_trinity_ref, role="trinity_bundle")
+                        )
+                    ref = await _put_nl_tenant_owned_json(
+                        async_store,
+                        report,
+                        ArtifactWriteOptions(
+                            kind="scientist.final_policy_claims",
+                            media_type="application/json",
+                            schema=SchemaInfo(
+                                name="polisyos.scientist.FinalPolicyClaims", version="1.0"
+                            ),
+                            inputs=inputs,
                         ),
-                        inputs=inputs,
-                    ),
-                    canon_spec=CanonSpec(forbid_floats=False),
-                    return_selected_profile=True,
-                )
+                        tenant_context=trinity_bundle_tenant_context,
+                        canon_spec=CanonSpec(forbid_floats=False),
+                        return_selected_profile=True,
+                    )
                 _remember_selected_materialization_ref(ref)
                 return ref
 
@@ -7883,9 +8654,8 @@ class NaturalLanguageRunMixin:
                         )
 
                     if not execution_plan_ref_str:
-                        execution_plan_ref_obj = await run_blocking_async(
+                        execution_plan_ref_obj = await _persist_nl_execution_artifact(
                             persist_execution_plan,
-                            store,
                             execution_plan,
                         )
                         execution_plan_ref_str = str(execution_plan_ref_obj.artifact_id)
@@ -7924,33 +8694,32 @@ class NaturalLanguageRunMixin:
 
                     # 3) Mandatory preflight before execution.
                     preflight_report = preflight_execution_plan(execution_plan, catalog_snapshot)
-                    preflight_report.plan_ref = _typed_artifact_ref(
-                        execution_plan_ref_str,
-                        kind="scientist.execution_plan",
-                        ref_type=ExecutionPlanRef,
+                    preflight_report.plan_ref = ExecutionPlanRef.model_validate(
+                        _selected_nl_execution_artifact_ref(
+                            execution_plan_ref_str, kind="scientist.execution_plan"
+                        ).model_dump(mode="python")
                     )
-                    preflight_report.catalog_snapshot_ref = _typed_artifact_ref(
-                        method_catalog_snapshot_ref_str,
-                        kind="foundry.method_catalog_snapshot",
-                        ref_type=MethodCatalogSnapshotRef,
+                    preflight_report.catalog_snapshot_ref = MethodCatalogSnapshotRef.model_validate(
+                        _selected_nl_execution_artifact_ref(
+                            method_catalog_snapshot_ref_str,
+                            kind="foundry.method_catalog_snapshot",
+                        ).model_dump(mode="python")
                     )
-                    preflight_report_ref = await run_blocking_async(
+                    preflight_report_ref = await _persist_nl_execution_artifact(
                         persist_preflight_report,
-                        store,
                         preflight_report,
                         inputs=[
-                            InputRef(
-                                artifact_id=_artifact_ref_from_sha(
-                                    execution_plan_ref_str,
-                                    kind="scientist.execution_plan",
-                                ).artifact_id,
+                            input_ref_from_artifact_ref(
+                                _selected_nl_execution_artifact_ref(
+                                    execution_plan_ref_str, kind="scientist.execution_plan"
+                                ),
                                 role="execution_plan",
                             ),
-                            InputRef(
-                                artifact_id=_artifact_ref_from_sha(
+                            input_ref_from_artifact_ref(
+                                _selected_nl_execution_artifact_ref(
                                     method_catalog_snapshot_ref_str,
                                     kind="foundry.method_catalog_snapshot",
-                                ).artifact_id,
+                                ),
                                 role="method_catalog_snapshot",
                             ),
                         ],
@@ -7977,15 +8746,15 @@ class NaturalLanguageRunMixin:
                         run_id=run_id,
                         iteration=1,
                         lifecycle_state="plan_created",
-                        plan_ref=_typed_artifact_ref(
-                            execution_plan_ref_str,
-                            kind="scientist.execution_plan",
-                            ref_type=ExecutionPlanRef,
+                        plan_ref=ExecutionPlanRef.model_validate(
+                            _selected_nl_execution_artifact_ref(
+                                execution_plan_ref_str, kind="scientist.execution_plan"
+                            ).model_dump(mode="python")
                         ),
-                        preflight_report_ref=_typed_artifact_ref(
-                            preflight_report_ref_str,
-                            kind="scientist.preflight_report",
-                            ref_type=PreflightReportRef,
+                        preflight_report_ref=PreflightReportRef.model_validate(
+                            _selected_nl_execution_artifact_ref(
+                                preflight_report_ref_str, kind="scientist.preflight_report"
+                            ).model_dump(mode="python")
                         ),
                     )
                     iteration_state = transition(
@@ -8016,29 +8785,46 @@ class NaturalLanguageRunMixin:
                                 ],
                             }
                         )
-                        execution_plan_ref_obj = await run_blocking_async(
+                        execution_plan_ref_obj = await _persist_nl_execution_artifact(
                             persist_execution_plan,
-                            store,
                             execution_plan,
                         )
                         execution_plan_ref_str = str(execution_plan_ref_obj.artifact_id)
                         preflight_report = preflight_execution_plan(
                             execution_plan, catalog_snapshot
                         )
-                        preflight_report.plan_ref = _typed_artifact_ref(
-                            execution_plan_ref_str,
-                            kind="scientist.execution_plan",
-                            ref_type=ExecutionPlanRef,
+                        preflight_report.plan_ref = ExecutionPlanRef.model_validate(
+                            _selected_nl_execution_artifact_ref(
+                                execution_plan_ref_str, kind="scientist.execution_plan"
+                            ).model_dump(mode="python")
                         )
-                        preflight_report.catalog_snapshot_ref = _typed_artifact_ref(
-                            method_catalog_snapshot_ref_str,
-                            kind="foundry.method_catalog_snapshot",
-                            ref_type=MethodCatalogSnapshotRef,
+                        preflight_report.catalog_snapshot_ref = (
+                            MethodCatalogSnapshotRef.model_validate(
+                                _selected_nl_execution_artifact_ref(
+                                    method_catalog_snapshot_ref_str,
+                                    kind="foundry.method_catalog_snapshot",
+                                ).model_dump(mode="python")
+                            )
                         )
-                        preflight_report_ref = await run_blocking_async(
+                        preflight_report_ref = await _persist_nl_execution_artifact(
                             persist_preflight_report,
-                            store,
                             preflight_report,
+                            inputs=[
+                                input_ref_from_artifact_ref(
+                                    _selected_nl_execution_artifact_ref(
+                                        execution_plan_ref_str,
+                                        kind="scientist.execution_plan",
+                                    ),
+                                    role="execution_plan",
+                                ),
+                                input_ref_from_artifact_ref(
+                                    _selected_nl_execution_artifact_ref(
+                                        method_catalog_snapshot_ref_str,
+                                        kind="foundry.method_catalog_snapshot",
+                                    ),
+                                    role="method_catalog_snapshot",
+                                ),
+                            ],
                         )
                         preflight_report_ref_str = str(preflight_report_ref.artifact_id)
                         preflight_ready = bool(preflight_report.ready_to_run)
@@ -8074,9 +8860,8 @@ class NaturalLanguageRunMixin:
                         else:
                             notes.append("preflight_failed_after_replan")
 
-                    iteration_state_ref = await run_blocking_async(
+                    iteration_state_ref = await _persist_nl_execution_artifact(
                         persist_iteration_state,
-                        store,
                         iteration_state,
                     )
                     iteration_state_ref_str = str(iteration_state_ref.artifact_id)
@@ -8495,9 +9280,8 @@ class NaturalLanguageRunMixin:
                                 retrieval_quality=retrieval_quality,
                                 budget_remaining_ratio=budget_remaining_ratio,
                             )
-                            evaluator_report_ref = await run_blocking_async(
+                            evaluator_report_ref = await _persist_nl_execution_artifact(
                                 persist_evaluator_report,
-                                store,
                                 evaluator_report,
                             )
                             evaluator_report_ref_str = str(evaluator_report_ref.artifact_id)
@@ -8638,9 +9422,8 @@ class NaturalLanguageRunMixin:
                                 status="warn",
                                 details={"error": str(exc)},
                             )
-                    iteration_state_ref = await run_blocking_async(
+                    iteration_state_ref = await _persist_nl_execution_artifact(
                         persist_iteration_state,
-                        store,
                         iteration_state,
                     )
                     iteration_state_ref_str = str(iteration_state_ref.artifact_id)
@@ -8811,9 +9594,8 @@ class NaturalLanguageRunMixin:
                         data_snapshot_ref=auto_data_source_refs.get("data_snapshot_ref"),
                         input_bindings_ref=auto_data_source_refs.get("input_bindings_ref"),
                     )
-                    repro_manifest_ref = await run_blocking_async(
+                    repro_manifest_ref = await _persist_nl_execution_artifact(
                         persist_reproducibility_manifest,
-                        store,
                         repro_manifest,
                     )
                     reproducibility_manifest_ref_str = str(repro_manifest_ref.artifact_id)
@@ -9245,17 +10027,18 @@ class NaturalLanguageRunMixin:
                         )
                     if ref_input is not None:
                         adjudication_inputs.append(ref_input)
-            adjudication_ref = await async_store.put_json(
+            adjudication_ref = await _put_nl_tenant_owned_json(
+                async_store,
                 adjudication_payload,
                 ArtifactWriteOptions(
                     kind="scientist.llm_model_adjudication",
                     media_type="application/json",
                     schema=SchemaInfo(
-                        name="polisyos.scientist.LLMModelAdjudication",
-                        version="1.0",
+                        name="polisyos.scientist.LLMModelAdjudication", version="1.0"
                     ),
                     inputs=adjudication_inputs,
                 ),
+                tenant_context=trinity_bundle_tenant_context,
                 canon_spec=CanonSpec(forbid_floats=False),
             )
             llm_model_adjudication_ref = str(adjudication_ref.artifact_id)
@@ -9405,17 +10188,16 @@ class NaturalLanguageRunMixin:
                             )
                         if ref_input is not None:
                             ledger_inputs.append(ref_input)
-                    ledger_ref = await async_store.put_json(
+                    ledger_ref = await _put_nl_tenant_owned_json(
+                        async_store,
                         serialize_prompt_tool_ledger(ledger),
                         ArtifactWriteOptions(
                             kind=PROMPT_TOOL_LEDGER_KIND,
                             media_type="application/json",
-                            schema=SchemaInfo(
-                                name=PROMPT_TOOL_LEDGER_SCHEMA,
-                                version="1.0",
-                            ),
+                            schema=SchemaInfo(name=PROMPT_TOOL_LEDGER_SCHEMA, version="1.0"),
                             inputs=ledger_inputs,
                         ),
+                        tenant_context=trinity_bundle_tenant_context,
                         canon_spec=CanonSpec(forbid_floats=False),
                     )
                     ledger_ref_str = str(ledger_ref.artifact_id)
@@ -10457,21 +11239,29 @@ class NaturalLanguageRunMixin:
                         )
                         if ref is not None
                     ]
-                    citation_ref = await async_store.put_json(
+                    citation_ref = await _put_nl_tenant_owned_json(
+                        async_store,
                         citation_faithfulness_report,
                         ArtifactWriteOptions(
                             kind="scientist.citation_faithfulness_report",
                             media_type="application/json",
                             schema=SchemaInfo(
-                                name="polisyos.scientist.CitationFaithfulnessReport",
-                                version="1.0",
+                                name="polisyos.scientist.CitationFaithfulnessReport", version="1.0"
                             ),
                             inputs=citation_inputs,
                         ),
+                        tenant_context=trinity_bundle_tenant_context,
                         canon_spec=CanonSpec(forbid_floats=False),
+                        return_selected_profile=True,
                     )
-                    citation_ref_str = str(citation_ref.artifact_id)
-                    runtime_quality_refs["citation_faithfulness_report_ref"] = citation_ref_str
+                    citation_ref_str = _register_runtime_quality_selected_output_ref(
+                        ref_key="citation_faithfulness_report_ref",
+                        selected_ref=citation_ref,
+                        runtime_quality_refs=runtime_quality_refs,
+                        runtime_quality_artifact_refs=runtime_quality_artifact_refs,
+                        expected_kind="scientist.citation_faithfulness_report",
+                        expected_media_type="application/json",
+                    )
                     runtime_quality_evidence["citation_faithfulness_report"] = (
                         citation_faithfulness_report
                     )
@@ -10507,21 +11297,29 @@ class NaturalLanguageRunMixin:
                         )
                         if ref is not None
                     ]
-                    source_ref = await async_store.put_json(
+                    source_ref = await _put_nl_tenant_owned_json(
+                        async_store,
                         source_quality_report,
                         ArtifactWriteOptions(
                             kind="scientist.source_quality_report",
                             media_type="application/json",
                             schema=SchemaInfo(
-                                name="polisyos.scientist.SourceQualityReport",
-                                version="1.0",
+                                name="polisyos.scientist.SourceQualityReport", version="1.0"
                             ),
                             inputs=source_inputs,
                         ),
+                        tenant_context=trinity_bundle_tenant_context,
                         canon_spec=CanonSpec(forbid_floats=False),
+                        return_selected_profile=True,
                     )
-                    source_ref_str = str(source_ref.artifact_id)
-                    runtime_quality_refs["source_quality_report_ref"] = source_ref_str
+                    source_ref_str = _register_runtime_quality_selected_output_ref(
+                        ref_key="source_quality_report_ref",
+                        selected_ref=source_ref,
+                        runtime_quality_refs=runtime_quality_refs,
+                        runtime_quality_artifact_refs=runtime_quality_artifact_refs,
+                        expected_kind="scientist.source_quality_report",
+                        expected_media_type="application/json",
+                    )
                     runtime_quality_evidence["source_quality_report"] = source_quality_report
                     selected_variant["source_quality_report_ref"] = source_ref_str
                     selected_variant["source_quality_report"] = source_quality_report

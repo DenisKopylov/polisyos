@@ -1661,6 +1661,7 @@ def _dynamic_sequence_binding(
         guarded=guarded or has_guarded_item,
         items=materialized,
         component_names=component_names,
+        immutable=sequence_type == "tuple",
         sequence_type=sequence_type,
     )
 
@@ -1881,6 +1882,19 @@ def _dynamic_binding_literal_key_value(
     if binding.kind == "string" and binding.name is not None:
         return True, binding.name
     return False, None
+
+
+def _dynamic_binding_is_same_module_namespace_refinement(
+    before: _DynamicImportBinding,
+    after: _DynamicImportBinding,
+) -> bool:
+    """Recognize namespace provenance added while resolving the same module value."""
+    if before.kind != "module" or before.name is None or after.kind != "module":
+        return False
+    if before.name != after.name:
+        return False
+    refined_origins = tuple(sorted(set(before.namespace_origins) | {before.name}))
+    return after == replace(before, namespace_origins=refined_origins)
 
 
 def _dynamic_binding_is_proven_nonimporter(binding: _DynamicImportBinding) -> bool:
@@ -2349,6 +2363,8 @@ def _dynamic_source_lazy_export_map_entries(
             not key_known
             or not isinstance(key_value, str)
             or value.kind != "sequence"
+            or value.sequence_type != "tuple"
+            or not value.immutable
             or value.items is None
             or len(value.items) != 2
         ):
@@ -2475,7 +2491,8 @@ class _DynamicImportSourceBindings:
                     else _DYNAMIC_AMBIGUOUS
                 )
             return self._export_binding(target_module, name, stack=stack)
-        return _dynamic_binding_for_import(target_module, name)
+        binding = _dynamic_binding_for_import(target_module, name)
+        return self._module_namespace_effect_binding(target_module, name, binding)
 
     def _lazy_export_call_contract(
         self,
@@ -5465,6 +5482,7 @@ class _DynamicImportSourceBindings:
                 _dynamic_importer_origins(after)
                 or _dynamic_unresolved_importer_origins(after)
                 or _dynamic_binding_is_proven_nonimporter(after)
+                or _dynamic_binding_is_same_module_namespace_refinement(before, after)
                 or self._source_literal_mapping_is_current(after)
             ):
                 return unresolved_module_getattr_export()
@@ -5484,9 +5502,7 @@ class _DynamicImportSourceBindings:
         return None
 
     def record_module_namespace_write(self, module: str, name: str | None) -> None:
-        """Record a reached write to another selected module namespace for replay."""
-        if module not in self.module_paths:
-            return
+        """Record a reached module namespace write for cross-module source replay."""
         prior = self._cross_module_namespace_writes.get(module)
         if module not in self._cross_module_namespace_writes:
             self._cross_module_namespace_writes[module] = set()
@@ -5496,8 +5512,41 @@ class _DynamicImportSourceBindings:
         elif prior is not None:
             prior.add(name)
 
+    def _module_namespace_effect_binding(
+        self,
+        module: str,
+        name: str | None,
+        binding: _DynamicImportBinding,
+    ) -> _DynamicImportBinding:
+        """Guard importer members changed through any selected module namespace."""
+        if name is None or self.source_context is None:
+            return binding
+        effects = dict(self.source_context.module_namespace_effects or ())
+        if module not in effects:
+            return binding
+        changed_names = effects[module]
+        if changed_names is not None and name not in changed_names:
+            return binding
+        importer_origins = (
+            set(_dynamic_importer_origins(binding))
+            | set(_dynamic_unresolved_importer_origins(binding))
+            | set(_dynamic_import_namespace_origins(binding))
+        )
+        if (
+            binding.kind == "module"
+            and binding.name is not None
+            and _dynamic_is_importer_namespace_name(binding.name)
+        ):
+            importer_origins.add(binding.name)
+        if not importer_origins:
+            return binding
+        return _dynamic_unresolved_importer_binding(
+            sorted(importer_origins),
+            name=binding.name,
+        )
+
     def module_namespace_effects(self) -> tuple[tuple[str, tuple[str, ...] | None], ...]:
-        """Return immutable cross-module namespace effects from this selected scan."""
+        """Return immutable module namespace effects from this selected scan."""
         return tuple(
             (
                 module,
@@ -5712,7 +5761,18 @@ class _DynamicImportSourceBindings:
                 and _dynamic_type_checking_kind(base) == "typing_module"
             ):
                 return _dynamic_type_checking_value_binding(str(base.name))
-            return _dynamic_attribute_binding(base, node.attr)
+            value = _dynamic_attribute_binding(base, node.attr)
+            for module_name in {
+                binding.name
+                for binding in _dynamic_binding_nodes(base)
+                if binding.kind == "module" and binding.name is not None
+            }:
+                value = self._module_namespace_effect_binding(
+                    module_name,
+                    node.attr,
+                    value,
+                )
+            return value
         if isinstance(node, ast.Tuple | ast.List | ast.Set):
             if any(isinstance(item, ast.Starred) for item in node.elts):
                 return _DYNAMIC_AMBIGUOUS
@@ -5727,6 +5787,13 @@ class _DynamicImportSourceBindings:
                 component_names=(
                     tuple(item.id if isinstance(item, ast.Name) else None for item in node.elts)
                     if isinstance(node, ast.Tuple)
+                    else None
+                ),
+                sequence_type=(
+                    "tuple"
+                    if isinstance(node, ast.Tuple)
+                    else "list"
+                    if isinstance(node, ast.List)
                     else None
                 ),
             )
@@ -5751,6 +5818,16 @@ class _DynamicImportSourceBindings:
             return _dynamic_mapping_binding(keys, values)
         if isinstance(node, ast.Call):
             callee = self._expression_binding(node.func, environment, module, stack)
+            if _is_unresolved_importer_binding(callee):
+                origins = (
+                    set(_dynamic_importer_origins(callee))
+                    | set(_dynamic_unresolved_importer_origins(callee))
+                    | set(_dynamic_import_namespace_origins(callee))
+                )
+                return _dynamic_unresolved_importer_binding(
+                    sorted(origins),
+                    name=callee.name,
+                )
             if callee.kind == "other" and callee.origin_name is not None:
                 return self._source_class_instance_binding(
                     node,
@@ -5798,9 +5875,19 @@ class _DynamicImportSourceBindings:
                     and name.name is not None
                 ):
                     return self.import_binding(base.name, name.name, stack=stack)
-                return (
-                    _DYNAMIC_AMBIGUOUS if base.kind in {"unknown", "ambiguous"} else _DYNAMIC_OTHER
-                )
+                if base.kind in {"unknown", "ambiguous"}:
+                    if _is_guarded_importer_binding(base):
+                        origins = (
+                            set(_dynamic_importer_origins(base))
+                            | set(_dynamic_unresolved_importer_origins(base))
+                            | set(_dynamic_import_namespace_origins(base))
+                        )
+                        return _dynamic_unresolved_importer_binding(
+                            sorted(origins),
+                            name=base.name,
+                        )
+                    return _DYNAMIC_AMBIGUOUS
+                return _DYNAMIC_OTHER
             if (
                 callee.kind == "callable"
                 and callee.name == "types.MappingProxyType"
@@ -6641,6 +6728,7 @@ class _DynamicImportSourceScanner:
         self._module_execution_active = False
         self._module_namespace_complete = True
         self._module_namespace_written_names: set[str] = set()
+        self._module_initializer_call_ids: set[int] = set()
         self._pending_temporal_invocations: list[
             tuple[
                 ast.AST,
@@ -6689,6 +6777,11 @@ class _DynamicImportSourceScanner:
         self._module_execution_active = False
         self._module_namespace_complete = True
         self._module_namespace_written_names.clear()
+        self._module_initializer_call_ids = {
+            id(statement.value)
+            for statement in tree.body
+            if isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Call)
+        }
         self._pending_temporal_invocations.clear()
         self._importer_binding_revisions.clear()
         self._importer_binding_mutations.clear()
@@ -7272,7 +7365,7 @@ class _DynamicImportSourceScanner:
                 f"{self.relative_path}: reached module namespace write has an unresolved "
                 "sys.modules owner"
             )
-        if resolution.kind == "selected":
+        if resolution.kind in {"selected", "nonselected"}:
             return resolution.module
         return None
 
@@ -7285,8 +7378,11 @@ class _DynamicImportSourceScanner:
         """Transfer one reached namespace write or retain a bounded cross-module effect."""
         if not (self._module_execution_active or self._active_module_function_stack):
             return False
-        if self.source_bindings is None or module not in self.source_bindings.module_paths:
+        if self.source_bindings is None:
             return False
+        if module not in self.source_bindings.module_paths:
+            self.source_bindings.record_module_namespace_write(module, name)
+            return True
         execution_root = (
             self._source_function_module_stack[0]
             if self._source_function_module_stack
@@ -7307,6 +7403,68 @@ class _DynamicImportSourceScanner:
             self._module_scope_info,
         )
         return True
+
+    def _record_module_namespace_mapping_update(
+        self,
+        module: str,
+        update: _DynamicImportBinding,
+        expression: ast.expr,
+    ) -> None:
+        """Record exact namespace keys only from proof-preserving finite updates."""
+        alternatives = update.items if update.kind == "union" else (update,)
+        if alternatives is None:
+            self._module_namespace_write(module, None, None)
+            return
+
+        direct_dict = isinstance(expression, ast.Dict) and all(
+            key is not None for key in expression.keys
+        )
+        direct_set = isinstance(expression, ast.Set)
+        entries: list[tuple[_DynamicImportBinding, _DynamicImportBinding]] = []
+        for alternative in alternatives:
+            if alternative.kind == "mapping":
+                if (
+                    not direct_dict
+                    or alternative.items is None
+                    or alternative.values is None
+                    or len(alternative.items) != len(alternative.values)
+                ):
+                    self._module_namespace_write(module, None, None)
+                    return
+                entries.extend(zip(alternative.items, alternative.values, strict=True))
+                continue
+            if alternative.kind in {"sequence", "iterable"} and alternative.items is not None:
+                immutable_tuple = (
+                    alternative.kind == "sequence"
+                    and alternative.sequence_type == "tuple"
+                    and alternative.immutable
+                )
+                fresh_set = direct_set and alternative.kind == "iterable"
+                if not immutable_tuple and not fresh_set:
+                    self._module_namespace_write(module, None, None)
+                    return
+                for pair in alternative.items:
+                    if (
+                        pair.kind != "sequence"
+                        or pair.sequence_type != "tuple"
+                        or not pair.immutable
+                        or pair.items is None
+                        or len(pair.items) != 2
+                    ):
+                        self._module_namespace_write(module, None, None)
+                        return
+                    entries.append((pair.items[0], pair.items[1]))
+                continue
+            self._module_namespace_write(module, None, None)
+            return
+
+        for key, value in entries:
+            key_known, key_value = _dynamic_binding_literal_key_value(key)
+            if not key_known:
+                self._module_namespace_write(module, None, None)
+                return
+            if isinstance(key_value, str):
+                self._module_namespace_write(module, key_value, value)
 
     def _expression_binding(
         self,
@@ -7639,7 +7797,19 @@ class _DynamicImportSourceScanner:
                 ):
                     return self._unknown_binding(node.attr)
                 return _dynamic_type_checking_value_binding(str(owner))
-            return replace(_dynamic_attribute_binding(base, node.attr), receiver=base)
+            value = _dynamic_attribute_binding(base, node.attr)
+            if self.source_bindings is not None:
+                for module_name in {
+                    binding.name
+                    for binding in _dynamic_binding_nodes(base)
+                    if binding.kind == "module" and binding.name is not None
+                }:
+                    value = self.source_bindings._module_namespace_effect_binding(
+                        module_name,
+                        node.attr,
+                        value,
+                    )
+            return replace(value, receiver=base)
         if isinstance(node, ast.JoinedStr):
             components = tuple(
                 self._expression_binding(
@@ -7889,6 +8059,18 @@ class _DynamicImportSourceScanner:
             )
             if source_function_result is not None:
                 return source_function_result
+            if (
+                callee.kind == "callable"
+                and callee.name == "mapping.update"
+                and self._apply_source_lazy_export_map_update(
+                    node,
+                    callee,
+                    argument_bindings,
+                    environment,
+                    scope_info,
+                )
+            ):
+                return _DYNAMIC_NONE
             if callee.kind == "callable" and callee.name in {
                 "mapping.clear",
                 "mapping.pop",
@@ -8063,10 +8245,14 @@ class _DynamicImportSourceScanner:
                     scope_info,
                     "unmodeled call",
                 )
-            for argument_binding in argument_bindings:
-                owner = self._module_namespace_owner(argument_binding, scope_info)
-                if owner is not None:
-                    self._module_namespace_write(owner, None, None)
+                for argument_binding in argument_bindings:
+                    owner = self._module_namespace_owner(argument_binding, scope_info)
+                    if owner is not None:
+                        self._module_namespace_write(owner, None, None)
+            elif callee.kind == "callable" and callee.name == "builtins.vars":
+                for argument_binding in argument_bindings:
+                    if argument_binding.module_registry_origins:
+                        self._module_namespace_owner(argument_binding, scope_info)
             if (
                 callee.kind == "other"
                 and callee.origin_name is not None
@@ -8517,6 +8703,17 @@ class _DynamicImportSourceScanner:
                 attribute_binding = argument_bindings[1]
                 if attribute_binding.kind == "string" and attribute_binding.name is not None:
                     reflected = _dynamic_attribute_binding(module_binding, attribute_binding.name)
+                    if self.source_bindings is not None:
+                        for module_name in {
+                            binding.name
+                            for binding in _dynamic_binding_nodes(module_binding)
+                            if binding.kind == "module" and binding.name is not None
+                        }:
+                            reflected = self.source_bindings._module_namespace_effect_binding(
+                                module_name,
+                                attribute_binding.name,
+                                reflected,
+                            )
                 else:
                     candidate_origins = (
                         set(_dynamic_import_namespace_origins(module_binding))
@@ -9014,6 +9211,172 @@ class _DynamicImportSourceScanner:
         if any(binding.guarded or binding.kind == "ambiguous" for binding in child_values):
             return _DYNAMIC_AMBIGUOUS
         return _DYNAMIC_OTHER
+
+    @staticmethod
+    def _source_lazy_export_comprehension_value(node: ast.AST) -> bool:
+        """Return whether a comprehension value uses only finite literal bindings."""
+        if isinstance(node, ast.Constant):
+            return isinstance(node.value, str)
+        if isinstance(node, ast.Name):
+            return isinstance(node.ctx, ast.Load)
+        if isinstance(node, ast.Tuple):
+            return all(
+                _DynamicImportSourceScanner._source_lazy_export_comprehension_value(item)
+                for item in node.elts
+            )
+        return False
+
+    def _source_lazy_export_update_entries(
+        self,
+        expression: ast.expr,
+        expression_binding: _DynamicImportBinding,
+        environment: Mapping[str, _DynamicImportBinding],
+        pending: list[_PendingDynamicImportScope],
+        scope_info: Mapping[str, set[str]],
+    ) -> tuple[tuple[str, tuple[str, str]], ...] | None:
+        """Resolve one finite mapping update used to build a source-owned lazy map."""
+        if isinstance(expression, ast.Dict):
+            return _dynamic_source_lazy_export_map_entries(expression_binding)
+        if not isinstance(expression, ast.DictComp):
+            return None
+        if (
+            len(expression.generators) != 1
+            or expression.generators[0].is_async
+            or expression.generators[0].ifs
+            or not self._source_lazy_export_comprehension_value(expression.key)
+            or not self._source_lazy_export_comprehension_value(expression.value)
+        ):
+            return None
+        generator = expression.generators[0]
+        iterable = self._expression_binding(
+            generator.iter,
+            dict(environment),
+            pending,
+            scope_info,
+        )
+        if (
+            iterable.kind not in {"sequence", "iterable"}
+            or iterable.items is None
+            or iterable.guarded
+            or len(iterable.items) > _DYNAMIC_COMPREHENSION_VALUE_LIMIT
+        ):
+            return None
+        local_scope: dict[str, set[str]] = {
+            "globals": set(),
+            "nonlocals": set(),
+            "_effectful": set(),
+        }
+        items: dict[str, tuple[str, str]] = {}
+        for item in iterable.items:
+            if item.kind in {"unknown", "ambiguous"} or item.guarded:
+                return None
+            local_environment = dict(environment)
+            self._assign_target(
+                generator.target,
+                item,
+                local_environment,
+                pending,
+                local_scope,
+            )
+            key_binding = self._expression_binding(
+                expression.key,
+                local_environment,
+                pending,
+                local_scope,
+            )
+            value_binding = self._expression_binding(
+                expression.value,
+                local_environment,
+                pending,
+                local_scope,
+            )
+            entry = _dynamic_source_lazy_export_map_entries(
+                _dynamic_mapping_binding((key_binding,), (value_binding,))
+            )
+            if entry is None or len(entry) != 1:
+                return None
+            items[entry[0][0]] = entry[0][1]
+            if len(items) > _DYNAMIC_COMPREHENSION_VALUE_LIMIT:
+                return None
+        return tuple(items.items())
+
+    def _apply_source_lazy_export_map_update(
+        self,
+        node: ast.Call,
+        callee: _DynamicImportBinding,
+        argument_bindings: Sequence[_DynamicImportBinding],
+        environment: dict[str, _DynamicImportBinding],
+        scope_info: Mapping[str, set[str]],
+    ) -> bool:
+        """Replay a finite owner-module map update before its lazy hook is defined."""
+        receiver = callee.receiver
+        if (
+            receiver is None
+            or not _dynamic_is_source_lazy_export_map_binding(
+                receiver,
+                self.source_bindings._selected_source_module_names()
+                if self.source_bindings is not None
+                else (),
+            )
+            or receiver.origin_name is None
+            or receiver.origin_name.rpartition(".")[0] != self.module_name
+            or self.source_bindings is None
+            or self.module_name is None
+            or scope_info is not self._module_scope_info
+            or not self._module_execution_active
+            or self._active_module_function_stack
+            or id(node) not in self._module_initializer_call_ids
+            or environment.get("__getattr__", self._unknown_binding("__getattr__")).kind
+            == "source_function"
+            or receiver.origin_name in self.source_bindings._source_mapping_effects
+            or not isinstance(node.func, ast.Attribute)
+            or node.func.attr != "update"
+            or len(node.args) != 1
+            or node.keywords
+            or (argument_bindings and len(argument_bindings) != 1)
+            or isinstance(node.args[0], ast.Starred)
+        ):
+            return False
+        current_entries = _dynamic_source_lazy_export_map_entries(receiver)
+        if current_entries is None:
+            return False
+        update_binding = argument_bindings[0] if argument_bindings else _DYNAMIC_UNKNOWN
+        update_entries = self._source_lazy_export_update_entries(
+            node.args[0],
+            update_binding,
+            environment,
+            [],
+            scope_info,
+        )
+        if update_entries is None:
+            return False
+        merged = dict(current_entries)
+        merged.update(update_entries)
+        if len(merged) > _DYNAMIC_COMPREHENSION_VALUE_LIMIT:
+            return False
+        updated = replace(
+            _dynamic_mapping_binding(
+                tuple(_dynamic_string_binding(key) for key in merged),
+                tuple(
+                    _dynamic_sequence_binding(
+                        (_dynamic_string_binding(module_name), _dynamic_string_binding(symbol)),
+                        sequence_type="tuple",
+                    )
+                    for module_name, symbol in merged.values()
+                ),
+            ),
+            origin_name=receiver.origin_name,
+        )
+        environments = [environment, self._module_environment, self._active_module_environment]
+        seen: set[int] = set()
+        for target_environment in environments:
+            if not isinstance(target_environment, dict) or id(target_environment) in seen:
+                continue
+            seen.add(id(target_environment))
+            for name, existing in tuple(target_environment.items()):
+                if existing.kind == "mapping" and existing.origin_name == receiver.origin_name:
+                    target_environment[name] = updated
+        return True
 
     def _scan_comprehension(
         self,
@@ -9571,10 +9934,20 @@ class _DynamicImportSourceScanner:
                         f"{self.relative_path}:{target.lineno}: mapping mutation leaves "
                         "dynamic importer provenance unresolved"
                     )
+                owner_resolution = self._module_namespace_owner_resolution(base, scope_info)
+                owner = self._module_namespace_owner(base, scope_info)
+                external_module_namespace = (
+                    base.kind in {"mapping", "namespace"}
+                    and base.origin_name is not None
+                    and base.origin_name.startswith("module_namespace:")
+                    and owner_resolution.kind == "nonselected"
+                    and owner is not None
+                )
                 if (
                     _is_guarded_importer_binding(base)
                     and not is_scope_mapping
                     and base.origin_name != "sys.modules"
+                    and not external_module_namespace
                 ):
                     raise DynamicImportCollectionError(
                         f"{self.relative_path}:{target.lineno}: mapping mutation leaves "
@@ -9599,7 +9972,6 @@ class _DynamicImportSourceScanner:
                             f"{self.relative_path}:{target.lineno}: selected module registry "
                             "write has an unresolved key"
                         )
-                owner = self._module_namespace_owner(base, scope_info)
                 if owner is not None and (
                     self._module_execution_active or self._active_module_function_stack
                 ):
@@ -10511,6 +10883,12 @@ class _DynamicImportSourceScanner:
                 return self._unknown_binding(bound_name)
             return _DYNAMIC_OTHER
         binding = _dynamic_binding_for_import(module, name)
+        if self.source_bindings is not None:
+            binding = self.source_bindings._module_namespace_effect_binding(
+                module,
+                name,
+                binding,
+            )
         if binding.kind == "other" and (
             bound_name in _DYNAMIC_IMPORT_GUARDED_ROOTS
             or bound_name in _DYNAMIC_IMPORT_CALLABLE_NAMES
@@ -10720,6 +11098,22 @@ class _DynamicImportSourceScanner:
             ):
                 return environment
             value = self._expression_binding(node.value, environment, pending, scope_info)
+            if (
+                scope_info is self._module_scope_info
+                and self._module_execution_active
+                and self.source_bindings is not None
+                and self.module_name in self.source_bindings._selected_source_module_names()
+                and isinstance(node.value, ast.Dict)
+                and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name)
+                and _dynamic_is_source_lazy_export_map(
+                    self.module_name,
+                    node.targets[0].id,
+                    node.value,
+                    value,
+                )
+            ):
+                value = replace(value, origin_name=f"{self.module_name}.{node.targets[0].id}")
             for target in node.targets:
                 self._check_cross_scope_write(target, value, environment, scope_info, node.lineno)
                 self._assign_target(target, value, environment, pending, scope_info)
@@ -10742,6 +11136,22 @@ class _DynamicImportSourceScanner:
                 if node.value is not None
                 else _DYNAMIC_UNKNOWN
             )
+            if (
+                node.value is not None
+                and scope_info is self._module_scope_info
+                and self._module_execution_active
+                and self.source_bindings is not None
+                and self.module_name in self.source_bindings._selected_source_module_names()
+                and isinstance(node.target, ast.Name)
+                and isinstance(node.value, ast.Dict)
+                and _dynamic_is_source_lazy_export_map(
+                    self.module_name,
+                    node.target.id,
+                    node.value,
+                    value,
+                )
+            ):
+                value = replace(value, origin_name=f"{self.module_name}.{node.target.id}")
             self._check_cross_scope_write(node.target, value, environment, scope_info, node.lineno)
             self._assign_target(node.target, value, environment, pending, scope_info)
             return environment
@@ -11025,6 +11435,14 @@ class _DynamicImportSourceScanner:
                 else self._expression_binding(node.target, environment, pending, scope_info)
             )
             value = self._expression_binding(node.value, environment, pending, scope_info)
+            if isinstance(node.op, ast.BitOr) and current.kind in {"mapping", "namespace"}:
+                module_owner = self._module_namespace_owner(current, scope_info)
+                if module_owner is not None:
+                    self._record_module_namespace_mapping_update(
+                        module_owner,
+                        value,
+                        node.value,
+                    )
             if current.kind == "mapping" or (
                 current.kind == "sequence" and current.sequence_type != "tuple"
             ):

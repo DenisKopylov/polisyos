@@ -332,8 +332,31 @@
       "branch": "codex/e02-unified-local-20261009"
     }
   },
-  "local_runs": [],
-  "completed_author_results": [],
+  "local_runs": [
+    {
+      "case": "v1-root-guard-exec-r1-20261027",
+      "source": "1810a18581630afc079aef2747273447cb6f811f",
+      "result": "PASS",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "wall_seconds": 22.870712958014337,
+      "rss_bytes": 1036107776,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/V1-root-guard-receipt.json",
+      "full_V1_V2_closed": false
+    }
+  ],
+  "completed_author_results": [
+    {
+      "task": "L01",
+      "scope": "R2 provenance and R4 arithmetic docs only",
+      "commit": "1810a18581630afc079aef2747273447cb6f811f",
+      "new_G_acceptance": false
+    }
+  ],
   "external_residuals": [],
   "G_acceptance_new": false,
   "closure_ids": []

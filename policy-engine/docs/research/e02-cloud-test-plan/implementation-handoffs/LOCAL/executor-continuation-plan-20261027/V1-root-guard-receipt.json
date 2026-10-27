@@ -1,0 +1,74 @@
+{
+  "schema": "policyos.e02.v1_root_guard_receipt.v1",
+  "source_head": "1810a18581630afc079aef2747273447cb6f811f",
+  "task_routes": [
+    "V1",
+    "V2"
+  ],
+  "property": "Wrong actual reader root is refused before the sentinel builder while profile markers remain intact",
+  "scope": "Cheap fixture-root falsifier only; ordinary POST/N5/CAS/freshGET and meaningful N4 children still UNRUN",
+  "result": "PASS",
+  "executed_nodes": [
+    "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_candidate_kref_builder_root_guard_rejects_wrong_actual_root_before_builder"
+  ],
+  "counts": {
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "full_command": [
+    "/usr/bin/sandbox-exec",
+    "-f",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-root-guard-exec-r1-20261027/child.sb",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-root-guard-exec-r1-20261027/pytest_launcher.py",
+    "-o",
+    "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-root-guard-exec-r1-20261027/pytest-cache",
+    "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-root-guard-exec-r1-20261027/benchmarks",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-root-guard-exec-r1-20261027/basetemp",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-root-guard-exec-r1-20261027/pytest.xml",
+    "--tb=short",
+    "--color=no",
+    "--maxfail=0",
+    "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_candidate_kref_builder_root_guard_rejects_wrong_actual_root_before_builder"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+  "profile": "Existing Python3.14.3 environment, pytest.ini/default plugins, read-only loaded-source observer, private output paths, one numeric thread",
+  "wall_seconds": 22.870712958014337,
+  "peak_sampled_process_tree_rss_bytes": 1036107776,
+  "loaded_python_path_denominator": 1621,
+  "current_loaded_source_mismatches": 0,
+  "deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-v1-root-guard-20261027/stdout.txt",
+      "sha256": "9fdf53d89dcd4128d53c952eb05a791f0b33651b5535985726f77c6cdbf93e73",
+      "bytes": 660,
+      "class": "A delivered compact full command output/JUnit"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-v1-root-guard-20261027/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "class": "A delivered compact full command output/JUnit"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-v1-root-guard-20261027/pytest.xml",
+      "sha256": "0bae552c613cdd2fa4fb2c9d64677bb46c3985a837ea2091de6987e427b50e43",
+      "bytes": 459,
+      "class": "A delivered compact full command output/JUnit"
+    }
+  ],
+  "local_audit": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/v1-root-guard-exec-r1-20261027/audit-result.json",
+    "sha256": "07b65ffe2a56b7a7c013a1df0cf8bc38f7c7613db4efca3bc92ca6caf1746322",
+    "actual_bytes_available_locally": true
+  },
+  "readset_and_resource_trace": "Retained in exact local audit directory; actual bytes available on this host. No cloud-only availability claim. Source/profile freeze pins authoritative finite input denominator; external packages/unimported sources outside observer.",
+  "semantic_test_negative": "Wrong-root call raises candidate_kref_builder_repo_root_mismatch and invokes builder0times; retained markers alone cannot satisfy the guard",
+  "full_V1_V2_capability_state": "verification_missing",
+  "closure_ids": [],
+  "G_acceptance": false
+}

@@ -11984,6 +11984,7 @@ class ControlPlaneService(
             tracer=self._tracer,
             metrics=self._metrics,
             store_factory=_served_ingestion_store,
+            source_progress_readers=self._registry_providers.source_progress_readers,
         )
 
         mode = request.execution_mode
@@ -12061,9 +12062,15 @@ class ControlPlaneService(
                     sidecar_scope=sidecar_scope,
                 )
 
+            from polisyos.fabric.data_plane import ingestion_is_complete
+
             # Post-ingestion: produce input bindings if requested
             input_bindings_ref: str | None = None
-            if request.produce_input_bindings and request.binding_profile_id:
+            if (
+                ingestion_is_complete(result)
+                and request.produce_input_bindings
+                and request.binding_profile_id
+            ):
                 input_bindings_ref = self._produce_input_bindings(
                     binding_profile_id=request.binding_profile_id,
                     data_snapshot_ref=(
@@ -12075,7 +12082,7 @@ class ControlPlaneService(
 
             return IngestResponse(
                 meta=_build_api_meta(request_id),
-                status="completed",
+                status=result.status,
                 evidence_bundle_ref=(
                     str(result.evidence_bundle_ref.artifact_id.hex)
                     if result.evidence_bundle_ref
@@ -12083,11 +12090,15 @@ class ControlPlaneService(
                 ),
                 data_snapshot_ref=(
                     str(result.data_snapshot_ref.artifact_id.hex)
-                    if result.data_snapshot_ref
+                    if ingestion_is_complete(result) and result.data_snapshot_ref
                     else None
                 ),
                 datasets_fetched=result.datasets_fetched,
-                message=f"Successfully ingested {result.datasets_fetched} dataset(s).",
+                message=(
+                    f"Successfully ingested {result.datasets_fetched} dataset(s)."
+                    if ingestion_is_complete(result)
+                    else f"Ingestion {result.status}: {result.datasets_fetched} source(s) retained."
+                ),
                 warnings=result.warnings,
                 cursor_ref=result.cursor_ref,
                 mode_effective=result.mode_effective or mode,

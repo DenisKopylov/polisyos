@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from polisyos.core.contracts import CatalogRunProfile
+    from polisyos.fabric.ingestion.source_progress import FiniteSourceProgressReader
     from polisyos.runtime.quality.capability_discovery import (
         CapabilityDiscoveryProvider,
     )
@@ -63,6 +64,7 @@ class ControlRegistryProviders:
     capability_conformance_verifier: CapabilityConformanceVerifier | None = None
     catalog_run_profile: CatalogRunProfile | None = None
     catalog_source_selection: CatalogServingSourceSelection | None = None
+    source_progress_readers: tuple[FiniteSourceProgressReader, ...] = ()
 
     def __post_init__(self) -> None:
         """Validate an explicitly configured catalog scope without a default."""
@@ -95,6 +97,7 @@ def resolve_control_registry_providers(
     capability_conformance_verifier: CapabilityConformanceVerifier | None = None,
     catalog_run_profile: CatalogRunProfile | None = None,
     catalog_source_selection: CatalogServingSourceSelection | None = None,
+    source_progress_readers: tuple[FiniteSourceProgressReader, ...] = (),
     connectors_factory: ConnectorRegistryFactory | None = None,
     source_profiles_factory: SourceProfileRegistryFactory | None = None,
     binding_profiles_factory: BindingProfileRegistryFactory | None = None,
@@ -201,6 +204,7 @@ def resolve_control_registry_providers(
         capability_conformance_verifier=capability_conformance_verifier,
         catalog_run_profile=catalog_run_profile,
         catalog_source_selection=catalog_source_selection,
+        source_progress_readers=source_progress_readers,
     )
 
 

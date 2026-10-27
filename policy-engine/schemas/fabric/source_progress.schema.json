@@ -1,0 +1,139 @@
+{
+  "$id": "https://polisyos.local/schemas/fabric/source_progress.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Versioned event/progress extension over an unchanged SourceContract v2.\n\nThis is an integrate contract, not an assertion of live source authority.\nIts finite-fixture reader derives the declared fixture's entire source set.\nProduction sources need an independently admitted owner reader of their own;\na provider's completeness flag, field name or inline contract is insufficient.",
+  "properties": {
+    "admission_scope": {
+      "const": "finite_source_fixture",
+      "default": "finite_source_fixture",
+      "title": "Admission Scope",
+      "type": "string"
+    },
+    "connector_id": {
+      "minLength": 1,
+      "title": "Connector Id",
+      "type": "string"
+    },
+    "dataset_id": {
+      "minLength": 1,
+      "title": "Dataset Id",
+      "type": "string"
+    },
+    "dedupe_window_seconds": {
+      "const": 86400,
+      "default": 86400,
+      "title": "Dedupe Window Seconds",
+      "type": "integer"
+    },
+    "event_fields": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Event Fields",
+      "type": "array"
+    },
+    "partition_key": {
+      "default": "default",
+      "minLength": 1,
+      "title": "Partition Key",
+      "type": "string"
+    },
+    "schema_content_hash": {
+      "minLength": 1,
+      "title": "Schema Content Hash",
+      "type": "string"
+    },
+    "schema_id": {
+      "minLength": 1,
+      "title": "Schema Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "fabric.source_progress.v1",
+      "default": "fabric.source_progress.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "schema_version_bound": {
+      "pattern": "^\\d+\\.\\d+(\\.\\d+)?$",
+      "title": "Schema Version Bound",
+      "type": "string"
+    },
+    "source_contract_content_hash": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "title": "Source Contract Content Hash",
+      "type": "string"
+    },
+    "source_contract_id": {
+      "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*(?:\\.[a-z][a-z0-9]*(?:_[a-z0-9]+)*)*$",
+      "title": "Source Contract Id",
+      "type": "string"
+    },
+    "source_contract_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "title": "Source Contract Version",
+      "type": "string"
+    },
+    "transport_fixture_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Transport Fixture Ref"
+    },
+    "transport_kind": {
+      "default": "finite_history_file",
+      "enum": [
+        "finite_history_file",
+        "jsonl_file"
+      ],
+      "title": "Transport Kind",
+      "type": "string"
+    },
+    "uniqueness_scope": {
+      "const": "source_dataset_partition",
+      "default": "source_dataset_partition",
+      "title": "Uniqueness Scope",
+      "type": "string"
+    },
+    "version_fields": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Version Fields",
+      "type": "array"
+    },
+    "version_strategy": {
+      "enum": [
+        "etag",
+        "revision",
+        "timestamp"
+      ],
+      "title": "Version Strategy",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_contract_id",
+    "source_contract_version",
+    "source_contract_content_hash",
+    "schema_id",
+    "schema_version_bound",
+    "schema_content_hash",
+    "connector_id",
+    "dataset_id",
+    "event_fields",
+    "version_fields",
+    "version_strategy"
+  ],
+  "title": "SourceProgressContract",
+  "type": "object"
+}

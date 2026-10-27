@@ -21,7 +21,12 @@ from polisyos.core.artifacts.async_store import (
     ensure_async_artifact_store,
     is_async_artifact_store,
 )
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.protocol import matches_runtime_protocol_definition
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, fingerprint
@@ -54,6 +59,7 @@ from polisyos.fabric.quality.processing_guarantees import (
     CDCSchemaCompatibility,
     OutOfOrderHandling,
     OutOfOrderPolicy,
+    ProcessingGuarantee,
     ProcessingGuaranteeContract,
     classify_cdc_schema_change,
     processing_contract_snapshot,
@@ -70,6 +76,10 @@ if TYPE_CHECKING:
     from polisyos.fabric.connectors.registry import ConnectorRegistry
     from polisyos.fabric.connectors.registry_core_parts import _StreamOwnerStartup
     from polisyos.fabric.connectors.types import DataChunk
+    from polisyos.fabric.ingestion.source_progress import (
+        FiniteSourceProgressReader,
+        ReconciledSourceFrame,
+    )
 else:
     AsyncIterator = Any
     Callable = Any
@@ -331,7 +341,7 @@ class StreamRuntimeOptions:
     partition_key: str = "default"
     batch_size: int = 1_000
     checkpoint_every_chunks: int = 1
-    dedupe_key_fields: tuple[str, ...] = ("_message_id",)
+    dedupe_key_fields: tuple[str, ...] | None = None
     max_dedupe_keys: int = 4_096
     max_buffered_rows: int = 10_000
     max_buffered_bytes: int = 16 * 1024 * 1024
@@ -339,12 +349,15 @@ class StreamRuntimeOptions:
     max_input_bytes: int | None = None
     max_output_refs: int = 4_096
     pause_seconds: float = 0.01
+    ingestion_clock: Callable[[], datetime] | None = None
     window_policy: WindowPolicy = field(default_factory=WindowPolicy)
     processing_contract: ProcessingGuaranteeContract = field(
         default_factory=stream_processing_contract
     )
 
     def __post_init__(self) -> None:
+        if self.ingestion_clock is not None and not callable(self.ingestion_clock):
+            raise ValueError("ingestion_clock must be a callable UTC source")
         for name in (
             "batch_size",
             "checkpoint_every_chunks",
@@ -384,6 +397,7 @@ class StreamDatasetRunResult:
     final_cursor: CursorState | None = None
     final_checkpoint_ref: str | None = None
     final_cursor_ref: str | None = None
+    source_progress_scope: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -1541,6 +1555,8 @@ def _stream_checkpoint_metadata(
     result: StreamDatasetRunResult,
     processing_contract: ProcessingGuaranteeContract,
     dedupe_horizon: _DedupeHorizon,
+    source_progress_ref: ArtifactRef | None,
+    clock_profile: str,
 ) -> dict[str, Any]:
     """Build metadata whose operator state matches the committed outputs."""
     return {
@@ -1565,6 +1581,10 @@ def _stream_checkpoint_metadata(
         "operator_state": _stream_operator_state(accumulator, ordering_state),
         "frontier_committed": True,
         "dedupe_horizon": dedupe_horizon.snapshot(),
+        "source_progress_witness_ref": (
+            source_progress_ref.model_dump(mode="json") if source_progress_ref else None
+        ),
+        "ingestion_clock_profile": clock_profile,
     }
 
 
@@ -1983,7 +2003,11 @@ def _effective_processing_contract(
 ) -> ProcessingGuaranteeContract:
     idempotency = options.processing_contract.idempotency.model_copy(
         update={
-            "key_fields": tuple(options.dedupe_key_fields),
+            "key_fields": (
+                tuple(options.dedupe_key_fields)
+                if options.dedupe_key_fields is not None
+                else options.processing_contract.idempotency.key_fields
+            ),
             "max_dedupe_keys": max(1, int(options.max_dedupe_keys)),
             "missing_key_action": "reject",
         }
@@ -1995,12 +2019,27 @@ def _effective_processing_contract(
             "pause_seconds": max(0.0, float(options.pause_seconds)),
         }
     )
+    guarantee = options.processing_contract.guarantee
+    if not idempotency.enabled:
+        guarantee = ProcessingGuarantee.AT_LEAST_ONCE
+    if options.ingestion_clock is not None:
+        # An injected clock proves replay semantics, never elapsed real time.
+        guarantee = ProcessingGuarantee.REPLAY_ONLY
     return options.processing_contract.model_copy(
         update={
+            "guarantee": guarantee,
             "idempotency": idempotency,
             "backpressure": backpressure,
         }
     )
+
+
+def _stream_ingestion_time(options: StreamRuntimeOptions) -> datetime:
+    """Read a supported UTC clock; injected clocks are explicitly replay-only."""
+    now = options.ingestion_clock() if options.ingestion_clock is not None else _ingestion_utc()
+    if not isinstance(now, datetime) or now.utcoffset() != timedelta(0):
+        raise StreamDedupeUnsupported("ingestion clock must return an aware UTC timestamp")
+    return now
 
 
 def _apply_out_of_order_policy(
@@ -2304,10 +2343,80 @@ async def process_stream_dataset(
     registry: ConnectorRegistry | None = None,
     registry_provider: ConnectorRegistryProvider | None = None,
     schema_binding: StreamSchemaBinding | None = None,
+    source_progress_readers: tuple[FiniteSourceProgressReader, ...] = (),
+    tenant_id: str | None = None,
 ) -> StreamDatasetRunResult:
     """Process one streamed dataset with checkpoint recovery and bounded buffering."""
     options = runtime_options or StreamRuntimeOptions()
     processing_contract = _effective_processing_contract(options)
+    from polisyos.core.security import get_current_tenant_id_or_none
+    from polisyos.fabric.ingestion.source_progress import resolve_source_progress_frame
+
+    active_tenant = get_current_tenant_id_or_none()
+    if tenant_id is not None and active_tenant is not None and tenant_id != active_tenant:
+        raise StreamDedupeUnsupported("source progress tenant differs from the active scope")
+    progress_frame: ReconciledSourceFrame | None = None
+    if processing_contract.idempotency.enabled:
+        try:
+            progress_frame = resolve_source_progress_frame(
+                source_progress_readers,
+                connector_id=connector_id,
+                dataset_id=dataset_id,
+                tenant_id=tenant_id if tenant_id is not None else active_tenant,
+            )
+        except (LookupError, OSError, TypeError, ValueError) as exc:
+            raise StreamDedupeUnsupported("source-owned event/version contract is invalid") from exc
+        if progress_frame is None:
+            raise StreamDedupeUnsupported("source-owned event/version contract is unavailable")
+        extension = progress_frame.extension
+        if (
+            (
+                options.dedupe_key_fields is not None
+                and tuple(options.dedupe_key_fields)
+                != extension.event_fields + extension.version_fields
+            )
+            or processing_contract.idempotency.dedupe_window_seconds
+            != extension.dedupe_window_seconds
+        ):
+            raise StreamDedupeUnsupported("caller key/horizon differs from the source owner")
+        processing_contract = processing_contract.model_copy(
+            update={
+                "idempotency": processing_contract.idempotency.model_copy(
+                    update={"key_fields": extension.event_fields + extension.version_fields}
+                )
+            }
+        )
+    selected_config = connection_config
+    if progress_frame is not None:
+        try:
+            from polisyos.fabric.connectors.sources.event_stream import EventStreamConnector
+
+            resolved_registry = _resolve_connector_registry(
+                registry=registry, registry_provider=registry_provider
+            )
+            entry = resolved_registry.get_entry(connector_id)
+            config = normalize_connection_config(connection_config) or entry.default_config
+            if config is None or progress_frame.extension.transport_kind != "jsonl_file":
+                raise ValueError("source owner has no actual JSONL replay transport")
+            # The real selected factory and physical handle are checked again
+            # below. This preflight rejects unowned transports before effects.
+            if entry.connector_class.fetch_stream is not EventStreamConnector.fetch_stream:
+                raise ValueError("source reader cannot authorize an unrelated stream producer")
+            progress_frame = progress_frame.bind_transport(
+                config, partition_key=options.partition_key
+            )
+            selected_config = config
+            registry = resolved_registry
+            processing_contract = processing_contract.model_copy(
+                update={"guarantee": ProcessingGuarantee.REPLAY_ONLY}
+            )
+        except (LookupError, OSError, TypeError, ValueError) as exc:
+            raise StreamDedupeUnsupported(
+                "actual source replay transport is not established"
+            ) from exc
+    source_progress_ref: ArtifactRef | None = None
+    clock_profile = "fixture_utc" if options.ingestion_clock is not None else "system_utc"
+
     async_store = _ensure_async_store(store)
     sync_store = _resolve_sync_store(store, async_store)
     if sync_store is None:
@@ -2324,7 +2433,7 @@ async def process_stream_dataset(
     session = await StreamingSourceSession.create(
         connector_id=connector_id,
         dataset_id=dataset_id,
-        connection_config=connection_config,
+        connection_config=selected_config,
         partition_key=options.partition_key,
         registry=registry,
         registry_provider=registry_provider,
@@ -2334,6 +2443,21 @@ async def process_stream_dataset(
     committed_cursor: CursorState | None = None
     pending_frontier: StreamCheckpoint | None = None
     try:
+        if progress_frame is not None:
+            if (
+                session.connector is None
+                or session.handle is None
+                or type(session.connector).fetch_stream is not EventStreamConnector.fetch_stream
+                or isinstance(session.connector, (_StreamSubscriber, _StreamPoller))
+            ):
+                raise StreamDedupeUnsupported(
+                    "actual selected producer is not the bounded JSONL file reader"
+                )
+            rebound = progress_frame.bind_transport(
+                session.handle.config, partition_key=session.partition_key
+            )
+            if rebound.transport_identity != progress_frame.transport_identity:
+                raise StreamDedupeUnsupported("actual selected handle changed the source transport")
         result = StreamDatasetRunResult(
             connector_id=connector_id,
             dataset_id=dataset_id,
@@ -2364,6 +2488,24 @@ async def process_stream_dataset(
             partition_key=options.partition_key,
         )
         if latest_checkpoint is not None:
+            previous_clock_profile = latest_checkpoint.metadata.get("ingestion_clock_profile")
+            legacy_disabled = (
+                previous_clock_profile is None
+                and not processing_contract.idempotency.enabled
+                and not latest_checkpoint.dedupe_keys
+                and options.ingestion_clock is None
+            )
+            if previous_clock_profile != clock_profile and not legacy_disabled:
+                raise StreamDedupeUnsupported("ingestion clock profile changed across restart")
+            if progress_frame is not None:
+                retained = latest_checkpoint.metadata.get("source_progress_witness_ref")
+                try:
+                    retained_ref = ArtifactRef.model_validate(retained)
+                except (TypeError, ValueError) as exc:
+                    raise StreamDedupeUnsupported("source owner witness is missing") from exc
+                if not progress_frame.retained_witness_is_current(sync_store, retained_ref):
+                    raise StreamDedupeUnsupported("source owner witness differs across restart")
+
             stored_binding = latest_checkpoint.metadata.get("schema_binding")
             if schema_binding is not None and stored_binding is None:
                 raise CursorStoreError(
@@ -2402,7 +2544,7 @@ async def process_stream_dataset(
                 )
             horizon_state = latest_checkpoint.metadata.get("dedupe_horizon")
             if horizon_state is not None:
-                dedupe_horizon.restore(horizon_state, _ingestion_utc())
+                dedupe_horizon.restore(horizon_state, _stream_ingestion_time(options))
             elif latest_checkpoint.dedupe_keys:
                 raise StreamDedupeUnsupported(
                     "legacy dedupe keys have no persisted UTC ingestion time; "
@@ -2516,6 +2658,15 @@ async def process_stream_dataset(
             async for batch in iter_record_batches(
                 chunk.data, batch_size=max(1, int(options.batch_size))
             ):
+                if progress_frame is not None:
+                    try:
+                        progress_frame.admit_stream_rows(batch)
+                    except (LookupError, OSError, TypeError, ValueError) as exc:
+                        raise StreamDedupeUnsupported(
+                            "actual stream event/version is not owned by its source contract"
+                        ) from exc
+                    if source_progress_ref is None:
+                        source_progress_ref = progress_frame.witness(sync_store)
                 valid_rows, warnings, quarantined = sanitize_rows(
                     batch,
                     connector_id=connector_id,
@@ -2532,7 +2683,7 @@ async def process_stream_dataset(
                             fields=processing_contract.idempotency.key_fields,
                             missing_key_action="reject",
                         )
-                        if not dedupe_horizon.remember(dedupe_key, _ingestion_utc()):
+                        if not dedupe_horizon.remember(dedupe_key, _stream_ingestion_time(options)):
                             result.dedupe_dropped += 1
                             continue
                     row_bytes = _estimate_row_bytes(row)
@@ -2622,6 +2773,11 @@ async def process_stream_dataset(
                     processing_contract=processing_contract,
                     schema_binding=schema_binding,
                     visible_fields=visible_schema,
+                    source_progress_scope=(
+                        progress_frame.scope_payload(source_progress_ref)
+                        if progress_frame is not None and source_progress_ref is not None
+                        else None
+                    ),
                 )
                 result.cdc_event_refs.append(cdc_ref)
                 result.warnings.append(
@@ -2673,6 +2829,9 @@ async def process_stream_dataset(
             previous_schema = current_schema
 
             _admit_output_ref(result, options)
+            if progress_frame is not None:
+                progress_frame.assert_current()
+                progress_frame.assert_transport_current()
             chunk_ref = await _persist_stream_chunk_async(
                 store=async_store,
                 connector_id=connector_id,
@@ -2684,6 +2843,11 @@ async def process_stream_dataset(
                 processing_contract=processing_contract,
                 schema_binding=schema_binding,
                 visible_fields=visible_schema,
+                source_progress_scope=(
+                    progress_frame.scope_payload(source_progress_ref)
+                    if progress_frame is not None and source_progress_ref is not None
+                    else None
+                ),
             )
             result.chunk_refs.append(chunk_ref)
             result.rows_emitted += len(clean_rows)
@@ -2703,10 +2867,18 @@ async def process_stream_dataset(
                         input_refs=emission.contributor_refs,
                         processing_contract=processing_contract,
                         window_policy=options.window_policy,
+                        source_progress_scope=(
+                            progress_frame.scope_payload(source_progress_ref)
+                            if progress_frame is not None and source_progress_ref is not None
+                            else None
+                        ),
                     )
                 )
 
             if result.chunks_processed % max(1, int(options.checkpoint_every_chunks)) == 0:
+                if progress_frame is not None:
+                    progress_frame.assert_current()
+                    progress_frame.assert_transport_current()
                 _assert_stream_schema_binding_current(
                     registry,
                     schema_binding,
@@ -2734,6 +2906,8 @@ async def process_stream_dataset(
                                 result=result,
                                 processing_contract=processing_contract,
                                 dedupe_horizon=dedupe_horizon,
+                                source_progress_ref=source_progress_ref,
+                                clock_profile=clock_profile,
                             ),
                         },
                         "committed_at": datetime.now(UTC),
@@ -2783,9 +2957,20 @@ async def process_stream_dataset(
                     input_refs=emission.contributor_refs,
                     processing_contract=processing_contract,
                     window_policy=options.window_policy,
+                    source_progress_scope=(
+                        progress_frame.scope_payload(source_progress_ref)
+                        if progress_frame is not None and source_progress_ref is not None
+                        else None
+                    ),
                 )
             )
 
+        if progress_frame is not None:
+            progress_frame.assert_current()
+            progress_frame.assert_transport_current()
+            if source_progress_ref is None:
+                source_progress_ref = progress_frame.witness(sync_store)
+            result.source_progress_scope = progress_frame.scope_payload(source_progress_ref)
         _assert_stream_schema_binding_current(
             registry,
             schema_binding,
@@ -2818,6 +3003,8 @@ async def process_stream_dataset(
                         result=result,
                         processing_contract=processing_contract,
                         dedupe_horizon=dedupe_horizon,
+                        source_progress_ref=source_progress_ref,
+                        clock_profile=clock_profile,
                     ),
                 },
                 "committed_at": datetime.now(UTC),
@@ -2934,6 +3121,15 @@ async def process_stream_dataset(
             primary_exc.add_note(f"stream session final cleanup failed: {cleanup_exc!r}")
 
 
+def _source_progress_input_refs(scope: dict[str, Any] | None) -> list[InputRef]:
+    if scope is None:
+        return []
+    witness = ArtifactRef.model_validate(scope["source_witness_ref"])
+    if witness.manifest_profile_sha256 is None:
+        raise ValueError("stream source witness has no exact selected view")
+    return [input_ref_from_artifact_ref(witness, role="source_progress_witness")]
+
+
 async def _persist_stream_chunk_async(
     *,
     store: AsyncArtifactStore,
@@ -2946,6 +3142,7 @@ async def _persist_stream_chunk_async(
     processing_contract: ProcessingGuaranteeContract,
     schema_binding: StreamSchemaBinding | None = None,
     visible_fields: tuple[str, ...] | None = None,
+    source_progress_scope: dict[str, Any] | None = None,
 ) -> ArtifactRef:
     payload = {
         "connector_id": connector_id,
@@ -2965,6 +3162,7 @@ async def _persist_stream_chunk_async(
         ),
         "visible_fields": list(visible_fields or ()),
         "processing": processing_contract_snapshot(processing_contract),
+        "source_progress": source_progress_scope,
         "data": rows,
     }
     return await store.put_json(
@@ -2973,6 +3171,7 @@ async def _persist_stream_chunk_async(
             kind="fabric.stream_chunk",
             media_type="application/json",
             schema=SchemaInfo(name="fabric.StreamChunk", version="2.0"),
+            inputs=_source_progress_input_refs(source_progress_scope) or None,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
@@ -2989,6 +3188,7 @@ async def _persist_stream_window_async(
     window_policy: WindowPolicy,
     input_ref: ArtifactRef | None = None,
     input_refs: tuple[ArtifactRef | str, ...] | None = None,
+    source_progress_scope: dict[str, Any] | None = None,
 ) -> ArtifactRef:
     if input_ref is not None and input_refs is not None:
         raise ValueError("provide input_ref or input_refs, not both")
@@ -3020,6 +3220,7 @@ async def _persist_stream_window_async(
             fallback_strategy=assignment.strategy,
         ),
         "processing": processing_contract_snapshot(processing_contract),
+        "source_progress": source_progress_scope,
         "lineage": {
             "contributor_chunk_refs": [
                 str(ref.artifact_id) if isinstance(ref, ArtifactRef) else str(ref)
@@ -3034,7 +3235,7 @@ async def _persist_stream_window_async(
             kind="fabric.stream_window",
             media_type="application/json",
             schema=SchemaInfo(name="fabric.StreamWindow", version="1.0"),
-            inputs=inputs,
+            inputs=[*(inputs or []), *_source_progress_input_refs(source_progress_scope)] or None,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
@@ -3184,6 +3385,7 @@ async def _persist_cdc_schema_change_event_async(
     processing_contract: ProcessingGuaranteeContract,
     schema_binding: StreamSchemaBinding | None = None,
     visible_fields: tuple[str, ...] | None = None,
+    source_progress_scope: dict[str, Any] | None = None,
 ) -> ArtifactRef:
     previous = set(previous_fields)
     current = set(current_fields)
@@ -3205,6 +3407,7 @@ async def _persist_cdc_schema_change_event_async(
         "compatibility": compatibility.value,
         "handling_action": handling_action,
         "processing": processing_contract_snapshot(processing_contract),
+        "source_progress": source_progress_scope,
         "lineage": {
             "source": f"connector.stream:{connector_id}:{dataset_id}",
             "event_type": "schema_change",
@@ -3226,6 +3429,7 @@ async def _persist_cdc_schema_change_event_async(
             kind="fabric.cdc_schema_change",
             media_type="application/json",
             schema=SchemaInfo(name="fabric.CDCSchemaChange", version="1.0"),
+            inputs=_source_progress_input_refs(source_progress_scope) or None,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )

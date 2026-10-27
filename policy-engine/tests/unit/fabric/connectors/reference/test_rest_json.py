@@ -397,3 +397,43 @@ async def test_rest_pagination_with_rate_limit(monkeypatch) -> None:
 
     await connector.disconnect(handle)
     await runner.cleanup()
+
+
+@pytest.mark.parametrize("header_name", ["Etag", "etag", "eTaG", "ETag"])
+@pytest.mark.asyncio
+async def test_actual_http_response_header_case_preserves_etag_and_incremental_since(
+    header_name: str,
+) -> None:
+    """Use actual aiohttp bytes: converting response headers to dict loses this."""
+    import aiohttp.web
+
+    observed = []
+
+    async def endpoint(request):
+        observed.append(dict(request.query))
+        return aiohttp.web.json_response({"data": []}, headers={header_name: '"source-9"'})
+
+    app = aiohttp.web.Application()
+    app.router.add_get("/records", endpoint)
+    runner = aiohttp.web.AppRunner(app)
+    await runner.setup()
+    site = aiohttp.web.TCPSite(runner, "127.0.0.1", 0)
+    await site.start()
+    port = site._server.sockets[0].getsockname()[1]
+    connector = GenericRESTConnector()
+    handle = await connector.connect(ConnectionConfig(url=f"http://127.0.0.1:{port}/records"))
+    previous = DataVersion(
+        strategy=VersionStrategy.ETAG,
+        value='"source-8"',
+        timestamp=datetime(2026, 1, 1, tzinfo=UTC),
+    )
+    try:
+        result = await connector.fetch(
+            handle, FetchRequest(dataset_id="events", incremental_since=previous)
+        )
+        assert result.version.strategy is VersionStrategy.ETAG
+        assert result.version.value == '"source-9"'
+        assert observed and all(query.get("since") == '"source-8"' for query in observed)
+    finally:
+        await connector.disconnect(handle)
+        await runner.cleanup()

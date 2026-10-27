@@ -9,6 +9,7 @@ __all__ = [
     "EvidenceJournalError",
     "FabricBenchmarkReport",
     "HarnessAuthorizationEvidence",
+    "IngestionResult",
     "JournalEventRef",
     "LiveAttemptTerminal",
     "LiveExecutionAuthorization",
@@ -35,6 +36,7 @@ __all__ = [
     "content_sha256",
     "derive_harness_authorization_evidence",
     "derive_live_http_budget",
+    "ingestion_is_complete",
     "iter_record_batches",
     "list_quarantine_records",
     "load_quarantine_payload",
@@ -62,6 +64,8 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "IngestionResult": ("polisyos.fabric.data_plane.orchestrator", "IngestionResult"),
+    "ingestion_is_complete": ("polisyos.fabric.data_plane.orchestrator", "ingestion_is_complete"),
     "AppendOnlyEvidenceJournal": (
         "polisyos.fabric.data_plane.evidence_journal",
         "AppendOnlyEvidenceJournal",

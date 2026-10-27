@@ -13,7 +13,7 @@ import importlib
 import uuid
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Protocol, cast
+from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 
 from polisyos.common.async_tools import run_blocking_async, run_coro_sync
 from polisyos.common.logger import get_logger
@@ -22,7 +22,12 @@ from polisyos.core.artifacts.backends.config import (
     ArtifactStoreConfig,
     build_artifact_store,
 )
-from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    SchemaInfo,
+    artifact_ref_identity_key,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.cursor import PartitionCursorState
 from polisyos.core.contracts.fabric import (
@@ -54,6 +59,7 @@ if TYPE_CHECKING:
         ConnectorManifestSpec,
         PreTransformFetchResultSink,
     )
+    from polisyos.fabric.ingestion.ingestion import FetchRequestTransform, PersistedFetchResultSink
     from polisyos.fabric.ingestion.ingestion_providers import (
         _BatchIngestionDependencies,
     )
@@ -61,6 +67,10 @@ if TYPE_CHECKING:
     ConnectorManifestInput = dict[str, Any] | Path | str | ConnectorManifestSpec
 
 logger = get_logger(__name__)
+
+
+class SourceCollectionRequiredError(ValueError):
+    """A multi-source snapshot has no reconciled consumer-readable materializer."""
 
 
 @dataclass
@@ -73,6 +83,16 @@ class IngestionResult:
     warnings: list[str] = field(default_factory=list)
     cursor_ref: str | None = None
     mode_effective: str | None = None
+    status: Literal["completed", "partial", "failed"] = "completed"
+
+
+def ingestion_is_complete(result: IngestionResult) -> bool:
+    """Admit successful consumer effects only for the exact completed outcome.
+
+    Partial/failed/unknown outcomes may retain useful evidence, but cannot mark
+    a partition done, feed binding publication, or satisfy replay equivalence.
+    """
+    return result.status == "completed"
 
 
 @dataclass(frozen=True)
@@ -466,6 +486,12 @@ def run_partitioned_ingestion(
                     produce_snapshot=produce_snapshot,
                 )
 
+            completed = ingestion_is_complete(ingestion_result)
+            terminal_status = (
+                "succeeded"
+                if completed
+                else ("partial" if ingestion_result.status == "partial" else "failed")
+            )
             await cursor_store.save_partition_state(
                 PartitionCursorState(
                     plan_id=plan.plan_id,
@@ -474,11 +500,18 @@ def run_partitioned_ingestion(
                     dataset_id=plan.dataset_id,
                     partition_key=plan.partition_key,
                     partition_bounds=partition.bounds,
-                    source_cursor=ingestion_result.cursor_ref or partition.source_cursor,
+                    source_cursor=(ingestion_result.cursor_ref or partition.source_cursor)
+                    if completed
+                    else partition.source_cursor,
                     expected_cardinality=partition.expected_cardinality,
                     merge_policy=partition.merge_policy,
-                    status="succeeded",
-                    checkpoint_id=ingestion_result.cursor_ref,
+                    status=terminal_status,
+                    last_error=None
+                    if completed
+                    else "ingestion_incomplete:" + ingestion_result.status,
+                    checkpoint_id=ingestion_result.cursor_ref
+                    if completed
+                    else (persisted.checkpoint_id if persisted else None),
                     updated_at=_utc_now(),
                     metadata={
                         **plan.metadata,
@@ -488,10 +521,10 @@ def run_partitioned_ingestion(
             )
             return PartitionExecutionResult(
                 partition_id=partition.partition_id,
-                status="succeeded",
+                status=terminal_status,
                 evidence_bundle_ref=ingestion_result.evidence_bundle_ref,
-                data_snapshot_ref=ingestion_result.data_snapshot_ref,
-                cursor_ref=ingestion_result.cursor_ref,
+                data_snapshot_ref=ingestion_result.data_snapshot_ref if completed else None,
+                cursor_ref=ingestion_result.cursor_ref if completed else None,
                 warnings=tuple(ingestion_result.warnings),
             )
         except Exception as exc:
@@ -549,6 +582,9 @@ def run_orchestrated_ingestion(
     ingestion_dependencies: _BatchIngestionDependencies | None = None,
     sidecar_scope: TenantSidecarScope | None = None,
     raw_result_sink: PreTransformFetchResultSink | None = None,
+    request_transform: FetchRequestTransform | None = None,
+    persisted_result_sink: PersistedFetchResultSink | None = None,
+    continue_on_fetch_error: bool = False,
     raw_http_response_observer: RawHTTPResponseObserver | None = None,
     _live_acquire_permit: object | None = None,
     cache_namespace: str | None = None,
@@ -578,6 +614,11 @@ def run_orchestrated_ingestion(
     )
     resolved_cas_root = scope.base_root
 
+    source_failures: list[tuple[str, str, str]] = []
+
+    def _record_fetch_failure(connector_id: str, dataset_id: str, failure_type: str) -> None:
+        source_failures.append((connector_id, dataset_id, failure_type))
+
     evidence_ref = run_connectors_ingestion(
         connector_manifest=connector_manifest,
         source=source,
@@ -587,22 +628,40 @@ def run_orchestrated_ingestion(
         dependencies=dependencies,
         sidecar_scope=scope,
         raw_result_sink=raw_result_sink,
+        request_transform=request_transform,
+        persisted_result_sink=persisted_result_sink,
+        continue_on_fetch_error=continue_on_fetch_error,
+        fetch_failure_sink=_record_fetch_failure,
         raw_http_response_observer=raw_http_response_observer,
         _live_acquire_permit=_live_acquire_permit,
         cache_namespace=cache_namespace,
     )
 
-    datasets_fetched = 0
+    dataset_count = 0
     if hasattr(connector_manifest, "datasets"):
-        datasets_fetched = len(connector_manifest.datasets)
+        dataset_count = len(connector_manifest.datasets)
     elif isinstance(connector_manifest, dict):
-        datasets_fetched = len(connector_manifest.get("datasets", []))
+        dataset_count = len(connector_manifest.get("datasets", []))
+    datasets_fetched = max(0, dataset_count - len(source_failures))
+    warnings = [
+        f"source_fetch_failed:{connector_id}:{dataset_id}:{failure_type}"
+        for connector_id, dataset_id, failure_type in source_failures
+    ]
 
-    if not produce_snapshot or evidence_ref is None:
+    # Partial source sets remain inspectable as evidence, but cannot produce
+    # an ordinary completed snapshot or downstream input bindings.
+    status = (
+        "partial"
+        if source_failures and datasets_fetched
+        else ("failed" if source_failures else "completed")
+    )
+    if not produce_snapshot or evidence_ref is None or source_failures:
         return IngestionResult(
             evidence_bundle_ref=evidence_ref,
             data_snapshot_ref=None,
             datasets_fetched=datasets_fetched,
+            warnings=warnings,
+            status=status,
         )
 
     cas_store = resolve_ingestion_store(
@@ -610,19 +669,28 @@ def run_orchestrated_ingestion(
         dependencies,
         sidecar_scope=scope,
     )
-    snapshot_ref = run_coro_sync(
-        _build_snapshot_from_evidence_async(
-            store=ensure_async_artifact_store(cas_store),
-            evidence_ref=evidence_ref,
-            datasets_fetched=datasets_fetched,
-            source=source,
+    try:
+        snapshot_ref = run_coro_sync(
+            _build_snapshot_from_evidence_async(
+                store=ensure_async_artifact_store(cas_store),
+                evidence_ref=evidence_ref,
+                datasets_fetched=datasets_fetched,
+                source=source,
+            )
         )
-    )
+    except SourceCollectionRequiredError:
+        return IngestionResult(
+            evidence_bundle_ref=evidence_ref,
+            datasets_fetched=datasets_fetched,
+            warnings=[*warnings, "multi_source_snapshot_materializer_not_established"],
+            status="partial",
+        )
 
     return IngestionResult(
         evidence_bundle_ref=evidence_ref,
         data_snapshot_ref=snapshot_ref,
         datasets_fetched=datasets_fetched,
+        warnings=warnings,
     )
 
 
@@ -632,6 +700,7 @@ async def _build_snapshot_from_evidence_async(
     evidence_ref: EvidenceBundleRef,
     datasets_fetched: int,
     source: str,
+    data_ref_override: ArtifactRef | None = None,
 ) -> DataSnapshotRef | None:
     """Build a DataSnapshot from evidence bundle artifacts in CAS."""
     from polisyos.core.artifacts import aload_core_json_artifact
@@ -644,8 +713,24 @@ async def _build_snapshot_from_evidence_async(
         logger.warning("orchestrator: evidence bundle has no sources, skipping snapshot")
         return None
 
-    # Use the first source artifact as the primary data reference
-    data_ref = evidence_bundle.sources[0]
+    if data_ref_override is not None:
+        # Namespaced materialization has already reconciled the entire original
+        # evidence denominator. Its derived bundle must point to exactly this
+        # consumer-readable artifact, never a caller-selected subset.
+        if len(evidence_bundle.sources) != 1 or artifact_ref_identity_key(
+            evidence_bundle.sources[0]
+        ) != artifact_ref_identity_key(data_ref_override):
+            raise ValueError("materialized snapshot evidence does not cover its actual data_ref")
+        data_ref = data_ref_override
+    else:
+        # Existing live acquisition uses one cached-result source and retains
+        # its owner-specific decoding contract. Multi-source callers must use
+        # an explicit, reconciled materializer rather than silently choosing A.
+        if len(evidence_bundle.sources) != 1:
+            raise SourceCollectionRequiredError(
+                "multi-source snapshot requires a reconciled materializer"
+            )
+        data_ref = evidence_bundle.sources[0]
 
     # Persist retrieval observations without presenting them as an assessment.
     quality_payload = RetrievalSummary(

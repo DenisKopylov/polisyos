@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import threading
 from collections.abc import Callable
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -13,14 +14,13 @@ from urllib.parse import parse_qs, urlsplit
 
 import pytest
 import pytest_asyncio
+from tests._helpers.source_progress import finite_source_reader
 
 from polisyos.core.artifacts.protocol import matches_runtime_protocol
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.cursor import (
-    CursorState,
     StreamLifecycleState,
-    WatermarkType,
     WindowStrategy,
 )
 from polisyos.fabric.connectors.base import ConnectionConfig
@@ -234,6 +234,21 @@ def _dedupe_options(
     )
 
 
+def _non_deduping_options(**kwargs: Any) -> StreamRuntimeOptions:
+    """Keep non-B83 window/CDC/capacity tests separate from source-key authority."""
+    options = StreamRuntimeOptions(**kwargs)
+    contract = options.processing_contract
+    return replace(
+        options,
+        processing_contract=contract.model_copy(
+            update={
+                "idempotency": contract.idempotency.model_copy(update={"enabled": False}),
+                "guarantee": "at_least_once",
+            }
+        ),
+    )
+
+
 def _capacity_processing_contract(
     strategy: str,
     *,
@@ -304,100 +319,182 @@ async def _run_stream(
         store=store,
         cursor_store=CursorStore(store),
         sanitize_rows=sanitize_rows,
-        runtime_options=options or StreamRuntimeOptions(window_policy=policy),
+        runtime_options=options or _non_deduping_options(window_policy=policy),
         registry=registry,
         schema_binding=schema_binding,
     )
 
 
-@pytest.mark.parametrize("manifest_kind", ["dict", "typed"])
-def test_b79_supported_rest_request_uses_the_persisted_etag_cursor(
-    tmp_path: Path,
-    manifest_kind: str,
+@pytest.mark.parametrize("manifest_kind", ["dict", "spec"])
+def test_b79_finite_file_replay_uses_only_its_admitted_persisted_cursor(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, manifest_kind: str
 ) -> None:
-    """The supported ingestion route sends the stored source version to REST."""
-    from polisyos.core.canon import from_canonical_bytes
-    from polisyos.core.contracts.fabric import EvidenceBundle
-    from polisyos.fabric.connectors.cache._store_serialization import ResultSerializer
-    from polisyos.fabric.connectors.registry import ConnectorRegistry as IngestionRegistry
+    """Actual file replay proves portable progress; it makes no live REST claim."""
+    from copy import deepcopy
+
+    from tests._helpers.source_progress import write_source_history
+
+    from polisyos.fabric.data_plane.modes import run_batch_incremental
+    from polisyos.fabric.ingestion import resolve_ingestion_dependencies
+    from polisyos.fabric.ingestion.source_progress import ReconciledSourceFrame
+
+    reader = finite_source_reader(
+        tmp_path / "owner",
+        connector_id="rest.json",
+        dataset_id="dataset",
+        schema_id="rest.json.dataset",
+        snapshots=[('"etag-prior"', [])],
+    )
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    config = ConnectionConfig(url=reader.fixture_path.as_uri())
+    registry.set_default_config("rest.json", config)
+    dependencies = resolve_ingestion_dependencies(
+        registry=registry, source_progress_readers=(reader,)
+    )
+    if manifest_kind == "dict":
+        manifest: Any = {"datasets": [{"connector_id": "rest.json", "dataset_id": "dataset"}]}
+    else:
+        from polisyos.fabric.ingestion import ConnectorManifestSpec, DatasetFetchSpec
+
+        manifest = ConnectorManifestSpec(
+            datasets=[DatasetFetchSpec(connector_id="rest.json", dataset_id="dataset")]
+        )
+    observed = []
+    real_fetch = ReconciledSourceFrame.replay_fetch
+
+    def observe(frame, actual_config, request):
+        observed.append(request)
+        return real_fetch(frame, actual_config, request)
+
+    monkeypatch.setattr(ReconciledSourceFrame, "replay_fetch", observe)
+    cas_root = tmp_path / "cas"
+
+    def run(root=cas_root):
+        return run_batch_incremental(
+            connector_manifest=manifest,
+            source="b79-file-replay",
+            license_name="fixture-only",
+            cas_root=root,
+            connection_config=config,
+            produce_snapshot=True,
+            ingestion_dependencies=dependencies,
+        )
+
+    try:
+        first = run()
+        assert first.status == "completed" and first.cursor_ref is not None
+        assert observed[-1].incremental_since is None
+        prior = CursorStore(FileSystemCAS(cas_root)).find_latest_cursor("rest.json", "dataset")
+        row = {"event_id": "one", "source_version": "1"}
+        write_source_history(reader, [('"etag-prior"', []), ('"etag-next"', [row])])
+        result = run()
+        assert result.status == "completed" and result.cursor_ref is not None
+        assert observed[-1].incremental_since.value == '"etag-prior"'
+        current = CursorStore(FileSystemCAS(cas_root)).find_latest_cursor("rest.json", "dataset")
+        assert current.watermark_value == '"etag-next"'
+        assert current.metadata["cache_key"] == observed[-1].cache_key
+        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.core.contracts.fabric import DataSnapshot
+        from polisyos.foundry.data_plane.bindings import _load_binding_payload
+
+        store = FileSystemCAS(cas_root)
+        snapshot = DataSnapshot.model_validate(
+            load_core_json_artifact(store, result.data_snapshot_ref)
+        )
+        payload = _load_binding_payload(store, snapshot)
+        assert payload["admission_scope"] == "finite_source_fixture"
+        assert payload["production_currentness"] == "not_established"
+        assert {
+            r["event_id"] for member in payload["sources"].values() for r in member["data"]
+        } == {"one"}
+        changed_metadata = deepcopy(current.metadata)
+        changed_metadata["source_progress"]["payload_ref"]["manifest_profile_sha256"] = "0" * 64
+        changed_profile = current.model_copy(update={"metadata": changed_metadata})
+        CursorStore(store).save_cursor(changed_profile)
+        negative = run()
+        assert negative.status == "partial" and negative.cursor_ref is None
+        assert observed[-1].incremental_since is None
+        assert CursorStore(store).find_latest_cursor("rest.json", "dataset") == changed_profile
+        legacy_root = tmp_path / "legacy"
+        legacy = prior.model_copy(update={"metadata": {}, "evidence_bundle_ref": None})
+        CursorStore(FileSystemCAS(legacy_root)).save_cursor(legacy)
+        refused = run(legacy_root)
+        assert refused.status == "partial" and refused.data_snapshot_ref is None
+        assert observed[-1].incremental_since is None
+        assert (
+            CursorStore(FileSystemCAS(legacy_root)).find_latest_cursor("rest.json", "dataset")
+            == legacy
+        )
+    finally:
+        registry.shutdown()
+
+
+def test_b79_matching_finite_file_cannot_authorize_a_live_endpoint(
+    tmp_path: Path,
+) -> None:
+    """Hidden C with unchanged A/B/complete declarations never promotes live progress."""
     from polisyos.fabric.data_plane.modes import run_batch_incremental
     from polisyos.fabric.ingestion import resolve_ingestion_dependencies
 
-    calls: list[tuple[str, str, dict[str, list[str]]]] = []
+    rows = [{"event_id": key, "source_version": "1"} for key in ("A", "B", "C")]
+    observed = []
 
-    class _Handler(BaseHTTPRequestHandler):
-        def do_GET(self) -> None:
-            parsed = urlsplit(self.path)
-            calls.append((self.command, parsed.path, parse_qs(parsed.query)))
-            body = json.dumps({"data": [{"id": "row-1", "value": 7}]}).encode()
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            query = parse_qs(urlsplit(self.path).query)
+            observed.append(query)
+            # The network source has C, but declares A/B to be a complete A9.
+            body = json.dumps({"data": rows[:2]}).encode()
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
-            self.send_header("ETag", '"etag-next"')
+            self.send_header("eTaG", '"a9"')
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
 
-        def log_message(self, format: str, *args: object) -> None:
+        def log_message(self, format, *args):
             del format, args
 
-    cas_root = tmp_path / f"cas-{manifest_kind}"
-    store = FileSystemCAS(cas_root)
-    cursor_store = CursorStore(store)
-    prior = '"etag-prior"'
-    cursor_store.save_cursor(
-        CursorState(
-            cursor_id="rest.json:dataset",
-            connector_id="rest.json",
-            dataset_id="dataset",
-            watermark_type=WatermarkType.ETAG,
-            watermark_value=prior,
-            created_at=datetime(2026, 10, 1, tzinfo=UTC),
-        )
+    reader = finite_source_reader(
+        tmp_path / "owner",
+        connector_id="rest.json",
+        dataset_id="dataset",
+        schema_id="rest.json.dataset",
+        snapshots=[('"a9"', rows[:2])],
     )
-
-    server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
+    ConnectorRegistry.reset_instance()
+    registry = ConnectorRegistry.get_instance()
+    dependencies = resolve_ingestion_dependencies(
+        registry=registry, source_progress_readers=(reader,)
+    )
+    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
-    registry = IngestionRegistry.get_instance()
     thread.start()
     try:
-        if manifest_kind == "dict":
-            manifest: Any = {"datasets": [{"connector_id": "rest.json", "dataset_id": "dataset"}]}
-        else:
-            from polisyos.fabric.ingestion import ConnectorManifestSpec
-            from polisyos.fabric.ingestion.ingestion import DatasetFetchSpec
-
-            manifest = ConnectorManifestSpec(
-                datasets=[DatasetFetchSpec(connector_id="rest.json", dataset_id="dataset")]
-            )
-
         result = run_batch_incremental(
-            connector_manifest=manifest,
-            source="e02-b79-fixture",
+            connector_manifest={
+                "datasets": [{"connector_id": "rest.json", "dataset_id": "dataset"}]
+            },
+            source="b79-live-negative",
             license_name="fixture-only",
-            cas_root=cas_root,
+            cas_root=tmp_path / "cas",
             connection_config=ConnectionConfig(
                 url=f"http://127.0.0.1:{server.server_port}/records"
             ),
-            produce_snapshot=False,
-            ingestion_dependencies=resolve_ingestion_dependencies(registry=registry),
+            produce_snapshot=True,
+            ingestion_dependencies=dependencies,
         )
-
-        assert result.datasets_fetched == 1
-        assert result.evidence_bundle_ref is not None
-        assert result.cursor_ref is None  # No unverified promotion on the same fixture.
-        assert len(calls) == 2
-        assert all(method == "GET" and path == "/records" for method, path, _ in calls)
-        assert [query for _, _, query in calls if "since" in query] == [
-            {"limit": ["100"], "page": ["1"], "since": [prior]}
-        ]
-
-        evidence = from_canonical_bytes(store.get_bytes(result.evidence_bundle_ref.artifact_id))
-        bundle = EvidenceBundle.model_validate(evidence)
-        assert len(bundle.sources) == 1
-        persisted = ResultSerializer.deserialize(store.get_bytes(bundle.sources[0]))
-        assert persisted.data == [{"id": "row-1", "value": 7}]
-        after = cursor_store.find_latest_cursor("rest.json", "dataset")
-        assert after is not None and after.watermark_value == prior
+        assert (
+            result.status == "partial"
+            and result.cursor_ref is None
+            and result.data_snapshot_ref is None
+        )
+        assert observed and all("since" not in query for query in observed)
+        assert (
+            CursorStore(FileSystemCAS(tmp_path / "cas")).find_latest_cursor("rest.json", "dataset")
+            is None
+        )
     finally:
         server.shutdown()
         server.server_close()
@@ -405,227 +502,201 @@ def test_b79_supported_rest_request_uses_the_persisted_etag_cursor(
         registry.shutdown()
 
 
-def test_b80_two_source_failure_keeps_predecessors_and_retry_reads_late_event(
+def test_b80_two_source_failure_then_fresh_snapshot_consumes_both_sources(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A failed B fetch preserves both source cursors and replay keeps B's late row."""
-    from polisyos.core.contracts.fabric import EvidenceBundle
-    from polisyos.fabric.connectors.base import HealthStatus
+    """A9/B4 then fresh Snapshot B is A9/B5 through the real Foundry loader."""
+    from tests._helpers.source_progress import write_source_history
+
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+    from polisyos.core.canon import CanonSpec
+    from polisyos.core.contracts.fabric import DataSnapshot
     from polisyos.fabric.connectors.sources.rest_json import RestJsonConnector
-    from polisyos.fabric.connectors.types import FetchError
     from polisyos.fabric.data_plane.modes import run_batch_incremental
     from polisyos.fabric.ingestion import resolve_ingestion_dependencies
-    from polisyos.ir.connectors import DataVersion, FetchResult, VersionStrategy
+    from polisyos.fabric.ingestion.source_collection import SourceCollection, source_namespace
+    from polisyos.fabric.ingestion.source_progress import (
+        ReconciledSourceFrame,
+        SourceProgressAdmissionError,
+    )
+    from polisyos.foundry.data_plane.bindings import _load_binding_payload, _resolve_source_path
 
+    a9 = {"event_id": "a-event-9", "source_version": "9", "event_time": "2025-01-01T00:00:00Z"}
+    b5 = {"event_id": "b-late-event-5", "source_version": "5", "event_time": "2024-01-01T00:00:00Z"}
+    readers = {
+        source: finite_source_reader(
+            tmp_path / "owner",
+            connector_id=f"fixture.{source}",
+            dataset_id="events",
+            schema_id=f"fixture.{source}.events",
+            snapshots=[(version, [])],
+        )
+        for source, version in (("source_a", "a8"), ("source_b", "b4"))
+    }
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
-    source_events: dict[str, list[tuple[str, dict[str, Any] | None]]] = {
-        "source_a": [
-            ("etag-a8", None),
-            (
-                "etag-a9",
-                {
-                    "id": "a-event-9",
-                    "source_version": "etag-a9",
-                    "event_time": "2025-01-01T00:00:00Z",
-                },
-            ),
-        ],
-        "source_b": [
-            ("etag-b4", None),
-            (
-                "etag-b5",
-                {
-                    "id": "b-late-event-5",
-                    "source_version": "etag-b5",
-                    "event_time": "2024-01-01T00:00:00Z",
-                },
-            ),
-        ],
-    }
-    observed_requests: list[tuple[str, str | None]] = []
-    fail_b_once = {"pending": True}
-    version_time = datetime(2026, 10, 6, tzinfo=UTC)
-
-    def _fixture_class(source_key: str) -> type[RestJsonConnector]:
-        async def _health_check(self: Any, handle: Any) -> HealthStatus:
-            del self, handle
-            return HealthStatus(healthy=True, message="fixture source is ready")
-
-        async def _fetch(self: Any, handle: Any, request: Any) -> FetchResult[list[dict[str, Any]]]:
-            del self, handle
-            since = (
-                request.incremental_since.value if request.incremental_since is not None else None
-            )
-            observed_requests.append((source_key, since))
-            if source_key == "source_b" and fail_b_once["pending"]:
-                fail_b_once["pending"] = False
-                raise FetchError(
-                    "fixture source_b is temporarily unavailable",
-                    connector_id="fixture." + source_key,
-                    dataset_id="events",
-                )
-
-            versions = [version for version, _row in source_events[source_key]]
-            if since in versions:
-                start_index = versions.index(since) + 1
-            else:
-                start_index = 0
-            remaining = source_events[source_key][start_index:]
-            rows = [row for _version, row in remaining if row is not None]
-            current_version = remaining[-1][0] if remaining else (since or versions[0])
-            return FetchResult(
-                data=rows,
-                row_count=len(rows),
-                schema_id="fixture.e02.source_events",
-                schema_version="1.0",
-                version=DataVersion(
-                    strategy=VersionStrategy.ETAG,
-                    value=current_version,
-                    timestamp=version_time,
-                ),
-                fetched_at=version_time,
-                completeness=1.0,
-            )
-
-        metadata = RestJsonConnector.metadata.model_copy(
-            update={
-                "connector_id": source_key,
-                "namespace": "fixture",
-                "source_name": f"Fixture {source_key}",
-                "source_organization": "E02 oracle",
-            }
-        )
-        return type(
-            f"{source_key.title()}FixtureConnector",
+    for source, reader in readers.items():
+        cls = type(
+            source.title() + "Connector",
             (RestJsonConnector,),
             {
-                "__module__": __name__,
-                "connector_id": f"fixture.{source_key}",
+                "connector_id": f"fixture.{source}",
                 "namespace": "fixture",
-                "short_id": source_key,
-                "metadata": metadata,
-                "health_check": _health_check,
-                "fetch": _fetch,
+                "short_id": source,
+                "metadata": RestJsonConnector.metadata.model_copy(
+                    update={"connector_id": source, "namespace": "fixture"}
+                ),
             },
         )
-
-    config = ConnectionConfig(url="https://fixture.invalid/events")
-    for source_key in source_events:
-        registry.register(
-            _fixture_class(source_key),
-            config=config,
-        )
-
-    class _DirectFixtureRegistry:
-        """Use fixture connectors directly while exercising ingestion/orchestration consumers."""
-
-        def get(self, connector_id: str) -> Any:
-            return registry.get(connector_id)
-
-        async def get_connection(
-            self,
-            connector_id: str,
-            connection_config: ConnectionConfig,
-        ) -> Any:
-            return await self.get(connector_id).connect(connection_config)
-
-        async def release_connection(self, connector_id: str, handle: Any) -> None:
-            await self.get(connector_id).disconnect(handle)
-
-    cas_root = tmp_path / "b80-cas"
-    store = FileSystemCAS(cas_root)
-    cursor_store = CursorStore(store)
-    predecessors: dict[str, CursorState] = {}
-    for source_key, version in (("source_a", "etag-a8"), ("source_b", "etag-b4")):
-        connector_id = f"fixture.{source_key}"
-        predecessor = CursorState(
-            cursor_id=f"{connector_id}:events",
-            connector_id=connector_id,
-            dataset_id="events",
-            watermark_type=WatermarkType.ETAG,
-            watermark_value=version,
-            created_at=version_time,
-        )
-        cursor_store.save_cursor(predecessor)
-        predecessors[source_key] = predecessor
-
+        registry.register(cls, config=ConnectionConfig(url=reader.fixture_path.as_uri()))
+    dependencies = resolve_ingestion_dependencies(
+        registry=registry, source_progress_readers=tuple(readers.values())
+    )
     manifest = {
         "datasets": [
-            {"connector_id": "fixture.source_a", "dataset_id": "events"},
-            {"connector_id": "fixture.source_b", "dataset_id": "events"},
+            {"connector_id": f"fixture.{source}", "dataset_id": "events"} for source in readers
         ]
     }
-    fixture_registry = _DirectFixtureRegistry()
-    dependencies = resolve_ingestion_dependencies(registry=fixture_registry)  # type: ignore[arg-type]
-    try:
-        with pytest.raises(FetchError, match="temporarily unavailable"):
-            run_batch_incremental(
-                connector_manifest=manifest,
-                source="e02-b80-fixture",
-                license_name="fixture-only",
-                cas_root=cas_root,
-                connection_config=config,
-                produce_snapshot=False,
-                ingestion_dependencies=dependencies,
-            )
+    observed = []
+    phase = {"value": "initial"}
+    real_fetch = ReconciledSourceFrame.replay_fetch
 
-        after_failure = CursorStore(FileSystemCAS(cas_root))
-        for _source_key, predecessor in predecessors.items():
-            actual = after_failure.find_latest_cursor(
-                predecessor.connector_id,
-                predecessor.dataset_id,
+    def transient_io(frame, config, request):
+        observed.append(
+            (
+                frame.extension.connector_id,
+                request.incremental_since.value if request.incremental_since else None,
             )
-            assert actual is not None
-            assert actual.model_dump(mode="json") == predecessor.model_dump(mode="json")
+        )
+        if phase["value"] == "fail-b" and frame.extension.connector_id == "fixture.source_b":
+            raise SourceProgressAdmissionError(
+                "actual_source_unavailable", connector_id="fixture.source_b", dataset_id="events"
+            )
+        return real_fetch(frame, config, request)
 
-        result = run_batch_incremental(
+    monkeypatch.setattr(ReconciledSourceFrame, "replay_fetch", transient_io)
+    cas_root = tmp_path / "cas"
+
+    def run():
+        return run_batch_incremental(
             connector_manifest=manifest,
-            source="e02-b80-fixture",
+            source="b80-file-replay",
             license_name="fixture-only",
             cas_root=cas_root,
-            connection_config=config,
-            produce_snapshot=False,
+            produce_snapshot=True,
             ingestion_dependencies=dependencies,
         )
-        assert result.evidence_bundle_ref is not None
-        assert observed_requests == [
-            ("source_a", "etag-a8"),
-            ("source_b", "etag-b4"),
-            ("source_a", "etag-a8"),
-            ("source_b", "etag-b4"),
-        ]
 
-        evidence = EvidenceBundle.model_validate(
-            from_canonical_bytes(store.get_bytes(result.evidence_bundle_ref.artifact_id))
+    try:
+        assert run().status == "completed"
+        write_source_history(readers["source_a"], [("a8", []), ("a9", [a9])])
+        write_source_history(readers["source_b"], [("b4", []), ("b5", [b5])])
+        phase["value"] = "fail-b"
+        partial = run()
+        assert partial.status == "partial" and partial.data_snapshot_ref is None
+        after_failure = CursorStore(FileSystemCAS(cas_root))
+        assert (
+            after_failure.find_latest_cursor("fixture.source_a", "events").watermark_value == "a9"
         )
-        from polisyos.fabric.connectors.cache._store_serialization import ResultSerializer
-
-        observed_row_ids: set[str] = set()
-        for source_ref in evidence.sources:
-            fetched = ResultSerializer.deserialize(store.get_bytes(source_ref))
-            observed_row_ids.update(str(row["id"]) for row in fetched.data)
-        expected_row_ids = {
-            row["id"]
-            for source_events in source_events.values()
-            for _version, row in source_events[1:]
-            if row is not None
-        }
-        assert observed_row_ids == expected_row_ids
-        assert "b-late-event-5" in observed_row_ids
-
-        # Cursor writes remain fail-closed until the independent evidence binder exists.
-        after_retry = CursorStore(FileSystemCAS(cas_root))
-        for _source_key, predecessor in predecessors.items():
-            actual = after_retry.find_latest_cursor(
-                predecessor.connector_id,
-                predecessor.dataset_id,
+        assert (
+            after_failure.find_latest_cursor("fixture.source_b", "events").watermark_value == "b4"
+        )
+        phase["value"] = "retry"
+        complete = run()
+        assert complete.status == "completed" and complete.data_snapshot_ref is not None
+        assert observed == [
+            ("fixture.source_a", None),
+            ("fixture.source_b", None),
+            ("fixture.source_a", "a8"),
+            ("fixture.source_b", "b4"),
+            ("fixture.source_a", "a9"),
+            ("fixture.source_b", "b4"),
+        ]
+        # A's successful retry transport delta is empty. Only the newly returned
+        # Snapshot B is opened; no union with any earlier bundle/snapshot exists.
+        fresh_store = FileSystemCAS(cas_root)
+        snapshot = DataSnapshot.model_validate(
+            load_core_json_artifact(fresh_store, complete.data_snapshot_ref)
+        )
+        payload = _load_binding_payload(fresh_store, snapshot)
+        a_key = source_namespace("fixture.source_a", "events")
+        b_key = source_namespace("fixture.source_b", "events")
+        assert _resolve_source_path(payload, f"sources.{a_key}.data", missing=None) == [a9]
+        assert _resolve_source_path(payload, f"sources.{b_key}.data", missing=None) == [b5]
+        assert payload["composition_semantics"] == "namespaced_collection_no_inferred_join"
+        assert payload["production_currentness"] == "not_established"
+        # Removal/adversarial control: drop the actual B member while retaining
+        # A/B source evidence, all declarations and manifest inputs. The real
+        # consumer must refuse rather than publish a superficially complete A.
+        collection = SourceCollection.model_validate(payload)
+        truncated = collection.model_copy(update={"sources": {a_key: collection.sources[a_key]}})
+        manifest_view = fresh_store.get_manifest(snapshot.data_ref)
+        bad_ref = fresh_store.put_json(
+            truncated,
+            ArtifactWriteOptions(
+                kind="fabric.source_collection",
+                media_type="application/json",
+                schema=SchemaInfo(name="fabric.SourceCollection", version="1.0"),
+                inputs=manifest_view.inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        with pytest.raises(ValueError, match="omits|duplicates"):
+            _load_binding_payload(fresh_store, snapshot.model_copy(update={"data_ref": bad_ref}))
+        # Also retain both members while omitting an actual source row.
+        wrong_b = collection.sources[b_key].model_copy(update={"data": []})
+        wrong_rows = collection.model_copy(
+            update={"sources": {**collection.sources, b_key: wrong_b}}
+        )
+        bad_rows_ref = fresh_store.put_json(
+            wrong_rows,
+            ArtifactWriteOptions(
+                kind="fabric.source_collection",
+                media_type="application/json",
+                schema=SchemaInfo(name="fabric.SourceCollection", version="1.0"),
+                inputs=manifest_view.inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        with pytest.raises(ValueError, match="data differs"):
+            _load_binding_payload(
+                fresh_store, snapshot.model_copy(update={"data_ref": bad_rows_ref})
             )
-            assert actual is not None
-            assert actual.model_dump(mode="json") == predecessor.model_dump(mode="json")
+        # Preserve the original source-to-artifact counterexample as well as
+        # the new actual-consumer controls: valid B6 may advance beside an
+        # independently mismatched A10 graph, but A must remain at A9.
+        a10 = {"event_id": "a-event-10", "source_version": "10"}
+        b6 = {"event_id": "b-event-6", "source_version": "6"}
+        write_source_history(readers["source_a"], [("a8", []), ("a9", [a9]), ("a10", [a9, a10])])
+        write_source_history(readers["source_b"], [("b4", []), ("b5", [b5]), ("b6", [b5, b6])])
+        import polisyos.fabric.ingestion.ingestion as ingestion_module
+
+        original_persist = ingestion_module.persist_provenance_graph
+
+        def mismatch_actual_a(store, graph):
+            graph.entities["dataset.fixture.source_a.events"].attributes["data_artifact_id"] = (
+                "unbound"
+            )
+            return original_persist(store, graph)
+
+        with pytest.MonkeyPatch.context() as patcher:
+            patcher.setattr(ingestion_module, "persist_provenance_graph", mismatch_actual_a)
+            negative = run()
+        assert negative.status == "partial" and negative.data_snapshot_ref is None
+        cursors = CursorStore(FileSystemCAS(cas_root))
+        assert cursors.find_latest_cursor("fixture.source_a", "events").watermark_value == "a9"
+        assert cursors.find_latest_cursor("fixture.source_b", "events").watermark_value == "b6"
+        partial_evidence = load_core_json_artifact(
+            FileSystemCAS(cas_root), negative.evidence_bundle_ref
+        )
+        assert any("partial evidence" in note.lower() for note in partial_evidence["notes"])
     finally:
         registry.shutdown()
-        ConnectorRegistry.reset_instance()
 
 
 @pytest.mark.parametrize("strategy", ["count", "tumbling", "session", "sliding"])
@@ -681,7 +752,7 @@ async def test_b81_b82_b85_baseexception_restart_replays_actual_cas_lineage(
             store=store,
             cursor_store=cursor_store,
             sanitize_rows=_valid_rows,
-            runtime_options=StreamRuntimeOptions(
+            runtime_options=_non_deduping_options(
                 checkpoint_every_chunks=1,
                 max_dedupe_keys=32,
                 window_policy=policy,
@@ -709,7 +780,7 @@ async def test_b81_b82_b85_baseexception_restart_replays_actual_cas_lineage(
         store=persisted_crash,
         cursor_store=resumed_cursor_store,
         sanitize_rows=_valid_rows,
-        runtime_options=StreamRuntimeOptions(
+        runtime_options=_non_deduping_options(
             checkpoint_every_chunks=1,
             max_dedupe_keys=32,
             window_policy=policy,
@@ -787,7 +858,7 @@ async def test_b84_restored_state_over_new_capacity_refuses_before_source_or_cas
             store=store,
             cursor_store=cursor_store,
             sanitize_rows=_valid_rows,
-            runtime_options=StreamRuntimeOptions(
+            runtime_options=_non_deduping_options(
                 checkpoint_every_chunks=1,
                 max_buffered_rows=3,
                 max_buffered_bytes=100_000,
@@ -849,7 +920,7 @@ async def test_b84_restored_state_over_new_capacity_refuses_before_source_or_cas
             store=resumed_store,
             cursor_store=CursorStore(resumed_store),
             sanitize_rows=_valid_rows,
-            runtime_options=StreamRuntimeOptions(
+            runtime_options=_non_deduping_options(
                 checkpoint_every_chunks=1,
                 max_buffered_rows=1,
                 max_buffered_bytes=100_000,
@@ -884,7 +955,7 @@ async def test_b84_restored_state_over_new_capacity_refuses_before_source_or_cas
         store=retry_store,
         cursor_store=CursorStore(retry_store),
         sanitize_rows=_valid_rows,
-        runtime_options=StreamRuntimeOptions(
+        runtime_options=_non_deduping_options(
             checkpoint_every_chunks=1,
             max_buffered_rows=4,
             max_buffered_bytes=100_000,
@@ -946,7 +1017,7 @@ async def test_b84_capacity_exactly_allows_a_window_closing_transition(
         store=FileSystemCAS(cas_root),
         cursor_store=CursorStore(FileSystemCAS(cas_root)),
         sanitize_rows=_valid_rows,
-        runtime_options=StreamRuntimeOptions(
+        runtime_options=_non_deduping_options(
             checkpoint_every_chunks=1,
             max_buffered_rows=2,
             max_buffered_bytes=cap_bytes,
@@ -1025,7 +1096,7 @@ async def test_b84_live_operator_over_capacity_refuses_and_preserves_frontier(
             store=store,
             cursor_store=CursorStore(store),
             sanitize_rows=_valid_rows,
-            runtime_options=StreamRuntimeOptions(
+            runtime_options=_non_deduping_options(
                 checkpoint_every_chunks=1,
                 max_buffered_rows=2,
                 max_buffered_bytes=100_000,
@@ -1136,9 +1207,10 @@ async def test_b86_schema_membership_and_quarantine_do_not_depend_on_batch_size(
         store=store,
         cursor_store=CursorStore(store),
         sanitize_rows=_bind_stream_sanitizer(binding),
-        runtime_options=StreamRuntimeOptions(
+        runtime_options=_non_deduping_options(
             batch_size=batch_size,
             checkpoint_every_chunks=1,
+            dedupe_key_fields=("event_id",),
             max_dedupe_keys=16,
             window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=32),
         ),
@@ -1200,9 +1272,10 @@ async def test_guarded_cas_runs_cdc_quarantine_on_exact_root_and_refuses_rootles
     guarded_store = GuardedDependencyProxy(target=store, guard=guard)
     assert matches_runtime_protocol(guarded_store, IndexedArtifactStore)
 
-    options = StreamRuntimeOptions(
+    options = _non_deduping_options(
         batch_size=1,
         checkpoint_every_chunks=1,
+        dedupe_key_fields=("event_id",),
         max_dedupe_keys=16,
         window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=32),
     )
@@ -1236,7 +1309,7 @@ async def test_guarded_cas_runs_cdc_quarantine_on_exact_root_and_refuses_rootles
     records = list_quarantine_records(store, source="stream:stream.jsonl:guarded-cdc")
     assert len(records) == 1
     assert load_quarantine_payload(store, records[0][1].raw_payload_ref) == [
-        {"_message_id": "guarded-cdc:1", "event_id": "after", "value": 2}
+        {"event_id": "after", "value": 2}
     ]
 
     class RootlessGuardedProxy(GuardedDependencyProxy):
@@ -1428,6 +1501,14 @@ async def test_b83_live_event_key_cap_refuses_without_eviction_and_retries_from_
         encoding="utf-8",
     )
     registry = _configure_stream_registry(stream_registry, stream_path)
+    reader = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        schema_id="fixture.source_events",
+        snapshots=[("fixture-current", rows[:3])],
+        transport_path=stream_path,
+    )
     cas_root = tmp_path / "dedupe-live-cap-cas"
     store = FileSystemCAS(cas_root)
     clock = {"now": datetime(2026, 10, 6, tzinfo=UTC)}
@@ -1456,6 +1537,7 @@ async def test_b83_live_event_key_cap_refuses_without_eviction_and_retries_from_
             sanitize_rows=_valid_rows,
             runtime_options=_dedupe_options(max_dedupe_keys=2),
             registry=registry,
+            source_progress_readers=(reader,),
         )
 
     monkeypatch.setattr(StreamingSourceSession, "poll", original_poll)
@@ -1486,6 +1568,7 @@ async def test_b83_live_event_key_cap_refuses_without_eviction_and_retries_from_
             sanitize_rows=_valid_rows,
             runtime_options=_dedupe_options(max_dedupe_keys=2),
             registry=registry,
+            source_progress_readers=(reader,),
         )
     assert type(exc_info.value).__name__ == "StreamDedupeUnsupported"
 
@@ -1506,6 +1589,7 @@ async def test_b83_live_event_key_cap_refuses_without_eviction_and_retries_from_
         sanitize_rows=_valid_rows,
         runtime_options=_dedupe_options(max_dedupe_keys=3),
         registry=registry,
+        source_progress_readers=(reader,),
     )
     assert retried.dedupe_dropped == 1
     final_checkpoint = CursorStore(retried_store).find_latest_stream_checkpoint(
@@ -1536,6 +1620,14 @@ async def test_b83_nonempty_legacy_dedupe_keys_without_utc_time_refuse_before_re
     stream_path = tmp_path / f"{dataset_id}.jsonl"
     stream_path.write_text(json.dumps(row, sort_keys=True) + "\n", encoding="utf-8")
     registry = _configure_stream_registry(stream_registry, stream_path)
+    reader = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        schema_id="fixture.source_events",
+        snapshots=[("fixture-current", [row])],
+        transport_path=stream_path,
+    )
     cas_root = tmp_path / f"{dataset_id}-cas"
     store = FileSystemCAS(cas_root)
     runtime_options = _dedupe_options(max_dedupe_keys=2)
@@ -1547,6 +1639,7 @@ async def test_b83_nonempty_legacy_dedupe_keys_without_utc_time_refuse_before_re
         sanitize_rows=_valid_rows,
         runtime_options=runtime_options,
         registry=registry,
+        source_progress_readers=(reader,),
     )
     assert result.final_checkpoint is not None
     checkpoint = result.final_checkpoint
@@ -1597,6 +1690,7 @@ async def test_b83_nonempty_legacy_dedupe_keys_without_utc_time_refuse_before_re
             sanitize_rows=_valid_rows,
             runtime_options=runtime_options,
             registry=registry,
+            source_progress_readers=(reader,),
         )
 
     assert type(exc_info.value).__name__ == "StreamDedupeUnsupported"
@@ -1652,6 +1746,14 @@ async def test_b83_first_accepted_key_expires_at_utc_86400_seconds_after_restart
         encoding="utf-8",
     )
     registry = _configure_stream_registry(stream_registry, stream_path)
+    reader = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        schema_id="fixture.source_events",
+        snapshots=[("fixture-current", rows[:2])],
+        transport_path=stream_path,
+    )
     cas_root = tmp_path / "dedupe-expiry-cas"
     store = FileSystemCAS(cas_root)
     original_poll = StreamingSourceSession.poll
@@ -1673,6 +1775,7 @@ async def test_b83_first_accepted_key_expires_at_utc_86400_seconds_after_restart
             sanitize_rows=_valid_rows,
             runtime_options=_dedupe_options(max_dedupe_keys=2),
             registry=registry,
+            source_progress_readers=(reader,),
         )
 
     monkeypatch.setattr(StreamingSourceSession, "poll", original_poll)
@@ -1696,6 +1799,7 @@ async def test_b83_first_accepted_key_expires_at_utc_86400_seconds_after_restart
         sanitize_rows=_valid_rows,
         runtime_options=_dedupe_options(max_dedupe_keys=2),
         registry=registry,
+        source_progress_readers=(reader,),
     )
     assert before_expiry.dedupe_dropped == 1
     before_expiry_checkpoint = CursorStore(resumed_store).find_latest_stream_checkpoint(
@@ -1723,6 +1827,7 @@ async def test_b83_first_accepted_key_expires_at_utc_86400_seconds_after_restart
         sanitize_rows=_valid_rows,
         runtime_options=_dedupe_options(max_dedupe_keys=2),
         registry=registry,
+        source_progress_readers=(reader,),
     )
     assert at_expiry.dedupe_dropped == 0
     final_checkpoint = CursorStore(expiry_store).find_latest_stream_checkpoint(
@@ -1748,6 +1853,7 @@ async def test_b83_first_accepted_key_expires_at_utc_86400_seconds_after_restart
         ({"source_version": 1, "entity_id": "e"}, "missing-event-id"),
         ({"event_id": "evt", "source_version": True}, "boolean-version"),
         ({"event_id": "evt", "source_version": [1]}, "list-version"),
+        ({"event_id": "evt", "source_version": 2, "entity_id": "e"}, "unowned-version"),
     ],
     ids=lambda value: str(value)[:40],
 )
@@ -1772,12 +1878,24 @@ async def test_b83_missing_or_nonprimitive_event_version_refuses_without_fallbac
     stream_path = tmp_path / f"{dataset_id}.jsonl"
     stream_path.write_text(json.dumps(row, sort_keys=True) + "\n", encoding="utf-8")
     registry = _configure_stream_registry(stream_registry, stream_path)
+    reader = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        schema_id="fixture.source_events",
+        snapshots=[
+            ("fixture-current", [{"event_id": "evt", "source_version": 1, "entity_id": "e"}])
+        ],
+        transport_path=stream_path,
+    )
     cas_root = tmp_path / f"dedupe-invalid-cas-{case_id}"
     store = FileSystemCAS(cas_root)
     before_ids = set(map(str, store.iter_artifact_ids()))
     unsupported_type = getattr(streaming_module, "StreamDedupeUnsupported", RuntimeError)
 
-    with pytest.raises(unsupported_type, match="event/version|event-key|dedupe") as exc_info:
+    with pytest.raises(
+        unsupported_type, match="event/version|event-key|dedupe|transport"
+    ) as exc_info:
         await process_stream_dataset(
             connector_id="stream.jsonl",
             dataset_id=dataset_id,
@@ -1786,6 +1904,7 @@ async def test_b83_missing_or_nonprimitive_event_version_refuses_without_fallbac
             sanitize_rows=_valid_rows,
             runtime_options=_dedupe_options(max_dedupe_keys=2),
             registry=registry,
+            source_progress_readers=(reader,),
         )
 
     assert type(exc_info.value).__name__ == "StreamDedupeUnsupported"
@@ -1793,6 +1912,85 @@ async def test_b83_missing_or_nonprimitive_event_version_refuses_without_fallbac
     assert after.find_latest_stream_checkpoint("stream.jsonl", dataset_id) is None
     assert after.find_latest_cursor("stream.jsonl", dataset_id) is None
     assert set(map(str, FileSystemCAS(cas_root).iter_artifact_ids())) == before_ids
+
+
+@pytest.mark.asyncio
+async def test_b83_event_stream_preserves_absent_provider_identity(
+    tmp_path: Path,
+) -> None:
+    """The EventStream producer must not turn a row position into source identity."""
+    from polisyos.fabric.connectors.base import FetchRequest
+    from polisyos.fabric.connectors.sources.event_stream import EventStreamConnector
+
+    dataset_id = "event-stream-missing-identity"
+    source_row = {"entity_id": "entity-1", "value": 1}
+    stream_path = tmp_path / "event-stream-missing-identity.jsonl"
+    stream_path.write_text(json.dumps(source_row, sort_keys=True) + "\n", encoding="utf-8")
+    connector = EventStreamConnector()
+    handle = await connector.connect(
+        ConnectionConfig(
+            url=stream_path.as_uri(),
+            headers={"X-Stream-ChunkSize": "1"},
+        )
+    )
+    rows: list[dict[str, Any]] = []
+    try:
+        async for chunk in connector.fetch_stream(handle, FetchRequest(dataset_id=dataset_id)):
+            rows.extend(chunk.data)
+    finally:
+        await connector.disconnect(handle)
+
+    assert rows == [source_row]
+
+
+@pytest.mark.parametrize(
+    "source_row",
+    [
+        {"entity_id": "entity-1", "value": 1},
+        {"_message_id": "present-but-unowned", "source_version": 1},
+        {"event_id": "present-but-unowned", "source_version": 1},
+    ],
+    ids=["absent", "present-transport-id", "present-event-version-names"],
+)
+@pytest.mark.asyncio
+async def test_b83_missing_owner_identity_refuses_before_checkpoint_or_artifact(
+    tmp_path: Path,
+    stream_registry: ConnectorRegistry,
+    source_row: dict[str, Any],
+) -> None:
+    """A valid positional transport ID cannot substitute for an owner key contract."""
+    import polisyos.fabric.data_plane.streaming as streaming_module
+
+    dataset_id = "default-key-without-owner-contract"
+    stream_path = tmp_path / f"{dataset_id}.jsonl"
+    stream_path.write_text(
+        json.dumps(source_row, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    registry = _configure_stream_registry(stream_registry, stream_path)
+    cas_root = tmp_path / f"{dataset_id}-cas"
+    store = FileSystemCAS(cas_root)
+    prior_artifact_ids = set(map(str, store.iter_artifact_ids()))
+    unsupported_type = getattr(streaming_module, "StreamDedupeUnsupported", RuntimeError)
+
+    with pytest.raises(unsupported_type) as exc_info:
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id=dataset_id,
+            store=store,
+            cursor_store=CursorStore(store),
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(
+                window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=1),
+            ),
+            registry=registry,
+        )
+
+    assert type(exc_info.value).__name__ == "StreamDedupeUnsupported"
+    after = CursorStore(FileSystemCAS(cas_root))
+    assert after.find_latest_stream_checkpoint("stream.jsonl", dataset_id) is None
+    assert after.find_latest_cursor("stream.jsonl", dataset_id) is None
+    assert set(map(str, FileSystemCAS(cas_root).iter_artifact_ids())) == prior_artifact_ids
 
 
 @pytest.mark.asyncio
@@ -1842,6 +2040,15 @@ async def test_b83_horizon_scope_isolated_by_connector_dataset_and_partition(
         ("oracle.jsonl", "dataset-a", "partition-a"),
     )
     for connector_id, dataset_id, partition_key in scopes:
+        reader = finite_source_reader(
+            tmp_path / "source-owner",
+            connector_id=connector_id,
+            dataset_id=dataset_id,
+            schema_id=(connector_id + "." + dataset_id).replace("-", "_"),
+            snapshots=[("fixture-current", [row])],
+            transport_path=stream_path,
+            partition_key=partition_key,
+        )
         result = await process_stream_dataset(
             connector_id=connector_id,
             dataset_id=dataset_id,
@@ -1853,6 +2060,7 @@ async def test_b83_horizon_scope_isolated_by_connector_dataset_and_partition(
                 max_dedupe_keys=2,
             ),
             registry=registry,
+            source_progress_readers=(reader,),
         )
         assert result.dedupe_dropped == 0
         assert result.rows_emitted == 1

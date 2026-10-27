@@ -1,0 +1,17 @@
+id = "2026-10-27-e02-source-progress-admission"
+title = "Bind progress to actual finite replay and preserve complete source collections"
+type = "fixed"
+component = "fabric"
+owner = "team-fabric"
+summary = "Finite progress binds the actual file replay transport, source/payload/provenance/tenant and sent request. Whole namespaced JSON collections reach the real Foundry snapshot loader. A shared completion predicate keeps partial/failed partitions retryable and blocks incomplete publication. HTTP headers retain case-insensitive semantics at their actual owner."
+evidence = ["src/polisyos/fabric/ingestion/source_progress.py", "tests/unit/fabric/data_plane/test_source_progress.py", "tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py", "tests/unit/fabric/data_plane/test_source_progress_processes.py", "tests/unit/runtime/http/test_source_progress_api.py"]
+compatibility = "Legacy cursor records no longer supply incremental hints without actual admitted evidence. Missing source-owned event/version semantics return typed unsupported. Existing SourceContract v2 serialization and snapshots stay unchanged. Multi-source callers without a reconciled materializer now retain partial evidence and no completed snapshot, rather than silently choosing the first source."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: SourceCollection/SourceCollectionMember/load_source_collection ingestion facade and IngestionResult/ingestion_is_complete data-plane facade; separate source-progress v1 owner envelope and host dependency extension"
+migration = "Readers first: configure the actual bounded replay owner/transport before promotion. Do not relabel legacy authority state as verified. Explicitly disabled dedupe with no keys/default system clock may read legacy clock-profile-free checkpoints as at_least_once. Other legacy state fails closed. Default source reader sets stay empty."
+api = "Existing completed/partial/failed statuses are reused. Partial input has no completed snapshot or input bindings. HTTP request and response DTO fields are unchanged; callers cannot supply source evidence authority in the request."
+limitations = "The bundled adapter proves only an actual finite source-owner fixture. Live provider completeness/currentness, external rights and production event semantics require separate independently admitted inputs. The injected-clock OS-process fixture proves replay semantics, not elapsed real time."
+generated_client_compatibility = "No HTTP DTO shape change; separate v1 source-progress and source-collection schemas. Public inventory/reference regeneration is required after root composition."
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/fabric/data_plane/README.md"]
+runbook_docs = []

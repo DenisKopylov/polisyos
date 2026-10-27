@@ -14,6 +14,7 @@ from polisyos.core.artifacts.backends.config import (
 )
 from polisyos.core.observability import MetricsRegistry, PolicyOSTracer, get_metrics, get_tracer
 from polisyos.fabric.connectors.registry import ConnectorEntry, ConnectorRegistry
+from polisyos.fabric.ingestion.source_progress import FiniteSourceProgressReader
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.store import FileSystemCAS
@@ -177,6 +178,7 @@ class IngestionDependencies:
     tracer: PolicyOSTracer
     metrics: MetricsRegistry
     store_factory: ArtifactStoreFactory = build_filesystem_artifact_store
+    source_progress_readers: tuple[FiniteSourceProgressReader, ...] = ()
 
 
 def resolve_ingestion_dependencies(
@@ -188,8 +190,11 @@ def resolve_ingestion_dependencies(
     registry_factory: IngestionRegistryFactory | None = None,
     tracer_factory: Callable[[], PolicyOSTracer] | None = None,
     metrics_factory: Callable[[], MetricsRegistry] | None = None,
+    source_progress_readers: tuple[FiniteSourceProgressReader, ...] = (),
 ) -> IngestionDependencies:
     """Resolve connector-ingestion dependencies once at the API boundary."""
+    if any(type(reader) is not FiniteSourceProgressReader for reader in source_progress_readers):
+        raise TypeError("source progress readers must use the supported finite-source adapter")
     if registry is None:
         registry = registry_factory() if registry_factory is not None else _default_registry()
     if tracer is None:
@@ -201,6 +206,7 @@ def resolve_ingestion_dependencies(
         tracer=tracer,
         metrics=metrics,
         store_factory=store_factory or build_filesystem_artifact_store,
+        source_progress_readers=source_progress_readers,
     )
 
 

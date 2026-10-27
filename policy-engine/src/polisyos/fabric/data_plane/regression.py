@@ -53,7 +53,13 @@ def compare_ingestion_runs(
     3. data_snapshot_ref presence matches
     4. warnings match (order-independent)
     """
+    from polisyos.fabric.data_plane.orchestrator import ingestion_is_complete
+
     mismatches: list[str] = []
+    if not ingestion_is_complete(record_result) or not ingestion_is_complete(replay_result):
+        mismatches.append(
+            f"ingestion incomplete: record={record_result.status}, replay={replay_result.status}"
+        )
 
     # Compare datasets_fetched
     if record_result.datasets_fetched != replay_result.datasets_fetched:

@@ -14,7 +14,9 @@ from typing import TYPE_CHECKING, Any, Protocol, cast
 
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import content_hash
+from polisyos.core.contracts.fabric import EvidenceBundleRef
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.connectors.base import ConnectionConfig
@@ -27,6 +29,7 @@ from polisyos.fabric.connectors.cache.policy import (
 )
 from polisyos.fabric.connectors.cache.store import ConnectorCacheStore
 from polisyos.fabric.connectors.registry import ConnectorRegistry
+from polisyos.fabric.connectors.types import FetchError
 from polisyos.fabric.data_plane.quarantine import (
     QuarantineRecord,
     persist_quarantine_record,
@@ -64,9 +67,7 @@ from polisyos.ir.connectors import FetchRequest, FetchResult
 if TYPE_CHECKING:
     from pandas import DataFrame
 
-    from polisyos.core.artifacts import RootedArtifactStore
-    from polisyos.core.artifacts.manifest import ArtifactRef
-    from polisyos.core.contracts.fabric import EvidenceBundleRef
+    from polisyos.core.artifacts import ArtifactStore, RootedArtifactStore
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.connectors import RawHTTPResponseObserver
     from polisyos.fabric.connectors.base import SourceConnectorInstance
@@ -95,7 +96,13 @@ class _TransformPipeline(Protocol):
 
 TransformPipelineFactory = Callable[[], _TransformPipeline]
 PreTransformFetchResultSink = Callable[[str, str, FetchRequest, FetchResult[Any]], None]
+FetchRequestTransform = Callable[[str, FetchRequest], FetchRequest]
 RawFetchResultSink = PreTransformFetchResultSink
+PersistedFetchResultSink = Callable[
+    [str, str, FetchRequest, FetchResult[Any], FetchResult[Any], ArtifactRef, EvidenceBundleRef],
+    None,
+]
+FetchFailureSink = Callable[[str, str, str], None]
 _TRANSFORM_PIPELINE_REGISTRY: dict[str, TransformPipelineFactory] = {}
 
 
@@ -876,7 +883,7 @@ def _sync_fetch_with_receipt(
 
 
 def _cache_payload_ref_matches_result(
-    cas_store: RootedArtifactStore | None,
+    cas_store: ArtifactStore | None,
     payload_ref: ArtifactRef,
     result: FetchResult[Any],
 ) -> bool:
@@ -892,7 +899,7 @@ def _cache_payload_ref_matches_result(
 
 
 def _cache_payload_ref_is_verified(
-    cas_store: RootedArtifactStore | None,
+    cas_store: ArtifactStore | None,
     payload_ref: ArtifactRef,
 ) -> bool:
     """Require the selected cache view to resolve as an intact CAS artifact."""
@@ -968,7 +975,24 @@ def _build_connector_provenance_graph(
 
     for ds in datasets:
         entity_id = f"dataset.{ds['connector_id']}.{ds['dataset_id']}"
+        if ds.get("fetch_status") == "failed":
+            graph.add_entity(
+                ProvenanceEntity(
+                    entity_id=entity_id,
+                    entity_type=EntityType.DATASET,
+                    label=f"{ds['connector_id']}:{ds['dataset_id']}",
+                    created_at=started_at,
+                    attributes={
+                        "fetch_status": "failed",
+                        "cache_key": ds["cache_key"],
+                        "failure_type": ds["failure_type"],
+                    },
+                )
+            )
+            graph.add_generation(entity_id, activity_id)
+            continue
         attributes = {
+            "fetch_status": "complete",
             "row_count": ds["row_count"],
             "completeness": ds["completeness"],
             "cache_key": ds["cache_key"],
@@ -1031,6 +1055,10 @@ def run_connectors_ingestion(
     dependencies: _BatchIngestionDependencies | None = None,
     sidecar_scope: TenantSidecarScope | None = None,
     raw_result_sink: PreTransformFetchResultSink | None = None,
+    request_transform: FetchRequestTransform | None = None,
+    persisted_result_sink: PersistedFetchResultSink | None = None,
+    continue_on_fetch_error: bool = False,
+    fetch_failure_sink: FetchFailureSink | None = None,
     raw_http_response_observer: RawHTTPResponseObserver | None = None,
     _live_acquire_permit: object | None = None,
     cache_namespace: str | None = None,
@@ -1041,6 +1069,13 @@ def run_connectors_ingestion(
         raw_result_sink: Receives the connector-normalized ``FetchResult`` immediately
             after ``fetch`` and before transforms, PII processing, sanitization, or CAS.
             It is not a raw HTTP-body witness.
+        persisted_result_sink: Receives the exact connector result and the final persisted
+            per-source result only after the source artifact, provenance graph, and evidence
+            bundle have all been persisted.
+        continue_on_fetch_error: Continue after a typed source-local ``FetchError`` so
+            independent sources can produce evidence; other failures still abort the run.
+        fetch_failure_sink: Receives source identity and the safe exception type name for a
+            typed source-local fetch failure.
         raw_http_response_observer: Authorizes each HTTP attempt and receives its exact
             bounded response bytes before HTTP-status or JSON interpretation.
         cache_namespace: Optional index namespace, independent of the CAS blob root.
@@ -1133,6 +1168,9 @@ def run_connectors_ingestion(
         ingestion_started_at = utc_now()
         artifact_refs: list[ArtifactRef] = []
         fetch_activities: list[dict[str, Any]] = []
+        persisted_source_results: list[
+            tuple[str, str, FetchRequest, FetchResult[Any], FetchResult[Any], ArtifactRef]
+        ] = []
         transform_lineage_graphs: list[ProvenanceCoreGraph] = []
         from polisyos.fabric.connectors.cache import CachingConnectorProxy
 
@@ -1173,30 +1211,59 @@ def run_connectors_ingestion(
                 page_size=ds_spec.page_size,
             )
 
+            if request_transform is not None:
+                request = request_transform(connector_id, request)
+                if not isinstance(request, FetchRequest) or request.dataset_id != dataset_id:
+                    raise ValueError("ingestion_request_transform_changed_dataset")
+
             fetch_receipt: CacheFetchReceipt | None = None
-            if isinstance(connector, CachingConnectorProxy):
-                result, fetch_receipt = _sync_fetch_with_receipt(
-                    resolved_dependencies.registry,
-                    connector_id,
-                    connector,
-                    request,
-                    connection_config=selected_connection_config,
-                    cas_store=cas_store,
-                    raw_http_response_observer=raw_http_response_observer,
-                    _live_acquire_permit=_live_acquire_permit,
+            try:
+                if isinstance(connector, CachingConnectorProxy):
+                    result, fetch_receipt = _sync_fetch_with_receipt(
+                        resolved_dependencies.registry,
+                        connector_id,
+                        connector,
+                        request,
+                        connection_config=selected_connection_config,
+                        cas_store=cas_store,
+                        raw_http_response_observer=raw_http_response_observer,
+                        _live_acquire_permit=_live_acquire_permit,
+                    )
+                else:
+                    result = _sync_fetch(
+                        resolved_dependencies.registry,
+                        connector_id,
+                        connector,
+                        request,
+                        connection_config=selected_connection_config,
+                        raw_http_response_observer=raw_http_response_observer,
+                        _live_acquire_permit=_live_acquire_permit,
+                    )
+            except FetchError as exc:
+                if not continue_on_fetch_error:
+                    raise
+                failure_type = type(exc).__name__
+                fetch_activities.append(
+                    {
+                        "connector_id": connector_id,
+                        "dataset_id": dataset_id,
+                        "fetch_status": "failed",
+                        "cache_key": request.cache_key,
+                        "failure_type": failure_type,
+                    }
                 )
-            else:
-                result = _sync_fetch(
-                    resolved_dependencies.registry,
+                if fetch_failure_sink is not None:
+                    fetch_failure_sink(connector_id, dataset_id, failure_type)
+                logger.warning(
+                    "connector_ingestion: source fetch failed for %s:%s (%s)",
                     connector_id,
-                    connector,
-                    request,
-                    connection_config=selected_connection_config,
-                    raw_http_response_observer=raw_http_response_observer,
-                    _live_acquire_permit=_live_acquire_permit,
+                    dataset_id,
+                    failure_type,
                 )
+                continue
+            source_result = result
             if raw_result_sink is not None:
-                raw_result_sink(connector_id, dataset_id, request, result)
+                raw_result_sink(connector_id, dataset_id, request, source_result)
             result, transform_graph, transform_warnings, transform_quarantined = (
                 _apply_transform_pipeline(
                     result,
@@ -1300,6 +1367,7 @@ def run_connectors_ingestion(
                 {
                     "connector_id": connector_id,
                     "dataset_id": dataset_id,
+                    "fetch_status": "complete",
                     "fetched_at": result.fetched_at.isoformat(),
                     "cache_key": request.cache_key,
                     "row_count": result.row_count,
@@ -1361,9 +1429,20 @@ def run_connectors_ingestion(
                     ),
                 }
             )
+            if payload_ref is not None:
+                persisted_source_results.append(
+                    (connector_id, dataset_id, request, source_result, result, payload_ref)
+                )
 
         ingestion_completed_at = utc_now()
-        span.set_attribute("ingestion.completed_dataset_count", len(fetch_activities))
+        span.set_attribute(
+            "ingestion.completed_dataset_count",
+            sum(activity.get("fetch_status") == "complete" for activity in fetch_activities),
+        )
+        span.set_attribute(
+            "ingestion.failed_dataset_count",
+            sum(activity.get("fetch_status") == "failed" for activity in fetch_activities),
+        )
 
         if getattr(resolved_dependencies.metrics, "record_fabric_lineage_graph", None):
             for graph in transform_lineage_graphs:
@@ -1395,21 +1474,50 @@ def run_connectors_ingestion(
                 f"version={activity['version_strategy']}:{activity['version_value']}"
             )
             for activity in fetch_activities
+            if activity.get("fetch_status") == "complete"
+        ]
+        failure_notes = [
+            (
+                f"source_fetch_failed:{activity['connector_id']}:"
+                f"{activity['dataset_id']}:{activity['failure_type']}"
+            )
+            for activity in fetch_activities
+            if activity.get("fetch_status") == "failed"
         ]
         evidence_bundle = build_evidence_bundle(
             sources=artifact_refs,
             notes=[
-                f"connector_ingestion: {len(spec.datasets)} dataset(s) fetched",
+                f"connector_ingestion: {len(dataset_notes)} dataset(s) fetched",
                 f"manifest_hash: {manifest_hash}",
                 *dataset_notes,
+                *failure_notes,
             ],
             provenance_ref=provenance_ref,
         )
-        return persist_evidence_bundle(
+        evidence_ref = persist_evidence_bundle(
             cas_store,
             evidence_bundle,
             return_selected_profile=True,
         )
+        if persisted_result_sink is not None:
+            for (
+                connector_id,
+                dataset_id,
+                request,
+                source_result,
+                persisted_result,
+                payload_ref,
+            ) in persisted_source_results:
+                persisted_result_sink(
+                    connector_id,
+                    dataset_id,
+                    request,
+                    source_result,
+                    persisted_result,
+                    payload_ref,
+                    evidence_ref,
+                )
+        return evidence_ref
 
 
 __all__ = [

@@ -488,21 +488,23 @@ class TestRunOrchestratedIngestion:
                     sidecar_scope=wrong_root_scope,
                 )
 
-            with tenant_scope(
-                None,
-                tenant_id="00000000-0000-0000-0000-00000000000b",
-                cell_id="cell-b",
+            with (
+                tenant_scope(
+                    None,
+                    tenant_id="00000000-0000-0000-0000-00000000000b",
+                    cell_id="cell-b",
+                ),
+                pytest.raises(IngestionStoreBindingError, match="tenant_mismatch"),
             ):
-                with pytest.raises(IngestionStoreBindingError, match="tenant_mismatch"):
-                    run_orchestrated_ingestion(
-                        connector_manifest={"datasets": []},
-                        source="test",
-                        license_name="open",
-                        cas_root=cas_root,
-                        produce_snapshot=False,
-                        ingestion_dependencies=dependencies,
-                        sidecar_scope=tenant_a_scope,
-                    )
+                run_orchestrated_ingestion(
+                    connector_manifest={"datasets": []},
+                    source="test",
+                    license_name="open",
+                    cas_root=cas_root,
+                    produce_snapshot=False,
+                    ingestion_dependencies=dependencies,
+                    sidecar_scope=tenant_a_scope,
+                )
 
         mock_ingest.assert_not_called()
         assert store_factory_calls == []
@@ -890,3 +892,82 @@ def test_partition_default_route_retains_active_health_check_and_fetches(
         assert pool._config.validate_on_acquire is True
     finally:
         ConnectorRegistry.reset_instance()
+
+
+@pytest.mark.parametrize("incomplete_status", ["partial", "failed", "unknown"])
+def test_incomplete_partition_handler_is_durable_retryable_not_success(
+    tmp_path: Path,
+    incomplete_status: str,
+) -> None:
+    """A fresh invocation must retry a partial/failed handler, then skip success."""
+    from polisyos.fabric.data_plane.cursor_store import CursorStore
+
+    plan = _build_test_partition_plan()
+    calls = []
+    phase = {"status": incomplete_status}
+
+    def handler(partition):
+        calls.append(partition.partition_id)
+        result = IngestionResult(datasets_fetched=1, cursor_ref="candidate-cursor")
+        # Deliberately constructor-compatible with the slice base, where status
+        # was absent but dataclass instances allowed this real handler outcome.
+        result.status = phase["status"]
+        return result
+
+    def run():
+        return run_partitioned_ingestion(
+            plan=plan,
+            connector_manifest={"datasets": []},
+            source="partition-status",
+            license_name="fixture-only",
+            cas_root=tmp_path / "cas",
+            produce_snapshot=False,
+            partition_handler=handler,
+        )
+
+    first = run()
+    expected = "partial" if incomplete_status == "partial" else "failed"
+    assert {result.status for result in first} == {expected}
+    assert all(result.cursor_ref is None and result.data_snapshot_ref is None for result in first)
+    reopened = CursorStore(FileSystemCAS(tmp_path / "cas"))
+    for partition in plan.partitions:
+        state = reopened.find_partition_state(plan.plan_id, partition.partition_id)
+        assert state.status == expected and state.checkpoint_id is None
+    phase["status"] = "completed"
+    assert {result.status for result in run()} == {"succeeded"}
+    assert len(calls) == 2 * len(plan.partitions)
+    assert {result.status for result in run()} == {"skipped"}
+    assert len(calls) == 2 * len(plan.partitions)
+
+
+@pytest.mark.asyncio
+async def test_snapshot_cannot_silently_select_first_of_multiple_sources(tmp_path: Path) -> None:
+    """Baseline-compatible removal control for the real snapshot producer."""
+    from polisyos.core.artifacts.async_store import ensure_async_artifact_store
+    from polisyos.fabric.data_plane.orchestrator import _build_snapshot_from_evidence_async
+
+    store = FileSystemCAS(tmp_path / "cas")
+    refs = [
+        store.put_json(
+            {"source": source},
+            PutOptions(kind="test.source", media_type="application/json"),
+            return_selected_profile=True,
+        )
+        for source in ("A", "B")
+    ]
+    evidence_ref = store.put_json(
+        EvidenceBundle(sources=refs),
+        PutOptions(
+            kind="fabric.evidence_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="fabric.evidence_bundle", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    with pytest.raises(ValueError, match="multi-source.*materializer"):
+        await _build_snapshot_from_evidence_async(
+            store=ensure_async_artifact_store(store),
+            evidence_ref=EvidenceBundleRef.model_validate(evidence_ref.model_dump(mode="python")),
+            datasets_fetched=2,
+            source="baseline-first-source-negative",
+        )

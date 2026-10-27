@@ -1052,8 +1052,11 @@ def _execute_authorized_live_acquisition(
         or observer.raw_body is None
     ):
         raise LiveAcquisitionExecutionError("live_raw_evidence_missing", attempt_id)
+    from polisyos.fabric.data_plane import ingestion_is_complete
+
     if (
-        ingestion_result.evidence_bundle_ref is None
+        not ingestion_is_complete(ingestion_result)
+        or ingestion_result.evidence_bundle_ref is None
         or ingestion_result.data_snapshot_ref is None
         or ingestion_result.datasets_fetched != 1
     ):

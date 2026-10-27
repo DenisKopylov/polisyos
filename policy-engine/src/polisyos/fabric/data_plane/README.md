@@ -136,3 +136,77 @@ operations each adapter consumes; input row caps use the frame's actual index.
 A local IndexedArtifactStore capability is required only when a row must be
 persisted to the quarantine index. Clean rows continue through stores that do
 not expose that local index.
+
+
+## Source progress and event identity admission
+
+`ingestion/source_progress.py` extends the canonical `SourceContract` owner with
+an independently versioned `SourceProgressContract` v1. The host supplies readers
+through `IngestionDependencies.source_progress_readers` or
+`ControlRegistryProviders.source_progress_readers`; HTTP payloads cannot install
+an oracle. Existing SourceContract v2 records, fields, snapshots and byte identities
+stay unchanged. Only active owner contracts may authorize replay progress.
+
+The bundled reader has exactly `finite_source_fixture` scope. Batch positive
+admission requires a `file:` ConnectionConfig that resolves to the **actual same
+owner replay history file**. The mode performs bounded file replay itself; it
+does not call a live connector and compare that response to an unrelated file.
+The complete physical history is capped at 8 MiB, enumerated, append-only and
+source/schema/tenant bound. A network endpoint with matching visible A/B rows
+cannot borrow that authority or advance its cursor. Live-provider completeness,
+currentness, rights and production key meaning remain `not_established` until an
+independent live owner verifier and its actual inputs exist.
+
+Cursor intake resolves exact selected witness, source payload and evidence views,
+recomputes the actual request key and reconciles provenance. Requests receive only
+a verified predecessor before fetch/persistence. Conditional save compares that
+same predecessor under the existing index lock. Bare legacy cursors do not
+silently upgrade. Partial/failed results retain inspectable evidence and explicit
+scope but do not create completed snapshots or input bindings. The common
+`ingestion_is_complete` predicate also gates durable partition success/retry,
+live-acquisition consumption and replay comparison; unknown statuses fail closed.
+
+The finite batch profile currently binds one actual history file/dataset per
+connector. Its two-source positive uses distinct connector IDs. It does not
+certify two datasets of one connector with distinct history files: that requires
+a dataset-aware actual transport selector or a genuinely multi-dataset owner file.
+This is a declared finite-fixture limitation, never production source authority.
+
+Complete finite batch results use `SourceCollection` v1: a plain JSON namespaced
+collection of **all** actual source contributions. It does not infer a cross-source
+join or union incompatible records. An empty A transport delta still contributes
+A's complete state to a fresh Snapshot B. The materializer reconciles the entire
+original EvidenceBundle source set, every persisted contribution/provenance and
+its source witness. Foundry's real snapshot loader calls `load_source_collection`
+to verify the same denominator before ordinary explicit source-path bindings.
+Omitting a source or row while retaining declarations is a hard refusal. The
+existing single-source live acquisition cached-result format is unchanged;
+other multi-source snapshot callers must provide a reconciled materializer.
+
+Streaming proof is confined to the canonical EventStream JSONL file producer.
+Its actual configured file must resolve to the owner-bound transport file, and
+the complete physical file's logical key universe and partition are reconciled
+before effects. Source-provided redelivery annotations may differ; event/version
+identity does not become payload truth. Different files with identical bytes,
+wrong partitions, inactive owners, missing keys and hidden actual keys cannot
+activate dedupe. Finite processing is explicitly `replay_only`. Its retained
+witness, limitations and selected input edge survive chunk/window/CDC artifacts,
+the aggregate manifest/evidence and snapshot.
+
+The horizon stores UTC first-acceptance times for 86,400 seconds and refuses live
+key overflow before eviction. Two OS processes with an explicit injected UTC
+clock prove replay-time semantics after execution, never elapsed wall time.
+Readers-first compatibility accepts an old clock-profile-free checkpoint only
+for explicitly disabled dedupe, no stored keys and the default system clock;
+it remains `at_least_once`. Authority-bearing legacy state still needs admitted
+migration, not a presence/shape upgrade.
+
+The separate generated shapes are `schemas/fabric/source_progress.schema.json`
+and `schemas/fabric/source_collection.schema.json`; each owner projection has a
+corrupt-field drift control. Focused behavioral tests are `test_source_progress.py`,
+B79/B80/B83 in `test_e02_c_streaming_oracle.py`, the two-process test in
+`test_source_progress_processes.py`, actual HTTP headers in
+`connectors/reference/test_rest_json.py`, partition/status controls in
+`test_orchestrator.py` and `test_regression.py`, and the authorized served tests in
+`tests/unit/runtime/http/test_source_progress_api.py`. Source review and schema
+export alone are not runtime evidence or G acceptance.

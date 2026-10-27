@@ -15,6 +15,7 @@ from .ingestion_providers import (
     build_filesystem_artifact_store,
     resolve_ingestion_dependencies,
 )
+from .source_collection import SourceCollection, SourceCollectionMember, load_source_collection
 
 __all__ = [
     "ConnectorManifestSpec",
@@ -22,7 +23,10 @@ __all__ = [
     "IngestionDependencies",
     "PreTransformFetchResultSink",
     "RawFetchResultSink",
+    "SourceCollection",
+    "SourceCollectionMember",
     "build_filesystem_artifact_store",
+    "load_source_collection",
     "resolve_ingestion_dependencies",
     "run_connectors_ingestion",
 ]

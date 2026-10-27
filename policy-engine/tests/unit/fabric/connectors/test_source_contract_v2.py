@@ -437,3 +437,81 @@ def test_checked_in_source_contract_schemas_and_snapshots_are_parseable() -> Non
         for row in source_snapshot["contracts"].values()
     ]
     assert len(parsed) == 20
+
+
+def test_source_progress_extension_is_separate_from_v2_serialization(tmp_path: Path) -> None:
+    from tests._helpers.source_progress import finite_source_reader
+
+    from polisyos.fabric.connectors.contracts.source_contract import SourceProgressContract
+    from polisyos.fabric.connectors.testing.conformance import validate_source_progress_conformance
+
+    reader = finite_source_reader(
+        tmp_path,
+        connector_id="rest.json",
+        dataset_id="events",
+        schema_id="fixture.events",
+        snapshots=[("v1", [{"event_id": "one", "source_version": "1"}])],
+    )
+    original = reader.source_contract.model_dump(mode="json", by_alias=True)
+    original_hash = reader.source_contract.content_hash
+    assert reader.extension.bind(reader.source_contract).schema_id == "fixture.events"
+    assert validate_source_progress_conformance(
+        source_contract=reader.source_contract, progress_contract=reader.extension
+    ).passed
+    assert reader.source_contract.model_dump(mode="json", by_alias=True) == original
+    assert reader.source_contract.content_hash == original_hash
+    assert "event_fields" not in original and "source_progress" not in original
+    bad = SourceProgressContract.model_validate(
+        {
+            **reader.extension.model_dump(mode="json"),
+            "source_contract_content_hash": "sha256:" + "0" * 64,
+        }
+    )
+    assert not validate_source_progress_conformance(
+        source_contract=reader.source_contract, progress_contract=bad
+    ).passed
+
+
+def test_source_progress_rejects_ambiguous_roles(tmp_path: Path) -> None:
+    from tests._helpers.source_progress import finite_source_reader
+
+    from polisyos.fabric.connectors.contracts.source_contract import SourceProgressContract
+
+    reader = finite_source_reader(
+        tmp_path,
+        connector_id="rest.json",
+        dataset_id="events",
+        schema_id="fixture.events",
+        snapshots=[("v1", [{"event_id": "one", "source_version": "1"}])],
+    )
+    with pytest.raises(ValidationError, match="disjoint"):
+        SourceProgressContract.model_validate(
+            {
+                **reader.extension.model_dump(mode="json"),
+                "version_fields": ["event_id"],
+            }
+        )
+
+
+def test_source_progress_json_schema_matches_the_runtime_owner() -> None:
+    """Full owner projection catches corrupt fields; it is not a marker census."""
+    from copy import deepcopy
+
+    from polisyos.fabric.connectors.contracts.source_contract import SourceProgressContract
+
+    path = REPO_ROOT / "schemas/fabric/source_progress.schema.json"
+    actual = json.loads(path.read_text(encoding="utf-8"))
+    expected = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://polisyos.local/schemas/fabric/source_progress.schema.json",
+        **SourceProgressContract.model_json_schema(),
+    }
+
+    def require_match(payload: dict) -> None:
+        assert payload == expected
+
+    require_match(actual)
+    corrupt = deepcopy(actual)
+    corrupt["properties"]["event_fields"]["items"]["type"] = "integer"
+    with pytest.raises(AssertionError):
+        require_match(corrupt)

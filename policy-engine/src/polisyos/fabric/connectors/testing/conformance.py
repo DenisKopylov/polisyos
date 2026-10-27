@@ -18,7 +18,10 @@ if TYPE_CHECKING:
 
     from polisyos.fabric.connectors.base import SourceConnector
     from polisyos.fabric.connectors.contracts.contract import ConnectorSchemaContract
-    from polisyos.fabric.connectors.contracts.source_contract import SourceContract
+    from polisyos.fabric.connectors.contracts.source_contract import (
+        SourceContract,
+        SourceProgressContract,
+    )
     from polisyos.fabric.connectors.profiles.models import SourceProfile
 
 
@@ -189,6 +192,29 @@ def validate_source_conformance_v2[ConnectorDataT](
 
     return ConformanceReport(
         connector_id=expected_id,
+        source_contract_id=source_contract.id,
+        issues=tuple(issues),
+    )
+
+
+def validate_source_progress_conformance(
+    *,
+    source_contract: SourceContract,
+    progress_contract: SourceProgressContract,
+) -> ConformanceReport:
+    """Resolve the versioned source-progress extension through its actual owner.
+
+    This reuses SourceProgressContract.bind, the runtime admission predicate;
+    constructor presence and field-name matches alone do not pass conformance.
+    The finite-source reader still has to reconcile the actual source bytes.
+    """
+    issues: list[ConformanceIssue] = []
+    try:
+        progress_contract.bind(source_contract)
+    except (TypeError, ValueError) as exc:
+        issues.append(ConformanceIssue("source_progress_owner_binding", str(exc)))
+    return ConformanceReport(
+        connector_id=source_contract.source.connector_id,
         source_contract_id=source_contract.id,
         issues=tuple(issues),
     )

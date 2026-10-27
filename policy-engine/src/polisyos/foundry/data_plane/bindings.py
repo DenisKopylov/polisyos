@@ -2377,6 +2377,10 @@ def _load_binding_payload(store: CoreJSONArtifactStore, snapshot: DataSnapshot) 
         if manifest.media_type != _JSON_MEDIA_TYPE:
             raise ValueError("foundry.state_snapshot media type must be application/json")
         return {}
+    if data_ref.kind == "fabric.source_collection":
+        from polisyos.fabric.ingestion import load_source_collection
+
+        return load_source_collection(store, data_ref).model_dump(mode="json")
     payload = store.get_bytes(data_ref)
     if manifest.media_type == _JSON_MEDIA_TYPE:
         return load_core_json_artifact(store, data_ref, raw_payload_bytes=payload)

@@ -1,0 +1,264 @@
+{
+  "$defs": {
+    "ArtifactID": {
+      "description": "Represent a normalized CAS identifier in `sha256:<64hex>` form.\n\nThe `sha256:` prefix and lowercase 64-hex digest are part of the stable ABI\nused in manifests, runtime URLs, CLI arguments, and signature statements.",
+      "maxLength": 71,
+      "minLength": 71,
+      "pattern": "^sha256:[0-9A-Fa-f]{64}$",
+      "title": "ArtifactID",
+      "type": "string"
+    },
+    "ArtifactRef": {
+      "additionalProperties": false,
+      "description": "Reference an artifact across service, registry, and governance boundaries.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "kind",
+        "media_type"
+      ],
+      "title": "ArtifactRef",
+      "type": "object"
+    },
+    "DataVersion": {
+      "additionalProperties": false,
+      "description": "Version identifier for cached data.",
+      "properties": {
+        "content_hash": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "CAS-compatible content hash for Law D compliance",
+          "title": "Content Hash"
+        },
+        "strategy": {
+          "$ref": "#/$defs/VersionStrategy",
+          "description": "Versioning strategy used for this data"
+        },
+        "timestamp": {
+          "description": "When this version was recorded (UTC)",
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "value": {
+          "description": "Strategy-specific version value (ETag, timestamp ISO, revision, or hash)",
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "strategy",
+        "value",
+        "timestamp"
+      ],
+      "title": "DataVersion",
+      "type": "object"
+    },
+    "EvidenceBundleRef": {
+      "additionalProperties": false,
+      "description": "Artifact reference for the evidence bundle backing a Fabric result.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "default": "fabric.evidence_bundle",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "EvidenceBundleRef",
+      "type": "object"
+    },
+    "SourceCollectionMember": {
+      "additionalProperties": false,
+      "description": "One exact persisted source contribution and its bounded authority scope.",
+      "properties": {
+        "connector_id": {
+          "title": "Connector Id",
+          "type": "string"
+        },
+        "data": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Data",
+          "type": "array"
+        },
+        "dataset_id": {
+          "title": "Dataset Id",
+          "type": "string"
+        },
+        "source_progress_witness_ref": {
+          "$ref": "#/$defs/ArtifactRef"
+        },
+        "source_ref": {
+          "$ref": "#/$defs/ArtifactRef"
+        },
+        "transport_identity": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Transport Identity",
+          "type": "object"
+        },
+        "transport_sha256": {
+          "title": "Transport Sha256",
+          "type": "string"
+        },
+        "version": {
+          "$ref": "#/$defs/DataVersion"
+        }
+      },
+      "required": [
+        "connector_id",
+        "dataset_id",
+        "version",
+        "source_ref",
+        "source_progress_witness_ref",
+        "transport_identity",
+        "transport_sha256",
+        "data"
+      ],
+      "title": "SourceCollectionMember",
+      "type": "object"
+    },
+    "VersionStrategy": {
+      "description": "Versioning strategies for cached data.",
+      "enum": [
+        "etag",
+        "timestamp",
+        "revision",
+        "content_hash"
+      ],
+      "title": "VersionStrategy",
+      "type": "string"
+    }
+  },
+  "$id": "https://polisyos.local/schemas/fabric/source_collection.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Versioned JSON view accepted by Foundry's existing plain JSON loader.\n\nConsumers select a source namespace explicitly with their normal binding\nrules. This contract makes no relationship/join claim between namespaces.",
+  "properties": {
+    "admission_scope": {
+      "const": "finite_source_fixture",
+      "default": "finite_source_fixture",
+      "title": "Admission Scope",
+      "type": "string"
+    },
+    "composition_semantics": {
+      "const": "namespaced_collection_no_inferred_join",
+      "default": "namespaced_collection_no_inferred_join",
+      "title": "Composition Semantics",
+      "type": "string"
+    },
+    "external_source_rights": {
+      "const": "not_established",
+      "default": "not_established",
+      "title": "External Source Rights",
+      "type": "string"
+    },
+    "production_currentness": {
+      "const": "not_established",
+      "default": "not_established",
+      "title": "Production Currentness",
+      "type": "string"
+    },
+    "production_event_identity_semantics": {
+      "const": "not_established",
+      "default": "not_established",
+      "title": "Production Event Identity Semantics",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "fabric.source_collection.v1",
+      "default": "fabric.source_collection.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_evidence_ref": {
+      "$ref": "#/$defs/EvidenceBundleRef"
+    },
+    "sources": {
+      "additionalProperties": {
+        "$ref": "#/$defs/SourceCollectionMember"
+      },
+      "minProperties": 1,
+      "title": "Sources",
+      "type": "object"
+    },
+    "tenant_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Tenant Id"
+    }
+  },
+  "required": [
+    "source_evidence_ref",
+    "sources"
+  ],
+  "title": "SourceCollection",
+  "type": "object"
+}

@@ -44,17 +44,16 @@ import asyncio
 import json
 import math
 import time
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Mapping
 from datetime import UTC, datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any, ClassVar, TypedDict, TypeGuard
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
-
     from pydantic import JsonValue
 
 import aiohttp
+from multidict import CIMultiDict
 
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import streaming_hash
@@ -231,10 +230,10 @@ class _PageResponseEnvelope(TypedDict):
 
     json: JsonValue
     _raw: bytes
-    headers: dict[str, str]
+    headers: Mapping[str, str]
 
 
-_PageRequestResult = tuple[_PageResponseEnvelope, dict[str, str], int]
+_PageRequestResult = tuple[_PageResponseEnvelope, Mapping[str, str], int]
 _PageRequest = Callable[
     [ConnectionHandle, aiohttp.ClientSession, str, dict[str, Any], dict[str, str]],
     Awaitable[_PageRequestResult],
@@ -638,7 +637,7 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
             params=params,
             headers=headers,
         ) as resp:
-            headers = dict(resp.headers)
+            response_headers = CIMultiDict(resp.headers)
             if resp.status == 429:
                 retry_after_header = resp.headers.get("Retry-After")
                 retry_after = parse_retry_after_header(retry_after_header)
@@ -704,9 +703,9 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
             {
                 "json": body_json,
                 "_raw": raw,
-                "headers": headers,
+                "headers": response_headers,
             },
-            headers,
+            response_headers,
             bytes_xferred,
         )
 

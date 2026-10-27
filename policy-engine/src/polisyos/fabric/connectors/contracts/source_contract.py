@@ -21,7 +21,7 @@ from polisyos.ir.connectors import ConnectorMetadataSpec  # noqa: TC001
 from polisyos.ir.model_layer.canon import CanonSpec, to_canonical_bytes
 
 from .contract import CONTRACT_ID_PATTERN, ConnectorSchemaContract
-from .schema import DataSchema, FieldSpec, SchemaVersion
+from .schema import DataSchema, FieldSpec, SchemaType, SchemaVersion
 
 SOURCE_CONTRACT_SCHEMA_VERSION = "fabric.source_contract.v2"
 
@@ -637,6 +637,103 @@ class SourceContract(BaseModel):
             "content_hash": self.content_hash,
             "contract": payload,
         }
+
+
+class SourceProgressContract(BaseModel):
+    """Versioned event/progress extension over an unchanged SourceContract v2.
+
+    This is an integrate contract, not an assertion of live source authority.
+    Its finite-fixture reader derives the declared fixture's entire source set.
+    Production sources need an independently admitted owner reader of their own;
+    a provider's completeness flag, field name or inline contract is insufficient.
+    """
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    schema_version: Literal["fabric.source_progress.v1"] = "fabric.source_progress.v1"
+    source_contract_id: str = Field(..., pattern=CONTRACT_ID_PATTERN)
+    source_contract_version: str = Field(..., pattern=r"^\d+\.\d+\.\d+$")
+    source_contract_content_hash: str = Field(..., pattern=r"^sha256:[a-f0-9]{64}$")
+    schema_id: str = Field(..., min_length=1)
+    schema_version_bound: str = Field(..., pattern=r"^\d+\.\d+(\.\d+)?$")
+    schema_content_hash: str = Field(..., min_length=1)
+    connector_id: str = Field(..., min_length=1)
+    dataset_id: str = Field(..., min_length=1)
+    event_fields: tuple[str, ...] = Field(..., min_length=1)
+    version_fields: tuple[str, ...] = Field(..., min_length=1)
+    version_strategy: Literal["etag", "revision", "timestamp"]
+    uniqueness_scope: Literal["source_dataset_partition"] = "source_dataset_partition"
+    dedupe_window_seconds: Literal[86400] = 86400
+    admission_scope: Literal["finite_source_fixture"] = "finite_source_fixture"
+    transport_kind: Literal["finite_history_file", "jsonl_file"] = "finite_history_file"
+    transport_fixture_ref: str | None = None
+    partition_key: str = Field(default="default", min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_roles(self) -> SourceProgressContract:
+        fields = self.event_fields + self.version_fields
+        if any(not field.strip() for field in fields) or len(set(fields)) != len(fields):
+            raise ValueError("event and source-version roles must be nonempty and disjoint")
+        if not self.partition_key.strip():
+            raise ValueError("source progress partition must be nonempty")
+        if self.transport_kind == "jsonl_file" and not self.transport_fixture_ref:
+            raise ValueError("JSONL progress requires an owner-bound actual transport file")
+        if self.transport_kind == "finite_history_file" and self.transport_fixture_ref is not None:
+            raise ValueError("history replay uses the owner history file itself")
+        return self
+
+    def bind(self, source_contract: SourceContract) -> DataSchema:
+        """Resolve the extension against the actual source owner and schema.
+
+        The versioned envelope leaves all v2 fields and serialized identities
+        unchanged. Missing/concrete-schema-free sources cannot enable dedupe.
+        """
+        import fnmatch
+
+        schema = source_contract.schema_contract.to_data_schema()
+        if (
+            source_contract.status != "active"
+            or source_contract.schema_version != SOURCE_CONTRACT_SCHEMA_VERSION
+            or self.source_contract_id != source_contract.id
+            or self.source_contract_version != source_contract.version
+            or self.source_contract_content_hash != source_contract.content_hash
+            or self.connector_id != source_contract.source.connector_id
+            or not fnmatch.fnmatchcase(self.dataset_id, source_contract.source.dataset_pattern)
+            or self.schema_id != schema.schema_id
+            or self.schema_version_bound != str(schema.version)
+            or self.schema_content_hash != schema.content_hash
+        ):
+            raise ValueError("source progress owner/schema identity differs")
+        names = set(schema.field_names())
+        if not set(self.event_fields + self.version_fields).issubset(names):
+            raise ValueError("source progress roles are absent from the bound schema")
+        key_types = {
+            SchemaType.STRING,
+            SchemaType.INT8,
+            SchemaType.INT16,
+            SchemaType.INT32,
+            SchemaType.INT64,
+            SchemaType.UINT8,
+            SchemaType.UINT16,
+            SchemaType.UINT32,
+            SchemaType.UINT64,
+        }
+        if any(
+            field.data_type not in key_types
+            for field in schema.fields
+            if field.name in self.event_fields + self.version_fields
+        ):
+            raise ValueError("source event/version roles require string or integer fields")
+        if not source_contract.replay.fixture_ref:
+            raise ValueError("finite source progress requires an owner-bound fixture")
+        return schema
+
+    @property
+    def content_hash(self) -> str:
+        """Return the exact extension identity, including role and scope semantics."""
+        return "sha256:" + compute_content_hash(
+            to_canonical_bytes(self.model_dump(mode="json"), spec=CanonSpec(forbid_floats=False))
+        )
 
 
 def source_contracts_snapshot_payload(

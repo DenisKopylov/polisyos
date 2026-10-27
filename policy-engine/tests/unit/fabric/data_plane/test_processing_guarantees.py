@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
+from tests._helpers.source_progress import finite_source_reader
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.connectors.base import ConnectionConfig
@@ -77,9 +79,9 @@ async def test_stream_processing_quarantines_late_events_by_watermark(
     stream_path.write_text(
         "\n".join(
             [
-                '{"_message_id":"m1","event_time":"2024-06-15T12:00:30+00:00","value":1}',
-                '{"_message_id":"m2","event_time":"2024-06-15T12:00:00+00:00","value":2}',
-                '{"_message_id":"m3","event_time":"2024-06-15T12:00:40+00:00","value":3}',
+                '{"event_id":"m1","source_version":"1","event_time":"2024-06-15T12:00:30+00:00","value":1}',
+                '{"event_id":"m2","source_version":"1","event_time":"2024-06-15T12:00:00+00:00","value":2}',
+                '{"event_id":"m3","source_version":"1","event_time":"2024-06-15T12:00:40+00:00","value":3}',
             ]
         )
         + "\n",
@@ -94,7 +96,17 @@ async def test_stream_processing_quarantines_late_events_by_watermark(
             headers={"X-Stream-ChunkSize": "3"},
         ),
     )
-    processing = stream_processing_contract().model_copy(
+    rows = [json.loads(line) for line in stream_path.read_text().splitlines()]
+    reader = finite_source_reader(
+        tmp_path / "source-owner",
+        connector_id="stream.jsonl",
+        dataset_id="events",
+        schema_id="fixture.events",
+        snapshots=[("source-current", rows)],
+    )
+    processing = stream_processing_contract(
+        dedupe_key_fields=("event_id", "source_version")
+    ).model_copy(
         update={
             "out_of_order": OutOfOrderPolicy(
                 handling="watermark",
@@ -110,8 +122,11 @@ async def test_stream_processing_quarantines_late_events_by_watermark(
         store=FileSystemCAS(tmp_path / ".polisyos"),
         cursor_store=CursorStore(FileSystemCAS(tmp_path / ".polisyos")),
         sanitize_rows=_valid_rows,
-        runtime_options=StreamRuntimeOptions(processing_contract=processing),
+        runtime_options=StreamRuntimeOptions(
+            processing_contract=processing, dedupe_key_fields=("event_id", "source_version")
+        ),
         registry=registry,
+        source_progress_readers=(reader,),
     )
 
     assert result.processing_guarantee == "at_least_once_with_dedupe"

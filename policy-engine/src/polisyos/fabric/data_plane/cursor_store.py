@@ -107,6 +107,42 @@ class CursorStore:
             self._index = latest
         return ref
 
+    def save_cursor_if_unchanged(
+        self,
+        cursor: CursorState,
+        *,
+        expected_cursor: CursorState | None,
+    ) -> ArtifactRef:
+        """Compare and advance the exact predecessor under the shared index lock.
+
+        A slow source run cannot overwrite progress committed by a later run.
+        The ordinary save API remains available for explicit administrative or
+        stream state writes; protected batch promotion uses this conditional API.
+        """
+        if expected_cursor is not None and expected_cursor.cursor_id != cursor.cursor_id:
+            raise ValueError("expected cursor identity differs")
+        with self._lock, file_lock(self._lock_path):
+            latest = self._load_index_unlocked()
+            current_ref = latest.get(cursor.cursor_id)
+            current = (
+                self.load_cursor(ArtifactID.model_validate(current_ref)) if current_ref else None
+            )
+            expected = expected_cursor.model_dump(mode="json") if expected_cursor else None
+            if (current.model_dump(mode="json") if current else None) != expected:
+                raise CursorStoreConflict("cursor predecessor changed before promotion")
+            ref = self._store.put_json(
+                cursor.model_dump(mode="json"),
+                ArtifactWriteOptions(
+                    kind="fabric.cursor_state",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="cursor_state", version="1.0"),
+                ),
+            )
+            latest[cursor.cursor_id] = str(ref.artifact_id)
+            self._save_index_unlocked(latest)
+            self._index = latest
+            return ref
+
     def remove_cursor(
         self,
         cursor_id: str,

@@ -58,3 +58,16 @@ def test_compare_artifact_hashes_reports_different_payload_identity() -> None:
         f"record={record_manifest.artifact_id.hex}, "
         f"replay={replay_manifest.artifact_id.hex}"
     ]
+
+
+def test_identical_incomplete_runs_are_not_successful_replay_equivalence() -> None:
+    """A pair of identical partial outcomes cannot satisfy the completion gate."""
+    from polisyos.fabric.data_plane.orchestrator import IngestionResult
+    from polisyos.fabric.data_plane.regression import compare_ingestion_runs
+
+    record = IngestionResult(datasets_fetched=1)
+    replay = IngestionResult(datasets_fetched=1)
+    record.status = replay.status = "partial"
+    comparison = compare_ingestion_runs(record, replay)
+    assert not comparison.match
+    assert any("incomplete" in reason for reason in comparison.mismatches)

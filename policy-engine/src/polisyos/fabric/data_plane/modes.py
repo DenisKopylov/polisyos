@@ -12,7 +12,7 @@ from __future__ import annotations
 import math
 from collections.abc import Mapping
 from dataclasses import dataclass, replace
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol, TypedDict, TypeGuard, cast
 
@@ -84,6 +84,7 @@ if TYPE_CHECKING:
     from polisyos.fabric.connectors.registry import ConnectorEntry
     from polisyos.fabric.data_plane.cursor_store import CursorStore
     from polisyos.fabric.data_plane.streaming import StreamSchemaBinding
+    from polisyos.fabric.ingestion.source_progress import ReconciledSourceFrame
 
 logger = get_logger(__name__)
 
@@ -104,6 +105,7 @@ class _LegacyStreamDatasetResult:
     chunks_processed: int
     quarantined_rows: int
     final_cursor_ref: str | None
+    source_progress_scope: dict[str, object] | None = None
 
 
 class _StreamDatasetResultSummary(Protocol):
@@ -132,6 +134,9 @@ class _StreamDatasetResultSummary(Protocol):
 
     @property
     def final_cursor_ref(self) -> str | None: ...
+
+    @property
+    def source_progress_scope(self) -> dict[str, object] | None: ...
 
 
 class _LegacyStreamChunk(TypedDict):
@@ -282,6 +287,15 @@ def _non_finite_fields(row: Mapping[str, object]) -> list[str]:
     return fields
 
 
+@dataclass(frozen=True)
+class _ReconciledFetch:
+    """One exact sent request and source result reconciled by the owner reader."""
+
+    sent_request: FetchRequest
+    raw_result: FetchResult[object]
+    materialized_result: FetchResult[object]
+
+
 class _CursorAwareConnector:
     """Add one stored incremental version at the connector request boundary."""
 
@@ -289,19 +303,35 @@ class _CursorAwareConnector:
         self,
         connector: SourceConnectorValue[object],
         connector_id: str,
-        cursor_versions: dict[tuple[str, str], DataVersion],
+        frames: dict[tuple[str, str], ReconciledSourceFrame],
+        reconciled: dict[tuple[str, str], _ReconciledFetch],
     ) -> None:
         self._connector = connector
         self._connector_id = connector_id
-        self._cursor_versions = cursor_versions
+        self._frames = frames
+        self._reconciled = reconciled
 
     async def fetch(self, handle: ConnectionHandle, request: FetchRequest) -> FetchResult[object]:
-        """Fetch with the stored version when the request has no cursor."""
-        if isinstance(request, FetchRequest) and request.incremental_since is None:
-            version = self._cursor_versions.get((self._connector_id, request.dataset_id))
-            if version is not None:
-                request = replace(request, incremental_since=version)
-        return await self._connector.fetch(handle, request)
+        """Fetch the exact persisted request, then reconcile the full source view."""
+        key = (self._connector_id, request.dataset_id)
+        frame = self._frames.get(key)
+        if frame is None:
+            return await self._connector.fetch(handle, request)
+        # The bounded finite source owns this exact file replay. An arbitrary
+        # network connector cannot borrow a separate fixture's authority.
+        from polisyos.fabric.ingestion.source_progress import SourceProgressAdmissionError
+
+        try:
+            result = frame.replay_fetch(handle.config, request)
+            materialized = frame.reconcile_fetch(request, result)
+        except (OSError, TypeError, ValueError) as exc:
+            raise SourceProgressAdmissionError(
+                "actual_finite_replay_unavailable",
+                connector_id=self._connector_id,
+                dataset_id=request.dataset_id,
+            ) from exc
+        self._reconciled[key] = _ReconciledFetch(request, result, materialized)
+        return materialized
 
     def __getattr__(self, name: str) -> object:
         return getattr(self._connector, name)
@@ -313,10 +343,13 @@ class _CursorAwareRegistry:
     def __init__(
         self,
         registry: _BatchConnectorRegistry,
-        cursor_versions: dict[tuple[str, str], DataVersion],
+        frames: dict[tuple[str, str], ReconciledSourceFrame],
+        reconciled: dict[tuple[str, str], _ReconciledFetch],
     ) -> None:
         self._registry = registry
-        self._cursor_versions = cursor_versions
+        self._frames = frames
+        self._reconciled = reconciled
+        self._finite_handles: dict[str, ConnectionHandle] = {}
 
     def get(
         self,
@@ -342,7 +375,8 @@ class _CursorAwareRegistry:
         wrapped = _CursorAwareConnector(
             connector,
             connector_id,
-            self._cursor_versions,
+            self._frames,
+            self._reconciled,
         )
         return cast("SourceConnectorValue[object]", wrapped)
 
@@ -359,7 +393,28 @@ class _CursorAwareRegistry:
         | None
         | _ArgumentNotProvided = _ARGUMENT_NOT_PROVIDED,
     ) -> ConnectionHandle:
-        """Forward acquisition while preserving explicit default-valued arguments."""
+        """Acquire actual replay-file handles or forward the unchanged live path."""
+        finite = [
+            frame for (owner, _dataset), frame in self._frames.items() if owner == connector_id
+        ]
+        if finite:
+            from polisyos.fabric.connectors.base import ConnectionHandle
+
+            selected = config if _argument_was_provided(config) else None
+            selected = selected or self._registry.get_entry(connector_id).default_config
+            if selected is None:
+                raise ValueError("finite replay has no actual connection")
+            admitted = [frame.bind_transport(selected) for frame in finite]
+            if any(
+                frame.transport_identity != original.transport_identity
+                for frame, original in zip(admitted, finite, strict=True)
+            ):
+                raise ValueError("finite replay physical transport changed before acquisition")
+            # No network pool is opened: this mode's producer performs actual
+            # bounded file IO. Lifetime is still explicit and checked below.
+            handle = ConnectionHandle(connector_id=connector_id, config=selected)
+            self._finite_handles[handle.session_id] = handle
+            return handle
         kwargs: _RegistryConnectionKwargs = {}
         if _argument_was_provided(_registration_binding):
             kwargs["_registration_binding"] = _registration_binding
@@ -382,7 +437,10 @@ class _CursorAwareRegistry:
         )
 
     async def release_connection(self, connector_id: str, handle: ConnectionHandle) -> None:
-        """Release through the registry that acquired the handle."""
+        """Release through the exact replay or registry owner that acquired it."""
+        if self._finite_handles.get(handle.session_id) is handle:
+            del self._finite_handles[handle.session_id]
+            return
         await self._registry.release_connection(connector_id, handle)
 
     def __getattr__(self, name: str) -> object:
@@ -407,18 +465,6 @@ def _connector_supports_incremental(connector: object) -> bool:
     return bool(flags & ConnectorCapability.INCREMENTAL_FETCH)
 
 
-def _strategy_value_is_valid(strategy: VersionStrategy, value: str) -> bool:
-    """Validate the strategy-specific syntax of a persisted version value."""
-    normalized = value.strip()
-    if not normalized:
-        return False
-    if strategy is VersionStrategy.TIMESTAMP:
-        return _parse_timestamp_value(normalized) is not None
-    if strategy is VersionStrategy.REVISION:
-        return normalized.isdigit()
-    return True
-
-
 def _parse_timestamp_value(value: str) -> datetime | None:
     """Parse one source timestamp and reject timezone-free values."""
     normalized = value.strip()
@@ -433,54 +479,31 @@ def _parse_timestamp_value(value: str) -> datetime | None:
     return parsed
 
 
-def _admit_incremental_version(
-    *,
+def _cursor_version(
+    cursor: CursorState,
     connector: object,
-    strategy: VersionStrategy,
-    value: str,
-    timestamp: datetime,
+    *,
+    frame: ReconciledSourceFrame | None = None,
+    store: ArtifactStore | None = None,
 ) -> DataVersion | None:
-    """Admit one source version only when capability and value contracts hold."""
-    if not _connector_supports_incremental(connector):
-        return None
-    normalized = value.strip()
-    if not _strategy_value_is_valid(strategy, normalized):
-        return None
-    try:
-        return DataVersion(
-            strategy=strategy,
-            value=normalized,
-            timestamp=timestamp,
-        )
-    except (TypeError, ValueError):
-        return None
+    """Issue a hint only after exact persisted source evidence is re-admitted.
 
-
-def _cursor_version(cursor: CursorState, connector: object) -> DataVersion | None:
-    """Reject legacy timestamp cursors until provenance/epoch is contract-bound."""
-    strategy = _VERSION_STRATEGY_BY_WATERMARK.get(cursor.watermark_type)
-    if strategy is None:
+    Legacy ETAG/revision/timestamp syntax and capabilities carry no authority.
+    Without an independent source-owner reader they all remain full-fetch only.
+    """
+    if frame is None or store is None or not _connector_supports_incremental(connector):
         return None
-    if strategy is VersionStrategy.TIMESTAMP:
-        # CursorState has no independently admitted source-provenance/epoch
-        # field.  Its created_at and watermark_value are not authority for a
-        # subsequent incremental request, so remain in full/candidate mode.
-        return None
-    return _admit_incremental_version(
-        connector=connector,
-        strategy=strategy,
-        value=cursor.watermark_value,
-        timestamp=cursor.created_at,
-    )
+    return frame.admit_cursor(cursor, store)
 
 
 def _cursor_aware_dependencies(
     dependencies: IngestionDependencies,
-    cursor_versions: dict[tuple[str, str], DataVersion],
+    frames: dict[tuple[str, str], ReconciledSourceFrame],
+    reconciled: dict[tuple[str, str], _ReconciledFetch],
 ) -> _BatchIngestionDependencies:
-    """Build the batch-only provider view whose registry injects stored cursors."""
+    """Build a batch view whose registry reconciles real source result bytes."""
     return _BatchIngestionDependenciesView(
-        registry=_CursorAwareRegistry(dependencies.registry, cursor_versions),
+        registry=_CursorAwareRegistry(dependencies.registry, frames, reconciled),
         tracer=dependencies.tracer,
         metrics=dependencies.metrics,
         store_factory=dependencies.store_factory,
@@ -552,7 +575,7 @@ def _complete_source_boundary(
             or source_timestamp != parsed_version_value
         ):
             return None
-        return strategy, source_timestamp.isoformat(), source_timestamp
+        return strategy, version_value, source_timestamp
 
     version = fetch_result.version
     if version.strategy is not strategy:
@@ -563,24 +586,207 @@ def _complete_source_boundary(
 def _save_confirmed_cursors(
     *,
     cursor_store: CursorStore,
+    store: ArtifactStore,
     connectors: dict[tuple[str, str], object],
     datasets: list[tuple[str, str]],
     confirmed_results: dict[tuple[str, str], FetchResult[object]],
+    persisted_results: dict[
+        tuple[str, str],
+        tuple[
+            FetchRequest, FetchResult[object], FetchResult[object], ArtifactRef, EvidenceBundleRef
+        ],
+    ],
     result: IngestionResult,
-) -> None:
-    """Keep cursor promotion fail-closed until evidence binding is available.
+    frames: dict[tuple[str, str], ReconciledSourceFrame],
+    reconciled: dict[tuple[str, str], _ReconciledFetch],
+    predecessors: dict[tuple[str, str], CursorState | None],
+) -> set[tuple[str, str]]:
+    """Conditionally promote only independently reconciled per-source progress."""
+    evidence_ref = getattr(result, "evidence_bundle_ref", None)
+    if evidence_ref is None:
+        return set()
 
-    The current lease has no verifier that resolves an evidence reference and
-    binds its contents to the confirmed dataset and ingestion run.  CAS
-    integrity or reference presence is not semantic evidence, so neither
-    absent nor non-None references authorize a cursor write here.  The
-    evidence-contract owner must supply that bridge before this boundary can
-    be reopened.
-    """
-    del cursor_store, connectors, datasets, confirmed_results
-    if getattr(result, "evidence_bundle_ref", None) is None:
-        return
-    return
+    try:
+        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.core.artifacts.ids import ArtifactID
+        from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+        from polisyos.core.contracts.fabric import EvidenceBundle
+        from polisyos.core.contracts.provenance import ProvenanceCoreGraph, RelationType
+
+        evidence = EvidenceBundle.model_validate(load_core_json_artifact(store, evidence_ref))
+        provenance_ref = evidence.provenance_ref
+        if provenance_ref is None:
+            return set()
+        graph_payload = load_core_json_artifact(
+            store,
+            ArtifactID.model_validate(provenance_ref.artifact_id),
+        )
+        graph = ProvenanceCoreGraph.from_dict(graph_payload)
+        if (
+            graph.graph_id != provenance_ref.graph_id
+            or graph.compute_stable_id() != provenance_ref.stable_id
+        ):
+            return set()
+    except Exception:
+        logger.warning("batch_incremental: persisted evidence could not be resolved and bound")
+        return set()
+
+    try:
+        from polisyos.fabric.ingestion.ingestion import _cache_payload_ref_matches_result
+        from polisyos.fabric.ingestion.source_progress import snapshot_fetch_request
+    except ImportError:
+        logger.warning("batch_incremental: cursor evidence verifier is unavailable")
+        return set()
+
+    admitted: set[tuple[str, str]] = set()
+    activity = graph.activities.get("connector_ingestion_run")
+    if activity is None:
+        return set()
+
+    for connector_id, dataset_id in datasets:
+        key = (connector_id, dataset_id)
+        connector = connectors.get(key)
+        captured = confirmed_results.get(key)
+        receipt = persisted_results.get(key)
+        frame = frames.get(key)
+        reconciliation = reconciled.get(key)
+        if (
+            connector is None
+            or captured is None
+            or receipt is None
+            or frame is None
+            or reconciliation is None
+            or not _connector_supports_incremental(connector)
+        ):
+            continue
+        request, source_result, persisted_result, payload_ref, receipt_evidence_ref = receipt
+        if (
+            captured is not source_result
+            or source_result is not reconciliation.materialized_result
+            or request != reconciliation.sent_request
+        ):
+            continue
+        if artifact_ref_identity_key(receipt_evidence_ref) != artifact_ref_identity_key(
+            evidence_ref
+        ):
+            continue
+
+        previous = predecessors[key]
+        if previous is not None and frame.admit_cursor(previous, store) is None:
+            # An unverified legacy cursor cannot silently become authority by
+            # a normal fetch. Explicit migration first admits a complete basis.
+            continue
+        watermark_type = next(
+            (
+                watermark
+                for watermark, strategy in _VERSION_STRATEGY_BY_WATERMARK.items()
+                if strategy is frame.current.version.strategy
+            ),
+            None,
+        )
+        if watermark_type is None:
+            continue
+        source_boundary = _complete_source_boundary(source_result, watermark_type)
+        persisted_boundary = _complete_source_boundary(persisted_result, watermark_type)
+        if source_boundary is None or persisted_boundary is None:
+            continue
+        if source_boundary != persisted_boundary:
+            continue
+
+        try:
+            frame.assert_current()
+            frame.assert_transport_current()
+            frame.verify_materialization(persisted_result)
+            if not _cache_payload_ref_matches_result(store, payload_ref, persisted_result):
+                continue
+            if not any(
+                artifact_ref_identity_key(source_ref) == artifact_ref_identity_key(payload_ref)
+                for source_ref in evidence.sources
+            ):
+                continue
+            entity_id = f"dataset.{connector_id}.{dataset_id}"
+            entity = graph.entities.get(entity_id)
+            if entity is None:
+                continue
+            attributes = entity.attributes
+            expected_content_hash = persisted_result.version.content_hash
+            expected_updated_at = (
+                persisted_result.source_updated_at.isoformat()
+                if persisted_result.source_updated_at is not None
+                else None
+            )
+            artifact_id = getattr(payload_ref, "artifact_id", None)
+            artifact_hex = getattr(artifact_id, "hex", None)
+            if (
+                entity.created_at != persisted_result.fetched_at
+                or attributes.get("fetch_status") != "complete"
+                or attributes.get("cache_key") != request.cache_key
+                or attributes.get("data_artifact_id") != artifact_hex
+                or attributes.get("version_strategy") != persisted_result.version.strategy.value
+                or attributes.get("version_value") != persisted_result.version.value
+                or attributes.get("content_hash") != expected_content_hash
+                or attributes.get("source_updated_at") != expected_updated_at
+                or attributes.get("row_count") != persisted_result.row_count
+                or attributes.get("completeness") != str(persisted_result.completeness)
+            ):
+                continue
+            if not any(
+                edge.source_id == entity_id
+                and edge.target_id == "connector_ingestion_run"
+                and edge.relation is RelationType.WAS_GENERATED_BY
+                for edge in graph.edges
+            ):
+                continue
+        except Exception:
+            logger.warning(
+                "batch_incremental: source evidence binding failed for %s:%s",
+                connector_id,
+                dataset_id,
+            )
+            continue
+
+        try:
+            witness_ref = frame.witness(store)
+        except (LookupError, OSError, TypeError, ValueError):
+            continue
+        strategy, watermark_value, _source_time = source_boundary
+        cursor = CursorState(
+            cursor_id=f"{connector_id}:{dataset_id}",
+            connector_id=connector_id,
+            dataset_id=dataset_id,
+            watermark_type=watermark_type,
+            watermark_value=watermark_value,
+            created_at=datetime.now(UTC),
+            ingestion_run_id=_cursor_result_ref(evidence_ref),
+            evidence_bundle_ref=_cursor_result_ref(evidence_ref),
+            metadata={
+                "cache_key": request.cache_key,
+                "source_artifact_id": artifact_hex,
+                "provenance_artifact_id": provenance_ref.artifact_id,
+                "provenance_stable_id": provenance_ref.stable_id,
+                "source_version_strategy": strategy.value,
+                "source_version_value": watermark_value,
+                "source_content_hash": expected_content_hash,
+                "source_progress": {
+                    "witness_ref": witness_ref.model_dump(mode="json"),
+                    "payload_ref": payload_ref.model_dump(mode="json"),
+                    "evidence_ref": evidence_ref.model_dump(mode="json"),
+                    "actual_request_key": request.cache_key,
+                    "actual_request": snapshot_fetch_request(request),
+                },
+            },
+        )
+        from polisyos.fabric.data_plane.cursor_store import CursorStoreConflict
+
+        try:
+            cursor_ref = cursor_store.save_cursor_if_unchanged(cursor, expected_cursor=previous)
+        except CursorStoreConflict:
+            result.warnings.append(f"source_cursor_predecessor_changed:{connector_id}:{dataset_id}")
+            continue
+        result.cursor_ref = str(cursor_ref.artifact_id)
+        admitted.add(key)
+
+    return admitted
 
 
 def run_batch_incremental(
@@ -603,8 +809,12 @@ def run_batch_incremental(
     5. Return IngestionResult with cursor_ref.
     """
     datasets = _extract_datasets(connector_manifest)
+    if len(datasets) != len(set(datasets)):
+        raise ValueError("batch_incremental source dataset identities must be unique")
     from polisyos.fabric.data_plane.cursor_store import CursorStore
     from polisyos.fabric.data_plane.orchestrator import run_orchestrated_ingestion
+    from polisyos.fabric.data_plane.streaming import normalize_connection_config
+    from polisyos.fabric.ingestion.source_progress import resolve_source_progress_frame
 
     effective_input_dependencies = _resolve_ingestion_dependencies(ingestion_dependencies)
     invocation_scope = _resolve_mode_sidecar_scope(Path(cas_root), sidecar_scope)
@@ -615,12 +825,47 @@ def run_batch_incremental(
 
     dataset_connectors = _resolve_dataset_connectors(effective_input_dependencies, datasets)
     cursor_versions: dict[tuple[str, str], DataVersion] = {}
+    frames: dict[tuple[str, str], ReconciledSourceFrame] = {}
+    predecessors: dict[tuple[str, str], CursorState | None] = {}
+    admission_warnings: list[str] = []
     for connector_id, dataset_id in datasets:
+        key = (connector_id, dataset_id)
+        try:
+            frame = resolve_source_progress_frame(
+                effective_input_dependencies.source_progress_readers,
+                connector_id=connector_id,
+                dataset_id=dataset_id,
+                tenant_id=invocation_scope.tenant_id,
+            )
+            if frame is not None:
+                selected_config = normalize_connection_config(connection_config)
+                if selected_config is None:
+                    selected_config = effective_input_dependencies.registry.get_entry(
+                        connector_id
+                    ).default_config
+                if selected_config is None:
+                    raise ValueError("actual source connection is unavailable")
+                frame = frame.bind_transport(selected_config)
+        except (LookupError, OSError, TypeError, ValueError):
+            frame = None
+        if frame is not None:
+            frames[key] = frame
+            admission_warnings.append(
+                f"source_progress_scope:{connector_id}:{dataset_id}:finite_source_fixture;"
+                "production_currentness=not_established"
+            )
+        else:
+            admission_warnings.append(
+                f"source_progress_not_established:{connector_id}:{dataset_id}"
+            )
         cursor = cursor_store.find_latest_cursor(connector_id, dataset_id)
+        predecessors[key] = cursor
         if cursor is not None:
             version = _cursor_version(
                 cursor,
                 dataset_connectors.get((connector_id, dataset_id)),
+                frame=frame,
+                store=store,
             )
             if version is None:
                 continue
@@ -633,6 +878,12 @@ def run_batch_incremental(
             )
 
     confirmed_results: dict[tuple[str, str], FetchResult[object]] = {}
+    persisted_results: dict[
+        tuple[str, str],
+        tuple[
+            FetchRequest, FetchResult[object], FetchResult[object], ArtifactRef, EvidenceBundleRef
+        ],
+    ] = {}
 
     def _capture_result(
         connector_id: str,
@@ -643,11 +894,35 @@ def run_batch_incremental(
         del request
         confirmed_results[(str(connector_id), str(dataset_id))] = fetch_result
 
+    def _capture_persisted_result(
+        connector_id: str,
+        dataset_id: str,
+        request: FetchRequest,
+        source_result: FetchResult[object],
+        persisted_result: FetchResult[object],
+        payload_ref: ArtifactRef,
+        evidence_ref: EvidenceBundleRef,
+    ) -> None:
+        persisted_results[(str(connector_id), str(dataset_id))] = (
+            request,
+            source_result,
+            persisted_result,
+            payload_ref,
+            evidence_ref,
+        )
+
+    reconciled: dict[tuple[str, str], _ReconciledFetch] = {}
     effective_dependencies = (
-        _cursor_aware_dependencies(effective_input_dependencies, cursor_versions)
-        if cursor_versions
+        _cursor_aware_dependencies(effective_input_dependencies, frames, reconciled)
+        if frames
         else effective_input_dependencies
     )
+
+    def _admit_request(connector_id: str, request: FetchRequest) -> FetchRequest:
+        version = cursor_versions.get((connector_id, request.dataset_id))
+        if request.incremental_since is not None:
+            raise ValueError("incremental predecessor must come from admitted cursor intake")
+        return replace(request, incremental_since=version) if version is not None else request
 
     # Run normal orchestrated ingestion
     result = run_orchestrated_ingestion(
@@ -656,19 +931,73 @@ def run_batch_incremental(
         license_name=license_name,
         cas_root=cas_root,
         connection_config=connection_config,
-        produce_snapshot=produce_snapshot,
+        produce_snapshot=False,
         ingestion_dependencies=effective_dependencies,
         sidecar_scope=invocation_scope,
         raw_result_sink=_capture_result,
+        request_transform=_admit_request,
+        persisted_result_sink=_capture_persisted_result,
+        continue_on_fetch_error=True,
     )
 
-    _save_confirmed_cursors(
+    result.warnings.extend(admission_warnings)
+    advanced = _save_confirmed_cursors(
         cursor_store=cursor_store,
+        store=store,
         connectors=dataset_connectors,
         datasets=datasets,
         confirmed_results=confirmed_results,
+        persisted_results=persisted_results,
         result=result,
+        frames=frames,
+        reconciled=reconciled,
+        predecessors=predecessors,
     )
+    missing_progress = set(datasets) - advanced
+    if missing_progress:
+        result.warnings.extend(
+            f"source_cursor_not_advanced:{connector_id}:{dataset_id}"
+            for connector_id, dataset_id in sorted(missing_progress)
+        )
+        result.status = "partial" if result.datasets_fetched else "failed"
+        result.data_snapshot_ref = None
+        if result.evidence_bundle_ref is not None:
+            from polisyos.fabric.ingestion.source_progress import project_partial_source_scope
+
+            result.evidence_bundle_ref = project_partial_source_scope(
+                store,
+                result.evidence_bundle_ref,
+                frames=frames,
+                advanced=advanced,
+            )
+    elif (
+        produce_snapshot and result.status == "completed" and result.evidence_bundle_ref is not None
+    ):
+        from polisyos.core.artifacts.async_store import ensure_async_artifact_store
+        from polisyos.fabric.data_plane.orchestrator import _build_snapshot_from_evidence_async
+        from polisyos.fabric.ingestion.source_collection import materialize_source_collection
+
+        collection_ref, collection_evidence_ref = materialize_source_collection(
+            store=store,
+            evidence_ref=result.evidence_bundle_ref,
+            datasets=tuple(datasets),
+            persisted_results=persisted_results,
+            frames=frames,
+        )
+        result.evidence_bundle_ref = collection_evidence_ref
+
+        # Compose the existing snapshot producer only after the complete
+        # per-source admission/progress result is known. A partial invocation
+        # must not create a nominally complete snapshot and merely hide its ref.
+        result.data_snapshot_ref = run_coro_sync(
+            _build_snapshot_from_evidence_async(
+                store=ensure_async_artifact_store(store),
+                evidence_ref=result.evidence_bundle_ref,
+                datasets_fetched=result.datasets_fetched,
+                source=source,
+                data_ref_override=collection_ref,
+            )
+        )
 
     return result
 
@@ -1090,6 +1419,7 @@ async def _run_streaming_windowed_async(
     connector_registry = ingestion_dependencies.registry
 
     source_refs: list[ArtifactRef] = []
+    source_scopes: dict[str, object] = {}
     warnings: list[str] = []
     total_chunks = 0
     total_rows = 0
@@ -1121,8 +1451,16 @@ async def _run_streaming_windowed_async(
                 connection_config=connection_config,
                 registry=connector_registry,
                 schema_binding=schema_binding,
+                source_progress_readers=ingestion_dependencies.source_progress_readers,
+                tenant_id=invocation_scope.tenant_id,
             )
         else:
+            from polisyos.fabric.data_plane.streaming import StreamDedupeUnsupported
+
+            if runtime_options.processing_contract.idempotency.enabled:
+                raise StreamDedupeUnsupported(
+                    "legacy streaming has no source-owned event/version admission bridge"
+                )
             dataset_result = await _run_legacy_stream_dataset_from_fetch_async(
                 store=store,
                 connector_id=ds_connector_id,
@@ -1132,6 +1470,13 @@ async def _run_streaming_windowed_async(
                 registry=connector_registry,
                 schema_binding=schema_binding,
             )
+        from polisyos.fabric.ingestion.source_collection import source_namespace
+
+        source_scopes[source_namespace(ds_connector_id, ds_dataset_id)] = (
+            dataset_result.source_progress_scope
+            if dataset_result.source_progress_scope is not None
+            else {"status": "not_established", "admission_scope": "candidate_only"}
+        )
         warnings.extend(dataset_result.warnings)
         source_refs.extend(dataset_result.chunk_refs)
         source_refs.extend(dataset_result.window_refs)
@@ -1167,6 +1512,8 @@ async def _run_streaming_windowed_async(
         "total_windows": total_windows,
         "total_cdc_events": total_cdc_events,
         "quarantined_rows": total_quarantined,
+        "source_progress_scopes": source_scopes,
+        "production_currentness": "not_established",
     }
     manifest_ref = await _persist_streaming_manifest_async(
         store=store,
@@ -1183,6 +1530,10 @@ async def _run_streaming_windowed_async(
             f"windows={total_windows}",
             f"cdc_events={total_cdc_events}",
             f"quarantined_rows={total_quarantined}",
+            (
+                "Source scopes are bound in the streaming manifest; finite replay never "
+                "establishes production currentness, rights or live event meaning."
+            ),
         ],
     )
     evidence_ref = await run_blocking_async(persist_evidence_bundle, store, evidence_bundle)
@@ -1203,6 +1554,10 @@ async def _run_streaming_windowed_async(
             },
             notes=[
                 "fabric.data_plane.streaming_windowed",
+                (
+                    "source_progress_scope=see_data_ref_manifest; "
+                    "production_currentness=not_established"
+                ),
                 f"window_strategy={_stream_runtime_options_from_manifest(connector_manifest).window_policy.strategy.value}",
             ],
         )
@@ -1278,11 +1633,22 @@ def _stream_runtime_options_from_manifest(
     if dataset_id:
         partition_key = str(raw_streaming.get("partition_key", dataset_id))
 
+    dedupe_fields: tuple[str, ...] | None = None
+    if "dedupe_key_fields" in raw_streaming:
+        raw_fields = raw_streaming["dedupe_key_fields"]
+        if (
+            not isinstance(raw_fields, (tuple, list))
+            or not raw_fields
+            or any(not isinstance(name, str) or not name.strip() for name in raw_fields)
+            or len(set(raw_fields)) != len(raw_fields)
+        ):
+            raise ValueError("streaming dedupe_key_fields must contain unique nonempty names")
+        dedupe_fields = tuple(raw_fields)
     return StreamRuntimeOptions(
         partition_key=partition_key,
         batch_size=int(raw_streaming.get("batch_size", 1_000)),
         checkpoint_every_chunks=int(raw_streaming.get("checkpoint_every_chunks", 1)),
-        dedupe_key_fields=tuple(raw_streaming.get("dedupe_key_fields", ("_message_id",))),
+        dedupe_key_fields=dedupe_fields,
         max_dedupe_keys=int(raw_streaming.get("max_dedupe_keys", 4_096)),
         max_buffered_rows=int(raw_streaming.get("max_buffered_rows", 10_000)),
         max_buffered_bytes=int(raw_streaming.get("max_buffered_bytes", 16 * 1024 * 1024)),

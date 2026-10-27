@@ -119,19 +119,17 @@ class EventStreamConnector(BaseConnector[Any]):
         handle: ConnectionHandle,
         request: FetchRequest,
     ) -> AsyncIterator[DataChunk[Any]]:
+        del request
         payload, _headers = await read_location_bytes(handle.config, prefixes=("X-Stream-",))
         chunk_size = self._chunk_size(handle.config)
         messages: list[dict[str, Any]] = []
-        for index, line in enumerate(payload.decode("utf-8").splitlines()):
+        for line in payload.decode("utf-8").splitlines():
             raw = line.strip()
             if not raw:
                 continue
             message = json.loads(raw)
             if not isinstance(message, dict):
                 message = {"value": message}
-            message.setdefault(
-                "_message_id", f"{request.dataset_id or self._topic(handle.config)}:{index}"
-            )
             messages.append(message)
 
         for chunk_index in range(0, len(messages), chunk_size):
@@ -178,7 +176,7 @@ class EventStreamConnector(BaseConnector[Any]):
             ],
             "stream_url": handle.config.url,
             "subject_or_topic": self._topic(handle.config),
-            "message_ids": [msg["_message_id"] for msg in messages[:10]],
+            "message_ids": [msg["_message_id"] for msg in messages[:10] if "_message_id" in msg],
         }
         handle._set_typed_state(_SCHEMA_CACHE_STATE_KEY, {"schema_by_dataset": schema_by_dataset})
 

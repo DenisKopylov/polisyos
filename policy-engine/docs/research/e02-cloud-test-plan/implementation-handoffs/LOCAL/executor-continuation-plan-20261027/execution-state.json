@@ -45,12 +45,19 @@
         ],
         "create_exit": 0,
         "status": "submitted",
-        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
-        "last_observed_status": "pending",
+        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
+        "last_observed_status": "ready",
         "last_observed_summary": {
-          "files_changed": 0,
-          "lines_added": 0,
-          "lines_removed": 0
+          "files_changed": 6,
+          "lines_added": 310,
+          "lines_removed": 132
+        },
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C01/source.diff",
+          "sha256": "de38885d7f8f49b064962f0303e47afec41bdb6332ad5917b1ea7857c04849ee",
+          "bytes": 37759,
+          "candidate_tree": "ed17cc148eec3a9da75d1f6dc371967667166e17",
+          "canonical_applied": false
         }
       },
       {
@@ -72,12 +79,19 @@
         ],
         "create_exit": 0,
         "status": "submitted",
-        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
-        "last_observed_status": "pending",
+        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
+        "last_observed_status": "ready",
         "last_observed_summary": {
-          "files_changed": 0,
-          "lines_added": 0,
+          "files_changed": 3,
+          "lines_added": 289,
           "lines_removed": 0
+        },
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C02/source.diff",
+          "sha256": "5923983e72ae264389aebdaa6bff769ac23f2f903f90f717247e1273b8735ebf",
+          "bytes": 16455,
+          "candidate_tree": "702e63a258178beca7fe689937eb313ba341a7ee",
+          "canonical_applied": false
         }
       },
       {
@@ -99,12 +113,19 @@
         ],
         "create_exit": 0,
         "status": "submitted",
-        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
-        "last_observed_status": "pending",
+        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
+        "last_observed_status": "ready",
         "last_observed_summary": {
-          "files_changed": 0,
-          "lines_added": 0,
+          "files_changed": 4,
+          "lines_added": 323,
           "lines_removed": 0
+        },
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C03/source.diff",
+          "sha256": "1c44dc67f6f716ef308c749d2427aa160cb99df85bc47b1bdf65c9914418149f",
+          "bytes": 19967,
+          "candidate_tree": "db9e81b62d0cd23be298fcbe6a86d5392f9181fa",
+          "canonical_applied": false
         }
       },
       {
@@ -126,12 +147,19 @@
         ],
         "create_exit": 0,
         "status": "submitted",
-        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
-        "last_observed_status": "pending",
+        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
+        "last_observed_status": "ready",
         "last_observed_summary": {
-          "files_changed": 0,
-          "lines_added": 0,
-          "lines_removed": 0
+          "files_changed": 7,
+          "lines_added": 541,
+          "lines_removed": 75
+        },
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C04/source.diff",
+          "sha256": "85b8b574810bb545c2de4daf298f3438a91ee4252d1e3d0ed15dbbe5a8166d89",
+          "bytes": 86311,
+          "candidate_tree": "d3a9aa9e9178ce346e511431bf88ca33b0401e58",
+          "canonical_applied": false
         }
       },
       {
@@ -153,12 +181,19 @@
         ],
         "create_exit": 0,
         "status": "submitted",
-        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
-        "last_observed_status": "pending",
+        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
+        "last_observed_status": "ready",
         "last_observed_summary": {
-          "files_changed": 0,
-          "lines_added": 0,
-          "lines_removed": 0
+          "files_changed": 14,
+          "lines_added": 1042,
+          "lines_removed": 54
+        },
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C06/source.diff",
+          "sha256": "ddfabd54118d64247e4e32c2c138d343070f52247581d6fa7982e904e80f995a",
+          "bytes": 124954,
+          "candidate_tree": "a9a2ec798be651f19c125b0970b98356fdae1659",
+          "canonical_applied": false
         }
       },
       {
@@ -180,12 +215,19 @@
         ],
         "create_exit": 0,
         "status": "submitted",
-        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
-        "last_observed_status": "pending",
+        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
+        "last_observed_status": "ready",
         "last_observed_summary": {
-          "files_changed": 0,
-          "lines_added": 0,
+          "files_changed": 3,
+          "lines_added": 148,
           "lines_removed": 0
+        },
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C09/source.diff",
+          "sha256": "e314ec6cf2f3b8680756d44ab0f7bdb1073ff69584d36002ba9f3903c79b8ef4",
+          "bytes": 15482,
+          "candidate_tree": "df5de65b7927bd33c8db80d4c7333d9d4b19029c",
+          "canonical_applied": false
         }
       },
       {
@@ -207,12 +249,19 @@
         ],
         "create_exit": 0,
         "status": "submitted",
-        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
-        "last_observed_status": "pending",
+        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
+        "last_observed_status": "ready",
         "last_observed_summary": {
-          "files_changed": 0,
-          "lines_added": 0,
+          "files_changed": 2,
+          "lines_added": 222,
           "lines_removed": 0
+        },
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C10/source.diff",
+          "sha256": "f8af47ac6697bbfb09f98e62f52a87ae32c79d0940b459ac929c69eeb3a7d880",
+          "bytes": 20182,
+          "candidate_tree": "8b0ce37d69004f72c3c24eca882d5fad7257a9f0",
+          "canonical_applied": false
         }
       },
       {
@@ -234,12 +283,19 @@
         ],
         "create_exit": 0,
         "status": "submitted",
-        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
-        "last_observed_status": "pending",
+        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
+        "last_observed_status": "ready",
         "last_observed_summary": {
-          "files_changed": 0,
-          "lines_added": 0,
-          "lines_removed": 0
+          "files_changed": 6,
+          "lines_added": 302,
+          "lines_removed": 3
+        },
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C11/source.diff",
+          "sha256": "281cd6389394484d1e6b35daa8c3d819a47653661d95794d79d0b5cb80015178",
+          "bytes": 21901,
+          "candidate_tree": "897a5328f6c70e4faaf548cb05df54025e6ada82",
+          "canonical_applied": false
         }
       },
       {
@@ -261,12 +317,19 @@
         ],
         "create_exit": 0,
         "status": "submitted",
-        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
-        "last_observed_status": "pending",
+        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
+        "last_observed_status": "ready",
         "last_observed_summary": {
-          "files_changed": 0,
-          "lines_added": 0,
-          "lines_removed": 0
+          "files_changed": 9,
+          "lines_added": 631,
+          "lines_removed": 23
+        },
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C05/source.diff",
+          "sha256": "817af31d8cd21233376fce8b9b44a24f15aa7cc3b3d62711f194b797fb8ccec2",
+          "bytes": 89153,
+          "candidate_tree": "53a834c476dfc2461ad17cc8c5fc9e128247d599",
+          "canonical_applied": false
         }
       },
       {
@@ -288,12 +351,19 @@
         ],
         "create_exit": 0,
         "status": "submitted",
-        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
-        "last_observed_status": "pending",
+        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
+        "last_observed_status": "ready",
         "last_observed_summary": {
-          "files_changed": 0,
-          "lines_added": 0,
-          "lines_removed": 0
+          "files_changed": 5,
+          "lines_added": 1048,
+          "lines_removed": 39
+        },
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C07/source.diff",
+          "sha256": "efe6cb3b83a17d7fb0b7b1f1768ee8970e864cc2b72285464a3e61f9d5196479",
+          "bytes": 78549,
+          "candidate_tree": "07b0fb169c446054feadbae0c6256d87cb61b3fc",
+          "canonical_applied": false
         }
       },
       {
@@ -315,16 +385,151 @@
         ],
         "create_exit": 0,
         "status": "submitted",
-        "deciding_evidence_delivery": "not_established until bytes retrieved and hash-verified",
-        "last_observed_status": "pending",
+        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review",
+        "last_observed_status": "ready",
+        "last_observed_summary": {
+          "files_changed": 7,
+          "lines_added": 204,
+          "lines_removed": 6
+        },
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C08/source.diff",
+          "sha256": "c2ee682a4d0d04e1c3b89b278e6cd0f9a994732d1093ba17d3bf7667f34347c4",
+          "bytes": 23634,
+          "candidate_tree": "635cfb6b0ea7344fbabd5775ade44fb342295257",
+          "canonical_applied": false
+        }
+      },
+      {
+        "slice": "C12",
+        "canonical_route": "Q0",
+        "family_F_group": "economic",
+        "occurrences": 6,
+        "task_id": "task_e_6ae1137775ec832584397307e600409f",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae1137775ec832584397307e600409f",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "branch": "codex/e02-unified-local-20261009",
+        "prompt_sha256": "beb715861fc9d6fb79695360030fc8c5cca8111ddb5e3acca5f2854da48c247c",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C12-launch-prompt.md",
+        "create_exit": 0,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "created_at": "2026-10-27T21:11:21.699200+00:00",
+        "status": "submitted",
+        "capability_claim": "source/oracle/proof result only; no automatic original criterion closure",
+        "last_observed_status": "ready",
+        "last_observed_summary": {
+          "files_changed": 3,
+          "lines_added": 2541,
+          "lines_removed": 0
+        },
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C12/source.diff",
+          "sha256": "0ef56eca19acbd38404b34a28efeab47c156bc76fa132d29c81a804a4e4b6bf0",
+          "bytes": 141878,
+          "candidate_tree": "fd1d968ccc2458e4b2d97ef33011f04babfd0629",
+          "canonical_applied": false
+        },
+        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review"
+      },
+      {
+        "slice": "C13",
+        "canonical_route": "Q0",
+        "family_F_group": "legal",
+        "occurrences": 1,
+        "task_id": "task_e_6ae1137e8f10832588497fa2deb0bc6d",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae1137e8f10832588497fa2deb0bc6d",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "branch": "codex/e02-unified-local-20261009",
+        "prompt_sha256": "e504d575f8637c70c3810f96d8b440e9622d4e77ffac4ece1995ffbcfa35bb3c",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C13-launch-prompt.md",
+        "create_exit": 0,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "created_at": "2026-10-27T21:11:28.263764+00:00",
+        "status": "submitted",
+        "capability_claim": "source/oracle/proof result only; no automatic original criterion closure",
+        "last_observed_status": "error",
         "last_observed_summary": {
           "files_changed": 0,
           "lines_added": 0,
           "lines_removed": 0
         }
+      },
+      {
+        "slice": "C14",
+        "canonical_route": "Q0",
+        "family_F_group": "causal",
+        "occurrences": 13,
+        "task_id": "task_e_6ae1138567c88325a3448e2c078851e5",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae1138567c88325a3448e2c078851e5",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "branch": "codex/e02-unified-local-20261009",
+        "prompt_sha256": "f25bd7effd7646a353f2f3d3a77f4bcc99525150a85ae3ed38fc5a31b4ab8a6f",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C14-launch-prompt.md",
+        "create_exit": 0,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "created_at": "2026-10-27T21:11:35.254252+00:00",
+        "status": "submitted",
+        "capability_claim": "source/oracle/proof result only; no automatic original criterion closure",
+        "last_observed_status": "ready",
+        "last_observed_summary": {
+          "files_changed": 3,
+          "lines_added": 320,
+          "lines_removed": 0
+        },
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C14/source.diff",
+          "sha256": "99b6934d14e0822f691c1eeaaf72a97b5890441db9d4aceebaf18cc9eadb57ee",
+          "bytes": 26325,
+          "candidate_tree": "bb9fc0dd03cf562e67eb28c9e2629a8a430fc940",
+          "canonical_applied": false
+        },
+        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review"
+      },
+      {
+        "slice": "C15",
+        "canonical_route": "Q0",
+        "family_F_group": "graph",
+        "occurrences": 14,
+        "task_id": "task_e_6ae1138b3ba883259e67bb21b45ccb92",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae1138b3ba883259e67bb21b45ccb92",
+        "expected_base": "8db01b1076e425b7998b05a658776c991b7bd594",
+        "expected_tree": "1706923ebe943f1a332dca4860cd145ddd366e36",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "branch": "codex/e02-unified-local-20261009",
+        "prompt_sha256": "427558fc8c78d7a4e7ae88dbab971d0937078cd1c975c8513bdb201c5787e2dc",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C15-launch-prompt.md",
+        "create_exit": 0,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "created_at": "2026-10-27T21:11:40.903674+00:00",
+        "status": "submitted",
+        "capability_claim": "source/oracle/proof result only; no automatic original criterion closure",
+        "last_observed_status": "ready",
+        "last_observed_summary": {
+          "files_changed": 7,
+          "lines_added": 302,
+          "lines_removed": 0
+        },
+        "retrieved_diff": {
+          "path": "LOCAL/raw/e02-execution-20261027/cloud/C15/source.diff",
+          "sha256": "6817a0d9cee1a4a43d1d7f10e7aaca1d8014e56269cd90d5a0e5acb74ce085c0",
+          "bytes": 32049,
+          "candidate_tree": "e53cb20e549ecca912adc932d397fbc796bd1e5f",
+          "canonical_applied": false
+        },
+        "deciding_evidence_delivery": "actual diff/new-file/receipt bytes retrieved; completeness assessed independently per review"
       }
     ],
-    "evidence_transport": "pending early C01 byte round trip",
+    "evidence_transport": "C01 actual diff,new substantive test,receipt and compact output/JUnit bytes obtained and alldeclaredhashesverified; full author removal trace unavailable; necessary exact control to rerun only",
     "midrun_coordinator_messaging": "not_established; standalone assignments",
     "frozen_published_input": {
       "base": "8db01b1076e425b7998b05a658776c991b7bd594",
@@ -347,6 +552,21 @@
       "rss_bytes": 1036107776,
       "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/V1-root-guard-receipt.json",
       "full_V1_V2_closed": false
+    },
+    {
+      "case": "r1-child-native-exec-r1-20261027",
+      "source": "d55088397c8ef68946c9380c6120fa9801c6c253",
+      "result": "PASS",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "wall_seconds": 27.073199417005526,
+      "rss_bytes": 1769553920,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/R1-child-native-receipt.json",
+      "full_R1_closed": false
     }
   ],
   "completed_author_results": [
@@ -359,5 +579,6 @@
   ],
   "external_residuals": [],
   "G_acceptance_new": false,
-  "closure_ids": []
+  "closure_ids": [],
+  "candidate_review_policy": "source HOLDs are uncomposed proposals; sparse repairs assigned one mechanism writer with independent reviewer; no author runtime result promoted to local composition PASS"
 }

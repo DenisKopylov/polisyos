@@ -1,0 +1,78 @@
+{
+  "schema": "policyos.e02.local_receipt.v1",
+  "task": "R1",
+  "scope": "one exact uninstrumented child-resume native selector; not whole R1",
+  "source": "d55088397c8ef68946c9380c6120fa9801c6c253",
+  "tree": "1fd2d6d7dd5ac9f434f4f7b29c65364d86e0ee0f",
+  "property": "same cache resumes incomplete process execution and commits one terminal lifecycle within unchanged internal30-second child join",
+  "profile": "native pytest.ini/default plugins; existing product Python3.14.3; retained supervisor with source readset",
+  "outcome": "PASS",
+  "counts": {
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "wall_seconds": 27.073199417005526,
+  "rss_bytes": 1769553920,
+  "loaded_python_paths": 1316,
+  "source_mismatches": [],
+  "command": [
+    "/usr/bin/sandbox-exec",
+    "-f",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r1-child-native-exec-r1-20261027/child.sb",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r1-child-native-exec-r1-20261027/pytest_launcher.py",
+    "-o",
+    "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r1-child-native-exec-r1-20261027/pytest-cache",
+    "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r1-child-native-exec-r1-20261027/benchmarks",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r1-child-native-exec-r1-20261027/basetemp",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r1-child-native-exec-r1-20261027/pytest.xml",
+    "--tb=short",
+    "--color=no",
+    "--maxfail=0",
+    "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py::test_incomplete_process_run_resumes_same_cache_and_one_terminal_lifecycle"
+  ],
+  "removal_control": "UNRUN for complete R1; this result preserves existing child-resume assertion, not a new adversarial proof",
+  "diagnostic": {
+    "scope": "instrumented child timeline, not native PASS",
+    "local_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e02-execution-20261027/r1-diagnostic/README.md",
+    "historical_cause": "not_established",
+    "observed": "diagnostic second child import/unpickle about10.46s; no native stack proof; later exact uninstrumented selector passed"
+  },
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-r1-child-native-20261027/audit-result.json",
+      "sha256": "16a0c90b37803ef3679fe044e8eb1eefef7936a7f4e785b4941dcba8e2a46ec6",
+      "bytes": 5542,
+      "classification": "A source-qualified execution receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-r1-child-native-20261027/pytest.xml",
+      "sha256": "1cb9f8a28157662528aa4500fcc8d2cfe8ff6a8298e65151988ae4679407a7d3",
+      "bytes": 454,
+      "classification": "A necessary compact full deciding command output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-r1-child-native-20261027/stdout.txt",
+      "sha256": "752a33d2f4cbf957643095ed34da3195cbeda992aaf71935d22f9ee9f208e438",
+      "bytes": 661,
+      "classification": "A necessary compact full deciding command output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-r1-child-native-20261027/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "classification": "A necessary compact full deciding command output"
+    }
+  ],
+  "limitations": [
+    "Only one selector; other R1 contours and B148 defining controls remain open.",
+    "Prior failure remains in history and its cause is not_established.",
+    "Loaded source denominator1316 is imported src/tests/tools set, not all repository/backend.",
+    "No new G acceptance or formal closure."
+  ],
+  "closure_ids": []
+}

@@ -39,3 +39,13 @@ Keep remote `codex/e02-unified-local-20261009` frozen at the dispatched input un
 ## First local behavioral result
 
 On source1810 the existing guarded native supervisor executed the cheap wrong-root falsifier:1PASS,0FAIL/ERROR/SKIP,22.87s wall,1,036,107,776-byte peak sampled process-tree RSS. All1,621 loaded Python path hashes match current source. The guard rejects wrong actual root before the builder with unchanged profile markers. This admits only the fixture-root guard, not ordinary served V1 or full V2. Full compact stdout/stderr/JUnit and source-qualified receipt are delivered in this packet; no unchanged numerical suite was repeated. The existing source guard was re-admitted to exact known committed documentation progression after checking all1,339 prior selected pins; its code was not weakened or replaced.
+
+## Early cloud delivery and next independent front
+
+The supported task diff transported actual C01 product/test bytes, a new regression, receipt and compact output/JUnit. Root verified every declared delivery hash; the channel is proven for these bytes. The author's full removal-failure trace was not delivered, and the HTTP14 setup did not reach A/A. Those exact missing checks remain due; cloud paths/hashes are not substituted for evidence. Independent source review found a duplicate-alias first-ref/last-metadata escape, so C01 remains uncomposed HOLD pending structural unique-row intake and fresh HTTP proof. C04/C05/C06/C07/C08 have similarly explicit source HOLDs; useful candidates are preserved while one sparse writer repairs each mechanism and a different reviewer checks it. No product code has been applied at this checkpoint.
+
+C12–C15 add independent Q0 family-F proof/oracle tasks on the same published input. The full34 occurrences are partitioned economic6, Legal1, causal13 and graph14, preserving repeated LA-016 occurrences. These are proof tasks, not four completed capabilities. Actual task states and received candidate identities are in execution-state.json; a cloud ERROR is not a product FAIL.
+
+## R1 exact native replay
+
+The uninstrumented child-resume selector passed on d550 source:1PASS,27.0732s,peak1,769,553,920 bytes,1,316 loaded Python paths and zero mismatches. Internal30-second join and product/test source were unchanged. A prior separate diagnostic measured substantial child import/unpickle time but did not establish the historical cause; that cause remains not_established. This fresh PASS covers one exact selector only. Other R1 contours, B148 controls, independent review and G acceptance remain separate. Complete compact deciding output/JUnit and execution receipt are delivered here; no unchanged broad suite was repeated.

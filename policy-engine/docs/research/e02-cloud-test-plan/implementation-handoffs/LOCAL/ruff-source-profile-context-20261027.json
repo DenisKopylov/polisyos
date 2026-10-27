@@ -1,0 +1,232 @@
+{
+  "schema": "policyos.e02.author.ruff-source-context-receipt.v1",
+  "slice_base": {
+    "commit": "63a4f46e9875a933914999294371ef878bbcee78",
+    "relationship": "immediate pre-work base for this two-file helper delta; original already-authored source-selection mechanism is not claimed inherited green"
+  },
+  "candidate": {
+    "head": "bb53092eae437c794f595737fa8a51376dd24a0a",
+    "tree": "889024b206127c4e2a83ccfafb0f503b5095514c",
+    "parents": [
+      "63a4f46e9875a933914999294371ef878bbcee78"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "paths": {
+      "policy-engine/tools/devx/workspace/ruff_sources.py": "a8069d7518c9c1e0d4931cdbe1f5a9759c825af43a7d6f166072ac58456539e7",
+      "policy-engine/tests/repo_quality/tools/test_ruff_sources.py": "9689e42d86fc0ed1dbba629a9f8377c7b472bfefe002d3a6a214a2e8e9ec8ca3"
+    },
+    "source_global_freeze": false,
+    "code_acceptance": false,
+    "closure_ids": []
+  },
+  "property": "An admitted Ruff source set uses the selected canonical profile working directory and filename namespace, rejects an explicit wrong cwd before child launch, and never converts an empty filtered target list into directory scanning.",
+  "surface": "internal developer tool; no product API, authority or canonical-data change",
+  "selected_input_backend": {
+    "python": "existing CPython3.14.3 environment",
+    "pytest": "policy-engine/pytest.ini native defaults",
+    "ruff_profiles": [
+      "policy-engine/ruff.toml at product cwd with absolute canonical stdin names",
+      "policy-engine/architecture/tooling/ruff/workspace_root.toml at workspace cwd with repository-relative canonical names",
+      "explicit real absolute cwd required for custom profile"
+    ]
+  },
+  "evidence_source_binding": {
+    "actual_command_source": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-ruff-context-native-composed-20261027-r1/source-profile-freeze.json",
+      "sha256": "280e670f9afdb676c8a46778f0249d63cd78084b46db7618a4fb292bfc928397",
+      "availability": "retained_local_readable"
+    },
+    "qualification": "Commands ran on these exact two owned postimages at receipt-parent63a4f46 before implementation commit. The implementation commit reread the same bytes from branch; no claim that commands ran at bb53092."
+  },
+  "verification": [
+    {
+      "id": "native-tests",
+      "exit_code": 0,
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "tests/repo_quality/tools/test_ruff_sources.py",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-ruff-context-native-composed-20261027-r1/native-tests/pytest-cache",
+        "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-ruff-context-native-composed-20261027-r1/native-tests/benchmarks",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-ruff-context-native-composed-20261027-r1/native-tests/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-ruff-context-native-composed-20261027-r1/native-tests/pytest.xml",
+        "--tb=short",
+        "--color=no"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "wall_seconds": 2.091918291989714,
+      "junit_counts": {
+        "tests": 18,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-ruff-context-native-composed-20261027-r1/native-tests/native-tests.stdout.txt",
+        "sha256": "6fe4fe9af90e069d9cf71a7e9434b41ea519ec5da2824cf41ae8ae0fa9681df1",
+        "availability": "retained_local_readable"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-ruff-context-native-composed-20261027-r1/native-tests/native-tests.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained_local_readable"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-ruff-context-native-composed-20261027-r1/native-tests/pytest.xml",
+        "sha256": "1a74a249f132361ec9e5a9b505d3c89296f8ed3893b2d4dd2e8741e212532cb7",
+        "availability": "retained_local_readable"
+      }
+    },
+    {
+      "id": "product-check",
+      "exit_code": 0,
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/ruff.toml",
+        "tools/devx/workspace/ruff_sources.py",
+        "tests/repo_quality/tools/test_ruff_sources.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "wall_seconds": 1.0435145829978865,
+      "junit_counts": null,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-ruff-context-native-composed-20261027-r1/product-check/product-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "availability": "retained_local_readable"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-ruff-context-native-composed-20261027-r1/product-check/product-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained_local_readable"
+      }
+    },
+    {
+      "id": "product-format",
+      "exit_code": 0,
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--no-cache",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/ruff.toml",
+        "--check",
+        "tools/devx/workspace/ruff_sources.py",
+        "tests/repo_quality/tools/test_ruff_sources.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "wall_seconds": 1.055118540971307,
+      "junit_counts": null,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-ruff-context-native-composed-20261027-r1/product-format/product-format.stdout.txt",
+        "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+        "availability": "retained_local_readable"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-ruff-context-native-composed-20261027-r1/product-format/product-format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained_local_readable"
+      }
+    },
+    {
+      "id": "workspace-check",
+      "exit_code": 0,
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "policy-engine/tools/devx/workspace/ruff_sources.py",
+        "policy-engine/tests/repo_quality/tools/test_ruff_sources.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "wall_seconds": 1.0453558340086602,
+      "junit_counts": null,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-ruff-context-native-composed-20261027-r1/workspace-check/workspace-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "availability": "retained_local_readable"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-ruff-context-native-composed-20261027-r1/workspace-check/workspace-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained_local_readable"
+      }
+    },
+    {
+      "id": "workspace-format",
+      "exit_code": 0,
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--no-cache",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "--check",
+        "policy-engine/tools/devx/workspace/ruff_sources.py",
+        "policy-engine/tests/repo_quality/tools/test_ruff_sources.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "wall_seconds": 1.0491922500077635,
+      "junit_counts": null,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-ruff-context-native-composed-20261027-r1/workspace-format/workspace-format.stdout.txt",
+        "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+        "availability": "retained_local_readable"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-ruff-context-native-composed-20261027-r1/workspace-format/workspace-format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained_local_readable"
+      }
+    }
+  ],
+  "review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-provider-stdlib-independent-review-20261027-r1/ruff-context-r3-independent-review-r1/review.json",
+    "sha256": "3b895aab3c387eb008d0eb07e3057b26e004e55a276a6a42cf6e0c9c881813f0",
+    "availability": "retained_local_readable"
+  },
+  "limits": [
+    "Known profile pairing is enforced; arbitrary external Ruff shell invocations can bypass this helper.",
+    "Ruff package discovery depends on complete physical candidate topology. This two-file replay does not establish a repository-wide zero.",
+    "No product capability or full-ID formal closure follows from these internal-tool tests."
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P29",
+      "P31",
+      "P38",
+      "P40"
+    ],
+    "bucket": "Same invocation-context proxy class; both canonical profiles and explicit custom-context mechanism covered.",
+    "semantic_signal": "Real Ruff old incorrect product cwd had21diagnostics; correctcontextzero. Native18 helpertests run actual Ruff, source preservation, nonempty/content/hash/symlink guards and no-child rejection; independentreviewseparateauthor."
+  },
+  "proposal_fields": {
+    "internal_mechanism": "implemented in candidate with bounded18PASS plus4Ruffgates",
+    "formal_closure_proposals": []
+  },
+  "source_global_freeze": false,
+  "code_acceptance": false,
+  "closure_ids": []
+}

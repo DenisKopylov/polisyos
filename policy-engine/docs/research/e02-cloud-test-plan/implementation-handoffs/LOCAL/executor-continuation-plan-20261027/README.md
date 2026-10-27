@@ -1,6 +1,6 @@
 # E02 continuation planning checkpoint — 27 October 2026
 
-This is the new local coordinator's **planning result**, linked to the [executor handover](../executor-handover-20261027/START-HERE.md). It authorizes no automatic implementation or cloud launch. E02 remains unfinished; independent review, G source acceptance, integration and finding closure are separate acts. R9/GY/Atlas implementation remains blocked on E02 acceptance.
+This is the new local coordinator's **planning record**, linked to the [executor handover](../executor-handover-20261027/START-HERE.md). After G reviewed checkpoint dad68b70, the user authorized execution with the compact evidence delivery correction. Current execution, source/resource admission and task status are in [EXECUTION.md](EXECUTION.md) and [execution-state.json](execution-state.json); historical planning-only restrictions do not limit that continuation. E02 remains unfinished; independent review, G source acceptance, integration and finding closure are separate acts. R9/GY/Atlas implementation remains blocked on E02 acceptance.
 
 ## Source and authority
 

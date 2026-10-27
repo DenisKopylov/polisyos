@@ -1,0 +1,37 @@
+{
+  "schema": "policyos.e02.live_execution.v1",
+  "started_at": "2026-10-27T20:54:11.698255+00:00",
+  "plan_checkpoint": "dad68b70b2321001631fc90aa160eec9656f79b1",
+  "canonical_queue": "QUEUE.json",
+  "canonical_denominator": {
+    "rows": 26,
+    "bundles": 127,
+    "ids": 282,
+    "occurrences": 291,
+    "task_finding_edges": 319
+  },
+  "execution_authorized": true,
+  "source_at_entry": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "dad68b70b2321001631fc90aa160eec9656f79b1",
+    "tree": "eeff9fb247f4fe00cdf36bbff141101828866d61"
+  },
+  "resources_at_entry": {
+    "free_disk_kib": 22362684,
+    "ram_bytes": 17179869184,
+    "cpu_count": 8,
+    "memory_pressure_free_percent": 64,
+    "local_compute_policy": "existing measured profiles; first new-cost run alone; no cloud quota inferred"
+  },
+  "cloud": {
+    "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+    "launches": [],
+    "evidence_transport": "pending early C01 byte round trip",
+    "midrun_coordinator_messaging": "not_established; standalone assignments"
+  },
+  "local_runs": [],
+  "completed_author_results": [],
+  "external_residuals": [],
+  "G_acceptance_new": false,
+  "closure_ids": []
+}

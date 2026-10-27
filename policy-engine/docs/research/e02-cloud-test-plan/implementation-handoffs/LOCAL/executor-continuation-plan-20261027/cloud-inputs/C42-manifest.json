@@ -1,0 +1,59 @@
+{
+  "schema": "policyos.e02.cloud_source_patch_input.v1",
+  "source_task": "C42",
+  "source_task_id": "task_e_6ae129ccb79483258838c28c36d8b582",
+  "source_base_commit": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+  "source_base_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+  "full_received_diff": {
+    "sha256": "f1f74a47bd03656a802dd2c9baad62597af477e125920f31aa82891a0fa7c4a0",
+    "bytes": 64209,
+    "paths": 22,
+    "qualification": "full22path C42receiveddiff is local evidence; not Cloudinput or a verified final Cloudcommit"
+  },
+  "selected_patch": {
+    "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C42.patch.gz",
+    "compression": "gzip lossless,mtime=0",
+    "compressed_sha256": "59349561c0fe366d27fa73385751e7843c39951c9594300255817af8ae983f8b",
+    "compressed_bytes": 3612,
+    "decompressed_sha256": "0601ed2cc582ffc6367b1a36725ffb6b7ff9c64d5c2f7e711bb91a8280738c99",
+    "decompressed_bytes": 12238,
+    "paths": [
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/measurement.py",
+        "preimage": {
+          "git_blob": "fd22f4376944fc29fd8ccb88dd0de0e2ceeebfc8",
+          "sha256": "b3c7700afdd4eb2b67d5144cc64750e496e04bc56ffd1e9230b8e1028a17f6e4",
+          "bytes": 29832
+        },
+        "postimage": {
+          "git_blob": "872828461d04ddce98febd8a620a00ff8df78625",
+          "sha256": "be1de99f1764725d501ddaf2f1136ed40c39d02df456aef4478a497138ace350",
+          "bytes": 28892
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_cal_01.py",
+        "preimage": {
+          "git_blob": "bade523dcce39fe00b2c77c2bf627675e69a1eb1",
+          "sha256": "6d0b0508e24d8499bc7c2ec68893c9b7290caae733f8618a5b769bfba2601001",
+          "bytes": 10016
+        },
+        "postimage": {
+          "git_blob": "593daa22292e0da7f5da8475a9104b20212274de",
+          "sha256": "8c343db6ca5d1003606156e47cc9fd47da3c484dd2a5b946a8527bc785628441",
+          "bytes": 11416
+        }
+      }
+    ],
+    "selection": "complete2of2productsource/test paths;20receipt/output paths deliberately excluded; no code omitted"
+  },
+  "source_review": {
+    "local_path": "LOCAL/raw/e02-execution-20261027/next-cloud/wave3/reviews/C42-code.md",
+    "sha256": "3b6a73a6d2c2dcbb66e71258106a6493884c4e28b35213cd20be8cc5e904f4e0",
+    "disposition": "boundedB176sourceGO; full13criterionHOLD; no Gacceptance or formalclosure"
+  },
+  "execution": "This carrier conveys source/test bytes only. C62 must record exact carrier source, apply only after admitted preimages, verify resulting postimages, then run its own positives/removals/restoredgreen and consumer proofs. Do not claim old75cases prove all13criteria. No reliance on candidate Gitobjects or ignored paths.",
+  "publication_status": "actual publication is bound by the later root commit and remote readback",
+  "recommended_manifest_tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C42-manifest.json",
+  "preparer_no_canonical_source_index_refs_mutated": true
+}

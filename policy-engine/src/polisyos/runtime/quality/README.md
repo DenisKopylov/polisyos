@@ -1220,3 +1220,18 @@ transaction; SKG and L3 payload rows are consumed in bounded batches. The L3 suc
 distinct group/date values, with O(U) retained metadata and O(N) worst case. DuckDB query sorting
 and the complete final edge map remain unbounded by Python batch size; a served-memory improvement
 is not claimed until the frozen source replay is measured.
+
+## Acquisition data preparation
+
+`data_state_substrate.prepare_acquired_observation_snapshot` exposes the existing
+owner's selected data, lineage and controlled Foundry mapping without emitting
+an artifact or workspace file. Its preparation is a caller-constructible
+candidate with a recomputable integrity digest, never an authority token.
+`materialize_acquired_observation_snapshot` rereads the current canonical active
+overlay, passport, authority and selected base snapshot even when `prepared` is
+supplied. It compares every preparation field and persists only the freshly
+resolved owner values. Legacy callers may omit the optional comparison input.
+The existing read-before-write boundary is preserved; a transaction spanning
+native owner eligibility and later CAS writes is not established. Full
+evaluation-plan equivalence, retention, lifecycle and frontier fencing remain
+separate consumers and cannot be inferred from this data-owner seam.

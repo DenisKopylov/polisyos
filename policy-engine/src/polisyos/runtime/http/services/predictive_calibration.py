@@ -170,6 +170,13 @@ class PredictiveCalibrationError(ValueError):
         self.code = code
 
 
+class _AcquiredObservedSourceNotEstablishedError(PredictiveCalibrationError):
+    """Keep the source-row limitation distinct at both predictive intakes."""
+
+    def __init__(self) -> None:
+        super().__init__("predictive_calibration_acquired_source_row_not_established")
+
+
 class PredictiveCalibrationRequest(BaseModel):
     """Explicit, profile-selected inputs for one run-bound predictive diagnostic."""
 
@@ -1637,6 +1644,28 @@ def _validate_selected_value_data_profile(
         raise PredictiveCalibrationError("predictive_calibration_value_profile_invalid") from exc
 
 
+def _load_verified_observed_data_snapshot(
+    store: ArtifactStore, observed_source_ref: ArtifactRef
+) -> DataSnapshot:
+    """Admit observed-source lineage without granting candidate-row authority."""
+    from polisyos.runtime.quality.data_snapshot_lineage import (
+        DataSnapshotSourceRowNotEstablishedError,
+        validate_data_snapshot_owner_lineage,
+    )
+
+    snapshot_payload = get_json_artifact(
+        ensure_ir_artifact_store(store), _as_ir_artifact_ref(observed_source_ref)
+    )
+    snapshot = DataSnapshot.model_validate(snapshot_payload)
+    try:
+        lineage_result = validate_data_snapshot_owner_lineage(store, observed_source_ref, snapshot)
+        if lineage_result.required_admissibility_blockers:
+            raise DataSnapshotSourceRowNotEstablishedError()
+    except DataSnapshotSourceRowNotEstablishedError as exc:
+        raise _AcquiredObservedSourceNotEstablishedError() from exc
+    return snapshot
+
+
 def _build_selected_profile_member(
     *,
     store: ArtifactStore,
@@ -1649,20 +1678,7 @@ def _build_selected_profile_member(
     if profile_ref is None or unit_id is None:
         raise PredictiveCalibrationError("predictive_calibration_value_profile_selection_missing")
     try:
-        snapshot_payload = get_json_artifact(
-            ensure_ir_artifact_store(store),
-            _as_ir_artifact_ref(request.observed_source_ref),
-        )
-        snapshot = DataSnapshot.model_validate(snapshot_payload)
-        from polisyos.runtime.quality.data_snapshot_lineage import (
-            validate_data_snapshot_owner_lineage,
-        )
-
-        validate_data_snapshot_owner_lineage(
-            store,
-            request.observed_source_ref,
-            snapshot,
-        )
+        snapshot = _load_verified_observed_data_snapshot(store, request.observed_source_ref)
         observed_data_ref = ArtifactRef.model_validate(snapshot.data_ref.model_dump(mode="json"))
         _require_selected_ref(store, observed_data_ref, expected_kind=None)
         observed_payload = get_json_artifact(
@@ -1683,6 +1699,8 @@ def _build_selected_profile_member(
             source_passport=binding.source_passport,
         )
         return member
+    except _AcquiredObservedSourceNotEstablishedError:
+        raise
     except Exception as exc:
         raise PredictiveCalibrationError(
             "predictive_calibration_value_profile_observed_join_invalid"
@@ -1723,20 +1741,7 @@ def _revalidate_profile_member_binding(
             ensure_ir_artifact_store(store), _as_ir_artifact_ref(member_ref)
         )
         member = ForecastProfileMemberV1.model_validate(member_payload)
-        snapshot_payload = get_json_artifact(
-            ensure_ir_artifact_store(store),
-            _as_ir_artifact_ref(association.observed_source_ref),
-        )
-        snapshot = DataSnapshot.model_validate(snapshot_payload)
-        from polisyos.runtime.quality.data_snapshot_lineage import (
-            validate_data_snapshot_owner_lineage,
-        )
-
-        validate_data_snapshot_owner_lineage(
-            store,
-            association.observed_source_ref,
-            snapshot,
-        )
+        snapshot = _load_verified_observed_data_snapshot(store, association.observed_source_ref)
         snapshot_data_ref = ArtifactRefModel.model_validate(
             snapshot.data_ref.model_dump(mode="json")
         )
@@ -1806,6 +1811,8 @@ def _revalidate_profile_member_binding(
         }
         if not expected_edges.issubset(actual_edges):
             raise ValueError("profile member manifest lost exact source input edges")
+    except _AcquiredObservedSourceNotEstablishedError:
+        raise
     except Exception as exc:
         raise PredictiveCalibrationError(
             "predictive_calibration_profile_member_reopen_mismatch"

@@ -12,7 +12,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
@@ -38,7 +38,11 @@ from polisyos.core.artifacts import (
 )
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import DataTrust, ValueOuterSet
-from polisyos.core.contracts.fabric import DataSnapshot, data_snapshot_owner_input_requirements
+from polisyos.core.contracts.fabric import (
+    DataSnapshot,
+    data_snapshot_owner_input_requirements,
+    data_snapshot_reference_fields,
+)
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.data_forge import read_api as data_forge_read_api
 from polisyos.ir.model_layer.model_spec import ModelSpec
@@ -81,6 +85,7 @@ ACQUIRED_DATA_STATE_LIMITATION_CODES = (
     "source_time_not_established",
     "source_to_target_measurement_contract_not_established",
     "causal_coupling_not_established",
+    "acquired_source_row_revalidation_not_established",
 )
 DEFAULT_L4_SNAPSHOT_ID = "ukraine_server_support_20260410"
 DEFAULT_DATA_STATE_PERIOD_START = "2021-12"
@@ -301,6 +306,77 @@ class AcquiredObservationDataSnapshotResult:
     source_time_status: Literal["not_established"]
     observation_projection: ActivatedAcquisitionObservationProjection
     foundry_binding_rule: FoundryInputBindingRule
+
+
+@dataclass(frozen=True)
+class AcquiredObservationDataPreparation:
+    """Write-free, content-bound input prepared for acquisition materialization.
+
+    The effective payload is retained as JSON bytes rather than a mutable
+    mapping. Its recomputable digest detects content drift; it is not evidence
+    of owner issuance or continuing eligibility. The materializer reconstructs
+    the current owner preparation, compares every dataclass field, and consumes
+    only that freshly resolved result before its first write.
+    """
+
+    payload_json: bytes
+    payload_sha256: str
+    preparation_sha256: str
+    base_data_snapshot_ref: ArtifactRef
+    receipt_ref: ArtifactRef
+    selected_profile: ControlledAcquisitionSlotBinding
+    observation_projection: ActivatedAcquisitionObservationProjection
+    selected_dataset_id: str
+    selected_observation_id: str
+    selected_row_content_sha256: str
+    base_snapshot_id: str
+    transaction_time_text: str
+    lineage_inputs: tuple[Any, ...]
+    foundry_binding_rule: FoundryInputBindingRule
+
+    def validate_content_binding(self) -> None:
+        """Reject any changed field before the materializer's first write."""
+
+        if _acquisition_preparation_sha256(self, include_digest=False) != self.preparation_sha256:
+            raise DataStateSubstrateError("acquisition_preparation_content_changed")
+
+    def payload(self) -> dict[str, Any]:
+        """Return a fresh payload after checking the prepared content binding."""
+
+        self.validate_content_binding()
+        if hashlib.sha256(self.payload_json).hexdigest() != self.payload_sha256:
+            raise DataStateSubstrateError("acquisition_preparation_content_changed")
+        value = json.loads(self.payload_json)
+        if not isinstance(value, dict):
+            raise DataStateSubstrateError("acquisition_preparation_payload_not_object")
+        return value
+
+
+def _acquisition_preparation_sha256(
+    prepared: AcquiredObservationDataPreparation,
+    *,
+    include_digest: bool,
+) -> str:
+    """Bind every prepared field without retaining a mutable semantic mapping."""
+
+    fields = {
+        "payload_sha256": prepared.payload_sha256,
+        "base_data_snapshot_ref": prepared.base_data_snapshot_ref.model_dump(mode="json"),
+        "receipt_ref": prepared.receipt_ref.model_dump(mode="json"),
+        "selected_profile": prepared.selected_profile.model_dump(mode="json"),
+        "observation_projection": prepared.observation_projection.model_dump(mode="json"),
+        "selected_dataset_id": prepared.selected_dataset_id,
+        "selected_observation_id": prepared.selected_observation_id,
+        "selected_row_content_sha256": prepared.selected_row_content_sha256,
+        "base_snapshot_id": prepared.base_snapshot_id,
+        "transaction_time_text": prepared.transaction_time_text,
+        "lineage_inputs": [item.model_dump(mode="json") for item in prepared.lineage_inputs],
+        "foundry_binding_rule": prepared.foundry_binding_rule.model_dump(mode="json"),
+    }
+    if include_digest:
+        fields["preparation_sha256"] = prepared.preparation_sha256
+    encoded = json.dumps(fields, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(encoded).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -697,7 +773,7 @@ def materialize_l4_data_state_snapshot(
     )
 
 
-def materialize_acquired_observation_snapshot(
+def prepare_acquired_observation_snapshot(
     store: ArtifactStore,
     *,
     base_data_snapshot_ref: ArtifactRef,
@@ -707,15 +783,15 @@ def materialize_acquired_observation_snapshot(
     authority: object,
     observation_id: str,
     slot_binding: ControlledAcquisitionSlotBinding,
-    workspace_dir: Path,
     transaction_time: datetime,
-) -> AcquiredObservationDataSnapshotResult:
-    """Extend an existing S1 snapshot with one activated row for candidate work.
+) -> AcquiredObservationDataPreparation:
+    """Prepare an owner-verified acquired observation without writing artifacts.
 
     The projection is resolved again through Data Forge's canonical active-state
     reader. This S1 owner checks the selected row against that owner readback,
-    preserves the existing snapshot payload, emits a new owner DataSnapshot,
-    and asks Data Forge's existing snapshot finalizer to issue the binding.
+    preserves the existing snapshot payload, and prepares the exact lineage and
+    Foundry rule later consumed by the materializer. It emits no artifact or
+    workspace file.
     Source time, source-to-target measurement equivalence, and causal coupling
     remain declared limitations. ``transaction_time`` records only this
     materialization event; it is never substituted for source observation time.
@@ -730,12 +806,10 @@ def materialize_acquired_observation_snapshot(
         authority: The same canonical acquisition authority used for admission.
         observation_id: Exact row identity selected from the active projection.
         slot_binding: Explicit controlled-candidate map to one Foundry slot.
-        workspace_dir: Per-job workspace for Data Forge's normal snapshot owner.
         transaction_time: Time this controlled candidate snapshot is emitted.
 
     Returns:
-        The new DataSnapshot and Data Forge binding plus the required Foundry
-        rule that consumes the selected row.
+        Immutable, content-bound inputs for the existing materializer.
 
     Raises:
         DataStateSubstrateError: If the base snapshot, selected row, candidate
@@ -829,10 +903,19 @@ def materialize_acquired_observation_snapshot(
             base_snapshot.data_ref,
             "acquisition_base_snapshot_child_profile_unselected",
         )
-        if any(
-            ref.manifest_profile_sha256 is None
-            for ref, _role in data_snapshot_owner_input_requirements(base_snapshot)
-        ):
+        # A generic schema-0.2 snapshot has no schema-0.3 owner-lineage DTO.
+        # Reconcile its actual typed references, then let the same version-aware
+        # canonical owner verifier below validate all transport/owner relations.
+        selected_children = tuple(
+            ref
+            for name in data_snapshot_reference_fields()
+            if (ref := getattr(base_snapshot, name)) is not None
+        )
+        if base_snapshot.source_lineage is not None:
+            selected_children += tuple(
+                ref for ref, _role in data_snapshot_owner_input_requirements(base_snapshot)
+            )
+        if any(ref.manifest_profile_sha256 is None for ref in selected_children):
             raise DataStateSubstrateError("acquisition_base_snapshot_child_profile_unselected")
         from polisyos.runtime.quality.data_snapshot_lineage import (
             validate_data_snapshot_owner_lineage,
@@ -843,6 +926,7 @@ def materialize_acquired_observation_snapshot(
                 store,
                 base_data_snapshot_ref,
                 base_snapshot,
+                candidate_only=True,
             )
         except (OSError, TypeError, ValueError, RuntimeError) as exc:
             raise DataStateSubstrateError(
@@ -917,7 +1001,7 @@ def materialize_acquired_observation_snapshot(
     transaction_time_text = transaction_time.astimezone(UTC).isoformat()
     payload["_policyos_acquisition"] = {
         "schema_version": ACQUIRED_DATA_STATE_SCHEMA_VERSION,
-        "base_data_snapshot_id": base_snapshot_id,
+        "base_data_snapshot_id": str(base_data_snapshot_ref.artifact_id),
         "base_data_snapshot_ref": base_data_snapshot_ref.model_dump(mode="json"),
         "source_time_status": "not_established",
         "selected_observation_id": observation.observation_id,
@@ -946,6 +1030,119 @@ def materialize_acquired_observation_snapshot(
             role="evidence.acquisition_passport",
         ),
     )
+    token = re.sub(r"[^a-zA-Z0-9_-]+", "_", observation.canonical_var).strip("_")
+    foundry_binding_rule = FoundryInputBindingRule(
+        binding_id=f"acquisition.{token}.candidate",
+        source_path="acquisition.selected.value",
+        target_slot_id=selected_profile.target_slot_id,
+        required=True,
+        notes=[
+            "candidate_only_controlled_mapping",
+            "source_time_not_established",
+            "source_to_target_measurement_contract_not_established",
+            f"profile_selection_ref:{selected_profile.profile_selection_ref}",
+            f"dataset_id:{observation.dataset_id}",
+            f"observation_id:{observation.observation_id}",
+        ],
+    )
+    payload_json = json.dumps(
+        payload,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    prepared = AcquiredObservationDataPreparation(
+        payload_json=payload_json,
+        payload_sha256=hashlib.sha256(payload_json).hexdigest(),
+        preparation_sha256="",
+        base_data_snapshot_ref=base_data_snapshot_ref,
+        receipt_ref=receipt_ref,
+        selected_profile=selected_profile,
+        observation_projection=selected_projection,
+        selected_dataset_id=observation.dataset_id,
+        selected_observation_id=observation.observation_id,
+        selected_row_content_sha256=selected_row.row_content_sha256,
+        base_snapshot_id=base_snapshot_id,
+        transaction_time_text=transaction_time_text,
+        lineage_inputs=lineage_inputs,
+        foundry_binding_rule=foundry_binding_rule,
+    )
+    return replace(
+        prepared,
+        preparation_sha256=_acquisition_preparation_sha256(prepared, include_digest=False),
+    )
+
+
+def materialize_acquired_observation_snapshot(
+    store: ArtifactStore,
+    *,
+    base_data_snapshot_ref: ArtifactRef,
+    overlay: object,
+    receipt_ref: ArtifactRef,
+    passport: object,
+    authority: object,
+    observation_id: str,
+    slot_binding: ControlledAcquisitionSlotBinding,
+    workspace_dir: Path,
+    transaction_time: datetime,
+    prepared: AcquiredObservationDataPreparation | None = None,
+) -> AcquiredObservationDataSnapshotResult:
+    """Extend an existing S1 snapshot with one activated row for candidate work.
+
+    The projection is resolved again through Data Forge's canonical active-state
+    reader. This S1 owner checks the selected row against that owner readback,
+    preserves the existing snapshot payload, emits a new owner DataSnapshot,
+    and asks Data Forge's existing snapshot finalizer to issue the binding.
+    Source time, source-to-target measurement equivalence, and causal coupling
+    remain declared limitations. ``transaction_time`` records only this
+    materialization event; it is never substituted for source observation time.
+
+    Args:
+        store: The exact runtime-supplied ArtifactStore used by the tenant.
+        base_data_snapshot_ref: Current DataSnapshot whose world payload is
+            extended by the admitted observation.
+        overlay: Canonical Data Forge ``CatalogAcquisitionOverlay`` owner.
+        receipt_ref: Exact activated receipt selected by the world-growth owner.
+        passport: Owner-verified acquisition passport for ``receipt_ref``.
+        authority: The same canonical acquisition authority used for admission.
+        observation_id: Exact row identity selected from the active projection.
+        slot_binding: Explicit controlled-candidate map to one Foundry slot.
+        workspace_dir: Per-job workspace for Data Forge's normal snapshot owner.
+        transaction_time: Time this controlled candidate snapshot is emitted.
+        prepared: Optional caller-constructible comparison candidate. Its digest
+            is not authority. The active owner is reread and all preparation
+            fields must agree; only freshly owner-resolved values are written.
+
+    Returns:
+        The new DataSnapshot and Data Forge binding plus the required Foundry
+        rule that consumes the selected row.
+
+    Raises:
+        DataStateSubstrateError: If the base snapshot, selected row, candidate
+            mapping, transaction time or supplied preparation cannot be verified.
+    """
+
+    if prepared is not None and type(prepared) is not AcquiredObservationDataPreparation:
+        raise DataStateSubstrateError("acquisition_preparation_untyped")
+    current = prepare_acquired_observation_snapshot(
+        store,
+        base_data_snapshot_ref=base_data_snapshot_ref,
+        overlay=overlay,
+        receipt_ref=receipt_ref,
+        passport=passport,
+        authority=authority,
+        observation_id=observation_id,
+        slot_binding=slot_binding,
+        transaction_time=transaction_time,
+    )
+    if prepared is not None and prepared != current:
+        raise DataStateSubstrateError("acquisition_preparation_owner_state_changed")
+    prepared = current
+    transaction_time_text = prepared.transaction_time_text
+    payload = prepared.payload()
+    selected_projection = prepared.observation_projection
+    selected_profile = prepared.selected_profile
+    lineage_inputs = prepared.lineage_inputs
     payload_ref = store.put_json(
         payload,
         PutOptions(
@@ -973,10 +1170,10 @@ def materialize_acquired_observation_snapshot(
         stats={
             "snapshot_id": snapshot_id,
             "source_mode": "candidate_acquisition_overlay",
-            "base_snapshot_id": base_snapshot_id,
-            "selected_observation_id": observation.observation_id,
-            "selected_dataset_id": observation.dataset_id,
-            "selected_row_content_sha256": selected_row.row_content_sha256,
+            "base_snapshot_id": prepared.base_snapshot_id,
+            "selected_observation_id": prepared.selected_observation_id,
+            "selected_dataset_id": prepared.selected_dataset_id,
+            "selected_row_content_sha256": prepared.selected_row_content_sha256,
             "projection_content_sha256": selected_projection.projection_content_sha256,
             "source_time_status": "not_established",
             "materialized_at_transaction_time": transaction_time_text,
@@ -1037,32 +1234,17 @@ def materialize_acquired_observation_snapshot(
             },
         ),
     )
-    token = re.sub(r"[^a-zA-Z0-9_-]+", "_", observation.canonical_var).strip("_")
-    foundry_binding_rule = FoundryInputBindingRule(
-        binding_id=f"acquisition.{token}.candidate",
-        source_path="acquisition.selected.value",
-        target_slot_id=selected_profile.target_slot_id,
-        required=True,
-        notes=[
-            "candidate_only_controlled_mapping",
-            "source_time_not_established",
-            "source_to_target_measurement_contract_not_established",
-            f"profile_selection_ref:{selected_profile.profile_selection_ref}",
-            f"dataset_id:{observation.dataset_id}",
-            f"observation_id:{observation.observation_id}",
-        ],
-    )
     return AcquiredObservationDataSnapshotResult(
         data_snapshot_ref=data_snapshot_ref,
         data_forge_snapshot_binding_path=binding_path,
         data_forge_role=_data_forge_snapshot_role(),
         snapshot_id=snapshot_id,
         payload_content_hash=payload_content_hash,
-        selected_dataset_id=observation.dataset_id,
-        selected_observation_id=observation.observation_id,
+        selected_dataset_id=prepared.selected_dataset_id,
+        selected_observation_id=prepared.selected_observation_id,
         source_time_status="not_established",
         observation_projection=selected_projection,
-        foundry_binding_rule=foundry_binding_rule,
+        foundry_binding_rule=prepared.foundry_binding_rule,
     )
 
 
@@ -2532,6 +2714,7 @@ __all__ = [
     "ACQUIRED_DATA_STATE_LIMITATION_CODES",
     "ACQUIRED_DATA_STATE_SCHEMA_VERSION",
     "DATA_STATE_SUBSTRATE_SCHEMA_VERSION",
+    "AcquiredObservationDataPreparation",
     "AcquiredObservationDataSnapshotResult",
     "ControlledAcquisitionSlotBinding",
     "DataStateMaterializationResult",
@@ -2545,4 +2728,5 @@ __all__ = [
     "l1_dcat_variable_availability",
     "materialize_acquired_observation_snapshot",
     "materialize_l4_data_state_snapshot",
+    "prepare_acquired_observation_snapshot",
 ]

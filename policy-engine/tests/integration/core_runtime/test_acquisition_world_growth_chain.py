@@ -1192,6 +1192,7 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
         ControlledAcquisitionSlotBinding,
         build_acquired_observation_candidate_world,
         materialize_acquired_observation_snapshot,
+        prepare_acquired_observation_snapshot,
     )
     from polisyos.runtime.quality.substrate_registry import persist_substrate_registry
     from polisyos.runtime.quality.world_model_record import build_world_model_record
@@ -1281,6 +1282,28 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
         assert base_world.record.authority_status == "bound"
         assert float(np.asarray(base_world.bound_global_state.government_balance)) == 0.0
 
+        slot_binding = ControlledAcquisitionSlotBinding(
+            profile_selection_ref="sha256:" + "7" * 64,
+            canonical_variable_id="government.balance",
+            target_slot_id="government.balance",
+        )
+        transaction_time = datetime(2026, 10, 2, 12, 0, tzinfo=UTC)
+        cas_files_before = frozenset(path for path in store.root.rglob("*") if path.is_file())
+        prepared = prepare_acquired_observation_snapshot(
+            store,
+            base_data_snapshot_ref=base_snapshot_ref,
+            overlay=overlay,
+            receipt_ref=growth.activation.overlay_admission_receipt_ref,
+            passport=passport,
+            authority=case.bridge.authority,
+            observation_id=selected.observation.observation_id,
+            slot_binding=slot_binding,
+            transaction_time=transaction_time,
+        )
+        assert frozenset(path for path in store.root.rglob("*") if path.is_file()) == (
+            cas_files_before
+        )
+        assert not (tmp_path / "candidate-data-forge").exists()
         materialized = materialize_acquired_observation_snapshot(
             store,
             base_data_snapshot_ref=base_snapshot_ref,
@@ -1289,13 +1312,10 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
             passport=passport,
             authority=case.bridge.authority,
             observation_id=selected.observation.observation_id,
-            slot_binding=ControlledAcquisitionSlotBinding(
-                profile_selection_ref="sha256:" + "7" * 64,
-                canonical_variable_id="government.balance",
-                target_slot_id="government.balance",
-            ),
+            slot_binding=slot_binding,
             workspace_dir=tmp_path / "candidate-data-forge",
-            transaction_time=datetime(2026, 10, 2, 12, 0, tzinfo=UTC),
+            transaction_time=transaction_time,
+            prepared=prepared,
         )
         assert materialized.observation_projection.projection_content_sha256 == (
             admitted.projection.projection_content_sha256
@@ -1345,7 +1365,9 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
             is not None
         )
         assert snapshot.source_lineage.passport_ref.manifest_profile_sha256 is not None
-        validate_data_snapshot_owner_lineage(store, materialized.data_snapshot_ref, snapshot)
+        validate_data_snapshot_owner_lineage(
+            store, materialized.data_snapshot_ref, snapshot, candidate_only=True
+        )
 
         legacy_payload = snapshot.model_dump(mode="json")
         legacy_payload.pop("source_lineage")
@@ -1368,7 +1390,9 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
             canon_spec=wmr_fixture.CanonSpec(forbid_floats=False),
             return_selected_profile=True,
         )
-        validate_data_snapshot_owner_lineage(store, legacy_snapshot_ref, legacy_snapshot)
+        validate_data_snapshot_owner_lineage(
+            store, legacy_snapshot_ref, legacy_snapshot, candidate_only=True
+        )
 
         unmarked_owner_payload = deepcopy(payload)
         unmarked_owner_payload.pop("_policyos_acquisition")

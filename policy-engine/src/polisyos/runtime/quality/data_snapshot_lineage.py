@@ -8,6 +8,8 @@ It deliberately does not infer edges by recursively scanning arbitrary JSON.
 from __future__ import annotations
 
 from collections.abc import Mapping
+from dataclasses import dataclass
+from typing import Literal
 
 from polisyos.core import contracts
 from polisyos.core.artifacts import (
@@ -40,21 +42,54 @@ class DataSnapshotLineageError(ValueError):
     """Raised when a DataSnapshot fails its typed source or owner-derived closure."""
 
 
+ACQUIRED_SOURCE_ROW_REVALIDATION_LIMITATION = "acquired_source_row_revalidation_not_established"
+
+
+class DataSnapshotSourceRowNotEstablishedError(DataSnapshotLineageError):
+    """Refuse protected admission without a current acquired-source row witness."""
+
+    def __init__(self) -> None:
+        self.code = ACQUIRED_SOURCE_ROW_REVALIDATION_LIMITATION
+        super().__init__(self.code)
+
+
+@dataclass(frozen=True)
+class DataSnapshotLineageResult:
+    """Scope of the store-only verification, distinct from source-row authority."""
+
+    acquisition_source_row_status: Literal["not_applicable", "not_established"] = "not_applicable"
+
+    @property
+    def required_admissibility_blockers(self) -> tuple[str, ...]:
+        """Return the limitation required by any candidate-band consumer."""
+        if self.acquisition_source_row_status == "not_established":
+            return (ACQUIRED_SOURCE_ROW_REVALIDATION_LIMITATION,)
+        return ()
+
+
 def validate_data_snapshot_owner_lineage(
     store: ArtifactStore,
     snapshot_ref: ArtifactRef,
     snapshot: DataSnapshot,
     *,
     binding_lineage_refs: tuple[str, ...] | None = None,
+    candidate_only: bool = False,
     _seen: frozenset[tuple[str, str | None]] = frozenset(),
-) -> None:
-    """Verify the selected DataSnapshot transport and any recognized owner source.
+) -> DataSnapshotLineageResult:
+    """Verify selected lineage; acquired-source rows remain candidate-only.
 
     Owner family comes from the selected data payload and its actual typed source
     marker, never from the submitted schema version. Schema 0.2 generic snapshots
     retain their exact typed-field/role contract; recognized owners receive the
     same producer verification under 0.2 and 0.3. A 0.2 snapshot cannot carry an
     unverified 0.3 lineage field or downgrade a malformed owner payload.
+
+    Immutable epoch statements and selected CAS edges do not reconcile an
+    acquired selected value/history with the current native source owner. With
+    no overlay/authority resolver inputs here, acquired rows fail closed by
+    default. ``candidate_only=True`` returns a typed not-established limitation;
+    its consumer must remain in the candidate band and retain the required
+    admissibility blocker. It never establishes source-row or basis authority.
     """
     current_key = (str(snapshot_ref.artifact_id), snapshot_ref.manifest_profile_sha256)
     if current_key in _seen:
@@ -105,10 +140,10 @@ def validate_data_snapshot_owner_lineage(
             if ref is not None:
                 _verified_manifest(store, ref)
         if not legacy_acquisition_probe:
-            return
+            return DataSnapshotLineageResult()
         raw_payload = load_core_json_artifact(store, snapshot.data_ref)
         if not isinstance(raw_payload, Mapping) or "_policyos_acquisition" not in raw_payload:
-            return
+            return DataSnapshotLineageResult()
         family = "acquired_observation_overlay"
 
     _require_selected_owner_closure(
@@ -190,6 +225,10 @@ def validate_data_snapshot_owner_lineage(
             )
             if binding_lineage_refs != expected_binding_refs:
                 raise DataSnapshotLineageError("acquired_observation_binding_lineage_mismatch")
+        if not candidate_only:
+            raise DataSnapshotSourceRowNotEstablishedError()
+        return DataSnapshotLineageResult(acquisition_source_row_status="not_established")
+    return DataSnapshotLineageResult()
 
 
 def _legacy_owner_lineage(
@@ -675,39 +714,39 @@ def _verify_acquired_observation_owner(
             store,
             lineage.base_data_snapshot_ref,
             base_snapshot,
+            # Recursion verifies structure only; the enclosing acquired result
+            # carries the source-row limitation or refuses protected admission.
+            candidate_only=True,
             _seen=seen,
         )
     except (OSError, TypeError, ValueError, RuntimeError) as exc:
         raise DataSnapshotLineageError("acquired_observation_base_snapshot_unavailable") from exc
-    receipt_manifest = _verified_manifest(
+    # Protected owner closure requires exact selected views. The Core epoch
+    # reader owns each statement's kind/media/schema/canon/input/byte contract;
+    # do not add a conflicting generic-JSON law beside that canonical codec.
+    _verified_manifest(
         store,
         lineage.overlay_admission_receipt_ref,
         require_selected_profile=True,
     )
-    passport_manifest = _verified_manifest(
+    _verified_manifest(
         store,
         lineage.passport_ref,
         require_selected_profile=True,
     )
-    if (
-        lineage.base_data_snapshot_ref.kind != "fabric.data_snapshot"
-        or lineage.base_data_snapshot_ref.media_type != "application/json"
-        or lineage.overlay_admission_receipt_ref.kind != "epoch.activated_overlay_admission_receipt"
-        or lineage.passport_ref.kind != "epoch.acquisition_passport_snapshot"
-        or receipt_manifest.media_type != "application/json"
-        or passport_manifest.media_type != "application/json"
-    ):
-        raise DataSnapshotLineageError("acquired_observation_owner_child_mismatch")
-    receipt_statement = contracts.epoch.load_verified_epoch_statement(
-        store=store,
-        ref=lineage.overlay_admission_receipt_ref,
-        expected_kind="epoch.activated_overlay_admission_receipt",
-    )
-    passport_mapping = contracts.epoch.load_verified_epoch_statement(
-        store=store,
-        ref=lineage.passport_ref,
-        expected_kind="epoch.acquisition_passport_snapshot",
-    )
+    try:
+        receipt_statement = contracts.epoch.load_verified_epoch_statement(
+            store=store,
+            ref=lineage.overlay_admission_receipt_ref,
+            expected_kind="epoch.activated_overlay_admission_receipt",
+        )
+        passport_mapping = contracts.epoch.load_verified_epoch_statement(
+            store=store,
+            ref=lineage.passport_ref,
+            expected_kind="epoch.acquisition_passport_snapshot",
+        )
+    except (OSError, TypeError, ValueError, RuntimeError) as exc:
+        raise DataSnapshotLineageError("acquired_observation_owner_child_mismatch") from exc
     receipt = contracts.epoch.ActivatedOverlayAdmissionStatement.model_validate(receipt_statement)
     passport = AdmissionPassport.model_validate(passport_mapping)
     receipt_hash = content_sha256(receipt.model_dump(mode="json"))
@@ -760,6 +799,9 @@ def _data_forge_cas_uri(ref: ArtifactRef) -> str:
 
 
 __all__ = [
+    "ACQUIRED_SOURCE_ROW_REVALIDATION_LIMITATION",
     "DataSnapshotLineageError",
+    "DataSnapshotLineageResult",
+    "DataSnapshotSourceRowNotEstablishedError",
     "validate_data_snapshot_owner_lineage",
 ]

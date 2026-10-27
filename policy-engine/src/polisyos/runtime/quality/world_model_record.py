@@ -557,16 +557,33 @@ def build_world_model_record(
         role=data_forge_role,
     )
     from polisyos.runtime.quality.data_snapshot_lineage import (
+        DataSnapshotSourceRowNotEstablishedError,
         validate_data_snapshot_owner_lineage,
     )
 
     try:
-        validate_data_snapshot_owner_lineage(
+        lineage_result = validate_data_snapshot_owner_lineage(
             store,
             data_snapshot_ref,
             data_snapshot,
             binding_lineage_refs=data_forge_binding_ref.lineage_refs,
+            candidate_only=candidate_only,
         )
+        if lineage_result.required_admissibility_blockers:
+            if not candidate_only:
+                raise DataSnapshotSourceRowNotEstablishedError()
+            effective_limitations = effective_limitations.model_copy(
+                update={
+                    "admissibility_blockers": tuple(
+                        dict.fromkeys(
+                            (
+                                *effective_limitations.admissibility_blockers,
+                                *lineage_result.required_admissibility_blockers,
+                            )
+                        )
+                    )
+                }
+            )
     except (OSError, TypeError, ValueError, RuntimeError) as exc:
         raise WorldModelRecordError(
             "data_snapshot_owner_lineage_invalid",
@@ -995,7 +1012,18 @@ def load_world_model_record(
             validate_data_snapshot_owner_lineage,
         )
 
-        validate_data_snapshot_owner_lineage(store, views.data_snapshot_ref, snapshot)
+        lineage_result = validate_data_snapshot_owner_lineage(
+            store,
+            views.data_snapshot_ref,
+            snapshot,
+            candidate_only=record.authority_status == "limited",
+        )
+        if lineage_result.required_admissibility_blockers and record.authority_status != "limited":
+            raise WorldModelRecordError("world_model_record_source_row_authority_not_established")
+        if not set(lineage_result.required_admissibility_blockers).issubset(
+            record.limitations.admissibility_blockers
+        ):
+            raise WorldModelRecordError("world_model_record_source_row_limitation_missing")
         return record
     except WorldModelRecordError:
         raise

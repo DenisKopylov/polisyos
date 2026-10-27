@@ -13,7 +13,7 @@ from pydantic import BaseModel, ValidationError
 
 import polisyos.foundry.uncertainty as uncertainty_facade
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
@@ -66,6 +66,7 @@ from polisyos.ir.governance.problem_frame import (
 from polisyos.ir.model_layer.model_spec import FidelityLevel, ModelSpec
 from polisyos.ir.model_layer.types import EntityType, OptimizationDirection
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir.trinity.loaders import persist_trinity_bundle_artifact
 from polisyos.scientist.nodes.builtins.governance.run_normative_arbitration import (
     RunNormativeArbitrationNode,
 )
@@ -891,7 +892,8 @@ def _persist_uncertainty_normative_frame(store: FileSystemCAS):
             ],
         ),
     )
-    trinity_ref = store.put_json(
+    trinity_ref = persist_trinity_bundle_artifact(
+        _ensure_ir_artifact_store(store),
         TrinityBundle(
             problem_frame=problem_frame,
             policy_spec=PolicySpec(policy_id="b194_policy", interventions=[]),
@@ -901,13 +903,8 @@ def _persist_uncertainty_normative_frame(store: FileSystemCAS):
                 fidelity_level=FidelityLevel.HYBRID,
             ),
         ),
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
-        ),
     )
-    return trinity_ref
+    return ArtifactRef.model_validate(trinity_ref.model_dump(mode="python"))
 
 
 def test_complete_persisted_draws_remain_limited_in_fresh_normative_consumer(tmp_path) -> None:

@@ -16,7 +16,11 @@ from typing import Any
 import pytest
 
 from polisyos.core.artifacts import FileSystemCAS, PutOptions
-from polisyos.core.llm.cache_settlement import session_for_cache_client
+from polisyos.core.llm.cache_settlement import (
+    CacheFlightRegistration,
+    CacheSettlementSession,
+    session_for_cache_client,
+)
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.tenant_context import (
     reset_current_access_scope,
@@ -367,19 +371,29 @@ async def test_factory_cache_scoped_singleflight_success_settles_each_waiter(
         assert cache_session is not None and cache_session.owns(cache_client)
         gateway = client.unwrap()
 
-        actual_shield = asyncio.shield
-        observed_flights: list[asyncio.Task[Any]] = []
+        actual_join = CacheSettlementSession.join
+        joined_attempts: list[str] = []
+        joined_cache_keys: list[str] = []
         all_waiting = asyncio.Event()
 
-        def observe_flight_wait(future: Any) -> Any:
-            protected = actual_shield(future)
-            if any(flight.task is future for flight in cache_client._inflight.values()):
-                observed_flights.append(future)
-                if len(observed_flights) == 4:
+        def observe_flight_join(
+            session: CacheSettlementSession,
+            registration: CacheFlightRegistration,
+            scope_key: tuple[str, ...],
+            request_digest: str,
+            cache_key: str,
+            attempt_id: str,
+        ) -> None:
+            # Observe actual owner-admitted receivers, independent of whether
+            # a waiter shields a producer task or a per-loop shared future.
+            actual_join(session, registration, scope_key, request_digest, cache_key, attempt_id)
+            if session is cache_session:
+                joined_attempts.append(attempt_id)
+                joined_cache_keys.append(cache_key)
+                if len(joined_attempts) == 3:
                     all_waiting.set()
-            return protected
 
-        monkeypatch.setattr(asyncio, "shield", observe_flight_wait)
+        monkeypatch.setattr(CacheSettlementSession, "join", observe_flight_join)
 
         async def generate_for_current_tenant() -> Any:
             with _principal("tenant-a"):
@@ -393,7 +407,8 @@ async def test_factory_cache_scoped_singleflight_success_settles_each_waiter(
         try:
             assert await asyncio.wait_for(asyncio.to_thread(request_entered.wait, 3.0), timeout=4.0)
             await asyncio.wait_for(all_waiting.wait(), timeout=3.0)
-            assert len({id(task) for task in observed_flights}) == 1
+            assert len(set(joined_attempts)) == 3
+            assert len(set(joined_cache_keys)) == 1
             assert len(cache_client._inflight) == 1
             with requests_lock:
                 assert len(provider_requests) == 1

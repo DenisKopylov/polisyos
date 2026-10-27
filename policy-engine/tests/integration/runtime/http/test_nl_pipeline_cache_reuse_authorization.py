@@ -142,6 +142,7 @@ def _event_rows(value: object) -> list[dict[str, Any]]:
 
 def _ordinary_post_and_dispatch(env: dict[str, object], *, snapshot_id: str) -> dict[str, Any]:
     """Run the normal POST and its already-admitted control worker to completion."""
+    from polisyos.runtime.http.services.adapters.core_run import derive_control_job_core_run_id
     from tests._helpers.control_worker import dispatch_one_control_job
 
     client = env["client"]
@@ -182,12 +183,24 @@ def _ordinary_post_and_dispatch(env: dict[str, object], *, snapshot_id: str) -> 
     assert run is not None
     binding, note = runtime_context.debug._producer_run_binding_for_indexed_run(run)
     assert binding is not None and note is None
-    assert binding.run_id == core_run_id
+    # The ledger uses the persisted logical NL run; the Core index uses the
+    # owner's attempt-specific derived run. Reconcile both instead of making
+    # one string stand in for two different identities.
+    assert binding.run_id == job.run_id == completed.run_id == creation_payload["run_id"]
     assert binding.control_job_id == job_id
+    assert run.run_id == run.details.run_id == core_run_id
+    core_attempt = completed.progress["core_run_attempt"]
+    assert type(core_attempt) is int and core_attempt == completed.attempt and core_attempt >= 1
+    assert core_run_id == derive_control_job_core_run_id(
+        job_id=job_id,
+        control_run_id=binding.run_id,
+        attempt=core_attempt,
+    )
     return {
         "job": completed,
         "job_id": job_id,
-        "run_id": core_run_id,
+        "control_run_id": binding.run_id,
+        "core_run_id": core_run_id,
         "binding": binding,
         "creation_payload": creation_payload,
     }

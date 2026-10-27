@@ -2209,7 +2209,9 @@ def test_reported_method_unit_must_match_selected_run_unit(tmp_path) -> None:
         promotion_policy=_policy(metric="score", unit="EUR per resident"),
     )
 
-    result = SearchLoopRunner(store=store).run(
+    result = SearchLoopRunner(
+        store=store, registry=ChampionRegistry(root=tmp_path / "registry", store=store)
+    ).run(
         spec,
         suite_ref=suite_ref,
         initial_candidate={"loop_id": "v5_search", "value": 0.4},
@@ -2266,7 +2268,9 @@ def test_methodjob_metric_without_selected_unit_is_not_carried_to_search_history
         promotion_policy=_policy(unit="dimensionless"),
     )
 
-    result = SearchLoopRunner(store=store).run(
+    result = SearchLoopRunner(
+        store=store, registry=ChampionRegistry(root=tmp_path / "registry", store=store)
+    ).run(
         spec,
         suite_ref=suite_ref,
         initial_candidate={"loop_id": "v5_search", "value": 0.4},
@@ -2796,7 +2800,9 @@ def test_methodjob_claims_without_method_result_ref_do_not_enter_generic_history
         ),
         promotion_policy=_policy(unit="dimensionless"),
     )
-    result = SearchLoopRunner(store=store).run(
+    result = SearchLoopRunner(
+        store=store, registry=ChampionRegistry(root=tmp_path / "registry", store=store)
+    ).run(
         spec,
         suite_ref=suite_ref,
         context={"policy_context": {"case": "method_result_identity_removal"}},
@@ -2988,7 +2994,9 @@ def test_manifest_methodjob_edges_refuse_scalar_after_payload_claims_are_removed
         ),
         promotion_policy=_policy(unit="dimensionless"),
     )
-    result = SearchLoopRunner(store=store).run(
+    result = SearchLoopRunner(
+        store=store, registry=ChampionRegistry(root=tmp_path / "registry", store=store)
+    ).run(
         spec,
         suite_ref=suite_ref,
         context={"policy_context": {"case": "manifest_methodjob_role_removal"}},
@@ -3128,7 +3136,9 @@ def test_generic_benchmark_manifest_roles_remain_eligible_for_generic_history(
         benchmark_evaluator=GenericBenchmarkEvaluator(),
         promotion_policy=_policy(unit="dimensionless"),
     )
-    result = SearchLoopRunner(store=store).run(
+    result = SearchLoopRunner(
+        store=store, registry=ChampionRegistry(root=tmp_path / "registry", store=store)
+    ).run(
         spec,
         suite_ref=suite_ref,
         context={"policy_context": {"case": "generic_history_source_roles"}},
@@ -3246,7 +3256,9 @@ def test_search_history_refuses_changed_selected_source_edges(
         ),
         promotion_policy=_policy(unit="dimensionless"),
     )
-    run = SearchLoopRunner(store=store).run(
+    run = SearchLoopRunner(
+        store=store, registry=ChampionRegistry(root=tmp_path / "registry", store=store)
+    ).run(
         spec,
         suite_ref=suite_ref,
         context={"policy_context": {"case": "selected_source_edge"}},

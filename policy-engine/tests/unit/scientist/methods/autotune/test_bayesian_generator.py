@@ -483,6 +483,7 @@ class TestBenchmarkToEvaluation:
             suite_id="suite1",
             candidate_ref=_ref(),
             holdout_metrics={"score": 0.8},
+            runtime_split_type=BenchmarkSplit.HOLDOUT,
             metadata={
                 "metric_unit": "dimensionless",
                 "params": {"x": 0.2, "y": 0.4, "z": 0.6},

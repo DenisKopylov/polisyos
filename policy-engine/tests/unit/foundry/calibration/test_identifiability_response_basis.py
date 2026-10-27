@@ -80,6 +80,7 @@ from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir.trinity.loaders import persist_trinity_bundle_artifact
 from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
     PropagateUncertaintyNode,
 )
@@ -197,18 +198,12 @@ def _native_fixture(
         ],
         return_selected_profile=True,
     )
-    policy_ref = store.put_json(
-        policy,
-        PutOptions(
-            kind=TrinityBundle.ARTIFACT_KIND,
-            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
-            schema=SchemaInfo(
-                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
-                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
-            ),
+    policy_ref = ArtifactRef.model_validate(
+        persist_trinity_bundle_artifact(
+            ensure_ir_artifact_store(store),
+            policy,
             inputs=[input_ref_from_artifact_ref(candidate_ref, role="policy_candidate")],
-        ),
-        return_selected_profile=True,
+        ).model_dump(mode="python")
     )
     compiled = compile_foundry(
         store,

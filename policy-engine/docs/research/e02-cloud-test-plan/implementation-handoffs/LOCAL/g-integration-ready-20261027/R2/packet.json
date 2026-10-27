@@ -1,0 +1,279 @@
+{
+  "schema": "policyos.e02.G_review_packet.v1",
+  "task": "R2",
+  "review_status": "author_ready_for_independent_G_review",
+  "slice_base": "76691bd25ba10bee2caed9826e54cd9d40324ca5",
+  "candidate": "65ac853e2735e827e27688a6175f1a385901e20e",
+  "tree": "95a1820149020d566a229a718e67b79d690844c3",
+  "parents": [
+    "76691bd25ba10bee2caed9826e54cd9d40324ca5"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "original_contract": {
+    "pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/R2",
+    "findings": [
+      "B87",
+      "B89"
+    ],
+    "original_exit": "actual handle/process closure + no premature reuse, cursor/window/CAS fresh consumer",
+    "next_action": "actual handle/process closure + no premature reuse, cursor/window/CAS fresh consumer"
+  },
+  "implementation": {
+    "new_test_commit": "65ac853e2735e827e27688a6175f1a385901e20e",
+    "new_commit_footprint": [
+      {
+        "path": "policy-engine/tests/unit/fabric/connectors/test_pool_admission_races.py",
+        "sha256": "c2f80854a538266057749b8b92ffa20e7044f77075f4afbed1d8022eedd2489f"
+      }
+    ],
+    "historical_commits": [
+      {
+        "commit": "672f5514e2733a782b49a56425b67294928de78a",
+        "role": "pool/stream retained-state and physical cleanup implementation plus first tests",
+        "footprint": "53 files, +13,601/-1,172; mixed with broad Scientist checkpoint/retry/cache work."
+      },
+      {
+        "commit": "fd5cecd59c881654d9ca40f69377fef1fe38eb50",
+        "role": "current writer for pool.py, event_stream.py, streaming.py and cursor_store.py; shared E02 composition."
+      },
+      {
+        "commit": "e1a9d9070bbb90a6026cb28716bc2caece7ab4c3",
+        "role": "current watermark.py writer."
+      },
+      {
+        "commit": "c91f5b39a94fe631574a5e1e5265b92ccd25968c",
+        "role": "current test writers for test_pool_e02.py and test_stream_cleanup_recovery.py."
+      },
+      {
+        "commit": "b3a448ec971588c2644e9cd21970ca753b8e361f",
+        "role": "current physical cleanup oracle test writer."
+      },
+      {
+        "commit": "f29d85ef8eb35af3a9566ccd6c35202c2f1fbc58",
+        "role": "whole pool acquisition deadline."
+      },
+      {
+        "commit": "e46cb5cd28baf204e69f556dcfea41889ed0ad35",
+        "role": "reject handles after caller cancellation."
+      },
+      {
+        "commit": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+        "role": "failed cleanup under registry retry owner."
+      },
+      {
+        "commit": "1eb32f013308de34d77572dd4af8ca048b2b9ee3",
+        "role": "stream state admission before publication and UTC keys."
+      }
+    ],
+    "shared_mechanism_paths": [
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "sha256": "f70fd628b4f99f26483e59965533e4d75b88b1d6fba1a58125d6cec6a95986b5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py",
+        "sha256": "d248ec25791c3ab183209f25cc8d72375b9294a102bd9675e9ff89c7eaafa793"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "sha256": "d13a3073b6b3010aa7acd70e0191d81f10526b268f20e6d916aed11be833c33e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/cursor_store.py",
+        "sha256": "8e932d0034c9a61ae39b99e185b1f9a3a107399fa33d775fa0941aad71d113af"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/watermark.py",
+        "sha256": "5c33baf61f0b46c38d7fd051b63517b9de79ecbaf1cb44b5c5491cefde219bda"
+      }
+    ],
+    "test_companions": [
+      "policy-engine/tests/unit/fabric/connectors/test_components_bridge.py",
+      "policy-engine/tests/unit/fabric/connectors/test_protocol_compliance.py",
+      "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+      "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py",
+      "policy-engine/tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py",
+      "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_physical_cleanup_oracle.py",
+      "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+      "policy-engine/tests/unit/fabric/test_semantic_group_imports.py",
+      "policy-engine/tests/unit/fabric/connectors/test_pool_admission_races.py"
+    ],
+    "config_companions": [
+      "policy-engine/pytest.ini",
+      "policy-engine/pyproject.toml",
+      "policy-engine/uv.lock"
+    ],
+    "footprint_scope": "The new implementation commit adds one portable regression-test module only. Historical shared product implementation and mandatory companions remain in append-only mixed commits; inspect them at the exact candidate, do not cherry-pick partial code. Full observed runtime input denominator is cited by readset."
+  },
+  "selected_input_profile_backend": {
+    "profile": "Native Darwin CPython3.14 existing locked venv; native pytest.ini and default plugin autoload retained. One numerical thread, no backend substitution.",
+    "inputs": "pytest-owned temporary CAS/stream fixtures and read-only real FDs; physical ownership and exact current source generations are exercised. No production writes, external permissions or workload fact asserted."
+  },
+  "deciding_results": [
+    {
+      "execution_source_head": "76691bd25ba10bee2caed9826e54cd9d40324ca5",
+      "source_frame": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-ready-r2-portable-test-style-20261027-r1/full-composed-source-frame.json",
+        "sha256": "24f71f9066df20e0e2be286f63232e15a250c2b8088ee86958127b57d8a137a6"
+      },
+      "result": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "wall_seconds": 63.18324095898424,
+      "peak_rss_bytes": 335560704,
+      "scope": "Two new portable race tests. The test file executed at its current committed bytes; src/test loaded readset has zero mismatch. The commit is test-only and source-equivalent to this admitted frame."
+    },
+    {
+      "execution_source_head": "8a24cc8ff895e61a51de2f91191251a9a8b23d84",
+      "result": {
+        "tests": 316,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "scope": "Earlier native eight-module boundary composition: 316 PASS, no failures/errors/skips. All431 observed loaded src/tests files recomputed byte-identical at this candidate. This is qualified unchanged-property reuse, not a newly run318-case suite.",
+      "current_readset_rebind": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/readsets/input-readset-39952.json",
+        "sha256": "ba553a7336a4587bd5949848e29b26c9f3ec467808ce0f7fa8d2d3727142a181",
+        "file_type_denominator": "observed imported src/tests Python files",
+        "count": 431,
+        "mismatches": []
+      }
+    }
+  ],
+  "real_chain": "Connector/pool admission -> owned physical handle and retained cleanup state -> close/cancel lifecycle -> public release/acquire and fresh stream cursor/window/CAS consumer; exact persisted progress and UTC/window readbacks are covered by the earlier eight-module receipt.",
+  "adversarial_controls": [
+    "close_all races with blocked connect; publication refuses stale generation while real FD retirement is pending",
+    "capacity remains occupied until the real FD closes; post-close public acquire refuses",
+    "cancel after real permit acquisition and before registration propagates cancellation and returns exactly one slot",
+    "a live sibling owner retains a readable FD and public release/reacquire across primary-pool cancellation/close; only sibling close retires it"
+  ],
+  "consumer_surface": "Public pool/connector and stream APIs plus cursor/window/CAS fresh readers; audit test surface. No new dashboard or DTO surface introduced.",
+  "replay": {
+    "new_tests": "cd policy-engine && .venv/bin/python -B -m pytest tests/unit/fabric/connectors/test_pool_admission_races.py",
+    "existing_boundary_suite": "cd /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine && .venv/bin/python -m pytest tests/unit/fabric/connectors/test_components_bridge.py tests/unit/fabric/connectors/test_protocol_compliance.py tests/unit/fabric/connectors/test_registry.py tests/unit/fabric/connectors/test_pool_e02.py tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py tests/unit/fabric/data_plane/test_stream_pool_physical_cleanup_oracle.py tests/unit/fabric/data_plane/test_streaming_runtime.py tests/unit/fabric/test_semantic_group_imports.py",
+    "exact_commands_and_outputs": "Full native argv/source/input profile in cited audit-result.json and source-profile-freeze.json; complete deciding stdout/stderr/JUnit retained below."
+  },
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/ready-r2-portable-admission-races-r1/audit-result.json",
+      "sha256": "031decc742f180c3ebd6348a1fd4bf6abe5a4d8664cd43baf79c8946d54a940b",
+      "availability": "local_readable_ignored_RAW_at_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/ready-r2-portable-admission-races-r1/ready-r2-portable-admission-races-r1.stdout.txt",
+      "sha256": "9f80648ead77bd71a500cac43caef98d50efefacdf437d814a4dec842d5bf277",
+      "availability": "local_readable_ignored_RAW_at_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/ready-r2-portable-admission-races-r1/ready-r2-portable-admission-races-r1.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "availability": "local_readable_ignored_RAW_at_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/ready-r2-portable-admission-races-r1/pytest.xml",
+      "sha256": "ca26b513a2bf6aa059a0f5780c7af52906764b817b7a3126424cf24fed8537a2",
+      "availability": "local_readable_ignored_RAW_at_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/ready-r2-portable-admission-races-r1/source-profile-freeze.json",
+      "sha256": "7d695bc0846929ac9eb3540a966d21bebff598e3062b37a9ae6d80bf15eb8837",
+      "availability": "local_readable_ignored_RAW_at_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/ready-r2-portable-admission-races-r1/readsets/input-readset-89973.json",
+      "sha256": "c9cc3e951b04b563a14fdc22f095096d8cda47c5d6fa923a890ecbd6593fbd67",
+      "availability": "local_readable_ignored_RAW_at_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/audit-result.json",
+      "sha256": "fe272f1651c01bbf731919bda6267adf25b93167b2f4caf035c7870d3fde7c25",
+      "availability": "local_readable_ignored_RAW_at_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/r2-current-full-boundaries.stdout.txt",
+      "sha256": "3395e708a9574d8f8c8b53d3ea6b994e045b6f906c35565476c17663bea8c1b3",
+      "availability": "local_readable_ignored_RAW_at_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/r2-current-full-boundaries.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "availability": "local_readable_ignored_RAW_at_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/pytest.xml",
+      "sha256": "811198e0548171177e86a021300a81430fd9aa2dcb45f6d4cbca6933dfc60f15",
+      "availability": "local_readable_ignored_RAW_at_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/source-profile-freeze.json",
+      "sha256": "9843a4d5bcb0895d6dc6b23fb07a3bfb7a9c134ad4cda98bbb02e2c2700ce010",
+      "availability": "local_readable_ignored_RAW_at_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/readsets/input-readset-39952.json",
+      "sha256": "ba553a7336a4587bd5949848e29b26c9f3ec467808ce0f7fa8d2d3727142a181",
+      "availability": "local_readable_ignored_RAW_at_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/root-r2-native-r1/ruff-after.stdout",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "availability": "local_readable_ignored_RAW_at_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/root-r2-native-r1/ruff-after.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "availability": "local_readable_ignored_RAW_at_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/root-r2-native-r1/format-after.stdout",
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "availability": "local_readable_ignored_RAW_at_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/root-r2-native-r1/format-after.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "availability": "local_readable_ignored_RAW_at_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/integration-ready/review-r2-final-r3.json",
+      "sha256": "3562698cec967812860647d26834df34c15e3d6f53305bdaca0f21a20b2d1102",
+      "availability": "local_readable_ignored_RAW_at_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining19-detail-20261027-r1/commit-ready-r2-tests-r1/branch-readback.json",
+      "sha256": "c190d2de1eb5775af0bc9406e920e24ae3ae8ce22b99ece70044d7657f831cbd",
+      "availability": "local_readable_ignored_RAW_at_receipt"
+    }
+  ],
+  "limitations": [
+    "Original task-exit author proposal only; B87/B89 formal findings remain for G.",
+    "No new global source/input/backend freeze, production workload claim or all-platform proof.",
+    "R1/Q1 integration and later shared-source deltas retain separate qualifications; affected receipts must be invalidated/rebound when their input bytes change.",
+    "The316 suite and2 new probes are separate executions; overlapping21-case subset is not additive."
+  ],
+  "proposal_fields": {
+    "author_task_exit": "complete",
+    "finding_closure_proposals": [
+      {
+        "id": "B87",
+        "proposal": "ready_for_G_original_property_review",
+        "formal_status": "not_adjudicated"
+      },
+      {
+        "id": "B89",
+        "proposal": "ready_for_G_original_property_review",
+        "formal_status": "not_adjudicated"
+      }
+    ]
+  },
+  "code_acceptance_owner": "G",
+  "integration_publication_owner": "G",
+  "formal_finding_adjudication_owner": "G",
+  "code_acceptance": false,
+  "closure_ids": [],
+  "global_freeze": false
+}

@@ -1,0 +1,15 @@
+{
+  "schema": "policyos.e02.local_slice_handoff_pointer.v1",
+  "slice": "r2-portable-admission-races-20261027",
+  "slice_base": "76691bd25ba10bee2caed9826e54cd9d40324ca5",
+  "candidate": "65ac853e2735e827e27688a6175f1a385901e20e",
+  "tree": "95a1820149020d566a229a718e67b79d690844c3",
+  "parents": [
+    "76691bd25ba10bee2caed9826e54cd9d40324ca5"
+  ],
+  "full_packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-integration-ready-20261027/R2/packet.json",
+  "full_packet_sha256": "a2f1280c4349e1f34cea5b560f2df95606b46c08fbba90dd54cc5ebeea7113fe",
+  "scope": "Implementation and receipt are separate commits. This pointer never names a future receipt commit.",
+  "code_acceptance": false,
+  "closure_ids": []
+}

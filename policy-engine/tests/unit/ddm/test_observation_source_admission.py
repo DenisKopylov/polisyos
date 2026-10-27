@@ -235,22 +235,58 @@ def test_wrong_selected_source_context_cannot_issue_validity(tmp_path: Path, fie
 
 
 def test_source_quality_signal_cannot_be_omitted_from_consumed_window(tmp_path: Path) -> None:
+    from polisyos.ddm.integration import DataQualitySignal, ReadinessState
+    from polisyos.ddm.readiness.readiness_mapper import map_readiness
+
     path = tmp_path / "observations.json"
     source = _source(path)
-    payload = json.loads(path.read_text())
-    payload["data_quality_signals"].append(
-        {
-            "signal_id": "actual-owner-dq",
-            "timestamp": NOW.isoformat(),
-            "model_id": "model",
-            "model_version": "v1",
-            "risk_score": 1.0,
-            "hard_failure": True,
-        }
+    retained = DataQualitySignal(
+        signal_id="source-dq-retained",
+        timestamp=NOW,
+        model_id="model",
+        model_version="v1",
+        risk_score=0.0,
+        hard_failure=False,
     )
+    omitted = retained.model_copy(update={"signal_id": "source-dq-omitted"})
+    payload = json.loads(path.read_text())
+    payload["data_quality_signals"] = [
+        retained.model_dump(mode="json"),
+        omitted.model_dump(mode="json"),
+    ]
     path.write_text(json.dumps(payload))
-    _, _, record = _produce(source)
-    assert evaluate_registry_gate(record).reason == "window_source_data_quality_basis_mismatch"
+    report = _report()
+    audit = build_calibration_audit(calibration_id="calib", report=report)
+    result = DriftAndDegradationMonitor(observation_source=source).evaluate_window(
+        model_id="model",
+        model_version="v1",
+        metric_budget=_budget(),
+        calibration_audit=audit,
+        _calibration_report=report,
+        _observed_invalidation_triggers=[],
+        timestamp=NOW,
+        data_quality_signals=[retained],
+    )
+    # Omission changes the source denominator while retaining a real DQ signal.
+    # Both inputs produce the same complete readiness projection, so the generic
+    # readiness guard passes and cannot substitute for exact basis reconciliation.
+    full_readiness = map_readiness(
+        model_id="model",
+        model_version="v1",
+        data_quality_signals=[retained, omitted],
+        timestamp=NOW,
+    )
+    assert result.readiness_event.readiness_state is ReadinessState.R4
+    assert result.readiness_event.readiness_score == 100
+    assert result.readiness_event.active_signals == ["data_quality"]
+    assert result.readiness_event.model_dump(mode="json") == full_readiness.model_dump(mode="json")
+    assert result.registry_record is not None
+    record = result.registry_record
+    assert record._applicability_evidence is not None
+    assert record._applicability_evidence.reasons == ("window_source_data_quality_basis_mismatch",)
+    decision = evaluate_registry_gate(record)
+    assert decision.promotion_allowed is False
+    assert decision.reason == "window_source_data_quality_basis_mismatch"
 
 
 def test_wrong_budget_consumption_is_recomputed_despite_matching_source_labels(

@@ -2220,21 +2220,52 @@ def test_reported_method_unit_must_match_selected_run_unit(tmp_path) -> None:
 
     stage_b = result.history[0].stage_b_result
     assert stage_b is not None
+    reader = FileSystemCAS(tmp_path / "cas")
     evaluation = load_model_artifact(
-        FileSystemCAS(tmp_path / "cas"),
+        reader,
         _selected_evaluation_ref(stage_b),
         BenchmarkEvaluation,
     )
     assert evaluation.status == "metric_unavailable"
     assert evaluation.selection_metrics == {}
     assert evaluation.promotable is False
-    assert evaluation.metadata["metric_unit"] == "USD per resident"
+    assert stage_b["feedback"]["status"] == "metric_unavailable"
+    assert "score" not in stage_b["simulation_results"]
+    assert "metric_units" not in stage_b["simulation_results"]
+    assert evaluation.method_result_ref is not None
+    method_result = load_json_artifact(reader, evaluation.method_result_ref)
+    assert isinstance(method_result, dict)
+    assert method_result["score"] == pytest.approx(0.4)
+    assert method_result["metric_units"] == {"score": "USD per resident"}
+    assert evaluation.metadata["metric_unit"] == method_result["metric_units"]["score"]
+
+    # Unbound MethodJob requests retain the v1 wire shape; the runner keeps the
+    # candidate-grade Search profile on the generator, not in that request.
     request_basis = evaluation.metadata["method_request_basis"]
-    run_profile = request_basis["search_method_run_profile"]
-    assert run_profile["unit"] == "EUR per resident"
-    assert run_profile["objective_fingerprint"] == generator._objective_profile_fingerprint(
+    assert request_basis["schema_version"] == "1"
+    assert request_basis["unit"] == "EUR per resident"
+    assert "search_method_run_profile" not in request_basis
+    run_profile = generator._search_method_run_profile
+    assert run_profile is not None
+    assert run_profile.schema_version == "1"
+    assert run_profile.unit == request_basis["unit"]
+    assert run_profile.objective_fingerprint == generator._objective_profile_fingerprint(
         unit="EUR per resident"
     )
+
+    # The same real candidate and method must admit the value when units match.
+    matching = spec.benchmark_evaluator.evaluate(
+        evaluation.candidate_ref,
+        suite_ref,
+        {
+            "store": store,
+            "policy": _policy(metric="score", unit="USD per resident"),
+            "loop_id": "v5_search",
+        },
+    )
+    assert matching.status == "measured_candidate"
+    assert matching.selection_metrics == {"score": pytest.approx(0.4)}
+    assert matching.metadata["method_request_basis"]["unit"] == "USD per resident"
 
 
 def test_methodjob_metric_without_selected_unit_is_not_carried_to_search_history(

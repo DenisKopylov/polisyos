@@ -207,3 +207,55 @@ def test_cli_check_carries_actual_selected_input_and_outside_boundary(
     assert row["source_sha256"] == source.sha256
     assert row["command"][-1] == "-"
     assert "unselected_source_files" in payload["unresolved_by_construction"]
+
+
+def test_product_profile_uses_product_context_and_absolute_filename() -> None:
+    logical = "policy-engine/tests/repo_quality/tools/test_ruff_sources.py"
+    source = _source(Path(__file__).resolve(), logical=logical)
+    (workspace,) = ruff_sources.run_sources([source])
+    (product,) = ruff_sources.run_sources([source], config=PRODUCT_ROOT / "ruff.toml")
+
+    assert workspace.returncode == 0, workspace.stderr or workspace.stdout
+    assert product.returncode == 0, product.stderr or product.stdout
+    assert "S101" not in {item["code"] for item in json.loads(workspace.stdout)}
+    assert "S101" not in {item["code"] for item in json.loads(product.stdout)}
+    assert workspace.cwd == str(ruff_sources.GIT_ROOT)
+    assert workspace.command[-3:] == ("--stdin-filename", logical, "-")
+    expected_product_path = PRODUCT_ROOT / "tests/repo_quality/tools/test_ruff_sources.py"
+    assert Path(product.command[-2]).is_absolute()
+    assert product.command[-2] == str(expected_product_path)
+    assert product.cwd == str(PRODUCT_ROOT)
+    assert product.config_path == str((PRODUCT_ROOT / "ruff.toml").resolve())
+
+    with (
+        patch.object(ruff_sources.subprocess, "run") as run,
+        pytest.raises(ValueError, match="does not match the selected profile"),
+    ):
+        ruff_sources.run_sources(
+            [source], config=PRODUCT_ROOT / "ruff.toml", cwd=ruff_sources.GIT_ROOT
+        )
+    run.assert_not_called()
+
+
+def test_custom_profile_requires_explicit_cwd_and_uses_absolute_filename(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(ruff_sources, "GIT_ROOT", tmp_path)
+    source_path = tmp_path / "candidate.py"
+    source_path.write_text("assert True" + os.linesep)
+    profile = tmp_path / "custom.toml"
+    profile.write_text("[lint]" + os.linesep + 'select = ["S101"]' + os.linesep)
+    source = _source(source_path)
+
+    with (
+        patch.object(ruff_sources.subprocess, "run") as run,
+        pytest.raises(ValueError, match="explicit working directory"),
+    ):
+        ruff_sources.run_sources([source], config=profile)
+    run.assert_not_called()
+
+    (result,) = ruff_sources.run_sources([source], config=profile, cwd=tmp_path)
+    assert result.returncode == 1, result.stderr
+    assert "S101" in {item["code"] for item in json.loads(result.stdout)}
+    assert result.cwd == str(tmp_path)
+    assert result.command[-3:] == ("--stdin-filename", str(source_path.resolve()), "-")

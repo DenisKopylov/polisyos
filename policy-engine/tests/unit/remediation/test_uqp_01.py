@@ -15,6 +15,7 @@ from polisyos.core.contracts.foundry import ExecPlanRef, Metrics, MetricsRef, Si
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.foundry.uncertainty.config import PropagationConfig
+from polisyos.foundry.uncertainty.delta import DeltaMethodPropagator
 from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
@@ -89,6 +90,56 @@ def test_mc_missing_output_is_unknown_while_true_zero_remains_valid() -> None:
     assert genuine_zero.distribution_family is DistributionFamily.BOOTSTRAP
     assert genuine_zero.sample_size == 100
     assert genuine_zero.gate_eligible is True
+
+
+@pytest.mark.parametrize("propagator_type", [DeltaMethodPropagator, MonteCarloPropagator])
+def test_effective_inputs_refuse_missing_fixed_parameter_before_evaluation(
+    propagator_type: type[DeltaMethodPropagator] | type[MonteCarloPropagator],
+) -> None:
+    """An unresolved fixed input fails once, before nominal or sampled evaluation."""
+    calls = 0
+
+    def requires_fixed(x: float, c: float) -> dict[str, float]:
+        nonlocal calls
+        calls += 1
+        return {"y": x + 5.0 * c}
+
+    with pytest.raises(ValueError, match="required parameters unresolved: c"):
+        propagator_type(PropagationConfig(mc_n_samples=100)).propagate(
+            requires_fixed,
+            {"x": 1.0},
+            {"x": _normal_env(1.0, 0.1)},
+            ["y"],
+        )
+
+    assert calls == 0
+
+
+@pytest.mark.parametrize("propagator_type", [DeltaMethodPropagator, MonteCarloPropagator])
+@pytest.mark.parametrize(
+    ("nominal", "expected"),
+    [({"x": 1.0}, 36.0), ({"x": 1.0, "c": 0.0}, 1.0)],
+)
+def test_effective_inputs_distinguish_callable_default_from_explicit_zero(
+    propagator_type: type[DeltaMethodPropagator] | type[MonteCarloPropagator],
+    nominal: dict[str, float],
+    expected: float,
+) -> None:
+    """An intentional nonzero default and an explicit zero remain distinct fixed inputs."""
+
+    def defaulted_fixed(x: float, c: float = 7.0) -> dict[str, float]:
+        return {"y": x + 5.0 * c}
+
+    result = propagator_type(
+        PropagationConfig(mc_n_samples=200, mc_batch_size=200, mc_seed=43)
+    ).propagate(
+        defaulted_fixed,
+        nominal,
+        {"x": _normal_env(1.0, 0.01)},
+        ["y"],
+    )[0]
+
+    assert result.envelope.point_estimate == pytest.approx(expected, abs=0.05)
 
 
 def test_partial_node_persists_limitation_and_disables_gate(tmp_path) -> None:

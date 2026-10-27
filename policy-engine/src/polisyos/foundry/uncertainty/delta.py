@@ -22,8 +22,8 @@ from polisyos.ir.analytics.uncertainty import (
 )
 
 from .config import PropagationConfig
-from .covariance import build_covariance_matrix, has_unknown_dependency
-from .protocol import PropagationResult
+from .covariance import build_covariance_matrix, has_unknown_dependency, joint_dependency_assurance
+from .protocol import PropagationResult, _validate_effective_inputs
 
 
 class DeltaMethodPropagator:
@@ -57,6 +57,7 @@ class DeltaMethodPropagator:
 
         effective_nominal = dict(nominal_params)
         param_names = sorted(input_envelopes.keys())
+        _validate_effective_inputs(simulation_fn, effective_nominal, param_names)
         if has_unknown_dependency(input_envelopes):
             return _unknown_dependency_results(
                 output_metric_ids,
@@ -89,6 +90,7 @@ class DeltaMethodPropagator:
                 input_envelopes,
                 use_full_covariance=self._config.delta_use_full_covariance,
                 jitter=self._config.delta_covariance_jitter,
+                preserve_singular=True,
             )
         except ValueError:
             return _unknown_dependency_results(
@@ -121,6 +123,7 @@ class DeltaMethodPropagator:
             output_std = jnp.empty((0,), dtype=jnp.float32)
             nominal_out = jnp.empty((0,), dtype=jnp.float32)
 
+        dependency_assurance = joint_dependency_assurance(input_envelopes)
         result_by_metric: dict[str, PropagationResult] = {}
         for idx, metric_id in enumerate(available_metric_ids):
             point = float(nominal_out[idx])
@@ -141,8 +144,14 @@ class DeltaMethodPropagator:
                 interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
                 is_heuristic_ci=False,
                 # Preserve the weakest input authority through push-forward.
-                gate_eligible=all(envelope.gate_eligible for envelope in input_envelopes.values()),
+                gate_eligible=(
+                    dependency_assurance == "not_applicable"
+                    and all(envelope.gate_eligible for envelope in input_envelopes.values())
+                ),
                 metadata={
+                    "joint_dependency_assurance": dependency_assurance,
+                    "covariance_jitter_requested": self._config.delta_covariance_jitter,
+                    "covariance_jitter_applied_to_input_law": False,
                     "n_input_params": n_params,
                     "input_param_names": param_names,
                     "jacobian_row_norm": float(jnp.linalg.norm(jacobian[idx])),
@@ -164,6 +173,8 @@ class DeltaMethodPropagator:
                     assumptions=("jax_jacobian_linearization",),
                     notes={
                         "used_full_covariance": bool(self._config.delta_use_full_covariance),
+                        "covariance_jitter_requested": self._config.delta_covariance_jitter,
+                        "covariance_jitter_applied_to_input_law": False,
                     },
                 ),
             )

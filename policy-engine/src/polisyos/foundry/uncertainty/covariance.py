@@ -104,11 +104,16 @@ def build_covariance_matrix(
     diag_cov = jnp.diag(stds**2)
 
     if not use_full_covariance:
+        if any(
+            "covariance_row" in input_envelopes[name].metadata
+            or "covariance_params" in input_envelopes[name].metadata
+            for name in param_names
+        ):
+            raise ValueError("diagonal mode cannot ignore a declared covariance")
         return diag_cov
 
     rows: list[list[float]] = []
     expected_params: list[str] | None = None
-    saw_params_declaration = False
     saw_undeclared_params = False
     has_covariance_metadata = any(
         "covariance_row" in input_envelopes[name].metadata
@@ -123,12 +128,11 @@ def build_covariance_matrix(
             if has_covariance_metadata:
                 raise ValueError(f"covariance row is missing for parameter {name!r}")
             return diag_cov
-        if not all(isinstance(item, (int, float)) for item in row):
+        if not all(isinstance(item, (int, float)) and not isinstance(item, bool) for item in row):
             raise ValueError(f"covariance row is not numeric for parameter {name!r}")
         if len(row) != len(param_names):
             raise ValueError(f"covariance row has the wrong dimension for parameter {name!r}")
         if params_order is not None:
-            saw_params_declaration = True
             if not isinstance(params_order, list) or not all(
                 isinstance(item, str) for item in params_order
             ):
@@ -143,7 +147,7 @@ def build_covariance_matrix(
             saw_undeclared_params = True
         rows.append([float(v) for v in row])
 
-    if saw_params_declaration and saw_undeclared_params:
+    if saw_undeclared_params:
         raise ValueError("covariance_params must be declared for every covariance row")
 
     if expected_params is not None:
@@ -243,6 +247,25 @@ def calibration_covariance_blocks_agree_v1(expected: object, actual: object) -> 
             atol=CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
         )
     )
+
+
+def joint_dependency_assurance(input_envelopes: Mapping[str, UncertaintyEnvelope]) -> str:
+    """Describe the joint-law evidence available to the numerical consumers.
+
+    A marginal's gate eligibility cannot independently validate another
+    marginal's covariance or independence. No joint-source verifier is carried
+    by these legacy envelopes, so multivariate output remains non-gating.
+    """
+    if len(input_envelopes) <= 1:
+        return "not_applicable"
+    if any(
+        "covariance_row" in env.metadata
+        or "covariance_params" in env.metadata
+        or "joint_sample_id" in env.metadata
+        for env in input_envelopes.values()
+    ):
+        return "declared_non_authoritative"
+    return "independence_assumption_not_established"
 
 
 def has_unknown_dependency(input_envelopes: Mapping[str, UncertaintyEnvelope]) -> bool:

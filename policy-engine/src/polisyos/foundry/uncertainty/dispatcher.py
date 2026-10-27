@@ -23,7 +23,7 @@ from .config import PropagationConfig
 from .covariance import build_covariance_matrix, has_unknown_dependency
 from .delta import DeltaMethodPropagator
 from .monte_carlo import MonteCarloPropagator
-from .protocol import PropagationResult
+from .protocol import PropagationResult, _validate_effective_inputs
 
 logger = get_logger(__name__)
 
@@ -51,6 +51,7 @@ class PropagationDispatcher:
             return []
 
         param_names = sorted(input_envelopes)
+        _validate_effective_inputs(simulation_fn, nominal_params, param_names)
         if has_unknown_dependency(input_envelopes):
             return _blocked_dependency_results(
                 output_metric_ids,
@@ -83,6 +84,7 @@ class PropagationDispatcher:
                     input_envelopes,
                     use_full_covariance=True,
                     jitter=self._config.delta_covariance_jitter,
+                    preserve_singular=True,
                 )
             except ValueError:
                 return _blocked_dependency_results(
@@ -109,6 +111,7 @@ class PropagationDispatcher:
                         input_envelopes,
                         use_full_covariance=self._config.delta_use_full_covariance,
                         jitter=self._config.delta_covariance_jitter,
+                        preserve_singular=True,
                     )
                     return [
                         self._analytical.propagate_linear_combination(
@@ -118,6 +121,7 @@ class PropagationDispatcher:
                             confidence_level=self._config.confidence_level,
                             covariance=covariance,
                             use_full_covariance=self._config.delta_use_full_covariance,
+                            covariance_jitter=self._config.delta_covariance_jitter,
                         )
                         for mid in output_metric_ids
                     ]

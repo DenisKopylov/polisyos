@@ -106,7 +106,11 @@ class TestQMCVarianceReduction:
             == CertificateKind.RQMC_REPLICATES
         )
         assert qmc_results[0].envelope.interval_semantics == IntervalSemantics.CONFIDENCE_INTERVAL
-        assert qmc_results[0].envelope.gate_eligible is True
+        # Sampling precision does not establish the joint input law.
+        assert qmc_results[0].envelope.gate_eligible is False
+        assert qmc_results[0].envelope.metadata["joint_dependency_assurance"] == (
+            "independence_assumption_not_established"
+        )
 
     def test_deterministic_qmc_is_restricted_scope_only(self) -> None:
         envelopes = {"x": _normal_env(1.0, 0.5), "z": _normal_env(2.0, 0.5)}

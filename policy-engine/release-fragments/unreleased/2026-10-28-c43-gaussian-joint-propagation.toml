@@ -1,0 +1,17 @@
+id = "2026-10-28-c43-gaussian-joint-propagation"
+title = "Preserve declared Gaussian covariance in uncertainty sampling"
+type = "fixed"
+component = "foundry"
+owner = "team-policyos-runtime"
+summary = "Validate effective evaluator inputs before method selection and use one admitted Gaussian covariance for random and QMC joint draws. Unverified joint dependence remains non-gating across propagation backends."
+evidence = ["tests/unit/remediation/test_c43_joint_gaussian.py", "tests/unit/remediation/test_uqp_01.py", "tests/unit/remediation/test_uqp_02.py", "tests/unit/foundry/uncertainty/test_quasi_mc.py"]
+compatibility = "Single-effective-coordinate analytical behavior is retained. Multi-coordinate-dependent results without independently verified joint-dependency evidence become candidate-only. Opaque callables require an inspectable adapter, covariance rows without column identities refuse, diagonal mode cannot silently discard a declared covariance, and a supplied analytical matrix must reconcile with the named input law. Historical output bytes are not rewritten."
+change_class = "python-public-api"
+surface_classification = "public_experimental: Foundry uncertainty propagation"
+migration = "Provide fully named covariance rows for Gaussian joint inputs, or explicitly retain a non-gating independence assumption. Re-evaluate old gate-bearing outputs under an independently supported joint-law contract before authority-bearing use."
+api = "Analytical propagation adds an optional covariance_jitter keyword; dispatcher passes the configured value. All backends preserve the declared singular covariance rather than regularizing the input law with that setting. Output metadata identifies the declared or unestablished joint basis and unavailable unit binding; gate eligibility is limited for unverified multivariate dependence."
+limitations = "Numeric covariance consistency does not establish unit identity, the producer's scientific joint law, source provenance, calibration, or authority. Empirical shared-axis identity remains separately non-authoritative."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []

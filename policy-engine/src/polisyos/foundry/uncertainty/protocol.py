@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
+from inspect import Parameter, Signature, signature
 from statistics import NormalDist
 from typing import Any, Protocol
 
@@ -158,6 +159,62 @@ class PropagationStrategy(Protocol):
         input_envelopes: Mapping[str, UncertaintyEnvelope],
         output_metric_ids: list[str],
     ) -> list[PropagationResult]: ...
+
+
+def _validate_effective_inputs(
+    simulation_fn: Callable[..., Mapping[str, float]],
+    nominal_params: Mapping[str, float],
+    input_param_names: list[str],
+) -> None:
+    """Validate the complete evaluator binding before any propagation calls.
+
+    Uncertain coordinates must have an explicit nominal point. Fixed coordinates may be
+    supplied in ``nominal_params`` or intentionally resolved by a callable default. Opaque
+    callables require an inspectable adapter before they can be evaluated.
+
+    Args:
+        simulation_fn: Evaluator that will receive the effective input mapping.
+        nominal_params: Fixed inputs plus nominal points for uncertain coordinates.
+        input_param_names: Names of the uncertain coordinates.
+
+    Raises:
+        ValueError: If an uncertain coordinate has no nominal point or the effective mapping
+            leaves a required evaluator input unresolved.
+    """
+    missing_nominal = sorted(set(input_param_names).difference(nominal_params))
+    if missing_nominal:
+        raise ValueError(
+            "uncertain parameters require nominal values: " + ", ".join(missing_nominal)
+        )
+
+    try:
+        fn_signature = signature(simulation_fn)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("evaluator requires an inspectable signature or adapter") from exc
+
+    try:
+        fn_signature.bind(**nominal_params)
+    except TypeError as exc:
+        unresolved = _required_unbound_parameters(fn_signature, nominal_params)
+        if unresolved:
+            raise ValueError(
+                "effective inputs leave required parameters unresolved: " + ", ".join(unresolved)
+            ) from exc
+        raise ValueError(f"effective inputs do not bind the evaluator: {exc}") from exc
+
+
+def _required_unbound_parameters(
+    fn_signature: Signature,
+    nominal_params: Mapping[str, float],
+) -> list[str]:
+    """Return required named inputs absent from an effective input mapping."""
+    return [
+        name
+        for name, parameter in fn_signature.parameters.items()
+        if parameter.default is Parameter.empty
+        and parameter.kind in (Parameter.POSITIONAL_OR_KEYWORD, Parameter.KEYWORD_ONLY)
+        and name not in nominal_params
+    ]
 
 
 __all__ = [

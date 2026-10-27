@@ -27,13 +27,14 @@ from polisyos.runtime.http.resilience import (
 )
 
 
-def test_runtime_blocking_dependency_guards_reuse_shared_executor() -> None:
+def test_runtime_control_store_guard_reserves_capacity_from_compute() -> None:
     cas_guard = build_runtime_cas_guard()
     control_store_guard = build_runtime_control_store_guard()
 
     try:
         assert cas_guard._executor is get_shared_executor()
-        assert control_store_guard._executor is get_shared_executor()
+        assert control_store_guard._executor is not get_shared_executor()
+        assert control_store_guard._owns_executor is True
     finally:
         cas_guard.close()
         control_store_guard.close()

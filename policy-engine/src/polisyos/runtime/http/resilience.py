@@ -374,6 +374,14 @@ def build_runtime_cas_guard() -> BlockingDependencyGuard:
 
 
 def build_runtime_control_store_guard() -> BlockingDependencyGuard:
+    """Build the control-store guard with capacity reserved from compute work.
+
+    Lease renewal and fencing are control-plane operations: placing them behind
+    the candidate compute executor lets a saturated worker plus its queued item
+    consume the entire service path.  The guard therefore owns its existing
+    bounded dependency executor.  This does not add compute admission capacity;
+    it only preserves the control path which decides who may publish results.
+    """
     return BlockingDependencyGuard(
         dependency_name="control_plane_store",
         timeout_seconds=_env_float("POLISYOS_RUNTIME_CONTROL_STORE_TIMEOUT_SECONDS", 1.5),
@@ -382,7 +390,6 @@ def build_runtime_control_store_guard() -> BlockingDependencyGuard:
             env_prefix="POLISYOS_RUNTIME_CONTROL_STORE",
         ),
         executor_max_workers=_env_int("POLISYOS_RUNTIME_CONTROL_STORE_EXECUTOR_MAX_WORKERS", 4),
-        executor=get_shared_executor(),
         unavailable_exception_types=(sqlite3.Error, OSError, ConnectionError),
         unavailable_exception_predicate=lambda exc: isinstance(exc, RuntimeError)
         and (

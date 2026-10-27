@@ -1,0 +1,17 @@
+id = "2026-10-27-e02-control-store-capacity"
+title = "Reserve control-store capacity for lease and fence operations"
+type = "fixed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "The control-store dependency guard owns a dedicated worker pool so saturated candidate compute does not occupy its service workers."
+evidence = ["tests/unit/runtime/http/test_control_worker_service_capacity.py", "tests/unit/runtime/http/test_resilience_guards.py"]
+compatibility = "The existing control-store timeout, circuit-breaker and configured maximum worker count continue to apply. Compute admission capacity and the configured outer-permit behavior are unchanged."
+change_class = "internal"
+surface_classification = "internal: control-store guard execution capacity and job custody"
+migration = "No stored-data or client migration is required. Account for the configured control-store guard workers in deployment resource budgets."
+api = "Runtime API wire contracts and generated clients are unchanged."
+limitations = "This change does not establish finite control queue admission, fairness, historical renewal failure cause, an actual job-cancellation lifecycle, or completion of E02; composed runtime verification and G acceptance remain separate."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

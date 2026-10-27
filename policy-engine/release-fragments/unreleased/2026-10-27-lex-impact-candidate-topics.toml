@@ -1,0 +1,57 @@
+id = "2026-10-27-lex-impact-candidate-topics"
+title = "Clarify candidate norm impact topics and legal backend scope"
+type = "fixed"
+component = "lex"
+owner = "team-polisyos"
+summary = "Opt-in 1.1 norm comparison reports bind their issued diff view and reconcile locally derivable content; reports identify heuristic topics as unmeasured and record legal backend and input scope limitations."
+evidence = ["src/polisyos/lex/legal_evaluation/impact_diff.py", "src/polisyos/lex/simulator/cli.py", "src/polisyos/core/components/_cli_lex.py", "tools/ops_runners/runtime_cli.py", "tests/unit/remediation/test_lex_impact_semantics.py"]
+compatibility = "The reader accepts schemas 1.0 and 1.1; omitted writer options retain 1.0. Opt-in 1.1 adds selected diff and report references, so strict old readers must be upgraded first. The 1.0 writer preserves its ID-only shape. Logical report ID formula, historical stored bytes and legacy simulator imports remain unchanged."
+change_class = "persisted-artifact-format; tooling"
+surface_classification = "public_stable: Lex impact CLI and serialized report content"
+migration = "Upgrade readers first, then explicitly select 1.1. Omission retains 1.0; rollback to it preserves 1.1 readers. The default legal backend remains stub; --legal-backend expr_ast evaluates assigned expressions. Existing stored bytes are not rewritten."
+api = "The CLI selects stub or expr_ast and report schema 1.0 or 1.1. The 1.1 reader verifies selected views, their manifest edge and internally derived diff/report properties, including a replay of carried issue deltas. Metadata records backend and both input scopes as producer assertions."
+limitations = "Backend and jurisdiction metadata are producer records, not verifier-provenance. The stub does not evaluate rules; expr_ast covers only explicitly assigned expressions and does not authenticate source law or establish complete rule coverage. Original-pack completeness, legal issue truth and complete comparison-context binding are not established. Historical report_id values are not guaranteed content-unique; CAS IDs bind report bytes."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/how-to/lex-impact-report-migration.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "lex-impact-selected-diff-view"
+change_class = "persisted-artifact-format"
+impact = "breaking"
+surface = "Lex NormImpactReport 1.0 and 1.1 artifacts"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Upgrade readers before emitting reports that bind an exact selected diff view."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/how-to/lex-impact-report-migration.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "lex-impact-cli-backend-and-version"
+change_class = "tooling"
+impact = "additive"
+surface = "polisyos lex impact CLI"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Select expr_ast and opt into schema 1.1 explicitly; omitted backend remains stub and omitted schema remains 1.0."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/how-to/lex-impact-report-migration.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "lex-impact-versioned-reader-api"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "NormImpactReport and canonical Lex report reader"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "reader-first; 1.0 writer remains available"
+release_note = "Upgrade strict report readers before activating the selected-view report writer."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/how-to/lex-impact-report-migration.md"]
+runbook_docs = []

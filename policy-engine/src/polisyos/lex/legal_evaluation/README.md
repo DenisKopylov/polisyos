@@ -24,7 +24,27 @@ between legal constraints and causal transportability constraints.
   while `passes=()` keeps only the norm diff; unknown pass IDs are rejected.
   The historical schema `1.0` field `affected_kpis` contains candidate impact topics,
   without a measured magnitude or established effect direction. Legacy
-  `polisyos.lex.simulator` imports and CLI use this same canonical owner.
+  `polisyos.lex.simulator` imports and CLI use this same canonical owner. Reports
+  record the configured legal backend and the limit of its evaluated scope in
+  `metadata`; these producer records are not verifier-provenance or authority.
+  Omitted backend uses the historical stub: its not-implemented
+  results do not establish rule compliance. The CLI accepts
+  `--legal-backend expr_ast` to evaluate supplied rules assigned to that backend.
+  This does not authenticate source law or establish coverage of all rules.
+  The current report does not bind the complete comparison context; it remains
+  `not_established`, even when a configured backend evaluated a supplied fixture.
+  Historical reports without backend metadata remain readable, with backend
+  and evaluation scope not established. The omitted writer option retains
+  limited 1.0 output, and explicit opt-in 1.1 carries full issued diff and
+  report references after readers are upgraded. The canonical
+  `load_norm_impact_report()` reader verifies the selected report and its
+  `norm_diff` edge, then recomputes the embedded diff and reported issue deltas.
+  It cannot establish completeness or authenticity of the originating packs,
+  legal issues, or comparison context. Legacy 1.0 ID-only diff references
+  remain readable with their issued profile unbound. Newly written reports
+  record both producer-declared jurisdictions; 1.1 refuses differing scopes,
+  while 1.0 preserves the comparison with an explicit limitation. See
+  [the migration guide](../../../../docs/how-to/lex-impact-report-migration.md).
 
 ## Public API
 

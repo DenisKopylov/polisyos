@@ -208,14 +208,28 @@ Notes:
 | Command              | Synopsis                                                                                                                                     | Purpose                                                        |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
 | `lex normpack build` | `polisyos lex normpack build --jurisdiction JURISDICTION [--domain DOMAIN] [--as-of DATE] [--cas-root PATH] [--fact-log-root PATH]`          | Build a NormPack snapshot                                      |
-| `lex impact`         | `polisyos lex impact OLD_REF NEW_REF [--passes PASSES] [--profile {fast,mvp,strict}] [--format {json,md}] [--output PATH] [--cas-root PATH]` | Compare two NormPack references and emit a legal impact report |
+| `lex impact`         | `polisyos lex impact OLD_REF NEW_REF [--passes PASSES] [--legal-backend {stub,expr_ast}] [--report-schema-version {1.0,1.1}] [--profile {fast,mvp,strict}] [--format {json,md}] [--output PATH] [--cas-root PATH]` | Compare two NormPacks, retain pass and backend limits, and emit candidate impact topics |
 
 Example:
 
 ```bash
 polisyos lex normpack build --jurisdiction ua --domain labor --cas-root .polisyos/cas
-polisyos lex impact old_normpack.json new_normpack.json --format md --output impact.md
+polisyos lex impact old_normpack.json new_normpack.json --legal-backend expr_ast --format md --output impact.md
 ```
+
+`lex impact` uses the historical legal stub when `--legal-backend` is omitted;
+the stub does not evaluate legal rules. `expr_ast` evaluates only supplied rules
+assigned to that backend. Neither backend selection authenticates source law or
+establishes complete coverage. The current CLI does not accept an arbitrary
+comparison-context input. The report does not bind its complete comparison
+context; its backend and scope are producer records, not verifier provenance. Older
+reports without that metadata remain readable with those facts unestablished.
+The omitted report-schema option retains the limited 1.0 ID-only format.
+Upgrade readers first, then explicitly select `--report-schema-version 1.1` to
+bind the issued diff view. The 1.1 writer refuses inputs declaring different
+jurisdictions. New 1.0 reports record both declared input scopes, without
+establishing source authenticity or scope applicability. See
+[Lex impact report migration](../how-to/lex-impact-report-migration.md).
 
 ### `polisyos scientist`
 

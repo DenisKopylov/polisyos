@@ -61,6 +61,7 @@ def _cmd_lex_impact(args: Any) -> int:
 
     lex_sim = importlib.import_module("polisyos.lex.simulator")
     lex_sim_cli = importlib.import_module("polisyos.lex.simulator.cli")
+    impact_owner = importlib.import_module("polisyos.lex.legal_evaluation.impact_diff")
     governance_profiles = importlib.import_module("polisyos.core.governance.profiles")
 
     ValidationProfile = governance_profiles.ValidationProfile
@@ -84,11 +85,30 @@ def _cmd_lex_impact(args: Any) -> int:
             cas=cas,
             profile=profile,
             passes=pass_ids,
+            legal_backend=getattr(args, "legal_backend", None),
+            report_schema_version=getattr(args, "report_schema_version", "1.0"),
         )
     except ValueError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
-    report = analyzer.analyze(old_pack, new_pack)
+    try:
+        report = analyzer.analyze(old_pack, new_pack)
+    except ValueError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+    selector = report.cas_artifact_ref or report.cas_artifact_id
+    if selector is None:
+        print("ERROR: impact report was not persisted", file=sys.stderr)
+        return 1
+    try:
+        read_result = impact_owner.load_norm_impact_report(cas, selector)
+    except (OSError, ValueError) as exc:
+        print(f"ERROR: failed to verify persisted impact report: {exc}", file=sys.stderr)
+        return 1
+    report = type(report).model_validate(
+        read_result.report.model_dump(mode="python")
+        | {"cas_artifact_id": report.cas_artifact_id, "cas_artifact_ref": report.cas_artifact_ref}
+    )
 
     rendered: str
     if args.format == "json":

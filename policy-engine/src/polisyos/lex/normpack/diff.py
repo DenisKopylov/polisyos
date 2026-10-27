@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from enum import Enum
-from typing import Any
+from typing import Any, ClassVar
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -46,6 +46,11 @@ class NormDiff(BaseModel):
     """Structured diff between two `NormPack` snapshots."""
 
     model_config = ConfigDict(extra="forbid")
+
+    ARTIFACT_KIND: ClassVar[str] = "lex.norm_diff"
+    ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.lex.NormDiff"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
 
     schema_version: str = "1.0"
     old_pack_id: str

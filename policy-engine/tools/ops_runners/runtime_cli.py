@@ -912,6 +912,18 @@ def _build_parser() -> argparse.ArgumentParser:
     impact.add_argument("old_ref", help="Old NormPack artifact id or JSON file path")
     impact.add_argument("new_ref", help="New NormPack artifact id or JSON file path")
     impact.add_argument("--passes", default="legal,safety")
+    impact.add_argument(
+        "--legal-backend",
+        choices=["stub", "expr_ast"],
+        default=None,
+        help="Legal rule backend; omitted uses the historical, non-evaluating stub",
+    )
+    impact.add_argument(
+        "--report-schema-version",
+        choices=["1.0", "1.1"],
+        default="1.0",
+        help="1.0 is the limited default; opt into 1.1 to bind the issued diff view",
+    )
     impact.add_argument("--profile", choices=["fast", "mvp", "strict"], default="strict")
     impact.add_argument("--format", choices=["json", "md"], default="md")
     impact.add_argument("--output", default=None)

@@ -35,7 +35,7 @@ def render_impact_markdown(report: NormImpactReport) -> str:
         "",
         f"- Old pack: `{report.old_pack_id}`",
         f"- New pack: `{report.new_pack_id}`",
-        f"- Jurisdiction: `{report.jurisdiction}`",
+        f"- Report jurisdiction (old pack): `{report.jurisdiction}`",
         "",
         "## Summary",
         "",
@@ -51,6 +51,56 @@ def render_impact_markdown(report: NormImpactReport) -> str:
         "",
     ]
 
+    old_scope = report.metadata.get("declared_old_jurisdiction")
+    new_scope = report.metadata.get("declared_new_jurisdiction")
+    if isinstance(old_scope, str) and isinstance(new_scope, str):
+        if old_scope != new_scope:
+            lines.extend(
+                [
+                    "**Jurisdiction limitation:** Input pack declarations differ "
+                    f"(old: `{old_scope}`, new: `{new_scope}`); compatibility is not established.",
+                    "",
+                ]
+            )
+        else:
+            lines.extend(
+                [
+                    "**Jurisdiction limitation:** Both packs declare "
+                    f"`{old_scope}`; source authenticity and applicability are not established.",
+                    "",
+                ]
+            )
+    else:
+        lines.extend(
+            [
+                "**Jurisdiction limitation:** Both input pack declarations were not recorded; "
+                "scope compatibility is not established.",
+                "",
+            ]
+        )
+
+    if report.schema_version == "1.0" and report.norm_diff_ref is not None:
+        lines.extend(
+            [
+                "**Diff view limitation:** Legacy report does not bind the issued manifest profile.",
+                "",
+            ]
+        )
+
+    if "legal" in report.passes_executed:
+        backend = report.metadata.get("legal_backend")
+        if backend == "stub":
+            limitation = "The report records the stub backend, which does not evaluate legal rules."
+        elif backend == "expr_ast":
+            limitation = (
+                "The report records expr_ast, which evaluates only rules assigned to it; "
+                "source authenticity, complete rule coverage, and comparison-context "
+                "binding are not established."
+            )
+        else:
+            limitation = "The legal backend or its evaluation scope is not established."
+        lines.extend([f"**Legal evaluation limitation:** {limitation}", ""])
+
     if report.compliance_deltas:
         lines.extend(["## Compliance Changes", ""])
         for delta in report.compliance_deltas:
@@ -65,7 +115,17 @@ def render_impact_markdown(report: NormImpactReport) -> str:
         lines.append("")
 
     if report.affected_kpis:
-        lines.extend(["## Candidate Impact Topics", ""])
+        lines.extend(
+            [
+                "## Candidate Impact Topics",
+                "",
+                (
+                    "These are heuristic topics inferred from changed rule types, not measured "
+                    "effects or legal conclusions."
+                ),
+                "",
+            ]
+        )
         for item in report.affected_kpis:
             norm_ids = ", ".join(item.affected_norm_ids)
             lines.append(f"- `{item.kpi_id}`: {item.description} ({norm_ids})")

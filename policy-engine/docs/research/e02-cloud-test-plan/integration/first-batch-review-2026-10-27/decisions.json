@@ -1,0 +1,618 @@
+{
+  "schema": "policyos.e02.g_batch_review.v1",
+  "review_date": "2026-10-27",
+  "packet_commit": "8c5efa250faa2e983b1ce7a2021b9ea135846a69",
+  "integration_before": "14bf638032063c3d5a92b29da4215b3b54951fd6",
+  "mode": "independent bounded review; no product source changes",
+  "denominator": {
+    "tasks": 7,
+    "unique_findings": 17,
+    "criterion_occurrences": 18
+  },
+  "task_decisions": [
+    {
+      "task": "BOOT0",
+      "packet_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-integration-ready-20261027/BOOT0/packet.json",
+      "packet_sha256": "c2f48c1e79df58067ae67bd65c8b355c97c27e78d5415605216ebabbf22673ac",
+      "receipt_commit": "81bc3861fff753c2776f3f81c84d1fa4ce6a69cd",
+      "receipt_tree": "6ba7749be94f262a2524203f604d868b9a8cc29a",
+      "candidate": "a92c9774edf8049d590cd6ca6de35aa17063025a",
+      "task_exit": "accepted_bounded",
+      "source_review": "administrative_no_product_acceptance",
+      "whole_commit_acceptance": false,
+      "product_integration": false,
+      "qualification": "Point-in-time admission; later author dirty tree is not covered."
+    },
+    {
+      "task": "T1",
+      "packet_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-integration-ready-20261027/T1/packet.json",
+      "packet_sha256": "70913b2acb8f5de5993a9a6d7c2d41cbfbb4959d3ac7ed5b46297d59de666c47",
+      "receipt_commit": "76691bd25ba10bee2caed9826e54cd9d40324ca5",
+      "receipt_tree": "fd684ae314f3e6e9d40596029b1dce0cccc13233",
+      "candidate": "a92c9774edf8049d590cd6ca6de35aa17063025a",
+      "task_exit": "accepted_bounded",
+      "source_review": "administrative_no_product_acceptance",
+      "whole_commit_acceptance": false,
+      "product_integration": false,
+      "qualification": "Inventory completion, no runtime finding proof."
+    },
+    {
+      "task": "R2",
+      "packet_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-integration-ready-20261027/R2/packet.json",
+      "packet_sha256": "a2f1280c4349e1f34cea5b560f2df95606b46c08fbba90dd54cc5ebeea7113fe",
+      "receipt_commit": "8afa56e472a2b7b8a3eb6d343e0b5655bcbf1894",
+      "receipt_tree": "746b57e59e99d6028d01fd1785fe29a096e693d4",
+      "candidate": "65ac853e2735e827e27688a6175f1a385901e20e",
+      "task_exit": "accepted_bounded",
+      "source_review": "GO_BOUNDED_named_property_only",
+      "whole_commit_acceptance": false,
+      "product_integration": false,
+      "qualification": "Five mechanism paths; historical316 separate from author2 and G2; no installed/all-platform proof."
+    },
+    {
+      "task": "I1",
+      "packet_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-integration-ready-20261027/I1/packet.json",
+      "packet_sha256": "09fb3ebdcf65c37b22ac79336dd17e3f92027bc154ac0c8ff97fd8d9904a1ee2",
+      "receipt_commit": "a540cb337b50aa0d606eb33978a7d6c188ea6884",
+      "receipt_tree": "bc688b6fe9eda6329dcc96af012d1223a9ce24b4",
+      "candidate": "76691bd25ba10bee2caed9826e54cd9d40324ca5",
+      "task_exit": "accepted_bounded",
+      "source_review": "GO_BOUNDED_named_property_only",
+      "whole_commit_acceptance": false,
+      "product_integration": false,
+      "qualification": "18-path composition, two distinct 20/25 cohorts; original LA041 broader."
+    },
+    {
+      "task": "R4",
+      "packet_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-integration-ready-20261027/R4/packet.json",
+      "packet_sha256": "39730d1df2364df4936bae2ff8d9a9fa7d341a380576f4f81b79bc71d10f3ea9",
+      "receipt_commit": "4e528f04c493eaf45e840c1efa76098fcb327656",
+      "receipt_tree": "13f42326e110023b468cd131db48f1727125256d",
+      "candidate": "a92c9774edf8049d590cd6ca6de35aa17063025a",
+      "task_exit": "accepted_bounded",
+      "source_review": "GO_BOUNDED_named_property_only",
+      "whole_commit_acceptance": false,
+      "product_integration": false,
+      "qualification": "Runtime run793f rebound; six fold/repeat units per study; lease pressure explicitly retained."
+    },
+    {
+      "task": "I4",
+      "packet_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-integration-ready-20261027/I4/packet.json",
+      "packet_sha256": "126342ef5000b2e3cc06fe1c92df7f855f7d5fc92667651400ddbca5ff841a39",
+      "receipt_commit": "559b46898070f1ad6acbd768cfd9df12b90e22cf",
+      "receipt_tree": "32ceca027ed75a17206037bdff026490c246d4e0",
+      "candidate": "a92c9774edf8049d590cd6ca6de35aa17063025a",
+      "task_exit": "accepted_bounded",
+      "source_review": "GO_BOUNDED_historical_direct_path_only",
+      "whole_commit_acceptance": false,
+      "product_integration": false,
+      "qualification": "Catalog8a24; Legal567c historical selected-path transfer, not current whole-process acceptance."
+    },
+    {
+      "task": "V6",
+      "packet_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-integration-ready-20261027/V6/packet.json",
+      "packet_sha256": "274b08f888a02331ae89d19a059d17c14277af065536098c50a39617bc9f3fe9",
+      "receipt_commit": "b9fc30ba814ef6a76a75d3302f0dcbca84aaa2be",
+      "receipt_tree": "b8c555ae9746a0f51ecaf7bc705e2b6ede2a8b78",
+      "candidate": "a92c9774edf8049d590cd6ca6de35aa17063025a",
+      "task_exit": "HOLD_exact_profile_binding",
+      "source_review": "HOLD_G27-01",
+      "whole_commit_acceptance": false,
+      "product_integration": false,
+      "qualification": "Observed independent-failure witness retained; exact node/state profile join and B13 basis invalidation unaccepted."
+    }
+  ],
+  "finding_decisions": [
+    {
+      "finding_id": "B108",
+      "review_tasks": [
+        "T1"
+      ],
+      "all_canonical_task_routes": [
+        "T1",
+        "V5"
+      ],
+      "criterion_occurrences": [
+        {
+          "id": "B108",
+          "occurrence": 1,
+          "bundle": "OPT-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            2897,
+            2910
+          ],
+          "sha256": "f43cecf8c2c66d6cc7bce5c5174b45fe7692e5018e1364c9798302104f8e4b55"
+        }
+      ],
+      "historical_status_preserved": "partial",
+      "prior_closure_now": "not_adjudicated",
+      "criterion_review": "not_fully_established_by_this_batch",
+      "reason": "T1 inventory only; actual objective missing/null/zero/conflict/nonfinite/unit behavior remains V5; external law does not erase local checks.",
+      "formal_closure": false,
+      "integration_effective": false
+    },
+    {
+      "finding_id": "B13",
+      "review_tasks": [
+        "V6"
+      ],
+      "all_canonical_task_routes": [
+        "V6",
+        "R1",
+        "V1"
+      ],
+      "criterion_occurrences": [
+        {
+          "id": "B13",
+          "occurrence": 1,
+          "bundle": "RES-03",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            349,
+            362
+          ],
+          "sha256": "8718ad1c767f83c1f9e5cf47c86e84a80b44005a548d2a109c9d15cc0ebbc799"
+        }
+      ],
+      "historical_status_preserved": "partial",
+      "prior_closure_now": "not_adjudicated",
+      "criterion_review": "not_fully_established_by_this_batch",
+      "reason": "Independent-failure preservation witnessed, but shared-basis invalidation/retraction and retained-ref removal negatives remain; V6 also has complete-profile node/state join defect G27-01.",
+      "formal_closure": false,
+      "integration_effective": false
+    },
+    {
+      "finding_id": "B148",
+      "review_tasks": [
+        "T1"
+      ],
+      "all_canonical_task_routes": [
+        "R1",
+        "T1"
+      ],
+      "criterion_occurrences": [
+        {
+          "id": "B148",
+          "occurrence": 1,
+          "bundle": "CAS-02",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            3917,
+            3928
+          ],
+          "sha256": "9dc24cc351838bcc7e2f1210c44c7cd4a6b6377579f500b53a677e8276e6e47a"
+        }
+      ],
+      "historical_status_preserved": "partial",
+      "prior_closure_now": "not_adjudicated",
+      "criterion_review": "not_fully_established_by_this_batch",
+      "reason": "T1 inventory only; importer generation/ownership/integrity/atomic publication and interruption/race consumers remain R1.",
+      "formal_closure": false,
+      "integration_effective": false
+    },
+    {
+      "finding_id": "B30",
+      "review_tasks": [
+        "T1"
+      ],
+      "all_canonical_task_routes": [
+        "T1",
+        "Q2"
+      ],
+      "criterion_occurrences": [
+        {
+          "id": "B30",
+          "occurrence": 1,
+          "bundle": "CYC-05",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            579,
+            592
+          ],
+          "sha256": "251d77ebefef25cd01ccd9bf1bcf331725906815dddf47212336198586f99104"
+        }
+      ],
+      "historical_status_preserved": "partial",
+      "prior_closure_now": "not_adjudicated",
+      "criterion_review": "not_fully_established_by_this_batch",
+      "reason": "T1 inventory only; actual build/deployment receipt consumer and source/caller discrimination remain Q2.",
+      "formal_closure": false,
+      "integration_effective": false
+    },
+    {
+      "finding_id": "B56",
+      "review_tasks": [
+        "R4"
+      ],
+      "all_canonical_task_routes": [
+        "R4"
+      ],
+      "criterion_occurrences": [
+        {
+          "id": "B56",
+          "occurrence": 1,
+          "bundle": "FIT-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            1409,
+            1424
+          ],
+          "sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b"
+        }
+      ],
+      "historical_status_preserved": "partial",
+      "prior_closure_now": "not_adjudicated",
+      "criterion_review": "satisfied_on_named_candidate",
+      "reason": "Whole generic configured criterion supported: cap1/2, complete 6-per-study/12-total roster, numeric/consumer-provenance equivalence, timing/RSS/wait and bridge removal. No production or inner-fanout prerequisite. Lease renewal residual separate.",
+      "formal_closure": false,
+      "integration_effective": false
+    },
+    {
+      "finding_id": "B67",
+      "review_tasks": [
+        "T1"
+      ],
+      "all_canonical_task_routes": [
+        "T1",
+        "R3"
+      ],
+      "criterion_occurrences": [
+        {
+          "id": "B67",
+          "occurrence": 1,
+          "bundle": "LLM-02",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            1709,
+            1728
+          ],
+          "sha256": "b3d2e0fe856b77f9c1388e795a0f15adeab905c5b60d4d627e83ce23ca4c3278"
+        }
+      ],
+      "historical_status_preserved": "partial",
+      "prior_closure_now": "not_adjudicated",
+      "criterion_review": "not_fully_established_by_this_batch",
+      "reason": "T1 inventory only; permitted immutable cache package and per-read rights/source/model/parameter checks remain R3.",
+      "formal_closure": false,
+      "integration_effective": false
+    },
+    {
+      "finding_id": "B87",
+      "review_tasks": [
+        "R2"
+      ],
+      "all_canonical_task_routes": [
+        "R2"
+      ],
+      "criterion_occurrences": [
+        {
+          "id": "B87",
+          "occurrence": 1,
+          "bundle": "NET-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            2263,
+            2274
+          ],
+          "sha256": "6e2bbb77d53fcdc1c29b51651016758e2e2b05b5f51bec0cf69a00d20f4e8996"
+        }
+      ],
+      "historical_status_preserved": "partial",
+      "prior_closure_now": "not_adjudicated",
+      "criterion_review": "satisfied_on_named_candidate",
+      "reason": "Whole candidate criterion supported: stream setup/close/cancel cleanup retains reachable owner; physical FD and fresh cursor/window/CAS consumer. Candidate criterion satisfied; integration pending.",
+      "formal_closure": false,
+      "integration_effective": false
+    },
+    {
+      "finding_id": "B89",
+      "review_tasks": [
+        "R2"
+      ],
+      "all_canonical_task_routes": [
+        "R2"
+      ],
+      "criterion_occurrences": [
+        {
+          "id": "B89",
+          "occurrence": 1,
+          "bundle": "NET-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "lines": [
+            2405,
+            2418
+          ],
+          "sha256": "43cfad4b987c5efbb7cc52c98e8a7d84508a7d4d6e64395cc926086c91f3de1a"
+        }
+      ],
+      "historical_status_preserved": "partial",
+      "prior_closure_now": "not_adjudicated",
+      "criterion_review": "satisfied_on_named_candidate",
+      "reason": "Whole candidate criterion supported: exactly-once permit transfer/return and physical cleanup across cancellation/close races. Independent exact-candidate two-test rerun PASS; integration pending.",
+      "formal_closure": false,
+      "integration_effective": false
+    },
+    {
+      "finding_id": "LA-027",
+      "review_tasks": [
+        "T1"
+      ],
+      "all_canonical_task_routes": [
+        "T1",
+        "Q2"
+      ],
+      "criterion_occurrences": [
+        {
+          "id": "LA-027",
+          "occurrence": 1,
+          "bundle": "DFK-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            1418,
+            1465
+          ],
+          "sha256": "a78cbc850be0ec8fdbec3076613780d16dfc169517f5f1568f42a6a80cd3e8ce"
+        }
+      ],
+      "historical_status_preserved": "held",
+      "prior_closure_now": "not_adjudicated",
+      "criterion_review": "not_fully_established_by_this_batch",
+      "reason": "T1 inventory only; compatibility caller/export/config/generated and installed migration remain Q2.",
+      "formal_closure": false,
+      "integration_effective": false
+    },
+    {
+      "finding_id": "LA-028",
+      "review_tasks": [
+        "I4"
+      ],
+      "all_canonical_task_routes": [
+        "I4"
+      ],
+      "criterion_occurrences": [
+        {
+          "id": "LA-028",
+          "occurrence": 1,
+          "bundle": "DFK-02",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            1466,
+            1517
+          ],
+          "sha256": "ca582afd9387c0ba6c4c4bbc9278a6da82d00d06d347269c089531d12355b2f6"
+        }
+      ],
+      "historical_status_preserved": "partial",
+      "prior_closure_now": "not_adjudicated",
+      "criterion_review": "not_fully_established_by_this_batch",
+      "reason": "I4 profile bridge does not establish single source-registry/selection/seed closure including explicit empty/cycles/disabled seeds.",
+      "formal_closure": false,
+      "integration_effective": false
+    },
+    {
+      "finding_id": "LA-032",
+      "review_tasks": [
+        "I4"
+      ],
+      "all_canonical_task_routes": [
+        "S1",
+        "I4"
+      ],
+      "criterion_occurrences": [
+        {
+          "id": "LA-032",
+          "occurrence": 1,
+          "bundle": "UDF-05",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            1668,
+            1715
+          ],
+          "sha256": "5f5c7a56a652a0328e25fd8b6091a2f780750d9eaee8f10c0129b2f9f0609cf2"
+        }
+      ],
+      "historical_status_preserved": "held",
+      "prior_closure_now": "not_adjudicated",
+      "criterion_review": "not_fully_established_by_this_batch",
+      "reason": "I4 does not establish one demographic layout/inventory across composite/target/prior/donor readers.",
+      "formal_closure": false,
+      "integration_effective": false
+    },
+    {
+      "finding_id": "LA-033",
+      "review_tasks": [
+        "I4"
+      ],
+      "all_canonical_task_routes": [
+        "R1",
+        "I4",
+        "Q2"
+      ],
+      "criterion_occurrences": [
+        {
+          "id": "LA-033",
+          "occurrence": 1,
+          "bundle": "REP-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            1994,
+            2028
+          ],
+          "sha256": "60a48ac490a9fe0add1bbecc3bbfb74a011f8038a5dc3f6196f929f9de19739f"
+        }
+      ],
+      "historical_status_preserved": "partial",
+      "prior_closure_now": "not_adjudicated",
+      "criterion_review": "not_fully_established_by_this_batch",
+      "reason": "I4 does not establish replay compatibility caller/string/lazy public/installed migration.",
+      "formal_closure": false,
+      "integration_effective": false
+    },
+    {
+      "finding_id": "LA-040",
+      "review_tasks": [
+        "I4"
+      ],
+      "all_canonical_task_routes": [
+        "I4"
+      ],
+      "criterion_occurrences": [
+        {
+          "id": "LA-040",
+          "occurrence": 1,
+          "bundle": "EMB-03",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            2556,
+            2594
+          ],
+          "sha256": "04d9279a2c0e0e0f10649e69a1a06e4e8a4128b384d5b44f2c9cd45fff8ba67a"
+        }
+      ],
+      "historical_status_preserved": "partial",
+      "prior_closure_now": "not_adjudicated",
+      "criterion_review": "not_fully_established_by_this_batch",
+      "reason": "Implemented content/encoder/projection/membership reuse has substantial historical evidence; legacy flat NPZ/HNSW without selector negative remains verification_missing.",
+      "formal_closure": false,
+      "integration_effective": false
+    },
+    {
+      "finding_id": "LA-041",
+      "review_tasks": [
+        "I1"
+      ],
+      "all_canonical_task_routes": [
+        "I1"
+      ],
+      "criterion_occurrences": [
+        {
+          "id": "LA-041",
+          "occurrence": 1,
+          "bundle": "DFI-03",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            2595,
+            2631
+          ],
+          "sha256": "11fa4aba4b13edd0ea0537a3cfcc7b725568c06f116f599d5bee39f479b09f88"
+        }
+      ],
+      "historical_status_preserved": "partial",
+      "prior_closure_now": "not_adjudicated",
+      "criterion_review": "not_fully_established_by_this_batch",
+      "reason": "Bounded I1 passed. Full checkpoint output/empty/legacy/rule/interruption/disposition matrix lacks executed scenarios; see G27-03.",
+      "formal_closure": false,
+      "integration_effective": false
+    },
+    {
+      "finding_id": "LA-046",
+      "review_tasks": [
+        "I4"
+      ],
+      "all_canonical_task_routes": [
+        "I4",
+        "V3"
+      ],
+      "criterion_occurrences": [
+        {
+          "id": "LA-046",
+          "occurrence": 1,
+          "bundle": "REQ-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            3034,
+            3068
+          ],
+          "sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38"
+        },
+        {
+          "id": "LA-046",
+          "occurrence": 2,
+          "bundle": "ACQ-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            3034,
+            3068
+          ],
+          "sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38"
+        }
+      ],
+      "historical_status_preserved": "partial",
+      "prior_closure_now": "not_adjudicated",
+      "criterion_review": "not_fully_established_by_this_batch",
+      "reason": "Both occurrences retain the same original explicit versioned compiler-context/query/role criterion; I4 serving profiles do not prove it. REQ-01 and ACQ-01 routes both remain.",
+      "formal_closure": false,
+      "integration_effective": false
+    },
+    {
+      "finding_id": "LA-050",
+      "review_tasks": [
+        "T1"
+      ],
+      "all_canonical_task_routes": [
+        "T1",
+        "Q2"
+      ],
+      "criterion_occurrences": [
+        {
+          "id": "LA-050",
+          "occurrence": 1,
+          "bundle": "MIG-04",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            3397,
+            3431
+          ],
+          "sha256": "929111170bede523485d77e9bd1ae74702f9a8dfbbc4422d8c6cdc85252bac05"
+        }
+      ],
+      "historical_status_preserved": "partial",
+      "prior_closure_now": "not_adjudicated",
+      "criterion_review": "not_fully_established_by_this_batch",
+      "reason": "T1 inventory only; historical converter semantics and CLI/format/caller migration remain Q2.",
+      "formal_closure": false,
+      "integration_effective": false
+    },
+    {
+      "finding_id": "LA-053",
+      "review_tasks": [
+        "T1"
+      ],
+      "all_canonical_task_routes": [
+        "T1",
+        "Q2"
+      ],
+      "criterion_occurrences": [
+        {
+          "id": "LA-053",
+          "occurrence": 1,
+          "bundle": "PCL-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "lines": [
+            3793,
+            3815
+          ],
+          "sha256": "b8486db456080f21e07d1949996f18748785d02672e511ea8b57c273192d63a4"
+        }
+      ],
+      "historical_status_preserved": "partial",
+      "prior_closure_now": "not_adjudicated",
+      "criterion_review": "not_fully_established_by_this_batch",
+      "reason": "T1 inventory only; calibration alias callers/installed distributions and support-window migration remain Q2.",
+      "formal_closure": false,
+      "integration_effective": false
+    }
+  ],
+  "candidate_criteria_satisfied": [
+    "B87",
+    "B89",
+    "B56"
+  ],
+  "accepted_implementation_commits": [],
+  "formal_closure_ids": [],
+  "global_freeze": false,
+  "historical_B198_unchanged": true,
+  "policy": "Criterion satisfaction at an immutable candidate is separate from whole-commit acceptance, integration and effective formal finding closure; no new product status enum is introduced.",
+  "integration_policy": "Cumulative candidate-qualified acceptance on the unified author lineage is preferred; do not require duplicate ports. Merge only a selected composition whose full incoming delta/ancestry and companions are reviewed, with affected checks. A naturally separable fully reviewed commit may integrate earlier."
+}

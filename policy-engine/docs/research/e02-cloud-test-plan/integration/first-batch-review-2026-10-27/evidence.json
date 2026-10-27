@@ -1,0 +1,176 @@
+{
+  "schema": "policyos.e02.g_review_evidence.v1",
+  "packet_commit": "8c5efa250faa2e983b1ce7a2021b9ea135846a69",
+  "direct_evidence_denominator": "all direct path entries in evidence[] of seven packet.json, excluding recursively referenced assets",
+  "direct_evidence_count": 53,
+  "availability_receipt": {
+    "path": "policy-engine/_build/e02-g-first-batch-review-20261027/evidence-availability.json",
+    "sha256": "3684184a8efa3885bec7fe1fadb29940bec5b322683bc2f264ee1d2738c86271",
+    "bytes": 27467,
+    "storage": "ignored_local_transport"
+  },
+  "baseline_index_check": {
+    "path": "policy-engine/_build/e02-g-first-batch-review-20261027/baseline-index-check.json",
+    "sha256": "4fd69035bffcdefeacc5be8872cfc3951e17f379144a9251fdf0e365902368c2",
+    "bytes": 343,
+    "storage": "ignored_local_transport"
+  },
+  "baseline_grade": "transfer_and_navigation_only; behavior source_reported_compact_text_only; raw_archive_transfer missing; product_closure not_established",
+  "criterion_span_count": 18,
+  "criterion_span_hash_mismatches": 0,
+  "lineage": {
+    "merge_base": "b7adafe89423bc6906a5fb86c38e579a381ad2ee",
+    "integration": "14bf638032063c3d5a92b29da4215b3b54951fd6",
+    "candidate": "a92c9774edf8049d590cd6ca6de35aa17063025a",
+    "candidate_commits_since_base": 923,
+    "g_commits_since_base": 38,
+    "direct_tree_delta_paths": 8674,
+    "direct_tree_delta_statuses": {
+      "M": 4494,
+      "A": 3394,
+      "D": 786
+    },
+    "file_type_denominator": {
+      ".cjs": 2,
+      ".content": 1,
+      ".csv": 1,
+      ".diff": 1,
+      ".html": 1,
+      ".ini": 4,
+      ".js": 1,
+      ".json": 1140,
+      ".lock": 2,
+      ".md": 1833,
+      ".mjs": 5,
+      ".ndjson": 2,
+      ".patch": 3,
+      ".pdf": 1,
+      ".pkl": 1,
+      ".py": 4456,
+      ".pyi": 3,
+      ".rego": 2,
+      ".sh": 6,
+      ".sha256": 5,
+      ".toml": 377,
+      ".ts": 84,
+      ".tsx": 100,
+      ".txt": 584,
+      ".xml": 23,
+      ".yaml": 10,
+      ".yml": 21,
+      "<none>": 5
+    },
+    "implementation_reference_commits_discovered": 37,
+    "implementation_reference_scope": "37 distinct commit objects after deduplicating full SHA40 references under implementation/implementation_selection of all seven packet.json; non-commit blob hashes excluded",
+    "nonancestor_historical_R2_refs": [
+      "f29d85ef8eb35af3a9566ccd6c35202c2f1fbc58",
+      "e46cb5cd28baf204e69f556dcfea41889ed0ad35",
+      "07bbb61ffa6d53709942bcda87c37daef1a04651",
+      "1eb32f013308de34d77572dd4af8ca048b2b9ee3"
+    ],
+    "nonancestor_ref_interpretation": "related history, not selected current source; does not negate exact candidate path hashes"
+  },
+  "r2_historical_rebind": {
+    "candidate": "65ac853e2735e827e27688a6175f1a385901e20e",
+    "historical_readset_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r2-current-full-boundaries/readsets/input-readset-39952.json",
+    "denominator": "all observed imported src/tests Python paths in retained readset; not all backend/config/filesystem dependencies",
+    "paths": 431,
+    "mismatches": []
+  },
+  "independent_r2": {
+    "result": {
+      "candidate": "65ac853e2735e827e27688a6175f1a385901e20e",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-first-batch-review-20261027/r2-independent/launch.py",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-first-batch-review-20261027/r2-independent/cache",
+        "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-first-batch-review-20261027/r2-independent/bench",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-first-batch-review-20261027/r2-independent/temp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-first-batch-review-20261027/r2-independent/junit.xml",
+        "--tb=short",
+        "--color=no",
+        "tests/unit/fabric/connectors/test_pool_admission_races.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-first-batch-review-20261027/r2-isolated-65ac/policy-engine",
+      "source_isolation": "git_archive_exact_selected_trees",
+      "live_author_product_code": "audit_exec_refused",
+      "backend": "reused_author_venv_readonly; no install; current Darwin",
+      "exit_code": 0,
+      "stop_reason": null,
+      "wall_seconds": 5.08012383399182,
+      "observed_main_peak_rss_bytes": 335446016,
+      "child_rusage_peak_bytes": 335675392,
+      "scope": "2 new race tests only; no broad replay, no production"
+    },
+    "source_rebind": {
+      "candidate": "65ac853e2735e827e27688a6175f1a385901e20e",
+      "unique_loaded_source_paths": 373,
+      "foreign_product_modules": [],
+      "source_mismatches": [],
+      "testcases": [
+        "test_close_all_during_connect_waits_for_physical_fd_retirement",
+        "test_cancel_after_permit_before_registration_restores_slot_once"
+      ],
+      "junit_failures": 0,
+      "junit_errors": 0,
+      "junit_skips": 0,
+      "grade": "independent_bounded_candidate_replay",
+      "integration_head_not_tested": "14bf638032063c3d5a92b29da4215b3b54951fd6"
+    },
+    "files": [
+      {
+        "path": "policy-engine/_build/e02-g-first-batch-review-20261027/r2-independent/launch.py",
+        "sha256": "805cca93f04bb5766c456f2f4577d10fdc64fdf21e9b7f5d6c2f01a0d426b20d",
+        "bytes": 1513,
+        "storage": "ignored_local_transport"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/first-batch-review-2026-10-27/checks/r2-stdout.txt",
+        "sha256": "78419627264031e09b8d27d312febff809c752c4503708de329ca11ad2b11318",
+        "bytes": 98,
+        "storage": "tracked_complete_deciding_output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/first-batch-review-2026-10-27/checks/r2-stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "storage": "tracked_complete_deciding_output"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/first-batch-review-2026-10-27/checks/r2-junit.xml",
+        "sha256": "59b1e5186f50e747dbc65956b56edf43b664d0c7ec7177fbe84010b361b75498",
+        "bytes": 584,
+        "storage": "tracked_complete_deciding_output"
+      },
+      {
+        "path": "policy-engine/_build/e02-g-first-batch-review-20261027/r2-independent/origins.json",
+        "sha256": "ca7a3f5d801cbb8cc8e98e86e9bb074f46d6fd1dacc6ba400a0391cb481fe8aa",
+        "bytes": 85401,
+        "storage": "ignored_local_transport"
+      },
+      {
+        "path": "policy-engine/_build/e02-g-first-batch-review-20261027/r2-independent/result.json",
+        "sha256": "5514f8bbc35371b803eb89f0093820b677f1c500a4efea489a5ae1aac779be3b",
+        "bytes": 1706,
+        "storage": "ignored_local_transport"
+      },
+      {
+        "path": "policy-engine/_build/e02-g-first-batch-review-20261027/r2-independent/source-rebind.json",
+        "sha256": "a059702559ce308950d113d4dbf077e3571e6774b0573f8c44b448a5eb957fd4",
+        "bytes": 513,
+        "storage": "ignored_local_transport"
+      }
+    ]
+  },
+  "reviewer_count": 8,
+  "reviewer_mode": "six domain packet groups plus crosswalk and lineage; direct/read-only/no child/no test execution",
+  "root_checks": "original criteria, controversial verdicts and V6 profile join personally reread; exact candidate two-test run and loaded-source rebinding by G",
+  "resources": "No install, build, broad replay or production mutation; ~8GiB free after bounded work. R2 isolated snapshot only; shared venv read-only.",
+  "document_consistency_check": {
+    "path": "policy-engine/_build/e02-g-first-batch-review-20261027/document-check.json",
+    "sha256": "451b896cd07c747c3be351888b94c50484bac7ad9be9a87f7fc3757d9d255dfc",
+    "storage": "ignored_local_transport"
+  }
+}

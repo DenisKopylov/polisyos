@@ -1,0 +1,78 @@
+{
+  "schema": "policyos.e02.G_review_packet.v1",
+  "task": "T1",
+  "review_status": "author_ready_for_independent_G_review",
+  "packet_kind": "owner_API_authority_inventory",
+  "source_snapshot": {
+    "commit": "a92c9774edf8049d590cd6ca6de35aa17063025a",
+    "tree": "7f9908cd38ca5aa2148f7cc9458d3dbbd0cdb1d9",
+    "parents": [
+      "8a24cc8ff895e61a51de2f91191251a9a8b23d84"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "product_equivalence": "No src/tests changes between8a24andthissnapshot; this packet adds documentation only."
+  },
+  "original_contract": {
+    "task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/T1",
+    "original_exit": "internal configured owner vs external facts; actual source/ref/issuer/verifier/consumer; no stale null-owner demand",
+    "mandatory_next_action": "internal configured owner vs external facts; actual source/ref/issuer/verifier/consumer; no stale null-owner demand",
+    "assigned_finding_ids": [
+      "B30",
+      "B67",
+      "B148",
+      "LA-027",
+      "LA-050",
+      "B108",
+      "LA-053"
+    ]
+  },
+  "implementation_selection": {
+    "code_integration_required": false,
+    "implementation_commits": [
+      "a92c9774edf8049d590cd6ca6de35aa17063025a"
+    ],
+    "scope": "The implementation is the seven-row inventory committed in a92, not protected-positive product code.",
+    "source_test_config_footprint": "No source, test, config, schema, generator or dependency bytes change in this packet."
+  },
+  "property": {
+    "statement": "Latest owner input/API and authority-plane inventory",
+    "predicate_basis": "independently_reconciled",
+    "acceptance_signal": "Exact seven IDs; each has original criterion, current source/ref, issuer/owner boundary, verifier/consumer, individual limitation and next check. No row is closed.",
+    "consumer_surface": "G audit/review packet",
+    "authority_scope": "Author task-exit proposal only; no product authority, G source acceptance or formal finding closure."
+  },
+  "evidence": [
+    {
+      "path": "LOCAL/raw/e02-task-status-refresh-20261027-r1/t1-inventory.json",
+      "sha256": "851cb0ef57876e3719054aa3c3d322696882dd88622a390c3b32090767558bbf",
+      "scope": "Seven individually reviewed owner/input/authority records.",
+      "availability": "local_readable_at_audit"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/task-status-deep-audit-20261027/t1-inventory.json",
+      "sha256": "851cb0ef57876e3719054aa3c3d322696882dd88622a390c3b32090767558bbf",
+      "scope": "Tracked complete seven-row inventory; current source and original criterion bindings are inside this single artifact."
+    }
+  ],
+  "reviewer_instructions": [
+    "Read the exact source Git object; do not move or reset the G checkout.",
+    "Inspect the cited task and mandatory scope, then the deciding inputs/evidence at their own source anchors.",
+    "Treat local RAW availability as a local evidence transport boundary; recheck availability before cleanup or remote replay.",
+    "Accept inventory/admission separately from source integration and from per-finding adjudication."
+  ],
+  "limitations": [
+    "Inventory completion only, not implementation or authority closure for its seven IDs.",
+    "No new runtime computation/production fact is established by this documentation commit.",
+    "The19-task implementation queue remains separate; no global source/input/backend freeze is declared."
+  ],
+  "proposal_fields": {
+    "author_task_exit": "complete",
+    "finding_closure_proposals": []
+  },
+  "code_acceptance_owner": "G",
+  "integration_publication_owner": "G",
+  "formal_finding_adjudication_owner": "G",
+  "code_acceptance": false,
+  "closure_ids": [],
+  "global_freeze": false
+}

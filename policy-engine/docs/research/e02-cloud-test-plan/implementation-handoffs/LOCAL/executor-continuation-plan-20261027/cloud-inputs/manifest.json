@@ -721,6 +721,15 @@
       "source_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-27/04-delivery-and-acceptance.md",
       "source_blob": "1c4765698aa558ec0b6b903a0bba7ed5bc5ae3be",
       "copy": "exact historical G bytes, not a new root ruling"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/g14bf/01-lossless-raw-mappings.md",
+      "sha256": "16b145f08d0312e2102e4458450ff317bb269aced17a3e984e552d159171a7c4",
+      "bytes": 18326,
+      "source_commit": "14bf638032063c3d5a92b29da4215b3b54951fd6",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-27/01-lossless-raw-mappings.md",
+      "source_blob": "662bd0506083eb9f18e78c4014d9e14d8140a291",
+      "copy": "exact historical G bytes, not a root ruling"
     }
   ],
   "limitations": [

@@ -1,0 +1,41 @@
+.F........F.                                                             [100%]R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 1878, "phase": "driver", "pid": 44616, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c05-c06-narrow-fixture-replay-r2-20261028/readsets/input-readset-44616.json", "source_module_count": 1866, "test_module_count": 12, "tools_module_count": 0}
+
+=================================== FAILURES ===================================
+_______ test_control_plane_reuses_only_current_owner_authorized_snapshot _______
+tests/integration/runtime/http/test_nl_pipeline_cache_reuse_authorization.py:269: in test_control_plane_reuses_only_current_owner_authorized_snapshot
+    assert len(pipeline_clients) == 1
+E   assert 0 == 1
+E    +  where 0 = len([])
+----------------------------- Captured stdout call -----------------------------
+2026-10-28 01:15:37 [info     ] method_registered              backend=numpy fqn=causal.hte.forest_dr@1.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'doubly-robust', 'estimation', 'forest-dr', 'hte', 'tabular'] version=1.0.0
+2026-10-28 01:15:37 [info     ] method_registered              backend=numpy fqn=causal.hte.forest_dr@1.1.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'doubly-robust', 'estimation', 'forest-dr', 'hte', 'tabular'] version=1.1.0
+2026-10-28 01:15:37 [info     ] method_registered              backend=numpy fqn=causal.hte.causal_forest@2.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'causal-forest', 'cross-section', 'estimation', 'hte', 'native-inference', 'tabular'] version=2.0.0
+2026-10-28 01:15:37 [info     ] method_registered              backend=numpy fqn=causal.hte.double_ml@2.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'double-ml', 'estimation', 'hte', 'native-inference', 'tabular'] version=2.0.0
+2026-10-28 01:15:37 [info     ] method_registered              backend=numpy fqn=causal.hte.meta_learner@2.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'estimation', 'hte', 'meta-learner', 'native-inference', 'tabular'] version=2.0.0
+2026-10-28 01:15:37 [info     ] method_registered              backend=numpy fqn=causal.hte.forest_dr@2.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'estimation', 'forest-dr', 'hte', 'native-inference', 'tabular'] version=2.0.0
+____________ test_reported_method_unit_must_match_selected_run_unit ____________
+tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py:2233: in test_reported_method_unit_must_match_selected_run_unit
+    run_profile = request_basis["search_method_run_profile"]
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'search_method_run_profile'
+----------------------------- Captured stdout call -----------------------------
+2026-10-28 01:15:41 [info     ] method_registered              backend=numpy fqn=tests.scientist.v5_declared_unit_score@1.0.0 lazy=False namespace=tests.scientist override=True tags=[] version=1.0.0
+2026-10-28 01:15:41 [debug    ] method_dispatch_start          backend=numpy fqn=tests.scientist.v5_declared_unit_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-28 01:15:41 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=7.09 fqn=tests.scientist.v5_declared_unit_score@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+------------------------------ Captured log call -------------------------------
+WARNING  foundry.selection_history:history.py:260 selection_history_persist_failed op=append path=/Users/deniskopylov/Library/Application Support/PolicyOS/foundry/selection_history/executions.jsonl exc=PermissionError
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+.venv/lib/python3.14/site-packages/pyro/ops/stats.py:527
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pyro/ops/stats.py:527: SyntaxWarning: "\g" is an invalid escape sequence. Such sequences will not work in the future. Did you mean "\\g"? A raw string is also an option.
+    we have :math:`ES^{*}(P,Q) \ge ES^{*}(Q,Q)` with equality holding if and only if :math:`P=Q`, i.e.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/runtime/http/test_nl_pipeline_cache_reuse_authorization.py::test_control_plane_reuses_only_current_owner_authorized_snapshot
+FAILED tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_reported_method_unit_must_match_selected_run_unit
+2 failed, 10 passed, 3 warnings in 25.84s

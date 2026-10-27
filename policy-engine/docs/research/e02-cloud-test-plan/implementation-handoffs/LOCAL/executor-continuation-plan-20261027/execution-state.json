@@ -778,6 +778,276 @@
         "created_at": "2026-10-27T22:41:04.368107+00:00",
         "status": "submitted",
         "closure_ids": []
+      },
+      {
+        "slice": "C41",
+        "task_id": "task_e_6ae12cbcb8908325b429775ab31d297e",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae12cbcb8908325b429775ab31d297e",
+        "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+        "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+        "branch": "codex/e02-execution-wave3-20261028",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C41-launch-prompt.md",
+        "prompt_sha256": "04aef1e538f0a3a37f0e84bd592c67a689fe72833f63cf1cf4dcb40c63801250",
+        "prompt_bytes": 39717,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T22:59:10.401724+00:00",
+        "status": "submitted",
+        "closure_ids": []
+      },
+      {
+        "slice": "C42",
+        "task_id": "task_e_6ae129ccb79483258838c28c36d8b582",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae129ccb79483258838c28c36d8b582",
+        "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+        "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+        "branch": "codex/e02-execution-wave3-20261028",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C42-launch-prompt.md",
+        "prompt_sha256": "fe1a8b6d65910e165a1353bea3df9d370ffe983cf1d3ab36de4ee89eb2f3a0b2",
+        "prompt_bytes": 84489,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T22:46:39.036079+00:00",
+        "status": "submitted",
+        "closure_ids": []
+      },
+      {
+        "slice": "C43",
+        "task_id": "task_e_6ae129d364d88325a24811e84e4a6705",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae129d364d88325a24811e84e4a6705",
+        "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+        "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+        "branch": "codex/e02-execution-wave3-20261028",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C43-launch-prompt.md",
+        "prompt_sha256": "67911024fc43b77f6ad6afab762ab3e968759eae0f0443901590ce7d5d2daccc",
+        "prompt_bytes": 55126,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T22:46:45.206068+00:00",
+        "status": "submitted",
+        "closure_ids": []
+      },
+      {
+        "slice": "C44",
+        "task_id": "task_e_6ae129dffe388325b1f7e725990150f5",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae129dffe388325b1f7e725990150f5",
+        "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+        "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+        "branch": "codex/e02-execution-wave3-20261028",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C44-launch-prompt.md",
+        "prompt_sha256": "a267e07896345ee503fed77894ce9cebb21c7092a29450452049b076f77675b4",
+        "prompt_bytes": 55195,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T22:46:58.234207+00:00",
+        "status": "submitted",
+        "closure_ids": []
+      },
+      {
+        "slice": "C47",
+        "task_id": "task_e_6ae129f53d4c83258a541adf095dc1d1",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae129f53d4c83258a541adf095dc1d1",
+        "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+        "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+        "branch": "codex/e02-execution-wave3-20261028",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C47-launch-prompt.md",
+        "prompt_sha256": "a43c27cbc2ca28150d30a606e1996ae6401c85a884190e599e99cee1dbe13ea2",
+        "prompt_bytes": 104246,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T22:47:19.363743+00:00",
+        "status": "submitted",
+        "closure_ids": []
+      },
+      {
+        "slice": "C48",
+        "task_id": "task_e_6ae12bc63a2c832580340a5c90a256aa",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae12bc63a2c832580340a5c90a256aa",
+        "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+        "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+        "branch": "codex/e02-execution-wave3-20261028",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C48-launch-prompt.md",
+        "prompt_sha256": "251af6a0fe3608579354305b42b8ddf58cbae749f6db24b8b56a7ab1af3e74a2",
+        "prompt_bytes": 125564,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T22:55:04.489870+00:00",
+        "status": "submitted",
+        "closure_ids": []
+      },
+      {
+        "slice": "C50",
+        "task_id": "task_e_6ae129d9f9a883258e9712ead5df2302",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae129d9f9a883258e9712ead5df2302",
+        "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+        "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+        "branch": "codex/e02-execution-wave3-20261028",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C50-launch-prompt.md",
+        "prompt_sha256": "fd094c8f2b835035b8bbfbc8eab1a23561b68a0f66ba3e5759790a4b23cf2a13",
+        "prompt_bytes": 31902,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T22:46:51.605398+00:00",
+        "status": "submitted",
+        "closure_ids": []
+      },
+      {
+        "slice": "C51",
+        "task_id": "task_e_6ae129e685808325b55f802d4970266a",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae129e685808325b55f802d4970266a",
+        "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+        "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+        "branch": "codex/e02-execution-wave3-20261028",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C51-launch-prompt.md",
+        "prompt_sha256": "89f8c034e117d892301bc341ff8e27ce09c6f3686cffda3b8f138fe6efd1d5ac",
+        "prompt_bytes": 43117,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T22:47:04.966070+00:00",
+        "status": "submitted",
+        "closure_ids": []
+      },
+      {
+        "slice": "C52",
+        "task_id": "task_e_6ae12bcd22048325a97fc2c353ab90c4",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae12bcd22048325a97fc2c353ab90c4",
+        "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+        "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+        "branch": "codex/e02-execution-wave3-20261028",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C52-launch-prompt.md",
+        "prompt_sha256": "569f81780e9e0098deb5fc800d05da5e28c8fb62e664d2dcf2f27995bf6253d8",
+        "prompt_bytes": 61947,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T22:55:11.845135+00:00",
+        "status": "submitted",
+        "closure_ids": []
+      },
+      {
+        "slice": "C53",
+        "task_id": "task_e_6ae12bd464888325884a7f946d1516aa",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae12bd464888325884a7f946d1516aa",
+        "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+        "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+        "branch": "codex/e02-execution-wave3-20261028",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C53-launch-prompt.md",
+        "prompt_sha256": "e032077a61614e44b3783f2f739a2d9901f2a5703d97b218aac13b04d9f9dc8a",
+        "prompt_bytes": 56848,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T22:55:18.083573+00:00",
+        "status": "submitted",
+        "closure_ids": []
+      },
+      {
+        "slice": "C56",
+        "task_id": "task_e_6ae12b0a6988832594135e44dfd899ab",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae12b0a6988832594135e44dfd899ab",
+        "expected_base": "4b10f758dde8417be2638584ac810fc67ca36a24",
+        "expected_tree": "42b9b594a235b3bc255df264c22241eb360114ea",
+        "branch": "codex/e02-cloud-repair-inputs-20261028",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C56-launch-prompt.md",
+        "prompt_sha256": "cbb5e2120a298c434708fd8fb8372005eecddb6fb5c8ded34f530518403e0227",
+        "prompt_bytes": 62160,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T22:51:56.586062+00:00",
+        "status": "submitted",
+        "closure_ids": []
+      },
+      {
+        "slice": "C57",
+        "task_id": "task_e_6ae12bb9f8608325ba48d57e4302fde4",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae12bb9f8608325ba48d57e4302fde4",
+        "expected_base": "4b10f758dde8417be2638584ac810fc67ca36a24",
+        "expected_tree": "42b9b594a235b3bc255df264c22241eb360114ea",
+        "branch": "codex/e02-cloud-repair-inputs-20261028",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C57-launch-prompt.md",
+        "prompt_sha256": "a1bb73a40c4fe7e697380595f6bc0ab7360a4a260c0ed5d042ae7117dabefc6e",
+        "prompt_bytes": 44297,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T22:54:51.621320+00:00",
+        "status": "submitted",
+        "closure_ids": []
+      },
+      {
+        "slice": "C58",
+        "task_id": "task_e_6ae12cc328ec8325a01f1adfdb5ef404",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae12cc328ec8325a01f1adfdb5ef404",
+        "expected_base": "4b10f758dde8417be2638584ac810fc67ca36a24",
+        "expected_tree": "42b9b594a235b3bc255df264c22241eb360114ea",
+        "branch": "codex/e02-cloud-repair-inputs-20261028",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C58-launch-prompt.md",
+        "prompt_sha256": "0d0e358853eccfce6798f7705b20edffb4e81c7e4fb771f08003ddc3dcc00cff",
+        "prompt_bytes": 81177,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T22:59:16.828969+00:00",
+        "status": "submitted",
+        "closure_ids": []
+      },
+      {
+        "slice": "C59",
+        "task_id": "task_e_6ae12bbf69fc8325a4189489114da6f0",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae12bbf69fc8325a4189489114da6f0",
+        "expected_base": "4b10f758dde8417be2638584ac810fc67ca36a24",
+        "expected_tree": "42b9b594a235b3bc255df264c22241eb360114ea",
+        "branch": "codex/e02-cloud-repair-inputs-20261028",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C59-launch-prompt.md",
+        "prompt_sha256": "31d803557b550ab1c7824930de2dd6ac402616bc66872163c8d60f266105c779",
+        "prompt_bytes": 30201,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T22:54:57.722690+00:00",
+        "status": "submitted",
+        "closure_ids": []
+      },
+      {
+        "slice": "C60",
+        "task_id": "task_e_6ae1314ed8b8832586dc4f51590ebd39",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae1314ed8b8832586dc4f51590ebd39",
+        "expected_base": "4b10f758dde8417be2638584ac810fc67ca36a24",
+        "expected_tree": "42b9b594a235b3bc255df264c22241eb360114ea",
+        "branch": "codex/e02-cloud-repair-inputs-20261028",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C60-launch-prompt.md",
+        "prompt_sha256": "1b5d3d689b98bba65814fe6f924e8c380372dbf35f08f71f13ed5c14a03dfd5d",
+        "prompt_bytes": 51658,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-27T23:18:41.208143+00:00",
+        "status": "submitted",
+        "closure_ids": []
       }
     ],
     "evidence_transport": "C01 actual diff,new substantive test,receipt and compact output/JUnit bytes obtained and alldeclaredhashesverified; full author removal trace unavailable; necessary exact control to rerun only",
@@ -2601,6 +2871,198 @@
         }
       ],
       "G_acceptance": false
+    },
+    {
+      "case": "c25-finite-source-pilot-native-r1-20261028",
+      "source": "d7790ad008219da6c74e7c78b7eee7caca212e02",
+      "counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "return_code": 0,
+      "wall_seconds": 4.1910612499923445,
+      "rss_bytes": 134414336,
+      "loaded_python_paths": 94,
+      "source_mismatches": [],
+      "scope": "C25 finite-file pilot only; no production observation coverage/currentness or G acceptance.",
+      "backend_profile": "pytest.ini, default plugin autoload/importlib/strict markers; add read-only sys.modules observer; outputs redirected only; private empty pycache search prefix prevents stale canonical pyc reuse",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r5/c25-finite-source-pilot-native-r1-20261028/audit-result.json",
+          "sha256": "c55103afc04ab9159b2db318c46e786feddd62f0e620be5d279c98ccfb0dfb43",
+          "bytes": 7168,
+          "source_scratch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c25-finite-source-pilot-native-r1-20261028/audit-result.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r5/c25-finite-source-pilot-native-r1-20261028/source-profile-freeze.json",
+          "sha256": "ee609d1e9bcd6388c228fad4750d6abf2d6d301ca012793579611c5ab337ecd5",
+          "bytes": 9735,
+          "source_scratch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c25-finite-source-pilot-native-r1-20261028/source-profile-freeze.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r5/c25-finite-source-pilot-native-r1-20261028/c25-finite-source-pilot-native-r1-20261028.stdout.txt",
+          "sha256": "28c5f52532991ad751723d6cddd0e261f0975aa17c11bd8f64f44f9056f4cca5",
+          "bytes": 666,
+          "source_scratch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c25-finite-source-pilot-native-r1-20261028/c25-finite-source-pilot-native-r1-20261028.stdout.txt"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r5/c25-finite-source-pilot-native-r1-20261028/pytest.xml",
+          "sha256": "d63ae36d825b2c881660922bbc53531323be1c3717a446d3fc5787fcc50538da",
+          "bytes": 582,
+          "source_scratch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c25-finite-source-pilot-native-r1-20261028/pytest.xml"
+        }
+      ],
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_bytes": 0,
+      "evidence_delivery": "proposal bytes copied under docs-progress-r5; tracked delivery pending root composition",
+      "G_acceptance": false,
+      "closure_ids": []
+    },
+    {
+      "case": "c04-c07-finite-and-authority-pilots-r1-20261028",
+      "source": "d7790ad008219da6c74e7c78b7eee7caca212e02",
+      "counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "return_code": 0,
+      "wall_seconds": 29.643252458015922,
+      "rss_bytes": 1050378240,
+      "loaded_python_paths": 1592,
+      "source_mismatches": [],
+      "scope": "C04 dedupe-disabled and complete selected collection plus C07 fixture-authority/source-drift pilots; no six HTE-target or full I3 PASS.",
+      "backend_profile": "pytest.ini, default plugin autoload/importlib/strict markers; add read-only sys.modules observer; outputs redirected only; private empty pycache search prefix prevents stale canonical pyc reuse",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r5/c04-c07-finite-and-authority-pilots-r1-20261028/audit-result.json",
+          "sha256": "92e9f4691d3664a5dbd9ca00e73a92de3c94d7d0c3bb8bdd39dc168b767ff17a",
+          "bytes": 5971,
+          "source_scratch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c04-c07-finite-and-authority-pilots-r1-20261028/audit-result.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r5/c04-c07-finite-and-authority-pilots-r1-20261028/source-profile-freeze.json",
+          "sha256": "514fd82448856eb214ed249e4f27407827f6a73cc2f7b25759a1242f0439972c",
+          "bytes": 10070,
+          "source_scratch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c04-c07-finite-and-authority-pilots-r1-20261028/source-profile-freeze.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r5/c04-c07-finite-and-authority-pilots-r1-20261028/c04-c07-finite-and-authority-pilots-r1-20261028.stdout.txt",
+          "sha256": "61a512b7dd1c6b16027c12055c8fdb8aba4a54c5bb9dceb2c8a701e5c25cc938",
+          "bytes": 677,
+          "source_scratch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c04-c07-finite-and-authority-pilots-r1-20261028/c04-c07-finite-and-authority-pilots-r1-20261028.stdout.txt"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r5/c04-c07-finite-and-authority-pilots-r1-20261028/pytest.xml",
+          "sha256": "9d3a0924aedbed2aab63b282c28ff9a1a8db68dffa79bf2094344c783c805bed",
+          "bytes": 933,
+          "source_scratch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c04-c07-finite-and-authority-pilots-r1-20261028/pytest.xml"
+        }
+      ],
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_bytes": 0,
+      "evidence_delivery": "proposal bytes copied under docs-progress-r5; tracked delivery pending root composition",
+      "G_acceptance": false,
+      "closure_ids": []
+    },
+    {
+      "case": "c05-c06-narrow-fixture-replay-r2-20261028",
+      "source": "d7790ad008219da6c74e7c78b7eee7caca212e02",
+      "counts": {
+        "tests": 12,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "return_code": 1,
+      "wall_seconds": 33.86613620800199,
+      "rss_bytes": 1243463680,
+      "loaded_python_paths": 1878,
+      "source_mismatches": [],
+      "scope": "Two C05 and ten C06 cases from the newer cohort; the original R3 latest fourteen failures are separate and remain unclosed. C05 pipeline client list empty; C06 selected run profile key missing.",
+      "backend_profile": "pytest.ini, default plugin autoload/importlib/strict markers; add read-only sys.modules observer; outputs redirected only; private empty pycache search prefix prevents stale canonical pyc reuse",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r5/c05-c06-narrow-fixture-replay-r2-20261028/audit-result.json",
+          "sha256": "72653204549f2b86408fd8091ea6ab2cb7ba8219661c736a7bef45b1f558be91",
+          "bytes": 7775,
+          "source_scratch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c05-c06-narrow-fixture-replay-r2-20261028/audit-result.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r5/c05-c06-narrow-fixture-replay-r2-20261028/source-profile-freeze.json",
+          "sha256": "089900f93bac0814f66824ea5aafc7df813c9e9b627fb94a2b35f599446acf73",
+          "bytes": 11073,
+          "source_scratch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c05-c06-narrow-fixture-replay-r2-20261028/source-profile-freeze.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r5/c05-c06-narrow-fixture-replay-r2-20261028/c05-c06-narrow-fixture-replay-r2-20261028.stdout.txt",
+          "sha256": "fcf224463ad98993397c6e3e79c2577e9d34ec04609224289377c047075c9f6b",
+          "bytes": 5569,
+          "source_scratch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c05-c06-narrow-fixture-replay-r2-20261028/c05-c06-narrow-fixture-replay-r2-20261028.stdout.txt"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r5/c05-c06-narrow-fixture-replay-r2-20261028/pytest.xml",
+          "sha256": "789f89e81c636d5d03f8ca40171b92494e080ec298f295e1db0ccdefb2e30a04",
+          "bytes": 3130,
+          "source_scratch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c05-c06-narrow-fixture-replay-r2-20261028/pytest.xml"
+        }
+      ],
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_bytes": 0,
+      "evidence_delivery": "proposal bytes copied under docs-progress-r5; tracked delivery pending root composition",
+      "G_acceptance": false,
+      "closure_ids": []
+    },
+    {
+      "case": "c25-composed-full-r1-20261028",
+      "source": "cfdb1ac1b7a44a782ec8e13b5f0ed9277beed65c",
+      "counts": {
+        "tests": 59,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "return_code": 1,
+      "wall_seconds": 5.244559209008003,
+      "rss_bytes": 158941184,
+      "loaded_python_paths": 96,
+      "source_mismatches": [],
+      "scope": "C25 three-module composed run: source-quality refusal expected basis-mismatch reason but got readiness-projection mismatch. Attribution is not_established; paired removals were not run.",
+      "backend_profile": "pytest.ini, default plugin autoload/importlib/strict markers; add read-only sys.modules observer; outputs redirected only; private empty pycache search prefix prevents stale canonical pyc reuse",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r5/c25-composed-full-r1-20261028/audit-result.json",
+          "sha256": "ca5bd0c50f53e3a1fd22ddf7cb84c2061661548695275c19230749f7d2cb1f64",
+          "bytes": 6809,
+          "source_scratch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c25-composed-full-r1-20261028/audit-result.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r5/c25-composed-full-r1-20261028/source-profile-freeze.json",
+          "sha256": "9852de331e786990471c2af4ac9a52e57f99b46a03ee0795dec0cd7b1e463d6d",
+          "bytes": 9668,
+          "source_scratch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c25-composed-full-r1-20261028/source-profile-freeze.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r5/c25-composed-full-r1-20261028/c25-composed-full-r1-20261028.stdout.txt",
+          "sha256": "a6ea9af606f609bc48382252e7c3a74deb47f29ab5ed130355dc9c08105b20dd",
+          "bytes": 1456,
+          "source_scratch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c25-composed-full-r1-20261028/c25-composed-full-r1-20261028.stdout.txt"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r5/c25-composed-full-r1-20261028/pytest.xml",
+          "sha256": "a09998a31c9e3daa057bebc2aaa4c0e216a04308764186359584ea6add6f53dd",
+          "bytes": 10511,
+          "source_scratch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c25-composed-full-r1-20261028/pytest.xml"
+        }
+      ],
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_bytes": 0,
+      "evidence_delivery": "proposal bytes copied under docs-progress-r5; tracked delivery pending root composition",
+      "G_acceptance": false,
+      "closure_ids": []
     }
   ],
   "completed_author_results": [
@@ -2674,6 +3136,33 @@
       "local_runtime": "168PASS bounded semantics/spec intake/writer fence; full physical/resource/readers C31 pending",
       "source_review": "GO bounded; see exact sparse manifests/reviews",
       "G_acceptance": false
+    },
+    {
+      "slice": "C04",
+      "composition_commit": "ce75853a68390cdad792aab7f173f0d9d902a0e7",
+      "tree": "11367053d5c8bd307b46d3bebe958f3f38d493ca",
+      "scope": "finite source progress, selected collection and listed companions; live provider coverage/currentness and verifier bridge remain not_established",
+      "source_review": "bounded GO LOCAL/raw/e02-execution-20261027/reviews/C04-r3.md; actual final composition requires owner review",
+      "local_runtime": "combined C04/C07 pilot 4 PASS at d779, not whole I3",
+      "G_acceptance": false
+    },
+    {
+      "slice": "C25",
+      "composition_commit": "d7790ad008219da6c74e7c78b7eee7caca212e02",
+      "tree": "b8ef64227f3903ba4ff1f8a9403befe55bd488ee",
+      "scope": "finite observation source and recomputed readiness; production observation coverage/currentness and authority not_established",
+      "source_review": "bounded GO LOCAL/raw/e02-execution-20261027/reviews/C25-r2-context-84a687878e43.md with bounded promotion_allowed residual",
+      "local_runtime": "2 PASS pilot at d779; separate 58 PASS/1 FAIL full three-module run at cfdb; removal controls UNRUN",
+      "G_acceptance": false
+    },
+    {
+      "slice": "C19",
+      "composition_commit": "cfdb1ac1b7a44a782ec8e13b5f0ed9277beed65c",
+      "tree": "48eb8d6b5fb61fa1ce8a731ca47fc0cfaf189343",
+      "scope": "revalidate recognized acquired snapshot lineage and preserve candidate limitations; generic unmarked source authenticity remains bounded residual",
+      "source_review": "bounded GO LOCAL/raw/e02-execution-20261027/reviews/C19-r8.md; separate generated/public companions and requalification remain",
+      "local_runtime": "UNRUN for C19 at this observed source cut",
+      "G_acceptance": false
     }
   ],
   "source_checkpoint": {
@@ -2697,5 +3186,476 @@
       "status": "G question prepared, unapplied source HOLD; routing address requested asynchronously",
       "packet": "G-questions/BERL-source-custody.md"
     }
-  ]
+  ],
+  "progress_r5": {
+    "observed_at": "2026-10-27T23:21:46.850267+00:00",
+    "source_observed": {
+      "branch": "codex/e02-unified-local-20261009",
+      "commit": "cfdb1ac1b7a44a782ec8e13b5f0ed9277beed65c",
+      "tree": "48eb8d6b5fb61fa1ce8a731ca47fc0cfaf189343",
+      "semantics": "observed source cut only; no assertion about future HEAD"
+    },
+    "previous_document_checkpoint": "4b10f758dde8417be2638584ac810fc67ca36a24",
+    "fixture_companion_commit": "0817a54b812f6bd850100eef4d16419146a78521",
+    "cloud_list_observation": {
+      "path": "LOCAL/raw/e02-execution-20261027/cloud/list-current.json",
+      "sha256": "829e29e4bcaee4a85d59fab00f15a3d1197cf0d8459d7a2df30fcf09892a4b06",
+      "observed_at": "2026-10-27T23:19:05.252557+00:00",
+      "page_count": 3,
+      "cursor": null,
+      "scope": "C41–C60 only; missing local launch manifests do not prove a task was not launched",
+      "labels_without_local_launch_manifest": [
+        "C49",
+        "C54",
+        "C55"
+      ],
+      "tasks": [
+        {
+          "slice": "C41",
+          "task_id": "task_e_6ae12cbcb8908325b429775ab31d297e",
+          "status_at_observation": "ready",
+          "updated_at": "2026-10-27T23:08:40.886655092Z",
+          "launch_metadata_sha256": "fa00869f0f7d838623877155c5c4715241db8b93862cfd1d5248d9b20fa7eb32",
+          "prompt_sha256": "04aef1e538f0a3a37f0e84bd592c67a689fe72833f63cf1cf4dcb40c63801250",
+          "requested_model": "gpt-6.1-sol",
+          "actual_model": "not_established",
+          "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+          "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+          "G_acceptance": false,
+          "closure_ids": [],
+          "received_diff": {
+            "availability": "locally_retrieved_sha256_recomputed; not a tracked delivery or source acceptance",
+            "path": "LOCAL/raw/e02-execution-20261027/cloud/C41/source.diff",
+            "sha256": "10079236cbe13960a065ad54cec6dc148e512f9a8c80c35ffcac8e53a2956fc1",
+            "bytes": 27658,
+            "reconstructed_tree": "e0d06306a1ce981ccba82a73946b9620f69db0c6",
+            "tree_status": "inferred from received diff; not an independently read cloud commit",
+            "manifest_sha256": "7a0c00d408f54303974420809b2cd9ff7280d05c5762f9b00296eaf5e791b55c"
+          }
+        },
+        {
+          "slice": "C42",
+          "task_id": "task_e_6ae129ccb79483258838c28c36d8b582",
+          "status_at_observation": "ready",
+          "updated_at": "2026-10-27T22:52:58.122987985Z",
+          "launch_metadata_sha256": "a543a2a73f6911aa42d2559d337a6522569c6fc64ce0c634af188efbd5d1c5c9",
+          "prompt_sha256": "fe1a8b6d65910e165a1353bea3df9d370ffe983cf1d3ab36de4ee89eb2f3a0b2",
+          "requested_model": "gpt-6.1-sol",
+          "actual_model": "not_established",
+          "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+          "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+          "G_acceptance": false,
+          "closure_ids": [],
+          "received_diff": {
+            "availability": "locally_retrieved_sha256_recomputed; not a tracked delivery or source acceptance",
+            "path": "LOCAL/raw/e02-execution-20261027/cloud/C42/source.diff",
+            "sha256": "f1f74a47bd03656a802dd2c9baad62597af477e125920f31aa82891a0fa7c4a0",
+            "bytes": 64209,
+            "reconstructed_tree": "75650e8912d4e842d86f014ece244c33056657b6",
+            "tree_status": "inferred from received diff; not an independently read cloud commit",
+            "manifest_sha256": "f5ebc42d86f6e27e97ddbb090e3a1f1d4e5c6c6483578788a5999d511fbbc3b9"
+          }
+        },
+        {
+          "slice": "C43",
+          "task_id": "task_e_6ae129d364d88325a24811e84e4a6705",
+          "status_at_observation": "ready",
+          "updated_at": "2026-10-27T22:53:52.358344078Z",
+          "launch_metadata_sha256": "30589140edfc9dab2128b0e5f21a39598a9f6d0686100c8187ead096a0aab814",
+          "prompt_sha256": "67911024fc43b77f6ad6afab762ab3e968759eae0f0443901590ce7d5d2daccc",
+          "requested_model": "gpt-6.1-sol",
+          "actual_model": "not_established",
+          "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+          "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+          "G_acceptance": false,
+          "closure_ids": [],
+          "received_diff": {
+            "availability": "locally_retrieved_sha256_recomputed; not a tracked delivery or source acceptance",
+            "path": "LOCAL/raw/e02-execution-20261027/cloud/C43/source.diff",
+            "sha256": "5336cfb98fefb5de072e1ddb3e0e003b44fdfd3556989812dbf77f4a677134a7",
+            "bytes": 71399,
+            "reconstructed_tree": "4c7144ec53bdc20932089ba900d42f1959a6be3b",
+            "tree_status": "inferred from received diff; not an independently read cloud commit",
+            "manifest_sha256": "0e23cc70a08c4fa6026aea7e05c6dd090856d8dcd27454307381c649f306506a"
+          }
+        },
+        {
+          "slice": "C44",
+          "task_id": "task_e_6ae129dffe388325b1f7e725990150f5",
+          "status_at_observation": "ready",
+          "updated_at": "2026-10-27T22:53:32.461610078Z",
+          "launch_metadata_sha256": "8589de6d8681f3e283bf2169d5ad13adccc098d31ba6a51f3c0bf362e9e73388",
+          "prompt_sha256": "a267e07896345ee503fed77894ce9cebb21c7092a29450452049b076f77675b4",
+          "requested_model": "gpt-6.1-sol",
+          "actual_model": "not_established",
+          "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+          "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+          "G_acceptance": false,
+          "closure_ids": [],
+          "received_diff": {
+            "availability": "locally_retrieved_sha256_recomputed; not a tracked delivery or source acceptance",
+            "path": "LOCAL/raw/e02-execution-20261027/cloud/C44/source.diff",
+            "sha256": "ebd3ebb850e12e46c6f103d037947d317f6e342382e90c6ec7f0dcdbfd7eb66a",
+            "bytes": 70657,
+            "reconstructed_tree": "0aca67932f60067d449a3184e8c8fc918dcc2e04",
+            "tree_status": "inferred from received diff; not an independently read cloud commit",
+            "manifest_sha256": "4b69ab307952c61310a7bae3539cc280c782c4406498e21bbcfdeaed8aed8ff5"
+          }
+        },
+        {
+          "slice": "C45",
+          "task_id": "task_e_6ae12884a7f083259a690c42f46b7508",
+          "status_at_observation": "ready",
+          "updated_at": "2026-10-27T22:47:09.657470941Z",
+          "launch_metadata_sha256": "182e0483e838e69ee8b8f11f4ef20848b980bf3e8764c189994382b4ab7f0de9",
+          "prompt_sha256": "4d58a56ee7294f8f5e790236ed5df27847f96398a85a6fe8b67fe7e750f312bb",
+          "requested_model": "gpt-6.1-sol",
+          "actual_model": "not_established",
+          "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+          "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+          "G_acceptance": false,
+          "closure_ids": [],
+          "received_diff": {
+            "availability": "locally_retrieved_sha256_recomputed; not a tracked delivery or source acceptance",
+            "path": "LOCAL/raw/e02-execution-20261027/cloud/C45/source.diff",
+            "sha256": "97dea8f855ecfbd6edb8cf01afd1a5246edd34d8f9614ed4db2e7ff7d4303e9a",
+            "bytes": 316953,
+            "reconstructed_tree": "a414573efd9176eec499f4554e15439e541ce4ed",
+            "tree_status": "inferred from received diff; not an independently read cloud commit",
+            "manifest_sha256": "75c6ba9dafb5486bf4b05f7e789ad1893cc47f934e4b11fc44ff17c6b911d423"
+          }
+        },
+        {
+          "slice": "C46",
+          "task_id": "task_e_6ae1287ea91c832597a125795d14ee3e",
+          "status_at_observation": "ready",
+          "updated_at": "2026-10-27T22:45:10.475754022Z",
+          "launch_metadata_sha256": "3469c3dbbdc0e8bd0897a30516e4d1b0e9651ea0749f2c57743e643d1a82c326",
+          "prompt_sha256": "83125679703618206da51e00feae518bba2f877bf707ef14621b3813f5eac33c",
+          "requested_model": "gpt-6.1-sol",
+          "actual_model": "not_established",
+          "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+          "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+          "G_acceptance": false,
+          "closure_ids": [],
+          "received_diff": {
+            "availability": "locally_retrieved_sha256_recomputed; not a tracked delivery or source acceptance",
+            "path": "LOCAL/raw/e02-execution-20261027/cloud/C46/source.diff",
+            "sha256": "96ccf4472e81dddde92f158a007c90d2827cd792cde56fa352d02a744fb7d5fe",
+            "bytes": 36794,
+            "reconstructed_tree": "e218922e46153e1e0740a7955fcc8572ddc74adf",
+            "tree_status": "inferred from received diff; not an independently read cloud commit",
+            "manifest_sha256": "03b72ccb0790830e4fed1c3e84f1b8b106f70febd72d67fbe0784c2f79072e5c"
+          }
+        },
+        {
+          "slice": "C47",
+          "task_id": "task_e_6ae129f53d4c83258a541adf095dc1d1",
+          "status_at_observation": "ready",
+          "updated_at": "2026-10-27T22:58:14.835182905Z",
+          "launch_metadata_sha256": "38411bd17c0d26ac20e5c544794546c2e98ae716f27af210e9b4455e6bd370db",
+          "prompt_sha256": "a43c27cbc2ca28150d30a606e1996ae6401c85a884190e599e99cee1dbe13ea2",
+          "requested_model": "gpt-6.1-sol",
+          "actual_model": "not_established",
+          "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+          "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+          "G_acceptance": false,
+          "closure_ids": [],
+          "received_diff": {
+            "availability": "locally_retrieved_sha256_recomputed; not a tracked delivery or source acceptance",
+            "path": "LOCAL/raw/e02-execution-20261027/cloud/C47/source.diff",
+            "sha256": "9ac01bd22590e062254eddfa5ec24573a424713798ca5e979d9c4474c5d525aa",
+            "bytes": 148937,
+            "reconstructed_tree": "c5b27a314a998c41d4ddacd3d4441c3e035757de",
+            "tree_status": "inferred from received diff; not an independently read cloud commit",
+            "manifest_sha256": "6f01701c1b7dddf31f304b1f7f617d4a4ac703c74f14a52c4e368562e6cc7674"
+          }
+        },
+        {
+          "slice": "C48",
+          "task_id": "task_e_6ae12bc63a2c832580340a5c90a256aa",
+          "status_at_observation": "ready",
+          "updated_at": "2026-10-27T23:00:54.743210077Z",
+          "launch_metadata_sha256": "07147205895a2a5d103ca7afa01e58fadf2c354bdb8b175ddcd9eb60cb0ca9e0",
+          "prompt_sha256": "251af6a0fe3608579354305b42b8ddf58cbae749f6db24b8b56a7ab1af3e74a2",
+          "requested_model": "gpt-6.1-sol",
+          "actual_model": "not_established",
+          "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+          "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+          "G_acceptance": false,
+          "closure_ids": [],
+          "received_diff": {
+            "availability": "locally_retrieved_sha256_recomputed; not a tracked delivery or source acceptance",
+            "path": "LOCAL/raw/e02-execution-20261027/cloud/C48/source.diff",
+            "sha256": "95f508bb369c164ddfccfeb05c2150ed311ca94a588a2fbb5267c43e7ad8d45f",
+            "bytes": 17981,
+            "reconstructed_tree": "73e517f2dff94c19c0d6fe517ccfb6d508819513",
+            "tree_status": "inferred from received diff; not an independently read cloud commit",
+            "manifest_sha256": "e35d1250eec75b7e46d87fd527471ffb52fa6908c529aea08f71824201633a47"
+          }
+        },
+        {
+          "slice": "C50",
+          "task_id": "task_e_6ae129d9f9a883258e9712ead5df2302",
+          "status_at_observation": "ready",
+          "updated_at": "2026-10-27T22:54:21.439982891Z",
+          "launch_metadata_sha256": "53452c6efe03207018f3f75e078262ea85e747dcc9ea9012587ad944108200bb",
+          "prompt_sha256": "fd094c8f2b835035b8bbfbc8eab1a23561b68a0f66ba3e5759790a4b23cf2a13",
+          "requested_model": "gpt-6.1-sol",
+          "actual_model": "not_established",
+          "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+          "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+          "G_acceptance": false,
+          "closure_ids": [],
+          "received_diff": {
+            "availability": "locally_retrieved_sha256_recomputed; not a tracked delivery or source acceptance",
+            "path": "LOCAL/raw/e02-execution-20261027/cloud/C50/source.diff",
+            "sha256": "36e3482a6812df611a93d618a9af3bbbdb60fda0b01f90ee601dfd389c3da945",
+            "bytes": 80003,
+            "reconstructed_tree": "0593071426d379ed50105c61dcac6f6a2d489e59",
+            "tree_status": "inferred from received diff; not an independently read cloud commit",
+            "manifest_sha256": "1a69836c1ebaa21b6c43fd2ddf8df207ac1bfc8e1dac97fd08157e1e93d9dc74"
+          }
+        },
+        {
+          "slice": "C51",
+          "task_id": "task_e_6ae129e685808325b55f802d4970266a",
+          "status_at_observation": "ready",
+          "updated_at": "2026-10-27T22:54:38.683562040Z",
+          "launch_metadata_sha256": "827d8d1c9fdef33b9f173bd7d945642b0b663c6e7f4fd93ce86fbaf2be8d0f98",
+          "prompt_sha256": "89f8c034e117d892301bc341ff8e27ce09c6f3686cffda3b8f138fe6efd1d5ac",
+          "requested_model": "gpt-6.1-sol",
+          "actual_model": "not_established",
+          "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+          "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+          "G_acceptance": false,
+          "closure_ids": [],
+          "received_diff": {
+            "availability": "locally_retrieved_sha256_recomputed; not a tracked delivery or source acceptance",
+            "path": "LOCAL/raw/e02-execution-20261027/cloud/C51/source.diff",
+            "sha256": "fd25c2fd96bd02d88fb08cdc7d17101756e3b6d47d51bd86e0d2c89268ec9822",
+            "bytes": 9782,
+            "reconstructed_tree": "8ffee2e7665f10502b0ffe1c0293a1ba52dbffc9",
+            "tree_status": "inferred from received diff; not an independently read cloud commit",
+            "manifest_sha256": "cc977a7d0fe73a21cb380cab3df5500d078ef06e19878a24d505fe09d145a96b"
+          }
+        },
+        {
+          "slice": "C52",
+          "task_id": "task_e_6ae12bcd22048325a97fc2c353ab90c4",
+          "status_at_observation": "ready",
+          "updated_at": "2026-10-27T22:59:11.239183902Z",
+          "launch_metadata_sha256": "008580e9f0c65e4d4bade66a8def69f85cac70e2ad3203dc9009339f5f07336d",
+          "prompt_sha256": "569f81780e9e0098deb5fc800d05da5e28c8fb62e664d2dcf2f27995bf6253d8",
+          "requested_model": "gpt-6.1-sol",
+          "actual_model": "not_established",
+          "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+          "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+          "G_acceptance": false,
+          "closure_ids": [],
+          "received_diff": {
+            "availability": "locally_retrieved_sha256_recomputed; not a tracked delivery or source acceptance",
+            "path": "LOCAL/raw/e02-execution-20261027/cloud/C52/source.diff",
+            "sha256": "a8145d34f6527eafca57bde0a14a3d6a673b3c8f33f52d8586a8718a047dcd53",
+            "bytes": 27595,
+            "reconstructed_tree": "93ac5821efeb5c5d797ed822b6322d73f44699c2",
+            "tree_status": "inferred from received diff; not an independently read cloud commit",
+            "manifest_sha256": "6c8324b6130d07d7a42f47fe4dbea357807d760a4b265c7c55ffae03c87c14d6"
+          }
+        },
+        {
+          "slice": "C53",
+          "task_id": "task_e_6ae12bd464888325884a7f946d1516aa",
+          "status_at_observation": "ready",
+          "updated_at": "2026-10-27T23:01:30.875757932Z",
+          "launch_metadata_sha256": "d2d02898b615ff3e6456e3b892f9b1d994d6b2e6190b994b991fe16b36271559",
+          "prompt_sha256": "e032077a61614e44b3783f2f739a2d9901f2a5703d97b218aac13b04d9f9dc8a",
+          "requested_model": "gpt-6.1-sol",
+          "actual_model": "not_established",
+          "expected_base": "c863b9eae6439138ce60515d6204c84e138a8c9b",
+          "expected_tree": "9c6993f799c4735f5c60e1c32c2c98e0306a1e14",
+          "G_acceptance": false,
+          "closure_ids": [],
+          "received_diff": {
+            "availability": "locally_retrieved_sha256_recomputed; not a tracked delivery or source acceptance",
+            "path": "LOCAL/raw/e02-execution-20261027/cloud/C53/source.diff",
+            "sha256": "d6ecf4cb40497b21ca656f33ef53fb909016e6f3f3a9031abc5765b0bdfe4d56",
+            "bytes": 27149,
+            "reconstructed_tree": "9d4ff6603457482d539e7c335a547a0e931e7410",
+            "tree_status": "inferred from received diff; not an independently read cloud commit",
+            "manifest_sha256": "3cb90a25c681003e3517786c1094c4d53d55378728e2b19b55e20225681f307e"
+          }
+        },
+        {
+          "slice": "C56",
+          "task_id": "task_e_6ae12b0a6988832594135e44dfd899ab",
+          "status_at_observation": "ready",
+          "updated_at": "2026-10-27T22:56:17.265813112Z",
+          "launch_metadata_sha256": "5a7459d6e4606d20365ed320974d6c4ccfd41840194ad7059737e6b506faa64f",
+          "prompt_sha256": "cbb5e2120a298c434708fd8fb8372005eecddb6fb5c8ded34f530518403e0227",
+          "requested_model": "gpt-6.1-sol",
+          "actual_model": "not_established",
+          "expected_base": "4b10f758dde8417be2638584ac810fc67ca36a24",
+          "expected_tree": "42b9b594a235b3bc255df264c22241eb360114ea",
+          "G_acceptance": false,
+          "closure_ids": [],
+          "received_diff": {
+            "availability": "locally_retrieved_sha256_recomputed; not a tracked delivery or source acceptance",
+            "path": "LOCAL/raw/e02-execution-20261027/cloud/C56/source.diff",
+            "sha256": "ca3e7afdbc49e66ff1c8feaff7936d51208dfd5b13e34730e508961861195b1d",
+            "bytes": 41182,
+            "reconstructed_tree": "7020abdfcc1bc2f8714a55f148bb0cae0c4c6a67",
+            "tree_status": "inferred from received diff; not an independently read cloud commit",
+            "manifest_sha256": "e62c565fbf90189cc9b9a6110df929229c7ca0477372a68f1a5eeab914c0a779"
+          }
+        },
+        {
+          "slice": "C57",
+          "task_id": "task_e_6ae12bb9f8608325ba48d57e4302fde4",
+          "status_at_observation": "ready",
+          "updated_at": "2026-10-27T23:04:37.880415916Z",
+          "launch_metadata_sha256": "2ad9890d7f9fb6bde53b2c3618ed3f56a93d97e86004fd505982ac042b926e28",
+          "prompt_sha256": "a1bb73a40c4fe7e697380595f6bc0ab7360a4a260c0ed5d042ae7117dabefc6e",
+          "requested_model": "gpt-6.1-sol",
+          "actual_model": "not_established",
+          "expected_base": "4b10f758dde8417be2638584ac810fc67ca36a24",
+          "expected_tree": "42b9b594a235b3bc255df264c22241eb360114ea",
+          "G_acceptance": false,
+          "closure_ids": [],
+          "received_diff": {
+            "availability": "locally_retrieved_sha256_recomputed; not a tracked delivery or source acceptance",
+            "path": "LOCAL/raw/e02-execution-20261027/cloud/C57/source.diff",
+            "sha256": "a8fb386b4db197da7b45ecea8898e6ef85141d26fef3c8c9fa4a6b05c96eb3b2",
+            "bytes": 78364,
+            "reconstructed_tree": "bb5ce9f5e5cd984a2f3be6bbfc0f41804688fba5",
+            "tree_status": "inferred from received diff; not an independently read cloud commit",
+            "manifest_sha256": "bae273e43483bc12ecadc4085cb80a10dc28c3b404def3c00e2206529691c1cf"
+          }
+        },
+        {
+          "slice": "C58",
+          "task_id": "task_e_6ae12cc328ec8325a01f1adfdb5ef404",
+          "status_at_observation": "ready",
+          "updated_at": "2026-10-27T23:05:04.589494943Z",
+          "launch_metadata_sha256": "186a72c3a7f79bd59da1cfe846cc5e7ac44f15a2713de482c92fadd4f5ba2dc1",
+          "prompt_sha256": "0d0e358853eccfce6798f7705b20edffb4e81c7e4fb771f08003ddc3dcc00cff",
+          "requested_model": "gpt-6.1-sol",
+          "actual_model": "not_established",
+          "expected_base": "4b10f758dde8417be2638584ac810fc67ca36a24",
+          "expected_tree": "42b9b594a235b3bc255df264c22241eb360114ea",
+          "G_acceptance": false,
+          "closure_ids": [],
+          "received_diff": {
+            "availability": "locally_retrieved_sha256_recomputed; not a tracked delivery or source acceptance",
+            "path": "LOCAL/raw/e02-execution-20261027/cloud/C58/source.diff",
+            "sha256": "77c1cfe1834696277ce5973ef4a4154990ee662efd07698d38b8d8b0c448485c",
+            "bytes": 54842,
+            "reconstructed_tree": "07c1daf4f2e55402a85d5a766becf6e5b48d3638",
+            "tree_status": "inferred from received diff; not an independently read cloud commit",
+            "manifest_sha256": "05b9eae639f0c9e0831331ff6e111976347d0b67ab4694ca5ef5c77420426663"
+          }
+        },
+        {
+          "slice": "C59",
+          "task_id": "task_e_6ae12bbf69fc8325a4189489114da6f0",
+          "status_at_observation": "ready",
+          "updated_at": "2026-10-27T22:58:21.253304958Z",
+          "launch_metadata_sha256": "9964e93cd84f2820aec8509e0cec0c12c24a9e4e37f8ad071e12744ecf6487df",
+          "prompt_sha256": "31d803557b550ab1c7824930de2dd6ac402616bc66872163c8d60f266105c779",
+          "requested_model": "gpt-6.1-sol",
+          "actual_model": "not_established",
+          "expected_base": "4b10f758dde8417be2638584ac810fc67ca36a24",
+          "expected_tree": "42b9b594a235b3bc255df264c22241eb360114ea",
+          "G_acceptance": false,
+          "closure_ids": [],
+          "received_diff": {
+            "availability": "locally_retrieved_sha256_recomputed; not a tracked delivery or source acceptance",
+            "path": "LOCAL/raw/e02-execution-20261027/cloud/C59/source.diff",
+            "sha256": "afc600c20f7f161468bc294fe4f104806222f3cfe9a689f366793a2283ea36ce",
+            "bytes": 38280,
+            "reconstructed_tree": "fa31485df9174ce675a066111a826ce896bb342e",
+            "tree_status": "inferred from received diff; not an independently read cloud commit",
+            "manifest_sha256": "d9423e5d03362daaec64847e2d7d4bc3e748efb7f9fcf37a89393956d1e458ed"
+          }
+        },
+        {
+          "slice": "C60",
+          "task_id": "task_e_6ae1314ed8b8832586dc4f51590ebd39",
+          "status_at_observation": "pending",
+          "updated_at": "2026-10-27T23:18:42.119008064Z",
+          "launch_metadata_sha256": "f6db1c64aaa47892a684df4f847ab3461be6afc782fd02a97fa40ea846d28edd",
+          "prompt_sha256": "1b5d3d689b98bba65814fe6f924e8c380372dbf35f08f71f13ed5c14a03dfd5d",
+          "requested_model": "gpt-6.1-sol",
+          "actual_model": "not_established",
+          "expected_base": "4b10f758dde8417be2638584ac810fc67ca36a24",
+          "expected_tree": "42b9b594a235b3bc255df264c22241eb360114ea",
+          "G_acceptance": false,
+          "closure_ids": [],
+          "received_diff": {
+            "availability": "not_established",
+            "reason": "no local retrieval and candidate-manifest pair in observed snapshot"
+          }
+        }
+      ]
+    },
+    "native_outcome_scope": "new selected results only; original R3 latest fourteen-failure historical cohort remains separate, and C18 tracked evidence is not duplicated",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_review_observations": [
+      {
+        "slice": "C44",
+        "review_path": "LOCAL/raw/e02-execution-20261027/reviews/C44-code.md",
+        "review_sha256": "b24445014c71270cbeb13607195879b6487e211a4d8f4b98d1df42894ed887aa",
+        "scope": "review of pinned received bytes, not an adjudication of later repairs",
+        "verdict": "fixture-only bounded GO; B69 compatibility HOLD",
+        "G_acceptance": false
+      },
+      {
+        "slice": "C45",
+        "review_path": "LOCAL/raw/e02-execution-20261027/reviews/C45-code.md",
+        "review_sha256": "b60a86318e7a657c6bc57a58ec136a008c24ef0b24bc8a50a7137d484f1467a9",
+        "scope": "review of pinned received bytes, not an adjudication of later repairs",
+        "verdict": "SOURCE HOLD; adaptive finite-value regression and consumer evidence absent",
+        "G_acceptance": false
+      },
+      {
+        "slice": "C46",
+        "review_path": "LOCAL/raw/e02-execution-20261027/reviews/C46-code.md",
+        "review_sha256": "0ac46a539336b4eee747a7262bae732ae2cdc496a784b673332f0955cd0845f6",
+        "scope": "review of pinned received bytes, not an adjudication of later repairs",
+        "verdict": "SOURCE HOLD on reviewed received diff; duplicate-index regression and missing consumer",
+        "G_acceptance": false
+      },
+      {
+        "slice": "C47",
+        "review_path": "LOCAL/raw/e02-execution-20261027/reviews/C47-code.md",
+        "review_sha256": "796553d6939c10fce6c7ea2001d8363fc689d2ab49da3a74ced5c5f49db22c7b",
+        "scope": "review of pinned received bytes, not an adjudication of later repairs",
+        "verdict": "HOLD; source/verification/installed and compatibility questions unresolved",
+        "G_acceptance": false
+      },
+      {
+        "slice": "C51",
+        "review_path": "LOCAL/raw/e02-execution-20261027/reviews/C51-code.md",
+        "review_sha256": "de04bf1322821f6e5c83dde4ecf7ee6bf2ca1fc758314a2a8c8c9b99f3597f60",
+        "scope": "review of pinned received bytes, not an adjudication of later repairs",
+        "verdict": "delivery/criterion HOLD; two test proposals only, no author receipt or output",
+        "G_acceptance": false
+      },
+      {
+        "slice": "C59",
+        "review_path": "LOCAL/raw/e02-execution-20261027/reviews/C59.md",
+        "review_sha256": "96c1ac7778bf924513904c48320510ed6456e7e327c13444ce9b7f0919cda3f4",
+        "scope": "review of pinned received bytes, not an adjudication of later repairs",
+        "verdict": "SOURCE HOLD for physical admission and CAN completion",
+        "G_acceptance": false
+      }
+    ],
+    "next_actions": [
+      "Diagnose and repair the two exact C05/C06 narrow failures; rerun only affected properties with source/input qualification.",
+      "Diagnose C25 reason mismatch; preserve finite authority block and run paired removals only after valid source and controls are admitted.",
+      "Run C19 actual producer/fresh consumer and owner/reader removal controls plus generated/public companions after qualified composition.",
+      "Review received cloud bytes under their exact identities; ready/received is not a source GO or G acceptance."
+    ]
+  }
 }

@@ -1,0 +1,105 @@
+{
+  "plan": {
+    "case_id": "c25-finite-source-pilot-native-r1-20261028",
+    "source_head": "d7790ad008219da6c74e7c78b7eee7caca212e02",
+    "task_ids": [
+      "DDM-02",
+      "LA-054",
+      "LA-055"
+    ],
+    "nodes": [
+      "tests/unit/ddm/test_observation_source_admission.py::test_enumerated_empty_replay_is_valid_but_cannot_grant_production",
+      "tests/unit/ddm/test_observation_source_admission.py::test_omitted_trigger_is_read_from_source_and_stale_evidence_is_refused"
+    ],
+    "extra_env": {},
+    "deadline_seconds": 300,
+    "rss_cap_bytes": 2411724800,
+    "scope": "C25 pilot: finite-source protocol and truthful authority limitation only; production observation owner/selection/coverage/currentness remain not_established; no G acceptance, deployment action or full LA054/055 closure. Native pytest.ini/default plugins retained; matched controls must fail at the named property assertion, not setup.",
+    "reviewed_source_pins": {
+      "policy-engine/src/polisyos/ddm/calibration/audit.py": "b954fecb026acfac711d01c414492e0b46b0a18f03aa9815cd886076f5e6fbbe",
+      "policy-engine/src/polisyos/ddm/calibration/observations.py": "69e0e169db3d3fe08a39b8ff26ddabb646fa7fea99d97303bfec5efa9a07cb22",
+      "policy-engine/src/polisyos/ddm/integration/model_registry.py": "b6356224aa4a9c1a7cbefaa8cd3a50266dd716c0f96e2e9a7d9cc5c5d4553619",
+      "policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json": "9272ffe2443dcb7eb9a0e7376436a622c787d82ae80fb8a5ce38be34a7024ad3",
+      "policy-engine/src/polisyos/ddm/integration/monitor.py": "c3c1a1eebbeccf88f59fb3a365390333a05e9d91beebe22109fa19d79f7b012c",
+      "policy-engine/tests/unit/ddm/test_full_acceptance.py": "3925e7b8d3413e8df0d3b9e1a211251cd73dc90c8f1a6e772023fe4a6eeb3a41",
+      "policy-engine/tests/unit/ddm/test_observation_source_admission.py": "e6193fd627ae1ad8c7d4b3f89157c4078163185ca01ac3d9f2cf292653be543e",
+      "policy-engine/tests/unit/ddm/test_stationary_replay.py": "9f58711f6842d115e343506941b089f8b9a62a555d860c3901a7b84be084dead"
+    },
+    "criterion_pointers": [
+      "#/findings/278/criterion_refs/0",
+      "#/findings/279/criterion_refs/0"
+    ],
+    "closure_ids": []
+  },
+  "source_profile_freeze_sha256": "ee609d1e9bcd6388c228fad4750d6abf2d6d301ca012793579611c5ab337ecd5",
+  "result": {
+    "id": "c25-finite-source-pilot-native-r1-20261028",
+    "argv": [
+      "/usr/bin/sandbox-exec",
+      "-f",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c25-finite-source-pilot-native-r1-20261028/child.sb",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c25-finite-source-pilot-native-r1-20261028/pytest_launcher.py",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c25-finite-source-pilot-native-r1-20261028/pytest-cache",
+      "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c25-finite-source-pilot-native-r1-20261028/benchmarks",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c25-finite-source-pilot-native-r1-20261028/basetemp",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c25-finite-source-pilot-native-r1-20261028/pytest.xml",
+      "--tb=short",
+      "--color=no",
+      "--maxfail=0",
+      "tests/unit/ddm/test_observation_source_admission.py::test_enumerated_empty_replay_is_valid_but_cannot_grant_production",
+      "tests/unit/ddm/test_observation_source_admission.py::test_omitted_trigger_is_read_from_source_and_stale_evidence_is_refused"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "started_at": "2026-10-27T23:00:36.040316+00:00",
+    "wall_total_before_seconds": 2.1000014385208488e-05,
+    "disk_free_before_bytes": 21475102720,
+    "stdout_path": "c25-finite-source-pilot-native-r1-20261028.stdout.txt",
+    "stderr_path": "c25-finite-source-pilot-native-r1-20261028.stderr.txt",
+    "return_code": 0,
+    "aborted_reason": null,
+    "complete": true,
+    "pid": 31632,
+    "process_group_gone": true,
+    "termination_signal": null,
+    "max_sampled_process_tree_rss_bytes": 134414336,
+    "minimum_sampled_disk_free_bytes": 21474942976,
+    "sample_count": 4,
+    "wall_seconds": 4.1910612499923445,
+    "finished_at": "2026-10-27T23:00:40.231421+00:00",
+    "status": "passed",
+    "junit": {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "skips": []
+  },
+  "readsets": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c25-finite-source-pilot-native-r1-20261028/readsets/input-readset-31632.json",
+      "sha256": "198943e8e1518d2192daf599152d6ff091849290072f7e6a48efaee2f5a99727",
+      "python_paths": 94,
+      "pytest_exitstatus": 0
+    }
+  ],
+  "unique_runtime_loaded_python_paths": 94,
+  "current_mismatches": [],
+  "guard_after": {
+    "head": "d7790ad008219da6c74e7c78b7eee7caca212e02",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c25-finite-observation-source-composition-20261028-r1/full-composed-source-frame.json",
+      "sha256": "2f4f93449b69db32f401864fef3b0204f07fa5d94e417665e98a0a807e051332"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    }
+  },
+  "scope": "Fresh canonical-source audit run. Readset is the observer's finite imported src/tests/tools set, not a whole-repository or all-backend proof.",
+  "closure_ids": []
+}

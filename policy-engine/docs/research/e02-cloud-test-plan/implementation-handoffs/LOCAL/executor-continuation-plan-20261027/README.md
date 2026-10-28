@@ -2,6 +2,16 @@
 
 This is the new local coordinator's **planning record**, linked to the [executor handover](../executor-handover-20261027/START-HERE.md). After G reviewed checkpoint dad68b70, the user authorized execution with the compact evidence delivery correction. Current execution, source/resource admission and task status are in [EXECUTION.md](EXECUTION.md) and [execution-state.json](execution-state.json); historical planning-only restrictions do not limit that continuation. E02 remains unfinished; independent review, G source acceptance, integration and finding closure are separate acts. R9/GY/Atlas implementation remains blocked on E02 acceptance.
 
+## Current stage in the original plan — R14 R2
+
+**Wave 2 — owner composition and uncovered original criteria — is the main current work.** Wave 0 is done. The Wave 1 front has executed, with properties still open. Wave 3 is targeted preparation only; the full source freeze and one expensive proof wave have not happened. Wave 4 final G reconciliation/review has not started. No completion percentage is inferred.
+
+The original **26 task/decision rows** and their row-by-row routes remain in the canonical [QUEUE.json](QUEUE.json), under [PLAN.md](PLAN.md) and [LAUNCH.md](LAUNCH.md). This stage summary does not replace or aggregate those rows. Operational `Cnnn` identifiers below are evidence locators for the existing rows, not substitute task labels.
+
+R13 was applied and read back in `ee00568f6067b7cad6efeca700181be09100e33c` (branch receipt `LOCAL/raw/e02-execution-20261027/root-progress-r13-r3/commit/branch-readback.json`, SHA-256 `92ae9497e12052e050f42e7a54ac03287424f37674b24a9310250a766eb94440`). The later R14 R1 evidence snapshot is preserved as a separate RAW proposal. The branch source read back for this snapshot is `f728cfe467a32eb2a9023fbe157d5d06c4928369` / tree `08371dae76c6ae9bc92c6213b735319d7e68b0e2`; it is not a newer remote-published checkpoint. The last confirmed publication readback remains R10 `870855f3ca83fcb32d4bb91d00d34daab3151032` / tree `18a3178510405de4fcd8e6ce7dbc8b3d77932633`.
+
+The planning-era LAUNCH paragraph saying no prompt had launched and the R13 R3 note saying canonical application was pending are historical snapshots, retained below without rewriting. R13 application is confirmed by the readback above. See [current execution state](execution-state.json) and [R14 R2 progress](evidence/local-execution-r14/README.md) for bounded post-R1 changes.
+
 ## Source and authority
 
 The admitted checkout is `/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos`, attached to `codex/e02-unified-local-20261009`. Planning source is commit `ad81c5b826bdfdda6aa2295b8641e9ae2a68b21a`, tree `df24ff6ff12e7039c0cbfbd47abc8bee82f5332e`, parent `8698293225576fc7a1ad8f6d2c1ca8834f04140c`. The author remote and GitHub commit/tree were independently read back at admission. The later documentation checkpoint is a descendant, not a demand to return to this source.
@@ -16,6 +26,8 @@ The canonical queue remains [unified-local TASKS.json](../../../execution-prompt
 2. [QUEUE.json](QUEUE.json): one continuation record for each original row, with source/criterion pointers, current boundaries, next steps and exit signals.
 3. [analysis/criteria.md](analysis/criteria.md) and [analysis/criterion-routes.json](analysis/criterion-routes.json): complete occurrence routing, duplicate preservation and source-research pointers. G's Q0 oversight links are separate from original task edges.
 4. [LAUNCH.md](LAUNCH.md): standalone first-wave prompt register, cloud/local inputs, write leases and launch procedure. Prompts are supplied in full under [prompts/](prompts/); none has been launched.
+
+   Historical planning-time wording: the “none has been launched” clause predates the authorized execution front. The present stage is recorded above; use LAUNCH and QUEUE for the detailed current rows.
 5. [COMPOSITION.md](COMPOSITION.md): author result → independent review → local authentic proof → frozen composition → G handoff.
 6. [analysis/environment-materials.md](analysis/environment-materials.md): measured tools/resources, preserved materials, integrity boundaries and missing inputs.
 7. [REVIEW.md](REVIEW.md) and [verification.json](verification.json): independent critique, corrections, self-review and lightweight planning verification.
@@ -36,3 +48,11 @@ R13-R2 append-only evidence-completeness addendum: [R13 evidence index](evidence
 
 
 Latest execution checkpoint proposal: [R13-R3 progress and evidence index](evidence/local-execution-r13/README.md). R3 corrects the time-bounded C93 status and evidence root; canonical application remains pending.
+
+R14 R2 correction: that last sentence records the proposal-time state. R13/R3 was subsequently applied and read back at `ee00568f6067b7cad6efeca700181be09100e33c`, as cited above.
+
+
+Latest execution checkpoint proposal: [R14 state and evidence](evidence/local-execution-r14/README.md). This append-only R14 snapshot preserves the R13 queue bindings and separates local outcomes, source reviews, cloud returns, and setup errors.
+
+
+Latest execution checkpoint proposal: [R14 R3 evidence correction](evidence/local-execution-r14/README.md). It adds the 12 deciding child captures omitted from the audited 63-file R14 inventory; the R14 source snapshot remains historical and no runtime result changes.

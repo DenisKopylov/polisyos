@@ -1,0 +1,423 @@
+{
+  "schema": "policyos.e02.execution_state.r14.v1",
+  "prepared_at": "2026-10-28",
+  "source_as_of": {
+    "path": "LOCAL/raw/e02-execution-20261027/root-fed-operational-r5/commit/branch-readback.json",
+    "sha256": "c73600696556959ba3cf1a10263eebbf8077f599cce07fb48370edd0cda5dbb2",
+    "commit": "fdb0be8513cc14af05733c8f7925b007c2cabe24",
+    "tree": "58ebf8f9012046d85f2d26a6500d26c788002cb6",
+    "paths": 14,
+    "parent": "870855f3ca83fcb32d4bb91d00d34daab3151032"
+  },
+  "R13_base": {
+    "path": "LOCAL/raw/e02-execution-20261027/root-progress-r13-r3/commit/branch-readback.json",
+    "sha256": "92ae9497e12052e050f42e7a54ac03287424f37674b24a9310250a766eb94440",
+    "commit": "ee00568f6067b7cad6efeca700181be09100e33c",
+    "tree": "dbae5a74f79b82fba0b8d5c1be8d3d76dfb442be"
+  },
+  "R10_published": {
+    "path": "LOCAL/raw/e02-execution-20261027/publication-composed-progress-r10/remote-readback.json",
+    "sha256": "d4b06bca364836a76199dc063b7d47a8bf761f9d9d2fbc2f32193c4de6a30ef5",
+    "commit": "870855f3ca83fcb32d4bb91d00d34daab3151032",
+    "tree": "18a3178510405de4fcd8e6ce7dbc8b3d77932633",
+    "changed_paths": 163
+  },
+  "C60_adoption_readback": {
+    "path": "LOCAL/raw/e02-execution-20261027/root-c60-five-generated-adoption-r1/commit/branch-readback.json",
+    "sha256": "7d059818575460698b7a4a4fd55ec588264756fccc7e15f456b8368074da8720",
+    "commit": "8dabc5eeb6ca0889a0cede94e2071b6040eb3a20",
+    "tree": "e3172767727b7de5474adb308be83e9170cc2582",
+    "paths": 3
+  },
+  "queue_denominator": {
+    "rows": 26,
+    "bundles": 127,
+    "unique_finding_ids": 282,
+    "criterion_occurrences": 291,
+    "task_finding_edges": 319,
+    "expanded_occurrence_row_relations": 331,
+    "historical_B198_retained": true,
+    "derived_from": "R13 canonical bindings unchanged; validate_pack.py remains recomputation command",
+    "G_acceptance_new": false,
+    "formal_closure_new": false
+  },
+  "local_actual_cases": [
+    {
+      "id": "c60-provider-closure-defining-r5-20261028",
+      "result": "1 PASS bounded defining property; five staged canonical outputs admitted, three changed and two no-op; 102.105-second run",
+      "source_commit": "5e75fa8a543a08acddec6664066daeaaaf32969e",
+      "review": "LOCAL/raw/e02-execution-20261027/reviews/C60-provider-closure-defining-r5-actual.md",
+      "review_sha256": "354500e6decd9184d313d3c15aeb3bfa84ca250342f5ac8a775bf65f988ed74b",
+      "wall_seconds": 102.105219542
+    },
+    {
+      "id": "c60-five-canonical-cli-local-r4",
+      "result": "PASS five declared outputs; five CURRENT; complete freshness Measurement",
+      "source_commit": "8dabc5eeb6ca0889a0cede94e2071b6040eb3a20",
+      "review": "LOCAL/raw/e02-execution-20261027/reviews/C60-five-canonical-cli-local-r4-actual.md",
+      "review_sha256": "1ecf9d52c76a7b41845d1dfaf6d30c1868cc14607976523b9a79c659fe7f7604"
+    },
+    {
+      "id": "c60-five-types-local-r4",
+      "result": {
+        "commands": 15,
+        "pass": 9,
+        "strict_source_fail": 4,
+        "ray_setup_error": 1,
+        "clean_negative_fail": 1,
+        "positive_client_passes": 1,
+        "abi_file_passes": 8
+      },
+      "source_commit": "8dabc5eeb6ca0889a0cede94e2071b6040eb3a20",
+      "review": "LOCAL/raw/e02-execution-20261027/reviews/C60-five-types-local-r4-actual.md",
+      "review_sha256": "a1e487f3dfc46e8ed110c03a913c91941b920aaa44ee5f4a41017c5927d78c3f"
+    },
+    {
+      "id": "c60-typing-fusion-compatible-r1-20261028",
+      "result": {
+        "pass": 2,
+        "fail": 2,
+        "error": 0,
+        "skip": 0,
+        "passing_slices": [
+          "strict-owner clients",
+          "normal fusion"
+        ],
+        "failing_slices": [
+          "both fallback cases: default handoff re-resolves through a different real registry; bounded registry-scope execution defect, not fixture-only"
+        ]
+      },
+      "source_commit": "870855f3ca83fcb32d4bb91d00d34daab3151032",
+      "review": "LOCAL/raw/e02-execution-20261027/reviews/C60-typing-fusion-compatible-r1-actual.md",
+      "review_sha256": "d43eeb704f1d9e4e14267dc5fc65c729a82a83ccec01e5ccf671ac5220b0fac4"
+    },
+    {
+      "id": "c95-canonical-nine-controls-r1-20261028",
+      "result": {
+        "pass": 8,
+        "fail": 1,
+        "error": 0,
+        "skip": 0,
+        "observed_project_python_paths": 287,
+        "per_phase_traces_for_passing_cases": "unavailable"
+      },
+      "source_commit": "870855f3ca83fcb32d4bb91d00d34daab3151032",
+      "review": "LOCAL/raw/e02-execution-20261027/reviews/C95-canonical-nine-controls-r1-independent.md",
+      "review_sha256": "0ef8416f73834f67a245fb594656243df33a7ac1be52ab198027dd9a2977ac92"
+    }
+  ],
+  "source_and_cloud_reviews": [
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C60-provider-closure-defining-r5-actual.md",
+      "sha256": "354500e6decd9184d313d3c15aeb3bfa84ca250342f5ac8a775bf65f988ed74b",
+      "bytes": 7340
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C60-five-canonical-cli-local-r4-actual.md",
+      "sha256": "1ecf9d52c76a7b41845d1dfaf6d30c1868cc14607976523b9a79c659fe7f7604",
+      "bytes": 5118
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C60-five-types-local-r4-actual.md",
+      "sha256": "a1e487f3dfc46e8ed110c03a913c91941b920aaa44ee5f4a41017c5927d78c3f",
+      "bytes": 7064
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C60-typing-fusion-compatible-r1-actual.md",
+      "sha256": "d43eeb704f1d9e4e14267dc5fc65c729a82a83ccec01e5ccf671ac5220b0fac4",
+      "bytes": 6485
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C95-canonical-nine-controls-r1-independent.md",
+      "sha256": "0ef8416f73834f67a245fb594656243df33a7ac1be52ab198027dd9a2977ac92",
+      "bytes": 6799
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C95-code-identity-r3-independent.md",
+      "sha256": "455e84ce155f76d9c9dec852f4ee9493842f067db2d5c6ff9859c70974fed0ae",
+      "bytes": 7019
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C60-executable-identity-r3-independent.md",
+      "sha256": "81efe803c7f9e0546f92c15800e9cd0721fb9de883ca89c444509d51735b5833",
+      "bytes": 6727
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C105-structural-owner-r2-independent.md",
+      "sha256": "d51322aa4ce9870b03920ddb6d4493ffd529d47481cbe0cff95994f4332346be",
+      "bytes": 3694
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C100-runtime-aa-r2-dependency-graph-delta.md",
+      "sha256": "df4d8ea3ba943524aea269079735c84ee509d4d82704a6a6466029060d5a4e0a",
+      "bytes": 5882
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C100-actual-qualification-r1.md",
+      "sha256": "bce15cf5fc9920ea45f13aa1cace80a711d03e3a0cd6bf90a630757b95b25f57",
+      "bytes": 14150
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C103-r3-independent.md",
+      "sha256": "46b9db363f850ad72d98d01b99917d30acfb12ffac82559d8eee382c2fd8da97",
+      "bytes": 2727
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C104-r3-actual-independent.md",
+      "sha256": "bf13c905d78b1e5db58ff5d82028b08d7a4776e7968621bdbb5bd60c6cea57f4",
+      "bytes": 4261
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C107-return-independent.md",
+      "sha256": "3821fc907cb80ecdeeccd6e40e816458a65a789b0b525a905266b8c89ca208d8",
+      "bytes": 8776
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C101-return-independent-r1.md",
+      "sha256": "9839a359062f4365f298ad66cfedd54eb0eca965e86f0c339f7b16f021ebb9dc",
+      "bytes": 5953
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/FED-operational-bridge-r5-style-native-witness-r2-independent-review.md",
+      "sha256": "7326375d6124336fddd4fe66e00b0f4450f6a791f8fba54b3298f735053e215e",
+      "bytes": 3515
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C94-selected-posterior-consumer-r4-delta-independent.md",
+      "sha256": "f6511265ecb11fb2fb4a499dada251804ed35fcb639caa7e6775d6f14ff6a9ae",
+      "bytes": 5793
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C90-r2-commission-independent.md",
+      "sha256": "606d03af31da794b61ac31fe062754d43ba5614bd57abb52e372d8782637c6f5",
+      "bytes": 4265
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/reviews/C78-chain-r5-independent.md",
+      "sha256": "c7640ce0c4bcccfbfa2529f74bbb097f25375899e3297cf3e2b717de4800b4ab",
+      "bytes": 13252
+    }
+  ],
+  "pending_or_holds": {
+    "C60_executable_identity_R3": "SOURCE GO; 10 controls UNRUN",
+    "C95_shared_code_identity_R3": "SOURCE GO; 5 new tests and 9 replays UNRUN; unapplied",
+    "C105_structural_R2": "SOURCE GO; 17 definitions and 8 controls UNRUN; unapplied",
+    "C94_R4": "SOURCE GO; unapplied",
+    "C90_R2": "HOLD; decision research pending; no G decision",
+    "C78": "R6 in progress; R5 HOLD",
+    "C100": "R2 source GO but unapplied; diagnostics/AA/AB/planner/revocation/fresh GET UNRUN; earlier fixture/output subset adopted at R10",
+    "C103": {
+      "prior_task_followup": "unavailable",
+      "rerun_task_id": "task_e_6ae1d51135688325b8332c740166df05",
+      "launch_path": "LOCAL/raw/e02-execution-20261027/cloud/C109-launch.json",
+      "launch_sha256": "3d5bddd1649949aca388df8f2b336808459e7b1d29dc7e88a1578db65c37d8bc",
+      "actual_diff_returned_bytes": 360065,
+      "actual_diff_sha256": "4177fc26f61f3bdc9391ae4a9f0e7536fbea5801b3d22493b4eb67bc93588578",
+      "retrieval_record": "LOCAL/raw/e02-execution-20261027/cloud/C109/retrieval.json",
+      "retrieval_record_sha256": "769f0006848df7f59deb4da0e795ab27ad1f4dcaea3527988b9b1915b14f93eb",
+      "independent_actual_return_review": "pending",
+      "actual_model": "not_established"
+    },
+    "C104": "setup ERROR; no tests/pins",
+    "C107": {
+      "return_paths": 16,
+      "actual_payload_bytes": 34055,
+      "source_native_tests": {
+        "pass": 32,
+        "fail": 0,
+        "error": 0,
+        "skip": 0
+      },
+      "source_asset_records": 12,
+      "build": "setup ERROR: supported fetch route proxy 403 before backend installation",
+      "installed_consumers": "UNRUN",
+      "controls": {
+        "M1": "UNRUN",
+        "M2": "UNRUN",
+        "M3": "UNRUN"
+      },
+      "source_origin_qualification": "not established",
+      "product_defect": "NOT_ESTABLISHED",
+      "review": "LOCAL/raw/e02-execution-20261027/reviews/C107-return-independent.md",
+      "review_sha256": "3821fc907cb80ecdeeccd6e40e816458a65a789b0b525a905266b8c89ca208d8"
+    },
+    "C101": "HOLD; observer measurement does not prove commissioned runtime"
+  },
+  "limits": {
+    "public_flags": "no public-surface or generated-artifact flag promoted; release gates are not all PASS",
+    "G_acceptance": false,
+    "formal_closure": false,
+    "R9_GY_Atlas": "unstarted / not accepted",
+    "source_publication": "fdb current branch readback is not R10 remote publication"
+  },
+  "evidence_allowlist": {
+    "path": "LOCAL/raw/e02-execution-20261027/docs-progress-r14/evidence-allowlist.json",
+    "new_case_count": 5,
+    "payload_file_count": 63,
+    "source_bytes": 595792,
+    "compressed_bytes": 189357,
+    "R13_duplicate_sources": 0,
+    "excluded": [
+      "CAS/DB",
+      "cache/basetemp",
+      "source frames",
+      "full source profiles/readsets",
+      "process-tree/event logs",
+      "R13 payload duplication"
+    ]
+  },
+  "r14_r2_addendum":   {
+    "prepared_at": "2026-10-28",
+    "stage_in_original_plan": {
+      "current_main": "Wave 2 \u2014 owner composition and uncovered original criteria",
+      "wave_0": "done",
+      "wave_1": "front executed; open properties remain",
+      "wave_3": "targeted preparation only; no full freeze or expensive proof wave",
+      "wave_4": "final G reconciliation/review not started",
+      "completion_percentage": "not stated"
+    },
+    "canonical_original_route": {
+      "queue_path": "QUEUE.json",
+      "original_rows": 26,
+      "status_source": "row-by-row status remains in the canonical queue and original criterion bindings",
+      "plan_path": "PLAN.md",
+      "launch_path": "LAUNCH.md",
+      "operational_Cnnn_ids": "secondary evidence locators only; not replacement tasks or a competing backlog"
+    },
+    "R14_R1_preserved": {
+      "manifest": "LOCAL/raw/e02-execution-20261027/docs-progress-r14/manifest.json",
+      "manifest_sha256": "6f97756ce6fe065f56e82fcf849712a637b11f0e0c01c5a0d87c76bdea23eac7",
+      "evidence_allowlist": "LOCAL/raw/e02-execution-20261027/docs-progress-r14/evidence-allowlist.json",
+      "evidence_allowlist_sha256": "836f556be4ddee4cc68b406798692b00d55f8fd3e88fcb4fe97f08a0788f976d",
+      "payload_count": 63,
+      "new_R2_payload_copies": 0
+    },
+    "source_snapshots": {
+      "R14_R1_as_of": {
+        "commit": "fdb0be8513cc14af05733c8f7925b007c2cabe24",
+        "tree": "58ebf8f9012046d85f2d26c788002cb6"
+      },
+      "R14_R2_current_local_branch": {
+        "path": "LOCAL/raw/e02-execution-20261027/root-c95-code-identity-r3/commit/branch-readback.json",
+        "sha256": "285657c08e8d564f3bfd0d1bcad032defbd0883adfd7b483641587ee136f020c",
+        "commit": "f728cfe467a32eb2a9023fbe157d5d06c4928369",
+        "tree": "08371dae76c6ae9bc92c6213b735319d7e68b0e2",
+        "paths": 16
+      },
+      "last_confirmed_remote_publication": {
+        "path": "LOCAL/raw/e02-execution-20261027/publication-composed-progress-r10/remote-readback.json",
+        "sha256": "d4b06bca364836a76199dc063b7d47a8bf761f9d9d2fbc2f32193c4de6a30ef5",
+        "commit": "870855f3ca83fcb32d4bb91d00d34daab3151032",
+        "tree": "18a3178510405de4fcd8e6ce7dbc8b3d77932633",
+        "changed_paths": 163
+      },
+      "R13_applied": {
+        "path": "LOCAL/raw/e02-execution-20261027/root-progress-r13-r3/commit/branch-readback.json",
+        "sha256": "92ae9497e12052e050f42e7a54ac03287424f37674b24a9310250a766eb94440",
+        "commit": "ee00568f6067b7cad6efeca700181be09100e33c",
+        "tree": "dbae5a74f79b82fba0b8d5c1be8d3d76dfb442be"
+      }
+    },
+    "post_R1_evidence_updates": [
+      {
+        "owner": "C95 R3",
+        "status": "source applied; 16 paths read back; scoped physical Ruff check/format exits 0; 5 unit tests and 9 replay cases UNRUN",
+        "source_review_sha256": "455e84ce155f76d9c9dec852f4ee9493842f067db2d5c6ff9859c70974fed0ae",
+        "readback_sha256": "285657c08e8d564f3bfd0d1bcad032defbd0883adfd7b483641587ee136f020c",
+        "static_results_sha256": "71e6783d379b26e0877e1d26bca26667a4b43500e423a0db4b36da3c62af80bd"
+      },
+      {
+        "owner": "C60 executable identity R3",
+        "status": "SOURCE GO; 11 paths pending composition; runtime/control checks not inferred",
+        "review_sha256": "81efe803c7f9e0546f92c15800e9cd0721fb9de883ca89c444509d51735b5833"
+      },
+      {
+        "owner": "C105 structural owner R2",
+        "status": "SOURCE GO; 21 paths pending composition",
+        "review_sha256": "d51322aa4ce9870b03920ddb6d4493ffd529d47481cbe0cff95994f4332346be"
+      },
+      {
+        "owner": "C78 chain R6/R7",
+        "status": "R6 SOURCE HOLD; same P40 class; R7 work in progress and not frozen/runtime-qualified",
+        "R6_review_sha256": "8460f3092a8c29f4fc7546bd357670f99030e73ee3db7b44e2ec8b61d51cd429",
+        "R7_locator": "LOCAL/raw/e02-execution-20261027/repairs/C78-chain-r7/"
+      },
+      {
+        "owner": "C90 invocation-data decision brief",
+        "status": "R1 decision-research-pending note superseded for this question; no new G question needed now, proceed with B-compatible reuse/extension; no source acceptance/runtime/G closure",
+        "review_sha256": "7a79412b8918c65bbac323f29e57a697cc27dc5e10f32991fdead286e503c1ff"
+      },
+      {
+        "owner": "C109 rerun",
+        "status": "actual diff returned; independent actual-return qualification pending",
+        "task_id": "task_e_6ae1d51135688325b8332c740166df05",
+        "actual_diff_bytes": 360065,
+        "actual_diff_sha256": "4177fc26f61f3bdc9391ae4a9f0e7536fbea5801b3d22493b4eb67bc93588578",
+        "retrieval_record_sha256": "769f0006848df7f59deb4da0e795ab27ad1f4dcaea3527988b9b1915b14f93eb"
+      }
+    ],
+    "unchanged_boundaries": {
+      "G_acceptance_new": false,
+      "formal_closure_new": false,
+      "closure_ids": [],
+      "R9_GY_Atlas": "not started",
+      "release_gates": "not all PASS",
+      "queue_bindings": "unchanged"
+    }
+  },
+  "r14_r3_addendum":   {
+    "prepared_at": "2026-10-28",
+    "supersedes_R14_R2_documentation_proposal": {
+      "manifest": "LOCAL/raw/e02-execution-20261027/docs-progress-r14-r2/manifest.json",
+      "sha256": "72e2b6d2bd1e6f08d685844988c46f6032f93ed2f7a16c7b17fb6b5bee0e8e89"
+    },
+    "source_snapshot_as_of": {
+      "commit": "f728cfe467a32eb2a9023fbe157d5d06c4928369",
+      "tree": "08371dae76c6ae9bc92c6213b735319d7e68b0e2",
+      "historical": true,
+      "later_source_changes_qualified": false
+    },
+    "delivery_correction": {
+      "prior_payload_count": 63,
+      "added_payload_count": 12,
+      "added_source_bytes": 23496,
+      "added_compressed_bytes": 5228,
+      "cumulative_payload_count": 75,
+      "cumulative_source_bytes": 619288,
+      "cumulative_compressed_bytes": 194585,
+      "inherited_payload_bytes_copied": 0,
+      "entire_basetemp_copied": false
+    },
+    "source_reviews": [
+      {
+        "path": "LOCAL/raw/e02-execution-20261027/reviews/C60-provider-closure-defining-r5-actual.json",
+        "sha256": "7f07396492b492218b08ccc3cb24e15aa9dd50ba66d5e155fd4b59da962aff5f",
+        "payload_count": 4
+      },
+      {
+        "path": "LOCAL/raw/e02-execution-20261027/reviews/C60-typing-fusion-compatible-r1-actual.json",
+        "sha256": "5ac2c9d3e2480521b9a188423cf974f2247f1da59893ceeb59b1edc0cd224a55",
+        "payload_count": 8
+      }
+    ],
+    "complete_allowlist": {
+      "path": "LOCAL/raw/e02-execution-20261027/docs-progress-r14-r3/evidence-allowlist.json",
+      "sha256": "dcf5360fd788c6fdc7addb91d6a575b4bef01f7f9681d862339ea6b2d1f25343",
+      "payload_count": 75,
+      "composed_targets_including_six_docs": 81
+    },
+    "unchanged_boundaries": {
+      "canonical_queue_bindings": true,
+      "original_rows": 26,
+      "bundles": 127,
+      "finding_ids": 282,
+      "criterion_occurrences": 291,
+      "task_finding_edges": 319,
+      "expanded_occurrence_row_relations": 331,
+      "G_acceptance_new": false,
+      "formal_closure_new": false,
+      "R9_GY_Atlas": "not started",
+      "release_gates": "not all PASS"
+    }
+  }
+}

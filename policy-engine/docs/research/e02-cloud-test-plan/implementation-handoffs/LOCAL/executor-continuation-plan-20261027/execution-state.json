@@ -9303,5 +9303,78 @@
     },
     "G_acceptance_new": false,
     "closure_ids": []
+  },
+  "continuation_view_r14_r2":   {
+    "prepared_at": "2026-10-28",
+    "source_as_of": {
+      "head": "f728cfe467a32eb2a9023fbe157d5d06c4928369",
+      "tree": "08371dae76c6ae9bc92c6213b735319d7e68b0e2",
+      "readback": "LOCAL/raw/e02-execution-20261027/root-c95-code-identity-r3/commit/branch-readback.json",
+      "readback_sha256": "285657c08e8d564f3bfd0d1bcad032defbd0883adfd7b483641587ee136f020c"
+    },
+    "R13_docs_applied": {
+      "commit": "ee00568f6067b7cad6efeca700181be09100e33c",
+      "tree": "dbae5a74f79b82fba0b8d5c1be8d3d76dfb442be",
+      "readback_sha256": "92ae9497e12052e050f42e7a54ac03287424f37674b24a9310250a766eb94440"
+    },
+    "last_confirmed_remote_publication": {
+      "commit": "870855f3ca83fcb32d4bb91d00d34daab3151032",
+      "tree": "18a3178510405de4fcd8e6ce7dbc8b3d77932633",
+      "readback_sha256": "d4b06bca364836a76199dc063b7d47a8bf761f9d9d2fbc2f32193c4de6a30ef5"
+    },
+    "stage_in_original_plan": {
+      "main": "Wave 2 \u2014 owner composition and uncovered original criteria",
+      "Wave_0": "done",
+      "Wave_1": "front executed; open properties remain",
+      "Wave_3": "targeted preparation only; no full freeze or expensive proof wave",
+      "Wave_4": "final G reconciliation/review not started",
+      "global_completion_percent": "not stated"
+    },
+    "original_canonical_route": {
+      "queue_path": "QUEUE.json",
+      "original_task_decision_rows": 26,
+      "row_by_row_status": "retained in canonical queue; no new aggregation",
+      "plan_path": "PLAN.md",
+      "launch_path": "LAUNCH.md",
+      "operational_Cnnn_identifiers": "secondary evidence locators, not task replacements"
+    },
+    "R14_R1_preserved": {
+      "packet": "LOCAL/raw/e02-execution-20261027/docs-progress-r14/manifest.json",
+      "manifest_sha256": "6f97756ce6fe065f56e82fcf849712a637b11f0e0c01c5a0d87c76bdea23eac7",
+      "evidence_allowlist_sha256": "836f556be4ddee4cc68b406798692b00d55f8fd3e88fcb4fe97f08a0788f976d",
+      "reused_payloads": 63
+    },
+    "post_R1_updates": {
+      "C95_R3": "source applied, 16 path readback; scoped physical Ruff check and format exit 0; five unit tests and nine replays UNRUN",
+      "C60_executable_identity_R3": "SOURCE GO; 11 paths pending composition",
+      "C105_structural_owner_R2": "SOURCE GO; 21 paths pending composition",
+      "C78_chain_R6_R7": "R6 SOURCE HOLD; same P40 selected-source admission class; R7 work in progress, not frozen",
+      "C90_invocation_data_brief": "no new G question needed for B-compatible implementation direction; not implementation/runtime/G acceptance",
+      "C109": "actual 360065-byte diff returned; independent actual-return qualification pending"
+    },
+    "G_acceptance_new": false,
+    "closure_ids_new": [],
+    "R9_GY_Atlas": "not started"
+  },
+  "continuation_view_r14_r3":   {
+    "source_as_of": {
+      "commit": "f728cfe467a32eb2a9023fbe157d5d06c4928369",
+      "tree": "08371dae76c6ae9bc92c6213b735319d7e68b0e2",
+      "historical_snapshot": true
+    },
+    "evidence_inventory": {
+      "allowlist": "LOCAL/raw/e02-execution-20261027/docs-progress-r14-r3/evidence-allowlist.json",
+      "sha256": "dcf5360fd788c6fdc7addb91d6a575b4bef01f7f9681d862339ea6b2d1f25343",
+      "payload_count": 75,
+      "source_bytes": 619288,
+      "compressed_bytes": 194585,
+      "new_payloads": 12,
+      "new_source_bytes": 23496
+    },
+    "qualification_changes": false,
+    "queue_bindings_unchanged": true,
+    "G_acceptance_new": false,
+    "formal_closure_new": false,
+    "last_confirmed_remote_publication": "R10"
   }
 }

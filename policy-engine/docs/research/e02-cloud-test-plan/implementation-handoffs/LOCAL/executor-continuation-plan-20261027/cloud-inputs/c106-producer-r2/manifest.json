@@ -1,0 +1,79 @@
+{
+  "schema": "policyos.e02.public_held_source_repair_input.v1",
+  "status": "UNAPPLIED_SOURCE_HOLD",
+  "original_cloud_task": "C106",
+  "original_source_base": "b349e5c17351b160ff39a8c23c1759a2c522f81f",
+  "original_source_tree": "2d297ee70ea7eaee0d4c833b8daa634750f499e5",
+  "reconstructed_candidate_tree": "ceb52e72305fb43c10ae78c390e93e33ae35c04a",
+  "original_received_diff_sha256": "42bf83787c3d972ac4f074c8dadb47f1a46898180e6bb568a01c835925582a57",
+  "patch_uncompressed_sha256": "42bf83787c3d972ac4f074c8dadb47f1a46898180e6bb568a01c835925582a57",
+  "patch_uncompressed_bytes": 33639,
+  "source_targets": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-28-c106-fresh-registered-sql.toml",
+      "pre_sha256": null,
+      "post_sha256": "b4cf9d0b0c0e5666a2d106dcd54e5b37de9253ec594edaed8c7e18ee19a509be",
+      "post_bytes": 1172
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/__init__.py",
+      "pre_sha256": "a9fda959af65aff0b5bf2d62382552fcc15dd49ade384f83469f237576ac214e",
+      "post_sha256": "564760afdbb1b823f373d975b33666c715a22da22bd337de40c4ff6447487624",
+      "post_bytes": 14180
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/api.py",
+      "pre_sha256": "12a45d301eb6d6cc225033683841348d16dba30887d0230f651c60db14bf6e24",
+      "post_sha256": "33624de756c919d0e304c66d582eff140c7dcc1a665539942453f2cc9c934c86",
+      "post_bytes": 13439
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/adapters/README.md",
+      "pre_sha256": "4ccfb27c35ea46ca3af458b9d34c8507aed35e1d811118c1d192c0c730defb9c",
+      "post_sha256": "c33aaac318e402752e4525833813107d9c92726c49cb5ebd1940348818c491cf",
+      "post_bytes": 4893
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/adapters/fabric_bridge.py",
+      "pre_sha256": "3c60e0344a3a1248ddea766e0bb663a8c5cdb4b0a0491ea56df50f05177f3d88",
+      "post_sha256": "829a379a5f18ec0dc3666c11a12225618766d15226ed43c48b887a5e922c7333",
+      "post_bytes": 30771
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/api.py",
+      "pre_sha256": "d22c6c6b4d773ee02843dea38d2d051716f5ee3ec26f1e9fba406a6004edf450",
+      "post_sha256": "c8418c6d5f75e3469326f5581cb5101a7096cc9ef1ff6fb7d06280e5cef2de9c",
+      "post_bytes": 14217
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/test_registered_sql_capture.py",
+      "pre_sha256": null,
+      "post_sha256": "b7a12e70cf6f4903a94ba774b8e198b09e2c19734caf4558907dc41a926f032d",
+      "post_bytes": 1729
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/facade/test_api.py",
+      "pre_sha256": "b76cfe6d54f505ae37fea41d2db53e5ded3227de351936fe18213de77e8b50b6",
+      "post_sha256": "d8a9125aec6162ba9f003ea68c60ede95694890ca3ccf21f5e3155eca12c9b31",
+      "post_bytes": 10795
+    }
+  ],
+  "payloads": {
+    "proposal.patch.gz": {
+      "sha256": "15a79fba99cf2fa751ec329af4fc2240a886f7848a2ec0f41301b5cb1fb57929",
+      "bytes": 9190
+    },
+    "review.md": {
+      "sha256": "af92b6f6668a68e240685dbb0366105d7573be578882d4c7c936019ee6b4c40c",
+      "bytes": 5712
+    },
+    "review.json": {
+      "sha256": "d5bbf82e16c3ec371128174475f6d6167bd462a3e62cdf77d820ae6575555e2e",
+      "bytes": 13660
+    }
+  },
+  "omitted_original_artifacts": "DDM unqualified dot-only runtime logs and author receipt omitted; complete source review preserved. C106 includes its complete eight-path source diff.",
+  "privacy": "Public source/test/review only; historical repository/worktree paths are provenance, no production/private CAS/DB/runtime payload or credentials.",
+  "adoption": "Carrier only. Does not apply held source, claim runtime/G acceptance, or close criteria.",
+  "closure_ids": []
+}

@@ -1,0 +1,10 @@
+--- a/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
++++ b/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
+@@ -963,6 +963,7 @@
+     prepare_covariance: bool = False,
+ ) -> _PreparedPropagationInputs:
+     """Finish one shared preparation without changing supported fixed scalars."""
++    return replace(prepared, execution_context_prepared=True)
+     if prepared.execution_context_prepared:
+         return prepared
+     try:

@@ -1,0 +1,110 @@
+{
+  "schema": "policyos.c90.r4.public_carrier_files.v1",
+  "role": "Unapplied held R3 source/review/control input, not R4 code or runtime proof",
+  "files_boundary": "Every regular file recursively in this public carrier before adding carrier-manifest.json; excludes only itself",
+  "files": [
+    {
+      "path": "C90-law-admission-r3-independent.json",
+      "file_type": "regular",
+      "bytes": 38991,
+      "sha256": "86f166e9bb6a50f9194beefbe1b4e8d8a762be6e7331dbaaaa3c8ce45a3ac1e4"
+    },
+    {
+      "path": "C90-law-admission-r3-independent.md",
+      "file_type": "regular",
+      "bytes": 11014,
+      "sha256": "e587f4e02cca048ac30000670a39e302fde1aeeafd5e689bc8c7e0604e9d4146"
+    },
+    {
+      "path": "README.md",
+      "file_type": "regular",
+      "bytes": 5802,
+      "sha256": "c398a752e745a82c8992f3513876ed0b7cb3a56b997d8f1a6f5b40d256fdde17"
+    },
+    {
+      "path": "input-manifest.json",
+      "file_type": "regular",
+      "bytes": 6943,
+      "sha256": "f6602364024f83cfea6452ff42c65d75dfc4e9a71ad4b4ef4f18c246bb4800ff"
+    },
+    {
+      "path": "property-removals-r3.json",
+      "file_type": "regular",
+      "bytes": 10151,
+      "sha256": "463515414bb20c80533040ae282f8a9a8ed95ce7f7b644a8ed27ecc8b17f2d22"
+    },
+    {
+      "path": "removals/M01-mc-binding-before-law.patch",
+      "file_type": "regular",
+      "bytes": 520,
+      "sha256": "70cd1f737e011515dce5f19d4bde27c62b732f94bb77397d9f5c27a6c04f6151"
+    },
+    {
+      "path": "removals/M02-dispatcher-binding-before-law.patch",
+      "file_type": "regular",
+      "bytes": 497,
+      "sha256": "b143002edb6e7ca7a3d56072a21b6bf3216804dabcf32c38aa894018f24eb7a7"
+    },
+    {
+      "path": "removals/M03-retain-behavioral-dependency-alias.patch",
+      "file_type": "regular",
+      "bytes": 610,
+      "sha256": "4f6b27cec3daf2d1156229dca949ac44a674ceff15f4eb866404db84ff66c117"
+    },
+    {
+      "path": "removals/M04-skip-owned-execution-view.patch",
+      "file_type": "regular",
+      "bytes": 455,
+      "sha256": "55b9b9263365b95df97c97aba3851741de7a7fbcfb2ed6a695bdd122b93af9d6"
+    },
+    {
+      "path": "removals/M05-recompute-wire-identity-after-effects.patch",
+      "file_type": "regular",
+      "bytes": 566,
+      "sha256": "724c7753c9019a5b12adc08ed8db7f82e30920ab0c7889214c4daca9b295b8d3"
+    },
+    {
+      "path": "removals/M06-promote-borrowed-fixed-identity.patch",
+      "file_type": "regular",
+      "bytes": 645,
+      "sha256": "3c74198b7fb0320e29c7fba76da256f77d2110ca4140e6863d5ed3a1d5a70ab9"
+    },
+    {
+      "path": "removals/M07-discard-shared-preparation.patch",
+      "file_type": "regular",
+      "bytes": 1679,
+      "sha256": "aba033da96e4cae842a1f66b31767fe325f498c0b9bd74765a4655e8ccf09012"
+    },
+    {
+      "path": "removals/M08-discard-consumed-weight-projection.patch",
+      "file_type": "regular",
+      "bytes": 418,
+      "sha256": "bc26af1c400128b982687bd9849a3f584a0a5654afab70dfd9d77622e58dbd89"
+    },
+    {
+      "path": "removals/M09-retain-provenance-wire-alias.patch",
+      "file_type": "regular",
+      "bytes": 602,
+      "sha256": "83e0268e08fa8abf6b84aa52fb12f3ac6ab62ab6f58f609f6f2fe42feefa41bd"
+    },
+    {
+      "path": "source-r3.patch.gz",
+      "file_type": "regular",
+      "bytes": 16451,
+      "sha256": "42efe5eacbb8cb35bf32b9937bd0f596d22f453afa3c4e54c49664087af2b967"
+    },
+    {
+      "path": "verification-plan-r3.json",
+      "file_type": "regular",
+      "bytes": 7253,
+      "sha256": "02624aeedc25c0aee381727c7580bc11e4b7e7c97b071814a7497377331cfb8f"
+    }
+  ],
+  "payload_bytes_excluding_manifest": 102597,
+  "final_launch_commit": null,
+  "final_launch_tree": null,
+  "publication_receipt_sha256": null,
+  "runtime": "UNRUN",
+  "code_acceptance": false,
+  "closure_ids": []
+}

@@ -1,0 +1,37 @@
+{
+  "schema": "policyos.e02.public_held_source_repair_input.v1",
+  "status": "UNAPPLIED_SOURCE_HOLD",
+  "original_cloud_task": "C112",
+  "original_source_base": "b349e5c17351b160ff39a8c23c1759a2c522f81f",
+  "original_source_tree": "2d297ee70ea7eaee0d4c833b8daa634750f499e5",
+  "reconstructed_candidate_tree": "408838a6e9558aceff6937980bd988446c1dea61",
+  "original_received_diff_sha256": "3d68b7355ba840da0aa12b5f6dcaa42c6ffa196107fcba5206cbed7947e130e3",
+  "patch_uncompressed_sha256": "1b274c31e00d5af85f3cd567b486aee3cd44e3dcaa76da20543d4e0b4833c0ec",
+  "patch_uncompressed_bytes": 12446,
+  "source_targets": [
+    {
+      "path": "policy-engine/tests/unit/ddm/test_contract_fresh_consumers.py",
+      "pre_sha256": null,
+      "post_sha256": "bd2ddd7edde7713330a180cbeb189552820b3cd1354829c9006ed9e442e894ae",
+      "post_bytes": 11805
+    }
+  ],
+  "payloads": {
+    "proposal.patch.gz": {
+      "sha256": "be97291cba053704a3d2e0175cf9f03891a65522c92f0c1863eb89d651011e2f",
+      "bytes": 3773
+    },
+    "review.md": {
+      "sha256": "3038e403b9258a5f28ad4225b956944d873b98b2466c740a7d900dc22364b5eb",
+      "bytes": 11655
+    },
+    "review.json": {
+      "sha256": "33a9d2f77142617e052ee902a4a7499ff723e9a95a1d358f2b1062ae95e1c71d",
+      "bytes": 3655
+    }
+  },
+  "omitted_original_artifacts": "DDM unqualified dot-only runtime logs and author receipt omitted; complete source review preserved. C106 includes its complete eight-path source diff.",
+  "privacy": "Public source/test/review only; historical repository/worktree paths are provenance, no production/private CAS/DB/runtime payload or credentials.",
+  "adoption": "Carrier only. Does not apply held source, claim runtime/G acceptance, or close criteria.",
+  "closure_ids": []
+}

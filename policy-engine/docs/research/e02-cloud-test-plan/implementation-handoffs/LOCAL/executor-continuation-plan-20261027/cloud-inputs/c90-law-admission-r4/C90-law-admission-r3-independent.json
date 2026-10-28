@@ -1,0 +1,523 @@
+{
+  "schema": "policyos.e02.C90.law_admission_r3_independent_review.v1",
+  "verdict": "SOURCE HOLD",
+  "review_scope": "Read-only frozen sparse-source proposal; no product import, runtime/test/native execution, canonical, index, ref, object or environment change.",
+  "packet_scan": {
+    "base": "f728cfe467a32eb2a9023fbe157d5d06c4928369",
+    "base_tree": "08371dae76c6ae9bc92c6213b735319d7e68b0e2",
+    "changed_path_count": 30,
+    "changed_python": [
+      {
+        "matches": true,
+        "path": "policy-engine/src/polisyos/core/canon/__init__.py",
+        "sha256": "e07283aba023e34aa41f9c0e0c1b90b9ed512eb63a06576000e8c3403a423888",
+        "syntactic_candidates": []
+      },
+      {
+        "matches": true,
+        "path": "policy-engine/src/polisyos/fabric/__init__.py",
+        "sha256": "a9fda959af65aff0b5bf2d62382552fcc15dd49ade384f83469f237576ac214e",
+        "syntactic_candidates": []
+      },
+      {
+        "matches": true,
+        "path": "policy-engine/src/polisyos/fabric/api.py",
+        "sha256": "12a45d301eb6d6cc225033683841348d16dba30887d0230f651c60db14bf6e24",
+        "syntactic_candidates": []
+      },
+      {
+        "matches": true,
+        "path": "policy-engine/src/polisyos/fabric/federated_fetch.py",
+        "sha256": "0a674c183da98f56da86adab04ea2bac300b620af7fd4e814dbdaac23133dd36",
+        "syntactic_candidates": []
+      },
+      {
+        "matches": true,
+        "path": "policy-engine/src/polisyos/schemas/abi_models/catalog.py",
+        "sha256": "c1a1192bef192b2f8b34c62b1a518725d1c4412fd434901fb542fce201c482db",
+        "syntactic_candidates": []
+      },
+      {
+        "matches": true,
+        "path": "policy-engine/src/polisyos/scientist/adapters/fabric_bridge.py",
+        "sha256": "3c60e0344a3a1248ddea766e0bb663a8c5cdb4b0a0491ea56df50f05177f3d88",
+        "syntactic_candidates": []
+      },
+      {
+        "matches": true,
+        "path": "policy-engine/tests/_helpers/code_identity.py",
+        "sha256": "fd44f8e8447f54bcf7bedafc9079c2305c78a29a754fc0903be2e570d88a3277",
+        "syntactic_candidates": []
+      },
+      {
+        "matches": true,
+        "path": "policy-engine/tests/unit/fabric/test_federated_fetch.py",
+        "sha256": "4a3552d44b8463ebd46aa0f30c86090321e432759a46c967b620ab70e7328133",
+        "syntactic_candidates": []
+      },
+      {
+        "matches": true,
+        "path": "policy-engine/tests/unit/ir/test_schema_catalog.py",
+        "sha256": "24be70e39a04f7c08d4422574b9ec8ac25a116905220f1ecf9436431f8199fdc",
+        "syntactic_candidates": []
+      },
+      {
+        "matches": true,
+        "path": "policy-engine/tests/unit/remediation/e02_lex_triplet_runner.py",
+        "sha256": "0a8b0ee76af2a363e6c346545a93a8789d5becaf274721833bb2bb7e3b8e6c14",
+        "syntactic_candidates": []
+      },
+      {
+        "matches": true,
+        "path": "policy-engine/tests/unit/remediation/test_e02_lex_code_identity.py",
+        "sha256": "bd9bad9ff20578a4fc6fcd7f177e289d3a0757824b8f808fe45490b6fe09a132",
+        "syntactic_candidates": []
+      },
+      {
+        "matches": true,
+        "path": "policy-engine/tests/unit/remediation/test_e02_lex_impact_controls.py",
+        "sha256": "2083961cf5a38610c04a51075903dd670e72a14e7bced8acf84dcc5486cb75f2",
+        "syntactic_candidates": []
+      },
+      {
+        "matches": true,
+        "path": "policy-engine/tools/quality/diagnostics/generate_ir_reference_catalog.py",
+        "sha256": "e7d58c80b28b213c95d98ec3d22d9706ef84615b3735b3ca4d375619a9c1327b",
+        "syntactic_candidates": []
+      }
+    ],
+    "controls": [
+      {
+        "id": "M01-mc-binding-before-law",
+        "matches_and_parses": true,
+        "mutant_sha256": "e09480db77a9297da0d39302a6371d64d190f206be043be7b1b6648ad0385389"
+      },
+      {
+        "id": "M02-dispatcher-binding-before-law",
+        "matches_and_parses": true,
+        "mutant_sha256": "c4345b48c3931baf7664222bd2a66e79d8e491a79e9578b8d30e8dfca8d083b4"
+      },
+      {
+        "id": "M03-retain-behavioral-dependency-alias",
+        "matches_and_parses": true,
+        "mutant_sha256": "a949e2a4a0836dc6099746d8fda8892d6160c6667951bad1e5cd3d6dbc764a84"
+      },
+      {
+        "id": "M04-skip-owned-execution-view",
+        "matches_and_parses": true,
+        "mutant_sha256": "5344aa128bfee2ca12ccb6b6f818c93dee0fa1a6f0afad207506a5d70cffeafa"
+      },
+      {
+        "id": "M05-recompute-wire-identity-after-effects",
+        "matches_and_parses": true,
+        "mutant_sha256": "f73f15c4785e2958ba6806eed601abf45fbb8853a96862eaaa92b28995ec5b07"
+      },
+      {
+        "id": "M06-promote-borrowed-fixed-identity",
+        "matches_and_parses": true,
+        "mutant_sha256": "6a61173220c4c86dd51c05802e3a664cebd9b81c63c7cb87c9024cb59a4a0bf2"
+      },
+      {
+        "id": "M07-discard-shared-preparation",
+        "matches_and_parses": true,
+        "mutant_sha256": "7821e952937e90027d6d95333e23c790e691020cbea40865f3daee626e907af3"
+      },
+      {
+        "id": "M08-discard-consumed-weight-projection",
+        "matches_and_parses": true,
+        "mutant_sha256": "f48850ef46ff9f597f386f80f9ec4af7cb1ce256b9c0b1ecaf1ba593872f8cc1"
+      },
+      {
+        "id": "M09-retain-provenance-wire-alias",
+        "matches_and_parses": true,
+        "mutant_sha256": "81bcc9efc2705e81b3175193429405124c249ae046b8b804fdf9c97b712df98e"
+      }
+    ],
+    "errors": [],
+    "head": "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5",
+    "head_tree": "fc3ea1679ba3ff9317a4f25fc0c39ca127909750",
+    "manifest_sha256": "699ae9ed84613bd0c63df801c78cb712c22be8154421399a02b94317fe4a0b57",
+    "packet_bytes": 343118,
+    "packet_files": 26,
+    "packet_hashes": {
+      "README.md": "e05534c3991219ec66948707077e63d1c94b70bd4befd9c00e7af07b5ca72d4a",
+      "manifest.json": "699ae9ed84613bd0c63df801c78cb712c22be8154421399a02b94317fe4a0b57",
+      "postimages/policy-engine/release-fragments/unreleased/2026-10-28-e02-posterior-source-coordinate-admission.toml": "3c5adf61c3247b89ae013623a8add2c0896a35d61722b5f4a8fcff8db536558f",
+      "postimages/policy-engine/src/polisyos/foundry/uncertainty/README.md": "7421fc8b602efb3d40292e2f4e142273fe3726ab3cdb3dfec60cb57a9e16fcf5",
+      "postimages/policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py": "1747ee06928fa47a597f0498b6bc02f65e2cf0c6b1741468dfcfd6c2f4692fc5",
+      "postimages/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py": "5645f61b21035f04f10854ba3cd9f12a19ff64633ad6310ade0132047b132c1a",
+      "postimages/policy-engine/tests/unit/foundry/uncertainty/test_joint_law_admission.py": "625bce11f565ceb44963193070278cfb71ec39610d64efb6c266b1d3c8cd30c5",
+      "property-removals.json": "463515414bb20c80533040ae282f8a9a8ed95ce7f7b644a8ed27ecc8b17f2d22",
+      "refresh_artifacts.py": "f947ccb0f858fca07b1d5b49fde2c6e7b5562622488a0fce808d30004185e42d",
+      "removals/M01-mc-binding-before-law.patch": "70cd1f737e011515dce5f19d4bde27c62b732f94bb77397d9f5c27a6c04f6151",
+      "removals/M02-dispatcher-binding-before-law.patch": "b143002edb6e7ca7a3d56072a21b6bf3216804dabcf32c38aa894018f24eb7a7",
+      "removals/M03-retain-behavioral-dependency-alias.patch": "4f6b27cec3daf2d1156229dca949ac44a674ceff15f4eb866404db84ff66c117",
+      "removals/M04-skip-owned-execution-view.patch": "55b9b9263365b95df97c97aba3851741de7a7fbcfb2ed6a695bdd122b93af9d6",
+      "removals/M05-recompute-wire-identity-after-effects.patch": "724c7753c9019a5b12adc08ed8db7f82e30920ab0c7889214c4daca9b295b8d3",
+      "removals/M06-promote-borrowed-fixed-identity.patch": "3c74198b7fb0320e29c7fba76da256f77d2110ca4140e6863d5ed3a1d5a70ab9",
+      "removals/M07-discard-shared-preparation.patch": "aba033da96e4cae842a1f66b31767fe325f498c0b9bd74765a4655e8ccf09012",
+      "removals/M08-discard-consumed-weight-projection.patch": "bc26af1c400128b982687bd9849a3f584a0a5654afab70dfd9d77622e58dbd89",
+      "removals/M09-retain-provenance-wire-alias.patch": "83e0268e08fa8abf6b84aa52fb12f3ac6ab62ab6f58f609f6f2fe42feefa41bd",
+      "self-audit.json": "347ded2658f37bedfc39c20fd101e1f3e8402bf2059f8f16fd6b5b29df537b70",
+      "source-bindings.json": "ac333f8ec89c52f148f1536bf1137bf600be00cbc9cb6175c72f1e1f3694763a",
+      "source-version-delta.json": "709b252d745a0f6150aafc3b80cb6e3abd39720473ec5bcac7aee91bde378883",
+      "source.patch": "07f4c515fa60bcfba29c011fe00eb12d1730adca7fcdcd056ed9bba17c2c51cb",
+      "static-ruff-initial.json": "7ac19fda2315625d0dc6f5ce585204b1913be097a0db95c6c5960934ddb33272",
+      "static-ruff.json": "39dbf4c2355f1a3014fac27e7552f05e622647755d779694959b4beace0772f7",
+      "validate_packet.py": "644103ed80677b414224f3549ef8a624060176d366f9f967563171541b8dc42e",
+      "verification-plan.json": "02624aeedc25c0aee381727c7580bc11e4b7e7c97b071814a7497377331cfb8f"
+    },
+    "packet_readback_same": true,
+    "patch_sha256": "07f4c515fa60bcfba29c011fe00eb12d1730adca7fcdcd056ed9bba17c2c51cb",
+    "source_rows": [
+      {
+        "base_sha256": "458d0c160ae359bb909805ead506dcb862aca9c38689194b5504e8c189444d50",
+        "head_matches_base": true,
+        "head_sha256": "458d0c160ae359bb909805ead506dcb862aca9c38689194b5504e8c189444d50",
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+        "post_sha256": "5645f61b21035f04f10854ba3cd9f12a19ff64633ad6310ade0132047b132c1a",
+        "reconstructed": true,
+        "work_matches_base": true,
+        "work_sha256": "458d0c160ae359bb909805ead506dcb862aca9c38689194b5504e8c189444d50"
+      },
+      {
+        "base_sha256": "e1c396c8cf96be4503e0d98d81ab7a28a4795892c3d507c7e8ea761616e9ba5f",
+        "head_matches_base": true,
+        "head_sha256": "e1c396c8cf96be4503e0d98d81ab7a28a4795892c3d507c7e8ea761616e9ba5f",
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py",
+        "post_sha256": "1747ee06928fa47a597f0498b6bc02f65e2cf0c6b1741468dfcfd6c2f4692fc5",
+        "reconstructed": true,
+        "work_matches_base": true,
+        "work_sha256": "e1c396c8cf96be4503e0d98d81ab7a28a4795892c3d507c7e8ea761616e9ba5f"
+      },
+      {
+        "base_sha256": null,
+        "head_matches_base": true,
+        "head_sha256": null,
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_joint_law_admission.py",
+        "post_sha256": "625bce11f565ceb44963193070278cfb71ec39610d64efb6c266b1d3c8cd30c5",
+        "reconstructed": true,
+        "work_matches_base": true,
+        "work_sha256": null
+      },
+      {
+        "base_sha256": "3e254b17e72650e595750c3e2eb0d8362d9c15b9bfa2497474d815fe9deb7e45",
+        "head_matches_base": true,
+        "head_sha256": "3e254b17e72650e595750c3e2eb0d8362d9c15b9bfa2497474d815fe9deb7e45",
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+        "post_sha256": "7421fc8b602efb3d40292e2f4e142273fe3726ab3cdb3dfec60cb57a9e16fcf5",
+        "reconstructed": true,
+        "work_matches_base": true,
+        "work_sha256": "3e254b17e72650e595750c3e2eb0d8362d9c15b9bfa2497474d815fe9deb7e45"
+      },
+      {
+        "base_sha256": "ce0f8b3ad78de1a833b8db63dea7fd9e9383f2e0ef6ab46c14aa327db7d11f32",
+        "head_matches_base": true,
+        "head_sha256": "ce0f8b3ad78de1a833b8db63dea7fd9e9383f2e0ef6ab46c14aa327db7d11f32",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-28-e02-posterior-source-coordinate-admission.toml",
+        "post_sha256": "3c5adf61c3247b89ae013623a8add2c0896a35d61722b5f4a8fcff8db536558f",
+        "reconstructed": true,
+        "work_matches_base": true,
+        "work_sha256": "ce0f8b3ad78de1a833b8db63dea7fd9e9383f2e0ef6ab46c14aa327db7d11f32"
+      }
+    ],
+    "symlinks": [],
+    "test_cases": [
+      {
+        "name": "test_refused_sampling_law_precedes_irrelevant_binding_and_never_evaluates",
+        "potential_cases": 132
+      },
+      {
+        "name": "test_supported_joint_laws_keep_every_draw_and_fixed_input",
+        "potential_cases": 6
+      },
+      {
+        "name": "test_supported_laws_still_reject_invalid_binding_before_evaluator_effects",
+        "potential_cases": 18
+      },
+      {
+        "name": "test_executable_auto_law_rejects_fixed_input_before_applicability_probe",
+        "potential_cases": 1
+      },
+      {
+        "name": "test_versioned_profile_fence_still_precedes_legacy_law_and_binding",
+        "potential_cases": 3
+      },
+      {
+        "name": "test_explicit_moment_routes_do_not_acquire_mc_gaussian_family_restrictions",
+        "potential_cases": 2
+      },
+      {
+        "name": "test_invocation_snapshot_binds_law_fixed_inputs_outputs_and_eligibility",
+        "potential_cases": 9
+      },
+      {
+        "name": "test_dispatcher_route_weights_belong_to_the_entry_snapshot",
+        "potential_cases": 4
+      },
+      {
+        "name": "test_snapshot_preserves_refused_covariance_tuple_without_json_coercion",
+        "potential_cases": 3
+      },
+      {
+        "name": "test_snapshot_preserves_ieee_negative_zero_at_the_actual_legacy_consumer",
+        "potential_cases": 3
+      },
+      {
+        "name": "test_supported_fixed_scalars_keep_callback_type_value_and_entry_association",
+        "potential_cases": 18
+      },
+      {
+        "name": "test_inert_sidecars_preserve_original_identity_limitation_and_numerical_law",
+        "potential_cases": 27
+      },
+      {
+        "name": "test_behavioral_metadata_meaning_is_owned_at_actual_mc_law_and_result_consumers",
+        "potential_cases": 54
+      },
+      {
+        "name": "test_enum_unknown_meaning_refuses_before_any_signature_or_evaluator",
+        "potential_cases": 6
+      },
+      {
+        "name": "test_mutated_parametric_parameters_cannot_change_the_prepared_marginal_law",
+        "potential_cases": 9
+      },
+      {
+        "name": "test_existing_provenance_wire_context_is_fixed_before_callback_mutation",
+        "potential_cases": 3
+      },
+      {
+        "name": "test_inert_extension_does_not_become_an_admitted_covariance_row",
+        "potential_cases": 6
+      },
+      {
+        "name": "test_analytical_weight_numeric_value_is_captured_before_signature_mutation",
+        "potential_cases": 1
+      },
+      {
+        "name": "test_mutable_fixed_objects_keep_borrowed_computation_without_owned_identity_or_gate",
+        "potential_cases": 6
+      },
+      {
+        "name": "test_invalid_analytical_weight_keeps_binding_precedence_and_delta_fallback",
+        "potential_cases": 2
+      },
+      {
+        "name": "test_explicit_mc_does_not_interpret_unconsumed_analytical_weights",
+        "potential_cases": 1
+      },
+      {
+        "name": "test_mc_does_not_interpret_std_metadata_unused_by_its_marginal_law",
+        "potential_cases": 3
+      },
+      {
+        "name": "test_deferred_moment_context_error_keeps_binding_and_actual_mc_fallback",
+        "potential_cases": 2
+      }
+    ],
+    "total_potential_cases": 319,
+    "unchanged_ast": {
+      "_build_empirical_joint_spec": {
+        "matches_recorded": true,
+        "same": true,
+        "sha256": "a0556b5b2cdeb1df0a84603d9460b1555e9dee570156d6d150a61137568033d4"
+      },
+      "_build_gaussian_joint_spec": {
+        "matches_recorded": true,
+        "same": true,
+        "sha256": "1d8233f3e0b7e2b4da732f0fc0f3c34dd29a8af2b2a6aee111af335aa36ec85c"
+      },
+      "_evaluate_posterior_outputs": {
+        "matches_recorded": true,
+        "same": true,
+        "sha256": "ba144e9595a6385bac78b048b08ab0b7070abf487e3171e3e879f875e573cdac"
+      },
+      "_run_qmc_loop": {
+        "matches_recorded": true,
+        "same": true,
+        "sha256": "f9904f947fc5b13d356502e7d484cbffae5957793d565d756c1ea8ccb73631dc"
+      },
+      "_run_random_loop": {
+        "matches_recorded": true,
+        "same": true,
+        "sha256": "252d5442d7fdc89b95513816fd607cdf9484a99caa3478c4a9af10ddd4b33c72"
+      },
+      "_sample_from_envelope": {
+        "matches_recorded": true,
+        "same": true,
+        "sha256": "0473e9120146e9585831ddcb85bddbf5b64638e33bbc74c711d475b74484dfc2"
+      },
+      "_transform_qmc_samples": {
+        "matches_recorded": true,
+        "same": true,
+        "sha256": "0f23f10743d0f5d6a382b3023632e58aae7232341fa9fb73e26baa66afd9424b"
+      },
+      "propagate_posterior_summary": {
+        "matches_recorded": true,
+        "same": true,
+        "sha256": "d6b70e3e0fe69b8aedee995afcde7f8c141c94b7acdfb8ab2f8327c88e35a050"
+      }
+    }
+  },
+  "current_reader_schema": {
+    "dispatcher_fixed_or_digest_references": [],
+    "grep_exit": 0,
+    "literal_source_test_grep_paths": [
+      "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5:policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5:policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5:policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+      "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/uncertainty_source_projection.py",
+      "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/welfare_draws.py",
+      "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/welfare_propagation.py",
+      "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/welfare_reports.py",
+      "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5:policy-engine/tests/unit/core/contracts/test_e02_installed_composition.py",
+      "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5:policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+      "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5:policy-engine/tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py",
+      "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5:policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+      "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5:policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_uncertainty_source_projection.py",
+      "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5:policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_reports.py"
+    ],
+    "new_undeclared_fields": [
+      "fixed_input_identity_status"
+    ],
+    "proposed_provenance_fields": [
+      "schema_version",
+      "requested_draw_count",
+      "attempted_draw_count",
+      "simulation_attempt_count",
+      "retry_attempt_count",
+      "successful_draw_count",
+      "unattempted_draw_count",
+      "outcome_denominator_complete",
+      "sampling_recipe",
+      "input_identity_status",
+      "fixed_input_identity_status",
+      "implementation_identity_status",
+      "draw_identity_basis",
+      "failure_records"
+    ],
+    "proposed_recipe_fields": [
+      "config",
+      "input_param_names",
+      "input_envelope_sha256",
+      "sample_axis",
+      "joint_sample_id"
+    ],
+    "ref": "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5",
+    "source_sha256": {
+      "policy-engine/src/polisyos/foundry/uncertainty/analytical.py": "b7b862e2c64b5ebf873e21c302858360c9eaaddcb0a9c80495617be87ce1eece",
+      "policy-engine/src/polisyos/foundry/uncertainty/delta.py": "73df40a046d6a94e480c0e14a79385f40ac2a4233a4d03a35dd36b67419468f6",
+      "policy-engine/src/polisyos/ir/analytics/uncertainty.py": "1e26c27c4ccfc4b55e459e7a1459c4e111a0f0feb7322b2f350bfff87a5e8bdf",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": "7413c42a5ed145fb2329105843164dee9c53b3b181f3f27c15960f9ede4275bb",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/uncertainty_source_projection.py": "a7279cac36b7905e6e3b474281b5c15aeeaeb78c6bc601b09742628d697a12e5",
+      "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_uncertainty_source_projection.py": "69458fe9085a7ec0b07051d41269c71b8e2015e1d1d8ee2b491e7cef4aca72a6"
+    },
+    "strict_provenance_fields": {
+      "attempted_draw_count": "StrictInt",
+      "draw_identity_basis": "Literal['sampling_recipe+draw_index+sampled_input_sha256']",
+      "failure_records": "list[_ReportDrawFailure]",
+      "implementation_identity_status": "Literal['not_established']",
+      "input_identity_status": "Literal['content_hashed', 'not_established']",
+      "outcome_denominator_complete": "StrictBool",
+      "requested_draw_count": "StrictInt",
+      "retry_attempt_count": "StrictInt",
+      "sampling_recipe": "_ReportSamplingRecipe",
+      "schema_version": "Literal['1.0']",
+      "simulation_attempt_count": "StrictInt",
+      "successful_draw_count": "StrictInt",
+      "unattempted_draw_count": "StrictInt"
+    },
+    "strict_recipe_fields": {
+      "config": "PropagationConfig",
+      "input_envelope_sha256": "dict[StrictStr, StrictStr | None]",
+      "input_param_names": "list[StrictStr]",
+      "joint_sample_id": "StrictStr | None",
+      "sample_axis": "StrictStr"
+    }
+  },
+  "public_signature_comparison": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "method": "MonteCarloPropagator.propagate",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "method": "MonteCarloPropagator.propagate_posterior_summary",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py",
+      "method": "PropagationDispatcher.propagate",
+      "unchanged": true
+    }
+  ],
+  "findings": [
+    {
+      "id": "F01",
+      "severity": "blocking",
+      "bucket": "SAME P40 invocation-data ownership/finalization",
+      "status": "source-derived; runtime UNRUN",
+      "summary": "Dispatcher moment returns do not apply prepared borrowed-fixed or missing-envelope-digest qualification to Delta/Analytical results; the claimed non-gating residual is enforced only by MC _build_results.",
+      "examples": [
+        "A gate-eligible single normal envelope and fixed scale=[2.0] used by a real Delta evaluator x*scale[0] leave borrowed fixed state outside the owned preparation yet Delta gate_eligible can be true.",
+        "A gate-eligible single normal envelope with inert metadata note=object() has original digest None but Delta and Analytical ignore the prepared digest and can return gate_eligible true."
+      ],
+      "recommended": "Enforce one consumed-input qualification/typed limitation at a shared boundary covering all affected numerical consumers/results. Test real moment routes and fallback, preserving direct API scope and no invented authority; remove-property controls must exercise the common boundary."
+    },
+    {
+      "id": "F02",
+      "severity": "blocking",
+      "bucket": "NEW P12 producer/consumer schema handshake",
+      "status": "source-derived; runtime UNRUN",
+      "summary": "The r3 producer unconditionally adds fixed_input_identity_status to the shared schema-1.0 MC draw_outcome_provenance, but the current C78 PropagationReportV11 selected reader's _ReportDrawOutcomeProvenance forbids extras and does not declare it. The Science report producer carries the same shared object to the top-level report.",
+      "recommended": "Prefer existing input_identity_status and existing non-gating/typed limitation without changing persisted grammar. If a new wire field is necessary, require an explicitly versioned producer/reader/schema/migration and current C78 owner companions; retain strict unknown-field rejection and test genuine persisted fresh reads plus historical reports."
+    },
+    {
+      "id": "L01",
+      "severity": "bounded inherited limitation",
+      "bucket": "SAME P40 full-input identity",
+      "status": "source-derived; runtime UNRUN",
+      "summary": "The schema-1.0 sampling recipe has only config, uncertain names, envelope digests, axis and joint ID; differing fixed scalar values can produce identical recipe/identity while changing outputs. This omission existed before r3. Current IR appends sampling-content-not-recomputed and implementation-not-established limitations.",
+      "recommended": "Do not claim input_identity_status content-binds the entire invocation. Preserve the existing limitation, or explicitly provide a compatible source-bound complete-invocation mechanism and versioned companions before promoting the claim."
+    },
+    {
+      "id": "L02",
+      "severity": "same-class targeted falsifier",
+      "bucket": "SAME P40 cached numerical law",
+      "status": "source-derived conditional; runtime UNRUN",
+      "summary": "A carrier built with an unvalidated model_copy update that supplies a contiguous float64 ndarray can make np.asarray(carrier.samples,dtype=np.float64) retain the caller's buffer. A signature or callback mutation can then reach the cached empirical_spec used by the MC sampler, even though the later envelope carrier is separately revalidated. Revalidation acceptance and exact runtime behavior are not established.",
+      "recommended": "Exercise this model-copy/real-consumer adversary under the actual supported profile; own/copy the numerical data or declare and enforce a correct bounded refusal, without a per-type generic-codec ladder."
+    },
+    {
+      "id": "L03",
+      "severity": "documented compatibility boundary",
+      "bucket": "SAME P40 provenance representation",
+      "status": "source-derived; runtime UNRUN",
+      "summary": "R3's provenance JSON round-trip preserves wire meaning but changes in-memory Any-valued notes such as tuple to list and datetime to string relative to the prior carried CompositionStep; no inspected current in-repo consumer requiring those Python types is established.",
+      "recommended": "Disclose and test this bounded change; preserve known required semantics if actual consumers require them. Do not infer an unavoidable G decision from this possibility."
+    }
+  ],
+  "authority": "No new G decision is needed to pursue compatible engineering; E historical weighted profile 1.0, current posterior profile 1.1, S3/B31 and E-M1 are separate. No G acceptance or closure.",
+  "source_potential_tests": "23 definitions and 319 AST-derived potential cases; no collection, runtime, semantic-red or restoration was performed.",
+  "existing_limits": "Prior C90 actual observations retain source mismatch, unavailable old launchers, control08 NameError, missing same-PID defining-call witnesses and NumPy-reference HMC.",
+  "reproducibility": [
+    {
+      "purpose": "Complete packet inventory, SHA-256/readback, in-memory five-patch and nine-mutant reconstruction, AST/TOML, changed-path census and potential test counts",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "python3_source": "import ast,collections,hashlib,json,pathlib,re,subprocess,tomllib\nD=pathlib.Path(\"LOCAL/raw/e02-execution-20261027/repairs/C90-law-admission-r3\")\nM=json.loads((D/\"manifest.json\").read_bytes()); H=lambda b:hashlib.sha256(b).hexdigest(); fail=[]\nbase=M[\"source_base_commit\"]; head=subprocess.check_output([\"git\",\"rev-parse\",\"HEAD\"],text=True).strip()\ndef obj(commit,path):\n p=subprocess.run([\"git\",\"show\",commit+\":\"+path],capture_output=True)\n return None if p.returncode else p.stdout\ndef apply(src, patch):\n old=src.decode().splitlines(keepends=True);lines=patch.decode().splitlines(keepends=True)\n assert lines[0].startswith(\"--- \") and lines[1].startswith(\"+++ \")\n i=2;idx=0;out=[]\n while i<len(lines):\n  m=re.match(r\"@@ -(\\d+)(?:,(\\d+))? \\+(\\d+)(?:,(\\d+))? @@\",lines[i]);assert m,repr(lines[i]);i+=1\n  start=int(m.group(1)); start=start-1 if start else 0\n  assert start>=idx;out.extend(old[idx:start]);idx=start\n  c0=c1=0\n  while i<len(lines) and not lines[i].startswith(\"@@ \"):\n   line=lines[i];i+=1;assert line[:1] in (\" \",\"+\",\"-\"),repr(line)\n   if line[0] in (\" \",\"-\"):\n    assert idx<len(old) and old[idx]==line[1:],(idx,repr(old[idx] if idx<len(old) else None),repr(line));idx+=1;c0+=1\n   if line[0] in (\" \",\"+\"):out.append(line[1:]);c1+=1\n  assert c0==int(m.group(2) or 1) and c1==int(m.group(4) or 1)\n out.extend(old[idx:]);return \"\".join(out).encode()\ndef splitpatch(blob):\n chunks=re.split(r\"(?m)(?=^--- (?:a/|/dev/null))\",blob.decode())\n out={}\n for ch in chunks:\n  if not ch:continue\n  lines=ch.splitlines();assert lines[1].startswith(\"+++ b/\")\n  path=lines[1][6:];assert path not in out;out[path]=ch.encode()\n return out\nsyms=[str(p) for p in D.rglob(\"*\") if p.is_symlink()]\nregular={str(p.relative_to(D)):p.read_bytes() for p in D.rglob(\"*\") if p.is_file() and not p.is_symlink()}\nclaimed={x[\"path\"]:x for x in M[\"artifacts\"]};listed=set(claimed);actual=set(regular)-{\"manifest.json\"}\nfor p in sorted(listed|actual):\n x=claimed.get(p);b=regular.get(p)\n if x is None or b is None or (len(b),H(b))!=(x[\"bytes\"],x[\"sha256\"]):fail.append([\"packet\",p])\nif syms or len(actual)!=M[\"artifact_count_excluding_manifest\"] or sum(len(regular[x]) for x in actual)!=M[\"artifact_bytes_excluding_manifest\"]:fail.append(\"inventory\")\npatch=splitpatch(regular[\"source.patch\"]);rows=[]\nfor x in M[\"full_source_footprint\"]:\n p=x[\"path\"];orig=obj(base,p);present=orig is not None;old=orig or b\"\";post=regular[x[\"postimage\"]]\n try:recon=apply(old,patch[p]);eq=recon==post\n except Exception as e:eq=False;fail.append([\"patch\",p,repr(e)])\n ref=H(orig) if present else None;athead=obj(head,p);work=pathlib.Path(p);wb=work.read_bytes() if work.is_file() else None\n ok=(ref==x[\"preimage_sha256\"] and H(post)==x[\"postimage_sha256\"] and eq)\n if not ok:fail.append([\"source\",p])\n rows.append({\"path\":p,\"base_sha256\":ref,\"head_sha256\":None if athead is None else H(athead),\"work_sha256\":None if wb is None else H(wb),\"post_sha256\":H(post),\"reconstructed\":eq,\"head_matches_base\":athead==orig,\"work_matches_base\":wb==orig})\nif set(patch)!={x[\"path\"] for x in rows}:fail.append(\"source_patch_paths\")\ncontrols=json.loads(regular[\"property-removals.json\"])[\"controls\"];result=[]\nfor c in controls:\n source=next(x for x in M[\"full_source_footprint\"] if x[\"path\"]==c[\"path\"]);original=regular[source[\"postimage\"]]\n try:\n  mut=apply(original,regular[c[\"patch\"]]);ast.parse(mut);ok=H(mut)==c[\"mutant_sha256\"]\n except Exception as e:mut=b\"\";ok=False;fail.append([\"control\",c[\"id\"],repr(e)])\n result.append({\"id\":c[\"id\"],\"mutant_sha256\":H(mut),\"matches_and_parses\":ok})\n if not ok:fail.append([\"control_hash\",c[\"id\"]])\nposts={x[\"path\"]:regular[x[\"postimage\"]] for x in M[\"full_source_footprint\"]}\npys={p:ast.parse(b,filename=p) for p,b in posts.items() if p.endswith(\".py\")}\nfor p,b in posts.items():\n if p.endswith(\".toml\"):tomllib.loads(b.decode())\ntest=next(tree for p,tree in pys.items() if p.endswith(\"test_joint_law_admission.py\"));cases=[]\nfor n in test.body:\n if not isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) or not n.name.startswith(\"test_\"):continue\n count=1\n for d in n.decorator_list:\n  if isinstance(d,ast.Call) and isinstance(d.func,ast.Attribute) and d.func.attr==\"parametrize\":\n   try:count*=len(ast.literal_eval(d.args[1]))\n   except Exception as e:fail.append([\"parametrize\",n.name,repr(e)])\n cases.append({\"name\":n.name,\"potential_cases\":count})\nplan=json.loads(regular[\"verification-plan.json\"])\nif [(x[\"name\"],x[\"potential_cases\"]) for x in cases]!=[(x[\"name\"],x[\"source_potential_cases\"]) for x in plan[\"test_definitions\"]]:fail.append(\"case_table\")\ndef defs(tree):\n out={}\n def walk(node,prefix=\"\"):\n  for n in getattr(node,\"body\",[]):\n   if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef)):\n    key=(prefix+\".\" if prefix else \"\")+n.name\n    if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)):out[key]=n\n    else:walk(n,key)\n walk(tree);return out\nmp=\"policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py\"\nprior=defs(ast.parse(obj(base,mp)));after=defs(pys[mp]);delta=json.loads(regular[\"source-version-delta.json\"]);same={}\nfor name,expected in delta[\"unchanged_complete_MC_function_AST_sha256\"].items():\n matches=[k for k in after if k.split(\".\")[-1]==name];assert len(matches)==1\n key=matches[0];aa=ast.dump(after[key],include_attributes=False);bb=ast.dump(prior[key],include_attributes=False)\n value=H(aa.encode());same[name]={\"sha256\":value,\"same\":aa==bb,\"matches_recorded\":value==expected}\n if aa!=bb or value!=expected:fail.append([\"ast\",name])\nchanged=subprocess.check_output([\"git\",\"diff\",\"--name-only\",delta[\"research_census_commit\"],base],text=True).splitlines()\nif changed!=delta[\"all_changed_paths\"]:fail.append(\"changed_paths\")\npyrows=[]\nfor x in delta[\"changed_python_blobs\"]:\n b=obj(base,x[\"path\"]);tree=ast.parse(b,filename=x[\"path\"]);hits=[]\n for n in ast.walk(tree):\n  if not isinstance(n,ast.Call):continue\n  if isinstance(n.func,ast.Attribute) and n.func.attr in (\"propagate\",\"propagate_posterior_summary\"):hits.append((n.lineno,n.func.attr))\n  elif isinstance(n.func,ast.Name) and n.func.id==\"getattr\" and len(n.args)>1 and isinstance(n.args[1],ast.Constant) and n.args[1].value in (\"propagate\",\"propagate_posterior_summary\"):hits.append((n.lineno,n.args[1].value))\n ok=H(b)==x[\"sha256\"] and len(b)==x[\"bytes\"] and hits==x[\"all_syntactic_propagation_candidates\"];pyrows.append({\"path\":x[\"path\"],\"sha256\":H(b),\"syntactic_candidates\":hits,\"matches\":ok})\n if not ok:fail.append([\"changed_py\",x[\"path\"]])\nif set(x[\"path\"] for x in pyrows)!={p for p in changed if p.endswith(\".py\") and obj(base,p) is not None}:fail.append(\"changed_py_denominator\")\nafter_read={str(p.relative_to(D)):H(p.read_bytes()) for p in D.rglob(\"*\") if p.is_file() and not p.is_symlink()}\nbefore_read={p:H(b) for p,b in regular.items()}\nif before_read!=after_read:fail.append(\"packet_changed_during_review\")\nprint(json.dumps({\"manifest_sha256\":H(regular[\"manifest.json\"]),\"patch_sha256\":H(regular[\"source.patch\"]),\"base\":base,\"base_tree\":subprocess.check_output([\"git\",\"rev-parse\",base+\"^{tree}\"],text=True).strip(),\"head\":head,\"head_tree\":subprocess.check_output([\"git\",\"rev-parse\",head+\"^{tree}\"],text=True).strip(),\"packet_files\":len(regular),\"packet_bytes\":sum(map(len,regular.values())),\"symlinks\":syms,\"packet_readback_same\":before_read==after_read,\"packet_hashes\":before_read,\"source_rows\":rows,\"controls\":result,\"test_cases\":cases,\"total_potential_cases\":sum(x[\"potential_cases\"] for x in cases),\"unchanged_ast\":same,\"changed_path_count\":len(changed),\"changed_python\":pyrows,\"errors\":fail},sort_keys=True))\n"
+    },
+    {
+      "purpose": "Reconcile current C78 producer/reader schema fields and scope literal-source matches",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "python3_source": "import ast,hashlib,json,subprocess\nref=\"154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5\"\nP=\"LOCAL/raw/e02-execution-20261027/repairs/C90-law-admission-r3/postimages/\"\npaths=[\"policy-engine/src/polisyos/scientist/nodes/builtins/simulate/uncertainty_source_projection.py\",\"policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py\",\"policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_uncertainty_source_projection.py\",\"policy-engine/src/polisyos/foundry/uncertainty/delta.py\",\"policy-engine/src/polisyos/foundry/uncertainty/analytical.py\",\"policy-engine/src/polisyos/ir/analytics/uncertainty.py\"]\nraw={p:subprocess.check_output([\"git\",\"show\",ref+\":\"+p]) for p in paths}\ntrees={p:ast.parse(b,filename=p) for p,b in raw.items()}\nreader=trees[paths[0]]\ndef fields(class_name):\n c=next(n for n in reader.body if isinstance(n,ast.ClassDef) and n.name==class_name)\n return {n.target.id:ast.unparse(n.annotation) for n in c.body if isinstance(n,ast.AnnAssign) and isinstance(n.target,ast.Name)}\nr3=ast.parse(open(P+\"policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py\",\"rb\").read())\nbuild=next(n for n in ast.walk(r3) if isinstance(n,ast.FunctionDef) and n.name==\"_build_results\")\nassign=next(n for n in ast.walk(build) if isinstance(n,ast.AnnAssign) and isinstance(n.target,ast.Name) and n.target.id==\"draw_outcome_provenance\")\nproducer=[k.value for k in assign.value.keys]\nrecipe=next(v for k,v in zip(assign.value.keys,assign.value.values) if isinstance(k,ast.Constant) and k.value==\"sampling_recipe\")\nrecipekeys=[k.value for k in recipe.keys]\ndto=fields(\"_ReportDrawOutcomeProvenance\"); recdto=fields(\"_ReportSamplingRecipe\")\nd=ast.parse(open(P+\"policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py\",\"rb\").read())\nuses=[{\"line\":n.lineno,\"context\":ast.unparse(n)} for n in ast.walk(d) if isinstance(n,ast.Attribute) and n.attr in (\"fixed_scalar_values_owned\",\"input_envelope_digests\")]\ngrep=subprocess.run([\"git\",\"grep\",\"-l\",\"-e\",\"draw_outcome_provenance\",\"-e\",\"_ReportSamplingRecipe\",\"-e\",\"PropagationReportV11\",ref,\"--\",\"policy-engine/src\",\"policy-engine/tests\"],capture_output=True,text=True)\nout={\"ref\":ref,\"source_sha256\":{p:hashlib.sha256(b).hexdigest() for p,b in raw.items()},\"strict_provenance_fields\":dto,\"proposed_provenance_fields\":producer,\"new_undeclared_fields\":sorted(set(producer)-set(dto)),\"strict_recipe_fields\":recdto,\"proposed_recipe_fields\":recipekeys,\"dispatcher_fixed_or_digest_references\":uses,\"literal_source_test_grep_paths\":grep.stdout.splitlines(),\"grep_exit\":grep.returncode}\nprint(json.dumps(out,sort_keys=True))\n"
+    },
+    {
+      "purpose": "Compare actual public argument and result annotations",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "python3_source": "import ast,hashlib,json,subprocess,pathlib\nref=\"f728cfe467a32eb2a9023fbe157d5d06c4928369\"\nP=pathlib.Path(\"LOCAL/raw/e02-execution-20261027/repairs/C90-law-admission-r3/postimages\")\nrows=[]\nfor path,cls,names in [\n (\"policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py\",\"MonteCarloPropagator\",[\"propagate\",\"propagate_posterior_summary\"]),\n (\"policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py\",\"PropagationDispatcher\",[\"propagate\"])]:\n before=ast.parse(subprocess.check_output([\"git\",\"show\",ref+\":\"+path]));after=ast.parse((P/path).read_bytes())\n def get(t,n):\n  c=next(x for x in t.body if isinstance(x,ast.ClassDef) and x.name==cls)\n  return next(x for x in c.body if isinstance(x,ast.FunctionDef) and x.name==n)\n for n in names:\n  a=get(before,n);b=get(after,n)\n  left=(ast.dump(a.args,include_attributes=False),ast.dump(a.returns,include_attributes=False))\n  right=(ast.dump(b.args,include_attributes=False),ast.dump(b.returns,include_attributes=False))\n  rows.append({\"path\":path,\"method\":cls+\".\"+n,\"unchanged\":left==right})\nprint(json.dumps(rows))\n"
+    }
+  ]
+}

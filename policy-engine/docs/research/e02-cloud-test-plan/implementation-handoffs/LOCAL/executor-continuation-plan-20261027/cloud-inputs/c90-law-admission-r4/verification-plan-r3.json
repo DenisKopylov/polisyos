@@ -1,0 +1,141 @@
+{
+  "status": "ALL PRODUCT IMPORTS/COLLECTION/RUNTIME/REMOVALS UNRUN BY AUTHOR",
+  "source_base_commit": "f728cfe467a32eb2a9023fbe157d5d06c4928369",
+  "source_base_tree": "08371dae76c6ae9bc92c6213b735319d7e68b0e2",
+  "new_test_file": "policy-engine/tests/unit/foundry/uncertainty/test_joint_law_admission.py",
+  "test_definitions": [
+    {
+      "name": "test_refused_sampling_law_precedes_irrelevant_binding_and_never_evaluates",
+      "source_potential_cases": 132
+    },
+    {
+      "name": "test_supported_joint_laws_keep_every_draw_and_fixed_input",
+      "source_potential_cases": 6
+    },
+    {
+      "name": "test_supported_laws_still_reject_invalid_binding_before_evaluator_effects",
+      "source_potential_cases": 18
+    },
+    {
+      "name": "test_executable_auto_law_rejects_fixed_input_before_applicability_probe",
+      "source_potential_cases": 1
+    },
+    {
+      "name": "test_versioned_profile_fence_still_precedes_legacy_law_and_binding",
+      "source_potential_cases": 3
+    },
+    {
+      "name": "test_explicit_moment_routes_do_not_acquire_mc_gaussian_family_restrictions",
+      "source_potential_cases": 2
+    },
+    {
+      "name": "test_invocation_snapshot_binds_law_fixed_inputs_outputs_and_eligibility",
+      "source_potential_cases": 9
+    },
+    {
+      "name": "test_dispatcher_route_weights_belong_to_the_entry_snapshot",
+      "source_potential_cases": 4
+    },
+    {
+      "name": "test_snapshot_preserves_refused_covariance_tuple_without_json_coercion",
+      "source_potential_cases": 3
+    },
+    {
+      "name": "test_snapshot_preserves_ieee_negative_zero_at_the_actual_legacy_consumer",
+      "source_potential_cases": 3
+    },
+    {
+      "name": "test_supported_fixed_scalars_keep_callback_type_value_and_entry_association",
+      "source_potential_cases": 18
+    },
+    {
+      "name": "test_inert_sidecars_preserve_original_identity_limitation_and_numerical_law",
+      "source_potential_cases": 27
+    },
+    {
+      "name": "test_behavioral_metadata_meaning_is_owned_at_actual_mc_law_and_result_consumers",
+      "source_potential_cases": 54
+    },
+    {
+      "name": "test_enum_unknown_meaning_refuses_before_any_signature_or_evaluator",
+      "source_potential_cases": 6
+    },
+    {
+      "name": "test_mutated_parametric_parameters_cannot_change_the_prepared_marginal_law",
+      "source_potential_cases": 9
+    },
+    {
+      "name": "test_existing_provenance_wire_context_is_fixed_before_callback_mutation",
+      "source_potential_cases": 3
+    },
+    {
+      "name": "test_inert_extension_does_not_become_an_admitted_covariance_row",
+      "source_potential_cases": 6
+    },
+    {
+      "name": "test_analytical_weight_numeric_value_is_captured_before_signature_mutation",
+      "source_potential_cases": 1
+    },
+    {
+      "name": "test_mutable_fixed_objects_keep_borrowed_computation_without_owned_identity_or_gate",
+      "source_potential_cases": 6
+    },
+    {
+      "name": "test_invalid_analytical_weight_keeps_binding_precedence_and_delta_fallback",
+      "source_potential_cases": 2
+    },
+    {
+      "name": "test_explicit_mc_does_not_interpret_unconsumed_analytical_weights",
+      "source_potential_cases": 1
+    },
+    {
+      "name": "test_mc_does_not_interpret_std_metadata_unused_by_its_marginal_law",
+      "source_potential_cases": 3
+    },
+    {
+      "name": "test_deferred_moment_context_error_keeps_binding_and_actual_mc_fallback",
+      "source_potential_cases": 2
+    }
+  ],
+  "source_potential_cases": 319,
+  "actual_collected_cases": null,
+  "initial_focused_expected_nodes": [
+    "policy-engine/tests/unit/foundry/uncertainty/test_joint_law_admission.py::test_enum_unknown_meaning_refuses_before_any_signature_or_evaluator[dependency-mc]",
+    "policy-engine/tests/unit/foundry/uncertainty/test_joint_law_admission.py::test_supported_fixed_scalars_keep_callback_type_value_and_entry_association[fraction-mc]",
+    "policy-engine/tests/unit/foundry/uncertainty/test_joint_law_admission.py::test_behavioral_metadata_meaning_is_owned_at_actual_mc_law_and_result_consumers[enum-dependency-signature-mc]",
+    "policy-engine/tests/unit/foundry/uncertainty/test_joint_law_admission.py::test_analytical_weight_numeric_value_is_captured_before_signature_mutation"
+  ],
+  "order": [
+    "Freeze all five postimages; complete independent source review; compose atomically with exact preimages.",
+    "Reuse supported existing Python3.14/NumPy/JAX environment. Verify actual backend/profile, disk/RAM/thread admission; no reinstall or private data needed.",
+    "Confirm source-derived node IDs by actual collection; run a focused supported node separately and measure real wall/RSS before choosing concurrency/timeouts.",
+    "Run the new 319-source-potential wave and the affected existing checks below once on frozen source/input/profile; distinguish PASS/FAIL/ERROR/SKIP/UNRUN.",
+    "For each of nine controls: original positive -> one semantic mutant -> exact restoration -> same positive. Bind actual test PID/source/readset and nonzero real owner-call witnesses.",
+    "Retain compact complete deciding stdout/stderr/JUnit/profile/PID/source-readset and receipt by exact allowlist. Never archive checkout/env/dependencies/fixtures/CAS/DB/tmp trees.",
+    "Root independently reviews runtime scope and hands exact source/evidence/limits to G; no author closure."
+  ],
+  "affected_existing_checks": [
+    "policy-engine/tests/unit/remediation/test_c43_joint_gaussian.py",
+    "policy-engine/tests/unit/remediation/test_uqp_01.py",
+    "policy-engine/tests/unit/remediation/test_uqp_02.py",
+    "policy-engine/tests/unit/remediation/test_uqp_03.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher_routing.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_quasi_mc.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_adaptive_stopping.py",
+    "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py"
+  ],
+  "readset_economics": "Posterior-summary complete body and its numerical helpers listed in source-version-delta remain AST-identical. Do not repeat unchanged expensive MethodJob/HMC/native waves merely for a module/HEAD/documentation hash; Root qualifies actual affected readsets and independent consumer checks. Existing C90 source-mismatched/control-incomplete outputs are not promoted to final-source PASS.",
+  "defining_runtime_witnesses": [
+    "MonteCarloPropagator.propagate",
+    "MonteCarloPropagator._propagate_prepared",
+    "_prepare_propagation_inputs",
+    "_prepare_execution_inputs",
+    "MonteCarloPropagator._build_results",
+    "PropagationDispatcher.propagate",
+    "AnalyticalPropagator.propagate_linear_combination"
+  ],
+  "bounded_residual": "Arbitrary mutable fixed objects preserve borrowed computation but are identity-not-established/non-gating. Opaque inert sidecars/notes retain no verified identity/authority. Callable defaults/closures, private owners and simultaneous mutation during preparation are not a generic sandbox/transaction claim."
+}

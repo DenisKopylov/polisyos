@@ -1,0 +1,11 @@
+--- a/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
++++ b/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
+@@ -992,7 +992,7 @@
+                 converted[name] = 0.0
+                 if weight_error is None:
+                     weight_error = exc
+-        weights = converted
++        weights = prepared.weights
+     return replace(
+         prepared,
+         input_envelopes=envelopes,

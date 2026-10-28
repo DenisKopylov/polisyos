@@ -1,0 +1,86 @@
+{
+  "schema": "policyos.e02.c112.ddm_actual_return_review.v1",
+  "source_verdict": "HOLD",
+  "runtime_verdict": "HOLD_EVIDENCE_NOT_ESTABLISHED",
+  "scope": "Independent static review of actual C112 return; no product/runtime/G acceptance",
+  "base_commit": "b349e5c17351b160ff39a8c23c1759a2c522f81f",
+  "base_tree": "2d297ee70ea7eaee0d4c833b8daa634750f499e5",
+  "candidate_tree": "408838a6e9558aceff6937980bd988446c1dea61",
+  "candidate_kind": "reconstructed_git_tree_not_verified_final_commit",
+  "source_diff_sha256": "3d68b7355ba840da0aa12b5f6dcaa42c6ffa196107fcba5206cbed7947e130e3",
+  "source_diff_bytes": 22661,
+  "manifest_sha256": "0048563bb6bbf31d7d930be8bee3e13c238d7bdd96c247cd3409ea522954f8e1",
+  "commission_prompt_sha256": "50aa67138fd4d080fc49a4535c6a1c309a0e418213e240adaeff738dadaa00ea",
+  "checks": {
+    "git_full_index_binary_diff_matches_received_bytes": true,
+    "complete_changed_path_denominator": {
+      "paths": 5,
+      "suffixes": {
+        ".py": 1,
+        ".md": 1,
+        ".gz": 3
+      }
+    },
+    "base_absent_and_postimage_identity_errors": [],
+    "separately_delivered_tree_denominator": {
+      "files": 4,
+      "suffixes": {
+        ".md": 1,
+        ".gz": 3
+      },
+      "symlinks": 0
+    },
+    "delivered_bytes_match_candidate_tree": true,
+    "candidate_python_ast_parse": "PASS",
+    "after_read_input_hash_drift": false
+  },
+  "findings": [
+    {
+      "id": "C112-RET-01",
+      "severity": "blocking",
+      "confidence": "high",
+      "bucket": "SAME_C74_RET_01",
+      "property": "Complete deciding output must travel with source/origin and control bindings.",
+      "observed": "Progress dots only in passing test logs; JUnit, child outputs, stderr, patches and full control restoration evidence absent.",
+      "capability_label": "verification_missing",
+      "closure": "Widen one full evidence-custody channel and replay or retrieve actual bytes."
+    },
+    {
+      "id": "C112-RET-02",
+      "severity": "blocking",
+      "confidence": "high",
+      "bucket": "SAME_C74_RET_02_DEEPER",
+      "property": "Cold legacy budget reader preserves canonical type and actual complete meaning.",
+      "observed": "Budget reader checks type, enum and fields-set but not scalar values or wire projection.",
+      "capability_label": "semantic_test_missing",
+      "closure": "Compare full actual serialized values and fields-set for event and budget with independent expected values."
+    },
+    {
+      "id": "C112-RET-03",
+      "severity": "blocking",
+      "confidence": "high",
+      "bucket": "SAME_NEUTRAL_IMPORT_CLASS",
+      "property": "Each supported neutral entrypoint starts in its own clean process under a live trap.",
+      "observed": "One neutral subprocess imports all three entrypoints sequentially.",
+      "capability_label": "semantic_test_missing",
+      "closure": "Use one parameterized real import probe and separate process per entrypoint."
+    }
+  ],
+  "results": {
+    "test_outputs": "reported_pass_unqualified",
+    "removal_controls": "partial_failure_traces_only_not_qualified",
+    "historical_writer": "UNRUN",
+    "full_G_stationary": "not_established",
+    "ruff": "author_reports_UNRUN",
+    "setup": "author_reports_ERROR_logs_not_delivered",
+    "source_origins": "not_established",
+    "process_tree_and_disk_peaks": "not_established"
+  },
+  "product_imports": false,
+  "product_tests": false,
+  "cloud_launch": false,
+  "G_acceptance": false,
+  "closure_ids": [],
+  "review_markdown": "LOCAL/raw/e02-execution-20261027/reviews/C112-ddm-actual-independent.md",
+  "review_markdown_sha256": "3038e403b9258a5f28ad4225b956944d873b98b2466c740a7d900dc22364b5eb"
+}

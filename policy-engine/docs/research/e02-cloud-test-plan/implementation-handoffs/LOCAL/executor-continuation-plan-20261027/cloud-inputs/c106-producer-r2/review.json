@@ -1,0 +1,172 @@
+{
+  "kind": "independent_full_actual_source_return_review",
+  "created_at": "2026-10-28T14:00:50.931247+00:00",
+  "reviewer": "/root/source_admission_launch_review",
+  "source_verdict": "HOLD for adoption of advertised fresh-SQL foundation; useful partial forwarding/fetch code preserved",
+  "runtime_verdict": "UNRUN; no receipt/log evidence delivered",
+  "base_commit": "b349e5c17351b160ff39a8c23c1759a2c522f81f",
+  "base_tree": "2d297ee70ea7eaee0d4c833b8daa634750f499e5",
+  "candidate_tree": "ceb52e72305fb43c10ae78c390e93e33ae35c04a",
+  "task_id": "task_e_6ae1ee51e514832593797342cd6b9f0c",
+  "diff_sha256": "42bf83787c3d972ac4f074c8dadb47f1a46898180e6bb568a01c835925582a57",
+  "diff_bytes": 33639,
+  "scope": "Full eight-file actual C106 return versus C106-root-r2 commission. This is lower public fetch/forwarding foundation, not actual registered-materialization-to-basis-to-fresh-API chain.",
+  "file_denominator": "All eight candidate-manifest.files complete regular Git postimages, every existing base blob/current physical preimage, and both new-path absences; not whole runtime source census",
+  "files": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-28-c106-fresh-registered-sql.toml",
+      "postimage_git_blob": "a5bb31ae1296a00390612e1f46941a890616d61b",
+      "sha256": "b4cf9d0b0c0e5666a2d106dcd54e5b37de9253ec594edaed8c7e18ee19a509be",
+      "bytes": 1172,
+      "manifest_match": true,
+      "physical_new_path_absent": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/__init__.py",
+      "postimage_git_blob": "f8547464f9dbaebde99c148191ef3f303a2b68b6",
+      "sha256": "564760afdbb1b823f373d975b33666c715a22da22bd337de40c4ff6447487624",
+      "bytes": 14180,
+      "manifest_match": true,
+      "physical_matches_base": true,
+      "AST": "PASS syntax only"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/api.py",
+      "postimage_git_blob": "e3a65897b88cff1fdd26dffb7ae763a263f1ab3e",
+      "sha256": "33624de756c919d0e304c66d582eff140c7dcc1a665539942453f2cc9c934c86",
+      "bytes": 13439,
+      "manifest_match": true,
+      "physical_matches_base": true,
+      "AST": "PASS syntax only"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/adapters/README.md",
+      "postimage_git_blob": "f2c9c7f2cd9459bd1b35ed1ba4b52dab6a40bbce",
+      "sha256": "c33aaac318e402752e4525833813107d9c92726c49cb5ebd1940348818c491cf",
+      "bytes": 4893,
+      "manifest_match": true,
+      "physical_matches_base": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/adapters/fabric_bridge.py",
+      "postimage_git_blob": "734b2ce543a8580eb8d6d3820adfbf8a3bb948f5",
+      "sha256": "829a379a5f18ec0dc3666c11a12225618766d15226ed43c48b887a5e922c7333",
+      "bytes": 30771,
+      "manifest_match": true,
+      "physical_matches_base": true,
+      "AST": "PASS syntax only"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/api.py",
+      "postimage_git_blob": "551eb96d8a8beaea7aa0c000840dc0a6f0e30b48",
+      "sha256": "c8418c6d5f75e3469326f5581cb5101a7096cc9ef1ff6fb7d06280e5cef2de9c",
+      "bytes": 14217,
+      "manifest_match": true,
+      "physical_matches_base": true,
+      "AST": "PASS syntax only"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/test_registered_sql_capture.py",
+      "postimage_git_blob": "d0c358f7218c2ca445faf867858e2d6f7b5d1aaa",
+      "sha256": "b7a12e70cf6f4903a94ba774b8e198b09e2c19734caf4558907dc41a926f032d",
+      "bytes": 1729,
+      "manifest_match": true,
+      "physical_new_path_absent": true,
+      "AST": "PASS syntax only"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/facade/test_api.py",
+      "postimage_git_blob": "8c157cf81ec40c717e5354939892b375dbb920d5",
+      "sha256": "d8a9125aec6162ba9f003ea68c60ede95694890ca3ccf21f5e3155eca12c9b31",
+      "bytes": 10795,
+      "manifest_match": true,
+      "physical_matches_base": true,
+      "AST": "PASS syntax only"
+    }
+  ],
+  "findings": [
+    {
+      "id": "C106-SR-01",
+      "severity": "blocking_for_advertised_fresh_SQL_foundation",
+      "confidence": "high",
+      "bucket": "SAME executed-origin/proxy-gate class explicitly commissioned in C106 (P05/P32/P37/P38); not a new G architecture question",
+      "locations": [
+        "fabric/api.py@e3a6589:221-272",
+        "fabric/connectors/registry_core_parts.py@18521ec:ConnectorRegistry.get",
+        "fabric/connectors/_registry_lifecycle.py@4b779ae:_apply_resilience_if_configured",
+        "fabric/connectors/resilience/__init__.py:apply_resilience fallback path"
+      ],
+      "required_property": "A returned new registered SQL acquisition is witnessed by actual selected SQLQueryConnector execution, not cache/fallback data.",
+      "actual_predicate": "Captured registration.connector_class is SQLQueryConnector, and registry.get(enable_cache=False) returns normally through _sync_fetch.",
+      "divergent_case": "A genuine registered SQLQueryConnector with configured resilience fallback: get() still installs the resilience fetch wrapper before cache handling. If SQL fails or circuit refuses, fallback may return mock/cache FetchResult. retryable=False disables retries but does not disable fallback. The unchanged registration check then passes and the helper returns it as fresh SQL.",
+      "repair_direction": "Widen one selected execution/capture boundary to witness the actual canonical SQL query/output operation and bind the actual effective config/registration/bytes, or fail closed for every unsupported wrapper/profile. Do not accept fallback_used/from_cache markers or enable_cache=False as origin proof. Add real failed-query+configured fallback and provider/config drift falsifiers through the public helper."
+    },
+    {
+      "id": "C106-SR-02",
+      "severity": "blocking_for_executed_profile_claim",
+      "confidence": "high",
+      "bucket": "SAME executed-profile/origin class as SR-01; batch sibling divergences, no per-field repair ladder",
+      "locations": [
+        "fabric/api.py@e3a6589:259-270",
+        "scientist/adapters/fabric_bridge.py@734b2ce:123-134,150-178",
+        "fabric/connectors/sources/sql_query.py@292f6f3:SQLQueryConnector._query",
+        "scientist/adapters/README.md@f2c9c7f:new profile paragraph"
+      ],
+      "required_property": "The declared fresh registered-SQL profile is the branch and applied view actually executed; unsupported requested constraints cannot be presented as enforced.",
+      "actual_predicate": "Only constraint key names other than page_size reject; constructor requires connector/registry but allows federation simultaneously.",
+      "divergent_cases": [
+        "Configured X-SQL-Query returns unbounded query output: _query returns that query before page_size handling, yet helper accepts page_size and README says ignored constraints are refused.",
+        "DefaultFabricPort(require_fresh_registered_sql=True, connector_id=..., connector_registry=..., federation=...) enters the FED branch; new fresh-SQL flag is silently ignored and candidate federated rows are persisted.",
+        "Binding captures registry identity but _sync_fetch obtains mutable default_config later, with no captured executed config/query/output witness. A same-entry configuration change is not rejected by the registration comparison."
+      ],
+      "repair_direction": "Compile/validate one explicit executable producer profile from actual selected config/query and exclusive branch; record actual applied plan/parameters/limits and refuse contradictory intent. Preserve FED candidate semantics and legacy callback contract. Implement origin/view evidence as one structural boundary rather than patching just page_size or one flag."
+    }
+  ],
+  "positive_source_assessment": [
+    "New public helper is correctly present in Fabric __all__ and lazy import map; local SQL import avoids eager optional connector loading.",
+    "Scientist run_experiment adds a typed FabricPort keyword in TYPE_CHECKING and forwards it into existing workflow builder without serializing the object into ExperimentState; source test checks that forwarding.",
+    "Explicit connector ID, registry binding before/after and enable_cache=False are useful selection primitives. They are not sufficient executed-origin proof.",
+    "Existing snapshot tree persistence and FED path are reused; no C105 contract/owner/root/index/fence changes are in the eight-file diff.",
+    "Release fragment explicitly names protected admission/Foundry/API limitations and public_surface_inventory_reviewed=false."
+  ],
+  "completeness": {
+    "classification": "PARTIAL lower fetch + keyword-forwarding foundation; full C106 commission incomplete",
+    "not_delivered_in_eight_path_diff": [
+      "Actual installed Runtime source factory/config/action grant and sealed issuer/capture proof production caller.",
+      "Protected actual SQL producer capture schema/artifact, effective plan/config/output binding, stable owner source registration, acquisition occurrence, C105 admission and returned immutable carrier binding.",
+      "Immutable selected input-bindings/Foundry basis transport for exact original carrier/event/capture and recomputed bounded SimulationResult1.4 coverage/query.",
+      "RuntimeContainer/DebugService shared validity owner injection, default/exact/cache fresh source admission, strict public projection DTO/route and protected-reference sanitization.",
+      "Real factory/SQL D/I end-to-end withdrawal/removal/restoration/process/race/grant/profile/basis/cache controls."
+    ],
+    "capability_labels": [
+      "producer_missing (trusted registered materialization producer)",
+      "artifact_missing (producer capture/original admission binding)",
+      "bridge_missing",
+      "consumer_missing",
+      "surface_missing",
+      "verification_missing",
+      "semantic_test_missing"
+    ]
+  },
+  "contract_companion_disposition": {
+    "public_surface": "Function export/lazy map and public APIs changed: Root must regenerate/review canonical public inventory/reference and signature companions after source repair. False review flag is correct; no generated acceptance yet.",
+    "typing": "New helper and Fabric keyword are annotated, but bridge casts registry to Any and protocol registration bindings to object; these do not provide trusted scope/config/capture authority. No strict producer-capture DTO is implemented.",
+    "docs": "Scientist adapter README and release fragment exist, but their fresh/executed/refuses-ignored-constraints claims exceed implemented behavior. Update them to exact supported profile; add Fabric API/nearest README/discovery documentation and facade preservation tests.",
+    "api_schema_client": "No Runtime DTO/OpenAPI/client surface is changed yet; actual generation/client compatibility remains required when the missing bridge lands. Do not mark those companions complete or invent no-op snapshots.",
+    "negative_tests": "Delivered new SQL test covers one ordinary table success and filter-key refusal only. It omits actual SQL-call witness, cache/wrapper/fallback, ignored page_size custom query, registration/config replacement, conflicting FED+fresh profile and actual DefaultFabricPort snapshot path. New facade test is mocked forwarding only; preserve existing importer/legacy/FED tests.",
+    "release": "Typed release/public-generator checks UNRUN; keep public review flag false until actual owner checks."
+  },
+  "evidence": "Complete recursive RAW/cloud/C106 file walk contains transport metadata/diff/candidate index only; no delivered receipt/stdout/stderr/JUnit/PID/source-origin or A/D observations. No test run can be inferred from source, expected assertions or final chat. Independent product execution was not performed.",
+  "next_remaining_owner_path": [
+    "First fix or truthfully bound the selected SQL execution/profile property in Fabric API/actual SQL owner and DefaultFabricPort; retain typed keyword forwarding. Do not mutate C105 owner to compensate.",
+    "Compose Runtime factory using installed deployment/config/grant/attestation and exact canonical producer closure; no arbitrary callback/string/flag authority. Inject it through the now-forwarded FabricPort from real Runtime control caller.",
+    "Persist protected actual capture plus C105 registration/admission and immutable snapshot/capture/original-carrier artifact; carry selected binding through actual input-bindings/Foundry supported basis with identity-only purpose.",
+    "Wire RuntimeContainer shared DecisionValidityService into DebugService, selected1.4 bounded graph reader and native strict source-use projection on every default/exact/cache emission; no latest carrier or schema-allowlist shortcut.",
+    "Finish exact public/schema/API/client/migration companions, then run genuine D/I initial positives -> authorized exact A/use withdrawal -> different-process D withdrawn/source_admission_withdrawn, I current, bytes/history unchanged -> effective gate removal wrongly current D red -> exact restore green; preserve full deciding bytes within task-owned budget."
+  ],
+  "P40_aggregate": "SR-01/SR-02 are one executed-origin/effective-profile property with sibling divergences. Widen to actual canonical execution/capture, not a cache flag, class name or per-site patch; existing G decision is sufficient. Incomplete whole-chain scope is separate from these present source defects.",
+  "runtime": "UNRUN",
+  "code_acceptance": false,
+  "closure_ids": [],
+  "actions": "Read-only Git/object/byte/AST inspection; no product imports/tests/reruns/environment/canonical/source/index/refs writes or children. New immutable RAW review pair only."
+}

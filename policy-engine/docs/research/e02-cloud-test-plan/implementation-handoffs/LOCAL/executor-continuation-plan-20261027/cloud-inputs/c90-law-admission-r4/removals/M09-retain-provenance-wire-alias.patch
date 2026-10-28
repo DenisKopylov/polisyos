@@ -1,0 +1,11 @@
+--- a/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
++++ b/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
+@@ -942,7 +942,7 @@
+     else:
+         try:
+             # Existing wire semantics freeze even datetime/tz/Enum notes.
+-            provenance = CompositionProvenance.model_validate_json(provenance.model_dump_json())
++            provenance = envelope.composition_provenance
+         except (TypeError, ValueError):
+             # Non-serializable, non-governing notes retain the existing
+             # candidate/non-gating limitation, not an invented wire value.

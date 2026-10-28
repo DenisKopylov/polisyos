@@ -1,0 +1,11 @@
+--- a/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
++++ b/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
+@@ -848,7 +848,7 @@
+             # Resolve the actual owner's entire consumed predicate once.
+             # Keep its primitive meaning, never a behavioral string alias.
+             unknown = has_unknown_dependency({name: envelope})
+-            metadata[dependency_key] = "unknown" if unknown else "known"
++            metadata[dependency_key] = raw
+         else:
+             unknown = False
+         envelopes[name] = envelope.model_copy(update={"metadata": metadata})

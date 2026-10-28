@@ -1,0 +1,11 @@
+--- a/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
++++ b/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
+@@ -1142,7 +1142,7 @@
+             requested_n_samples=n_samples,
+             qmc_summary=qmc_summary,
+             input_envelope_digests=prepared.input_envelope_digests,
+-            fixed_scalar_values_owned=prepared.fixed_scalar_values_owned,
++            fixed_scalar_values_owned=True,
+             sample_axis=(empirical_spec.sample_axis if empirical_spec is not None else "draw"),
+             joint_sample_id=(
+                 empirical_spec.joint_sample_id if empirical_spec is not None else None

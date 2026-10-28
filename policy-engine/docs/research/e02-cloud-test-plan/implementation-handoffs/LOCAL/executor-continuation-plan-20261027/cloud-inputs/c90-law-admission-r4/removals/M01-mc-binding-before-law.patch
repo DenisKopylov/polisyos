@@ -1,0 +1,10 @@
+--- a/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
++++ b/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py
+@@ -1038,6 +1038,7 @@
+     ) -> list[PropagationResult]:
+         """Consume the same prepared law from direct and dispatched execution."""
+         param_names = sorted(prepared.input_envelopes)
++        _validate_effective_inputs(simulation_fn, prepared.nominal_params, param_names)
+         failure = (
+             "unknown_dependency"
+             if prepared.unknown_dependency

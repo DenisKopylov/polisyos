@@ -1,0 +1,38 @@
+--- a/policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py
++++ b/policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py
+@@ -75,7 +75,7 @@
+             )
+ 
+         if _requires_monte_carlo_sampling(input_envelopes):
+-            return self._mc._propagate_prepared(simulation_fn, prepared)
++            return self._mc.propagate(simulation_fn, nominal_params, input_envelopes, output_metric_ids)
+ 
+         if (
+             self._config.delta_use_full_covariance
+@@ -109,7 +109,7 @@
+             input_envelopes, is_jax_differentiable, weights=weights
+         )
+         if declared_method == PropagationMethod.MONTE_CARLO:
+-            return self._mc._propagate_prepared(simulation_fn, prepared)
++            return self._mc.propagate(simulation_fn, nominal_params, input_envelopes, output_metric_ids)
+ 
+         # The remaining automatic route may probe the real evaluator. Preserve
+         # complete binding validation before that probe or any backend execution.
+@@ -182,7 +182,7 @@
+                 prepared=prepared,
+             )
+ 
+-        return self._mc._propagate_prepared(simulation_fn, prepared)
++        return self._mc.propagate(simulation_fn, nominal_params, input_envelopes, output_metric_ids)
+ 
+     def _propagate_delta_with_mc_fallback(
+         self,
+@@ -204,7 +204,7 @@
+             )
+         except Exception as exc:
+             logger.warning("Delta propagation failed (%s). Falling back to Monte Carlo.", exc)
+-            return self._mc._propagate_prepared(simulation_fn, prepared)
++            return self._mc.propagate(simulation_fn, nominal_params, input_envelopes, output_metric_ids)
+ 
+     def _resolve_method(
+         self,

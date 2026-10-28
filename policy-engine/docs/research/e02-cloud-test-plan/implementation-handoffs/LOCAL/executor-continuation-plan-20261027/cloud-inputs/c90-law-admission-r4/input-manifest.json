@@ -1,0 +1,149 @@
+{
+  "schema": "policyos.c90.r4.public_input_carrier.v1",
+  "status": "R3 UNAPPLIED SOURCE HOLD; public source/review inputs for a compatible R4 repair, not accepted code",
+  "source_frame_before_carrier_publication": {
+    "commit": "154b32e8691f4bfbf216d64e0d7fc95f96d8c0d5",
+    "tree": "fc3ea1679ba3ff9317a4f25fc0c39ca127909750"
+  },
+  "future_launch_base": null,
+  "future_launch_tree": null,
+  "publication": null,
+  "held_r3_manifest_sha256": "699ae9ed84613bd0c63df801c78cb712c22be8154421399a02b94317fe4a0b57",
+  "held_r3_original_base": {
+    "commit": "f728cfe467a32eb2a9023fbe157d5d06c4928369",
+    "tree": "08371dae76c6ae9bc92c6213b735319d7e68b0e2"
+  },
+  "held_patch": {
+    "path": "source-r3.patch.gz",
+    "uncompressed_bytes": 76153,
+    "uncompressed_sha256": "07f4c515fa60bcfba29c011fe00eb12d1730adca7fcdcd056ed9bba17c2c51cb",
+    "compressed_bytes": 16451,
+    "compressed_sha256": "42efe5eacbb8cb35bf32b9937bd0f596d22f453afa3c4e54c49664087af2b967",
+    "encoding": "gzip, lossless, deterministic mtime=0"
+  },
+  "complete_review": {
+    "markdown": "C90-law-admission-r3-independent.md",
+    "markdown_sha256": "e587f4e02cca048ac30000670a39e302fde1aeeafd5e689bc8c7e0604e9d4146",
+    "json": "C90-law-admission-r3-independent.json",
+    "json_sha256": "86f166e9bb6a50f9194beefbe1b4e8d8a762be6e7331dbaaaa3c8ce45a3ac1e4",
+    "verdict": "SOURCE HOLD",
+    "findings": [
+      "F01 SAME common preparation/finalization across numerical routes",
+      "F02 NEW strict schema-1.0 producer/current-reader handshake"
+    ]
+  },
+  "five_target_preimages_current": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "new_file": false,
+      "expected_current_state": "regular tracked file",
+      "current_git_blob": "450ad911831f14bac0d2f2ed39f4c9e6fed0fccd",
+      "current_sha256": "458d0c160ae359bb909805ead506dcb862aca9c38689194b5504e8c189444d50",
+      "current_bytes": 89021,
+      "r3_postimage_sha256": "5645f61b21035f04f10854ba3cd9f12a19ff64633ad6310ade0132047b132c1a",
+      "r3_postimage_bytes": 100476
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py",
+      "new_file": false,
+      "expected_current_state": "regular tracked file",
+      "current_git_blob": "b5ef2dfbf5c236f951dafb90301c6e46e8f9cc32",
+      "current_sha256": "e1c396c8cf96be4503e0d98d81ab7a28a4795892c3d507c7e8ea761616e9ba5f",
+      "current_bytes": 11589,
+      "r3_postimage_sha256": "1747ee06928fa47a597f0498b6bc02f65e2cf0c6b1741468dfcfd6c2f4692fc5",
+      "r3_postimage_bytes": 13954
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_joint_law_admission.py",
+      "new_file": true,
+      "expected_current_state": "absent",
+      "current_git_blob": null,
+      "current_sha256": null,
+      "r3_postimage_sha256": "625bce11f565ceb44963193070278cfb71ec39610d64efb6c266b1d3c8cd30c5",
+      "r3_postimage_bytes": 40556
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "new_file": false,
+      "expected_current_state": "regular tracked file",
+      "current_git_blob": "365e3b46f50458b62227c1f3d97601545b9af66c",
+      "current_sha256": "3e254b17e72650e595750c3e2eb0d8362d9c15b9bfa2497474d815fe9deb7e45",
+      "current_bytes": 13587,
+      "r3_postimage_sha256": "7421fc8b602efb3d40292e2f4e142273fe3726ab3cdb3dfec60cb57a9e16fcf5",
+      "r3_postimage_bytes": 17084
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-28-e02-posterior-source-coordinate-admission.toml",
+      "new_file": false,
+      "expected_current_state": "regular tracked file",
+      "current_git_blob": "121cf51b1f2b3c110a1aca6cd041e9cd5902e598",
+      "current_sha256": "ce0f8b3ad78de1a833b8db63dea7fd9e9383f2e0ef6ab46c14aa327db7d11f32",
+      "current_bytes": 2267,
+      "r3_postimage_sha256": "3c5adf61c3247b89ae013623a8add2c0896a35d61722b5f4a8fcff8db536558f",
+      "r3_postimage_bytes": 3774
+    }
+  ],
+  "current_C78_and_moment_companions": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/delta.py",
+      "sha256": "73df40a046d6a94e480c0e14a79385f40ac2a4233a4d03a35dd36b67419468f6",
+      "bytes": 10438,
+      "role": "Actual current consumer/schema companion; future launch must rebind to published carrier base."
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/analytical.py",
+      "sha256": "b7b862e2c64b5ebf873e21c302858360c9eaaddcb0a9c80495617be87ce1eece",
+      "bytes": 6746,
+      "role": "Actual current consumer/schema companion; future launch must rebind to published carrier base."
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "sha256": "1e26c27c4ccfc4b55e459e7a1459c4e111a0f0feb7322b2f350bfff87a5e8bdf",
+      "bytes": 133571,
+      "role": "Actual current consumer/schema companion; future launch must rebind to published carrier base."
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "sha256": "7413c42a5ed145fb2329105843164dee9c53b3b181f3f27c15960f9ede4275bb",
+      "bytes": 78788,
+      "role": "Actual current consumer/schema companion; future launch must rebind to published carrier base."
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/uncertainty_source_projection.py",
+      "sha256": "a7279cac36b7905e6e3b474281b5c15aeeaeb78c6bc601b09742628d697a12e5",
+      "bytes": 12612,
+      "role": "Actual current consumer/schema companion; future launch must rebind to published carrier base."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_uncertainty_source_projection.py",
+      "sha256": "69458fe9085a7ec0b07051d41269c71b8e2015e1d1d8ee2b491e7cef4aca72a6",
+      "bytes": 22523,
+      "role": "Actual current consumer/schema companion; future launch must rebind to published carrier base."
+    }
+  ],
+  "strict_current_draw_ledger_fields": [
+    "schema_version",
+    "requested_draw_count",
+    "attempted_draw_count",
+    "simulation_attempt_count",
+    "retry_attempt_count",
+    "successful_draw_count",
+    "unattempted_draw_count",
+    "outcome_denominator_complete",
+    "sampling_recipe",
+    "input_identity_status",
+    "implementation_identity_status",
+    "draw_identity_basis",
+    "failure_records"
+  ],
+  "controls": {
+    "count": 9,
+    "boundary": "Complete controls array in property-removals-r3.json, all nine exact small patch bytes included. Not runtime proof or a final R4 mutant identity.",
+    "original_bytes_reason": "Properties and source mutation locators are not recoverable from the held source patch plus review alone; these tiny exact controls preserve the original falsifiers. Rebase semantically to actual corrected R4 source and retain new hashes."
+  },
+  "runtime": "UNRUN",
+  "product_imports": false,
+  "tests": "UNRUN",
+  "code_acceptance": false,
+  "closure_ids": []
+}

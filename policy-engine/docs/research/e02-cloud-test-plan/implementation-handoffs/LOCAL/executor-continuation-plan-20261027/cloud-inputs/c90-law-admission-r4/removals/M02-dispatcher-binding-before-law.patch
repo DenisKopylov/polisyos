@@ -1,0 +1,10 @@
+--- a/policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py
++++ b/policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py
+@@ -67,6 +67,7 @@
+         output_metric_ids = prepared.output_metric_ids
+         weights = prepared.weights
+         param_names = sorted(input_envelopes)
++        _validate_effective_inputs(simulation_fn, nominal_params, param_names)
+         if prepared.unknown_dependency:
+             return _blocked_dependency_results(
+                 output_metric_ids,

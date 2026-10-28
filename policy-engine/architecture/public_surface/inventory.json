@@ -1894,8 +1894,8 @@
         {
           "module": "polisyos.core.contracts",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 777,
-          "known_export_count": 777,
+          "export_count": 780,
+          "known_export_count": 780,
           "exports": [
             "AcceptanceNonReceipt",
             "AcceptanceOutcome",
@@ -2480,6 +2480,8 @@
             "PolicySpecRef",
             "PreN9AdmittedCandidate",
             "PreN9EpochValiditySubjectStatement",
+            "RegisteredSQLAdmissionBinding",
+            "RegisteredSQLUseContract",
             "PreflightDiagnostic",
             "PreflightReport",
             "PreflightReportRef",
@@ -2645,6 +2647,7 @@
             "data_snapshot_reference_fields",
             "data_snapshot_reference_input_roles",
             "data_snapshot_owner_input_requirements",
+            "data_snapshot_manifest_inputs_match",
             "chronology",
             "classify_optional_analytic_node",
             "construct_for_legacy_family",
@@ -2699,8 +2702,8 @@
                 "path": "src/polisyos/core/contracts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 79704,
-                "sha256": "c31915e303a72e95e95e65d98482667377df38baad39201107d4f269c94decd7"
+                "bytes": 80058,
+                "sha256": "a377c28475500990cfa036763e4d4391e3477f6c7a96f4f90d365041c1faa2fc"
               },
               {
                 "path": "src/polisyos/core/contracts",
@@ -4145,8 +4148,8 @@
         "polisyos.ir.world"
       ],
       "major_subsystem": true,
-      "export_count": 527,
-      "known_export_count": 527,
+      "export_count": 528,
+      "known_export_count": 528,
       "exports": [
         "GATE_REQUEST_SCHEMA_VERSION",
         "SLOT_ID_PATTERN",
@@ -4374,6 +4377,7 @@
         "LeontiefIOBundle",
         "LeontiefIOInput",
         "LessonRegistrySeedBundle",
+        "LinkReport",
         "MAUPInvarianceCertificate",
         "MAUPInvarianceCertificateRef",
         "MAUPPartitionCheck",
@@ -4685,8 +4689,8 @@
         {
           "module": "polisyos.ir",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 527,
-          "known_export_count": 527,
+          "export_count": 528,
+          "known_export_count": 528,
           "exports": [
             "GATE_REQUEST_SCHEMA_VERSION",
             "SLOT_ID_PATTERN",
@@ -4914,6 +4918,7 @@
             "LeontiefIOBundle",
             "LeontiefIOInput",
             "LessonRegistrySeedBundle",
+            "LinkReport",
             "MAUPInvarianceCertificate",
             "MAUPInvarianceCertificateRef",
             "MAUPPartitionCheck",
@@ -5240,8 +5245,8 @@
                 "path": "src/polisyos/ir/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 73996,
-                "sha256": "e3f0dd7f5625fbb453c3e085c953fb3f6b168e7be7af129dc83aa7fd8d46ea0a"
+                "bytes": 74070,
+                "sha256": "ae998b39223005f4b3fa980f384ae37486634608b241695e61d70e1dcb6b19e9"
               },
               {
                 "path": "src/polisyos/ir",
@@ -9100,8 +9105,8 @@
                 "path": "src/polisyos/fabric/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 14004,
-                "sha256": "a9fda959af65aff0b5bf2d62382552fcc15dd49ade384f83469f237576ac214e"
+                "bytes": 14180,
+                "sha256": "564760afdbb1b823f373d975b33666c715a22da22bd337de40c4ff6447487624"
               }
             ],
             "unresolved_by_construction": [
@@ -9150,6 +9155,7 @@
               "fabric_event_to_authored_text",
               "fabric_fact_to_quantity_value",
               "fabric_get_data",
+              "fabric_get_fresh_registered_sql_data",
               "file_lock",
               "freeze_federation_request",
               "prepare_federation_core_payload",
@@ -9172,8 +9178,8 @@
         {
           "module": "polisyos.fabric.api",
           "facade_mode_observed": "eager_exports",
-          "export_count": 53,
-          "known_export_count": 53,
+          "export_count": 54,
+          "known_export_count": 54,
           "exports": [
             "AccessRef",
             "AuthoredText",
@@ -9214,6 +9220,7 @@
             "fabric_event_to_authored_text",
             "fabric_fact_to_quantity_value",
             "fabric_get_data",
+            "fabric_get_fresh_registered_sql_data",
             "file_lock",
             "freeze_federation_request",
             "prepare_federation_core_payload",
@@ -9253,8 +9260,8 @@
                 "path": "src/polisyos/fabric/api.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 10805,
-                "sha256": "12a45d301eb6d6cc225033683841348d16dba30887d0230f651c60db14bf6e24"
+                "bytes": 21184,
+                "sha256": "f4c9cf3fca8aa34f032ff5fb4c7ccbcfab28e360335989f85003bdc5ea23c045"
               },
               {
                 "path": "src/polisyos/fabric.py",
@@ -9272,8 +9279,8 @@
                 "path": "src/polisyos/fabric/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 14004,
-                "sha256": "a9fda959af65aff0b5bf2d62382552fcc15dd49ade384f83469f237576ac214e"
+                "bytes": 14180,
+                "sha256": "564760afdbb1b823f373d975b33666c715a22da22bd337de40c4ff6447487624"
               },
               {
                 "path": "src/polisyos/fabric.py",
@@ -9303,8 +9310,8 @@
                 "path": "src/polisyos/fabric/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 14004,
-                "sha256": "a9fda959af65aff0b5bf2d62382552fcc15dd49ade384f83469f237576ac214e"
+                "bytes": 14180,
+                "sha256": "564760afdbb1b823f373d975b33666c715a22da22bd337de40c4ff6447487624"
               },
               {
                 "path": "src/polisyos/fabric/api",
@@ -10719,10 +10726,14 @@
         {
           "module": "polisyos.foundry.compile",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 2,
-          "known_export_count": 2,
+          "export_count": 6,
+          "known_export_count": 6,
           "exports": [
+            "TreasuryPlan",
+            "build_treasury_plan",
             "compile",
+            "execution_plan_input_refs",
+            "program_graph_input_refs",
             "replay_method_program_graph"
           ],
           "has___getattr__": true,
@@ -10749,8 +10760,8 @@
                 "path": "src/polisyos/foundry/compile/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 1772,
-                "sha256": "6ea4e47ea0e95633715043cc0dcd47a099de62a66dbeab0f03a0bedc80527903"
+                "bytes": 2513,
+                "sha256": "6e3e9bf4c8ceab9898965e1caf5205b5042af61e3997a4c4a36ac2f7cba8f70f"
               },
               {
                 "path": "src/polisyos/foundry/compile",
@@ -10784,6 +10795,12 @@
               },
               {
                 "path": "src/polisyos/foundry/compile/api.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/foundry/compile/manifest_inputs.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true
@@ -11165,8 +11182,8 @@
         {
           "module": "polisyos.foundry.data_plane",
           "facade_mode_observed": "eager_exports",
-          "export_count": 19,
-          "known_export_count": 19,
+          "export_count": 21,
+          "known_export_count": 21,
           "exports": [
             "HTE_PHYSICAL_SOURCE_BINDING_KIND",
             "HTE_PHYSICAL_SOURCE_BINDING_SCHEMA",
@@ -11175,6 +11192,7 @@
             "HTEPhysicalArraySlotBinding",
             "HTEPhysicalSourceMaterializationBinding",
             "InputBindingsBuildResult",
+            "InputBindingsPreparation",
             "PreparedHTEObservationalInput",
             "UkraineFoundryIntakeResult",
             "build_input_bindings",
@@ -11186,6 +11204,7 @@
             "load_ukraine_foundry_intake",
             "materialize_method_contract",
             "prepare_hte_observational_input",
+            "prepare_input_bindings",
             "resolve_bound_state_snapshot_ref"
           ],
           "has___getattr__": false,
@@ -11212,8 +11231,8 @@
                 "path": "src/polisyos/foundry/data_plane/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 1487,
-                "sha256": "f227b3537dab6e81f9064d9e7466fc21b083ea99442a8a1b7ae0a556c7fa359a"
+                "bytes": 1607,
+                "sha256": "0425e38ea04cbe6a64413345acbff1f22384e6b4fac88bc91973948b41e08389"
               },
               {
                 "path": "src/polisyos/foundry/data_plane",
@@ -11250,8 +11269,8 @@
         {
           "module": "polisyos.foundry.execute",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 19,
-          "known_export_count": 19,
+          "export_count": 20,
+          "known_export_count": 20,
           "exports": [
             "BoundedNumericNPZError",
             "BoundedStateSnapshotInputs",
@@ -11267,6 +11286,7 @@
             "admit_execution_source",
             "admit_execution_source_bounded",
             "execute",
+            "execution_input_basis_sources",
             "get_state_path",
             "load_state_snapshot",
             "read_numeric_npz_bounded",
@@ -11297,8 +11317,8 @@
                 "path": "src/polisyos/foundry/execute/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 4237,
-                "sha256": "1a1503e8ab566efedcad55490dadc53f698ef9751381b1c65a325903ca18d668"
+                "bytes": 4401,
+                "sha256": "e080bb6ab2bf01fa2c0e7f254269030dd0d3fdd5d4cdb078e47039958296c855"
               },
               {
                 "path": "src/polisyos/foundry/execute",
@@ -12496,6 +12516,8 @@
       "reference_doc": "docs/reference/public-surface.md",
       "supported_entrypoints": [
         "polisyos.scientist",
+        "polisyos.scientist.adapters",
+        "polisyos.scientist.compute",
         "polisyos.scientist.governance.continuous",
         "polisyos.scientist.methods.backtesting",
         "polisyos.scientist.methods.research_dag",
@@ -12768,6 +12790,185 @@
               {
                 "path": "src/polisyos/scientist/validation",
                 "operation": "is_dir",
+                "status": "present",
+                "result": true
+              }
+            ],
+            "unresolved_by_construction": [
+              "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+            ],
+            "complete": true,
+            "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
+          }
+        },
+        {
+          "module": "polisyos.scientist.adapters",
+          "facade_mode_observed": "lazy_facade",
+          "export_count": 6,
+          "known_export_count": 6,
+          "exports": [
+            "DefaultFabricPort",
+            "DefaultFoundryPort",
+            "RegisteredSQLCapture",
+            "RegisteredSQLViewContract",
+            "parse_data_view_request",
+            "registered_sql_capture_input_refs"
+          ],
+          "has___getattr__": true,
+          "has___dir__": false,
+          "source_file": "src/polisyos/scientist/adapters/__init__.py",
+          "summary": "Stable adapter facade for default Foundry and Fabric runtime ports.",
+          "export_resolution": {
+            "complete_verdict": true,
+            "finding_coverage": "explicit file-reader operations only",
+            "inputs": [
+              {
+                "path": "src/polisyos/scientist/adapters.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/scientist/adapters/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/scientist/adapters/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 1992,
+                "sha256": "59e89969cc57618f8ae1ace9e02e58ba2d4fdadd171dc6ce583c40150a5c2832"
+              },
+              {
+                "path": "src/polisyos/scientist/adapters",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/scientist/adapters/registered_sql_admission.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/scientist/adapters/__init__.py",
+                "operation": "is_dir",
+                "status": "present",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/scientist/adapters/README.md",
+                "operation": "is_dir",
+                "status": "present",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/scientist/adapters/fabric_bridge.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/scientist/adapters/foundry_bridge.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              }
+            ],
+            "unresolved_by_construction": [
+              "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+            ],
+            "complete": true,
+            "selector": "Declared __all__; finite literal sequences/mapping keys and explicitly bound selected declaration dependencies are resolved without executing source. Completeness requires one closed __all__ dependency slice plus one unique direct export binding, an owner-map route visibly selected by the module lazy getter, or the exact lazy-child route. Unrelated imports and function bodies do not affect the selected export slice. Dynamic declarations, opaque writes or aliases, missing bindings, ambiguous owner maps, and unsupported lazy routes remain unresolved. Runtime __all__/getattr confirmation is separate and applies only to the exact installed artifact/environment; logical module names do not establish physical import origin."
+          }
+        },
+        {
+          "module": "polisyos.scientist.compute",
+          "facade_mode_observed": "lazy_facade",
+          "export_count": 17,
+          "known_export_count": 17,
+          "exports": [
+            "C7AdvancedInputs",
+            "C7AdvancedSuiteResult",
+            "C7PersistedArtifact",
+            "BoundedMethodMetricSourceReader",
+            "MAX_METHOD_METRIC_SOURCE_BYTES",
+            "MethodMetricSourceReadBudget",
+            "VerifiedRestrictedExAnteCall",
+            "read_bounded_method_metric_artifact",
+            "selected_method_metric_ref",
+            "JobKey",
+            "JobResult",
+            "JobSpec",
+            "MethodExecutionCaptureProvenance",
+            "MethodBackend",
+            "read_job_result_method_execution_capture",
+            "run_c7_advanced_suite",
+            "run_job"
+          ],
+          "has___getattr__": true,
+          "has___dir__": false,
+          "source_file": "src/polisyos/scientist/compute/__init__.py",
+          "summary": "Scientist compute surface for job execution contracts.",
+          "export_resolution": {
+            "complete_verdict": true,
+            "finding_coverage": "explicit file-reader operations only",
+            "inputs": [
+              {
+                "path": "src/polisyos/scientist/compute.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/scientist/compute/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/scientist/compute/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 3573,
+                "sha256": "187ecd2730e58a9f106d55ed393d3297bc9b874fc534188d9b8bc9e7388310f7"
+              },
+              {
+                "path": "src/polisyos/scientist/compute",
+                "operation": "is_dir",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/scientist/compute/runner.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/scientist/compute/__init__.py",
+                "operation": "is_dir",
+                "status": "present",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/scientist/compute/README.md",
+                "operation": "is_dir",
+                "status": "present",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/scientist/compute/job_spec.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/scientist/compute/hte_outcome_bridge.py",
+                "operation": "is_file",
                 "status": "present",
                 "result": true
               }
@@ -17383,6 +17584,12 @@
               },
               {
                 "path": "src/polisyos/runtime/quality/compliance.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/runtime/quality/owned_execution_identity.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true

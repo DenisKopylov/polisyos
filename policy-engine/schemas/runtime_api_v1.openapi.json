@@ -8385,6 +8385,159 @@
         "title": "ComparisonFrame",
         "type": "object"
       },
+      "CompletedExAnteCandidateComparisonResponse": {
+        "additionalProperties": false,
+        "description": "Fresh scoped comparison; absence means no comparison was requested.",
+        "properties": {
+          "candidate_comparison": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CompletedExAnteCandidateRanking"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "run_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "meta",
+          "run_id"
+        ],
+        "title": "CompletedExAnteCandidateComparisonResponse",
+        "type": "object"
+      },
+      "CompletedExAnteCandidateObservation": {
+        "additionalProperties": false,
+        "description": "One owner-recomputed candidate score; no feasibility claim is made.",
+        "properties": {
+          "candidate_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Candidate Hash",
+            "type": "string"
+          },
+          "maximizing_coordinate": {
+            "title": "Maximizing Coordinate",
+            "type": "number"
+          },
+          "minimized_score": {
+            "title": "Minimized Score",
+            "type": "number"
+          },
+          "source": {
+            "$ref": "#/components/schemas/CompletedExAnteCandidateSource"
+          }
+        },
+        "required": [
+          "source",
+          "candidate_hash",
+          "minimized_score",
+          "maximizing_coordinate"
+        ],
+        "title": "CompletedExAnteCandidateObservation",
+        "type": "object"
+      },
+      "CompletedExAnteCandidateRanking": {
+        "additionalProperties": false,
+        "description": "One candidate-only comparison at a scoped live owner read.",
+        "properties": {
+          "authority_status": {
+            "const": "candidate_only",
+            "default": "candidate_only",
+            "title": "Authority Status",
+            "type": "string"
+          },
+          "comparison_contract_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comparison Contract Sha256"
+          },
+          "frontier_candidate_hashes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Frontier Candidate Hashes",
+            "type": "array"
+          },
+          "limitations": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 32,
+            "title": "Limitations",
+            "type": "array"
+          },
+          "observations": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/CompletedExAnteCandidateObservation"
+            },
+            "maxItems": 20,
+            "title": "Observations",
+            "type": "array"
+          },
+          "revalidation_required": {
+            "const": true,
+            "default": true,
+            "title": "Revalidation Required",
+            "type": "boolean"
+          },
+          "status": {
+            "enum": [
+              "complete",
+              "verification_missing",
+              "invalid"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "CompletedExAnteCandidateRanking",
+        "type": "object"
+      },
+      "CompletedExAnteCandidateSource": {
+        "additionalProperties": false,
+        "description": "Lookup keys for a completed candidate source, never an authority claim.",
+        "properties": {
+          "candidate_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "source_run_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Source Run Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_run_id",
+          "candidate_ref"
+        ],
+        "title": "CompletedExAnteCandidateSource",
+        "type": "object"
+      },
       "CompletedMethodHTESource": {
         "properties": {
           "association": {
@@ -10176,6 +10329,48 @@
         "title": "ControlFailureEnvelope",
         "type": "object"
       },
+      "ControlJobCancellationRequest": {
+        "additionalProperties": false,
+        "description": "Optimistic identity and stable operation key for a cancellation request.",
+        "properties": {
+          "expected_attempt": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Attempt"
+          },
+          "expected_lease_owner": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Lease Owner"
+          },
+          "operation_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Operation Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation_id"
+        ],
+        "title": "ControlJobCancellationRequest",
+        "type": "object"
+      },
       "ControlJobResponse": {
         "additionalProperties": false,
         "description": "Represent durable control-job state and its open progress projection.\n\nWorker-owned evidence payloads in ``progress`` carry their own schema\nversions. Consumers that use an evidence projection must validate that\npayload's schema and provenance rather than treating generic progress as\nan authority declaration.",
@@ -10200,6 +10395,18 @@
             },
             "title": "Blocking Quality Failures",
             "type": "array"
+          },
+          "cancellation_disposition": {
+            "anyOf": [
+              {
+                "const": "publication_fenced",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cancellation Disposition"
           },
           "capability_manifest_ref": {
             "anyOf": [
@@ -10298,6 +10505,18 @@
                 "type": "null"
               }
             ]
+          },
+          "physical_stop_status": {
+            "anyOf": [
+              {
+                "const": "not_established",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Physical Stop Status"
           },
           "pipeline_id": {
             "anyOf": [
@@ -10431,7 +10650,8 @@
               "pending",
               "running",
               "completed",
-              "failed"
+              "failed",
+              "cancelled"
             ],
             "title": "State",
             "type": "string"
@@ -12616,7 +12836,7 @@
       },
       "DataSourceBinding": {
         "additionalProperties": false,
-        "description": "Legacy string-only source binding retained for natural-language runs.",
+        "description": "Select an existing source, retaining exact typed profiles when provided.",
         "properties": {
           "data_snapshot_ref": {
             "anyOf": [
@@ -12645,6 +12865,9 @@
           },
           "input_bindings_ref": {
             "anyOf": [
+              {
+                "$ref": "#/components/schemas/FoundryInputBindingsRef"
+              },
               {
                 "type": "string"
               },
@@ -20089,6 +20312,107 @@
         "title": "EvidenceNeed",
         "type": "object"
       },
+      "ExAnteSourceUseDebugView": {
+        "additionalProperties": false,
+        "description": "Fresh, bounded SQL source-use outcome for one profiled execution.\n\nThis says only whether the internally admitted materialization remains\navailable for its registered use at the owner read point. It is not legal,\nscientific, or external-database-currentness authority.",
+        "properties": {
+          "authority_status": {
+            "const": "non_authority",
+            "default": "non_authority",
+            "title": "Authority Status",
+            "type": "string"
+          },
+          "input_capture_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 16,
+            "title": "Limitations",
+            "type": "array"
+          },
+          "method_execution_bundle_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "method_replay_status": {
+            "enum": [
+              "verified",
+              "verification_missing",
+              "invalid"
+            ],
+            "title": "Method Replay Status",
+            "type": "string"
+          },
+          "owner_current_use": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SourceCurrentUseProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "projection_class": {
+            "const": "candidate_reference_only",
+            "default": "candidate_reference_only",
+            "title": "Projection Class",
+            "type": "string"
+          },
+          "recomputed_mean_change": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recomputed Mean Change"
+          },
+          "source_basis_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "enum": [
+              "current",
+              "withdrawn",
+              "unknown"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "method_replay_status"
+        ],
+        "title": "ExAnteSourceUseDebugView",
+        "type": "object"
+      },
       "ExecPlanRef-Input": {
         "additionalProperties": false,
         "description": "Artifact reference for the resolved Foundry execution plan and runtime posture.",
@@ -21680,6 +22004,42 @@
           "artifact_id"
         ],
         "title": "FoundryExecutionInputBasisRef",
+        "type": "object"
+      },
+      "FoundryInputBindingsRef": {
+        "additionalProperties": false,
+        "description": "Artifact reference for the slot-binding bundle used to seed a Foundry execution.",
+        "properties": {
+          "artifact_id": {
+            "$ref": "#/components/schemas/ArtifactID-Input"
+          },
+          "kind": {
+            "default": "foundry.input_bindings",
+            "title": "Kind",
+            "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
+          "media_type": {
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "FoundryInputBindingsRef",
         "type": "object"
       },
       "GapClass": {
@@ -27920,10 +28280,114 @@
         "title": "MethodExecutionProducerEmissionDiagnostic",
         "type": "object"
       },
+      "MethodMetricCandidateScore": {
+        "additionalProperties": false,
+        "description": "Current candidate-only score replayed from one completed Runtime source.",
+        "properties": {
+          "authority_status": {
+            "const": "candidate_only",
+            "default": "candidate_only",
+            "title": "Authority Status",
+            "type": "string"
+          },
+          "candidate_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "comparison_contract_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comparison Contract Sha256"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 32,
+            "title": "Limitations",
+            "type": "array"
+          },
+          "maximizing_coordinate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximizing Coordinate"
+          },
+          "minimized_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minimized Score"
+          },
+          "revalidation_required": {
+            "const": true,
+            "default": true,
+            "title": "Revalidation Required",
+            "type": "boolean"
+          },
+          "source_vector_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "enum": [
+              "selected",
+              "verification_missing",
+              "invalid"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "MethodMetricCandidateScore",
+        "type": "object"
+      },
       "MethodMetricProjectionResponse": {
         "additionalProperties": false,
         "description": "Bounded API projection of owner-selected method metric rows.",
         "properties": {
+          "candidate_score": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MethodMetricCandidateScore"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "limitations": {
             "items": {
               "type": "string"
@@ -29588,6 +30052,9 @@
               }
             ],
             "title": "Target World Scope Profile Id"
+          },
+          "temporal_scope": {
+            "$ref": "#/components/schemas/TemporalScope"
           },
           "value_data_profile_ref": {
             "anyOf": [
@@ -35726,6 +36193,169 @@
         "title": "RefusedAuthorityValue",
         "type": "object"
       },
+      "RegisteredSQLMaterializationRequest": {
+        "additionalProperties": false,
+        "description": "Request one exact registered source occurrence under a configured slot.",
+        "properties": {
+          "event_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Event Id",
+            "type": "string"
+          },
+          "expected_predecessor": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Expected Predecessor",
+            "type": "string"
+          },
+          "occurrence_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Occurrence Id",
+            "type": "string"
+          },
+          "request_ref": {
+            "$ref": "#/components/schemas/DataViewRequestRef"
+          },
+          "slot_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Slot Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slot_id",
+          "request_ref",
+          "event_id",
+          "occurrence_id",
+          "expected_predecessor"
+        ],
+        "title": "RegisteredSQLMaterializationRequest",
+        "type": "object"
+      },
+      "RegisteredSQLMaterializationResponse": {
+        "additionalProperties": false,
+        "description": "Return source history and transport without claiming current use.",
+        "properties": {
+          "binding_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "current_use": {
+            "const": "not_checked",
+            "default": "not_checked",
+            "title": "Current Use",
+            "type": "string"
+          },
+          "external_database_currentness": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "External Database Currentness",
+            "type": "string"
+          },
+          "receipt": {
+            "$ref": "#/components/schemas/SourceAdmissionReceipt"
+          },
+          "status": {
+            "const": "committed",
+            "default": "committed",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "receipt",
+          "binding_ref"
+        ],
+        "title": "RegisteredSQLMaterializationResponse",
+        "type": "object"
+      },
+      "RegisteredSQLRegistrationRequest": {
+        "additionalProperties": false,
+        "description": "Request the configured source slot's idempotent genesis.",
+        "properties": {
+          "event_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Event Id",
+            "type": "string"
+          },
+          "slot_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Slot Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slot_id",
+          "event_id"
+        ],
+        "title": "RegisteredSQLRegistrationRequest",
+        "type": "object"
+      },
+      "RegisteredSQLRegistrationResponse": {
+        "additionalProperties": false,
+        "description": "Return the committed source-owner genesis receipt.",
+        "properties": {
+          "registration": {
+            "$ref": "#/components/schemas/SourceRegistrationReceipt"
+          }
+        },
+        "required": [
+          "registration"
+        ],
+        "title": "RegisteredSQLRegistrationResponse",
+        "type": "object"
+      },
+      "RegisteredSQLWithdrawalRequest": {
+        "additionalProperties": false,
+        "description": "Withdraw one exact original owner carrier at a given scope predecessor.",
+        "properties": {
+          "event_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Event Id",
+            "type": "string"
+          },
+          "expected_predecessor": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Expected Predecessor",
+            "type": "string"
+          },
+          "slot_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Slot Id",
+            "type": "string"
+          },
+          "target": {
+            "$ref": "#/components/schemas/SourceAdmissionCarrier-Input"
+          }
+        },
+        "required": [
+          "slot_id",
+          "event_id",
+          "expected_predecessor",
+          "target"
+        ],
+        "title": "RegisteredSQLWithdrawalRequest",
+        "type": "object"
+      },
+      "RegisteredSQLWithdrawalResponse": {
+        "additionalProperties": false,
+        "description": "Return the original committed withdrawal receipt.",
+        "properties": {
+          "receipt": {
+            "$ref": "#/components/schemas/SourceAdmissionReceipt"
+          }
+        },
+        "required": [
+          "receipt"
+        ],
+        "title": "RegisteredSQLWithdrawalResponse",
+        "type": "object"
+      },
       "RelatedArtifactBinding": {
         "discriminator": {
           "mapping": {
@@ -37064,6 +37694,18 @@
             "title": "N8 Authority Blockers",
             "type": "array"
           },
+          "n8_candidate_decision_grade": {
+            "anyOf": [
+              {
+                "const": "low",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Candidate Decision Grade"
+          },
           "n8_candidate_joint_selection_content_hash": {
             "anyOf": [
               {
@@ -37151,6 +37793,17 @@
             },
             "title": "N8 Candidate Parent Intervention Ids",
             "type": "array"
+          },
+          "n8_candidate_value_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Candidate Value Ref"
           },
           "n8_child_to_parent_refinement_limitation_code": {
             "anyOf": [
@@ -39279,6 +39932,35 @@
               }
             ]
           },
+          "n5_owner_join_limitation_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N5 Owner Join Limitation Code"
+          },
+          "n5_owner_join_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "resolved",
+                  "unavailable",
+                  "invalid",
+                  "mismatch",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N5 Owner Join Status"
+          },
           "n5_request_binding_status": {
             "default": "not_established",
             "enum": [
@@ -40009,6 +40691,40 @@
             "title": "Currentness Status",
             "type": "string"
           },
+          "joint_parent_limitation_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joint Parent Limitation Code"
+          },
+          "joint_parent_observations": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RunCandidateSimulationN5Observation"
+            },
+            "title": "Joint Parent Observations",
+            "type": "array"
+          },
+          "joint_parent_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "resolved",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joint Parent Status"
+          },
           "limitation_code": {
             "anyOf": [
               {
@@ -40172,7 +40888,8 @@
               "policyos.runtime.run_generic_cycle_simulation_projection.v1",
               "policyos.runtime.run_generic_cycle_simulation_projection.v2",
               "policyos.runtime.run_generic_cycle_simulation_projection.v3",
-              "policyos.runtime.run_generic_cycle_simulation_projection.v4"
+              "policyos.runtime.run_generic_cycle_simulation_projection.v4",
+              "policyos.runtime.run_generic_cycle_simulation_projection.v5"
             ],
             "title": "Schema Version",
             "type": "string"
@@ -42957,12 +43674,16 @@
           "runs.batch.read",
           "runs.feedback.evaluate",
           "runs.human_decisions.create",
+          "jobs.cancel",
           "runs.launch",
           "runs.production_approval.create",
           "runs.reissue",
           "runs.review",
           "runs.view",
-          "scenarios.create"
+          "scenarios.create",
+          "sources.registered_sql.admit",
+          "sources.registered_sql.register",
+          "sources.registered_sql.withdraw"
         ],
         "title": "RuntimePermission",
         "type": "string"
@@ -44554,6 +45275,16 @@
             "title": "Authority Status",
             "type": "string"
           },
+          "exante_source_use": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExAnteSourceUseDebugView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "integrity_status": {
             "const": "verified",
             "default": "verified",
@@ -44675,6 +45406,245 @@
           "artifact_id"
         ],
         "title": "SimulationResultRef",
+        "type": "object"
+      },
+      "SourceAdmissionCarrier-Input": {
+        "additionalProperties": false,
+        "description": "Exact immutable admission epoch; an old carrier never revives on readmit.",
+        "properties": {
+          "admission_epoch": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Admission Epoch",
+            "type": "string"
+          },
+          "admission_event_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Admission Event Ref",
+            "type": "string"
+          },
+          "admission_scope_digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Admission Scope Digest",
+            "type": "string"
+          },
+          "cell_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Cell Id",
+            "type": "string"
+          },
+          "occurrence_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Occurrence Id",
+            "type": "string"
+          },
+          "revision_digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Revision Digest",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "polisyos.source-admission-carrier.v1",
+            "default": "polisyos.source-admission-carrier.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "snapshot_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input"
+          },
+          "source_incarnation_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Source Incarnation Id",
+            "type": "string"
+          },
+          "tenant_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Tenant Id",
+            "type": "string"
+          },
+          "use_contract_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "cell_id",
+          "source_incarnation_id",
+          "admission_scope_digest",
+          "occurrence_id",
+          "revision_digest",
+          "admission_epoch",
+          "admission_event_ref",
+          "snapshot_ref",
+          "use_contract_ref"
+        ],
+        "title": "SourceAdmissionCarrier",
+        "type": "object"
+      },
+      "SourceAdmissionCarrier-Output": {
+        "additionalProperties": false,
+        "description": "Exact immutable admission epoch; an old carrier never revives on readmit.",
+        "properties": {
+          "admission_epoch": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Admission Epoch",
+            "type": "string"
+          },
+          "admission_event_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Admission Event Ref",
+            "type": "string"
+          },
+          "admission_scope_digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Admission Scope Digest",
+            "type": "string"
+          },
+          "cell_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Cell Id",
+            "type": "string"
+          },
+          "occurrence_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Occurrence Id",
+            "type": "string"
+          },
+          "revision_digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Revision Digest",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "polisyos.source-admission-carrier.v1",
+            "default": "polisyos.source-admission-carrier.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "snapshot_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "source_incarnation_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Source Incarnation Id",
+            "type": "string"
+          },
+          "tenant_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Tenant Id",
+            "type": "string"
+          },
+          "use_contract_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "cell_id",
+          "source_incarnation_id",
+          "admission_scope_digest",
+          "occurrence_id",
+          "revision_digest",
+          "admission_epoch",
+          "admission_event_ref",
+          "snapshot_ref",
+          "use_contract_ref"
+        ],
+        "title": "SourceAdmissionCarrier",
+        "type": "object"
+      },
+      "SourceAdmissionReceipt": {
+        "additionalProperties": false,
+        "description": "The original committed event result, retained unchanged across retries.",
+        "properties": {
+          "carrier": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SourceAdmissionCarrier-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "committed_at": {
+            "format": "date-time",
+            "title": "Committed At",
+            "type": "string"
+          },
+          "event_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Event Id",
+            "type": "string"
+          },
+          "event_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Event Ref",
+            "type": "string"
+          },
+          "generation": {
+            "minimum": 1.0,
+            "title": "Generation",
+            "type": "integer"
+          },
+          "operation": {
+            "enum": [
+              "genesis",
+              "admit",
+              "withdraw",
+              "readmit",
+              "supersede"
+            ],
+            "title": "Operation",
+            "type": "string"
+          },
+          "rule_version": {
+            "const": "policyos.registered-sql-admission.v1",
+            "default": "policyos.registered-sql-admission.v1",
+            "title": "Rule Version",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "polisyos.source-admission-receipt.v1",
+            "default": "polisyos.source-admission-receipt.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "scope_head": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Scope Head",
+            "type": "string"
+          },
+          "source_registration": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SourceRegistrationReceipt"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "event_id",
+          "event_ref",
+          "operation",
+          "generation",
+          "committed_at",
+          "scope_head"
+        ],
+        "title": "SourceAdmissionReceipt",
         "type": "object"
       },
       "SourceBlockedConfidenceLedgerRiskSpendPacket": {
@@ -44895,6 +45865,108 @@
         "title": "SourceContractRef",
         "type": "object"
       },
+      "SourceCurrentUseProjection": {
+        "additionalProperties": false,
+        "description": "Bounded source admission at one fenced read, never scientific validity.",
+        "properties": {
+          "authority_purpose": {
+            "const": "registered_sql_materialization_admission",
+            "default": "registered_sql_materialization_admission",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "basis_digest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Basis Digest"
+          },
+          "checked_at": {
+            "format": "date-time",
+            "title": "Checked At",
+            "type": "string"
+          },
+          "committed_root": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Committed Root"
+          },
+          "generation": {
+            "minimum": 0.0,
+            "title": "Generation",
+            "type": "integer"
+          },
+          "predicate_provenance": {
+            "enum": [
+              "recomputed",
+              "not_established"
+            ],
+            "title": "Predicate Provenance",
+            "type": "string"
+          },
+          "read_boundary": {
+            "const": "owner_fence_linearization_point",
+            "default": "owner_fence_linearization_point",
+            "title": "Read Boundary",
+            "type": "string"
+          },
+          "reason_codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reason Codes",
+            "type": "array"
+          },
+          "rule_version": {
+            "const": "policyos.registered-sql-admission.v1",
+            "default": "policyos.registered-sql-admission.v1",
+            "title": "Rule Version",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "polisyos.source-current-use.v1",
+            "default": "polisyos.source-current-use.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "selection_checked": {
+            "default": false,
+            "title": "Selection Checked",
+            "type": "boolean"
+          },
+          "status": {
+            "enum": [
+              "current",
+              "withdrawn",
+              "unknown"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "reason_codes",
+          "generation",
+          "predicate_provenance",
+          "checked_at"
+        ],
+        "title": "SourceCurrentUseProjection",
+        "type": "object"
+      },
       "SourceProfileInfo": {
         "additionalProperties": false,
         "description": "Describe one curated data-source profile available to retrieval flows.",
@@ -44982,6 +46054,109 @@
           "meta"
         ],
         "title": "SourceProfilesListResponse",
+        "type": "object"
+      },
+      "SourceRegistrationReceipt": {
+        "additionalProperties": false,
+        "description": "Committed internal registration, not external database currentness.",
+        "properties": {
+          "admission_scope_digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Admission Scope Digest",
+            "type": "string"
+          },
+          "cell_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Cell Id",
+            "type": "string"
+          },
+          "committed_at": {
+            "format": "date-time",
+            "title": "Committed At",
+            "type": "string"
+          },
+          "effective_view_contract_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "event_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Event Id",
+            "type": "string"
+          },
+          "event_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Event Ref",
+            "type": "string"
+          },
+          "generation": {
+            "minimum": 1.0,
+            "title": "Generation",
+            "type": "integer"
+          },
+          "issuer_key": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Issuer Key",
+            "type": "string"
+          },
+          "provider_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Provider Id",
+            "type": "string"
+          },
+          "registration_key": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Registration Key",
+            "type": "string"
+          },
+          "rule_version": {
+            "const": "policyos.registered-sql-admission.v1",
+            "default": "policyos.registered-sql-admission.v1",
+            "title": "Rule Version",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "polisyos.source-registration.v1",
+            "default": "polisyos.source-registration.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_incarnation_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Source Incarnation Id",
+            "type": "string"
+          },
+          "tenant_id": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Tenant Id",
+            "type": "string"
+          },
+          "use_contract_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "cell_id",
+          "provider_id",
+          "issuer_key",
+          "registration_key",
+          "source_incarnation_id",
+          "effective_view_contract_ref",
+          "use_contract_ref",
+          "admission_scope_digest",
+          "event_id",
+          "event_ref",
+          "generation",
+          "committed_at"
+        ],
+        "title": "SourceRegistrationReceipt",
         "type": "object"
       },
       "StateSnapshotRef": {
@@ -46505,6 +47680,9 @@
           "input_bindings_ref": {
             "anyOf": [
               {
+                "$ref": "#/components/schemas/FoundryInputBindingsRef"
+              },
+              {
                 "type": "string"
               },
               {
@@ -46512,6 +47690,16 @@
               }
             ],
             "title": "Input Bindings Ref"
+          },
+          "registered_sql_admission_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "title": "WorkflowDataSourceBinding",
@@ -46712,6 +47900,16 @@
             ],
             "title": "Production Case Intake Ref"
           },
+          "registry_bundle_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "research_intent_ref": {
             "anyOf": [
               {
@@ -46725,6 +47923,9 @@
           },
           "trinity_bundle_ref": {
             "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Input"
+              },
               {
                 "type": "string"
               },
@@ -59375,6 +60576,241 @@
         ]
       }
     },
+    "/api/v1/control/jobs/{job_id}/cancel": {
+      "post": {
+        "operationId": "cancel_control_job",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ControlJobCancellationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ControlJobResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/control/jobs/{job_id}/cancel",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/control/jobs/{job_id}/cancel",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/control/jobs/{job_id}/cancel",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/control/jobs/{job_id}/cancel",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/control/jobs/{job_id}/cancel",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/control/jobs/{job_id}/cancel",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/control/jobs/{job_id}/cancel",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Fence publication authority for one control job attempt",
+        "tags": [
+          "control-plane"
+        ],
+        "x-polisyos-action-permission": "jobs.cancel",
+        "x-polisyos-resource-binding": {
+          "path_parameter": "job_id",
+          "resource_kind": "runtime.control_job.cancel",
+          "source": "owned_existing_path"
+        }
+      }
+    },
     "/api/v1/control/lex/graph/stats": {
       "get": {
         "operationId": "get_lex_graph_stats",
@@ -61119,6 +62555,712 @@
         "tags": [
           "control-plane"
         ]
+      }
+    },
+    "/api/v1/control/registered-sql/materializations": {
+      "post": {
+        "description": "Resolve a genuine genesis before the installed SQL producer runs.",
+        "operationId": "admit_registered_sql_materialization",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisteredSQLMaterializationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisteredSQLMaterializationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/control/registered-sql/materializations",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/control/registered-sql/materializations",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/control/registered-sql/materializations",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/control/registered-sql/materializations",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/control/registered-sql/materializations",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/control/registered-sql/materializations",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/control/registered-sql/materializations",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Admit Registered Sql Materialization",
+        "tags": [
+          "runtime-registered-sql"
+        ],
+        "x-polisyos-action-permission": "sources.registered_sql.admit",
+        "x-polisyos-resource-binding": {
+          "required_selector_fields": [
+            "slot_id",
+            "request_ref",
+            "event_id",
+            "occurrence_id",
+            "expected_predecessor"
+          ],
+          "resource_kind": "runtime.registered_sql.materialization",
+          "selector_fields": [
+            "slot_id",
+            "request_ref",
+            "event_id",
+            "occurrence_id",
+            "expected_predecessor"
+          ],
+          "source": "request_composite"
+        }
+      }
+    },
+    "/api/v1/control/registered-sql/registrations": {
+      "post": {
+        "description": "Commit or recover the configured genuine source genesis.",
+        "operationId": "register_sql_source",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisteredSQLRegistrationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisteredSQLRegistrationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/control/registered-sql/registrations",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/control/registered-sql/registrations",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/control/registered-sql/registrations",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/control/registered-sql/registrations",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/control/registered-sql/registrations",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/control/registered-sql/registrations",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/control/registered-sql/registrations",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Register Sql Source",
+        "tags": [
+          "runtime-registered-sql"
+        ],
+        "x-polisyos-action-permission": "sources.registered_sql.register",
+        "x-polisyos-resource-binding": {
+          "required_selector_fields": [
+            "slot_id",
+            "event_id"
+          ],
+          "resource_kind": "runtime.registered_sql.registration",
+          "selector_fields": [
+            "slot_id",
+            "event_id"
+          ],
+          "source": "request_composite"
+        }
+      }
+    },
+    "/api/v1/control/registered-sql/withdrawals": {
+      "post": {
+        "description": "Withdraw one carrier verified against committed source history.",
+        "operationId": "withdraw_registered_sql_materialization",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisteredSQLWithdrawalRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisteredSQLWithdrawalResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/control/registered-sql/withdrawals",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/control/registered-sql/withdrawals",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/control/registered-sql/withdrawals",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/control/registered-sql/withdrawals",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/control/registered-sql/withdrawals",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/control/registered-sql/withdrawals",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/control/registered-sql/withdrawals",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Withdraw Registered Sql Materialization",
+        "tags": [
+          "runtime-registered-sql"
+        ],
+        "x-polisyos-action-permission": "sources.registered_sql.withdraw",
+        "x-polisyos-resource-binding": {
+          "required_selector_fields": [
+            "slot_id",
+            "event_id",
+            "expected_predecessor",
+            "target"
+          ],
+          "resource_kind": "runtime.registered_sql.withdrawal",
+          "selector_fields": [
+            "slot_id",
+            "event_id",
+            "expected_predecessor",
+            "target"
+          ],
+          "source": "request_composite"
+        }
       }
     },
     "/api/v1/control/runs": {
@@ -84195,6 +86337,233 @@
         ]
       }
     },
+    "/api/v1/runs/{run_id}/method-metric-comparison": {
+      "get": {
+        "description": "Recompute a completed run's candidate-only comparison under current scope.",
+        "operationId": "get_run_method_metric_comparison",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompletedExAnteCandidateComparisonResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/runs/{run_id}/method-metric-comparison",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/runs/{run_id}/method-metric-comparison",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/runs/{run_id}/method-metric-comparison",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/runs/{run_id}/method-metric-comparison",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/runs/{run_id}/method-metric-comparison",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/runs/{run_id}/method-metric-comparison",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/runs/{run_id}/method-metric-comparison",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get Run Method Metric Comparison",
+        "tags": [
+          "runtime-runs"
+        ],
+        "x-polisyos-action-permission": "runs.review",
+        "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
+          "path_parameter": "run_id",
+          "resource_kind": "runtime.run.method_metrics",
+          "source": "owned_existing_path"
+        }
+      }
+    },
     "/api/v1/runs/{run_id}/method-metrics": {
       "get": {
         "description": "Return only the bounded current AD01 metric projection for an owned run.",
@@ -84219,6 +86588,7 @@
                     "description": "The route fallback when no current method-metric owner reader is available. No vector or observations are asserted.",
                     "summary": "Current method-metric owner unavailable",
                     "value": {
+                      "candidate_score": null,
                       "limitations": [
                         "current_method_metric_owner_unavailable"
                       ],

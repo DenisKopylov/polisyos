@@ -1,0 +1,15 @@
+id = "2026-10-28-e02-execution-owner-public-routes"
+title = "Expose bounded input-owner contract routes"
+type = "added"
+component = "core"
+owner = "team-polisyos"
+summary = "Core and IR expose four existing defining objects needed by bounded execution-input replay."
+evidence = ["tests/repo_quality/architecture/test_tc_execution_public_routes.py"]
+compatibility = "Additive stable facade aliases preserve the defining classes and function; existing imports and serialization are unchanged."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.contracts and polisyos.ir"
+migration = "Cross-package users import the registered SQL contracts and snapshot matcher from polisyos.core.contracts and LinkReport from polisyos.ir."
+limitations = "These typed identities and the snapshot matching predicate do not establish SQL rights, external currentness, or authority."
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/core/README.md", "src/polisyos/core/contracts/README.md", "src/polisyos/ir/README.md"]
+runbook_docs = []

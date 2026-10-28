@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, input_ref_from_artifact_ref
-from polisyos.core.contracts.execution_plan import ExecutionPlanRef
+from polisyos.core.artifacts import ArtifactRef, InputRef, input_ref_from_artifact_ref
+from polisyos.core.contracts import ExecutionPlanRef
 
 
 def execution_plan_input_refs(

@@ -88,7 +88,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 8 | `team-polisyos` | `src/polisyos/common/README.md` |
 | `polisyos.core` | `public_stable` | `lazy_facade` | 134 | `team-polisyos` | `src/polisyos/core/README.md` |
-| `polisyos.ir` | `public_stable` | `lazy_facade` | 527 | `team-polisyos` | `src/polisyos/ir/README.md` |
+| `polisyos.ir` | `public_stable` | `lazy_facade` | 528 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
 | `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
@@ -302,7 +302,7 @@ timestamps
 | `polisyos.core.artifacts` | `src/polisyos/core/artifacts/__init__.py` | `lazy_facade` | 131 |
 | `polisyos.core.canon` | `src/polisyos/core/canon/__init__.py` | `eager_exports` | 12 |
 | `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 63 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 777 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 780 |
 | `polisyos.core.governance` | `src/polisyos/core/governance/__init__.py` | `eager_exports` | 5 |
 | `polisyos.core.llm` | `src/polisyos/core/llm/__init__.py` | `eager_exports` | 20 |
 | `polisyos.core.llm.cache_settlement` | `src/polisyos/core/llm/cache_settlement.py` | `eager_exports` | 8 |
@@ -710,7 +710,7 @@ validate_metadata
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (777)</summary>
+<details><summary>Entrypoint exports (780)</summary>
 
 ```text
 AcceptanceNonReceipt
@@ -1296,6 +1296,8 @@ PolicyRecommendationRef
 PolicySpecRef
 PreN9AdmittedCandidate
 PreN9EpochValiditySubjectStatement
+RegisteredSQLAdmissionBinding
+RegisteredSQLUseContract
 PreflightDiagnostic
 PreflightReport
 PreflightReportRef
@@ -1461,6 +1463,7 @@ canonical_external_epoch_statement_bytes
 data_snapshot_reference_fields
 data_snapshot_reference_input_roles
 data_snapshot_owner_input_requirements
+data_snapshot_manifest_inputs_match
 chronology
 classify_optional_analytic_node
 construct_for_legacy_family
@@ -1951,7 +1954,7 @@ security
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 527 |
+| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 528 |
 | `polisyos.ir.analytics` | `src/polisyos/ir/analytics/__init__.py` | `lazy_facade` | 320 |
 | `polisyos.ir.analytics.calibration_diagnostics` | `src/polisyos/ir/analytics/calibration_diagnostics.py` | `eager_exports` | 6 |
 | `polisyos.ir.api` | `src/polisyos/ir/api.py` | `eager_exports` | 14 |
@@ -1971,7 +1974,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Expose the stable IR contract surface through a lazy package facade.
 
-<details><summary>Entrypoint exports (527)</summary>
+<details><summary>Entrypoint exports (528)</summary>
 
 ```text
 GATE_REQUEST_SCHEMA_VERSION
@@ -2200,6 +2203,7 @@ LatentDiscoveryBundle
 LeontiefIOBundle
 LeontiefIOInput
 LessonRegistrySeedBundle
+LinkReport
 MAUPInvarianceCertificate
 MAUPInvarianceCertificateRef
 MAUPPartitionCheck
@@ -3615,7 +3619,7 @@ world_event_id_from_payload
 
 </details>
 
-<details><summary>Supported exports (527)</summary>
+<details><summary>Supported exports (528)</summary>
 
 ```text
 GATE_REQUEST_SCHEMA_VERSION
@@ -3844,6 +3848,7 @@ LatentDiscoveryBundle
 LeontiefIOBundle
 LeontiefIOInput
 LessonRegistrySeedBundle
+LinkReport
 MAUPInvarianceCertificate
 MAUPInvarianceCertificateRef
 MAUPPartitionCheck
@@ -4471,7 +4476,7 @@ write_participation_requirement_bundle
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.fabric` | `src/polisyos/fabric/__init__.py` | `unresolved_exports` | unknown (no names proven) |
-| `polisyos.fabric.api` | `src/polisyos/fabric/api.py` | `eager_exports` | 53 |
+| `polisyos.fabric.api` | `src/polisyos/fabric/api.py` | `eager_exports` | 54 |
 | `polisyos.fabric.connectors` | `src/polisyos/fabric/connectors/__init__.py` | `eager_exports` | 134 |
 | `polisyos.fabric.data_plane` | `src/polisyos/fabric/data_plane/__init__.py` | `lazy_facade` | 56 |
 | `polisyos.fabric.world` | `src/polisyos/fabric/world/__init__.py` | `unresolved_exports` | unknown (no names proven) |
@@ -4490,7 +4495,7 @@ write_participation_requirement_bundle
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 1 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (53; native exports unproved)</summary>
+<details><summary>Source-declared candidates (54; native exports unproved)</summary>
 
 ```text
 AccessRef
@@ -4532,6 +4537,7 @@ fabric_claim_to_authored_text
 fabric_event_to_authored_text
 fabric_fact_to_quantity_value
 fabric_get_data
+fabric_get_fresh_registered_sql_data
 file_lock
 freeze_federation_request
 prepare_federation_core_payload
@@ -4556,7 +4562,7 @@ world
 - Facade: `eager_exports`
 - Summary: Explicit public Fabric API facade and connector bridge.
 
-<details><summary>Entrypoint exports (53)</summary>
+<details><summary>Entrypoint exports (54)</summary>
 
 ```text
 AccessRef
@@ -4598,6 +4604,7 @@ fabric_claim_to_authored_text
 fabric_event_to_authored_text
 fabric_fact_to_quantity_value
 fabric_get_data
+fabric_get_fresh_registered_sql_data
 file_lock
 freeze_federation_request
 prepare_federation_core_payload
@@ -5007,11 +5014,11 @@ Export total is unknown; the static reader cannot resolve the extension.
 | --- | --- | --- | ---: |
 | `polisyos.foundry` | `src/polisyos/foundry/__init__.py` | `lazy_facade` | 31 |
 | `polisyos.foundry.api` | `src/polisyos/foundry/api.py` | `eager_exports` | 3 |
-| `polisyos.foundry.compile` | `src/polisyos/foundry/compile/__init__.py` | `lazy_facade` | 2 |
+| `polisyos.foundry.compile` | `src/polisyos/foundry/compile/__init__.py` | `lazy_facade` | 6 |
 | `polisyos.foundry.analysis` | `src/polisyos/foundry/analysis/__init__.py` | `eager_exports` | 19 |
 | `polisyos.foundry.calibration` | `src/polisyos/foundry/calibration/__init__.py` | `unresolved_exports` | unknown (no names proven) |
-| `polisyos.foundry.data_plane` | `src/polisyos/foundry/data_plane/__init__.py` | `eager_exports` | 19 |
-| `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 19 |
+| `polisyos.foundry.data_plane` | `src/polisyos/foundry/data_plane/__init__.py` | `eager_exports` | 21 |
+| `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 20 |
 | `polisyos.foundry.methods` | `src/polisyos/foundry/methods/__init__.py` | `eager_exports` | 225 |
 | `polisyos.foundry.methods.backends` | `src/polisyos/foundry/methods/backends/__init__.py` | `lazy_facade` | 25 |
 | `polisyos.foundry.methods.causal` | `src/polisyos/foundry/methods/causal/__init__.py` | `unresolved_exports` | unknown (no names proven) |
@@ -5084,10 +5091,14 @@ execute
 - Facade: `lazy_facade`
 - Summary: Expose the compile facade without importing the Trinity compiler eagerly.
 
-<details><summary>Entrypoint exports (2)</summary>
+<details><summary>Entrypoint exports (6)</summary>
 
 ```text
+TreasuryPlan
+build_treasury_plan
 compile
+execution_plan_input_refs
+program_graph_input_refs
 replay_method_program_graph
 ```
 
@@ -5263,7 +5274,7 @@ StaticBundle
 - Facade: `eager_exports`
 - Summary: Expose input-binding helpers that bridge external data into Foundry state snapshots.
 
-<details><summary>Entrypoint exports (19)</summary>
+<details><summary>Entrypoint exports (21)</summary>
 
 ```text
 HTE_PHYSICAL_SOURCE_BINDING_KIND
@@ -5273,6 +5284,7 @@ HTEInputPreparationRefusal
 HTEPhysicalArraySlotBinding
 HTEPhysicalSourceMaterializationBinding
 InputBindingsBuildResult
+InputBindingsPreparation
 PreparedHTEObservationalInput
 UkraineFoundryIntakeResult
 build_input_bindings
@@ -5284,6 +5296,7 @@ load_hte_physical_source_materialization_binding
 load_ukraine_foundry_intake
 materialize_method_contract
 prepare_hte_observational_input
+prepare_input_bindings
 resolve_bound_state_snapshot_ref
 ```
 
@@ -5295,7 +5308,7 @@ resolve_bound_state_snapshot_ref
 - Facade: `lazy_facade`
 - Summary: Stable execute facade for compiled Foundry plans.
 
-<details><summary>Entrypoint exports (19)</summary>
+<details><summary>Entrypoint exports (20)</summary>
 
 ```text
 BoundedNumericNPZError
@@ -5312,6 +5325,7 @@ SnapshotStateLayoutError
 admit_execution_source
 admit_execution_source_bounded
 execute
+execution_input_basis_sources
 get_state_path
 load_state_snapshot
 read_numeric_npz_bounded
@@ -5719,7 +5733,7 @@ validate_source_bound_gcm_spec
 ## `polisyos.scientist`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.scientist`, `polisyos.scientist.governance.continuous`, `polisyos.scientist.methods.backtesting`, `polisyos.scientist.methods.research_dag`, `polisyos.scientist.orchestration.engine`, `polisyos.scientist.replay`, `polisyos.scientist.replay.deterministic`, `polisyos.scientist.validation.policy_verified`, `polisyos.scientist.agent`, `polisyos.scientist.policy_design`
+- Supported entrypoints: `polisyos.scientist`, `polisyos.scientist.adapters`, `polisyos.scientist.compute`, `polisyos.scientist.governance.continuous`, `polisyos.scientist.methods.backtesting`, `polisyos.scientist.methods.research_dag`, `polisyos.scientist.orchestration.engine`, `polisyos.scientist.replay`, `polisyos.scientist.replay.deterministic`, `polisyos.scientist.validation.policy_verified`, `polisyos.scientist.agent`, `polisyos.scientist.policy_design`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/scientist/README.md`
@@ -5732,6 +5746,8 @@ validate_source_bound_gcm_spec
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 41 |
+| `polisyos.scientist.adapters` | `src/polisyos/scientist/adapters/__init__.py` | `lazy_facade` | 6 |
+| `polisyos.scientist.compute` | `src/polisyos/scientist/compute/__init__.py` | `lazy_facade` | 17 |
 | `polisyos.scientist.governance.continuous` | `src/polisyos/scientist/governance/continuous/__init__.py` | `lazy_facade` | 87 |
 | `polisyos.scientist.methods.backtesting` | `src/polisyos/scientist/methods/backtesting/__init__.py` | `lazy_facade` | 34 |
 | `polisyos.scientist.methods.research_dag` | `src/polisyos/scientist/methods/research_dag/__init__.py` | `eager_exports` | 44 |
@@ -5792,6 +5808,55 @@ run_experiment
 run_tool_loop
 summarize_tool_contracts
 tool_contract_default_blockers
+```
+
+</details>
+
+#### `polisyos.scientist.adapters`
+
+- Source: `src/polisyos/scientist/adapters/__init__.py`
+- Facade: `lazy_facade`
+- Summary: Stable adapter facade for default Foundry and Fabric runtime ports.
+
+<details><summary>Entrypoint exports (6)</summary>
+
+```text
+DefaultFabricPort
+DefaultFoundryPort
+RegisteredSQLCapture
+RegisteredSQLViewContract
+parse_data_view_request
+registered_sql_capture_input_refs
+```
+
+</details>
+
+#### `polisyos.scientist.compute`
+
+- Source: `src/polisyos/scientist/compute/__init__.py`
+- Facade: `lazy_facade`
+- Summary: Scientist compute surface for job execution contracts.
+
+<details><summary>Entrypoint exports (17)</summary>
+
+```text
+C7AdvancedInputs
+C7AdvancedSuiteResult
+C7PersistedArtifact
+BoundedMethodMetricSourceReader
+MAX_METHOD_METRIC_SOURCE_BYTES
+MethodMetricSourceReadBudget
+VerifiedRestrictedExAnteCall
+read_bounded_method_metric_artifact
+selected_method_metric_ref
+JobKey
+JobResult
+JobSpec
+MethodExecutionCaptureProvenance
+MethodBackend
+read_job_result_method_execution_capture
+run_c7_advanced_suite
+run_job
 ```
 
 </details>

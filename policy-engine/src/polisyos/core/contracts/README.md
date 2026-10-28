@@ -27,6 +27,11 @@ models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`
 - **Compatibility facades** - analytics refs that migrated into `polisyos.ir.registry.refs` still have stable re-export paths here.
 - **Provenance payloads** - shared entity/agent/activity records keep audit and lineage data consistent.
 - **Execution planning** - `execution_plan.py` carries preflight, evaluator, and reproducibility artifacts.
+- **Bounded registered SQL input identity** - `decision_validity.py` owns
+  `RegisteredSQLAdmissionBinding` and `RegisteredSQLUseContract`; `fabric.py`
+  owns `data_snapshot_manifest_inputs_match`. The stable facade exposes the same
+  objects to the execution-input owner. These contracts and matching predicates
+  do not establish external SQL rights or authority.
 - **Execution source identity** - `foundry.py` carries the opt-in `FoundryExecutionInputBasis` and schema 1.4 `SimulationResult` source status. It binds one actual single-step Foundry request and selected source graph; it has no risk, unit, time-validity, refinement, or authority semantics. Feedback composition remains explicitly uncomposed.
 - **Bounded liveness** - `bounded_liveness.py` carries governed deadline and retry ceilings for finite producer waits.
 - **Scientist artifacts** - scientist-specific refs include decision, checkpoint, sensitivity, stress, and calibration validation bundles.

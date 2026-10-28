@@ -254,6 +254,12 @@ export class RuntimeApiClient {
     return this.request("GET", path, query, undefined, undefined);
   }
 
+  async cancelControlJob(params) {
+    const path = `/api/v1/control/jobs/${encodeURIComponent(String(params.job_id))}/cancel`;
+    const query = undefined;
+    return this.request("POST", path, query, params?.body, undefined);
+  }
+
   async getLexGraphStats(params) {
     const path = `/api/v1/control/lex/graph/stats`;
     const query = this.buildQuery({
@@ -289,6 +295,24 @@ export class RuntimeApiClient {
       limit: params?.limit,
     });
     return this.request("GET", path, query, undefined, undefined);
+  }
+
+  async admitRegisteredSqlMaterialization(params) {
+    const path = `/api/v1/control/registered-sql/materializations`;
+    const query = undefined;
+    return this.request("POST", path, query, params?.body, undefined);
+  }
+
+  async registerSqlSource(params) {
+    const path = `/api/v1/control/registered-sql/registrations`;
+    const query = undefined;
+    return this.request("POST", path, query, params?.body, undefined);
+  }
+
+  async withdrawRegisteredSqlMaterialization(params) {
+    const path = `/api/v1/control/registered-sql/withdrawals`;
+    const query = undefined;
+    return this.request("POST", path, query, params?.body, undefined);
   }
 
   async getRunDecisionValidity(params) {
@@ -784,6 +808,12 @@ export class RuntimeApiClient {
       snapshot_id: params?.snapshot_id,
       scenario_id: params?.scenario_id,
     });
+    return this.request("GET", path, query, undefined, undefined);
+  }
+
+  async getRunMethodMetricComparison(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/method-metric-comparison`;
+    const query = undefined;
     return this.request("GET", path, query, undefined, undefined);
   }
 

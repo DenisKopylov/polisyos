@@ -387,6 +387,18 @@ export type CompareRunResponse =
 export type ComparisonFrame =
   RuntimeApiComponents["schemas"]["ComparisonFrame"];
 
+export type CompletedExAnteCandidateComparisonResponse =
+  RuntimeApiComponents["schemas"]["CompletedExAnteCandidateComparisonResponse"];
+
+export type CompletedExAnteCandidateObservation =
+  RuntimeApiComponents["schemas"]["CompletedExAnteCandidateObservation"];
+
+export type CompletedExAnteCandidateRanking =
+  RuntimeApiComponents["schemas"]["CompletedExAnteCandidateRanking"];
+
+export type CompletedExAnteCandidateSource =
+  RuntimeApiComponents["schemas"]["CompletedExAnteCandidateSource"];
+
 export type CompletedMethodHTESource =
   RuntimeApiComponents["schemas"]["CompletedMethodHTESource"];
 
@@ -453,6 +465,9 @@ export type ControlAuthorityGap =
 
 export type ControlFailureEnvelope =
   RuntimeApiComponents["schemas"]["ControlFailureEnvelope"];
+
+export type ControlJobCancellationRequest =
+  RuntimeApiComponents["schemas"]["ControlJobCancellationRequest"];
 
 export type ControlJobResponse =
   RuntimeApiComponents["schemas"]["ControlJobResponse"];
@@ -810,6 +825,9 @@ export type EvidenceBasis = RuntimeApiComponents["schemas"]["EvidenceBasis"];
 
 export type EvidenceNeed = RuntimeApiComponents["schemas"]["EvidenceNeed"];
 
+export type ExAnteSourceUseDebugView =
+  RuntimeApiComponents["schemas"]["ExAnteSourceUseDebugView"];
+
 export type ExecPlanRefInput =
   RuntimeApiComponents["schemas"]["ExecPlanRef-Input"];
 
@@ -897,6 +915,9 @@ export type ForkBRelationCensusPayload =
 
 export type FoundryExecutionInputBasisRef =
   RuntimeApiComponents["schemas"]["FoundryExecutionInputBasisRef"];
+
+export type FoundryInputBindingsRef =
+  RuntimeApiComponents["schemas"]["FoundryInputBindingsRef"];
 
 export type GapClass = RuntimeApiComponents["schemas"]["GapClass"];
 
@@ -1137,6 +1158,9 @@ export type MethodExecutionProducerDiagnostic =
 
 export type MethodExecutionProducerEmissionDiagnostic =
   RuntimeApiComponents["schemas"]["MethodExecutionProducerEmissionDiagnostic"];
+
+export type MethodMetricCandidateScore =
+  RuntimeApiComponents["schemas"]["MethodMetricCandidateScore"];
 
 export type MethodMetricProjectionResponse =
   RuntimeApiComponents["schemas"]["MethodMetricProjectionResponse"];
@@ -1452,6 +1476,24 @@ export type ReasonAlgebraRow =
 
 export type RefusedAuthorityValue =
   RuntimeApiComponents["schemas"]["RefusedAuthorityValue"];
+
+export type RegisteredSQLMaterializationRequest =
+  RuntimeApiComponents["schemas"]["RegisteredSQLMaterializationRequest"];
+
+export type RegisteredSQLMaterializationResponse =
+  RuntimeApiComponents["schemas"]["RegisteredSQLMaterializationResponse"];
+
+export type RegisteredSQLRegistrationRequest =
+  RuntimeApiComponents["schemas"]["RegisteredSQLRegistrationRequest"];
+
+export type RegisteredSQLRegistrationResponse =
+  RuntimeApiComponents["schemas"]["RegisteredSQLRegistrationResponse"];
+
+export type RegisteredSQLWithdrawalRequest =
+  RuntimeApiComponents["schemas"]["RegisteredSQLWithdrawalRequest"];
+
+export type RegisteredSQLWithdrawalResponse =
+  RuntimeApiComponents["schemas"]["RegisteredSQLWithdrawalResponse"];
 
 export type RelatedArtifactBinding =
   RuntimeApiComponents["schemas"]["RelatedArtifactBinding"];
@@ -1770,17 +1812,32 @@ export type SimulationResultRefInput =
 export type SimulationResultRefOutput =
   RuntimeApiComponents["schemas"]["SimulationResultRef-Output"];
 
+export type SourceAdmissionCarrierInput =
+  RuntimeApiComponents["schemas"]["SourceAdmissionCarrier-Input"];
+
+export type SourceAdmissionCarrierOutput =
+  RuntimeApiComponents["schemas"]["SourceAdmissionCarrier-Output"];
+
+export type SourceAdmissionReceipt =
+  RuntimeApiComponents["schemas"]["SourceAdmissionReceipt"];
+
 export type SourceBlockedConfidenceLedgerRiskSpendPacket =
   RuntimeApiComponents["schemas"]["SourceBlockedConfidenceLedgerRiskSpendPacket"];
 
 export type SourceContractRef =
   RuntimeApiComponents["schemas"]["SourceContractRef"];
 
+export type SourceCurrentUseProjection =
+  RuntimeApiComponents["schemas"]["SourceCurrentUseProjection"];
+
 export type SourceProfileInfo =
   RuntimeApiComponents["schemas"]["SourceProfileInfo"];
 
 export type SourceProfilesListResponse =
   RuntimeApiComponents["schemas"]["SourceProfilesListResponse"];
+
+export type SourceRegistrationReceipt =
+  RuntimeApiComponents["schemas"]["SourceRegistrationReceipt"];
 
 export type StateSnapshotRef =
   RuntimeApiComponents["schemas"]["StateSnapshotRef"];
@@ -2367,6 +2424,21 @@ export class RuntimeApiClient {
     );
   }
 
+  async cancelControlJob(params: {
+    job_id: string;
+    body: ControlJobCancellationRequest;
+  }): Promise<ControlJobResponse> {
+    const path = `/api/v1/control/jobs/${encodeURIComponent(String(params.job_id))}/cancel`;
+    const query = undefined;
+    return this.request<ControlJobResponse>(
+      "POST",
+      path,
+      query,
+      params.body,
+      undefined,
+    );
+  }
+
   async getLexGraphStats(params: {
     output_dir: string;
   }): Promise<LexGraphStatsResponse> {
@@ -2437,6 +2509,48 @@ export class RuntimeApiClient {
       path,
       query,
       undefined,
+      undefined,
+    );
+  }
+
+  async admitRegisteredSqlMaterialization(params: {
+    body: RegisteredSQLMaterializationRequest;
+  }): Promise<RegisteredSQLMaterializationResponse> {
+    const path = `/api/v1/control/registered-sql/materializations`;
+    const query = undefined;
+    return this.request<RegisteredSQLMaterializationResponse>(
+      "POST",
+      path,
+      query,
+      params.body,
+      undefined,
+    );
+  }
+
+  async registerSqlSource(params: {
+    body: RegisteredSQLRegistrationRequest;
+  }): Promise<RegisteredSQLRegistrationResponse> {
+    const path = `/api/v1/control/registered-sql/registrations`;
+    const query = undefined;
+    return this.request<RegisteredSQLRegistrationResponse>(
+      "POST",
+      path,
+      query,
+      params.body,
+      undefined,
+    );
+  }
+
+  async withdrawRegisteredSqlMaterialization(params: {
+    body: RegisteredSQLWithdrawalRequest;
+  }): Promise<RegisteredSQLWithdrawalResponse> {
+    const path = `/api/v1/control/registered-sql/withdrawals`;
+    const query = undefined;
+    return this.request<RegisteredSQLWithdrawalResponse>(
+      "POST",
+      path,
+      query,
+      params.body,
       undefined,
     );
   }
@@ -3485,6 +3599,20 @@ export class RuntimeApiClient {
       scenario_id: params.scenario_id,
     });
     return this.request<RunLineageResponse>(
+      "GET",
+      path,
+      query,
+      undefined,
+      undefined,
+    );
+  }
+
+  async getRunMethodMetricComparison(params: {
+    run_id: string;
+  }): Promise<CompletedExAnteCandidateComparisonResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/method-metric-comparison`;
+    const query = undefined;
+    return this.request<CompletedExAnteCandidateComparisonResponse>(
       "GET",
       path,
       query,

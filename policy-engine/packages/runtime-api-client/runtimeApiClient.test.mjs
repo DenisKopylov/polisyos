@@ -205,3 +205,202 @@ test("human decision methods bind the exact exposure header and POST body", asyn
     JSON.stringify({ decision_action: "approve" }),
   );
 });
+
+// These are transport fixtures only. The bearer and CAS-like values do not
+// establish authentication, permission, source ownership, or currentness.
+const sourceTransportDigest = `sha256:${"a".repeat(64)}`;
+const sourceTransportRef = {
+  artifact_id: sourceTransportDigest,
+  kind: "ir.data_view_request",
+  media_type: "application/json",
+};
+const sourceWriteCases = [
+  {
+    method: "cancelControlJob",
+    path: "/api/v1/control/jobs/job%2Fwith%20space/cancel",
+    params: {
+      job_id: "job/with space",
+      body: { operation_id: "cancel-event", expected_attempt: 2 },
+    },
+  },
+  {
+    method: "registerSqlSource",
+    path: "/api/v1/control/registered-sql/registrations",
+    params: { body: { slot_id: "slot-1", event_id: "registration-1" } },
+  },
+  {
+    method: "admitRegisteredSqlMaterialization",
+    path: "/api/v1/control/registered-sql/materializations",
+    params: {
+      body: {
+        slot_id: "slot-1",
+        event_id: "admission-1",
+        occurrence_id: "occurrence-1",
+        request_ref: sourceTransportRef,
+        expected_predecessor: sourceTransportDigest,
+      },
+    },
+  },
+  {
+    method: "withdrawRegisteredSqlMaterialization",
+    path: "/api/v1/control/registered-sql/withdrawals",
+    params: {
+      body: {
+        slot_id: "slot-1",
+        event_id: "withdrawal-1",
+        expected_predecessor: sourceTransportDigest,
+        target: {
+          tenant_id: "tenant-1",
+          cell_id: "cell-1",
+          source_incarnation_id: "source-1",
+          admission_scope_digest: sourceTransportDigest,
+          occurrence_id: "occurrence-1",
+          revision_digest: sourceTransportDigest,
+          admission_epoch: "epoch-1",
+          admission_event_ref: sourceTransportDigest,
+          snapshot_ref: sourceTransportRef,
+          use_contract_ref: sourceTransportRef,
+        },
+      },
+    },
+  },
+];
+
+for (const operation of sourceWriteCases) {
+  test(`${operation.method} forwards a scoped POST unchanged`, async () => {
+    const calls = [];
+    const payload = { transport_test_payload: operation.method };
+    const client = new RuntimeApiClient({
+      baseUrl: "https://runtime.test/",
+      headers: {
+        Authorization: "Bearer transport-test-token",
+        "X-Tenant-ID": "tenant-1",
+      },
+      fetchImpl: async (url, init) => {
+        calls.push({ url, init });
+        // The staged OpenAPI declares a JSON 200 response for each operation.
+        return Response.json(payload, { status: 200 });
+      },
+    });
+
+    assert.deepEqual(await client[operation.method](operation.params), payload);
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].url, `https://runtime.test${operation.path}`);
+    assert.equal(calls[0].init.method, "POST");
+    assert.deepEqual(JSON.parse(calls[0].init.body), operation.params.body);
+    const headers = new Headers(calls[0].init.headers);
+    assert.equal(headers.get("content-type"), "application/json");
+    assert.equal(headers.get("authorization"), "Bearer transport-test-token");
+    assert.equal(headers.get("x-tenant-id"), "tenant-1");
+    assert.equal(calls[0].url.includes("transport-test-token"), false);
+    assert.equal(calls[0].init.body.includes("transport-test-token"), false);
+  });
+
+  test(`${operation.method} rejects a denied response`, async () => {
+    let calls = 0;
+    const client = new RuntimeApiClient({
+      baseUrl: "https://runtime.test",
+      fetchImpl: async () => {
+        calls += 1;
+        return new Response('{"code":"forbidden"}', {
+          status: 403,
+          statusText: "Forbidden",
+          headers: { "Content-Type": "application/problem+json" },
+        });
+      },
+    });
+
+    await assert.rejects(() => client[operation.method](operation.params), {
+      name: "Error",
+      message: 'Runtime API request failed: 403 Forbidden {"code":"forbidden"}',
+    });
+    assert.equal(calls, 1);
+  });
+}
+
+test("method-metric comparison GET preserves absence and candidate limitations", async () => {
+  const calls = [];
+  // These are transport fixtures; the values do not assert a verified ranking.
+  const payloads = [
+    { meta: { request_id: "transport-0" }, run_id: "run/with space" },
+    {
+      meta: { request_id: "transport-1" },
+      run_id: "run/with space",
+      candidate_comparison: null,
+    },
+    {
+      meta: { request_id: "transport-2" },
+      run_id: "run/with space",
+      candidate_comparison: {
+        status: "verification_missing",
+        authority_status: "candidate_only",
+        revalidation_required: true,
+        limitations: ["current_candidate_comparison_owner_unavailable"],
+      },
+    },
+    {
+      meta: { request_id: "transport-3" },
+      run_id: "run/with space",
+      candidate_comparison: {
+        status: "invalid",
+        authority_status: "candidate_only",
+        revalidation_required: true,
+        limitations: ["completed_candidate_identity_duplicated"],
+      },
+    },
+  ];
+  const client = new RuntimeApiClient({
+    baseUrl: "https://runtime.test/",
+    headers: {
+      Authorization: "Bearer transport-test-token",
+      "X-Tenant-ID": "tenant-1",
+    },
+    fetchImpl: async (url, init) => {
+      calls.push({ url, init });
+      return Response.json(payloads[calls.length - 1], { status: 200 });
+    },
+  });
+
+  for (const payload of payloads) {
+    const response = await client.getRunMethodMetricComparison({
+      run_id: "run/with space",
+    });
+    assert.deepEqual(response, payload);
+  }
+  assert.equal(calls.length, payloads.length);
+  for (const { url, init } of calls) {
+    assert.equal(
+      url,
+      "https://runtime.test/api/v1/runs/run%2Fwith%20space/method-metric-comparison",
+    );
+    assert.equal(init.method, "GET");
+    assert.equal(init.body, undefined);
+    const headers = new Headers(init.headers);
+    assert.equal(headers.get("authorization"), "Bearer transport-test-token");
+    assert.equal(headers.get("x-tenant-id"), "tenant-1");
+  }
+});
+
+test("method-metric comparison GET propagates a denied response", async () => {
+  let calls = 0;
+  const client = new RuntimeApiClient({
+    baseUrl: "https://runtime.test",
+    fetchImpl: async () => {
+      calls += 1;
+      return new Response('{"code":"forbidden"}', {
+        status: 403,
+        statusText: "Forbidden",
+        headers: { "Content-Type": "application/problem+json" },
+      });
+    },
+  });
+
+  await assert.rejects(
+    () => client.getRunMethodMetricComparison({ run_id: "run-1" }),
+    {
+      name: "Error",
+      message: 'Runtime API request failed: 403 Forbidden {"code":"forbidden"}',
+    },
+  );
+  assert.equal(calls, 1);
+});

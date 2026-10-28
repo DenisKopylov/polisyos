@@ -4,8 +4,8 @@
 
 `runtime-api-client` stores the generated JavaScript and TypeScript client for
 Runtime API v1. It is the lightest consumer surface in the frontend tree: a
-thin wrapper over the OpenAPI contract that exposes read and batch-read runtime
-operations without React, Vite, or dashboard-specific state management.
+thin wrapper over the OpenAPI contract that exposes selected runtime operations
+without React, Vite, or dashboard-specific state management.
 
 This package is the canonical generated-client home selected by Atlas DS3.
 Do not edit `types.ts`, `canonicalRuntimeApiClient.ts`, or
@@ -76,6 +76,33 @@ a downstream compatibility surface, not a second owner.
 
 - ESM import surface for the reference shell:
   [`canonicalRuntimeApiClient.js`](canonicalRuntimeApiClient.js)
+
+## Registered source and cancellation transport
+
+The generated client exposes the Runtime API's registered SQL registration,
+materialization, and withdrawal POSTs and control-job cancellation POST from the
+server-owned OpenAPI contract. The request bodies and successful response types
+come from that contract. Callers provide their existing authentication and tenant
+headers through `RuntimeApiClient` options; the client forwards them and does
+not create credentials or verify authorization. The Runtime routes retain their
+resource-bound permission checks. A forwarded source receipt does not establish
+external database currentness. An accepted cancellation fences publication;
+submitting a request does not prove that physical work stopped. Failed HTTP responses retain
+the existing client error behavior.
+
+Regenerate the client family and dashboard types when the OpenAPI schema or the
+client operation allowlist changes. Regeneration alone does not establish a
+server grant, a source act, or a complete dashboard workflow.
+
+## Method-metric comparison transport
+
+`getRunMethodMetricComparison` reads the run-scoped candidate comparison. Its
+response may contain no comparison or a `verification_missing` or `invalid`
+comparison; consumers must carry its status and limitations rather than infer
+that a comparison is verified. The comparison is `candidate_only` and requires
+revalidation. This client forwards caller-supplied headers; the server owns the
+run, tenant, cell, and permission checks. A client transport response alone
+does not establish candidate feasibility or independent authority.
 
 ## Dependencies
 

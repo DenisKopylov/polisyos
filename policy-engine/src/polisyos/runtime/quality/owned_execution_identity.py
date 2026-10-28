@@ -11,8 +11,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Literal, NoReturn, cast, get_args, get_origin
 
 from polisyos.core.artifacts import ArtifactRef, InputRef, artifact_ref_identity_key
-from polisyos.core.security.access_scope import AccessScope
-from polisyos.core.security.tenant_context import get_current_access_scope_or_none
+from polisyos.core.security import AccessScope, get_current_access_scope_or_none
 from polisyos.runtime.quality.authority import (
     _VERIFIED_CLOSURE_KEY,
     AuthorityEnvelopeError,
@@ -151,13 +150,13 @@ class _RestrictedExecutionIdentityOwner:
 
     def replay(self) -> _ReplayedIdentity:
         """Re-enter the actual completed source and build its complete owned basis."""
-        from polisyos.core.contracts.foundry import (
+        from polisyos.core.contracts import (
+            GraphMethodExecutionSelection,
             MethodExecutionBundle,
             ProgramGraph,
             SimulationResultRef,
             StateSnapshot,
         )
-        from polisyos.core.contracts.runtime import GraphMethodExecutionSelection
         from polisyos.foundry.execute import (
             admit_execution_source_bounded,
             execution_input_basis_sources,
@@ -263,23 +262,20 @@ class _RestrictedExecutionIdentityOwner:
         state_blob_key = artifact_ref_identity_key(state.state_ref)
 
         from polisyos.core.artifacts import SchemaInfo, input_ref_from_artifact_ref
-        from polisyos.core.contracts.decision_validity import (
-            RegisteredSQLAdmissionBinding,
-            RegisteredSQLUseContract,
-        )
-        from polisyos.core.contracts.execution_plan import ExecutionPlan, ExecutionPlanRef
-        from polisyos.core.contracts.fabric import (
+        from polisyos.core.contracts import (
             DataSnapshotOwnerBound,
-            FabricBridgeDataSnapshotLineage,
-            WarningsBundle,
-            data_snapshot_manifest_inputs_match,
-        )
-        from polisyos.core.contracts.foundry import (
             ExecPlan,
+            ExecutionPlan,
+            ExecutionPlanRef,
+            FabricBridgeDataSnapshotLineage,
             FoundryExecutionInputBasis,
             FoundryInputBindings,
             LoweredIR,
             MethodMetricBindingSet,
+            RegisteredSQLAdmissionBinding,
+            RegisteredSQLUseContract,
+            WarningsBundle,
+            data_snapshot_manifest_inputs_match,
         )
         from polisyos.foundry.compile import (
             TreasuryPlan,
@@ -287,6 +283,7 @@ class _RestrictedExecutionIdentityOwner:
             execution_plan_input_refs,
             program_graph_input_refs,
         )
+        from polisyos.ir import LinkReport
         from polisyos.ir.kernel import (
             ConstraintRegistry,
             MechanismTypeRegistry,
@@ -296,14 +293,13 @@ class _RestrictedExecutionIdentityOwner:
             SlotRegistry,
             UnitsRegistry,
         )
-        from polisyos.ir.linker import LinkReport
         from polisyos.ir.trinity import TrinityBundle
         from polisyos.scientist.adapters import (
             RegisteredSQLCapture,
             RegisteredSQLViewContract,
             registered_sql_capture_input_refs,
         )
-        from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
+        from polisyos.scientist.policy_design import PolicyCandidateSchema
 
         snapshot_manifest, snapshot, _, _ = reader.read_typed_model(
             DataSnapshotOwnerBound, basis.data_snapshot_ref

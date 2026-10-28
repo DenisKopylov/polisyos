@@ -193,6 +193,9 @@ the existing Trinity container to runtime source custody. Both exports resolve
 to their original defining objects; no contract, validation or serialization
 semantics are duplicated.
 
+The root also lazily exposes `LinkReport` as the exact linker-owned object for
+bounded execution-input replay. A linker report is not an authority grant.
+
 ## R2075 exact-consumer compatibility routes
 
 The `polisyos.ir` root lazy facade is the stable compatibility route for the cross-owner consumer symbols previously imported from deep analytics, registry, kernel, governance, and artifact modules. Each added export is an exact lazy alias to its defining owner binding; it does not define a second model or codec. The distinct `MechanismDesignFamily` and `ModelQueryDataViewRequest` aliases preserve their separate contracts from the existing `MechanismFamily` and `DataViewRequest` root bindings. `get_json_artifact_with_bytes` preserves selected-profile validation and the verified persisted bytes needed for content identity.

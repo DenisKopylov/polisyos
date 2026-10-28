@@ -1307,3 +1307,25 @@ identity construction and throughout persisted Fabric capture. The public
 acquisition owner alone classifies the forwarded failure; unrelated optional
 capture failures retain their prior fallback. Empty native sources are errors,
 not unavailable variable counts. This does not establish atomic file custody.
+
+
+## Restricted Debug execution-input identity
+
+The public `get_node_simulation_result_candidate` Debug operation can expose an
+`exante_source_use` projection. Its registered-SQL path uses the private
+`owned_execution_identity` owner to issue an in-process `VerifiedSameInputClosure`
+for the fixed purpose `execution_input_identity_only`. The owner re-enters the
+completed run and authenticated tenant/cell scope, verifies the restricted
+built-in ex-ante invocation, and reconciles the selected typed inputs and owner
+relationships. A use of this token replays the owner; unsupported profiles or
+unestablished scope, selection, inputs, or accounting fail closed. It is not a
+caller-supplied membership assertion or a general same-input closure.
+
+The shared read budget covers selected CAS manifest/member byte transfers and
+strict terminal-trace bytes. C105 owner-state root/trie reads, CAS ownership
+index and guard metadata, database operations, external SQL, and other OS I/O
+are outside that budget: it is not a bound on whole-request I/O. This identity
+does not authorize candidate values, legal or scientific conclusions, external
+SQL currentness, or publication. NL and other execution purposes are not
+covered. Source implementation alone is not runtime qualification; the first
+native checks are in progress, and G acceptance and E02 closure remain separate.

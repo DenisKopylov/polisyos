@@ -249,6 +249,7 @@ __all__ = [
     "LeontiefIOBundle",
     "LeontiefIOInput",
     "LessonRegistrySeedBundle",
+    "LinkReport",
     "MAUPInvarianceCertificate",
     "MAUPInvarianceCertificateRef",
     "MAUPPartitionCheck",
@@ -558,6 +559,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "ArticleExtractionResult",
     ),
     "ArtifactRefModel": ("polisyos.ir.registry.refs", "ArtifactRefModel"),
+    "LinkReport": ("polisyos.ir.linker", "LinkReport"),
     "TrinityBundle": ("polisyos.ir.trinity", "TrinityBundle"),
     "ABMBifurcationReport": (
         "polisyos.ir.analytics.phase4_dynamics",

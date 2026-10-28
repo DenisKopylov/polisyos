@@ -2,15 +2,15 @@
 
 This is the new local coordinator's **planning record**, linked to the [executor handover](../executor-handover-20261027/START-HERE.md). After G reviewed checkpoint dad68b70, the user authorized execution with the compact evidence delivery correction. Current execution, source/resource admission and task status are in [EXECUTION.md](EXECUTION.md) and [execution-state.json](execution-state.json); historical planning-only restrictions do not limit that continuation. E02 remains unfinished; independent review, G source acceptance, integration and finding closure are separate acts. R9/GY/Atlas implementation remains blocked on E02 acceptance.
 
-## Current stage in the original plan — R14 R2
+## Current stage in the original plan — R18
 
-**Wave 2 — owner composition and uncovered original criteria — is the main current work.** Wave 0 is done. The Wave 1 front has executed, with properties still open. Wave 3 is targeted preparation only; the full source freeze and one expensive proof wave have not happened. Wave 4 final G reconciliation/review has not started. No completion percentage is inferred.
+**Wave 2 — owner composition and uncovered original criteria — remains the main work.** Wave 0 is done. The Wave 1 front has executed, with properties still open. Wave 3 remains targeted preparation; no full source freeze or single expensive proof wave is claimed. Wave 4 final G reconciliation/review has not started. No completion percentage is inferred.
 
-The original **26 task/decision rows** and their row-by-row routes remain in the canonical [QUEUE.json](QUEUE.json), under [PLAN.md](PLAN.md) and [LAUNCH.md](LAUNCH.md). This stage summary does not replace or aggregate those rows. Operational `Cnnn` identifiers below are evidence locators for the existing rows, not substitute task labels.
+The original **26 task/decision rows** and their row-by-row routes remain in the canonical [QUEUE.json](QUEUE.json), under [PLAN.md](PLAN.md) and [LAUNCH.md](LAUNCH.md). The denominator remains 26 rows, 127 bundles, 282 unique finding IDs, 291 criterion occurrences, 319 ID-level task–finding edges, and a separately counted 331 occurrence-to-row relations. This summary does not replace or aggregate those rows. Operational `Cnnn` identifiers are evidence locators for existing rows, not substitute task labels. See [R18 current progress](evidence/local-execution-r18/README.md) for the dated evidence cut and limitations.
 
-R13 was applied and read back in `ee00568f6067b7cad6efeca700181be09100e33c` (branch receipt `LOCAL/raw/e02-execution-20261027/root-progress-r13-r3/commit/branch-readback.json`, SHA-256 `92ae9497e12052e050f42e7a54ac03287424f37674b24a9310250a766eb94440`). The later R14 R1 evidence snapshot is preserved as a separate RAW proposal. The branch source read back for this snapshot is `f728cfe467a32eb2a9023fbe157d5d06c4928369` / tree `08371dae76c6ae9bc92c6213b735319d7e68b0e2`; it is not a newer remote-published checkpoint. The last confirmed publication readback remains R10 `870855f3ca83fcb32d4bb91d00d34daab3151032` / tree `18a3178510405de4fcd8e6ce7dbc8b3d77932633`.
+Historical R13/R14 context: R13 application was read back in `ee00568f6067b7cad6efeca700181be09100e33c`, and the R14 R1 source snapshot was `f728cfe467a32eb2a9023fbe157d5d06c4928369` / tree `08371dae76c6ae9bc92c6213b735319d7e68b0e2`. The R14 paragraph’s R10 publication pointer records its earlier as-of state; R17 is the later published checkpoint and R18 records the current local source observation. Earlier receipts remain historical.
 
-The planning-era LAUNCH paragraph saying no prompt had launched and the R13 R3 note saying canonical application was pending are historical snapshots, retained below without rewriting. R13 application is confirmed by the readback above. See [current execution state](execution-state.json) and [R14 R2 progress](evidence/local-execution-r14/README.md) for bounded post-R1 changes.
+The planning-era LAUNCH paragraph saying no prompt had launched and the R13 R3 note saying canonical application was pending are historical snapshots, retained below without rewriting. R13 application is confirmed by its readback. Use [current execution state](execution-state.json) and [R18 progress](evidence/local-execution-r18/README.md) for the current snapshot; earlier R14/R16 records remain source-bound history.
 
 ## Source and authority
 
@@ -67,3 +67,12 @@ R15 R2 refines the evidence economy and source-status notes under the exact succ
 Latest execution checkpoint proposal: [R16 current progress and evidence](evidence/local-execution-r16/README.md). R16 is an as-of current-source snapshot, preserves the original queue, and distinguishes the bounded Core pass, the separate consumer failure, the earlier qualified F16 slice, and partial Cloud returns. It does not claim G acceptance or closure.
 
 R16 R2 independently reviewed corrections: [R16 evidence index](evidence/local-execution-r16/README.md). This successor fixes two evidence bindings, records the qualified bounded C78 results and their remaining response-chain HOLD, and adds the current-author checkpoint and pending C123 launch without changing earlier source cuts. R16 R1 remains immutable.
+
+
+Latest execution checkpoint proposal: [R18 current progress and evidence](evidence/local-execution-r18/README.md). R18 records an as-of source cut and bounded local/Cloud results; prior source-cut qualifications remain bound to their original commits. It does not claim G acceptance, formal closure, or a completion percentage.
+
+
+R18 R2 current-status successor: [R18 evidence index](evidence/local-execution-r18/README.md). R2 preserves R1 and adds the later 55ce scalar result, the completed R4 independent qualification, the current 0c SQL/V3 source readback, and latest Cloud partial/launch states.
+
+
+R18 R3 latest receipt: R18 source publication was read back from its author topic; the SQL/V3 native run now has its first bounded 39 PASS / 3 FAIL result at 0c. See [R18 evidence index](evidence/local-execution-r18/README.md); this does not imply G, main, integration, or finding acceptance.

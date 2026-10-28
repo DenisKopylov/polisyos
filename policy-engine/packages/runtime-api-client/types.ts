@@ -670,6 +670,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/control/jobs/{job_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Fence publication authority for one control job attempt */
+        post: operations["cancel_control_job"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/control/lex/graph/stats": {
         parameters: {
             query?: never;
@@ -783,6 +800,66 @@ export interface paths {
         get: operations["list_control_outbox"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/control/registered-sql/materializations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Admit Registered Sql Materialization
+         * @description Resolve a genuine genesis before the installed SQL producer runs.
+         */
+        post: operations["admit_registered_sql_materialization"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/control/registered-sql/registrations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Register Sql Source
+         * @description Commit or recover the configured genuine source genesis.
+         */
+        post: operations["register_sql_source"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/control/registered-sql/withdrawals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Withdraw Registered Sql Materialization
+         * @description Withdraw one carrier verified against committed source history.
+         */
+        post: operations["withdraw_registered_sql_materialization"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1729,6 +1806,26 @@ export interface paths {
         };
         /** Get Run Lineage */
         get: operations["get_run_lineage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{run_id}/method-metric-comparison": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Run Method Metric Comparison
+         * @description Recompute a completed run's candidate-only comparison under current scope.
+         */
+        get: operations["get_run_method_metric_comparison"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5394,6 +5491,78 @@ export interface components {
              */
             unit_policy: "canonical" | "source" | "mixed";
         };
+        /**
+         * CompletedExAnteCandidateComparisonResponse
+         * @description Fresh scoped comparison; absence means no comparison was requested.
+         */
+        CompletedExAnteCandidateComparisonResponse: {
+            candidate_comparison?: components["schemas"]["CompletedExAnteCandidateRanking"] | null;
+            meta: components["schemas"]["ApiMeta"];
+            /** Run Id */
+            run_id: string;
+        };
+        /**
+         * CompletedExAnteCandidateObservation
+         * @description One owner-recomputed candidate score; no feasibility claim is made.
+         */
+        CompletedExAnteCandidateObservation: {
+            /** Candidate Hash */
+            candidate_hash: string;
+            /** Maximizing Coordinate */
+            maximizing_coordinate: number;
+            /** Minimized Score */
+            minimized_score: number;
+            source: components["schemas"]["CompletedExAnteCandidateSource"];
+        };
+        /**
+         * CompletedExAnteCandidateRanking
+         * @description One candidate-only comparison at a scoped live owner read.
+         */
+        CompletedExAnteCandidateRanking: {
+            /**
+             * Authority Status
+             * @default candidate_only
+             * @constant
+             */
+            authority_status: "candidate_only";
+            /** Comparison Contract Sha256 */
+            comparison_contract_sha256?: string | null;
+            /**
+             * Frontier Candidate Hashes
+             * @default []
+             */
+            frontier_candidate_hashes: string[];
+            /**
+             * Limitations
+             * @default []
+             */
+            limitations: string[];
+            /**
+             * Observations
+             * @default []
+             */
+            observations: components["schemas"]["CompletedExAnteCandidateObservation"][];
+            /**
+             * Revalidation Required
+             * @default true
+             * @constant
+             */
+            revalidation_required: true;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "complete" | "verification_missing" | "invalid";
+        };
+        /**
+         * CompletedExAnteCandidateSource
+         * @description Lookup keys for a completed candidate source, never an authority claim.
+         */
+        CompletedExAnteCandidateSource: {
+            candidate_ref: components["schemas"]["ArtifactRef-Output"];
+            /** Source Run Id */
+            source_run_id: string;
+        };
         /** CompletedMethodHTESource */
         CompletedMethodHTESource: {
             association: components["schemas"]["OwnedAttemptAnchorProjectionAssociation"];
@@ -6050,6 +6219,18 @@ export interface components {
             }[];
         };
         /**
+         * ControlJobCancellationRequest
+         * @description Optimistic identity and stable operation key for a cancellation request.
+         */
+        ControlJobCancellationRequest: {
+            /** Expected Attempt */
+            expected_attempt?: number | null;
+            /** Expected Lease Owner */
+            expected_lease_owner?: string | null;
+            /** Operation Id */
+            operation_id: string;
+        };
+        /**
          * ControlJobResponse
          * @description Represent durable control-job state and its open progress projection.
          *
@@ -6064,6 +6245,8 @@ export interface components {
             authoritative_scorecard_ref?: string | null;
             /** Blocking Quality Failures */
             blocking_quality_failures?: components["schemas"]["ControlQualityFailure"][];
+            /** Cancellation Disposition */
+            cancellation_disposition?: "publication_fenced" | null;
             capability_manifest_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             /**
              * Effective Execution Profile
@@ -6088,6 +6271,8 @@ export interface components {
             /** Next Diagnostic Commands */
             next_diagnostic_commands?: string[];
             operator_diagnostic?: components["schemas"]["OperatorDiagnostic"] | null;
+            /** Physical Stop Status */
+            physical_stop_status?: "not_established" | null;
             /** Pipeline Id */
             pipeline_id?: string | null;
             policy_design_case_projection?: components["schemas"]["PolicyDesignCaseProjection"] | null;
@@ -6120,7 +6305,7 @@ export interface components {
              * State
              * @enum {string}
              */
-            state: "pending" | "running" | "completed" | "failed";
+            state: "pending" | "running" | "completed" | "failed" | "cancelled";
             /** Submitted At */
             submitted_at?: string | null;
             /** Unresolved Authority Gaps */
@@ -6981,7 +7166,7 @@ export interface components {
         };
         /**
          * DataSourceBinding
-         * @description Legacy string-only source binding retained for natural-language runs.
+         * @description Select an existing source, retaining exact typed profiles when provided.
          */
         DataSourceBinding: {
             /** Data Snapshot Ref */
@@ -6989,7 +7174,7 @@ export interface components {
             /** Data View Request Ref */
             data_view_request_ref?: string | null;
             /** Input Bindings Ref */
-            input_bindings_ref?: string | null;
+            input_bindings_ref?: components["schemas"]["FoundryInputBindingsRef"] | string | null;
         };
         /**
          * DataViewRequestRef
@@ -9725,6 +9910,46 @@ export interface components {
             status: "required" | "satisfied" | "blocked";
         };
         /**
+         * ExAnteSourceUseDebugView
+         * @description Fresh, bounded SQL source-use outcome for one profiled execution.
+         *
+         *     This says only whether the internally admitted materialization remains
+         *     available for its registered use at the owner read point. It is not legal,
+         *     scientific, or external-database-currentness authority.
+         */
+        ExAnteSourceUseDebugView: {
+            /**
+             * Authority Status
+             * @default non_authority
+             * @constant
+             */
+            authority_status: "non_authority";
+            input_capture_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /** Limitations */
+            limitations?: string[];
+            method_execution_bundle_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /**
+             * Method Replay Status
+             * @enum {string}
+             */
+            method_replay_status: "verified" | "verification_missing" | "invalid";
+            owner_current_use?: components["schemas"]["SourceCurrentUseProjection"] | null;
+            /**
+             * Projection Class
+             * @default candidate_reference_only
+             * @constant
+             */
+            projection_class: "candidate_reference_only";
+            /** Recomputed Mean Change */
+            recomputed_mean_change?: number | null;
+            source_basis_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "current" | "withdrawn" | "unknown";
+        };
+        /**
          * ExecPlanRef
          * @description Artifact reference for the resolved Foundry execution plan and runtime posture.
          */
@@ -10439,6 +10664,25 @@ export interface components {
              * @constant
              */
             media_type: "application/json";
+        };
+        /**
+         * FoundryInputBindingsRef
+         * @description Artifact reference for the slot-binding bundle used to seed a Foundry execution.
+         */
+        FoundryInputBindingsRef: {
+            artifact_id: components["schemas"]["ArtifactID-Input"];
+            /**
+             * Kind
+             * @default foundry.input_bindings
+             */
+            kind?: string;
+            /** Manifest Profile Sha256 */
+            manifest_profile_sha256?: string | null;
+            /**
+             * Media Type
+             * @default application/json
+             */
+            media_type?: string;
         };
         /**
          * GapClass
@@ -13085,10 +13329,44 @@ export interface components {
             simulation_result_ref?: components["schemas"]["ArtifactRef-Output"] | null;
         };
         /**
+         * MethodMetricCandidateScore
+         * @description Current candidate-only score replayed from one completed Runtime source.
+         */
+        MethodMetricCandidateScore: {
+            /**
+             * Authority Status
+             * @default candidate_only
+             * @constant
+             */
+            authority_status: "candidate_only";
+            candidate_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /** Comparison Contract Sha256 */
+            comparison_contract_sha256?: string | null;
+            /** Limitations */
+            limitations?: string[];
+            /** Maximizing Coordinate */
+            maximizing_coordinate?: number | null;
+            /** Minimized Score */
+            minimized_score?: number | null;
+            /**
+             * Revalidation Required
+             * @default true
+             * @constant
+             */
+            revalidation_required: true;
+            source_vector_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "selected" | "verification_missing" | "invalid";
+        };
+        /**
          * MethodMetricProjectionResponse
          * @description Bounded API projection of owner-selected method metric rows.
          */
         MethodMetricProjectionResponse: {
+            candidate_score?: components["schemas"]["MethodMetricCandidateScore"] | null;
             /** Limitations */
             limitations?: string[];
             meta: components["schemas"]["ApiMeta"];
@@ -13776,6 +14054,7 @@ export interface components {
             };
             /** Target World Scope Profile Id */
             target_world_scope_profile_id?: string | null;
+            temporal_scope?: _RuntimeApiRequestView_54_65_6d_70_6f_72_61_6c_53_63_6f_70_65;
             value_data_profile_ref?: components["schemas"]["ArtifactRef-Input"] | null;
             /** Value Data Unit Id */
             value_data_unit_id?: string | null;
@@ -16280,6 +16559,84 @@ export interface components {
             surface: components["schemas"]["AuthoritySurface"];
             value_id: components["schemas"]["AuthorityValueId"];
         };
+        /**
+         * RegisteredSQLMaterializationRequest
+         * @description Request one exact registered source occurrence under a configured slot.
+         */
+        RegisteredSQLMaterializationRequest: {
+            /** Event Id */
+            event_id: string;
+            /** Expected Predecessor */
+            expected_predecessor: string;
+            /** Occurrence Id */
+            occurrence_id: string;
+            request_ref: components["schemas"]["DataViewRequestRef"];
+            /** Slot Id */
+            slot_id: string;
+        };
+        /**
+         * RegisteredSQLMaterializationResponse
+         * @description Return source history and transport without claiming current use.
+         */
+        RegisteredSQLMaterializationResponse: {
+            binding_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Current Use
+             * @default not_checked
+             * @constant
+             */
+            current_use: "not_checked";
+            /**
+             * External Database Currentness
+             * @default not_established
+             * @constant
+             */
+            external_database_currentness: "not_established";
+            receipt: components["schemas"]["SourceAdmissionReceipt"];
+            /**
+             * Status
+             * @default committed
+             * @constant
+             */
+            status: "committed";
+        };
+        /**
+         * RegisteredSQLRegistrationRequest
+         * @description Request the configured source slot's idempotent genesis.
+         */
+        RegisteredSQLRegistrationRequest: {
+            /** Event Id */
+            event_id: string;
+            /** Slot Id */
+            slot_id: string;
+        };
+        /**
+         * RegisteredSQLRegistrationResponse
+         * @description Return the committed source-owner genesis receipt.
+         */
+        RegisteredSQLRegistrationResponse: {
+            registration: components["schemas"]["SourceRegistrationReceipt"];
+        };
+        /**
+         * RegisteredSQLWithdrawalRequest
+         * @description Withdraw one exact original owner carrier at a given scope predecessor.
+         */
+        RegisteredSQLWithdrawalRequest: {
+            /** Event Id */
+            event_id: string;
+            /** Expected Predecessor */
+            expected_predecessor: string;
+            /** Slot Id */
+            slot_id: string;
+            target: components["schemas"]["SourceAdmissionCarrier-Input"];
+        };
+        /**
+         * RegisteredSQLWithdrawalResponse
+         * @description Return the original committed withdrawal receipt.
+         */
+        RegisteredSQLWithdrawalResponse: {
+            receipt: components["schemas"]["SourceAdmissionReceipt"];
+        };
         RelatedArtifactBinding: components["schemas"]["ProjectionOwnerBinding"] | components["schemas"]["DependencyDiscriminantOwnerBinding"];
         /**
          * ReplayRef
@@ -16754,6 +17111,8 @@ export interface components {
              * @default []
              */
             n8_authority_blockers: string[];
+            /** N8 Candidate Decision Grade */
+            n8_candidate_decision_grade?: "low" | null;
             /** N8 Candidate Joint Selection Content Hash */
             n8_candidate_joint_selection_content_hash?: string | null;
             /** N8 Candidate Joint Selection Limitation Code */
@@ -16782,6 +17141,8 @@ export interface components {
              * @default []
              */
             n8_candidate_parent_intervention_ids: string[];
+            /** N8 Candidate Value Ref */
+            n8_candidate_value_ref?: string | null;
             /** N8 Child To Parent Refinement Limitation Code */
             n8_child_to_parent_refinement_limitation_code?: ("child_to_parent_refinement_rule_not_established" | "legacy_selection_receipt_has_no_refinement_basis" | "parent_joint_candidate_source_selection_not_established") | null;
             /** N8 Child To Parent Refinement Status */
@@ -17478,6 +17839,10 @@ export interface components {
             n5_execution_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             n5_input_ref: components["schemas"]["ArtifactRef-Output"];
             n5_interaction_evidence?: components["schemas"]["RunN5InteractionEvidence"] | null;
+            /** N5 Owner Join Limitation Code */
+            n5_owner_join_limitation_code?: string | null;
+            /** N5 Owner Join Status */
+            n5_owner_join_status?: ("resolved" | "unavailable" | "invalid" | "mismatch" | "not_established") | null;
             /**
              * N5 Request Binding Status
              * @default not_established
@@ -17753,6 +18118,15 @@ export interface components {
              * @constant
              */
             currentness_status: "not_established";
+            /** Joint Parent Limitation Code */
+            joint_parent_limitation_code?: string | null;
+            /**
+             * Joint Parent Observations
+             * @default []
+             */
+            joint_parent_observations: components["schemas"]["RunCandidateSimulationN5Observation"][];
+            /** Joint Parent Status */
+            joint_parent_status?: ("resolved" | "not_established") | null;
             /** Limitation Code */
             limitation_code?: string | null;
             /** N4 Source Limitation Code */
@@ -17794,7 +18168,7 @@ export interface components {
              * @default policyos.runtime.run_generic_cycle_simulation_projection.v1
              * @enum {string}
              */
-            schema_version: "policyos.runtime.run_generic_cycle_simulation_projection.v1" | "policyos.runtime.run_generic_cycle_simulation_projection.v2" | "policyos.runtime.run_generic_cycle_simulation_projection.v3" | "policyos.runtime.run_generic_cycle_simulation_projection.v4";
+            schema_version: "policyos.runtime.run_generic_cycle_simulation_projection.v1" | "policyos.runtime.run_generic_cycle_simulation_projection.v2" | "policyos.runtime.run_generic_cycle_simulation_projection.v3" | "policyos.runtime.run_generic_cycle_simulation_projection.v4" | "policyos.runtime.run_generic_cycle_simulation_projection.v5";
             /** Source Content Hash */
             source_content_hash?: string | null;
             source_ref?: components["schemas"]["ArtifactRef-Output"] | null;
@@ -18978,7 +19352,7 @@ export interface components {
          * @description Closed action-permission vocabulary owned by the runtime server.
          * @enum {string}
          */
-        RuntimePermission: "analysis.execute" | "artifacts.batch.read" | "artifacts.render" | "dashboard.view" | "decisions.validity.publish" | "evidence.acquire" | "evidence.discover" | "evidence.preview" | "evidence.promotions.approve" | "evidence.promotions.reject" | "evidence.resolve" | "evidence.review" | "evidence.sae.analyze" | "evidence.view" | "fabric.impact.analyze" | "fabric.quality.read" | "fabric.trust.read" | "knowledge.search" | "knowledge.trigger" | "knowledge.view" | "lineage.batch.read" | "mobility.analyze" | "mode.analyst" | "platform.admin" | "platform.view" | "runs.batch.read" | "runs.feedback.evaluate" | "runs.human_decisions.create" | "runs.launch" | "runs.production_approval.create" | "runs.reissue" | "runs.review" | "runs.view" | "scenarios.create";
+        RuntimePermission: "analysis.execute" | "artifacts.batch.read" | "artifacts.render" | "dashboard.view" | "decisions.validity.publish" | "evidence.acquire" | "evidence.discover" | "evidence.preview" | "evidence.promotions.approve" | "evidence.promotions.reject" | "evidence.resolve" | "evidence.review" | "evidence.sae.analyze" | "evidence.view" | "fabric.impact.analyze" | "fabric.quality.read" | "fabric.trust.read" | "knowledge.search" | "knowledge.trigger" | "knowledge.view" | "lineage.batch.read" | "mobility.analyze" | "mode.analyst" | "platform.admin" | "platform.view" | "runs.batch.read" | "runs.feedback.evaluate" | "runs.human_decisions.create" | "jobs.cancel" | "runs.launch" | "runs.production_approval.create" | "runs.reissue" | "runs.review" | "runs.view" | "scenarios.create" | "sources.registered_sql.admit" | "sources.registered_sql.register" | "sources.registered_sql.withdraw";
         /**
          * ScenarioAssumption
          * @description Named scenario assumption with provenance.
@@ -19525,6 +19899,7 @@ export interface components {
              * @constant
              */
             authority_status: "non_authority";
+            exante_source_use?: components["schemas"]["ExAnteSourceUseDebugView"] | null;
             /**
              * Integrity Status
              * @default verified
@@ -19584,6 +19959,104 @@ export interface components {
              * @default application/json
              */
             media_type: string;
+        };
+        /**
+         * SourceAdmissionCarrier
+         * @description Exact immutable admission epoch; an old carrier never revives on readmit.
+         */
+        "SourceAdmissionCarrier-Input": {
+            /** Admission Epoch */
+            admission_epoch: string;
+            /** Admission Event Ref */
+            admission_event_ref: string;
+            /** Admission Scope Digest */
+            admission_scope_digest: string;
+            /** Cell Id */
+            cell_id: string;
+            /** Occurrence Id */
+            occurrence_id: string;
+            /** Revision Digest */
+            revision_digest: string;
+            /**
+             * Schema Version
+             * @default polisyos.source-admission-carrier.v1
+             * @constant
+             */
+            schema_version?: "polisyos.source-admission-carrier.v1";
+            snapshot_ref: components["schemas"]["ArtifactRef-Input"];
+            /** Source Incarnation Id */
+            source_incarnation_id: string;
+            /** Tenant Id */
+            tenant_id: string;
+            use_contract_ref: components["schemas"]["ArtifactRef-Input"];
+        };
+        /**
+         * SourceAdmissionCarrier
+         * @description Exact immutable admission epoch; an old carrier never revives on readmit.
+         */
+        "SourceAdmissionCarrier-Output": {
+            /** Admission Epoch */
+            admission_epoch: string;
+            /** Admission Event Ref */
+            admission_event_ref: string;
+            /** Admission Scope Digest */
+            admission_scope_digest: string;
+            /** Cell Id */
+            cell_id: string;
+            /** Occurrence Id */
+            occurrence_id: string;
+            /** Revision Digest */
+            revision_digest: string;
+            /**
+             * Schema Version
+             * @default polisyos.source-admission-carrier.v1
+             * @constant
+             */
+            schema_version: "polisyos.source-admission-carrier.v1";
+            snapshot_ref: components["schemas"]["ArtifactRef-Output"];
+            /** Source Incarnation Id */
+            source_incarnation_id: string;
+            /** Tenant Id */
+            tenant_id: string;
+            use_contract_ref: components["schemas"]["ArtifactRef-Output"];
+        };
+        /**
+         * SourceAdmissionReceipt
+         * @description The original committed event result, retained unchanged across retries.
+         */
+        SourceAdmissionReceipt: {
+            carrier?: components["schemas"]["SourceAdmissionCarrier-Output"] | null;
+            /**
+             * Committed At
+             * Format: date-time
+             */
+            committed_at: string;
+            /** Event Id */
+            event_id: string;
+            /** Event Ref */
+            event_ref: string;
+            /** Generation */
+            generation: number;
+            /**
+             * Operation
+             * @enum {string}
+             */
+            operation: "genesis" | "admit" | "withdraw" | "readmit" | "supersede";
+            /**
+             * Rule Version
+             * @default policyos.registered-sql-admission.v1
+             * @constant
+             */
+            rule_version: "policyos.registered-sql-admission.v1";
+            /**
+             * Schema Version
+             * @default polisyos.source-admission-receipt.v1
+             * @constant
+             */
+            schema_version: "polisyos.source-admission-receipt.v1";
+            /** Scope Head */
+            scope_head: string;
+            source_registration?: components["schemas"]["SourceRegistrationReceipt"] | null;
         };
         /**
          * SourceBlockedConfidenceLedgerRiskSpendPacket
@@ -19705,6 +20178,64 @@ export interface components {
             version: string;
         };
         /**
+         * SourceCurrentUseProjection
+         * @description Bounded source admission at one fenced read, never scientific validity.
+         */
+        SourceCurrentUseProjection: {
+            /**
+             * Authority Purpose
+             * @default registered_sql_materialization_admission
+             * @constant
+             */
+            authority_purpose: "registered_sql_materialization_admission";
+            /** Basis Digest */
+            basis_digest?: string | null;
+            /**
+             * Checked At
+             * Format: date-time
+             */
+            checked_at: string;
+            /** Committed Root */
+            committed_root?: string | null;
+            /** Generation */
+            generation: number;
+            /**
+             * Predicate Provenance
+             * @enum {string}
+             */
+            predicate_provenance: "recomputed" | "not_established";
+            /**
+             * Read Boundary
+             * @default owner_fence_linearization_point
+             * @constant
+             */
+            read_boundary: "owner_fence_linearization_point";
+            /** Reason Codes */
+            reason_codes: string[];
+            /**
+             * Rule Version
+             * @default policyos.registered-sql-admission.v1
+             * @constant
+             */
+            rule_version: "policyos.registered-sql-admission.v1";
+            /**
+             * Schema Version
+             * @default polisyos.source-current-use.v1
+             * @constant
+             */
+            schema_version: "polisyos.source-current-use.v1";
+            /**
+             * Selection Checked
+             * @default false
+             */
+            selection_checked: boolean;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "current" | "withdrawn" | "unknown";
+        };
+        /**
          * SourceProfileInfo
          * @description Describe one curated data-source profile available to retrieval flows.
          */
@@ -19750,6 +20281,51 @@ export interface components {
             meta: components["schemas"]["ApiMeta"];
             /** Profiles */
             profiles?: components["schemas"]["SourceProfileInfo"][];
+        };
+        /**
+         * SourceRegistrationReceipt
+         * @description Committed internal registration, not external database currentness.
+         */
+        SourceRegistrationReceipt: {
+            /** Admission Scope Digest */
+            admission_scope_digest: string;
+            /** Cell Id */
+            cell_id: string;
+            /**
+             * Committed At
+             * Format: date-time
+             */
+            committed_at: string;
+            effective_view_contract_ref: components["schemas"]["ArtifactRef-Output"];
+            /** Event Id */
+            event_id: string;
+            /** Event Ref */
+            event_ref: string;
+            /** Generation */
+            generation: number;
+            /** Issuer Key */
+            issuer_key: string;
+            /** Provider Id */
+            provider_id: string;
+            /** Registration Key */
+            registration_key: string;
+            /**
+             * Rule Version
+             * @default policyos.registered-sql-admission.v1
+             * @constant
+             */
+            rule_version: "policyos.registered-sql-admission.v1";
+            /**
+             * Schema Version
+             * @default polisyos.source-registration.v1
+             * @constant
+             */
+            schema_version: "polisyos.source-registration.v1";
+            /** Source Incarnation Id */
+            source_incarnation_id: string;
+            /** Tenant Id */
+            tenant_id: string;
+            use_contract_ref: components["schemas"]["ArtifactRef-Output"];
         };
         /**
          * StateSnapshotRef
@@ -20379,7 +20955,8 @@ export interface components {
             /** Data View Request Ref */
             data_view_request_ref?: components["schemas"]["DataViewRequestRef"] | string | null;
             /** Input Bindings Ref */
-            input_bindings_ref?: string | null;
+            input_bindings_ref?: components["schemas"]["FoundryInputBindingsRef"] | string | null;
+            registered_sql_admission_ref?: components["schemas"]["ArtifactRef-Input"] | null;
         };
         /**
          * WorkflowRunRequest
@@ -20443,10 +21020,11 @@ export interface components {
                 /** @constant */
                 media_type: "application/json";
             }) | string | null;
+            registry_bundle_ref?: components["schemas"]["ArtifactRef-Input"] | null;
             /** Research Intent Ref */
             research_intent_ref?: string | null;
             /** Trinity Bundle Ref */
-            trinity_bundle_ref?: string | null;
+            trinity_bundle_ref?: components["schemas"]["ArtifactRef-Input"] | string | null;
         };
         /**
          * _QualifiedOutcomeOfInterestV3
@@ -24172,6 +24750,96 @@ export interface operations {
             };
         };
     };
+    cancel_control_job: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ControlJobCancellationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ControlJobResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
     get_lex_graph_stats: {
         parameters: {
             query: {
@@ -24708,6 +25376,270 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ControlOutboxEventsResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    admit_registered_sql_materialization: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisteredSQLMaterializationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegisteredSQLMaterializationResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    register_sql_source: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisteredSQLRegistrationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegisteredSQLRegistrationResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    withdraw_registered_sql_materialization: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisteredSQLWithdrawalRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegisteredSQLWithdrawalResponse"];
                 };
             };
             /** @description Malformed request payload or parameters. */
@@ -29959,6 +30891,92 @@ export interface operations {
             };
             /** @description The selected Core canonical profile is malformed or not byte-conformant. */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_run_method_metric_comparison: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompletedExAnteCandidateComparisonResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
                 headers: {
                     [name: string]: unknown;
                 };

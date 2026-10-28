@@ -9556,4 +9556,219 @@
       "role": "navigation for existing original 26-row route set; not a new backlog"
     }
   }
+,
+  "progress_r18": {
+    "as_of_source": {
+      "commit": "0dfdb737fcbbcd2c1585a9ece543eefe1a38f87a",
+      "tree": "9f60f7e13759d686267fcff71e938410af780a4e",
+      "published_checkpoint": "320ceeac32ae5dcea44bfcfe884f74ffb6ba0127",
+      "published_tree": "700343074a44b0cfdd3cdd7c56420af4a1784159"
+    },
+    "original_queue_denominator": {
+      "rows": 26,
+      "bundles": 127,
+      "unique_finding_ids": 282,
+      "criterion_occurrences": 291,
+      "task_finding_edges_id_level": 319,
+      "occurrence_to_row_relations_separate": 331
+    },
+    "current_original_plan_stage": "Wave 2 owner composition and uncovered original criteria; Wave 0 done; Wave 1 executed with properties open; Wave 3 targeted preparation; Wave 4 G reconciliation/review not started.",
+    "bounded_local_results": {
+      "B200_CAU": {
+        "outcome": "21 PASS (8 B200 plus 13 whole CAU ownership module)",
+        "source": "0dfdb737fcbbcd2c1585a9ece543eefe1a38f87a",
+        "audit_sha256": "5b6a883703031dbb8c732f3e88ed108da8b8c50032c0632cc3436ca25dff4bf9",
+        "git_readback": "d0ceeaa2c0e1d482c2396b74ac53693e2f2e9b7ecbd730c05412bb253467159e",
+        "qualification": "bounded selected result; no broader ownership/G closure"
+      },
+      "C78_R9": {
+        "outcome": "18 PASS / 1 FAIL; scalar response AttributeError on UncertaintyEnvelope.envelope",
+        "source": "0dfdb737fcbbcd2c1585a9ece543eefe1a38f87a",
+        "audit_sha256": "fde3e3473398d90c1921505639e81d616b7c91ca5bf86f4c37404abd3d292a8d",
+        "junit_sha256": "1367a2ea956ea231434f9cb3da3b4f5ac941cf960bb2541c08de52c681c542e4",
+        "source_review": "bounded source GO; separate independent runtime review qualifies 18 boundary cases, scalar consumer remains incomplete, removal/G UNRUN",
+        "runtime_review_json": {
+          "path": "LOCAL/raw/e02-execution-20261027/reviews/C78-projection-wire-r9-targeted-actual-independent.json",
+          "sha256": "d3b1007e99062c315bdbee9bb427ef4c02fdc3db23371aad108a31da1d9980b0"
+        }
+      },
+      "I4": {
+        "outcome": "2 profile/setup errors from EPERM loopback bind before producer; product UNRUN",
+        "audit_sha256": "218d1c83438f6754c01247a4a66c2688b10b9d9b999a5aafea130bf2894e020d",
+        "git_readback": "91d615b29d96147ccd9b8ab1b9a5aa12c9558fc7ad520856db729c552f755cab"
+      },
+      "R4": {
+        "outcome": "2 PASS, 0 F/E/S; selected saturation/renewal/expiry/fencing/inline-queue/restoration control",
+        "source": "0dfdb737fcbbcd2c1585a9ece543eefe1a38f87a",
+        "audit_sha256": "4c3bd5cc8523550ab59fb2aff20607a423c2a5ed65d4380df1863341cdbf71ae",
+        "git_readback": "24acb5b7246cd2b8b215ffdc58b2929b0737278887308ae7884def976a87add5",
+        "independent_review": "pending",
+        "boundary": "not B56, authenticated cancellation, or full R4 closure"
+      }
+    },
+    "cloud_and_source_status": {
+      "C100": "four-stage diagnostic PASS; A/A one CAS-deadline FAIL; A/B/revocation UNRUN",
+      "C123": "zero diff bytes; cause unknown",
+      "C124": "two source files; bounded source-only review; runtime UNRUN",
+      "C125": "partial DDM return; no complete JUnit",
+      "C126": "setup error downloading autograd-gamma; selectors UNRUN",
+      "C127": "candidate bytes returned; independent review pending",
+      "C128": "launched MC against 320ceeac/tree700343; result pending",
+      "C129": "launched CAU against 320ceeac/tree700343; result pending",
+      "SQL_77e": "two bounded source-only GO reviews; runtime/generated companions pending",
+      "TC_V3": "preparation remains in existing RAW packet"
+    },
+    "post_snapshot_branch_observation": {
+      "commit": "55ce234224fa54b92884dd2333fdb4036ca344d3",
+      "tree": "cb070b321b31ca3d746093cc892140cd1df29811",
+      "observed_during": "documentation preparation",
+      "qualification": "later than R18 native source cut; no R18 result retagged and no replay at this commit included"
+    },
+    "acceptance": {
+      "G_acceptance_new": false,
+      "formal_closure_new": false,
+      "completion_percentage": null,
+      "R9_GY_Atlas": "not started",
+      "actual_cloud_model": "not_established"
+    },
+    "pattern_pass": {
+      "P35": "Reuse pinned complete denominator; no sampled-set generalization.",
+      "P38": "Separate measured property from proxy/setup outcome.",
+      "P40": "Batch by finding class; no capability closure from a bounded run/source review."
+    },
+    "details": "See evidence/local-execution-r18/progress-r18.md and README.md; prior source-cut qualifications remain at R16.",
+    "denominator_reconciliation": {
+      "generator_path": "LOCAL/raw/e02-execution-20261027/analysis/original-queue-next-front-r1/build.py",
+      "generator_sha256": "ec90f21db33aba63e98f69dcb25c4e11cb89e9b02d5530694353a775f25f7c1e",
+      "full_rows_path": "LOCAL/raw/e02-execution-20261027/analysis/original-queue-next-front-r1/rows.json",
+      "full_rows_sha256": "9568fb61029023d2011242c6e2e95cd28c41589f6385b0bb357a6f90d79add19",
+      "routing_summary_path": "LOCAL/raw/e02-execution-20261027/next-front-r16/ROUTING.md",
+      "routing_summary_sha256": "20cf5b154c4a250a7c133a8bf8913a40d4797b2316fefca486f74c82d0c2d02d",
+      "routing_json_path": "LOCAL/raw/e02-execution-20261027/next-front-r16/routing.json",
+      "routing_json_sha256": "1b97bb436e6c4936116dc479e0fe56b2acd200c40c07607b71b5097d4a87b3bf"
+    }
+  }
+,
+  "progress_r18_r2": {
+    "current_source": {
+      "commit": "0c2169fd0d17dc59b49733fe6a001ec4114d2d1c",
+      "tree": "a15cd57a9382c984630fb2981249b4a7b3253eaa",
+      "readback": "LOCAL/raw/e02-execution-20261027/root-sql-v3-preparation-r18-commit/branch-readback.json",
+      "readback_sha256": "4da516754b300d55171462ddbd6b5f37c3a4578cfbe13901447272e6c3b8a898",
+      "published": false
+    },
+    "later_results": {
+      "R4": {
+        "qualification": "independently qualified finite pass only",
+        "review_json": "LOCAL/raw/e02-execution-20261027/reviews/R4-saturated-control-r18-actual-independent-r1.json",
+        "review_json_sha256": "e77a377417aebb40dd3e1aa7177cfa10dc3969df012a589647af4dc0366c2e04",
+        "review_markdown_sha256": "d0cb69470699901015e03992bf58c17069aeea324fc651741cf123392deed5c5",
+        "remaining": "not B56, authenticated cancellation, or full R4 closure"
+      },
+      "C78_R10_scalar": {
+        "source": "55ce234224fa54b92884dd2333fdb4036ca344d3",
+        "tree": "cb070b321b31ca3d746093cc892140cd1df29811",
+        "outcome": "one exact scalar integration PASS",
+        "audit_sha256": "90291851ae8c984502bb6198a49f4a0096e3308bd1eef2901dee1b494b4ebc1e",
+        "review_json_sha256": "59934c0f3ba32930ec25897ce7bc82405622c3eefed0479ad0694fd4d8b4652c",
+        "review_markdown_sha256": "119c9f8bdbc6db8be4a5e877ea5b296c2a4089e0f90bfd7f0a01ac54e4240100",
+        "remaining": "mutation/removal/restoration, broader response properties and current 0c replay UNRUN; R9 18P1F stays on 0df"
+      },
+      "C100_R3_probe": {
+        "outcome": "ERROR parsing raw canonical datetime before guarded write; 821 Python paths, zero mismatch; CAS root cause not established",
+        "audit_sha256": "b3e316fcce6887d9650c7f58f3713368e97dc900738123372a76baa3071726f4",
+        "git_readback": "ba1a583dd08554953e050bd3c61e4bbb20957dbb9189a215907010b2a68d1aa1",
+        "source_review": "SOURCE_GO only",
+        "review_json_sha256": "0dcc1f8298968abce4f771f52c9749b06acb84053d3e41082f07e9ebcf5dc448"
+      },
+      "SQL_V3_source": {
+        "commit": "0c2169fd0d17dc59b49733fe6a001ec4114d2d1c",
+        "tree": "a15cd57a9382c984630fb2981249b4a7b3253eaa",
+        "changed_paths": 68,
+        "readback_sha256": "4da516754b300d55171462ddbd6b5f37c3a4578cfbe13901447272e6c3b8a898",
+        "normal_hooks_ruff": "passed",
+        "native_sql_modules": "pending outcome",
+        "api_family": "pending",
+        "TCR5": "separate HOLD"
+      },
+      "C125": {
+        "review": "HOLD",
+        "review_json_sha256": "704a2fea470e7ab5ec0977891dd99244c2fb09000adae2b140f906a6187ca47c",
+        "partial_counts": "returned record reports 37 PASS / 1 FAIL across 38 selectors; 2 intended semantic RED controls; 2 ERROR outcomes; full streams/JUnit unavailable"
+      },
+      "C127": {
+        "review": "BOUNDED_RUNTIME_RESULT_SUPPORTED_EVIDENCE_COMPLETENESS_PARTIAL",
+        "review_json_sha256": "3cd4198d22c80f6b2d9e8f4b60953ad026c2cf4eff272ab734187c03fb66faef",
+        "author_recorded": "4 PASS; expected semantic red; restored 4 PASS",
+        "reviewer_reran_tests": false,
+        "full_evidence_origin": "partial"
+      },
+      "C126": "setup ERROR; two selectors UNRUN",
+      "C128_C129_C130": {
+        "status": "submitted against exact R17 input 320ceeac/tree700343; outputs pending",
+        "model": "not_established",
+        "task_ids": {
+          "C128": "task_e_6ae2418673888325b603423a5868153b",
+          "C129": "task_e_6ae24187fd1883258826291cc56093d4",
+          "C130": "submitted; task id not included in this snapshot"
+        }
+      },
+      "publication": "R18 publication in progress; do not claim published before remote readback"
+    },
+    "original_queue_denominator": {
+      "rows": 26,
+      "bundles": 127,
+      "unique_finding_ids": 282,
+      "criterion_occurrences": 291,
+      "task_finding_edges_id_level": 319,
+      "occurrence_to_row_relations_separate": 331
+    },
+    "current_original_plan_stage": "Wave 2 owner composition and uncovered original criteria; no completion percentage; Wave 4 G reconciliation/review not started.",
+    "G_acceptance_new": false,
+    "formal_closure_new": false,
+    "R9_GY_Atlas": "not started"
+  }
+,
+  "progress_r18_r3": {
+    "publication": {
+      "remote_ref": "refs/heads/codex/e02-composed-progress-20261028-r18",
+      "head": "0c2169fd0d17dc59b49733fe6a001ec4114d2d1c",
+      "tree": "a15cd57a9382c984630fb2981249b4a7b3253eaa",
+      "readback_path": "LOCAL/raw/e02-execution-20261027/publication-composed-progress-r18/remote-readback.json",
+      "readback_sha256": "0bc284b5c12f8ac43a3ea0a224caad58470dc793b6471329e6887e4812150bfd",
+      "boundary": "author topic only; no G/main/integration acceptance"
+    },
+    "sql_v3_native": {
+      "source": "0c2169fd0d17dc59b49733fe6a001ec4114d2d1c",
+      "outcome": "39 PASS / 3 FAIL of 42",
+      "breakdown": "28 SQL:26P/2 oracle failures (SELECT 1 and path-prefix); 8 restricted-profile PASS; 6 preparation:5P/1 reference-subclass CAS roundtrip failure",
+      "audit_sha256": "2eec4ed2e11717dc0703362d795756314a61410dc8d3d97d2308e5b8cd911a73",
+      "junit_sha256": "8fe7c8ddf66530928406f4d105bacab0f9dc1edb2b67ed9a3fb23e7814c9503f",
+      "git_readback_sha256": "b769e6278fe11175ad235b86b65e6eea0cc0f74e92ad9a48f1af63310e5c43b0",
+      "readset_python_paths": 966,
+      "mismatches": 0,
+      "independent_review": "pending"
+    },
+    "repair_candidate": {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/SQL-r18-native-failures-r1/manifest.json",
+      "sha256": "8e1cfd57909e287199881ca173c4e7ee9d047d02bebaf9744578a0dd361dbd91",
+      "status": "awaiting independent review; unapplied"
+    },
+    "other_active": {
+      "I2_tail_continuation": "running at 0c on retained R17 artifacts; no result claimed",
+      "runtime_api_generation": "two changed outputs; not adopted",
+      "openapi_export": "in progress"
+    },
+    "original_queue_denominator": {
+      "rows": 26,
+      "bundles": 127,
+      "unique_finding_ids": 282,
+      "criterion_occurrences": 291,
+      "task_finding_edges_id_level": 319,
+      "occurrence_to_row_relations_separate": 331
+    },
+    "current_original_plan_stage": "Wave 2 owner composition and uncovered original criteria; no completion percentage; Wave 4 G reconciliation/review not started.",
+    "G_acceptance_new": false,
+    "formal_closure_new": false
+  }
 }

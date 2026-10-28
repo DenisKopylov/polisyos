@@ -1,0 +1,39 @@
+id = "2026-10-28-runtime-source-post-client"
+title = "Expose registered source and cancellation transport in the runtime client"
+type = "added"
+component = "runtime-api"
+owner = "team-polisyos"
+summary = "Generate four selected Runtime API POST methods for registered SQL source registration, materialization, withdrawal, and control-job cancellation using their server-owned OpenAPI request and response contracts."
+evidence = [
+  "tools/ops_runners/runtime/generate_runtime_client.py",
+  "packages/runtime-api-client/runtimeApiClient.test.mjs",
+  "packages/runtime-api-client/runtimeApiClient.type-test.ts",
+  "schemas/runtime_api_v1.openapi.json",
+  "packages/runtime-api-client/types.ts",
+  "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+  "packages/runtime-api-client/canonicalRuntimeApiClient.js",
+  "apps/runtime-dashboard/src/api/types.ts",
+]
+compatibility = "Additive client methods; existing operations and server authority checks retain their contracts. Callers supply their own authentication and tenant headers and must handle existing HTTP errors."
+change_class = "js-package-api"
+surface_classification = "public_stable: @polisyos/runtime-api-client generated transport methods; internal: runtime-dashboard generated API types"
+migration = "Regenerate the canonical Runtime API client family and dashboard types from the current OpenAPI snapshot; use the generated methods with existing authorized caller context."
+api = "Add cancelControlJob, registerSqlSource, admitRegisteredSqlMaterialization, and withdrawRegisteredSqlMaterialization."
+limitations = "Client transport and mocked transport tests do not prove authentication, permission, source currentness, cancellation of physical work, or a complete dashboard workflow. Live Runtime authority remains independently enforced and verified."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = ["packages/runtime-api-client/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-source-post-client"
+change_class = "js-package-api"
+impact = "additive"
+surface = "public_stable: @polisyos/runtime-api-client generated Runtime API transport"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "The generated client exposes the existing registered SQL source and cancellation POST operations without changing server authorization."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["packages/runtime-api-client/README.md"]
+runbook_docs = []

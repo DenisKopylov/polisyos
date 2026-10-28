@@ -115,3 +115,97 @@ export function narrowGovernedProjectionPacket(
 }
 
 export type { CanonicalLiteralWitnesses };
+
+type SourceWriteTransportWitnesses = [
+  Assert<
+    Equal<Parameters<RuntimeApiClient["cancelControlJob"]>[0]["job_id"], string>
+  >,
+  Assert<
+    Equal<
+      Parameters<RuntimeApiClient["cancelControlJob"]>[0]["body"],
+      RawRuntimeApiComponents["schemas"]["ControlJobCancellationRequest"]
+    >
+  >,
+  Assert<
+    Equal<
+      Awaited<ReturnType<RuntimeApiClient["cancelControlJob"]>>,
+      RawRuntimeApiComponents["schemas"]["ControlJobResponse"]
+    >
+  >,
+  Assert<
+    Equal<
+      Parameters<RuntimeApiClient["registerSqlSource"]>[0]["body"],
+      RawRuntimeApiComponents["schemas"]["RegisteredSQLRegistrationRequest"]
+    >
+  >,
+  Assert<
+    Equal<
+      Awaited<ReturnType<RuntimeApiClient["registerSqlSource"]>>,
+      RawRuntimeApiComponents["schemas"]["RegisteredSQLRegistrationResponse"]
+    >
+  >,
+  Assert<
+    Equal<
+      Parameters<
+        RuntimeApiClient["admitRegisteredSqlMaterialization"]
+      >[0]["body"],
+      RawRuntimeApiComponents["schemas"]["RegisteredSQLMaterializationRequest"]
+    >
+  >,
+  Assert<
+    Equal<
+      Awaited<
+        ReturnType<RuntimeApiClient["admitRegisteredSqlMaterialization"]>
+      >,
+      RawRuntimeApiComponents["schemas"]["RegisteredSQLMaterializationResponse"]
+    >
+  >,
+  Assert<
+    Equal<
+      Parameters<
+        RuntimeApiClient["withdrawRegisteredSqlMaterialization"]
+      >[0]["body"],
+      RawRuntimeApiComponents["schemas"]["RegisteredSQLWithdrawalRequest"]
+    >
+  >,
+  Assert<
+    Equal<
+      Awaited<
+        ReturnType<RuntimeApiClient["withdrawRegisteredSqlMaterialization"]>
+      >,
+      RawRuntimeApiComponents["schemas"]["RegisteredSQLWithdrawalResponse"]
+    >
+  >,
+];
+
+export type { SourceWriteTransportWitnesses };
+
+type ComparisonResult =
+  RawRuntimeApiComponents["schemas"]["CompletedExAnteCandidateComparisonResponse"];
+type ComparisonRanking = NonNullable<ComparisonResult["candidate_comparison"]>;
+type ComparisonTransportWitnesses = [
+  Assert<
+    Equal<
+      Parameters<RuntimeApiClient["getRunMethodMetricComparison"]>[0]["run_id"],
+      string
+    >
+  >,
+  Assert<
+    Equal<
+      Awaited<ReturnType<RuntimeApiClient["getRunMethodMetricComparison"]>>,
+      ComparisonResult
+    >
+  >,
+  Assert<
+    Equal<
+      ComparisonRanking["status"],
+      "complete" | "verification_missing" | "invalid"
+    >
+  >,
+  Assert<
+    Equal<NonNullable<ComparisonRanking["authority_status"]>, "candidate_only">
+  >,
+  Assert<Equal<NonNullable<ComparisonRanking["revalidation_required"]>, true>>,
+];
+
+export type { ComparisonTransportWitnesses };

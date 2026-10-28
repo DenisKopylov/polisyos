@@ -28,6 +28,10 @@ _GENERATED_POST_OPERATION_IDS = frozenset(
         "request_run_acquisition_decision",
         "execute_run_acquisition_route",
         "submit_run_normative_evidence",
+        "admit_registered_sql_materialization",
+        "cancel_control_job",
+        "register_sql_source",
+        "withdraw_registered_sql_materialization",
     }
 )
 ResponseMode = Literal["json", "array_buffer"]

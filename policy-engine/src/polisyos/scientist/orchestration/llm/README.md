@@ -178,3 +178,13 @@ that admission/event, not a proven immutable payload. Existing live job and actu
 producer-begin admission still precedes every physical executor. Opaque adapters
 never become reusable merely by using this helper. Known prepared providers and
 the simulator propagate the actual native snapshot's reusability.
+
+Configured durable settlement snapshots that fail decoding or validation withhold
+provider preflight as the existing typed `unknown` result before catalog/network
+checks. They do not establish a failed provider call. An absent, unreadable or
+unconfigured settlement store retains its setup-failure behavior; no amount,
+provider authority or accounting completeness is inferred. The existing
+`test_provider_preflight_records_bound_gateway_completion_and_reuses_exact_event`
+variants pin altered durable-origin refusal. Its Cloud result is source-bound;
+local composition, the remaining Runtime fixture failures and the third
+preparation/reuse removal remain separate verification obligations.

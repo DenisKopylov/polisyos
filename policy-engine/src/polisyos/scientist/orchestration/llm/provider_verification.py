@@ -1071,6 +1071,7 @@ async def run_provider_preflight(
         or producer_budget_key is not None
     )
     accounting_failure: str | None = None
+    accounting_unknown: str | None = None
     resolved_producer_budget_key: str | None = None
     producer_scope_key: str | None = None
     if producer_accounting_requested:
@@ -1102,10 +1103,25 @@ async def run_provider_preflight(
                         callable(getattr(producer_settlement_store, operation, None))
                         for operation in required_store_operations
                     )
+                except (TypeError, ValueError, json.JSONDecodeError) as exc:
+                    # A configured durable owner whose persisted snapshot no longer
+                    # decodes is an unresolved settlement, not evidence that the
+                    # provider request itself failed.  In particular, do not fall
+                    # through to catalog/network work when a retained origin was
+                    # changed or removed between calls.
+                    owner_identity = None
+                    has_store_operations = all(
+                        callable(getattr(producer_settlement_store, operation, None))
+                        for operation in required_store_operations
+                    )
+                    accounting_unknown = (
+                        "Provider preflight could not reopen the durable producer settlement "
+                        f"owner: {exc}"
+                    )
                 except Exception:
                     owner_identity = None
                     has_store_operations = False
-                if (
+                if accounting_unknown is None and (
                     not isinstance(owner_identity, tuple)
                     or len(owner_identity) != 3
                     or any(not isinstance(item, str) or not item.strip() for item in owner_identity)
@@ -1114,7 +1130,7 @@ async def run_provider_preflight(
                     accounting_failure = (
                         "Provider preflight durable producer settlement is unavailable."
                     )
-                else:
+                elif accounting_unknown is None:
                     binding_bytes = json.dumps(
                         {
                             "provider": resolved_provider,
@@ -1143,6 +1159,16 @@ async def run_provider_preflight(
             failure=failure,
             api_key_env=resolved_env,
             api_key_fingerprint=api_key_fingerprint,
+        )
+    if accounting_unknown is not None:
+        return _preflight_unknown_report(
+            provider=resolved_provider,
+            base_url=resolved_base_url,
+            models=requested_models,
+            checked_at=checked_at,
+            api_key_env=resolved_env,
+            api_key_fingerprint=api_key_fingerprint,
+            message=accounting_unknown,
         )
 
     cache_key = (

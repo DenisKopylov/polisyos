@@ -1,0 +1,16 @@
+id = "2026-10-28-c05-durable-origin-classification"
+title = "Classify malformed durable preflight origin as unknown settlement"
+type = "fixed"
+component = "scientist"
+owner = "team-polisyos-runtime"
+summary = "A configured durable settlement snapshot that cannot decode or validate returns typed unknown before provider catalog/network work; missing or unconfigured storage keeps setup-failure semantics."
+evidence = ["tests/unit/scientist/orchestration/llm/test_provider_verification.py"]
+change_class = "python-runtime-behavior"
+surface_classification = "internal"
+compatibility = "Existing report fields and wire shape are unchanged; malformed durable origin is not a failed provider request."
+migration = "Retain and reconcile the actual durable origin; do not retry by fabricating a ledger, provider result or amount."
+limitations = "Cloud evidence is bound to EA plus the one-file provider delta. Local composition and remaining C05 Runtime/removal obligations remain unqualified until their exact checks run; no invoice authority, G acceptance or closure."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/orchestration/llm/README.md"]
+runbook_docs = []

@@ -1,0 +1,12 @@
+id = "e02-c97-installed-census-oracle"
+title = "Bind installed census contract to exact Git sets and executing child provenance"
+type = "fixed"
+component = "devx"
+owner = "team-policyos-devx"
+summary = "Extend the task-specific installed census oracle to compare exact changed/selected/read identities and byte digests, and wire read-only inside-child artifact provenance to the existing Q2 build/install harness."
+surface_classification = "test-only: installed polisyos-tools schema-fqn-census consumer"
+compatibility = "No production scanner, public API, package schema, lockfile, lifecycle or canonical origin owner changes. The historical source JUnit remains scoped to its old source/profile; installed execution and controls are unrun for this proposal."
+migration = "Supply the completed Q2 artifact binding and task-owned observer through the C97 execution recipe; an arbitrary console path is insufficient. Missing profile is SKIP, not installed PASS."
+limitations = "Author proposal only until composed and executed. No whole-I2/Q2/E02 acceptance, legacy-retirement authority, numerical worker validation or G closure."
+evidence = ["tests/repo_quality/tools/test_e02_installed_census_contract.py"]
+migration_docs = ["docs/research/e02-cloud-test-plan/implementation-handoffs/C97/REPAIR-r2.md", "docs/research/e02-cloud-test-plan/implementation-handoffs/C97/EXECUTION-r2.md"]

@@ -1,0 +1,52 @@
+{
+  "scope": "Actual calls to the replaced private owner-row method in this process; not a count of independent artifact edges or authorization decisions.",
+  "before": {
+    "identity": "0x109ba6820",
+    "code_sha256": "e8c2c8350fedf4ed013580ba02c91541b7a593a5343e1be81605be8905908601",
+    "source": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/core/artifacts/ownership.py",
+    "module": "polisyos.core.artifacts.ownership",
+    "qualname": "ArtifactOwnershipIndex._claim_rows_for_query"
+  },
+  "mutant": {
+    "identity": "0x109bdaae0",
+    "code_sha256": "0a67cee854243177e0a4268537197c6ba6605d2d8c8773b6eefa6599eae42671",
+    "source": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/e02-execution-20261027/repairs/C07-CAS-owner-dedup-r1/remove_snapshot_query.py",
+    "module": "c07_existing_removal_control",
+    "qualname": "pytest_configure.<locals>.original_full_index_path"
+  },
+  "observer": {
+    "identity": "0x10a7119b0",
+    "code_sha256": "6a622f8f31652aefb5e76fea9fa9f8ba08c8c6fd12cc3dab5c51a2cb8c8b7f77",
+    "source": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/e02-execution-20261027/repairs/C07-owner-query-removal-r1/c07_removal_observer.py",
+    "module": "c07_removal_observer",
+    "qualname": "pytest_configure.<locals>.observed"
+  },
+  "restored": {
+    "identity": "0x109ba6820",
+    "code_sha256": "e8c2c8350fedf4ed013580ba02c91541b7a593a5343e1be81605be8905908601",
+    "source": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/core/artifacts/ownership.py",
+    "module": "polisyos.core.artifacts.ownership",
+    "qualname": "ArtifactOwnershipIndex._claim_rows_for_query"
+  },
+  "active_was_observer": true,
+  "restored_same_object": true,
+  "restored_same_code_hash": true,
+  "input_hashes_before": {
+    "owner": "ba56a58da7f9929d33384e71e8c3bf8877a64775b0a7e3c69deed5f991ec0ce7",
+    "test": "7335f1be5372e0b47e67c99a4d95458f86204e07bdcdcd2774ff401a40b93de0",
+    "original_plugin": "3e6cc0fc5881b94a30739f0d734ec139f812f5bca906603f94621deb4afd8bbe",
+    "wrapper": "7a29ae9f86fafaeb9a9d88703abff3580570fd03563069e18fabdffa7143a801"
+  },
+  "input_hashes_after": {
+    "owner": "ba56a58da7f9929d33384e71e8c3bf8877a64775b0a7e3c69deed5f991ec0ce7",
+    "test": "7335f1be5372e0b47e67c99a4d95458f86204e07bdcdcd2774ff401a40b93de0",
+    "original_plugin": "3e6cc0fc5881b94a30739f0d734ec139f812f5bca906603f94621deb4afd8bbe",
+    "wrapper": "7a29ae9f86fafaeb9a9d88703abff3580570fd03563069e18fabdffa7143a801"
+  },
+  "invocations": {
+    "total": 773,
+    "blob_readers_true": 0,
+    "blob_readers_false": 773
+  },
+  "closure_ids": []
+}

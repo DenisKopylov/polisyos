@@ -1,0 +1,11 @@
+..F                                                                      [100%]R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 78, "phase": "driver", "pid": 14866, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c59-r2-20261028-r1-minimum/readsets/input-readset-14866.json", "source_module_count": 72, "test_module_count": 6, "tools_module_count": 0}
+
+=================================== FAILURES ===================================
+_____ test_bounded_codec_refuses_large_mapping_before_sort[limits2-depth] ______
+tests/unit/common/test_canonical_v3.py:391: in test_bounded_codec_refuses_large_mapping_before_sort
+    with pytest.raises(common_codec.CanonicalError, match=f"canonical_wire_{reason}_exceeded"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.common.canonical.CanonicalError'>
+=========================== short test summary info ============================
+FAILED tests/unit/common/test_canonical_v3.py::test_bounded_codec_refuses_large_mapping_before_sort[limits2-depth]
+1 failed, 2 passed in 0.16s

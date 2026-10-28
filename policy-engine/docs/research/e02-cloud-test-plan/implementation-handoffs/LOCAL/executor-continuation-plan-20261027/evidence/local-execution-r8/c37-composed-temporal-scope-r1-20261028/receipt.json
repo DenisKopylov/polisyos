@@ -1,0 +1,112 @@
+{
+  "case": "c37-composed-temporal-scope-r1-20261028",
+  "source_commit": "67beb3461ab96c4cb64b92226228da39b30bcb06",
+  "source_tree": "306e3c150f6a1368f23c8ebece35aeec3feb180b",
+  "plan": {
+    "case_id": "c37-composed-temporal-scope-r1-20261028",
+    "source_head": "67beb3461ab96c4cb64b92226228da39b30bcb06",
+    "nodes": [
+      "tests/unit/runtime/http/test_nl_temporal_scope_intake.py",
+      "tests/unit/runtime/http/test_nl_temporal_scope_lifecycle.py"
+    ],
+    "deadline_seconds": 300,
+    "rss_cap_bytes": 2415919104,
+    "scope": "Full two-module temporal intake and selected queue/current lifecycle worker cohort on composed source, including alias spoofing, persistence, fresh requested cursor bridge; no external temporal authority or G acceptance."
+  },
+  "result": {
+    "id": "c37-composed-temporal-scope-r1-20261028",
+    "argv": [
+      "/usr/bin/sandbox-exec",
+      "-f",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c37-composed-temporal-scope-r1-20261028/child.sb",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c37-composed-temporal-scope-r1-20261028/pytest_launcher.py",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c37-composed-temporal-scope-r1-20261028/pytest-cache",
+      "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c37-composed-temporal-scope-r1-20261028/benchmarks",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c37-composed-temporal-scope-r1-20261028/basetemp",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c37-composed-temporal-scope-r1-20261028/pytest.xml",
+      "--tb=short",
+      "--color=no",
+      "--maxfail=0",
+      "tests/unit/runtime/http/test_nl_temporal_scope_intake.py",
+      "tests/unit/runtime/http/test_nl_temporal_scope_lifecycle.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "started_at": "2026-10-28T01:38:34.764404+00:00",
+    "wall_total_before_seconds": 2.1249987185001373e-05,
+    "disk_free_before_bytes": 17945468928,
+    "stdout_path": "c37-composed-temporal-scope-r1-20261028.stdout.txt",
+    "stderr_path": "c37-composed-temporal-scope-r1-20261028.stderr.txt",
+    "return_code": 1,
+    "aborted_reason": null,
+    "complete": true,
+    "pid": 37880,
+    "process_group_gone": true,
+    "termination_signal": null,
+    "max_sampled_process_tree_rss_bytes": 1131757568,
+    "minimum_sampled_disk_free_bytes": 17936797696,
+    "sample_count": 28,
+    "wall_seconds": 29.553621875005774,
+    "finished_at": "2026-10-28T01:39:04.318143+00:00",
+    "status": "command_failed",
+    "junit": {
+      "tests": 49,
+      "failures": 17,
+      "errors": 0,
+      "skipped": 0
+    },
+    "skips": []
+  },
+  "finite_readsets": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c37-composed-temporal-scope-r1-20261028/readsets/input-readset-37880.json",
+      "sha256": "9cadfe3d50f98610a4b3b57a6ae8367ff74604e4a33bc9cffb2a9fed95171407",
+      "python_paths": 1811,
+      "pytest_exitstatus": 1
+    }
+  ],
+  "finite_loaded_python_paths": 1811,
+  "current_work_mismatches": [],
+  "artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r8/c37-composed-temporal-scope-r1-20261028/stdout.txt.gz",
+      "sha256": "0b7f2449b77a3c717ead4e519edc644227861fcc4a84fbd7bac5121d6cd59b68",
+      "bytes": 2673,
+      "raw_sha256": "70a0493aa500234f8f75f5962988d9df4d6a8986ba2299a610c0cb1324c07c25",
+      "raw_bytes": 48925
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r8/c37-composed-temporal-scope-r1-20261028/stderr.txt.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "bytes": 20,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r8/c37-composed-temporal-scope-r1-20261028/junit.xml.gz",
+      "sha256": "4a3cc425e0ab6cb0000b8350affa7c89de08e9845ab3fccb3a1abe375ca36365",
+      "bytes": 2636,
+      "raw_sha256": "de387a77ec8203248cb967120eb211096ce8c8737c39f94df0b0dc172b9a5c74",
+      "raw_bytes": 53083
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r8/c37-composed-temporal-scope-r1-20261028/audit.json.gz",
+      "sha256": "acbe0215d0d1666d731f0590899b694851ecb56e965d10d72cd6f163060724aa",
+      "bytes": 1578,
+      "raw_sha256": "c09a1f7d6d11d130f1f057194e1a7c0e36cc2678cf0f499a65793fa279c67f52",
+      "raw_bytes": 5413
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r8/c37-composed-temporal-scope-r1-20261028/profile-freeze.json.gz",
+      "sha256": "18a2a573f0f4134febf09dca33fc59a78858ceec3743ca6dff841d18cd04580d",
+      "bytes": 2363,
+      "raw_sha256": "1451a502e43f5856e9ebfed4a8e57715e833511bb43e8a6a413d616a05ce19d2",
+      "raw_bytes": 9585
+    }
+  ],
+  "qualification": "32 PASS /17 FAIL /0ERROR /0SKIP at this source. All outward failures are FrozenInstanceError; actual traces include typed temporal datetime rejected by request canonicalization, then traceback assignment masked. Diagnosis/repair assigned; no fresh successful lifecycle proof or G acceptance.",
+  "closure_ids": []
+}

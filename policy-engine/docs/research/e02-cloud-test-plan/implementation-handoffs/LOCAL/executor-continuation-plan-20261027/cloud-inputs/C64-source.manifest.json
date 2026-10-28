@@ -1,0 +1,62 @@
+{
+  "schema": "policyos.e02.cloud_source_input_proposal.v1",
+  "slice": "C67-BKT",
+  "input": "C64-source-only",
+  "basis_commit_before_carrier": "67beb3461ab96c4cb64b92226228da39b30bcb06",
+  "basis_tree_before_carrier": "306e3c150f6a1368f23c8ebece35aeec3feb180b",
+  "source_origin_base": "caa91a64d7d6afc4310186ba5fadbac2008dddab",
+  "source_origin_candidate_reconstructed_tree": "3b9fd32bf2de786d5ce34c9a5821350b333909d0",
+  "source_origin_diff_sha256": "0e74d53032ce12ee01b00ce1ddcfa76a934f9727af1c9c1c3df2de9744b43e41",
+  "authority": "unapplied author source input; independent narrow source GO only; no runtime/G acceptance or closure",
+  "self_reference_rule": "Final published carrier commit/tree and combined overlay tree are generated after publication/readback; this manifest never claims its own future commit.",
+  "proposed_published_patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C64-source.patch.gz",
+  "proposed_published_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C64-source.manifest.json",
+  "encoding": "gzip (one two-file unified Git diff; no archive)",
+  "compressed_sha256": "a8b49ffc73353b9eb2f9f78dbe63df746bbdb867deb7b42e52e7b0782b87d8d3",
+  "compressed_bytes": 1736,
+  "raw_sha256": "bc7db6f63138ddd31210a6060f0c7e466ab35cc55de0c7ed9b6c40bef3ba4243",
+  "raw_bytes": 5600,
+  "files": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "basis_blob": "bcf32f0beab30a28c36979fac4f79a5c12bca037",
+      "basis_sha256": "b8da4c1aa45c6cd22576c34e6360fc2c34de29a4a6cfaaa9fa85cace9d51a46c",
+      "basis_bytes": 77972,
+      "postimage_blob": "510e78a8734b476b6d3932572f73e5e2111706ce",
+      "postimage_sha256": "d2ea570a2f9d6a80c1de0a899a7fbbfb8ebe22f0477686a6567867bf412089a9",
+      "postimage_bytes": 78285,
+      "mode": "100644"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+      "basis_blob": "b1873f09a460b5587d077b21bd6f8f3a0eb56d8f",
+      "basis_sha256": "5052ded2db80238d69360ce390b1fdc0499a66473c2e61e1ae4691554e1e53cb",
+      "basis_bytes": 68523,
+      "postimage_blob": "3c2d0b580e644099165b2126e0b0555ff99dff53",
+      "postimage_sha256": "943f6a3140adbd41ada94e2d4ac54dfdee51d3f4a360fccaa5be15c07fd4b6b5",
+      "postimage_bytes": 70322,
+      "mode": "100644"
+    }
+  ],
+  "deduplicated_inputs": {
+    "existing_published_carrier_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C36.patch.gz",
+    "selected_seed_paths": [
+      "policy-engine/tests/integration/scientist/methods/backtesting/test_backtest_fresh_report_semantics.py",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap_statistic_semantics.py"
+    ],
+    "reason": "Both are exact existing published C36 seed postimages; apply once from that carrier only, or verify identical bytes already present."
+  },
+  "excluded_C64_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c64-backtesting-20261028-r1/outputs/foundry-replicas.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/Q0/cloud/e02-c64-backtesting-20261028-r1/receipt.md"
+  ],
+  "excluded_evidence_reason": "Old receipt and Foundry failure output are not needed implementation inputs; the new prompt labels their observations author-reported/source-bound limits, and requires fresh actual diagnostics rather than copies or prior PASS claims.",
+  "limitations": [
+    "Carrier is not applied to canonical source.",
+    "The new C64 test is helper-level only, not actual single-run consumer proof.",
+    "C64 full positive/BKT02 output and removal/restoration evidence were not delivered; no PASS is inherited.",
+    "C64 bootstrap and fresh-report seeds are not new capabilities.",
+    "B174 CV and B175 bootstrap have independent author leases."
+  ],
+  "closure_ids": []
+}

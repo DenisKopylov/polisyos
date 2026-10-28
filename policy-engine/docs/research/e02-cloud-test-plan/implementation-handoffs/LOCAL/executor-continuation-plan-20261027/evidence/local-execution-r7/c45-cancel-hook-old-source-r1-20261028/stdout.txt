@@ -1,0 +1,21 @@
+FF                                                                       [100%]R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 1802, "phase": "driver", "pid": 14121, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c45-cancel-hook-old-source-r1-20261028/readsets/input-readset-14121.json", "source_module_count": 1794, "test_module_count": 8, "tools_module_count": 0}
+
+=================================== FAILURES ===================================
+________ test_runtime_async_plain_breaker_releases_half_open_on_cancel _________
+tests/unit/runtime/http/test_resilience_guards.py:155: in test_runtime_async_plain_breaker_releases_half_open_on_cancel
+    assert breaker.get_stats()["half_open_calls"] == 0
+E   assert 1 == 0
+----------------------------- Captured stdout call -----------------------------
+2026-10-28 03:02:23.087 | CRITICAL | polisyos.common.logger:_call:104 - Circuit opened (tripped)
+
+___ test_runtime_blocking_plain_breaker_releases_half_open_on_submit_failure ___
+tests/unit/runtime/http/test_resilience_guards.py:181: in test_runtime_blocking_plain_breaker_releases_half_open_on_submit_failure
+    assert breaker.get_stats()["half_open_calls"] == 0
+E   assert 1 == 0
+----------------------------- Captured stdout call -----------------------------
+2026-10-28 03:02:23.234 | CRITICAL | polisyos.common.logger:_call:104 - Circuit opened (tripped)
+
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/http/test_resilience_guards.py::test_runtime_async_plain_breaker_releases_half_open_on_cancel
+FAILED tests/unit/runtime/http/test_resilience_guards.py::test_runtime_blocking_plain_breaker_releases_half_open_on_submit_failure
+2 failed in 0.67s

@@ -1,0 +1,122 @@
+{
+  "slice": "C65",
+  "task_id": "task_e_6ae14408c67083259d38799a125aee35",
+  "base_commit": "caa91a64d7d6afc4310186ba5fadbac2008dddab",
+  "candidate_tree_reconstructed_from_received_diff": "a323c10973dbaba325dfdfa438093eb6ba1bd683",
+  "received_diff_sha256": "78b9f43116364551d254bc74c123c50145b8efb7bf70373d761ec00cd78f0426",
+  "received_diff_bytes": 67353,
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C65/cloud/c65-20261028-a/focused.junit.xml",
+      "base_git_blob": null,
+      "postimage_git_blob": "986a76908766b30603ac9a090357f9bd3f0c9161",
+      "postimage_sha256": "b42f84694b84814c272e528ff2dab9a1f6889f35f7b4cac9c2c0844878f6f769",
+      "bytes": 7242,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C65/delivered/C65/cloud/c65-20261028-a/focused.junit.xml",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C65/cloud/c65-20261028-a/focused.txt",
+      "base_git_blob": null,
+      "postimage_git_blob": "7f689304315a86bfff85d6233dd6a4edcd0737b8",
+      "postimage_sha256": "68aca91c8e51ee09f86a420c74c9da03919568342a1568deebc66b9fa5a57b61",
+      "bytes": 347,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C65/delivered/C65/cloud/c65-20261028-a/focused.txt",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C65/cloud/c65-20261028-a/receipt.md",
+      "base_git_blob": null,
+      "postimage_git_blob": "cc842677c57d8b9ddafcfdb70d70ca97951d7317",
+      "postimage_sha256": "013d6d056598096842a97c91b6952d6c9712ebb1a6c6a0c84b72796b54afd52b",
+      "bytes": 6078,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C65/delivered/C65/cloud/c65-20261028-a/receipt.md",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C65/cloud/c65-20261028-a/register-closeout.txt",
+      "base_git_blob": null,
+      "postimage_git_blob": "65ccf17cb99427e9665481ae9cb2229fe94614e0",
+      "postimage_sha256": "be26631d1670597b44f6bea47b6eb1fba4e061d75b9097df50c1693dcafa75e0",
+      "bytes": 12434,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C65/delivered/C65/cloud/c65-20261028-a/register-closeout.txt",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C65/cloud/c65-20261028-a/removal-hashes.txt",
+      "base_git_blob": null,
+      "postimage_git_blob": "c1aa7e476839d7d95bfbee7acc8a2566b6fa8939",
+      "postimage_sha256": "b172abfc533db5b77d9a855ab9eeffb95ec2d725113cd5d0855f2b1907579806",
+      "bytes": 324,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C65/delivered/C65/cloud/c65-20261028-a/removal-hashes.txt",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C65/cloud/c65-20261028-a/static-removal.txt",
+      "base_git_blob": null,
+      "postimage_git_blob": "b319cde993f7f6c2f087dec2f252266c2f5a3eb5",
+      "postimage_sha256": "e7499e5d314809a24f6e4fc27910dc7efbdb30fd1388956863b68a5b3a2e0a63",
+      "bytes": 1678,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C65/delivered/C65/cloud/c65-20261028-a/static-removal.txt",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C65/cloud/c65-20261028-a/static-restored.txt",
+      "base_git_blob": null,
+      "postimage_git_blob": "e0c4721e96aad855392d5b3ef6b348c7dffaff9e",
+      "postimage_sha256": "8ef320c6ef50856801f4f42c4b701e078c13fa755d5893dcb1ffe498f18512c4",
+      "bytes": 87,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C65/delivered/C65/cloud/c65-20261028-a/static-restored.txt",
+      "actual_delivered_bytes_verified": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-28-cal05-selector-batch-executor.toml",
+      "base_git_blob": null,
+      "postimage_git_blob": "99b062f8f60514fcd8f92c286bde7c6b0f45e125",
+      "postimage_sha256": "2800bc04eff1e50a9f76eac22caba646fe286b3b269acf5915e2aa0f8de5c66c",
+      "bytes": 1912,
+      "new_file": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/README.md",
+      "base_git_blob": "e343b7dd8215bcf66755a0dbcd8d9aa1fe425a6c",
+      "postimage_git_blob": "1ec3db4ba4197be940253e2dc796839a7f00dd3f",
+      "postimage_sha256": "3727174183a973137eeea9c775754ed359e69768486f392d37ad2851af8d934f",
+      "bytes": 15710,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/__init__.py",
+      "base_git_blob": "03be7150535d127c495c9283eebdf3b86200701b",
+      "postimage_git_blob": "1ca38ed0229fe714aa45af8838068b17c103835e",
+      "postimage_sha256": "c23f80f35f307887efd307922195d31ed7a9b866d2d99e307bd229438fb807ef",
+      "bytes": 8108,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+      "base_git_blob": "3f5dcea6511b1e39e91f59df1bb96bd21434d658",
+      "postimage_git_blob": "6fe2448c3293a3a14c432998f485440e7e608b14",
+      "postimage_sha256": "764b3bad9953d90278412de272505163c6339574556f4cc076c955dae015a8f3",
+      "bytes": 39227,
+      "new_file": false
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "base_git_blob": "013f2b7d85e28b723cae17a964e95f7f9789b715",
+      "postimage_git_blob": "1b62d852a354db106fe11f3b1c77469c03b01c38",
+      "postimage_sha256": "1be87a10a7cc784684f1552f5c79d3e4f43c0fc7f2f2671363864c94f2c12047",
+      "bytes": 29745,
+      "new_file": false
+    }
+  ],
+  "canonical_source_not_applied": true,
+  "actual_canonical_index_unchanged": true
+}

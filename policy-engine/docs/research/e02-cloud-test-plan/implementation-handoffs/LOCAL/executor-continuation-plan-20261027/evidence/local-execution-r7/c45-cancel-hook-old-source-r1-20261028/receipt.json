@@ -1,0 +1,149 @@
+{
+  "schema": "policyos.e02.execution_receipt.v1",
+  "case": "c45-cancel-hook-old-source-r1-20261028",
+  "prepared_at": "2026-10-28T01:34:10.169062+00:00",
+  "classification": "D: deciding witness and compact audit bytes; finite local readsets are B/local only, not delivery",
+  "source": {
+    "commit": "35e3382683a54c533c8feb8fe816d1ebcbe2aabd",
+    "tree": "7d6b0d099f72712495cd646ceac864d207344e6c",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c45-cancellation-hook-tests-first-20261028-r4/full-composed-source-frame.json",
+      "sha256": "5e9f893760cdb041b3d9d3d70de8170aa67c19e05dc67c6eb00d43c6f9de0633"
+    }
+  },
+  "scope": "Old-source async cancellation and blocking submit-failure tests each fail on unreleased half-open count.",
+  "commands_actually_executed": {
+    "argv": [
+      "/usr/bin/sandbox-exec",
+      "-f",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c45-cancel-hook-old-source-r1-20261028/child.sb",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c45-cancel-hook-old-source-r1-20261028/pytest_launcher.py",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c45-cancel-hook-old-source-r1-20261028/pytest-cache",
+      "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c45-cancel-hook-old-source-r1-20261028/benchmarks",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c45-cancel-hook-old-source-r1-20261028/basetemp",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c45-cancel-hook-old-source-r1-20261028/pytest.xml",
+      "--tb=short",
+      "--color=no",
+      "--maxfail=0",
+      "tests/unit/runtime/http/test_resilience_guards.py::test_runtime_async_plain_breaker_releases_half_open_on_cancel",
+      "tests/unit/runtime/http/test_resilience_guards.py::test_runtime_blocking_plain_breaker_releases_half_open_on_submit_failure"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine"
+  },
+  "source_profile": {
+    "freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r7/c45-cancel-hook-old-source-r1-20261028/source-profile-freeze.json.gz",
+      "sha256": "f0b6819b28284e52356d11f76bbd89ea218fee17a53b811fba7d17360b4eb2fb",
+      "bytes": 2368,
+      "availability": "sparse proposal postimage; delivery pending coordinator composition"
+    },
+    "numeric_threads": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMBA_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "ARROW_NUM_THREADS": "1",
+      "BLIS_NUM_THREADS": "1",
+      "POLARS_MAX_THREADS": "1",
+      "TF_NUM_INTEROP_THREADS": "1",
+      "TF_NUM_INTRAOP_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    },
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TMPDIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c45-cancel-hook-old-source-r1-20261028/tmp",
+      "XDG_CACHE_HOME": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c45-cancel-hook-old-source-r1-20261028/tmp/xdg",
+      "MPLCONFIGDIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c45-cancel-hook-old-source-r1-20261028/tmp/mpl",
+      "NUMBA_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c45-cancel-hook-old-source-r1-20261028/tmp/numba",
+      "HYPOTHESIS_STORAGE_DIRECTORY": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c45-cancel-hook-old-source-r1-20261028/tmp/hypothesis",
+      "PYTHONPYCACHEPREFIX": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c45-cancel-hook-old-source-r1-20261028/tmp/empty-pycache",
+      "POLISYOS_R4_INPUT_PROJECT_ROOT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "POLISYOS_R4_INPUT_READSET_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c45-cancel-hook-old-source-r1-20261028/readsets",
+      "SCIENTIST_TORCH_NUM_THREADS": "1",
+      "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1"
+    },
+    "native_profile": "pytest.ini, default plugin autoload/importlib/strict markers; add read-only sys.modules observer; outputs redirected only; private empty pycache search prefix prevents stale canonical pyc reuse",
+    "input_pins_in_freeze": true,
+    "root_live_pins": [
+      {
+        "path": "LOCAL/raw/root-live-ownership-20261021.json",
+        "expected_sha256": "67028620e12793653ae736cee810e9d4f7250d2bb8cb9e18fe5e49221eb3aa77",
+        "observed_sha256_at_preparation": "70776c8e61d89080518853eba0c0e1e44135290cc3dd50e4c048228d2d912c39",
+        "availability": "historical bytes unavailable at this locator; alternate copy not established; not reconstructed"
+      }
+    ]
+  },
+  "result": {
+    "case_status": "completed_pytest",
+    "supervisor_status": "command_failed",
+    "supervisor_complete": true,
+    "return_code": 1,
+    "abort_reason": null,
+    "junit_counts": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    },
+    "test_cases": [
+      {
+        "node": "tests.unit.runtime.http.test_resilience_guards::test_runtime_async_plain_breaker_releases_half_open_on_cancel",
+        "status": "FAIL"
+      },
+      {
+        "node": "tests.unit.runtime.http.test_resilience_guards::test_runtime_blocking_plain_breaker_releases_half_open_on_submit_failure",
+        "status": "FAIL"
+      }
+    ],
+    "wall_seconds": 24.15622233299655,
+    "max_sampled_process_tree_rss_bytes": 1105887232
+  },
+  "outputs": {
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r7/c45-cancel-hook-old-source-r1-20261028/stdout.txt",
+      "sha256": "d74f42292a72e07c64197544b064c70d27e5624f4ae8007c545004a650432058",
+      "bytes": 1996,
+      "availability": "sparse proposal postimage; delivery pending coordinator composition"
+    },
+    "stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/common/empty.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "r6 dependency postimage; delivery pending coordinator composition"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r7/c45-cancel-hook-old-source-r1-20261028/pytest.xml",
+      "sha256": "862411a4f44346ce9a49588c23d3c49bbb5397e60390167d3c6f546cfbed03ff",
+      "bytes": 1075,
+      "availability": "sparse proposal postimage; delivery pending coordinator composition"
+    },
+    "audit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r7/c45-cancel-hook-old-source-r1-20261028/audit-result.json.gz",
+      "sha256": "897d42204b21ac266dc9c529c156ad1caa187621e4c824d1b357910b4b9779f9",
+      "bytes": 1657,
+      "availability": "sparse proposal postimage; delivery pending coordinator composition"
+    },
+    "source_profile_freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r7/c45-cancel-hook-old-source-r1-20261028/source-profile-freeze.json.gz",
+      "sha256": "f0b6819b28284e52356d11f76bbd89ea218fee17a53b811fba7d17360b4eb2fb",
+      "bytes": 2368,
+      "availability": "sparse proposal postimage; delivery pending coordinator composition"
+    }
+  },
+  "readsets": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c45-cancel-hook-old-source-r1-20261028/readsets/input-readset-14121.json",
+      "sha256": "6071d9c52c9f47560556cc2bb1e6774f5b09b4d720f251cb51f2381b7bc8b749",
+      "python_paths": 1802,
+      "pytest_exitstatus": 1,
+      "availability": "local only, hash verified"
+    }
+  ],
+  "G_acceptance": false,
+  "closure_ids": []
+}

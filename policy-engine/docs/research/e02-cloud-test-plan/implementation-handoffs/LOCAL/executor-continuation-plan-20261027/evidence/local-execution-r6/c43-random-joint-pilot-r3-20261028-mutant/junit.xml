@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="1.167" timestamp="2026-10-28T02:01:51.318058+02:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.remediation.test_c43_joint_gaussian" name="test_same_declared_joint_gaussian_has_same_linear_variance_in_four_backends[random-0.8]" time="1.092"><failure message="assert np.float64(2.032255595756678) == 0.3999999999999999 ± 0.06&#10;  &#10;  comparison failed&#10;  Obtained: 2.032255595756678&#10;  Expected: 0.3999999999999999 ± 0.06">tests/unit/remediation/test_c43_joint_gaussian.py:80: in test_same_declared_joint_gaussian_has_same_linear_variance_in_four_backends
+    assert np.var(np.asarray(carrier.samples)) == pytest.approx(
+E   assert np.float64(2.032255595756678) == 0.3999999999999999 ± 0.06
+E     
+E     comparison failed
+E     Obtained: 2.032255595756678
+E     Expected: 0.3999999999999999 ± 0.06</failure></testcase></testsuite></testsuites>

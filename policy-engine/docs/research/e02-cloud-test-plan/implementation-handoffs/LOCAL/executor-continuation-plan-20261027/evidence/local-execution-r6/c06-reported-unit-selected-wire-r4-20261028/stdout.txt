@@ -1,0 +1,14 @@
+.                                                                        [100%]R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 900, "phase": "driver", "pid": 75836, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c06-reported-unit-selected-wire-r4-20261028/readsets/input-readset-75836.json", "source_module_count": 894, "test_module_count": 6, "tools_module_count": 0}
+
+=============================== warnings summary ===============================
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+.venv/lib/python3.14/site-packages/pyro/ops/stats.py:527
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pyro/ops/stats.py:527: SyntaxWarning: "\g" is an invalid escape sequence. Such sequences will not work in the future. Did you mean "\\g"? A raw string is also an option.
+    we have :math:`ES^{*}(P,Q) \ge ES^{*}(Q,Q)` with equality holding if and only if :math:`P=Q`, i.e.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1 passed, 3 warnings in 15.46s

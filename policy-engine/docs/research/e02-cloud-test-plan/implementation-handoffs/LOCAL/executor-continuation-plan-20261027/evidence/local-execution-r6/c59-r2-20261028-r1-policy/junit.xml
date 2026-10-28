@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.084" timestamp="2026-10-28T01:46:46.724792+02:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.common.test_canonical_v3" name="test_bounded_codec_refuses_oversized_unregistered_tag_policy" time="0.004"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.common.canonical.CanonicalError'&gt;">tests/unit/common/test_canonical_v3.py:630: in test_bounded_codec_refuses_oversized_unregistered_tag_policy
+    with pytest.raises(common_codec.CanonicalError, match="canonical_bounded_type_policy_invalid"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE &lt;class 'polisyos.common.canonical.CanonicalError'&gt;</failure></testcase></testsuite></testsuites>

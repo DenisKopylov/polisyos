@@ -1,0 +1,10 @@
+{
+  "case": "c45-composed-consumers-r1-20261028",
+  "source_commit": "67beb3461ab96c4cb64b92226228da39b30bcb06",
+  "source_tree": "306e3c150f6a1368f23c8ebece35aeec3feb180b",
+  "finite_loaded_python_paths": 1817,
+  "work_index_Git_byte_qualification": true,
+  "source_mismatches": [],
+  "audit_sha256": "1339a7e2d46e60d3f090ae16fe53795300fcea5bd4314d97bbf043effb0e9797",
+  "scope": "Actual finite loaded src/tests/tools Python only; external plugins/native bytes and unimported files excluded; no G acceptance."
+}

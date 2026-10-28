@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="0.098" timestamp="2026-10-28T01:46:28.902969+02:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.common.test_canonical_v3" name="test_bounded_codec_counts_native_bytes_before_later_sibling[common]" time="0.004"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.common.canonical.CanonicalError'&gt;">tests/unit/common/test_canonical_v3.py:446: in test_bounded_codec_counts_native_bytes_before_later_sibling
+    with pytest.raises(error, match="canonical_wire_elements_exceeded"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE &lt;class 'polisyos.common.canonical.CanonicalError'&gt;</failure></testcase><testcase classname="tests.unit.common.test_canonical_v3" name="test_bounded_codec_counts_native_bytes_before_later_sibling[core]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.core.canon.canon_json.CanonViolation'&gt;">tests/unit/common/test_canonical_v3.py:446: in test_bounded_codec_counts_native_bytes_before_later_sibling
+    with pytest.raises(error, match="canonical_wire_elements_exceeded"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE &lt;class 'polisyos.core.canon.canon_json.CanonViolation'&gt;</failure></testcase></testsuite></testsuites>

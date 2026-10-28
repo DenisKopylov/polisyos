@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="156.756" timestamp="2026-10-28T02:19:22.716949+02:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.runtime.http.test_search_hte_first_assessment_outbox" name="test_owned_hte_outbox_records_first_assessment_without_authority_promotion[selected-source-unit]" time="156.444"><failure message="polisyos.runtime.http.errors.RuntimeDependencyTimeoutError: content_addressed_storage timed out">src/polisyos/runtime/http/resilience.py:150: in run
+    result = future.result(timeout=self._timeout_seconds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:452: in result
+    raise TimeoutError()
+E   TimeoutError
+
+The above exception was the direct cause of the following exception:
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py:1309: in test_owned_hte_outbox_records_first_assessment_without_authority_promotion
+    state, ticket_id, binding_ref = _publish_complete_search_task(
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py:943: in _publish_complete_search_task
+    _, _, admission_ref, basis_ref = produce_search_task_admission(
+src/polisyos/scientist/methods/search/uncertainty.py:4310: in produce_search_task_admission
+    inventory_ref = persist_search_uncertainty_v2(store, inventory)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/search/uncertainty.py:4742: in persist_search_uncertainty_v2
+    return store.put_json(
+src/polisyos/runtime/http/resilience.py:296: in _wrapped
+    return self._guard.run(attr, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:157: in run
+    raise RuntimeDependencyTimeoutError(self._dependency_name) from exc
+E   polisyos.runtime.http.errors.RuntimeDependencyTimeoutError: content_addressed_storage timed out</failure></testcase></testsuite></testsuites>

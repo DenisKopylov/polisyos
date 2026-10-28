@@ -1,0 +1,13 @@
+{
+  "case": "c07-snapshot-query-composed-r1-20261028",
+  "source_commit": "67beb3461ab96c4cb64b92226228da39b30bcb06",
+  "source_tree": "306e3c150f6a1368f23c8ebece35aeec3feb180b",
+  "readset_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c07-snapshot-query-composed-r1-20261028/readsets/input-readset-27574.json",
+  "readset_sha256": "f34d53387108226458cb4cda7d97df6d406c9583bcb14a69308259c044d3578f",
+  "finite_loaded_python_path_count": 77,
+  "file_type_denominator": "in-repo observed Python modules under policy-engine src/tests/tools",
+  "comparison": "every reported path SHA-256 against run readset, current working bytes, Git index and pinned source commit blob",
+  "mismatches": [],
+  "observed_at": "2026-10-28T01:35:28.236099+00:00",
+  "scope": "finite readset only; external plugins/native bytes and unimported source excluded; no G acceptance"
+}

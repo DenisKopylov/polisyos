@@ -1,0 +1,24 @@
+....F                                                                    [100%]R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 1833, "phase": "driver", "pid": 14400, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c07-scoped-native-first-with-guards-r4-20261028/readsets/input-readset-14400.json", "source_module_count": 1820, "test_module_count": 13, "tools_module_count": 0}
+
+=================================== FAILURES ===================================
+_ test_owned_hte_outbox_records_first_assessment_without_authority_promotion[selected-source-unit] _
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py:1304: in test_owned_hte_outbox_records_first_assessment_without_authority_promotion
+    state, ticket_id, binding_ref = _publish_complete_search_task(
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py:938: in _publish_complete_search_task
+    _, _, admission_ref, basis_ref = produce_search_task_admission(
+src/polisyos/scientist/methods/search/uncertainty.py:4250: in produce_search_task_admission
+    configuration_missing = _validate_search_owner_task_context(store, owner_context)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/search/uncertainty.py:3643: in _validate_search_owner_task_context
+    raise ValueError(
+E   ValueError: selected Search source graph differs from Scientist-owned context refs
+---------------------------- Captured stdout setup -----------------------------
+2026-10-28 01:46:50 [info     ] method_registered              backend=numpy fqn=causal.hte.forest_dr@1.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'doubly-robust', 'estimation', 'forest-dr', 'hte', 'tabular'] version=1.0.0
+2026-10-28 01:46:50 [info     ] method_registered              backend=numpy fqn=causal.hte.forest_dr@1.1.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'doubly-robust', 'estimation', 'forest-dr', 'hte', 'tabular'] version=1.1.0
+2026-10-28 01:46:50 [info     ] method_registered              backend=numpy fqn=causal.hte.causal_forest@2.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'causal-forest', 'cross-section', 'estimation', 'hte', 'native-inference', 'tabular'] version=2.0.0
+2026-10-28 01:46:50 [info     ] method_registered              backend=numpy fqn=causal.hte.double_ml@2.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'double-ml', 'estimation', 'hte', 'native-inference', 'tabular'] version=2.0.0
+2026-10-28 01:46:50 [info     ] method_registered              backend=numpy fqn=causal.hte.meta_learner@2.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'estimation', 'hte', 'meta-learner', 'native-inference', 'tabular'] version=2.0.0
+2026-10-28 01:46:50 [info     ] method_registered              backend=numpy fqn=causal.hte.forest_dr@2.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'estimation', 'forest-dr', 'hte', 'native-inference', 'tabular'] version=2.0.0
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_owned_hte_outbox_records_first_assessment_without_authority_promotion[selected-source-unit]
+1 failed, 4 passed in 163.51s (0:02:43)

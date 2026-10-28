@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.206" timestamp="2026-10-28T01:27:40.816900+02:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.ddm.test_observation_source_admission" name="test_wrong_budget_consumption_is_recomputed_despite_matching_source_labels" time="0.015"><failure message="AssertionError: assert 'finite_repla...ion_authority' == 'degradation_...tion_mismatch'&#10;  &#10;  - degradation_budget_consumption_mismatch&#10;  + finite_replay_observation_not_production_authority">tests/unit/ddm/test_observation_source_admission.py:331: in test_wrong_budget_consumption_is_recomputed_despite_matching_source_labels
+    assert (
+E   AssertionError: assert 'finite_repla...ion_authority' == 'degradation_...tion_mismatch'
+E     
+E     - degradation_budget_consumption_mismatch
+E     + finite_replay_observation_not_production_authority</failure></testcase></testsuite></testsuites>

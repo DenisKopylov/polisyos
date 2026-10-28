@@ -1,0 +1,11 @@
+F                                                                        [100%]R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 78, "phase": "driver", "pid": 16991, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c59-r2-20261028-r1-carrier/readsets/input-readset-16991.json", "source_module_count": 72, "test_module_count": 6, "tools_module_count": 0}
+
+=================================== FAILURES ===================================
+_______ test_new_carrier_emission_obeys_selected_version_and_tag_policy ________
+tests/unit/common/test_canonical_v3.py:599: in test_new_carrier_emission_obeys_selected_version_and_tag_policy
+    with pytest.raises(ValueError, match="canonical_carrier_profile_unsupported"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+=========================== short test summary info ============================
+FAILED tests/unit/common/test_canonical_v3.py::test_new_carrier_emission_obeys_selected_version_and_tag_policy
+1 failed in 0.18s

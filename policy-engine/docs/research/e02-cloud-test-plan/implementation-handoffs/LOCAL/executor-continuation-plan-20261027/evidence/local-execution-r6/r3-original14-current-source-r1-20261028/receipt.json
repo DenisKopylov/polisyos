@@ -1,0 +1,235 @@
+{
+  "schema": "policyos.e02.native_case_compact_receipt.v1",
+  "case": "r3-original14-current-source-r1-20261028",
+  "source_commit": "3babffa0d176d3fb9c478865f14136ebe1bc54c4",
+  "source_tree": "c783e8e23d85b31d1610f62fcd55634a9dea4e2d",
+  "property_scope": "Exactoriginal10selectors/historical14occurrences oncurrent source/default nativeprofile, callerpayload unchanged; actualJUnitexpansionrecorded. DistinctfromC05cache131cohort. NotGacceptance/closure.",
+  "interpretation": "Original R3 ten selectors expanded to 14 failures: one catalog equality and thirteen tenant-context assertions; separate from C05 cache cohort.",
+  "actual_nodes": [
+    "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py::test_simulated_nl_producer_costs_settle_and_capture_four_origins",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_b10_second_grounded_candidate_is_evaluated_with_first_blocker_preserved",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_consumes_distinct_wmr_states_and_n8_keeps_limits",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_consumes_selected_wmr_view_and_rejects_sibling",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_consumes_selected_state_blob_view",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_rejects_state_ref_selector_removal_with_markers",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_state_handoff_removal_probe_keeps_markers_red",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_types_unknown_or_malformed_content_bound_persisted_blockers",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_refuses_profileless_selected_json_semantic_inputs",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_requires_core_json_reader_before_store_reads"
+  ],
+  "executed_argv": [
+    "/usr/bin/sandbox-exec",
+    "-f",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-original14-current-source-r1-20261028/child.sb",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-original14-current-source-r1-20261028/pytest_launcher.py",
+    "-o",
+    "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-original14-current-source-r1-20261028/pytest-cache",
+    "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-original14-current-source-r1-20261028/benchmarks",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-original14-current-source-r1-20261028/basetemp",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-original14-current-source-r1-20261028/pytest.xml",
+    "--tb=short",
+    "--color=no",
+    "--maxfail=0",
+    "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py::test_simulated_nl_producer_costs_settle_and_capture_four_origins",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_b10_second_grounded_candidate_is_evaluated_with_first_blocker_preserved",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_consumes_distinct_wmr_states_and_n8_keeps_limits",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_consumes_selected_wmr_view_and_rejects_sibling",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_consumes_selected_state_blob_view",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_rejects_state_ref_selector_removal_with_markers",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_state_handoff_removal_probe_keeps_markers_red",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_types_unknown_or_malformed_content_bound_persisted_blockers",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_refuses_profileless_selected_json_semantic_inputs",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_requires_core_json_reader_before_store_reads"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+  "plan_extra_env": {
+    "POLISYOS_RUN_INTEGRATION": "1"
+  },
+  "native_profile": "pytest.ini, default plugin autoload/importlib/strict markers; add read-only sys.modules observer; outputs redirected only; private empty pycache search prefix prevents stale canonical pyc reuse",
+  "numeric_threads": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMBA_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "ARROW_NUM_THREADS": "1",
+    "BLIS_NUM_THREADS": "1",
+    "POLARS_MAX_THREADS": "1",
+    "TF_NUM_INTEROP_THREADS": "1",
+    "TF_NUM_INTRAOP_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "result": {
+    "exit_code": 1,
+    "status": "command_failed",
+    "complete": true,
+    "counts": {
+      "tests": 14,
+      "failures": 14,
+      "errors": 0,
+      "skipped": 0
+    },
+    "failure_cases": [
+      {
+        "test": "tests.unit.runtime.http.test_nl_pipeline_cost_projection::test_simulated_nl_producer_costs_settle_and_capture_four_origins",
+        "kind": "failure",
+        "message": "AssertionError: assert MethodCatalog...d_count:394']) == MethodCatalog...d_count:394'])      Use -v to get more diff"
+      },
+      {
+        "test": "tests.unit.runtime.quality.test_generation_cycle::test_b10_second_grounded_candidate_is_evaluated_with_first_blocker_preserved",
+        "kind": "failure",
+        "message": "AssertionError: assert None == ArtifactTenantContextInfo(tenant_id='tenant-n5-owner', cell_id='cell-n5-owner')  +  where None = ArtifactManifest(manifest_schema_version='v3', artifact_id=ArtifactID(root='sha256:0a3aaac9d2956a28ad8"
+      },
+      {
+        "test": "tests.unit.runtime.quality.test_generation_cycle::test_owner_program_graph_n5_consumes_distinct_wmr_states_and_n8_keeps_limits",
+        "kind": "failure",
+        "message": "AssertionError: assert None == ArtifactTenantContextInfo(tenant_id='tenant-n5-owner', cell_id='cell-n5-owner')  +  where None = ArtifactManifest(manifest_schema_version='v3', artifact_id=ArtifactID(root='sha256:0a3aaac9d2956a28ad8"
+      },
+      {
+        "test": "tests.unit.runtime.quality.test_generation_cycle::test_owner_program_graph_n5_consumes_selected_wmr_view_and_rejects_sibling",
+        "kind": "failure",
+        "message": "AssertionError: assert None == ArtifactTenantContextInfo(tenant_id='tenant-n5-owner', cell_id='cell-n5-owner')  +  where None = ArtifactManifest(manifest_schema_version='v3', artifact_id=ArtifactID(root='sha256:0a3aaac9d2956a28ad8"
+      },
+      {
+        "test": "tests.unit.runtime.quality.test_generation_cycle::test_owner_program_graph_n5_consumes_selected_state_blob_view",
+        "kind": "failure",
+        "message": "AssertionError: assert None == ArtifactTenantContextInfo(tenant_id='tenant-n5-owner', cell_id='cell-n5-owner')  +  where None = ArtifactManifest(manifest_schema_version='v3', artifact_id=ArtifactID(root='sha256:0a3aaac9d2956a28ad8"
+      },
+      {
+        "test": "tests.unit.runtime.quality.test_generation_cycle::test_owner_program_graph_n5_rejects_state_ref_selector_removal_with_markers",
+        "kind": "failure",
+        "message": "AssertionError: assert None == ArtifactTenantContextInfo(tenant_id='tenant-n5-owner', cell_id='cell-n5-owner')  +  where None = ArtifactManifest(manifest_schema_version='v3', artifact_id=ArtifactID(root='sha256:0a3aaac9d2956a28ad8"
+      },
+      {
+        "test": "tests.unit.runtime.quality.test_generation_cycle::test_owner_program_graph_n5_state_handoff_removal_probe_keeps_markers_red",
+        "kind": "failure",
+        "message": "AssertionError: assert None == ArtifactTenantContextInfo(tenant_id='tenant-n5-owner', cell_id='cell-n5-owner')  +  where None = ArtifactManifest(manifest_schema_version='v3', artifact_id=ArtifactID(root='sha256:0a3aaac9d2956a28ad8"
+      },
+      {
+        "test": "tests.unit.runtime.quality.test_generation_cycle::test_n8_types_unknown_or_malformed_content_bound_persisted_blockers[unknown-persisted-blocker]",
+        "kind": "failure",
+        "message": "AssertionError: assert None == ArtifactTenantContextInfo(tenant_id='tenant-n5-owner', cell_id='cell-n5-owner')  +  where None = ArtifactManifest(manifest_schema_version='v3', artifact_id=ArtifactID(root='sha256:0a3aaac9d2956a28ad8"
+      },
+      {
+        "test": "tests.unit.runtime.quality.test_generation_cycle::test_n8_types_unknown_or_malformed_content_bound_persisted_blockers[malformed-blocker-container]",
+        "kind": "failure",
+        "message": "AssertionError: assert None == ArtifactTenantContextInfo(tenant_id='tenant-n5-owner', cell_id='cell-n5-owner')  +  where None = ArtifactManifest(manifest_schema_version='v3', artifact_id=ArtifactID(root='sha256:0a3aaac9d2956a28ad8"
+      },
+      {
+        "test": "tests.unit.runtime.quality.test_generation_cycle::test_n8_types_unknown_or_malformed_content_bound_persisted_blockers[malformed-blocker-item]",
+        "kind": "failure",
+        "message": "AssertionError: assert None == ArtifactTenantContextInfo(tenant_id='tenant-n5-owner', cell_id='cell-n5-owner')  +  where None = ArtifactManifest(manifest_schema_version='v3', artifact_id=ArtifactID(root='sha256:0a3aaac9d2956a28ad8"
+      },
+      {
+        "test": "tests.unit.runtime.quality.test_generation_cycle::test_owner_program_graph_n5_refuses_profileless_selected_json_semantic_inputs[program_graph]",
+        "kind": "failure",
+        "message": "AssertionError: assert None == ArtifactTenantContextInfo(tenant_id='tenant-n5-owner', cell_id='cell-n5-owner')  +  where None = ArtifactManifest(manifest_schema_version='v3', artifact_id=ArtifactID(root='sha256:0a3aaac9d2956a28ad8"
+      },
+      {
+        "test": "tests.unit.runtime.quality.test_generation_cycle::test_owner_program_graph_n5_refuses_profileless_selected_json_semantic_inputs[exec_plan]",
+        "kind": "failure",
+        "message": "AssertionError: assert None == ArtifactTenantContextInfo(tenant_id='tenant-n5-owner', cell_id='cell-n5-owner')  +  where None = ArtifactManifest(manifest_schema_version='v3', artifact_id=ArtifactID(root='sha256:0a3aaac9d2956a28ad8"
+      },
+      {
+        "test": "tests.unit.runtime.quality.test_generation_cycle::test_owner_program_graph_n5_refuses_profileless_selected_json_semantic_inputs[state_snapshot]",
+        "kind": "failure",
+        "message": "AssertionError: assert None == ArtifactTenantContextInfo(tenant_id='tenant-n5-owner', cell_id='cell-n5-owner')  +  where None = ArtifactManifest(manifest_schema_version='v3', artifact_id=ArtifactID(root='sha256:0a3aaac9d2956a28ad8"
+      },
+      {
+        "test": "tests.unit.runtime.quality.test_generation_cycle::test_owner_program_graph_n5_requires_core_json_reader_before_store_reads",
+        "kind": "failure",
+        "message": "AssertionError: assert None == ArtifactTenantContextInfo(tenant_id='tenant-n5-owner', cell_id='cell-n5-owner')  +  where None = ArtifactManifest(manifest_schema_version='v3', artifact_id=ArtifactID(root='sha256:0a3aaac9d2956a28ad8"
+      }
+    ],
+    "started_at": "2026-10-27T23:31:16.000261+00:00",
+    "finished_at": "2026-10-27T23:31:55.974038+00:00",
+    "wall_seconds": 39.973634125024546,
+    "max_process_tree_rss_bytes": 1231208448,
+    "disk_free_before_bytes": 20956303360,
+    "minimum_sampled_disk_free_bytes": 20857028608,
+    "aborted_reason": null,
+    "termination_signal": null
+  },
+  "audit": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-original14-current-source-r1-20261028/audit-result.json",
+    "sha256": "391849ff145e0f916385d1f2e6a447f0e3a95b4ad42e8e8b22c8f44121da7cef",
+    "availability": "local original; not copied"
+  },
+  "profile_freeze": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-original14-current-source-r1-20261028/source-profile-freeze.json",
+    "sha256": "367bc860af823d298d5bf7aab5b635edb445baccff36cfd30b4efdfb97dc641f",
+    "availability": "local original; not copied"
+  },
+  "readsets": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-original14-current-source-r1-20261028/readsets/input-readset-84601.json",
+      "sha256": "718127378a368f69fae0f9e33f2f584b5c2577aef85c30d46b7eaef6ac1e6706",
+      "python_paths": 1891,
+      "pytest_exitstatus": 1,
+      "local_hash_verification": "MATCH"
+    }
+  ],
+  "unique_runtime_loaded_python_paths": 1891,
+  "source_mismatches": [],
+  "observer_boundary": [
+    "unimported source and arbitrary executable parser/plugin inputs are not a repository-wide runtime census",
+    "observer records src/polisyos, tests and tools Python modules; external package modules are outside this observer selection",
+    "this is an audit-specific source/profile freeze, not E02 global acceptance"
+  ],
+  "guard_after": {
+    "head": "3babffa0d176d3fb9c478865f14136ebe1bc54c4",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-execution-evidence-docs-r5-20261028/full-composed-source-frame.json",
+      "sha256": "99d75e0fd9d20941d5247d713c14bb76039211032f4018e75581af4c8f83ef40"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    }
+  },
+  "root_live_recorded": {
+    "path": "LOCAL/raw/root-live-ownership-20261021.json",
+    "expected_sha256": "c7bb314a131a20ba26105f1ab9de3474a8dafd9e62005f7bc138ef3d54d04c01",
+    "current_sha256_at_preparation": "b9c38e10ab432b14a01383cc06ec48b0e88fc78bd494fd96323c1bd7434c7968",
+    "availability": "historical bytes unavailable at recorded locator; alternative copies not established; not reconstructed"
+  },
+  "control_artifacts": [],
+  "deciding_outputs": [
+    {
+      "role": "stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/r3-original14-current-source-r1-20261028/stdout.txt.gz",
+      "sha256": "d7e7c2a67872fb9e35af411d61900083d5ff279961f61f12f0feacabe1fa58d5",
+      "bytes": 12917,
+      "raw_sha256": "adc0978d08c2854216a12296f3c738801b0d280c7b194cc405e4adad254231a8",
+      "raw_bytes": 144044,
+      "compression": "gzip",
+      "origin_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-original14-current-source-r1-20261028/r3-original14-current-source-r1-20261028.stdout.txt"
+    },
+    {
+      "role": "stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/common/empty.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "compression": "none",
+      "origin_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-original14-current-source-r1-20261028/r3-original14-current-source-r1-20261028.stderr.txt"
+    },
+    {
+      "role": "junit",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/r3-original14-current-source-r1-20261028/junit.xml.gz",
+      "sha256": "d41b1eb97c61e6ef5e31f4c5e4979fafb5a06e24d1b9bd4225537ae235f642c4",
+      "bytes": 1326,
+      "raw_sha256": "d8444237b00a9d38625f591e45654a45d0df4f9476e55d7df27f1192098cc6c0",
+      "raw_bytes": 18290,
+      "compression": "gzip",
+      "origin_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/r3-original14-current-source-r1-20261028/pytest.xml"
+    }
+  ],
+  "strict_backend_phase_qualification": "not assessed here",
+  "G_acceptance": false,
+  "closure_ids": []
+}

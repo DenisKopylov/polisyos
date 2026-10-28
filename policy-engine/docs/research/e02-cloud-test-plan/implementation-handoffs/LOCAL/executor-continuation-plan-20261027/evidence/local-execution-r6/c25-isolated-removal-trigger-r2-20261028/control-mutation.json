@@ -1,0 +1,9 @@
+{
+  "mode": "trigger_enumeration",
+  "exitstatus": 1,
+  "calls": 2,
+  "original_restored": true,
+  "source_sha256_before": "69e0e169db3d3fe08a39b8ff26ddabb646fa7fea99d97303bfec5efa9a07cb22",
+  "source_sha256_after": "69e0e169db3d3fe08a39b8ff26ddabb646fa7fea99d97303bfec5efa9a07cb22",
+  "scope": "finite replay property only; no production authority proof"
+}

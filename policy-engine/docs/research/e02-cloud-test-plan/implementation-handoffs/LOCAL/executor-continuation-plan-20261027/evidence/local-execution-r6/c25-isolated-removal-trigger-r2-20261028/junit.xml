@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.230" timestamp="2026-10-28T01:27:36.336870+02:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.ddm.test_observation_source_admission" name="test_omitted_trigger_is_read_from_source_and_stale_evidence_is_refused" time="0.010"><failure message="AssertionError: assert 'valid' == 'invalidated'&#10;  &#10;  - invalidated&#10;  + valid">tests/unit/ddm/test_observation_source_admission.py:185: in test_omitted_trigger_is_read_from_source_and_stale_evidence_is_refused
+    assert rebound.calibration_validity.status == "invalidated"
+E   AssertionError: assert 'valid' == 'invalidated'
+E     
+E     - invalidated
+E     + valid</failure></testcase></testsuite></testsuites>

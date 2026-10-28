@@ -1,0 +1,123 @@
+{
+  "schema": "policyos.e02.cloud_source_patch_input.v1",
+  "source_task": "C63",
+  "source_task_id": "task_e_6ae13d8f1da88325b690735b4199f31c",
+  "source_base_commit": "caa91a64d7d6afc4310186ba5fadbac2008dddab",
+  "source_base_tree": "730308224f7f1bb0d49b60c3fdb5929d791e6ebd",
+  "received_candidate_tree_reconstructed_from_diff": "8ea706cbe6006ca2b206948661bc921c6179c939",
+  "full_received_diff": {
+    "sha256": "c4c80895b8815897905bb4b60295f91a6d592fc904746ec07d237065500d0973",
+    "bytes": 57836,
+    "paths": 7,
+    "qualification": "received source candidate, not a locally verified Cloud final commit"
+  },
+  "selected_patch": {
+    "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C63-federation.patch.gz",
+    "compression": "gzip lossless, filename empty, mtime=0, level=9",
+    "compressed_sha256": "a9903bc9d11f7a81fa8c22823454836ee1cbadf3d06e782d9f0a6519e84dc0b2",
+    "compressed_bytes": 9036,
+    "decompressed_sha256": "eae63893b4a5e79162ca2cb875ab12c7c3834a239e1856d3d288783d4c4e0774",
+    "decompressed_bytes": 36364,
+    "paths": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-27-c34-federation-lineage.toml",
+        "preimage": null,
+        "postimage": {
+          "mode": "100644",
+          "git_blob": "5c67199aa0b9f7e846a921a1f171df6a1722071b",
+          "sha256": "4a43eedfa58468757a94d66c2defb6619235ff8e9ceff9e38421922f604ddc7d",
+          "bytes": 1808
+        },
+        "content_class": "B/code: reproducible public repository source, test or release text; no private payload"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/federation/__init__.py",
+        "preimage": {
+          "mode": "100644",
+          "git_blob": "cd542436e7232125f2b6db4521fb389c2924953c",
+          "sha256": "5c7b6fd5f98bfa643099af2909cfd28c445dbea9b39886544c82df0c2c9914ef",
+          "bytes": 1897
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob": "76d277f5964a90f93d9bf1a8128794bd0878ec05",
+          "sha256": "6329351aa9b31709c11eefbaf0dfb0b864f7779d6b1b076c9a6b64e14c82cc97",
+          "bytes": 2234
+        },
+        "content_class": "B/code: reproducible public repository source, test or release text; no private payload"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/federation/artifact.py",
+        "preimage": null,
+        "postimage": {
+          "mode": "100644",
+          "git_blob": "a8e03fe9b004b8c0d87cee7fa50b4c9ddeed795d",
+          "sha256": "14ef9a3978901a486a74f3ee083fd3a9c19d1d364575e3c29f0be9805ed5dc58",
+          "bytes": 11278
+        },
+        "content_class": "B/code: reproducible public repository source, test or release text; no private payload"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/federation/composer.py",
+        "preimage": {
+          "mode": "100644",
+          "git_blob": "def3f64a2ab1f3331bc90f35144520411f6c72ac",
+          "sha256": "e4c6451b23544b97eac588934aacaa8b2f54bc1bc87583a906718f5c5808aa76",
+          "bytes": 48375
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob": "e3b777bdf7b721b2ceed183bf7fe69e5b51b6027",
+          "sha256": "237f520f5af4eb761050a14ce862fc908d90e401233f08bdb1b038008f84369e",
+          "bytes": 53021
+        },
+        "content_class": "B/code: reproducible public repository source, test or release text; no private payload"
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/connectors/test_federation.py",
+        "preimage": {
+          "mode": "100644",
+          "git_blob": "bd7f6c92bda6a11392e706079e7ec4a70a99783b",
+          "sha256": "03918aa01fecb51aeaf6048eb1c46c2b1562d3f4a05a4006d781139080026aef",
+          "bytes": 29512
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob": "3c5aa9c5aba607f105af75968201c42a7367662b",
+          "sha256": "eebfdb127ebcd4e54b7561e38dba17150756608746e0affeedc0acf5cc51f267",
+          "bytes": 34434
+        },
+        "content_class": "B/code: reproducible public repository source, test or release text; no private payload"
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/connectors/test_federation_artifact.py",
+        "preimage": null,
+        "postimage": {
+          "mode": "100644",
+          "git_blob": "4e1faa01f525ff01db68341220de903c8a6f7b7e",
+          "sha256": "77f527a17c4612061a549a89d6f3219362519c2a44dbc5276d18b16eddfa06de",
+          "bytes": 6148
+        },
+        "content_class": "B/code: reproducible public repository source, test or release text; no private payload"
+      }
+    ],
+    "selection": "all six source/test/release paths; the prior author receipt is excluded; no deciding runtime bytes are carried",
+    "expected_six_path_overlay_tree_at_source_base": "04627cadb00583ba26853c1ac6a775a807f09738"
+  },
+  "source_review": {
+    "local_path": "LOCAL/raw/e02-execution-20261027/reviews/C63-code.md",
+    "sha256": "4faa05c8cc2e3bcd89fc2ba6ab899f586a5466e6e120e6fc77e0976a85436404",
+    "disposition": "SOURCE HOLD: useful selected replay/codec, same-class compositional source-to-cell gaps; full eight-criterion work incomplete; runtime author 44-pass summary not qualified"
+  },
+  "delivery_classification": {
+    "B_code": "selected postimages reproducible from exact published base plus this small tracked patch; no checkout/source/environment/fixture archive",
+    "A_execution_input": "the patch and this manifest must be actually published/read back before a dependent Cloud launch; local-only bytes are not a delivered input",
+    "C_excluded": "one C63 author receipt; intermediate/debug logs and duplicate payloads are not copied",
+    "D_evidence": "no deciding runtime outputs, JUnit, active mutant or restored outputs were delivered with C63; this carrier implies no runtime PASS"
+  },
+  "execution": "C66 must admit actual published base/tree, verify each preimage and carrier hash, apply only six named paths, verify postimages/full overlay tree, and produce fresh property/oracle/removal evidence. This input is an unapplied author proposal, not G acceptance. Do not infer source from unreachable Cloud commits or private RAW paths.",
+  "publication_status": "not declared by this input; bind externally to the later append-only root commit and actual remote readback",
+  "recommended_manifest_tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C63-federation-manifest.json",
+  "preparer_no_canonical_source_index_refs_mutated": true,
+  "closure_ids": []
+}

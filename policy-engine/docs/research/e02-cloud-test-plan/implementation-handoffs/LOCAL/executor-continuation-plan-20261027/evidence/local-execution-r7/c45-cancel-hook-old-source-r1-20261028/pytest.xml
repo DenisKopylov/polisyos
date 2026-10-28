@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="0.301" timestamp="2026-10-28T03:02:22.938515+02:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.runtime.http.test_resilience_guards" name="test_runtime_async_plain_breaker_releases_half_open_on_cancel" time="0.006"><failure message="assert 1 == 0">tests/unit/runtime/http/test_resilience_guards.py:155: in test_runtime_async_plain_breaker_releases_half_open_on_cancel
+    assert breaker.get_stats()["half_open_calls"] == 0
+E   assert 1 == 0</failure></testcase><testcase classname="tests.unit.runtime.http.test_resilience_guards" name="test_runtime_blocking_plain_breaker_releases_half_open_on_submit_failure" time="0.001"><failure message="assert 1 == 0">tests/unit/runtime/http/test_resilience_guards.py:181: in test_runtime_blocking_plain_breaker_releases_half_open_on_submit_failure
+    assert breaker.get_stats()["half_open_calls"] == 0
+E   assert 1 == 0</failure></testcase></testsuite></testsuites>

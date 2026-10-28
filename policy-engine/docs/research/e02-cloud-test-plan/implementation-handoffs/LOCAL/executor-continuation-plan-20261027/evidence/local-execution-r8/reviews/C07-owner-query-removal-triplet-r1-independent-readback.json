@@ -1,0 +1,214 @@
+{
+  "schema": "c07.independent.removal_triplet_readback.v1",
+  "observed_at": "2026-10-28T01:39:50.480879+00:00",
+  "manifest_sha256": "6a1d68b15baf1220164970236b9aa96da0d2e3a94232ff3dabf25d4c7d4e014e",
+  "source": {
+    "head": "67beb3461ab96c4cb64b92226228da39b30bcb06",
+    "tree": "306e3c150f6a1368f23c8ebece35aeec3feb180b",
+    "tracked_status": "",
+    "index_raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "case_results": {
+    "before": {
+      "plan_sha256": "397783ee1b40a5b2fce88499bf8dfe1fcbdab51484850570021f386232501f1f",
+      "audit_sha256": "0d3acca62613f723c18b9e72a4c5e7b906b3fe217fb0d824a71080517aff6d7c",
+      "freeze_sha256": "4cad521aff588fcd3f0bd37993758fbb46ca459b2681e70011fa1e65aff6718c",
+      "junit_sha256": "dff4450960092afadc36bb5c40dd0b0c08205ab83e07cc236e23db0d60d5aa42",
+      "stdout_sha256": "33f9a92e49e4a7392648247afefb6e01016116b091531813825d45118f81497a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual_junit": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exit": 0,
+      "wall_seconds": 4.192365334019996,
+      "selected_input_denominator": 13,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c07-owner-query-removal-before-r1-20261028/readsets/input-readset-35404.json",
+          "sha256": "649ca3ca9e1e77dc713b1fefd4204f3d69f4d887e8df32dda162205a003f74bc",
+          "records": 76
+        }
+      ],
+      "module_path_denominator": 76,
+      "checks": {
+        "plan_hash": true,
+        "command_hash": true,
+        "plan_object_binding": true,
+        "freeze_hash": true,
+        "head_tree": true,
+        "frame": true,
+        "index": true,
+        "process": true,
+        "actual_junit_matches": true,
+        "exact_node": true,
+        "property_assertion": true,
+        "all_frozen_inputs": true,
+        "full_retained_readset_set": true,
+        "loaded_module_rows": true,
+        "defined_owner_test_in_readset": true,
+        "declared_plugin_env": true,
+        "no_bytecode_profile": true,
+        "audit_no_recorded_drift": true,
+        "no_internal_error_in_retained_streams": true
+      },
+      "mismatches": {
+        "frozen_inputs": [],
+        "readset_files": [],
+        "source_modules": []
+      },
+      "observer": null,
+      "all_case_checks": true
+    },
+    "mutant": {
+      "plan_sha256": "ba636d42eae8e0da0670a0e2b09ef6d374d12b65f42c74c3ee7bde3a9dbd0df8",
+      "audit_sha256": "a2c29f498f150f9adcd8ab6a7f8c4d872ec4cd239e248de5de660ac9730bfb22",
+      "freeze_sha256": "4b58d6568ae4e68d06ef1d5fe0dfe58301ea39bb933a8a68359cd60be32840da",
+      "junit_sha256": "c81d3fde408664fe03c4440f16b0771c931c44b0b25528b7a4a6e083ecfefdde",
+      "stdout_sha256": "efeb1f1f4849ca93fd9756f664fed51a43dddf6e835e5b8696ae4c3730493630",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual_junit": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exit": 1,
+      "wall_seconds": 11.054598832997726,
+      "selected_input_denominator": 13,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c07-owner-query-removal-mutant-r1-20261028/readsets/input-readset-35713.json",
+          "sha256": "8752c0dc304612336a98f14aaee69ca55b26cb2bad92929f76fdc361e332f7f5",
+          "records": 76
+        }
+      ],
+      "module_path_denominator": 76,
+      "checks": {
+        "plan_hash": true,
+        "command_hash": true,
+        "plan_object_binding": true,
+        "freeze_hash": true,
+        "head_tree": true,
+        "frame": true,
+        "index": true,
+        "process": true,
+        "actual_junit_matches": true,
+        "exact_node": true,
+        "property_assertion": true,
+        "all_frozen_inputs": true,
+        "full_retained_readset_set": true,
+        "loaded_module_rows": true,
+        "defined_owner_test_in_readset": true,
+        "declared_plugin_env": true,
+        "no_bytecode_profile": true,
+        "audit_no_recorded_drift": true,
+        "no_internal_error_in_retained_streams": true,
+        "exact_mutant_env": true,
+        "observer_hashes": true,
+        "observer_restore": true,
+        "distinct_objects": true,
+        "observed_sources": true,
+        "positive_real_invocations": true
+      },
+      "mismatches": {
+        "frozen_inputs": [],
+        "readset_files": [],
+        "source_modules": []
+      },
+      "observer": {
+        "receipt_sha256": "3b2c6717b0be4f6b83591cda4d9bcfec885566e5adc6336a23b19470bcad16ad",
+        "invocations": {
+          "total": 773,
+          "blob_readers_true": 0,
+          "blob_readers_false": 773
+        },
+        "before_restored_identity_equal": true,
+        "identity_scope": "Observed inside mutant process only; opaque marshal hashes, no cross-process equality claim."
+      },
+      "all_case_checks": true
+    },
+    "restored": {
+      "plan_sha256": "1fef24bf4346bff92cd29f6313e023883cf17334e81578cf6b8249d92883b919",
+      "audit_sha256": "8a4e14ab199f59f2cbc1e47baf50df1a5ca0e1d1965282258ace20629a5ada51",
+      "freeze_sha256": "23a74b42840dcd77183eae5dcb7b4886356059d21e01986a99540ed4ee116808",
+      "junit_sha256": "6381537bd4cc744986db6357a9367b91d8c3539d4aa7e5a74a5c7c65c562b28d",
+      "stdout_sha256": "3bb7b0457eadf3a4a80d88baa9515770e94573b1bdf811e2bb70f902773b5ca9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual_junit": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exit": 0,
+      "wall_seconds": 3.1649627079896163,
+      "selected_input_denominator": 13,
+      "readsets": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c07-owner-query-removal-restored-r1-20261028/readsets/input-readset-36265.json",
+          "sha256": "7b4ce75b77f292c37cfb7d92a2853f0f7557cd1fae9e011767466800a1f3b435",
+          "records": 76
+        }
+      ],
+      "module_path_denominator": 76,
+      "checks": {
+        "plan_hash": true,
+        "command_hash": true,
+        "plan_object_binding": true,
+        "freeze_hash": true,
+        "head_tree": true,
+        "frame": true,
+        "index": true,
+        "process": true,
+        "actual_junit_matches": true,
+        "exact_node": true,
+        "property_assertion": true,
+        "all_frozen_inputs": true,
+        "full_retained_readset_set": true,
+        "loaded_module_rows": true,
+        "defined_owner_test_in_readset": true,
+        "declared_plugin_env": true,
+        "no_bytecode_profile": true,
+        "audit_no_recorded_drift": true,
+        "no_internal_error_in_retained_streams": true
+      },
+      "mismatches": {
+        "frozen_inputs": [],
+        "readset_files": [],
+        "source_modules": []
+      },
+      "observer": null,
+      "all_case_checks": true
+    }
+  },
+  "shared_checks": {
+    "manifest_hash": true,
+    "current_source": true,
+    "frame_bytes": true,
+    "frame_paths": true,
+    "readset_consensus": true,
+    "committed_source": true,
+    "all_cases": true
+  },
+  "complete_denominators": {
+    "cases": 3,
+    "readset_files": 3,
+    "source_path_rows": 228,
+    "unique_loaded_source_paths": 76,
+    "source_frame_paths": 1739
+  },
+  "git_blob_mismatches": [],
+  "source_frame_mismatches": [],
+  "all_readback_checks_satisfied": true,
+  "scope": "Actual pass/property-removal-fail/pass on one real192-role Core test. No original HTE replay or S1/G closure.",
+  "provenance": {
+    "hashes_sets_paths_Git_and_JUnit": "independently_reconciled/recomputed",
+    "actual_object_restore_and_method_calls": "observed_by_hash_bound_mutant_process_plugin",
+    "arbitrary_loader_or_crossprocess_identity": "not_established"
+  },
+  "reviewer_executed_product_code": false,
+  "closure_ids": []
+}

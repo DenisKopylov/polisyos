@@ -1,0 +1,60 @@
+{
+  "source_head": "2ef22b8818f8a35611af3898c07c7121ca89075d",
+  "source_tree": "95db6b4aa555a5641c9c0f6181fd655e5a3a5eac",
+  "scope": "deterministic C50 coverage_reconciliation only; C43 requirements unaffected",
+  "files": [
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C50-native-manual-r3/README.md",
+      "sha256": "615e30a0a725c49bdb1c48a96cf1131e22f2d982737d01ea6c915f78d764a99f",
+      "bytes": 6483
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C50-native-manual-r3/SCOPE.md",
+      "sha256": "fedbb3318621f564e80a824d55c59a185f0a03f94d3521000a285f0d050c592c",
+      "bytes": 2988
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C50-native-manual-r3/prepare_plans.py",
+      "sha256": "7485841e15252aceb439e9cb70cf8465365ab0d3e7664e6109c3d2acc00badd4",
+      "bytes": 15087
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C50-native-manual-r3/c50_child_profile.py",
+      "sha256": "62873dfbd84e890303281a8715c478791acdf9eb7d8fe830906b3c8f51a72a86",
+      "bytes": 4806
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C50-native-manual-r3/run_case.sh",
+      "sha256": "04cf0cf706679a57a8ef4d181bf0ef3f07008c22f246ccda1be7848370b923e1",
+      "bytes": 2534
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/repairs/C50-native-manual-r3/preparation-cov-r2-20261028.json",
+      "sha256": "208a97d334568cf8c64ec804ec01bc51f818fa5af0eafaa2594851af3e8a4039",
+      "bytes": 2177
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-before.json",
+      "sha256": "3a59dd9746dd94dee4427f3caaac60a208a717f3e6cd792de8bcb2c42d91996b",
+      "bytes": 16546
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant.json",
+      "sha256": "ca87b73c2bc36f701a3619252ad44106c2479b75ecf6868d70c89feffb5d8047",
+      "bytes": 17465
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-restored.json",
+      "sha256": "f29debb1867b4c976985fbb95ddcc37527a5e4e66b140ab7707d4a59968c3f05",
+      "bytes": 16552
+    }
+  ],
+  "static_checks": [
+    "AST/JSON readback",
+    "real 98-PASS positive audit/JUnit/readsets rebound",
+    "reviewed C59 generic precheck accepted before plan"
+  ],
+  "runtime": "triplet UNRUN by author",
+  "independent_review": "PENDING",
+  "closure_ids": []
+}

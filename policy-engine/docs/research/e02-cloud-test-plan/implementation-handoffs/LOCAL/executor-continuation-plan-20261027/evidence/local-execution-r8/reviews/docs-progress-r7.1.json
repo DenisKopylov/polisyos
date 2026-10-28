@@ -1,0 +1,44 @@
+{
+  "schema": "policyos.e02.documentation_proposal_review.v1",
+  "reviewed_at": "2026-10-28",
+  "inputs": {
+    "r7_manifest_sha256": "6570e685e0c23de8471c0187bf810e7fe47569d707052dbb858b53c797937fa0",
+    "r7_1_manifest_sha256": "5d60aa0183a7e0bb3089e4934f51a7f628c020952a483c62f80146c757f854ed"
+  },
+  "verdict": "accept_after_small_append_only_status_delta",
+  "integrity": {
+    "r7_rows": 50,
+    "r7_postimage_bytes": 531049,
+    "r7_1_rows": 15,
+    "r7_1_postimage_bytes": 376079,
+    "missing_files": 0,
+    "postimage_hash_or_size_mismatches": 0,
+    "raw_or_lossless_gzip_mismatches": 0,
+    "unbound_overlay_replacements": 0,
+    "unintended_target_collisions": 0
+  },
+  "findings": [
+    {
+      "id": "DOC-R7.1-01",
+      "severity": "current_view_contradiction",
+      "summary": "The r7/r7.1 ledger retains C50 review-pending wording after later in-document and machine-state entries mark the actual review bounded GO.",
+      "required_action": "Append a correction identifying paragraph 125 as historical r6.1 status superseded by the r7 actual review; preserve bounded scope."
+    },
+    {
+      "id": "DOC-R7.1-02",
+      "severity": "later_status_delta",
+      "summary": "The synthetic C07 pilot's independent actual result review completed after the r7.1 snapshot.",
+      "review_path": "LOCAL/raw/e02-execution-20261027/reviews/C07-cas-owner-query-pilot-r3-actual.md",
+      "review_sha256": "175825f666ed8469c3866e55724a498b00b4f77c2ca07d6cd48151fde26a6ac8",
+      "machine_review_path": "LOCAL/raw/e02-execution-20261027/reviews/C07-cas-owner-query-pilot-r3-independent-readback.json",
+      "machine_review_sha256": "82013de2ca0b82113029e729b0a18046595b42e7dbe58fbdb5f35eb5516dc6ba",
+      "required_action": "Add a bounded actual-GO review entry for the one synthetic predecessor-CAS write; leave original HTE, 14-unit removal controls and product/S1/G readiness open."
+    }
+  ],
+  "review_limits": [
+    "C45 result review remains pending; the found C45 independent review is prompt/source-input review only.",
+    "C07 selection and synthetic pilot are separate cases; the pilot is not the original HTE rerun.",
+    "No G acceptance or formal closure assigned.",
+    "No product code, canonical plan, index, refs, tests, or runtime state modified."
+  ]
+}

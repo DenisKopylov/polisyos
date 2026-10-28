@@ -1,0 +1,14 @@
+{
+  "selected_commit": "caa91a64d7d6afc4310186ba5fadbac2008dddab",
+  "selected_tree": "730308224f7f1bb0d49b60c3fdb5929d791e6ebd",
+  "remote_topic": "codex/e02-cloud-calibration-input-20261028",
+  "remote_readback": "caa91a64d7d6afc4310186ba5fadbac2008dddab",
+  "remote_matches_selected": true,
+  "observed_local_head": "67beb3461ab96c4cb64b92226228da39b30bcb06",
+  "observed_local_tree": "306e3c150f6a1368f23c8ebece35aeec3feb180b",
+  "analysis_paths_compared": 32,
+  "analysis_path_mismatches": [],
+  "scope": "snapshot only, not a lease or guarantee of later state",
+  "runtime_tests": "UNRUN",
+  "cloud_launch": "UNRUN"
+}

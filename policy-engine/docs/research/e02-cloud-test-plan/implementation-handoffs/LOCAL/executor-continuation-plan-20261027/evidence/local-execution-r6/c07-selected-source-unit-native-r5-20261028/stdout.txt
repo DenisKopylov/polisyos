@@ -1,0 +1,37 @@
+F                                                                        [100%]R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 1831, "phase": "driver", "pid": 60975, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c07-selected-source-unit-native-r5-20261028/readsets/input-readset-60975.json", "source_module_count": 1820, "test_module_count": 11, "tools_module_count": 0}
+
+=================================== FAILURES ===================================
+_ test_owned_hte_outbox_records_first_assessment_without_authority_promotion[selected-source-unit] _
+src/polisyos/runtime/http/resilience.py:150: in run
+    result = future.result(timeout=self._timeout_seconds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:452: in result
+    raise TimeoutError()
+E   TimeoutError
+
+The above exception was the direct cause of the following exception:
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py:1309: in test_owned_hte_outbox_records_first_assessment_without_authority_promotion
+    state, ticket_id, binding_ref = _publish_complete_search_task(
+tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py:943: in _publish_complete_search_task
+    _, _, admission_ref, basis_ref = produce_search_task_admission(
+src/polisyos/scientist/methods/search/uncertainty.py:4310: in produce_search_task_admission
+    inventory_ref = persist_search_uncertainty_v2(store, inventory)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/search/uncertainty.py:4742: in persist_search_uncertainty_v2
+    return store.put_json(
+src/polisyos/runtime/http/resilience.py:296: in _wrapped
+    return self._guard.run(attr, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:157: in run
+    raise RuntimeDependencyTimeoutError(self._dependency_name) from exc
+E   polisyos.runtime.http.errors.RuntimeDependencyTimeoutError: content_addressed_storage timed out
+---------------------------- Captured stdout setup -----------------------------
+2026-10-28 02:19:24 [info     ] method_registered              backend=numpy fqn=causal.hte.forest_dr@1.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'doubly-robust', 'estimation', 'forest-dr', 'hte', 'tabular'] version=1.0.0
+2026-10-28 02:19:24 [info     ] method_registered              backend=numpy fqn=causal.hte.forest_dr@1.1.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'doubly-robust', 'estimation', 'forest-dr', 'hte', 'tabular'] version=1.1.0
+2026-10-28 02:19:24 [info     ] method_registered              backend=numpy fqn=causal.hte.causal_forest@2.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'causal-forest', 'cross-section', 'estimation', 'hte', 'native-inference', 'tabular'] version=2.0.0
+2026-10-28 02:19:24 [info     ] method_registered              backend=numpy fqn=causal.hte.double_ml@2.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'double-ml', 'estimation', 'hte', 'native-inference', 'tabular'] version=2.0.0
+2026-10-28 02:19:24 [info     ] method_registered              backend=numpy fqn=causal.hte.meta_learner@2.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'estimation', 'hte', 'meta-learner', 'native-inference', 'tabular'] version=2.0.0
+2026-10-28 02:19:24 [info     ] method_registered              backend=numpy fqn=causal.hte.forest_dr@2.0.0 lazy=False namespace=causal.hte override=False tags=['causal', 'cross-section', 'estimation', 'forest-dr', 'hte', 'native-inference', 'tabular'] version=2.0.0
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/http/test_search_hte_first_assessment_outbox.py::test_owned_hte_outbox_records_first_assessment_without_authority_promotion[selected-source-unit]
+1 failed in 157.34s (0:02:37)

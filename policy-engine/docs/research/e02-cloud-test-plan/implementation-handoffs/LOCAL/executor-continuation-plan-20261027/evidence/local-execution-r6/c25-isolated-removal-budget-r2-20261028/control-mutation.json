@@ -1,0 +1,9 @@
+{
+  "mode": "budget_reconciliation",
+  "exitstatus": 1,
+  "calls": 1,
+  "original_restored": true,
+  "source_sha256_before": "b6356224aa4a9c1a7cbefaa8cd3a50266dd716c0f96e2e9a7d9cc5c5d4553619",
+  "source_sha256_after": "b6356224aa4a9c1a7cbefaa8cd3a50266dd716c0f96e2e9a7d9cc5c5d4553619",
+  "scope": "finite replay property only; no production authority proof"
+}

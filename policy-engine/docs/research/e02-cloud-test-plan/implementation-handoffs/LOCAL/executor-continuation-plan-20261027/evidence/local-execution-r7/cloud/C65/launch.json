@@ -1,0 +1,18 @@
+{
+  "slice": "C65",
+  "task_id": "task_e_6ae14408c67083259d38799a125aee35",
+  "url": "https://chatgpt.com/codex/tasks/task_e_6ae14408c67083259d38799a125aee35",
+  "expected_base": "caa91a64d7d6afc4310186ba5fadbac2008dddab",
+  "expected_tree": "730308224f7f1bb0d49b60c3fdb5929d791e6ebd",
+  "branch": "codex/e02-cloud-calibration-input-20261028",
+  "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+  "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C65-launch-prompt.md",
+  "prompt_sha256": "2c14466c38183e70e32dde603958cf5641c7a67149b0efe282506d05f5f56c99",
+  "prompt_bytes": 35194,
+  "requested_model": "gpt-6.1-sol",
+  "actual_model": "not_established",
+  "create_exit": 0,
+  "created_at": "2026-10-28T00:38:35.083940+00:00",
+  "status": "submitted",
+  "closure_ids": []
+}

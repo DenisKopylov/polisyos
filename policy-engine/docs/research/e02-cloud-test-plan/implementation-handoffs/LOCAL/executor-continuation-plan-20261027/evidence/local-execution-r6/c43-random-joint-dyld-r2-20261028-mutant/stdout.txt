@@ -1,0 +1,20 @@
+F                                                                        [100%]R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 133, "phase": "driver", "pid": 53948, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c43-random-joint-dyld-r2-20261028-mutant/readsets/input-readset-53948.json", "source_module_count": 128, "test_module_count": 5, "tools_module_count": 0}
+
+=================================== FAILURES ===================================
+_ test_same_declared_joint_gaussian_has_same_linear_variance_in_four_backends[random-0.8] _
+tests/unit/remediation/test_c43_joint_gaussian.py:80: in test_same_declared_joint_gaussian_has_same_linear_variance_in_four_backends
+    assert np.var(np.asarray(carrier.samples)) == pytest.approx(
+E   assert np.float64(2.032255595756678) == 0.3999999999999999 ± 0.06
+E     
+E     comparison failed
+E     Obtained: 2.032255595756678
+E     Expected: 0.3999999999999999 ± 0.06
+=============================== warnings summary ===============================
+tests/unit/remediation/test_c43_joint_gaussian.py::test_same_declared_joint_gaussian_has_same_linear_variance_in_four_backends[random-0.8]
+  /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/api_util.py:83: DeprecationWarning: Passing arguments 'a', 'a_min' or 'a_max' to jax.numpy.clip is deprecated. Please use 'arr', 'min' or 'max' respectively instead.
+    ans = f(*py_args, **py_kwargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_c43_joint_gaussian.py::test_same_declared_joint_gaussian_has_same_linear_variance_in_four_backends[random-0.8]
+1 failed, 1 warning in 1.60s

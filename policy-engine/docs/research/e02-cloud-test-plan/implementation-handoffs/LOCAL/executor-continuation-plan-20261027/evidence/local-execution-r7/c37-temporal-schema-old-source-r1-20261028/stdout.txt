@@ -1,0 +1,21 @@
+FF.                                                                      [100%]R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 1801, "phase": "driver", "pid": 99867, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c37-temporal-schema-old-source-r1-20261028/readsets/input-readset-99867.json", "source_module_count": 1792, "test_module_count": 9, "tools_module_count": 0}
+
+=================================== FAILURES ===================================
+_ test_temporal_source_schema_retains_complete_typed_request_in_both_modes[validation] _
+tests/unit/runtime/http/test_nl_temporal_scope_intake.py:80: in test_temporal_source_schema_retains_complete_typed_request_in_both_modes
+    _schema_contract(NaturalLanguageRunRequest, mode)
+tests/unit/runtime/http/test_nl_temporal_scope_intake.py:64: in _schema_contract
+    assert "temporal_scope" in properties, "typed temporal cursor property missing"
+E   AssertionError: typed temporal cursor property missing
+E   assert 'temporal_scope' in {'calibration_rule_ref': {'anyOf': [{'$ref': '#/$defs/ArtifactRef'}, {'type': 'null'}], 'default': None}, 'checkpoint_...: 'object'}, 'data_source': {'anyOf': [{'$ref': '#/$defs/DataSourceBinding'}, {'type': 'null'}], 'default': None}, ...}
+_ test_temporal_source_schema_retains_complete_typed_request_in_both_modes[serialization] _
+tests/unit/runtime/http/test_nl_temporal_scope_intake.py:80: in test_temporal_source_schema_retains_complete_typed_request_in_both_modes
+    _schema_contract(NaturalLanguageRunRequest, mode)
+tests/unit/runtime/http/test_nl_temporal_scope_intake.py:64: in _schema_contract
+    assert "temporal_scope" in properties, "typed temporal cursor property missing"
+E   AssertionError: typed temporal cursor property missing
+E   assert 'temporal_scope' in {'calibration_rule_ref': {'anyOf': [{'$ref': '#/$defs/ArtifactRef'}, {'type': 'null'}], 'default': None}, 'checkpoint_...: 'object'}, 'data_source': {'anyOf': [{'$ref': '#/$defs/DataSourceBinding'}, {'type': 'null'}], 'default': None}, ...}
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/http/test_nl_temporal_scope_intake.py::test_temporal_source_schema_retains_complete_typed_request_in_both_modes[validation]
+FAILED tests/unit/runtime/http/test_nl_temporal_scope_intake.py::test_temporal_source_schema_retains_complete_typed_request_in_both_modes[serialization]
+2 failed, 1 passed in 0.65s

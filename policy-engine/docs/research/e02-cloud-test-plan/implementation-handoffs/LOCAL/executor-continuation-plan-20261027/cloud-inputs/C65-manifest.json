@@ -1,0 +1,145 @@
+{
+  "schema": "policyos.e02.cloud_source_patch_input.v1",
+  "source_task": "C65",
+  "source_task_id": "task_e_6ae14408c67083259d38799a125aee35",
+  "source_base_commit": "caa91a64d7d6afc4310186ba5fadbac2008dddab",
+  "source_base_tree": "730308224f7f1bb0d49b60c3fdb5929d791e6ebd",
+  "received_diff_sha256": "78b9f43116364551d254bc74c123c50145b8efb7bf70373d761ec00cd78f0426",
+  "received_complete_path_count": 12,
+  "received_candidate_tree_reconstructed_from_diff": "a323c10973dbaba325dfdfa438093eb6ba1bd683",
+  "selected_patch": {
+    "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C65.patch.gz",
+    "compression": "gzip level 9, mtime=0, empty filename",
+    "compressed_sha256": "95bcc6a8adf922b1638e627054c1247b5b2a27230c8a3c3fb7e997050d2f3f11",
+    "compressed_bytes": 5779,
+    "decompressed_sha256": "a6c6f517c8714403697e33242454471407ea1f12fc9e32d98ad1267dc65a18d7",
+    "decompressed_bytes": 19479,
+    "paths": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-28-cal05-selector-batch-executor.toml",
+        "preimage": {
+          "git_blob": null,
+          "sha256": null,
+          "bytes": null
+        },
+        "postimage": {
+          "git_blob": "99b062f8f60514fcd8f92c286bde7c6b0f45e125",
+          "sha256": "2800bc04eff1e50a9f76eac22caba646fe286b3b269acf5915e2aa0f8de5c66c",
+          "bytes": 1912
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/README.md",
+        "preimage": {
+          "git_blob": "e343b7dd8215bcf66755a0dbcd8d9aa1fe425a6c",
+          "sha256": "8670248c6fa5ce50c110e3a8f99fa3640f987cf8d7c57cc4fb1c813738c3068b",
+          "bytes": 14596
+        },
+        "postimage": {
+          "git_blob": "1ec3db4ba4197be940253e2dc796839a7f00dd3f",
+          "sha256": "3727174183a973137eeea9c775754ed359e69768486f392d37ad2851af8d934f",
+          "bytes": 15710
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/__init__.py",
+        "preimage": {
+          "git_blob": "03be7150535d127c495c9283eebdf3b86200701b",
+          "sha256": "d35b47884de786ff5865c73820c299dcbabc3dc050fa0fbd0fedc9e8c3f73fc4",
+          "bytes": 8007
+        },
+        "postimage": {
+          "git_blob": "1ca38ed0229fe714aa45af8838068b17c103835e",
+          "sha256": "c23f80f35f307887efd307922195d31ed7a9b866d2d99e307bd229438fb807ef",
+          "bytes": 8108
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+        "preimage": {
+          "git_blob": "3f5dcea6511b1e39e91f59df1bb96bd21434d658",
+          "sha256": "c9fff02d23b6b07a954c8a2819295343d63c209e55895e0384ab917e06d1f966",
+          "bytes": 33989
+        },
+        "postimage": {
+          "git_blob": "6fe2448c3293a3a14c432998f485440e7e608b14",
+          "sha256": "764b3bad9953d90278412de272505163c6339574556f4cc076c955dae015a8f3",
+          "bytes": 39227
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+        "preimage": {
+          "git_blob": "013f2b7d85e28b723cae17a964e95f7f9789b715",
+          "sha256": "3d95c04edc8c3dc2aa7dce04f68f76d91c6ed1f99d16de89884b52fa9a213ce2",
+          "bytes": 26557
+        },
+        "postimage": {
+          "git_blob": "1b62d852a354db106fe11f3b1c77469c03b01c38",
+          "sha256": "1be87a10a7cc784684f1552f5c79d3e4f43c0fc7f2f2671363864c94f2c12047",
+          "bytes": 29745
+        }
+      }
+    ],
+    "hunks": 14
+  },
+  "excluded_evidence": {
+    "path_count": 7,
+    "selection": "Historical deciding outputs remain at the source task; they are not required Cloud input and are not duplicated in this seed.",
+    "files": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C65/cloud/c65-20261028-a/focused.junit.xml",
+        "sha256": "b42f84694b84814c272e528ff2dab9a1f6889f35f7b4cac9c2c0844878f6f769",
+        "bytes": 7242
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C65/cloud/c65-20261028-a/focused.txt",
+        "sha256": "68aca91c8e51ee09f86a420c74c9da03919568342a1568deebc66b9fa5a57b61",
+        "bytes": 347
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C65/cloud/c65-20261028-a/receipt.md",
+        "sha256": "013d6d056598096842a97c91b6952d6c9712ebb1a6c6a0c84b72796b54afd52b",
+        "bytes": 6078
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C65/cloud/c65-20261028-a/register-closeout.txt",
+        "sha256": "be26631d1670597b44f6bea47b6eb1fba4e061d75b9097df50c1693dcafa75e0",
+        "bytes": 12434
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C65/cloud/c65-20261028-a/removal-hashes.txt",
+        "sha256": "b172abfc533db5b77d9a855ab9eeffb95ec2d725113cd5d0855f2b1907579806",
+        "bytes": 324
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C65/cloud/c65-20261028-a/static-removal.txt",
+        "sha256": "e7499e5d314809a24f6e4fc27910dc7efbdb30fd1388956863b68a5b3a2e0a63",
+        "bytes": 1678
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C65/cloud/c65-20261028-a/static-restored.txt",
+        "sha256": "8ef320c6ef50856801f4f42c4b701e078c13fa755d5893dcb1ffe498f18512c4",
+        "bytes": 87
+      }
+    ]
+  },
+  "history": {
+    "review_sha256": "3d8803f771d1f08d677bd146bdd3c935d42a6d0f75673d86a9803affb3c6e1f0",
+    "review": "bounded source GO for executor; whole CAL-05 chain HOLD; no final author commit established",
+    "focused_cloud_junit": {
+      "cases": 42,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "sha256": "b42f84694b84814c272e528ff2dab9a1f6889f35f7b4cac9c2c0844878f6f769",
+      "qualification": "actual source-task JUnit; author-attested environment and source, not a C68 run"
+    },
+    "static_removal_sha256": "e7499e5d314809a24f6e4fc27910dc7efbdb30fd1388956863b68a5b3a2e0a63",
+    "static_restored_sha256": "8ef320c6ef50856801f4f42c4b701e078c13fa755d5893dcb1ffe498f18512c4",
+    "qualification": "Historical evidence is referenced, not copied; marker-preserving static control is limited to unknown-field compile refusal. Selector numerical, row-key, actual Calibrator and basis consumer removal remain absent."
+  },
+  "publication_status": "requires later root-published input commit and remote readback",
+  "publication_manifest_tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/cloud-inputs/C65-manifest.json",
+  "execution": "Verify actual carrier SHA, all selected preimages, ordinary patch check, then exact postimages. Any mixed state requires read-only fallback; never claim a new run from historical counts."
+}

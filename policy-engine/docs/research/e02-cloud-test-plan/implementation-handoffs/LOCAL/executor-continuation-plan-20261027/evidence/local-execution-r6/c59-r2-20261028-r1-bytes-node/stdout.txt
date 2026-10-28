@@ -1,0 +1,17 @@
+FF                                                                       [100%]R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 78, "phase": "driver", "pid": 16268, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c59-r2-20261028-r1-bytes-node/readsets/input-readset-16268.json", "source_module_count": 72, "test_module_count": 6, "tools_module_count": 0}
+
+=================================== FAILURES ===================================
+_____ test_bounded_codec_counts_native_bytes_before_later_sibling[common] ______
+tests/unit/common/test_canonical_v3.py:446: in test_bounded_codec_counts_native_bytes_before_later_sibling
+    with pytest.raises(error, match="canonical_wire_elements_exceeded"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.common.canonical.CanonicalError'>
+______ test_bounded_codec_counts_native_bytes_before_later_sibling[core] _______
+tests/unit/common/test_canonical_v3.py:446: in test_bounded_codec_counts_native_bytes_before_later_sibling
+    with pytest.raises(error, match="canonical_wire_elements_exceeded"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.canon.canon_json.CanonViolation'>
+=========================== short test summary info ============================
+FAILED tests/unit/common/test_canonical_v3.py::test_bounded_codec_counts_native_bytes_before_later_sibling[common]
+FAILED tests/unit/common/test_canonical_v3.py::test_bounded_codec_counts_native_bytes_before_later_sibling[core]
+2 failed in 0.16s

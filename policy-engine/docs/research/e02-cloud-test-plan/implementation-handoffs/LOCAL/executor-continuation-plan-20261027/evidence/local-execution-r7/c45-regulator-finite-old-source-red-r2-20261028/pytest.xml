@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="0.128" timestamp="2026-10-28T02:29:36.806409+02:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.fabric.connectors.test_regulator_lifetime_e02" name="test_valid_finite_adaptive_rate_does_not_overflow_before_clamp" time="0.004"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">tests/unit/fabric/connectors/test_regulator_lifetime_e02.py:62: in test_valid_finite_adaptive_rate_does_not_overflow_before_clamp
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE &lt;class 'ValueError'&gt;</failure></testcase><testcase classname="tests.unit.fabric.connectors.test_regulator_lifetime_e02" name="test_rest_pages_and_later_fetch_share_one_fractional_budget" time="0.004"><failure message="AssertionError: assert [(0.0, '1'), ..., (10.0, '2')] == [(0.0, '1'), ..., (15.0, '2')]&#10;  &#10;  At index 2 diff: (5.0, '1') != (10.0, '1')&#10;  Use -v to get more diff">tests/unit/fabric/connectors/test_regulator_lifetime_e02.py:185: in test_rest_pages_and_later_fetch_share_one_fractional_budget
+    assert [(when, page) for _, when, page in connector.calls] == [
+E   AssertionError: assert [(0.0, '1'), ..., (10.0, '2')] == [(0.0, '1'), ..., (15.0, '2')]
+E     
+E     At index 2 diff: (5.0, '1') != (10.0, '1')
+E     Use -v to get more diff</failure></testcase></testsuite></testsuites>

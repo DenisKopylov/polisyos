@@ -1,0 +1,107 @@
+{
+  "scope": "Diagnostic only: exact retained 192-role inventory and same 27 selected views; private reconstruction from actual predecessor generation, not the original concurrent app process or a byte-exact full prewrite filesystem snapshot. No candidate authority is promoted.",
+  "captured_payload_sha256": "1286fe7a26486c9a128b112f5bd256b9554f2b586deedd7edfae70bac5851028",
+  "captured_manifest_bytes_sha256": "3eecb522778f9b31404f4455b89e09f1788ce35072670f99ae035bf01e42ae62",
+  "predecessor_generation_sha256": "03cd5915d6ddf6999741c97f61288db6c9aa90879e90b505f383d1dd6d323458",
+  "captured_later_generation_sha256": "e06e4894f2d60800052fd3411ac701d71642d5bd020ff4298827f023066f0400",
+  "copied_source_index_sha256": "47e3711172a4b47d62f11fe9b7454483b2d9c78b0ce6a18dca88e2acf287cc23",
+  "role_count": 192,
+  "unique_selected_views": 27,
+  "tenant_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+  "cell_id": "01a17fe0-4204-7784-8b9e-0c754a8bd70e",
+  "clone_seconds": 0.7416880000091624,
+  "warm_read_seconds": 0.01288324999040924,
+  "runtime_cas_timeout_env": null,
+  "effective_guard_timeout_seconds": 1.5,
+  "guard_dependency": "content_addressed_storage",
+  "executor_profile": {
+    "capacity": 8,
+    "queue_capacity": 8,
+    "revision": "legacy-host-derived-v1",
+    "source": "legacy_host_fallback"
+  },
+  "executor_before_write": {
+    "_max_workers": 8,
+    "_max_queued": 8,
+    "_physical_workers": 0,
+    "_queued_jobs": 0,
+    "_outstanding_jobs": 0
+  },
+  "guard_return_seconds": 0.17592829201021232,
+  "caller_error": null,
+  "caller_returned_ref": {
+    "artifact_id": "sha256:1286fe7a26486c9a128b112f5bd256b9554f2b586deedd7edfae70bac5851028",
+    "kind": "scientist.search.uncertainty_input_inventory",
+    "manifest_profile_sha256": "sha256:54d6c1e7dc66328602fb366c2f6a1a906925436193d11c589fc70dcde92db28e"
+  },
+  "cancelled_after_guard_return": false,
+  "submit_to_worker_start_seconds": 3.399999695830047e-05,
+  "worker_seconds": 0.17502120800781995,
+  "worker_finished_within_60s": true,
+  "worker_error": null,
+  "worker_actual_ref": {
+    "artifact_id": "sha256:1286fe7a26486c9a128b112f5bd256b9554f2b586deedd7edfae70bac5851028",
+    "kind": "scientist.search.uncertainty_input_inventory",
+    "manifest_profile_sha256": "sha256:54d6c1e7dc66328602fb366c2f6a1a906925436193d11c589fc70dcde92db28e"
+  },
+  "late_worker_returned_after_guard": false,
+  "post_worker_real_guarded_verify_ok": true,
+  "post_worker_manifest": {
+    "kind": "scientist.search.uncertainty_input_inventory",
+    "input_count": 192,
+    "artifact_id": "sha256:1286fe7a26486c9a128b112f5bd256b9554f2b586deedd7edfae70bac5851028"
+  },
+  "post_worker_verify_error": null,
+  "phase_timings": {
+    "store.to_canonical_bytes": {
+      "calls": 1,
+      "inclusive_seconds": 0.003280082979472354,
+      "max_seconds": 0.003280082979472354
+    },
+    "_load_generation_snapshot": {
+      "calls": 773,
+      "inclusive_seconds": 0.10859407868701965,
+      "max_seconds": 0.010265958000672981
+    },
+    "_require_blob_owner": {
+      "calls": 384,
+      "inclusive_seconds": 0.05398044441244565,
+      "max_seconds": 0.0002493330102879554
+    },
+    "_require_manifest_view_owner": {
+      "calls": 384,
+      "inclusive_seconds": 0.054804853949462995,
+      "max_seconds": 0.00034158400376327336
+    },
+    "_require_input_owners": {
+      "calls": 2,
+      "inclusive_seconds": 0.10939225001493469,
+      "max_seconds": 0.056212333001894876,
+      "input_counts": [
+        192,
+        192
+      ]
+    },
+    "os.fsync": {
+      "calls": 24,
+      "inclusive_seconds": 0.0010623310809023678,
+      "max_seconds": 0.00043191699660383165
+    },
+    "_put_blob_and_manifest_once": {
+      "calls": 1,
+      "inclusive_seconds": 0.11278479199972935,
+      "max_seconds": 0.11278479199972935
+    }
+  },
+  "phase_timing_semantics": "inclusive wall time; nested timings overlap and must not be summed",
+  "sample_interval_seconds": 0.25,
+  "thread_samples": [],
+  "limitations": [
+    "single synthetic write in a fresh process; no inference about original app queue occupancy",
+    "original effective CAS timeout was not recorded by the prior native freeze",
+    "same guard and owner checks, no timeout increase, bypass, retries or invented authority"
+  ],
+  "closure_ids": [],
+  "source_readset_sha256": "b94f02ff6f051740b5ca0ef7aba03b2c9026a70d98daada3256a511b59d4e26a",
+  "source_readset_count": 950
+}

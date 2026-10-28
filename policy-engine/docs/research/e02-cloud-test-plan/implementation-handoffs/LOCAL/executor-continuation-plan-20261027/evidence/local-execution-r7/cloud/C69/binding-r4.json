@@ -1,0 +1,15 @@
+{
+  "prompt_path": "LOCAL/raw/e02-execution-20261027/next-cloud/C69/C69-ordinary-n7-v4-v7-r4.md",
+  "prompt_sha256": "fd0e8fa42fc3631d98ceb1712b23396f9b7a9f76eaee4243e5121da3e692398a",
+  "characters": 39524,
+  "bytes": 45124,
+  "base": "caa91a64d7d6afc4310186ba5fadbac2008dddab",
+  "tree": "730308224f7f1bb0d49b60c3fdb5929d791e6ebd",
+  "topic": "codex/e02-cloud-calibration-input-20261028",
+  "source_pins": 47,
+  "criterion_occurrences": 4,
+  "task_occurrence_assignments": 8,
+  "task_finding_edges_for_these_rows": 6,
+  "diagnostic_test_absent_at_base": "policy-engine/tests/integration/runtime_quality/test_c69_ordinary_n7_planner_diagnostic.py",
+  "status": "draft; independent review and root launch admission pending"
+}

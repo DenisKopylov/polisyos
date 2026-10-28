@@ -1,0 +1,215 @@
+{
+  "schema": "policyos.e02.native_case_compact_receipt.v1",
+  "case": "c43-random-joint-dyld-r2-20261028-mutant",
+  "source_commit": "2ef22b8818f8a35611af3898c07c7121ca89075d",
+  "source_tree": "95db6b4aa555a5641c9c0f6181fd655e5a3a5eac",
+  "property_scope": "One exact unchanged C43 case. Resolve actual audit/freeze/JUnit/collection/full output and active function independently. No automatic result or removal acceptance.",
+  "interpretation": "C43 dyld mutant: observed 1 numeric-assertion FAIL; independent bounded numerical triplet GO at recorded OS/cache/image UUID/profile boundary; strict cached BLAS-byte identity remains not_established.",
+  "actual_nodes": [
+    "tests/unit/remediation/test_c43_joint_gaussian.py::test_same_declared_joint_gaussian_has_same_linear_variance_in_four_backends[random-0.8]"
+  ],
+  "executed_argv": [
+    "/usr/bin/sandbox-exec",
+    "-f",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c43-random-joint-dyld-r2-20261028-mutant/child.sb",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c43-random-joint-dyld-r2-20261028-mutant/pytest_launcher.py",
+    "-o",
+    "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c43-random-joint-dyld-r2-20261028-mutant/pytest-cache",
+    "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c43-random-joint-dyld-r2-20261028-mutant/benchmarks",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c43-random-joint-dyld-r2-20261028-mutant/basetemp",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c43-random-joint-dyld-r2-20261028-mutant/pytest.xml",
+    "--tb=short",
+    "--color=no",
+    "--maxfail=0",
+    "tests/unit/remediation/test_c43_joint_gaussian.py::test_same_declared_joint_gaussian_has_same_linear_variance_in_four_backends[random-0.8]"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+  "plan_extra_env": {
+    "C43_CHILD_PROFILE_SHA256": "a3010d25e7f7076ab4ad203b942c38a77de87b7d13edbf62310fc28839276e2b",
+    "C43_CONTROL_MODE": "random_joint",
+    "C43_CONTROL_OUTPUT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c43-random-joint-dyld-r2-20261028-mutant",
+    "C43_CONTROL_PLUGIN_SHA256": "44e20eca03b9cdd42206b0f33fedad5847e6b6a18d76647aea5059de195ffc87",
+    "C43_CONTROL_SOURCE_HEAD": "2ef22b8818f8a35611af3898c07c7121ca89075d",
+    "C43_CONTROL_SOURCE_SHA256": "9154928e0d20687a85610ac8794b774112da3be0cea2a8c377004bd14b18b506",
+    "C43_CONTROL_SOURCE_TREE": "95db6b4aa555a5641c9c0f6181fd655e5a3a5eac",
+    "C43_CONTROL_TEST_SHA256": "8b39ca474b1c5b6aecdce808da3af380d9d5bc0875ba099015b15ce463c0812c",
+    "C43_DYLD_EXACT_NODE": "tests/unit/remediation/test_c43_joint_gaussian.py::test_same_declared_joint_gaussian_has_same_linear_variance_in_four_backends[random-0.8]",
+    "C43_DYLD_OBSERVER_SHA256": "323a57911109df5264b24ac857d431f7dfce09ede19b732628782c2dd7bedab2",
+    "C43_DYLD_SNAPSHOT_SHA256": "6d67f4bb2d1c15481ebbb3d3a11d4ef5458ae5b3a5a4c481cfab2d9630fc4530",
+    "C59_COLLECTION_PLUGIN_SHA256": "d412489cc0b0d4aea1b3d31276f4cc48f6616df0d5afe640bedf72f989b1a2ce",
+    "PYTEST_PLUGINS": "c59_collection_observer,c43_dyld_observer,c43_removal_plugin",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/e02-execution-20261027/repairs/C59-r2-native:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/e02-execution-20261027/repairs/C43-dyld-witness-r4:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/e02-execution-20261027/repairs/C43-native-manual-r5:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src"
+  },
+  "native_profile": "pytest.ini, default plugin autoload/importlib/strict markers; add read-only sys.modules observer; outputs redirected only; private empty pycache search prefix prevents stale canonical pyc reuse",
+  "numeric_threads": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMBA_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "ARROW_NUM_THREADS": "1",
+    "BLIS_NUM_THREADS": "1",
+    "POLARS_MAX_THREADS": "1",
+    "TF_NUM_INTEROP_THREADS": "1",
+    "TF_NUM_INTRAOP_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "result": {
+    "exit_code": 1,
+    "status": "command_failed",
+    "complete": true,
+    "counts": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "failure_cases": [
+      {
+        "test": "tests.unit.remediation.test_c43_joint_gaussian::test_same_declared_joint_gaussian_has_same_linear_variance_in_four_backends[random-0.8]",
+        "kind": "failure",
+        "message": "assert np.float64(2.032255595756678) == 0.3999999999999999 ± 0.06      comparison failed   Obtained: 2.032255595756678   Expected: 0.3999999999999999 ± 0.06"
+      }
+    ],
+    "started_at": "2026-10-28T00:16:52.004020+00:00",
+    "finished_at": "2026-10-28T00:16:58.295521+00:00",
+    "wall_seconds": 6.291474625002593,
+    "max_process_tree_rss_bytes": 377257984,
+    "disk_free_before_bytes": 19680837632,
+    "minimum_sampled_disk_free_bytes": 19680493568,
+    "aborted_reason": null,
+    "termination_signal": null
+  },
+  "audit": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c43-random-joint-dyld-r2-20261028-mutant/audit-result.json",
+    "sha256": "5ebd956fad6aef637533b08e4846032d7e10fbd638d6cdcfb8487b65fb37b3d3",
+    "availability": "local original; not copied"
+  },
+  "profile_freeze": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c43-random-joint-dyld-r2-20261028-mutant/source-profile-freeze.json",
+    "sha256": "370ab265a861c01d2762f6a6ebcc4d9fb719f4617a78d14b4b9091cc47461a50",
+    "availability": "local original; not copied"
+  },
+  "readsets": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c43-random-joint-dyld-r2-20261028-mutant/readsets/input-readset-53948.json",
+      "sha256": "ed6f67b90c8bd8f283d13f92025ea552dad0f158cb806684d7ede090caac04de",
+      "python_paths": 133,
+      "pytest_exitstatus": 1,
+      "local_hash_verification": "MATCH"
+    }
+  ],
+  "unique_runtime_loaded_python_paths": 133,
+  "source_mismatches": [],
+  "observer_boundary": [
+    "unimported source and arbitrary executable parser/plugin inputs are not a repository-wide runtime census",
+    "observer records src/polisyos, tests and tools Python modules; external package modules are outside this observer selection",
+    "this is an audit-specific source/profile freeze, not E02 global acceptance"
+  ],
+  "guard_after": {
+    "head": "2ef22b8818f8a35611af3898c07c7121ca89075d",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c07-c19-c50-verified-fixture-corrections-20261028/full-composed-source-frame.json",
+      "sha256": "3fe7024689149b4649b2874d592ce3f1f36f778e9b1403106a4f5666b54a718c"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    }
+  },
+  "root_live_recorded": {
+    "path": "LOCAL/raw/root-live-ownership-20261021.json",
+    "expected_sha256": "b9c38e10ab432b14a01383cc06ec48b0e88fc78bd494fd96323c1bd7434c7968",
+    "current_sha256_at_preparation": "b9c38e10ab432b14a01383cc06ec48b0e88fc78bd494fd96323c1bd7434c7968",
+    "availability": "MATCH"
+  },
+  "local_artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c43-random-joint-dyld-r2-20261028-mutant/control-mutation.json",
+      "sha256": "2c6c9e04f49e7148b4b9d80752185b75b54c9ff07dac3d5da8f0d68d009bf02c",
+      "bytes": 119106,
+      "availability": "original available locally, not copied; qualification unestablished"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c43-random-joint-dyld-r2-20261028-mutant/active-control.py",
+      "sha256": "6b4f88de6edc3240c7f816579fe4a003a1b39a62b46d5a873d22fb6942295944",
+      "bytes": 2859,
+      "availability": "original available locally, not copied; qualification unestablished"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c43-random-joint-dyld-r2-20261028-mutant/collection.json",
+      "sha256": "e70bb1fe8c5fee9a9eca6eb3ed7419e077d19f5b7fa404f9abf8ec492732f4ed",
+      "bytes": 751,
+      "availability": "original available locally, not copied; qualification unestablished"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c43-random-joint-dyld-r2-20261028-mutant/c43-dyld-observation.json",
+      "sha256": "325922106025d7708376553091a0b0363ce862f2d5fcdda447e4cbed9a738e5e",
+      "bytes": 40015,
+      "proposal_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/c43-dyld-observations/325922106025d7708376553091a0b0363ce862f2d5fcdda447e4cbed9a738e5e.json.gz",
+      "proposal_gzip_sha256": "33e0b6277ed5234cbc72e6ce34f61bc8f787fae6d9fde7dfcb0719819398783f",
+      "proposal_gzip_bytes": 4117,
+      "availability": "observed bytes in proposal, deduplicated by exact hash; delivery pending root"
+    }
+  ],
+  "deciding_outputs": [
+    {
+      "role": "stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/c43-random-joint-dyld-r2-20261028-mutant/stdout.txt",
+      "sha256": "087f4fefbeaf1c4c26a9cbc5a4bc8490025e670e2715a2c384a7174c67e05d57",
+      "bytes": 2081,
+      "raw_sha256": "087f4fefbeaf1c4c26a9cbc5a4bc8490025e670e2715a2c384a7174c67e05d57",
+      "raw_bytes": 2081,
+      "compression": "none",
+      "origin_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c43-random-joint-dyld-r2-20261028-mutant/c43-random-joint-dyld-r2-20261028-mutant.stdout.txt"
+    },
+    {
+      "role": "stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/common/empty.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "compression": "none",
+      "origin_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c43-random-joint-dyld-r2-20261028-mutant/c43-random-joint-dyld-r2-20261028-mutant.stderr.txt"
+    },
+    {
+      "role": "junit",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/c43-random-joint-dyld-r2-20261028-mutant/junit.xml",
+      "sha256": "85ee46ba963279942b479b1646e6ca367bb7fca9b2fb70ebefd1b685c8113dff",
+      "bytes": 1027,
+      "raw_sha256": "85ee46ba963279942b479b1646e6ca367bb7fca9b2fb70ebefd1b685c8113dff",
+      "raw_bytes": 1027,
+      "compression": "none",
+      "origin_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c43-random-joint-dyld-r2-20261028-mutant/pytest.xml"
+    }
+  ],
+  "strict_backend_phase_qualification": "bounded numerical GO at recorded OS/cache/image UUID/profile boundary; strict cached BLAS-byte SHA not_established",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "prior_qualification_at_r6": "UNQUALIFIED: image UUID/cache identity is bounded; strict cached backend-byte SHA not established; independent review pending",
+  "independent_actual_review": {
+    "verdict": "GO for selected seeded random_joint numerical witness at recorded OS/cache/image UUID and profile boundary",
+    "review_markdown": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/c43-dyld-triplet-independent-review/review.md",
+      "sha256": "7d07494b018e59fdccb0c1306644c75d774245e62aa87065e5bdbdb089852a4d",
+      "bytes": 3253,
+      "raw_sha256": "7d07494b018e59fdccb0c1306644c75d774245e62aa87065e5bdbdb089852a4d",
+      "raw_bytes": 3253,
+      "compression": "none"
+    },
+    "review_json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/c43-dyld-triplet-independent-review/review.json.gz",
+      "sha256": "9bc29be8f7337200136ea7b65039d54e21d07f0e8991966fdc97ae40565814d0",
+      "bytes": 3964,
+      "raw_sha256": "79de06cf4b3066083f5291837047c0f017ba81ee0d1bc91e17868ca22e1a0688",
+      "raw_bytes": 21493,
+      "compression": "gzip"
+    },
+    "strict_cached_blas_byte_sha256": "not_established",
+    "other_controls_production_and_G": "not_established"
+  }
+}

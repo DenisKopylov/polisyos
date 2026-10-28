@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="2.555" timestamp="2026-10-28T02:21:39.703768+02:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.calibration.diagnostics.test_c50_receipt_consistency" name="test_positive_metadata_cannot_admit_an_empty_interval_curve" time="0.004"><failure message="AssertionError: assert 'blocked' == 'fail'&#10;  &#10;  - fail&#10;  + blocked">tests/unit/calibration/diagnostics/test_c50_receipt_consistency.py:148: in test_positive_metadata_cannot_admit_an_empty_interval_curve
+    _assert_measurement_failure(diagnostics)
+tests/unit/calibration/diagnostics/test_c50_receipt_consistency.py:127: in _assert_measurement_failure
+    assert validation.verdict == "fail"
+E   AssertionError: assert 'blocked' == 'fail'
+E     
+E     - fail
+E     + blocked</failure></testcase></testsuite></testsuites>

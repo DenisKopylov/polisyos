@@ -1,0 +1,16 @@
+F                                                                        [100%]C50_REMOVAL_CONTROL={"active_calls": 2, "mode": "coverage_reconciliation", "original_callable_restored_in_process": true, "receipt_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant/c50-control-mutation.json", "source_and_test_bytes_unchanged": true, "state": "EXPECTED_SEMANTIC_RED_UNQUALIFIED"}
+R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 128, "phase": "driver", "pid": 67508, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant/readsets/input-readset-67508.json", "source_module_count": 122, "test_module_count": 6, "tools_module_count": 0}
+
+=================================== FAILURES ===================================
+_________ test_positive_metadata_cannot_admit_an_empty_interval_curve __________
+tests/unit/calibration/diagnostics/test_c50_receipt_consistency.py:148: in test_positive_metadata_cannot_admit_an_empty_interval_curve
+    _assert_measurement_failure(diagnostics)
+tests/unit/calibration/diagnostics/test_c50_receipt_consistency.py:127: in _assert_measurement_failure
+    assert validation.verdict == "fail"
+E   AssertionError: assert 'blocked' == 'fail'
+E     
+E     - fail
+E     + blocked
+=========================== short test summary info ============================
+FAILED tests/unit/calibration/diagnostics/test_c50_receipt_consistency.py::test_positive_metadata_cannot_admit_an_empty_interval_curve
+1 failed in 2.81s

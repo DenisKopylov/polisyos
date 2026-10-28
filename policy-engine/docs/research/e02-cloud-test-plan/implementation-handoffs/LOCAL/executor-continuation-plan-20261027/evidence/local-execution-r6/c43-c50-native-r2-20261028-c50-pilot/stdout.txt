@@ -1,0 +1,14 @@
+R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 868, "phase": "driver", "pid": 5890, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c43-c50-native-r2-20261028-c50-pilot/readsets/input-readset-5890.json", "source_module_count": 850, "test_module_count": 18, "tools_module_count": 0}
+
+==================================== ERRORS ====================================
+_ ERROR collecting tests/unit/calibration/diagnostics/test_c50_receipt_consistency.py _
+ImportError while importing test module '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/calibration/diagnostics/test_c50_receipt_consistency.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/unit/calibration/diagnostics/test_c50_receipt_consistency.py:15: in <module>
+    from polisyos.ir import (
+E   ImportError: cannot import name 'TruthfulnessReceipt' from 'polisyos.ir' (/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/ir/__init__.py)
+=========================== short test summary info ============================
+ERROR tests/unit/calibration/diagnostics/test_c50_receipt_consistency.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 7.88s

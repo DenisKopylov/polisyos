@@ -1,0 +1,2 @@
+2026-10-28 02:33:16.455 | INFO     | polisyos.common.logger:_call:104 - Circuit breaker initialized
+2026-10-28 02:33:17.978 | DEBUG    | polisyos.common.logger:_call:104 - Failure recorded

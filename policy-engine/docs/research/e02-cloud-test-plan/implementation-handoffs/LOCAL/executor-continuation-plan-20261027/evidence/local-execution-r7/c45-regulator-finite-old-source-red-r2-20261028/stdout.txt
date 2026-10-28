@@ -1,0 +1,19 @@
+FF                                                                       [100%]R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 378, "phase": "driver", "pid": 86198, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c45-regulator-finite-old-source-red-r2-20261028/readsets/input-readset-86198.json", "source_module_count": 370, "test_module_count": 8, "tools_module_count": 0}
+
+=================================== FAILURES ===================================
+________ test_valid_finite_adaptive_rate_does_not_overflow_before_clamp ________
+tests/unit/fabric/connectors/test_regulator_lifetime_e02.py:62: in test_valid_finite_adaptive_rate_does_not_overflow_before_clamp
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+_________ test_rest_pages_and_later_fetch_share_one_fractional_budget __________
+tests/unit/fabric/connectors/test_regulator_lifetime_e02.py:185: in test_rest_pages_and_later_fetch_share_one_fractional_budget
+    assert [(when, page) for _, when, page in connector.calls] == [
+E   AssertionError: assert [(0.0, '1'), ..., (10.0, '2')] == [(0.0, '1'), ..., (15.0, '2')]
+E     
+E     At index 2 diff: (5.0, '1') != (10.0, '1')
+E     Use -v to get more diff
+=========================== short test summary info ============================
+FAILED tests/unit/fabric/connectors/test_regulator_lifetime_e02.py::test_valid_finite_adaptive_rate_does_not_overflow_before_clamp
+FAILED tests/unit/fabric/connectors/test_regulator_lifetime_e02.py::test_rest_pages_and_later_fetch_share_one_fractional_budget
+2 failed in 0.23s

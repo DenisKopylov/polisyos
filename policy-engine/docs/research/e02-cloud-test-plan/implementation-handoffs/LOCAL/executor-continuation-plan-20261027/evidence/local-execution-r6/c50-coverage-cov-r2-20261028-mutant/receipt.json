@@ -1,0 +1,226 @@
+{
+  "schema": "policyos.e02.native_case_compact_receipt.v1",
+  "case": "c50-coverage-cov-r2-20261028-mutant",
+  "source_commit": "2ef22b8818f8a35611af3898c07c7121ca89075d",
+  "source_tree": "95db6b4aa555a5641c9c0f6181fd655e5a3a5eac",
+  "property_scope": "C50 actual report/adapter coverage reconciliation; exact same node and direct evidence review before/mutant/restored. Not a source-origin/G/closure proof.",
+  "interpretation": "C50 selected coverage-reconciliation mutant: 1 FAIL at the named fail-versus-blocked assertion; deterministic report/adapter and Python/Pydantic scope; actual triplet independent review pending; no real-source or G claim.",
+  "actual_nodes": [
+    "tests/unit/calibration/diagnostics/test_c50_receipt_consistency.py::test_positive_metadata_cannot_admit_an_empty_interval_curve"
+  ],
+  "executed_argv": [
+    "/usr/bin/sandbox-exec",
+    "-f",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant/child.sb",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant/pytest_launcher.py",
+    "-o",
+    "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant/pytest-cache",
+    "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant/benchmarks",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant/basetemp",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant/pytest.xml",
+    "--tb=short",
+    "--color=no",
+    "--maxfail=0",
+    "tests/unit/calibration/diagnostics/test_c50_receipt_consistency.py::test_positive_metadata_cannot_admit_an_empty_interval_curve"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+  "plan_extra_env": {
+    "C50_CHILD_PROFILE_SHA256": "62873dfbd84e890303281a8715c478791acdf9eb7d8fe830906b3c8f51a72a86",
+    "C50_EXACT_NODE": "tests/unit/calibration/diagnostics/test_c50_receipt_consistency.py::test_positive_metadata_cannot_admit_an_empty_interval_curve",
+    "C50_OUTPUT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant",
+    "C50_SOURCE_HEAD": "2ef22b8818f8a35611af3898c07c7121ca89075d",
+    "C50_SOURCE_TREE": "95db6b4aa555a5641c9c0f6181fd655e5a3a5eac",
+    "C59_COLLECTION_PLUGIN_SHA256": "d412489cc0b0d4aea1b3d31276f4cc48f6616df0d5afe640bedf72f989b1a2ce",
+    "POLISYOS_C50_CONTROL_MODE": "coverage_reconciliation",
+    "POLISYOS_C50_CONTROL_OUTPUT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant",
+    "POLISYOS_C50_CONTROL_PINSET_SHA256": "3a4c9ac01b231e74b592b9007abeb91cc00c8e5d94d3539a37de67d686865942",
+    "POLISYOS_C50_CONTROL_PLUGIN_SHA256": "3d4dbea4800e7507706c583594dbe90a1a6260b7bbab41aa180c4bc694b0e84a",
+    "POLISYOS_C50_CONTROL_SOURCE_FRAME_SHA256": "3fe7024689149b4649b2874d592ce3f1f36f778e9b1403106a4f5666b54a718c",
+    "POLISYOS_C50_CONTROL_SOURCE_HEAD": "2ef22b8818f8a35611af3898c07c7121ca89075d",
+    "POLISYOS_C50_CONTROL_SOURCE_TREE": "95db6b4aa555a5641c9c0f6181fd655e5a3a5eac",
+    "PYTEST_PLUGINS": "c59_collection_observer,c50_child_profile,c50_removal_plugin",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/e02-execution-20261027/repairs/C59-r2-native:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/e02-execution-20261027/repairs/C50-native-manual-r3:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/LOCAL/raw/e02-execution-20261027/repairs/C50-native-controls-r3:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src"
+  },
+  "native_profile": "pytest.ini, default plugin autoload/importlib/strict markers; add read-only sys.modules observer; outputs redirected only; private empty pycache search prefix prevents stale canonical pyc reuse",
+  "numeric_threads": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMBA_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "ARROW_NUM_THREADS": "1",
+    "BLIS_NUM_THREADS": "1",
+    "POLARS_MAX_THREADS": "1",
+    "TF_NUM_INTEROP_THREADS": "1",
+    "TF_NUM_INTRAOP_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "result": {
+    "exit_code": 1,
+    "status": "command_failed",
+    "complete": true,
+    "counts": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "failure_cases": [
+      {
+        "test": "tests.unit.calibration.diagnostics.test_c50_receipt_consistency::test_positive_metadata_cannot_admit_an_empty_interval_curve",
+        "kind": "failure",
+        "message": "AssertionError: assert 'blocked' == 'fail'      - fail   + blocked"
+      }
+    ],
+    "started_at": "2026-10-28T00:21:37.284249+00:00",
+    "finished_at": "2026-10-28T00:21:43.561329+00:00",
+    "wall_seconds": 6.277047249983298,
+    "max_process_tree_rss_bytes": 321798144,
+    "disk_free_before_bytes": 19455070208,
+    "minimum_sampled_disk_free_bytes": 19454525440,
+    "aborted_reason": null,
+    "termination_signal": null
+  },
+  "audit": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant/audit-result.json",
+    "sha256": "c9cd8acb860b95c7e7e537132b96576314f25e2cbd1392f2b449b4a0824ec35e",
+    "availability": "local original; not copied"
+  },
+  "profile_freeze": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant/source-profile-freeze.json",
+    "sha256": "ce3d6cd15252d50b9592612b244635bea6f9e9e3758ea638d99002beb53a188b",
+    "availability": "local original; not copied"
+  },
+  "child_profile": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant/c50-child-profile.json",
+    "sha256": "22ea40d4eeb2157e0547e8c6da275b06b07395800b0e49ab940dcf37881bca74",
+    "availability": "local original; not copied",
+    "limitation": "Observed sys.modules and threadpoolctl results are finite, not a complete dynamic-loader census."
+  },
+  "readsets": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant/readsets/input-readset-67508.json",
+      "sha256": "7b25f0d45f644f63da5380000cd1fbf4f89b1cae8ab0fe23fb5838745489eb96",
+      "python_paths": 128,
+      "pytest_exitstatus": 1,
+      "local_hash_verification": "MATCH"
+    }
+  ],
+  "unique_runtime_loaded_python_paths": 128,
+  "source_mismatches": [],
+  "observer_boundary": [
+    "unimported source and arbitrary executable parser/plugin inputs are not a repository-wide runtime census",
+    "observer records src/polisyos, tests and tools Python modules; external package modules are outside this observer selection",
+    "this is an audit-specific source/profile freeze, not E02 global acceptance"
+  ],
+  "guard_after": {
+    "head": "2ef22b8818f8a35611af3898c07c7121ca89075d",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-c07-c19-c50-verified-fixture-corrections-20261028/full-composed-source-frame.json",
+      "sha256": "3fe7024689149b4649b2874d592ce3f1f36f778e9b1403106a4f5666b54a718c"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    }
+  },
+  "root_live_recorded": {
+    "path": "LOCAL/raw/root-live-ownership-20261021.json",
+    "expected_sha256": "b9c38e10ab432b14a01383cc06ec48b0e88fc78bd494fd96323c1bd7434c7968",
+    "current_sha256_at_preparation": "9f75adb6940362fe3034ad1e097abee497afcfc3126ba9d7cc90e8dbdeed8f61",
+    "availability": "historical bytes unavailable at recorded locator; alternative copies not established; not reconstructed"
+  },
+  "control_artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant/c50-control-mutation.json",
+      "sha256": "dd610f57db28747514865d1d99df0b82281435d9c9a710a07389e645c2bf5bbd",
+      "bytes": 11497,
+      "availability": "local original; not copied",
+      "proposed_retained_bytes": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/c50-coverage-cov-r2-20261028-mutant/control-mutation.json.gz",
+        "sha256": "e548f6cca45f9f11c74eeae59ede628f6f86c5551ebbf8562309ec944b405d1e",
+        "bytes": 3011,
+        "raw_sha256": "dd610f57db28747514865d1d99df0b82281435d9c9a710a07389e645c2bf5bbd",
+        "raw_bytes": 11497,
+        "compression": "gzip"
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant/c50-active-control.py",
+      "sha256": "e9b45fe2623f8b167501599092f650a7d8bf92c78d538f00f204016fb7e98884",
+      "bytes": 493,
+      "availability": "local original; not copied"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant/collection.json",
+      "sha256": "b674646a329d553dace4dbdd702de77c88ca6dec43caa5a88d6e2ca6dc42d904",
+      "bytes": 718,
+      "availability": "local original; not copied"
+    }
+  ],
+  "deciding_outputs": [
+    {
+      "role": "stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/c50-coverage-cov-r2-20261028-mutant/stdout.txt",
+      "sha256": "050165ab7e5065fdbb61b6c83b7c158b793cbb1d794853f695c970c6a1ce53ed",
+      "bytes": 1997,
+      "raw_sha256": "050165ab7e5065fdbb61b6c83b7c158b793cbb1d794853f695c970c6a1ce53ed",
+      "raw_bytes": 1997,
+      "compression": "none",
+      "origin_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant/c50-coverage-cov-r2-20261028-mutant.stdout.txt"
+    },
+    {
+      "role": "stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/common/empty.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "compression": "none",
+      "availability": "depends on immutable r6 postimage",
+      "origin_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant/c50-coverage-cov-r2-20261028-mutant.stderr.txt"
+    },
+    {
+      "role": "junit",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/c50-coverage-cov-r2-20261028-mutant/junit.xml",
+      "sha256": "7597488a01dcc1d5dea4b2fd987dd6668fb0e2a2691afb0db1c39ad8312e5b7b",
+      "bytes": 949,
+      "raw_sha256": "7597488a01dcc1d5dea4b2fd987dd6668fb0e2a2691afb0db1c39ad8312e5b7b",
+      "raw_bytes": 949,
+      "compression": "none",
+      "origin_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c50-coverage-cov-r2-20261028-mutant/pytest.xml"
+    }
+  ],
+  "source_scope_and_review": {
+    "scope": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/c50-coverage-control-scope/SCOPE.md",
+      "sha256": "fedbb3318621f564e80a824d55c59a185f0a03f94d3521000a285f0d050c592c",
+      "bytes": 2988,
+      "raw_sha256": "fedbb3318621f564e80a824d55c59a185f0a03f94d3521000a285f0d050c592c",
+      "raw_bytes": 2988,
+      "compression": "none"
+    },
+    "manifest_ready": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/c50-coverage-control-scope/manifest-ready.json",
+      "sha256": "50a814d38e4c70f19e612f3682d8acf75f85ac32f67e9ec1df94263ced2fecb2",
+      "bytes": 2870,
+      "raw_sha256": "50a814d38e4c70f19e612f3682d8acf75f85ac32f67e9ec1df94263ced2fecb2",
+      "raw_bytes": 2870,
+      "compression": "none"
+    },
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/c50-coverage-control-scope/source-review.md",
+      "sha256": "992d4be0a21b4fa97fae9528bd79780a1edc2d3db16ac84d67a98f6edcece235",
+      "bytes": 1678,
+      "raw_sha256": "992d4be0a21b4fa97fae9528bd79780a1edc2d3db16ac84d67a98f6edcece235",
+      "raw_bytes": 1678,
+      "compression": "none"
+    }
+  },
+  "actual_triplet_independent_review": "PENDING",
+  "G_acceptance": false,
+  "closure_ids": []
+}

@@ -1,0 +1,88 @@
+{
+  "binding": {
+    "path": "LOCAL/raw/e02-execution-20261027/next-cloud/C69/binding-r4.json",
+    "sha256": "5a3dca231471d4591a542591fb1e096c8bb8f74b79ef6b263374a138e27e9132"
+  },
+  "cloud_launch_independently_inspected": false,
+  "coordinator_reported_cloud_task": "task_e_6ae152024d608325b0971048de96c169",
+  "criterion_pointers": [
+    {
+      "occurrence": "B16@EMP-01",
+      "original": "B_r19_original.md:387–398",
+      "pointer": "#/findings/75/criterion_refs/0",
+      "span_sha256": "fddf1601c092be1f87a19a79a3f6975264850d8df9428e3f54bd3f8fe48d8706"
+    },
+    {
+      "occurrence": "B32@FRC-01",
+      "original": "B_r19_original.md:607–620",
+      "pointer": "#/findings/157/criterion_refs/0",
+      "span_sha256": "68a3acb0a34e8ebfce5217cdc99785a851a21368ea2d552795f68272e7140d6c"
+    },
+    {
+      "occurrence": "LA-051@FRC-01",
+      "original": "LA_r09_original.md:3712–3746",
+      "pointer": "#/findings/275/criterion_refs/0",
+      "span_sha256": "5d3fe7ce8b71d77c07f35e5a68fed244c0d40e0f24925714edbf7297c37ea616"
+    },
+    {
+      "occurrence": "LA-051@FRC-02",
+      "original": "LA_r09_original.md:3712–3746",
+      "pointer": "#/findings/275/criterion_refs/1",
+      "span_sha256": "5d3fe7ce8b71d77c07f35e5a68fed244c0d40e0f24925714edbf7297c37ea616"
+    }
+  ],
+  "g_acceptance": "NOT_CLAIMED",
+  "independent_prior_checks": {
+    "criterion_crosswalk_denominator": 291,
+    "distinct_v4_v7_occurrences": 4,
+    "exact_original_spans_embedded": 3,
+    "first_route_paths_compared_to_analysis": 32,
+    "local_observed_head": "67beb3461ab96c4cb64b92226228da39b30bcb06",
+    "local_observed_tree": "306e3c150f6a1368f23c8ebece35aeec3feb180b",
+    "named_pin_mismatches": 0,
+    "named_pins_checked": 47,
+    "prior_raw_command_logs_retained": false,
+    "r4_pin_table_identical_to_checked_r3": true,
+    "route_blob_mismatches": 0,
+    "route_current_mismatches": 0,
+    "route_paths_compared_to_current_head_and_working": 32,
+    "task_finding_edges": 6,
+    "task_occurrence_assignments": 8
+  },
+  "product_runtime": "UNRUN_BY_REVIEWER",
+  "prompt": {
+    "bytes": 45124,
+    "path": "LOCAL/raw/e02-execution-20261027/next-cloud/C69/C69-ordinary-n7-v4-v7-r4.md",
+    "sha256": "fd0e8fa42fc3631d98ceb1712b23396f9b7a9f76eaee4243e5121da3e692398a"
+  },
+  "pytest": "UNRUN_BY_REVIEWER",
+  "remote_readback": {
+    "command": "git ls-remote --heads origin refs/heads/codex/e02-cloud-calibration-input-20261028",
+    "exit": 0,
+    "observed_no_later_than_utc": "2026-10-28 01:39:35 UTC",
+    "stdout": "caa91a64d7d6afc4310186ba5fadbac2008dddab\trefs/heads/codex/e02-cloud-calibration-input-20261028\n"
+  },
+  "review_report": {
+    "path": "LOCAL/raw/e02-execution-20261027/reviews/C69-prompt-r4-independent.md",
+    "sha256": "f9ca0769f3d0bfef858964b976c73dd977268c0fa3f53e93db31e1533cdd8699"
+  },
+  "schema": "policyos.e02.c69.prompt_independent_review.v1",
+  "scope": "Static standalone prompt and named-source review; not runtime pass, criterion closure, G acceptance or ongoing lease.",
+  "secondary_author_records": [
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/next-cloud/C69/admission.json",
+      "sha256": "967319a4ebdfa40aa95f090518a6589d7a6358fe1d15fd2b59d280dd69e75815"
+    },
+    {
+      "path": "LOCAL/raw/e02-execution-20261027/next-cloud/C69/readback.json",
+      "sha256": "fff82352a662aeb1ec7d061c5fc81a587ef11942683de99cc078b913235544f5"
+    }
+  ],
+  "source": {
+    "analysis_commit": "fb4135eff29cef5fb4f7d473dc2a62a54b9c4e3b",
+    "commit": "caa91a64d7d6afc4310186ba5fadbac2008dddab",
+    "topic": "codex/e02-cloud-calibration-input-20261028",
+    "tree": "730308224f7f1bb0d49b60c3fdb5929d791e6ebd"
+  },
+  "verdict": "SOURCE_LAUNCH_GO_BOUNDED"
+}

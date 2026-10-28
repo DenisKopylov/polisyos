@@ -150,6 +150,36 @@ transitions keep their capacity reservation until physical cleanup succeeds.
 until physical cleanup succeeds. Circuit/live journal permissions are independent
 of this admission budget and do not establish external data authority.
 
+## Resilience regulator ownership
+
+A declared rate must be finite and positive; `None` means that this layer has
+no configured rate limit. A mapping's explicitly supplied `rate_limit_rps`
+takes precedence over its alias even when the value is zero, so invalid
+configuration cannot silently opt out. Calls may raise
+`BoundedResourceRegistryCapacityError` when the bounded protected-state budget
+cannot admit a different key; retry only under an explicit higher-level policy.
+
+Rate and circuit decorators keep a lease on the selected regulator through
+the operation, and the internal registry evicts only unleased quiescent state.
+Typed provider `RateLimitError` cooldown is recorded on that same limiter
+before the error is propagated. Local capacity and invalid-rate refusals keep
+their exception contracts and release the circuit attempt without recording a
+provider failure; only the originating in-process owner marks such a refusal.
+The same public exception type raised by a provider does not by itself claim
+local origin.
+
+REST page requests reuse a connector-owned wrapper across pages and fetches.
+The general decorator's existing identity uses connector and endpoint, with
+rates as separate configuration keys. Numerically equal rates use the same
+key. These keys do not establish provider-global quota scope, tenant authority,
+cross-instance, or cross-process sharing.
+
+`with_rate_limit` accepts a numeric rate or a synchronous callable that
+resolves the rate from each call's arguments; a callable may return `None` to
+opt out for that call. Existing numeric calls remain valid. The internal
+registry no longer returns unleased mutable regulators; consumers must hold its
+lease for the complete use and must not retain the value after release.
+
 ## Registration and handle ownership
 
 Registration selects a connector definition and factory separately from its

@@ -1,0 +1,31 @@
+id = "2026-10-28-e02-fabric-regulators"
+title = "Keep live connector regulators across admission and calls"
+type = "fixed"
+component = "fabric"
+owner = "team-fabric"
+summary = "Pin rate and circuit regulators through admitted operations, retain protected state under bounded eviction, and reuse REST regulator owners across fetches."
+evidence = ["tests/unit/fabric/connectors/test_regulator_lifetime_e02.py", "tests/unit/fabric/connectors/test_resilience.py"]
+compatibility = "Explicit zero or non-finite rates are refused rather than treated as an absent policy; the new InvalidRateLimitError remains a ValueError. A finite protected-state budget may refuse a new key with BoundedResourceRegistryCapacityError. Existing numeric with_rate_limit calls remain supported."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.fabric.connectors resilience helpers and GenericRESTConnector"
+migration = "Supply None to opt out of rate limiting and a finite positive value to configure it. Internal registry consumers must hold the regulator lease across the complete operation rather than retain an unleased mutable value."
+api = "with_rate_limit additionally accepts a synchronous per-call rate resolver. Typed provider rate-limit errors propagate their cooldown into the current limiter before the original error continues. Local owner-issued admission refusals do not count as provider circuit failures."
+limitations = "Candidate change pending composed runtime verification. Existing connector/domain keys do not establish provider-global quota or tenant authority, and state is not cross-instance or cross-process. Fractional Retry-After conversion in HTTP producers and the separate rate-wait deadline remain unresolved."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/fabric/connectors/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "fabric-live-regulator-leases"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: connector resilience decorators and rate admission"
+owner = "team-fabric"
+version_owner = "team-fabric"
+deprecation_window = "Invalid declared rates fail immediately; protected capacity is refused rather than resetting live state."
+release_note = "Stateful rate and circuit controls remain owned across concurrent use and REST fetches."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/fabric/connectors/README.md"]
+runbook_docs = []

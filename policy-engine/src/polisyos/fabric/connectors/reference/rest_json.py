@@ -71,7 +71,10 @@ from polisyos.fabric.connectors.resilience import (
     with_rate_limit,
     with_retry,
 )
-from polisyos.fabric.connectors.resilience.rate_limiter import parse_retry_after_header
+from polisyos.fabric.connectors.resilience.rate_limiter import (
+    _validate_rate_limit_rps,
+    parse_retry_after_header,
+)
 from polisyos.fabric.connectors.types import (
     ConfigurationError,
     FetchError,
@@ -246,6 +249,11 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
     connector_id: ClassVar[str] = "reference.rest_json"
     _STATE_SESSION_KEY: ClassVar[str] = "session"
     _STATE_SESSION_LOCK_KEY: ClassVar[str] = "_session_lock"
+
+    def __init__(self) -> None:
+        # One long-lived wrapper retains the canonical rate and circuit owners
+        # across calls; key selection follows the existing decorator identities.
+        self._page_request = self._decorate_request(self._request_page_raw)
 
     capabilities: ClassVar[ConnectorCapability] = (
         ConnectorCapability.FULL_FETCH
@@ -443,8 +451,11 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
         etag_mismatch = False
         last_modified_mismatch = False
 
+        rate_limit_rps = handle.config.rate_limit_rps
+        if rate_limit_rps is not None:
+            _validate_rate_limit_rps(rate_limit_rps)
         session = await self._get_session(handle)
-        request_page = self._decorate_request(self._request_page_raw, handle)
+        request_page = self._page_request
         while has_more:
             if pages_seen >= cfg["max_pages"]:
                 raise FetchError(
@@ -615,11 +626,13 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
             content_hash=content_hash,
         )
 
-    def _decorate_request(self, func: _PageRequest, handle: ConnectionHandle) -> _PageRequest:
-        wrapped = func
-        rate_limit_rps = handle.config.rate_limit_rps
-        if rate_limit_rps:
-            wrapped = with_rate_limit(rate_limit_rps=rate_limit_rps)(wrapped)
+    def _decorate_request(self, func: _PageRequest) -> _PageRequest:
+        def rate_for_handle(
+            handle: ConnectionHandle, *_args: object, **_kwargs: object
+        ) -> float | None:
+            return handle.config.rate_limit_rps
+
+        wrapped = with_rate_limit(rate_limit_rps=rate_for_handle)(func)
         wrapped = with_circuit_breaker()(wrapped)
         wrapped = with_retry(max_attempts=5, base_delay=1.0)(wrapped)
         return wrapped

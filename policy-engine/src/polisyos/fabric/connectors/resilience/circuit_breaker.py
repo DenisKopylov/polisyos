@@ -30,6 +30,7 @@ from polisyos.core.observability import get_metrics
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.connectors.resilience._bounded_registry import (
     BoundedResourceRegistry,
+    _is_local_admission_error,
 )
 
 if TYPE_CHECKING:
@@ -415,7 +416,7 @@ class CircuitBreaker:
         self._half_open_leases.remove(lease.token)
         self._retire_lease_locked(lease, finalized=True)
 
-    def _release_cancelled_lease(self, lease: CircuitAttemptLease | None) -> None:
+    def _release_unrecorded_lease(self, lease: CircuitAttemptLease | None) -> None:
         if lease is None:
             return
         with self._lock:
@@ -564,15 +565,20 @@ class CircuitBreaker:
                 result = await func(*args, **kwargs)
             except asyncio.CancelledError:
                 # Do not count cancellations as failures
-                self._release_cancelled_lease(lease)
+                self._release_unrecorded_lease(lease)
                 span.set_status(Status(StatusCode.ERROR, "Cancelled"))
                 raise
 
             except Exception as error:
-                try:
-                    self.record_failure(lease)
-                except CircuitLeaseError as bookkeeping_error:
-                    raise error from bookkeeping_error
+                if _is_local_admission_error(error):
+                    # This specific refusal came from the local regulator owner,
+                    # not merely from an exception with a matching public type.
+                    self._release_unrecorded_lease(lease)
+                else:
+                    try:
+                        self.record_failure(lease)
+                    except CircuitLeaseError as bookkeeping_error:
+                        raise error from bookkeeping_error
                 span.set_status(Status(StatusCode.ERROR, str(error)))
                 span.record_exception(error)
                 raise
@@ -693,11 +699,11 @@ def with_circuit_breaker(
     """
     breakers = BoundedResourceRegistry[CircuitBreaker]()
 
-    def _resolve_breaker(
+    def _resolve_breaker_id(
         func: Callable[..., Awaitable[T]],
         args: tuple[Any, ...],
         kwargs: dict[str, Any],
-    ) -> CircuitBreaker:
+    ) -> str:
         if callable(circuit_id):
             resolved_id = circuit_id(*args, **kwargs)
         elif isinstance(circuit_id, str):
@@ -705,16 +711,17 @@ def with_circuit_breaker(
         else:
             resolved_id = _default_circuit_id(func, args, kwargs)
 
-        return breakers.get_or_create(
-            resolved_id,
-            lambda: CircuitBreaker(circuit_id=resolved_id, config=config),
-        )
+        return resolved_id
 
     def decorator(func: Callable[..., Awaitable[T]]) -> Callable[..., Awaitable[T]]:
         @wraps(func)
         async def wrapper(*args: object, **kwargs: object) -> T:
-            breaker = _resolve_breaker(func, args, kwargs)
-            return await breaker.execute(func, *args, **kwargs)
+            resolved_id = _resolve_breaker_id(func, args, kwargs)
+            with breakers.lease(
+                resolved_id,
+                lambda: CircuitBreaker(circuit_id=resolved_id, config=config),
+            ) as breaker:
+                return await breaker.execute(func, *args, **kwargs)
 
         wrapper._circuit_breakers = breakers  # type: ignore[attr-defined]
         return wrapper

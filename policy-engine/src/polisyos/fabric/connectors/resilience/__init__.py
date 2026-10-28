@@ -7,7 +7,6 @@ external API calls from transient failures, cascade failures, and overload.
 
 from __future__ import annotations
 
-import threading
 from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass
 from functools import wraps
@@ -35,6 +34,8 @@ from .rate_limiter import (
     AdaptiveRateLimiter,
     RateLimiter,
     RateLimiterConfig,
+    _call_with_limiter,
+    _limiter_key,
     with_rate_limit,
 )
 from .retry import (
@@ -132,7 +133,7 @@ def resolve_resilience_config(
 
     retry_spec = raw.get("retry_policy") or raw.get("retry")
     circuit_spec = raw.get("circuit_breaker") or raw.get("circuit")
-    rate_limit_rps = raw.get("rate_limit_rps") or raw.get("rate_limit")
+    rate_limit_rps = raw.get("rate_limit_rps") if "rate_limit_rps" in raw else raw.get("rate_limit")
     adaptive = bool(raw.get("adaptive_rate_limit") or raw.get("adaptive"))
     inherit_connection = bool(
         raw.get("inherit_connection_config") or raw.get("use_connection_config")
@@ -230,7 +231,6 @@ def apply_resilience[T](
 
     circuit_breakers = BoundedResourceRegistry[CircuitBreaker]()
     rate_limiters = BoundedResourceRegistry[RateLimiter]()
-    registry_lock = threading.Lock()
 
     @wraps(func)
     async def wrapper(*args: object, **kwargs: object) -> T:
@@ -264,48 +264,28 @@ def apply_resilience[T](
                         base_delay=base_delay or 1.0,
                     )
 
-        def _get_breaker() -> CircuitBreaker | None:
-            if breaker_config is None:
-                return None
-            if isinstance(breaker_config, CircuitBreaker):
-                return breaker_config
-            from .circuit_breaker import _default_circuit_id
-
-            breaker_id = _default_circuit_id(func, args, kwargs)
-            with registry_lock:
-                return circuit_breakers.get_or_create(
-                    breaker_id,
-                    lambda: CircuitBreaker(circuit_id=breaker_id, config=breaker_config),
-                )
-
-        def _get_limiter() -> RateLimiter | None:
-            if rate_limit_rps is None:
-                return None
-            limiter_id = _default_rate_limiter_id(func, args, kwargs)
-            # Different rate limits get separate limiters
-            limiter_key = f"{limiter_id}:{rate_limit_rps}"
-            with registry_lock:
-                return rate_limiters.get_or_create(
-                    limiter_key,
-                    lambda: (
-                        AdaptiveRateLimiter(
-                            initial_rate_rps=rate_limit_rps,
-                            config=RateLimiterConfig(rate_limit_rps=rate_limit_rps),
-                            limiter_id=limiter_id,
-                        )
-                        if adaptive
-                        else RateLimiter(
-                            rate_limit_rps=rate_limit_rps,
-                            limiter_id=limiter_id,
-                        )
-                    ),
-                )
-
         async def _rate_limited_call(*call_args: object, **call_kwargs: object) -> T:
-            limiter = _get_limiter()
-            if limiter is not None:
-                await limiter.acquire()
-            return await func(*call_args, **call_kwargs)
+            if rate_limit_rps is None:
+                return await func(*call_args, **call_kwargs)
+            limiter_id = _default_rate_limiter_id(func, args, kwargs)
+            # Different rate limits retain the existing separate-config identity.
+            limiter_key = _limiter_key(limiter_id, rate_limit_rps)
+            with rate_limiters.lease(
+                limiter_key,
+                lambda: (
+                    AdaptiveRateLimiter(
+                        initial_rate_rps=rate_limit_rps,
+                        config=RateLimiterConfig(rate_limit_rps=rate_limit_rps),
+                        limiter_id=limiter_id,
+                    )
+                    if adaptive
+                    else RateLimiter(
+                        rate_limit_rps=rate_limit_rps,
+                        limiter_id=limiter_id,
+                    )
+                ),
+            ) as limiter:
+                return await _call_with_limiter(limiter, func, *call_args, **call_kwargs)
 
         async def _retry_call(*call_args: object, **call_kwargs: object) -> T:
             if retry_policy is None:
@@ -342,14 +322,18 @@ def apply_resilience[T](
             )
 
         async def _circuit_call(*call_args: object, **call_kwargs: object) -> T:
-            breaker = _get_breaker()
-            if breaker is None:
+            if breaker_config is None:
                 return await _retry_call(*call_args, **call_kwargs)
-            return await breaker.execute(
-                _retry_call,
-                *call_args,
-                **call_kwargs,
-            )
+            if isinstance(breaker_config, CircuitBreaker):
+                return await breaker_config.execute(_retry_call, *call_args, **call_kwargs)
+            from .circuit_breaker import _default_circuit_id
+
+            breaker_id = _default_circuit_id(func, args, kwargs)
+            with circuit_breakers.lease(
+                breaker_id,
+                lambda: CircuitBreaker(circuit_id=breaker_id, config=breaker_config),
+            ) as breaker:
+                return await breaker.execute(_retry_call, *call_args, **call_kwargs)
 
         if resolved.fallback_chain is not None:
             # Configuration stores heterogeneous strategies; bind the resolved chain to this

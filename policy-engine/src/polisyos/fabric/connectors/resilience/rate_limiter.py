@@ -11,6 +11,7 @@ Implements adaptive rate limiting with:
 from __future__ import annotations
 
 import asyncio
+import math
 import threading
 import time
 from dataclasses import dataclass
@@ -26,7 +27,9 @@ from polisyos.core.observability import get_metrics
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.connectors.resilience._bounded_registry import (
     BoundedResourceRegistry,
+    _invalid_rate_refusal,
 )
+from polisyos.fabric.connectors.types.connector_types import RateLimitError
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
@@ -46,6 +49,27 @@ def _default_metrics() -> MetricsRegistry:
 
 def _monotonic() -> float:
     return time.monotonic()
+
+
+def _validate_positive_finite(value: float, field: str) -> None:
+    """Reject a nonpositive, nonfinite, or nonnumeric local rate parameter."""
+    try:
+        valid = math.isfinite(value) and value > 0
+    except (TypeError, OverflowError) as error:
+        raise _invalid_rate_refusal(f"{field} must be finite and > 0") from error
+    if not valid:
+        raise _invalid_rate_refusal(f"{field} must be finite and > 0")
+
+
+def _validate_rate_limit_rps(rate_limit_rps: float) -> None:
+    """Reject a nonpositive or nonfinite configured rate."""
+    _validate_positive_finite(rate_limit_rps, "rate_limit_rps")
+
+
+def _limiter_key(limiter_id: str, rate_limit_rps: float) -> str:
+    """Use one key for numerically identical configured rates."""
+    _validate_rate_limit_rps(rate_limit_rps)
+    return f"{limiter_id}:{float(rate_limit_rps).hex()}"
 
 
 @dataclass
@@ -69,8 +93,7 @@ class RateLimiterConfig:
 
     def __post_init__(self) -> None:
         """Validate and set defaults."""
-        if self.rate_limit_rps <= 0:
-            raise ValueError("rate_limit_rps must be > 0")
+        _validate_rate_limit_rps(self.rate_limit_rps)
 
         if self.burst_size is None:
             self.burst_size = max(1.0, self.rate_limit_rps)
@@ -81,12 +104,11 @@ class RateLimiterConfig:
         if self.max_rate_rps is None:
             self.max_rate_rps = self.rate_limit_rps
 
-        if self.burst_size <= 0:
-            raise ValueError("burst_size must be > 0")
-        if self.min_rate_rps <= 0:
-            raise ValueError("min_rate_rps must be > 0")
+        _validate_positive_finite(self.burst_size, "burst_size")
+        _validate_positive_finite(self.min_rate_rps, "min_rate_rps")
+        _validate_positive_finite(self.max_rate_rps, "max_rate_rps")
         if self.max_rate_rps < self.min_rate_rps:
-            raise ValueError("max_rate_rps must be >= min_rate_rps")
+            raise _invalid_rate_refusal("max_rate_rps must be >= min_rate_rps")
 
 
 class RateLimiter:
@@ -105,6 +127,9 @@ class RateLimiter:
         metrics: MetricsRegistry | None = None,
         tracer: Tracer | None = None,
     ) -> None:
+        _validate_rate_limit_rps(rate_limit_rps)
+        if burst_size is not None:
+            _validate_positive_finite(burst_size, "burst_size")
         self.rate_limit_rps = rate_limit_rps
         self.burst_size = max(1.0, rate_limit_rps) if burst_size is None else burst_size
         self.limiter_id = limiter_id
@@ -158,7 +183,11 @@ class RateLimiter:
         self._last_refill = now
 
     def _set_blocked_until(self, retry_after_seconds: float | None) -> None:
-        if retry_after_seconds is None or retry_after_seconds <= 0:
+        if retry_after_seconds is None:
+            return
+        if not math.isfinite(retry_after_seconds):
+            raise ValueError("retry_after_seconds must be finite")
+        if retry_after_seconds <= 0:
             return
         with self._lock:
             now = _monotonic()
@@ -186,10 +215,9 @@ class RateLimiter:
 
     async def acquire(self, tokens: float = 1.0) -> None:
         """Acquire tokens, waiting if necessary."""
-        if tokens <= 0:
-            raise ValueError("tokens must be > 0")
+        _validate_positive_finite(tokens, "tokens")
         if tokens > self.burst_size:
-            raise ValueError("tokens must be <= burst_size")
+            raise _invalid_rate_refusal("tokens must be <= burst_size")
 
         with self._tracer.start_as_current_span(
             FABRIC_TRACE_NAMES["rate_limit_acquire"],
@@ -353,8 +381,7 @@ class AdaptiveRateLimiter(RateLimiter):
             return self.rate_limit_rps == self.config.rate_limit_rps and self._success_count == 0
 
     def adjust_rate(self, new_rate: float) -> None:
-        if new_rate <= 0:
-            raise ValueError("new_rate must be > 0")
+        _validate_positive_finite(new_rate, "new_rate")
 
         min_rate = self.config.min_rate_rps or (self.config.rate_limit_rps / 10.0)
         max_rate = self.config.max_rate_rps or self.config.rate_limit_rps
@@ -383,7 +410,17 @@ class AdaptiveRateLimiter(RateLimiter):
             self._success_count += 1
             if self._success_count >= self._success_window:
                 self._success_count = 0
-                new_rate = self._current_rate * (1 + self._increase_step)
+                maximum = self.config.max_rate_rps
+                if maximum is None:
+                    raise _invalid_rate_refusal("max_rate_rps must be finite and > 0")
+                _validate_positive_finite(maximum, "max_rate_rps")
+                _validate_positive_finite(self._current_rate, "current_rate")
+                factor = 1.0 + self._increase_step
+                new_rate = (
+                    maximum
+                    if self._current_rate >= maximum / factor
+                    else self._current_rate * factor
+                )
 
         if new_rate is not None:
             self.adjust_rate(new_rate)
@@ -396,7 +433,12 @@ class AdaptiveRateLimiter(RateLimiter):
         new_rate: float | None = None
         with self._lock:
             self._success_count = 0
-            new_rate = self._current_rate * self._decrease_factor
+            minimum = self.config.min_rate_rps
+            if minimum is None:
+                raise _invalid_rate_refusal("min_rate_rps must be finite and > 0")
+            _validate_positive_finite(minimum, "min_rate_rps")
+            _validate_positive_finite(self._current_rate, "current_rate")
+            new_rate = max(minimum, self._current_rate * self._decrease_factor)
 
         if new_rate is not None:
             logger.warning(
@@ -411,13 +453,26 @@ class AdaptiveRateLimiter(RateLimiter):
         super().record_rate_limit(retry_after_seconds)
 
 
+async def _call_with_limiter[T](
+    limiter: RateLimiter,
+    func: Callable[..., Awaitable[T]],
+    *args: object,
+    **kwargs: object,
+) -> T:
+    """Apply admission and propagate typed provider cooldown to the same owner."""
+    await limiter.acquire()
+    try:
+        return await func(*args, **kwargs)
+    except RateLimitError as error:
+        limiter.record_rate_limit(error.retry_after)
+        raise
+
+
 def with_rate_limit(
-    rate_limit_rps: float,
+    rate_limit_rps: float | Callable[..., float | None],
     adaptive: bool = False,
 ) -> Callable[[Callable[..., Awaitable[T]]], Callable[..., Awaitable[T]]]:
-    """
-    Decorator to add rate limiting to async functions.
-    """
+    """Add rate limiting; a callable may resolve a per-call rate or explicit None."""
 
     def decorator(func: Callable[..., Awaitable[T]]) -> Callable[..., Awaitable[T]]:
         limiters = BoundedResourceRegistry[RateLimiter]()
@@ -462,26 +517,28 @@ def with_rate_limit(
                 return f"{base}:{domain}"
             return base
 
-        def _get_limiter(args: tuple[Any, ...], kwargs: dict[str, Any]) -> RateLimiter:
+        @wraps(func)
+        async def wrapper(*args: object, **kwargs: object) -> T:
+            rate = rate_limit_rps(*args, **kwargs) if callable(rate_limit_rps) else rate_limit_rps
+            if rate is None:
+                return await func(*args, **kwargs)
+            _validate_rate_limit_rps(rate)
             limiter_id = _default_limiter_id(args, kwargs)
-            return limiters.get_or_create(
-                limiter_id,
+            # Match apply_resilience's separation of differently configured rates.
+            limiter_key = _limiter_key(limiter_id, rate)
+            with limiters.lease(
+                limiter_key,
                 lambda: (
                     AdaptiveRateLimiter(
-                        initial_rate_rps=rate_limit_rps,
-                        config=RateLimiterConfig(rate_limit_rps=rate_limit_rps),
+                        initial_rate_rps=rate,
+                        config=RateLimiterConfig(rate_limit_rps=rate),
                         limiter_id=limiter_id,
                     )
                     if adaptive
-                    else RateLimiter(rate_limit_rps=rate_limit_rps, limiter_id=limiter_id)
+                    else RateLimiter(rate_limit_rps=rate, limiter_id=limiter_id)
                 ),
-            )
-
-        @wraps(func)
-        async def wrapper(*args: object, **kwargs: object) -> T:
-            limiter = _get_limiter(args, kwargs)
-            await limiter.acquire()
-            return await func(*args, **kwargs)
+            ) as limiter:
+                return await _call_with_limiter(limiter, func, *args, **kwargs)
 
         wrapper._rate_limiters = limiters  # type: ignore[attr-defined]
         return wrapper

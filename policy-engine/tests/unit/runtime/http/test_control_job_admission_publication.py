@@ -197,8 +197,24 @@ def test_prepared_values_publish_atomically_with_actual_event_time_and_fresh_rea
         )
         assert source.job_id == result.job_id and source.event_id > 0
         assert source.payload_sha256 == basis.source_payload_sha256
+        # A phase event carries the precise source time. The diagnostic row's
+        # recording time is a distinct, whole-second Store value, not a clock
+        # ordering assertion against the source's microsecond timestamp.
         assert diagnostic.event.event_time == source.created_at
-        assert diagnostic.created_at >= source.created_at
+        persisted = reader._fetchone(  # noqa: SLF001
+            "SELECT created_at FROM control_diagnostic_events WHERE row_id = ? AND event_id = ?",
+            (diagnostic.row_id, diagnostic.event.event_id),
+        )
+        assert persisted is not None
+        stored_time = persisted["created_at"]
+        persisted_time = (
+            stored_time
+            if isinstance(stored_time, datetime)
+            else datetime.fromisoformat(stored_time)
+        )
+        assert persisted_time.tzinfo is not None
+        assert diagnostic.created_at == persisted_time.astimezone(UTC)
+        assert diagnostic.created_at.microsecond == 0
         assert payload["control_job_execution_binding"]["prepared_at"]
         assert "source_event_created_at" not in payload["control_job_execution_binding"]
         if initial_state == "pending":
@@ -421,7 +437,7 @@ async def test_fast_worker_or_cancellation_cannot_be_overwritten_by_late_admissi
     admin = ControlPlaneStore(backend="sqlite", sqlite_path=raw._sqlite_path)  # noqa: SLF001
     create = raw.create_job
     before_claim: list[dict[str, Any]] = []
-    terminal_progress: list[dict[str, Any]] = []
+    advanced_progress: list[dict[str, Any]] = []
     claims = _fixture_claims().model_copy(update={"tenant_id": "tenant-b", "cell_id": "cell-b"})
 
     def handle(job: ControlJobRecord) -> None:
@@ -451,7 +467,7 @@ async def test_fast_worker_or_cancellation_cannot_be_overwritten_by_late_admissi
             store.update_progress_state(job_id=job.job_id, state="running", progress=progress)
         advanced = admin.get_job(job.job_id)
         assert advanced is not None
-        terminal_progress.append(advanced.progress)
+        advanced_progress.append(advanced.progress)
 
     def create_then_dispatch(**kwargs: Any) -> ControlJobRecord:
         record = create(**kwargs)
@@ -474,10 +490,20 @@ async def test_fast_worker_or_cancellation_cannot_be_overwritten_by_late_admissi
         )
         current = admin.get_job(launched.job_id)
         assert current is not None and current.state == worker_state
-        assert len(before_claim) == len(terminal_progress) == 1
+        assert len(before_claim) == len(advanced_progress) == 1
         assert len(before_claim[0]["diagnostic_event_ids"]) == 3
-        assert current.progress == terminal_progress[0]
-        assert current.progress["state"] == worker_state
+        # Compare the full durable owner result before enqueue resumes; generic
+        # worker progress does not become the cancellation authority band.
+        assert current.progress == advanced_progress[0]
+        if worker_state == "cancelled":
+            verified = admin.get_cancelled_job_verified_record(launched.job_id)
+            assert verified.state == "cancelled"
+            assert verified.progress == advanced_progress[0]
+            assert current.progress["state"] == before_claim[0]["state"]
+            assert current.progress["cancellation"]["disposition"] == "publication_fenced"
+            assert current.progress["cancellation"]["physical_stop_status"] == "not_established"
+        else:
+            assert current.progress["state"] == worker_state
         admission_ids = set(before_claim[0]["diagnostic_event_ids"])
         diagnostics = store.list_diagnostic_events(job_id=launched.job_id)
         assert admission_ids.issubset({event.event.event_id for event in diagnostics})
@@ -486,7 +512,12 @@ async def test_fast_worker_or_cancellation_cannot_be_overwritten_by_late_admissi
             for event in diagnostics
             if event.event.event_id in admission_ids
         )
-        assert service.get_job_status(launched.job_id).state == worker_state
+        response = service.get_job_status(launched.job_id)
+        assert response.state == response.execution_status == worker_state
+        if worker_state == "cancelled":
+            assert response.progress == advanced_progress[0]
+            assert response.cancellation_disposition == "publication_fenced"
+            assert response.physical_stop_status == "not_established"
         if worker_state != "running":
             with pytest.raises(ControlJobLeaseLostError):
                 store.update_progress_state(

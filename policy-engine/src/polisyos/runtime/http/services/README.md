@@ -77,11 +77,21 @@ policy/legal admissibility require their independent owners and remain limited u
   `prepared_at`, diagnostic `event_time` and the diagnostic/source row `created_at` retain
   separate roles: a job phase transition receives the actual recorded creation-event time,
   while its prepared CAS body is unchanged. Payload/CAS-write observations retain their own
-  occurrence time; row `created_at` is recorded during actual SQL publication.
+  occurrence time; row `created_at` is recorded during actual SQL publication at
+  the Store's existing whole-second UTC precision. That row time is not a total
+  ordering against a source event's more precise timestamp. Readers preserve the
+  actual stored value and keep the phase event's exact source time separately.
   The generic top-level `attempt` remains the control-worker lease attempt; evaluation-step
   attempts stay in their own nested rows. Dev diagnostic preparation stays best effort with
   an explicit initial limitation and only real diagnostic IDs; serious-profile failure refuses
   before job publication. A rolled-back SQL publication may leave unreferenced CAS candidates.
+- **Control-job cancellation projection** - durable job `state` and response
+  `execution_status` carry the cancellation disposition. The existing owner
+  preserves the last worker progress and adds its verified `cancellation` record;
+  a generic `progress.state` can retain the earlier pending/running observation.
+  The job-status reader reconciles the cancelled row, source event and outbox
+  and exposes `publication_fenced` with `physical_stop_status=not_established`.
+  Generic progress does not establish current job authority or physical termination.
 - **Guarded confidence risk spend** - resolves the governed N11 source through
   its real isolated owner validator, preserves source/dependency/registry and
   semantic identities, and composes the strict reviewer-only four-arm packet.

@@ -62,3 +62,8 @@ Latest execution checkpoint proposal: [R15 current progress and evidence](eviden
 
 
 R15 R2 refines the evidence economy and source-status notes under the exact successor manifest `LOCAL/raw/e02-execution-20261027/docs-progress-r15/r2/manifest.json`; R15 R1 remains immutable.
+
+
+Latest execution checkpoint proposal: [R16 current progress and evidence](evidence/local-execution-r16/README.md). R16 is an as-of current-source snapshot, preserves the original queue, and distinguishes the bounded Core pass, the separate consumer failure, the earlier qualified F16 slice, and partial Cloud returns. It does not claim G acceptance or closure.
+
+R16 R2 independently reviewed corrections: [R16 evidence index](evidence/local-execution-r16/README.md). This successor fixes two evidence bindings, records the qualified bounded C78 results and their remaining response-chain HOLD, and adds the current-author checkpoint and pending C123 launch without changing earlier source cuts. R16 R1 remains immutable.

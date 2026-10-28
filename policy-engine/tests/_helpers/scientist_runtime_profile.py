@@ -11,8 +11,245 @@ import os
 import platform
 import sys
 import traceback
+from importlib.machinery import EXTENSION_SUFFIXES, ModuleSpec
 from pathlib import Path
 from typing import Any
+
+
+def _classify_origin_candidate(
+    field: str, value: object, *, project_roots: tuple[Path, ...]
+) -> dict[str, Any]:
+    """Retain lexical claims and failed resolutions before any fallback choice."""
+    row: dict[str, Any] = {
+        "field": field,
+        "raw": value if isinstance(value, str) else None,
+        "value_type": type(value).__name__,
+        "is_absolute": False,
+        "lexical_project_claim": False,
+        "resolved_project_scope": False,
+    }
+    if value is None:
+        return {**row, "status": "absent"}
+    if not isinstance(value, str) or not value or not Path(value).is_absolute():
+        return {**row, "status": "not_established", "reason": "relative_virtual_or_opaque"}
+    lexical = Path(os.path.normpath(value))
+    row.update(
+        is_absolute=True,
+        lexical_path=str(lexical),
+        lexical_project_claim=any(
+            Path(value).is_relative_to(bound) or lexical.is_relative_to(bound)
+            for bound in project_roots
+        ),
+    )
+    try:
+        # Lexical annotation must never rewrite the physical operand: symlink/..
+        # semantics belong to the filesystem, not normpath.
+        resolved = Path(value).resolve(strict=True)
+        if not resolved.is_file():
+            return {**row, "status": "not_established", "reason": "not_regular_file"}
+    except (OSError, RuntimeError, ValueError) as exc:
+        return {
+            **row,
+            "status": "not_established",
+            "reason": "absolute_origin_resolution_failed",
+            "error_type": type(exc).__name__,
+        }
+    return {
+        **row,
+        "status": "established",
+        "resolved_path": str(resolved),
+        "resolved_project_scope": any(resolved.is_relative_to(bound) for bound in project_roots),
+    }
+
+
+def collect_loaded_module_sources(
+    modules: dict[str, object],
+    *,
+    repo_root: Path,
+    product_roots: tuple[Path, ...] | None = None,
+) -> dict[str, Any]:
+    """Resolve all origin claims, fail required scope, then select physical source."""
+    root = repo_root.resolve(strict=True)
+    project_roots = tuple(root / "policy-engine" / name for name in ("src", "tests", "tools"))
+    configured_roots = (
+        product_roots if product_roots is not None else (root / "policy-engine/src/polisyos",)
+    )
+    admitted = []
+    for path in configured_roots:
+        if not path.is_absolute():
+            raise ValueError("admitted_product_root_must_be_absolute")
+        resolved = path.resolve(strict=True)
+        if not resolved.is_dir():
+            raise ValueError("admitted_product_root_must_be_directory")
+        admitted.append(resolved)
+    admitted_product_roots = tuple(admitted)
+    loaded = []
+    product_errors = []
+    project_errors = []
+    unresolved_external = []
+    product_namespaces = []
+    product_other_files = []
+    external_files = 0
+    for name, module in sorted(modules.items()):
+        is_product = name == "polisyos" or name.startswith("polisyos.")
+        metadata_errors = []
+
+        def attribute(
+            owner: object, field: str, errors: list[dict[str, str]] = metadata_errors
+        ) -> object:
+            try:
+                return getattr(owner, field, None)
+            except Exception as exc:  # Importer hooks are not trusted origin evidence.
+                errors.append({"field": field, "error_type": type(exc).__name__})
+                return None
+
+        filename = attribute(module, "__file__")
+        spec = attribute(module, "__spec__")
+        if spec is not None and not isinstance(spec, ModuleSpec):
+            metadata_errors.append({"field": "__spec__", "error_type": "UnsupportedModuleSpec"})
+        spec_origin = attribute(spec, "origin")
+        locations = attribute(spec, "submodule_search_locations")
+        candidates = [
+            _classify_origin_candidate(
+                "module_spec_origin", spec_origin, project_roots=project_roots
+            ),
+            _classify_origin_candidate("absolute_file", filename, project_roots=project_roots),
+        ]
+        metadata = {
+            "module": name,
+            "spec_origin": spec_origin if isinstance(spec_origin, str) else None,
+            "raw_file": filename if isinstance(filename, str) else None,
+            "origin_candidates": candidates,
+            "metadata_errors": metadata_errors,
+        }
+        required_project = any(
+            row["lexical_project_claim"] or row["resolved_project_scope"] for row in candidates
+        )
+        failed_project_claim = any(
+            row["lexical_project_claim"]
+            and (row["status"] != "established" or not row["resolved_project_scope"])
+            for row in candidates
+        )
+        if metadata_errors or (not is_product and failed_project_claim):
+            errors = (
+                product_errors
+                if is_product
+                else project_errors
+                if required_project
+                else unresolved_external
+            )
+            errors.append(
+                {
+                    **metadata,
+                    "status": "not_established",
+                    "reason": "required_project_or_module_metadata_unresolved",
+                }
+            )
+            continue
+        if is_product and spec_origin is None and filename is None and locations is not None:
+            try:
+                paths = [Path(value) for value in locations]
+                if not paths or not all(path.is_absolute() for path in paths):
+                    raise ValueError("namespace_paths_not_absolute")
+                paths = [path.resolve(strict=True) for path in paths]
+                if not all(path.is_dir() for path in paths):
+                    raise ValueError("namespace_paths_not_directories")
+                if not all(
+                    any(path.is_relative_to(bound) for bound in admitted_product_roots)
+                    for path in paths
+                ):
+                    raise ValueError("namespace_paths_outside_bound")
+            except (OSError, RuntimeError, TypeError, ValueError):
+                product_errors.append(
+                    {**metadata, "status": "not_established", "reason": "product_namespace_unbound"}
+                )
+            else:
+                product_namespaces.append(
+                    {
+                        **metadata,
+                        "status": "bounded_namespace",
+                        "search_roots": list(map(str, paths)),
+                    }
+                )
+            continue
+        established = [row for row in candidates if row["status"] == "established"]
+        # Every present product claim must resolve consistently inside the
+        # admitted installation. A second readable origin cannot erase failure.
+        failed_product_claim = any(
+            row["status"] == "not_established"
+            or (
+                row["status"] == "established"
+                and not any(
+                    Path(row["resolved_path"]).is_relative_to(bound)
+                    for bound in admitted_product_roots
+                )
+            )
+            for row in candidates
+        )
+        if is_product and (
+            failed_product_claim or len({row["resolved_path"] for row in established}) > 1
+        ):
+            product_errors.append(
+                {
+                    **metadata,
+                    "status": "not_established",
+                    "reason": "product_origin_claim_invalid",
+                }
+            )
+            continue
+        if not established:
+            row = {**metadata, "status": "not_established", "reason": "no_real_absolute_origin"}
+            (product_errors if is_product else unresolved_external).append(row)
+            continue
+        selected = established[0]  # Spec precedence applies only after all required claims pass.
+        path = Path(selected["resolved_path"])
+        if not is_product and any(row["status"] == "not_established" for row in candidates):
+            unresolved_external.append(
+                {**metadata, "status": "not_established", "reason": "alternative_origin_unresolved"}
+            )
+        if not is_product and not any(path.is_relative_to(bound) for bound in project_roots):
+            external_files += 1
+            continue
+        if (
+            is_product
+            and path.suffix != ".py"
+            and not any(str(path).endswith(suffix) for suffix in EXTENSION_SUFFIXES)
+        ):
+            product_errors.append(
+                {**metadata, "status": "not_established", "reason": "product_origin_kind_unknown"}
+            )
+            continue
+        try:
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        except OSError as exc:
+            (product_errors if is_product else project_errors).append(
+                {
+                    **metadata,
+                    "status": "not_established",
+                    "reason": "selected_source_bytes_unreadable",
+                    "selected_path": str(path),
+                    "error_type": type(exc).__name__,
+                }
+            )
+            continue
+        row = {**metadata, "path": str(path), "sha256": digest, "origin_basis": selected["field"]}
+        if path.suffix == ".py":
+            loaded.append(row)
+        elif is_product:
+            product_other_files.append(row)
+        else:
+            external_files += 1
+    return {
+        "loaded_project_python": loaded,
+        "product_source_origin_errors": product_errors,
+        "project_source_origin_errors": project_errors,
+        "not_established_nonproduct_origins": unresolved_external,
+        "bounded_product_namespaces": product_namespaces,
+        "loaded_non_python_product_origins": product_other_files,
+        "external_regular_file_module_count": external_files,
+        "enumerated_module_count": len(modules),
+        "admitted_product_roots": list(map(str, admitted_product_roots)),
+    }
 
 
 def main() -> int:
@@ -104,38 +341,29 @@ def main() -> int:
     stage("builtin_node_discovery", discover)
     stage("sklearn_native_call", native_sklearn)
     stage("numpy_registered_method_call", numpy_method)
-    loaded = []
-    origin_errors = []
-    selected_source_root = root / "policy-engine" / "src"
-    for name, module in sorted(sys.modules.copy().items()):
-        filename = getattr(module, "__file__", None)
-        if not filename:
-            continue
-        path = Path(filename).resolve()
-        is_product = name == "polisyos" or name.startswith("polisyos.")
-        if path.suffix != ".py" or not (is_product or path.is_relative_to(root)):
-            continue
-        if is_product and not path.is_relative_to(selected_source_root):
-            origin_errors.append({"module": name, "actual_path": str(path)})
-        loaded.append(
-            {
-                "module": name,
-                "path": str(path),
-                "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
-            }
-        )
+    origins = collect_loaded_module_sources(sys.modules.copy(), repo_root=root)
+    origin_errors = [
+        *origins["product_source_origin_errors"],
+        *origins["project_source_origin_errors"],
+    ]
     receipt = {
         "entry": entry,
         "stages": stages,
-        "loaded_project_python": loaded,
-        "product_source_origin_errors": origin_errors,
+        **origins,
         "scope": "Finite still-loaded Python set; no transient/native/data/process-tree tracing claim.",
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(receipt, indent=2) + "\n")
     if origin_errors:
         print(
-            json.dumps({"product_source_origin_errors": origin_errors}), file=sys.stderr, flush=True
+            json.dumps(
+                {
+                    "product_source_origin_errors": origins["product_source_origin_errors"],
+                    "project_source_origin_errors": origins["project_source_origin_errors"],
+                }
+            ),
+            file=sys.stderr,
+            flush=True,
         )
     return 0 if not origin_errors and all(row["status"] == "PASS" for row in stages) else 1
 

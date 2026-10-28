@@ -93,3 +93,24 @@ inventory from the actual selected graph and ExecPlan, retaining operator rows,
 then joins the method by the current observation's occurrence ID. Both Runtime
 A/A and A/B use it. The profile diagnostic retains every loaded polisyos Python
 origin and refuses an import outside the selected checkout source root.
+
+The profile collector prefers a real absolute `ModuleSpec.origin`, with a real
+absolute `__file__` fallback. It never resolves relative/virtual filenames against
+the current directory. Unresolved nonproduct origins are named `not_established`;
+required product origins fail closed when missing, conflicting, foreign, opaque
+or unsupported. Product namespace search paths and optional installed product
+roots are physically bounded by the caller's explicit roots; the CLI retains its
+checkout-only default. Declared first-party Python bytes remain hashed, and
+external regular-file modules are outside that source-file scope. Focused origin
+classification tests live in `tests/unit/helpers/test_scientist_runtime_profile.py`.
+
+All raw spec/file candidates retain lexical project claims and resolution failures
+before precedence. Failed required absolute product or src/tests/tools claims
+cannot be hidden by a second readable fallback. Relative/virtual external origins
+remain named uncertainty. This physical-origin collector does not attest hostile
+same-process loader/code-object behavior; the external source/call observer stays
+necessary.
+
+Lexical normalization is only a claimed-scope annotation. Physical resolution
+always receives the original absolute operand, preserving filesystem symlink/..
+semantics and preventing a local decoy from substituting for an outside origin.

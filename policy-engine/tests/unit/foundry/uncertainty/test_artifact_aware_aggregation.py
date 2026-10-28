@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from statistics import NormalDist
 from typing import TYPE_CHECKING
 
 import pytest
@@ -20,6 +21,7 @@ from polisyos.ir.analytics.uncertainty import (
     IntervalSemantics,
     NumericPolicySpec,
     NumericToleranceMode,
+    ParametricFitCarrier,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
@@ -122,6 +124,38 @@ def _memory_envelope(
     )
 
 
+def _scalar_normal_std_one(*, metadata: dict[str, object] | None = None) -> UncertaintyEnvelope:
+    """Build a numerical fixture, without establishing any information relation."""
+    z_value = NormalDist().inv_cdf(0.975)
+    return UncertaintyEnvelope(
+        point_estimate=10.0,
+        confidence_interval=(10.0 - z_value, 10.0 + z_value),
+        confidence_level=0.95,
+        distribution_family=DistributionFamily.NORMAL,
+        distribution_payload=ParametricFitCarrier(
+            family=DistributionFamily.NORMAL,
+            parameters={"mean": 10.0, "std": 1.0},
+        ),
+        source=UncertaintySource.CALIBRATION,
+        propagation_method=PropagationMethod.ANALYTICAL,
+        interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
+        gate_eligible=True,
+        metadata={"unit": "index_points", **(metadata or {})},
+    )
+
+
+def _assert_scalar_unit_width(envelope: UncertaintyEnvelope) -> None:
+    """Compare scalar bounds with the analytic fixture, independently of Foundry scale helpers."""
+    z_value = NormalDist().inv_cdf(0.975)
+    lower, upper = envelope.confidence_interval
+    # This goes first: a four-copy STD=0.5 mutant must fail numerically before any status check.
+    assert (upper - lower) / (2.0 * z_value) == pytest.approx(1.0, rel=0.0, abs=1.0e-12)
+    assert envelope.point_estimate == 10.0
+    assert envelope.confidence_interval == pytest.approx(
+        (10.0 - z_value, 10.0 + z_value), rel=0.0, abs=1.0e-12
+    )
+
+
 def test_in_memory_fake_origin_and_relation_labels_cannot_narrow() -> None:
     left = UncertaintyEnvelope(
         point_estimate=10.0,
@@ -217,21 +251,131 @@ def test_exact_selected_view_repeats_once_with_ordered_fresh_lineage(tmp_path: P
         )
 
 
+@pytest.mark.parametrize("method", ["precision_weighted", "bayesian_combination"])
+@pytest.mark.parametrize("repeat_count", [4, 10])
+def test_repeated_selected_normal_view_preserves_exact_std_and_fresh_counts(
+    tmp_path: Path,
+    method: str,
+    repeat_count: int,
+) -> None:
+    """One selected STD=1 view remains STD=1 through persistence and a fresh consumer."""
+    store = _ir_store(tmp_path)
+    source_artifact = _source_ref(store, "selected-normal-std-one")
+    source = persist_uncertainty_envelope(
+        store,
+        _scalar_normal_std_one(),
+        inputs=[
+            InputRef(
+                artifact_id=source_artifact.artifact_id,
+                role="measurement_source",
+                manifest_profile_sha256=source_artifact.manifest_profile_sha256,
+            )
+        ],
+        return_selected_profile=True,
+    )
+    source_payload = load_uncertainty_envelope(store, source)
+    source_refs = (source,) * repeat_count
+    receipt = persist_aggregated_envelope(store, source_refs, method=method)
+    fresh_store = _ir_store(tmp_path)
+    result = load_aggregated_envelope_fresh(
+        fresh_store, receipt, source_refs=source_refs, method=method
+    )
+
+    _assert_scalar_unit_width(source_payload)
+    _assert_scalar_unit_width(result)
+    assert isinstance(result.distribution_payload, ParametricFitCarrier)
+    assert result.distribution_payload.family is DistributionFamily.NORMAL
+    assert result.distribution_payload.parameters == {"mean": 10.0, "std": 1.0}
+    assert result.distribution_payload == source_payload.distribution_payload
+    assert result.confidence_level == 0.95
+    assert result.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+    # Reuse preserves the fixture's existing flag; it does not prove new source authority.
+    assert result.gate_eligible is source_payload.gate_eligible
+    assert result.metadata["input_envelope_view_count"] == repeat_count
+    assert result.metadata["unique_selected_view_count"] == 1
+    assert result.metadata["repeated_selected_view_count"] == repeat_count - 1
+    assert result.metadata["relation_status"] == "not_established"
+    assert result.metadata["effective_information_count"] is None
+    assert result.metadata["effective_information_count_status"] == "not_established"
+    assert result.sample_size is None
+    expected_input = InputRef(
+        artifact_id=source.artifact_id,
+        role="source_uncertainty_envelope",
+        manifest_profile_sha256=source.manifest_profile_sha256,
+    )
+    actual_inputs = normalize_input_sequence(fresh_store.get_manifest(receipt).inputs)
+    assert actual_inputs == [expected_input] * repeat_count
+
+
+@pytest.mark.parametrize("method", ["precision_weighted", "bayesian_combination"])
+def test_same_source_scalar_views_cannot_gain_precision_from_forged_basis(
+    tmp_path: Path,
+    method: str,
+) -> None:
+    """Different same-shaped scalar views of one held source do not create information."""
+    store = _ir_store(tmp_path)
+    source_artifact = _source_ref(store, "one-shared-measurement-source")
+    source_input = InputRef(
+        artifact_id=source_artifact.artifact_id,
+        role="measurement_source",
+        manifest_profile_sha256=source_artifact.manifest_profile_sha256,
+    )
+    source_refs = tuple(
+        persist_uncertainty_envelope(
+            store,
+            _scalar_normal_std_one(
+                metadata={
+                    "view_revision": revision,
+                    "origin_id": "same-declared-origin",
+                    "independence": True,
+                    "dependency": "independent",
+                    "relation_status": "recomputed",
+                    "effective_information_count": 4,
+                }
+            ),
+            inputs=[source_input],
+            return_selected_profile=True,
+        )
+        for revision in range(4)
+    )
+    assert len({str(ref.artifact_id) for ref in source_refs}) == 4
+    for ref in source_refs:
+        assert normalize_input_sequence(store.get_manifest(ref).inputs) == [source_input]
+        payload = load_uncertainty_envelope(store, ref)
+        _assert_scalar_unit_width(payload)
+        assert isinstance(payload.distribution_payload, ParametricFitCarrier)
+        assert payload.distribution_payload.parameters == {"mean": 10.0, "std": 1.0}
+
+    receipt = persist_aggregated_envelope(store, source_refs, method=method)
+    result = load_aggregated_envelope_fresh(
+        _ir_store(tmp_path), receipt, source_refs=source_refs, method=method
+    )
+
+    # Numeric width is checked before declarations: the original four-copy 0.5 error fails here.
+    _assert_scalar_unit_width(result)
+    assert result.metadata["input_envelope_view_count"] == 4
+    assert result.metadata["unique_selected_view_count"] == 4
+    assert result.metadata["repeated_selected_view_count"] == 0
+    assert result.metadata["relation_status"] == "not_established"
+    assert result.metadata["common_estimand_status"] == "not_established"
+    assert result.metadata["unit_binding_status"] == "not_established"
+    assert result.metadata["effective_information_count"] is None
+    assert result.metadata["effective_information_count_status"] == "not_established"
+    assert result.sample_size is None
+    assert result.confidence_level is None
+    assert result.interval_semantics is IntervalSemantics.DETERMINISTIC_BOUNDS
+    assert result.distribution_family is DistributionFamily.UNKNOWN
+    assert result.distribution_payload is None
+    assert result.gate_eligible is False
+
+
+@pytest.mark.parametrize("method", ["precision_weighted", "bayesian_combination"])
 def test_same_payload_with_distinct_selected_profiles_is_not_deduplicated(
     tmp_path: Path,
+    method: str,
 ) -> None:
     store = _ir_store(tmp_path)
-    envelope = UncertaintyEnvelope(
-        point_estimate=10.0,
-        confidence_interval=(8.04, 11.96),
-        confidence_level=0.95,
-        distribution_family=DistributionFamily.NORMAL,
-        source=UncertaintySource.CALIBRATION,
-        propagation_method=PropagationMethod.ANALYTICAL,
-        interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
-        gate_eligible=True,
-        metadata={"envelope_id": "sha256:" + "c" * 64, "unit": "index_points"},
-    )
+    envelope = _scalar_normal_std_one(metadata={"envelope_id": "sha256:" + "c" * 64})
     source_a = _source_ref(store, "source-a")
     source_b = _source_ref(store, "source-b")
 
@@ -255,22 +399,27 @@ def test_same_payload_with_distinct_selected_profiles_is_not_deduplicated(
     assert left.manifest_profile_sha256 != right.manifest_profile_sha256
     # Marker-preserving control: dedup by content ID alone would return one eligible input.
     assert load_uncertainty_envelope(store, left).metadata["envelope_id"] == "sha256:" + "c" * 64
-    result = aggregate_persisted_envelope_views(
-        store,
-        (left, right),
-        method="precision_weighted",
+    source_refs = (left, right, left, right)
+    receipt = persist_aggregated_envelope(store, source_refs, method=method)
+    result = load_aggregated_envelope_fresh(
+        _ir_store(tmp_path), receipt, source_refs=source_refs, method=method
     )
 
+    # Same scalar carrier/bytes and different selected source profiles are not a relation basis.
+    _assert_scalar_unit_width(result)
+    assert result.metadata["input_envelope_view_count"] == 4
     assert result.metadata["unique_selected_view_count"] == 2
-    assert result.metadata["repeated_selected_view_count"] == 0
+    assert result.metadata["repeated_selected_view_count"] == 2
     assert result.metadata["selected_view_identity_status"] == "recomputed"
     assert result.metadata["relation_status"] == "not_established"
     assert result.metadata["common_estimand_status"] == "not_established"
     assert result.metadata["unit_binding_status"] == "not_established"
     assert result.metadata["effective_information_count"] is None
-    assert result.confidence_interval == (8.04, 11.96)
+    assert result.metadata["effective_information_count_status"] == "not_established"
+    assert result.sample_size is None
     assert result.interval_semantics is IntervalSemantics.DETERMINISTIC_BOUNDS
     assert result.confidence_level is None
+    assert result.distribution_payload is None
     assert result.gate_eligible is False
 
 

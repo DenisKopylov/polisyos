@@ -35,6 +35,7 @@ from polisyos.ir.observation.contracts import (
     ObservationFamily,
     ObservationPanel,
     ObservationRecord,
+    SourceConfidenceTier,
 )
 
 pytestmark = pytest.mark.unit
@@ -54,6 +55,8 @@ def _record(
     schema_regime_id: str = "schema_v1",
     shock_mask: bool = False,
     source_id: str = "source_a",
+    source_confidence_tier: SourceConfidenceTier = SourceConfidenceTier.VALIDATED,
+    unit: str = "share",
 ) -> ObservationRecord:
     """Build one valid record while keeping observation metadata distinctive."""
     return ObservationRecord(
@@ -66,13 +69,14 @@ def _record(
         cell_id="cell_a",
         metric_id="calibration_rate",
         observed_value=observed_value,
-        unit="share",
+        unit=unit,
         coverage_estimate=coverage_estimate,
         measurement_bias_flag=False,
         censoring_mask=censoring_mask,
         trust_weight=trust_weight,
         lag_days_estimate=lag_days_estimate,
         source_id=source_id,
+        source_confidence_tier=source_confidence_tier,
         source_version="v1",
         regime_id="regime_a",
         shock_mask=shock_mask,
@@ -112,8 +116,8 @@ def _config(target: CalibrationTarget, *, steps: int = 3) -> CalibrationConfig:
     return CalibrationConfig(targets=[target], steps=steps)
 
 
-def test_observation_id_renaming_does_not_change_compiled_value() -> None:
-    """Technical lineage IDs must not choose a different same-period value."""
+def test_observation_id_renaming_does_not_resolve_ambiguous_measurements() -> None:
+    """Technical lineage IDs must not choose a same-period measurement."""
 
     def compile_value(first_id: str, second_id: str) -> np.ndarray:
         bundle = _compile(
@@ -135,10 +139,37 @@ def test_observation_id_renaming_does_not_change_compiled_value() -> None:
         )
         return np.asarray(bundle.observed_value[TARGET_ID])
 
-    original = compile_value("obs_a", "obs_b")
-    renamed = compile_value("obs_z", "obs_a")
+    with pytest.raises(ValueError, match=r"Ambiguous observations|aggregation"):
+        compile_value("obs_a", "obs_b")
+    with pytest.raises(ValueError, match=r"Ambiguous observations|aggregation"):
+        compile_value("obs_z", "obs_a")
 
-    npt.assert_array_equal(renamed, original)
+
+@pytest.mark.parametrize("second_unit", ["share", "percent"])
+def test_unequal_quality_conflicts_require_an_explicit_policy(second_unit: str) -> None:
+    """Trust, quality, source, and unit declarations cannot silently drop a row."""
+    with pytest.raises(ValueError, match=r"2 records.*lineage-preserving aggregation"):
+        _compile(
+            [
+                _record(
+                    observation_id="obs_high_quality",
+                    period_start=date(2024, 1, 1),
+                    observed_value=10.0,
+                    trust_weight=0.9,
+                    source_id="source_a",
+                    source_confidence_tier=SourceConfidenceTier.CORE,
+                ),
+                _record(
+                    observation_id="obs_low_quality",
+                    period_start=date(2024, 1, 1),
+                    observed_value=20.0,
+                    trust_weight=0.1,
+                    source_id="source_b",
+                    source_confidence_tier=SourceConfidenceTier.EXPLORATORY,
+                    unit=second_unit,
+                ),
+            ]
+        )
 
 
 def test_conflicting_same_period_sources_fail_closed_before_source_tie_break() -> None:

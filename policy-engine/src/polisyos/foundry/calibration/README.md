@@ -26,6 +26,23 @@ diagnostics into uncertainty envelopes or post-fit evidence.
 - [pure_executor.py](pure_executor.py) for the no-CAS inner-loop execution path
   used by calibration.
 
+`apply_nodes_batch(states, row_times, row_keys, *, bundle)` is the supported
+one-step row-batch bridge. It retains row order and maps each aligned state,
+scalar schedule step, and complete PRNG key through scalar `apply_nodes` with
+`jax.lax.map`; empty rows, inconsistent state leading dimensions, and keys not
+shaped `(rows, 2)` are refused rather than broadcast. Callers own key derivation
+(for independent replayable streams, pass `jax.random.split(seed, rows)`). A
+time value is one row's current step, not a scan start; repeated steps require
+explicit repeated calls. Static selector structure is admitted during
+`compile_program`, while inactive rows do not numerically read selector fields.
+
+This executor API does **not** yet select a Calibrator batch objective profile.
+`CalibratorInputs` and execution-basis schema 1.1 cannot bind row states, times,
+keys, order, and reduction semantics, so scalar calibration remains unchanged.
+Persisting a batch fit requires a reader-first versioned basis extension and a
+real welfare-consumer reconciliation; a digest or reuse of `controls_seq` is
+not a substitute.
+
 - [calibrator.py](calibrator.py) for the optional JAX-backed fit loop.
 - [report.py](report.py) for persisted reports and fit diagnostics.
 - [identifiability.py](identifiability.py) and [hessian.py](hessian.py) for
@@ -225,8 +242,8 @@ fiscal model.
 A persisted Foundry calibration run now writes a typed
 `CalibrationExecutionInputBasis` alongside the v2 report. Its manifest edge binds
 the report to the selected calibration config profile and captures the exact
-selected ProgramGraph, ExecPlan, base StateSnapshot, all 25 declared
-``CalibratorInputs`` fields, six selected runtime-registry members, ordered target
+selected ProgramGraph, ExecPlan, base StateSnapshot, the frozen 25-field scalar
+v1.1 input roster, six selected runtime-registry members, ordered target
 series/time-axis bytes, resolved parameter payload bytes, declared parameter
 spec/unit identities, and report-envelope bytes. The fit and persisted identity
 use separate pre-fit copies, so caller mutation after execution cannot change the
@@ -238,7 +255,7 @@ artifacts. A real compile → execute → calibrate → CAS → fresh-consumer f
 exercises this path, selected parameter/member mutations, and a present-but-falsely
 matched runtime member.
 
-This identity is limited to local content and object consistency. A missing or
+This identity is limited to local content and object consistency. For genuine scalar reports, a missing or
 legacy basis produces the visible `source_execution_not_established` candidate
 limitation; it does not suppress candidate covariance display or make it
 gate-eligible. A present malformed, foreign, or mismatching basis refuses the
@@ -247,3 +264,215 @@ absence. A matched basis still does not establish external source authenticity,
 unit-definition semantics, physical time, split validity, an observation/noise
 law, calibration authority, or production currentness. Historical v1 report
 bytes remain readable and unchanged.
+
+## Ordered-row Calibrator profile
+
+`CalibratorInputs.ordered_batch_profile` selects `ordered_scalar_mse_v1`: unique
+ordered row IDs, full initial states, nonnegative integer scalar schedule steps,
+complete legacy uint32 keys `(rows, 2)`, and finite float32/float64 scalar targets
+and weights with the exact same row count. Typed JAX/NumPy array carriers must
+retain their original dtype under the active JAX precision profile; the constructor
+checks that static condition before an outer JIT can erase an unavailable NumPy
+dtype, and the executable entry repeats carrier/dtype checks. Abstract PyTree
+reconstruction alone is never executable admission. Rows are independent one-step **program
+experiments**, not a cumulative scan or a claim of independent observations. All
+observations are present; a zero weight removes a row from loss/metric support
+without fabricating an observation. Positive effective total support is required.
+
+The actual optimizer, selected report and parameter-connected Hessian use one
+forward through `apply_nodes_batch`/scalar `apply_nodes`. Configured absolute MSE
+retains the existing pointwise epsilon; target priority multiplies the normalized
+row loss outside the reduction. Row weights/support and target priority have an
+explicit float32 effective representation. Original weights must also be finite
+and nonnegative: a tiny original negative cannot become an admitted negative zero.
+Overflow, loss of a positive weight or target priority to effective underflow,
+nonpositive support, and a nonfinite candidate refuse. The reused
+`pointwise_base_loss` always projects predictions and targets to float32 before
+its epsilon-scaled residual calculation, including when the original selected
+arrays are float64. Tiny target/prediction residuals can therefore round to zero;
+the positive-underflow refusal concerns weights/priority, not a new precision law
+for that existing pointwise owner. Integer weights
+are unsupported in this first profile, avoiding integer accumulator wrap. Mutable
+floating output slots share one float32 or float64 precision; trainables inherit
+that precision. No global precision switch is changed. Fit metrics are weighted
+residual MSE/MAE/R2 in original units (`n` counts positive-weight rows), distinct
+from loss epsilon/priority. Both supported metric consumers use that declared scope.
+
+All input **and returned** state leaves must be finite. In particular, optional
+`QueueEventCalendarState.empty()` (+infinite future event times) and
+`FeedbackState.empty()` (+/-infinite bounds) are outside this deliberately finite
+first profile, even if untouched. This is an explicit profile refusal, not a claim
+that those legitimate scalar state types are invalid. Dynamic invalid states,
+targets, predictions, weights, support or arithmetic give `valid=False` and
+`objective=inf` under eager/JIT. The real optimizer/Hessian/report forward consumes
+that validity, including parameter-dependent off-target invalid outputs. Shape,
+key, dtype, scalar-target and unsupported-contract errors raise visibly before fit.
+
+Supplied complete fixed row keys are consumed unchanged. Step-derived keys,
+multi-start, alternate target providers/raw-target overrides, measurement adapters,
+controls, constraints, priors, auxiliary objectives, relative loss, vector or
+aggregated metrics, GradNorm and nondefault alignment are explicitly unsupported
+batch combinations. Configured horizon/time axis must equal the positional rows;
+resampling/reordering refuses before optimization. Ordinary supported scalar
+options remain. The profile/evaluation are JAX PyTrees; a stochastic scalar-row,
+key/permutation oracle and analytic objective gradient/Hessian exercise the actual
+parameter-connected path.
+
+### Selected input and fresh projection
+
+`run_and_persist` publishes `foundry.calibration_ordered_input`, schema
+`polisyos.foundry.CalibrationOrderedBatchInput` **1.0**, before fitting, then
+reopens and consumes exactly that selected full input. Its manifest has one
+selected config and every ordered full StateSnapshot **2.2** edge. The owner checks
+config payload/header version equality, complete unique edges, selected row bytes,
+wrapper schedule step, row values/dtypes, keys, targets, weights and the complete
+profile hash. Returned foreign writer selections refuse before the fit starts.
+Locally materialized snapshots establish local bytes, not external provenance.
+
+Execution basis **1.2** selects that input and binds its content to the 26-field
+runtime roster. Scalar bases **1.0/1.1** retain their existing meaning and the
+public 25-field v1.1 roster. Optional new fields are omitted from old wire bytes.
+A fresh basis reader resolves the selected full input rather than trusting inline
+basis weights or a self-declared digest. Required bytes are read before integrity
+classification: missing/denied selected evidence is `not_established`, while present
+malformed content and known contradictions are `mismatch`. Both remain unqualified. Backend identity records JAX/jaxlib,
+backend name, machine architecture, x64 mode, actual default PRNG implementation
+and Threefry partitionability. Legacy uint32 two-word keys require Threefry2x32;
+other default implementations refuse. The producer and fresh reader use one numeric
+settings owner; a changed split algorithm is profile-unavailable, not a false source
+contradiction. A different/unavailable profile
+returns `not_established`; it does not report a product mismatch or silently cast.
+The initial implementation requires compatible numeric runtimes for a deciding
+replay, not production data or a particular Mac path.
+
+Batch report **2.1** carries typed `CalibrationOrderedBatchReport` objective/input
+scope and selected input identity. Its writer requires exact config/basis edges;
+`serialize_calibration_report_v1` refuses projecting a batch report as old scalar
+bytes. Genuine **1.0/2.0** reports remain readable and omit the new optional field.
+Unknown report versions refuse rather than reusing an earlier interpretation.
+A fresh selected 2.1 view without a basis remains curvature-only. Replacing both
+the basis and its hashes cannot replace the original report's selected input.
+These bindings do not attest an adversarially rewritten whole history: they prove
+the current selected relation and recomputed numerical projection, not an issuer's
+historical invocation.
+
+The shared `replay_ordered_batch_report_projection` owner reopens the selected
+report, input, config, graph, plan, registry, base state and actual selected
+parameter inputs. It performs **one final forward**, applies reported fitted
+parameters and recomputes model values, configured loss/priority and fit metrics.
+It does not rerun optimization or Hessian calculation or certify an optimum.
+Fresh welfare uses this replay after its existing simulation/source reconciliation;
+changed model/loss/metric values refuse against unchanged selected inputs.
+
+### Consumers and statistical boundary
+
+Fresh welfare carries the typed generic-loss scope into the actual covariance
+owner even when the basis is absent or unavailable. For calibration fields it
+withholds an interval with `calibration_generic_batch_inference_unavailable` while
+retaining the point result. Source mismatch is separately diagnosed. An unrelated
+separately supplied uncertainty component remains usable; its actual mean,
+quantile and welfare-weight projection are tested independently. Raw spectrum,
+rank/conditioning, repair count, compute precision and exact/fallback cause remain
+visible. Finite-difference convergence is `not_established` unless demonstrated.
+Generic Hessians supply curvature diagnostics; finite repaired covariance and
+source matching establish no likelihood, sampling/independence law or inferential
+admissibility. Existing scalar heuristic envelopes remain candidate/gate-ineligible.
+
+The execute-state response sibling requires the selected report manifest version
+to equal its supported typed payload version, reads genuine scalar bases1.0/1.1
+through the versioned owner and explicitly refuses batch report2.1/basis1.2 with
+`ordered_batch_response_basis_not_supported` through the real node, producing no
+propagation artifact. Its single starting-state experiment cannot reinterpret rows.
+
+`CalibrationMetaEvaluator` accepts the existing scalar report/dict runner shape and
+also `(report, selected_report_ref)` from `run_and_persist`. A new batch report needs
+the selected ref/store and the shared fresh replay before its fit metrics can be
+scored. Missing or mismatching source withholds the split's objective and promotion,
+recording `not_established`/`mismatch`, limitation codes and selected refs in existing
+`BenchmarkEvaluation` notes/metadata. Successful scoring remains candidate-grade;
+its condition-number score is a curvature diagnostic, not inferential calibration.
+Legacy2.0 scoring behavior is unchanged. An unavailable incumbent metric is not a
+measured zero.
+
+These are additive Foundry contracts and scoped Scientist consumers; no Core/CAS,
+IR DTO or HTTP/client implementation is changed. Root owns public inventory and
+any generated/schema companion review. The release review flag stays false until
+that work actually occurs. Source proposals, runtime verification, independent
+review, and G acceptance are separate states.
+
+
+### Selected source availability
+
+`read_calibration_source()` is the shared typed intake in the existing execution-basis
+owner. It uses Core's exact manifest resolver, selected-profile verification reader,
+and canonical JSON read before a domain decoder. `CalibrationSourceRead` reports
+only `matched`, `not_established`, or `mismatch`; it introduces no artifact/wire enum
+and grants no source, issuer, statistical, currentness, or calibration authority.
+Welfare, autotune and the scalar response reader use the same classification.
+
+Absent exact selection, absent manifest profile qualifier, unavailable selected
+view/blob/access/backend capability, or a candidate-only Core canonical declaration
+is `not_established`. A readable default view does not fill that gap. Duplicate
+role edges, conflicting complete selections, known wrong kind/schema/version,
+malformed present typed payload, and content/integrity contradictions are `mismatch`.
+A `FileNotFoundError` or typed denial remains unavailable even when explicitly
+wrapped by an owner; arbitrary error-message text never supplies the classification.
+Structural payload contradictions remain mismatches rather than being relabeled absent.
+
+`load_calibration_execution_input_basis()` retains genuine scalar legacy direct
+reading for historical display. That compatibility route does not qualify a source;
+new batch bases require selected input resolution. Qualification consumers call
+`read_calibration_execution_input_basis_source()` instead, so a profileless readable
+basis remains a visible legacy/candidate limitation. Unknown selected report/basis
+versions and manifest/payload version disagreements refuse. The report2.1 marker
+still withholds generic batch inference even when a source cannot be established.
+
+
+### Media and strict typed admission
+
+Typed selected JSON uses Core's `validate_core_model_json_artifact`, including its
+schema-directed JSON tuple/native adaptation and strict field types. A numeric
+string is not a numeric wire value. `read_calibration_model_source(model=...)` delegates
+that operation; untyped canonical maps do not acquire an invented model contract.
+NPZ uses media-neutral CAS integrity and the existing snapshot decoder, with no JSON
+canon requirement. `read_calibration_registry_source()` reuses Core composition,
+derives consumed members from its content contract and applies their strict owners.
+Welfare/response classify supplied reports at actual node intake before dependent
+evaluation; ordinary absent optional welfare input stays optional. Supported scalar
+basis display includes selected no-canon history without qualifying it as evidence.
+
+
+### Required typed owners and raw boundaries
+
+`read_calibration_model_source()` requires the actual Pydantic owner before any
+decoder/consumer runs. Its model cannot default to `None`. `read_calibration_source()`
+serves canonical raw maps, reference metadata and binary bytes; it accepts no model
+argument. Its single media-independent result owner permits the unchanged raw
+payload through Core's actual native-value codec, selected binary bytes, or exact
+selected `ArtifactRef`/`ArtifactManifest` metadata. Direct or nested Pydantic domain
+models are refused even for an NPZ source. Metadata is content-bound to the selected
+view; a different reference or manifest is not an exemption. The result owner does
+not invent a JSON-only scalar whitelist or require JSON canon on binary data.
+
+`read_calibration_config_source()` lives beside `put_calibration_config` and binds
+strict Core JSON adaptation to that producer's kind/schema and header/payload
+version relation. Batch, scalar welfare, response and batch-report writer use this
+one owner. Graph/plan/snapshot and producer captures carry their actual model owners;
+response source-specs explicitly bind all six current source models. Raw mechanism
+parameter maps retain their actual dynamic mechanism contract, not a fabricated DTO.
+Legacy scalar basis display remains separate from qualified admission.
+
+`CONSUMERS.md` and the complete AST matrix in the R7 handoff distinguish those
+boundaries; call/keyword counts are not acceptance criteria. The scalar2.0 witness
+uses actual welfare/response nodes and coherent selected lineage with only a config
+numeric field changed to a string. Both outcomes precede the joint assertion; all
+runtime/negative/control evidence still requires execution on composed source.
+
+The R7 raw-boundary discriminator reuses the actual producer NPZ from the existing
+fresh welfare fixture. Valid bytes, exact ref/manifest and typed JSON continue;
+decoders returning a coercively constructed `CalibrationConfig`, a nested DTO or
+foreign metadata are refused before a matched value is exposed. A Core-native
+date/Decimal/bytes positive and changed-raw-payload negative exercise the JSON owner.
+Both the positive and the property-removal red remain UNRUN until composed execution.
+The contract concerns the complete current selected-source intake, not a sandbox
+for arbitrary decoder code or proof about every future Python serialization type.

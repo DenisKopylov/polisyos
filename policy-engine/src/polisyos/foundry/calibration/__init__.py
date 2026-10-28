@@ -24,20 +24,40 @@ from .dp_ci import (
 )
 from .execution_basis import (
     CALIBRATION_RUNTIME_INPUT_CONTRACT,
+    CALIBRATION_RUNTIME_INPUT_CONTRACT_V1_2,
     CALIBRATION_RUNTIME_INPUT_NAMES,
+    CALIBRATION_RUNTIME_INPUT_NAMES_V1_2,
     RUNTIME_REGISTRY_MEMBER_CONTRACT,
     RUNTIME_REGISTRY_MEMBER_INPUT_NAMES,
     CalibrationExecutionInputBasis,
+    CalibrationOrderedBatchBackendUnavailable,
+    CalibrationOrderedBatchInput,
+    CalibrationOrderedBatchRow,
     CalibrationParameterUnitIdentity,
     CalibrationResolvedParameterInput,
     CalibrationRuntimeInputBinding,
+    CalibrationSourceRead,
+    CalibrationSourceReadRefusal,
+    CalibrationSourceStatus,
     CalibrationTargetInputIdentity,
     calibration_report_series_sha256,
     calibration_report_time_axis_sha256,
     canonical_input_sha256,
+    classify_calibration_source_error,
     load_calibration_execution_input_basis,
     put_calibration_execution_input_basis,
+    put_calibration_ordered_batch_input,
+    read_calibration_execution_input_basis_source,
+    read_calibration_model_source,
+    read_calibration_registry_source,
+    read_calibration_report_source,
+    read_calibration_source,
+    reconcile_ordered_batch_inputs,
+    reconcile_ordered_batch_report_identity,
     reconcile_selected_runtime_input,
+    record_calibration_source_error,
+    replay_ordered_batch_report_projection,
+    resolve_calibration_ordered_batch_input,
 )
 from .fabric_quality import (
     FabricCalibrationContext,
@@ -66,11 +86,14 @@ from .report import (
     CalibrationCoordinateProjection,
     CalibrationFitMetrics,
     CalibrationFitQuality,
+    CalibrationOrderedBatchReport,
     CalibrationReport,
     CalibrationSeriesComparison,
     CalibrationUncertainty,
+    ordered_batch_fit_metrics,
     put_calibration_config,
     put_calibration_report,
+    read_calibration_config_source,
 )
 from .robust_set_selector import (
     RobustSetCalibrator,
@@ -95,7 +118,13 @@ try:  # pragma: no cover - optional JAX dependency
         logit_bijector,
         softplus_bijector,
     )
-    from .calibrator import Calibrator, CalibratorInputs
+    from .calibrator import (
+        Calibrator,
+        CalibratorInputs,
+        OrderedBatchCalibrationEvaluation,
+        OrderedBatchCalibrationProfile,
+        evaluate_ordered_batch_objective,
+    )
     from .hessian import HessianResult, compute_hessian
     from .measurement import (
         CalibrationTargetBundle,
@@ -107,7 +136,7 @@ try:  # pragma: no cover - optional JAX dependency
         compute_effective_weight,
     )
     from .multi_start import MultiStartResult, SingleRunResult
-    from .pure_executor import StaticBundle, compile_program, run_pure_scan
+    from .pure_executor import StaticBundle, apply_nodes_batch, compile_program, run_pure_scan
 except (
     ImportError,
     ModuleNotFoundError,
@@ -116,7 +145,11 @@ except (
 ):  # pragma: no cover
     Calibrator = None  # type: ignore[assignment]
     CalibratorInputs = None  # type: ignore[assignment]
+    OrderedBatchCalibrationEvaluation = None  # type: ignore[assignment]
+    OrderedBatchCalibrationProfile = None  # type: ignore[assignment]
+    evaluate_ordered_batch_objective = None  # type: ignore[assignment]
     StaticBundle = None  # type: ignore[assignment]
+    apply_nodes_batch = None  # type: ignore[assignment]
     compile_program = None  # type: ignore[assignment]
     run_pure_scan = None  # type: ignore[assignment]
     HessianResult = None  # type: ignore[assignment]
@@ -140,10 +173,22 @@ except (
     inverse_bijector = None  # type: ignore[assignment]
 
 __all__ = [
+    "CalibrationSourceRead",
+    "CalibrationSourceReadRefusal",
+    "CalibrationSourceStatus",
+    "classify_calibration_source_error",
+    "read_calibration_source",
+    "read_calibration_config_source",
+    "read_calibration_model_source",
+    "read_calibration_registry_source",
+    "read_calibration_execution_input_basis_source",
+    "read_calibration_report_source",
+    "record_calibration_source_error",
     "affine_bijector",
     "aggregate_moment_summary",
     "attach_abm_identifiability_certificate_ref",
     "attach_identifiability_diagnostic_ref",
+    "apply_nodes_batch",
     "AuxLossComponent",
     "build_robust_set_spec_from_samples",
     "calibrate_discrete_ci",
@@ -151,9 +196,15 @@ __all__ = [
     "calibration_report_series_sha256",
     "calibration_report_time_axis_sha256",
     "CALIBRATION_RUNTIME_INPUT_CONTRACT",
+    "CALIBRATION_RUNTIME_INPUT_CONTRACT_V1_2",
     "CALIBRATION_RUNTIME_INPUT_NAMES",
+    "CALIBRATION_RUNTIME_INPUT_NAMES_V1_2",
     "CalibrationCoordinateProjection",
     "CalibrationExecutionInputBasis",
+    "CalibrationOrderedBatchInput",
+    "CalibrationOrderedBatchBackendUnavailable",
+    "CalibrationOrderedBatchReport",
+    "CalibrationOrderedBatchRow",
     "CalibrationFitMetrics",
     "CalibrationFitQuality",
     "CalibrationParameterUnitIdentity",
@@ -167,6 +218,8 @@ __all__ = [
     "CalibrationUncertainty",
     "Calibrator",
     "CalibratorInputs",
+    "OrderedBatchCalibrationEvaluation",
+    "OrderedBatchCalibrationProfile",
     "canonical_input_sha256",
     "chain_bijector",
     "CIFPRInflationBound",
@@ -184,6 +237,7 @@ __all__ = [
     "effective_privacy_xi",
     "envelope_from_calibration_param",
     "envelopes_from_calibration",
+    "evaluate_ordered_batch_objective",
     "ExecuteResponseBasisCandidate",
     "ExecuteResponseSourceIdentity",
     "fabric_calibration_context_from_decision_data",
@@ -214,6 +268,12 @@ __all__ = [
     "put_calibration_config",
     "put_calibration_execution_input_basis",
     "put_calibration_report",
+    "reconcile_ordered_batch_inputs",
+    "put_calibration_ordered_batch_input",
+    "resolve_calibration_ordered_batch_input",
+    "reconcile_ordered_batch_report_identity",
+    "replay_ordered_batch_report_projection",
+    "ordered_batch_fit_metrics",
     "reconcile_selected_runtime_input",
     "required_n_chi2",
     "required_n_kernel",

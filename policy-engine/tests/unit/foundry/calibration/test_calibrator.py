@@ -153,3 +153,39 @@ class TestMatchTrainable:
         ref.selector = None
 
         assert _match_trainable(handle, ref) is False
+
+
+@pytest.mark.parametrize("version", ["1.0", "2.0"])
+def test_legacy_report_wire_does_not_grow_ordered_batch_scope(version, tmp_path) -> None:
+    from polisyos.core.artifacts.manifest import input_ref_from_artifact_ref
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.foundry.calibration.report import (
+        CalibrationReport,
+        put_calibration_config,
+        put_calibration_report,
+    )
+
+    store = FileSystemCAS(tmp_path)
+    report = CalibrationReport(schema_version=version, total_loss=1.0)
+    assert "ordered_batch_execution" not in report.model_dump(mode="json")
+    config_ref = put_calibration_config(store, CalibrationConfig(), return_selected_profile=True)
+    report_ref = put_calibration_report(
+        store,
+        report,
+        inputs=[
+            input_ref_from_artifact_ref(config_ref, role="calibration_config"),
+        ],
+    )
+    payload = from_canonical_bytes(store.get_bytes(report_ref))
+    assert "ordered_batch_execution" not in payload
+    assert store.get_manifest(report_ref).artifact_schema.version == version
+    assert CalibrationReport.model_validate(payload).schema_version == version
+
+
+def test_unknown_report_version_and_untyped_new_batch_are_refused() -> None:
+    from polisyos.foundry.calibration.report import CalibrationReport
+
+    for version in ("2.1", "3.0"):
+        with pytest.raises(ValueError):
+            CalibrationReport(schema_version=version, total_loss=1.0)

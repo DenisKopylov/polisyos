@@ -507,14 +507,24 @@ def _resolve_calibration_covariance(
     param_names: list[str],
     input_envelopes: Mapping[str, UncertaintyEnvelope],
     jitter: float,
-) -> _CovarianceResolution:
+) -> _CovarianceResolution | None:
     """Resolve one report-owned covariance law for Delta and Monte Carlo."""
+    calibration_fields = [name for name in calibration_source.field_order if name in param_names]
+    if not calibration_fields and calibration_source.inference_status == "curvature_only":
+        # An unused generic calibration cannot erase an independently supplied
+        # uncertainty component. The caller keeps its existing non-calibration path.
+        return None
     if calibration_source.issue_codes:
         code = calibration_source.issue_codes[0]
         return _covariance_limitation(
             code, {"strategy": "calibration_report", "limitation_code": code}
         )
-    calibration_fields = [name for name in calibration_source.field_order if name in param_names]
+    if calibration_fields and calibration_source.inference_status == "curvature_only":
+        code = "calibration_generic_batch_inference_unavailable"
+        return _covariance_limitation(
+            code,
+            {"strategy": "generic_loss_curvature_only", "limitation_code": code},
+        )
     if not calibration_fields:
         code = "calibration_projection_missing"
         return _covariance_limitation(
@@ -785,6 +795,7 @@ def _calibration_projection_report_metadata(
         "calibration_projection_present": calibration_source.projection_present,
         "calibration_field_order": list(calibration_source.field_order),
         "source_execution_status": calibration_source.source_execution_status,
+        "calibration_inference_status": calibration_source.inference_status,
         "source_execution_limitations": list(calibration_source.source_execution_limitations),
         "covariance_source_selection": covariance_note.get("strategy"),
         "independence_source_validated": False,

@@ -216,6 +216,7 @@ class _CalibrationCovarianceSource:
     issue_codes: tuple[str, ...] = ()
     source_execution_status: Literal["matched", "not_established", "mismatch"] = "not_established"
     source_execution_limitations: tuple[str, ...] = ()
+    inference_status: Literal["not_established", "curvature_only"] = "not_established"
 
 
 @dataclass(frozen=True)

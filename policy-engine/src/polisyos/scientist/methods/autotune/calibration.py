@@ -4,11 +4,17 @@ from __future__ import annotations
 
 import json
 import math
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import ConfigDict, Field
 
+from polisyos.core.artifacts import ArtifactRef
+from polisyos.foundry.calibration.execution_basis import (
+    read_calibration_report_source,
+    replay_ordered_batch_report_projection,
+)
 from polisyos.foundry.calibration.report import CalibrationReport
 from polisyos.ir.analytics.calibration import CalibrationConfig
 
@@ -28,6 +34,32 @@ from .registry import ChampionRegistry
 from .runtime import ChampionBackedRuntimeLoader, PydanticMutationCodec
 
 CALIBRATION_LOOP_ID = "calibration_meta"
+
+
+@dataclass(frozen=True)
+class _CalibrationCase:
+    report: CalibrationReport
+    report_ref: ArtifactRef | None = None
+    source_status: Literal["legacy_candidate", "matched", "mismatch", "not_established"] = (
+        "legacy_candidate"
+    )
+    limitation_codes: tuple[str, ...] = ()
+
+    def source_projection(self) -> dict[str, Any]:
+        return {
+            "report_schema_version": self.report.schema_version,
+            "report_ref": None
+            if self.report_ref is None
+            else self.report_ref.model_dump(mode="json"),
+            "metric_source_status": self.source_status,
+            "limitation_codes": list(self.limitation_codes),
+            "evidence_grade": "candidate",
+            "inference_status": (
+                "unavailable_generic_loss"
+                if self.report.ordered_batch_execution is not None
+                else "legacy_heuristic_not_requalified"
+            ),
+        }
 
 
 class CalibrationMetaSearchConfig(MutationArtifact):
@@ -206,6 +238,7 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
             ],
             runner=runner,
             context=context,
+            store=store,
         )
         holdout_reports = _run_calibration_cases(
             config=config,
@@ -216,6 +249,7 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
             ],
             runner=runner,
             context=context,
+            store=store,
         )
         selection_metrics = _calibration_metrics(selection_reports)
         holdout_metrics = _calibration_metrics(holdout_reports)
@@ -225,8 +259,21 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
             "uncertainty_not_worse": float(
                 holdout_metrics.get("uncertainty_conditioning_score", 0.0)
             )
-            >= (champion_uncertainty - uncertainty_margin),
+            >= (champion_uncertainty - uncertainty_margin)
+            if champion_uncertainty is not None
+            else False,
         }
+        cases = [*selection_reports, *holdout_reports]
+        new_profile = any(case.report.ordered_batch_execution is not None for case in cases)
+        metric_sources_ready = all(
+            case.source_status in {"legacy_candidate", "matched"} for case in cases
+        )
+        if new_profile:
+            guardrails["calibration_metric_sources_ready"] = metric_sources_ready
+        limitations = sorted({code for case in cases for code in case.limitation_codes})
+        if champion_uncertainty is None:
+            limitations.append("ordered_autotune_champion_metrics_not_established")
+            metric_sources_ready = False
         return BenchmarkEvaluation(
             loop_id=CALIBRATION_LOOP_ID,
             suite_id=suite.suite_id,
@@ -240,6 +287,18 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
             },
             guardrails=guardrails,
             promotable=all(guardrails.values()),
+            status="ok" if metric_sources_ready else "limited",
+            notes=limitations,
+            metadata=(
+                {
+                    "calibration_metric_sources": {
+                        "selection": [case.source_projection() for case in selection_reports],
+                        "holdout": [case.source_projection() for case in holdout_reports],
+                    }
+                }
+                if new_profile
+                else {}
+            ),
         )
 
     def _champion_uncertainty_score(
@@ -251,7 +310,7 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
         runner: Any,
         split_manifest,
         context: dict[str, Any],
-    ) -> float:
+    ) -> float | None:
         registry = context.get("registry") or self._registry
         store = context.get("store") or self._store
         if registry is None or store is None:
@@ -270,9 +329,11 @@ class CalibrationMetaEvaluator(BenchmarkedEvaluator):
                 ],
                 runner=runner,
                 context=context,
+                store=store,
             )
         )
-        return float(metrics.get("uncertainty_conditioning_score", 0.0))
+        value = metrics.get("uncertainty_conditioning_score")
+        return None if value is None else float(value)
 
 
 class CalibrationMetaRuntimeLoader(ChampionBackedRuntimeLoader[CalibrationMetaSearchConfig]):
@@ -305,26 +366,72 @@ def calibration_search_loop_spec(
     )
 
 
+def _ordered_metric_case(
+    report: CalibrationReport,
+    report_ref: ArtifactRef | None,
+    *,
+    store: Any | None,
+) -> _CalibrationCase:
+    """Admit new batch metrics only after a selected, fresh final-forward replay."""
+    if report.ordered_batch_execution is None:
+        return _CalibrationCase(report, report_ref)
+    if store is None:
+        return _CalibrationCase(
+            report,
+            report_ref,
+            "not_established",
+            ("ordered_autotune_metrics_require_selected_report_and_store",),
+        )
+    source = read_calibration_report_source(store, ref=report_ref)
+    if source.status != "matched":
+        return _CalibrationCase(
+            report,
+            report_ref,
+            source.status,
+            (source.code, "ordered_autotune_metrics_require_selected_report_and_store"),
+        )
+    selected = source.require_value()
+    if selected.model_dump(mode="json") != report.model_dump(mode="json"):
+        return _CalibrationCase(
+            report,
+            report_ref,
+            "mismatch",
+            ("ordered_autotune_returned_report_differs_from_selected",),
+        )
+    assert source.ref is not None
+    status, limitations = replay_ordered_batch_report_projection(store, None, source.ref)
+    return _CalibrationCase(selected, source.ref, status, limitations)
+
+
 def _run_calibration_cases(
     *,
     config: CalibrationMetaSearchConfig,
     rows: list[dict[str, Any]],
     runner: Any,
     context: dict[str, Any],
-) -> list[CalibrationReport]:
-    reports: list[CalibrationReport] = []
+    store: Any | None = None,
+) -> list[_CalibrationCase]:
+    reports: list[_CalibrationCase] = []
     for row in rows:
-        report = runner(row, config, context)
-        if isinstance(report, CalibrationReport):
-            reports.append(report)
-        elif isinstance(report, dict):
-            reports.append(CalibrationReport.model_validate(report))
+        result = runner(row, config, context)
+        report_ref = None
+        if isinstance(result, tuple) and len(result) == 2:
+            result, report_ref = result
+            if not isinstance(report_ref, ArtifactRef):
+                raise TypeError("calibration_runner tuple must contain a typed selected report ref")
+        if isinstance(result, CalibrationReport):
+            report = CalibrationReport.model_validate(result.model_dump(mode="python"))
+        elif isinstance(result, dict):
+            report = CalibrationReport.model_validate(result)
         else:
-            raise TypeError("calibration_runner must return CalibrationReport or dict")
+            raise TypeError(
+                "calibration_runner must return CalibrationReport, dict, or (report, ref)"
+            )
+        reports.append(_ordered_metric_case(report, report_ref, store=store))
     return reports
 
 
-def _calibration_metrics(reports: list[CalibrationReport]) -> dict[str, float]:
+def _calibration_metrics(reports: list[_CalibrationCase]) -> dict[str, float]:
     if not reports:
         return {
             "sample_count": 0.0,
@@ -333,11 +440,16 @@ def _calibration_metrics(reports: list[CalibrationReport]) -> dict[str, float]:
             "uncertainty_conditioning_score": 0.0,
             "divergence_rate": 1.0,
         }
+    if any(case.source_status not in {"legacy_candidate", "matched"} for case in reports):
+        # An unavailable required source is not a measured zero or an omitted row
+        # in an otherwise qualified score. Withhold this split's objective.
+        return {"sample_count": 0.0, "divergence_rate": 1.0}
     fit_scores = []
     runtime_scores = []
     uncertainty_scores = []
     divergence = 0
-    for report in reports:
+    for case in reports:
+        report = case.report
         fit_scores.append(_fit_quality_score(report))
         runtime_scores.append(_runtime_score(report))
         uncertainty_scores.append(_uncertainty_score(report))

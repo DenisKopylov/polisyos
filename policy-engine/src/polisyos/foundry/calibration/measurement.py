@@ -203,53 +203,26 @@ def _target_id(record: ObservationRecord) -> str:
     )
 
 
-_SOURCE_CONFIDENCE_PRIORITY = {
-    "exploratory": 0,
-    "validated": 1,
-    "core": 2,
-}
-
-
-def _observation_selection_key(record: ObservationRecord) -> tuple[object, ...]:
-    """Rank duplicate observations by declared quality, not source identity.
-
-    Source and lineage fields are deliberately absent from this key.  When
-    quality signals tie, the caller must reject conflicting records rather
-    than silently collapsing them by a technical or source identifier.
-    """
-    return (
-        _SOURCE_CONFIDENCE_PRIORITY[record.source_confidence_tier.value],
-        int(not record.measurement_bias_flag),
-        int(not record.censoring_mask),
-        int(not record.shock_mask),
-        float(record.coverage_estimate),
-        float(record.trust_weight),
-        -int(record.lag_days_estimate),
-    )
-
-
 def _select_observation_for_period(
     records: Sequence[ObservationRecord],
     *,
     target_id: str,
     period_start: date,
 ) -> ObservationRecord:
-    """Choose one duplicate by declared authority/content, or fail closed."""
-    ranked = sorted(records, key=_observation_selection_key, reverse=True)
-    winner = ranked[0]
-    winner_key = _observation_selection_key(winner)
-    tied = [record for record in ranked if _observation_selection_key(record) == winner_key]
-    if len(tied) > 1:
-        winner_payload = winner.model_dump(exclude={"observation_id"})
-        if any(
-            record.model_dump(exclude={"observation_id"}) != winner_payload for record in tied[1:]
-        ):
-            raise ValueError(
-                "Ambiguous observations for target "
-                f"'{target_id}' at period '{period_start.isoformat()}': "
-                "authority/content tie requires explicit aggregation"
-            )
-    return winner
+    """Return an unambiguous observation without inventing a source policy.
+
+    Quality and trust declarations are inputs to calibration, not authority to
+    discard another measurement.  The bundle has only one observation slot at
+    each target/period coordinate, so every multiplicity must be resolved by
+    an upstream, lineage-preserving aggregation or version policy.
+    """
+    if len(records) != 1:
+        raise ValueError(
+            "Ambiguous observations for target "
+            f"'{target_id}' at period '{period_start.isoformat()}': "
+            f"{len(records)} records require explicit lineage-preserving aggregation"
+        )
+    return records[0]
 
 
 class CalibrationTargetBundleCompiler:

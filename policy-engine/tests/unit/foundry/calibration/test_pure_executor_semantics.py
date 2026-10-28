@@ -16,6 +16,7 @@ from polisyos.foundry.calibration.pure_executor import (
     PreparedNode,
     StaticBundle,
     apply_nodes,
+    apply_nodes_batch,
     compile_program,
     run_pure_scan,
 )
@@ -122,6 +123,49 @@ def test_compile_program_requires_horizon_for_missing_schedule(monkeypatch) -> N
             merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
             base_state=GlobalState.empty(n_agents=2, n_firms=1),
             parameter_loader=lambda _: {"params": {}},
+        )
+
+
+def test_compile_program_refuses_inactive_unknown_selector_before_numerical_work(
+    monkeypatch,
+) -> None:
+    class _NoOpMechanism:
+        def emit_patches(self, state, key, *, target_mask=None):
+            raise AssertionError("structural admission must precede numerical execution")
+
+    monkeypatch.setattr(
+        "polisyos.foundry.calibration.pure_executor.create_mechanism_from_spec",
+        lambda *args, **kwargs: _NoOpMechanism(),
+    )
+    graph, plan = _build_graph_and_plan(
+        [
+            ProgramNode(
+                node_id="future-writer",
+                node_kind="mechanism",
+                mechanism_type="writer",
+                outputs=[],
+            )
+        ],
+        max_steps=2,
+    )
+    with pytest.raises(ValueError, match="unknown_field.*requires registry mapping"):
+        compile_program(
+            graph,
+            plan,
+            mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+            slot_registry=DEFAULT_SLOT_REGISTRY,
+            merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+            base_state=GlobalState.empty(n_agents=2, n_firms=1),
+            parameter_loader=lambda _: {
+                "params": {},
+                "schedule": {"start_step": 1, "duration_steps": 1},
+                "target": {
+                    "kind": "predicate",
+                    "field": "unknown_field",
+                    "operator": "==",
+                    "value": 1,
+                },
+            },
         )
 
 
@@ -678,6 +722,53 @@ def test_apply_nodes_mixed_schedule_scalar_map_executes_only_active_row(transfor
     assert jnp.array_equal(next_keys[1], jax.random.fold_in(jax.random.split(key)[1], 1))
 
 
+def test_apply_nodes_batch_matches_scalar_rows_and_preserves_row_keys() -> None:
+    class _ScheduledLog:
+        def emit_patches(self, state, key, *, target_mask=None):
+            del target_mask
+            return {"agents.income": [{"delta": jnp.log(state.agents.income)}]}, jax.random.fold_in(
+                key, 1
+            )
+
+    bundle = StaticBundle(
+        nodes=[
+            PreparedNode(
+                node_id="scheduled-log",
+                mechanism_type="scheduled_log",
+                rank=0,
+                start=1,
+                end=1,
+                mechanism=_ScheduledLog(),
+                outputs=["agents.income"],
+            )
+        ],
+        incoming_dependencies={},
+        slot_registry=DEFAULT_SLOT_REGISTRY,
+        mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+        merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        selector_field_registry=None,
+        trainables=[],
+    )
+    base = GlobalState.empty(n_agents=2, n_firms=1)
+    states = jax.tree.map(
+        lambda *leaves: jnp.stack(leaves),
+        base.replace(agents=base.agents.replace(income=jnp.zeros(2))),
+        base.replace(agents=base.agents.replace(income=jnp.full((2,), 2.0))),
+    )
+    times = jnp.array([0, 1], dtype=jnp.int32)
+    keys = jax.random.split(jax.random.PRNGKey(21), 2)
+
+    result, next_keys = apply_nodes_batch(states, times, keys, bundle=bundle)
+    result.agents.income.block_until_ready()
+    jax.effects_barrier()
+    assert jnp.allclose(
+        result.agents.income,
+        jnp.array([[0.0, 0.0], [2.0 + jnp.log(2.0)] * 2]),
+    )
+    assert jnp.array_equal(next_keys[0], keys[0])
+    assert not jnp.array_equal(next_keys[1], keys[1])
+
+
 @pytest.mark.parametrize("transform", ["eager", "jit", "grad", "hessian"])
 @pytest.mark.parametrize("active", [False, True])
 def test_apply_nodes_state_vmap_preserves_scalar_schedule_execution(transform, active) -> None:
@@ -750,3 +841,234 @@ def test_apply_nodes_active_invalid_log_is_not_replaced_by_neutral_input(transfo
     result = _evaluate_income_transform(run, jnp.zeros(2, dtype=jnp.float32), transform)
     assert not jnp.all(jnp.isfinite(result))
     assert observed == [[0.0, 0.0]]
+
+
+def test_typed_partial_selector_real_tax_preserves_inactive_and_dependency_visibility(monkeypatch):
+    import polisyos.foundry.calibration.pure_executor as executor
+    from polisyos.ir.kernel.selector_fields import DEFAULT_SELECTOR_FIELD_REGISTRY
+
+    factory = executor.create_mechanism_from_spec
+    evaluate = executor._evaluate_selector
+    observed_masks = []
+
+    class _ReadIncome:
+        def emit_patches(self, state, key, *, target_mask=None):
+            del target_mask
+            return {"agents.reported_income": [{"value": state.agents.income}]}, key
+
+    def make(name, params, **kwargs):
+        if name == "read_income":
+            return _ReadIncome()
+        return factory(name, params, **kwargs)
+
+    def observe(selector, state, **kwargs):
+        mask, scope = evaluate(selector, state, **kwargs)
+        jax.debug.callback(lambda value: observed_masks.append(value.tolist()), mask)
+        return mask, scope
+
+    monkeypatch.setattr(executor, "create_mechanism_from_spec", make)
+    monkeypatch.setattr(executor, "_evaluate_selector", observe)
+    graph, plan = _build_graph_and_plan(
+        [
+            ProgramNode(
+                node_id="tax",
+                node_kind="mechanism",
+                mechanism_type="income_tax",
+                outputs=["agents.income", "government.balance"],
+            ),
+            ProgramNode(
+                node_id="read",
+                node_kind="mechanism",
+                mechanism_type="read_income",
+                inputs=["agents.income"],
+                outputs=["agents.reported_income"],
+            ),
+        ],
+        edges=[ProgramEdge(src="tax", dst="read", relation="depends_on")],
+        max_steps=2,
+    )
+    base = GlobalState.empty(n_agents=2, n_firms=1)
+    base = base.replace(agents=base.agents.replace(age=jnp.array([20, 40], dtype=jnp.int32)))
+
+    def load(source):
+        node = source.node_id
+        if node == "tax":
+            return {
+                "params": {"rate": 0.1},
+                "schedule": {"start_step": 1, "duration_steps": 1},
+                "target": {"kind": "predicate", "field": "age", "operator": ">=", "value": 30},
+            }
+        return {"params": {}, "schedule": {"start_step": 0, "duration_steps": 2}}
+
+    bundle = compile_program(
+        graph,
+        plan,
+        mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+        slot_registry=DEFAULT_SLOT_REGISTRY,
+        merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        selector_field_registry=DEFAULT_SELECTOR_FIELD_REGISTRY,
+        base_state=base,
+        parameter_loader=load,
+    )
+
+    def step(income, time, key):
+        state = base.replace(agents=base.agents.replace(income=income, reported_income=income))
+        out, returned = apply_nodes(state, key, bundle=bundle, t=time)
+        return out.agents.reported_income, out.government_balance, returned
+
+    income = jnp.array([100.0, 200.0], dtype=jnp.float32)
+    key = jax.random.PRNGKey(97)
+    inactive, inactive_revenue, inactive_key = jax.jit(step)(income, jnp.array(0), key)
+    inactive.block_until_ready()
+    jax.effects_barrier()
+    assert observed_masks == []
+    assert jnp.allclose(inactive, income)
+    assert float(inactive_revenue) == 0.0
+    assert jnp.array_equal(inactive_key, jax.random.split(key)[1])
+    active, active_revenue, active_key = jax.jit(step)(income, jnp.array(1), key)
+    active.block_until_ready()
+    jax.effects_barrier()
+    assert observed_masks == [[False, True]]
+    assert float(active_revenue) == pytest.approx(20.0)
+    assert jnp.allclose(active, jnp.array([100.0, 180.0], dtype=jnp.float32))
+    assert jnp.array_equal(active_key, jax.random.split(jax.random.split(key)[1])[1])
+    observed_masks.clear()
+    after_end, after_revenue, after_key = jax.jit(step)(income, jnp.array(2), key)
+    after_end.block_until_ready()
+    jax.effects_barrier()
+    assert observed_masks == []
+    assert jnp.array_equal(after_end, income)
+    assert float(after_revenue) == 0.0
+    assert jnp.array_equal(after_key, key)
+    initial = base.replace(agents=base.agents.replace(income=income, reported_income=income))
+    prefix, _ = run_pure_scan(initial, steps=1, root_key=key, bundle=bundle)
+    complete, _ = run_pure_scan(initial, steps=3, root_key=key, bundle=bundle)
+    assert jnp.array_equal(prefix.agents.income, income)
+    assert float(prefix.government_balance) == 0.0
+    assert jnp.allclose(complete.agents.income, jnp.asarray([100.0, 180.0]))
+    assert jnp.allclose(complete.agents.reported_income, complete.agents.income)
+    assert float(complete.government_balance) == pytest.approx(20.0)
+    gradient = jax.jit(jax.grad(lambda value: jnp.sum(step(value, jnp.array(1), key)[0])))(income)
+    gradient.block_until_ready()
+    jax.effects_barrier()
+    assert jnp.allclose(gradient, jnp.array([1.0, 0.9], dtype=jnp.float32))
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        "absent_registry",
+        "unknown_field",
+        "missing_state_path",
+        "unavailable_state_path",
+        "mixed_scope",
+        "unsupported_expression",
+        "unsupported_operator_shape",
+        "malformed_leaf_shape",
+        "unsupported_scope",
+        "missing_base",
+    ],
+)
+def test_static_selector_admission_covers_complete_supported_boundary(case):
+    from polisyos.ir.kernel import SlotScope
+    from polisyos.ir.kernel.selector_fields import DEFAULT_SELECTOR_FIELD_REGISTRY
+
+    graph, plan = _build_graph_and_plan(
+        [
+            ProgramNode(
+                node_id="tax",
+                node_kind="mechanism",
+                mechanism_type="income_tax",
+                outputs=["agents.income", "government.balance"],
+            ),
+        ],
+        max_steps=2,
+    )
+    base = GlobalState.empty(n_agents=2, n_firms=1)
+    registry = DEFAULT_SELECTOR_FIELD_REGISTRY.model_copy(deep=True)
+    target = {"kind": "predicate", "field": "age", "operator": ">=", "value": 30}
+    if case == "absent_registry":
+        registry = None
+    elif case == "unknown_field":
+        target["field"] = "not_registered"
+    elif case == "missing_state_path":
+        registry.fields["age"].state_path = None
+    elif case == "unavailable_state_path":
+        registry.fields["age"].state_path = "agents.unavailable_age"
+    elif case == "mixed_scope":
+        target = {
+            "kind": "all_of",
+            "clauses": [
+                target,
+                {"kind": "predicate", "field": "sector", "operator": "==", "value": 1},
+            ],
+        }
+    elif case == "unsupported_expression":
+        target = {
+            "kind": "quantifier",
+            "quantifier": "exists",
+            "collection_field": "agents",
+            "clause": target,
+        }
+    elif case == "unsupported_operator_shape":
+        target["operator"] = "contains"
+    elif case == "malformed_leaf_shape":
+        base = base.replace(agents=base.agents.replace(age=jnp.zeros((2, 1), dtype=jnp.int32)))
+    elif case == "unsupported_scope":
+        registry.fields["age"].scope = SlotScope.GLOBAL
+    elif case == "missing_base":
+        base = None
+    with pytest.raises(ValueError):
+        compile_program(
+            graph,
+            plan,
+            mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+            slot_registry=DEFAULT_SLOT_REGISTRY,
+            merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+            selector_field_registry=registry,
+            base_state=base,
+            parameter_loader=lambda _: {
+                "params": {"rate": 0.1},
+                "schedule": {"start_step": 1, "duration_steps": 1},
+                "target": target,
+            },
+        )
+
+
+@pytest.mark.parametrize("field", [None, "id", "agent_id"])
+def test_builtin_and_absent_selectors_keep_real_scalar_execution(field):
+    graph, plan = _build_graph_and_plan(
+        [
+            ProgramNode(
+                node_id="tax",
+                node_kind="mechanism",
+                mechanism_type="income_tax",
+                outputs=["agents.income", "government.balance"],
+            ),
+        ],
+        max_steps=1,
+    )
+    base = GlobalState.empty(n_agents=2, n_firms=1)
+    base = base.replace(
+        agents=base.agents.replace(
+            income=jnp.asarray([100.0, 200.0], dtype=jnp.float32),
+            reported_income=jnp.asarray([100.0, 200.0], dtype=jnp.float32),
+        )
+    )
+    payload = {"params": {"rate": 0.1}}
+    if field is not None:
+        payload["target"] = {"kind": "predicate", "field": field, "operator": "==", "value": "all"}
+    bundle = compile_program(
+        graph,
+        plan,
+        mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+        slot_registry=DEFAULT_SLOT_REGISTRY,
+        merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        base_state=base,
+        parameter_loader=lambda _: payload,
+    )
+    key = jax.random.PRNGKey(13)
+    out, returned = apply_nodes(base, key, bundle=bundle, t=jnp.asarray(0))
+    assert jnp.allclose(out.agents.income, jnp.asarray([90.0, 180.0]))
+    assert float(out.government_balance) == pytest.approx(30.0)
+    assert jnp.array_equal(returned, jax.random.split(key)[1])

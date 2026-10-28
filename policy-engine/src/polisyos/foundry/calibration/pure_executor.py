@@ -251,6 +251,12 @@ def compile_program(
             if selector_payload is not None
             else None
         )
+        if selector_expr is not None:
+            _validate_selector_structure(
+                selector_expr,
+                selector_field_registry=selector_field_registry,
+                base_state=base_state,
+            )
         prepared.append(
             PreparedNode(
                 node_id=node_id,
@@ -362,35 +368,104 @@ def _selector_field_values(
     return _get_state_path(state, spec.state_path), spec.scope
 
 
+# The admission and numerical paths use one supported operator/value law.
+_SELECTOR_OPERATORS: dict[SelectorOperator, tuple[str, Callable[[Any, Any], Any]]] = {
+    SelectorOperator.EQUALS: ("scalar", lambda values, value: values == value),
+    SelectorOperator.NOT_EQUALS: ("scalar", lambda values, value: values != value),
+    SelectorOperator.GREATER_THAN: ("scalar", lambda values, value: values > value),
+    SelectorOperator.LESS_THAN: ("scalar", lambda values, value: values < value),
+    SelectorOperator.GREATER_EQUAL: ("scalar", lambda values, value: values >= value),
+    SelectorOperator.LESS_EQUAL: ("scalar", lambda values, value: values <= value),
+    SelectorOperator.IN: ("list", lambda values, value: jnp.isin(values, value)),
+    SelectorOperator.NOT_IN: ("list", lambda values, value: ~jnp.isin(values, value)),
+    SelectorOperator.CONTAINS: ("list", lambda values, value: jnp.isin(values, value)),
+    SelectorOperator.BETWEEN: (
+        "pair",
+        lambda values, value: (values >= value[0]) & (values <= value[1]),
+    ),
+}
+
+
+def _validate_selector_operand(operator: SelectorOperator, value: Any) -> None:
+    entry = _SELECTOR_OPERATORS.get(operator)
+    if entry is None:
+        raise ValueError(f"Unsupported selector operator/value: {operator}")
+    kind, _ = entry
+    sequence = isinstance(value, list)
+    if (kind == "scalar" and sequence) or (kind != "scalar" and not sequence):
+        raise ValueError(f"Unsupported selector operator/value: {operator} requires {kind}")
+    if kind == "pair" and len(value) != 2:
+        raise ValueError("Unsupported selector operator/value: between requires two values")
+
+
 def _apply_operator(values: jnp.ndarray, operator: SelectorOperator, value: Any) -> jnp.ndarray:
-    if isinstance(value, list):
-        coerced = [_coerce_selector_scalar(item) for item in value]
-    else:
-        coerced = _coerce_selector_scalar(value)
-    if isinstance(coerced, list):
-        arr = jnp.asarray(coerced)
-        if operator == SelectorOperator.IN:
-            return jnp.isin(values, arr)
-        if operator == SelectorOperator.NOT_IN:
-            return ~jnp.isin(values, arr)
-        if operator == SelectorOperator.BETWEEN and len(coerced) == 2:
-            return (values >= arr[0]) & (values <= arr[1])
-    if operator == SelectorOperator.EQUALS:
-        return values == coerced
-    if operator == SelectorOperator.NOT_EQUALS:
-        return values != coerced
-    if operator == SelectorOperator.GREATER_THAN:
-        return values > coerced
-    if operator == SelectorOperator.LESS_THAN:
-        return values < coerced
-    if operator == SelectorOperator.GREATER_EQUAL:
-        return values >= coerced
-    if operator == SelectorOperator.LESS_EQUAL:
-        return values <= coerced
-    if operator == SelectorOperator.CONTAINS:
-        if isinstance(coerced, list):
-            return jnp.isin(values, jnp.asarray(coerced))
-    raise ValueError(f"Unsupported selector operator/value: {operator}")
+    _validate_selector_operand(operator, value)
+    coerced = (
+        jnp.asarray([_coerce_selector_scalar(item) for item in value])
+        if isinstance(value, list)
+        else _coerce_selector_scalar(value)
+    )
+    return _SELECTOR_OPERATORS[operator][1](values, coerced)
+
+
+def _validate_selector_structure(
+    selector: SelectorExpr,
+    *,
+    selector_field_registry: SelectorFieldRegistry | None,
+    base_state: GlobalState | None,
+) -> SlotScope:
+    """Admit selector structure without evaluating runtime state values."""
+    if isinstance(selector, SelectorPredicate):
+        if selector.field in {"id", "agent_id"}:
+            scope = SlotScope.PER_AGENT
+        else:
+            if selector_field_registry is None:
+                raise ValueError(f"Selector field '{selector.field}' requires registry mapping")
+            spec = selector_field_registry.fields.get(selector.field)
+            if spec is None:
+                raise ValueError(f"Unknown selector field '{selector.field}'")
+            if spec.state_path is None:
+                raise ValueError(f"Selector field '{selector.field}' missing state_path")
+            scope = spec.scope
+            if scope not in {SlotScope.PER_AGENT, SlotScope.PER_FIRM}:
+                raise ValueError(f"Selector scope '{scope}' is unsupported by pure execution")
+            if base_state is None:
+                raise ValueError("Selector field requires base_state for structural admission")
+            try:
+                value = _get_state_path(base_state, spec.state_path)
+            except AttributeError as exc:
+                raise ValueError(
+                    f"Selector field '{selector.field}' state_path is unavailable: "
+                    f"{spec.state_path}"
+                ) from exc
+            size = base_state.agents.size if scope == SlotScope.PER_AGENT else base_state.firms.size
+            if getattr(value, "shape", None) != (size,):
+                raise ValueError(
+                    f"Selector field '{selector.field}' requires one value per {scope}"
+                )
+        _validate_selector_operand(selector.operator, selector.value)
+        return scope
+    if isinstance(selector, SelectorNot):
+        return _validate_selector_structure(
+            selector.clause,
+            selector_field_registry=selector_field_registry,
+            base_state=base_state,
+        )
+    if isinstance(selector, (SelectorAll, SelectorAny)):
+        scopes = {
+            _validate_selector_structure(
+                clause,
+                selector_field_registry=selector_field_registry,
+                base_state=base_state,
+            )
+            for clause in selector.clauses
+        }
+        if len(scopes) != 1:
+            raise ValueError("Selector mixes scopes; cannot evaluate")
+        return scopes.pop()
+    raise ValueError(
+        f"Unsupported selector expression kind: {getattr(selector, 'kind', type(selector).__name__)}"
+    )
 
 
 def _evaluate_selector(
@@ -590,18 +665,19 @@ def apply_nodes(
                 bundle=bundle,
             )
         active = _admit_schedule_predicate((t >= node.start) & (t <= node.end))
-        if node.selector is not None:
-            mask, mask_scope = _evaluate_selector(
-                node.selector, visible_state, selector_field_registry=bundle.selector_field_registry
-            )
-        else:
-            mask = None
-            mask_scope = None
-        target_mask = mask if mask_scope in {SlotScope.PER_AGENT, SlotScope.PER_FIRM} else None
         concrete_active = _concrete_bool(active)
         if concrete_active is True:
             # Keep eager execution observable: an active mechanism still gets
             # its real refusal/finite guards and its real PRNG substream.
+            target_mask = None
+            if node.selector is not None:
+                mask, mask_scope = _evaluate_selector(
+                    node.selector,
+                    visible_state,
+                    selector_field_registry=bundle.selector_field_registry,
+                )
+                if mask_scope in {SlotScope.PER_AGENT, SlotScope.PER_FIRM}:
+                    target_mask = mask
             patch_map, next_key = _emit_node_patches(
                 visible_state,
                 cur_key,
@@ -623,8 +699,17 @@ def apply_nodes(
             # operands keeps the emitter tracer-safe while ``lax.cond``
             # selects only one numerical branch.  Both branches return the
             # same patch structure and preserve the inactive PRNG carry.
-            def _active_branch(operands: tuple[Any, jax.Array, jax.Array | None]):
-                branch_state, branch_key, branch_mask = operands
+            def _active_branch(operands: tuple[Any, jax.Array]):
+                branch_state, branch_key = operands
+                branch_mask = None
+                if node.selector is not None:
+                    mask, mask_scope = _evaluate_selector(
+                        node.selector,
+                        branch_state,
+                        selector_field_registry=bundle.selector_field_registry,
+                    )
+                    if mask_scope in {SlotScope.PER_AGENT, SlotScope.PER_FIRM}:
+                        branch_mask = mask
                 return _emit_node_patches(
                     branch_state,
                     branch_key,
@@ -632,15 +717,15 @@ def apply_nodes(
                     target_mask=branch_mask,
                 )
 
-            def _inactive_branch(operands: tuple[Any, jax.Array, jax.Array | None]):
-                branch_state, branch_key, _ = operands
+            def _inactive_branch(operands: tuple[Any, jax.Array]):
+                branch_state, branch_key = operands
                 return _neutral_patch_map(branch_state, node, bundle=bundle), branch_key
 
             patch_map, next_key = jax.lax.cond(
                 active,
                 _active_branch,
                 _inactive_branch,
-                (visible_state, cur_key, target_mask),
+                (visible_state, cur_key),
             )
         cur_key = next_key
         pending_records = pending_records + _patch_map_to_pending_records(
@@ -656,6 +741,45 @@ def apply_nodes(
         bundle=bundle,
     )
     return visible_state, cur_key
+
+
+def apply_nodes_batch(
+    states: GlobalState,
+    row_times: jax.Array,
+    row_keys: jax.Array,
+    *,
+    bundle: StaticBundle,
+) -> tuple[GlobalState, jax.Array]:
+    """Apply one scalar executor step to ordered rows using ``jax.lax.map``.
+
+    ``row_times[i]`` is that row's scalar schedule step (not a scan start), and
+    ``row_keys[i]`` is the complete PRNG key for the same row. Callers wanting
+    independent deterministic streams should pass ``jax.random.split`` output
+    explicitly. Row order is semantic: states, times, and keys are aligned
+    positionally and outputs retain that order.
+
+    Raises:
+        ValueError: If inputs are empty or their leading row dimensions/key
+            shapes disagree.
+    """
+    times = jnp.asarray(row_times)
+    keys = jnp.asarray(row_keys)
+    if times.ndim != 1:
+        raise ValueError("row_times must have shape (rows,)")
+    rows = int(times.shape[0])
+    if rows == 0:
+        raise ValueError("apply_nodes_batch does not support empty inputs")
+    if keys.shape != (rows, 2):
+        raise ValueError(f"row_keys must have shape ({rows}, 2)")
+    for leaf in jax.tree_util.tree_leaves(states):
+        if getattr(leaf, "ndim", 0) == 0 or int(leaf.shape[0]) != rows:
+            raise ValueError("every batched state leaf must have the same leading row count")
+
+    def _apply(row: tuple[GlobalState, jax.Array, jax.Array]):
+        state, time, key = row
+        return apply_nodes(state, key, bundle=bundle, t=time)
+
+    return jax.lax.map(_apply, (states, times, keys))
 
 
 def _patch_map_to_pending_records(

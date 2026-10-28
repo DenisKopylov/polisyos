@@ -26,7 +26,7 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts import (
     ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.registry import RegistryBundlePayload
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
@@ -45,21 +45,30 @@ from polisyos.core.contracts.foundry import (
     ProgramGraph,
     SimulationResult,
     SimulationResultRef,
+    StateSnapshot,
 )
 from polisyos.foundry.calibration import (
     CalibrationExecutionInputBasis,
+    CalibrationSourceStatus,
     ExecuteResponseBasisCandidate,
     calibration_report_series_sha256,
     calibration_report_time_axis_sha256,
     canonical_input_sha256,
+    classify_calibration_source_error,
     load_calibration_execution_input_basis,
     load_execute_response_basis_candidate,
+    read_calibration_config_source,
+    read_calibration_execution_input_basis_source,
+    read_calibration_model_source,
+    read_calibration_report_source,
+    read_calibration_source,
 )
 from polisyos.foundry.calibration.report import CalibrationReport
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher
 from polisyos.foundry.uncertainty.protocol import PropagationResult
 from polisyos.ir import ArtifactRefModel, get_json_artifact
+from polisyos.ir.analytics.calibration import CalibrationConfig
 from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     load_uncertainty_envelope,
@@ -105,7 +114,13 @@ class _InvalidPropagationConfig(ValueError):
 
 
 class _InvalidResponseBasis(ValueError):
-    """A requested execute-backed response basis cannot be admitted for this run."""
+    """A response refusal retaining the shared source status when applicable."""
+
+    def __init__(
+        self, message: str, *, source_status: CalibrationSourceStatus | None = None
+    ) -> None:
+        self.source_status = source_status
+        super().__init__(message)
 
 
 class _ResponseProjectionSpec(BaseModel):
@@ -228,6 +243,15 @@ class PropagateUncertaintyNode:
                 ],
             )
 
+        response_intake = None
+        if response_projection is not None:
+            try:
+                response_intake = _read_calibration_response_intake(
+                    ctx,
+                    state.inputs.get(INPUT_CALIBRATION_REPORT_REF),
+                )
+            except _InvalidResponseBasis as exc:
+                return _response_basis_failure(state, exc)
         sim_result = _load_model(ctx, sim_result_ref, SimulationResult)
         response_candidate: ExecuteResponseBasisCandidate | None = None
         if response_projection is not None:
@@ -246,7 +270,10 @@ class PropagateUncertaintyNode:
                 return _response_basis_failure(
                     state,
                     _InvalidResponseBasis(
-                        f"selected execute response basis could not be revalidated: {exc}"
+                        f"selected execute response basis could not be revalidated: {exc}",
+                        source_status=classify_calibration_source_error(
+                            exc, role="calibration_response_source"
+                        ).status,
                     ),
                 )
 
@@ -258,6 +285,7 @@ class PropagateUncertaintyNode:
                     ctx,
                     calibration_ref,
                     response_candidate,
+                    intake=response_intake,
                 )
             except _InvalidResponseBasis as exc:
                 return _response_basis_failure(state, exc)
@@ -265,7 +293,10 @@ class PropagateUncertaintyNode:
                 return _response_basis_failure(
                     state,
                     _InvalidResponseBasis(
-                        f"selected calibration response source could not be rebound: {exc}"
+                        f"selected calibration response source could not be rebound: {exc}",
+                        source_status=classify_calibration_source_error(
+                            exc, role="calibration_response_source"
+                        ).status,
                     ),
                 )
             input_envelopes = dict(response_source.input_envelopes)
@@ -568,7 +599,14 @@ def _response_basis_failure(
         error=NodeError(
             code="propagation_response_basis_invalid",
             message=str(error),
-            details={"input": f"params.{_RESPONSE_BASIS_PARAM}"},
+            details={
+                "input": f"params.{_RESPONSE_BASIS_PARAM}",
+                **(
+                    {"source_status": error.source_status}
+                    if error.source_status is not None
+                    else {}
+                ),
+            },
         ),
     )
 
@@ -758,9 +796,13 @@ def _selected_core_ref(ref: Any, *, description: str) -> ArtifactRef:
         payload = ref.model_dump(mode="python") if isinstance(ref, BaseModel) else ref
         selected = ArtifactRef.model_validate(payload)
     except _PROPAGATION_VALIDATION_ERRORS as exc:
-        raise _InvalidResponseBasis(f"{description} is not a typed artifact reference") from exc
+        raise _InvalidResponseBasis(
+            f"{description} is not a typed artifact reference", source_status="mismatch"
+        ) from exc
     if selected.manifest_profile_sha256 is None:
-        raise _InvalidResponseBasis(f"{description} does not select a manifest profile")
+        raise _InvalidResponseBasis(
+            f"{description} does not select a manifest profile", source_status="not_established"
+        )
     return selected
 
 
@@ -778,61 +820,39 @@ def _selected_manifest(
     ref: ArtifactRef,
     *,
     expected_kind: str,
+    model: type[BaseModel] | None,
     expected_schema: str | None = None,
     expected_version: str | None = None,
 ) -> Any:
-    """Resolve and verify a selected Core manifest before reading its payload."""
+    """Use the common exact source intake; source absence is not contradiction."""
     if not isinstance(ctx.store, FileSystemCAS):
-        raise _InvalidResponseBasis("selected response reads require FileSystemCAS")
-    if ref.manifest_profile_sha256 is None:
-        raise _InvalidResponseBasis("selected response input has no manifest profile")
-    manifest = ctx.store.get_manifest(ref)
-    if (
-        manifest.kind != expected_kind
-        or manifest.media_type != "application/json"
-        or ref.kind != expected_kind
-        or ref.media_type != "application/json"
-    ):
-        raise _InvalidResponseBasis(f"selected response input kind mismatch: {expected_kind}")
-    if artifact_manifest_profile_sha256(manifest) != ref.manifest_profile_sha256:
-        raise _InvalidResponseBasis("selected response input profile does not match its manifest")
-    verification = ctx.store.verify(ref)
-    if not verification.ok:
         raise _InvalidResponseBasis(
-            f"selected response input integrity failure: {verification.error or expected_kind}"
+            "selected response reads require FileSystemCAS", source_status="not_established"
         )
-    schema = manifest.artifact_schema
-    if expected_schema is not None and (schema is None or schema.name != expected_schema):
-        raise _InvalidResponseBasis(f"selected response input schema mismatch: {expected_schema}")
-    if expected_version is not None and (schema is None or schema.version != expected_version):
-        raise _InvalidResponseBasis(
-            f"selected response input schema version mismatch: {expected_version}"
+    if model is None:
+        result = read_calibration_source(
+            ctx.store,
+            role=expected_kind,
+            ref=ref,
+            expected_kind=expected_kind,
+            expected_schema=expected_schema,
+            expected_versions=None if expected_version is None else (expected_version,),
+            decoder=lambda _ref, manifest, _payload: manifest,
         )
-    return manifest
-
-
-def _selected_manifest_input_ref(
-    ctx: ExecutionContext,
-    manifest: Any,
-    *,
-    role: str,
-    expected_kind: str,
-) -> ArtifactRef:
-    """Resolve exactly one profile-bound input edge from a selected manifest."""
-    matches = [item for item in manifest.inputs if item.role == role]
-    if len(matches) != 1:
-        raise _InvalidResponseBasis(f"selected source must bind exactly one {role} input")
-    edge = matches[0]
-    if edge.manifest_profile_sha256 is None:
-        raise _InvalidResponseBasis(f"selected source {role} input has no manifest profile")
-    selected = ArtifactRef(
-        artifact_id=edge.artifact_id,
-        kind=expected_kind,
-        media_type="application/json",
-        manifest_profile_sha256=edge.manifest_profile_sha256,
-    )
-    _selected_manifest(ctx, selected, expected_kind=expected_kind)
-    return selected
+    else:
+        result = read_calibration_model_source(
+            ctx.store,
+            role=expected_kind,
+            model=model,
+            ref=ref,
+            expected_kind=expected_kind,
+            expected_schema=expected_schema,
+            expected_versions=None if expected_version is None else (expected_version,),
+            decoder=lambda _ref, manifest, _payload: manifest,
+        )
+    if result.status != "matched":
+        raise _InvalidResponseBasis(result.code, source_status=result.status)
+    return result.require_value()
 
 
 def _optional_selected_basis_ref(
@@ -842,29 +862,37 @@ def _optional_selected_basis_ref(
     role: str,
     ref: ArtifactRef | None,
     status: str,
+    model: type[BaseModel],
 ) -> tuple[ArtifactRef | None, tuple[str, ...]]:
     """Bind a basis object's optional source ref to its exact persisted edge."""
     limitations: list[str] = []
     if status == "selected_source_mismatch":
-        raise _InvalidResponseBasis(f"calibration input basis records a mismatch for {role}")
-    edges = [item for item in basis_manifest.inputs if item.role == role]
-    if ref is None:
-        if edges:
-            raise _InvalidResponseBasis(f"calibration input basis has an unbound {role} edge")
-        limitations.append(f"calibration_basis_{role}_source_not_established")
+        raise _InvalidResponseBasis(
+            f"calibration input basis records a mismatch for {role}",
+            source_status="mismatch",
+        )
+    result = read_calibration_model_source(
+        ctx.store,
+        role=role,
+        model=model,
+        ref=ref,
+        inputs=basis_manifest.inputs,
+        expected_kind=None if ref is None else ref.kind,
+        decoder=lambda selected, _manifest, _payload: selected,
+    )
+    if ref is None and result.status == "matched":
+        raise _InvalidResponseBasis(
+            f"calibration input basis has an unbound {role} edge",
+            source_status="mismatch",
+        )
+    if result.status == "mismatch":
+        raise _InvalidResponseBasis(result.code, source_status=result.status)
+    if result.status == "not_established":
+        limitations.extend((f"calibration_basis_{role}_source_not_established", result.code))
         return None, tuple(limitations)
-    if ref.manifest_profile_sha256 is None:
-        if edges:
-            raise _InvalidResponseBasis(f"calibration input basis {role} ref is not profile-bound")
-        limitations.append(f"calibration_basis_{role}_source_profile_not_established")
-        return ref, tuple(limitations)
-    selected = _selected_core_ref(ref, description=f"calibration input basis {role} ref")
-    matching = [(str(item.artifact_id), item.manifest_profile_sha256) for item in edges]
-    if matching != [(str(selected.artifact_id), selected.manifest_profile_sha256)]:
-        raise _InvalidResponseBasis(f"calibration input basis {role} edge differs from its payload")
-    if status not in {"selected_source_matched"}:
+    if status != "selected_source_matched":
         limitations.append(f"calibration_basis_{role}_source_status:{status}")
-    return selected, tuple(limitations)
+    return result.require_value(), tuple(limitations)
 
 
 def _selected_basis_input_sha256(
@@ -873,109 +901,158 @@ def _selected_basis_input_sha256(
     model_type: type[BaseModel],
 ) -> str:
     """Hash one freshly resolved source using the basis producer's typed representation."""
-    selected_model = validate_core_model_json_artifact(model_type, ctx.store, ref)
-    return canonical_input_sha256(selected_model)
+    result = read_calibration_model_source(
+        ctx.store,
+        role=ref.kind,
+        ref=ref,
+        expected_kind=ref.kind,
+        model=model_type,
+        decoder=lambda _ref, _manifest, value: value,
+    )
+    if result.status != "matched":
+        raise _InvalidResponseBasis(result.code, source_status=result.status)
+    return canonical_input_sha256(result.require_value())
+
+
+@dataclass(frozen=True)
+class _CalibrationResponseIntake:
+    report_ref: ArtifactRef
+    report_manifest: ArtifactManifest
+    report: CalibrationReport
+    basis_ref: ArtifactRef
+    basis_manifest: ArtifactManifest
+    basis: CalibrationExecutionInputBasis
+    config_ref: ArtifactRef
+    config: CalibrationConfig
+    limitations: tuple[str, ...]
+
+
+def _read_calibration_response_intake(
+    ctx: ExecutionContext, raw_report_ref: Any
+) -> _CalibrationResponseIntake:
+    """Qualify the complete modelled scalar intake before candidate evaluation."""
+    report_source = read_calibration_report_source(ctx.store, ref=raw_report_ref)
+    if report_source.status != "matched":
+        raise _InvalidResponseBasis(report_source.code, source_status=report_source.status)
+    assert report_source.ref is not None
+    report_ref = CalibrationReportRef.model_validate(report_source.ref.model_dump(mode="python"))
+    report_manifest = report_source.manifest
+    report = report_source.require_value()
+    assert report_manifest is not None
+    if report.ordered_batch_execution is not None:
+        raise _InvalidResponseBasis("ordered_batch_response_basis_not_supported")
+    if report.schema_version != "2.0":
+        raise _InvalidResponseBasis("execute response requires a scalar v2 calibration report")
+
+    basis_source = read_calibration_execution_input_basis_source(
+        ctx.store, inputs=report_manifest.inputs
+    )
+    if basis_source.status != "matched":
+        raise _InvalidResponseBasis(basis_source.code, source_status=basis_source.status)
+    basis_ref = basis_source.ref
+    basis_manifest = basis_source.manifest
+    basis = basis_source.require_value()
+    assert basis_ref is not None
+    assert basis_manifest is not None
+    if basis.schema_version == "1.2":
+        # The response executor currently has one selected starting state, not
+        # an ordered-row experiment. Never reinterpret a batch as scalar v1.0.
+        raise _InvalidResponseBasis("ordered_batch_response_basis_not_supported")
+
+    report_config_source = read_calibration_config_source(ctx.store, inputs=report_manifest.inputs)
+    if report_config_source.status != "matched":
+        raise _InvalidResponseBasis(
+            report_config_source.code, source_status=report_config_source.status
+        )
+    report_config_ref = report_config_source.ref
+    assert report_config_ref is not None
+    basis_config_source = read_calibration_config_source(
+        ctx.store,
+        ref=basis.calibration_config_ref,
+        inputs=basis_manifest.inputs,
+    )
+    if basis_config_source.status != "matched":
+        raise _InvalidResponseBasis(
+            basis_config_source.code, source_status=basis_config_source.status
+        )
+    config_ref = basis_config_source.ref
+    assert config_ref is not None
+    if _reference_identity(config_ref) != _reference_identity(report_config_ref):
+        raise _InvalidResponseBasis(
+            "calibration report and execution basis select different configs",
+            source_status="mismatch",
+        )
+    limitations = list(basis.limitations)
+    if basis.input_capture_status != "content_bound":
+        limitations.append(
+            f"calibration_execution_input_capture_status:{basis.input_capture_status}"
+        )
+
+    return _CalibrationResponseIntake(
+        report_ref=report_ref,
+        report_manifest=report_manifest,
+        report=report,
+        basis_ref=basis_ref,
+        basis_manifest=basis_manifest,
+        basis=basis,
+        config_ref=config_ref,
+        config=basis_config_source.require_value(),
+        limitations=tuple(limitations),
+    )
 
 
 def _load_calibration_response_source(
     ctx: ExecutionContext,
     raw_report_ref: Any,
     candidate: ExecuteResponseBasisCandidate,
+    *,
+    intake: _CalibrationResponseIntake | None = None,
 ) -> _CalibrationResponseSource:
     """Rebind calibration envelopes and basis identities to the response candidate."""
-    report_ref = CalibrationReportRef.model_validate(
-        _selected_core_ref(
-            raw_report_ref,
-            description="inputs.calibration_report_ref",
-        ).model_dump(mode="python")
+    selected = intake or _read_calibration_response_intake(ctx, raw_report_ref)
+    report_ref, report_manifest, report = (
+        selected.report_ref,
+        selected.report_manifest,
+        selected.report,
     )
-    report_manifest = _selected_manifest(
-        ctx,
-        report_ref,
-        expected_kind="foundry.calibration_report",
-        expected_schema="polisyos.foundry.CalibrationReport",
-        expected_version="2.0",
-    )
-    report = validate_core_model_json_artifact(CalibrationReport, ctx.store, report_ref)
-    if report.schema_version != "2.0":
-        raise _InvalidResponseBasis("execute response requires a v2 calibration report")
-
-    basis_ref = _selected_manifest_input_ref(
-        ctx,
-        report_manifest,
-        role="calibration_execution_input_basis",
-        expected_kind="foundry.calibration_execution_input_basis",
-    )
-    basis_manifest = _selected_manifest(
-        ctx,
-        basis_ref,
-        expected_kind="foundry.calibration_execution_input_basis",
-        expected_schema="polisyos.foundry.CalibrationExecutionInputBasis",
-        expected_version="1.0",
-    )
-    basis = load_calibration_execution_input_basis(ctx.store, basis_ref)
-
-    report_config_ref = _selected_manifest_input_ref(
-        ctx,
-        report_manifest,
-        role="calibration_config",
-        expected_kind="foundry.calibration_config",
-    )
-    if _reference_identity(report_config_ref) != _reference_identity(basis.calibration_config_ref):
-        raise _InvalidResponseBasis(
-            "calibration report and execution basis select different configs"
-        )
-
-    limitations = list(basis.limitations)
-    if basis.input_capture_status != "content_bound":
-        limitations.append(
-            f"calibration_execution_input_capture_status:{basis.input_capture_status}"
-        )
-    config_ref, refs = _optional_selected_basis_ref(
-        ctx,
-        basis_manifest,
-        role="calibration_config",
-        ref=basis.calibration_config_ref,
-        status="selected_source_matched",
-    )
-    if config_ref is None or _reference_identity(config_ref) != _reference_identity(
-        report_config_ref
-    ):
-        raise _InvalidResponseBasis(
-            "calibration basis config edge differs from selected report config"
-        )
-    limitations.extend(refs)
+    basis_ref, basis_manifest, basis = selected.basis_ref, selected.basis_manifest, selected.basis
+    config_ref = selected.config_ref
+    limitations = list(selected.limitations)
 
     source_specs = (
-        ("exec_plan_ref", "exec_plan", "exec_plan_source_status", "exec_plan"),
-        ("program_graph_ref", "program", "program_graph_status", "program_graph"),
+        ("exec_plan_ref", "exec_plan", "exec_plan_source_status", "exec_plan", ExecPlan),
+        ("program_graph_ref", "program", "program_graph_status", "program_graph", ProgramGraph),
         (
             "base_state_snapshot_ref",
             "bound_state",
             "base_state_source_status",
             "base_state_snapshot",
+            StateSnapshot,
         ),
         (
             "registry_bundle_ref",
             "registry",
             "registry_bundle_status",
             "registry_bundle",
+            RegistryBundlePayload,
         ),
         (
             "mechanism_registry_ref",
             "registry.mechanism_registry",
             "mechanism_registry_status",
             "mechanism_registry",
+            MechanismTypeRegistry,
         ),
         (
             "unit_registry_ref",
             "registry.units_registry",
             "unit_registry_status",
             "unit_registry",
+            UnitsRegistry,
         ),
     )
     resolved_basis_refs: dict[str, ArtifactRef | None] = {"calibration_config": config_ref}
-    for field_name, candidate_role, status_name, basis_role in source_specs:
+    for field_name, candidate_role, status_name, basis_role, model_type in source_specs:
         basis_ref_value = getattr(basis, field_name)
         status = getattr(basis, status_name)
         selected, ref_limitations = _optional_selected_basis_ref(
@@ -984,6 +1061,7 @@ def _load_calibration_response_source(
             role=basis_role,
             ref=basis_ref_value,
             status=status,
+            model=model_type,
         )
         resolved_basis_refs[basis_role] = selected
         limitations.extend(ref_limitations)
@@ -998,7 +1076,10 @@ def _load_calibration_response_source(
                     f"calibration basis and response source select different {basis_role} objects"
                 )
         elif status == "selected_source_matched":
-            raise _InvalidResponseBasis(f"calibration basis {basis_role} source is not selected")
+            raise _InvalidResponseBasis(
+                f"calibration basis {basis_role} source is not selected",
+                source_status="not_established",
+            )
         else:
             limitations.append(f"calibration_basis_{basis_role}_candidate_join_not_established")
 
@@ -1115,6 +1196,7 @@ def _load_calibration_response_source(
                 ctx,
                 standalone_ref,
                 expected_kind="ir.uncertainty_envelope",
+                model=UncertaintyEnvelope,
                 expected_schema="ir.uncertainty_envelope",
                 expected_version="1.1",
             )
@@ -1304,7 +1386,7 @@ def _reconcile_calibration_parameter_inputs(
                 raise _InvalidResponseBasis(
                     f"calibration parameter input source differs from program node {row.node_id}"
                 )
-            _selected_manifest(ctx, expected_ref, expected_kind=expected_ref.kind)
+            _selected_manifest(ctx, expected_ref, expected_kind=expected_ref.kind, model=None)
             payload = get_json_artifact(_ensure_ir_artifact_store(ctx.store), expected_ref)
             actual_payload_digest = canonical_input_sha256(payload)
             if row.payload_sha256 is None:

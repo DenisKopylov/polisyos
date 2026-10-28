@@ -9,9 +9,11 @@ inspect calibration quality without rerunning simulation.
 from __future__ import annotations
 
 import math
-from collections.abc import Mapping
-from typing import Any, Literal
+from collections.abc import Mapping, Sequence
+from typing import TYPE_CHECKING, Any, Literal
 
+import numpy as np
+from numpy.typing import ArrayLike
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts import ArtifactStore
@@ -22,6 +24,9 @@ from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
 from polisyos.foundry.calibration.identifiability import IdentifiabilityReport
 from polisyos.ir.analytics.calibration import CalibrationConfig
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
+
+if TYPE_CHECKING:
+    from polisyos.foundry.calibration.execution_basis import CalibrationSourceRead
 
 
 class CalibrationSeriesComparison(BaseModel):
@@ -44,6 +49,45 @@ class CalibrationFitMetrics(BaseModel):
     mae: float
     r2: float | None = None
     n: int | None = None
+
+
+def ordered_batch_fit_metrics(
+    model: ArrayLike,
+    real: ArrayLike,
+    weights: ArrayLike,
+) -> CalibrationFitMetrics:
+    """Compute the profile's metric-unit residual summaries over its actual weighted rows."""
+    model_arr, real_arr = (np.asarray(value, dtype=np.float64) for value in (model, real))
+    with np.errstate(over="ignore", under="ignore", invalid="ignore"):
+        weight_arr = np.asarray(weights, dtype=np.float32).astype(np.float64)
+    if np.any((np.asarray(weights) > 0) & (weight_arr == 0)):
+        raise ValueError("ordered metric weights underflow in the declared float32 profile")
+    if (
+        model_arr.ndim != 1
+        or real_arr.shape != model_arr.shape
+        or weight_arr.shape != model_arr.shape
+    ):
+        raise ValueError("ordered fit metric inputs require exact one-dimensional row shape")
+    if not all(np.all(np.isfinite(value)) for value in (model_arr, real_arr, weight_arr)) or np.any(
+        weight_arr < 0
+    ):
+        raise ValueError("ordered fit metric inputs require finite values and nonnegative weights")
+    support = float(weight_arr.sum())
+    if not 0 < support < math.inf:
+        raise ValueError("ordered fit metrics require positive finite support")
+    diff = model_arr - real_arr
+    mse = float(np.sum(weight_arr * diff**2) / support)
+    mae = float(np.sum(weight_arr * np.abs(diff)) / support)
+    mean = float(np.sum(weight_arr * real_arr) / support)
+    denom = float(np.sum(weight_arr * (real_arr - mean) ** 2))
+    r2 = None if denom <= 0 else float(1 - np.sum(weight_arr * diff**2) / denom)
+    return CalibrationFitMetrics(
+        mse=mse,
+        rmse=float(np.sqrt(mse)),
+        mae=mae,
+        r2=r2,
+        n=int(np.count_nonzero(weight_arr > 0)),
+    )
 
 
 class CalibrationFitQuality(BaseModel):
@@ -102,12 +146,51 @@ class CalibrationCoordinateProjection(BaseModel):
         return self
 
 
+class CalibrationOrderedBatchReport(BaseModel):
+    """Declare the batch objective scope without granting inferential authority."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    profile_kind: Literal["ordered_scalar_mse_v1"] = "ordered_scalar_mse_v1"
+    objective_kind: Literal["generic_weighted_mse_curvature_only"] = (
+        "generic_weighted_mse_curvature_only"
+    )
+    inference_status: Literal["unavailable_generic_loss"] = "unavailable_generic_loss"
+    consumed_profile_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    selected_input_ref: ArtifactRef | None = None
+    input_status: Literal["selected_input_consumed", "in_memory_input_only"]
+
+    @model_validator(mode="after")
+    def validate_selected_input(self) -> CalibrationOrderedBatchReport:
+        if (self.input_status == "selected_input_consumed") != (
+            self.selected_input_ref is not None
+        ):
+            raise ValueError("ordered_report_input_status_must_match_selected_reference")
+        if self.selected_input_ref is not None and (
+            self.selected_input_ref.kind != "foundry.calibration_ordered_input"
+            or self.selected_input_ref.media_type != "application/json"
+        ):
+            raise ValueError("ordered_report_requires_selected_full_input")
+        return self
+
+
 class CalibrationReport(BaseModel):
     """Persist calibrated parameters, trace comparisons, and diagnostics."""
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field("2.0", pattern=r"^\d+\.\d+$")
+    schema_version: Literal["1.0", "2.0", "2.1"] = "2.0"
+    ordered_batch_execution: CalibrationOrderedBatchReport | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+
+    @model_validator(mode="after")
+    def validate_ordered_scope(self) -> CalibrationReport:
+        if (self.schema_version == "2.1") != (self.ordered_batch_execution is not None):
+            raise ValueError("report_v2_1_requires_typed_ordered_objective_scope")
+        return self
+
     calibrated_params: Mapping[str, float] = Field(
         default_factory=dict,
         description="Flat parameter map keyed as `node_id.param`.",
@@ -184,12 +267,40 @@ def serialize_calibration_report_v1(report: CalibrationReport) -> bytes:
     This preserves byte-exact replay of v1 report hashes after the current
     report schema gained ``coordinate_projection``.
     """
+    if report.schema_version not in {"1.0", "2.0"} or report.ordered_batch_execution is not None:
+        raise ValueError("ordered_batch_report_cannot_be_projected_as_legacy_v1")
     payload = report.model_dump(
         mode="json",
         exclude={"coordinate_projection", "coordinate_projection_status"},
     )
     payload["schema_version"] = "1.0"
     return to_canonical_bytes(payload, CanonSpec(forbid_floats=False))
+
+
+def read_calibration_config_source(
+    store: ArtifactStore,
+    *,
+    ref: object | None = None,
+    inputs: Sequence[InputRef] | None = None,
+) -> CalibrationSourceRead[CalibrationConfig]:
+    """Admit the config through its strict model and the producer's version relation."""
+    from polisyos.foundry.calibration.execution_basis import (
+        _decode_versioned_calibration_model,
+        read_calibration_model_source,
+    )
+
+    return read_calibration_model_source(
+        store,
+        role="calibration_config",
+        model=CalibrationConfig,
+        ref=ref,
+        inputs=inputs,
+        expected_kind="foundry.calibration_config",
+        expected_schema="polisyos.ir.CalibrationConfig",
+        decoder=lambda _ref, manifest, value: _decode_versioned_calibration_model(
+            CalibrationConfig, manifest, value
+        ),
+    )
 
 
 def put_calibration_config(
@@ -220,10 +331,26 @@ def put_calibration_report(
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
     """Persist a `CalibrationReport` artifact for downstream governance/replay."""
-    if report.schema_version != "1.0" and not any(
+    if report.schema_version == "2.0" and not any(
         input_ref.role == "calibration_config" for input_ref in inputs or ()
     ):
         raise ValueError("versioned calibration reports require their calibration_config input")
+    if report.schema_version not in {"1.0", "2.0"} or report.ordered_batch_execution is not None:
+        report = CalibrationReport.model_validate(report.model_dump(mode="python"))
+    if report.ordered_batch_execution is not None:
+        from polisyos.foundry.calibration.execution_basis import (
+            read_calibration_execution_input_basis_source,
+            read_calibration_source,
+            reconcile_ordered_batch_report_identity,
+        )
+
+        basis = read_calibration_execution_input_basis_source(
+            store, inputs=inputs or ()
+        ).require_value()
+        read_calibration_config_source(
+            store, ref=basis.calibration_config_ref, inputs=inputs or ()
+        ).require_value()
+        reconcile_ordered_batch_report_identity(basis, report)
     # V2 carries typed nulls, including `confidence_level=None` for heuristic
     # intervals. The default canonical profile omits nulls, which would make
     # the IR model's 0.95 default reappear on replay and contradict that

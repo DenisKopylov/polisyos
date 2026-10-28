@@ -273,3 +273,51 @@ directly for generation, evaluation, run state, and stopping. The public
 `SearchController` compatibility facade and the `SearchService` ask/tell
 contract remain available through their existing search-package paths; the
 private owner is not re-exported by the autotune facade.
+
+
+## Ordered calibration report metric admission
+
+`CalibrationMetaEvaluator` keeps genuine scalar report2.0 runner/scoring behavior.
+A runner may additionally return `(report, selected_report_ref)`, matching the
+existing `Calibrator.run_and_persist` result. New typed batch report2.1 metrics
+require that selected ref, a store, exact returned/selected content equality, and
+`foundry.calibration.replay_ordered_batch_report_projection`. The shared owner
+reopens the selected full input/config/graph/plan/registry/parameter sources and
+recomputes one final forward, configured loss and weighted metrics. It does not
+rerun optimization/Hessian or attest an issuer or external calibration law.
+
+Missing/denied selected bytes or an unavailable numeric/PRNG profile gives
+`not_established`; malformed present or contradictory selected metrics
+give `mismatch`. The split objective is withheld rather than replacing an absent
+measurement with zero or dropping an inconvenient row. Existing evaluation
+`status`, notes and metadata retain those limitations, selected refs and the
+candidate evidence grade, and the metric-source guardrail blocks promotion. An
+unavailable incumbent score is likewise unavailable, not a measured zero.
+Successful batch scoring retains `inference_status=unavailable_generic_loss`;
+the existing condition-number score is a candidate curvature diagnostic and does
+not become inferential calibration. Real selected-producer consumer tests are in
+the welfare fixture module; legacy/unselected profile tests remain in the mirrored
+autotune test module. Runtime execution and external scientific authority are
+separate from these source contracts.
+
+
+Calibration selected reads share Foundry's `read_calibration_source()` and typed
+availability result with welfare and the scalar response reader. A profileless
+readable basis is `not_established` and cannot supply aggregate fit scoring;
+a duplicate selection or malformed present selected payload is `mismatch`.
+Both preserve the candidate-only limitation and prevent promotion. No default
+manifest or missing authority is inferred. The same exact report/ref is exercised
+through the real welfare and `CalibrationMetaEvaluator` paths in the batch tests.
+
+
+Selected new batch JSON models are admitted through Core's strict schema-directed
+wire reader, not a coercing model constructor. NPZ sources follow their generic CAS
+and snapshot owners. The same-report status discriminator collects both actual
+welfare and autotune outcomes before assertions, so a mutation cannot hide one
+consumer behind the other's early failure. Runtime receipts remain necessary.
+
+
+Modelled calibration JSON uses the required-model intake. Configuration is admitted
+by its canonical producer/reader owner across scalar and batch paths. Raw/reference
+reads are explicitly content-only; they cannot silently stand in for typed model
+admission. Current caller classification is a source review aid, not a keyword gate.

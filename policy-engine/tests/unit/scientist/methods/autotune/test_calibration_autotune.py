@@ -199,3 +199,41 @@ def test_calibration_meta_promotion_uses_fit_quality_and_blocks_divergence(tmp_p
     assert good_decision.promoted is True
     assert bad_eval.guardrails["no_divergence"] is False
     assert bad_decision.promoted is False
+
+
+def test_unselected_new_batch_report_is_explicitly_limited_without_scoring(tmp_path) -> None:
+    from polisyos.foundry.calibration.report import CalibrationOrderedBatchReport
+
+    store = FileSystemCAS(tmp_path / "unselected_batch")
+    suite_ref = persist_benchmark_suite(store, _calibration_suite(tmp_path))
+    candidate_ref = persist_mutation_artifact(store, CalibrationMetaSearchConfig())
+    payload = _report(rmse=0.0, runtime_seconds=0.0).model_dump(mode="python")
+    payload.update(
+        schema_version="2.1",
+        ordered_batch_execution=CalibrationOrderedBatchReport(
+            consumed_profile_sha256="0" * 64,
+            input_status="in_memory_input_only",
+        ),
+    )
+    report = CalibrationReport.model_validate(payload)
+    result = CalibrationMetaEvaluator(store=store).evaluate(
+        candidate_ref,
+        suite_ref,
+        {
+            "calibration_runner": lambda *_args: report,
+        },
+    )
+    assert result.status == "limited"
+    assert result.promotable is False
+    assert result.guardrails["calibration_metric_sources_ready"] is False
+    assert "aggregate_fit_quality" not in result.holdout_metrics
+    assert result.sample_counts == {"selection": 0, "holdout": 0}
+    assert "ordered_autotune_metrics_require_selected_report_and_store" in result.notes
+    ref = persist_benchmark_evaluation(store, result)
+    from polisyos.core.canon import from_canonical_bytes
+
+    persisted = from_canonical_bytes(FileSystemCAS(tmp_path / "unselected_batch").get_bytes(ref))
+    assert (
+        persisted["metadata"]["calibration_metric_sources"]["holdout"][0]["metric_source_status"]
+        == "not_established"
+    )

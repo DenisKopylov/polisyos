@@ -1,0 +1,44 @@
+id = "2026-10-28-cal05-selector-batch-executor"
+title = "Admit calibration selectors and an optimizer-backed ordered-row profile"
+type = "added"
+component = "foundry"
+owner = "team-polisyos"
+summary = "The real Calibrator optimizer, selected report, and Hessian forward can consume an explicit ordered state/time/key/target/weight profile, consuming a separately selected full input1.0 before fit, selecting it in basis1.2/report2.1, preserving scalar bases1.0/1.1 and report1.0/2.0, and replaying one final forward/metric projection at fresh consumers."
+evidence = ["src/polisyos/foundry/calibration/pure_executor.py", "tests/unit/foundry/calibration/test_pure_executor_semantics.py", "src/polisyos/foundry/calibration/README.md"]
+compatibility = "Scalar signatures and ordinary valid results remain unchanged; inactive selectors intentionally skip numerical emitters. The additive finite-state float profile refuses unsupported scopes/shapes/objective/seed/alignment combinations, integer weights, unavailable source dtypes, sentinel infinities and invalid original/effective support; v1.1 roster semantics remain frozen."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry.calibration.apply_nodes_batch"
+migration = "No scalar migration. Opt in with CalibratorInputs.ordered_batch_profile; the actual fit reopens full input1.0, basis1.2 selects it and report2.1 keeps typed input/curvature scope. Fresh welfare/autotune replays selected numerical projections; unsupported old readers refuse new versions. The execute-state response sibling supports scalar bases1.0/1.1 and explicitly refuses batch report2.1/basis1.2."
+api = "apply_nodes_batch(states, row_times, row_keys, *, bundle) applies exactly one positional scalar step per row."
+limitations = "Generic weighted-MSE Hessians remain curvature-only and unavailable for inferential welfare uncertainty. One shared selected-source intake keeps absent/profileless/unavailable sources limited across welfare, autotune and response; readable default bases do not qualify. Present selected-byte/schema conflicts remain mismatches; unavailable Threefry contexts stay unqualified. External source, unit, time, independence, and noise-law authority are not established. Typed JSON delegates Core strict adaptation, binary NPZ uses generic CAS/snapshot owners, and actual nodes classify unavailable supplied reports before evaluation. Legacy scalar display remains unqualified. Typed JSON now requires an explicit model owner, config admission is shared by scalar/batch consumers at its producer owner, and one media-independent raw-result owner admits unchanged Core-native payloads/binary bytes or exact selected metadata, refusing direct/nested domain DTOs and foreign metadata. Public generated inventory update is reserved for root composition."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/calibration/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "cal05-executor-batch-api"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.foundry.calibration.apply_nodes_batch"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Foundry calibration callers may execute aligned state/time/key rows through scalar schedule branches with lax.map."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/foundry/calibration/README.md"]
+runbook_docs = []
+
+
+[[compatibility_change]]
+id = "cal05-selected-input-report-profile"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.foundry.calibration"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "New full ordered input1.0, basis1.2 and report2.1 bind local consumed bytes and scoped curvature-only diagnostics. Legacy scalar wire omits additive optional fields; new versions must not be reinterpreted by old readers."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/foundry/calibration/README.md", "src/polisyos/scientist/methods/autotune/README.md"]
+runbook_docs = []

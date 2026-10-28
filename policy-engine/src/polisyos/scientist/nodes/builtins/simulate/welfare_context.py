@@ -25,18 +25,31 @@ from polisyos.core.contracts import (
     Metrics,
     SimulationResult,
 )
-from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph, SimulationResultRef
-from polisyos.core.registry import load_registry_bundle_content
-from polisyos.foundry.calibration import CalibrationReport
+from polisyos.core.contracts.foundry import (
+    ExecPlan,
+    ProgramGraph,
+    SimulationResultRef,
+    StateSnapshot,
+)
+from polisyos.foundry.calibration import CalibrationReport, read_calibration_config_source
 from polisyos.foundry.calibration.execution_basis import (
     RUNTIME_REGISTRY_MEMBER_CONTRACT,
     CalibrationExecutionInputBasis,
+    CalibrationOrderedBatchBackendUnavailable,
     CalibrationParameterUnitIdentity,
     calibration_report_series_sha256,
     calibration_report_time_axis_sha256,
     canonical_input_sha256,
     load_calibration_execution_input_basis,
+    read_calibration_execution_input_basis_source,
+    read_calibration_model_source,
+    read_calibration_registry_source,
+    read_calibration_report_source,
+    read_calibration_source,
+    reconcile_ordered_batch_report_identity,
     reconcile_selected_runtime_input,
+    record_calibration_source_error,
+    replay_ordered_batch_report_projection,
 )
 from polisyos.foundry.execute import (
     ExecutionSourceAdmissionRefusal,
@@ -96,26 +109,14 @@ def _artifact_ref_identity(ref: ArtifactRef) -> tuple[str, str, str, str | None]
 
 
 def _selected_input_ref(ctx: ExecutionContext, edge: InputRef) -> ArtifactRef:
-    """Resolve one manifest input edge to the exact selected artifact view."""
-    if edge.manifest_profile_sha256 is None:
-        manifest = ctx.store.get_manifest(edge.artifact_id)
-        profile_sha256 = None
-    else:
-        manifest = resolve_manifest_by_profile(
-            ctx.store,
-            edge.artifact_id,
-            edge.manifest_profile_sha256,
-        )
-        profile_sha256 = edge.manifest_profile_sha256
-    ref = ArtifactRef(
-        artifact_id=edge.artifact_id,
-        kind=manifest.kind,
-        media_type=manifest.media_type,
-        manifest_profile_sha256=profile_sha256,
-    )
-    if not ctx.store.verify(ref).ok:
-        raise ValueError("calibration_lineage_input_integrity_failure")
-    return ref
+    """Resolve one exact input with the shared selection/availability classification."""
+    return read_calibration_source(
+        ctx.store,
+        role=edge.role,
+        inputs=(edge,),
+        expected_media_type=None,
+        decoder=lambda selected, _manifest, _payload: selected,
+    ).require_value()
 
 
 def _load_registry_model(
@@ -126,22 +127,16 @@ def _load_registry_model(
     expected_kind: str,
     expected_schema: str,
 ) -> Any:
-    """Resolve and validate one exact selected runtime-registry member."""
-    if ref.manifest_profile_sha256 is None:
-        raise ValueError("selected_runtime_registry_profile_missing")
-    manifest = resolve_manifest_by_profile(
+    """Delegate selected registry reads to the shared availability intake."""
+    return read_calibration_model_source(
         ctx.store,
-        ref.artifact_id,
-        ref.manifest_profile_sha256,
-    )
-    if manifest.kind != expected_kind or manifest.media_type != "application/json":
-        raise ValueError("selected_runtime_registry_kind_media_mismatch")
-    schema = manifest.artifact_schema
-    if schema is None or schema.name != expected_schema:
-        raise ValueError("selected_runtime_registry_schema_mismatch")
-    if not ctx.store.verify(ref).ok:
-        raise ValueError("selected_runtime_registry_integrity_failure")
-    return model_cls.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
+        role=expected_kind,
+        ref=ref,
+        expected_kind=expected_kind,
+        expected_schema=expected_schema,
+        model=model_cls,
+        decoder=lambda _ref, _manifest, value: value,
+    ).require_value()
 
 
 def _graph_parameter_nodes(
@@ -242,28 +237,67 @@ def _calibration_execution_source_join(
     limitations: set[str] = set()
     blockers: set[str] = set()
     issues: set[str] = set()
-    report_manifest = ctx.store.get_manifest(report_ref)
-    basis_edges = [
-        edge for edge in report_manifest.inputs if edge.role == "calibration_execution_input_basis"
-    ]
-    if not basis_edges:
-        return "not_established", ("source_execution_not_established",), ()
-    if report_ref.manifest_profile_sha256 is None:
-        issues.add("calibration_report_selected_profile_missing")
-    if len(basis_edges) != 1:
-        return "mismatch", (), ("calibration_execution_basis_edge_ambiguous",)
-
-    try:
-        basis_ref = _selected_input_ref(ctx, basis_edges[0])
-        if basis_ref.manifest_profile_sha256 is None:
-            raise ValueError("calibration_execution_input_basis_selected_profile_missing")
-        basis: CalibrationExecutionInputBasis = load_calibration_execution_input_basis(
-            ctx.store,
-            basis_ref,
+    if report.ordered_batch_execution is not None:
+        limitations.add("calibration_batch_curvature_only")
+    selected_report = read_calibration_report_source(ctx.store, ref=report_ref)
+    if selected_report.status != "matched":
+        if selected_report.status == "not_established":
+            return (
+                "not_established",
+                tuple(
+                    sorted(limitations | {"source_execution_not_established", selected_report.code})
+                ),
+                (),
+            )
+        return "mismatch", tuple(sorted(limitations)), (selected_report.code,)
+    actual_report = selected_report.require_value()
+    if actual_report.model_dump(mode="json") != report.model_dump(mode="json"):
+        return (
+            "mismatch",
+            tuple(sorted(limitations)),
+            ("calibration_selected_report_payload_mismatch",),
         )
-    except (FileNotFoundError, TypeError, ValueError, KeyError):
-        return "mismatch", (), ("calibration_execution_basis_invalid",)
-
+    report_manifest = selected_report.manifest
+    assert report_manifest is not None
+    selected_basis = read_calibration_execution_input_basis_source(
+        ctx.store, inputs=report_manifest.inputs
+    )
+    if selected_basis.status != "matched":
+        if selected_basis.status == "not_established":
+            return (
+                "not_established",
+                tuple(
+                    sorted(
+                        limitations
+                        | {
+                            "source_execution_not_established",
+                            "calibration_execution_input_unavailable",
+                            selected_basis.code,
+                        }
+                    )
+                ),
+                (),
+            )
+        return (
+            "mismatch",
+            tuple(sorted(limitations)),
+            ("calibration_execution_basis_invalid", selected_basis.code),
+        )
+    basis = selected_basis.require_value()
+    basis_ref = selected_basis.ref
+    assert basis_ref is not None
+    if basis.ordered_batch_profile is not None:
+        limitations.add("calibration_batch_curvature_only")
+    if basis.schema_version == "1.2" or report.ordered_batch_execution is not None:
+        try:
+            reconcile_ordered_batch_report_identity(basis, report)
+        except (TypeError, ValueError, KeyError) as error:
+            record_calibration_source_error(
+                error,
+                role="calibration_ordered_report_input_scope_mismatch",
+                limitations=blockers,
+                issues=issues,
+            )
     if basis.input_capture_status == "limited":
         blockers.add("calibration_execution_input_capture_limited")
     if basis.source_attestation_status == "not_established":
@@ -291,20 +325,14 @@ def _calibration_execution_source_join(
     elif basis.base_state_source_status != "selected_source_matched":
         blockers.add("calibration_base_state_source_not_established")
 
-    config_edges = [edge for edge in report_manifest.inputs if edge.role == "calibration_config"]
-    if len(config_edges) != 1:
-        issues.add("calibration_execution_config_edge_invalid")
-    else:
-        try:
-            report_config_ref = _selected_input_ref(ctx, config_edges[0])
-            if _artifact_ref_identity(report_config_ref) != _artifact_ref_identity(
-                basis.calibration_config_ref
-            ):
-                issues.add("calibration_execution_config_ref_mismatch")
-            if report_config_ref.manifest_profile_sha256 is None:
-                blockers.add("calibration_config_selected_profile_not_established")
-        except (FileNotFoundError, TypeError, ValueError, KeyError):
-            issues.add("calibration_execution_config_edge_invalid")
+    config_source = read_calibration_config_source(
+        ctx.store, ref=basis.calibration_config_ref, inputs=report_manifest.inputs
+    )
+    if config_source.status != "matched":
+        if config_source.status == "not_established":
+            blockers.update(("source_execution_not_established", config_source.code))
+        else:
+            issues.update(("calibration_execution_config_edge_invalid", config_source.code))
 
     report_target_order = tuple(report.series_comparison)
     if report_target_order != basis.target_order:
@@ -388,14 +416,34 @@ def _calibration_execution_source_join(
             selected_simulation_ref = SimulationResultRef.model_validate(
                 simulation_ref.model_dump(mode="python")
             )
+            read_calibration_model_source(
+                ctx.store,
+                role="simulation_result",
+                ref=selected_simulation_ref,
+                expected_kind=selected_simulation_ref.kind,
+                decoder=lambda selected, _manifest, _payload: selected,
+                model=SimulationResult,
+            ).require_value()
             admitted = admit_execution_source(ctx.store, selected_simulation_ref)
         except ExecutionSourceAdmissionRefusal:
             if simulation_ref.manifest_profile_sha256 is None:
                 blockers.add("source_execution_not_established")
             else:
                 issues.add("selected_simulation_execution_source_invalid")
-        except (FileNotFoundError, TypeError, ValueError, KeyError):
-            issues.add("selected_simulation_execution_source_invalid")
+        except (
+            FileNotFoundError,
+            PermissionError,
+            NotImplementedError,
+            TypeError,
+            ValueError,
+            KeyError,
+        ) as error:
+            record_calibration_source_error(
+                error,
+                role="selected_simulation_execution_source_invalid",
+                limitations=blockers,
+                issues=issues,
+            )
         else:
             if admitted.mode != "single_step_basis" or admitted.basis is None:
                 blockers.add("source_execution_not_established")
@@ -425,14 +473,23 @@ def _calibration_execution_source_join(
                 if basis.exec_plan_source_status != "selected_source_matched":
                     blockers.add("calibration_exec_plan_source_not_established")
                 try:
-                    graph_payload = from_canonical_bytes(
-                        ctx.store.get_bytes(basis.program_graph_ref)
-                    )
-                    graph = ProgramGraph.model_validate(graph_payload)
+                    graph = read_calibration_model_source(
+                        ctx.store,
+                        role="program_graph",
+                        ref=basis.program_graph_ref,
+                        expected_kind=basis.program_graph_ref.kind,
+                        decoder=lambda _ref, _manifest, payload: payload,
+                        model=ProgramGraph,
+                    ).require_value()
                     plan = (
-                        ExecPlan.model_validate(
-                            from_canonical_bytes(ctx.store.get_bytes(basis.exec_plan_ref))
-                        )
+                        read_calibration_model_source(
+                            ctx.store,
+                            role="exec_plan",
+                            ref=basis.exec_plan_ref,
+                            expected_kind=basis.exec_plan_ref.kind,
+                            decoder=lambda _ref, _manifest, payload: payload,
+                            model=ExecPlan,
+                        ).require_value()
                         if basis.exec_plan_ref is not None
                         else basis.exec_plan
                     )
@@ -446,36 +503,79 @@ def _calibration_execution_source_join(
                         basis.program_graph_ref
                     ):
                         issues.add("calibration_execution_plan_graph_mismatch")
-                except (FileNotFoundError, TypeError, ValueError, KeyError):
-                    issues.add("calibration_execution_source_payload_invalid")
+                except (
+                    FileNotFoundError,
+                    PermissionError,
+                    NotImplementedError,
+                    TypeError,
+                    ValueError,
+                    KeyError,
+                ) as error:
+                    record_calibration_source_error(
+                        error,
+                        role="calibration_execution_source_payload_invalid",
+                        limitations=blockers,
+                        issues=issues,
+                    )
                 try:
-                    state_manifest = ctx.store.get_manifest(basis.base_state_snapshot_ref)
-                    state_blob_edges = [
-                        edge for edge in state_manifest.inputs if edge.role == "state_blob"
-                    ]
-                    if len(state_blob_edges) != 1:
-                        issues.add("calibration_execution_state_blob_edge_invalid")
-                    else:
-                        state_blob_ref = _selected_input_ref(ctx, state_blob_edges[0])
-                        state_blob = ctx.store.get_bytes(state_blob_ref)
-                        raw_sha256 = hashlib.sha256(state_blob).hexdigest()
-                        if (
-                            raw_sha256 != state_blob_ref.artifact_id.hex
-                            or basis.base_state_checksum_sha256 != raw_sha256
-                        ):
-                            issues.add("calibration_execution_base_state_digest_mismatch")
-                except (FileNotFoundError, TypeError, ValueError, KeyError):
-                    issues.add("calibration_execution_state_snapshot_invalid")
+                    state_manifest = read_calibration_model_source(
+                        ctx.store,
+                        role="base_state_snapshot",
+                        ref=basis.base_state_snapshot_ref,
+                        expected_kind="foundry.state_snapshot",
+                        decoder=lambda _ref, manifest, _payload: manifest,
+                        model=StateSnapshot,
+                    ).require_value()
+                    state_blob_ref = read_calibration_source(
+                        ctx.store,
+                        role="state_blob",
+                        inputs=state_manifest.inputs,
+                        expected_media_type=None,
+                        decoder=lambda selected, _manifest, _payload: selected,
+                    ).require_value()
+                    state_blob = ctx.store.get_bytes(state_blob_ref)
+                    raw_sha256 = hashlib.sha256(state_blob).hexdigest()
+                    if (
+                        raw_sha256 != state_blob_ref.artifact_id.hex
+                        or basis.base_state_checksum_sha256 != raw_sha256
+                    ):
+                        issues.add("calibration_execution_base_state_digest_mismatch")
+                except (
+                    FileNotFoundError,
+                    PermissionError,
+                    NotImplementedError,
+                    TypeError,
+                    ValueError,
+                    KeyError,
+                ) as error:
+                    record_calibration_source_error(
+                        error,
+                        role="calibration_execution_state_snapshot_invalid",
+                        limitations=blockers,
+                        issues=issues,
+                    )
 
                 source_mechanism_ref = source_basis.runtime_registry_members.mechanism_registry
                 source_units_ref = source_basis.runtime_registry_members.units_registry
                 try:
-                    selected_registry_content = load_registry_bundle_content(
+                    selected_registry_content = read_calibration_registry_source(
                         ctx.store,
                         source_basis.runtime_registry_ref,
+                    ).require_value()
+                except (
+                    FileNotFoundError,
+                    PermissionError,
+                    NotImplementedError,
+                    TypeError,
+                    ValueError,
+                    KeyError,
+                ) as error:
+                    record_calibration_source_error(
+                        error,
+                        role="calibration_execution_runtime_registry_members_invalid",
+                        limitations=blockers,
+                        issues=issues,
                     )
-                except (FileNotFoundError, TypeError, ValueError, KeyError):
-                    issues.add("calibration_execution_runtime_registry_members_invalid")
                 for input_name, ref_field, _kind, _schema_name in RUNTIME_REGISTRY_MEMBER_CONTRACT:
                     binding = next(
                         (
@@ -550,8 +650,20 @@ def _calibration_execution_source_join(
                             mechanism_registry
                         ):
                             issues.add("calibration_execution_mechanism_registry_digest_mismatch")
-                    except (FileNotFoundError, TypeError, ValueError, KeyError):
-                        issues.add("calibration_execution_mechanism_registry_invalid")
+                    except (
+                        FileNotFoundError,
+                        PermissionError,
+                        NotImplementedError,
+                        TypeError,
+                        ValueError,
+                        KeyError,
+                    ) as error:
+                        record_calibration_source_error(
+                            error,
+                            role="calibration_execution_mechanism_registry_invalid",
+                            limitations=blockers,
+                            issues=issues,
+                        )
 
                 if basis.unit_registry_ref is None:
                     if source_units_ref is not None:
@@ -576,8 +688,20 @@ def _calibration_execution_source_join(
                         units_source_selected = True
                         if basis.unit_registry_sha256 != canonical_input_sha256(units_registry):
                             issues.add("calibration_execution_unit_registry_digest_mismatch")
-                    except (FileNotFoundError, TypeError, ValueError, KeyError):
-                        issues.add("calibration_execution_unit_registry_invalid")
+                    except (
+                        FileNotFoundError,
+                        PermissionError,
+                        NotImplementedError,
+                        TypeError,
+                        ValueError,
+                        KeyError,
+                    ) as error:
+                        record_calibration_source_error(
+                            error,
+                            role="calibration_execution_unit_registry_invalid",
+                            limitations=blockers,
+                            issues=issues,
+                        )
 
                 if graph is not None and plan is not None:
                     expected_parameter_rows = _graph_parameter_nodes(graph, plan)
@@ -598,19 +722,33 @@ def _calibration_execution_source_join(
                             issues.add("calibration_execution_parameter_source_missing")
                             continue
                         try:
-                            if not ctx.store.verify(parameter_input.source_ref).ok:
-                                raise ValueError("parameter_source_integrity_failure")
-                            selected_payload = from_canonical_bytes(
-                                ctx.store.get_bytes(parameter_input.source_ref)
-                            )
+                            selected_payload = read_calibration_source(
+                                ctx.store,
+                                role="parameter_source",
+                                ref=parameter_input.source_ref,
+                                expected_kind=parameter_input.source_ref.kind,
+                                decoder=lambda _ref, _manifest, payload: payload,
+                            ).require_value()
                             selected_digest = canonical_input_sha256(selected_payload)
                             if (
                                 selected_digest != parameter_input.source_payload_sha256
                                 or selected_digest != parameter_input.payload_sha256
                             ):
                                 issues.add("calibration_execution_parameter_source_digest_mismatch")
-                        except (FileNotFoundError, TypeError, ValueError, KeyError):
-                            issues.add("calibration_execution_parameter_source_invalid")
+                        except (
+                            FileNotFoundError,
+                            PermissionError,
+                            NotImplementedError,
+                            TypeError,
+                            ValueError,
+                            KeyError,
+                        ) as error:
+                            record_calibration_source_error(
+                                error,
+                                role="calibration_execution_parameter_source_invalid",
+                                limitations=blockers,
+                                issues=issues,
+                            )
                     if mechanism_registry is not None:
                         try:
                             expected_unit_identities = _expected_parameter_unit_identities(
@@ -650,6 +788,16 @@ def _calibration_execution_source_join(
                 except (TypeError, ValueError, OverflowError):
                     issues.add("calibration_execution_parameter_overrides_not_serializable")
 
+    if basis.ordered_batch_profile is not None and not issues and not blockers:
+        replay_status, replay_details = replay_ordered_batch_report_projection(
+            ctx.store, basis_ref, report_ref
+        )
+        if replay_status == "mismatch":
+            issues.update(replay_details)
+        elif replay_status == "not_established":
+            blockers.update(replay_details)
+        else:
+            limitations.update(replay_details)
     if issues:
         return "mismatch", tuple(sorted(limitations | blockers)), tuple(sorted(issues))
     if blockers:
@@ -1018,6 +1166,12 @@ def _build_calibration_covariance_source(
         issue_codes=tuple(sorted(issues)),
         source_execution_status=source_execution_status,
         source_execution_limitations=source_execution_limitations,
+        inference_status=(
+            "curvature_only"
+            if report.ordered_batch_execution is not None
+            or "calibration_batch_curvature_only" in source_execution_limitations
+            else "not_established"
+        ),
     )
 
 
@@ -1027,6 +1181,21 @@ def _collect_input_envelopes(
     *,
     welfare_params: Mapping[str, Any],
 ) -> _EnvelopeCollection:
+    calibration_ref = state.inputs.get(INPUT_CALIBRATION_REPORT_REF)
+    report = None
+    if calibration_ref is not None:
+        source = read_calibration_report_source(ctx.store, ref=calibration_ref)
+        if source.status != "matched":
+            raise _fail_error(
+                "welfare.calibration_source_invalid",
+                "Selected calibration report cannot supply welfare inputs",
+                details={
+                    "input": f"inputs.{INPUT_CALIBRATION_REPORT_REF}",
+                    "source_status": source.status,
+                    "source_code": source.code,
+                },
+            )
+        report = source.require_value()
     envelopes: dict[str, UncertaintyEnvelope] = {}
     refs: dict[str, UncertaintyEnvelopeRef] = {}
     origins: dict[str, _EnvelopeOrigin] = {}
@@ -1061,12 +1230,6 @@ def _collect_input_envelopes(
                 ref=envelope_ref,
             )
 
-    calibration_ref = state.inputs.get(INPUT_CALIBRATION_REPORT_REF)
-    report = (
-        _load_model(ctx, calibration_ref, CalibrationReport)
-        if calibration_ref is not None
-        else None
-    )
     projection_present = report is not None and report.coordinate_projection is not None
     projection_status = (
         (report.coordinate_projection_status or "not_established")

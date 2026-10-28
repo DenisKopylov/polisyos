@@ -1510,7 +1510,9 @@ def test_nested_state_npz_bytes_are_verified_before_state_interpretation(
     assert type(refusal.value) is ArtifactIntegrityError
 
 
-def test_native_response_calibration_report_reaches_fresh_state_slot_consumer(tmp_path):
+def test_native_response_calibration_report_reaches_fresh_state_slot_consumer(
+    tmp_path, monkeypatch
+):
     store, source_simulation_ref, parameter = _native_fixture(tmp_path)
     diagnostic = _diagnostic(store, source_simulation_ref, parameter)
     assert diagnostic.diagnostic_ref is not None
@@ -1612,7 +1614,11 @@ def test_native_response_calibration_report_reaches_fresh_state_slot_consumer(tm
         )
         state = ExperimentState(
             run_id=run_id,
-            inputs={INPUT_CALIBRATION_REPORT_REF: selected_report_ref},
+            inputs=(
+                {INPUT_CALIBRATION_REPORT_REF: selected_report_ref}
+                if selected_report_ref is not None
+                else {}
+            ),
             artifacts_index={ARTIFACT_SIMULATION_RESULT_REF: selected_simulation_ref},
             params={
                 "propagation_response_basis": {
@@ -1670,7 +1676,249 @@ def test_native_response_calibration_report_reaches_fresh_state_slot_consumer(tm
     assert "draw_success_ledger_missing" in projection.limitation_codes
     assert projection.envelope.ci_width > 0.0
 
+    # The SAME genuine scalar2.0 report is consumed by both public nodes.
+    # A small real execute replay supplies welfare's existing fitted-override
+    # source contract; it does not rerun calibration or its Hessian.
+    from polisyos.core.artifacts import ArtifactID
+    from polisyos.foundry.calibration import canonical_input_sha256, read_calibration_config_source
+    from polisyos.scientist.nodes.builtins.simulate.propagate_welfare import PropagateWelfareNode
+    from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_WELFARE_BUNDLE_REF
+
+    source_admission = admit_execution_source(store, source_simulation_ref)
+    assert source_admission.basis is not None
+    fitted_override = store.put_json(
+        ParameterOverrideBundle(
+            overrides={node_id: {parameter_id: float(report.calibrated_params[parameter])}},
+            sources={node_id: ["controlled_calibration_report_fixture"]},
+            notes=["scalar_config_strict_intake_fixture"],
+        ),
+        PutOptions(
+            kind=ParameterOverrideBundle.ARTIFACT_KIND,
+            media_type=ParameterOverrideBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=ParameterOverrideBundle.ARTIFACT_SCHEMA_NAME,
+                version=ParameterOverrideBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[input_ref_from_artifact_ref(report_ref, role="calibration_report")],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    welfare_request = source_admission.basis.request.model_copy(
+        update={
+            "parameter_override_bundle_ref": ParameterOverrideBundleRef.model_validate(
+                fitted_override.model_dump(mode="python")
+            ),
+            "return_selected_profile": True,
+        }
+    )
+    welfare_execution = execute_foundry(store, welfare_request)
+    assert welfare_execution.ok
+
+    def welfare_node(selected_report_ref, run_id):
+        run = RunContext.start(
+            store=store, registry_bundle=registry_ref, run_dir=tmp_path / run_id, run_id=run_id
+        )
+        context = ExecutionContext(
+            store=store, run=run, logger=logging.getLogger(f"scalar.config.{run_id}")
+        )
+        state = ExperimentState(
+            run_id=run_id,
+            inputs={INPUT_CALIBRATION_REPORT_REF: selected_report_ref},
+            artifacts_index={
+                ARTIFACT_SIMULATION_RESULT_REF: welfare_execution.simulation_result_ref
+            },
+            params={
+                "welfare_config": {
+                    "metric_order": [node_id],
+                    "pe_response": {node_id: 1.0},
+                    "weights": [1.0],
+                    "pe_sensitivity": {node_id: {parameter: 1.0}},
+                    "credible_method": "delta",
+                },
+                "propagation_config": {
+                    "preferred_method": "delta",
+                    "delta_covariance_jitter": 1e-6,
+                },
+            },
+        )
+        observed = PropagateWelfareNode().execute(context, state)
+        if observed.status != "ok":
+            return observed, None, None
+        bundle_ref = observed.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF]
+        bundle = get_json_artifact(ensure_ir_artifact_store(store), bundle_ref)
+        propagated = from_canonical_bytes(
+            store.get_bytes(
+                ArtifactID.model_validate(bundle["diagnostics"]["propagation_report_ref"])
+            )
+        )
+        return observed, bundle, propagated
+
+    scalar_positive_welfare = welfare_node(report_ref, "scalar-config-positive")
+    config_source = read_calibration_config_source(
+        store, inputs=store.get_manifest(report_ref).inputs
+    )
+    original_config_ref = config_source.ref
+    assert original_config_ref is not None
+    config_manifest = store.get_manifest(original_config_ref)
+    bad_config = from_canonical_bytes(store.get_bytes(original_config_ref))
+    bad_config["max_steps"] = str(bad_config["max_steps"])
+    bad_config_ref = store.put_json(
+        bad_config,
+        PutOptions(
+            kind=original_config_ref.kind,
+            media_type=original_config_ref.media_type,
+            schema=config_manifest.artifact_schema,
+            inputs=config_manifest.inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    bad_basis = calibration_basis.model_dump(mode="json")
+    bad_basis["calibration_config_ref"] = bad_config_ref.model_dump(mode="json")
+    for binding in bad_basis["runtime_input_roster"]:
+        if binding["input_name"] == "config":
+            binding["source_ref"] = bad_config_ref.model_dump(mode="json")
+            binding["value_sha256"] = canonical_input_sha256(bad_config)
+            binding["source_payload_sha256"] = binding["value_sha256"]
+    basis_manifest = store.get_manifest(basis_ref)
+    bad_basis_ref = store.put_json(
+        bad_basis,
+        PutOptions(
+            kind=basis_ref.kind,
+            media_type=basis_ref.media_type,
+            schema=basis_manifest.artifact_schema,
+            inputs=[
+                input_ref_from_artifact_ref(bad_config_ref, role=edge.role)
+                if edge.role == "calibration_config"
+                else edge
+                for edge in basis_manifest.inputs
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    current_report_manifest = store.get_manifest(report_ref)
+    changed_edges = [
+        input_ref_from_artifact_ref(bad_config_ref, role=edge.role)
+        if edge.role == "calibration_config"
+        else input_ref_from_artifact_ref(bad_basis_ref, role=edge.role)
+        if edge.role == "calibration_execution_input_basis"
+        else edge
+        for edge in current_report_manifest.inputs
+    ]
+    bad_report_ref = store.put_bytes(
+        store.get_bytes(report_ref),
+        PutOptions(
+            kind=report_ref.kind,
+            media_type=report_ref.media_type,
+            schema=current_report_manifest.artifact_schema,
+            canon=current_report_manifest.canon,
+            inputs=changed_edges,
+        ),
+        return_selected_profile=True,
+    )
+    # Observe BOTH consumers before any negative-property assertion.
+    scalar_bad_welfare = welfare_node(bad_report_ref, "scalar-config-invalid-welfare")
+    scalar_bad_response, scalar_bad_response_state = execute_node(
+        selected_report_ref=bad_report_ref, run_id="scalar-config-invalid-response"
+    )
+    observed_config_statuses = {
+        "welfare": (
+            None
+            if scalar_bad_welfare[2] is None
+            else scalar_bad_welfare[2].get("source_execution_status")
+        ),
+        "response": (
+            None
+            if scalar_bad_response.error is None
+            else scalar_bad_response.error.details.get("source_status")
+        ),
+    }
+    assert config_source.status == "matched", config_source
+    assert scalar_positive_welfare[0].status == "ok", scalar_positive_welfare[0].error
+    assert scalar_positive_welfare[2]["source_execution_status"] != "mismatch", (
+        scalar_positive_welfare[2]
+    )
+    assert outcome.status == "ok"  # Reuse the genuine response positive already executed above.
+    assert bad_report_ref.artifact_id == report_ref.artifact_id
+    assert bad_report_ref.manifest_profile_sha256 != report_ref.manifest_profile_sha256
+    assert observed_config_statuses == {"welfare": "mismatch", "response": "mismatch"}, (
+        "scalar_config_consumers_must_reject_numeric_strings",
+        observed_config_statuses,
+        scalar_bad_welfare[2],
+        scalar_bad_response.error,
+    )
+    assert scalar_bad_welfare[1]["credible_interval"] is None
+    assert scalar_bad_response.status == "fail"
+    assert scalar_bad_response.artifacts == []
+    assert scalar_bad_response.state.artifacts_index == scalar_bad_response_state.artifacts_index
+
     report_manifest = store.get_manifest(report_ref)
+    foreign_version_ref = store.put_bytes(
+        store.get_bytes(report_ref),
+        PutOptions(
+            kind=report_ref.kind,
+            media_type=report_ref.media_type,
+            schema=SchemaInfo(name="polisyos.foundry.CalibrationReport", version="9.9"),
+            inputs=report_manifest.inputs,
+            canon=report_manifest.canon,
+        ),
+        return_selected_profile=True,
+    )
+    assert foreign_version_ref.artifact_id == report_ref.artifact_id
+    assert foreign_version_ref.manifest_profile_sha256 != report_ref.manifest_profile_sha256
+    assert store.has_manifest_view(
+        foreign_version_ref.artifact_id, foreign_version_ref.manifest_profile_sha256
+    )
+    foreign_outcome, foreign_state = execute_node(
+        selected_report_ref=foreign_version_ref,
+        run_id="b190-foreign-selected-report-version",
+    )
+    assert foreign_outcome.status == "fail"
+    assert foreign_outcome.error is not None
+    assert foreign_outcome.error.code == "propagation_response_basis_invalid"
+    assert foreign_outcome.error.details["source_status"] == "mismatch"
+    assert foreign_outcome.artifacts == []
+    assert foreign_outcome.state.artifacts_index == foreign_state.artifacts_index
+    for selection_case, expected_status in (
+        ("profileless", "not_established"),
+        ("duplicate", "mismatch"),
+    ):
+        basis_edges = [
+            edge
+            for edge in report_manifest.inputs
+            if edge.role == "calibration_execution_input_basis"
+        ]
+        assert len(basis_edges) == 1
+        inputs = [
+            edge.model_copy(update={"manifest_profile_sha256": None})
+            if selection_case == "profileless" and edge.role == "calibration_execution_input_basis"
+            else edge
+            for edge in report_manifest.inputs
+        ]
+        if selection_case == "duplicate":
+            inputs.extend(basis_edges)
+        selected_view = store.put_bytes(
+            store.get_bytes(report_ref),
+            PutOptions(
+                kind=report_ref.kind,
+                media_type=report_ref.media_type,
+                schema=report_manifest.artifact_schema,
+                canon=report_manifest.canon,
+                inputs=inputs,
+            ),
+            return_selected_profile=True,
+        )
+        assert selected_view.artifact_id == report_ref.artifact_id
+        status_outcome, status_state = execute_node(
+            selected_report_ref=selected_view,
+            run_id=f"b190-source-status-{selection_case}",
+        )
+        assert status_outcome.status == "fail"
+        assert status_outcome.error.details["source_status"] == expected_status
+        assert status_outcome.artifacts == []
+        assert status_outcome.state.artifacts_index == status_state.artifacts_index
     config_edge = next(edge for edge in report_manifest.inputs if edge.role == "calibration_config")
     config_ref = ArtifactRef(
         artifact_id=config_edge.artifact_id,
@@ -1845,6 +2093,216 @@ def test_native_response_calibration_report_reaches_fresh_state_slot_consumer(tm
     assert profileless_outcome.status == "fail"
     assert profileless_outcome.error is not None
     assert profileless_outcome.error.code == "propagation_response_basis_invalid"
-    assert "does not select a manifest profile" in profileless_outcome.error.message
+    assert profileless_outcome.error.details["source_status"] == "not_established"
     assert profileless_outcome.artifacts == []
     assert profileless_outcome.state.artifacts_index == profileless_state.artifacts_index
+
+    from polisyos.foundry.calibration import read_calibration_execution_input_basis_source
+
+    basis_manifest = store.get_manifest(basis_ref)
+    unqualified_display_ref = store.put_bytes(
+        store.get_bytes(basis_ref),
+        PutOptions(
+            kind=basis_ref.kind,
+            media_type=basis_ref.media_type,
+            schema=basis_manifest.artifact_schema,
+            inputs=basis_manifest.inputs,
+        ),
+        return_selected_profile=True,
+    )
+    assert unqualified_display_ref.artifact_id == basis_ref.artifact_id
+    assert store.get_manifest(unqualified_display_ref).canon is None
+    display = load_calibration_execution_input_basis(
+        FileSystemCAS(tmp_path / "cas"), unqualified_display_ref
+    )
+    assert display.model_dump(mode="json") == calibration_basis.model_dump(mode="json")
+    qualified = read_calibration_execution_input_basis_source(
+        FileSystemCAS(tmp_path / "cas"),
+        ref=unqualified_display_ref,
+    )
+    assert qualified.status == "not_established"
+    assert qualified.value is None
+
+    # Actual node intake runs before execute-response candidate revalidation or
+    # numerical propagation, including absence of the raw report reference.
+    from polisyos.scientist.nodes.builtins.simulate import propagate_uncertainty as response_module
+
+    numeric_payload = report.model_dump(mode="python")
+    numeric_payload["total_loss"] = str(numeric_payload["total_loss"])
+    numeric_ref = store.put_json(
+        numeric_payload,
+        PutOptions(
+            kind=report_ref.kind,
+            media_type=report_ref.media_type,
+            schema=report_manifest.artifact_schema,
+            inputs=report_manifest.inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False, exclude_none=False),
+        return_selected_profile=True,
+    )
+    unavailable_ref = report_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "f" * 64}
+    )
+    assert not store.has_manifest_view(
+        unavailable_ref.artifact_id, unavailable_ref.manifest_profile_sha256
+    )
+    cases = [
+        ("absent", None, "not_established"),
+        ("missing_view", unavailable_ref, "not_established"),
+        ("numeric_string", numeric_ref, "mismatch"),
+        ("missing_blob", report_ref, "not_established"),
+    ]
+    calls = []
+
+    def no_candidate_evaluator(*_args, **_kwargs):
+        calls.append("candidate")
+        pytest.fail("unknown or malformed calibration source reached candidate revalidation")
+
+    blob, _ = store._paths(report_ref.artifact_id)
+    retained = blob.read_bytes()
+    with monkeypatch.context() as patch:
+        patch.setattr(
+            response_module, "load_execute_response_basis_candidate", no_candidate_evaluator
+        )
+        for condition, selected, expected in cases:
+            if condition == "missing_blob":
+                assert store.has_manifest_view(
+                    report_ref.artifact_id, report_ref.manifest_profile_sha256
+                )
+                blob.unlink()
+                assert store._layout.view_manifest_path(
+                    report_ref.artifact_id, report_ref.manifest_profile_sha256
+                ).is_file()
+            try:
+                refused, original = execute_node(
+                    selected_report_ref=selected, run_id=f"b190-intake-{condition}"
+                )
+            finally:
+                if condition == "missing_blob":
+                    blob.write_bytes(retained)
+            assert refused.status == "fail"
+            assert refused.error.code == "propagation_response_basis_invalid"
+            assert refused.error.details["source_status"] == expected
+            assert refused.artifacts == []
+            assert refused.state.artifacts_index == original.artifacts_index
+    assert not calls
+
+
+def test_response_reader_does_not_reinterpret_new_batch_basis_as_v1_0(tmp_path):
+    import jax
+
+    from polisyos.foundry.calibration import OrderedBatchCalibrationProfile
+    from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
+        _InvalidResponseBasis,
+        _load_calibration_response_source,
+    )
+
+    store, source, parameter = _native_fixture(tmp_path)
+    diagnostic = _diagnostic(store, source, parameter)
+    assert diagnostic.diagnostic_ref is not None
+    selected = attach_identifiability_diagnostic_ref(
+        store,
+        simulation_result_ref=source,
+        diagnostic_ref=diagnostic.diagnostic_ref,
+    )
+    response = load_execute_response_basis_candidate(store, selected)
+    assert isinstance(response, ExecuteResponseBasisCandidate)
+    source_basis = admit_execution_source(store, selected).basis
+    registry = load_registry_bundle_content(store, source_basis.runtime_registry_ref)
+    graph = ProgramGraph.model_validate(
+        from_canonical_bytes(store.get_bytes(source_basis.program_graph_ref))
+    )
+    plan = ExecPlan.model_validate(
+        from_canonical_bytes(store.get_bytes(source_basis.exec_plan_ref))
+    )
+    base = load_state_snapshot(store, snapshot_ref=source_basis.base_state_snapshot_ref)
+    node_id, _, parameter_id = parameter.rpartition(".")
+    profile = OrderedBatchCalibrationProfile(
+        row_ids=("a", "b"),
+        states=jax.tree.map(lambda value: jnp.stack((value, value)), base),
+        row_times=jnp.zeros(2, dtype=jnp.int32),
+        row_keys=jax.random.split(jax.random.PRNGKey(29), 2),
+        target_path="government_balance",
+        targets=jnp.full(2, response.fitted_moments["balance"], dtype=jnp.float32),
+        weights=jnp.ones(2, dtype=jnp.float32),
+    )
+    report, report_ref = Calibrator(
+        CalibratorInputs(
+            config=CalibrationConfig(
+                targets=[
+                    CalibrationTarget(
+                        target_id="balance",
+                        model_metric_path="government_balance",
+                        loss={"relative": False},
+                    )
+                ],
+                trainables=[TrainableParamRef(node_id=node_id, param_id=parameter_id)],
+                max_steps=1,
+                learning_rate=1e-10,
+                hessian={"enabled": True, "max_params": 1},
+            ),
+            program_graph=graph,
+            exec_plan=plan,
+            base_state=base,
+            mechanism_registry=registry.mechanism_registry,
+            slot_registry=registry.slot_registry,
+            merge_registry=registry.merge_registry,
+            selector_field_registry=registry.selector_field_registry,
+            constraint_registry=registry.constraint_registry,
+            parameter_loader=lambda ref: from_canonical_bytes(store.get_bytes(ref)),
+            exec_plan_ref=source_basis.exec_plan_ref,
+            registry_bundle_ref=source_basis.runtime_registry_ref,
+            mechanism_registry_ref=source_basis.runtime_registry_members.mechanism_registry,
+            units_registry=registry.units_registry,
+            units_registry_ref=source_basis.runtime_registry_members.units_registry,
+            base_state_snapshot_ref=source_basis.base_state_snapshot_ref,
+            ordered_batch_profile=profile,
+        )
+    ).run_and_persist(store)
+    assert report.uncertainties is not None
+    fresh = FileSystemCAS(tmp_path / "cas")
+    run = RunContext.start(
+        store=fresh,
+        registry_bundle=source_basis.runtime_registry_ref,
+        run_id="R_batch_response_refusal",
+    )
+    context = ExecutionContext(
+        store=fresh, run=run, logger=logging.getLogger("batch-response-refusal")
+    )
+    with pytest.raises(_InvalidResponseBasis, match="ordered_batch_response_basis_not_supported"):
+        _load_calibration_response_source(context, report_ref, response)
+
+    state = ExperimentState(
+        run_id="R_batch_response_refusal",
+        inputs={INPUT_CALIBRATION_REPORT_REF: report_ref},
+        artifacts_index={ARTIFACT_SIMULATION_RESULT_REF: selected},
+        params={
+            "propagation_response_basis": {
+                "schema_version": "1.0",
+                "state_slot_ids": ["government.balance"],
+            },
+            "propagation_config": {
+                "preferred_method": "monte_carlo",
+                "mc_n_samples": 100,
+                "mc_batch_size": 100,
+                "mc_min_valid_samples": 50,
+            },
+        },
+    )
+    before = {
+        str(path.relative_to(tmp_path / "cas"))
+        for path in (tmp_path / "cas").rglob("*")
+        if path.is_file()
+    }
+    outcome = PropagateUncertaintyNode().execute(context, state)
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == "propagation_response_basis_invalid"
+    assert "ordered_batch_response_basis_not_supported" in outcome.error.message
+    assert outcome.artifacts == []
+    assert outcome.state.artifacts_index == state.artifacts_index
+    assert {
+        str(path.relative_to(tmp_path / "cas"))
+        for path in (tmp_path / "cas").rglob("*")
+        if path.is_file()
+    } == before

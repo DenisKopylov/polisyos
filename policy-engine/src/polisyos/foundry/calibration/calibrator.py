@@ -32,6 +32,7 @@ from jax.flatten_util import ravel_pytree
 from polisyos.core.artifacts import (
     ArtifactRef,
     ArtifactStore,
+    RegistryBundlePayload,
     input_ref_from_artifact_ref,
     resolve_manifest_by_profile,
 )
@@ -52,17 +53,26 @@ from polisyos.foundry.calibration.bijectors import (
 )
 from polisyos.foundry.calibration.execution_basis import (
     CALIBRATION_RUNTIME_INPUT_CONTRACT,
-    CALIBRATION_RUNTIME_INPUT_NAMES,
+    CALIBRATION_RUNTIME_INPUT_CONTRACT_V1_2,
+    CALIBRATION_RUNTIME_INPUT_NAMES_V1_2,
     RUNTIME_REGISTRY_MEMBER_CONTRACT,
     CalibrationExecutionInputBasis,
+    CalibrationOrderedBatchInput,
+    CalibrationOrderedBatchRow,
     CalibrationParameterUnitIdentity,
     CalibrationResolvedParameterInput,
     CalibrationRuntimeInputBinding,
     CalibrationTargetInputIdentity,
+    _ordered_numeric_settings,
     calibration_report_series_sha256,
     calibration_report_time_axis_sha256,
     canonical_input_sha256,
+    classify_calibration_source_error,
     put_calibration_execution_input_basis,
+    put_calibration_ordered_batch_input,
+    read_calibration_model_source,
+    read_calibration_registry_source,
+    resolve_calibration_ordered_batch_input,
 )
 from polisyos.foundry.calibration.hessian import HessianResult, compute_hessian
 from polisyos.foundry.calibration.identifiability import diagnose_identifiability
@@ -84,6 +94,7 @@ from polisyos.foundry.calibration.preflight import (
 )
 from polisyos.foundry.calibration.pure_executor import (
     StaticBundle,
+    apply_nodes_batch,
     apply_trainable_values,
     compile_program,
     extract_trainable_values,
@@ -93,18 +104,23 @@ from polisyos.foundry.calibration.report import (
     CalibrationCoordinateProjection,
     CalibrationFitMetrics,
     CalibrationFitQuality,
+    CalibrationOrderedBatchReport,
     CalibrationReport,
     CalibrationSeriesComparison,
     CalibrationUncertainty,
+    ordered_batch_fit_metrics,
     put_calibration_config,
     put_calibration_report,
 )
 from polisyos.foundry.calibration.uncertainty_adapter import envelopes_from_calibration
 from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.execute._internal.numeric import is_jax_tracer
 from polisyos.foundry.execute.executor import load_state_snapshot, put_state_snapshot
 from polisyos.ir.analytics.calibration import (
     CalibrationConfig,
     CalibrationTarget,
+    TargetAlignConfig,
+    TargetLossConfig,
     TrainableParamRef,
 )
 from polisyos.ir.kernel import (
@@ -117,6 +133,215 @@ from polisyos.ir.kernel import (
 )
 
 _calibration_logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class OrderedBatchCalibrationProfile:
+    """First supported ordered-row calibration objective.
+
+    Rows are positional identities.  ``states``, ``row_times``, ``row_keys``,
+    ``targets`` and ``weights`` must have the same leading dimension.  Each
+    row executes exactly one scalar-equivalent executor step; no row is a scan
+    start and no time/entity axes are flattened.  The objective is the
+    weighted mean squared residual over rows.  Complete caller keys are used
+    unchanged, rather than being re-derived or broadcast.
+    """
+
+    row_ids: tuple[str, ...]
+    states: GlobalState
+    row_times: jax.Array
+    row_keys: jax.Array
+    target_path: str
+    targets: jax.Array
+    weights: jax.Array
+
+    def __post_init__(self) -> None:
+        # Static typed-carrier preflight precedes any outer JIT argument conversion.
+        # JAX may reconstruct abstract nodes; the executable entry repeats strict
+        # carrier checks before any numerical conversion/execution.
+        _validate_ordered_source_dtypes(self, strict_carriers=False)
+
+
+def _validate_ordered_source_dtypes(
+    profile: OrderedBatchCalibrationProfile,
+    *,
+    strict_carriers: bool,
+) -> None:
+    values = (profile.states, profile.row_times, profile.row_keys, profile.targets, profile.weights)
+    for value in jax.tree_util.tree_leaves(values):
+        if (
+            strict_carriers
+            and not isinstance(value, (jax.Array, np.ndarray, np.generic))
+            and not is_jax_tracer(value)
+        ):
+            raise ValueError("ordered profile requires typed JAX/NumPy array carriers")
+        dtype = getattr(value, "dtype", None)
+        if dtype is None:
+            continue  # abstract tree reconstruction; never executable admission
+        try:
+            original = np.dtype(dtype)
+            effective = np.dtype(jax.dtypes.canonicalize_dtype(original))
+        except (TypeError, ValueError) as exc:
+            raise ValueError("ordered profile source dtype is unsupported") from exc
+        if original != effective:
+            raise ValueError(
+                "ordered profile source dtype is unavailable in the active JAX precision profile"
+            )
+
+
+def _ordered_input_array(value: Any) -> jax.Array:
+    try:
+        array = jnp.asarray(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("ordered profile array representation is unsupported") from exc
+    if np.dtype(array.dtype) != np.dtype(value.dtype):
+        raise ValueError("ordered profile array conversion changed source dtype")
+    return array
+
+
+@dataclass(frozen=True)
+class OrderedBatchCalibrationEvaluation:
+    """Parameter-connected result of an ordered batch objective evaluation."""
+
+    objective: jax.Array
+    predictions: jax.Array
+    final_states: GlobalState
+    final_row_keys: jax.Array
+    valid: jax.Array
+
+
+def _ordered_batch_parameter_dtype(
+    profile: OrderedBatchCalibrationProfile,
+    bundle: StaticBundle,
+) -> np.dtype:
+    """Keep trainables in the declared mutable state precision during fitting."""
+    value: Any = profile.states
+    for part in profile.target_path.split("."):
+        value = getattr(value, part)
+    dtype = np.dtype(value.dtype)
+    if dtype not in (np.dtype("float32"), np.dtype("float64")):
+        raise ValueError("ordered batch fitting requires a float32 or float64 scalar metric")
+    for node in bundle.nodes:
+        for output in node.outputs:
+            spec = bundle.slot_registry.slots.get(output)
+            if spec is None or not spec.state_path:
+                raise ValueError("ordered batch output requires its declared state slot")
+            current: Any = profile.states
+            for part in spec.state_path.split("."):
+                current = getattr(current, part)
+            if np.dtype(current.dtype).kind == "f" and np.dtype(current.dtype) != dtype:
+                raise ValueError("ordered batch mutable floating slots require one compute dtype")
+    return dtype
+
+
+def _ordered_batch_loss(
+    predictions: jax.Array,
+    profile: OrderedBatchCalibrationProfile,
+    loss_config: TargetLossConfig,
+) -> tuple[jax.Array, jax.Array]:
+    """Apply the existing pointwise loss and a finite positive row reduction."""
+    targets = jnp.asarray(profile.targets)
+    # The first profile has one explicit floating reduction law. Integer
+    # accumulator wrap and backend-default precision cannot change its support.
+    original_weights = jnp.asarray(profile.weights)
+    weights = original_weights.astype(jnp.float32)
+    pointwise = pointwise_base_loss(predictions, targets, loss_config, 1.0)
+    support = jnp.sum(weights)
+    inputs_valid = (
+        jnp.all(jnp.isfinite(targets))
+        & jnp.all(jnp.isfinite(original_weights))
+        & jnp.all(original_weights >= 0)
+        & jnp.all(jnp.isfinite(weights))
+        & jnp.all(weights >= 0)
+        & jnp.all((original_weights == 0) | (weights > 0))
+        & jnp.isfinite(support)
+        & (support > 0)
+        & jnp.all(jnp.isfinite(predictions))
+    )
+    safe_support = jnp.where(inputs_valid, support, jnp.ones_like(support))
+    candidate = jnp.sum(weights * pointwise) / safe_support
+    valid = inputs_valid & jnp.isfinite(candidate)
+    return jnp.where(valid, candidate, jnp.inf), valid
+
+
+def evaluate_ordered_batch_objective(
+    profile: OrderedBatchCalibrationProfile,
+    *,
+    bundle: StaticBundle,
+    loss_config: TargetLossConfig | None = None,
+) -> OrderedBatchCalibrationEvaluation:
+    """Evaluate ordered scalar rows with an explicit transformed validity result.
+
+    Dynamic invalid targets, weights, support, predictions or reductions return
+    ``objective=inf`` and ``valid=False``. Shape, key dtype and unsupported
+    configured loss contracts refuse before execution. A finite curvature is
+    a numerical diagnostic and supplies no inferential covariance or noise law.
+    """
+    _validate_ordered_source_dtypes(profile, strict_carriers=True)
+    numeric_settings = _ordered_numeric_settings()
+    if (
+        numeric_settings["jax_default_prng_impl"] != "threefry2x32"
+        or numeric_settings["jax_enable_custom_prng"]
+        or numeric_settings["jax_legacy_prng_key"] != "allow"
+    ):
+        raise ValueError("ordered profile requires allowed legacy threefry2x32 uint32 keys")
+    rows = len(profile.row_ids)
+    if rows == 0 or any(not row.strip() for row in profile.row_ids):
+        raise ValueError("batch row_ids must be non-empty strings")
+    if len(set(profile.row_ids)) != rows:
+        raise ValueError("batch row_ids must be unique")
+    config = loss_config or TargetLossConfig(relative=False)
+    if config.kind != "mse" or config.relative:
+        raise ValueError("ordered batch helper supports absolute MSE only")
+    if not np.isfinite(config.epsilon) or config.epsilon < 0:
+        raise ValueError("ordered batch loss epsilon must be finite and nonnegative")
+    times = _ordered_input_array(profile.row_times)
+    keys = _ordered_input_array(profile.row_keys)
+    targets = _ordered_input_array(profile.targets)
+    weights = _ordered_input_array(profile.weights)
+    if times.shape != (rows,) or not jnp.issubdtype(times.dtype, jnp.integer):
+        raise ValueError(f"batch row_times must be an integer vector of shape ({rows},)")
+    if keys.shape != (rows, 2) or keys.dtype != jnp.uint32:
+        raise ValueError(f"batch row_keys must have uint32 shape ({rows}, 2)")
+    if targets.shape != (rows,) or weights.shape != (rows,):
+        raise ValueError(f"batch targets and weights must have shape ({rows},)")
+    if targets.dtype not in (jnp.float32, jnp.float64) or weights.dtype not in (
+        jnp.float32,
+        jnp.float64,
+    ):
+        raise ValueError("batch targets and weights require float32 or float64")
+    if any(leaf.dtype.kind not in "biuf" for leaf in jax.tree_util.tree_leaves(profile.states)):
+        raise ValueError("ordered batch state leaves must use real numeric or boolean dtypes")
+    final_states, final_keys = apply_nodes_batch(profile.states, times, keys, bundle=bundle)
+    value: Any = final_states
+    for part in profile.target_path.split("."):
+        value = getattr(value, part)
+    predictions = jnp.asarray(value)
+    if predictions.shape != (rows,) or predictions.dtype.kind not in "iuf":
+        raise ValueError("batch target_path must resolve to exactly one scalar per row")
+    objective, valid = _ordered_batch_loss(predictions, profile, config)
+    valid = valid & jnp.all(times >= 0)
+    for leaf in (
+        *jax.tree_util.tree_leaves(profile.states),
+        *jax.tree_util.tree_leaves(final_states),
+    ):
+        valid = valid & jnp.all(jnp.isfinite(leaf))
+    objective = jnp.where(valid, objective, jnp.inf)
+    return OrderedBatchCalibrationEvaluation(
+        objective, predictions, final_states, final_keys, valid
+    )
+
+
+jax.tree_util.register_dataclass(
+    OrderedBatchCalibrationProfile,
+    data_fields=("states", "row_times", "row_keys", "targets", "weights"),
+    meta_fields=("row_ids", "target_path"),
+)
+jax.tree_util.register_dataclass(
+    OrderedBatchCalibrationEvaluation,
+    data_fields=("objective", "predictions", "final_states", "final_row_keys", "valid"),
+    meta_fields=(),
+)
 
 
 @dataclass
@@ -177,6 +402,7 @@ class CalibratorInputs:
     units_registry: UnitsRegistry | None = None
     units_registry_ref: ArtifactRef | None = None
     base_state_snapshot_ref: ArtifactRef | None = None
+    ordered_batch_profile: OrderedBatchCalibrationProfile | None = None
 
 
 def _snapshot_calibrator_inputs(inputs: CalibratorInputs) -> CalibratorInputs:
@@ -253,6 +479,7 @@ class _HessianReuseKey:
     fidelity_mode: str
     fidelity_temperature: float
     fidelity_force_override: bool
+    objective_input_sha256: str | None = None
 
 
 def _select_lower_loss_state(
@@ -304,6 +531,7 @@ def _make_hessian_reuse_key(
     config: CalibrationConfig,
     *,
     steps: int,
+    objective_input_sha256: str | None = None,
 ) -> _HessianReuseKey:
     """Build a complete local identity for a Hessian diagnostic."""
     return _HessianReuseKey(
@@ -320,6 +548,7 @@ def _make_hessian_reuse_key(
         fidelity_mode=config.fidelity.mode,
         fidelity_temperature=float(config.fidelity.temperature),
         fidelity_force_override=bool(config.fidelity.force_override),
+        objective_input_sha256=objective_input_sha256,
     )
 
 
@@ -702,22 +931,15 @@ def _load_selected_source_model(
     expected_schema: str,
 ) -> Any:
     """Load a typed JSON artifact from its declared exact manifest view."""
-    if ref.manifest_profile_sha256 is not None:
-        manifest = resolve_manifest_by_profile(
-            store,
-            ref.artifact_id,
-            ref.manifest_profile_sha256,
-        )
-    else:
-        manifest = store.get_manifest(ref.artifact_id)
-    if manifest.kind != expected_kind or manifest.media_type != "application/json":
-        raise ValueError("calibration_execution_source_kind_media_mismatch")
-    schema = manifest.artifact_schema
-    if schema is None or schema.name != expected_schema:
-        raise ValueError("calibration_execution_source_schema_mismatch")
-    if not store.verify(ref).ok:
-        raise ValueError("calibration_execution_source_integrity_failure")
-    return model_cls.model_validate(from_canonical_bytes(store.get_bytes(ref)))
+    return read_calibration_model_source(
+        store,
+        role=expected_kind,
+        ref=ref,
+        model=model_cls,
+        expected_kind=expected_kind,
+        expected_schema=expected_schema,
+        decoder=lambda _ref, _manifest, value: value,
+    ).require_value()
 
 
 def _state_values_equal(left: GlobalState, right: GlobalState) -> bool:
@@ -762,7 +984,14 @@ def _registry_model_capture(
             expected_kind=kind,
             expected_schema=schema_name,
         )
-    except (FileNotFoundError, TypeError, ValueError, KeyError):
+    except (FileNotFoundError, PermissionError, TypeError, ValueError, KeyError) as error:
+        status = classify_calibration_source_error(error, role=kind).status
+        if status == "not_established":
+            return (
+                model_digest,
+                "in_memory_content_bound" if model is not None else "not_established",
+                model,
+            )
         return model_digest, "selected_source_mismatch", model
     selected_digest = canonical_input_sha256(selected_model)
     if model is not None and selected_model != model:
@@ -1009,6 +1238,94 @@ def _runtime_input_binding(
     )
 
 
+def _prepare_selected_ordered_input(
+    store: ArtifactStore,
+    inputs: CalibratorInputs,
+    config_ref: ArtifactRef,
+) -> tuple[ArtifactRef, OrderedBatchCalibrationProfile]:
+    """Publish and reopen the sole full input that the fit will actually consume."""
+    profile = inputs.ordered_batch_profile
+    if profile is None:
+        raise ValueError("ordered_input_profile_missing")
+    if len(inputs.config.targets) != 1:
+        raise ValueError("ordered_input_requires_exactly_one_target")
+    if any(
+        np.asarray(value).dtype not in (np.dtype("float32"), np.dtype("float64"))
+        for value in (profile.targets, profile.weights)
+    ):
+        raise ValueError("ordered_input_targets_and_weights_require_float32_or_float64")
+    for leaf in jax.tree_util.tree_leaves(profile.states):
+        if not bool(jnp.all(jnp.isfinite(leaf))):
+            raise ValueError("ordered_input_finite_state_profile_required")
+    ordered_row_input_refs = [input_ref_from_artifact_ref(config_ref, role="calibration_config")]
+    row_inputs = []
+    for ordinal, row_id in enumerate(profile.row_ids):
+        row_state = jax.tree_util.tree_map(lambda leaf: leaf[ordinal], profile.states)
+        row_ref = put_state_snapshot(
+            store,
+            state=row_state,
+            step=int(profile.row_times[ordinal]),
+            return_selected_profile=True,
+        )
+        row_inputs.append(
+            CalibrationOrderedBatchRow(
+                row_id=row_id,
+                state_snapshot_ref=row_ref,
+                state_values_sha256=canonical_input_sha256(row_state),
+            )
+        )
+        ordered_row_input_refs.append(
+            input_ref_from_artifact_ref(row_ref, role=f"ordered_batch_row.{ordinal}")
+        )
+    target = inputs.config.targets[0]
+    ordered_profile_basis = CalibrationOrderedBatchInput(
+        calibration_config_ref=config_ref,
+        **_ordered_numeric_settings(),
+        target_id=target.target_id,
+        target_metric_id=target.model_metric_path,
+        target_path=profile.target_path,
+        rows=tuple(row_inputs),
+        row_times=tuple(np.asarray(profile.row_times).tolist()),
+        row_times_dtype=str(np.asarray(profile.row_times).dtype),
+        row_keys=tuple(tuple(row) for row in np.asarray(profile.row_keys).tolist()),
+        targets=tuple(np.asarray(profile.targets).tolist()),
+        targets_dtype=str(np.asarray(profile.targets).dtype),
+        weights=tuple(np.asarray(profile.weights).tolist()),
+        weights_dtype=str(np.asarray(profile.weights).dtype),
+        consumed_profile_sha256=canonical_input_sha256(profile),
+        loss_epsilon=target.loss.epsilon,
+        target_priority=target.loss.weight,
+    )
+
+    assert ordered_profile_basis is not None
+    selected_ref = put_calibration_ordered_batch_input(
+        store,
+        ordered_profile_basis,
+        inputs=ordered_row_input_refs,
+    )
+    selected, values = resolve_calibration_ordered_batch_input(store, selected_ref)
+    if (
+        selected.consumed_profile_sha256 != canonical_input_sha256(profile)
+        or selected.calibration_config_ref != config_ref
+    ):
+        raise ValueError("ordered_input_writer_returned_a_foreign_request")
+    immutable = OrderedBatchCalibrationProfile(
+        **{
+            name: (
+                jax.tree_util.tree_map(jnp.asarray, value)
+                if name == "states"
+                else jnp.asarray(value)
+                if name not in {"row_ids", "target_path"}
+                else value
+            )
+            for name, value in values.items()
+        }
+    )
+    if canonical_input_sha256(immutable) != selected.consumed_profile_sha256:
+        raise ValueError("ordered_input_backend_changed_declared_values_or_precision")
+    return selected_ref, immutable
+
+
 def _persist_calibration_execution_basis(
     store: ArtifactStore,
     *,
@@ -1041,12 +1358,13 @@ def _persist_calibration_execution_basis(
             graph_status = "selected_source_matched"
         else:
             limitations.add("program_graph_selected_profile_not_supplied")
-    except (FileNotFoundError, TypeError, ValueError, KeyError):
-        if graph_ref.manifest_profile_sha256 is not None:
+    except (FileNotFoundError, PermissionError, TypeError, ValueError, KeyError) as error:
+        read_status = classify_calibration_source_error(error, role="program_graph").status
+        if read_status == "mismatch":
             graph_status = "selected_source_mismatch"
-            limitations.add("selected_program_graph_unavailable_or_invalid")
+            limitations.add("selected_program_graph_invalid")
         else:
-            limitations.add("program_graph_selected_profile_not_supplied")
+            limitations.add("selected_program_graph_not_established")
 
     plan_status = "object_only"
     selected_plan: ExecPlan | None = None
@@ -1070,12 +1388,13 @@ def _persist_calibration_execution_basis(
                 plan_status = "selected_source_matched"
             else:
                 limitations.add("exec_plan_selected_profile_not_supplied")
-        except (FileNotFoundError, TypeError, ValueError, KeyError):
-            if inputs.exec_plan_ref.manifest_profile_sha256 is not None:
+        except (FileNotFoundError, PermissionError, TypeError, ValueError, KeyError) as error:
+            read_status = classify_calibration_source_error(error, role="exec_plan").status
+            if read_status == "mismatch":
                 plan_status = "selected_source_mismatch"
-                limitations.add("selected_exec_plan_unavailable_or_invalid")
+                limitations.add("selected_exec_plan_invalid")
             else:
-                limitations.add("exec_plan_selected_profile_not_supplied")
+                limitations.add("selected_exec_plan_not_established")
 
     registry_bundle_ref = inputs.registry_bundle_ref
     registry_bundle_digest: str | None = None
@@ -1084,17 +1403,33 @@ def _persist_calibration_execution_basis(
     bundle_content = None
     if registry_bundle_ref is not None:
         try:
-            bundle_members = load_registry_bundle_payload(store, registry_bundle_ref)
-            bundle_content = load_registry_bundle_content(store, registry_bundle_ref)
+            bundle_members = read_calibration_model_source(
+                store,
+                role="registry_bundle",
+                model=RegistryBundlePayload,
+                ref=registry_bundle_ref,
+                expected_kind="core.registry_bundle",
+                decoder=lambda _ref, _manifest, value: value,
+            ).require_value()
+            bundle_content = read_calibration_registry_source(
+                store, registry_bundle_ref
+            ).require_value()
             registry_bundle_digest = canonical_input_sha256(bundle_members)
             registry_bundle_status = (
                 "selected_source_matched"
                 if registry_bundle_ref.manifest_profile_sha256 is not None
                 else "in_memory_content_bound"
             )
-        except (FileNotFoundError, TypeError, ValueError, KeyError):
-            registry_bundle_status = "selected_source_mismatch"
-            limitations.add("registry_bundle_unavailable_or_invalid")
+        except (FileNotFoundError, PermissionError, TypeError, ValueError, KeyError) as error:
+            read_status = classify_calibration_source_error(error, role="registry_bundle").status
+            registry_bundle_status = (
+                "selected_source_mismatch" if read_status == "mismatch" else "not_established"
+            )
+            limitations.add(
+                "registry_bundle_invalid"
+                if read_status == "mismatch"
+                else "registry_bundle_not_established"
+            )
     else:
         limitations.add("registry_bundle_selected_source_not_supplied")
 
@@ -1333,7 +1668,7 @@ def _persist_calibration_execution_basis(
         report_envelope_digests[field_name] = canonical_input_sha256(envelope)
 
     input_names = tuple(field.name for field in dataclass_fields(inputs))
-    if input_names != CALIBRATION_RUNTIME_INPUT_NAMES:
+    if input_names != CALIBRATION_RUNTIME_INPUT_NAMES_V1_2:
         raise ValueError("calibrator_input_runtime_roster_contract_drift")
     target_resolution_digest = canonical_input_sha256(
         [item.model_dump(mode="json") for item in target_inputs]
@@ -1347,6 +1682,12 @@ def _persist_calibration_execution_basis(
         if len(report_horizons) == 1
         else None
     )
+    ordered_profile_basis = None
+    ordered_input_ref = capture.get("ordered_input_ref")
+    if inputs.ordered_batch_profile is not None:
+        if ordered_input_ref is None:
+            raise ValueError("ordered_fit_requires_its_selected_consumed_input")
+        ordered_profile_basis, _ = resolve_calibration_ordered_batch_input(store, ordered_input_ref)
     active_target_queries = any(target.fabric_query is not None for target in inputs.config.targets)
     runtime_input_roster: list[CalibrationRuntimeInputBinding] = []
     registry_member_by_name = {
@@ -1354,7 +1695,12 @@ def _persist_calibration_execution_basis(
         for name, ref_field, _kind, _schema_name in RUNTIME_REGISTRY_MEMBER_CONTRACT
         for model_field in (name,)
     }
-    for name, usage, source_role in CALIBRATION_RUNTIME_INPUT_CONTRACT:
+    runtime_contract = (
+        CALIBRATION_RUNTIME_INPUT_CONTRACT_V1_2
+        if ordered_profile_basis is not None
+        else CALIBRATION_RUNTIME_INPUT_CONTRACT
+    )
+    for name, usage, source_role in runtime_contract:
         value = getattr(inputs, name)
         active = True
         resolved_by: tuple[str, ...] = ()
@@ -1363,7 +1709,11 @@ def _persist_calibration_execution_basis(
         selected_value: object | None = None
         selected_source_expected = False
 
-        if name in {"constraint_registry", "constraint_values"}:
+        if name == "ordered_batch_profile":
+            assert ordered_profile_basis is not None
+            value = ordered_profile_basis
+            selected_ref, selected_value = ordered_input_ref, ordered_profile_basis
+        elif name in {"constraint_registry", "constraint_values"}:
             active = bool(inputs.config.constraint_loss.enabled)
         elif name in {"raw_targets", "udf_engine", "target_fetcher"}:
             active = inputs.measurement_bundle is None and bool(
@@ -1463,6 +1813,7 @@ def _persist_calibration_execution_basis(
                 limitations=runtime_limitations,
             )
         elif source_role in {
+            "ordered_batch_profile",
             "selected_calibration_config",
             "selected_program_graph",
             "selected_exec_plan",
@@ -1501,6 +1852,11 @@ def _persist_calibration_execution_basis(
         input_ref_from_artifact_ref(graph_ref, role="program_graph"),
         input_ref_from_artifact_ref(base_state_ref, role="base_state_snapshot"),
         *state_blob_inputs,
+        *(
+            [input_ref_from_artifact_ref(ordered_input_ref, role="ordered_batch_input")]
+            if ordered_input_ref is not None
+            else []
+        ),
     ]
     if inputs.exec_plan_ref is not None:
         input_refs.append(input_ref_from_artifact_ref(inputs.exec_plan_ref, role="exec_plan"))
@@ -1539,6 +1895,7 @@ def _persist_calibration_execution_basis(
         and len(report.series_comparison) == len(expected_target_order)
     )
     basis = CalibrationExecutionInputBasis(
+        schema_version="1.2" if ordered_profile_basis is not None else "1.1",
         input_capture_status="content_bound" if local_capture_complete else "limited",
         calibration_config_ref=config_ref,
         registry_bundle_ref=registry_bundle_ref,
@@ -1569,6 +1926,12 @@ def _persist_calibration_execution_basis(
         runtime_input_sha256={},
         runtime_input_roster=tuple(runtime_input_roster),
         runtime_input_limitations=tuple(sorted(runtime_limitations)),
+        ordered_batch_input_ref=ordered_input_ref,
+        ordered_batch_input_value_sha256=(
+            canonical_input_sha256(ordered_profile_basis)
+            if ordered_profile_basis is not None
+            else None
+        ),
         limitations=tuple(sorted(limitations)),
     )
     return put_calibration_execution_input_basis(store, basis, inputs=input_refs)
@@ -1769,7 +2132,21 @@ class Calibrator:
         basis_inputs = _snapshot_calibrator_inputs(fit_inputs)
         fit_config = fit_inputs.config.model_copy(deep=True)
         basis_config = basis_inputs.config.model_copy(deep=True)
+        selected_config_ref = None
+        selected_ordered_ref = None
+        if fit_inputs.ordered_batch_profile is not None:
+            selected_config_ref = put_calibration_config(
+                store, fit_config, return_selected_profile=True
+            )
+            selected_ordered_ref, consumed = _prepare_selected_ordered_input(
+                store,
+                replace(fit_inputs, config=fit_config),
+                selected_config_ref,
+            )
+            fit_inputs = replace(fit_inputs, ordered_batch_profile=consumed)
+            basis_inputs = _snapshot_calibrator_inputs(fit_inputs)
         capture: dict[str, Any] = {
+            "ordered_input_ref": selected_ordered_ref,
             "parameter_inputs": [],
             "runtime_input_limitations": [],
             "limitations": [],
@@ -1941,7 +2318,11 @@ class Calibrator:
                     )
                 )
             capture["parameter_inputs"] = resolved_inputs
-        config_ref = put_calibration_config(store, basis_config, return_selected_profile=True)
+        config_ref = selected_config_ref or put_calibration_config(
+            store,
+            basis_config,
+            return_selected_profile=True,
+        )
         basis_ref = _persist_calibration_execution_basis(
             store,
             inputs=replace(basis_inputs, config=basis_config),
@@ -1998,6 +2379,61 @@ class Calibrator:
         diagnostics: list[str] = []
         bundle = self._build_bundle()
         targets, metric_paths, path_by_target = self._target_meta()
+        batch_profile = self.inputs.ordered_batch_profile
+        if batch_profile is not None:
+            if len(targets) != 1:
+                raise ValueError("ordered_batch_profile supports exactly one target")
+            target = targets[0]
+            if path_by_target[target.target_id] != batch_profile.target_path:
+                raise ValueError("ordered_batch_profile target_path must match configured target")
+            if (
+                target.loss.kind != "mse"
+                or target.loss.relative
+                or target.aggregation != "none"
+                or cfg.grad_norm.enabled
+                or cfg.prior_loss.enabled
+                or self.inputs.measurement_bundle is not None
+                or self.inputs.controls_seq is not None
+                or self.inputs.aux_loss_components
+                or self.inputs.measurement_loss_adapter is not None
+                or self.inputs.measurement_loss_config is not None
+                or self.inputs.raw_targets
+                or self.inputs.udf_engine is not None
+                or self.inputs.target_fetcher is not None
+                or target.fabric_query is not None
+                or target.fabric_metric is not None
+                or target.align != TargetAlignConfig()
+                or cfg.seed_strategy != "fixed"
+                or cfg.multi_start is not None
+                or cfg.constraint_loss.enabled
+            ):
+                raise ValueError(
+                    "ordered_batch_profile supports one absolute MSE target without "
+                    "GradNorm, priors, measurements, controls, or auxiliary losses"
+                )
+            if self._resolve_constraints():
+                raise ValueError("ordered_batch_profile does not support constraints")
+            # Eager preflight validates structure and numeric support before the
+            # optimizer allocates a transformed graph.
+            _ordered_batch_parameter_dtype(batch_profile, bundle)
+            initial_batch = evaluate_ordered_batch_objective(
+                batch_profile, bundle=bundle, loss_config=target.loss
+            )
+            with np.errstate(over="ignore", under="ignore", invalid="ignore"):
+                effective_priority = np.asarray(target.loss.weight, dtype=np.float32)
+            if not np.isfinite(effective_priority) or effective_priority <= 0:
+                raise ValueError(
+                    "ordered_batch_profile requires positive finite effective target priority"
+                )
+            rows = len(batch_profile.row_ids)
+            if cfg.steps not in (None, rows):
+                raise ValueError("ordered_batch_profile steps must equal its row count")
+            if cfg.time_axis is not None and list(cfg.time_axis) != [
+                float(t) for t in batch_profile.row_times
+            ]:
+                raise ValueError("ordered_batch_profile forbids target resampling or reordering")
+            if not bool(initial_batch.valid):
+                raise ValueError("ordered_batch_profile has invalid numeric support or prediction")
         if cfg.fidelity.mode == "discrete":
             diagnostics.append(
                 "Calibration running in 'discrete' mode. Gradient-based optimization (Adam) "
@@ -2028,8 +2464,15 @@ class Calibrator:
                 + ", ".join(component.component_name for component in aux_loss_components)
             )
 
-        if measurement_bundle is None:
+        if batch_profile is not None:
+            target_id = targets[0].target_id
+            steps = len(batch_profile.row_ids)
+            aligned_targets = {target_id: batch_profile.targets}
+            scales = {target_id: 1.0}
+            time_axes = {target_id: [float(t) for t in batch_profile.row_times]}
             fetched_target_ids: set[str] = set()
+        elif measurement_bundle is None:
+            fetched_target_ids = set()
             if self.inputs.raw_targets:
                 raw_targets.update(self.inputs.raw_targets)
             if any(t.fabric_query is not None for t in targets):
@@ -2128,7 +2571,9 @@ class Calibrator:
             target_source_kinds: dict[str, str] = {}
             for target in targets:
                 target_id = target.target_id
-                if measurement_bundle is not None and target_id in aligned_targets:
+                if batch_profile is not None:
+                    source_kind = "ordered_batch_profile"
+                elif measurement_bundle is not None and target_id in aligned_targets:
                     source_kind = "measurement_bundle"
                 elif target_id in raw_target_ids:
                     source_kind = "caller_raw_targets"
@@ -2190,7 +2635,12 @@ class Calibrator:
         for group in groups:
             values = [jnp.asarray(base_values[idx]) for idx in group.handle_indices]
             stacked = jnp.stack(values)
-            group_values.append(jnp.mean(stacked, axis=0))
+            value = jnp.mean(stacked, axis=0)
+            if batch_profile is not None:
+                value = jnp.asarray(
+                    value, dtype=_ordered_batch_parameter_dtype(batch_profile, bundle)
+                )
+            group_values.append(value)
         group_bijectors = [make_bijector(group.lower, group.upper) for group in groups]
         u = to_unconstrained(group_values, group_bijectors)
 
@@ -2290,14 +2740,23 @@ class Calibrator:
             return total
 
         measurement_enabled = measurement_bundle is not None
+        batch_objective_identity = (
+            canonical_input_sha256({"profile": batch_profile, "config": cfg})
+            if batch_profile is not None
+            else None
+        )
 
-        def _target_loss_vec(
-            u: Sequence[jnp.ndarray],
-            step_idx: jax.Array,
-        ) -> jnp.ndarray:
-            theta_groups = from_unconstrained(u, group_bijectors)
-            theta = _expand_group_values(theta_groups)
-            sim_bundle = apply_trainable_values(bundle, theta)
+        def _execute_forward(sim_bundle: StaticBundle, step_idx: jax.Array):
+            if batch_profile is not None:
+                evaluation = evaluate_ordered_batch_objective(
+                    batch_profile,
+                    bundle=sim_bundle,
+                    loss_config=targets[0].loss,
+                )
+                return {
+                    batch_profile.target_path: evaluation.predictions,
+                    "__ordered_batch_valid__": evaluation.valid,
+                }
             _, traces = run_pure_scan(
                 self.inputs.base_state,
                 steps=steps,
@@ -2306,11 +2765,27 @@ class Calibrator:
                 metric_paths=metric_paths,
                 controls_seq=self.inputs.controls_seq,
             )
+            return traces
+
+        def _target_loss_vec(
+            u: Sequence[jnp.ndarray],
+            step_idx: jax.Array,
+        ) -> jnp.ndarray:
+            theta_groups = from_unconstrained(u, group_bijectors)
+            theta = _expand_group_values(theta_groups)
+            sim_bundle = apply_trainable_values(bundle, theta)
+            traces = _execute_forward(sim_bundle, step_idx)
             return _base_vec_from_traces(traces)
 
         def _base_vec_from_traces(
             traces: Mapping[str, jnp.ndarray],
         ) -> jnp.ndarray:
+            if batch_profile is not None:
+                value, valid = _ordered_batch_loss(
+                    jnp.asarray(traces[batch_profile.target_path]), batch_profile, targets[0].loss
+                )
+                valid = valid & traces["__ordered_batch_valid__"]
+                return jnp.asarray([jnp.where(valid, value, jnp.inf)])
             losses = []
             for target in targets:
                 trace = traces[path_by_target[target.target_id]]
@@ -2385,14 +2860,7 @@ class Calibrator:
             theta_groups = from_unconstrained(u_state, group_bijectors)
             theta = _expand_group_values(theta_groups)
             sim_bundle = apply_trainable_values(bundle, theta)
-            _, traces = run_pure_scan(
-                self.inputs.base_state,
-                steps=steps,
-                root_key=_root_key(step_idx),
-                bundle=sim_bundle,
-                metric_paths=metric_paths,
-                controls_seq=self.inputs.controls_seq,
-            )
+            traces = _execute_forward(sim_bundle, step_idx)
             base_vec = _base_vec_from_traces(traces)
             total = jnp.sum(base_vec * weights_state) if base_vec.size else jnp.array(0.0)
             constraint_penalty = _constraint_penalty(traces)
@@ -2533,20 +3001,14 @@ class Calibrator:
                 weights_vec,
                 cfg,
                 steps=steps,
+                objective_input_sha256=batch_objective_identity,
             )
 
             def _loss_from_flat(flat_params: jnp.ndarray) -> jnp.ndarray:
                 theta_groups_local = unravel_theta(flat_params)
                 theta = _expand_group_values(theta_groups_local)
                 sim_bundle = apply_trainable_values(bundle, theta)
-                _, traces_local = run_pure_scan(
-                    self.inputs.base_state,
-                    steps=steps,
-                    root_key=_root_key(jnp.array(0, dtype=jnp.int32)),
-                    bundle=sim_bundle,
-                    metric_paths=metric_paths,
-                    controls_seq=self.inputs.controls_seq,
-                )
+                traces_local = _execute_forward(sim_bundle, jnp.array(0, dtype=jnp.int32))
                 base_vec = _base_vec_from_traces(
                     traces_local,
                 )
@@ -2867,12 +3329,16 @@ class Calibrator:
         all_real: list[np.ndarray] = []
         all_model: list[np.ndarray] = []
 
-        def _fit_metrics(model_series: Any, real_series: Any) -> CalibrationFitMetrics:
+        def _fit_metrics(
+            model_series: Any, real_series: Any, row_weights: Any | None = None
+        ) -> CalibrationFitMetrics:
             model_arr = np.asarray(model_series, dtype=float).reshape(-1)
             real_arr = np.asarray(real_series, dtype=float).reshape(-1)
             if model_arr.size == 0 or real_arr.size == 0:
                 return CalibrationFitMetrics(mse=0.0, rmse=0.0, mae=0.0, r2=None, n=0)
             diff = model_arr - real_arr
+            if row_weights is not None:
+                return ordered_batch_fit_metrics(model_series, real_series, row_weights)
             mse = float(np.mean(diff**2))
             mae = float(np.mean(np.abs(diff)))
             rmse = float(np.sqrt(mse))
@@ -2890,13 +3356,19 @@ class Calibrator:
                 real=real_list,
                 model=model_list,
             )
-            per_target_metrics[target_id] = _fit_metrics(model_list, real_list)
+            per_target_metrics[target_id] = _fit_metrics(
+                model_list,
+                real_list,
+                batch_profile.weights if batch_profile is not None else None,
+            )
             if real_list:
                 all_real.append(np.asarray(real_list, dtype=float))
                 all_model.append(np.asarray(model_list, dtype=float))
 
         aggregate_metrics = None
-        if all_real:
+        if batch_profile is not None:
+            aggregate_metrics = per_target_metrics[targets[0].target_id]
+        elif all_real:
             aggregate_metrics = _fit_metrics(np.concatenate(all_model), np.concatenate(all_real))
         fit_quality = CalibrationFitQuality(
             per_target=per_target_metrics,
@@ -2927,6 +3399,7 @@ class Calibrator:
                     weights_state,
                     cfg,
                     steps=steps,
+                    objective_input_sha256=batch_objective_identity,
                 )
                 cached_hessian = selected_run.get("hessian_result")
                 cached_hessian_key = selected_run.get("hessian_reuse_key")
@@ -2944,14 +3417,7 @@ class Calibrator:
                         theta_groups = unravel_theta(flat_params)
                         theta = _expand_group_values(theta_groups)
                         sim_bundle = apply_trainable_values(bundle, theta)
-                        _, traces_local = run_pure_scan(
-                            self.inputs.base_state,
-                            steps=steps,
-                            root_key=_root_key(jnp.array(0, dtype=jnp.int32)),
-                            bundle=sim_bundle,
-                            metric_paths=metric_paths,
-                            controls_seq=self.inputs.controls_seq,
-                        )
+                        traces_local = _execute_forward(sim_bundle, jnp.array(0, dtype=jnp.int32))
                         base_vec = _base_vec_from_traces(
                             traces_local,
                         )
@@ -2994,9 +3460,12 @@ class Calibrator:
                     if n_p > 0:
                         corr = corr.at[jnp.diag_indices(n_p)].set(1.0)
 
-                    # Rank via SVD on repaired hessian
-                    sv = jnp.linalg.svd(jnp.asarray(hr.hessian), compute_uv=False)
-                    rank = int(jnp.sum(sv > cfg.hessian.rank_tol))
+                    if batch_profile is not None and hr.raw_eigenvalues is not None:
+                        rank = int(np.sum(np.abs(hr.raw_eigenvalues) > cfg.hessian.rank_tol))
+                    else:
+                        # Preserve the legacy scalar report's repaired-rank projection.
+                        sv = jnp.linalg.svd(jnp.asarray(hr.hessian), compute_uv=False)
+                        rank = int(jnp.sum(sv > cfg.hessian.rank_tol))
 
                     non_identifiable: list[str] = []
                     for idx, value in enumerate(hr.std):
@@ -3004,6 +3473,8 @@ class Calibrator:
                             non_identifiable.append(hr.param_names[idx])
 
                     condition = hr.condition_number
+                    if batch_profile is not None and not np.isfinite(condition):
+                        diagnostics.append("ordered_batch_hessian_condition_non_finite")
                     if rank < n_p:
                         diagnostics.append(f"Hessian rank deficient: {rank}/{n_p}")
                     if np.isfinite(condition) and condition > cfg.hessian.condition_warn:
@@ -3091,7 +3562,30 @@ class Calibrator:
                 diagnostics.append("coordinate_projection_unsupported_coordinate_shape")
                 coordinate_projection_status = "unsupported"
 
+        if batch_profile is not None:
+            diagnostics.append(
+                "ordered_batch_inference_unavailable:generic_weighted_mse_curvature_only"
+            )
+        selected_input_ref = (
+            self._execution_capture.get("ordered_input_ref")
+            if self._execution_capture is not None
+            else None
+        )
         report = CalibrationReport(
+            schema_version="2.1" if batch_profile is not None else "2.0",
+            ordered_batch_execution=(
+                CalibrationOrderedBatchReport(
+                    consumed_profile_sha256=canonical_input_sha256(batch_profile),
+                    selected_input_ref=selected_input_ref,
+                    input_status=(
+                        "selected_input_consumed"
+                        if selected_input_ref is not None
+                        else "in_memory_input_only"
+                    ),
+                )
+                if batch_profile is not None
+                else None
+            ),
             calibrated_params=calibrated_params,
             total_loss=final_total_loss,
             per_target_loss=per_target_final,
@@ -3127,6 +3621,42 @@ class Calibrator:
                 },
             },
         )
+        if batch_profile is not None:
+            report.execution_context["ordered_batch"] = {
+                "profile_kind": "ordered_scalar_mse_v1",
+                "objective_kind": "generic_weighted_mse_curvature_only",
+                "inference_status": "unavailable_generic_loss",
+                "objective_input_sha256": batch_objective_identity,
+                "parameter_compute_dtype": str(
+                    _ordered_batch_parameter_dtype(batch_profile, bundle)
+                ),
+                "fit_metric_scope": "positive_weight_rows_with_declared_row_weights",
+                "hessian": (
+                    {
+                        "raw_eigenvalues": (
+                            _as_float_list(hessian_result.raw_eigenvalues)
+                            if hessian_result.raw_eigenvalues is not None
+                            else None
+                        ),
+                        "condition_status": (
+                            "finite"
+                            if np.isfinite(hessian_result.condition_number)
+                            else "non_finite"
+                        ),
+                        "n_repaired": hessian_result.n_repaired,
+                        "source_dtype": hessian_result.source_dtype,
+                        "strategy": hessian_result.strategy,
+                        "fallback_cause": hessian_result.fallback_cause,
+                        "finite_difference_convergence": (
+                            "not_established"
+                            if hessian_result.strategy == "finite_diff"
+                            else "not_applicable"
+                        ),
+                    }
+                    if hessian_result is not None
+                    else None
+                ),
+            }
         if report.uncertainties is not None:
             envelopes = envelopes_from_calibration(report, confidence_level=0.95)
             if envelopes:

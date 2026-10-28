@@ -12,7 +12,7 @@ import numpy as np
 
 @dataclass(frozen=True)
 class HessianResult:
-    """Result of Hessian computation at an optimum."""
+    """Local curvature diagnostics; repairs do not establish inferential covariance."""
 
     hessian: np.ndarray  # (n, n) repaired Hessian
     covariance: np.ndarray  # (n, n) H^{-1}
@@ -22,6 +22,9 @@ class HessianResult:
     n_repaired: int  # number of eigenvalues clipped to eps
     param_names: list[str]
     strategy: str  # "exact" or "finite_diff"
+    raw_eigenvalues: np.ndarray | None = None
+    source_dtype: str | None = None
+    fallback_cause: str | None = None
 
 
 def _repair_eigenvalues(
@@ -128,11 +131,13 @@ def compute_hessian(
     3. Eigenvalue repair: clip negative eigenvalues to *jitter_floor*.
     """
     strategy = "exact"
+    fallback_cause = None
     try:
         H_raw = jax.hessian(loss_fn)(jnp.asarray(flat_theta))
         if not bool(jnp.all(jnp.isfinite(H_raw))):
             raise ValueError("Hessian contains non-finite values")
     except Exception as exc:
+        fallback_cause = f"{type(exc).__module__}.{type(exc).__qualname__}"
         H_raw = _finite_difference_hessian(loss_fn, jnp.asarray(flat_theta))
         strategy = "finite_diff"
         if not bool(jnp.all(jnp.isfinite(H_raw))):
@@ -162,4 +167,7 @@ def compute_hessian(
         n_repaired=n_repaired,
         param_names=list(param_names),
         strategy=strategy,
+        raw_eigenvalues=np.asarray(raw_eigvals, dtype=float),
+        source_dtype=str(H_raw.dtype),
+        fallback_cause=fallback_cause,
     )

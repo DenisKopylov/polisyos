@@ -5113,3 +5113,1435 @@ def test_actual_welfare_node_1_1_tuple_flows_through_phase3_and_protected_packet
         "total_vector",
     ):
         assert field not in protected_channel
+
+
+def _run_ordered_b197_calibrator(store, *, flat=False):
+    """Reuse the real selected compile/execution fixture for a two-row fit."""
+    import jax
+
+    from polisyos.foundry.calibration import OrderedBatchCalibrationProfile
+
+    source = _build_b197_tied_execution_source(store)
+    base = source["base_state"]
+    doubled = base.replace(
+        agents=base.agents.replace(
+            income=base.agents.income * 2,
+            reported_income=base.agents.reported_income * 2,
+        )
+    )
+    profile = OrderedBatchCalibrationProfile(
+        row_ids=("first", "second"),
+        states=jax.tree.map(lambda a, b: jnp.stack((a, b)), base, doubled),
+        row_times=jnp.asarray([20, 20] if flat else [0, 0], dtype=jnp.int32),
+        row_keys=jax.random.split(jax.random.PRNGKey(83), 2),
+        target_path="government_balance",
+        targets=jnp.asarray([0.0, 0.0] if flat else [36.0, 72.0], dtype=jnp.float32),
+        weights=jnp.asarray([1.0, 3.0], dtype=jnp.float32),
+    )
+    config = CalibrationConfig(
+        targets=[
+            CalibrationTarget(
+                target_id="balance",
+                model_metric_path="government_balance",
+                loss={"relative": False, "weight": 0.005},
+            )
+        ],
+        trainables=[
+            TrainableParamRef(node_id=n, param_id="rate", tie_id="shared_rate") for n in ("A", "B")
+        ],
+        max_steps=2,
+        learning_rate=0.01,
+        hessian={"enabled": True, "damping": 1e-6},
+    )
+    registry = source["registry_content"]
+    execution = source["source_basis"]
+    report, report_ref = Calibrator(
+        CalibratorInputs(
+            config=config,
+            program_graph=source["graph"],
+            exec_plan=source["plan"],
+            base_state=base,
+            mechanism_registry=registry.mechanism_registry,
+            slot_registry=registry.slot_registry,
+            merge_registry=registry.merge_registry,
+            selector_field_registry=registry.selector_field_registry,
+            constraint_registry=registry.constraint_registry,
+            parameter_loader=lambda ref: from_canonical_bytes(store.get_bytes(ref)),
+            registry_bundle_ref=execution.runtime_registry_ref,
+            mechanism_registry_ref=execution.runtime_registry_members.mechanism_registry,
+            units_registry=registry.units_registry,
+            units_registry_ref=execution.runtime_registry_members.units_registry,
+            base_state_snapshot_ref=execution.base_state_snapshot_ref,
+            exec_plan_ref=execution.exec_plan_ref,
+            ordered_batch_profile=profile,
+        )
+    ).run_and_persist(store)
+    simulation_ref = _b197_replay_report(store, execution, report_ref, report)
+    edge = next(
+        edge
+        for edge in store.get_manifest(report_ref).inputs
+        if edge.role == "calibration_execution_input_basis"
+    )
+    basis_ref = ArtifactRef(
+        artifact_id=edge.artifact_id,
+        kind="foundry.calibration_execution_input_basis",
+        media_type="application/json",
+        manifest_profile_sha256=edge.manifest_profile_sha256,
+    )
+    return source, report_ref, report, simulation_ref, basis_ref
+
+
+@pytest.fixture(scope="module")
+def ordered_batch_case(tmp_path_factory):
+    path = tmp_path_factory.mktemp("ordered_batch_selected_case")
+    store = FileSystemCAS(path)
+    source, report_ref, report, simulation_ref, basis_ref = _run_ordered_b197_calibrator(store)
+    return path, source, report_ref, report, simulation_ref, basis_ref
+
+
+def _ordered_input_ref_for_basis(store, basis_ref):
+    basis = load_calibration_execution_input_basis(store, basis_ref)
+    assert basis.ordered_batch_input_ref is not None
+    return basis, basis.ordered_batch_input_ref
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "time",
+        "row_order",
+        "selected_state",
+        "missing_row_edge",
+        "profileless_row_edge",
+        "missing_config_edge",
+        "duplicate_config_edge",
+        "config_schema",
+        "row_schema",
+        "profileless_input",
+        "unknown_input_version",
+        "missing_basis_input_edge",
+        "missing_basis_config_edge",
+    ],
+)
+def test_batch_basis_fresh_consumer_reconciles_every_selected_input(ordered_batch_case, mutation):
+    from polisyos.foundry.calibration.execution_basis import (
+        canonical_input_sha256,
+        resolve_calibration_ordered_batch_input,
+    )
+
+    path, source, report_ref, report, simulation_ref, basis_ref = ordered_batch_case
+    store = FileSystemCAS(path)
+    basis, input_ref = _ordered_input_ref_for_basis(store, basis_ref)
+    assert basis.schema_version == "1.2"
+    assert report.schema_version == "2.1"
+    profile, resolved_values = resolve_calibration_ordered_batch_input(store, input_ref)
+    assert tuple(row.row_id for row in profile.rows) == ("first", "second")
+    assert basis.target_inputs[0].source_kind == "ordered_batch_profile"
+    joined = _calibration_execution_source_join(
+        _b197_execution_context(store, source["registry"].bundle_ref, f"R_ordered_{mutation}"),
+        _b197_execution_state(simulation_ref, report_ref),
+        report_ref=report_ref,
+        report=report,
+    )
+    assert joined[0] == "matched", joined
+    if mutation == "profileless_input":
+        with pytest.raises(ValueError, match="requires_selected_profile"):
+            resolve_calibration_ordered_batch_input(
+                store, input_ref.model_copy(update={"manifest_profile_sha256": None})
+            )
+        return
+    if mutation.startswith("missing_basis_"):
+        role = (
+            "ordered_batch_input"
+            if mutation == "missing_basis_input_edge"
+            else "calibration_config"
+        )
+        manifest = store.get_manifest(basis_ref)
+        forged = store.put_json(
+            from_canonical_bytes(store.get_bytes(basis_ref)),
+            PutOptions(
+                kind=basis_ref.kind,
+                media_type="application/json",
+                schema=manifest.artifact_schema,
+                inputs=[edge for edge in manifest.inputs if edge.role != role],
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        with pytest.raises(ValueError):
+            load_calibration_execution_input_basis(FileSystemCAS(path), forged)
+        return
+    payload = from_canonical_bytes(store.get_bytes(input_ref))
+    manifest = store.get_manifest(input_ref)
+    inputs = list(manifest.inputs)
+    schema = manifest.artifact_schema
+    if mutation == "time":
+        payload["row_times"][0] = 1
+        values = dict(resolved_values)
+        values["row_times"] = np.asarray(
+            payload["row_times"], dtype=np.dtype(payload["row_times_dtype"])
+        )
+        payload["consumed_profile_sha256"] = canonical_input_sha256(values)
+    elif mutation == "row_order":
+        payload["rows"] = list(reversed(payload["rows"]))
+    elif mutation == "selected_state":
+        payload["rows"][0]["state_snapshot_ref"] = payload["rows"][1]["state_snapshot_ref"]
+    elif mutation == "missing_row_edge":
+        inputs = [edge for edge in inputs if edge.role != "ordered_batch_row.1"]
+    elif mutation == "profileless_row_edge":
+        inputs = [
+            edge.model_copy(update={"manifest_profile_sha256": None})
+            if edge.role == "ordered_batch_row.1"
+            else edge
+            for edge in inputs
+        ]
+    elif mutation == "missing_config_edge":
+        inputs = [edge for edge in inputs if edge.role != "calibration_config"]
+    elif mutation == "duplicate_config_edge":
+        inputs.append(next(edge for edge in inputs if edge.role == "calibration_config"))
+    elif mutation in {"config_schema", "row_schema"}:
+        ref = (
+            profile.calibration_config_ref
+            if mutation == "config_schema"
+            else profile.rows[0].state_snapshot_ref
+        )
+        old_manifest = store.get_manifest(ref)
+        replacement = store.put_json(
+            from_canonical_bytes(store.get_bytes(ref)),
+            PutOptions(
+                kind=ref.kind,
+                media_type=ref.media_type,
+                schema=SchemaInfo(
+                    name=old_manifest.artifact_schema.name,
+                    version="9.9",
+                ),
+                inputs=old_manifest.inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        role = "calibration_config" if mutation == "config_schema" else "ordered_batch_row.0"
+        if mutation == "config_schema":
+            payload["calibration_config_ref"] = replacement.model_dump(mode="json")
+        else:
+            payload["rows"][0]["state_snapshot_ref"] = replacement.model_dump(mode="json")
+        inputs = [
+            input_ref_from_artifact_ref(replacement, role=role) if edge.role == role else edge
+            for edge in inputs
+        ]
+    elif mutation == "unknown_input_version":
+        payload["schema_version"] = "1.1"
+        schema = SchemaInfo(name=schema.name, version="1.1")
+    forged = store.put_json(
+        payload,
+        PutOptions(
+            kind=input_ref.kind,
+            media_type="application/json",
+            schema=schema,
+            inputs=inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    with pytest.raises(ValueError):
+        resolve_calibration_ordered_batch_input(FileSystemCAS(path), forged)
+
+
+@pytest.mark.parametrize("mutation", ["weights", "keys"])
+def test_coherent_new_input_and_basis_cannot_replace_the_consumed_report_selection(
+    ordered_batch_case,
+    mutation,
+    monkeypatch,
+):
+    from polisyos.foundry.calibration.execution_basis import (
+        CalibrationExecutionInputBasis,
+        canonical_input_sha256,
+        put_calibration_execution_input_basis,
+        resolve_calibration_ordered_batch_input,
+    )
+
+    path, source, report_ref, report, simulation_ref, basis_ref = ordered_batch_case
+    store = FileSystemCAS(path)
+    basis, input_ref = _ordered_input_ref_for_basis(store, basis_ref)
+    input_model, values = resolve_calibration_ordered_batch_input(store, input_ref)
+    payload = input_model.model_dump(mode="json")
+    values = dict(values)
+    field = "row_keys" if mutation == "keys" else "weights"
+    values[field] = np.asarray(values[field])[::-1].copy()
+    payload[field] = values[field].tolist()
+    payload["consumed_profile_sha256"] = canonical_input_sha256(values)
+    input_manifest = store.get_manifest(input_ref)
+    forged_input = store.put_json(
+        payload,
+        PutOptions(
+            kind=input_ref.kind,
+            media_type="application/json",
+            schema=input_manifest.artifact_schema,
+            inputs=input_manifest.inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    new_input, _ = resolve_calibration_ordered_batch_input(store, forged_input)
+    body = basis.model_dump(mode="json")
+    digest = canonical_input_sha256(new_input)
+    body["ordered_batch_input_ref"] = forged_input.model_dump(mode="json")
+    body["ordered_batch_input_value_sha256"] = digest
+    binding = body["runtime_input_roster"][-1]
+    binding.update(
+        source_ref=forged_input.model_dump(mode="json"),
+        value_sha256=digest,
+        source_payload_sha256=digest,
+    )
+    basis_inputs = [
+        input_ref_from_artifact_ref(forged_input, role="ordered_batch_input")
+        if edge.role == "ordered_batch_input"
+        else edge
+        for edge in store.get_manifest(basis_ref).inputs
+    ]
+    forged_basis = put_calibration_execution_input_basis(
+        store,
+        CalibrationExecutionInputBasis.model_validate(body),
+        inputs=basis_inputs,
+    )
+    # Both records are individually coherent, but the actual report selected the original input.
+    report_inputs = [
+        input_ref_from_artifact_ref(forged_basis, role="calibration_execution_input_basis")
+        if edge.role == "calibration_execution_input_basis"
+        else edge
+        for edge in store.get_manifest(report_ref).inputs
+    ]
+    manifest = store.get_manifest(report_ref)
+    forged_report = store.put_json(
+        report,
+        PutOptions(
+            kind=report_ref.kind,
+            media_type="application/json",
+            schema=manifest.artifact_schema,
+            inputs=report_inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+        return_selected_profile=True,
+    )
+    joined = _calibration_execution_source_join(
+        _b197_execution_context(
+            FileSystemCAS(path), source["registry"].bundle_ref, f"R_ordered_coherent_{mutation}"
+        ),
+        _b197_execution_state(simulation_ref, forged_report),
+        report_ref=forged_report,
+        report=report,
+    )
+    assert joined[0] == "mismatch", joined
+    assert "calibration_ordered_report_input_scope_mismatch" in joined[2]
+    # Observe both actual CAS publication entrypoints. An ID-set comparison
+    # would miss publication of a new selected view for an existing payload.
+    writes = []
+    original_json, original_bytes = store.put_json, store.put_bytes
+
+    def observe_json(*args, **kwargs):
+        writes.append("put_json")
+        return original_json(*args, **kwargs)
+
+    def observe_bytes(*args, **kwargs):
+        writes.append("put_bytes")
+        return original_bytes(*args, **kwargs)
+
+    monkeypatch.setattr(store, "put_json", observe_json)
+    monkeypatch.setattr(store, "put_bytes", observe_bytes)
+    with pytest.raises(ValueError, match="selected_consumed_input"):
+        put_calibration_report(store, report, inputs=report_inputs)
+    assert writes == []
+
+
+@pytest.mark.parametrize("mutation", ["model", "loss", "metrics"])
+def test_new_report_projection_is_recomputed_from_unchanged_selected_input(
+    ordered_batch_case,
+    mutation,
+):
+    path, source, report_ref, report, simulation_ref, _ = ordered_batch_case
+    store = FileSystemCAS(path)
+    altered = report.model_copy(deep=True)
+    if mutation == "model":
+        altered.series_comparison["balance"].model[0] += 17.0
+    elif mutation == "loss":
+        altered.total_loss += 17.0
+    else:
+        altered.fit_quality.aggregate.rmse += 17.0
+    altered_ref = put_calibration_report(
+        store, altered, inputs=store.get_manifest(report_ref).inputs
+    )
+    joined = _calibration_execution_source_join(
+        _b197_execution_context(
+            FileSystemCAS(path), source["registry"].bundle_ref, f"R_ordered_projection_{mutation}"
+        ),
+        _b197_execution_state(simulation_ref, altered_ref),
+        report_ref=altered_ref,
+        report=altered,
+    )
+    expected = {
+        "model": "ordered_report_model_does_not_match_selected_final_forward",
+        "loss": "ordered_report_loss_does_not_match_selected_objective",
+        "metrics": "ordered_report_metrics_do_not_match_selected_projection",
+    }
+    assert joined[0] == "mismatch", joined
+    assert expected[mutation] in joined[2]
+
+
+@pytest.mark.parametrize("method", ["delta", "monte_carlo"])
+def test_typed_batch_report_missing_basis_cannot_take_legacy_inference_fallback(
+    ordered_batch_case,
+    method,
+):
+    path, source, report_ref, report, simulation_ref, _ = ordered_batch_case
+    store = FileSystemCAS(path)
+    inputs = [
+        edge
+        for edge in store.get_manifest(report_ref).inputs
+        if edge.role != "calibration_execution_input_basis"
+    ]
+    with pytest.raises(ValueError, match="exact_config_and_basis_edges"):
+        put_calibration_report(store, report, inputs=inputs)
+    manifest = store.get_manifest(report_ref)
+    # A direct CAS writer can still present an untrusted selected view. The fresh consumer refuses inference.
+    missing_basis = store.put_json(
+        report,
+        PutOptions(
+            kind=report_ref.kind,
+            media_type="application/json",
+            schema=manifest.artifact_schema,
+            inputs=inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+        return_selected_profile=True,
+    )
+    outcome, bundle = _run_b197_welfare(
+        FileSystemCAS(path),
+        source["registry"].bundle_ref,
+        simulation_ref,
+        missing_basis,
+        run_id=f"R_ordered_missing_basis_{method}",
+        method=method,
+        weights=[1.0, 1.0],
+    )
+    assert outcome.status == "ok"
+    assert bundle.point_estimate == pytest.approx(2.0)
+    assert bundle.credible_interval is None
+    assert "calibration_generic_batch_inference_unavailable" in bundle.warnings
+    result = from_canonical_bytes(
+        store.get_bytes(ArtifactID.model_validate(bundle.diagnostics["propagation_report_ref"]))
+    )
+    assert result["source_execution_status"] == "not_established"
+    assert result["calibration_inference_status"] == "curvature_only"
+
+
+@pytest.mark.parametrize("method", ["delta", "monte_carlo"])
+@pytest.mark.parametrize("flat", [False, True])
+def test_generic_batch_curvature_is_not_inferential_welfare_uncertainty(
+    tmp_path, method, flat
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    source, report_ref, report, simulation_ref, basis_ref = _run_ordered_b197_calibrator(
+        store, flat=flat
+    )
+    assert report.uncertainties is not None
+    if flat:
+        assert report.uncertainties.hessian_rank == 0
+        assert (
+            report.execution_context["ordered_batch"]["hessian"]["condition_status"] == "non_finite"
+        )
+        assert "ordered_batch_hessian_condition_non_finite" in report.diagnostics
+        assert report.execution_context["ordered_batch"]["hessian"]["raw_eigenvalues"] == [0.0]
+    assert report.uncertainty_envelopes
+    assert all(not envelope.gate_eligible for envelope in report.uncertainty_envelopes.values())
+    fresh = FileSystemCAS(tmp_path)
+    assert load_calibration_execution_input_basis(fresh, basis_ref).schema_version == "1.2"
+    outcome, bundle = _run_b197_welfare(
+        fresh,
+        source["registry"].bundle_ref,
+        simulation_ref,
+        report_ref,
+        run_id=f"R_ordered_curvature_{method}",
+        method=method,
+        weights=[1.0, 1.0],
+    )
+    assert outcome.status == "ok"
+    assert bundle.point_estimate == pytest.approx(2.0)
+    assert bundle.credible_interval is None
+    assert bundle.status.value == "partial"
+    assert "calibration_generic_batch_inference_unavailable" in bundle.warnings
+    propagation = from_canonical_bytes(
+        fresh.get_bytes(ArtifactID.model_validate(bundle.diagnostics["propagation_report_ref"]))
+    )
+    assert propagation["limitation_code"] == "calibration_generic_batch_inference_unavailable"
+    assert propagation["calibration_inference_status"] == "curvature_only"
+    assert propagation["source_execution_status"] == "matched"
+    # The unrelated external marginal stays usable even when the batch report is present.
+    external = UncertaintyEnvelope(
+        point_estimate=0.5,
+        confidence_interval=(0.0, 1.0),
+        confidence_level=None,
+        distribution_family=DistributionFamily.UNIFORM,
+        source=UncertaintySource.MANUAL,
+        propagation_method=PropagationMethod.NONE,
+        interval_semantics=IntervalSemantics.DETERMINISTIC_BOUNDS,
+        gate_eligible=False,
+        distribution_payload=ParametricFitCarrier(
+            family=DistributionFamily.UNIFORM,
+            parameters={"low": 0.0, "high": 1.0},
+            support=(0.0, 1.0),
+        ),
+        metadata={"param_name": "C.rate", "std": 1.0 / math.sqrt(12.0)},
+    )
+    external_ref = persist_uncertainty_envelope(_ensure_ir_artifact_store(store), external)
+    _, external_bundle = _run_b197_welfare(
+        FileSystemCAS(tmp_path),
+        source["registry"].bundle_ref,
+        simulation_ref,
+        report_ref,
+        run_id=f"R_ordered_external_{method}",
+        method=method,
+        labels=["C"],
+        weights=[1.0],
+        input_envelopes={"C.rate": external_ref.model_dump(mode="json")},
+    )
+    assert external_bundle.point_estimate == pytest.approx(1.0)
+    assert external_bundle.credible_interval is not None
+
+
+@pytest.mark.parametrize(
+    "mode",
+    [
+        "selected",
+        "missing_selection",
+        "changed_metrics",
+        "missing_basis",
+        "missing_input",
+        "malformed_basis",
+        "profileless_basis",
+        "missing_basis_edge",
+        "duplicate_basis",
+        "conflicting_input",
+    ],
+)
+def test_autotune_actual_consumer_admits_only_replayed_new_batch_metrics(
+    ordered_batch_case,
+    tmp_path,
+    mode,
+):
+    import json
+
+    from polisyos.scientist.methods.autotune import (
+        BenchmarkSplitManifest,
+        BenchmarkSuite,
+        persist_benchmark_evaluation,
+        persist_benchmark_suite,
+        persist_mutation_artifact,
+    )
+    from polisyos.scientist.methods.autotune.calibration import (
+        CalibrationMetaEvaluator,
+        CalibrationMetaSearchConfig,
+    )
+
+    path, source, report_ref, report, simulation_ref, basis_ref = ordered_batch_case
+    store = FileSystemCAS(path)
+    dataset = tmp_path / "cases.jsonl"
+    dataset.write_text("".join(json.dumps({"case_id": key}) + "\n" for key in ("sel", "hold")))
+    split = tmp_path / "split.json"
+    split.write_text(
+        BenchmarkSplitManifest(
+            suite_id="ordered_batch_metrics",
+            suite_version="1.0",
+            id_field="case_id",
+            selection_ids=["sel"],
+            holdout_ids=["hold"],
+        ).model_dump_json()
+    )
+    suite_ref = persist_benchmark_suite(
+        store,
+        BenchmarkSuite(
+            suite_id="ordered_batch_metrics",
+            suite_version="1.0",
+            kind="calibration_meta",
+            dataset_path=str(dataset),
+            split_manifest_path=str(split),
+        ),
+    )
+    candidate_ref = persist_mutation_artifact(store, CalibrationMetaSearchConfig())
+    returned = report
+    if mode in {
+        "missing_basis",
+        "missing_input",
+        "malformed_basis",
+        "profileless_basis",
+        "missing_basis_edge",
+        "duplicate_basis",
+        "conflicting_input",
+    }:
+        kind = {
+            "missing_basis": "basis",
+            "missing_input": "input",
+            "malformed_basis": "malformed_basis",
+            "profileless_basis": "profileless_basis",
+            "missing_basis_edge": "missing_basis_edge",
+            "duplicate_basis": "duplicate_basis",
+            "conflicting_input": "conflicting_input",
+        }[mode]
+        returned, report_ref, _ = _ordered_report_with_unavailable_or_invalid_source(
+            store,
+            report_ref,
+            report,
+            basis_ref,
+            kind,
+        )
+    if mode == "changed_metrics":
+        returned = report.model_copy(deep=True)
+        returned.fit_quality.aggregate.rmse = 0.0
+        returned.fit_quality.aggregate.mae = 0.0
+        report_ref = put_calibration_report(
+            store,
+            returned,
+            inputs=store.get_manifest(report_ref).inputs,
+        )
+    result = CalibrationMetaEvaluator(store=FileSystemCAS(path)).evaluate(
+        candidate_ref,
+        suite_ref,
+        {
+            "calibration_runner": lambda *_args: (
+                returned if mode == "missing_selection" else (returned, report_ref)
+            )
+        },
+    )
+    evaluation_ref = persist_benchmark_evaluation(store, result)
+    persisted = from_canonical_bytes(FileSystemCAS(path).get_bytes(evaluation_ref))
+    admission = persisted["metadata"]["calibration_metric_sources"]["holdout"][0]
+    if mode in {
+        "profileless_basis",
+        "missing_basis_edge",
+        "duplicate_basis",
+        "conflicting_input",
+        "malformed_basis",
+        "missing_basis",
+        "missing_input",
+    }:
+        # Exactly the SAME report payload, selected parent view and fresh store
+        # go through the actual welfare join and public autotune evaluator.
+        joined = _calibration_execution_source_join(
+            _b197_execution_context(
+                FileSystemCAS(path),
+                source["registry"].bundle_ref,
+                f"R_ordered_cross_consumer_{mode}",
+            ),
+            _b197_execution_state(simulation_ref, report_ref),
+            report_ref=report_ref,
+            report=returned,
+        )
+        _, bundle = _run_b197_welfare(
+            FileSystemCAS(path),
+            source["registry"].bundle_ref,
+            simulation_ref,
+            report_ref,
+            run_id=f"R_ordered_cross_consumer_node_{mode}",
+            method="delta",
+            weights=[1.0, 1.0],
+        )
+    expected_source_status = {
+        "selected": "matched",
+        "missing_selection": "not_established",
+        "changed_metrics": "mismatch",
+        "missing_basis": "not_established",
+        "missing_input": "not_established",
+        "malformed_basis": "mismatch",
+        "profileless_basis": "not_established",
+        "missing_basis_edge": "not_established",
+        "duplicate_basis": "mismatch",
+        "conflicting_input": "mismatch",
+    }[mode]
+    if mode in {
+        "profileless_basis",
+        "missing_basis_edge",
+        "duplicate_basis",
+        "conflicting_input",
+        "malformed_basis",
+        "missing_basis",
+        "missing_input",
+    }:
+        observed_sources = {"welfare": joined[0], "autotune": admission["metric_source_status"]}
+        assert observed_sources == dict.fromkeys(observed_sources, expected_source_status), (
+            observed_sources,
+            joined,
+            admission,
+        )
+    else:
+        assert admission["metric_source_status"] == expected_source_status
+    if mode == "selected":
+        assert result.status == "ok"
+        assert result.guardrails["calibration_metric_sources_ready"] is True
+        assert result.sample_counts == {"selection": 1, "holdout": 1}
+        aggregate = report.fit_quality.aggregate
+        penalty = 0.0 if aggregate.r2 is None else max(0.0, 1.0 - aggregate.r2)
+        fit = 1.0 / (1.0 + aggregate.rmse + aggregate.mae + penalty)
+        runtime = 1.0 / (
+            1.0
+            + float(report.execution_context.get("runtime_seconds", 0.0) or 0.0)
+            + len(report.loss_history) / 100.0
+        )
+        condition = max(float(report.uncertainties.hessian_condition), 1.0)
+        curvature_score = 1.0 / (1.0 + math.log10(condition))
+        assert result.holdout_metrics["aggregate_fit_quality"] == pytest.approx(
+            0.7 * fit + 0.15 * runtime + 0.15 * curvature_score,
+        )
+    else:
+        assert result.status == "limited"
+        assert result.promotable is False
+        assert result.guardrails["calibration_metric_sources_ready"] is False
+        assert "aggregate_fit_quality" not in result.holdout_metrics
+        assert result.sample_counts["holdout"] == 0
+    if mode in {
+        "profileless_basis",
+        "missing_basis_edge",
+        "duplicate_basis",
+        "conflicting_input",
+        "malformed_basis",
+        "missing_basis",
+        "missing_input",
+    }:
+        # Exactly the SAME report payload, selected parent view and fresh store
+        # go through the actual welfare join and public autotune evaluator.
+        if joined[0] == "not_established":
+            assert not joined[2]
+            assert "source_execution_not_established" in joined[1]
+        else:
+            assert joined[2]
+        assert bundle.credible_interval is None
+        if mode == "profileless_basis":
+            edge = next(
+                edge
+                for edge in store.get_manifest(report_ref).inputs
+                if edge.role == "calibration_execution_input_basis"
+            )
+            assert edge.manifest_profile_sha256 is None
+            # The underlying basis exists and is readable. Only the exact
+            # choice is absent; its default view cannot become evidence.
+            assert store.get_bytes(edge.artifact_id)
+            assert returned.model_dump(mode="json") == report.model_dump(mode="json")
+    assert admission["inference_status"] == "unavailable_generic_loss"
+    assert admission["evidence_grade"] == "candidate"
+
+
+def test_selected_input_publisher_cannot_substitute_another_coherent_profile_before_fit(
+    ordered_batch_case,
+    monkeypatch,
+):
+    import polisyos.foundry.calibration.calibrator as producer
+    from polisyos.foundry.calibration.execution_basis import (
+        canonical_input_sha256,
+        resolve_calibration_ordered_batch_input,
+    )
+
+    path, _, _, _, _, basis_ref = ordered_batch_case
+    store = FileSystemCAS(path)
+    _, input_ref = _ordered_input_ref_for_basis(store, basis_ref)
+    profile, values = resolve_calibration_ordered_batch_input(store, input_ref)
+    values = dict(values)
+    values["weights"] = np.asarray(values["weights"])[::-1].copy()
+    payload = profile.model_dump(mode="json")
+    payload["weights"] = values["weights"].tolist()
+    payload["consumed_profile_sha256"] = canonical_input_sha256(values)
+    manifest = store.get_manifest(input_ref)
+    foreign = store.put_json(
+        payload,
+        PutOptions(
+            kind=input_ref.kind,
+            media_type="application/json",
+            schema=manifest.artifact_schema,
+            inputs=manifest.inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    resolve_calibration_ordered_batch_input(store, foreign)
+    monkeypatch.setattr(
+        producer, "put_calibration_ordered_batch_input", lambda *_args, **_kwargs: foreign
+    )
+    fit_calls = []
+
+    def forbid_fit(_self):
+        fit_calls.append(True)
+        raise AssertionError("fit must not start with a substituted selected input")
+
+    monkeypatch.setattr(producer.Calibrator, "run", forbid_fit)
+    with pytest.raises(ValueError, match="ordered_input_writer_returned_a_foreign_request"):
+        _run_ordered_b197_calibrator(store)
+    assert fit_calls == []
+
+
+def test_new_batch_backend_unavailable_remains_limited_and_never_promotes_curvature(
+    ordered_batch_case,
+    monkeypatch,
+):
+    import polisyos.foundry.calibration.execution_basis as owner
+
+    path, source, report_ref, report, simulation_ref, _ = ordered_batch_case
+    monkeypatch.setattr(owner.platform, "machine", lambda: "unavailable-architecture")
+    joined = _calibration_execution_source_join(
+        _b197_execution_context(
+            FileSystemCAS(path), source["registry"].bundle_ref, "R_ordered_backend"
+        ),
+        _b197_execution_state(simulation_ref, report_ref),
+        report_ref=report_ref,
+        report=report,
+    )
+    assert joined[0] == "not_established", joined
+    assert "ordered_numeric_profile_unavailable" in joined[1]
+    assert "calibration_batch_curvature_only" in joined[1]
+    _, bundle = _run_b197_welfare(
+        FileSystemCAS(path),
+        source["registry"].bundle_ref,
+        simulation_ref,
+        report_ref,
+        run_id="R_ordered_unavailable_welfare",
+        method="delta",
+        weights=[1.0, 1.0],
+    )
+    assert bundle.credible_interval is None
+    assert "calibration_generic_batch_inference_unavailable" in bundle.warnings
+
+
+def test_new_batch_scope_cannot_use_legacy_v1_wire_projection(ordered_batch_case):
+    from polisyos.foundry.calibration.report import serialize_calibration_report_v1
+
+    _, _, _, report, _, _ = ordered_batch_case
+    with pytest.raises(ValueError, match="cannot_be_projected_as_legacy_v1"):
+        serialize_calibration_report_v1(report)
+
+
+def test_batch_report_preserves_actual_external_welfare_mean_quantile_and_weight_law(
+    ordered_batch_case,
+):
+    path, source, report_ref, _, simulation_ref, _ = ordered_batch_case
+    store = FileSystemCAS(path)
+    external = UncertaintyEnvelope(
+        point_estimate=0.5,
+        confidence_interval=(0.0, 1.0),
+        confidence_level=None,
+        distribution_family=DistributionFamily.UNIFORM,
+        source=UncertaintySource.MANUAL,
+        propagation_method=PropagationMethod.NONE,
+        interval_semantics=IntervalSemantics.DETERMINISTIC_BOUNDS,
+        gate_eligible=False,
+        distribution_payload=ParametricFitCarrier(
+            family=DistributionFamily.UNIFORM,
+            parameters={"low": 0.0, "high": 1.0},
+            support=(0.0, 1.0),
+        ),
+        metadata={"param_name": "C.rate", "std": 1.0 / math.sqrt(12.0)},
+    )
+    external_ref = persist_uncertainty_envelope(_ensure_ir_artifact_store(store), external)
+    arrays = []
+    for weight in (1.0, 2.0):
+        _, bundle = _run_b197_welfare(
+            FileSystemCAS(path),
+            source["registry"].bundle_ref,
+            simulation_ref,
+            report_ref,
+            run_id=f"R_ordered_external_weight_{weight}",
+            method="monte_carlo",
+            labels=["C"],
+            weights=[weight],
+            input_envelopes={"C.rate": external_ref.model_dump(mode="json")},
+        )
+        assert bundle.point_estimate == pytest.approx(weight)
+        assert bundle.sample_bundle_ref is not None
+        samples = load_welfare_sample_bundle(
+            _ensure_ir_artifact_store(FileSystemCAS(path)), bundle.sample_bundle_ref
+        )
+        values = np.asarray(samples.welfare_draws, dtype=np.float64)
+        components = np.asarray(samples.welfare_total_component_draws, dtype=np.float64)
+        assert values.shape == (100,)
+        assert components.shape == (100, 1)
+        assert np.array_equal(values, weight * components[:, 0])
+        assert bundle.credible_interval == pytest.approx(np.quantile(values, [0.025, 0.975]))
+        propagation = from_canonical_bytes(
+            store.get_bytes(ArtifactID.model_validate(bundle.diagnostics["propagation_report_ref"]))
+        )
+        assert propagation["draw_summary"]["welfare_mean"] == pytest.approx(float(np.mean(values)))
+        assert propagation["calibration_inference_status"] == "curvature_only"
+        assert propagation["source_execution_status"] == "matched"
+        arrays.append(values)
+    assert np.array_equal(arrays[1], 2.0 * arrays[0])
+
+
+def _ordered_report_with_unavailable_or_invalid_source(store, report_ref, report, basis_ref, kind):
+    """Use real Core writes with an actually absent selected view; never delete CAS bytes."""
+    basis = load_calibration_execution_input_basis(store, basis_ref)
+    assert basis.ordered_batch_input_ref is not None
+    missing_profile = "sha256:" + "f" * 64
+    original_input = basis.ordered_batch_input_ref
+    report_body = report.model_dump(mode="python")
+    if kind == "basis":
+        selected_basis = basis_ref.model_copy(update={"manifest_profile_sha256": missing_profile})
+        assert not store.has_manifest_view(selected_basis.artifact_id, missing_profile)
+    elif kind in {"profileless_basis", "missing_basis_edge", "duplicate_basis"}:
+        selected_basis = (
+            basis_ref.model_copy(update={"manifest_profile_sha256": None})
+            if kind == "profileless_basis"
+            else basis_ref
+        )
+    else:
+        basis_body = basis.model_dump(mode="json")
+        inputs = list(store.get_manifest(basis_ref).inputs)
+        if kind == "input":
+            missing_input = original_input.model_copy(
+                update={"manifest_profile_sha256": missing_profile}
+            )
+            assert not store.has_manifest_view(missing_input.artifact_id, missing_profile)
+            basis_body["ordered_batch_input_ref"] = missing_input.model_dump(mode="json")
+            basis_body["runtime_input_roster"][-1]["source_ref"] = missing_input.model_dump(
+                mode="json"
+            )
+            inputs = [
+                input_ref_from_artifact_ref(missing_input, role="ordered_batch_input")
+                if edge.role == "ordered_batch_input"
+                else edge
+                for edge in inputs
+            ]
+            scope = report.ordered_batch_execution.model_copy(
+                update={"selected_input_ref": missing_input}
+            )
+            report_body["ordered_batch_execution"] = scope.model_dump(mode="python")
+        elif kind == "conflicting_input":
+            alternate = store.put_json(
+                from_canonical_bytes(store.get_bytes(original_input)),
+                PutOptions(
+                    kind=original_input.kind,
+                    media_type=original_input.media_type,
+                    schema=SchemaInfo(
+                        name="polisyos.foundry.CalibrationOrderedBatchInput", version="9.9"
+                    ),
+                    inputs=store.get_manifest(original_input).inputs,
+                ),
+                canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
+            )
+            assert alternate.manifest_profile_sha256 != original_input.manifest_profile_sha256
+            inputs = [
+                input_ref_from_artifact_ref(alternate, role="ordered_batch_input")
+                if edge.role == "ordered_batch_input"
+                else edge
+                for edge in inputs
+            ]
+        else:
+            assert kind == "malformed_basis"
+            basis_body["ordered_batch_input_value_sha256"] = "malformed-present-digest"
+        manifest = store.get_manifest(basis_ref)
+        selected_basis = store.put_json(
+            basis_body,
+            PutOptions(
+                kind=basis_ref.kind,
+                media_type=basis_ref.media_type,
+                schema=manifest.artifact_schema,
+                inputs=inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+    manifest = store.get_manifest(report_ref)
+    inputs = [
+        input_ref_from_artifact_ref(selected_basis, role="calibration_execution_input_basis")
+        if edge.role == "calibration_execution_input_basis"
+        else edge
+        for edge in manifest.inputs
+    ]
+    if kind == "missing_basis_edge":
+        inputs = [edge for edge in inputs if edge.role != "calibration_execution_input_basis"]
+    elif kind == "duplicate_basis":
+        inputs.extend(
+            edge for edge in tuple(inputs) if edge.role == "calibration_execution_input_basis"
+        )
+    selected_report = CalibrationReport.model_validate(report_body)
+    selected_ref = store.put_json(
+        selected_report,
+        PutOptions(
+            kind=report_ref.kind,
+            media_type=report_ref.media_type,
+            schema=manifest.artifact_schema,
+            inputs=inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+        return_selected_profile=True,
+    )
+    return selected_report, selected_ref, selected_basis
+
+
+@pytest.mark.parametrize("kind", ["basis", "input", "malformed_basis"])
+def test_fresh_selected_reader_distinguishes_unavailable_evidence_from_present_corruption(
+    ordered_batch_case,
+    kind,
+):
+    from polisyos.foundry.calibration.execution_basis import replay_ordered_batch_report_projection
+
+    path, source, report_ref, report, simulation_ref, basis_ref = ordered_batch_case
+    store = FileSystemCAS(path)
+    altered, selected_report, selected_basis = _ordered_report_with_unavailable_or_invalid_source(
+        store,
+        report_ref,
+        report,
+        basis_ref,
+        kind,
+    )
+    fresh = FileSystemCAS(path)
+    expected = "mismatch" if kind == "malformed_basis" else "not_established"
+    status, codes = replay_ordered_batch_report_projection(fresh, selected_basis, selected_report)
+    assert status == expected, codes
+    joined = _calibration_execution_source_join(
+        _b197_execution_context(fresh, source["registry"].bundle_ref, f"R_ordered_source_{kind}"),
+        _b197_execution_state(simulation_ref, selected_report),
+        report_ref=selected_report,
+        report=altered,
+    )
+    assert joined[0] == expected, joined
+    if kind == "malformed_basis":
+        assert "calibration_execution_basis_invalid" in joined[2]
+    else:
+        assert "calibration_execution_input_unavailable" in joined[1]
+        assert joined[2] == ()
+    _, bundle = _run_b197_welfare(
+        FileSystemCAS(path),
+        source["registry"].bundle_ref,
+        simulation_ref,
+        selected_report,
+        run_id=f"R_ordered_source_node_{kind}",
+        method="delta",
+        weights=[1.0, 1.0],
+    )
+    assert bundle.credible_interval is None
+    expected_warning = (
+        "calibration_execution_basis_invalid"
+        if kind == "malformed_basis"
+        else "calibration_generic_batch_inference_unavailable"
+    )
+    assert expected_warning in bundle.warnings
+
+
+@pytest.mark.parametrize("setting", ["partitionable", "implementation"])
+def test_selected_replay_binds_actual_prng_algorithm_context(ordered_batch_case, setting):
+    import jax
+
+    from polisyos.foundry.calibration.execution_basis import (
+        CalibrationOrderedBatchBackendUnavailable,
+        replay_ordered_batch_report_projection,
+        resolve_calibration_ordered_batch_input,
+    )
+
+    path, source, report_ref, report, simulation_ref, basis_ref = ordered_batch_case
+    store = FileSystemCAS(path)
+    _, input_ref = _ordered_input_ref_for_basis(store, basis_ref)
+    profile, _ = resolve_calibration_ordered_batch_input(store, input_ref)
+    assert profile.jax_default_prng_impl == "threefry2x32"
+    key = jnp.asarray(profile.row_keys[0], dtype=jnp.uint32)
+    original_split = jax.random.split(key)
+    context = (
+        jax.threefry_partitionable(not profile.jax_threefry_partitionable)
+        if setting == "partitionable"
+        else jax.default_prng_impl("rbg")
+    )
+    with context:
+        if setting == "partitionable":
+            changed_split = jax.random.split(key)
+            assert not jnp.array_equal(changed_split, original_split)
+        else:
+            assert jax.random.key_data(jax.random.key(91)).shape != key.shape
+        with pytest.raises(
+            CalibrationOrderedBatchBackendUnavailable, match="numeric_profile_unavailable"
+        ):
+            resolve_calibration_ordered_batch_input(FileSystemCAS(path), input_ref)
+        status, codes = replay_ordered_batch_report_projection(
+            FileSystemCAS(path), basis_ref, report_ref
+        )
+        assert status == "not_established", codes
+        assert "ordered_numeric_profile_unavailable" in codes
+        joined = _calibration_execution_source_join(
+            _b197_execution_context(
+                FileSystemCAS(path), source["registry"].bundle_ref, f"R_ordered_prng_{setting}"
+            ),
+            _b197_execution_state(simulation_ref, report_ref),
+            report_ref=report_ref,
+            report=report,
+        )
+        assert joined[0] == "not_established", joined
+        assert "ordered_numeric_profile_unavailable" in joined[1]
+    # The context manager restores the actual settings; no persistent configuration edit.
+    assert resolve_calibration_ordered_batch_input(FileSystemCAS(path), input_ref)[0] == profile
+
+
+def test_actual_selected_npz_and_typed_json_reach_fresh_welfare(ordered_batch_case):
+    from io import BytesIO
+
+    from polisyos.foundry.calibration import read_calibration_source
+    from polisyos.foundry.execute import load_state_snapshot
+
+    path, source, report_ref, report, simulation_ref, basis_ref = ordered_batch_case
+    fresh = FileSystemCAS(path)
+    basis = load_calibration_execution_input_basis(fresh, basis_ref)
+    snapshot_ref = basis.base_state_snapshot_ref
+    manifest = fresh.get_manifest(snapshot_ref)
+    edge = next(edge for edge in manifest.inputs if edge.role == "state_blob")
+    binary = read_calibration_source(
+        fresh,
+        role="state_blob",
+        inputs=manifest.inputs,
+        expected_kind="foundry.state_blob",
+        expected_media_type="application/x-npz",
+        decoder=lambda _ref, _manifest, value: value,
+    )
+    assert binary.status == "matched", binary
+    assert binary.ref.artifact_id == edge.artifact_id
+    assert fresh.get_manifest(binary.ref).canon is None
+    # The same real producer NPZ exercises the public raw result contract. It
+    # contains no JSON calibration config; the decoder may not turn that fact
+    # into a qualified domain DTO, including through a native container.
+    binary_manifest = fresh.get_manifest(binary.ref)
+    coerced_config = CalibrationConfig.model_validate({"max_steps": "200"})
+    foreign_ref = binary.ref.model_copy(update={"kind": "tests.foreign_state_blob"})
+    foreign_manifest = binary_manifest.model_copy(update={"kind": "tests.foreign_state_blob"})
+    raw_outputs = {
+        "domain_model": coerced_config,
+        "nested_domain_model": {"candidate": [coerced_config]},
+        "foreign_ref": foreign_ref,
+        "foreign_manifest": foreign_manifest,
+    }
+    observed_raw = {
+        name: read_calibration_source(
+            FileSystemCAS(path),
+            role="state_blob",
+            ref=binary.ref,
+            expected_kind="foundry.state_blob",
+            expected_media_type=None,
+            decoder=lambda _ref, _manifest, _payload, output=output: output,
+        )
+        for name, output in raw_outputs.items()
+    }
+    selected_metadata = (
+        read_calibration_source(
+            FileSystemCAS(path),
+            role="state_blob",
+            ref=binary.ref,
+            expected_media_type=None,
+            decoder=decoder,
+        )
+        for decoder in (
+            lambda selected, _manifest, _payload: selected,
+            lambda _selected, selected_manifest, _payload: selected_manifest,
+        )
+    )
+    ref_positive, manifest_positive = tuple(selected_metadata)
+    assert ref_positive.status == manifest_positive.status == "matched"
+    assert ref_positive.require_value() == binary.ref
+    assert manifest_positive.require_value() == binary_manifest
+    assert {name: result.status for name, result in observed_raw.items()} == dict.fromkeys(
+        raw_outputs, "mismatch"
+    ), "raw_npz_domain_and_metadata_projection_must_be_admitted_by_result_contract"
+    assert all(result.value is None for result in observed_raw.values())
+    with np.load(BytesIO(binary.require_value()), allow_pickle=False) as arrays:
+        assert arrays.files
+    state = load_state_snapshot(FileSystemCAS(path), snapshot_ref=snapshot_ref)
+    assert state.agents.income.shape == source["base_state"].agents.income.shape
+    joined = _calibration_execution_source_join(
+        _b197_execution_context(
+            FileSystemCAS(path), source["registry"].bundle_ref, "R_npz_json_positive"
+        ),
+        _b197_execution_state(simulation_ref, report_ref),
+        report_ref=report_ref,
+        report=report,
+    )
+    _, bundle = _run_b197_welfare(
+        FileSystemCAS(path),
+        source["registry"].bundle_ref,
+        simulation_ref,
+        report_ref,
+        run_id="R_npz_json_positive_node",
+        method="delta",
+        weights=[1.0, 1.0],
+    )
+    assert joined[0] == "matched", joined
+    assert bundle.credible_interval is None
+    assert "calibration_generic_batch_inference_unavailable" in bundle.warnings
+
+
+def _schema_numeric_paths(value, schema, root, path=()):
+    """Derive real typed numeric fields from the owner's JSON schema and fixture."""
+    if "$ref" in schema:
+        selected = root
+        for key in schema["$ref"].removeprefix("#/").split("/"):
+            selected = selected[key]
+        yield from _schema_numeric_paths(value, selected, root, path)
+        return
+    for key in ("anyOf", "oneOf", "allOf"):
+        for branch in schema.get(key, ()):
+            yield from _schema_numeric_paths(value, branch, root, path)
+    if schema.get("type") in {"number", "integer"} and type(value) in {int, float}:
+        if math.isfinite(value):
+            yield path
+    if isinstance(value, dict):
+        for key, item in value.items():
+            child = schema.get("properties", {}).get(key, schema.get("additionalProperties", {}))
+            if isinstance(child, dict):
+                yield from _schema_numeric_paths(item, child, root, (*path, key))
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            prefix = schema.get("prefixItems", ())
+            child = prefix[index] if index < len(prefix) else schema.get("items", {})
+            if isinstance(child, dict):
+                yield from _schema_numeric_paths(item, child, root, (*path, index))
+
+
+@pytest.mark.parametrize(
+    "contract", ["report", "basis", "input", "config", "snapshot", "graph", "plan"]
+)
+def test_selected_contract_models_reject_schema_numeric_string_coercion(
+    ordered_batch_case, contract
+):
+    from copy import deepcopy
+
+    from jsonschema import Draft202012Validator
+
+    from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph, StateSnapshot
+    from polisyos.foundry.calibration import (
+        CalibrationExecutionInputBasis,
+        CalibrationOrderedBatchInput,
+        read_calibration_model_source,
+        resolve_calibration_ordered_batch_input,
+    )
+
+    path, _, report_ref, _, _, basis_ref = ordered_batch_case
+    store = FileSystemCAS(path)
+    basis, input_ref = _ordered_input_ref_for_basis(store, basis_ref)
+    profile, _ = resolve_calibration_ordered_batch_input(store, input_ref)
+    refs = {
+        "report": (report_ref, CalibrationReport),
+        "basis": (basis_ref, CalibrationExecutionInputBasis),
+        "input": (input_ref, CalibrationOrderedBatchInput),
+        "config": (basis.calibration_config_ref, CalibrationConfig),
+        "snapshot": (profile.rows[0].state_snapshot_ref, StateSnapshot),
+        "graph": (basis.program_graph_ref, ProgramGraph),
+        "plan": (basis.exec_plan_ref, ExecPlan),
+    }
+    selected, model = refs[contract]
+    manifest = store.get_manifest(selected)
+    payload = from_canonical_bytes(store.get_bytes(selected))
+    positive = read_calibration_model_source(
+        FileSystemCAS(path),
+        role=contract,
+        ref=selected,
+        expected_kind=selected.kind,
+        expected_schema=manifest.artifact_schema.name,
+        model=model,
+        decoder=lambda _ref, _manifest, value: value,
+    )
+    assert positive.status == "matched", (contract, positive)
+    schema = model.model_json_schema()
+    validator = Draft202012Validator(schema)
+    # The schema's own JSON view gives an independent wire-type oracle and
+    # preserves genuine numeric|string unions as explicit exemptions.
+    payload = positive.require_value().model_dump(mode="json", by_alias=True)
+    if not validator.is_valid(payload):
+        pytest.skip(
+            f"{contract} model JSON view is outside this JSON-schema oracle; source strict read is separate"
+        )
+    paths = sorted(set(_schema_numeric_paths(payload, schema, schema)), key=repr)
+    if not paths:
+        pytest.skip(f"{contract} fixture has no schema-typed finite numeric leaf")
+    # Every actual schema-directed finite numeric leaf is included. Any-typed
+    # metadata is not falsely claimed to impose a numeric wire contract.
+    checked = 0
+    for location in paths:
+        changed = deepcopy(payload)
+        cursor = changed
+        for key in location[:-1]:
+            cursor = cursor[key]
+        key = location[-1]
+        cursor[key] = str(cursor[key])
+        if validator.is_valid(changed):
+            continue  # The actual schema permits that string branch; not a numeric-only gate.
+        checked += 1
+        altered = store.put_json(
+            changed,
+            PutOptions(
+                kind=selected.kind,
+                media_type=selected.media_type,
+                schema=manifest.artifact_schema,
+                inputs=manifest.inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False, exclude_none=False),
+            return_selected_profile=True,
+        )
+        result = read_calibration_model_source(
+            FileSystemCAS(path),
+            role=contract,
+            ref=altered,
+            expected_kind=selected.kind,
+            expected_schema=manifest.artifact_schema.name,
+            model=model,
+            decoder=lambda _ref, _manifest, value: value,
+        )
+        assert result.status == "mismatch", (contract, location, result)
+
+    if checked == 0:
+        pytest.skip(f"{contract} fixture has no numeric-only leaf under its actual schema")
+
+
+@pytest.mark.parametrize("condition", ["missing_view", "missing_blob", "numeric_string"])
+def test_actual_welfare_node_qualifies_report_before_any_evaluator(
+    ordered_batch_case, tmp_path, monkeypatch, condition
+):
+    from polisyos.scientist.nodes.builtins.simulate import propagate_welfare as module
+
+    path, source, report_ref, report, simulation_ref, _ = ordered_batch_case
+    store = FileSystemCAS(path)
+    manifest = store.get_manifest(report_ref)
+    payload = report.model_dump(mode="python")
+    payload["execution_context"] = {
+        **payload["execution_context"],
+        "source_intake_case": str(tmp_path),
+    }
+    if condition == "numeric_string":
+        payload["total_loss"] = str(payload["total_loss"])
+    selected = store.put_json(
+        payload,
+        PutOptions(
+            kind=report_ref.kind,
+            media_type=report_ref.media_type,
+            schema=manifest.artifact_schema,
+            inputs=manifest.inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False, exclude_none=False),
+        return_selected_profile=True,
+    )
+    assert selected.artifact_id != report_ref.artifact_id
+    blob, _ = store._paths(selected.artifact_id)
+    retained = blob.read_bytes()
+    if condition == "missing_view":
+        selected = selected.model_copy(update={"manifest_profile_sha256": "sha256:" + "f" * 64})
+        assert not store.has_manifest_view(selected.artifact_id, selected.manifest_profile_sha256)
+    elif condition == "missing_blob":
+        assert store.has_manifest_view(selected.artifact_id, selected.manifest_profile_sha256)
+        blob.unlink()
+        assert store._layout.view_manifest_path(
+            selected.artifact_id, selected.manifest_profile_sha256
+        ).is_file()
+    calls = []
+
+    def no_evaluator(*_args, **_kwargs):
+        calls.append("evaluator")
+        pytest.fail("unqualified selected report reached the actual welfare evaluator")
+
+    monkeypatch.setattr(module, "_build_simulation_fn", no_evaluator)
+    monkeypatch.setattr(module, "_propagate_credible_interval", no_evaluator)
+    escaped = None
+    outcome = bundle = None
+    try:
+        outcome, bundle = _run_b197_welfare(
+            FileSystemCAS(path),
+            source["registry"].bundle_ref,
+            simulation_ref,
+            selected,
+            run_id=f"R_report_intake_{condition}",
+            method="delta",
+            weights=[1.0, 1.0],
+            require_success=False,
+        )
+    except (FileNotFoundError, PermissionError, ValueError, TypeError) as error:
+        escaped = error
+    finally:
+        if condition == "missing_blob":
+            blob.write_bytes(retained)
+    assert escaped is None, f"untyped report intake escaped the actual node: {escaped!r}"
+    assert outcome is not None
+    assert outcome.status == "fail"
+    assert outcome.error.code == "welfare.calibration_source_invalid"
+    assert outcome.error.details["source_status"] == (
+        "mismatch" if condition == "numeric_string" else "not_established"
+    )
+    assert not calls
+    assert bundle is None
+    assert outcome.artifacts == []
+    assert ARTIFACT_WELFARE_BUNDLE_REF not in outcome.state.artifacts_index
+
+
+def test_registry_selected_source_uses_strict_owner_for_each_consumed_member(ordered_batch_case):
+    from copy import deepcopy
+    from dataclasses import fields
+
+    from jsonschema import Draft202012Validator
+
+    from polisyos.foundry.calibration import read_calibration_registry_source
+
+    path, _, _, _, _, basis_ref = ordered_batch_case
+    store = FileSystemCAS(path)
+    basis = load_calibration_execution_input_basis(store, basis_ref)
+    ref = basis.registry_bundle_ref
+    manifest = store.get_manifest(ref)
+    payload = from_canonical_bytes(store.get_bytes(ref))
+    positive = read_calibration_registry_source(FileSystemCAS(path), ref)
+    assert positive.status == "matched", positive
+    content = positive.require_value()
+    checked = 0
+    for field in fields(type(content)):
+        if field.name == "bundle_ref" or getattr(content, field.name) is None:
+            continue
+        model_value = getattr(content, field.name)
+        model = type(model_value)
+        schema = model.model_json_schema()
+        validator = Draft202012Validator(schema)
+        value = model_value.model_dump(mode="json", by_alias=True)
+        if not validator.is_valid(value):
+            continue  # This member has no usable schema JSON view for this numeric oracle.
+        selected = ArtifactRef.model_validate(payload[field.name])
+        selected_manifest = store.get_manifest(selected)
+        for location in sorted(set(_schema_numeric_paths(value, schema, schema)), key=repr):
+            changed = deepcopy(value)
+            cursor = changed
+            for key in location[:-1]:
+                cursor = cursor[key]
+            cursor[location[-1]] = str(cursor[location[-1]])
+            if validator.is_valid(changed):
+                continue  # The owner's genuine string branch is not numeric-only.
+            changed_ref = store.put_json(
+                changed,
+                PutOptions(
+                    kind=selected.kind,
+                    media_type=selected.media_type,
+                    schema=selected_manifest.artifact_schema,
+                    inputs=selected_manifest.inputs,
+                ),
+                canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False, exclude_none=False),
+                return_selected_profile=True,
+            )
+            changed_bundle = deepcopy(payload)
+            changed_bundle[field.name] = changed_ref.model_dump(mode="json")
+            edges = [
+                input_ref_from_artifact_ref(changed_ref, role=edge.role)
+                if edge.artifact_id == selected.artifact_id
+                and edge.manifest_profile_sha256 == selected.manifest_profile_sha256
+                else edge
+                for edge in manifest.inputs
+            ]
+            bundle_ref = store.put_json(
+                changed_bundle,
+                PutOptions(
+                    kind=ref.kind,
+                    media_type=ref.media_type,
+                    schema=manifest.artifact_schema,
+                    inputs=edges,
+                ),
+                canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+                return_selected_profile=True,
+            )
+            result = read_calibration_registry_source(FileSystemCAS(path), bundle_ref)
+            assert result.status == "mismatch", (field.name, location, result)
+            checked += 1
+            break  # One schema-derived discriminator per actual consumed member, not every field.
+    if checked == 0:
+        pytest.skip(
+            "this registry fixture has no numeric-only schema leaf; strict positive is separate"
+        )

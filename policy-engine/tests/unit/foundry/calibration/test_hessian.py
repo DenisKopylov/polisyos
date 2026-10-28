@@ -84,3 +84,25 @@ def test_compute_hessian_applies_damping_before_covariance_inversion() -> None:
 
     expected = np.linalg.inv(np.diag([0.5, 2.5]))
     npt.assert_allclose(result.covariance, expected, atol=1e-6)
+
+
+def test_raw_negative_and_flat_curvature_stay_visible_after_repair() -> None:
+    result = compute_hessian(
+        lambda value: -jnp.square(value[0]),
+        jnp.zeros(2),
+        ["negative", "flat"],
+    )
+    npt.assert_allclose(result.raw_eigenvalues, [-2.0, 0.0], atol=1e-6)
+    assert result.condition_number == float("inf")
+    assert np.all(np.isfinite(result.covariance))
+    assert np.all(np.linalg.eigvalsh(result.hessian) > 0)
+    assert result.source_dtype == str(jnp.zeros(2).dtype)
+    assert result.fallback_cause is None
+
+
+def test_finite_difference_fallback_records_the_failed_exact_route() -> None:
+    with patch("jax.hessian", side_effect=RuntimeError("exact backend unavailable")):
+        result = compute_hessian(lambda value: jnp.square(value[0]), jnp.ones(1), ["p"])
+    assert result.strategy == "finite_diff"
+    assert result.fallback_cause == "builtins.RuntimeError"
+    npt.assert_allclose(result.raw_eigenvalues, [2.0], atol=1e-3)

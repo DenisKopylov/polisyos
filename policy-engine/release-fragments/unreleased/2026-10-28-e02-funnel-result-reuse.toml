@@ -1,0 +1,22 @@
+id = "2026-10-28-e02-funnel-result-reuse"
+title = "Separate completed funnel result reuse from organizational invocation identity"
+type = "changed"
+component = "scientist-search"
+owner = "team-polisyos"
+summary = "Compatible completed results retain their original physical work provenance while each new request receives a fresh normally admitted ticket, parent and complete lineage."
+evidence = [
+  "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+  "tests/unit/scientist/search/funnel/test_transition_accounting_semantics.py",
+  "tests/unit/scientist/methods/search/funnel/test_configured_observations.py",
+  "tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py",
+]
+compatibility = "Repeated completed-result submit returns a new organizational ticket instead of the prior ticket object. Live split requests retain their ticket. Ordinary non-reuse serialized output is unchanged; reused output adds parent, lineage, continuation reason and result_reuse_source_ticket_id. Retained trace costs are historical; the new request aggregate is unknown rather than a duplicate charge or a manufactured measured zero."
+change_class = "python-api"
+surface_classification = "public_experimental: scientist Search funnel ticket/outcome and serialized reuse projection"
+migration = "Consumers must distinguish the current request ticket from retained execution packet identities. Resolve selected CAS refs before using retained physical work. Do not count result reuse as an independent observation, evaluation invocation or new charge. No new schema, generated API family or lock change is required by this bounded repair."
+api = "Existing FunnelTicket and FunnelOutcome gain an optional result_reuse_source_ticket_id; the native reuse projection exposes source-linked lineage and fresh selected-work provenance."
+limitations = "The repair does not provide owner-backed native full/split fiscal admission, durable pause/reopen, production calibration sufficiency, publication permission or finding closure. Runtime and source-removal evidence remain separate."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/methods/search/README.md"]
+runbook_docs = []

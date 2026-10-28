@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from types import SimpleNamespace
 from typing import Any
 from unittest.mock import MagicMock
@@ -10,11 +11,14 @@ import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.run.context import RunContext
 from polisyos.ir import UncertaintyType
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.scientist.evidence.sources import EvidenceSourcesConfig
 from polisyos.scientist.methods.search.calibration_report import (
     FunnelCalibrationReport,
     load_funnel_calibration_report,
@@ -32,6 +36,8 @@ from polisyos.scientist.methods.search.funnel.types import (
 )
 from polisyos.scientist.methods.search.stages import CorrelationTracker
 from polisyos.scientist.nodes.builtins.decide import run_policy_blueprint_runtime as runtime
+from polisyos.scientist.nodes.builtins.decide.policy_runtime_request import PolicyRuntimeRequest
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 from polisyos.scientist.policy_design.schema import (
@@ -391,10 +397,12 @@ def _install_actual_runtime_node_dependencies(
     """Stub non-funnel boundaries while retaining node, L4, orchestrator, and L6."""
     run_id = f"fun-03-node-{mode}"
     store = FileSystemCAS(tmp_path / run_id)
-    ctx = SimpleNamespace(
+    registry = build_default_registry_bundle(store)
+    run = RunContext.start(store=store, registry_bundle=registry.bundle_ref, run_id=run_id)
+    ctx = ExecutionContext(
         store=store,
-        eval_safety_execution_context=None,
-        eval_safety_verifier=None,
+        run=run,
+        logger=logging.getLogger(f"test.{run_id}"),
     )
     state = ExperimentState(
         run_id=run_id,
@@ -403,8 +411,8 @@ def _install_actual_runtime_node_dependencies(
         reports_index={},
     )
     candidate = _policy_candidate()
-    candidate_ref = persist_policy_candidate_schema(store, candidate)
-    runtime_request = SimpleNamespace(
+    candidate_ref = persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
+    runtime_request = PolicyRuntimeRequest(
         candidate=candidate,
         candidate_ref=candidate_ref,
         uncertainty_envelope=_envelope(statistical=0.3, model=0.4),
@@ -412,10 +420,15 @@ def _install_actual_runtime_node_dependencies(
         causal_report=None,
         distributional_report=None,
         cross_graph_profile=None,
-        evidence_sources=None,
+        evidence_sources=EvidenceSourcesConfig(),
         simulation_metrics={"policy_value": 0.2},
         ambiguity_certificate=None,
         ambiguity_certificate_ref=None,
+        execution_plan_ref=None,
+        method_catalog_snapshot_ref=None,
+        execution_profile=None,
+        causal_method_fqn=None,
+        causal_method_params={},
     )
     backend_calls: list[str] = []
     runner_calls: list[str] = []
@@ -437,6 +450,9 @@ def _install_actual_runtime_node_dependencies(
     class _Backend:
         def __init__(self, **_kwargs: Any) -> None:
             pass
+
+        def with_method_metric_projection_basis(self, **_kwargs: Any) -> _Backend:
+            return self
 
         def evaluate(self, _candidate: Any, *, fidelity: str, **_kwargs: Any) -> Any:
             backend_calls.append(fidelity)

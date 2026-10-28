@@ -367,3 +367,36 @@ When a welfare producer receives feedback_uncomposed, it persists the measuremen
 ### Declared scope and fallback identities
 
 `resolve_transfer_context` reconciles present scope declarations from typed contexts, mappings, and explicit arguments. `fallback_run_id` is used only if no run ID was declared; it cannot override or conflict with a present value. `LessonQuery` predicates are evaluated against the record at each pipeline stage: local reads match the persisted record's current namespace, while transfer source selection applies the same content and scope predicates before projection. A typed `target_context` selects the destination; `origin_domain` remains source provenance and never substitutes for a persisted target record's `domain`. `task_family` must match the transfer contract and `source_run_id` remains source provenance. `query_with_transfer` recomputes effective trust and confidence before charging its final `limit`; a rejected high-ranked candidate cannot hide a later eligible result. Direct `find_transfer_candidates` calls remain capped as raw candidate inspection. A present `tenant_hash` query selector is reconciled with the target context and a conflict refuses. When the legacy optional target is omitted, a source run ID is never promoted to the target run. SearchController binds its current search ID as the target-run fallback; an actually declared conflicting run remains a refusal.
+
+
+## Completed funnel result reuse
+
+A new submission of a compatible completed result receives a fresh organizational
+FunnelTicket, parent and lineage through the same Search uncertainty admission as
+an uncached submission. A live split Stage A/B request retains its existing ticket.
+`result_reuse_source_ticket_id` identifies the retained result history; it does not
+identify a newly executed evaluator invocation. Retained stage prices remain
+historical in the trace, while the new request's aggregate cost is unknown until
+an actual owner supplies a charge. Reuse adds no scientific observation,
+correlation sample or lesson.
+
+Fresh native result projection resolves each selected work packet from the current
+CAS/access boundary and preserves its actual execution run, ticket, attempt and
+source-result ref. A copied feedback ref or status is not evidence. An unavailable
+or conflicting retained packet limits the fresh outcome instead of relabeling that
+work as executed for the new request. The ordinary non-reuse serialized shape and
+legacy work packets retain their existing history/parser compatibility. Schema
+1.0 does not qualify as current-config work evidence. The additional lineage/reuse
+projection is emitted only for reused results. These engineering identities grant
+no publication or source-currentness authority.
+
+Retained source history is finalized only through a derived current projection;
+all public convenience paths consume that projection. Stage A selects its same
+highest eligible level after admission, so a later refused stage does not erase
+an independently allowed lower-stage exploratory result.
+
+Generic custom-stage context compatibility still depends on the existing cache
+identity filter. Its known-key bindings do not prove that omitted timestamps or
+object-valued context are neutral to every evaluator. A complete evaluated-input
+projection requires the separately owned strict payload/context bridge; this
+result-reuse repair does not establish that broader compatibility.

@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Callable, Iterable, Mapping
+from copy import deepcopy
 from dataclasses import replace
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -281,7 +282,9 @@ def _stable_context_identity(context: Mapping[str, Any]) -> dict[str, Any]:
     return identity
 
 
-def _funnel_score_admission(result: FunnelStageResult) -> ObjectiveScoreAdmission:
+def _funnel_score_admission(
+    result: FunnelStageResult, *, owner_context: object | None = None
+) -> ObjectiveScoreAdmission:
     """Recompute one selected score admission from the result's retained basis."""
     assessment = result.score_assessment
     if assessment is None and result.score_admission is not None:
@@ -292,6 +295,7 @@ def _funnel_score_admission(result: FunnelStageResult) -> ObjectiveScoreAdmissio
         prior_admission=result.score_admission,
         reported_status=result.score_status,
         reported_value=result.objective_value,
+        owner_context=owner_context,
     )
 
 
@@ -300,9 +304,11 @@ def _selected_funnel_score_status(result: FunnelStageResult) -> ObjectiveScoreSt
     return _funnel_score_admission(result).status
 
 
-def _reconcile_funnel_score(result: FunnelStageResult) -> FunnelStageResult:
+def _reconcile_funnel_score(
+    result: FunnelStageResult, *, owner_context: object | None = None
+) -> FunnelStageResult:
     """Retain both the score basis and its source-recomputed admission state."""
-    admission = _funnel_score_admission(result)
+    admission = _funnel_score_admission(result, owner_context=owner_context)
     assessment = admission.reported_assessment or result.score_assessment
     if admission.status is ObjectiveScoreStatus.AVAILABLE:
         return replace(
@@ -369,7 +375,9 @@ def _candidate_score_limited(result: FunnelStageResult) -> bool:
 
 
 def _finalize_terminal_completion(ticket: FunnelTicket) -> None:
-    """Require one source-recomputed AVAILABLE score before any terminal complete."""
+    """Finalize executed state; reused history is finalized only in its projection."""
+    if ticket.result_reuse_source_ticket_id is not None:
+        return
     if ticket.final_action != "complete" or not ticket.is_terminal:
         return
     result = ticket.last_result
@@ -570,7 +578,14 @@ class FunnelOrchestrator:
             routing_mode=routing_mode,
         )
         cached_ticket = self._cached_ticket_for_key(cache_key, routing_mode=routing_mode)
-        if cached_ticket is not None:
+        reusable_result = (
+            cached_ticket
+            if cached_ticket is not None
+            and cached_ticket.is_terminal
+            and cached_ticket.final_action not in _CONTINUABLE_ACTIONS
+            else None
+        )
+        if cached_ticket is not None and reusable_result is None:
             ticket = cached_ticket
             ticket._set_method_metric_projection_basis(metric_projection_basis)
             ticket.submitted_via_cache = True
@@ -582,7 +597,9 @@ class FunnelOrchestrator:
                 ticket.context["is_sentinel"] = True
             return ticket
 
-        previous_ticket = self._latest_ticket(candidate_hash, continuation_key=continuation_key)
+        previous_ticket = reusable_result or self._latest_ticket(
+            candidate_hash, continuation_key=continuation_key
+        )
         ticket_id = str(uuid4())
         uncertainty_ticket_id: str | None = None
         uncertainty_generation: int | None = None
@@ -623,7 +640,9 @@ class FunnelOrchestrator:
         if previous_ticket is not None:
             ticket.parent_ticket_id = previous_ticket.ticket_id
             ticket.lineage = (*previous_ticket.lineage, ticket_id)
-            if self._can_reuse_continuation(
+            if reusable_result is not None:
+                self._carry_forward_completed_result(reusable_result, ticket)
+            elif self._can_reuse_continuation(
                 previous_ticket,
                 continuation_key,
                 routing_mode=routing_mode,
@@ -636,7 +655,11 @@ class FunnelOrchestrator:
         store = ticket.context.get("store")
         candidate_ref = ticket.context.get("policy_candidate_ref")
         welfare_ref = ticket.context.get("welfare_bundle_ref")
-        if (
+        if reusable_result is not None:
+            retained_risk_ref = reusable_result.context.get("welfare_candidate_observation_ref")
+            if isinstance(retained_risk_ref, ArtifactRef):
+                ticket.context["welfare_candidate_observation_ref"] = retained_risk_ref
+        elif (
             store is not None
             and isinstance(candidate_ref, ArtifactRef)
             and isinstance(welfare_ref, ArtifactRef)
@@ -662,6 +685,34 @@ class FunnelOrchestrator:
         self._latest_ticket_by_context[continuation_key] = ticket.ticket_id
         self._ticket_cache[cache_key] = ticket.ticket_id
         return ticket
+
+    @staticmethod
+    def _carry_forward_completed_result(source: FunnelTicket, ticket: FunnelTicket) -> None:
+        """Retain result history after the new ticket's normal owner admission.
+
+        Physical work and its evidence keep their original identities. A cache
+        lookup creates no new observation, charge, lesson or correlation sample.
+        """
+        ticket.submitted_via_cache = True
+        # Retain history without transferring its ephemeral score capability.
+        # The single fresh projection admits selected work before replaying the
+        # scalar with this request's current owner basis.
+        ticket.stage_results = deepcopy(source.stage_results)
+        ticket.trace = deepcopy(source.trace)
+        ticket.current_level = source.current_level
+        ticket.next_level = source.next_level
+        ticket.final_action = source.final_action
+        ticket.degradation_mode = source.degradation_mode
+        ticket.is_terminal = True
+        ticket.last_scheduling_decision = source.last_scheduling_decision
+        ticket.lesson_refs = list(source.lesson_refs)
+        ticket.correlation_recorded = True
+        ticket.lessons_finalized = True
+        ticket.continuation_reason = "compatible_result_reused"
+        ticket.terminal_basis = source.terminal_basis
+        ticket.result_reuse_source_ticket_id = (
+            source.result_reuse_source_ticket_id or source.ticket_id
+        )
 
     def advance(
         self,
@@ -880,10 +931,22 @@ class FunnelOrchestrator:
         """Return the aggregated current outcome for a ticket."""
 
         resolved_ticket = self._resolve_ticket(ticket)
-        _finalize_terminal_completion(resolved_ticket)
-        ordered_results = [
-            resolved_ticket.stage_results[level] for level in sorted(resolved_ticket.stage_results)
-        ]
+        projection_ticket = resolved_ticket
+        if resolved_ticket.result_reuse_source_ticket_id is not None:
+            # Fresh admission can change this request's decision, while the
+            # retained execution trace remains the immutable source history.
+            projection_ticket = replace(
+                resolved_ticket,
+                stage_results={
+                    level: self._reconcile_reused_work_result(resolved_ticket, result, level)
+                    for level, result in resolved_ticket.stage_results.items()
+                },
+                trace=[],
+                result_reuse_source_ticket_id=None,
+            )
+        _finalize_terminal_completion(projection_ticket)
+        outcome_stage_results = dict(projection_ticket.stage_results)
+        ordered_results = [outcome_stage_results[level] for level in sorted(outcome_stage_results)]
         failure_cards: list[TypedFailureCard] = []
         envelopes: list[UncertaintyEnvelope] = []
         audit_refs: list[ArtifactRef] = []
@@ -899,7 +962,6 @@ class FunnelOrchestrator:
         if not envelopes:
             uncertainty_envelope = UncertaintyEnvelope.unknown()
 
-        outcome_stage_results = dict(resolved_ticket.stage_results)
         observation_refs: list[ArtifactRef] = []
         intake_failures: list[str] = []
         store = resolved_ticket.context.get("store")
@@ -959,7 +1021,8 @@ class FunnelOrchestrator:
             )
         if any(result.uncertainty_observation_ref is not None for result in ordered_results):
             intake_failures.append("legacy_v1_observations_route_only")
-        final_result = resolved_ticket.last_result
+        final_level = max(outcome_stage_results) if outcome_stage_results else None
+        final_result = outcome_stage_results[final_level] if final_level is not None else None
         if final_result is not None:
             feedback = dict(final_result.feedback or {})
             feedback["uncertainty_current"] = None
@@ -975,10 +1038,8 @@ class FunnelOrchestrator:
             )
             feedback["uncertainty_historical_max"] = uncertainty_envelope.model_dump(mode="json")
             final_result = replace(final_result, feedback=feedback)
-            for level, result in outcome_stage_results.items():
-                if result is resolved_ticket.last_result:
-                    outcome_stage_results[level] = final_result
-                    break
+            if final_level is not None:
+                outcome_stage_results[final_level] = final_result
 
         welfare_observation_ref = resolved_ticket.context.get("welfare_candidate_observation_ref")
         if (
@@ -1003,10 +1064,22 @@ class FunnelOrchestrator:
                 audit_refs.append(welfare_observation_ref)
 
         aggregate_cost_usd, aggregate_cost_origin = _aggregate_funnel_cost(resolved_ticket.trace)
+        outcome_trace = list(resolved_ticket.trace)
+        final_action = projection_ticket.final_action
+        evaluation_status = self._evaluation_status(projection_ticket)
+        if resolved_ticket.result_reuse_source_ticket_id is not None:
+            # Retained stage prices describe the original execution, not a
+            # measured charge (or measured zero) for this organizational request.
+            aggregate_cost_usd, aggregate_cost_origin = None, "unknown"
+            # Preserve actual source history, including its historical score and
+            # work status. Fresh reuse admission is projected in stage_results.
+            outcome_trace = deepcopy(resolved_ticket.trace)
+            if any(result.executed_work_packet_status == "rejected" for result in ordered_results):
+                final_action, evaluation_status = "defer", "partial"
         return FunnelOutcome(
             ticket_id=resolved_ticket.ticket_id,
             candidate_hash=resolved_ticket.candidate_hash,
-            trace=list(resolved_ticket.trace),
+            trace=outcome_trace,
             stage_results=outcome_stage_results,
             final_result=final_result,
             failure_cards=failure_cards,
@@ -1014,7 +1087,7 @@ class FunnelOrchestrator:
             compute_cost_usd=aggregate_cost_usd,
             compute_cost_origin=aggregate_cost_origin,
             degradation_mode=resolved_ticket.degradation_mode,
-            final_action=resolved_ticket.final_action,
+            final_action=final_action,
             completed=resolved_ticket.is_terminal,
             last_scheduling_decision=resolved_ticket.last_scheduling_decision,
             lesson_refs=list(resolved_ticket.lesson_refs),
@@ -1025,7 +1098,8 @@ class FunnelOrchestrator:
             parent_ticket_id=resolved_ticket.parent_ticket_id,
             lineage=resolved_ticket.lineage,
             continuation_reason=resolved_ticket.continuation_reason,
-            evaluation_status=self._evaluation_status(resolved_ticket),
+            result_reuse_source_ticket_id=resolved_ticket.result_reuse_source_ticket_id,
+            evaluation_status=evaluation_status,
             current_uncertainty_envelope=current_uncertainty,
             uncertainty_observation_refs=_dedupe_artifact_refs(observation_refs),
             uncertainty_intake_failures=intake_failures,
@@ -1055,7 +1129,7 @@ class FunnelOrchestrator:
         ) -> EvaluationBundle:
             ticket = self.submit(candidate, context)
             outcome = self.advance(ticket, policy="stage_a")
-            result = self._result_for_level(ticket, self._stage_a_execution_target())
+            result = self._result_for_level(outcome, self._stage_a_execution_target())
             if result is None:
                 result = outcome.final_result or self._empty_result(candidate)
             score_admission = _funnel_score_admission(result)
@@ -1371,18 +1445,16 @@ class FunnelOrchestrator:
                 return candidate_level
         return None
 
+    @staticmethod
     def _result_for_level(
-        self,
-        ticket: FunnelTicket | str,
+        outcome: FunnelOutcome,
         target_level: int,
     ) -> FunnelStageResult | None:
-        resolved_ticket = self._resolve_ticket(ticket)
-        eligible_levels = [
-            level for level in resolved_ticket.stage_results if level <= target_level
-        ]
+        """Select the same eligible stage from the admitted current projection."""
+        eligible_levels = [level for level in outcome.stage_results if level <= target_level]
         if not eligible_levels:
             return None
-        return resolved_ticket.stage_results[max(eligible_levels)]
+        return outcome.stage_results[max(eligible_levels)]
 
     def _build_stage_context(
         self,
@@ -1696,6 +1768,95 @@ class FunnelOrchestrator:
             fidelity=packet.fidelity,
             evaluation_attempt_id=packet.evaluation_attempt_id,
         )
+
+    def _reconcile_reused_work_result(
+        self,
+        ticket: FunnelTicket,
+        source_result: FunnelStageResult,
+        stage_level: int,
+    ) -> FunnelStageResult:
+        """Resolve retained work from current selected CAS without issuing new work.
+
+        A retained packet belongs to its actual execution ticket and run. The
+        current request only reuses that result; a copied feedback string or a
+        fresh organizational ID cannot establish physical execution provenance.
+        """
+        from polisyos.core.artifacts import load_core_json_artifact
+
+        result = deepcopy(source_result)
+        reuse: dict[str, Any] = {
+            "request_ticket_id": ticket.ticket_id,
+            "result_source_ticket_id": ticket.result_reuse_source_ticket_id,
+            "new_physical_work": False,
+            "executed_work_status": "unavailable",
+        }
+        ref = result.executed_work_packet_ref
+        try:
+            if ref is None:
+                # Use the same missing-reference rule as first execution. A
+                # copied available marker cannot substitute for selected bytes.
+                self._admit_executed_work_packet(ticket, result, stage_level)
+                if result.executed_work_packet_status == "rejected":
+                    raise ValueError("retained_work_reference_missing")
+            elif not isinstance(ref, ArtifactRef):
+                raise ValueError("retained_work_reference_invalid")
+            else:
+                store = ticket.context.get("store")
+                packet = FunnelExecutedWorkPacket.model_validate(
+                    load_core_json_artifact(store, ref)
+                )
+                execution_ticket = self._tickets.get(packet.ticket_id)
+                if (
+                    execution_ticket is None
+                    or packet.ticket_id not in ticket.lineage[:-1]
+                    or execution_ticket.candidate_hash != ticket.candidate_hash
+                ):
+                    raise ValueError("retained_work_execution_ticket_not_in_lineage")
+                # Use the current store/access wrapper while retaining the
+                # original executed invocation's run, ticket and input basis.
+                current_source = replace(
+                    execution_ticket,
+                    context={**execution_ticket.context, "store": store},
+                )
+                self._admit_executed_work_packet(current_source, result, stage_level)
+                if result.executed_work_packet_status != "available":
+                    raise ValueError("retained_work_source_not_reconciled")
+                reuse.update(
+                    executed_work_status="available",
+                    executed_work_packet_ref=ref.model_dump(mode="json"),
+                    execution_ticket_id=packet.ticket_id,
+                    execution_run_id=packet.run_id,
+                    evaluation_attempt_id=packet.evaluation_attempt_id,
+                    source_result_ref=packet.source_result_ref.model_dump(mode="json"),
+                )
+        except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError):
+            self._reject_work_packet(result, "retained_work_source_not_reconciled")
+            if not isinstance(ref, ArtifactRef):
+                result.executed_work_packet_ref = None
+            assessment = _unestablished_score_assessment("retained_work_source_not_reconciled")
+            result = replace(
+                result,
+                objective_value=None,
+                is_promising=False,
+                score_status=ObjectiveScoreStatus.NOT_ESTABLISHED,
+                score_assessment=assessment,
+                score_admission=None,
+                terminal_action="defer",
+            )
+            reuse["executed_work_status"] = "rejected"
+        else:
+            result = _reconcile_funnel_score(
+                result,
+                owner_context=getattr(ticket, "_method_metric_projection_basis", None),
+            )
+        result.feedback = dict(result.feedback)
+        result.feedback["funnel_result_reuse"] = reuse
+        result.feedback["policy_runtime_work_packet_status"] = result.executed_work_packet_status
+        if isinstance(ref, ArtifactRef):
+            result.feedback["policy_runtime_work_packet_ref"] = ref.model_dump(mode="json")
+        else:
+            result.feedback.pop("policy_runtime_work_packet_ref", None)
+        return result
 
     @staticmethod
     def _reject_work_packet(result: FunnelStageResult, reason: str) -> None:

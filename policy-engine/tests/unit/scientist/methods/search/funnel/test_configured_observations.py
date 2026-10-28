@@ -1557,3 +1557,71 @@ def test_current_read_resolves_persisted_unassessed_payload_and_refuses_removed_
     assert refused.reason_code == "search_projection_mismatch"
     assert refused.projection is None
     assert refused.resolved_projection is None
+
+
+def test_completed_result_reuse_reconciles_a_new_owner_task_without_new_assessment(tmp_path):
+    from polisyos.core.artifacts import load_core_json_artifact
+
+    store = FileSystemCAS(tmp_path / "cas")
+    seed_state, seed_ticket_id = _ready_current_projection_packet(store, run_id="reuse-owner-run")
+    seed_read = seed_state.read_current_snapshot(seed_ticket_id)
+    assert seed_read is not None and seed_read.task_admission is not None
+    owner_context = SearchUncertaintyOwnerTaskContext.model_validate(
+        load_core_json_artifact(store, seed_read.task_admission.owner_context_ref)
+    )
+    source = {"gdp_change": 0.0, "metric_units": {"gdp_change": "fixture-unit"}}
+    assessment = GDPGrowthObjective(expected_unit="fixture-unit").evaluate(source).score_assessment
+    assert assessment is not None and assessment.status is ObjectiveScoreStatus.AVAILABLE
+    producer = ProducerStage(
+        0,
+        FunnelStageResult(
+            policy_candidate={},
+            objective_value=0.0,
+            is_promising=True,
+            stage_name="producer-0",
+            fidelity_level=0,
+            simulation_results=source,
+            score_status=assessment.status,
+            score_assessment=assessment,
+        ),
+    )
+    runtime = FunnelOrchestrator([producer])
+    context = {"store": store, "policy_candidate_ref": owner_context.subject_ref}
+    first = runtime.submit(
+        {"candidate": "same"}, context, search_uncertainty_owner_context=owner_context
+    )
+    first_outcome = runtime.advance(first)
+    first_row = SearchUncertaintyTicketState(store)._read_row(first.ticket_id)
+    second = runtime.submit(
+        {"candidate": "same"}, context, search_uncertainty_owner_context=owner_context
+    )
+    second_outcome = runtime.advance(second)
+    cold = SearchUncertaintyTicketState(FileSystemCAS(store.root)).read_current_snapshot(
+        second.ticket_id
+    )
+
+    assert second.ticket_id != first.ticket_id
+    assert second.search_uncertainty_ticket_id == second.ticket_id
+    assert second.search_uncertainty_generation == 1
+    assert second.search_uncertainty_task_binding_ref is not None
+    assert second.search_uncertainty_task_binding_ref != first.search_uncertainty_task_binding_ref
+    assert cold is not None and cold.task_admission is not None
+    assert cold.ticket_id == second.ticket_id
+    assert first_outcome.search_uncertainty_current_read is not None
+    assert first_outcome.search_uncertainty_current_read.task_admission is not None
+    assert (
+        cold.task_admission.owner_context_ref
+        == first_outcome.search_uncertainty_current_read.task_admission.owner_context_ref
+    )
+    assert cold.task_admission.owner_context_ref == seed_read.task_admission.owner_context_ref
+    assert second_outcome.search_uncertainty_current_read is not None
+    assert second_outcome.search_uncertainty_current_read.ticket_id == second.ticket_id
+    assert second_outcome.current_uncertainty_envelope is None
+    assert cold.resolved_projection is not None
+    assert cold.resolved_projection.current_obligations == ()
+    assert all(
+        item.observation.state == "unassessed"
+        for item in cold.resolved_projection.selected_unassessed_observations
+    )
+    assert SearchUncertaintyTicketState(store)._read_row(first.ticket_id) == first_row
+    assert producer.calls == 1

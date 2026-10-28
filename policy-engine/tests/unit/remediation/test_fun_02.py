@@ -15,6 +15,7 @@ from polisyos.scientist.methods.search.funnel.types import (
     FunnelStageResult,
     UncertaintyEnvelope,
 )
+from polisyos.scientist.methods.search.objective import GDPGrowthObjective
 from polisyos.scientist.methods.search.stages import StageResult
 
 
@@ -30,9 +31,15 @@ def _stage(
     stage.fidelity_level = level
     stage.stage_name = f"L{level}"
     stage.estimated_cost_usd = 0.1
+    source = {"gdp_change": objective, "metric_units": {"gdp_change": "fixture-unit"}}
+    assessment = GDPGrowthObjective(expected_unit="fixture-unit").evaluate(source).score_assessment
+    assert assessment is not None
     stage.evaluate.return_value = FunnelStageResult(
         policy_candidate={"candidate_id": "fun-02"},
-        objective_value=objective,
+        objective_value=assessment.value,
+        score_status=assessment.status,
+        score_assessment=assessment,
+        simulation_results=source,
         is_promising=promising,
         stage_name=f"L{level}",
         feedback=feedback or {},
@@ -101,7 +108,7 @@ def test_empty_funnel_is_not_evaluated_and_never_looks_like_zero_approval() -> N
     result = FunnelOrchestrator([]).evaluate({}, {})
 
     assert result.is_promising is False
-    assert result.objective_value == float("inf")
+    assert result.objective_value is None
     assert result.feedback["verdict"] == "NOT_EVALUATED"
     assert result.feedback["funnel_evaluation_status"] == "not_evaluated"
 
@@ -111,7 +118,7 @@ def test_cap_before_first_stage_is_not_evaluated() -> None:
     output = FunnelOrchestrator([stage], max_level=2).as_stage_b_callable()({}, {})
 
     assert output["is_promising"] is False
-    assert output["objective_value"] == float("inf")
+    assert output["objective_value"] is None
     assert output["feedback"]["verdict"] == "NOT_EVALUATED"
     assert output["feedback"]["funnel_action"] == "defer"
     stage.evaluate.assert_not_called()
@@ -131,6 +138,9 @@ def test_executed_zero_objective_remains_a_valid_result() -> None:
         (None, 1.0, "ci_width_missing"),
         ("broken", 1.0, "ci_width_invalid"),
         (float("nan"), 1.0, "ci_width_invalid"),
+        (float("inf"), 1.0, "ci_width_invalid"),
+        (-0.1, 1.0, "ci_width_invalid"),
+        (True, 1.0, "ci_width_invalid"),
         (0.0, 0.0, "full_fidelity_bootstrap"),
         (0.4, 0.1, "full_fidelity_bootstrap"),
     ],

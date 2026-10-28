@@ -475,6 +475,8 @@ class FunnelTicket(_FunnelTicketMethodMetricCapabilitySlot):
     search_uncertainty_ticket_id: str | None = None
     search_uncertainty_generation: int | None = None
     search_uncertainty_task_binding_ref: ArtifactRef | None = None
+    # The retained result history owner; the parent may itself be a reuse request.
+    result_reuse_source_ticket_id: str | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "_method_metric_projection_basis", None)
@@ -541,6 +543,7 @@ class FunnelOutcome:
     uncertainty_observation_refs: list[ArtifactRef] = field(default_factory=list)
     uncertainty_intake_failures: list[str] = field(default_factory=list)
     search_uncertainty_current_read: SearchUncertaintyCurrentRead | None = None
+    result_reuse_source_ticket_id: str | None = None
 
     def __post_init__(self) -> None:
         _validate_funnel_cost(self.compute_cost_usd, self.compute_cost_origin)

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -32,6 +33,7 @@ from polisyos.scientist.methods.search.funnel.types import (
     FunnelStageResult,
 )
 from polisyos.scientist.methods.search.objective import (
+    GDPGrowthObjective,
     ObjectiveScoreStatus,
     _project_score_assessment_source,
     score_assessment_matches_source,
@@ -1203,3 +1205,177 @@ def test_unavailable_fiscal_signal_is_labeled_and_withheld_from_scalar_voi_consu
     assert outcome.trace[0].score_status is ObjectiveScoreStatus.UNAVAILABLE
     assert outcome.trace[0].objective_value is None
     assert not hasattr(scheduler, "actual_objective_value")
+
+
+class _TerminalRejectedFullFidelity(Level4FullFidelity):
+    """Retain a real evaluator packet under a test-owned terminal rejection."""
+
+    def evaluate(self, candidate: dict[str, Any], context: dict[str, Any]) -> FunnelStageResult:
+        return replace(super().evaluate(candidate, context), terminal_action="reject")
+
+
+def test_cached_native_result_keeps_the_original_selected_work_identity(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    candidate = _policy_candidate()
+    candidate_ref = persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
+    context = _context(store, candidate, candidate_ref)
+    engine = _RecordingWorkflowEngine(fidelity="full")
+    runtime = FunnelOrchestrator([_TerminalRejectedFullFidelity(workflow_engine=engine)])
+    first = runtime.submit(_candidate_payload(candidate), context)
+    first_outcome = runtime.advance(first)
+    first_ref = first_outcome.stage_results[4].executed_work_packet_ref
+    assert first_ref is not None
+    physical = FunnelExecutedWorkPacket.model_validate(load_core_json_artifact(store, first_ref))
+    original_packet_bytes = store.get_bytes(first_ref)
+    second = runtime.submit(_candidate_payload(candidate), context)
+    reused = runtime.advance(second)
+    result = reused.stage_results[4]
+    assert second.ticket_id != first.ticket_id
+    source = result.feedback["funnel_result_reuse"]
+
+    assert first_outcome.final_action == reused.final_action == "reject"
+    assert second.parent_ticket_id == first.ticket_id
+    assert reused.lineage == (first.ticket_id, second.ticket_id)
+    assert result.executed_work_packet_status == "available"
+    assert result.executed_work_packet_ref == first_ref
+    assert source["request_ticket_id"] == second.ticket_id
+    assert source["new_physical_work"] is False
+    assert source["execution_ticket_id"] == physical.ticket_id == first.ticket_id
+    assert source["execution_run_id"] == physical.run_id
+    assert source["evaluation_attempt_id"] == physical.evaluation_attempt_id
+    assert source["source_result_ref"] == physical.source_result_ref.model_dump(mode="json")
+    assert source["executed_work_packet_ref"] == first_ref.model_dump(mode="json")
+    assert store.get_bytes(first_ref) == original_packet_bytes
+    assert len(engine.effective_config_inputs) == 1
+    assert reused.compute_cost_usd is None
+    assert reused.compute_cost_origin == "unknown"
+
+
+@pytest.mark.parametrize("selected_ref_state", ["wrong_profile", "missing"])
+def test_reused_work_ref_must_reopen_its_selected_profile_despite_copied_markers(
+    tmp_path: Path, selected_ref_state: str
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    candidate = _policy_candidate()
+    candidate_ref = persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
+    context = _context(store, candidate, candidate_ref)
+    engine = _RecordingWorkflowEngine(fidelity="full")
+    runtime = FunnelOrchestrator([_TerminalRejectedFullFidelity(workflow_engine=engine)])
+    first = runtime.submit(_candidate_payload(candidate), context)
+    first_outcome = runtime.advance(first)
+    second = runtime.submit(_candidate_payload(candidate), context)
+    source_ref = second.stage_results[4].executed_work_packet_ref
+    assert source_ref is not None and source_ref.manifest_profile_sha256 is not None
+    copied_feedback = deepcopy(second.stage_results[4].feedback)
+    wrong_profile = source_ref.model_copy(update={"manifest_profile_sha256": "sha256:" + "f" * 64})
+    second.stage_results[4].executed_work_packet_ref = (
+        wrong_profile if selected_ref_state == "wrong_profile" else None
+    )
+    # The status and source feedback remain present. Only the consumed selected
+    # CAS view differs; those copied markers must not carry the fresh projection.
+    assert second.stage_results[4].executed_work_packet_status == "available"
+    assert second.stage_results[4].feedback == copied_feedback
+    refused = runtime.get_outcome(second)
+
+    assert refused.final_action == "defer"
+    assert refused.evaluation_status == "partial"
+    assert refused.final_result is not None
+    assert refused.final_result.objective_value is None
+    assert refused.final_result.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+    assert refused.final_result.executed_work_packet_status == "rejected"
+    assert (
+        refused.final_result.feedback["funnel_result_reuse"]["executed_work_status"] == "rejected"
+    )
+    assert "execution_ticket_id" not in refused.final_result.feedback["funnel_result_reuse"]
+    if selected_ref_state == "missing":
+        assert "policy_runtime_work_packet_ref" not in refused.final_result.feedback
+    assert first.stage_results[4].executed_work_packet_ref == source_ref
+    assert first_outcome.stage_results[4].executed_work_packet_status == "available"
+    assert refused.trace[0].executed_work_packet_ref == source_ref
+    assert refused.trace[0].executed_work_packet_status == "available"
+    assert refused.result_reuse_source_ticket_id == first.ticket_id
+    assert len(engine.effective_config_inputs) == 1
+
+
+class _ScoredTerminalFullFidelity(Level4FullFidelity):
+    """Keep real engineering work with a separate declared bounded score fixture."""
+
+    def evaluate(self, candidate: dict[str, Any], context: dict[str, Any]) -> FunnelStageResult:
+        result = super().evaluate(candidate, context)
+        source = {**result.simulation_results, "metric_units": {"gdp_change": "fixture-unit"}}
+        assessment = GDPGrowthObjective(expected_unit="fixture-unit").evaluate(source)
+        return replace(
+            result,
+            simulation_results=source,
+            objective_value=assessment.raw_value,
+            score_status=assessment.score_status,
+            score_assessment=assessment.score_assessment,
+            score_admission=None,
+            is_promising=True,
+            terminal_action="complete",
+        )
+
+
+class _DenySelectedWorkManifest:
+    """Expose the real current store except for one denied selected work view."""
+
+    def __init__(self, store: FileSystemCAS, denied_ref: ArtifactRef) -> None:
+        self.store = store
+        self.denied_ref = denied_ref
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self.store, name)
+
+    def get_manifest(self, ref: ArtifactRef | str) -> Any:
+        if ref == self.denied_ref:
+            raise OSError("selected_work_access_denied")
+        return self.store.get_manifest(ref)
+
+
+@pytest.mark.parametrize("selected_view", ["missing", "wrong_profile", "current_store_denied"])
+def test_stage_a_uses_the_same_selected_level_from_the_current_work_projection(
+    tmp_path: Path, selected_view: str
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    candidate = _policy_candidate()
+    candidate_ref = persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
+    context = _context(store, candidate, candidate_ref)
+    engine = _RecordingWorkflowEngine(fidelity="full")
+    runtime = FunnelOrchestrator(
+        [_ScoredTerminalFullFidelity(workflow_engine=engine)], stage_a_max_level=4
+    )
+    payload = _candidate_payload(candidate)
+    first = runtime.submit(payload, context)
+    original = runtime.advance(first)
+    source_ref = first.stage_results[4].executed_work_packet_ref
+    assert source_ref is not None
+    assert original.final_action == "complete"
+    assert original.final_result is not None
+    assert original.final_result.score_status is ObjectiveScoreStatus.AVAILABLE
+    assert original.final_result.executed_work_packet_status == "available"
+    historical_trace = deepcopy(first.trace)
+    second = runtime.submit(payload, context)
+    if selected_view == "missing":
+        second.stage_results[4].executed_work_packet_ref = None
+    elif selected_view == "wrong_profile":
+        second.stage_results[4].executed_work_packet_ref = source_ref.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "f" * 64}
+        )
+    else:
+        context = {**context, "store": _DenySelectedWorkManifest(store, source_ref)}
+    # The scalar source, available marker and copied source metadata stay valid.
+    # Refusal must come from the current selected work view of this same level.
+    assert second.stage_results[4].score_status is ObjectiveScoreStatus.AVAILABLE
+    assert second.stage_results[4].executed_work_packet_status == "available"
+
+    bundle = runtime.as_stage_a_callable()(payload, context)
+
+    assert bundle.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+    assert bundle.objective_value is None
+    assert bundle.is_promising is False
+    assert bundle.stage_a_passed is False
+    assert bundle.metadata["funnel_action"] == "defer"
+    assert first.trace == historical_trace
+    assert all(ticket.trace == historical_trace for ticket in runtime._tickets.values())
+    assert store.get_manifest(source_ref).kind == "scientist.search.funnel_native_work_packet"
+    assert len(engine.effective_config_inputs) == 1

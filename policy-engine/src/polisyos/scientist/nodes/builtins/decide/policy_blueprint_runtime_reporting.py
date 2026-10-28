@@ -572,7 +572,7 @@ def _recompute_stress_test_report(report: StressTestReport) -> StressTestReport:
 
 
 def _serialize_funnel_outcome(outcome: FunnelOutcome) -> dict[str, Any]:
-    return {
+    payload = {
         "ticket_id": outcome.ticket_id,
         "candidate_hash": outcome.candidate_hash,
         "compute_cost_usd": outcome.compute_cost_usd,
@@ -655,6 +655,15 @@ def _serialize_funnel_outcome(outcome: FunnelOutcome) -> dict[str, Any]:
             ref.model_dump(mode="json") for ref in outcome.actionable_side_information_refs
         ],
     }
+
+    if outcome.result_reuse_source_ticket_id is not None:
+        payload.update(
+            parent_ticket_id=outcome.parent_ticket_id,
+            lineage=list(outcome.lineage),
+            continuation_reason=outcome.continuation_reason,
+            result_reuse_source_ticket_id=outcome.result_reuse_source_ticket_id,
+        )
+    return payload
 
 
 def _extract_level5_gate(outcome: FunnelOutcome) -> dict[str, Any]:

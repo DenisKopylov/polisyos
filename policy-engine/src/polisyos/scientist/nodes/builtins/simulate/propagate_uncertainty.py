@@ -461,7 +461,7 @@ class PropagateUncertaintyNode:
                     candidate=response_candidate,
                     response_source=response_source,
                     moment_name=moment_name,
-                ).envelope
+                )
                 envelope_ref = persist_uncertainty_envelope(
                     _ensure_ir_artifact_store(ctx.store),
                     envelope,

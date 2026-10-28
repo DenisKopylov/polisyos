@@ -1675,6 +1675,25 @@ def test_native_response_calibration_report_reaches_fresh_state_slot_consumer(
     )
     assert "draw_success_ledger_missing" in projection.limitation_codes
     assert projection.envelope.ci_width > 0.0
+    # The real node persists the marker's returned Envelope directly; the fresh
+    # selected reader must retain its candidate subject and source identities.
+    assert projection.envelope.metadata["uncertainty_subject"] == {
+        "kind": "state_slot",
+        "id": "government.balance",
+        "state_path": response.state_paths["balance"],
+        "unit_id": response.moment_unit_ids["balance"],
+    }
+    projected_source = projection.envelope.metadata["state_slot_response_basis"]
+    assert projected_source["calibration_report_ref"] == report_ref.model_dump(mode="json")
+    assert projected_source["calibration_execution_input_basis_ref"] == basis_ref.model_dump(
+        mode="json"
+    )
+    assert projected_source["selected_source_simulation_result_ref"] == (
+        response.source_simulation_result_ref.model_dump(mode="json")
+    )
+    assert projected_source["state_response_moment"] == "balance"
+    assert projection.envelope.metadata["candidate_only"] is True
+    assert projection.envelope.gate_eligible is False
 
     # The SAME genuine scalar2.0 report is consumed by both public nodes.
     # A small real execute replay supplies welfare's existing fitted-override

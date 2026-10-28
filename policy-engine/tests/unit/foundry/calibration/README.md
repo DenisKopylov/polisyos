@@ -92,3 +92,10 @@ named joint assertion is the deciding NPZ removal target; setup/other red is inv
 Core native date/Decimal/bytes values retain their existing codec; changed raw values
 are refused. No extra optimizer fixture or independent replay is introduced for
 these NPZ cases. All runtime/removal outcomes remain UNRUN in the source packet.
+
+The scalar producer-to-response integration also reads the persisted output through
+a fresh selected subject reader. It checks the envelope's state-slot subject and
+selected source/calibration identities together with candidate-only/non-gating
+status. This is the regression for passing the canonical marker's returned
+`UncertaintyEnvelope` directly to persistence. A successful private marker call
+alone cannot replace this real node and fresh-reader check.

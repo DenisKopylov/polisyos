@@ -1,0 +1,16 @@
+id = "2026-10-28-state-slot-envelope-publication"
+title = "Persist the canonical state-slot marker envelope directly"
+type = "fixed"
+component = "scientist"
+owner = "team-scientist"
+summary = "The response uncertainty node consumes the marker's declared UncertaintyEnvelope return directly, avoiding an invalid second envelope unwrap before publication."
+evidence = ["src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py", "tests/unit/foundry/calibration/test_identifiability_response_basis.py"]
+compatibility = "No DTO, signature, wire schema, propagation law or artifact source admission changes. Existing marked candidate envelopes retain their subject/source metadata and remain gate-ineligible."
+change_class = "python-public-api"
+surface_classification = "internal: polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty; workflow node output behavior"
+migration = "No input or CAS rewrite. Re-run the existing scalar node-to-fresh-subject-reader regression on the composed source."
+limitations = "Source repair is not a runtime PASS or G acceptance. Later consumers, authority and inference remain separately qualified."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/nodes/README.md"]
+runbook_docs = []

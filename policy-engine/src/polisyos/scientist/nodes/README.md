@@ -239,3 +239,13 @@ the existing selected execute-response source and slot mapping; no source/issuer
 causal law or publication authority is inferred. The real scalar response test
 supplies that later path. A phase0 admission fix does not establish that the later
 source intake, join or MC consumer has succeeded until its actual execution.
+
+### State-slot envelope publication
+
+The response projection marker returns an `UncertaintyEnvelope` already; the
+public uncertainty node persists that value directly through the existing envelope
+writer. `PropagationResult` owns the initial `.envelope` projection, while the
+marked envelope has no second wrapper. The fresh subject reader must retain its
+state-slot subject, exact selected calibration/source refs and candidate-only,
+non-gating status. This repair changes neither propagation arithmetic nor source
+qualification; later report/consumer outcomes still need actual verification.

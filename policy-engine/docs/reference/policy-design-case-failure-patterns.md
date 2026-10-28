@@ -722,3 +722,16 @@ Do not promote a saved-artifact read failure into a claim that an earlier node
 reached that reader. A source-invalid negative is distinguished only after its
 unchanged selected positive passes and the intended refusal reason is observed.
 An observation-only diagnostic and a source GO never replace runtime or G proof.
+
+
+### P38 instance: a value-returning marker is not its input wrapper
+
+A projection helper may accept a result wrapper and return the marked domain
+value itself. Applying a second wrapper accessor can fail after a real producer
+and source join, before artifact publication. Diagnostic: read the canonical
+return annotation and actual return path, then enumerate its current consumers.
+Closure move: consume the existing typed return directly, preserving candidate
+and source metadata; do not change the owner or add an invented compatibility
+wrapper. Prove the real node persists the value and a fresh selected reader
+retains subject, source identities and status. Restoring the incorrect accessor
+must reproduce the same consumer-body red, not a setup/backend failure.

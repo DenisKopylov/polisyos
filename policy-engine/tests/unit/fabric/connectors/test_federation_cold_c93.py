@@ -68,6 +68,7 @@ def _child(tmp_path: Path, phase: str, expected: Path) -> dict:
     assert run.returncode == 0, f"{cmd!r}\nstdout:\n{run.stdout}\nstderr:\n{run.stderr}"
     record = json.loads(receipt.read_text())
     assert record["exit_code"] == 0
+    assert record["code_identity_helper"]["status"] == "matched_declared_source"
     assert not record["source_mismatches"]
     assert not record["unbound_project_sources"]
     assert record["pre_import"]["cache_files"] == []
@@ -95,18 +96,21 @@ def test_actual_producer_cold_nested_reader_and_registered_sql(tmp_path: Path) -
     e = _child(tmp_path, "forge", expected)
     f = _child(tmp_path, "forged", expected)
     assert len({a["pid"], b["pid"], c["pid"], d["pid"], e["pid"], f["pid"]}) == 6
-    assert any(
-        row["qualname"].endswith("persist_federation_derivation")
-        for row in a["executed_project_calls"]
-    )
-    assert any(
-        row["qualname"].endswith("read_verified_federation_derivation")
-        for row in b["executed_project_calls"]
-    )
-    assert any(
-        row["qualname"].endswith("read_verified_federation_derivation")
-        for row in c["executed_project_calls"]
-    )
+    for record, target in (
+        (a, "persist_federation_derivation"),
+        (b, "read_verified_federation_derivation"),
+        (c, "read_verified_federation_derivation"),
+        (d, "read_verified_federation_derivation"),
+        (e, "persist_federation_derivation"),
+        (f, "read_verified_federation_derivation"),
+    ):
+        assert any(
+            row["qualname"].endswith(target)
+            and row["calls"] > 0
+            and row["pid"] == record["pid"]
+            and row["source_code_binding"]["status"] == "matched_declared_source"
+            for row in record["executed_project_calls"]
+        ), f"no pinned, observed {target} call in PID {record['pid']}"
 
 
 def _metadata(name: str, trust):

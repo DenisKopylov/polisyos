@@ -623,3 +623,25 @@ versions; they are not evidence for the widened five-output/fifteen-target profi
 ### P38/P40 instance: federation JOIN resource key relation
 
 Diagnostic: do cardinality and resource preflight, intermediate relation propagation, and materialization use the same equivalence over admitted keys? Tagged scalar bytes distinguish integer 1 from float 1.0 and positive from negative zero although numeric equality matches them; an outer JOIN can materialize two rows after preflight admitted one. Use one internal relation throughout, preserve exact carried keys, and test the real merge and allocation boundary against an independent row-occurrence oracle.
+
+### P38/P40 instance: actual Python call identity and installed origins
+
+**Diagnostic question.** Does the deciding PID observe the called code object and
+independently bind it to the intended source, or merely compare a representation
+that can change for the same code while suppressing paths that may contain the
+actual first-party module? `C95-CANON-HASH-01` observed unstable marshal bytes for
+the same code object. `C101-I1` identified a blanket environment exclusion that
+would hide a `polisyos` call from an installed origin.
+
+**Closure move.** Reuse the shared structural code-field witness, retain the real
+called frame and independently compiled pinned source, and record each PID and
+physical origin. Observe installed project-origin candidates before excluding
+ordinary third-party paths; carry an installed origin as `not_established` until an
+independent installation-to-source mapping is supplied. A structural fingerprint
+is not semantic equivalence, institutional authority, or a complete execution
+readset. Verify the actual call and source-removal behavior, not field markers.
+
+**Class disposition.** `C95-CANON-HASH-01` was a new code-representation
+stability class relative to the earlier C95 discrimination findings. `C101-I2`
+is the same affected-consumer class for that stability finding; `C101-I1` is
+the existing project-readset and installed-origin classification class.

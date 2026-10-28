@@ -115,6 +115,26 @@ uv run pytest --collect-only tests/unit/runtime/http -q
 uv run pytest --collect-only tests/unit/scientist -q
 ```
 
+## Federation execution observer
+
+`tests/observers/c93_same_pid_pytest.py` records actual calls and reuses
+`tests/_helpers/code_identity.py` for structural code-object witnesses. The helper
+must be pinned in the declared source map; a missing or mismatched helper leaves
+code binding `not_established`. The helper executes before the observer hooks and
+its source match is conditional on an independently reconciled published pin.
+
+Installed `polisyos` origins are observed as project-origin candidates, not
+silently excluded with third-party environment files. A candidate outside
+`src/polisyos` is unresolved until an independent origin/source reconciliation;
+a namespace or a matching fingerprint is not proof of ownership or semantics.
+Native execution, non-current threads and unobserved children remain boundaries.
+The deciding entrypoint refuses product modules imported before observation; isolated
+observer unit fixtures may be constructed under already-imported pytest conftests.
+
+The focused behavioral cases in `tests/unit/fabric/connectors/test_federation_execution_observer.py`
+exercise actual called code and origin classification. Run deciding pytest phases
+with `-s` and retain complete stdout, stderr and JUnit independently of results.
+
 ## Reference Docs
 
 - [`TESTING_POLICY.md`](TESTING_POLICY.md)

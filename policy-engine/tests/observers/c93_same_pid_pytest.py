@@ -12,12 +12,13 @@ import ast
 import hashlib
 import importlib.metadata
 import json
-import marshal
 import os
 import runpy
 import sys
+import sysconfig
 import time
 import types
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -61,17 +62,72 @@ def _snapshot(phase: str, cache: Path) -> dict[str, Any]:
     }
 
 
+def _load_code_identity(
+    root: Path, expected: dict[str, str]
+) -> tuple[Callable[[types.CodeType], str] | None, dict[str, Any]]:
+    """Load the shared helper from its pinned physical bytes before observation."""
+    path = (root / "tests/_helpers/code_identity.py").resolve()
+    expected_value = expected.get("tests/_helpers/code_identity.py")
+    record: dict[str, Any] = {
+        "path": str(path),
+        "expected": expected_value,
+        "status": "not_established",
+    }
+    try:
+        if not path.is_relative_to(root.resolve()):
+            raise ValueError("code identity helper resolves outside checkout")
+        content = path.read_bytes()
+        sha = _sha(content)
+        blob = hashlib.sha1(
+            b"blob " + str(len(content)).encode() + b"\0" + content, usedforsecurity=False
+        ).hexdigest()
+        actual = "git:" + blob if expected_value and expected_value.startswith("git:") else sha
+        record.update(source_sha256=sha, git_blob=blob)
+        if not expected_value or expected_value != actual:
+            raise ValueError("helper bytes absent from or differ from declared pinned input")
+        namespace: dict[str, Any] = {"__name__": "_c93_shared_code_identity", "__file__": str(path)}
+        # Execute the exact hash-admitted helper bytes rather than re-reading a mutable import path.
+        exec(compile(content, str(path), "exec", dont_inherit=True), namespace)  # noqa: S102
+        function = namespace["code_fingerprint"]
+        if not callable(function):
+            raise TypeError("shared code identity helper is not callable")
+        record.update(status="matched_declared_source", scheme=namespace["CODE_FINGERPRINT_SCHEME"])
+        return function, record
+    except Exception as exc:
+        record["reason"] = repr(exc)
+        return None, record
+
+
 class ExecutionObserver:
     """Collect project compile/exec/read/call facts without exporting input bytes."""
 
-    def __init__(self, root: Path, expected: dict[str, str], inputs: list[Path]) -> None:
+    def __init__(
+        self,
+        root: Path,
+        expected: dict[str, str],
+        inputs: list[Path],
+        code_fingerprint: Callable[[types.CodeType], str] | None,
+        code_identity_scheme: str | None = None,
+    ) -> None:
         self.root = root.resolve()
         self.expected = expected
         self.inputs = {path.resolve() for path in inputs}
+        self.code_fingerprint = code_fingerprint
+        self.code_identity_scheme = code_identity_scheme
+        runtime_paths = sysconfig.get_paths()
+        self.environment_roots = {
+            (self.root / ".venv").resolve(),
+            (self.root / ".git").resolve(),
+            *(
+                Path(runtime_paths[key]).resolve()
+                for key in ("purelib", "platlib")
+                if runtime_paths.get(key)
+            ),
+        }
         self.busy = False
         self.reads: dict[str, dict[str, Any]] = {}
         self.compiles: dict[str, list[dict[str, Any]]] = {}
-        self.calls: dict[tuple[str, str, str], dict[str, Any]] = {}
+        self.calls: dict[tuple[str, str, str, str], dict[str, Any]] = {}
         self.boundaries: set[str] = {
             "native execution is outside Python call/compile observation",
             "profile is current-thread only; other threads require separate observation",
@@ -81,12 +137,15 @@ class ExecutionObserver:
         self.reports: list[dict[str, Any]] = []
         self.nodes: list[str] = []
         self.origins: dict[tuple[str, str], Path | None] = {}
-        self.code_hashes: dict[int, str] = {}
+        self.code_hashes: dict[int, str | None] = {}
         self.code_objects: list[Any] = []
         self.recompiled: dict[str, dict[str, Any]] = {}
         self.initial_project_modules = sorted(
             name for name in sys.modules if name == "polisyos" or name.startswith("polisyos.")
         )
+
+    def require_pristine_product_imports(self) -> None:
+        """Refuse a deciding process whose product modules preceded observation."""
         if self.initial_project_modules:
             raise RuntimeError("Product modules already imported before deciding observer")
 
@@ -94,17 +153,27 @@ class ExecutionObserver:
         identity = (filename, module)
         if identity in self.origins:
             return self.origins[identity]
+        project_name = module in {"polisyos", "tests", "tools"} or module.startswith(
+            ("polisyos.", "tests.", "tools.")
+        )
         if filename.startswith("<"):
-            if module.startswith("polisyos."):
+            if project_name:
                 self.boundaries.add(f"dynamic code filename {filename} in {module}")
             self.origins[identity] = None
             return None
         path = Path(filename).resolve()
-        if (
-            path.is_relative_to(self.root)
-            or module == "polisyos"
-            or module.startswith(("polisyos.", "tests.", "tools."))
-        ):
+        parts = path.parts
+        installed_candidate = any(
+            parts[index] in {"site-packages", "dist-packages"} and parts[index + 1] == "polisyos"
+            for index in range(len(parts) - 1)
+        )
+        in_environment = any(path.is_relative_to(root) for root in self.environment_roots)
+        if project_name or installed_candidate:
+            if in_environment or installed_candidate or not path.is_relative_to(self.root):
+                self.boundaries.add(f"external or installed project-origin candidate: {path}")
+            self.origins[identity] = path
+            return path
+        if path.is_relative_to(self.root) and not in_environment:
             self.origins[identity] = path
             return path
         self.origins[identity] = None
@@ -170,7 +239,7 @@ class ExecutionObserver:
             elif event == "open" and isinstance(args[0], (str, bytes)):
                 path = Path(os.fsdecode(args[0])).resolve()
                 mode = args[1]
-                if (path.is_relative_to(self.root) or path in self.inputs) and path.is_file():
+                if (path in self.inputs or self._project(str(path)) is not None) and path.is_file():
                     flags = args[2] if len(args) > 2 and isinstance(args[2], int) else None
                     readable = (isinstance(mode, str) and ("r" in mode or "+" in mode)) or (
                         flags is not None and flags & os.O_ACCMODE != os.O_WRONLY
@@ -181,13 +250,15 @@ class ExecutionObserver:
             self.busy = False
 
     def _source_code_binding(
-        self, path: Path, filename: str, code_sha: str, source: dict[str, Any]
+        self, path: Path, filename: str, code_sha: str | None, source: dict[str, Any]
     ) -> dict[str, Any]:
         """Match a called product function to nested code from its actual pinned file.
 
         Compilation inspects bytes only; it never executes the compiled code. A
         mismatch is an unresolved boundary, not proof of different semantics.
         """
+        if self.code_fingerprint is None or code_sha is None:
+            return {"status": "not_established", "reason": "shared code identity unavailable"}
         relative = source["relative_path"]
         if relative is None or not relative.startswith("src/polisyos/") or path.suffix != ".py":
             return {
@@ -218,7 +289,7 @@ class ExecutionObserver:
                 hashes: set[str] = set()
                 while pending:
                     item = pending.pop()
-                    hashes.add(_sha(marshal.dumps(item)))
+                    hashes.add(self.code_fingerprint(item))
                     pending.extend(
                         value for value in item.co_consts if isinstance(value, types.CodeType)
                     )
@@ -259,21 +330,35 @@ class ExecutionObserver:
             code = frame.f_code
             module = str(frame.f_globals.get("__name__", ""))
             path = self._project(code.co_filename, module)
-            if path is None or not path.is_file():
+            if path is None:
+                return
+            if not path.is_file():
+                self.boundaries.add(
+                    f"called project-origin candidate is not a readable file: {path}"
+                )
                 return
             source = self._read(path, "python_call")
             if id(code) not in self.code_hashes:
                 self.code_objects.append(code)
-                self.code_hashes[id(code)] = _sha(marshal.dumps(code))
+                try:
+                    self.code_hashes[id(code)] = (
+                        self.code_fingerprint(code) if self.code_fingerprint is not None else None
+                    )
+                except Exception as exc:
+                    self.code_hashes[id(code)] = None
+                    self.boundaries.add(f"code fingerprint unavailable for {path}: {exc!r}")
             code_sha = self.code_hashes[id(code)]
-            key = (str(path), code.co_qualname, code_sha)
+            key = (str(path), module, code.co_qualname, code_sha or f"unavailable:{id(code)}")
             if key not in self.calls:
                 self.calls[key] = {
                     "path": str(path),
                     "module": module,
+                    "pid": os.getpid(),
+                    "filename": code.co_filename,
                     "qualname": code.co_qualname,
                     "first_line": code.co_firstlineno,
                     "code_sha256": code_sha,
+                    "code_identity_scheme": self.code_identity_scheme if code_sha else None,
                     "source_sha256": source["sha256"],
                     "calls": 0,
                     "source_code_binding": self._source_code_binding(
@@ -356,7 +441,12 @@ class ExecutionObserver:
             "compile_contexts": self.compiles,
             "executed_project_calls": sorted(
                 self.calls.values(),
-                key=lambda row: (row["path"], row["qualname"], row["code_sha256"]),
+                key=lambda row: (
+                    row["path"],
+                    row["module"],
+                    row["qualname"],
+                    row["code_sha256"] or "",
+                ),
             ),
             "source_mismatches": mismatches,
             "unobserved_boundaries": sorted(self.boundaries),
@@ -405,7 +495,16 @@ def main() -> int:
         raise SystemExit("Undeclared inherited pytest/Python/product semantic controls")
     expected_bytes = args.expected_sources.read_bytes()
     expected = json.loads(expected_bytes)
-    observer = ExecutionObserver(args.project_root, expected, args.input)
+    code_fingerprint, helper_record = _load_code_identity(args.project_root, expected)
+    observer = ExecutionObserver(
+        args.project_root, expected, args.input, code_fingerprint, helper_record.get("scheme")
+    )
+    observer.require_pristine_product_imports()
+    observer.boundaries.add(
+        "shared code identity helper bootstrap precedes audit/profile installation"
+    )
+    if helper_record["status"] != "matched_declared_source":
+        observer.boundaries.add("shared code identity helper source binding not established")
     sys.addaudithook(observer.audit)
     sys.setprofile(observer.profile)
     arguments = args.arguments[1:] if args.arguments[:1] == ["--"] else args.arguments
@@ -461,6 +560,7 @@ def main() -> int:
                 key=lambda row: row["name"],
             ),
             "observer_source_sha256": _sha(Path(__file__).read_bytes()),
+            "code_identity_helper": helper_record,
             "expected_sources_sha256": _sha(expected_bytes),
             "packages": {
                 name: _package_info(name)

@@ -98,6 +98,7 @@ class _FixedDispatcher:
 
 
 class _Admission:
+    derived_tenant_context = None
     protocol = "method_input_envelope_v1"
     method_fqn = ForestDRLearnerEstimator.signature.fqn
     method_version = ForestDRLearnerEstimator.signature.version

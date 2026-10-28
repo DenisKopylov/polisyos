@@ -1203,7 +1203,7 @@ def test_binding_writer_enforces_selected_core_element_bound_before_cas_write(
             store=store,
             binding=binding,
             source_governance=prepared.source_governance,
-            source_tenant_context=prepared.source_tenant_context,
+            tenant_context=prepared.source_tenant_context,
             limits=_limits(max_elements=1),
         )
 
@@ -1411,7 +1411,7 @@ def test_legacy_binding_rejects_counterfeit_normalized_effective_input(
         store=store,
         binding=counterfeit_binding,
         source_governance=_RESTRICTED,
-        source_tenant_context=ArtifactTenantContextInfo(
+        tenant_context=ArtifactTenantContextInfo(
             tenant_id="tenant-test",
             cell_id="cell-test",
         ),

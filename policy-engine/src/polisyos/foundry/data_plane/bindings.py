@@ -437,6 +437,12 @@ class PreparedHTEObservationalInput:
     observed_source_bytes: int
     payload_integrity_verified: bool
     materialization_binding_ref: ArtifactRef | None = None
+    derived_tenant_context: ArtifactTenantContextInfo | None = None
+
+    @property
+    def write_tenant_context(self) -> ArtifactTenantContextInfo | None:
+        """Return explicit derived custody, preserving legacy producer defaults."""
+        return self.derived_tenant_context or self.source_tenant_context
 
 
 _HTE_SOURCE_PROTOCOLS = ("method_input_envelope_v1", "legacy_hte_json_v1")
@@ -681,7 +687,7 @@ def _persist_hte_physical_source_binding(
     store: _HTEObservationalInputStore,
     binding: HTEPhysicalSourceMaterializationBinding,
     source_governance: ArtifactGovernanceInfo | None,
-    source_tenant_context: ArtifactTenantContextInfo | None,
+    tenant_context: ArtifactTenantContextInfo | None,
     limits: HTEInputLimits,
 ) -> ArtifactRef:
     """Persist the opt-in physical-only binding with an exact source edge."""
@@ -720,7 +726,7 @@ def _persist_hte_physical_source_binding(
                 ],
                 canon=CanonInfo.from_spec(spec),
                 governance=source_governance,
-                tenant_context=source_tenant_context,
+                tenant_context=tenant_context,
             ),
             return_selected_profile=True,
         )
@@ -744,7 +750,9 @@ def load_hte_physical_source_materialization_binding(
 
     This reader requires the consumer's exact submitted/effective references,
     resolves the profile-bound binding and input bytes, rematerializes the HTE
-    DTO, and rejects any field, array, row-order, or profile drift. It proves
+    DTO, and rejects any field, array, row-order, or profile drift. Legacy
+    normalization and the binding must share derived custody; source ownership
+    remains provenance bound through exact selected lineage. It proves
     only the physical materialization recorded in the source; it does not
     establish semantic variable, query, contrast, unit, causal, population, or
     legal alignment.
@@ -907,12 +915,16 @@ def load_hte_physical_source_materialization_binding(
         )
         if expected_legacy_lineage not in effective_read.manifest.inputs:
             raise HTEInputPreparationRefusal("source_binding_legacy_lineage_mismatch")
+        # The submitted source is provenance. Normalization and its physical
+        # binding are derived artifacts written under the same actual custody;
+        # their exact selected lineage still binds the independently read source.
+        if effective_read.manifest.tenant_context != binding_read.manifest.tenant_context:
+            raise HTEInputPreparationRefusal("source_binding_legacy_derived_custody_mismatch")
         if (
             normalized_bytes != effective_read.raw_payload_bytes
             or normalized_envelope.contract_target != envelope.contract_target
             or effective_read.manifest.canon != CanonInfo.from_spec(normalized_spec)
             or effective_read.manifest.governance != submitted_read.manifest.governance
-            or effective_read.manifest.tenant_context != submitted_read.manifest.tenant_context
         ):
             raise HTEInputPreparationRefusal("source_binding_legacy_normalization_mismatch")
         submitted_contract_payload = submitted_value
@@ -959,6 +971,7 @@ def prepare_hte_observational_input(
     method_fqn: str,
     limits: HTEInputLimits,
     materialization_binding_version: Literal["physical_v1"] | None = None,
+    derived_tenant_context: ArtifactTenantContextInfo | None = None,
 ) -> PreparedHTEObservationalInput:
     """Decode one explicitly selected HTE source under pinned resource limits.
 
@@ -978,6 +991,9 @@ def prepare_hte_observational_input(
         materialization_binding_version: Opt in to the strict, physical-only
             source materialization artifact. The default preserves legacy
             producer behavior and emits no additional artifact.
+        derived_tenant_context: Explicit custody for newly derived artifacts,
+            supplied by Runtime's actual admitted job owner. Omission preserves
+            the legacy direct-producer default; source provenance is unchanged.
 
     Returns:
         PreparedHTEObservationalInput: Worker-local DTO and profile-bound refs.
@@ -1030,6 +1046,7 @@ def prepare_hte_observational_input(
     try:
         governance = _selected_source_governance(bounded_read)
         tenant_context = bounded_read.manifest.tenant_context
+        writer_tenant_context = derived_tenant_context or tenant_context
 
         if protocol == "method_input_envelope_v1":
             effective_artifact_schema = SchemaInfo(
@@ -1064,6 +1081,7 @@ def prepare_hte_observational_input(
                 limitations=_HTE_CANDIDATE_LIMITATIONS,
                 source_governance=governance,
                 source_tenant_context=tenant_context,
+                derived_tenant_context=writer_tenant_context,
                 observed_manifest_bytes=bounded_read.observed_manifest_bytes,
                 observed_bytes=bounded_read.observed_bytes,
                 observed_depth=bounded_read.observed_depth,
@@ -1088,7 +1106,7 @@ def prepare_hte_observational_input(
                 store=store,
                 binding=binding,
                 source_governance=governance,
-                source_tenant_context=tenant_context,
+                tenant_context=writer_tenant_context,
                 limits=limits,
             )
             return replace(prepared, materialization_binding_ref=binding_ref)
@@ -1143,7 +1161,7 @@ def prepare_hte_observational_input(
                     ],
                     canon=CanonInfo.from_spec(output_spec),
                     governance=governance,
-                    tenant_context=tenant_context,
+                    tenant_context=writer_tenant_context,
                 ),
                 return_selected_profile=True,
             )
@@ -1173,6 +1191,7 @@ def prepare_hte_observational_input(
             ),
             source_governance=governance,
             source_tenant_context=tenant_context,
+            derived_tenant_context=writer_tenant_context,
             observed_manifest_bytes=bounded_read.observed_manifest_bytes,
             observed_bytes=bounded_read.observed_bytes,
             observed_depth=bounded_read.observed_depth,
@@ -1197,7 +1216,7 @@ def prepare_hte_observational_input(
             store=store,
             binding=binding,
             source_governance=governance,
-            source_tenant_context=tenant_context,
+            tenant_context=writer_tenant_context,
             limits=limits,
         )
         return replace(prepared, materialization_binding_ref=binding_ref)

@@ -1174,6 +1174,7 @@ def persist_pre_output_owned_attempt_anchor(
         or prepared.source_governance != requested_intent.source_governance
         or content_intent.source_governance != requested_intent.source_governance
         or prepared.source_tenant_context != requested_intent.source_tenant_context
+        or prepared.write_tenant_context != admission.derived_tenant_context
         or content_intent.source_tenant_context != requested_intent.source_tenant_context
         or content_intent.payload_integrity_verified is not True
         or content_intent.observed_manifest_bytes != prepared.observed_manifest_bytes
@@ -1206,13 +1207,8 @@ def persist_pre_output_owned_attempt_anchor(
             content_intent.source_protocol,
             source_access_revalidation_status=content_intent.source_access_revalidation_status,
         )
-        or (
-            requested_intent.source_tenant_context is not None
-            and (
-                requested_intent.source_tenant_context.tenant_id != scope_tenant_id
-                or requested_intent.source_tenant_context.cell_id != scope.cell_id
-            )
-        )
+        or admission.derived_tenant_context
+        != ArtifactTenantContextInfo(tenant_id=scope_tenant_id, cell_id=scope.cell_id)
     ):
         raise ValueError("owned_attempt_prepared_input_intent_binding_mismatch")
     from polisyos.foundry.methods.catalog.causal.hte_v2 import (
@@ -1491,13 +1487,8 @@ def persist_pre_output_hte_input_refusal_anchor(
         or signature.fqn != admission.method_fqn
         or signature.version != admission.method_version
         or requested_intent.protocol != admission.protocol
-        or (
-            requested_intent.source_tenant_context is not None
-            and (
-                requested_intent.source_tenant_context.tenant_id != scope_tenant_id
-                or requested_intent.source_tenant_context.cell_id != scope.cell_id
-            )
-        )
+        or admission.derived_tenant_context
+        != ArtifactTenantContextInfo(tenant_id=scope_tenant_id, cell_id=scope.cell_id)
     ):
         raise ValueError("owned_attempt_refusal_request_binding_mismatch")
     policy_ref, selected_resource_policy = _read_selected_resource_policy(

@@ -68,6 +68,18 @@ Runtime producer, request-payload input, tenant/cell, and candidate-only job/run
 existing job response. This is requested-view identity only; actual data-view consumption and
 policy/legal admissibility require their independent owners and remain limited until admitted.
 
+## Observational source custody
+
+`control/observational_source_access.py` reconciles an authenticated request,
+current admitted job, or authorized Direct reader with the actual enforcing
+Core read owner before source bytes transfer. Core retains responsibility for
+current blob and exact selected-view permission checks. Source tenant metadata
+remains provenance; derived candidate artifacts use the actual admitted writer
+context. This scoped software check does not establish protected TC authority,
+external permission issuance, source suitability, or production currentness.
+See [the source-access boundary](../../../../../docs/reference/runtime-observational-source-access.md)
+for supported carriers, compatibility, and verification requirements.
+
 ## Key Concepts
 
 - **Run index** - caches run records from `core_runs_root` and handles pagination/filtering.

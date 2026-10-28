@@ -1002,6 +1002,11 @@ class MethodExecutionAdmission(Protocol):
     """One worker-local, current-lease admission resolved by Runtime."""
 
     @property
+    def derived_tenant_context(self) -> ArtifactTenantContextInfo | None:
+        """Return the Runtime job owner for new artifacts, not source provenance."""
+        ...
+
+    @property
     def store(self) -> _MethodExecutionArtifactStore:
         """Return the artifact store admitted for this worker lease."""
         ...
@@ -1381,6 +1386,7 @@ class MethodBackend:
                 protocol=admission.protocol,
                 method_fqn=admission.method_fqn,
                 limits=admission.limits,
+                derived_tenant_context=admission.derived_tenant_context,
                 materialization_binding_version=(
                     "physical_v1" if admission.resource_policy.revision == "r5" else None
                 ),
@@ -1685,7 +1691,7 @@ class MethodBackend:
                     schema=SchemaInfo(name="polisyos.scientist.MethodResult", version="0.1.0"),
                     inputs=_lineage_refs(),
                     governance=prepared.source_governance,
-                    tenant_context=prepared.source_tenant_context,
+                    tenant_context=admission.derived_tenant_context,
                 ),
                 canon_spec=CanonSpec(forbid_floats=False),
                 return_selected_profile=True,
@@ -1762,7 +1768,7 @@ class MethodBackend:
                         *_lineage_refs(),
                     ],
                     governance=prepared.source_governance,
-                    tenant_context=prepared.source_tenant_context,
+                    tenant_context=admission.derived_tenant_context,
                 ),
                 canon_spec=CanonSpec(forbid_floats=False),
                 return_selected_profile=True,

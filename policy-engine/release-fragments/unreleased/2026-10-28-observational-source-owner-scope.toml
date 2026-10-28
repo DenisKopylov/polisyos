@@ -1,0 +1,31 @@
+id = "2026-10-28-observational-source-owner-scope"
+title = "Bind observational source reads to the admitted Runtime owner"
+type = "fixed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Candidate source reads compare Core's effective enforcing owner with the typed authenticated request, reconciled live job or authorized fresh-reader scope before consuming a selected view."
+evidence = ["src/polisyos/runtime/http/services/control/observational_source_access.py", "tests/unit/runtime/http/test_observational_source_access.py"]
+compatibility = "Public unscoped legacy reads remain limited; authenticated matching-owner public tenant-bound sources are supported. Foreign bound owners, disabled enforcement and unsupported source-policy profiles fail closed."
+change_class = "internal"
+surface_classification = "internal: observational candidate source read admission"
+migration = "Persisted wires/digests are unchanged. Unsafe injected handles must match the actual request/job. Worker admission implementations expose derived_tenant_context; Runtime supplies it from the current owner. Shared source provenance remains separate from derived writer scope."
+api = "The internal worker admission interface carries actual derived writer context; preparation accepts an optional derived context. HTTP DTOs and persisted schema shapes are unchanged."
+limitations = "Scoped owned-byte access is not external permission, IAM revocation, production truth, scientific validity, calibration, TC purpose completeness or publication authority. Native and removal acceptance require composed runtime evidence."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/runtime-observational-source-access.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "observational-source-owner-scope"
+change_class = "internal"
+impact = "internal"
+surface = "internal: observational candidate source read admission"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Require matching effective Core owner and active Runtime admission; preserve legacy wire identity and independent authority limitations."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/runtime-observational-source-access.md"]
+runbook_docs = []

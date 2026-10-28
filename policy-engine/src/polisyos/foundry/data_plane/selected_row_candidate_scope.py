@@ -1075,7 +1075,7 @@ def build_hte_selected_row_candidate_scope(
             )
         ),
         governance=prepared.source_governance,
-        tenant_context=prepared.source_tenant_context,
+        tenant_context=prepared.write_tenant_context,
         limits=limits,
     )
     try:
@@ -1095,7 +1095,7 @@ def build_hte_selected_row_candidate_scope(
             effective_ref=binding.effective_ref,
             physical_binding_ref=physical_core_ref,
             governance=prepared.source_governance,
-            tenant_context=prepared.source_tenant_context,
+            tenant_context=prepared.write_tenant_context,
             limits=limits,
         ),
         treatment_contrast_ref=_persist_role_projection(
@@ -1105,7 +1105,7 @@ def build_hte_selected_row_candidate_scope(
             effective_ref=binding.effective_ref,
             physical_binding_ref=physical_core_ref,
             governance=prepared.source_governance,
-            tenant_context=prepared.source_tenant_context,
+            tenant_context=prepared.write_tenant_context,
             limits=limits,
         ),
         population_ref=_persist_role_projection(
@@ -1115,7 +1115,7 @@ def build_hte_selected_row_candidate_scope(
             effective_ref=binding.effective_ref,
             physical_binding_ref=physical_core_ref,
             governance=prepared.source_governance,
-            tenant_context=prepared.source_tenant_context,
+            tenant_context=prepared.write_tenant_context,
             limits=limits,
         ),
         outcome_ref=_persist_role_projection(
@@ -1125,7 +1125,7 @@ def build_hte_selected_row_candidate_scope(
             effective_ref=binding.effective_ref,
             physical_binding_ref=physical_core_ref,
             governance=prepared.source_governance,
-            tenant_context=prepared.source_tenant_context,
+            tenant_context=prepared.write_tenant_context,
             limits=limits,
         ),
     )

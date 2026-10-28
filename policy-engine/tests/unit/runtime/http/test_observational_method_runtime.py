@@ -67,6 +67,9 @@ from polisyos.runtime.http.services.control.workspace_loop_transition import (
     _LegacyScientistWorkflowError,
     _WorkflowExecutionNonAuthorityError,
 )
+from tests._helpers.observational_source_runtime import (
+    scoped_source_runtime as scoped_source_runtime,
+)
 
 
 def _selected_ref(kind: str, artifact_char: str, profile_char: str) -> ArtifactRef:
@@ -140,7 +143,7 @@ def _direct_method_cas_case(
         version="1.0",
     )
     governance = ArtifactGovernanceInfo(classification="public")
-    store = FileSystemCAS(tmp_path / "cas")
+    store = FileSystemCAS(tmp_path / "cas").with_ambient_ownership_enforcement()
     source_ref = _put_selected_json(
         store,
         {"schema_version": "candidate-source", "data": [1, 2, 3]},
@@ -1180,9 +1183,9 @@ def test_graph_projection_timeout_keeps_exact_source_and_withholds_admission(
 
 @pytest.mark.parametrize(
     "scope_kind",
-    ["restricted", "tenant_scoped", "foreign_tenant_scoped"],
+    ["restricted", "foreign_tenant_scoped"],
 )
-def test_http_post_refuses_private_or_tenant_scoped_source_before_enqueue(
+def test_http_post_refuses_restricted_or_foreign_tenant_source_before_enqueue(
     runtime_api_env: dict[str, Any],
     monkeypatch: pytest.MonkeyPatch,
     scope_kind: str,
@@ -1193,12 +1196,7 @@ def test_http_post_refuses_private_or_tenant_scoped_source_before_enqueue(
     classification = "restricted" if scope_kind == "restricted" else "public"
     owner_scope = (runtime_api_env["tenant_a"], runtime_api_env["cell_a"])
     tenant_context = None
-    if scope_kind == "tenant_scoped":
-        tenant_context = ArtifactTenantContextInfo(
-            tenant_id=runtime_api_env["tenant_a"],
-            cell_id=runtime_api_env["cell_a"],
-        )
-    elif scope_kind == "foreign_tenant_scoped":
+    if scope_kind == "foreign_tenant_scoped":
         owner_scope = ("tenant-private", "cell-private")
         tenant_context = ArtifactTenantContextInfo(
             tenant_id="tenant-private",
@@ -1226,6 +1224,30 @@ def test_http_post_refuses_private_or_tenant_scoped_source_before_enqueue(
     assert response.status_code == 403
     assert response.json()["code"] == "observational_source_current_access_not_established"
     assert queued == []
+
+
+def test_http_post_accepts_currently_owned_public_tenant_scoped_source(
+    request: pytest.FixtureRequest,
+) -> None:
+    """The retained Cloud positive uses authenticated scope, not ambient identity."""
+    case = request.getfixturevalue("scoped_source_runtime")
+    source_ref = _put_runtime_observational_source(
+        case["service"],
+        owner_scope=(case["tenant_a"], case["cell"]),
+        tenant_context=ArtifactTenantContextInfo(tenant_id=case["tenant_a"], cell_id=case["cell"]),
+    )
+    response = case["client"].post(
+        "/api/v1/control/runs",
+        headers=case["headers_a"],
+        json={
+            "observational_input": {
+                "protocol": "method_input_envelope_v1",
+                "source_ref": source_ref.model_dump(mode="json"),
+                "method": {"fqn": "causal.hte.forest_dr@1.1.0"},
+            }
+        },
+    )
+    assert response.status_code == 200, response.text
 
 
 def test_http_post_refuses_source_without_owner_claim_before_enqueue(
@@ -1618,11 +1640,14 @@ def test_post_worker_fenced_cas_and_fresh_run_get_preserve_candidate_limits(
     assert dispatched == accepted["job_id"]
     completed = service._control_store.get_job(accepted["job_id"])
     assert completed is not None and completed.state == "completed"
-    selection = service.get_method_execution_selection(
-        run_id=accepted["run_id"],
-        tenant_id=runtime_api_env["tenant_a"],
-        cell_id=runtime_api_env["cell_a"],
-    )
+    with tenant_scope(
+        None, tenant_id=runtime_api_env["tenant_a"], cell_id=runtime_api_env["cell_a"]
+    ):
+        selection = service.get_method_execution_selection(
+            run_id=accepted["run_id"],
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        )
     assert isinstance(selection, DirectMethodExecutionSelection)
     assert selection.method_version == "1.1.0"
     assert selection.owned_attempt_anchor_ref is None
@@ -1973,6 +1998,8 @@ def test_running_method_timeout_cannot_late_publish_after_fenced_failure(
 def test_http_worker_refuses_same_fqn_wrong_target_id_before_dispatch(
     runtime_api_env: dict[str, Any],
 ) -> None:
+    from polisyos.core.security.tenant_context import tenant_scope
+
     pytest.importorskip("econml")
     from _helpers.control_worker import dispatch_one_control_job, stop_embedded_control_worker
 
@@ -2019,14 +2046,17 @@ def test_http_worker_refuses_same_fqn_wrong_target_id_before_dispatch(
     )
     assert record.progress["failure"]["code"] == "observational_input_refused"
     assert record.progress["failure"]["attempt"] == record.attempt
-    assert (
-        service.get_method_execution_selection(
-            run_id=accepted["run_id"],
-            tenant_id=runtime_api_env["tenant_a"],
-            cell_id=runtime_api_env["cell_a"],
+    with tenant_scope(
+        None, tenant_id=runtime_api_env["tenant_a"], cell_id=runtime_api_env["cell_a"]
+    ):
+        assert (
+            service.get_method_execution_selection(
+                run_id=accepted["run_id"],
+                tenant_id=runtime_api_env["tenant_a"],
+                cell_id=runtime_api_env["cell_a"],
+            )
+            is None
         )
-        is None
-    )
     from _helpers.hte_privacy import hte_source_privacy_violations
 
     progress_privacy_violations = hte_source_privacy_violations(

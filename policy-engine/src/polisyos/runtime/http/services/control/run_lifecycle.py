@@ -30,6 +30,7 @@ from polisyos.core.artifacts.async_store import ensure_async_artifact_store
 from polisyos.core.artifacts.backends.config import (
     ArtifactStoreConfig,
     build_artifact_store,
+    with_ambient_ownership_enforcement_if_supported,
 )
 from polisyos.core.artifacts.manifest import (
     ArtifactGovernanceInfo,
@@ -198,6 +199,16 @@ from polisyos.runtime.http.services.control.job_scope_admission import (
 )
 from polisyos.runtime.http.services.control.lex_pipeline import LexPipelineMixin
 from polisyos.runtime.http.services.control.nl_pipeline import NaturalLanguageRunMixin
+from polisyos.runtime.http.services.control.observational_source_access import (
+    _current_source_read_scope,
+    _job_source_read_scope,
+    _ObservationalSourceReadScope,
+    _reader_source_read_scope,
+    _request_source_read_scope,
+    _require_derived_tenant_context,
+    _require_source_read_owner,
+    _require_supported_candidate_source,
+)
 from polisyos.runtime.http.services.control.workspace_loop_transition import (
     ControlPlaneWorkspaceLoopTransitionMixin,
 )
@@ -528,6 +539,7 @@ def _read_observational_resource_policy_artifact(
     source_governance: ArtifactGovernanceInfo,
     source_tenant_context: ArtifactTenantContextInfo | None,
     limits: CoreJsonReadLimits,
+    source_scope: _ObservationalSourceReadScope | None = None,
 ) -> _ObservationalInputResourcePolicy:
     """Resolve the exact Runtime policy artifact and its selected source lineage."""
     from polisyos.core.artifacts import (
@@ -547,6 +559,8 @@ def _read_observational_resource_policy_artifact(
         source_ref,
         code="observational_resource_policy_manifest_binding_mismatch",
     )
+    source_scope = source_scope or _current_source_read_scope()
+    _require_source_read_owner(store, source_scope)
     bounded = read_core_json_artifact_bounded(store, policy_ref, limits=limits)
     manifest = bounded.manifest
     policy_governance, policy_tenant_context, _ = _explicit_source_manifest_metadata(
@@ -564,12 +578,12 @@ def _read_observational_resource_policy_artifact(
         or manifest.artifact_schema
         != SchemaInfo(name="polisyos.runtime.ObservationalInputResourcePolicy", version="1.0")
         or policy_governance != source_governance
-        or policy_tenant_context != source_tenant_context
         or len(manifest.inputs) != 1
         or manifest.inputs[0].artifact_id != source_ref.artifact_id
         or manifest.inputs[0].manifest_profile_sha256 != source_ref.manifest_profile_sha256
     ):
         raise ValueError("observational_resource_policy_manifest_binding_mismatch")
+    _require_derived_tenant_context(policy_tenant_context, source_scope, source_tenant_context)
     policy = validate_core_model_bounded_read(ObservationalInputResourcePolicy, bounded)
     if type(policy) is not ObservationalInputResourcePolicy:
         raise ValueError("observational_resource_policy_payload_invalid")
@@ -581,6 +595,7 @@ def _validate_direct_method_execution_selection_artifacts(
     store: CoreJSONArtifactBoundedMemberReader,
     selection: _DirectMethodExecutionSelection,
     limits: CoreJsonReadLimits,
+    source_scope: _ObservationalSourceReadScope | None = None,
 ) -> None:
     """Bind persisted direct-method refs to exact producer manifests and lineage edges."""
     from polisyos.core.artifacts import (
@@ -598,6 +613,9 @@ def _validate_direct_method_execution_selection_artifacts(
     from polisyos.runtime.http.services.control.owned_attempt_anchor import (
         _require_full_profile_ref,
     )
+
+    source_scope = source_scope or _current_source_read_scope()
+    _require_source_read_owner(store, source_scope)
 
     def read_manifest(
         ref: ArtifactRef,
@@ -787,7 +805,9 @@ def _validate_direct_method_execution_selection_artifacts(
         if selection.source_protocol == "method_input_envelope_v1"
         else "ir.observational_data"
     )
-    _require_public_candidate_source(source_governance, source_tenant_context)
+    _require_supported_candidate_source(
+        store, source_scope, source_governance, source_tenant_context
+    )
     requested_intent_manifest = read_manifest(
         selection.observational_run_intent_ref,
         kind="runtime.observational_run_intent",
@@ -824,6 +844,11 @@ def _validate_direct_method_execution_selection_artifacts(
     ):
         raise ValueError("direct_method_execution_source_manifest_lineage_mismatch")
 
+    for derived_manifest in (requested_intent_manifest, admitted_intent_manifest):
+        _require_derived_tenant_context(
+            derived_manifest.tenant_context, source_scope, source_tenant_context
+        )
+
     selected_policy = _read_observational_resource_policy_artifact(
         store=store,
         policy_ref=selection.resource_policy_ref,
@@ -831,6 +856,7 @@ def _validate_direct_method_execution_selection_artifacts(
         source_governance=source_governance,
         source_tenant_context=source_tenant_context,
         limits=limits,
+        source_scope=source_scope,
     )
     if (
         selected_policy != requested_intent.resource_policy
@@ -849,11 +875,15 @@ def _validate_direct_method_execution_selection_artifacts(
         typed_governance=effective_read.manifest.governance,
         tenant_context=effective_read.manifest.tenant_context,
     )
-    if (
-        effective_governance != source_governance
-        or effective_tenant_context != source_tenant_context
-    ):
+    if effective_governance != source_governance:
         raise ValueError("direct_method_execution_effective_input_metadata_mismatch")
+    if selection.source_protocol == "method_input_envelope_v1":
+        if effective_tenant_context != source_tenant_context:
+            raise ValueError("direct_method_execution_effective_input_metadata_mismatch")
+    else:
+        _require_derived_tenant_context(
+            effective_tenant_context, source_scope, source_tenant_context
+        )
     if selection.source_protocol == "method_input_envelope_v1":
         if selection.effective_input_ref != selection.submitted_input_ref:
             raise ValueError("direct_method_execution_effective_input_passthrough_mismatch")
@@ -890,7 +920,8 @@ def _validate_direct_method_execution_selection_artifacts(
             typed_governance=output_read.manifest.governance,
             tenant_context=output_read.manifest.tenant_context,
         )
-        if output_governance != source_governance or output_tenant_context != source_tenant_context:
+        _require_derived_tenant_context(output_tenant_context, source_scope, source_tenant_context)
+        if output_governance != source_governance:
             raise ValueError("direct_method_execution_output_metadata_mismatch")
 
     if selection.hte is not None:
@@ -1107,21 +1138,6 @@ def _reject_duplicate_json_object_members(pairs: list[tuple[str, Any]]) -> dict[
             raise ValueError("observational_manifest_duplicate_member")
         result[key] = value
     return result
-
-
-def _require_public_candidate_source(
-    governance: ArtifactGovernanceInfo,
-    tenant_context: ArtifactTenantContextInfo | None,
-) -> None:
-    """Allow candidate execution only for an unscoped public source.
-
-    Runtime currently has no owner-issued source-read authorization receipt for
-    asynchronous method work. This bounded case carries that absence explicitly;
-    tenant or non-public inputs fail closed instead of treating CAS ownership as
-    authorization.
-    """
-    if governance.classification != "public" or tenant_context is not None:
-        raise ValueError("observational_source_current_access_not_established")
 
 
 def _explicit_source_manifest_metadata(
@@ -1651,6 +1667,7 @@ class _RuntimeMethodExecutionAdmission:
     source_governance: ArtifactGovernanceInfo
     source_tenant_context: ArtifactTenantContextInfo | None
     limits: CoreJsonReadLimits
+    derived_tenant_context: ArtifactTenantContextInfo | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -3985,10 +4002,12 @@ class ControlPlaneService(
             self._artifact_store = cast(
                 "ArtifactStore",
                 guard_runtime_cas(
-                    build_artifact_store(
-                        store_config,
-                        metrics=self._metrics,
-                        tracer=self._tracer,
+                    with_ambient_ownership_enforcement_if_supported(
+                        build_artifact_store(
+                            store_config,
+                            metrics=self._metrics,
+                            tracer=self._tracer,
+                        )
                     )
                 ),
             )
@@ -5674,6 +5693,7 @@ class ControlPlaneService(
         source_ref: ArtifactRef,
         *,
         expected_sha256: str | None = None,
+        source_scope: _ObservationalSourceReadScope | None = None,
     ) -> tuple[
         CoreJsonManifestBoundedRead, ArtifactGovernanceInfo, ArtifactTenantContextInfo | None, str
     ]:
@@ -5686,6 +5706,9 @@ class ControlPlaneService(
         source_ref = _require_full_profile_ref(
             source_ref,
             code="observational_source_selected_profile_required",
+        )
+        _require_source_read_owner(
+            self._artifact_store, source_scope or _current_source_read_scope()
         )
         limits = self._observational_read_limits()
         bounded = read_core_manifest_profile_bounded(
@@ -6043,12 +6066,25 @@ class ControlPlaneService(
         )
 
         try:
+            source_read_scope = _request_source_read_scope(
+                principal, self._execution_scope_for_policy(policy)
+            )
+            _require_source_read_owner(self._artifact_store, source_read_scope)
+        except ValueError as exc:
+            raise forbidden(
+                "The selected source owner does not match the admitted request scope.",
+                code="observational_source_current_access_not_established",
+            ) from exc
+
+        try:
             (
                 bounded_manifest,
                 source_governance,
                 source_tenant,
                 source_manifest_sha256,
-            ) = self._read_observational_source_manifest(selection.source_ref)
+            ) = self._read_observational_source_manifest(
+                selection.source_ref, source_scope=source_read_scope
+            )
         except CoreJsonReadBoundsRefusalError as exc:
             # Core wraps an exact owner-access denial in its bounded-read refusal. Preserve
             # that typed access boundary; other bounded, integrity, and profile refusals
@@ -6166,10 +6202,13 @@ class ControlPlaneService(
             ) from exc
 
         try:
-            _require_public_candidate_source(source_governance, source_tenant)
+            _require_supported_candidate_source(
+                self._artifact_store, source_read_scope, source_governance, source_tenant
+            )
         except ValueError as exc:
             raise forbidden(
-                "Asynchronous candidate execution requires an unscoped public observation.",
+                "Asynchronous candidate execution requires an admitted public observation "
+                "under the current owner scope.",
                 code="observational_source_current_access_not_established",
             ) from exc
         resource_policy_digest = resource_policy.digest()
@@ -6179,7 +6218,7 @@ class ControlPlaneService(
             schema_name="polisyos.runtime.ObservationalInputResourcePolicy",
             schema_version="1.0",
             governance=source_governance,
-            tenant_context=source_tenant,
+            tenant_context=source_read_scope.writer_tenant_context,
             inputs=[selection.source_ref],
             input_roles=("requested_source",),
         )
@@ -6352,7 +6391,7 @@ class ControlPlaneService(
             schema_name="polisyos.runtime.ObservationalRunIntent",
             schema_version=_observational_intent_manifest_identity(intent.schema_version)[2],
             governance=source_governance,
-            tenant_context=source_tenant,
+            tenant_context=source_read_scope.writer_tenant_context,
             inputs=[ref for ref, _role in intent_input_edges],
             input_roles=tuple(role for _ref, role in intent_input_edges),
         )
@@ -6415,6 +6454,7 @@ class ControlPlaneService(
             _require_full_profile_ref,
         )
 
+        _require_source_read_owner(self._artifact_store, _current_source_read_scope())
         intent_ref = _require_full_profile_ref(
             intent_ref,
             code="observational_run_intent_selected_profile_required",
@@ -6453,6 +6493,15 @@ class ControlPlaneService(
             or manifest.artifact_schema != SchemaInfo(name=expected_name, version=expected_version)
         ):
             raise ValueError("observational_intent_payload_manifest_version_mismatch")
+        origin = result.value.get("source_tenant_context")
+        source_origin = (
+            ArtifactTenantContextInfo.model_validate(origin, strict=True)
+            if origin is not None
+            else None
+        )
+        _require_derived_tenant_context(
+            result.manifest.tenant_context, _current_source_read_scope(), source_origin
+        )
         return result
 
     def _read_bounded_intent_artifact(self, intent_ref: ArtifactRef) -> dict[str, JsonValue]:
@@ -6489,6 +6538,8 @@ class ControlPlaneService(
 
         current = self._control_store.current_execution_job_admission()
         job = current.job
+        source_read_scope = _job_source_read_scope(current)
+        _require_source_read_owner(self._artifact_store, source_read_scope)
         if (
             job.kind != "workflow_run"
             or job.state != "running"
@@ -6534,6 +6585,7 @@ class ControlPlaneService(
             self._read_observational_source_manifest(
                 persisted_source_ref,
                 expected_sha256=intent.source_manifest_sha256,
+                source_scope=source_read_scope,
             )
         )
         if intent.resource_policy_ref is None:
@@ -6565,7 +6617,9 @@ class ControlPlaneService(
             else "ir.observational_data"
         )
         try:
-            _require_public_candidate_source(source_governance, source_tenant_context)
+            _require_supported_candidate_source(
+                self._artifact_store, source_read_scope, source_governance, source_tenant_context
+            )
         except ValueError as exc:
             raise ValueError("observational_method_source_current_access_not_established") from exc
         if bounded_source.manifest.kind != expected_kind:
@@ -6684,6 +6738,7 @@ class ControlPlaneService(
             source_governance=intent.source_governance,
             source_tenant_context=intent.source_tenant_context,
             limits=self._observational_read_limits(),
+            derived_tenant_context=source_read_scope.writer_tenant_context,
         )
 
     def verify_method_registration(
@@ -6768,6 +6823,10 @@ class ControlPlaneService(
         contract_target_fqn = contract_target.contract_fqn
         current = self._control_store.current_execution_job_admission()
         job = current.job
+        source_read_scope = _job_source_read_scope(current)
+        _require_source_read_owner(self._artifact_store, source_read_scope)
+        if admission.derived_tenant_context != source_read_scope.writer_tenant_context:
+            raise ValueError("observational_admitted_derived_writer_scope_mismatch")
         if (
             job.job_id != work.job_id
             or job.run_id != work.run_id
@@ -6788,6 +6847,7 @@ class ControlPlaneService(
             self._read_observational_source_manifest(
                 admission.requested_source_ref,
                 expected_sha256=admission.source_manifest_sha256,
+                source_scope=source_read_scope,
             )
         )
         if (
@@ -6796,7 +6856,9 @@ class ControlPlaneService(
             or current_manifest_sha256 != admission.source_manifest_sha256
         ):
             raise ValueError("content_admitted_intent_source_manifest_pin_drift")
-        _require_public_candidate_source(current_governance, current_tenant_context)
+        _require_supported_candidate_source(
+            self._artifact_store, source_read_scope, current_governance, current_tenant_context
+        )
         requested_intent = self._read_bounded_intent_model(
             admission.observational_run_intent_ref,
             model=ObservationalRunIntent,
@@ -6984,7 +7046,7 @@ class ControlPlaneService(
             schema_name="polisyos.runtime.ContentAdmittedObservationalRunIntent",
             schema_version=_observational_intent_manifest_identity(intent.schema_version)[2],
             governance=source_governance,
-            tenant_context=source_tenant_context,
+            tenant_context=source_read_scope.writer_tenant_context,
             inputs=[ref for ref, _role in intent_input_edges],
             input_roles=tuple(role for _ref, role in intent_input_edges),
         )
@@ -7640,7 +7702,10 @@ class ControlPlaneService(
         )
 
     def _validate_direct_method_execution_selection_artifacts(
-        self, selection: _DirectMethodExecutionSelection
+        self,
+        selection: _DirectMethodExecutionSelection,
+        *,
+        source_scope: _ObservationalSourceReadScope | None = None,
     ) -> None:
         """Bind the selected refs to their exact bounded producer manifests."""
         _validate_direct_method_execution_selection_artifacts(
@@ -7649,6 +7714,7 @@ class ControlPlaneService(
             ),
             selection=selection,
             limits=self._observational_read_limits(),
+            source_scope=source_scope,
         )
 
     def _is_observational_method_job(self, payload: Mapping[str, Any]) -> bool:
@@ -7776,6 +7842,10 @@ class ControlPlaneService(
             MethodExecutionWork,
         )
 
+        source_read_scope = _job_source_read_scope(
+            self._control_store.current_execution_job_admission()
+        )
+        _require_source_read_owner(self._artifact_store, source_read_scope)
         (
             requested_source_ref,
             intent_ref,
@@ -7944,7 +8014,12 @@ class ControlPlaneService(
             owned_hte_request_context=admitted_intent.owned_hte_request_context,
             hte=outcome.hte_summary,
         )
-        self._validate_direct_method_execution_selection_artifacts(selection)
+        self._validate_direct_method_execution_selection_artifacts(
+            selection,
+            source_scope=_job_source_read_scope(
+                self._control_store.current_execution_job_admission()
+            ),
+        )
         core_output_candidates = [
             selection.method_result_ref,
             selection.method_evidence_ref,
@@ -8434,7 +8509,11 @@ class ControlPlaneService(
             return None
         if isinstance(selection, DirectMethodExecutionSelection):
             try:
-                self._validate_direct_method_execution_selection_artifacts(selection)
+                source_read_scope = _reader_source_read_scope(tenant_id, cell_id)
+                _require_source_read_owner(self._artifact_store, source_read_scope)
+                self._validate_direct_method_execution_selection_artifacts(
+                    selection, source_scope=source_read_scope
+                )
             except OSError, RuntimeError, TypeError, ValueError:
                 return None
         if isinstance(selection, GraphMethodExecutionSelection):
@@ -8761,6 +8840,12 @@ class ControlPlaneService(
                 limitations=(limitation,),
             )
 
+        try:
+            source_read_scope = _reader_source_read_scope(tenant_id, cell_id)
+            _require_source_read_owner(self._artifact_store, source_read_scope)
+        except ValueError:
+            return unavailable("execution_outcome_not_established")
+
         if not run_id or not tenant_id:
             return unavailable("execution_outcome_not_established")
         if not expected_job_id:
@@ -8984,7 +9069,9 @@ class ControlPlaneService(
                     request=request_summary,
                     record=record,
                 )
-            self._validate_direct_method_execution_selection_artifacts(selection)
+            self._validate_direct_method_execution_selection_artifacts(
+                selection, source_scope=source_read_scope
+            )
             is_successor_selection = selection.method_fqn in _OBSERVATIONAL_METHOD_FQN_V2
             if is_successor_selection:
                 if (

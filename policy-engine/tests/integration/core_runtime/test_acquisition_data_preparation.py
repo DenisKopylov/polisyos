@@ -217,11 +217,32 @@ def test_prepared_candidate_does_not_bypass_current_overlay_owner(
     con = duckdb.connect(str(owner_case.scenario.overlay.overlay_path))
     try:
         if drift == "activation":
-            con.execute(
-                "UPDATE acquisition_epochs SET epoch_activation_state = 'legacy_not_established' "
-                "WHERE epoch_id = ? AND passport_id = ?",
-                [owner_case.scenario.passport.epoch_id, owner_case.scenario.passport.passport_id],
+            epoch_identity = [
+                owner_case.scenario.passport.epoch_id,
+                owner_case.scenario.passport.passport_id,
+            ]
+            activation_query = (
+                "SELECT epoch_activation_state, semantic_epoch_ref, "
+                "semantic_epoch_stamp_sha256, semantic_epoch_stamp_json, "
+                "prepared_semantic_epoch_ref, pending_overlay_receipt_ref, "
+                "admitted_boundary_evidence_ref, semantic_epoch_production_receipt_ref, "
+                "activated_overlay_receipt_ref FROM acquisition_epochs "
+                "WHERE epoch_id = ? AND passport_id = ?"
             )
+            before = con.execute(activation_query, epoch_identity).fetchall()
+            assert len(before) == 1
+            assert before[0][0] == "active"
+            assert all(value is not None for value in before[0][1:])
+            # Perturb storage to a coherent pending state; this is not a production
+            # deactivation API. Keep the CHECK and all admitted identity refs intact.
+            con.execute(
+                "UPDATE acquisition_epochs SET epoch_activation_state = 'pending_epoch_activation', "
+                "semantic_epoch_production_receipt_ref = NULL, activated_overlay_receipt_ref = NULL "
+                "WHERE epoch_id = ? AND passport_id = ?",
+                epoch_identity,
+            )
+            after = con.execute(activation_query, epoch_identity).fetchall()
+            assert after == [("pending_epoch_activation", *before[0][1:-2], None, None)]
             code = "epoch_activation_state_not_active"
         else:
             con.execute(

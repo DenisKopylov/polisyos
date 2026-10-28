@@ -900,6 +900,11 @@ def _publish_complete_search_task(
                 SearchInputDependency(role_path="treatment_contrast", ref=contrast_ref),
                 SearchInputDependency(role_path="population", ref=population_ref),
                 SearchInputDependency(role_path="outcome", ref=outcome_ref),
+                *(
+                    (SearchInputDependency(role_path="unit_scope", ref=scope.unit_scope_ref),)
+                    if scope.unit_scope_ref is not None
+                    else ()
+                ),
                 *selected_state_inputs,
             )
         ),
@@ -1312,6 +1317,74 @@ def test_owned_hte_outbox_records_first_assessment_without_authority_promotion(
             unit_scope_ref=unit_scope_ref,
         )
         task_binding = load_search_uncertainty_task_binding(store, binding_ref)
+
+        from polisyos.core.artifacts import (
+            load_core_json_artifact,
+            validate_core_model_json_artifact,
+        )
+        from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
+
+        owner_context = validate_core_model_json_artifact(
+            SearchUncertaintyOwnerTaskContext, store, task_binding.owner_context_ref
+        )
+        assert owner_context.semantic_scope is not None
+        assert owner_context.semantic_scope.unit_scope_ref == unit_scope_ref
+        assert owner_context.selected_source_graph_ref is not None
+        source_graph = validate_core_model_json_artifact(
+            SearchOwnerSelectedSourceGraph, store, owner_context.selected_source_graph_ref
+        )
+        graph_unit_refs = [
+            item.ref for item in source_graph.roots if item.role_path == "unit_scope"
+        ]
+        assert graph_unit_refs == ([] if unit_scope_ref is None else [unit_scope_ref])
+
+        if source_mode == "joined":
+            assert unit_scope_ref is not None
+            # Create another actual manifest view of the same payload solely as
+            # a rejected candidate; it is not a source-owner assertion.
+            alternate_ref = ArtifactRef.model_validate(
+                store.put_json(
+                    load_core_json_artifact(store, unit_scope_ref),
+                    PutOptions(
+                        kind="runtime.value_data_profile",
+                        media_type="application/json",
+                        schema=SchemaInfo(name="runtime.value_data_profile.v2", version="2.0"),
+                        inputs=[],
+                        governance=ArtifactGovernanceInfo(classification="public"),
+                        tenant_context=ArtifactTenantContextInfo(
+                            tenant_id=tenant_id, cell_id=cell_id
+                        ),
+                    ),
+                    canon_spec=CanonSpec(forbid_floats=False),
+                    return_selected_profile=True,
+                ),
+                strict=True,
+            )
+            assert alternate_ref.artifact_id == unit_scope_ref.artifact_id
+            assert alternate_ref.manifest_profile_sha256 != unit_scope_ref.manifest_profile_sha256
+            for wrong_unit_ref in (None, alternate_ref):
+                wrong_roots = tuple(
+                    item for item in source_graph.roots if item.role_path != "unit_scope"
+                )
+                if wrong_unit_ref is not None:
+                    wrong_roots += (
+                        SearchInputDependency(role_path="unit_scope", ref=wrong_unit_ref),
+                    )
+                wrong_graph_ref = persist_search_uncertainty_v2(
+                    store, SearchOwnerSelectedSourceGraph(roots=wrong_roots)
+                )
+                wrong_context = owner_context.model_copy(
+                    update={"selected_source_graph_ref": wrong_graph_ref}
+                )
+                with pytest.raises(ValueError, match="source graph differs"):
+                    produce_search_task_admission(
+                        store,
+                        wrong_context,
+                        ticket_id=ticket_id,
+                        ticket_generation=task_binding.ticket_generation,
+                        selected_at=datetime(2026, 10, 23, tzinfo=UTC),
+                    )
+
         admitted = state.read_current_snapshot(ticket_id)
         assert admitted is not None
     assert admitted.projection is not None

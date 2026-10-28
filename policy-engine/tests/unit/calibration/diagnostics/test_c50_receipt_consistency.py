@@ -12,7 +12,7 @@ import numpy as np
 import pytest
 
 from polisyos.calibration import evaluate_continuous, to_validation_report
-from polisyos.ir import (
+from polisyos.ir.analytics import (
     TruthfulnessReceipt,
     TruthfulnessScope,
     TruthfulnessTier,

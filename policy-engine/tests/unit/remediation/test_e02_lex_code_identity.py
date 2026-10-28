@@ -36,18 +36,26 @@ def test_code_fingerprint_distinguishes_constants_without_bytecode_change() -> N
 
 
 def test_code_fingerprint_recurses_into_nested_code() -> None:
-    outer = _compiled("def outer():\n    def inner():\n        return 3\n    return inner()\n")
+    outer = _compiled(
+        "def outer():\n    def inner():\n        return 'original'\n    return inner\n"
+    )
     inner = next(item for item in outer.co_consts if isinstance(item, CodeType))
+    assert "original" in inner.co_consts
     changed_inner = inner.replace(
-        co_consts=tuple(4 if item == 3 else item for item in inner.co_consts)
+        co_consts=tuple("changed" if item == "original" else item for item in inner.co_consts)
     )
     changed_outer = outer.replace(
         co_consts=tuple(changed_inner if item is inner else item for item in outer.co_consts)
     )
     assert changed_outer.co_code == outer.co_code
+    assert changed_inner.co_code == inner.co_code
     assert code_fingerprint(changed_outer) != code_fingerprint(outer)
-    assert FunctionType(outer, {})() == 3
-    assert FunctionType(changed_outer, {})() == 4
+    original_nested = FunctionType(outer, {})()
+    changed_nested = FunctionType(changed_outer, {})()
+    assert original_nested.__code__ is inner
+    assert changed_nested.__code__ is changed_inner
+    assert original_nested() == "original"
+    assert changed_nested() == "changed"
 
 
 def test_code_fingerprint_preserves_literal_bits_and_unordered_values() -> None:

@@ -1,0 +1,14 @@
+--- a/policy-engine/src/polisyos/scientist/validation/source_admission_owner.py
++++ b/policy-engine/src/polisyos/scientist/validation/source_admission_owner.py
+@@ -236,9 +236,9 @@
+             for left, right in zip(actual, declared, strict=True)
+         ):
+             raise ValueError("source_admission_snapshot_binding_mismatch")
+-        if not data_snapshot_manifest_inputs_match(
++        if False and (not data_snapshot_manifest_inputs_match(
+             snapshot, manifest.inputs, schema_version=schema.version
+-        ):
++        )):
+             raise ValueError("source_admission_snapshot_input_denominator_mismatch")
+         # Derive all present schema-bound fields, including evidence and warnings,
+         # from the actual owner contract, never from an authorial dependency list.

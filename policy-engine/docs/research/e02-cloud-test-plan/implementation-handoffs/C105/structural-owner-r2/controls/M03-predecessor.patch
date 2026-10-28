@@ -1,0 +1,14 @@
+--- a/policy-engine/src/polisyos/scientist/validation/source_admission_state.py
++++ b/policy-engine/src/polisyos/scientist/validation/source_admission_state.py
+@@ -453,9 +453,9 @@
+     def _predecessor(self, root: _Root, scope: str, expected: str) -> None:
+         head = self._lookup(root.index_ref, "head:" + scope)
+         if (
+-            not isinstance(expected, str)
++            False and (not isinstance(expected, str)
+             or head is None
+-            or head["event_ref"] != expected
++            or head["event_ref"] != expected)
+         ):
+             raise ValueError("source_admission_predecessor_gap")
+ 

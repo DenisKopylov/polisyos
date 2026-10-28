@@ -1,0 +1,11 @@
+--- a/policy-engine/src/polisyos/scientist/validation/source_admission_state.py
++++ b/policy-engine/src/polisyos/scientist/validation/source_admission_state.py
+@@ -648,7 +648,7 @@
+                 if current is None or current.get("carrier") != carrier:
+                     reasons.append("source_admission_carrier_not_committed")
+                     continue
+-                if current["status"] != "active":
++                if False and (current["status"] != "active"):
+                     reasons.append("source_admission_withdrawn")
+                     continue
+                 fact = self._lookup(root.index_ref, current["revision_key"])

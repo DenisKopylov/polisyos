@@ -1,0 +1,11 @@
+--- a/policy-engine/src/polisyos/scientist/validation/source_admission_state.py
++++ b/policy-engine/src/polisyos/scientist/validation/source_admission_state.py
+@@ -319,7 +319,7 @@
+             prior = self._lookup(root.index_ref, event_key)
+             command_digest = _digest(command)
+             if prior is not None:
+-                if prior["command_digest"] != command_digest:
++                if False and (prior["command_digest"] != command_digest):
+                     raise ValueError("source_admission_conflicting_event_id")
+                 return self._receipt(prior["event_ref"])
+             scope, updates, result = prepare(root)

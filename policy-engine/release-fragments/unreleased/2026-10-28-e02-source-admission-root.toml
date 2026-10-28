@@ -1,0 +1,17 @@
+id = "2026-10-28-e02-source-admission-root"
+title = "Consolidate registered materialization state in one validity-owner root"
+type = "added"
+component = "scientist"
+owner = "team-scientist"
+summary = "Add bounded typed source admission, immutable indexed state, exact epochs, original-event retry and fresh fenced reads to the existing DecisionValidityService."
+evidence = ["tests/unit/scientist/validation/test_source_admission_state.py"]
+compatibility = "Additive owner methods and Core DTOs; legacy/absent source admission remains unknown. Existing packet and epoch projections are not silently migrated."
+change_class = "python-public-api"
+surface_classification = "public_stable: Core decision-validity DTOs and Scientist DecisionValidityService methods; neutral producer port and storage helper are internal"
+migration = "Wire the actual installed Runtime factory and canonical registered SQL producer through the private neutral port, then bind the real Foundry basis and served consumers; never infer admission from a legacy snapshot or an empty journal."
+api = "Add register_materialization_source, admit_materialization, transition_materialization, resolve_source_admission_event and read_source_current_use, with strict typed carrier/receipt/projection contracts."
+limitations = "Source proposal pending composed verification. Real Runtime/Fabric producer authority, Foundry basis, default/exact/cache API and affected schema/client generation are separate C106 composition; store-level positives are not producer proof or G acceptance."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/validation/README.md", "src/polisyos/core/contracts/README.md"]
+runbook_docs = []

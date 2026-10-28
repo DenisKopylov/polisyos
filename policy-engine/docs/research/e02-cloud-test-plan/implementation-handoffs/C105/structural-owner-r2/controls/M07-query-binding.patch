@@ -1,0 +1,11 @@
+--- a/policy-engine/src/polisyos/core/contracts/decision_validity.py
++++ b/policy-engine/src/polisyos/core/contracts/decision_validity.py
+@@ -1402,7 +1402,7 @@
+                 carrier.model_dump_json(), strict=True
+             ).model_dump(mode="json")
+             for carrier in carriers
+-        ],
++         if False],
+     }
+     raw = json.dumps(
+         payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True

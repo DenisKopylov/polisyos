@@ -1,0 +1,14 @@
+--- a/policy-engine/src/polisyos/scientist/validation/source_admission_owner.py
++++ b/policy-engine/src/polisyos/scientist/validation/source_admission_owner.py
+@@ -84,9 +84,9 @@
+         # the verified issuer or immutable committed registration, never a new
+         # consumer-supplied list/manifest ownership declaration.
+         return (
+-            FileSystemCAS.for_tenant(self._store, tenant_id, cell_id)
++            self._store if True else (FileSystemCAS.for_tenant(self._store, tenant_id, cell_id)
+             if tenant_id
+-            else self._store
++            else self._store)
+         )
+ 
+     def _verify_ref(

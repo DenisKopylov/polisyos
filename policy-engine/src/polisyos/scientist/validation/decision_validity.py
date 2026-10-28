@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from functools import wraps
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Concatenate, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Concatenate, Literal, TypeVar, cast
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
@@ -61,10 +61,21 @@ from polisyos.core.contracts.decision_validity import (
     PersistedDecisionValidityEpochImpactSnapshot,
     PersistedEpochTransitionDenominatorReconciliation,
     PersistedEpochValidityBatchEvidence,
+    SourceAdmissionCarrier,
+    SourceAdmissionReceipt,
+    SourceCurrentUseProjection,
+    SourceRegistrationReceipt,
 )
 from polisyos.core.contracts.feedback import DecisionMonitoringContract
 from polisyos.scientist.orchestration.engine.operational_monitoring import (
     get_operational_monitor,
+)
+from polisyos.scientist.validation.source_admission_owner import (
+    _RegisteredSourceAdmissionOwner,
+)
+from polisyos.scientist.validation.source_admission_port import (
+    SourceAdmissionAuthority,
+    VerifiedRegisteredMaterialization,
 )
 
 if TYPE_CHECKING:
@@ -522,6 +533,12 @@ class _DecisionValidityStateStore:
                 digest.update(relative)
                 digest.update(len(payload).to_bytes(8, "big"))
                 digest.update(payload)
+        source_root = self._base / "committed_source_root.json"
+        if source_root.exists():
+            payload = source_root.read_bytes()
+            digest.update(b"committed_source_root.json")
+            digest.update(len(payload).to_bytes(8, "big"))
+            digest.update(payload)
         return "sha256:" + digest.hexdigest()
 
     @staticmethod
@@ -685,11 +702,80 @@ class DecisionValidityService:
     ) -> None:
         self._store = store
         self._state = _DecisionValidityStateStore(store)
+        self._source_admission = _RegisteredSourceAdmissionOwner(
+            store, self._state._base, self._state.owner_transaction
+        )
         self._ttl = max(0, int(reevaluate_ttl_seconds))
         self._epoch_transition_verifier = epoch_transition_verifier or NoEpochTransitionVerifier()
         self._epoch_denominator_reconciliation_reader = epoch_denominator_reconciliation_reader
         if epoch_transition_verifier is None and epoch_denominator_reconciliation_reader is None:
             self._epoch_denominator_reconciliation_reader = NoEpochDenominatorReconciliationReader()
+
+    def register_materialization_source(
+        self,
+        authority: SourceAdmissionAuthority,
+        *,
+        event_id: str,
+        registration_key: str,
+        effective_view_contract_ref: ArtifactRef,
+        use_contract_ref: ArtifactRef,
+    ) -> SourceRegistrationReceipt:
+        """Commit an owner-issued source incarnation for exact protected view/use."""
+        return self._source_admission.register(
+            authority,
+            event_id=event_id,
+            registration_key=registration_key,
+            effective_view_contract_ref=effective_view_contract_ref,
+            use_contract_ref=use_contract_ref,
+        )
+
+    def admit_materialization(
+        self,
+        proof: VerifiedRegisteredMaterialization,
+        *,
+        event_id: str,
+        expected_predecessor: str,
+    ) -> SourceAdmissionReceipt:
+        """Admit one actual captured occurrence, without selecting it by default."""
+        return self._source_admission.admit(
+            proof, event_id=event_id, expected_predecessor=expected_predecessor
+        )
+
+    def transition_materialization(
+        self,
+        authority: SourceAdmissionAuthority,
+        *,
+        event_id: str,
+        expected_predecessor: str,
+        operation: Literal["withdraw", "readmit", "supersede"],
+        target: SourceAdmissionCarrier,
+    ) -> SourceAdmissionReceipt:
+        """Commit exact withdrawal, new-epoch readmission, or explicit selection."""
+        return self._source_admission.transition(
+            authority,
+            event_id=event_id,
+            expected_predecessor=expected_predecessor,
+            operation=operation,
+            target=target,
+        )
+
+    def resolve_source_admission_event(
+        self,
+        authority: SourceAdmissionAuthority,
+        *,
+        event_id: str,
+    ) -> SourceAdmissionReceipt | None:
+        """Read a protected original receipt after uncertain delivery; never re-admit."""
+        return self._source_admission.event_receipt(authority, event_id=event_id)
+
+    def read_source_current_use(
+        self,
+        carriers: tuple[SourceAdmissionCarrier, ...],
+        *,
+        require_selected: bool = False,
+    ) -> SourceCurrentUseProjection:
+        """Read bounded source admission at one fresh common-owner fence."""
+        return self._source_admission.read(carriers, require_selected=require_selected)
 
     def state_generation(self) -> int:
         """Return the number of persisted owner-projection records (test diagnostic)."""

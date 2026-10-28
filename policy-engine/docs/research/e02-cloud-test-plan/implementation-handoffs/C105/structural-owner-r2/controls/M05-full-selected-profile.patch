@@ -1,0 +1,23 @@
+--- a/policy-engine/src/polisyos/scientist/validation/source_admission_owner.py
++++ b/policy-engine/src/polisyos/scientist/validation/source_admission_owner.py
+@@ -98,7 +98,7 @@
+     ) -> dict[str, object]:
+         # Never silently bind a mutable default selector on an authority read.
+         checked = ArtifactRef.model_validate_json(ref.model_dump_json(), strict=True)
+-        if checked.manifest_profile_sha256 is None:
++        if (False and (checked.manifest_profile_sha256 is None)):
+             raise ValueError("source_admission_selected_profile_required")
+         reader = self._scoped_store(tenant_id, cell_id)
+         manifest = reader.get_manifest(checked)
+@@ -106,9 +106,9 @@
+             checked.artifact_id,
+             checked.kind,
+             checked.media_type,
+-        ) or artifact_manifest_profile_sha256(
++        ) or (False and (artifact_manifest_profile_sha256(
+             manifest
+-        ) != checked.manifest_profile_sha256:
++        ) != checked.manifest_profile_sha256)):
+             raise ValueError("source_admission_reference_identity_mismatch")
+         raw = reader.get_bytes(checked)
+         if (

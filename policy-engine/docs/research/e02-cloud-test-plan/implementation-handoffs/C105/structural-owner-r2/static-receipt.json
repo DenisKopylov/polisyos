@@ -1,0 +1,300 @@
+{
+  "schema": "e02.c105.structural-owner.static.v1",
+  "at": "2026-10-28T11:17:46.572741+00:00",
+  "base_commit": "ee00568f6067b7cad6efeca700181be09100e33c",
+  "scope": "Six final sparse Python files via canonical stdin filenames; source/test imports and runtime unrun",
+  "ruff_version": "ruff 0.14.10\n",
+  "config_sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+  "checks": [
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/decision_validity.py",
+      "kind": "lint",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--output-format",
+        "json",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/pyproject.toml",
+        "--no-cache",
+        "--stdin-filename",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/core/contracts/decision_validity.py",
+        "-"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "stdin_sha256": "c33f92f60eff618ff83d9195c7c275fa80535b8fa06b2dc1b90466d4f1c2fe31",
+      "exit": 0,
+      "stdout": "[]",
+      "stderr": ""
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/decision_validity.py",
+      "kind": "format",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/pyproject.toml",
+        "--no-cache",
+        "--stdin-filename",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/core/contracts/decision_validity.py",
+        "-"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "stdin_sha256": "c33f92f60eff618ff83d9195c7c275fa80535b8fa06b2dc1b90466d4f1c2fe31",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/validation/decision_validity.py",
+      "kind": "lint",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--output-format",
+        "json",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/pyproject.toml",
+        "--no-cache",
+        "--stdin-filename",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/validation/decision_validity.py",
+        "-"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "stdin_sha256": "e5ae14930a74967e2d9b811e8ba970674e55df66494d3d4b1c9d5bf38984d837",
+      "exit": 0,
+      "stdout": "[]",
+      "stderr": ""
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/validation/decision_validity.py",
+      "kind": "format",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/pyproject.toml",
+        "--no-cache",
+        "--stdin-filename",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/validation/decision_validity.py",
+        "-"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "stdin_sha256": "e5ae14930a74967e2d9b811e8ba970674e55df66494d3d4b1c9d5bf38984d837",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/validation/source_admission_owner.py",
+      "kind": "lint",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--output-format",
+        "json",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/pyproject.toml",
+        "--no-cache",
+        "--stdin-filename",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/validation/source_admission_owner.py",
+        "-"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "stdin_sha256": "e8ffb0a15f540d407e7a71af5800ec1b95104c97116289a8a3abc22c89ba2f1a",
+      "exit": 0,
+      "stdout": "[]",
+      "stderr": ""
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/validation/source_admission_owner.py",
+      "kind": "format",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/pyproject.toml",
+        "--no-cache",
+        "--stdin-filename",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/validation/source_admission_owner.py",
+        "-"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "stdin_sha256": "e8ffb0a15f540d407e7a71af5800ec1b95104c97116289a8a3abc22c89ba2f1a",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/validation/source_admission_port.py",
+      "kind": "lint",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--output-format",
+        "json",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/pyproject.toml",
+        "--no-cache",
+        "--stdin-filename",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/validation/source_admission_port.py",
+        "-"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "stdin_sha256": "33fa1e006556b1f38cd9950ea16d7a2774dfc82b3dc927aefdec82d508f49dd2",
+      "exit": 0,
+      "stdout": "[]",
+      "stderr": ""
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/validation/source_admission_port.py",
+      "kind": "format",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/pyproject.toml",
+        "--no-cache",
+        "--stdin-filename",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/validation/source_admission_port.py",
+        "-"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "stdin_sha256": "33fa1e006556b1f38cd9950ea16d7a2774dfc82b3dc927aefdec82d508f49dd2",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/validation/source_admission_state.py",
+      "kind": "lint",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--output-format",
+        "json",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/pyproject.toml",
+        "--no-cache",
+        "--stdin-filename",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/validation/source_admission_state.py",
+        "-"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "stdin_sha256": "a001588db2ecc8264fc0516e5fc712c373ef1de4af197e3446532be6be56c34b",
+      "exit": 0,
+      "stdout": "[]",
+      "stderr": ""
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/validation/source_admission_state.py",
+      "kind": "format",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/pyproject.toml",
+        "--no-cache",
+        "--stdin-filename",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/validation/source_admission_state.py",
+        "-"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "stdin_sha256": "a001588db2ecc8264fc0516e5fc712c373ef1de4af197e3446532be6be56c34b",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/validation/test_source_admission_state.py",
+      "kind": "lint",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--output-format",
+        "json",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/pyproject.toml",
+        "--no-cache",
+        "--stdin-filename",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/validation/test_source_admission_state.py",
+        "-"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "stdin_sha256": "1936eb423ad0e30723414f6330424fa23ad1c106ceb52dea05ec20264fc77f85",
+      "exit": 0,
+      "stdout": "[]",
+      "stderr": ""
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/validation/test_source_admission_state.py",
+      "kind": "format",
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--config",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/pyproject.toml",
+        "--no-cache",
+        "--stdin-filename",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/validation/test_source_admission_state.py",
+        "-"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "stdin_sha256": "1936eb423ad0e30723414f6330424fa23ad1c106ceb52dea05ec20264fc77f85",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "existing_function_preservation": [
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/decision_validity.py",
+      "existing_function_definitions": 35,
+      "allowed_extended_functions": [],
+      "unexplained_existing_function_delta": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/validation/decision_validity.py",
+      "existing_function_definitions": 102,
+      "allowed_extended_functions": [
+        "DecisionValidityService.__init__",
+        "_DecisionValidityStateStore.current_projection_generation_ref"
+      ],
+      "unexplained_existing_function_delta": []
+    }
+  ],
+  "runtime": "UNRUN",
+  "code_acceptance": false,
+  "closure_ids": []
+}

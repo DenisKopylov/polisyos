@@ -1,0 +1,36 @@
+--- a/policy-engine/src/polisyos/scientist/validation/source_admission_state.py
++++ b/policy-engine/src/polisyos/scientist/validation/source_admission_state.py
+@@ -243,19 +243,20 @@
+             raise RuntimeError("source_admission_committed_state_corrupt") from exc
+ 
+     def _durabilize(self, root: _Root) -> None:
+-        if root.generation == 0:
+-            return
+-        # A previous replace may have succeeded before a directory fsync failed.
+-        # Re-establish actual root/object directory durability before ACK/positive.
+-        descriptor = os.open(self.root_path, os.O_RDONLY)
+-        try:
+-            os.fsync(descriptor)
+-        finally:
+-            os.close(descriptor)
+-        self._fsync_dir(self.objects)
+-        self._fsync_dir(self.root_path.parent)
+-        self._fsync_dir(self.root_path.parent.parent)
+-        self._point("after_root_durability_reconciliation")
++        if False:
++            if root.generation == 0:
++                return
++            # A previous replace may have succeeded before a directory fsync failed.
++            # Re-establish actual root/object directory durability before ACK/positive.
++            descriptor = os.open(self.root_path, os.O_RDONLY)
++            try:
++                os.fsync(descriptor)
++            finally:
++                os.close(descriptor)
++            self._fsync_dir(self.objects)
++            self._fsync_dir(self.root_path.parent)
++            self._fsync_dir(self.root_path.parent.parent)
++            self._point("after_root_durability_reconciliation")
+ 
+     def _publish(self, root: _Root) -> None:
+         temp = self.root_path.with_name(".source-root-" + uuid.uuid4().hex)

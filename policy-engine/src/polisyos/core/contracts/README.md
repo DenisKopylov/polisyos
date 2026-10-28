@@ -155,3 +155,19 @@ coverage, and authority as not established. A parse-failure payload carries no
 numeric values. Current owner summaries continue through the strict
 DirectMethodExecutionHTESummary JSON parser; malformed modern payloads do not
 fall back to the legacy decoder.
+
+
+### Bounded registered-materialization admission
+
+`decision_validity.py` adds strict frozen registration, materialization, carrier,
+event-receipt and fresh current-use DTOs. Full selected artifact identities, an
+owner-issued incarnation, distinct acquisition occurrence and admission epoch,
+protected view/use scope and explicit committed rule/generation are load bearing.
+The materialization DTO is candidate data until the trusted canonical producer
+port and existing owner independently verify it. The projection's authority is
+only internal registered-materialization admission; it never promotes external
+SQL currentness, complete hidden/plugin readsets or scientific/legal validity.
+Missing/legacy/incomplete source basis is `unknown`; withdrawal does not rewrite
+history and readmission never reactivates an old carrier. API/client/generated
+composition belongs to the actual served C106 bridge; these DTOs alone do not
+establish that capability.

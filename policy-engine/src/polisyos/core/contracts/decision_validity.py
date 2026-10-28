@@ -13,7 +13,7 @@ from datetime import UTC, datetime
 from enum import Enum
 from typing import Any, Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
@@ -359,7 +359,9 @@ class DecisionValidityEpochImpactSnapshot(BaseModel):
         )
 
     @model_validator(mode="after")
-    def _projection_is_exact_and_self_bound(self) -> DecisionValidityEpochImpactSnapshot:
+    def _projection_is_exact_and_self_bound(
+        self,
+    ) -> DecisionValidityEpochImpactSnapshot:
         if self.requested_dependency_keys != tuple(sorted(set(self.requested_dependency_keys))):
             raise ValueError("epoch_impact_snapshot_requested_keys_noncanonical")
         if not self.requested_dependency_keys:
@@ -372,7 +374,11 @@ class DecisionValidityEpochImpactSnapshot(BaseModel):
         ordered_targets = tuple(
             sorted(
                 self.targets,
-                key=lambda row: (row.dependency_key, row.packet_ref, row.decision_lineage_key),
+                key=lambda row: (
+                    row.dependency_key,
+                    row.packet_ref,
+                    row.decision_lineage_key,
+                ),
             )
         )
         target_keys = tuple((row.dependency_key, row.packet_ref) for row in self.targets)
@@ -570,7 +576,11 @@ class EpochTransitionDenominatorReconciliationReceipt(BaseModel):
         mapping_order = tuple(
             sorted(
                 self.mapping_rows,
-                key=lambda row: (row.dependency_key, row.packet_ref, row.decision_lineage_key),
+                key=lambda row: (
+                    row.dependency_key,
+                    row.packet_ref,
+                    row.decision_lineage_key,
+                ),
             )
         )
         mapping_keys = tuple(
@@ -623,7 +633,9 @@ class EpochTransitionDenominatorReconciliationHandle(BaseModel):
     reconciliation_receipt_content_hash: Digest = Field(pattern=_DIGEST_PATTERN)
 
     @model_validator(mode="after")
-    def _ref_has_reconciliation_profile(self) -> EpochTransitionDenominatorReconciliationHandle:
+    def _ref_has_reconciliation_profile(
+        self,
+    ) -> EpochTransitionDenominatorReconciliationHandle:
         if (
             self.reconciliation_receipt_ref.kind != _RECONCILIATION_KIND
             or self.reconciliation_receipt_ref.media_type != _RECONCILIATION_MEDIA_TYPE
@@ -721,7 +733,8 @@ class EpochDenominatorReconciliationAdmissionBinding(BaseModel):
         return cls(
             **values,
             binding_content_hash=_semantic_hash(
-                "polisyos.decision-validity.epoch-reconciliation-admission-binding.v1", values
+                "polisyos.decision-validity.epoch-reconciliation-admission-binding.v1",
+                values,
             ),
         )
 
@@ -743,7 +756,8 @@ class EpochDenominatorReconciliationAdmissionBinding(BaseModel):
         _ = self.handle
         values = self.model_dump(mode="json", exclude={"binding_content_hash"})
         if self.binding_content_hash != _semantic_hash(
-            "polisyos.decision-validity.epoch-reconciliation-admission-binding.v1", values
+            "polisyos.decision-validity.epoch-reconciliation-admission-binding.v1",
+            values,
         ):
             raise ValueError("epoch_reconciliation_admission_binding_hash_mismatch")
         return self
@@ -1069,7 +1083,9 @@ class PersistedPreN9AdmittedCandidateBatch(BaseModel):
     batch_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
     @model_validator(mode="after")
-    def _admissions_are_a_complete_unique_order(self) -> PersistedPreN9AdmittedCandidateBatch:
+    def _admissions_are_a_complete_unique_order(
+        self,
+    ) -> PersistedPreN9AdmittedCandidateBatch:
         occurrence_refs = tuple(
             str(row.candidate_occurrence_ref.artifact_id) for row in self.ordered_admissions
         )
@@ -1176,6 +1192,163 @@ class DecisionLifecycleJob(BaseModel):
     payload: dict[str, Any] = Field(default_factory=dict)
 
 
+class SourceRegistrationReceipt(BaseModel):
+    """Committed internal registration, not external database currentness."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+    schema_version: Literal["polisyos.source-registration.v1"] = "polisyos.source-registration.v1"
+    tenant_id: str = Field(min_length=1, max_length=256)
+    cell_id: str = Field(min_length=1, max_length=256)
+    provider_id: str = Field(min_length=1, max_length=256)
+    issuer_key: str = Field(min_length=1, max_length=1024)
+    registration_key: str = Field(min_length=1, max_length=256)
+    source_incarnation_id: str = Field(min_length=1, max_length=256)
+    effective_view_contract_ref: ArtifactRef
+    use_contract_ref: ArtifactRef
+    admission_scope_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    event_id: str = Field(min_length=1, max_length=256)
+    event_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    generation: int = Field(ge=1)
+    committed_at: AwareDatetime
+    rule_version: Literal["policyos.registered-sql-admission.v1"] = (
+        "policyos.registered-sql-admission.v1"
+    )
+
+
+class RegisteredMaterialization(BaseModel):
+    """Bounded owned materialization; this DTO alone is never producer authority."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+    schema_version: Literal["polisyos.registered-materialization.v1"] = (
+        "polisyos.registered-materialization.v1"
+    )
+    registration: SourceRegistrationReceipt
+    occurrence_id: str = Field(min_length=1, max_length=256)
+    producer_rule_version: str = Field(min_length=1, max_length=256)
+    producer_capture_ref: ArtifactRef
+    request_ref: ArtifactRef
+    snapshot_ref: ArtifactRef
+    payload_ref: ArtifactRef
+    schema_ref: ArtifactRef
+    quality_ref: ArtifactRef
+    observed_at: AwareDatetime
+    upstream_asserted_at: AwareDatetime | None = None
+
+
+class SourceAdmissionCarrier(BaseModel):
+    """Exact immutable admission epoch; an old carrier never revives on readmit."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+    schema_version: Literal["polisyos.source-admission-carrier.v1"] = (
+        "polisyos.source-admission-carrier.v1"
+    )
+    tenant_id: str = Field(min_length=1, max_length=256)
+    cell_id: str = Field(min_length=1, max_length=256)
+    source_incarnation_id: str = Field(min_length=1, max_length=256)
+    admission_scope_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    occurrence_id: str = Field(min_length=1, max_length=256)
+    revision_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    admission_epoch: str = Field(min_length=1, max_length=256)
+    admission_event_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    snapshot_ref: ArtifactRef
+    use_contract_ref: ArtifactRef
+
+
+class SourceAdmissionReceipt(BaseModel):
+    """The original committed event result, retained unchanged across retries."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+    schema_version: Literal["polisyos.source-admission-receipt.v1"] = (
+        "polisyos.source-admission-receipt.v1"
+    )
+    event_id: str = Field(min_length=1, max_length=256)
+    event_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    operation: Literal["genesis", "admit", "withdraw", "readmit", "supersede"]
+    generation: int = Field(ge=1)
+    committed_at: AwareDatetime
+    scope_head: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    carrier: SourceAdmissionCarrier | None = None
+    source_registration: SourceRegistrationReceipt | None = None
+    rule_version: Literal["policyos.registered-sql-admission.v1"] = (
+        "policyos.registered-sql-admission.v1"
+    )
+
+    @model_validator(mode="after")
+    def _bind_original_event(self) -> SourceAdmissionReceipt:
+        if self.scope_head != self.event_ref:
+            raise ValueError("source_admission_receipt_head_mismatch")
+        if self.operation == "genesis":
+            if self.source_registration is None or self.carrier is not None:
+                raise ValueError("source_admission_registration_receipt_incomplete")
+        elif self.carrier is None or self.source_registration is not None:
+            raise ValueError("source_admission_carrier_receipt_incomplete")
+        return self
+
+
+class SourceCurrentUseProjection(BaseModel):
+    """Bounded source admission at one fenced read, never scientific validity."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+    schema_version: Literal["polisyos.source-current-use.v1"] = "polisyos.source-current-use.v1"
+    status: Literal["current", "withdrawn", "unknown"]
+    reason_codes: tuple[str, ...]
+    basis_digest: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    selection_checked: bool = False
+    generation: int = Field(ge=0)
+    committed_root: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    rule_version: Literal["policyos.registered-sql-admission.v1"] = (
+        "policyos.registered-sql-admission.v1"
+    )
+    authority_purpose: Literal["registered_sql_materialization_admission"] = (
+        "registered_sql_materialization_admission"
+    )
+    read_boundary: Literal["owner_fence_linearization_point"] = "owner_fence_linearization_point"
+    predicate_provenance: Literal["recomputed", "not_established"]
+    checked_at: AwareDatetime
+
+    @model_validator(mode="after")
+    def _bind_current_query(self) -> SourceCurrentUseProjection:
+        if self.status == "current":
+            if (
+                self.reason_codes
+                or self.generation < 1
+                or self.committed_root is None
+                or self.basis_digest is None
+                or self.predicate_provenance != "recomputed"
+            ):
+                raise ValueError("source_admission_current_projection_unbound")
+        elif not self.reason_codes or self.predicate_provenance != "not_established":
+            raise ValueError("source_admission_noncurrent_projection_unbound")
+        return self
+
+
+def source_admission_basis_digest(
+    carriers: tuple[SourceAdmissionCarrier, ...],
+    *,
+    require_selected: bool = False,
+) -> str:
+    """Bind the exact ordered carrier vector and selected-use query scope.
+
+    Repeated occurrences remain repeated. This binds a query, not its truth;
+    callers must still obtain the projection from the actual validity owner.
+    """
+    if type(carriers) is not tuple or type(require_selected) is not bool:
+        raise ValueError("source_admission_query_not_established")
+    payload = {
+        "rule_version": "policyos.registered-sql-admission.v1",
+        "authority_purpose": "registered_sql_materialization_admission",
+        "require_selected": require_selected,
+        "carriers": [
+            SourceAdmissionCarrier.model_validate_json(
+                carrier.model_dump_json(), strict=True
+            ).model_dump(mode="json")
+            for carrier in carriers
+        ],
+    }
+    raw = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode()
+    return "sha256:" + hashlib.sha256(raw).hexdigest()
+
+
 __all__ = [
     "DecisionBasisSection",
     "DecisionDependencyEvent",
@@ -1222,4 +1395,10 @@ __all__ = [
     "PersistedPreN9EpochValiditySubject",
     "PreN9AdmittedCandidate",
     "PreN9EpochValiditySubjectStatement",
+    "RegisteredMaterialization",
+    "SourceAdmissionCarrier",
+    "SourceAdmissionReceipt",
+    "SourceCurrentUseProjection",
+    "SourceRegistrationReceipt",
+    "source_admission_basis_digest",
 ]

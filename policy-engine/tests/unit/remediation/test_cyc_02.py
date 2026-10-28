@@ -516,14 +516,17 @@ def test_n5_transient_store_failure_is_unavailable_not_integrity_invalid(
     _problem, _context, _candidate, simulation, _produced, store = _real_n5_observation(tmp_path)
     assert simulation.simulation_result_ref is not None
 
-    class _TransientHasStore:
+    class _TransientReadStore:
         def __init__(self, delegate: Any) -> None:
             self._delegate = delegate
+
+        def get_raw_manifest_bytes(self, artifact_ref: CASArtifactRef) -> bytes:
+            return self._delegate.get_raw_manifest_bytes(artifact_ref)
 
         def get_manifest(self, artifact_ref: CASArtifactRef) -> Any:
             return self._delegate.get_manifest(artifact_ref)
 
-        def has(self, _artifact_ref: CASArtifactRef) -> bool:
+        def get_bytes(self, _artifact_ref: CASArtifactRef) -> bytes:
             raise ConnectionError("temporary artifact-store outage")
 
     with pytest.raises(
@@ -532,7 +535,7 @@ def test_n5_transient_store_failure_is_unavailable_not_integrity_invalid(
     ):
         load_joint_simulation_result(
             simulation.simulation_result_ref,
-            store=_TransientHasStore(store),  # type: ignore[arg-type]
+            store=_TransientReadStore(store),  # type: ignore[arg-type]
         )
 
 
@@ -558,14 +561,17 @@ def test_n5_guarded_runtime_store_errors_are_typed_unavailable(
         def __init__(self, delegate: Any) -> None:
             self._delegate = delegate
 
+        def get_raw_manifest_bytes(self, artifact_ref: CASArtifactRef) -> bytes:
+            return self._delegate.get_raw_manifest_bytes(artifact_ref)
+
         def get_manifest(self, artifact_ref: CASArtifactRef) -> Any:
             return self._delegate.get_manifest(artifact_ref)
 
-        def has(self, _artifact_ref: CASArtifactRef) -> bool:
+        def get_bytes(self, _artifact_ref: CASArtifactRef) -> bytes:
             if failure_mode == "unavailable":
                 raise OSError("temporary CAS I/O failure")
             time.sleep(0.35)
-            return True
+            return self._delegate.get_bytes(_artifact_ref)
 
     if failure_mode == "timeout":
         monkeypatch.setenv("POLISYOS_RUNTIME_CAS_TIMEOUT_SECONDS", "0.1")
@@ -610,20 +616,23 @@ def test_n5_replay_does_not_mask_store_programming_errors(tmp_path: Path) -> Non
     _problem, _context, _candidate, simulation, _produced, store = _real_n5_observation(tmp_path)
     assert simulation.simulation_result_ref is not None
 
-    class _BrokenHasStore:
+    class _BrokenReadStore:
         def __init__(self, delegate: Any) -> None:
             self._delegate = delegate
+
+        def get_raw_manifest_bytes(self, artifact_ref: CASArtifactRef) -> bytes:
+            return self._delegate.get_raw_manifest_bytes(artifact_ref)
 
         def get_manifest(self, artifact_ref: CASArtifactRef) -> Any:
             return self._delegate.get_manifest(artifact_ref)
 
-        def has(self, _artifact_ref: CASArtifactRef) -> bool:
+        def get_bytes(self, _artifact_ref: CASArtifactRef) -> bytes:
             raise AssertionError("store adapter bug")
 
     with pytest.raises(AssertionError, match="store adapter bug"):
         load_joint_simulation_result(
             simulation.simulation_result_ref,
-            store=_BrokenHasStore(store),  # type: ignore[arg-type]
+            store=_BrokenReadStore(store),  # type: ignore[arg-type]
         )
 
 

@@ -71,22 +71,35 @@ persisted recursive run. Version v5 separates `n5_observations` for individual c
 carries the selected N5 result reference, checked-model interaction evidence, and the candidate
 selection's source relationship. When the N8 consumer can read the parent result, its
 `value_conditional` observation has decision grade `low`; missing coupling scope, hypothetical
-composition and child-to-parent refinement remain explicit limitations. When a parent read returns
-a `not_established` projection, its limitation is reported separately from readable children.
-A `CanonicalProfileRefusalError` during the parent result read can instead escape the projection
-and abort the GET, so independently readable child rows are not guaranteed to be returned in that
-case. These observations do not establish an authored compound policy, world evidence, currentness
-or publication authority.
+composition and child-to-parent refinement remain explicit limitations. An unavailable or invalid selected parent-result view leaves its parent status
+`not_established` with a typed limitation, while independently replayed child rows remain available.
+A known selected-view tenant/cell mismatch or a typed ownership denial refuses the GET without
+returning child data; an ordinary backing-filesystem permission failure produces a dependency
+refusal rather than an inferred tenant denial. A selected-view verifier reopens the original owner,
+raw/typed manifest and body bytes instead of interpreting `has` or `verify=False` as permission
+proof. This bounded behavior covers selected N5 parent/child replay; other earlier source failures
+can still prevent the projection. If a store cannot reopen the derived exact view of a profileless
+historical generic compiled root, the generic projection can remain not established. The same
+limitation on a profileless generic result can remove that candidate row; retaining either case as a
+declared limited generic candidate on a default-only store remains unverified. These observations do not
+establish an authored compound policy, world evidence, currentness or publication authority.
 
 For a generic child, the selected execution owner reconciles the selected input, request and
 result with the source, profile, problem, candidate and run scope. `n5_owner_join_status`
 distinguishes `resolved`, `unavailable`, `invalid`, `mismatch` and `not_established`. An
 independently readable result can remain a candidate with a provenance limitation when the owner
 view is unavailable; an established invalid or mismatched join blocks that row. Other independently
-replayed child rows remain in the projection for those child-owner outcomes. This does not cover the
-parent profile-read exception described above. A selected artifact reference locates bytes for a separately
+replayed child rows remain in the projection for those child-owner outcomes. A selected artifact reference locates bytes for a separately
 authorized reader; a request/result consistency check or content-bound receipt does not
 independently authenticate the numerical producer.
+
+A non-generic profileless compiled reference with an accessible, valid declared canonical manifest
+is read through its actual owner, with its raw/typed manifest, body digest and selected-profile
+projection reconciled. A missing or malformed canonical declaration is not admitted by this path. The original owner handle is
+then retained for acquisition-history joins. Such an unqualified root carries
+`compiled_cycle_selected_view_not_established` on retained N5 and N8 candidates; a `value_ready`
+observation is surfaced as pending. The default-only owner and resolved acquisition-history
+witnesses are authored but have not run on the composed tree.
 
 Historical generic v1–v4 payloads remain readable by the updated dashboard validator. An older
 strict client that only accepts v1–v4 cannot consume a v5 response; regenerate the OpenAPI and

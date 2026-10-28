@@ -227,6 +227,7 @@ def test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry(
         served_recorded_candidate_gateway,
         include_b09_evidence=True,
         source_owner_root=source_inputs.root,
+        include_default_only_compiled_probe=True,
     )
 
     assert result is not None

@@ -1461,6 +1461,17 @@ def load_joint_simulation_result(
     expected_request: JointSimulationRequest | None = None,
 ) -> JointSimulationResult:
     """Resolve, verify, and semantically bind one persisted N5 result."""
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.core.artifacts import artifact_manifest_profile_sha256
+
+    def refuse_profile(exc: CanonicalProfileRefusalError) -> None:
+        if exc.code in {
+            "canon_profile_raw_manifest_unavailable",
+            "canon_profile_typed_manifest_unavailable",
+            "canon_profile_payload_unavailable",
+        }:
+            raise GenerationCycleError("joint_simulation_result_unavailable") from exc
+        _joint_simulation_result_integrity_error("artifact_manifest_or_payload_invalid", exc)
 
     try:
         resolved_ref = (
@@ -1487,26 +1498,10 @@ def load_joint_simulation_result(
             "joint_simulation_result_unavailable",
             "N5 selected manifest view could not be read from the store",
         ) from exc
+    except CanonicalProfileRefusalError as exc:
+        refuse_profile(exc)
     except (ArtifactIntegrityError, TypeError, ValueError) as exc:
         _joint_simulation_result_integrity_error("artifact_manifest_invalid", exc)
-
-    try:
-        present = store.has(resolved_ref)
-    except (FileNotFoundError, ArtifactOwnershipError) as exc:
-        raise GenerationCycleError(
-            "joint_simulation_result_unavailable",
-            "N5 selected result view is absent or not owned by this store",
-        ) from exc
-    except (RuntimeDependencyError, TimeoutError, ConnectionError, OSError) as exc:
-        raise GenerationCycleError(
-            "joint_simulation_result_unavailable",
-            "N5 selected result view availability could not be checked",
-        ) from exc
-    if not present:
-        raise GenerationCycleError(
-            "joint_simulation_result_unavailable",
-            "N5 result blob or manifest is absent",
-        )
 
     if (
         manifest.kind != JOINT_SIMULATION_RESULT_ARTIFACT_KIND
@@ -1540,11 +1535,18 @@ def load_joint_simulation_result(
     ):
         _joint_simulation_result_integrity_error("CAS artifact integrity invalid")
     try:
-        payload = read_core_json_artifact(
+        profile_read = read_core_json_artifact(
             store,
             resolved_ref,
             raw_payload_bytes=payload_bytes,
-        ).value
+        )
+        if profile_read.selected_manifest_profile_sha256 != artifact_manifest_profile_sha256(
+            manifest
+        ):
+            _joint_simulation_result_integrity_error("artifact_selected_manifest_changed")
+        payload = profile_read.value
+    except CanonicalProfileRefusalError as exc:
+        refuse_profile(exc)
     except (TypeError, ValueError) as exc:
         _joint_simulation_result_integrity_error("artifact_payload_not_canonical", exc)
     if not isinstance(payload, Mapping):
@@ -6897,6 +6899,7 @@ def _conditional_simulation_value_observation(
     generic_child_selection: GenericCycleSimulationChildSelectionV1 | None = None,
     generic_verified_scope: object | None = None,
     generic_source_run_id: str | None = None,
+    propagate_artifact_access_errors: bool = False,
 ) -> ValuePortObservation | None:
     """Consume a verified K_sim result without laundering it into N8 authority."""
 
@@ -7025,6 +7028,10 @@ def _conditional_simulation_value_observation(
             expected_selected_outcomes=(outcome,) if outcome else None,
         )
     except GenerationCycleError as exc:
+        if propagate_artifact_access_errors:
+            from polisyos.core.artifacts import raise_artifact_read_access_error
+
+            raise_artifact_read_access_error(exc)
         return _blocked_value_observation(
             code=exc.code,
             reason=f"N8 conditional simulation result is not admissible: {exc}",
@@ -7214,6 +7221,7 @@ def _consume_parent_joint_candidate_n8(
         simulation=simulation,
         problem=problem,
         artifact_store=artifact_store,
+        propagate_artifact_access_errors=True,
     )
     if observation is None:
         raise GenerationCycleError("parent_joint_candidate_n8_not_established")
@@ -7339,7 +7347,11 @@ def _generic_n5_observation_refusal(
     from pydantic import ValidationError
 
     from polisyos.common.canonical_profile import CanonicalProfileRefusalError
-    from polisyos.core.artifacts import ArtifactUnavailableError, load_core_json_artifact
+    from polisyos.core.artifacts import (
+        ArtifactUnavailableError,
+        SelectedProfileVerificationReader,
+        load_core_json_artifact,
+    )
 
     generic_refs = (
         simulation.generic_n4_source_ref,
@@ -7360,6 +7372,8 @@ def _generic_n5_observation_refusal(
     source_ref, context_ref, profile_ref, input_ref, execution_ref, selection_ref = generic_refs
     if any(item is None for index, item in enumerate(generic_refs) if index != 4):
         return "generic_cycle_simulation_projection_incomplete"
+    if type(artifact_store) is not SelectedProfileVerificationReader:
+        artifact_store = SelectedProfileVerificationReader(artifact_store)
     try:
         from polisyos.runtime.quality.cycle_substrate import (
             VerifiedNLJobScope,
@@ -7441,7 +7455,9 @@ def _generic_n5_observation_refusal(
         return "generic_cycle_simulation_projection_binding_mismatch"
     except ArtifactUnavailableError:
         return "n5_execution_request_provenance_not_established"
-    except (ArtifactIntegrityError, ArtifactOwnershipError, ValidationError):
+    except ArtifactOwnershipError:
+        return "generic_cycle_simulation_artifact_scope_refused"
+    except (ArtifactIntegrityError, ValidationError):
         return "generic_cycle_simulation_projection_binding_mismatch"
     except (TypeError, ValueError, RuntimeError):
         # Legacy owner errors can conflate missing and invalid dependencies.
@@ -14308,6 +14324,9 @@ def resolve_generation_cycle_run_context_history(
             TypeError,
             ValueError,
         ) as exc:
+            from polisyos.core.artifacts import raise_artifact_read_access_error
+
+            raise_artifact_read_access_error(exc)
             issues.append(
                 {
                     "code": "generation_cycle_context_history_owner_refused",

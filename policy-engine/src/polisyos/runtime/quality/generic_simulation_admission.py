@@ -2437,6 +2437,7 @@ class GenericCycleSimulationAdmissionOwner:
             ArtifactIntegrityError,
             ArtifactOwnershipError,
             ArtifactUnavailableError,
+            raise_artifact_read_access_error,
             read_core_json_artifact,
         )
         from polisyos.runtime.http.errors import RuntimeDependencyError
@@ -2445,6 +2446,15 @@ class GenericCycleSimulationAdmissionOwner:
             _JointSimulationBindingMismatchError,
             _JointSimulationInvalidError,
         )
+
+        if type(self._store) is not artifacts.SelectedProfileVerificationReader:
+            # Use one selected-read boundary for all consumers of this owner,
+            # including N8; retain the producer's actual store and profile set.
+            replay_owner = GenericCycleSimulationAdmissionOwner(
+                profiles=self.profiles,
+                store=artifacts.SelectedProfileVerificationReader(self._store),
+            )
+            return replay_owner.resolve_n5_execution_join(ref, expected=expected)
 
         def refused(
             status: Literal["unavailable", "invalid", "mismatch", "not_established"], code: str
@@ -2477,18 +2487,24 @@ class GenericCycleSimulationAdmissionOwner:
             except ArtifactUnavailableError:
                 input_problem = refused("unavailable", "generic_n5_input_owner_unavailable")
             except ArtifactOwnershipError:
-                return refused("invalid", "generic_n5_input_scope_refused")
+                raise
             except (TimeoutError, ConnectionError, RuntimeDependencyError):
                 input_problem = refused("unavailable", "generic_n5_input_backend_unavailable")
             except (ArtifactIntegrityError, ValidationError):
                 return refused("invalid", "generic_n5_input_integrity_invalid")
             except _GenericN5VerifiedMismatchError as exc:
                 return refused("mismatch", exc.code)
-            except (CycleSubstrateContextOwnerError, TypeError, ValueError):
+            except (CycleSubstrateContextOwnerError, TypeError, ValueError) as exc:
+                raise_artifact_read_access_error(exc)
                 input_problem = refused(
                     "not_established", "generic_n5_input_replay_not_established"
                 )
             else:
+                if (input_record.tenant_id, input_record.cell_id) != (
+                    expected.tenant_id,
+                    expected.cell_id,
+                ):
+                    return refused("invalid", "generic_n5_input_scope_refused")
                 if (
                     input_record.n4_source_ref != expected.n4_source_ref
                     or input_record.context_job_ref != expected.context_job_ref
@@ -2513,8 +2529,6 @@ class GenericCycleSimulationAdmissionOwner:
                     or input_record.job_id != expected.job_id
                     or input_record.run_id != expected.run_id
                     or input_record.source_run_id != expected.source_run_id
-                    or input_record.tenant_id != expected.tenant_id
-                    or input_record.cell_id != expected.cell_id
                 ):
                     return refused("mismatch", "generic_n5_input_cycle_join_mismatch")
                 if expected.profile is None:
@@ -2549,13 +2563,15 @@ class GenericCycleSimulationAdmissionOwner:
         except ArtifactUnavailableError:
             return refused("unavailable", "generic_n5_owner_unavailable")
         except ArtifactOwnershipError:
-            return refused("invalid", "generic_n5_owner_scope_refused")
+            raise
         except (TimeoutError, ConnectionError, RuntimeDependencyError):
             return refused("unavailable", "generic_n5_owner_backend_unavailable")
         except (ArtifactIntegrityError, TypeError, ValueError):
             return refused("invalid", "generic_n5_owner_artifact_invalid")
         if type(record) is not GenericCycleSimulationN5ExecutionV3:
             return refused("not_established", "generic_n5_typed_request_not_established")
+        if (record.tenant_id, record.cell_id) != (expected.tenant_id, expected.cell_id):
+            return refused("invalid", "generic_n5_execution_scope_refused")
         if (
             record.status != expected.status
             or record.input_ref != expected.input_ref
@@ -2572,8 +2588,6 @@ class GenericCycleSimulationAdmissionOwner:
             or record.job_id != expected.job_id
             or record.run_id != expected.run_id
             or record.source_run_id != expected.source_run_id
-            or record.tenant_id != expected.tenant_id
-            or record.cell_id != expected.cell_id
         ):
             return refused("mismatch", "generic_n5_execution_cycle_join_mismatch")
         if input_problem is not None:
@@ -2593,7 +2607,7 @@ class GenericCycleSimulationAdmissionOwner:
         except ArtifactUnavailableError:
             return refused("unavailable", "generic_n5_execution_owner_unavailable")
         except ArtifactOwnershipError:
-            return refused("invalid", "generic_n5_execution_scope_refused")
+            raise
         except (TimeoutError, ConnectionError, RuntimeDependencyError):
             return refused("unavailable", "generic_n5_execution_backend_unavailable")
         except ArtifactIntegrityError:
@@ -2603,10 +2617,12 @@ class GenericCycleSimulationAdmissionOwner:
         except _JointSimulationInvalidError as exc:
             return refused("invalid", exc.code)
         except GenerationCycleError as exc:
+            raise_artifact_read_access_error(exc)
             return refused("not_established", exc.code)
         except _GenericN5VerifiedMismatchError as exc:
             return refused("mismatch", exc.code)
-        except (CycleSubstrateContextOwnerError, TypeError, ValueError):
+        except (CycleSubstrateContextOwnerError, TypeError, ValueError) as exc:
+            raise_artifact_read_access_error(exc)
             # Some old owner failures collapse missing, invalid, and conflicting
             # dependencies. Do not re-label their ambiguous cause as absence.
             return refused("not_established", "generic_n5_execution_replay_not_established")

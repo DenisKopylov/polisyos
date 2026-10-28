@@ -18,9 +18,12 @@ from pydantic import ValidationError
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import (
     ArtifactID,
+    ArtifactOwnershipError,
     ArtifactRef,
+    SelectedProfileVerificationReader,
     artifact_ref_for_manifest,
     artifact_ref_identity_key,
+    raise_artifact_read_access_error,
     read_core_json_artifact,
     read_core_json_artifact_bounded,
     read_core_manifest_profile,
@@ -95,6 +98,7 @@ from polisyos.runtime.http.dependencies import (
 )
 from polisyos.runtime.http.errors import (
     CANONICAL_PROFILE_REFUSAL_RESPONSES,
+    RuntimeDependencyError,
     bad_request,
     conflict,
     forbidden,
@@ -1271,12 +1275,18 @@ def _candidate_simulation_projection(
             limitation_code="compiled_cycle_artifact_integrity_not_established",
         )
 
+    owner_store = store
+    if type(store) is not SelectedProfileVerificationReader:
+        store = SelectedProfileVerificationReader(store)
     try:
         manifest = read_core_manifest_profile(store, ref)[0]
-        verification = store.verify(ref)
-        if not verification.ok:
-            raise ValueError("compiled_cycle_artifact_integrity_not_established")
+        selected_ref = artifact_ref_for_manifest(manifest)
         tenant_context = manifest.tenant_context
+        if tenant_context is not None and (tenant_context.tenant_id, tenant_context.cell_id) != (
+            tenant_id,
+            cell_id,
+        ):
+            raise ArtifactOwnershipError("compiled generic run belongs to another tenant or cell")
         if (
             manifest.kind != "runtime.compiled_recursive_generation_cycle"
             or manifest.media_type != "application/json"
@@ -1294,9 +1304,11 @@ def _candidate_simulation_projection(
             or manifest.byte_size != len(payload_bytes)
         ):
             raise ValueError("compiled_cycle_artifact_content_hash_mismatch")
-    except CanonicalProfileRefusalError:
+    except CanonicalProfileRefusalError as exc:
+        _raise_generic_read_access_refusal(exc)
         raise
-    except Exception:
+    except (OSError, RuntimeDependencyError, RuntimeError, TypeError, ValueError) as exc:
+        _raise_generic_read_access_refusal(exc)
         return _candidate_simulation_refusal(
             run_id=run_id,
             source_ref=ref,
@@ -1310,9 +1322,10 @@ def _candidate_simulation_projection(
             != "polisyos.runtime.CompiledRecursiveGenerationCycleRun"
         ):
             raise ValueError("compiled_cycle_artifact_schema_binding_invalid")
-        compiled = CompiledRecursiveGenerationCycleRun.model_validate(
-            read_core_json_artifact(store, ref, raw_payload_bytes=payload_bytes).value
-        )
+        compiled_read = read_core_json_artifact(store, ref, raw_payload_bytes=payload_bytes)
+        if compiled_read.selected_manifest_profile_sha256 != selected_ref.manifest_profile_sha256:
+            raise ValueError("compiled_cycle_artifact_selected_manifest_changed")
+        compiled = CompiledRecursiveGenerationCycleRun.model_validate(compiled_read.value)
         if (
             compiled.generic_cycle_simulation_handoff is not None
             or compiled.n4_child_profile_set_ref is not None
@@ -1330,15 +1343,25 @@ def _candidate_simulation_projection(
             or manifest.artifact_schema.version != expected_manifest_schema_version
         ):
             raise ValueError("compiled_cycle_artifact_schema_binding_invalid")
-    except CanonicalProfileRefusalError:
+    except CanonicalProfileRefusalError as exc:
+        _raise_generic_read_access_refusal(exc)
         raise
-    except Exception:
+    except (OSError, RuntimeDependencyError, RuntimeError, TypeError, ValueError) as exc:
+        _raise_generic_read_access_refusal(exc)
         return _candidate_simulation_refusal(
             run_id=run_id,
             source_ref=ref,
             limitation_code="compiled_cycle_artifact_content_invalid",
         )
 
+    # The selected facade is scoped to compiled preflight. Later non-generic
+    # consumers compare the actual control-service store by identity.
+    store = owner_store
+    compiled_view_limitation = (
+        "compiled_cycle_selected_view_not_established"
+        if ref.manifest_profile_sha256 is None
+        else None
+    )
     recursive_run = compiled.recursive_run
     checkpoint = _candidate_simulation_checkpoint(recursive_run)
     n4_source_status: Literal["resolved", "not_established"] | None = None
@@ -1854,6 +1877,22 @@ def _candidate_simulation_projection(
                         problem_ref=(cycle.design_problem_basis_ref or cycle.design_problem_ref),
                         cycle_index=cycle.cycle_index,
                     )
+                    n8_fields = _n8_interaction_qualification_fields(
+                        getattr(cycle, "value_port", None)
+                    )
+                    if compiled_view_limitation is not None:
+                        blockers = tuple(dict.fromkeys((*blockers, compiled_view_limitation)))
+                        if n8_fields.get("n8_status") is not None:
+                            n8_fields["n8_authority_blockers"] = tuple(
+                                dict.fromkeys(
+                                    (
+                                        *n8_fields.get("n8_authority_blockers", ()),
+                                        compiled_view_limitation,
+                                    )
+                                )
+                            )
+                            if n8_fields["n8_status"] == "value_ready":
+                                n8_fields["n8_status"] = "value_pending_n8"
                     observations.append(
                         RunCandidateSimulationN5Observation(
                             node_ref=node.node_ref,
@@ -1882,9 +1921,7 @@ def _candidate_simulation_projection(
                             authority_blockers=blockers,
                             n5_interaction_evidence=(_n5_interaction_evidence_projection(result)),
                             **_n5_interaction_scope_fields(result),
-                            **_n8_interaction_qualification_fields(
-                                getattr(cycle, "value_port", None)
-                            ),
+                            **n8_fields,
                             **lineage_fields,
                         )
                     )
@@ -1904,6 +1941,8 @@ def _candidate_simulation_projection(
                 )
                 if tuple(resolved_blockers) != tuple(blockers):
                     raise ValueError("n5_result_blockers_binding_mismatch")
+                if compiled_view_limitation is not None:
+                    blockers = tuple(dict.fromkeys((*blockers, compiled_view_limitation)))
                 observations.append(
                     RunCandidateSimulationN5Observation(
                         node_ref=node.node_ref,
@@ -1920,6 +1959,9 @@ def _candidate_simulation_projection(
                         n5_interaction_evidence=(_n5_interaction_evidence_projection(result)),
                         **_n5_interaction_scope_fields(result),
                         n8_status="value_pending_n8",
+                        n8_authority_blockers=(
+                            (compiled_view_limitation,) if compiled_view_limitation else ()
+                        ),
                     )
                 )
     except CanonicalProfileRefusalError:
@@ -2921,6 +2963,43 @@ def _generic_n6_cycle_history_fields(
     }
 
 
+class _GenericSelectedScopeNotEstablishedError(ValueError):
+    """The selected result has no declared tenant/cell binding."""
+
+
+class _GenericParentNotEstablishedError(ValueError):
+    """A required parent selection or candidate observation is unavailable."""
+
+
+def _generic_selected_result_manifest(
+    store: Any, ref: ArtifactRef, *, tenant_id: str, cell_id: str
+) -> Any:
+    """Reopen the exact result view and refuse a known foreign tenant or cell."""
+    manifest = read_core_manifest_profile(store, ref)[0]
+    scope = manifest.tenant_context
+    if scope is None:
+        raise _GenericSelectedScopeNotEstablishedError("generic_n5_result_scope_not_established")
+    if (scope.tenant_id, scope.cell_id) != (tenant_id, cell_id):
+        raise ArtifactOwnershipError("selected N5 result belongs to another tenant or cell")
+    return manifest
+
+
+def _raise_generic_read_access_refusal(exc: BaseException) -> None:
+    """Do not return sibling data after an owner or filesystem permission refusal."""
+    try:
+        raise_artifact_read_access_error(exc)
+    except ArtifactOwnershipError as denied:
+        raise forbidden(
+            "The selected artifact is not accessible to this run scope.",
+            code="generic_cycle_artifact_scope_refused",
+        ) from denied
+    except PermissionError as unavailable:
+        raise service_unavailable(
+            "The selected artifact reader could not access its backing storage.",
+            code="generic_cycle_artifact_reader_permission_unavailable",
+        ) from unavailable
+
+
 def _generic_cycle_simulation_projection(
     *,
     run_id: str,
@@ -2979,11 +3058,16 @@ def _generic_cycle_simulation_projection(
             source_ref=ref,
             limitation_code="compiled_cycle_artifact_binding_not_established",
         )
+    if type(store) is not SelectedProfileVerificationReader:
+        store = SelectedProfileVerificationReader(store)
     try:
         manifest = read_core_manifest_profile(store, ref)[0]
-        verification = store.verify(ref)
+        selected_ref = artifact_ref_for_manifest(manifest)
+        verification = store.verify(selected_ref)
         context = manifest.tenant_context
-        payload_bytes = store.get_bytes(ref)
+        if context is not None and (context.tenant_id, context.cell_id) != (tenant_id, cell_id):
+            raise ArtifactOwnershipError("compiled generic run belongs to another tenant or cell")
+        payload_bytes = store.get_bytes(selected_ref)
         expected_id = f"sha256:{hashlib.sha256(payload_bytes).hexdigest()}"
         if (
             not verification.ok
@@ -3002,13 +3086,14 @@ def _generic_cycle_simulation_projection(
         ):
             raise ValueError("compiled_generic_cycle_manifest_or_content_mismatch")
         compiled = CompiledRecursiveGenerationCycleRun.model_validate(
-            read_core_json_artifact(store, ref, raw_payload_bytes=payload_bytes).value
+            read_core_json_artifact(store, selected_ref, raw_payload_bytes=payload_bytes).value
         )
         if manifest.artifact_schema.version != "1.0":
             raise ValueError("compiled_generic_cycle_schema_version_mismatch")
     except CanonicalProfileRefusalError:
         raise
-    except Exception:
+    except (OSError, RuntimeDependencyError, RuntimeError, TypeError, ValueError) as exc:
+        _raise_generic_read_access_refusal(exc)
         return _generic_cycle_simulation_refusal(
             run_id=run_id,
             source_ref=ref,
@@ -3130,7 +3215,14 @@ def _generic_cycle_simulation_projection(
                     )
                 except CanonicalProfileRefusalError:
                     raise
-                except Exception:
+                except (
+                    OSError,
+                    RuntimeDependencyError,
+                    RuntimeError,
+                    TypeError,
+                    ValueError,
+                ) as exc:
+                    _raise_generic_read_access_refusal(exc)
                     return RunGenericCycleSimulationProjection(
                         schema_version="policyos.runtime.run_generic_cycle_simulation_projection.v4",
                         run_id=run_id,
@@ -3348,7 +3440,8 @@ def _generic_cycle_simulation_projection(
         )
     except CanonicalProfileRefusalError:
         raise
-    except Exception:
+    except (OSError, RuntimeDependencyError, RuntimeError, TypeError, ValueError) as exc:
+        _raise_generic_read_access_refusal(exc)
         return RunGenericCycleSimulationProjection(
             schema_version="policyos.runtime.run_generic_cycle_simulation_projection.v3",
             run_id=run_id,
@@ -3523,6 +3616,11 @@ def _generic_cycle_simulation_projection(
                         cell_id=family.cell_id,
                     ),
                 )
+                if join.code in {
+                    "generic_n5_input_scope_refused",
+                    "generic_n5_execution_scope_refused",
+                }:
+                    raise ArtifactOwnershipError("generic selected N5 scope mismatch")
                 if join.status != "resolved":
                     # Preserve only the independently checked candidate result;
                     # a known invalid or mismatching join refuses that row alone.
@@ -3531,21 +3629,16 @@ def _generic_cycle_simulation_projection(
                     candidate_result = None
                     candidate_blockers: tuple[str, ...] = ()
                     if not conflict and result_ref is not None:
-                        candidate_manifest = read_core_manifest_profile(store, result_ref)[0]
-                        candidate_scope = candidate_manifest.tenant_context
-                        if (
-                            candidate_scope is None
-                            or candidate_scope.tenant_id != tenant_id
-                            or candidate_scope.cell_id != cell_id
-                            or not store.verify(result_ref).ok
-                        ):
-                            raise ValueError("generic_n5_candidate_result_scope_invalid")
+                        candidate_manifest = _generic_selected_result_manifest(
+                            store, result_ref, tenant_id=tenant_id, cell_id=cell_id
+                        )
+                        candidate_selected_ref = artifact_ref_for_manifest(candidate_manifest)
                         source_candidate = source_candidates[0]
                         atoms = tuple(getattr(source_candidate, "intervention_atoms", ()) or ())
                         if not atoms:
                             atoms = (source_candidate.atom,)
                         candidate_result = load_joint_simulation_result(
-                            result_ref,
+                            candidate_selected_ref,
                             store=store,
                             expected_world_model_record_content_hash=(
                                 history_binding.context.world_model_record.content_hash
@@ -3688,15 +3781,9 @@ def _generic_cycle_simulation_projection(
                 blockers = tuple(simulation.authority_blockers)
                 if execution.result_ref is not None:
                     result_body_status = "not_established"
-                    result_manifest = read_core_manifest_profile(store, execution.result_ref)[0]
-                    result_context = result_manifest.tenant_context
-                    if (
-                        result_context is None
-                        or result_context.tenant_id != tenant_id
-                        or result_context.cell_id != cell_id
-                        or not store.verify(execution.result_ref).ok
-                    ):
-                        raise ValueError("generic_n5_result_scope_or_integrity_mismatch")
+                    result_manifest = _generic_selected_result_manifest(
+                        store, execution.result_ref, tenant_id=tenant_id, cell_id=cell_id
+                    )
                     expected_atom_ids = (
                         tuple(
                             atom.intervention_id
@@ -3707,7 +3794,7 @@ def _generic_cycle_simulation_projection(
                         else None
                     )
                     resolved_result = load_joint_simulation_result(
-                        execution.result_ref,
+                        artifact_ref_for_manifest(result_manifest),
                         store=store,
                         expected_world_model_record_content_hash=(
                             input_record.profile.context_inputs.world_model_record.content_hash
@@ -3863,6 +3950,7 @@ def _generic_cycle_simulation_projection(
                     )
                 )
         except CanonicalProfileRefusalError as exc:
+            _raise_generic_read_access_refusal(exc)
             n5_limitation = (
                 "generic_n5_persisted_lineage_not_established"
                 if exc.code
@@ -3883,7 +3971,8 @@ def _generic_cycle_simulation_projection(
                 else "generic_n5_persisted_lineage_not_established"
             )
             continue
-        except Exception:
+        except (OSError, RuntimeDependencyError, RuntimeError, TypeError, ValueError) as exc:
+            _raise_generic_read_access_refusal(exc)
             # Preserve each sibling that independently replayed. The recursive
             # checkpoint carries the failed sibling's exact terminal state.
             n5_limitation = "generic_n5_persisted_lineage_not_established"
@@ -3899,18 +3988,13 @@ def _generic_cycle_simulation_projection(
         try:
             parent_result_ref = parent_node.joint_simulation_ref
             if parent_result_ref is None:
-                raise ValueError("generic_joint_parent_result_missing")
-            parent_manifest = read_core_manifest_profile(store, parent_result_ref)[0]
-            parent_scope = parent_manifest.tenant_context
-            if (
-                parent_scope is None
-                or parent_scope.tenant_id != tenant_id
-                or parent_scope.cell_id != cell_id
-                or not store.verify(parent_result_ref).ok
-            ):
-                raise ValueError("generic_joint_parent_result_scope_invalid")
+                raise FileNotFoundError("generic_joint_parent_result_missing")
+            parent_manifest = _generic_selected_result_manifest(
+                store, parent_result_ref, tenant_id=tenant_id, cell_id=cell_id
+            )
+            parent_selected_ref = artifact_ref_for_manifest(parent_manifest)
             parent_result = load_joint_simulation_result(
-                parent_result_ref,
+                parent_selected_ref,
                 store=store,
                 expected_world_model_record_content_hash=(
                     parent_handoff.profile.context_inputs.world_model_record.content_hash
@@ -3938,18 +4022,20 @@ def _generic_cycle_simulation_projection(
                 else "parent_joint_request_binding_not_established"
             )
             if parent_node.joint_simulation_request is None:
-                raise ValueError("generic_joint_parent_request_missing")
+                raise _GenericParentNotEstablishedError("generic_joint_parent_request_missing")
             candidate_value = _consume_parent_joint_candidate_n8(
                 candidate_id="joint-candidate:"
                 + parent_node.joint_candidate_selection.content_hash,
                 request=parent_node.joint_simulation_request,
-                result_ref=parent_result_ref,
+                result_ref=parent_selected_ref,
                 result=parent_result,
                 problem=compiled.design_problem,
                 artifact_store=store,
             )
             if candidate_value.status != "value_conditional":
-                raise ValueError("generic_joint_parent_n8_candidate_not_established")
+                raise _GenericParentNotEstablishedError(
+                    "generic_joint_parent_n8_candidate_not_established"
+                )
             parent_row = RunCandidateSimulationN5Observation(
                 node_ref=parent_node.node_ref,
                 design_problem_ref=parent_node.design_problem_ref,
@@ -3958,7 +4044,7 @@ def _generic_cycle_simulation_projection(
                 selected_outcomes=tuple(parent_result.selected_outcomes),
                 status=parent_status,
                 simulation_ref=parent_result.receipt.payload_hash,
-                simulation_result_ref=parent_result_ref,
+                simulation_result_ref=parent_selected_ref,
                 world_model_record_content_hash=parent_result.world_model_record_content_hash,
                 k_world_ref_before=parent_result.world_model_record_content_hash,
                 k_world_ref_after=parent_result.world_model_record_content_hash,
@@ -3978,13 +4064,40 @@ def _generic_cycle_simulation_projection(
                 **_n5_interaction_scope_fields(parent_result),
                 **selection_fields,
             )
-        except CanonicalProfileRefusalError:
-            raise
-        except Exception:
-            parent_fields = {
-                "joint_parent_status": "not_established",
-                "joint_parent_limitation_code": "generic_joint_parent_result_not_established",
-            }
+        except CanonicalProfileRefusalError as exc:
+            _raise_generic_read_access_refusal(exc)
+            parent_fields["joint_parent_limitation_code"] = (
+                "generic_joint_parent_result_unavailable"
+                if exc.code
+                in {
+                    "canon_profile_raw_manifest_unavailable",
+                    "canon_profile_typed_manifest_unavailable",
+                    "canon_profile_payload_unavailable",
+                }
+                else "generic_joint_parent_result_invalid"
+            )
+        except _GenericSelectedScopeNotEstablishedError:
+            parent_fields["joint_parent_limitation_code"] = (
+                "generic_joint_parent_scope_not_established"
+            )
+        except _GenericParentNotEstablishedError:
+            pass
+        except (OSError, RuntimeDependencyError, RuntimeError, TypeError, ValueError) as exc:
+            _raise_generic_read_access_refusal(exc)
+            code = getattr(exc, "code", None)
+            if isinstance(exc, (OSError, RuntimeDependencyError)) or (
+                code == "joint_simulation_result_unavailable"
+            ):
+                parent_fields["joint_parent_limitation_code"] = (
+                    "generic_joint_parent_result_unavailable"
+                )
+            elif (code is None and isinstance(exc, (TypeError, ValueError))) or code in {
+                "joint_simulation_result_integrity_invalid",
+                "joint_simulation_result_execution_binding_invalid",
+            }:
+                parent_fields["joint_parent_limitation_code"] = (
+                    "generic_joint_parent_result_invalid"
+                )
         else:
             parent_fields = {
                 "joint_parent_status": "resolved",

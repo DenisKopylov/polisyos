@@ -735,6 +735,7 @@ def _produce_served_acquisition_history(
     stop_after_fresh_get: bool = False,
     include_b09_evidence: bool = False,
     source_owner_root: Path | None = None,
+    include_default_only_compiled_probe: bool = False,
 ) -> dict[str, str] | None:
     import os
 
@@ -2027,6 +2028,134 @@ def _produce_served_acquisition_history(
             assert history_response.status_code == 200, history_response.text
             candidate_projection = history_response.json()["run"]["candidate_simulation"]
             assert candidate_projection["acquisition_history_limitation_code"] is None
+            if include_default_only_compiled_probe:
+                # Start from this real served run and exact owner, but supply an
+                # older profileless compiled ref through an adapter whose only
+                # missing member is that compiled artifact's qualified view.
+                from polisyos.runtime.http.routes.runs import _candidate_simulation_projection
+
+                compiled_ref = ArtifactRef.model_validate(candidate_projection["source_ref"])
+                profileless = compiled_ref.model_copy(update={"manifest_profile_sha256": None})
+                served_rows = candidate_projection["n5_observations"]
+
+                def served_key(row):
+                    ref = row.get("simulation_result_ref")
+                    return (
+                        row["node_ref"],
+                        row["design_problem_ref"],
+                        row.get("cycle_index"),
+                        row.get("candidate_id"),
+                        ref["artifact_id"] if ref is not None else None,
+                        ref.get("manifest_profile_sha256") if ref is not None else None,
+                    )
+
+                expected_rows = {served_key(row): row for row in served_rows}
+                assert any(row.get("simulation_result_ref") is not None for row in served_rows), (
+                    "served non-generic source must expose an N5 result candidate"
+                )
+                assert len(expected_rows) == len(served_rows)
+                real_store = control._artifact_store
+
+                class DefaultOnlyCompiledOwner:
+                    def __init__(self) -> None:
+                        self.rejected_selected: list[str] = []
+
+                    def __getattr__(self, name: str):
+                        return getattr(real_store, name)
+
+                    def reject_selected(self, selector) -> None:
+                        if (
+                            getattr(selector, "artifact_id", None) == compiled_ref.artifact_id
+                            and getattr(selector, "manifest_profile_sha256", None) is not None
+                        ):
+                            self.rejected_selected.append("compiled-selected")
+                            raise FileNotFoundError("legacy default-only compiled view")
+
+                    def get_raw_manifest_bytes(self, selector, *args, **kwargs):
+                        self.reject_selected(selector)
+                        return real_store.get_raw_manifest_bytes(selector, *args, **kwargs)
+
+                    def get_bytes(self, selector, *args, **kwargs):
+                        self.reject_selected(selector)
+                        return real_store.get_bytes(selector, *args, **kwargs)
+
+                legacy_owner = DefaultOnlyCompiledOwner()
+                with tenant_scope(None, tenant_id=TENANT, cell_id=CELL):
+                    manifest, _ = artifacts.read_core_manifest_profile(legacy_owner, profileless)
+                    selected = artifacts.artifact_ref_for_manifest(manifest)
+                    if compiled_ref.manifest_profile_sha256 is not None:
+                        assert selected == compiled_ref
+                    with pytest.raises(FileNotFoundError, match="legacy default-only compiled"):
+                        legacy_owner.get_raw_manifest_bytes(selected)
+                    legacy_owner.rejected_selected.clear()
+                    legacy_projection = _candidate_simulation_projection(
+                        run_id=core_run_id,
+                        tenant_id=TENANT,
+                        cell_id=CELL,
+                        control_job_id=source_job.job_id,
+                        root_artifacts=(profileless,),
+                        store=legacy_owner,
+                        control_service=None,
+                    )
+                assert legacy_projection is not None
+                assert legacy_projection.artifact_status == "resolved"
+                assert legacy_projection.publication_authority is False
+                legacy_rows = legacy_projection.n5_observations
+                actual_rows = {
+                    (
+                        row.node_ref,
+                        row.design_problem_ref,
+                        row.cycle_index,
+                        row.candidate_id,
+                        (
+                            str(row.simulation_result_ref.artifact_id)
+                            if row.simulation_result_ref is not None
+                            else None
+                        ),
+                        (
+                            row.simulation_result_ref.manifest_profile_sha256
+                            if row.simulation_result_ref is not None
+                            else None
+                        ),
+                    ): row
+                    for row in legacy_rows
+                }
+                assert len(actual_rows) == len(legacy_rows)
+                assert set(actual_rows) == set(expected_rows)
+                limitation = "compiled_cycle_selected_view_not_established"
+                for key, row in actual_rows.items():
+                    original = expected_rows[key]
+                    assert row.status == original["status"]
+                    assert list(row.atom_ids) == original["atom_ids"]
+                    assert list(row.selected_outcomes) == original["selected_outcomes"]
+                    assert row.simulation_ref == original.get("simulation_ref")
+                    evidence = (
+                        row.n5_interaction_evidence.model_dump(mode="json")
+                        if row.n5_interaction_evidence is not None
+                        else None
+                    )
+                    assert evidence == original.get("n5_interaction_evidence")
+                    assert set(row.authority_blockers) == (
+                        set(original["authority_blockers"]) | {limitation}
+                    )
+                    old_n8_status = original.get("n8_status")
+                    expected_n8_status = (
+                        "value_pending_n8" if old_n8_status == "value_ready" else old_n8_status
+                    )
+                    assert row.n8_status == expected_n8_status
+                    old_n8_blockers = set(original["n8_authority_blockers"])
+                    assert set(row.n8_authority_blockers) == (
+                        old_n8_blockers | ({limitation} if old_n8_status is not None else set())
+                    )
+                    assert row.n8_numeric_interaction == original.get("n8_numeric_interaction")
+                    assert row.n8_numeric_interaction_basis == original.get(
+                        "n8_numeric_interaction_basis"
+                    )
+                    assert row.n8_interaction_sampling_status == original.get(
+                        "n8_interaction_sampling_status"
+                    )
+                assert not legacy_owner.rejected_selected
+
             acquisition_history = candidate_projection["acquisition_history"]
             assert len(acquisition_history) == 2
             history_by_generation = {

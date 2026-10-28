@@ -168,6 +168,282 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
             "n5_execution_request_provenance_not_established" in limited_leaf["authority_blockers"]
         )
 
+        # Exercise the same served run through parent profile faults. These are
+        # targeted reader failures after the real worker persisted the parent and
+        # independently readable children; no parent evidence is invented.
+        parent_ref = ArtifactRef.model_validate(
+            projection["joint_parent_observations"][0]["simulation_result_ref"]
+        )
+        from polisyos.core.artifacts import ArtifactOwnershipError
+        from polisyos.core.artifacts.ownership import ArtifactReadOnlyUnavailableError
+        from polisyos.runtime.http.routes import runs as runs_route
+
+        def is_parent(ref: Any) -> bool:
+            return (
+                getattr(ref, "artifact_id", None) == parent_ref.artifact_id
+                and getattr(ref, "manifest_profile_sha256", None)
+                == parent_ref.manifest_profile_sha256
+            )
+
+        def checked_parent_limitation(response: Any, code: str) -> None:
+            assert response.status_code == 200, response.text
+            result = response.json()["run"]["generic_cycle_simulation"]
+            assert result["joint_parent_status"] == "not_established"
+            assert result["joint_parent_limitation_code"] == code
+            assert not result.get("joint_parent_observations", [])
+            assert {
+                (row["node_ref"], row["candidate_id"]) for row in result["n5_observations"]
+            } == before_keys
+            assert any(
+                row["n5_owner_join_status"] == "resolved" for row in result["n5_observations"]
+            )
+
+        def missing_parent(ref: Any, *args: Any, **kwargs: Any) -> bytes:
+            if is_parent(ref):
+                raise FileNotFoundError("synthetic selected parent missing")
+            return original_raw_manifest(ref, *args, **kwargs)
+
+        def invalid_parent(ref: Any, *args: Any, **kwargs: Any) -> bytes:
+            if is_parent(ref):
+                return b"{"
+            return original_raw_manifest(ref, *args, **kwargs)
+
+        def unavailable_parent(ref: Any, *args: Any, **kwargs: Any) -> bytes:
+            if is_parent(ref):
+                raise ArtifactReadOnlyUnavailableError("synthetic backend unavailable")
+            return original_raw_manifest(ref, *args, **kwargs)
+
+        for failure, expected_code in (
+            (missing_parent, "generic_joint_parent_result_unavailable"),
+            (invalid_parent, "generic_joint_parent_result_invalid"),
+            (unavailable_parent, "generic_joint_parent_result_unavailable"),
+        ):
+            with monkeypatch.context() as fault:
+                fault.setattr(store, "get_raw_manifest_bytes", failure)
+                checked_parent_limitation(client.get(f"/api/v1/runs/{run_id}"), expected_code)
+
+        def denied_parent(ref: Any, *args: Any, **kwargs: Any) -> bytes:
+            if is_parent(ref):
+                raise ArtifactOwnershipError("synthetic selected owner denial")
+            return original_raw_manifest(ref, *args, **kwargs)
+
+        with monkeypatch.context() as fault:
+            fault.setattr(store, "get_raw_manifest_bytes", denied_parent)
+            denied_response = client.get(f"/api/v1/runs/{run_id}")
+        assert denied_response.status_code == 403, denied_response.text
+        assert "n5_observations" not in json.dumps(denied_response.json())
+
+        def inaccessible_parent(ref: Any, *args: Any, **kwargs: Any) -> bytes:
+            if is_parent(ref):
+                raise PermissionError("synthetic filesystem permission failure")
+            return original_raw_manifest(ref, *args, **kwargs)
+
+        with monkeypatch.context() as fault:
+            fault.setattr(store, "get_raw_manifest_bytes", inaccessible_parent)
+            unavailable_response = client.get(f"/api/v1/runs/{run_id}")
+        assert unavailable_response.status_code == 503, unavailable_response.text
+        assert "n5_observations" not in json.dumps(unavailable_response.json())
+
+        # A denial on the first compiled-root read must not be swallowed by
+        # the earlier non-generic projection before the generic sibling read.
+        compiled_ref = ArtifactRef.model_validate(projection["source_ref"])
+        for cause, expected_status in (
+            (ArtifactOwnershipError("one-shot compiled owner denial"), 403),
+            (PermissionError("one-shot compiled filesystem denial"), 503),
+        ):
+            compiled_denials: list[str] = []
+
+            def deny_first_compiled(
+                ref: Any,
+                *args: Any,
+                _calls: list[str] = compiled_denials,
+                _cause: Exception = cause,
+                **kwargs: Any,
+            ) -> bytes:
+                if (
+                    not _calls
+                    and getattr(ref, "artifact_id", None) == compiled_ref.artifact_id
+                    and getattr(ref, "manifest_profile_sha256", None)
+                    == compiled_ref.manifest_profile_sha256
+                ):
+                    _calls.append("denied")
+                    raise _cause
+                return original_raw_manifest(ref, *args, **kwargs)
+
+            with monkeypatch.context() as fault:
+                fault.setattr(store, "get_raw_manifest_bytes", deny_first_compiled)
+                compiled_denial = client.get(f"/api/v1/runs/{run_id}")
+            assert compiled_denials == ["denied"]
+            assert compiled_denial.status_code == expected_status, compiled_denial.text
+            assert "n5_observations" not in json.dumps(compiled_denial.json())
+
+        # Reader-scope comparison after a valid selected manifest was opened:
+        # the injected different tenant is a simulated fault, not evidence of a
+        # real foreign owner grant. The actual selector and request are unchanged.
+        original_profile_reader = runs_route.read_core_manifest_profile
+        scope_checks: list[str] = []
+
+        def foreign_scope(reader: Any, ref: Any, *args: Any, **kwargs: Any) -> Any:
+            manifest, declaration = original_profile_reader(reader, ref, *args, **kwargs)
+            if is_parent(ref):
+                assert manifest.tenant_context is not None
+                scope_checks.append("parent")
+                foreign = manifest.tenant_context.model_copy(update={"cell_id": "foreign-cell"})
+                manifest = manifest.model_copy(update={"tenant_context": foreign})
+            return manifest, declaration
+
+        with monkeypatch.context() as fault:
+            fault.setattr(runs_route, "read_core_manifest_profile", foreign_scope)
+            foreign_response = client.get(f"/api/v1/runs/{run_id}")
+        assert scope_checks
+        assert foreign_response.status_code == 403, foreign_response.text
+        assert "n5_observations" not in json.dumps(foreign_response.json())
+
+        # A dependency wrapper must not turn an explicitly caused owner denial
+        # into candidate unavailability. A typed unavailable cause remains
+        # unavailable, and an ordinary filesystem permission cause remains 503.
+        from polisyos.runtime.http.errors import RuntimeDependencyUnavailableError
+
+        execution_ref = ArtifactRef.model_validate(source_leaf["n5_execution_ref"])
+        wrapped_calls: list[str] = []
+
+        def wrapped_raw(target: ArtifactRef, cause: Exception):
+            def read(ref: Any, *args: Any, **kwargs: Any) -> bytes:
+                if (
+                    getattr(ref, "artifact_id", None) == target.artifact_id
+                    and getattr(ref, "manifest_profile_sha256", None)
+                    == target.manifest_profile_sha256
+                ):
+                    wrapped_calls.append(str(target.artifact_id))
+                    raise RuntimeDependencyUnavailableError("synthetic-cas") from cause
+                return original_raw_manifest(ref, *args, **kwargs)
+
+            return read
+
+        def unavailable_from(cause: Exception) -> ArtifactReadOnlyUnavailableError:
+            unavailable = ArtifactReadOnlyUnavailableError("selected read unavailable")
+            unavailable.__cause__ = cause
+            return unavailable
+
+        for target in (parent_ref, execution_ref):
+            for cause, expected_status in (
+                (ArtifactOwnershipError("nested owner denial"), 403),
+                (PermissionError("nested filesystem permission"), 503),
+            ):
+                wrapped_calls.clear()
+                with monkeypatch.context() as fault:
+                    fault.setattr(
+                        store,
+                        "get_raw_manifest_bytes",
+                        wrapped_raw(target, unavailable_from(cause)),
+                    )
+                    nested_response = client.get(f"/api/v1/runs/{run_id}")
+                assert wrapped_calls
+                assert nested_response.status_code == expected_status, nested_response.text
+                assert "n5_observations" not in json.dumps(nested_response.json())
+
+            wrapped_calls.clear()
+            with monkeypatch.context() as fault:
+                fault.setattr(
+                    store,
+                    "get_raw_manifest_bytes",
+                    wrapped_raw(target, ArtifactOwnershipError("owner denies selected view")),
+                )
+                wrapped_denial = client.get(f"/api/v1/runs/{run_id}")
+            assert wrapped_calls
+            assert wrapped_denial.status_code == 403, wrapped_denial.text
+            assert "n5_observations" not in json.dumps(wrapped_denial.json())
+
+            wrapped_calls.clear()
+            with monkeypatch.context() as fault:
+                fault.setattr(
+                    store,
+                    "get_raw_manifest_bytes",
+                    wrapped_raw(target, PermissionError("filesystem refuses selected read")),
+                )
+                wrapped_permission = client.get(f"/api/v1/runs/{run_id}")
+            assert wrapped_calls
+            assert wrapped_permission.status_code == 503, wrapped_permission.text
+            assert "n5_observations" not in json.dumps(wrapped_permission.json())
+
+            wrapped_calls.clear()
+            with monkeypatch.context() as fault:
+                fault.setattr(
+                    store,
+                    "get_raw_manifest_bytes",
+                    wrapped_raw(target, ArtifactReadOnlyUnavailableError("reader unavailable")),
+                )
+                wrapped_unavailable = client.get(f"/api/v1/runs/{run_id}")
+            assert wrapped_calls
+            if target == parent_ref:
+                checked_parent_limitation(
+                    wrapped_unavailable, "generic_joint_parent_result_unavailable"
+                )
+            else:
+                assert wrapped_unavailable.status_code == 200, wrapped_unavailable.text
+                wrapped_rows = wrapped_unavailable.json()["run"]["generic_cycle_simulation"][
+                    "n5_observations"
+                ]
+                assert {
+                    (row["node_ref"], row["candidate_id"]) for row in wrapped_rows
+                } == before_keys
+                wrapped_leaf = next(
+                    row
+                    for row in wrapped_rows
+                    if row["node_ref"] == source_leaf["node_ref"]
+                    and row["candidate_id"] == source_leaf["candidate_id"]
+                )
+                assert wrapped_leaf["n5_owner_join_status"] == "unavailable"
+                assert (
+                    "n5_execution_request_provenance_not_established"
+                    in wrapped_leaf["authority_blockers"]
+                )
+                assert any(
+                    row["node_ref"] != source_leaf["node_ref"]
+                    and row["n5_owner_join_status"] == "resolved"
+                    for row in wrapped_rows
+                )
+
+        # The second selected parent read denies access after the first succeeded.
+        parent_reads: list[int] = []
+
+        def denied_after_parent_read(ref: Any, *args: Any, **kwargs: Any) -> bytes:
+            if is_parent(ref):
+                parent_reads.append(1)
+                if len(parent_reads) == 2:
+                    raise ArtifactOwnershipError("synthetic post-read owner denial")
+            return original_raw_manifest(ref, *args, **kwargs)
+
+        with monkeypatch.context() as fault:
+            fault.setattr(store, "get_raw_manifest_bytes", denied_after_parent_read)
+            race_response = client.get(f"/api/v1/runs/{run_id}")
+        assert len(parent_reads) == 2
+        assert race_response.status_code == 403, race_response.text
+        assert "n5_observations" not in json.dumps(race_response.json())
+
+        # Deny a distinct child-source view after another sibling could have
+        # been replayed. Permission refusal must suppress the whole response.
+        last_leaf = max(candidate_before, key=lambda row: row["node_ref"])
+        child_ref = ArtifactRef.model_validate(last_leaf["n4_source_ref"])
+        child_denials: list[str] = []
+
+        def denied_child_source(ref: Any, *args: Any, **kwargs: Any) -> bytes:
+            if (
+                getattr(ref, "artifact_id", None) == child_ref.artifact_id
+                and getattr(ref, "manifest_profile_sha256", None)
+                == child_ref.manifest_profile_sha256
+            ):
+                child_denials.append("denied")
+                raise ArtifactOwnershipError("synthetic child source denial")
+            return original_raw_manifest(ref, *args, **kwargs)
+
+        with monkeypatch.context() as fault:
+            fault.setattr(store, "get_raw_manifest_bytes", denied_child_source)
+            child_denied_response = client.get(f"/api/v1/runs/{run_id}")
+        assert child_denials
+        assert child_denied_response.status_code == 403, child_denied_response.text
+        assert "n5_observations" not in json.dumps(child_denied_response.json())
+
         # Present a foreign candidate expectation while the selected execution
         # view is unavailable. The real owner must compare the independently
         # readable input before returning an unknown execution limitation.

@@ -88,6 +88,7 @@ from .ownership import (
     ArtifactOwnershipIndex,
     ArtifactReadOnlyUnavailableError,
     ArtifactUnavailableError,
+    raise_artifact_read_access_error,
 )
 from .protocol import (
     AUTHORITY_ENVELOPE_ARTIFACT_KIND,
@@ -122,6 +123,7 @@ from .protocol import (
 )
 from .registry import RegistryBundle
 from .registry import RegistryBundlePayload as RegistryBundlePayload
+from .selected_verification import SelectedProfileVerificationReader
 from .signing import (
     ArtifactSigner,
     ArtifactSigningResult,
@@ -391,6 +393,7 @@ __all__ = [
     "RegistryBundlePayload",
     "RootedArtifactStore",
     "SchemaInfo",
+    "SelectedProfileVerificationReader",
     "SignatureStatement",
     "SignatureVerificationResult",
     "SignatureVerificationStatus",
@@ -421,6 +424,7 @@ __all__ = [
     "matches_runtime_protocol",
     "matches_runtime_protocol_definition",
     "profile_bound_ref",
+    "raise_artifact_read_access_error",
     "read_core_input_manifest_profile_bounded",
     "read_core_json_artifact",
     "read_core_json_artifact_bounded",

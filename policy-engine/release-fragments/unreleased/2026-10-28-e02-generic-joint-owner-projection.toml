@@ -7,6 +7,11 @@ summary = "Generic run details distinguish the parent joint candidate assessment
 evidence = [
   "src/polisyos/core/contracts/runtime.py",
   "src/polisyos/core/artifacts/ownership.py",
+  "src/polisyos/core/artifacts/selected_verification.py",
+  "src/polisyos/core/artifacts/README.md",
+  "tests/unit/core/artifacts/test_selected_profile_verification_reader.py",
+  "tests/_helpers/acquisition_served_history.py",
+  "tests/integration/core_runtime/test_acquisition_authority_served.py",
   "src/polisyos/runtime/quality/generic_simulation_admission.py",
   "src/polisyos/runtime/quality/joint_simulation_horizon.py",
   "src/polisyos/runtime/quality/generation_cycle.py",
@@ -29,7 +34,7 @@ change_class = "schema-openapi-abi; python-public-api"
 surface_classification = "public_stable: GET /api/v1/runs/{run_id} generic_cycle_simulation; polisyos.core.artifacts"
 migration = "Regenerate OpenAPI, runtime client and dashboard types from the composed source, update strict clients to accept and validate v5, and review the Core public-surface inventory before release."
 api = "A v5 response distinguishes joint-parent candidate observations from child rows. It carries typed owner-join status and exact selected result references; an unavailable owner can leave a separately checked result candidate-limited, while a demonstrated invalid or mismatched join blocks that row."
-limitations = "A selected request/result/physical-plan consistency check is not numerical-producer authentication, source currentness, causal truth, authored policy composition or publication authority. Parent N8 is at most low-grade value_conditional with explicit scope, provenance and composition limitations. Historical non-generic V2–V5 requests and the unmarked legacy EvalSafety input path still require an owner-bound request/consumer bridge. A parent result CanonicalProfileRefusalError can abort the whole GET rather than retain independently readable child rows; a mixed-sibling parent-read falsifier remains unrun. Authored API, UI and same-test removal witnesses have not yet run on the composed tree; generated clients and public inventory are pending."
+limitations = "A selected request/result/physical-plan consistency check is not numerical-producer authentication, source currentness, causal truth, authored policy composition or publication authority. Parent N8 is at most low-grade value_conditional with explicit scope, provenance and composition limitations. Historical non-generic V2–V5 requests and the unmarked legacy EvalSafety input path still require an owner-bound request/consumer bridge. Parent result unavailability or invalidity is projected separately from readable children; typed ownership denial and filesystem permission failures refuse the GET without child rows. A profileless non-generic compiled reference with an accessible, valid declared canonical manifest remains candidate-readable with a declared selected-view limitation; absent or malformed canonical declarations remain refused. The default-only adapter and resolved acquisition-history witnesses are authored but unrun. A profileless historical generic compiled root or result whose store cannot reopen the derived selected view may leave the generic projection or candidate row not established; that separate default-only compatibility remains unverified. Authored mixed-sibling and after-initial-read removal witnesses remain unrun. Authored API, UI and same-test removal witnesses have not yet run on the composed tree; generated clients and public inventory are pending."
 generated_client_compatibility = "breaking_requires_consumer_action"
 public_surface_inventory_reviewed = false
 migration_docs = ["src/polisyos/runtime/http/routes/README.md"]
@@ -60,4 +65,18 @@ release_note = "The artifact owner exposes a typed unavailability base while exi
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = false
 migration_docs = ["src/polisyos/runtime/http/routes/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "selected-profile-verification-reader"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core.artifacts"
+owner = "team-policyos-runtime"
+version_owner = "team-core"
+deprecation_window = "not_applicable"
+release_note = "An opt-in selected-profile replay reader reopens owner bytes and preserves typed access failures without changing store has or verify."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/core/artifacts/README.md"]
 runbook_docs = []

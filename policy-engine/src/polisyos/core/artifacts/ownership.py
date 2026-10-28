@@ -230,6 +230,28 @@ class ArtifactPublicReadClosureUnavailableError(ArtifactUnavailableError):
         super().__init__(self.code)
 
 
+def raise_artifact_read_access_error(exc: BaseException) -> None:
+    """Preserve an actual access error through an owner wrapper's cause chain.
+
+    Typed unavailability is not itself an ownership denial. An explicit nested
+    denial remains a denial, and a filesystem permission error remains distinct
+    from typed ownership for the caller. No identity is inferred from text.
+    """
+    pending: list[BaseException] = [exc]
+    seen: set[int] = set()
+    while pending:
+        current = pending.pop()
+        if id(current) in seen:
+            continue
+        seen.add(id(current))
+        if isinstance(current, PermissionError) and not isinstance(
+            current, ArtifactUnavailableError
+        ):
+            raise current
+        if current.__cause__ is not None:
+            pending.append(current.__cause__)
+
+
 @dataclass(frozen=True)
 class _ArtifactTransactionLease:
     """Opaque proof that one root/artifact transaction boundary is held."""

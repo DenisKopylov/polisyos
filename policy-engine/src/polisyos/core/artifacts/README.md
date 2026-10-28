@@ -25,6 +25,21 @@ environment fingerprints.
 
 ## Public API
 
+### Scoped selected-profile verification
+
+`SelectedProfileVerificationReader` delegates operations to the supplied artifact owner and offers
+an opt-in `verify` that directly reopens the selected raw and typed manifest and body bytes before
+using the existing Core integrity report. Delegated operations preserve explicit nested access
+causes before a caller can classify a wrapper failure; typed owner unavailability and unrelated
+errors remain distinct. It does not interpret an owner's boolean existence or failed report as an
+access decision. An unqualified selector is pinned to the exact profile reopened from its first
+manifest before body access, then that selected view is reopened for the integrity report. A backend
+that cannot reopen that view is unavailable; an unqualified alias is never silently substituted. The
+general store `has` and `verify` contracts are unchanged. `raise_artifact_read_access_error` preserves typed ownership and
+ordinary filesystem permission errors through explicit exception causes while leaving typed owner
+unavailability distinct; the caller must decide its own response. Neither helper grants access,
+proves numerical producer identity, or establishes authority or currentness.
+
 ### Atomic local byte replacement
 
 `write_bytes_atomic(path, data, durable_parent=False)` delegates to the existing

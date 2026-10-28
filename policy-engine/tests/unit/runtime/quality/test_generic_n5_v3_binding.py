@@ -879,7 +879,11 @@ def test_generic_owner_join_distinguishes_selected_mismatch_from_unknown_replay(
         outcome = owner.resolve_n5_execution_join(
             ref, expected=expectation.model_copy(update=change)
         )
-        assert outcome.status == "mismatch"
+        if "tenant_id" in change:
+            assert outcome.status == "invalid"
+            assert outcome.code == "generic_n5_execution_scope_refused"
+        else:
+            assert outcome.status == "mismatch"
         assert outcome.execution is None
 
     missing = ArtifactRef.model_validate(
@@ -906,7 +910,6 @@ def test_generic_owner_join_distinguishes_selected_mismatch_from_unknown_replay(
             "unavailable",
         ),
         (ArtifactPublicReadClosureUnavailableError("record", operation="read"), "unavailable"),
-        (ArtifactOwnershipError("foreign tenant"), "invalid"),
     )
     for error, expected_status in errors:
 
@@ -919,3 +922,94 @@ def test_generic_owner_join_distinguishes_selected_mismatch_from_unknown_replay(
             observed = owner.resolve_n5_execution_join(ref, expected=expectation)
         assert observed.status == expected_status
         assert observed.execution is None
+
+    from polisyos.runtime.http.errors import RuntimeDependencyUnavailableError
+
+    # The actual owner refusal, including an explicit backend wrapper, is never
+    # converted to an invalid/unavailable join. Typed owner unavailability is
+    # still a candidate limitation despite being an ownership-error subtype.
+    for cause in (
+        ArtifactOwnershipError("foreign tenant"),
+        PermissionError("backing store permission"),
+        ArtifactReadOnlyUnavailableError("source unavailable"),
+    ):
+
+        def wrapped_manifest(*args: Any, _cause: Exception = cause, **kwargs: Any) -> bytes:
+            del args, kwargs
+            raise RuntimeDependencyUnavailableError("backend") from _cause
+
+        with monkeypatch.context() as scope:
+            scope.setattr(store, "get_raw_manifest_bytes", wrapped_manifest)
+            if isinstance(cause, ArtifactReadOnlyUnavailableError):
+                assert owner.resolve_n5_execution_join(ref, expected=expectation).status == (
+                    "unavailable"
+                )
+            else:
+                with pytest.raises(type(cause)) as refusal:
+                    owner.resolve_n5_execution_join(ref, expected=expectation)
+                assert refusal.value is cause
+
+
+def test_n8_input_read_distinguishes_wrapped_owner_denial_from_unavailability() -> None:
+    """N8 preserves a selected input refusal before its owner join is available."""
+    from types import SimpleNamespace
+
+    from polisyos.core.artifacts import ArtifactOwnershipError
+    from polisyos.core.artifacts.ownership import ArtifactReadOnlyUnavailableError
+    from polisyos.runtime.http.errors import RuntimeDependencyUnavailableError
+    from polisyos.runtime.quality.generation_cycle import _generic_n5_observation_refusal
+
+    marker = object()
+    simulation = SimpleNamespace(
+        generic_n4_source_ref=marker,
+        generic_context_job_ref=marker,
+        generic_profile_ref=marker,
+        generic_n4_child_profile_family_ref=None,
+        generic_n4_child_profile_set_ref=None,
+        generic_n5_input_ref=marker,
+        generic_n5_execution_ref=marker,
+        generic_profile_selection_ref=marker,
+        generic_n5_request_binding=None,
+    )
+
+    class RefusingOwner:
+        def __init__(self, cause: Exception) -> None:
+            self.cause = cause
+
+        def get_raw_manifest_bytes(self, _ref: object) -> bytes:
+            raise RuntimeDependencyUnavailableError("backend") from self.cause
+
+        def get_manifest(self, _ref: object) -> object:
+            raise AssertionError("raw selected view failed before typed manifest")
+
+        def get_bytes(self, _ref: object) -> bytes:
+            raise AssertionError("raw selected view failed before payload")
+
+    def read(cause: Exception) -> str | None:
+        return _generic_n5_observation_refusal(
+            simulation=simulation,  # type: ignore[arg-type]
+            candidate=object(),
+            problem=object(),  # type: ignore[arg-type]
+            world_model_record_content_hash="sha256:" + "0" * 64,
+            artifact_store=RefusingOwner(cause),  # type: ignore[arg-type]
+            cycle_index=0,
+            handoff=None,
+            child_selection=None,
+            verified_scope=None,
+            source_run_id=None,
+        )
+
+    assert read(ArtifactOwnershipError("owner denied")) == (
+        "generic_cycle_simulation_artifact_scope_refused"
+    )
+    assert read(ArtifactReadOnlyUnavailableError("source unavailable")) == (
+        "n5_execution_request_provenance_not_established"
+    )
+    with pytest.raises(PermissionError):
+        read(PermissionError("filesystem permission"))
+    unavailable = ArtifactReadOnlyUnavailableError("reader unavailable")
+    unavailable.__cause__ = ArtifactOwnershipError("nested owner denial")
+    assert read(unavailable) == "generic_cycle_simulation_artifact_scope_refused"
+    unavailable.__cause__ = PermissionError("nested filesystem permission")
+    with pytest.raises(PermissionError):
+        read(unavailable)

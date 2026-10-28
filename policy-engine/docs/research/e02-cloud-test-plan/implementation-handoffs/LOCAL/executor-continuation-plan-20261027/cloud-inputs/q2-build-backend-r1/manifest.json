@@ -1,0 +1,225 @@
+{
+  "schema": "policyos.e02.q2.public_backend_carrier.v1",
+  "purpose": "Exact minimal public portable build-backend closure to avoid repeating the demonstrated Cloud urllib/proxy403 route",
+  "role": "A_essential_offline_input_not_environment_or_dependency_tree_copy",
+  "preparation_source_commit": "fdb0be8513cc14af05733c8f7925b007c2cabe24",
+  "preparation_source_tree": "58ebf8f9012046d85f2d26a6500d26c788002cb6",
+  "publication_status": "AUTHOR_PROPOSAL_NOT_PUBLISHED",
+  "canonical_source_bindings": {
+    "lock": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/builder-inputs/hatchling-1.27.0-wheel-lock-r1.json",
+      "bytes": 9415,
+      "sha256": "51eeac7775d87981a1da901ac23c1e86a666cb149234265b4a3c8b24ff4c93ad"
+    },
+    "helper": {
+      "path": "tools/quality/validation/q2_build_tool_wheel_lock.py",
+      "bytes": 47766,
+      "sha256": "86f31671b26c84baa9a7a1647553d8e42d5d8cab154097c285393742738ec8bd"
+    },
+    "profile": {
+      "path": "architecture/packaging/q2_build_tools.toml",
+      "bytes": 973,
+      "sha256": "d2fb004d6c274e85ba2f45f051f4fad9a05fc62da3d598bad4be76eaa5bef6da"
+    }
+  },
+  "payload_count": 10,
+  "wheel_count": 5,
+  "release_record_count": 5,
+  "raw_total_bytes": 255220,
+  "compressed_payload_total_bytes": 212632,
+  "wheel_raw_total_bytes": 208224,
+  "wheel_uncompressed_member_total_bytes": 748503,
+  "compression": "gzip, lossless, compresslevel9,mtime0; filenames remain exact after decompression",
+  "retained_provenance": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-portable-tiny-proof-execution-r3-20261018/quarantine-inventory.json",
+      "bytes": 2163,
+      "sha256": "1432c7eff392799545403fe0816ce4c33a425cf0b4be3bdcaa72ed92e97732df",
+      "scope": "retained provenance pointer only; private RAW receipt bytes are not copied into this carrier"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-current-installed-chain-audit-20261018/official-wheel-audit.json",
+      "bytes": 12715,
+      "sha256": "56493710a04a19dc269a3fee4fb87dfe65063b11b79ea55bf4eef57eb89db4c0",
+      "scope": "retained provenance pointer only; private RAW receipt bytes are not copied into this carrier"
+    }
+  ],
+  "payloads": [
+    {
+      "role": "A_essential_public_offline_build_input",
+      "kind": "wheel",
+      "name": "hatchling",
+      "version": "1.27.0",
+      "raw_filename": "hatchling-1.27.0-py3-none-any.whl",
+      "raw_bytes": 75794,
+      "raw_sha256": "d3a2f3567c4f926ea39849cdf924c7e99e6686c9c8e288ae1037c8fa2a5d937b",
+      "compressed_filename": "hatchling-1.27.0-py3-none-any.whl.gz",
+      "compressed_bytes": 68671,
+      "compressed_sha256": "c90e6355098d44e838ede475251e7eda923c52b6186e6798ddc1f7141952aaa6",
+      "public_upstream_url": "https://files.pythonhosted.org/packages/08/e7/ae38d7a6dfba0533684e0b2136817d667588ae3ec984c1a4e5df5eb88482/hatchling-1.27.0-py3-none-any.whl",
+      "retained_source_locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-current-installed-chain-audit-20261018/quarantine/wheels/hatchling-1.27.0-py3-none-any.whl",
+      "license_members": [
+        "hatchling-1.27.0.dist-info/licenses/LICENSE.txt"
+      ],
+      "wheel_uncompressed_member_bytes": 283081
+    },
+    {
+      "role": "A_essential_public_offline_build_input",
+      "kind": "release_record",
+      "name": "hatchling",
+      "version": "1.27.0",
+      "raw_filename": "hatchling-1.27.0.json",
+      "raw_bytes": 5857,
+      "raw_sha256": "943d869d7c8444101db256731c1cfc2c7bba4538025106658a5625f419e2ebcc",
+      "compressed_filename": "hatchling-1.27.0.json.gz",
+      "compressed_bytes": 2266,
+      "compressed_sha256": "9adadee4aaa0957b13df73d57cac2a085d4f21617ef21fdcd0a9be64e7fb0adb",
+      "public_upstream_url": "https://pypi.org/pypi/hatchling/1.27.0/json",
+      "retained_source_locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-current-installed-chain-audit-20261018/quarantine/release-json/hatchling-1.27.0.json"
+    },
+    {
+      "role": "A_essential_public_offline_build_input",
+      "kind": "wheel",
+      "name": "packaging",
+      "version": "25.0",
+      "raw_filename": "packaging-25.0-py3-none-any.whl",
+      "raw_bytes": 66469,
+      "raw_sha256": "29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484",
+      "compressed_filename": "packaging-25.0-py3-none-any.whl.gz",
+      "compressed_bytes": 64957,
+      "compressed_sha256": "4e72c33813784ca12628216063299cba596b61d876a4a9c9506c57bf9a3e5658",
+      "public_upstream_url": "https://files.pythonhosted.org/packages/20/12/38679034af332785aac8774540895e234f4d07f7545804097de4b666afd8/packaging-25.0-py3-none-any.whl",
+      "retained_source_locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-current-installed-chain-audit-20261018/quarantine/wheels/packaging-25.0-py3-none-any.whl",
+      "license_members": [
+        "packaging-25.0.dist-info/licenses/LICENSE",
+        "packaging-25.0.dist-info/licenses/LICENSE.APACHE",
+        "packaging-25.0.dist-info/licenses/LICENSE.BSD"
+      ],
+      "wheel_uncompressed_member_bytes": 238344
+    },
+    {
+      "role": "A_essential_public_offline_build_input",
+      "kind": "release_record",
+      "name": "packaging",
+      "version": "25.0",
+      "raw_filename": "packaging-25.0.json",
+      "raw_bytes": 5501,
+      "raw_sha256": "6ab300d7b0735a50109912decebb1731ed292f1ed88a3ce5e4bb7876b182cac0",
+      "compressed_filename": "packaging-25.0.json.gz",
+      "compressed_bytes": 2158,
+      "compressed_sha256": "21acdcf9cd7eb2d5a76fb359fa61c32243c9b33310e7868fe7d981309a3a6a8b",
+      "public_upstream_url": "https://pypi.org/pypi/packaging/25.0/json",
+      "retained_source_locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-current-installed-chain-audit-20261018/quarantine/release-json/packaging-25.0.json"
+    },
+    {
+      "role": "A_essential_public_offline_build_input",
+      "kind": "wheel",
+      "name": "pathspec",
+      "version": "0.12.1",
+      "raw_filename": "pathspec-0.12.1-py3-none-any.whl",
+      "raw_bytes": 31191,
+      "raw_sha256": "a0d503e138a4c123b27490a4f7beda6a01c6f288df0e4a8b79c7eb0dc7b4cc08",
+      "compressed_filename": "pathspec-0.12.1-py3-none-any.whl.gz",
+      "compressed_bytes": 30294,
+      "compressed_sha256": "8fa30aa8e963b47f7bca942b771dbb0a38f9ef64b1bfd7a7770bc922401a429e",
+      "public_upstream_url": "https://files.pythonhosted.org/packages/cc/20/ff623b09d963f88bfde16306a54e12ee5ea43e9b597108672ff3a408aad6/pathspec-0.12.1-py3-none-any.whl",
+      "retained_source_locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-current-installed-chain-audit-20261018/quarantine/wheels/pathspec-0.12.1-py3-none-any.whl",
+      "license_members": [
+        "pathspec-0.12.1.dist-info/LICENSE"
+      ],
+      "wheel_uncompressed_member_bytes": 102738
+    },
+    {
+      "role": "A_essential_public_offline_build_input",
+      "kind": "release_record",
+      "name": "pathspec",
+      "version": "0.12.1",
+      "raw_filename": "pathspec-0.12.1.json",
+      "raw_bytes": 23919,
+      "raw_sha256": "2bf184eaace5f9ad9f47b74a2bebf989932861868ff692580ebe0814ad743ac1",
+      "compressed_filename": "pathspec-0.12.1.json.gz",
+      "compressed_bytes": 7053,
+      "compressed_sha256": "feff40ba23ca0beade5e7370e8141ac5dd81e71b095cd6a31f4465f94ccbfe2a",
+      "public_upstream_url": "https://pypi.org/pypi/pathspec/0.12.1/json",
+      "retained_source_locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-current-installed-chain-audit-20261018/quarantine/release-json/pathspec-0.12.1.json"
+    },
+    {
+      "role": "A_essential_public_offline_build_input",
+      "kind": "wheel",
+      "name": "pluggy",
+      "version": "1.6.0",
+      "raw_filename": "pluggy-1.6.0-py3-none-any.whl",
+      "raw_bytes": 20538,
+      "raw_sha256": "e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746",
+      "compressed_filename": "pluggy-1.6.0-py3-none-any.whl.gz",
+      "compressed_bytes": 19569,
+      "compressed_sha256": "57255b37c8953b00c3532c7e14f0bdd1ceba1f0035402c2a9a078bf2f8010692",
+      "public_upstream_url": "https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl",
+      "retained_source_locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-current-installed-chain-audit-20261018/quarantine/wheels/pluggy-1.6.0-py3-none-any.whl",
+      "license_members": [
+        "pluggy-1.6.0.dist-info/licenses/LICENSE"
+      ],
+      "wheel_uncompressed_member_bytes": 65823
+    },
+    {
+      "role": "A_essential_public_offline_build_input",
+      "kind": "release_record",
+      "name": "pluggy",
+      "version": "1.6.0",
+      "raw_filename": "pluggy-1.6.0.json",
+      "raw_bytes": 7064,
+      "raw_sha256": "597beede1e3bfb71dcf93f583c52f9b6ff64c7aca4c7cddcf365f0c6d5c0ade8",
+      "compressed_filename": "pluggy-1.6.0.json.gz",
+      "compressed_bytes": 2576,
+      "compressed_sha256": "e99c8ba2610b03370017a5aea1a5527e7d6e0452a3f884115bd274b1e3c1107d",
+      "public_upstream_url": "https://pypi.org/pypi/pluggy/1.6.0/json",
+      "retained_source_locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-current-installed-chain-audit-20261018/quarantine/release-json/pluggy-1.6.0.json"
+    },
+    {
+      "role": "A_essential_public_offline_build_input",
+      "kind": "wheel",
+      "name": "trove-classifiers",
+      "version": "2026.9.21.13",
+      "raw_filename": "trove_classifiers-2026.9.21.13-py3-none-any.whl",
+      "raw_bytes": 14232,
+      "raw_sha256": "8b1ff4f9c191b1040b71c37f1e445ab99732911e3cd91de52838453a854d7a17",
+      "compressed_filename": "trove_classifiers-2026.9.21.13-py3-none-any.whl.gz",
+      "compressed_bytes": 13255,
+      "compressed_sha256": "1db275dd3ce1ebb2ab50427e16b6816fe52c21eef24929e7b890614a746781a8",
+      "public_upstream_url": "https://files.pythonhosted.org/packages/30/81/0da8afb52a71d0a4f2bd3152357b1a441e393b286374802b9d3addab4ab5/trove_classifiers-2026.9.21.13-py3-none-any.whl",
+      "retained_source_locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-current-installed-chain-audit-20261018/quarantine/wheels/trove_classifiers-2026.9.21.13-py3-none-any.whl",
+      "license_members": [
+        "trove_classifiers-2026.9.21.13.dist-info/licenses/LICENSE"
+      ],
+      "wheel_uncompressed_member_bytes": 58517
+    },
+    {
+      "role": "A_essential_public_offline_build_input",
+      "kind": "release_record",
+      "name": "trove-classifiers",
+      "version": "2026.9.21.13",
+      "raw_filename": "trove-classifiers-2026.9.21.13.json",
+      "raw_bytes": 4655,
+      "raw_sha256": "6f743386053525d93ce712c8f909a5a5a257fe5a71a588c1d4a676b1b70cc45e",
+      "compressed_filename": "trove-classifiers-2026.9.21.13.json.gz",
+      "compressed_bytes": 1833,
+      "compressed_sha256": "557651f8eecffac9ded1bff926f0e75055965f69b2c04533d647ee23774293fc",
+      "public_upstream_url": "https://pypi.org/pypi/trove-classifiers/2026.9.21.13/json",
+      "retained_source_locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-current-installed-chain-audit-20261018/quarantine/release-json/trove-classifiers-2026.9.21.13.json"
+    }
+  ],
+  "license_boundary": "Whole unmodified public wheels preserve every upstream license/notice/source member; no replacement license or new authority is asserted. Hatchling MIT; packaging Apache-2.0/BSD choice; pathspec MPL-2.0; pluggy MIT; trove-classifiers Apache-2.0.",
+  "excluded": [
+    "credentials",
+    "production payload",
+    "private RAW receipts",
+    "CAS/DB",
+    "environment/dependency directories",
+    "other wheels",
+    "VM images",
+    "source checkout copies"
+  ],
+  "backend_execution": "UNRUN",
+  "G_acceptance": false,
+  "closure_ids": []
+}

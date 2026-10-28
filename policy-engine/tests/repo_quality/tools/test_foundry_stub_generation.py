@@ -137,11 +137,12 @@ def test_actual_stub_owner_staging_and_check_detect_complete_byte_drift(tmp_path
         assert all(getattr(facade, name) is getattr(canonical, name) for name in names)
         stub = ast.parse(expected[staged / target.relative_to(generate_stubs.REPO_ROOT)].decode())
         imports = [node for node in stub.body if isinstance(node, ast.ImportFrom)]
-        assert len(imports) == 1 and imports[0].module == owner
-        assert len(imports[0].names) == len(names), (
+        assert all(node.module == owner and node.level == 0 for node in imports)
+        aliases = [alias for node in imports for alias in node.names]
+        assert len(aliases) == len(names), (
             "facade stub must preserve every actual canonical export without wildcard"
         )
-        assert {(alias.name, alias.asname) for alias in imports[0].names} == {
+        assert {(alias.name, alias.asname) for alias in aliases} == {
             (name, name) for name in names
         }, "facade stub must preserve every actual canonical export without wildcard"
         declarations = [

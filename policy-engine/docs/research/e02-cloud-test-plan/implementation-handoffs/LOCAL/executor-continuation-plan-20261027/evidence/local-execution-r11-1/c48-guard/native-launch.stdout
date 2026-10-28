@@ -1,0 +1,1 @@
+{"case": "c48-two-source-composed-r5-20261028", "exit": 1, "complete": true, "abort": null, "junit": {"tests": 1, "failures": 1, "errors": 0, "skipped": 0}, "seconds": 40.053546666982584, "peak_rss": 1451966464, "runtime_py": 2030, "mismatches": 0, "audit_result_sha256": "35dd3b56bd3dd8f7f04321535e5336e8ba1453af388281d90f2245f428346152"}

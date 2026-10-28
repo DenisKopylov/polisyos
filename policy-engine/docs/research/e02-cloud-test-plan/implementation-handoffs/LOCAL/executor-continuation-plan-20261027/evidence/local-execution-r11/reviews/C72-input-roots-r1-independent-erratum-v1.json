@@ -1,0 +1,39 @@
+{
+  "schema": "policyos.e02.independent_review_erratum.v1",
+  "created_at_utc": "2026-10-28T04:39:50.369016+00:00",
+  "reviewer": "/root/c72_actual_return",
+  "supersedes_verdict_of": [
+    {
+      "path": "C72-input-roots-r1-independent.md",
+      "sha256": "0d30747d1c305c9ad60c08aae060437378a26e67db7b45ab00d44043b80b4305"
+    },
+    {
+      "path": "C72-input-roots-r1-independent.json",
+      "sha256": "4f8dba886ec1339eabb3164a677a8db16a5210a0344c72f55dabb5dd85ba8dfa"
+    }
+  ],
+  "target_manifest_sha256": "ee261410fade19d454ade2d346ff50be6ef747a675dbca4b25e955add8c4a17b",
+  "corrected_verdict": "HOLD exact r1 package until test-only r2 matches actual writer/read custody",
+  "finding": {
+    "id": "C72-input-r1-review-setup",
+    "severity": "P1 test setup / proof admission",
+    "confidence": "confirmed static Core/fixture source",
+    "p40_bucket": "Same fixture-oracle admission completeness class",
+    "writer": "Global store fixture is FileSystemCAS(cas_root) without tenant, default ownership_enforced=False.",
+    "source": [
+      "policy-engine/tests/_helpers/artifacts.py:211",
+      "policy-engine/tests/conftest.py:35",
+      "policy-engine/src/polisyos/core/artifacts/store.py:1090",
+      "policy-engine/src/polisyos/core/artifacts/store.py:1873",
+      "policy-engine/src/polisyos/core/artifacts/store.py:1718"
+    ],
+    "reader": "Both new modules construct fresh tenant/cell FileSystemCAS(...,ownership_enforced=True).",
+    "divergence": "Write occurs without ownership recording; matching ambient tenant_scope does not turn enforcement on. Fresh owned read requires absent evidence.",
+    "fix": "Actual module-local matching tenant/cell-enforced writers on existing cas_root; retain real Core ownership recording and fresh reader checks. No guard weakening."
+  },
+  "runtime": "UNRUN; no executed failure claimed",
+  "retained_checks": "All7byte/preimage/postimage/patchchecks,18pins,3removal identities,6literalcensuses and9+1source-defined cases remain independently verified.",
+  "next": "Independent exact r2 delta review, then Root physical checks and actual runtime/removal proof.",
+  "canonical_or_git_writes": false,
+  "product_imports_or_tests": false
+}

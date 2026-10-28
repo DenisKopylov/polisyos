@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="15.204" timestamp="2026-10-28T07:09:30.739403+02:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.runtime.http.test_observational_method_runtime" name="test_two_real_completed_ex_ante_sources_produce_fresh_candidate_comparison" time="14.639"><failure message="AssertionError: None&#10;assert False&#10; +  where False = isinstance(None, GraphMethodExecutionSelection)">tests/unit/runtime/http/test_observational_method_runtime.py:4843: in test_two_real_completed_ex_ante_sources_produce_fresh_candidate_comparison
+    _exercise_two_real_completed_ex_ante_sources_and_fresh_planner(
+tests/unit/runtime/http/test_observational_method_runtime.py:4530: in _exercise_two_real_completed_ex_ante_sources_and_fresh_planner
+    assert isinstance(selected, GraphMethodExecutionSelection), selected
+E   AssertionError: None
+E   assert False
+E    +  where False = isinstance(None, GraphMethodExecutionSelection)</failure></testcase></testsuite></testsuites>

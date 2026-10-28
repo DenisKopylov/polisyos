@@ -1,0 +1,40 @@
+{
+  "verdict": "GO",
+  "scope": "Independent delta review of frozen docs-progress-r10.2 and docs-progress-r10.3 packets, building on prior R10/R10.1 GO; not product acceptance or G closure.",
+  "manifests": {
+    "docs-progress-r10.2": "a57a0436a86bb8f3d733339fb1fafa49f6ce81d96a1de914043082bf39b9c5ca",
+    "docs-progress-r10.3": "bf6e62ad2539b9fd03bc360c3177a1ffa78708546a26333f361a48226332d5eb"
+  },
+  "integrity": {
+    "rows": 28,
+    "unique_targets": 26,
+    "postimages_verified": true,
+    "gzip_raw_bindings_verified": true,
+    "dependency_chain_verified": true,
+    "append_only_ledgers_verified": true,
+    "state_records_lost": false,
+    "denominator": {
+      "rows": 26,
+      "bundles": 127,
+      "ids": 282,
+      "occurrences": 291,
+      "task_finding_edges": 319
+    },
+    "G_acceptance": false,
+    "closure_ids": []
+  },
+  "r10_2": {
+    "source": "72d83ce91ad2e75f508eda4c9caaa2bbb6311e3c / 579fb9f6c66225c2d82f9ede27282859e658dfa2",
+    "C05": "independent review bounded to seven selected strict-decoder PASS at 8623; full C05 controls unverified; root-live bytes unavailable at old locator and not reconstructed",
+    "C60": "bounded six-path source GO and physical Ruff only; planned owner/Ruff call counts explicitly not execution; generated artifacts/removals/freshness UNRUN"
+  },
+  "r10_3": {
+    "C60_r5": "actual 1 FAIL / 0 ERROR / 0 SKIP at expected-one-vs-observed-ten ImportFrom oracle after four stage files and preceding checks; test-shape failure, not product FAIL/alias correctness verdict",
+    "full_owner_cycle": "UNRUN",
+    "removals": "UNRUN",
+    "stage_adoption": "none",
+    "root_live_snapshot": "exact bytes included and SHA-bound",
+    "published_r5": "remains ea3d; 72d83 publication not inferred"
+  },
+  "action": "GO to compose listed sparse delta and verify committed branch readback. No tests/imports/index/ref/canonical writes during review."
+}

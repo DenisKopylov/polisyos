@@ -1,0 +1,22 @@
+{
+  "slice": "C83",
+  "task_id": "task_e_6ae17f839c388325a965fdd0cf2577b6",
+  "base_commit": "ea3d65682d76a5d66d514e525ad2212e5a85f669",
+  "candidate_tree_reconstructed_from_received_diff": "a7161ba4af5f98027e4212fc043e35f9503b563f",
+  "received_diff_sha256": "f69975867522b70c1707f51d3f4977baa84dd7de325fd22a567e0a8ee501990d",
+  "received_diff_bytes": 2592,
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/c83-c05-native-20261028/preflight.json",
+      "base_git_blob": null,
+      "postimage_git_blob": "f4bc0391aae99b4d25251bc5d67530764aba540d",
+      "postimage_sha256": "aaf5d6a21e3323ca6b82efd65cf55798c56c2af38d09c2e390e31ed5192f2750",
+      "bytes": 2052,
+      "new_file": true,
+      "delivered_file": "LOCAL/raw/e02-execution-20261027/cloud/C83/delivered/c83-c05-native-20261028/preflight.json",
+      "actual_delivered_bytes_verified": true
+    }
+  ],
+  "canonical_source_not_applied": true,
+  "actual_canonical_index_unchanged": true
+}

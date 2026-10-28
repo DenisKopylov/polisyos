@@ -1,0 +1,4 @@
+(deny network*)
+(deny file-read* (literal "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/production_data"))
+(deny file-read* (subpath "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/production_data"))
+(deny file-read* (subpath "/Users/deniskopylov/polisyos/policy-engine/production_data"))

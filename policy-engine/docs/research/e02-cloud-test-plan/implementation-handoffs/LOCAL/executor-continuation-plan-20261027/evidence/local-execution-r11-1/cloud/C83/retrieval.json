@@ -1,0 +1,14 @@
+{
+  "slice": "C83",
+  "task_id": "task_e_6ae17f839c388325a965fdd0cf2577b6",
+  "exit": 0,
+  "bytes": 2592,
+  "sha256": "f69975867522b70c1707f51d3f4977baa84dd7de325fd22a567e0a8ee501990d",
+  "expected_base": "ea3d65682d76a5d66d514e525ad2212e5a85f669",
+  "expected_tree": "7c5412fddc4ef3e56c859b83d237162e0fd260e7",
+  "delivery": "actual diff bytes retrieved",
+  "numstat_exit": 0,
+  "footprint": [
+    "45\t0\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/c83-c05-native-20261028/preflight.json"
+  ]
+}

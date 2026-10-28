@@ -1733,6 +1733,94 @@
         },
         "G_acceptance": "not_adjudicated",
         "closure_ids": []
+      },
+      {
+        "slice": "C83",
+        "task_id": "task_e_6ae17f839c388325a965fdd0cf2577b6",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae17f839c388325a965fdd0cf2577b6",
+        "expected_base": "ea3d65682d76a5d66d514e525ad2212e5a85f669",
+        "expected_tree": "7c5412fddc4ef3e56c859b83d237162e0fd260e7",
+        "branch": "codex/e02-composed-progress-20261028-r5",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C83-launch-prompt.md",
+        "prompt_sha256": "e294a46fbfcc41abff6f9e5d4f344608af4e4c6b0ab7ad0fb36351565944daab",
+        "prompt_bytes": 37198,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-28T04:52:21.330469+00:00",
+        "status": "submitted",
+        "closure_ids": [],
+        "launch_receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/cloud/C83/launch.json",
+          "sha256": "93a02266d6b41879298ac95284eb7603f103f1ce45cc918dae707df2296c19ab",
+          "bytes": 787,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "delivered_prompt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/cloud/C83/prompt.md.gz",
+          "sha256": "e29a4d3176f27f7d19b57d548ea287a05c8eb1f56d6d2ab9fd6cac9540a42c96",
+          "bytes": 14298,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "create_stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/cloud/C83/create.stdout",
+          "sha256": "d152c9c3c1c1ed70c8eeed61ae9d542b49200ae38f68db0c684d7314ecb2a5ea",
+          "bytes": 72,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "create_stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/common/empty.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "already committed at a437"
+        },
+        "result": "not established at this observation",
+        "G_acceptance": "not_adjudicated"
+      },
+      {
+        "slice": "C86",
+        "task_id": "task_e_6ae1807c6c5c83259bdb771787170a31",
+        "url": "https://chatgpt.com/codex/tasks/task_e_6ae1807c6c5c83259bdb771787170a31",
+        "expected_base": "ea3d65682d76a5d66d514e525ad2212e5a85f669",
+        "expected_tree": "7c5412fddc4ef3e56c859b83d237162e0fd260e7",
+        "branch": "codex/e02-composed-progress-20261028-r5",
+        "environment_id": "6965429cdb308191a0e6eb63cb118ea3",
+        "prompt_local_path": "LOCAL/raw/e02-execution-20261027/cloud/C86-launch-prompt.md",
+        "prompt_sha256": "3cefb7bb9266ba896c5c1d1ed71fd7e5dca43aaaa551044e0b6f161d82350147",
+        "prompt_bytes": 39695,
+        "requested_model": "gpt-6.1-sol",
+        "actual_model": "not_established",
+        "create_exit": 0,
+        "created_at": "2026-10-28T04:56:30.171806+00:00",
+        "status": "submitted",
+        "closure_ids": [],
+        "launch_receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/cloud/C86/launch.json",
+          "sha256": "ac74f0302f8ab6c292e0ebc3b8a00b1bbce2bae1a053234d95a3b4a1b9e91a6a",
+          "bytes": 787,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "delivered_prompt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/cloud/C86/prompt.md.gz",
+          "sha256": "6c92cac8b18d97535e84fe7be0da1f65960eb5fc48d49e5ff306512473f71a95",
+          "bytes": 15709,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "create_stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/cloud/C86/create.stdout",
+          "sha256": "ec840fbfa0f60b89d1956979ddfc46441a91b76a77231add35a4d94fb2f169d7",
+          "bytes": 72,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "create_stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/common/empty.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "already committed at a437"
+        },
+        "result": "not established at this observation",
+        "G_acceptance": "not_adjudicated"
       }
     ],
     "evidence_transport": "C01 actual diff,new substantive test,receipt and compact output/JUnit bytes obtained and alldeclaredhashesverified; full author removal trace unavailable; necessary exact control to rerun only",
@@ -4914,6 +5002,75 @@
       },
       "G_acceptance": false,
       "closure_ids": []
+    },
+    {
+      "case": "c60-four-stub-owner-native-r6-20261028",
+      "source": "3c25549becd143f8f482543a7e6fef60541b4f97",
+      "source_tree": "855949b0ce16e1e69314571ae8193bc9a45b030f",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "return_code": 0,
+      "wall_seconds": 34.7838406660012,
+      "rss_bytes": 362708992,
+      "scope": "one complete selected four-stub owner case; three source-property removals and later canonical check remain UNRUN",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/c60-four-stub-owner-native-r6-20261028/receipt.json",
+        "sha256": "6e39227e8da7bddaa7c817b7240705de5297ef3511c85f89650d8101b53ef8fe",
+        "bytes": 9478,
+        "availability": "r11.2 sparse proposal postimage; coordinator composition and committed branch readback pending"
+      },
+      "G_acceptance": false,
+      "closure_ids": []
+    },
+    {
+      "case": "c48-two-source-composed-r4-20261028",
+      "source": "a437f597212cc7cc6dcb1c60fff9fb018ce43fe0",
+      "source_tree": "bdbc4ede0bd0607c74a293a4a8cc95024bfd6b6e",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0
+      },
+      "return_code": 4,
+      "wall_seconds": 24.258140499994624,
+      "rss_bytes": 1177812992,
+      "scope": "collection PermissionError on denied production_data; target Graph testcase not reached; independent actual review pending",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/c48-two-source-composed-r4-20261028/receipt.json",
+        "sha256": "cea3eea4542b8f59457fd253bb293b38dbb75d82ec2e85bf8e3a9c3042638149",
+        "bytes": 10597,
+        "availability": "r11.2 sparse proposal postimage; coordinator composition and committed branch readback pending"
+      },
+      "G_acceptance": false,
+      "closure_ids": []
+    },
+    {
+      "case": "c48-two-source-composed-r5-20261028",
+      "source": "a437f597212cc7cc6dcb1c60fff9fb018ce43fe0",
+      "source_tree": "bdbc4ede0bd0607c74a293a4a8cc95024bfd6b6e",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "return_code": 1,
+      "wall_seconds": 40.053546666982584,
+      "rss_bytes": 1451966464,
+      "scope": "selected Graph target failed because selected was None; independent actual qualification and root cause pending",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11-1/c48-two-source-composed-r5-20261028/receipt.json",
+        "sha256": "f3b88ebd788b323f7e4e7cca250f3c77f39a99a73c07d520999a2838f89c8b11",
+        "bytes": 11296,
+        "availability": "r11.2 sparse proposal postimage; coordinator composition and committed branch readback pending"
+      },
+      "G_acceptance": false,
+      "closure_ids": []
     }
   ],
   "completed_author_results": [
@@ -5073,9 +5230,9 @@
     }
   ],
   "source_checkpoint": {
-    "commit": "72d83ce91ad2e75f508eda4c9caaa2bbb6311e3c",
-    "tree": "579fb9f6c66225c2d82f9ede27282859e658dfa2",
-    "scope": "r10.2 observed committed source only; r5 publication remains ea3d; generated WIP and runtime cases separate"
+    "commit": "a437f597212cc7cc6dcb1c60fff9fb018ce43fe0",
+    "tree": "bdbc4ede0bd0607c74a293a4a8cc95024bfd6b6e",
+    "scope": "r11 observed committed documentation/source checkpoint; C60 run at 3c255 and four-output transfer at 9577 remain separately source-bound; published r5 stays ea3d"
   },
   "preservation_incident": {
     "scope": "2 canonical tests had9 old ignored Scholar overlay aliases each; in-place earlier writes changed alias bytes",
@@ -5086,7 +5243,7 @@
     "future_writes": "new-inode atomic replacement; no truncate existing tracked paths",
     "runtime_output_impact": "not_established; no whole handover/data loss claim"
   },
-  "next_native": "Review the C60 alias-relation oracle correction and rerun its full owner cycle on frozen source before any stage adoption; then qualify canonical freshness/types and removals. Complete C05/HTTP/removal controls beyond reviewed decoder cases, source-qualified C71 HTE/removal and C57 PostgreSQL/removal, and the rebound C48 Graph case. G and formal closure remain separate.",
+  "next_native": "Independently qualify and diagnose the C48 r5 selected-Graph assertion failure, preserving the r4 collection error and guarded profile; run C72 ten selected cases and removal/restored controls, C60 source-property removals, canonical --check and affected types/imports. Review C84 received diff; prepare corrected C89 commission without a remote-Git dependency. Continue C05/C71/C57/C77/C78/C81 residuals; G and closure remain separate.",
   "architectural_questions": [
     {
       "task": "C24 BERL",
@@ -8298,6 +8455,437 @@
     },
     "existing_r4_stub_wip": "four genuine old staged outputs remain separate uncommitted work",
     "published_r5_remains": "ea3d65682d76a5d66d514e525ad2212e5a85f669",
+    "G_acceptance_new": false,
+    "closure_ids": []
+  },
+  "progress_r11": {
+    "prepared_at": "2026-10-28T05:03:35.635925+00:00",
+    "prior_checkpoint": {
+      "commit": "a437f597212cc7cc6dcb1c60fff9fb018ce43fe0",
+      "tree": "bdbc4ede0bd0607c74a293a4a8cc95024bfd6b6e",
+      "root_manifest_sha256": "8038eef2737ba7f6eb0d4a360147c4d5219a6e0329acc93dfe301586e50ab970",
+      "rows": 188,
+      "distinct_targets": 182,
+      "branch_readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/source/root-checkpoint-r10/commit/branch-readback.json.gz",
+        "sha256": "673c26545c83028a1839828df6f2185e5496101a9e9421d9903a8b4adad06530",
+        "bytes": 9146,
+        "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+      }
+    },
+    "previous_current_view": {
+      "source_checkpoint": {
+        "commit": "72d83ce91ad2e75f508eda4c9caaa2bbb6311e3c",
+        "tree": "579fb9f6c66225c2d82f9ede27282859e658dfa2",
+        "scope": "r10.2 observed committed source only; r5 publication remains ea3d; generated WIP and runtime cases separate"
+      },
+      "next_native": "Review the C60 alias-relation oracle correction and rerun its full owner cycle on frozen source before any stage adoption; then qualify canonical freshness/types and removals. Complete C05/HTTP/removal controls beyond reviewed decoder cases, source-qualified C71 HTE/removal and C57 PostgreSQL/removal, and the rebound C48 Graph case. G and formal closure remain separate."
+    },
+    "source_commits": [
+      {
+        "commit": "3c25549becd143f8f482543a7e6fef60541b4f97",
+        "tree": "855949b0ce16e1e69314571ae8193bc9a45b030f",
+        "scope": "C60 one-test alias-relation oracle correction"
+      },
+      {
+        "commit": "f8e65c5b6bf5bb5c2c6e708616cd87afcfab2cac",
+        "tree": "5c4ab585e35fe244579e60a42a1ab604e1996a40",
+        "scope": "C72 r2 seven-path fixture/helper source, five Python physical Ruff PASS; native UNRUN"
+      },
+      {
+        "commit": "9577ba6f96eb41549471f426b547ba39a1bfc63b",
+        "tree": "88381142156cff5351b646755ca073fee0a6bb0b",
+        "scope": "four actual R6 payload transfers, three tracked changes; all four Git readback and physical Ruff PASS"
+      }
+    ],
+    "native_receipts": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/c60-four-stub-owner-native-r6-20261028/receipt.json",
+        "sha256": "6e39227e8da7bddaa7c817b7240705de5297ef3511c85f89650d8101b53ef8fe",
+        "bytes": 9478,
+        "availability": "r11.2 sparse proposal postimage; coordinator composition and committed branch readback pending"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/c48-two-source-composed-r4-20261028/receipt.json",
+        "sha256": "cea3eea4542b8f59457fd253bb293b38dbb75d82ec2e85bf8e3a9c3042638149",
+        "bytes": 10597,
+        "availability": "r11.2 sparse proposal postimage; coordinator composition and committed branch readback pending"
+      }
+    ],
+    "reviews": {
+      "C60-four-stub-owner-r6-actual": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/reviews/C60-four-stub-owner-r6-actual.md.gz",
+          "sha256": "3c711e79a8d172c84de0f7fdcecbbe42d8bdce7f7a20070a2ffb0e6ffd10035e",
+          "bytes": 5699,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/reviews/C60-four-stub-owner-r6-actual.json.gz",
+          "sha256": "7f56b25446d82a6023bc5853a3a61c57dc039d354af20d300d270d04a0dd4b15",
+          "bytes": 2037,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        }
+      ],
+      "C72-input-roots-r1-independent-erratum-v1": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/reviews/C72-input-roots-r1-independent-erratum-v1.md",
+          "sha256": "62c8bda620cc8ede801d53927606e4bbe3cdc54800340601c06b487b9c7f8888",
+          "bytes": 2062,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/reviews/C72-input-roots-r1-independent-erratum-v1.json",
+          "sha256": "e74254c0ceeaa2b9dd6cc987bad022f380fd850aec90e8e00fbcf7a4348eeaa4",
+          "bytes": 2199,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        }
+      ],
+      "C72-input-roots-r2-independent": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/reviews/C72-input-roots-r2-independent.md.gz",
+          "sha256": "473925642cc9777fdffe5b9e5abb05d0fd6786a6077e6a9c803fe3f6e0440278",
+          "bytes": 3135,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/reviews/C72-input-roots-r2-independent.json.gz",
+          "sha256": "ec6540464cb0f18a979c782df6716ffeef091ac7c63d1714dbd4e8a32851c726",
+          "bytes": 3506,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        }
+      ],
+      "C83-commission-r1-sol-review": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/reviews/C83-commission-r1-sol-review.md.gz",
+          "sha256": "02e120683319535240930427bef9846cbec11300726f20d7144a8a91cbe47614",
+          "bytes": 1758,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/reviews/C83-commission-r1-sol-review.json.gz",
+          "sha256": "ae4e3c6a1e29cc70fe24eaf72dcc53c3fad1a933c08dcd5c283aa94064519c9c",
+          "bytes": 3825,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        }
+      ],
+      "C71-C86-verification-preparations": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/reviews/C71-C86-verification-preparations.md.gz",
+          "sha256": "8d633d9ad49c69f46a624f80ceb3bd98cd9cba77ef3a060783e6022a2543b7e6",
+          "bytes": 3990,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/reviews/C71-C86-verification-preparations.json.gz",
+          "sha256": "8bc2f07e5b679f29e079c7b8411186633a48cd29bd30e7b82d689673786d31a2",
+          "bytes": 4895,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        }
+      ],
+      "C77-structural-owner-r4-independent-v1": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/reviews/C77-structural-owner-r4-independent-v1.md.gz",
+          "sha256": "461f7b27badf8a9459daa5af3666565f5ef79b9017cbec710683998ad452489b",
+          "bytes": 4206,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/reviews/C77-structural-owner-r4-independent-v1.json.gz",
+          "sha256": "f7f8cd9524d5c81cedf176a723e44df4e8bb37f528cf842bc60c515f3ca0322c",
+          "bytes": 1558,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        }
+      ],
+      "FED-operational-bridge-r1-independent": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/reviews/FED-operational-bridge-r1-independent.md.gz",
+          "sha256": "db65727f0156d65b862aa581e008aad589009e14d6b30a4fc106126169fc4468",
+          "bytes": 5227,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/reviews/FED-operational-bridge-r1-independent.json",
+          "sha256": "5b333e372faa5c20c7951d40c8d25e503aef594f113e4b35f4f8c277dd62db2f",
+          "bytes": 1623,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        }
+      ],
+      "C78-chain-r1-independent": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/reviews/C78-chain-r1-independent.md.gz",
+          "sha256": "9026a0ea859f40e59de626f1891f309268abc40fc231e745b31a17d807eccaa8",
+          "bytes": 7565,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/reviews/C78-chain-r1-independent.json",
+          "sha256": "b2337a1c9db8db4fe85959431cf713929b661dc412c56e1fab512ecc2278986d",
+          "bytes": 1179,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        }
+      ],
+      "C81-admission-r1-independent": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/reviews/C81-admission-r1-independent.md.gz",
+          "sha256": "a077efb0a566434f5ae6bb69237fb2470591ad9d8f16ec5cb89172bfdac52c12",
+          "bytes": 5976,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/reviews/C81-admission-r1-independent.json.gz",
+          "sha256": "ccf41eda2e68d963c6229d92b64216d65bcd433595baa66e80f6e830ba6d86d1",
+          "bytes": 2685,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        }
+      ],
+      "root-checkpoint-r10.2-r10.3-review": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/reviews/root-checkpoint-r10.2-r10.3-review.md.gz",
+          "sha256": "eba5365b36e5d29275d93a7c36eda0a2dea5b2ad1367c486f3d8b5c1cf50006c",
+          "bytes": 2017,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/reviews/root-checkpoint-r10.2-r10.3-review.json",
+          "sha256": "612a6c285b7ff6d90b5cc61f6dae20d0da42bf9540776890d21d4655e0668ce9",
+          "bytes": 1907,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        }
+      ]
+    },
+    "source_evidence": {
+      "root-c60-genuine-stubs-r6": {
+        "all-four-transfer-readback.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/source/root-c60-genuine-stubs-r6/all-four-transfer-readback.json",
+          "sha256": "627a7276e925b7ab748c518c412b115655eff951709a2574d0aaff64e6dca002",
+          "bytes": 2662,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "static-results.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/source/root-c60-genuine-stubs-r6/static-results.json",
+          "sha256": "cbe4a51299230d42f488639201b8ba7bff5fc7ab5e46333a7876d3068587537b",
+          "bytes": 2380,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "ruff-show.stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/source/root-c60-genuine-stubs-r6/ruff-show.stdout",
+          "sha256": "ac1e364cd391c2cfa4f565285ca2dc7458e7754a5341b809cc3310b85702d1a0",
+          "bytes": 523,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "ruff-check.stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/source/root-c60-genuine-stubs-r6/ruff-check.stdout",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "ruff-format.stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/source/root-c60-genuine-stubs-r6/ruff-format.stdout",
+          "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de",
+          "bytes": 26,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "empty_stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/common/empty.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "already committed at a437"
+        }
+      },
+      "root-c72-controlled-input-roots-r2": {
+        "static-results.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/source/root-c72-controlled-input-roots-r2/static-results.json.gz",
+          "sha256": "e7f9f94b83ef4cca03268d14681f1e74c5968adb6e71be7be599c8c6f7833bef",
+          "bytes": 354,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "ruff-show.stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/source/root-c72-controlled-input-roots-r2/ruff-show.stdout",
+          "sha256": "0bebcfa24054aa2f34ec91add02dab0e9d5ebfaaa11240108f40d03777682608",
+          "bytes": 753,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "ruff-check.stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/source/root-c72-controlled-input-roots-r2/ruff-check.stdout",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "ruff-format.stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/source/root-c72-controlled-input-roots-r2/ruff-format.stdout",
+          "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1",
+          "bytes": 26,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "commit/branch-readback.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/source/root-c72-controlled-input-roots-r2/commit/branch-readback.json",
+          "sha256": "d25b5edd3eb92ca546c081e6fb34e9359fd5978e5f6b4dd3cff8b4d2d74b3572",
+          "bytes": 1328,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "empty_stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r6/common/empty.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "already committed at a437"
+        }
+      },
+      "root-c48-native-r4-admission": {
+        "runner-install.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/source/root-c48-native-r4-admission/runner-install.json",
+          "sha256": "8f82e8e1f67beea39a6cab98f5014d80cdd308885449d79831e2cdbf05ed27ff",
+          "bytes": 1576,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "native-admission.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/source/root-c48-native-r4-admission/native-admission.json",
+          "sha256": "4542df26e95f38fb19290a6e605d1ce4a7d50dc01e84ca7b648dd65111d775a5",
+          "bytes": 1436,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "guard.stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/source/root-c48-native-r4-admission/guard.stdout.gz",
+          "sha256": "5345a4354e5e0b3bfa965bf19854f0f072a5e7c22defa5f48f03e0a94d816f96",
+          "bytes": 1462,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "prepare.stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/source/root-c48-native-r4-admission/prepare.stdout",
+          "sha256": "1ef77649d63de9921fa7c7bd76a6057abce86353efbf91813e9b36e2830bd30c",
+          "bytes": 698,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "native-launch.stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/source/root-c48-native-r4-admission/native-launch.stdout",
+          "sha256": "21738ef78749b13d0bcd05cc0757d0888db0a461e16193c2b8bd7cf19d56ac03",
+          "bytes": 340,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        }
+      },
+      "root-checkpoint-r10": {
+        "manifest.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/source/root-checkpoint-r10/manifest.json.gz",
+          "sha256": "6dd893b56c0d279232afac0853c28db29b55362cbc63e20fa1c737745db4a449",
+          "bytes": 10690,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "commit/branch-readback.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/source/root-checkpoint-r10/commit/branch-readback.json.gz",
+          "sha256": "673c26545c83028a1839828df6f2185e5496101a9e9421d9903a8b4adad06530",
+          "bytes": 9146,
+          "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        }
+      }
+    },
+    "cloud_launches": [
+      "C83",
+      "C86"
+    ],
+    "c84": "submitted; no result established at this observation",
+    "c77": "kernel r4 bounded source GO unapplied; production bridge r1 HOLD; runtime/removals UNRUN",
+    "c78": "chain r1 HOLD; runtime/removals UNRUN",
+    "c81": "admission r1 HOLD; runtime/removals UNRUN",
+    "published_r5": {
+      "commit": "ea3d65682d76a5d66d514e525ad2212e5a85f669",
+      "tree": "7c5412fddc4ef3e56c859b83d237162e0fd260e7"
+    },
+    "expanded_occurrence_to_row_relations": 331,
+    "evidence_index": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11/README.md",
+      "sha256": "bbb8cbb3c128293fedd549a7e90790344575219c0ea07e1c3a69aa66306caced",
+      "bytes": 2268,
+      "availability": "r11 sparse proposal postimage; coordinator composition and committed branch readback pending"
+    },
+    "G_acceptance_new": false,
+    "closure_ids": []
+  },
+  "progress_r11_1": {
+    "prepared_at": "2026-10-28T05:12:13.054695+00:00",
+    "source_cut": {
+      "commit": "a437f597212cc7cc6dcb1c60fff9fb018ce43fe0",
+      "tree": "bdbc4ede0bd0607c74a293a4a8cc95024bfd6b6e"
+    },
+    "previous_next_native": "Complete independent qualification and repair/replay of the C48 collection error without weakening the denied-input boundary; run C72 ten selected cases and three removal/restored controls; run C60 source-property removals, canonical --check and affected type/import gates. Continue C05, C71, C57 and C77/C78/C81 unresolved scopes; G and formal closure remain separate.",
+    "C83": {
+      "task_id": "task_e_6ae17f839c388325a965fdd0cf2577b6",
+      "result": "preflight_only_tests_UNRUN",
+      "received_diff_sha256": "f69975867522b70c1707f51d3f4977baa84dd7de325fd22a567e0a8ee501990d",
+      "received_diff_bytes": 2592,
+      "candidate_tree_reconstructed": "a7161ba4af5f98027e4212fc043e35f9503b563f",
+      "reported_head": "ea3d65682d76a5d66d514e525ad2212e5a85f669",
+      "reported_tree": "7c5412fddc4ef3e56c859b83d237162e0fd260e7",
+      "transport": "worker-reported CONNECT 403 for fetch/push; exact command streams not independently retained; snapshot retrieval succeeded",
+      "vm_measurements": "author-reported only",
+      "actual_received_files": {
+        "retrieval.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11-1/cloud/C83/retrieval.json",
+          "sha256": "6fc4ff3f2e34ec9ebb70645e9819f7acbc7201bb3558375fd914ab31e1134ef3",
+          "bytes": 525,
+          "availability": "r11.1 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "candidate-manifest.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11-1/cloud/C83/candidate-manifest.json",
+          "sha256": "b77ff59b512c6481246c339355b6d064d79f869a1485259d01ff2c3f6455d001",
+          "bytes": 1007,
+          "availability": "r11.1 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "source.diff": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11-1/cloud/C83/source.diff",
+          "sha256": "f69975867522b70c1707f51d3f4977baa84dd7de325fd22a567e0a8ee501990d",
+          "bytes": 2592,
+          "availability": "r11.1 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "delivered/c83-c05-native-20261028/preflight.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11-1/cloud/C83/preflight.json",
+          "sha256": "aaf5d6a21e3323ca6b82efd65cf55798c56c2af38d09c2e390e31ed5192f2750",
+          "bytes": 2052,
+          "availability": "r11.1 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        }
+      }
+    },
+    "C84": {
+      "task_id": "task_e_6ae1791fb1348325a159d3c4c013d333",
+      "diff_sha256": "136984ef6b53493b465ffac953d02429b3eb9f1027bb66b9f72df686ce91062a",
+      "diff_bytes": 568771,
+      "new_paths": 5,
+      "candidate_tree_reconstructed": "6f86ae798a22ac463b320875d6f0e93c335f4823",
+      "diff_availability": "actual bytes received and accessible at coordinator RAW cloud/C84/source.diff; not included in this sparse proposal; independent source/evidence review pending",
+      "metadata": {
+        "retrieval.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11-1/cloud/C84/retrieval.json",
+          "sha256": "da82c63846574c29901b0418790ec3f120c70d1bd3ebb3cf44f16bd2fd412c49",
+          "bytes": 948,
+          "availability": "r11.1 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        },
+        "candidate-manifest.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11-1/cloud/C84/candidate-manifest.json",
+          "sha256": "102b6d4505be441e0e87c680f140e90f49076847f4cd0faa61f93d750c47f0c0",
+          "bytes": 2931,
+          "availability": "r11.1 sparse proposal postimage; coordinator composition and committed branch readback pending"
+        }
+      }
+    },
+    "C86": "submitted; subsequent result not established at this observation",
+    "C89": "corrected commission in preparation; not launched at this observation",
+    "C48_r5": {
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11-1/c48-two-source-composed-r5-20261028/receipt.json",
+        "sha256": "f3b88ebd788b323f7e4e7cca250f3c77f39a99a73c07d520999a2838f89c8b11",
+        "bytes": 11296,
+        "availability": "r11.2 sparse proposal postimage; coordinator composition and committed branch readback pending"
+      },
+      "status": "one_actual_FAIL",
+      "reason": "selected was None at expected GraphMethodExecutionSelection assertion; independent qualification/root cause pending",
+      "guard": "synthetic literal-root metadata-only diagnostic PASS; actual network denial not tested"
+    },
+    "current_cloud_delivery_policy": "pinned worker commit/tree plus Root public readback; managed task snapshot primary; no worker remote/push/fetch or mid-run acknowledgement; optional authorized codex topic only; supported fresh setup",
+    "evidence_index": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/executor-continuation-plan-20261027/evidence/local-execution-r11-1/README.md",
+      "sha256": "9fb85d3dcdb64e2d60de1fd0b0526afc8cdd31713df026142888540620813e23",
+      "bytes": 1520,
+      "availability": "r11.1 sparse proposal postimage; coordinator composition and committed branch readback pending"
+    },
     "G_acceptance_new": false,
     "closure_ids": []
   }

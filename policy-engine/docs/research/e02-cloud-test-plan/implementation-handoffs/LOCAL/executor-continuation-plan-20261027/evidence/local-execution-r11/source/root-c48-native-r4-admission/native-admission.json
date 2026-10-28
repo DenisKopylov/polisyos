@@ -1,0 +1,23 @@
+{
+  "source": "a437f597212cc7cc6dcb1c60fff9fb018ce43fe0",
+  "tree": "bdbc4ede0bd0607c74a293a4a8cc95024bfd6b6e",
+  "plan_sha256": "3796764529133a527b8c1d56f584d26deb9046c72ee1c4838b33d776d070c14a",
+  "memory_pressure_stdout": "The system has 17179869184 (1048576 pages with a page size of 16384).\nSystem-wide memory free percentage: 54%\n",
+  "large_python_jobs": [],
+  "free_disk_bytes": 12486381568,
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case_with_tools_r3.py",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c48-two-source-composed-r4-20261028.json"
+  ],
+  "minimal_environment_names": [
+    "HOME",
+    "LANG",
+    "PATH",
+    "PYTHONDONTWRITEBYTECODE"
+  ],
+  "one_unknown_native_job": true,
+  "scope": "candidate-only real paired Graph source\u2192planner\u2192GET; source/refs/live fixed until readback qualification",
+  "closure_ids": []
+}

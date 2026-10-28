@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "task": "C83 standalone C05 native verification and bounded owner repair",
+  "recorded_at_utc": "2026-10-28T04:53:25Z",
+  "model": "not_established",
+  "source": {
+    "repository": "https://github.com/DenisKopylov/polisyos.git",
+    "required_topic": "codex/e02-composed-progress-20261028-r5",
+    "local_branch": "work",
+    "head": "ea3d65682d76a5d66d514e525ad2212e5a85f669",
+    "tree": "7c5412fddc4ef3e56c859b83d237162e0fd260e7",
+    "product_path": "policy-engine/",
+    "starting_tracked_state": "clean",
+    "remote_identity_verification": "blocked_before_readback"
+  },
+  "environment": {
+    "platform": "Linux 6.18.55 x86_64",
+    "python": "3.14.4",
+    "uv": "0.7.22",
+    "pytest": "9.0.2",
+    "ruff_in_existing_venv": "unavailable: No module named ruff",
+    "cgroup_memory_max_bytes": 17179869184,
+    "cgroup_cpu_quota": "200000 100000",
+    "physical_mem_total_kib": 18440448,
+    "physical_mem_available_kib": 17308200,
+    "workspace_disk_available_bytes": 29042180096,
+    "active_process_count": 9,
+    "editable_pth": "policy-engine/.venv/lib/python3.14/site-packages/_editable_impl_policy_engine.pth",
+    "virtualenv_pth": "policy-engine/.venv/lib/python3.14/site-packages/_virtualenv.pth"
+  },
+  "transport_preflight": {
+    "status": "BLOCKED",
+    "attempted_commands": [
+      "git fetch origin codex/e02-composed-progress-20261028-r5",
+      "git push -u origin work"
+    ],
+    "result": "Both fetch and push failed: fatal: unable to access 'https://github.com/DenisKopylov/polisyos.git/': CONNECT tunnel failed, response 403",
+    "remote_commit_tree_file_readback": "UNRUN",
+    "smallest_next_action": "Provide ordinary HTTPS access to github.com (including Git smart HTTP), then fetch the pinned topic, push this task branch, and read back its commit, tree, and preflight.json bytes."
+  },
+  "tests": {
+    "status": "UNRUN",
+    "reason": "The commission requires a precise transport block before consuming the native wave when ordinary remote byte delivery cannot be established."
+  }
+}

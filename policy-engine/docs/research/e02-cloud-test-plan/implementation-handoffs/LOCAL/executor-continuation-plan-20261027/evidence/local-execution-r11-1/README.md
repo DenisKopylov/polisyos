@@ -1,0 +1,7 @@
+# Delivery correction and later C48 witness — r11.1
+
+This sparse proposal depends on the frozen r11 postimages. Actual C83 preflight/diff/retrieval bytes establish that the supported managed task-diff snapshot carried its nonignored file to this coordinator; remote Git errors and VM capacity in that preflight are the worker's report, not independently retained command streams. No C83 test result was delivered. C84's diff was received locally and hashed; its metadata is here, while the full unreviewed diff remains in coordinator RAW and is not asserted as part of this proposal.
+
+C48 r5's complete stdout, stderr, XML, audit, source/profile freeze, plan, finite readset, controller/process records and exact root-live snapshot are included losslessly, together with the bounded guard/admission review. Its single target failed with `selected is None`; independent actual-result review and causal diagnosis remain pending. Ignored runner/helper and source-frame bytes named in the freeze remain local-only, not delivered here. The evidence does not establish G or formal closure.
+
+Class A useful code/test/companions and class D deciding bytes must reach the coordinator through a supported snapshot or actual authorized topic publication; B is a reproducible Git/command/available-input recipe and C is excluded noise/duplicates/private bulk. A diff hash or ignored locator alone does not establish delivery. Gzip preserves full output without broad environment, dependency, fixture, source or database archives.

@@ -1,0 +1,28 @@
+{
+  "case_id": "c48-two-source-composed-r4-20261028",
+  "source_head": "a437f597212cc7cc6dcb1c60fff9fb018ce43fe0",
+  "source_tree": "bdbc4ede0bd0607c74a293a4a8cc95024bfd6b6e",
+  "task_ids": [
+    "C48"
+  ],
+  "nodes": [
+    "tests/unit/runtime/http/test_observational_method_runtime.py::test_two_real_completed_ex_ante_sources_produce_fresh_candidate_comparison"
+  ],
+  "extra_env": {},
+  "deadline_seconds": 600,
+  "rss_cap_bytes": 2415919104,
+  "scope": "Candidate-only one-axis mean model-input contrast: two Runtime/Foundry completed sources, separate actual planner, scoped fresh GET. No broader authority or P40 closure.",
+  "closure_ids": [],
+  "c48_source_bindings_sha256": "6212cbd8761b14e223724dc2d4a61a3e2d78c0543dad51c8f24cdb1d42070b76",
+  "c48_composition_source_commit": "ea3d65682d76a5d66d514e525ad2212e5a85f669",
+  "c48_supplemental_c05_inputs": 17,
+  "c48_supplemental_c71_inputs": 7,
+  "sandbox_profile_fragment": "(deny network*)\n(deny file-read* (literal \"/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/production_data\"))\n(deny file-read* (subpath \"/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/production_data\"))\n(deny file-read* (subpath \"/Users/deniskopylov/polisyos/policy-engine/production_data\"))\n",
+  "sandbox_profile_fragment_sha256": "e713e37c560c3b6c183dd7766a317d819b86a9477ff444c71647da9eeb6dd042",
+  "sandbox_profile_text": "(version 1)\n(allow default)\n(deny file-write*)\n(allow file-write* (subpath \"/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c48-two-source-composed-r4-20261028\"))\n(allow file-write* (literal \"/dev/null\"))\n(deny network*)\n(deny file-read* (literal \"/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/production_data\"))\n(deny file-read* (subpath \"/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/production_data\"))\n(deny file-read* (subpath \"/Users/deniskopylov/polisyos/policy-engine/production_data\"))\n",
+  "sandbox_profile_sha256": "2843048da44024abd38d0ba14a6d4c106a0b606813d26b78539b494664d4d66f",
+  "c48_guard_script_sha256": "5db2399ebd35f90b06854f506ea560b04cc829b9f05f506359dc2f8cdc13f33e",
+  "c48_synthetic_guard_receipt_sha256": "e085edd131db5953777ad465580ef963d7d5b659605dbbe9f42379ac7e3468e8",
+  "disk_total_bytes_at_prepare": 245107195904,
+  "disk_free_bytes_at_prepare": 12486443008
+}

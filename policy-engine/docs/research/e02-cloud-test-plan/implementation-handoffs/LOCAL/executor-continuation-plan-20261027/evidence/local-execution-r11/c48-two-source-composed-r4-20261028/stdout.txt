@@ -1,0 +1,19 @@
+R4_INPUT_READSET_SUMMARY={"bypass": null, "capacity": null, "case_id": "driver", "module_count": 1806, "phase": "driver", "pid": 88002, "readset_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c48-two-source-composed-r4-20261028/readsets/input-readset-88002.json", "source_module_count": 1799, "test_module_count": 7, "tools_module_count": 0}
+
+==================================== ERRORS ====================================
+______________________________ ERROR collecting . ______________________________
+.venv/lib/python3.14/site-packages/_pytest/runner.py:353: in from_call
+    result: TResult | None = func()
+                             ^^^^^^
+.venv/lib/python3.14/site-packages/_pytest/runner.py:398: in collect
+    return list(collector.collect())
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/_pytest/main.py:557: in collect
+    for direntry in scandir(self.path):
+                    ^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/_pytest/pathlib.py:971: in scandir
+    entry.is_file()
+E   PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/production_data'
+=========================== short test summary info ============================
+ERROR . - PermissionError: [Errno 1] Operation not permitted: '/Users/denisko...
+1 error in 0.77s

@@ -1,0 +1,48 @@
+{
+  "schema": "policyos.e02.fed_bridge.r1.independent_review.v1",
+  "source_verdict": "HOLD",
+  "runtime": "UNRUN",
+  "g_acceptance": false,
+  "bridge_manifest_sha256": "e45bd701d449b93064e5d236b3cc5a2e30e69a3f2ec020141c4aa5871557dc77",
+  "source_patch_sha256": "be396ae2838ddec69f1022171bbf649354191fbaa7882a4ccc0db05fd64cbf14",
+  "base": "545c6990e2bfa42bf580b475e23cf88df04e71d8",
+  "compared_root_commit": "72d83ce91ad2e75f508eda4c9caaa2bbb6311e3c",
+  "observed_head": "3c25549becd143f8f482543a7e6fef60541b4f97",
+  "kernel_r4_manifest_sha256": "4f517b829408ca139fb14c6413dad1387976e771dc30db5ec968307973b30edd",
+  "path_count": 8,
+  "path_denominator": {
+    "python": 5,
+    "markdown": 2,
+    "toml": 1
+  },
+  "identity_output_sha256": "e71398670b2d55921b00b75a572485dedb3454f5e1669d9c990ae2ed7070172e",
+  "buckets": [
+    {
+      "id": "scope",
+      "bucket": "SAME P37 completeness/scope binding",
+      "examples": [
+        "real SQL false no-more with limit",
+        "SQL filters ignored",
+        "selected parent ignores constraints",
+        "valid alternate selected ref bound to wrong request"
+      ]
+    },
+    {
+      "id": "snapshot_projection",
+      "bucket": "NEW bridge consumer lossless projection",
+      "examples": [
+        "float null rejected",
+        "_type float row decoded as scalar",
+        "signed zero lost"
+      ]
+    },
+    {
+      "id": "warning_lifecycle",
+      "bucket": "NEW selected-parent fetch observation/warning continuity",
+      "examples": [
+        "parent source quality flags omitted on child"
+      ]
+    }
+  ],
+  "canonical_source_index_refs_mutated": false
+}

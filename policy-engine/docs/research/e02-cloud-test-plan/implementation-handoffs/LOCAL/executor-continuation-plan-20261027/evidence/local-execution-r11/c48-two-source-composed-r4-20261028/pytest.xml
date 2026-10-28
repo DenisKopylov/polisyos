@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="0.331" timestamp="2026-10-28T06:59:33.884742+02:00" hostname="MacBook-Air-Denis.local"><testcase classname="" name="." time="0.000"><error message="collection failure">.venv/lib/python3.14/site-packages/_pytest/runner.py:353: in from_call
+    result: TResult | None = func()
+                             ^^^^^^
+.venv/lib/python3.14/site-packages/_pytest/runner.py:398: in collect
+    return list(collector.collect())
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/_pytest/main.py:557: in collect
+    for direntry in scandir(self.path):
+                    ^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/_pytest/pathlib.py:971: in scandir
+    entry.is_file()
+E   PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/production_data'</error></testcase></testsuite></testsuites>

@@ -1,0 +1,28 @@
+{
+  "before": {
+    "head": "a437f597212cc7cc6dcb1c60fff9fb018ce43fe0",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-execution-checkpoint-r10/full-composed-source-frame.json",
+      "sha256": "e45b9ee46ec694c96944f17842e6813a63037f243fc8d6a3b4a274633e2009dc"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    }
+  },
+  "target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/run_case_with_tools_r3.py",
+  "sha256": "b15b573c4b7854dddd3cdd55933fd4634d013cbe1410dd1cf965d6bdaff53243",
+  "source_packet": "repairs/C48-single-sandbox-r1",
+  "canonical_mutation": false,
+  "root_guard_after": {
+    "head": "a437f597212cc7cc6dcb1c60fff9fb018ce43fe0",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/root-execution-checkpoint-r10/full-composed-source-frame.json",
+      "sha256": "e45b9ee46ec694c96944f17842e6813a63037f243fc8d6a3b4a274633e2009dc"
+    },
+    "expected_index": {
+      "raw_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "empty after root commit"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "status": "FROZEN literal-root-metadata guard/preparer proposal; own-RAW stdlib Seatbelt diagnostic PASS; product/native UNRUN",
+  "observed_head": "a437f597212cc7cc6dcb1c60fff9fb018ce43fe0",
+  "observed_tree": "bdbc4ede0bd0607c74a293a4a8cc95024bfd6b6e",
+  "source_frame_sha256": "6212cbd8761b14e223724dc2d4a61a3e2d78c0543dad51c8f24cdb1d42070b76",
+  "all99_live_and_committed_match": true,
+  "installed_R3_unchanged_sha256": "b15b573c4b7854dddd3cdd55933fd4634d013cbe1410dd1cf965d6bdaff53243",
+  "guard_sha256": "919e052ec0ae59805a80c03549a96f4b89b7baa2852ba4b06ae7e9790cfd671d",
+  "preparer_sha256": "3a324276645ec738cb111aa3c2010c686d0174c2ea7acab156bbefe54d88d7fc",
+  "production_fragment_sha256": "e32b29d96c194caa1b6d22981823771d1f3b618dd5c73d4956f61bde4fb2f6db",
+  "synthetic_diagnostic_receipt_sha256": "d98b99acfc864d90257831e55e1f2244861b93561b8147ef5f720fff591df117",
+  "property": "literal_roots_metadata_only; no descendant metadata/data/listing grant",
+  "retained_R4_audit_sha256": "3ba32d3588b47e582087e7e74919d4cf77e3b6a1fded0b67250a3fad411cee2c",
+  "network_behavior": "not_established; no syscall/port/message in diagnostic",
+  "support_sha256": {
+    "README.md": "c5009d09ea52a8ba963b84023869b02adc30bbb140d5d3eb7ce9d8fa676e4578",
+    "check_single_guard-delta.patch": "6fa264c736cc6c6cd7f4bc784e1a0af8dc5d270264c0e35d18f30d38ab54cf7f",
+    "check_single_guard.py": "919e052ec0ae59805a80c03549a96f4b89b7baa2852ba4b06ae7e9790cfd671d",
+    "guard-infra-root-metadata-r1-20261028/allowed-write.txt": "7faaf68885c99fd577dbaace0eb22f2ee2a2dc04c8638990db73581558abed6a",
+    "guard-infra-root-metadata-r1-20261028/allowed.txt": "933eacb16bb98685e6c52a17ccad1f4a93f121d2b6020d8c076fecdf677cc828",
+    "guard-infra-root-metadata-r1-20261028/production-fragment.sb": "e32b29d96c194caa1b6d22981823771d1f3b618dd5c73d4956f61bde4fb2f6db",
+    "guard-infra-root-metadata-r1-20261028/receipt.json": "d98b99acfc864d90257831e55e1f2244861b93561b8147ef5f720fff591df117",
+    "guard-infra-root-metadata-r1-20261028/synthetic-combined.sb": "6f6273d1ab9cb9fc76b9420a5ba3d61a6c2c0bbe48eb415ba579455daa230cbf",
+    "guard-infra-root-metadata-r1-20261028/test-owned-denied/value.txt": "4bf7c24f6ac6c438e95abb700119d7df9f018a2e1a932f7b91ae4bf15ca1e51a",
+    "prepare_plan-delta.patch": "c12dc112e751786be80be63c7360dd24a7347b324668eb506a5602a3e3d3dc0a",
+    "prepare_plan.py": "3a324276645ec738cb111aa3c2010c686d0174c2ea7acab156bbefe54d88d7fc",
+    "source-bindings.json": "6212cbd8761b14e223724dc2d4a61a3e2d78c0543dad51c8f24cdb1d42070b76"
+  }
+}

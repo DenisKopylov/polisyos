@@ -1,0 +1,27 @@
+{
+  "task": "C78-chain-r1 independent full source review",
+  "verdict": "HOLD",
+  "runtime": "UNRUN",
+  "G_acceptance": "not_adjudicated",
+  "manifest_sha256": "2d4dd382bac04c872864f350413259bd0faa6378ed764a15226a42fc0a3dda44",
+  "proposal_sha256": "7775191e379ce778f804f27c0b20c0fe2a9045057ea6a4501f08026e153e8d7c",
+  "proposal_bytes": 120493,
+  "base_commit": "545c6990e2bfa42bf580b475e23cf88df04e71d8",
+  "readback_commit": "f8e65c5b6bf5bb5c2c6e708616cd87afcfab2cac",
+  "seed_tree": "1d55a9c895342e977471ab0edb7259a9a2ff5ef5",
+  "postimages_checked": 19,
+  "python_postimages": 16,
+  "identity_or_patch_mismatches": 0,
+  "controls_checked": 5,
+  "control_hash_mismatches": 0,
+  "runtime_or_removals_executed": false,
+  "finding_classes": [
+    "selected whole profile, config and final-forward relation",
+    "E-M1 meaning with unknown or absent basis",
+    "numeric domain and transformed objective",
+    "invalid and missing behavioral removal controls"
+  ],
+  "review_path": "LOCAL/raw/e02-execution-20261027/reviews/C78-chain-r1-independent.md",
+  "review_sha256": "f46091491221a2420a0b8617ec9f9f4b088bf286e6148904125d47df9188b336",
+  "canonical_or_git_mutation": false
+}

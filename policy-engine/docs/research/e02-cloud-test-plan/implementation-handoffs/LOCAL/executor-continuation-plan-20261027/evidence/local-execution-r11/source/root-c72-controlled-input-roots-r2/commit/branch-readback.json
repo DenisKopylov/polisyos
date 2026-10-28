@@ -1,0 +1,20 @@
+{
+  "head": "f8e65c5b6bf5bb5c2c6e708616cd87afcfab2cac",
+  "tree": "5c4ab585e35fe244579e60a42a1ab604e1996a40",
+  "parents": [
+    "3c25549becd143f8f482543a7e6fef60541b4f97"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "paths": {
+    "policy-engine/tests/_helpers/README.md": "167e5d7634df13cc61771ab1b2b82c06cc7adba222ccf10c6493be619e2a159c",
+    "policy-engine/tests/_helpers/controlled_candidate_profile.py": "ef681cf3600bbbdf0daf7ccd98d1e4067c59fff9970169d5e71fdf359f3d7c49",
+    "policy-engine/tests/_helpers/generic_n4_served_replay.py": "98053a423dd2b131a377cd9f43152c35b0988247fb43006744dfa2a8c88beb7c",
+    "policy-engine/tests/integration/runtime_quality/test_controlled_world_model_source_binding.py": "e09a08e07c114295eda4aafef234009dd70dc4c80a5a656d1249406e443a0e49",
+    "policy-engine/tests/integration/runtime_quality/test_generic_credal_source_attempt_served.py": "45eec25101919fa2fef3ca63e8332164ff82cba27cb78bf960f54a9957fef794",
+    "policy-engine/tests/unit/runtime/quality/README.md": "280374ad17237c5c96c181b0b86628c969135a59a4c9f3b7f492adb2fa57f577",
+    "policy-engine/tests/unit/runtime/quality/test_controlled_candidate_source_roots.py": "7d7506665b8cfb23ab78e4020ce5bf1c6e2188d5ab30a9407743ba1b847f8f12"
+  },
+  "source_global_freeze": false,
+  "code_acceptance": false,
+  "closure_ids": []
+}

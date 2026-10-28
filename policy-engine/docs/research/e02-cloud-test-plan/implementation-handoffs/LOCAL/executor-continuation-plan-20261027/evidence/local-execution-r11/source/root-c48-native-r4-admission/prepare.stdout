@@ -1,0 +1,9 @@
+{
+  "plan_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-transport-composition-20261024-r1/g-native-priority-20261025-r1/deep-task-status-audit-20261027-r1/c48-two-source-composed-r4-20261028.json",
+  "plan_sha256": "3796764529133a527b8c1d56f584d26deb9046c72ee1c4838b33d776d070c14a",
+  "head": "a437f597212cc7cc6dcb1c60fff9fb018ce43fe0",
+  "tree": "bdbc4ede0bd0607c74a293a4a8cc95024bfd6b6e",
+  "disk_total_bytes": 245107195904,
+  "disk_free_bytes": 12486443008,
+  "sandbox_and_root_guard": "require Root guard/resource admission; invoke R3 directly with NO outer sandbox"
+}

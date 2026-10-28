@@ -1,0 +1,18 @@
+{
+  "slice": "C84",
+  "task_id": "task_e_6ae1791fb1348325a159d3c4c013d333",
+  "exit": 0,
+  "bytes": 568771,
+  "sha256": "136984ef6b53493b465ffac953d02429b3eb9f1027bb66b9f72df686ce91062a",
+  "expected_base": "b2dcf0ee106389216017a88620817c37d3746886",
+  "expected_tree": "cd13b4ab7ed1e32661b2b8d4854440b8557cc0cb",
+  "delivery": "actual diff bytes retrieved",
+  "numstat_exit": 0,
+  "footprint": [
+    "12\t0\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cloud-c82-r3-r1/README.md",
+    "3\t0\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cloud-c82-r3-r1/SHA256SUMS",
+    "-\t-\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cloud-c82-r3-r1/evidence.tar.gz",
+    "7960\t0\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/cloud-c82-r3-r1/receipt.json",
+    "50\t0\tpolicy-engine/tests/_helpers/r1_phase_observer.py"
+  ]
+}
